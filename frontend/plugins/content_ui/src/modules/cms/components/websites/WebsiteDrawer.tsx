@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { IconUpload, IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle } from '@tabler/icons-react';
 import {
   Button,
   Form,
@@ -13,10 +13,10 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CLIENT_PORTAL_CONFIG_UPDATE } from '../../graphql/queries';
 import { CLIENT_PORTAL_REMOVE } from '../../graphql/queries';
 import { GET_WEBSITES } from '../../graphql/queries';
-import { SelectBrand } from 'ui-modules';
+import { CONTENT_CREATE_CMS } from '../../graphql/mutations';
+import { useClientPortals } from '../../hooks/useClientPortals';
 import { LANGUAGES } from '../../../../constants';
 
 interface Website {
@@ -35,6 +35,7 @@ interface WebsiteDrawerProps {
   website?: Website;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 interface WebsiteFormData {
@@ -51,16 +52,24 @@ export function WebsiteDrawer({
   website,
   isOpen,
   onClose,
+  onSuccess,
 }: WebsiteDrawerProps) {
   const isEditing = !!website;
   const [hasPermissionError, setHasPermissionError] = useState(false);
+
+  const {
+    clientPortals,
+    totalCount,
+    pageInfo,
+    loading: clientPortalsLoading,
+    error: clientPortalsError,
+    refetch: refetchClientPortals,
+  } = useClientPortals({}, !isOpen);
 
   const form = useForm<WebsiteFormData>({
     defaultValues: {
       name: '',
       description: '',
-      domain: '',
-      url: '',
       kind: 'client',
       languages: [],
       language: '',
@@ -68,29 +77,33 @@ export function WebsiteDrawer({
   });
 
   useEffect(() => {
-    if (website) {
-      form.reset({
-        name: website.name || '',
-        description: website.description || '',
-        domain: website.domain || '',
-        url: website.url || '',
-        kind: website.kind || 'client',
-        languages: website.languages || [],
-        language: website.language || '',
-      });
-    } else {
-      form.reset({
-        name: '',
-        description: '',
-        domain: '',
-        url: '',
-        kind: 'client',
-        languages: [],
-        language: '',
-      });
+    if (isOpen) {
+      refetchClientPortals();
+
+      if (website) {
+        form.reset({
+          name: website.name || '',
+          description: website.description || '',
+          domain: website.domain || '',
+          url: website.url || '',
+          kind: website.kind || 'client',
+          languages: website.languages || [],
+          language: website.language || '',
+        });
+      } else {
+        form.reset({
+          name: '',
+          description: '',
+          domain: '',
+          url: '',
+          kind: 'client',
+          languages: [],
+          language: '',
+        });
+      }
+      setHasPermissionError(false);
     }
-    setHasPermissionError(false);
-  }, [website, form, isOpen]);
+  }, [website, form, isOpen, refetchClientPortals]);
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -113,57 +126,55 @@ export function WebsiteDrawer({
     return () => subscription.unsubscribe();
   }, [form]);
 
-  const [updateWebsite, { loading: saving }] = useMutation(
-    CLIENT_PORTAL_CONFIG_UPDATE,
-    {
-      refetchQueries: [{ query: GET_WEBSITES, variables: { search: '' } }],
-      awaitRefetchQueries: true,
-      onCompleted: () => {
-        onClose();
-        form.reset();
-        toast({
-          title: 'Success',
-          description: isEditing
-            ? 'Website updated successfully'
-            : 'Website created successfully',
-          variant: 'default',
-        });
-      },
-      onError: (error) => {
-        console.error('Website update error:', error);
-
-        const permissionError = error.graphQLErrors?.some(
-          (e) =>
-            e.message === 'Permission required' ||
-            e.extensions?.code === 'INTERNAL_SERVER_ERROR',
-        );
-
-        if (permissionError) {
-          setHasPermissionError(true);
-          toast({
-            title: 'Permission Required',
-            description:
-              'You do not have permission to manage websites. Please contact your administrator to grant the "manageClientPortal" permission.',
-            variant: 'destructive',
-            duration: 8000,
-          });
-        } else {
-          toast({
-            title: 'Error',
-            description:
-              error.message || 'Failed to save website. Please try again.',
-            variant: 'destructive',
-            duration: 5000,
-          });
-        }
-      },
+  const [createCMS, { loading: saving }] = useMutation(CONTENT_CREATE_CMS, {
+    refetchQueries: [{ query: GET_WEBSITES }],
+    awaitRefetchQueries: true,
+    onCompleted: () => {
+      onClose();
+      form.reset();
+      if (onSuccess) {
+        onSuccess();
+      }
+      toast({
+        title: 'Success',
+        description: 'CMS created successfully',
+        variant: 'default',
+      });
     },
-  );
+    onError: (error) => {
+      console.error('CMS creation error:', error);
+
+      const permissionError = error.graphQLErrors?.some(
+        (e) =>
+          e.message === 'Permission required' ||
+          e.extensions?.code === 'INTERNAL_SERVER_ERROR',
+      );
+
+      if (permissionError) {
+        setHasPermissionError(true);
+        toast({
+          title: 'Permission Required',
+          description:
+            'You do not have permission to create CMS. Please contact your administrator.',
+          variant: 'destructive',
+          duration: 8000,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description:
+            error.message || 'Failed to create CMS. Please try again.',
+          variant: 'destructive',
+          duration: 5000,
+        });
+      }
+    },
+  });
 
   const [removeWebsite, { loading: removing }] = useMutation(
     CLIENT_PORTAL_REMOVE,
     {
-      refetchQueries: [{ query: GET_WEBSITES, variables: { search: '' } }],
+      refetchQueries: [{ query: GET_WEBSITES }],
       awaitRefetchQueries: true,
       onCompleted: () => {
         onClose();
@@ -178,7 +189,8 @@ export function WebsiteDrawer({
         console.error('Website delete error:', error);
         toast({
           title: 'Error',
-          description: error.message || 'Failed to delete website. Please try again.',
+          description:
+            error.message || 'Failed to delete website. Please try again.',
           variant: 'destructive',
           duration: 5000,
         });
@@ -187,20 +199,18 @@ export function WebsiteDrawer({
   );
 
   const onSubmit = (data: WebsiteFormData) => {
-    const { languages: _omitLanguages, ...rest } = data;
-    const config = {
-      _id: isEditing && website ? website._id : undefined,
-      name: rest.name,
-      description: rest.description,
-      domain: rest.domain,
-      url: rest.url,
-      kind: rest.kind,
-      language: rest.language || undefined,
-    } as const;
+    const { name, description, language, languages } = data;
 
-    updateWebsite({
+    createCMS({
       variables: {
-        config,
+        input: {
+          name,
+          description,
+          language: language || undefined,
+          languages: languages || [],
+          clientPortalId: data.kind,
+          content: 'hello',
+        },
       },
     });
   };
@@ -209,9 +219,7 @@ export function WebsiteDrawer({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0">
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>
-            {isEditing ? 'Edit Website' : 'New Website'}
-          </Sheet.Title>
+          <Sheet.Title>{isEditing ? 'Edit CMS' : 'New CMS'}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -242,7 +250,7 @@ export function WebsiteDrawer({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Website Name</Form.Label>
+                  <Form.Label>Cms Name</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
@@ -274,60 +282,40 @@ export function WebsiteDrawer({
 
             <Form.Field
               control={form.control}
-              name="domain"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Domain</Form.Label>
-                  <Form.Control>
-                    <Input {...field} placeholder="example.com" />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>URL</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder="https://example.com"
-                      type="url"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
               name="kind"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Type</Form.Label>
-                  <Form.Control>
-                    <Select
-                      {...field}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select type" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="client">Client Portal</Select.Item>
-                        <Select.Item value="vendor">Vendor Portal</Select.Item>
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+              render={({ field }) => {
+                const { clientPortals, loading } = useClientPortals();
+
+                return (
+                  <Form.Item>
+                    <Form.Label>Client Portal</Form.Label>
+                    <Form.Control>
+                      <Select
+                        {...field}
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={loading}
+                      >
+                        <Select.Trigger>
+                          <Select.Value
+                            placeholder={
+                              loading ? 'Loading...' : 'Select client portal'
+                            }
+                          />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {clientPortals.map((portal) => (
+                            <Select.Item key={portal._id} value={portal._id}>
+                              {portal.name}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                );
+              }}
             />
 
             <Form.Field
@@ -428,7 +416,7 @@ export function WebsiteDrawer({
                   ? 'Permission Required'
                   : isEditing
                   ? 'Save Changes'
-                  : 'Create Website'}
+                  : 'Create CMS'}
               </Button>
             </div>
           </form>

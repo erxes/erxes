@@ -1,7 +1,16 @@
-import { Button, RecordTable, Popover, Combobox, Command, CommandBar, Separator, toast } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  Popover,
+  Combobox,
+  Command,
+  CommandBar,
+  Separator,
+  toast,
+} from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { useParams } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import {
   CMS_CATEGORIES,
   CMS_CATEGORIES_EDIT,
@@ -23,6 +32,7 @@ import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 
 export function Category() {
   const { websiteId } = useParams();
+  const client = useApolloClient();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any | undefined>(
     undefined,
@@ -66,7 +76,32 @@ export function Category() {
   });
 
   const [removeCategory] = useMutation(CMS_CATEGORIES_REMOVE, {
-    onCompleted: () => refetch(),
+    onCompleted: (data, clientOptions) => {
+      const existingCategories = client.readQuery({
+        query: CMS_CATEGORIES,
+        variables: { clientPortalId: websiteId || '', limit: 100 },
+      });
+
+      if (existingCategories && clientOptions?.variables?.id) {
+        const updatedList = existingCategories.cmsCategories.list.filter(
+          (cat: any) => cat._id !== (clientOptions.variables as any).id,
+        );
+
+        client.writeQuery({
+          query: CMS_CATEGORIES,
+          variables: { clientPortalId: websiteId || '', limit: 100 },
+          data: {
+            ...existingCategories,
+            cmsCategories: {
+              ...existingCategories.cmsCategories,
+              list: updatedList,
+            },
+          },
+        });
+      }
+
+      refetch();
+    },
   });
 
   const categories = data?.cmsCategories?.list || [];
@@ -141,12 +176,21 @@ export function Category() {
     {
       id: 'parent',
       header: () => <RecordTable.InlineHead label="Parent" icon={IconEdit} />,
-      accessorKey: 'parent.name',
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-500">
-          {row.original.parent?.name || '—'}
-        </span>
-      ),
+      accessorKey: 'parent',
+      cell: ({ row }) => {
+        const getParentName = (parent: any): string => {
+          if (!parent) return '—';
+          // If there's a parent with a name, return it
+          if (parent.name) return parent.name;
+          // If there's a nested parent, recursively get its name
+          if (parent.parent) return getParentName(parent.parent);
+          return '—';
+        };
+
+        const parentName = getParentName(row.original.parent);
+
+        return <span className="text-sm text-gray-500">{parentName}</span>;
+      },
       size: 220,
     },
     {
@@ -171,7 +215,6 @@ export function Category() {
       },
       size: 180,
     },
-    
   ];
 
   return (
@@ -259,7 +302,9 @@ const CategoriesCommandBar = ({
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((row: any) => row.original._id as string);
+  const selectedIds = selectedRows.map(
+    (row: any) => row.original._id as string,
+  );
 
   return (
     <CommandBar open={selectedRows.length > 0}>
