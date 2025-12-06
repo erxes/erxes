@@ -4,6 +4,8 @@ import {
   DEALS_CHANGE,
   EDIT_DEALS,
   REMOVE_DEALS,
+  DEALS_COPY,
+  DEALS_WATCH,
 } from '@/deals/graphql/mutations/DealsMutations';
 import {
   EnumCursorDirection,
@@ -99,7 +101,7 @@ export const useDeals = (
 
         if (action === 'remove') {
           updatedList = currentList.filter(
-            (item: IDeal) => item._id !== deal._id,
+            (item: IDeal) => item._id !== deal?._id,
           );
         }
 
@@ -361,6 +363,71 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
 
   return {
     archiveDeals,
+    loading,
+    error,
+  };
+}
+export function useDealsCopy(options?: MutationHookOptions<any, any>) {
+  const [_id] = useAtom(dealDetailSheetState);
+
+  const [copyDeals, { loading, error }] = useMutation(DEALS_COPY, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id,
+    },
+    awaitRefetchQueries: true,
+    onCompleted: (...args) => {
+      toast({
+        title: 'Successfully copied a deal',
+        variant: 'default',
+      });
+      options?.onCompleted?.(...args);
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err.message || 'Update failed',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return {
+    copyDeals,
+    loading,
+    error,
+  };
+}
+
+export function useDealsWatch(options?: MutationHookOptions<any, any>) {
+  const [_id] = useAtom(dealDetailSheetState);
+
+  const [watchDeals, { loading, error }] = useMutation(DEALS_WATCH, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id,
+    },
+    awaitRefetchQueries: true,
+    onCompleted: (...args) => {
+      toast({
+        title: 'Successfully updated watch status',
+        variant: 'default',
+      });
+      options?.onCompleted?.(...args);
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err.message || 'Update failed',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return {
+    watchDeals,
     loading,
     error,
   };
