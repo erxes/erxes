@@ -24,7 +24,7 @@ export const ProductCommandBar = () => {
           <IconPlus />
           Create
         </Button>
-
+        <Separator.Inline />
         <PrintDocument
           items={table
             .getFilteredSelectedRowModel()
