@@ -1,4 +1,11 @@
-import { Button, RecordTable, CommandBar, Separator, toast } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  CommandBar,
+  Separator,
+  toast,
+  Filter,
+} from 'erxes-ui';
 import { Popover, Combobox, Command } from 'erxes-ui';
 import { MultipleSelector, Spinner } from 'erxes-ui';
 import { PopoverScoped } from 'erxes-ui';
@@ -11,6 +18,10 @@ import {
   IconEdit,
   IconTrash,
   IconFile,
+  IconSearch,
+  IconCalendarPlus,
+  IconCalendarUp,
+  IconFilter,
 } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,10 +30,11 @@ import { CmsLayout } from '../shared/CmsLayout';
 import { EmptyState } from '../shared/EmptyState';
 import { usePosts } from '../../hooks/usePosts';
 import { useMutation } from '@apollo/client';
-import { CMS_POSTS_EDIT, CMS_POSTS_REMOVE } from '../../graphql/queries';
+import { CMS_POSTS_EDIT } from '../../graphql/queries';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useTags } from '../../hooks/useTags';
 import { useCategories } from '../../hooks/useCategories';
+import { usePostMutations } from '../../hooks/usePostMutations';
 
 export function Posts() {
   const { websiteId } = useParams();
@@ -30,6 +42,14 @@ export function Posts() {
   const { confirm } = useConfirm();
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    undefined,
+  );
+  const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
+  const [tagFilters, setTagFilters] = useState<string[]>([]);
+
+  const sessionKey = `posts-filter-${websiteId}`;
 
   const {
     posts,
@@ -42,26 +62,13 @@ export function Posts() {
     type: 'post',
     perPage: 20,
     page: 1,
+    searchValue,
+    status: statusFilter as any,
+    categoryIds: categoryFilters.length ? categoryFilters : undefined,
+    tagIds: tagFilters.length ? tagFilters : undefined,
   });
 
-  const [removePost] = useMutation(CMS_POSTS_REMOVE, {
-    onCompleted: () => {
-      toast({
-        title: 'Success',
-        description: 'Post deleted successfully',
-        variant: 'success',
-      });
-      refetchPosts();
-      setSelectedRowKeys([]);
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: `Error deleting post: ${error.message}`,
-        variant: 'destructive',
-      });
-    },
-  });
+  const { removePost } = usePostMutations({ websiteId });
 
   if (loading) {
     return (
@@ -114,11 +121,22 @@ export function Posts() {
                   onSelect={() =>
                     confirm({ message: 'Delete this post?' })
                       .then(async () => {
-                        await removePost({
-                          variables: { id: row.original._id },
-                        });
-                        await refetchPosts();
-                        toast({ title: 'Success', variant: 'default' });
+                        try {
+                          await removePost(row.original._id);
+                          await refetchPosts();
+                          toast({
+                            title: 'Success',
+                            description: 'Post deleted successfully',
+                            variant: 'success',
+                          });
+                        } catch (error: any) {
+                          toast({
+                            title: 'Error',
+                            description:
+                              error?.message || 'Error deleting post',
+                            variant: 'destructive',
+                          });
+                        }
                       })
                       .catch(() => {})
                   }
@@ -149,37 +167,58 @@ export function Posts() {
       size: 300,
     },
     {
-      id: 'categories',
-      header: () => <RecordTable.InlineHead label="Category" icon={IconList} />,
-      accessorKey: 'categories',
+      id: 'excerpt',
+      header: () => (
+        <RecordTable.InlineHead label="Description" icon={IconFile} />
+      ),
+      accessorKey: 'excerpt',
       cell: ({ row }) => {
-        const cats = (row.original.categories || []) as any[];
+        const excerpt = row.original.excerpt || 'No Description';
         return (
-          <InlineCategoriesEditor
-            postId={row.original._id}
-            websiteId={websiteId}
-            initialCategories={cats}
-          />
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+            <span
+              className="text-sm font-medium text-gray-900 line-clamp-1"
+              title={excerpt}
+            >
+              {excerpt}
+            </span>
+          </div>
         );
       },
-      size: 260,
+      size: 300,
     },
-    {
-      id: 'tags',
-      header: () => <RecordTable.InlineHead label="Tags" icon={IconList} />,
-      accessorKey: 'tags',
-      cell: ({ row }) => {
-        const tags = (row.original.tags || []) as any[];
-        return (
-          <InlineTagsEditor
-            postId={row.original._id}
-            websiteId={websiteId}
-            initialTags={tags}
-          />
-        );
-      },
-      size: 240,
-    },
+    // {
+    //   id: 'categories',
+    //   header: () => <RecordTable.InlineHead label="Category" icon={IconList} />,
+    //   accessorKey: 'categories',
+    //   cell: ({ row }) => {
+    //     const cats = (row.original.categories || []) as any[];
+    //     return (
+    //       <InlineCategoriesEditor
+    //         postId={row.original._id}
+    //         websiteId={websiteId}
+    //         initialCategories={cats}
+    //       />
+    //     );
+    //   },
+    //   size: 260,
+    // },
+    // {
+    //   id: 'tags',
+    //   header: () => <RecordTable.InlineHead label="Tags" icon={IconList} />,
+    //   accessorKey: 'tags',
+    //   cell: ({ row }) => {
+    //     const tags = (row.original.tags || []) as any[];
+    //     return (
+    //       <InlineTagsEditor
+    //         postId={row.original._id}
+    //         websiteId={websiteId}
+    //         initialTags={tags}
+    //       />
+    //     );
+    //   },
+    //   size: 240,
+    // },
     {
       id: 'createdAt',
       header: () => (
@@ -218,8 +257,35 @@ export function Posts() {
 
   return (
     <CmsLayout>
-      <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-gray-600">Found {totalCount} posts</div>
+      <div className="bg-white border rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="text-sm font-semibold text-gray-700">Filters:</div>
+          {/* Categories */}
+          <CategoriesFilterButton
+            categoryFilters={categoryFilters}
+            onCategoriesChange={setCategoryFilters}
+            websiteId={websiteId}
+          />
+          {/* Tags */}
+          <TagsFilterButton
+            tagFilters={tagFilters}
+            onTagsChange={setTagFilters}
+            websiteId={websiteId}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setCategoryFilters([]);
+              setTagFilters([]);
+            }}
+          >
+            Clear filters
+          </Button>
+          <div className="ml-auto text-sm text-gray-600">
+            <span className="font-medium">{totalCount}</span> posts
+          </div>
+        </div>
       </div>
 
       {!loading && (posts || []).length === 0 ? (
@@ -254,7 +320,7 @@ export function Posts() {
                   message: `Delete ${ids.length} selected posts?`,
                 });
                 const results = await Promise.allSettled(
-                  ids.map((id) => removePost({ variables: { id } })),
+                  ids.map((id) => removePost(id)),
                 );
                 await refetchPosts();
                 const failed = results.filter((r) => r.status === 'rejected');
@@ -472,6 +538,108 @@ const InlineCategoriesEditor = ({
         </div>
       </RecordTableInlineCell.Content>
     </PopoverScoped>
+  );
+};
+
+const CategoriesFilterButton = ({
+  categoryFilters,
+  onCategoriesChange,
+  websiteId,
+}: {
+  categoryFilters: string[];
+  onCategoriesChange: (values: string[]) => void;
+  websiteId?: string;
+}) => {
+  const { categories } = useCategories({
+    clientPortalId: websiteId || '',
+    limit: 100,
+  });
+
+  const categoryOptions = useMemo(
+    () => (categories || []).map((c: any) => ({ label: c.name, value: c._id })),
+    [categories],
+  );
+
+  const selectedCategories = useMemo(
+    () => categoryOptions.filter((o) => categoryFilters.includes(o.value)),
+    [categoryOptions, categoryFilters],
+  );
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <Button variant="outline" size="sm">
+          <IconList className="mr-2 h-4 w-4" />
+          Categories:{' '}
+          {categoryFilters.length
+            ? `${categoryFilters.length} selected`
+            : 'All'}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content className="w-80 p-3">
+        <div className="space-y-2">
+          <div className="text-xs font-medium text-gray-600">
+            Select Categories
+          </div>
+          <MultipleSelector
+            value={selectedCategories as any}
+            options={categoryOptions as any}
+            placeholder="Select categories"
+            onChange={(opts: any[]) =>
+              onCategoriesChange(opts.map((o) => o.value))
+            }
+          />
+        </div>
+      </Popover.Content>
+    </Popover>
+  );
+};
+
+const TagsFilterButton = ({
+  tagFilters,
+  onTagsChange,
+  websiteId,
+}: {
+  tagFilters: string[];
+  onTagsChange: (values: string[]) => void;
+  websiteId?: string;
+}) => {
+  const { tags } = useTags({
+    clientPortalId: websiteId || '',
+    type: 'cms',
+    limit: 100,
+  });
+
+  const tagOptions = useMemo(
+    () => (tags || []).map((t: any) => ({ label: t.name, value: t._id })),
+    [tags],
+  );
+
+  const selectedTags = useMemo(
+    () => tagOptions.filter((o) => tagFilters.includes(o.value)),
+    [tagOptions, tagFilters],
+  );
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <Button variant="outline" size="sm">
+          <IconList className="mr-2 h-4 w-4" />
+          Tags: {tagFilters.length ? `${tagFilters.length} selected` : 'All'}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content className="w-80 p-3">
+        <div className="space-y-2">
+          <div className="text-xs font-medium text-gray-600">Select Tags</div>
+          <MultipleSelector
+            value={selectedTags as any}
+            options={tagOptions as any}
+            placeholder="Select tags"
+            onChange={(opts: any[]) => onTagsChange(opts.map((o) => o.value))}
+          />
+        </div>
+      </Popover.Content>
+    </Popover>
   );
 };
 

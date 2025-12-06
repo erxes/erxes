@@ -91,34 +91,34 @@ export function CmsLayout({
       icon: <IconTag className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/tags` : '/content/cms',
     },
-    {
-      id: 'pages',
-      label: 'Pages',
-      icon: <IconFile className="w-4 h-4" />,
-      href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
-    },
-    {
-      id: 'menus',
-      label: 'Menus',
-      icon: <IconLayoutGrid className="w-4 h-4" />,
-      href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
-    },
-    {
-      id: 'custom-fields',
-      label: 'Custom Fields',
-      icon: <IconLayoutGrid className="w-4 h-4" />,
-      href: websiteId
-        ? `/content/cms/${websiteId}/custom-fields`
-        : '/content/cms',
-    },
-    {
-      id: 'custom-types',
-      label: 'Custom Types',
-      icon: <IconLayout className="w-4 h-4" />,
-      href: websiteId
-        ? `/content/cms/${websiteId}/custom-types`
-        : '/content/cms',
-    },
+    // {
+    //   id: 'pages',
+    //   label: 'Pages',
+    //   icon: <IconFile className="w-4 h-4" />,
+    //   href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
+    // },
+    // {
+    //   id: 'menus',
+    //   label: 'Menus',
+    //   icon: <IconLayoutGrid className="w-4 h-4" />,
+    //   href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
+    // },
+    // {
+    //   id: 'custom-fields',
+    //   label: 'Custom Fields',
+    //   icon: <IconLayoutGrid className="w-4 h-4" />,
+    //   href: websiteId
+    //     ? `/content/cms/${websiteId}/custom-fields`
+    //     : '/content/cms',
+    // },
+    // {
+    //   id: 'custom-types',
+    //   label: 'Custom Types',
+    //   icon: <IconLayout className="w-4 h-4" />,
+    //   href: websiteId
+    //     ? `/content/cms/${websiteId}/custom-types`
+    //     : '/content/cms',
+    // },
   ];
 
   // Determine current active navigation based on URL

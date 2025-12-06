@@ -116,7 +116,7 @@ const commonPostQuerySelector = `
     ${GQL_CURSOR_PARAM_DEFS}
     featured: Boolean
     type: String
-    categoryId: String
+    categoryIds: [String]
     searchValue: String
     status: PostStatus
     tagIds: [String]

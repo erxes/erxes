@@ -137,7 +137,7 @@ export const POST_LIST = gql`
     $clientPortalId: String!
     $type: String
     $featured: Boolean
-    $categoryId: String
+    $categoryIds: [String]
     $searchValue: String
     $status: PostStatus
     $limit: Int
@@ -151,7 +151,7 @@ export const POST_LIST = gql`
       clientPortalId: $clientPortalId
       featured: $featured
       type: $type
-      categoryId: $categoryId
+      categoryIds: $categoryIds
       searchValue: $searchValue
       status: $status
       limit: $limit
@@ -210,6 +210,7 @@ export const POST_LIST = gql`
         createdAt
         autoArchiveDate
         scheduledDate
+        excerpt
         thumbnail {
           url
           __typename
@@ -278,6 +279,111 @@ export const CMS_POSTS_EDIT = gql`
   mutation CmsPostsEdit($id: String!, $input: PostInput!) {
     cmsPostsEdit(_id: $id, input: $input) {
       _id
+      type
+      customPostType {
+        _id
+        code
+        label
+        __typename
+      }
+      authorKind
+      authorId
+      author {
+        ... on User {
+          userId: _id
+          username
+          email
+          details {
+            fullName
+            shortName
+            avatar
+            firstName
+            lastName
+            middleName
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      clientPortalId
+      title
+      slug
+      content
+      excerpt
+      categoryIds
+      status
+      tagIds
+      featured
+      featuredDate
+      scheduledDate
+      autoArchiveDate
+      reactions
+      reactionCounts
+      thumbnail {
+        url
+        type
+        name
+        __typename
+      }
+      images {
+        url
+        name
+        type
+        size
+        duration
+      }
+      video {
+        url
+        type
+        name
+        __typename
+      }
+      audio {
+        url
+        type
+        name
+        __typename
+      }
+      documents {
+        url
+        type
+        name
+        __typename
+      }
+      attachments {
+        url
+        type
+        name
+        __typename
+      }
+      pdfAttachment {
+        pdf {
+          url
+          name
+          type
+          size
+          duration
+        }
+        pages {
+          url
+          name
+          type
+          size
+          duration
+        }
+      }
+      videoUrl
+      createdAt
+      updatedAt
+      categories {
+        _id
+        name
+        slug
+        __typename
+      }
+      customFieldsData
+      customFieldsMap
       __typename
     }
   }

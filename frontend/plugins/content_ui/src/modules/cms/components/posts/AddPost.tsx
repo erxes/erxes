@@ -106,24 +106,23 @@ import {
   Upload,
   DatePicker,
   Collapsible,
+  Dropzone,
+  DropzoneContent,
+  DropzoneEmptyState,
+  useErxesUpload,
+  Spinner,
 } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
-import { IconUpload, IconChevronDown } from '@tabler/icons-react';
+import { IconUpload, IconChevronDown, IconX } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { CmsLayout } from '../shared/CmsLayout';
-import { useMutation } from '@apollo/client';
-import {
-  POSTS_ADD,
-  CMS_POSTS_EDIT,
-  POST_LIST,
-  CMS_CATEGORIES,
-  CMS_POST,
-} from '../../graphql/queries';
 import { useQuery } from '@apollo/client';
 import { Block } from '@blocknote/core';
 import { useTags } from '../../hooks/useTags';
+import { CMS_CATEGORIES, CMS_POST } from '../../graphql/queries';
+import { usePostMutations } from '../../hooks/usePostMutations';
 
 interface PostFormData {
   title: string;
@@ -137,8 +136,7 @@ interface PostFormData {
   featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
-  thumbnail?: string | null;
-  featuredImage?: string | null;
+  thumbnail?: any | null;
   gallery?: string[];
   video?: string | null;
   audio?: string | null;
@@ -149,6 +147,115 @@ interface PostFormData {
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
 }
+
+// Helper to create AttachmentInput from URL
+const makeAttachmentFromUrl = (url?: string | null) => {
+  if (!url) return undefined;
+  const name = url.split('/').pop() || 'file';
+  return { url, name };
+};
+
+// Helper to normalize attachment value to AttachmentInput format
+const normalizeAttachment = (value: any) => {
+  if (!value) return undefined;
+  if (typeof value === 'string') {
+    return makeAttachmentFromUrl(value);
+  }
+
+  const url = value.url as string | undefined;
+  if (!url) return undefined;
+
+  const name =
+    (value.name as string | undefined) || url.split('/').pop() || 'file';
+
+  return {
+    url,
+    name,
+    type: value.type,
+    size: value.size,
+    duration: value.duration,
+  };
+};
+
+// Helper to convert array of URLs to AttachmentInput array
+const makeAttachmentArrayFromUrls = (urls?: (string | null)[]) => {
+  return (urls || [])
+    .filter(Boolean)
+    .map((u) => makeAttachmentFromUrl(u as string))
+    .filter(Boolean);
+};
+
+interface GalleryUploaderProps {
+  value?: string[];
+  onChange: (urls: string[]) => void;
+}
+
+const GalleryUploader = ({ value, onChange }: GalleryUploaderProps) => {
+  const urls = value || [];
+
+  const uploadProps = useErxesUpload({
+    allowedMimeTypes: ['image/*'],
+    maxFiles: 10,
+    maxFileSize: 20 * 1024 * 1024,
+    onFilesAdded: (addedFiles) => {
+      const existing = urls || [];
+      const addedUrls = (addedFiles || [])
+        .map((file: any) => file.url)
+        .filter(Boolean);
+      const next = [...existing, ...addedUrls].slice(0, 10);
+      onChange(next);
+    },
+  });
+
+  const handleRemove = (url: string) => {
+    const next = (urls || []).filter((u) => u !== url);
+    onChange(next);
+  };
+
+  return (
+    <div className="space-y-2">
+      {urls.length > 0 && (
+        <div className="relative">
+          <div className="flex flex-wrap gap-4">
+            {urls.map((url) => (
+              <div
+                key={url}
+                className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
+              >
+                <img
+                  src={readImage(url)}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-0 right-0"
+                  type="button"
+                  onClick={() => handleRemove(url)}
+                >
+                  <IconX size={12} />
+                </Button>
+              </div>
+            ))}
+          </div>
+          {uploadProps.loading && (
+            <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-md">
+              <div className="flex flex-col items-center gap-2">
+                <Spinner size="sm" />
+                <span className="text-sm text-gray-600">Uploading...</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      <Dropzone {...uploadProps}>
+        <DropzoneEmptyState />
+        <DropzoneContent />
+      </Dropzone>
+    </div>
+  );
+};
 
 export function AddPost() {
   const { websiteId } = useParams();
@@ -192,7 +299,6 @@ export function AddPost() {
       seoTitle: '',
       seoDescription: '',
       thumbnail: null,
-      featuredImage: null,
       gallery: [],
       video: null,
       audio: null,
@@ -287,14 +393,7 @@ export function AddPost() {
         featured: !!fullPost.featured,
         seoTitle: fullPost.seoTitle || '',
         seoDescription: fullPost.seoDescription || '',
-        thumbnail:
-          (fullPost.thumbnail && fullPost.thumbnail.url) ||
-          fullPost.thumbnail ||
-          null,
-        featuredImage:
-          (fullPost.images && fullPost.images[0]?.url) ||
-          fullPost.featuredImage ||
-          null,
+        thumbnail: fullPost.thumbnail || null,
         gallery: (fullPost.images || []).map((i: any) => i.url).filter(Boolean),
         video: (fullPost.video && fullPost.video.url) || fullPost.video || null,
         audio: (fullPost.audio && fullPost.audio.url) || fullPost.audio || null,
@@ -317,40 +416,8 @@ export function AddPost() {
     }
   }, [fullPost]);
 
-  const [createPost, { loading: creating }] = useMutation(POSTS_ADD, {
-    refetchQueries: [
-      {
-        query: POST_LIST,
-        variables: {
-          clientPortalId: websiteId,
-          type: 'post',
-          limit: 20,
-        },
-      },
-    ],
-    awaitRefetchQueries: true,
-    onCompleted: () => {
-      toast({ title: 'Saved', description: 'Post created' });
-      navigate(`/content/cms/${websiteId}/posts`);
-    },
-  });
-
-  const [editPost, { loading: savingEdit }] = useMutation(CMS_POSTS_EDIT, {
-    refetchQueries: [
-      {
-        query: POST_LIST,
-        variables: {
-          clientPortalId: websiteId,
-          type: 'post',
-          limit: 20,
-        },
-      },
-    ],
-    awaitRefetchQueries: true,
-    onCompleted: () => {
-      toast({ title: 'Saved', description: 'Post updated' });
-      navigate(`/content/cms/${websiteId}/posts`);
-    },
+  const { createPost, editPost, creating, saving } = usePostMutations({
+    websiteId,
   });
 
   const onSubmit = async (data: PostFormData) => {
@@ -366,12 +433,34 @@ export function AddPost() {
         .split('\n')[0]
         .slice(0, 80) ||
       'Untitled';
+    
+    // Generate unique slug from title
+    const generateSlug = (title: string) => {
+      const baseSlug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      // Add timestamp to ensure uniqueness
+      const timestamp = Date.now().toString(36).slice(-6);
+      return `${baseSlug}-${timestamp}`;
+    };
+    
     // Ensure slug exists
-    const ensuredSlug = data.slug || generateSlug(computedTitle);
+    const combinedImages = [...(data.gallery || [])];
+
+    const imagesPayload = makeAttachmentArrayFromUrls(combinedImages);
+    const videoPayload = normalizeAttachment(data.video || undefined);
+    const audioPayload = normalizeAttachment(data.audio || undefined);
+    const documentsPayload = makeAttachmentArrayFromUrls(data.documents || []);
+    const attachmentsPayload = makeAttachmentArrayFromUrls(
+      data.attachments || [],
+    );
+    const pdfPayload = normalizeAttachment(data.pdf || undefined);
+
     const input: any = {
       clientPortalId: websiteId,
       title: computedTitle,
-      slug: ensuredSlug,
+      slug: editingPost?._id ? data.slug : generateSlug(computedTitle),
       content: data.content,
       type: data.type,
       status: data.status,
@@ -385,23 +474,23 @@ export function AddPost() {
       excerpt:
         (data.description && data.description.trim()) ||
         extractText(data.content || '').slice(0, 200),
-      thumbnail: data.thumbnail || undefined,
-      images: (data.gallery || []).length ? data.gallery : undefined,
-      featuredImage: data.featuredImage || undefined,
-      video: data.video || undefined,
-      audio: data.audio || undefined,
-      documents: (data.documents || []).length ? data.documents : undefined,
-      attachments: (data.attachments || []).length
-        ? data.attachments
-        : undefined,
-      pdf: data.pdf || undefined,
+      thumbnail: normalizeAttachment(data.thumbnail || undefined),
+      images: imagesPayload.length ? imagesPayload : undefined,
+      video: videoPayload,
+      audio: audioPayload,
+      documents: documentsPayload.length ? documentsPayload : undefined,
+      attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
+      pdfAttachment: pdfPayload ? { pdf: pdfPayload } : undefined,
     };
 
     if (editingPost?._id) {
-      await editPost({ variables: { id: editingPost._id, input } });
+      await editPost(editingPost._id, input);
+      toast({ title: 'Saved', description: 'Post updated' });
     } else {
-      await createPost({ variables: { input } });
+      await createPost(input);
+      toast({ title: 'Saved', description: 'Post created' });
     }
+    navigate(`/content/cms/${websiteId}/posts`, { replace: true });
   };
 
   const onUploadThumbnail = (url?: string) => {
@@ -444,26 +533,12 @@ export function AddPost() {
           }}
         >
           <div className="absolute inset-4 bg-white rounded-[28px] p-4 overflow-hidden">
-            <div className="text-xs text-gray-500 mb-2">
-              Preview ({previewDevice})
-            </div>
-            <div className="border rounded-md p-3">
-              <div className="text-xs font-semibold text-indigo-700 mb-2">
-                {form.watch('seoTitle') || 'Post title'}
-              </div>
-              <div className="text-xl font-bold mb-2">
-                {form.watch('title') || 'New Post'}
-              </div>
-              <div className="text-sm text-gray-700 line-clamp-6">
-                {form.watch('description') || 'Post excerpt will appear here.'}
-              </div>
-              <div
-                className="prose prose-sm max-w-none mt-2 h-44 overflow-auto"
-                dangerouslySetInnerHTML={{
-                  __html: form.watch('content') || '',
-                }}
-              />
-            </div>
+            <div
+              className="prose prose-sm max-w-none mt-2 h-44 overflow-auto"
+              dangerouslySetInnerHTML={{
+                __html: form.watch('content') || '',
+              }}
+            />
           </div>
         </div>
       </div>
@@ -492,7 +567,7 @@ export function AddPost() {
     <>
       <Button
         onClick={() => form.handleSubmit(onSubmit)()}
-        disabled={creating || savingEdit}
+        disabled={creating || saving}
       >
         {editingPost ? 'Save' : 'Create'}
       </Button>
@@ -903,7 +978,7 @@ export function AddPost() {
 
                     <Form.Field
                       control={form.control}
-                      name="featuredImage"
+                      name="thumbnail"
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>Featured image</Form.Label>
@@ -913,23 +988,36 @@ export function AddPost() {
                           </Form.Description>
                           <Form.Control>
                             <Upload.Root
-                              value={field.value || ''}
-                              onChange={(v: any) =>
-                                field.onChange(v?.url || null)
+                              value={
+                                (field.value as any)?.url || field.value || ''
                               }
+                              onChange={(v: any) => {
+                                if (v && typeof v === 'object' && 'url' in v) {
+                                  field.onChange({
+                                    url: (v as any).url,
+                                    name: (v as any).fileInfo?.name || '',
+                                  });
+                                } else {
+                                  field.onChange(null);
+                                }
+                              }}
                             >
                               <Upload.Preview className="hidden" />
-                              <Upload.Button
-                                size="sm"
-                                variant="secondary"
-                                type="button"
-                                className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                              >
-                                <IconUpload />
-                                <span className="text-sm font-medium">
-                                  Upload featured image
-                                </span>
-                              </Upload.Button>
+                              <div className="flex flex-col items-stretch gap-2 w-full">
+                                {!field.value && (
+                                  <Upload.Button
+                                    size="sm"
+                                    variant="secondary"
+                                    type="button"
+                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
+                                  >
+                                    <IconUpload />
+                                    <span className="text-sm font-medium">
+                                      Upload featured image
+                                    </span>
+                                  </Upload.Button>
+                                )}
+                              </div>
                             </Upload.Root>
                           </Form.Control>
                           <Form.Message />
@@ -937,27 +1025,30 @@ export function AddPost() {
                       )}
                     />
 
-                    {form.watch('pdf') && (
-                      <div className="mt-2 text-sm">
-                        <a
-                          href={form.watch('pdf') || ''}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          Open PDF
-                        </a>
-                      </div>
-                    )}
-
-                    {/* Preview uploaded featured image */}
-                    {form.watch('featuredImage') && (
-                      <div className="mt-2">
-                        <img
-                          src={readImage(form.watch('featuredImage') || '')}
-                          alt="Featured preview"
-                          className="w-full h-32 object-cover rounded border"
-                        />
+                    {/* Preview uploaded featured image (thumbnail) */}
+                    {form.watch('thumbnail') && (
+                      <div className="mt-2 relative">
+                        <div className="relative">
+                          <img
+                            src={readImage(
+                              (form.watch('thumbnail') as any)?.url || '',
+                            )}
+                            alt="Featured preview"
+                            className="w-full h-32 object-cover rounded border"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-0 right-0"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              form.setValue('thumbnail', null);
+                            }}
+                          >
+                            <IconX size={12} />
+                          </Button>
+                        </div>
                       </div>
                     )}
 
@@ -971,64 +1062,61 @@ export function AddPost() {
                             Image gallery with maximum of 10 images
                           </Form.Description>
                           <Form.Control>
+                            <GalleryUploader
+                              value={(field.value as string[]) || []}
+                              onChange={field.onChange}
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+
+                    {/* <Form.Field
+                      control={form.control}
+                      name="video"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Video</Form.Label>
+                          <Form.Control>
                             <div className="space-y-2">
-                              <Upload.Root
-                                value={''}
-                                onChange={(v: any) => {
-                                  const current = field.value || [];
-                                  if ((current as string[]).length >= 10)
-                                    return;
-                                  field.onChange(
-                                    [...(current as string[]), v?.url].filter(
-                                      Boolean,
-                                    ),
-                                  );
-                                }}
-                              >
-                                <Upload.Preview className="hidden" />
-                                <Upload.Button
-                                  size="sm"
-                                  variant="secondary"
-                                  type="button"
-                                  className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                                  disabled={(field.value || []).length >= 10}
+                              {!field.value && (
+                                <Upload.Root
+                                  value={field.value || ''}
+                                  onChange={(v: any) =>
+                                    field.onChange(v?.url || null)
+                                  }
                                 >
-                                  <IconUpload />
-                                  <span className="text-sm font-medium">
-                                    Upload images
-                                  </span>
-                                </Upload.Button>
-                              </Upload.Root>
-                              {(field.value || []).length > 0 && (
-                                <div className="grid grid-cols-3 gap-2">
-                                  {(field.value as string[]).map((url, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="relative border rounded"
-                                    >
-                                      <img
-                                        src={readImage(url)}
-                                        alt=""
-                                        className="w-full h-24 object-cover rounded"
-                                      />
-                                      <div className="absolute top-1 right-1">
-                                        <Upload.Root
-                                          value={url}
-                                          onChange={() => {
-                                            const next = (
-                                              field.value as string[]
-                                            ).filter((u) => u !== url);
-                                            field.onChange(next);
-                                          }}
-                                        >
-                                          <Upload.RemoveButton
-                                            size="sm"
-                                            variant="secondary"
-                                          />
-                                        </Upload.Root>
-                                      </div>
-                                    </div>
-                                  ))}
+                                  <Upload.Preview className="hidden" />
+                                  <Upload.Button
+                                    size="sm"
+                                    variant="secondary"
+                                    type="button"
+                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
+                                  >
+                                    <IconUpload />
+                                    <span className="text-sm font-medium">
+                                      Upload video
+                                    </span>
+                                  </Upload.Button>
+                                </Upload.Root>
+                              )}
+                              {field.value && (
+                                <div className="relative">
+                                  <video
+                                    src={field.value}
+                                    controls
+                                    className="w-full h-40 rounded border bg-black"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                                    type="button"
+                                    onClick={() => field.onChange(null)}
+                                  >
+                                    <IconX size={16} />
+                                  </Button>
                                 </div>
                               )}
                             </div>
@@ -1036,51 +1124,9 @@ export function AddPost() {
                           <Form.Message />
                         </Form.Item>
                       )}
-                    />
+                    /> */}
 
-                    <Form.Field
-                      control={form.control}
-                      name="video"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Video</Form.Label>
-                          <Form.Control>
-                            <Upload.Root
-                              value={field.value || ''}
-                              onChange={(v: any) =>
-                                field.onChange(v?.url || null)
-                              }
-                            >
-                              <Upload.Preview className="hidden" />
-                              <Upload.Button
-                                size="sm"
-                                variant="secondary"
-                                type="button"
-                                className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                              >
-                                <IconUpload />
-                                <span className="text-sm font-medium">
-                                  Upload video
-                                </span>
-                              </Upload.Button>
-                            </Upload.Root>
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    {form.watch('video') && (
-                      <div className="mt-2">
-                        <video
-                          src={form.watch('video') || ''}
-                          controls
-                          className="w-full h-40 rounded border bg-black"
-                        />
-                      </div>
-                    )}
-
-                    <Form.Field
+                    {/* <Form.Field
                       control={form.control}
                       name="audio"
                       render={({ field }) => (
@@ -1090,42 +1136,54 @@ export function AddPost() {
                             Can be used for audio podcast
                           </Form.Description>
                           <Form.Control>
-                            <Upload.Root
-                              value={field.value || ''}
-                              onChange={(v: any) =>
-                                field.onChange(v?.url || null)
-                              }
-                            >
-                              <Upload.Preview className="hidden" />
-                              <Upload.Button
-                                size="sm"
-                                variant="secondary"
-                                type="button"
-                                className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                              >
-                                <IconUpload />
-                                <span className="text-sm font-medium">
-                                  Upload audio
-                                </span>
-                              </Upload.Button>
-                            </Upload.Root>
+                            <div className="space-y-2">
+                              {!field.value && (
+                                <Upload.Root
+                                  value={field.value || ''}
+                                  onChange={(v: any) =>
+                                    field.onChange(v?.url || null)
+                                  }
+                                >
+                                  <Upload.Preview className="hidden" />
+                                  <Upload.Button
+                                    size="sm"
+                                    variant="secondary"
+                                    type="button"
+                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
+                                  >
+                                    <IconUpload />
+                                    <span className="text-sm font-medium">
+                                      Upload audio
+                                    </span>
+                                  </Upload.Button>
+                                </Upload.Root>
+                              )}
+                              {field.value && (
+                                <div className="relative border rounded p-2">
+                                  <audio
+                                    src={field.value}
+                                    controls
+                                    className="w-full"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                                    type="button"
+                                    onClick={() => field.onChange(null)}
+                                  >
+                                    <IconX size={16} />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
                       )}
-                    />
+                    /> */}
 
-                    {form.watch('audio') && (
-                      <div className="mt-2">
-                        <audio
-                          src={form.watch('audio') || ''}
-                          controls
-                          className="w-full"
-                        />
-                      </div>
-                    )}
-
-                    <Form.Field
+                    {/* <Form.Field
                       control={form.control}
                       name="documents"
                       render={({ field }) => (
@@ -1194,9 +1252,9 @@ export function AddPost() {
                           <Form.Message />
                         </Form.Item>
                       )}
-                    />
+                    /> */}
 
-                    <Form.Field
+                    {/* <Form.Field
                       control={form.control}
                       name="attachments"
                       render={({ field }) => (
@@ -1260,9 +1318,9 @@ export function AddPost() {
                           <Form.Message />
                         </Form.Item>
                       )}
-                    />
+                    /> */}
 
-                    <Form.Field
+                    {/* <Form.Field
                       control={form.control}
                       name="pdf"
                       render={({ field }) => (
@@ -1272,30 +1330,69 @@ export function AddPost() {
                             Pages of PDF file will be turned into images
                           </Form.Description>
                           <Form.Control>
-                            <Upload.Root
-                              value={field.value || ''}
-                              onChange={(v: any) =>
-                                field.onChange(v?.url || null)
-                              }
-                            >
-                              <Upload.Preview className="hidden" />
-                              <Upload.Button
-                                size="sm"
-                                variant="secondary"
-                                type="button"
-                                className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                              >
-                                <IconUpload />
-                                <span className="text-sm font-medium">
-                                  Upload a PDF
-                                </span>
-                              </Upload.Button>
-                            </Upload.Root>
+                            <div className="space-y-2">
+                              {!field.value && (
+                                <Upload.Root
+                                  value={field.value || ''}
+                                  onChange={(v: any) =>
+                                    field.onChange(v?.url || null)
+                                  }
+                                >
+                                  <Upload.Preview className="hidden" />
+                                  <Upload.Button
+                                    size="sm"
+                                    variant="secondary"
+                                    type="button"
+                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
+                                  >
+                                    <IconUpload />
+                                    <span className="text-sm font-medium">
+                                      Upload a PDF
+                                    </span>
+                                  </Upload.Button>
+                                </Upload.Root>
+                              )}
+                              {field.value && (
+                                <div className="relative border rounded p-3 bg-gray-50">
+                                  <div className="flex items-center gap-2">
+                                    <svg
+                                      className="w-8 h-8 text-red-600"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                    </svg>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-gray-900 truncate">
+                                        PDF Document
+                                      </p>
+                                      <a
+                                        href={field.value}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-xs text-blue-600 hover:underline truncate block"
+                                      >
+                                        {field.value}
+                                      </a>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-2 right-2 bg-white hover:bg-gray-100"
+                                    type="button"
+                                    onClick={() => field.onChange(null)}
+                                  >
+                                    <IconX size={16} />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
                       )}
-                    />
+                    /> */}
                   </div>
                 </>
               )}
