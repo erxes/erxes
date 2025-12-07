@@ -5,7 +5,7 @@ import {
   MultiSelectOption,
   Button,
 } from 'erxes-ui';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, type MutableRefObject } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { PosFormData } from '@/pos/components/pos-create/PosCreate';
 import { SelectBranches } from 'ui-modules';
@@ -16,7 +16,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 interface EcommerceFieldsProps {
   form: UseFormReturn<PosFormData>;
-  productGroupsRef: React.MutableRefObject<ProductGroup[]>;
+  productGroupsRef: MutableRefObject<ProductGroup[]>;
 }
 
 export const EcommerceFields = ({

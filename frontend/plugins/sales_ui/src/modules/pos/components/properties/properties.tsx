@@ -99,9 +99,10 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
           name: data.name,
           description: data.description,
           type: data.type,
-          maxSkipNumber: data.maxSkipNumber
-            ? parseInt(data.maxSkipNumber, 10)
-            : 0,
+          maxSkipNumber: (() => {
+            const parsed = parseInt(String(data.maxSkipNumber), 10);
+            return Number.isNaN(parsed) ? 0 : parsed;
+          })(),
           orderPassword: data.orderPassword,
           branchId: data.branchId,
           departmentId: data.departmentId,

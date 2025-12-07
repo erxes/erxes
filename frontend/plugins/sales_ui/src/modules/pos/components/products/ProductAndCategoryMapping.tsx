@@ -122,7 +122,6 @@ export const ProductAndCategoryMapping: React.FC<
           patterns
         </p>
         <AddMappingSheet
-          posId={posId}
           onMappingAdded={handleMappingAdded}
           onMappingUpdated={handleMappingUpdated}
           editingMapping={editingMapping}

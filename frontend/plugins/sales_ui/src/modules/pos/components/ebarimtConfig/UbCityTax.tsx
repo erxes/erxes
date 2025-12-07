@@ -49,6 +49,16 @@ export const UbCityTax: React.FC<UbCityTaxProps> = ({ posId }) => {
       return;
     }
 
+    const cityTaxPercentNumber = Number(cityTaxPercent);
+    if (!Number.isFinite(cityTaxPercentNumber) || cityTaxPercentNumber < 0) {
+      toast({
+        title: 'Error',
+        description: 'UB City Tax percent must be a valid non-negative number',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const currentConfig = cleanData(posDetail?.ebarimtConfig || {});
       await posEdit({
@@ -57,7 +67,7 @@ export const UbCityTax: React.FC<UbCityTaxProps> = ({ posId }) => {
           ebarimtConfig: {
             ...currentConfig,
             hasCitytax,
-            cityTaxPercent: Number(cityTaxPercent),
+            cityTaxPercent: cityTaxPercentNumber,
             reverseCtaxRules,
           },
         },

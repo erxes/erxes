@@ -27,13 +27,17 @@ export const Stage: React.FC<StageProps> = ({ posId }) => {
   });
 
   useEffect(() => {
+    if (hasChanges) {
+      return;
+    }
+
     if (posDetail?.deliveryConfig) {
       setBoardId(posDetail.deliveryConfig.boardId || '');
       setPipelineId(posDetail.deliveryConfig.pipelineId || '');
       setStageId(posDetail.deliveryConfig.stageId || '');
       setMapCustomField(posDetail.deliveryConfig.mapCustomField || '');
     }
-  }, [posDetail]);
+  }, [posDetail, hasChanges]);
 
   const handleBoardChange = (value: string) => {
     setBoardId(value);

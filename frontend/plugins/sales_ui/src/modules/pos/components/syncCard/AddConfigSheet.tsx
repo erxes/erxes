@@ -79,6 +79,23 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
     }
   }, [editingConfig, form]);
 
+  const handleClose = () => {
+    form.reset({
+      branchId: '',
+      boardId: '',
+      pipelineId: '',
+      stageId: '',
+      assignedUserIds: [],
+      deliveryMapField: '',
+      title: '',
+    });
+    setAssignedUserIds([]);
+    setOpen(false);
+    if (editingConfig) {
+      onEditComplete?.();
+    }
+  };
+
   const handleBoardChange = (value: string) => {
     form.setValue('boardId', value);
     form.setValue('pipelineId', '');
@@ -109,23 +126,26 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
       onConfigAdded?.(configData);
     }
 
-    setOpen(false);
-    form.reset();
-    setAssignedUserIds([]);
-    onEditComplete?.();
+    handleClose();
   };
 
   const onCancel = () => {
-    setOpen(false);
-    form.reset();
-    setAssignedUserIds([]);
-    onEditComplete?.();
+    handleClose();
   };
 
   const isEditing = !!editingConfig;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) {
+          setOpen(true);
+        } else {
+          handleClose();
+        }
+      }}
+    >
       {!isEditing && (
         <Sheet.Trigger asChild>
           <Button variant="outline">

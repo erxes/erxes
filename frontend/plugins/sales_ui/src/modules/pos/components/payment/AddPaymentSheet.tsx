@@ -64,6 +64,14 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
     onEditComplete?.();
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      handleCancel();
+    } else {
+      setOpen(true);
+    }
+  };
+
   const handleSubmit = () => {
     const payment: PaymentType = {
       _id: editingPayment?._id || generateId(),
@@ -87,7 +95,7 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
   const isEditing = !!editingPayment;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       {!isEditing && (
         <Sheet.Trigger asChild>
           <Button variant="outline">

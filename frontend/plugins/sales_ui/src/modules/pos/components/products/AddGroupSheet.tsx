@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Sheet, Input, Label, Textarea } from 'erxes-ui';
@@ -50,6 +51,20 @@ export const AddGroupSheet: React.FC<AddGroupSheetProps> = ({
     }
   }, [editingGroup, form]);
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      form.reset();
+      setCategoryIds([]);
+      setExcludedCategoryIds([]);
+      setExcludedProductIds([]);
+      if (editingGroup) {
+        onEditComplete?.();
+      }
+    }
+  };
+
   const onSubmit = (data: AddGroupFormData) => {
     const groupData: ProductGroup = {
       _id:
@@ -68,24 +83,41 @@ export const AddGroupSheet: React.FC<AddGroupSheetProps> = ({
       onGroupAdded?.(groupData);
     }
 
-    setOpen(false);
-    form.reset();
-    onEditComplete?.();
+    handleOpenChange(false);
   };
 
   const onCancel = () => {
-    setOpen(false);
-    form.reset();
-    setCategoryIds([]);
-    setExcludedCategoryIds([]);
-    setExcludedProductIds([]);
-    onEditComplete?.();
+    handleOpenChange(false);
   };
 
   const isEditing = !!editingGroup;
 
+  const handleCategorySelect = ((
+    value: React.SyntheticEvent<HTMLButtonElement> | string,
+  ) => {
+    const categoryId =
+      typeof value === 'string' ? value : value?.currentTarget?.value;
+
+    if (categoryId) {
+      setCategoryIds([categoryId]);
+    }
+  }) as React.ReactEventHandler<HTMLButtonElement> &
+    ((categoryId: string) => void);
+
+  const handleExcludeCategorySelect = ((
+    value: React.SyntheticEvent<HTMLButtonElement> | string,
+  ) => {
+    const categoryId =
+      typeof value === 'string' ? value : value?.currentTarget?.value;
+
+    if (categoryId) {
+      setExcludedCategoryIds([categoryId]);
+    }
+  }) as React.ReactEventHandler<HTMLButtonElement> &
+    ((categoryId: string) => void);
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       {!isEditing && (
         <Sheet.Trigger asChild>
           <Button variant="outline">
@@ -127,13 +159,7 @@ export const AddGroupSheet: React.FC<AddGroupSheetProps> = ({
               <Label>PRODUCT CATEGORY</Label>
               <SelectCategory
                 selected={categoryIds[0] || ''}
-                onSelect={
-                  ((categoryId: string) =>
-                    setCategoryIds([
-                      categoryId,
-                    ])) as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                    ((categoryId: string) => void)
-                }
+                onSelect={handleCategorySelect}
               />
             </div>
 
@@ -141,13 +167,7 @@ export const AddGroupSheet: React.FC<AddGroupSheetProps> = ({
               <Label>EXCLUDE PRODUCT CATEGORY</Label>
               <SelectCategory
                 selected={excludedCategoryIds[0] || ''}
-                onSelect={
-                  ((categoryId: string) =>
-                    setExcludedCategoryIds([
-                      categoryId,
-                    ])) as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                    ((categoryId: string) => void)
-                }
+                onSelect={handleExcludeCategorySelect}
               />
             </div>
 

@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Dialog, Input, Label, Textarea } from 'erxes-ui';
@@ -85,8 +86,41 @@ export const AddProductGroupDialog: React.FC<AddProductGroupDialogProps> = ({
 
   const isEditing = !!editingGroup;
 
+  const handleCategorySelect = ((
+    value: React.SyntheticEvent<HTMLButtonElement> | string,
+  ) => {
+    const categoryId =
+      typeof value === 'string' ? value : value?.currentTarget?.value;
+
+    if (categoryId) {
+      setCategoryIds([categoryId]);
+    }
+  }) as React.ReactEventHandler<HTMLButtonElement> &
+    ((categoryId: string) => void);
+
+  const handleExcludeCategorySelect = ((
+    value: React.SyntheticEvent<HTMLButtonElement> | string,
+  ) => {
+    const categoryId =
+      typeof value === 'string' ? value : value?.currentTarget?.value;
+
+    if (categoryId) {
+      setExcludedCategoryIds([categoryId]);
+    }
+  }) as React.ReactEventHandler<HTMLButtonElement> &
+    ((categoryId: string) => void);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onCancel();
+        } else {
+          setOpen(true);
+        }
+      }}
+    >
       {!isEditing && (
         <Dialog.Trigger asChild>
           <Button type="button" variant="outline" size="lg" className="w-full">
@@ -128,13 +162,7 @@ export const AddProductGroupDialog: React.FC<AddProductGroupDialogProps> = ({
             <Label>PRODUCT CATEGORY</Label>
             <SelectCategory
               selected={categoryIds[0] || ''}
-              onSelect={
-                ((categoryId: string) =>
-                  setCategoryIds([
-                    categoryId,
-                  ])) as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                  ((categoryId: string) => void)
-              }
+              onSelect={handleCategorySelect}
             />
           </div>
 
@@ -142,13 +170,7 @@ export const AddProductGroupDialog: React.FC<AddProductGroupDialogProps> = ({
             <Label>EXCLUDE PRODUCT CATEGORY</Label>
             <SelectCategory
               selected={excludedCategoryIds[0] || ''}
-              onSelect={
-                ((categoryId: string) =>
-                  setExcludedCategoryIds([
-                    categoryId,
-                  ])) as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                  ((categoryId: string) => void)
-              }
+              onSelect={handleExcludeCategorySelect}
             />
           </div>
 

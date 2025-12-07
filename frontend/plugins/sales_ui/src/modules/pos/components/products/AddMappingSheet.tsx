@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Sheet, Input, Label } from 'erxes-ui';
@@ -13,7 +14,6 @@ interface AddMappingFormData {
 }
 
 interface AddMappingSheetProps {
-  posId?: string;
   onMappingAdded?: (mapping: CatProd) => void;
   onMappingUpdated?: (mapping: CatProd) => void;
   editingMapping?: CatProd | null;
@@ -21,7 +21,6 @@ interface AddMappingSheetProps {
 }
 
 export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
-  posId,
   onMappingAdded,
   onMappingUpdated,
   editingMapping,
@@ -78,6 +77,17 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
   const isEditing = !!editingMapping;
 
+  const handleCategorySelect = (
+    value: React.SyntheticEvent<HTMLButtonElement> | string,
+  ) => {
+    const categoryId =
+      typeof value === 'string' ? value : value?.currentTarget?.value;
+
+    if (categoryId) {
+      form.setValue('categoryId', categoryId);
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {!isEditing && (
@@ -104,14 +114,7 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
               </Label>
               <SelectCategory
                 selected={form.watch('categoryId')}
-                onSelect={
-                  ((categoryId: string) =>
-                    form.setValue(
-                      'categoryId',
-                      categoryId,
-                    )) as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                    ((categoryId: string) => void)
-                }
+                onSelect={handleCategorySelect}
               />
             </div>
 
