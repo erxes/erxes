@@ -1,7 +1,4 @@
-import kbResolvers from '~/modules/knowledgebase/graphql/resolvers/customResolvers';
-import portalResolvers from '~/modules/portal/graphql/resolvers/customResolvers';
-
+import cmsResolvers from '@/cms/graphql/customeResolvers';
 export const customResolvers = {
-  ...kbResolvers,
-  ...portalResolvers,
+  cmsResolvers,
 };

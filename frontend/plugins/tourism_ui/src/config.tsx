@@ -1,4 +1,4 @@
-import { IconBox, IconDirections, IconSandbox } from '@tabler/icons-react';
+import { IconBox, IconDirections } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
@@ -26,17 +26,6 @@ export const CONFIG: IUIConfig = {
       path: 'tourism',
       hasSettings: true,
       hasRelationWidget: true,
-    },
-  ],
-
-  relationWidgets: [
-    {
-      name: 'pms',
-      icon: IconSandbox,
-    },
-    {
-      name: 'tms',
-      icon: IconBox,
     },
   ],
 };
