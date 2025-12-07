@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Sheet, Input, Label } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
+import { nanoid } from 'nanoid';
 import { CatProd } from '@/pos/pos-detail/types/IPos';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 
@@ -46,12 +47,18 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
         productId: editingMapping.productId || '',
       });
     }
-  }, [editingMapping, form]);
+  }, [editingMapping]);
+
+  const generateId = () => {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
+    }
+    return nanoid();
+  };
 
   const onSubmit = (data: AddMappingFormData) => {
     const mappingData: CatProd = {
-      _id:
-        editingMapping?._id || `${Math.random().toString(36).substring(2, 11)}`,
+      _id: editingMapping?._id || generateId(),
       categoryId: data.categoryId,
       code: data.code,
       name: data.name,

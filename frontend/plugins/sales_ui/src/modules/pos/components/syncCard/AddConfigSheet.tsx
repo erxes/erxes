@@ -167,7 +167,18 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
                 <Label>
                   TITLE <span className="text-red-500">*</span>
                 </Label>
-                <Input {...form.register('title')} placeholder="Enter title" />
+                <Input
+                  {...form.register('title', {
+                    required: 'Title is required',
+                  })}
+                  placeholder="Enter title"
+                  aria-invalid={!!form.formState.errors.title}
+                />
+                {form.formState.errors.title && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.title.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
