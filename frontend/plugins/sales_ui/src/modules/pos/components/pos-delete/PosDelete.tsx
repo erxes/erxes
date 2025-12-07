@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Dialog, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
-import { usePosRemove } from '../../hooks/usePosRemove';
+import { usePosRemove } from '@/pos/hooks/usePosRemove';
 
 interface PosDeleteProps {
   posId?: string;

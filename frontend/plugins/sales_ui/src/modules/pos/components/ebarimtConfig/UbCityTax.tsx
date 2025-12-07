@@ -3,7 +3,8 @@ import { Label, Input, Button, Checkbox, Select, toast } from 'erxes-ui';
 import { useMutation, useQuery } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
-import queries from '../../graphql/queries';
+import queries from '@/pos/graphql/queries';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface UbCityTaxProps {
   posId?: string;
@@ -49,7 +50,7 @@ export const UbCityTax: React.FC<UbCityTaxProps> = ({ posId }) => {
     }
 
     try {
-      const currentConfig = posDetail?.ebarimtConfig || {};
+      const currentConfig = cleanData(posDetail?.ebarimtConfig || {});
       await posEdit({
         variables: {
           _id: posId,

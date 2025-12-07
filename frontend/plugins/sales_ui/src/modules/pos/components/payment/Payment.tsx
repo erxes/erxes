@@ -1,7 +1,7 @@
 import { InfoCard } from 'erxes-ui';
-import { PaymentConfiguration } from './PaymentConfiguration';
-import { OtherPayment } from './OtherPayment';
-import { isFieldVisible } from '../../constants';
+import { PaymentConfiguration } from '@/pos/components/payment/PaymentConfiguration';
+import { OtherPayment } from '@/pos/components/payment//OtherPayment';
+import { isFieldVisible } from '@/pos/constants';
 
 interface PaymentProps {
   posId?: string;

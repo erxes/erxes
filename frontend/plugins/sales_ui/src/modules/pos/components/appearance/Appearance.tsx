@@ -1,8 +1,8 @@
 import { InfoCard } from 'erxes-ui';
-import { LogosAndFavicon } from './LogosAndFavicon';
-import { MainColors } from './MainColors';
-import { Infos } from './Infos';
-import { isFieldVisible } from '../../constants';
+import { LogosAndFavicon } from '@/pos/components/appearance/LogosAndFavicon';
+import { MainColors } from '@/pos/components/appearance/MainColors';
+import { Infos } from '@/pos/components/appearance/Infos';
+import { isFieldVisible } from '@/pos/constants';
 
 interface AppearanceProps {
   posId?: string;

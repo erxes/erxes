@@ -3,6 +3,7 @@ import { Label, Switch, Button, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface RemainderProps {
   posId?: string;
@@ -34,7 +35,7 @@ export const Remainder: React.FC<RemainderProps> = ({ posId }) => {
     }
 
     try {
-      const currentErkhetConfig = posDetail?.erkhetConfig || {};
+      const currentErkhetConfig = cleanData(posDetail?.erkhetConfig || {});
       await posEdit({
         variables: {
           _id: posId,

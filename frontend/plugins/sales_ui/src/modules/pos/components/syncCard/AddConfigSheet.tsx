@@ -12,10 +12,10 @@ import {
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { SelectBranches, SelectMember } from 'ui-modules';
-import { SelectBoardFormItem } from '../../hooks/useSelectBoard';
-import { SelectPipelineFormItem } from '../../hooks/useSelectPipeline';
-import { SelectStageFormItem } from '../../hooks/useSelectStage';
-import { useFieldsCombined } from '../../hooks/useFieldsCombined';
+import { SelectBoardFormItem } from '@/pos/hooks/useSelectBoard';
+import { SelectPipelineFormItem } from '@/pos/hooks/useSelectPipeline';
+import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
+import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
 
 export interface CardConfig {
   _id?: string;

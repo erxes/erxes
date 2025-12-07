@@ -3,10 +3,11 @@ import { Label, Button, Select, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
-import { SelectBoardFormItem } from '../../hooks/useSelectBoard';
-import { SelectPipelineFormItem } from '../../hooks/useSelectPipeline';
-import { SelectStageFormItem } from '../../hooks/useSelectStage';
-import { useFieldsCombined } from '../../hooks/useFieldsCombined';
+import { SelectBoardFormItem } from '@/pos/hooks/useSelectBoard';
+import { SelectPipelineFormItem } from '@/pos/hooks/useSelectPipeline';
+import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
+import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface StageProps {
   posId?: string;
@@ -58,7 +59,7 @@ export const Stage: React.FC<StageProps> = ({ posId }) => {
     }
 
     try {
-      const currentConfig = posDetail?.deliveryConfig || {};
+      const currentConfig = cleanData(posDetail?.deliveryConfig || {});
       await posEdit({
         variables: {
           _id: posId,

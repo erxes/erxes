@@ -1,7 +1,7 @@
 import { InfoCard } from 'erxes-ui';
-import { Main } from './Main';
-import { Remainder } from './Remainder';
-import { isFieldVisible } from '../../constants';
+import { Main } from '@/pos/components/financeConfig/Main';
+import { Remainder } from '@/pos/components/financeConfig/Remainder';
+import { isFieldVisible } from '@/pos/constants';
 
 interface FinanceConfigProps {
   posId?: string;

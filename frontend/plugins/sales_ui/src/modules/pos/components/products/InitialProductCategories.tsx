@@ -19,10 +19,14 @@ export const InitialProductCategories: React.FC<
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
+    if (hasChanges || selectedCategoryId) {
+      return;
+    }
+
     if (posDetail?.initialCategoryIds?.length) {
       setSelectedCategoryId(posDetail.initialCategoryIds[0]);
     }
-  }, [posDetail]);
+  }, [posDetail, hasChanges, selectedCategoryId]);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(categoryId);

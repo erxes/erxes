@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Button, Card, toast } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { ProductGroup } from '../../pos-detail/types/IPos';
-import { AddGroupSheet } from './AddGroupSheet';
-import { useProductGroups } from '../../hooks/useProductGroups';
-import { usePosEditProductGroup } from '../../hooks/usePosEditProductGroup';
+import { ProductGroup } from '@/pos/pos-detail/types/IPos';
+import { AddGroupSheet } from '@/pos/components/products/AddGroupSheet';
+import { useProductGroups } from '@/pos/hooks/useProductGroups';
+import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
 
 interface ProductGroupsListProps {
   posId?: string;

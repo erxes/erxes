@@ -1,7 +1,7 @@
 import { InfoCard } from 'erxes-ui';
-import { AdminPermissions } from './AdminPermissions';
-import { CashierPermissions } from './CashierPermissions';
-import { isFieldVisible } from '../../constants';
+import { AdminPermissions } from '@/pos/components/permission/AdminPermissions';
+import { CashierPermissions } from '@/pos/components/permission/CashierPermissions';
+import { isFieldVisible } from '@/pos/constants';
 
 interface PermissionProps {
   posId?: string;

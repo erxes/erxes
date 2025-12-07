@@ -1,10 +1,10 @@
 import { InfoCard } from 'erxes-ui';
-import { ProductGroupsList } from './ProductGroupsList';
-import { InitialProductCategories } from './InitialProductCategories';
-import { KioskExcludeProducts } from './KioskExcludeProducts';
-import { ProductAndCategoryMapping } from './ProductAndCategoryMapping';
-import { RemainderConfigs } from './RemainderConfigs';
-import { isFieldVisible } from '../../constants';
+import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
+import { InitialProductCategories } from '@/pos/components/products/InitialProductCategories';
+import { KioskExcludeProducts } from '@/pos/components/products/KioskExcludeProducts';
+import { ProductAndCategoryMapping } from '@/pos/components/products/ProductAndCategoryMapping';
+import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
+import { isFieldVisible } from '@/pos/constants';
 
 interface ProductsProps {
   posId?: string;

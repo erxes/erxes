@@ -4,8 +4,9 @@ import { IconTrash, IconUpload } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
-import { useForm } from 'react-hook-form';
-import { isFieldVisible } from '../../constants';
+import { Control, useForm } from 'react-hook-form';
+import { isFieldVisible } from '@/pos/constants';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface LogosAndFaviconProps {
   posId?: string;
@@ -45,7 +46,7 @@ const LogoField = ({
   name,
   label,
 }: {
-  control: any;
+  control: Control<UiOptionsFormValues>;
   name: keyof UiOptionsFormValues;
   label: string;
 }) => {
@@ -187,7 +188,7 @@ export const LogosAndFavicon: React.FC<LogosAndFaviconProps> = ({
     }
 
     try {
-      const existingUiOptions = posDetail?.uiOptions || {};
+      const existingUiOptions = cleanData(posDetail?.uiOptions || {});
       const formValues = form.getValues();
       const uiOptions = { ...existingUiOptions, ...formValues };
 

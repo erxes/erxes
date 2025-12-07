@@ -4,6 +4,7 @@ import { SelectMember } from 'ui-modules';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface AdminPermissionsProps {
   posId?: string;
@@ -44,7 +45,15 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
     }
 
     try {
-      const currentPermissionConfig = posDetail?.permissionConfig || {};
+      const parsedDirectDiscountLimit = Number(directDiscountLimit);
+      const directDiscountLimitValue = Number.isFinite(
+        parsedDirectDiscountLimit,
+      )
+        ? parsedDirectDiscountLimit
+        : 0;
+      const currentPermissionConfig = cleanData(
+        posDetail?.permissionConfig || {},
+      );
       await posEdit({
         variables: {
           _id: posId,
@@ -54,9 +63,7 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
             admins: {
               isTempBill: isPrintTempBill,
               directDiscount: directDiscount,
-              directDiscountLimit: directDiscountLimit
-                ? Number(directDiscountLimit)
-                : 0,
+              directDiscountLimit: directDiscountLimitValue,
             },
           },
         },

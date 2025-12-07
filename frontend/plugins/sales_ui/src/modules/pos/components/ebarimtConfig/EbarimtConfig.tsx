@@ -1,10 +1,10 @@
 import { InfoCard } from 'erxes-ui';
-import { Main } from './Main';
-import { Other } from './Other';
-import { Vat } from './Vat';
-import { UbCityTax } from './UbCityTax';
-import { UiConfig } from './UiConfig';
-import { isFieldVisible } from '../../constants';
+import { Main } from '@/pos/components/ebarimtConfig/Main';
+import { Other } from '@/pos/components/ebarimtConfig/Other';
+import { Vat } from '@/pos/components/ebarimtConfig/Vat';
+import { UbCityTax } from '@/pos/components/ebarimtConfig/UbCityTax';
+import { UiConfig } from '@/pos/components/ebarimtConfig/UiConfig';
+import { isFieldVisible } from '@/pos/constants';
 
 interface EbarimtConfigProps {
   posId?: string;

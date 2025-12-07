@@ -4,6 +4,7 @@ import { SelectMember, SelectProduct } from 'ui-modules';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface DealUsersProps {
   posId?: string;
@@ -37,7 +38,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ posId }) => {
     }
 
     try {
-      const currentConfig = posDetail?.deliveryConfig || {};
+      const currentConfig = cleanData(posDetail?.deliveryConfig || {});
       await posEdit({
         variables: {
           _id: posId,

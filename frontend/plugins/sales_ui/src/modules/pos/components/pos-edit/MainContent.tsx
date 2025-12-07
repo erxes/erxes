@@ -1,18 +1,18 @@
 import React from 'react';
 import { Badge, Spinner } from 'erxes-ui';
-import { IPos } from '../../types/pos';
-import PosDelete from '../pos-delete/PosDelete';
-import { Properties } from '../properties';
-import { Slots } from '../slots';
-import { Payment } from '../payment';
-import { Permission } from '../permission';
-import { Products } from '../products';
-import { Appearance } from '../appearance';
-import { ScreenConfig } from '../screenConfig';
-import { EbarimtConfig } from '../ebarimtConfig';
-import { FinanceConfig } from '../financeConfig';
-import { DeliveryConfig } from '../deliveryConfig';
-import { SyncCard } from '../syncCard';
+import { IPos } from '@/pos/types/pos';
+import PosDelete from '@/pos/components/pos-delete/PosDelete';
+import { Properties } from '@/pos/components/properties';
+import { Slots } from '@/pos/components/slots';
+import { Payment } from '@/pos/components/payment';
+import { Permission } from '@/pos/components/permission';
+import { Products } from '@/pos/components/products';
+import { Appearance } from '@/pos/components/appearance';
+import { ScreenConfig } from '@/pos/components/screenConfig';
+import { EbarimtConfig } from '@/pos/components/ebarimtConfig';
+import { FinanceConfig } from '@/pos/components/financeConfig';
+import { DeliveryConfig } from '@/pos/components/deliveryConfig';
+import { SyncCard } from '@/pos/components/syncCard';
 
 interface MainContentProps {
   activeStep: string;

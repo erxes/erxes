@@ -7,14 +7,14 @@ import {
 } from 'erxes-ui';
 import { useMemo, useState, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { PosFormData } from './PosCreate';
+import { PosFormData } from '@/pos/components/pos-create/PosCreate';
 import { SelectBranches, SelectMember, SelectCategory } from 'ui-modules';
-import { usePayments } from '../../hooks/usePayments';
-import { AddProductGroupDialog } from './AddProductGroupDialog';
-import { ProductGroup } from '../../pos-detail/types/IPos';
+import { usePayments } from '@/pos/hooks/usePayments';
+import { AddProductGroupDialog } from '@/pos/components/pos-create/AddProductGroupDialog';
+import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { SlotsDialog } from './SlotsDialog';
-import type { CustomNode } from '../../slot/types';
+import { SlotsDialog } from '@/pos/components/pos-create/SlotsDialog';
+import type { CustomNode } from '@/pos/slot/types';
 
 interface RestaurantFieldsProps {
   form: UseFormReturn<PosFormData>;

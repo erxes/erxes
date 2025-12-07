@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Label, Input, Select, Sheet } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import PaymentIcon from '../../constants';
+import PaymentIcon from '@/pos/constants';
 import { PaymentType } from '@/pos/types/types';
 
 interface AddPaymentSheetProps {

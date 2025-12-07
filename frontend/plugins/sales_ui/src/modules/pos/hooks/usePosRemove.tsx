@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { mutations } from '../graphql';
+import { mutations } from '@/pos/graphql';
 
 export const usePosRemove = () => {
   const [posRemove, { loading, error }] = useMutation(mutations.posRemove, {

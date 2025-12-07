@@ -3,7 +3,8 @@ import { Label, Input, Button, Checkbox, Select, toast } from 'erxes-ui';
 import { useMutation, useQuery } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
-import queries from '../../graphql/queries';
+import queries from '@/pos/graphql/queries';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface VatProps {
   posId?: string;
@@ -29,6 +30,13 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
     vatRulesData?.ebarimtProductRules?.list?.length > 0
       ? vatRulesData.ebarimtProductRules.list
       : [];
+
+  const handleToggleRule = (val: string) => {
+    setReverseVatRules((prev) =>
+      prev.includes(val) ? prev.filter((rule) => rule !== val) : [...prev, val],
+    );
+    setHasChanges(true);
+  };
 
   useEffect(() => {
     if (posDetail?.ebarimtConfig) {
@@ -59,7 +67,7 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
     }
 
     try {
-      const currentConfig = posDetail?.ebarimtConfig || {};
+      const currentConfig = cleanData(posDetail?.ebarimtConfig || {});
       await posEdit({
         variables: {
           _id: posId,
@@ -147,14 +155,18 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
           <div className="space-y-2">
             <Label>ANOTHER RULES OF PRODUCTS ON VAT</Label>
             <Select
-              value={reverseVatRules[0] || ''}
-              onValueChange={(val) => {
-                setReverseVatRules([val]);
-                setHasChanges(true);
-              }}
+              // allow selecting multiple rules by toggling them into the array
+              value=""
+              onValueChange={handleToggleRule}
             >
               <Select.Trigger className="w-48">
-                <Select.Value placeholder="Select rule" />
+                <Select.Value
+                  placeholder={
+                    reverseVatRules.length
+                      ? `${reverseVatRules.length} selected`
+                      : 'Select rule(s)'
+                  }
+                />
               </Select.Trigger>
               <Select.Content>
                 {vatRulesLoading ? (
@@ -164,7 +176,15 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
                 ) : (
                   vatRulesOptions.map(
                     (rule: { _id: string; title: string }) => (
-                      <Select.Item key={rule._id} value={rule._id}>
+                      <Select.Item
+                        key={rule._id}
+                        value={rule._id}
+                        className={
+                          reverseVatRules.includes(rule._id)
+                            ? 'bg-muted font-medium'
+                            : undefined
+                        }
+                      >
                         {rule.title}
                       </Select.Item>
                     ),

@@ -12,7 +12,7 @@ import {
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
-import { ALLOW_TYPES, POS_TYPES, isFieldVisible } from '../../constants';
+import { ALLOW_TYPES, POS_TYPES, isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 

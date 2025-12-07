@@ -1,7 +1,7 @@
 import { InfoCard } from 'erxes-ui';
-import { Stage } from './Stage';
-import { DealUsers } from './DealUsers';
-import { isFieldVisible } from '../../constants';
+import { Stage } from '@/pos/components/deliveryConfig/Stage';
+import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
+import { isFieldVisible } from '@/pos/constants';
 
 interface DeliveryConfigProps {
   posId?: string;

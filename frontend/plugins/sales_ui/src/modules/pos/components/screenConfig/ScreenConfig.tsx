@@ -3,10 +3,10 @@ import { InfoCard, Button, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
-import { KitchenScreen } from './KitchenScreen';
-import { WaitingScreen } from './WaitingScreen';
-import { PrintConfig } from './PrintConfig';
-import { isFieldVisible } from '../../constants';
+import { KitchenScreen } from '@/pos/components/screenConfig/KitchenScreen';
+import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
+import { PrintConfig } from '@/pos/components/screenConfig/PrintConfig';
+import { isFieldVisible } from '@/pos/constants';
 
 interface ScreenConfigProps {
   posId?: string;

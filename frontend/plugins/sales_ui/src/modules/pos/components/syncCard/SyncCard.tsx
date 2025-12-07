@@ -1,6 +1,6 @@
 import { InfoCard } from 'erxes-ui';
-import { SyncList } from './SyncList';
-import { isFieldVisible } from '../../constants';
+import { SyncList } from '@/pos/components/syncCard/SyncList';
+import { isFieldVisible } from '@/pos/constants';
 
 interface SyncCardProps {
   posId?: string;

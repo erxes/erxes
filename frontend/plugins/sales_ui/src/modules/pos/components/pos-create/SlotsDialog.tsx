@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Button, Dialog, Label } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import POSSlotsManager from '../../slot/components/slot';
-import type { CustomNode } from '../../slot/types';
+import POSSlotsManager from '@/pos/slot/components/slot';
+import type { CustomNode } from '@/pos/slot/types';
 
 interface SlotsDialogProps {
   value?: number | string;

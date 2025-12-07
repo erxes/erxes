@@ -1,6 +1,6 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
-import { getSteps } from '../../constants';
+import { getSteps } from '@/pos/constants';
 
 interface PosEditSidebarProps {
   posType?: string;

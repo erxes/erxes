@@ -3,6 +3,7 @@ import { Button, Label, Input, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface InfosProps {
   posId?: string;
@@ -34,7 +35,7 @@ export const Infos: React.FC<InfosProps> = ({ posId }) => {
     }
 
     try {
-      const currentUiOptions = posDetail?.uiOptions || {};
+      const currentUiOptions = cleanData(posDetail?.uiOptions || {});
       await posEdit({
         variables: {
           _id: posId,

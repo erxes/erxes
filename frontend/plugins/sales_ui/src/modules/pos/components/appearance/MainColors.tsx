@@ -3,6 +3,7 @@ import { Button, Label, toast, ColorPicker } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import mutations from '@/pos/graphql/mutations';
+import { cleanData } from '@/pos/utils/cleanData';
 
 interface MainColorsProps {
   posId?: string;
@@ -44,7 +45,7 @@ export const MainColors: React.FC<MainColorsProps> = ({ posId }) => {
     }
 
     try {
-      const currentUiOptions = posDetail?.uiOptions || {};
+      const currentUiOptions = cleanData(posDetail?.uiOptions || {});
       await posEdit({
         variables: {
           _id: posId,

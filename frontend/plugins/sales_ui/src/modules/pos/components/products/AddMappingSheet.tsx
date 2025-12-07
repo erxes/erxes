@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Sheet, Input, Label } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { CatProd } from '../../pos-detail/types/IPos';
+import { CatProd } from '@/pos/pos-detail/types/IPos';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 
 interface AddMappingFormData {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button, Card, toast } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { CatProd } from '../../pos-detail/types/IPos';
-import { AddMappingSheet } from './AddMappingSheet';
+import { CatProd } from '@/pos/pos-detail/types/IPos';
+import { AddMappingSheet } from '@/pos/components/products/AddMappingSheet';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
 import mutations from '@/pos/graphql/mutations';

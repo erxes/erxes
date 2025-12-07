@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Button, Sheet, Input, Label, Textarea } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { SelectCategory, SelectProduct } from 'ui-modules';
-import { ProductGroup } from '../../pos-detail/types/IPos';
+import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 
 interface AddGroupFormData {
   groupName: string;
