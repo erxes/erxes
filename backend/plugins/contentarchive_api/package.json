@@ -1,0 +1,22 @@
+{
+  "name": "content",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "start": "node -r tsconfig-paths/register dist/src/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "erxes-api-shared": "workspace:^",
+    "slugify": "^1.6.6",
+    "html-to-text": "^8.2.1",
+    "simple-git": "^3.26.0",
+    "tmp": "^0.2.3"
+  },
+  "devDependencies": {}
+}
