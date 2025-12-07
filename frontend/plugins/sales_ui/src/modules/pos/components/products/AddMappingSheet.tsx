@@ -47,7 +47,7 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
         productId: editingMapping.productId || '',
       });
     }
-  }, [editingMapping]);
+  }, [editingMapping, form]);
 
   const generateId = () => {
     if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -84,9 +84,8 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
   const isEditing = !!editingMapping;
 
-  const handleCategorySelect = (
-    value: React.SyntheticEvent<HTMLButtonElement> | string,
-  ) => {
+  const handleCategorySelect: React.ReactEventHandler<HTMLButtonElement> &
+    ((categoryId: string) => void) = (value) => {
     const categoryId =
       typeof value === 'string' ? value : value?.currentTarget?.value;
 
