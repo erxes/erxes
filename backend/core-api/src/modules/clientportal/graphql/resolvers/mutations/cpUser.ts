@@ -143,6 +143,7 @@ export const cpUserMutations: Record<string, Resolver> = {
     }
 
     res.clearCookie('client-auth-token', options);
+
     return 'loggedout';
   },
 };

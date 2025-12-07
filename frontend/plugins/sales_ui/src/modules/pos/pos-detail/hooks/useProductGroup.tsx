@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
-import queries from '@/pos/graphql/queries';
-import { GroupsQueryResponse } from '@/pos/pos-detail/types/detail';
+import { queries } from '../../graphql';
+import { GroupsQueryResponse } from '../types/detail';
 
 export function useProductGroups(posId?: string) {
   const { loading, error, data, refetch } = useQuery<GroupsQueryResponse>(

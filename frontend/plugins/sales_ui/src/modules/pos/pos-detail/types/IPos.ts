@@ -1,4 +1,5 @@
 import { IUser } from '@/pos/types/pos';
+import { ProductGroup } from '~/modules/pos/create-pos/types';
 
 export interface IScreenConfig {
   isActive: boolean;
@@ -33,7 +34,7 @@ export interface IPosDetail {
   createdAt: Date;
   productDetails?: ProductDetail[];
   token: string;
-  erxesAppToken: string;
+  erxesAppToken?: string;
   adminIds: string[];
   cashierIds: string[];
   paymentIds: string[];
@@ -74,4 +75,5 @@ export interface IPosDetail {
   cashierPrintTempBill?: boolean;
   cashierDirectSales?: boolean;
   cashierDirectDiscountLimit?: string;
+  productGroups?: ProductGroup[];
 }
