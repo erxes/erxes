@@ -6,7 +6,7 @@ export const ReportGroups = [
 ];
 
 export const AllReportsMap = [
-  { key: 'ac', title: 'Дансны хуулга', group: 'main' },
+  { key: 'ac', title: 'Дансны хуулга', group: 'main', icon: 'IconClipboard' },
   { key: 'tb', title: 'Гүйлгээ баланс', group: 'main' },
   { key: 'mb', title: 'Ерөнхий дэвтэр', group: 'main' },
   { key: 'mj', title: 'Ерөнхий журнал', group: 'main' },

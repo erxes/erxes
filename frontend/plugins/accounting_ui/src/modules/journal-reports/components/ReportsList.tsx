@@ -1,6 +1,7 @@
 import {
   Button,
-  cn
+  cn,
+  IconComponent
 } from 'erxes-ui';
 import { AllReportsMap } from '../types/reportsMap'
 import { activeReportState } from '../states/renderingReportsStates';
@@ -13,8 +14,8 @@ export const ReportsList = () => {
   return (
     <ul>
       {AllReportsMap.map((report) => (
-        <li key={report.key}>
-          <IconReport />
+        <li key={report.key} className='flex'>
+          {report.icon && <IconComponent name={report.icon} /> || <IconReport />}
           <Button variant="ghost" className={cn(activeReport === report.key && 'text-primary')} onClick={() => setActiveReport(report.key)}>
             {report.title}
           </Button>
