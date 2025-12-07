@@ -10,3 +10,6 @@ export interface RecursiveGroupNode<T = any> {
 }
 
 export type IJournalReport<T = any> = Record<string, RecursiveGroupNode<T>>;
+
+export type IJournalReportRecord = any;
+

@@ -27,8 +27,7 @@ export const types = `
 
 
   type AccJournalReportResponse {
-    grouped: JSON,
-    
+    records: [JSON],
   }
 `;
 

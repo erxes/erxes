@@ -1,8 +1,8 @@
-import { ReportTable, useQueryState, Spinner, fixNum, } from "erxes-ui"
+import { ReportTable, useQueryState, Spinner, } from "erxes-ui"
 import { useJournalReportData } from "../hooks/useJournalReportData";
-import { GroupRule, GroupRules } from "../types/reportsMap";
+import { IGroupRule, GroupRules } from "../types/reportsMap";
 import React from "react";
-import { TR_SIDES } from "~/modules/transactions/types/constants";
+import { getCalcReportHandler } from "./includes";
 
 export const ReportTableBody = () => {
   const [report] = useQueryState('report');
@@ -12,11 +12,13 @@ export const ReportTableBody = () => {
 
   const calcReport = getCalcReportHandler(report as string || '')
 
-  const { grouped = {}, loading } = useJournalReportData();
+  const { records = [], loading } = useJournalReportData();
 
   if (loading) {
     return <Spinner />;
   }
+
+  const grouped = groupRecords(records, groupRule);
 
   return (
     <ReportRecursiveRenderer
@@ -28,12 +30,93 @@ export const ReportTableBody = () => {
   )
 }
 
+// toGroup Data
+export const groupRecords = (records: any[], groupRule: IGroupRule) => {
+  if (!groupRule) {
+    return { 'items': records }
+  }
+
+  const resultDic = {};
+
+  toGroup(resultDic, records, groupRule);
+  return resultDic;
+}
+
+type AnyDict = { [key: string]: any };
+
+const toGroup = (
+  resultDic: AnyDict,
+  groupRuleItems: AnyDict[],
+  groupRule: IGroupRule
+) => {
+  // iterate over rows to group
+  for (const item of groupRuleItems) {
+    const groupKey = item[groupRule.group];
+
+    // If group does not exist in resultDic, initialize it
+    if (!resultDic[groupKey]) {
+      resultDic[groupKey] = {
+        items: [],
+        [`${groupRule.key}_id`]: String(groupKey),                     // id
+        [`${groupRule.key}_code`]: String(item[groupRule.code]),       // code
+        [`${groupRule.key}_name`]: groupRule.name
+          ? String(item[groupRule.name])
+          : "",                                                       // name
+      };
+
+      // if sub-group rule exists -> initialize empty dict
+      if (groupRule.group_rule?.key) {
+        resultDic[groupKey][groupRule.group_rule.key] = {};
+      }
+    }
+
+    // get existing items under this group
+    const dicItems = resultDic[groupKey]["items"] || [];
+
+    // add current record
+    dicItems.push(item);
+
+    // reassign
+    resultDic[groupKey]["items"] = dicItems;
+  }
+
+  sortGroupByCode(resultDic, `${groupRule.key}_code`);
+
+  // if sub-group rule exists, recursively call
+  if (groupRule.group_rule?.key) {
+    for (const key of Object.keys(resultDic)) {
+      toGroup(
+        resultDic[key][groupRule.group_rule.key],
+        resultDic[key]["items"],
+        groupRule.group_rule
+      );
+      resultDic[key]["items"] = undefined
+    }
+  }
+}
+
+function sortGroupByCode(resultDic: AnyDict, sortKey: string) {
+  const sortedEntries = Object.entries(resultDic).sort((a: any, b: any) => {
+    const aCode = a[1]?.[sortKey] ?? "";
+    const bCode = b[1]?.[sortKey] ?? "";
+    return String(aCode).localeCompare(String(bCode), "mn");
+  });
+
+  // object-г дахин build хийнэ (JS object өөрөө сортлогддоггүй)
+  Object.keys(resultDic).forEach(k => delete resultDic[k]);
+
+  for (const [k, v] of sortedEntries) {
+    resultDic[k] = v;
+  }
+}
+
+// extract and render 
 interface ReportRendererProps {
   groupedDic: any;
-  groupRule: GroupRule;
+  groupRule: IGroupRule;
   colCount: number;
   groupHead?: boolean;
-  calcReport: (dic: any, groupRule: GroupRule, attr: string) => React.ReactNode;
+  calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode;
 }
 
 export function ReportRecursiveRenderer({
@@ -61,7 +144,7 @@ export function ReportRecursiveRenderer({
 
 function renderGroup(
   groupedDic: any,
-  groupRule: GroupRule,
+  groupRule: IGroupRule,
   colCount: number,
   padding: number,
   lastAttr: string,
@@ -95,7 +178,7 @@ function renderGroup(
           {groupHead && (
             <ReportTable.Row
               data-value={attr}
-              className={groupRule.format}
+              className={groupRule.format ?? ''}
               i-group={groupRule.group}
               i-id={grStep[grId]}
             >
@@ -157,49 +240,4 @@ function renderGroup(
       </ReportTable.Row>
     );
   });
-}
-
-const getCalcReportHandler = (report: string) => {
-  const handlers: any = {
-    // ac: handleMainAC,
-    tb: HandleMainTB,
-  };
-
-  return handlers[report];
-}
-
-const HandleMainTB = (dic: any, groupRule: GroupRule, attr: string) => {
-  const { items } = dic;
-  let [fr_diff, tr_dt, tr_ct, lr_diff] = [0, 0, 0, 0];
-
-  for (const rec of items) {
-    if (rec.isBetween) {
-      if (rec.side === TR_SIDES.DEBIT) {
-        tr_dt += rec.sumAmount;
-        lr_diff += rec.sumAmount;
-      } else {
-        tr_ct += rec.sumAmount;
-        lr_diff -= rec.sumAmount;
-      }
-    } else {
-      if (rec.side === TR_SIDES.DEBIT) {
-        fr_diff += rec.sumAmount;
-        lr_diff += rec.sumAmount;
-      } else {
-        fr_diff -= rec.sumAmount;
-        lr_diff -= rec.sumAmount;
-      }
-    }
-  }
-
-  return (
-    <>
-      <ReportTable.Cell>{fr_diff > 0 && fixNum(fr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell>{fr_diff < 0 && fixNum(-1 * fr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell>{tr_dt}</ReportTable.Cell>
-      <ReportTable.Cell>{tr_ct}</ReportTable.Cell>
-      <ReportTable.Cell>{lr_diff > 0 && fixNum(lr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell>{lr_diff < 0 && fixNum(-1 * lr_diff) || ''}</ReportTable.Cell>
-    </>
-  )
 }

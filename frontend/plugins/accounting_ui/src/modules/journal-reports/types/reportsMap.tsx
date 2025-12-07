@@ -12,14 +12,14 @@ export const AllReportsMap = [
   { key: 'mj', title: 'Ерөнхий журнал', group: 'main' },
 ]
 
-export interface GroupRule {
+export interface IGroupRule {
   key: string;
   group: string;
   code: string;
   name?: string;
   format?: string;
   style?: string;
-  group_rule?: GroupRule | null;
+  group_rule?: IGroupRule | null;
 }
 
 export const GroupRules: any = {

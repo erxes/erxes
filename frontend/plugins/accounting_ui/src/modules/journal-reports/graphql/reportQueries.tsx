@@ -71,7 +71,7 @@ const trsFilterParams = `
 export const JOURNAL_REPORT_QUERY = gql`
   query JournalReportData(${trsFilterParamDefs}) {
     journalReportData(${trsFilterParams}) {
-      grouped
+      records
     }
   }
 `;

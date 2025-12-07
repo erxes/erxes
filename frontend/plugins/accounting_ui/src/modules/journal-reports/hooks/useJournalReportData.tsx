@@ -1,14 +1,13 @@
 import { OperationVariables, useQuery } from '@apollo/client';
 import { JOURNAL_REPORT_QUERY } from '../graphql/reportQueries';
 import { useJouranlReportVariables } from './useJournalReportVars';
-import { IJournalReport } from '../types/journalReport';
 
 export const useJournalReportData = (options?: OperationVariables) => {
   const variables = useJouranlReportVariables(options?.variables);
 
   const { data, loading, error } = useQuery<{
     journalReportData: {
-      grouped: IJournalReport;
+      records: any[];
     };
   }>(JOURNAL_REPORT_QUERY, {
     ...options,
@@ -18,11 +17,11 @@ export const useJournalReportData = (options?: OperationVariables) => {
     },
   });
 
-  const { grouped } = data?.journalReportData ?? {};
+  const { records } = data?.journalReportData || {};
 
   return {
     loading,
-    grouped,
+    records,
     error,
   };
 };
