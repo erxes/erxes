@@ -1,4 +1,3 @@
-import { Outlet } from 'react-router-dom';
 import { PropertiesSidebar } from './PropertiesSidebar';
 import { ScrollArea } from 'erxes-ui';
 

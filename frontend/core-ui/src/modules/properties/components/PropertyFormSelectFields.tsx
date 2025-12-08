@@ -21,7 +21,7 @@ export const PropertyFormSelectFields = ({
   return (
     <InfoCard title="Select options">
       <InfoCard.Content>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {fields.map((field, index) => (
             <div className="flex gap-2" key={field.id}>
               <Form.Field
@@ -29,7 +29,7 @@ export const PropertyFormSelectFields = ({
                 name={`options.${index}.label`}
                 render={({ field }) => (
                   <Form.Item className="flex-auto">
-                    <Form.Label>Label</Form.Label>
+                    {index === 0 && <Form.Label>Label</Form.Label>}
                     <Form.Control>
                       <Input {...field} placeholder="Enter label" />
                     </Form.Control>
@@ -42,7 +42,7 @@ export const PropertyFormSelectFields = ({
                 name={`options.${index}.value`}
                 render={({ field }) => (
                   <Form.Item className="flex-auto">
-                    <Form.Label>Value</Form.Label>
+                    {index === 0 && <Form.Label>Value</Form.Label>}
                     <Form.Control>
                       <Input {...field} placeholder="Enter value" />
                     </Form.Control>

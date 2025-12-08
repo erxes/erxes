@@ -2,7 +2,7 @@ import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useParams } from 'react-router';
 import { IconHierarchy2 } from '@tabler/icons-react';
-import { AddPropertyGroup } from './AddPropertyGroup';
+import { AddPropertyGroup } from './PropertyGroupAdd';
 
 export function PropertiesHeader() {
   const { type } = useParams<{ type: string }>();

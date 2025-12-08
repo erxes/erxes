@@ -1,17 +1,56 @@
+import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import {
-  IconDots,
-  IconEdit,
-  IconNumbers,
-  IconUsers,
-} from '@tabler/icons-react';
-import { Button, DropdownMenu, IconComponent, Table } from 'erxes-ui';
+  Button,
+  DropdownMenu,
+  IconComponent,
+  Spinner,
+  Table,
+  useConfirm,
+} from 'erxes-ui';
 import { useFields } from '../hooks/useFields';
 import { Link, useParams } from 'react-router';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
+import { useFieldRemove } from '../hooks/useFieldRemove';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
   const { type } = useParams<{ type: string }>();
   const { fields, loading } = useFields({ groupId, contentType: type || '' });
+  const { confirm } = useConfirm();
+  const { removeField, loading: removeFieldLoading } = useFieldRemove({
+    groupId,
+  });
+
+  const handleDeleteField = (fieldId: string) => {
+    confirm({
+      message: 'Are you sure you want to delete this field?',
+    }).then(() => {
+      removeField({ variables: { id: fieldId } });
+    });
+  };
+
+  if (loading)
+    return (
+      <Table.Row className="hover:bg-background">
+        <Table.Cell
+          colSpan={3}
+          className="h-auto py-12 group-hover/table-row:bg-background"
+        >
+          <Spinner />
+        </Table.Cell>
+      </Table.Row>
+    );
+
+  if (fields.length === 0)
+    return (
+      <Table.Row className="hover:bg-background">
+        <Table.Cell
+          colSpan={3}
+          className="h-auto py-12 text-center group-hover/table-row:bg-background"
+        >
+          No fields found
+        </Table.Cell>
+      </Table.Row>
+    );
 
   return (
     <>
@@ -62,7 +101,7 @@ export const Properties = ({ groupId }: { groupId: string }) => {
                   <IconDots />
                 </Button>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
+              <DropdownMenu.Content className="min-w-48">
                 <DropdownMenu.Item asChild>
                   <Link
                     to={`/settings/properties/${type}/${groupId}/${field._id}`}
@@ -70,6 +109,14 @@ export const Properties = ({ groupId }: { groupId: string }) => {
                     <IconEdit />
                     Edit
                   </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="text-destructive"
+                  disabled={removeFieldLoading}
+                  onClick={() => handleDeleteField(field._id)}
+                >
+                  {removeFieldLoading ? <Spinner /> : <IconTrash />}
+                  Delete
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>

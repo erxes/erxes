@@ -1,4 +1,3 @@
-import React from 'react';
 import { PropertyForm } from './PropertyForm';
 import { IPropertyForm } from '../types/Properties';
 import { useAddProperty } from '../hooks/useAddProperty';

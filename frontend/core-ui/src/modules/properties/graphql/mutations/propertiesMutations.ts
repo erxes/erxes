@@ -4,16 +4,12 @@ export const FIELD_GROUP_ADD = gql`
   mutation FieldGroupAdd(
     $name: String
     $code: String
-    $icon: String
-    $description: String
     $contentType: String
     $logics: JSON
   ) {
     fieldGroupAdd(
       name: $name
       code: $code
-      icon: $icon
-      description: $description
       contentType: $contentType
       logics: $logics
     ) {
@@ -23,8 +19,24 @@ export const FIELD_GROUP_ADD = gql`
 `;
 
 export const FIELD_GROUP_EDIT = gql`
-  mutation FieldGroupEdit($id: String!, $doc: FieldGroupInput!) {
-    fieldGroupEdit(id: $id, doc: $doc) {
+  mutation FieldGroupEdit(
+    $id: String!
+    $order: Float
+    $name: String
+    $code: String
+    $description: String
+    $contentType: String
+    $logics: JSON
+  ) {
+    fieldGroupEdit(
+      _id: $id
+      order: $order
+      name: $name
+      code: $code
+      description: $description
+      contentType: $contentType
+      logics: $logics
+    ) {
       _id
     }
   }
@@ -32,7 +44,7 @@ export const FIELD_GROUP_EDIT = gql`
 
 export const FIELD_GROUP_REMOVE = gql`
   mutation FieldGroupRemove($id: String!) {
-    fieldGroupRemove(id: $id) {
+    fieldGroupRemove(_id: $id) {
       _id
     }
   }
@@ -93,6 +105,14 @@ export const FIELD_EDIT = gql`
       logics: $logics
       icon: $icon
     ) {
+      _id
+    }
+  }
+`;
+
+export const FIELD_REMOVE = gql`
+  mutation FieldRemove($id: String!) {
+    fieldRemove(_id: $id) {
       _id
     }
   }

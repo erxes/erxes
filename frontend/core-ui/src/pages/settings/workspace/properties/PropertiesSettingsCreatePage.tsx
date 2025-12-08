@@ -1,4 +1,4 @@
-import { AddProperty } from '@/properties/components/AddProperty';
+import { AddProperty } from '@/properties/components/PropertyAdd';
 
 export const PropertiesSettingsCreatePage = () => {
   return (

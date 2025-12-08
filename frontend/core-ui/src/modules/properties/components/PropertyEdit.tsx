@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { PropertyForm } from './PropertyForm';
 import { useFieldDetail } from '../hooks/useFieldDetail';
 import { useEditProperty } from '../hooks/useEditProperty';
@@ -13,6 +13,7 @@ export const PropertyEdit = () => {
 
   const { fieldDetail, loading } = useFieldDetail({ id: id || '' });
   const { editProperty, loading: editPropertyLoading } = useEditProperty();
+  const navigate = useNavigate();
 
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
@@ -21,6 +22,9 @@ export const PropertyEdit = () => {
         groupId,
         contentType: type,
         ...data,
+      },
+      onCompleted: () => {
+        navigate(`/settings/properties/${type}`);
       },
     });
   };
@@ -32,6 +36,7 @@ export const PropertyEdit = () => {
       onSubmit={handleSubmit}
       loading={editPropertyLoading}
       defaultValues={fieldDetail}
+      isEdit
     />
   );
 };

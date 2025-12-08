@@ -1,4 +1,12 @@
-import { Button, Form, IconPicker, Input, Select, Textarea } from 'erxes-ui';
+import {
+  Button,
+  Form,
+  IconPicker,
+  Input,
+  Select,
+  Spinner,
+  Textarea,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { IPropertyForm } from '../types/Properties';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,15 +16,18 @@ import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
 import { FIELD_TYPES } from '../constants/fieldTypes';
+import { IconPencil, IconPlus } from '@tabler/icons-react';
 
 export const PropertyForm = ({
   onSubmit,
   loading,
   defaultValues,
+  isEdit,
 }: {
   onSubmit: (data: IPropertyForm) => void;
   loading: boolean;
   defaultValues: IPropertyForm;
+  isEdit?: boolean;
 }) => {
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
@@ -117,7 +128,8 @@ export const PropertyForm = ({
         <PropertyFormSelectFields form={form} />
         <PropertySelectRelationType form={form} />
         <Button type="submit" disabled={loading}>
-          Add Property
+          {loading ? <Spinner /> : isEdit ? <IconPencil /> : <IconPlus />}
+          {isEdit ? 'Update' : 'Add'} Property
         </Button>
       </form>
     </Form>

@@ -1,5 +1,5 @@
-import { PropertiesSettings } from '@/properties/components/PropertiesSettings';
+import { PropertyFieldsGroupSettings } from '@/properties/components/PropertyFieldsGroupSettings';
 
 export function PropertiesSettingsPage() {
-  return <PropertiesSettings />;
+  return <PropertyFieldsGroupSettings />;
 }
