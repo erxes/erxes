@@ -4,14 +4,13 @@ import {
   TextOverflowTooltip,
   Tooltip,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { PosInlineProps, IPos } from '../types/pos';
 import { usePosInline } from '../hooks/usePosInline';
 import {
   PosInlineContext,
   usePosInlineContext,
 } from '../context/PosInlineContext';
-import { useMemo } from 'react';
 
 const PosInlineRoot = (props: PosInlineProps) => {
   return (
