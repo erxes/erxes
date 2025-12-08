@@ -9,6 +9,7 @@ import {
   Command,
   Input,
   RecordTableInlineCell,
+  Spinner,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMutation } from '@apollo/client';
@@ -36,19 +37,11 @@ import {
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 
 export function Tag() {
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [isTagDrawerOpen, setIsTagDrawerOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<any | undefined>(undefined);
   const { websiteId } = useParams();
-  const { confirm } = useConfirm();
 
-  console.log('Tag component rendered, isTagDrawerOpen:', isTagDrawerOpen);
-
-  useEffect(() => {
-    console.log('isTagDrawerOpen changed to:', isTagDrawerOpen);
-  }, [isTagDrawerOpen]);
-
-  const { tags, loading, error } = useTags({
+  const { tags, loading, error, refetch } = useTags({
     clientPortalId: websiteId || '',
     limit: 20,
     direction: 'forward',
@@ -97,7 +90,24 @@ export function Tag() {
           confirm({
             message: 'Are you sure you want to delete this tag?',
           }).then(async () => {
-            await removeTag({ variables: { id: row.original._id } });
+            try {
+              await removeTag({
+                variables: { id: row.original._id },
+              });
+              refetch();
+              toast({
+                title: 'Success',
+                description: 'Tag deleted successfully',
+                variant: 'default',
+              });
+            } catch (error) {
+              console.error('Error deleting tag:', error);
+              toast({
+                title: 'Error',
+                description: 'Failed to delete tag',
+                variant: 'destructive',
+              });
+            }
           });
         };
         return (
@@ -168,9 +178,7 @@ export function Tag() {
       accessorKey: 'slug',
       cell: ({ cell }) => (
         <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-500">
-            {(cell.getValue() as string) || ''}
-          </span>
+          <span className="text-sm">{(cell.getValue() as string) || ''}</span>
         </div>
       ),
       size: 260,
@@ -185,7 +193,7 @@ export function Tag() {
         const createdAt = cell.getValue() as string;
         return (
           <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm">
               {createdAt
                 ? new Date(createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -226,7 +234,10 @@ export function Tag() {
     return (
       <CmsLayout headerActions={headerActions}>
         <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500">Loading tags...</div>
+          <div className="text-gray-500 text-center items-center flex gap-2">
+            <Spinner size="md" className="ml-2" />
+            Loading tags...
+          </div>
         </div>
       </CmsLayout>
     );
