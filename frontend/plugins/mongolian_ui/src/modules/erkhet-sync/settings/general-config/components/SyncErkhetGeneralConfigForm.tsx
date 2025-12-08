@@ -17,7 +17,7 @@ export const SyncErkhetGeneralConfigForm = () => {
         <div className="flex flex-col gap-4">
           <h1 className="text-xl font-semibold mb-2">General settings</h1>
           <Form.Field
-            name="ApiKey"
+            name="apiKey"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
@@ -34,7 +34,7 @@ export const SyncErkhetGeneralConfigForm = () => {
             )}
           />
           <Form.Field
-            name="ApiSecret"
+            name="apiSecret"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
@@ -51,7 +51,7 @@ export const SyncErkhetGeneralConfigForm = () => {
             )}
           />
           <Form.Field
-            name="ApiToken"
+            name="apiToken"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
@@ -68,7 +68,7 @@ export const SyncErkhetGeneralConfigForm = () => {
             )}
           />
           <Form.Field
-            name="GetRemainderUrl"
+            name="getRemainderUrl"
             control={form.control}
             render={({ field }) => (
               <Form.Item>

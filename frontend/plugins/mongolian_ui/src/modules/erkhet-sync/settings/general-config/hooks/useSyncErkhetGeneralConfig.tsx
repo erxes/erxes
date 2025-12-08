@@ -7,10 +7,10 @@ import { UPDATE_ERKHET_SYNC_GENERAL_CONFIG } from '../graphql/mutations/syncErkh
 import { SyncErkhetGeneralConfigFormData } from '../types/SyncErkhetGeneralConfigTypes';
 
 export const DEFAULT_VALUES: SyncErkhetGeneralConfigFormData = {
-  ApiKey: '',
-  ApiSecret: '',
-  ApiToken: '',
-  GetRemainderUrl: '',
+  apiKey: '',
+  apiSecret: '',
+  apiToken: '',
+  getRemainderUrl: '',
   costAccount: '',
   salesAccount: '',
   productCategoryCode: '',
@@ -67,10 +67,10 @@ export const useSyncErkhetGeneralConfig = () => {
     setIsUpdating(true);
 
     const payload = {
-      ApiKey: formData.ApiKey,
-      ApiSecret: formData.ApiSecret,
-      ApiToken: formData.ApiToken,
-      GetRemainderUrl: formData.GetRemainderUrl,
+      apiKey: formData.apiKey,
+      apiSecret: formData.apiSecret,
+      apiToken: formData.apiToken,
+      getRemainderUrl: formData.getRemainderUrl,
       costAccount: formData.costAccount,
       salesAccount: formData.salesAccount,
       productCategoryCode: formData.productCategoryCode,
@@ -100,10 +100,10 @@ export const useSyncErkhetGeneralConfig = () => {
     setSelectedFieldGroup(fieldGroup);
 
     form.reset({
-      ApiKey: config.ApiKey || '',
-      ApiSecret: config.ApiSecret || '',
-      ApiToken: config.ApiToken || '',
-      GetRemainderUrl: config.GetRemainderUrl || '',
+      apiKey: config.apiKey || '',
+      apiSecret: config.apiSecret || '',
+      apiToken: config.apiToken || '',
+      getRemainderUrl: config.getRemainderUrl || '',
       costAccount: config.costAccount || '',
       salesAccount: config.salesAccount || '',
       productCategoryCode: config.productCategoryCode || '',

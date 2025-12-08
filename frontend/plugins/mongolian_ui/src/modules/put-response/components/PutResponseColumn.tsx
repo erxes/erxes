@@ -10,6 +10,7 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
+  RelativeDateDisplay,
 } from 'erxes-ui';
 import { IPutResponse } from '@/put-response/types/PutResponseType';
 import { putResponseMoreColumn } from '@/put-response/components/PutResponseMoreColumn';
@@ -65,9 +66,11 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
     header: () => <RecordTable.InlineHead icon={IconUser} label="Date" />,
     cell: ({ cell }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       );
     },
   },
