@@ -23,6 +23,7 @@ export const CheckProductsPage = () => {
       {toCheckProducts && toCheckProducts.length > 0 && (
         <CheckProductRecordTable />
       )}
+
       {toCheckProducts && toCheckProducts.length === 0 && (
         <div className="m-3 text-center text-muted-foreground">
           {loading ? 'Checking...' : 'No data found'}

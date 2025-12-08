@@ -7,9 +7,14 @@ import {
   IconExchange,
   IconAlertTriangle,
 } from '@tabler/icons-react';
-import { Combobox, Command, Filter, useFilterQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  useFilterQueryState,
+  useMultiQueryState,
+} from 'erxes-ui';
 import { SyncHistoryHotKeyScope } from '../types/SyncHistoryHotKeyScope';
-import { useMultiQueryState } from 'erxes-ui';
 import { useSyncErkhetHistoryLeadSessionKey } from '../hooks/useSyncErkhetHistoryLeadSessionKey';
 import { SelectMember } from 'ui-modules';
 import { SyncErkhetHistoryTotalCount } from './SyncErkhetHistoryTotalCount';

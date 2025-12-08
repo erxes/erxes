@@ -146,7 +146,8 @@ export const useSyncErkhetHistory = (
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
           syncHistories: {
             ...mergeCursorData({
               direction,
@@ -155,7 +156,7 @@ export const useSyncErkhetHistory = (
             }),
             totalCount: fetchMoreResult.syncHistories.totalCount,
           },
-        });
+        };
       },
     });
   };

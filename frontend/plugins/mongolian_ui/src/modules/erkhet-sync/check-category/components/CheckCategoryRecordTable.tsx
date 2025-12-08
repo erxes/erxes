@@ -1,9 +1,8 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Button } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { CHECK_CATEGORY_CURSOR_SESSION_KEY } from '../constants/checkCategoryCursorSessionKey';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 import { checkCategoryColumns } from './CheckCategoryColumn';
-import { Button } from 'erxes-ui';
 
 export const CheckCategoryRecordTable = () => {
   const {

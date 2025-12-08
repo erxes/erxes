@@ -1,8 +1,10 @@
 import { Button } from 'erxes-ui';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 
+export type CategoryFilterType = 'create' | 'update' | 'delete';
+
 interface CheckCategoryFilterProps {
-  onFilterClick?: (filter: 'create' | 'update' | 'delete') => void;
+  onFilterClick?: (filter: CategoryFilterType) => void;
 }
 
 export const CheckCategoryFilter = ({
@@ -11,14 +13,15 @@ export const CheckCategoryFilter = ({
   const { selectedFilter, setSelectedFilter, toCheckCategoriesData } =
     useCheckCategory();
 
-  const handleFilterClick = (filter: 'create' | 'update' | 'delete') => {
+  const handleFilterClick = (filter: CategoryFilterType) => {
     if (onFilterClick) {
       onFilterClick(filter);
     } else {
       setSelectedFilter(filter);
     }
   };
-  const getCount = (type: 'create' | 'update' | 'delete') => {
+
+  const getCount = (type: CategoryFilterType) => {
     return toCheckCategoriesData?.[type]?.items?.length || 0;
   };
 
@@ -30,12 +33,14 @@ export const CheckCategoryFilter = ({
       >
         Create Categories ({getCount('create')})
       </Button>
+
       <Button
         variant={selectedFilter === 'update' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('update')}
       >
         Update Categories ({getCount('update')})
       </Button>
+
       <Button
         variant={selectedFilter === 'delete' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('delete')}

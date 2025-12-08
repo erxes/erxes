@@ -1,5 +1,3 @@
-import { IPos } from '../types/pos';
-
 import {
   isUndefinedOrNull,
   Skeleton,
@@ -7,12 +5,13 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { PosInlineProps } from '../types/pos';
+import { PosInlineProps, IPos } from '../types/pos';
 import { usePosInline } from '../hooks/usePosInline';
 import {
   PosInlineContext,
   usePosInlineContext,
 } from '../context/PosInlineContext';
+import { useMemo } from 'react';
 
 const PosInlineRoot = (props: PosInlineProps) => {
   return (
@@ -28,23 +27,21 @@ const PosInlineProvider = ({
   pos,
   placeholder,
   updatePos,
-}: PosInlineProps & {
-  children?: React.ReactNode;
-}) => {
+}: PosInlineProps & { children?: React.ReactNode }) => {
   const [_pos, _setPos] = useState<IPos[]>(pos || []);
 
+  const contextValue = useMemo(() => {
+    return {
+      pos: pos || _pos,
+      loading: false,
+      posIds: posIds || [],
+      placeholder: isUndefinedOrNull(placeholder) ? 'Select pos' : placeholder,
+      updatePos: updatePos || _setPos,
+    };
+  }, [pos, _pos, posIds, placeholder, updatePos]);
+
   return (
-    <PosInlineContext.Provider
-      value={{
-        pos: pos || _pos,
-        loading: false,
-        posIds: posIds || [],
-        placeholder: isUndefinedOrNull(placeholder)
-          ? 'Select pos'
-          : placeholder,
-        updatePos: updatePos || _setPos,
-      }}
-    >
+    <PosInlineContext.Provider value={contextValue}>
       {children}
       {posIds?.map((posId) => (
         <PosInlineEffectComponent key={posId} posId={posId} />

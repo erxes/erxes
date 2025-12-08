@@ -1,7 +1,5 @@
-import { QueryHookOptions } from '@apollo/client';
-import { useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery, gql } from '@apollo/client';
 import { posCommonFields } from '../graphql/queries/posQuery';
-import { gql } from '@apollo/client';
 
 export interface IPosInline {
   _id: string;

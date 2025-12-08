@@ -27,7 +27,6 @@ export const useCheckSyncedDealsVariables = (
     };
   }>['variables'],
 ) => {
-  const { isCheckSyncedDeals } = useCheckSyncedDealsLeadSessionKey();
   const [
     {
       user,
@@ -85,7 +84,8 @@ export const useCheckSyncedDealsVariables = (
           },
         })
       : undefined,
-    type: isCheckSyncedDeals ? 'checkSyncedDeals' : 'checkSyncedDeals',
+    type: 'checkSyncedDeals',
+
     userIds: user ? [user] : undefined,
     boardId: boardId || undefined,
     pipelineId: pipelineId || undefined,
@@ -143,7 +143,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
           deals: {
             ...mergeCursorData({
               direction,
@@ -152,7 +153,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
             }),
             totalCount: fetchMoreResult.deals.totalCount,
           },
-        });
+        };
       },
     });
   };

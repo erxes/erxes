@@ -20,10 +20,10 @@ export const CheckCategoryPage = () => {
         <CheckCategoryFilter onFilterClick={handleFilterClick} />
         <CheckButton />
       </PageSubHeader>
-      {toCheckCategories && toCheckCategories.length > 0 && (
+
+      {toCheckCategories && toCheckCategories.length > 0 ? (
         <CheckCategoryRecordTable />
-      )}
-      {toCheckCategories && toCheckCategories.length === 0 && (
+      ) : (
         <div className="m-3 text-center text-muted-foreground">
           {loading ? 'Checking...' : 'No data found'}
         </div>

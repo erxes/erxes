@@ -1,8 +1,10 @@
-import { useQuery, QueryHookOptions, OperationVariables } from '@apollo/client';
-import { gql } from '@apollo/client';
-
+import {
+  useQuery,
+  QueryHookOptions,
+  OperationVariables,
+  gql,
+} from '@apollo/client';
 import { POS_QUERY } from '../graphql/queries/posQuery';
-
 import { IPos } from '../types/pos';
 
 const POS_PER_PAGE = 20;
