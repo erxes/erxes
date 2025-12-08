@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { FIELD_REMOVE } from '../graphql/mutations/propertiesMutations';
 import { toast } from 'erxes-ui';
-import { FIELDS_QUERY } from '../graphql/queries/propertiesQueries';
+import { FIELDS_QUERY } from 'ui-modules';
 
 export const useFieldRemove = ({ groupId }: { groupId: string }) => {
   const [removeField, { loading }] = useMutation(FIELD_REMOVE, {

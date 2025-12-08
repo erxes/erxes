@@ -1,16 +1,25 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import { useCustomers } from '@/contacts/customers/hooks/useCustomers';
 import { customersColumns } from './CustomersColumns';
 import { CustomersCommandBar } from '@/contacts/customers/components/customers-command-bar';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
+import { ICustomer, useFields, useFieldsColumns } from 'ui-modules';
+import { ColumnDef } from '@tanstack/react-table';
+
 export const CustomersRecordTable = () => {
   const { customers, handleFetchMore, loading, pageInfo } = useCustomers();
+  const { fields, loading: fieldsLoading } = useFields({
+    contentType: 'core:customer',
+  });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsCustomerLeadSessionKey();
+  const columns = useFieldsColumns({ fields });
+
+  if (fieldsLoading) return <Spinner />;
 
   return (
     <RecordTable.Provider
-      columns={customersColumns}
+      columns={[...customersColumns, ...columns] as ColumnDef<ICustomer>[]}
       data={customers || [{}]}
       stickyColumns={['more', 'checkbox', 'avatar', 'name']}
       className="m-3"
@@ -27,7 +36,7 @@ export const CustomersRecordTable = () => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading ? (
+            {loading || fieldsLoading ? (
               <RecordTable.RowSkeleton rows={32} />
             ) : (
               <RecordTable.RowList />

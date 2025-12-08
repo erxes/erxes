@@ -15,7 +15,7 @@ import { propertySchema } from '../propertySchema';
 import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
-import { FIELD_TYPES } from '../constants/fieldTypes';
+import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 
 export const PropertyForm = ({
@@ -34,11 +34,22 @@ export const PropertyForm = ({
     defaultValues,
   });
 
+  const handleSubmit = (data: IPropertyForm) => {
+    if (FIELD_TYPES_OBJECT.relation.value === data.type) {
+      onSubmit({
+        ...data,
+        type: 'relation:' + data.relationType,
+      });
+    } else {
+      onSubmit(data);
+    }
+  };
+
   return (
     <Form {...form}>
       <form
         className="w-full flex flex-col gap-5"
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
           console.log(errors);
         })}
       >

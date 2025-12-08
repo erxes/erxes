@@ -7,26 +7,20 @@ import {
   Table,
   useConfirm,
 } from 'erxes-ui';
-import { useFields } from '../hooks/useFields';
+import { useFields } from 'ui-modules';
 import { Link, useParams } from 'react-router';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { useFieldRemove } from '../hooks/useFieldRemove';
+import { IField } from 'ui-modules';
+import { CORE_RELATION_TYPES } from '../constants/coreRelationTypes';
+import { getFieldType } from '../utils/getFieldType';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
   const { type } = useParams<{ type: string }>();
-  const { fields, loading } = useFields({ groupId, contentType: type || '' });
-  const { confirm } = useConfirm();
-  const { removeField, loading: removeFieldLoading } = useFieldRemove({
+  const { fields, loading } = useFields({
     groupId,
+    contentType: type || '',
   });
-
-  const handleDeleteField = (fieldId: string) => {
-    confirm({
-      message: 'Are you sure you want to delete this field?',
-    }).then(() => {
-      removeField({ variables: { id: fieldId } });
-    });
-  };
 
   if (loading)
     return (
@@ -55,74 +49,98 @@ export const Properties = ({ groupId }: { groupId: string }) => {
   return (
     <>
       {fields.map((field) => (
-        <Table.Row className="hover:bg-sidebar" key={field._id}>
-          <Table.Cell>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-full w-full justify-start hover:bg-transparent"
-              asChild
-            >
-              <div>
-                <IconComponent name={field.icon} />
-                {field.name}
-              </div>
-            </Button>
-          </Table.Cell>
-          <Table.Cell>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-full w-full justify-start hover:bg-transparent text-muted-foreground"
-              asChild
-            >
-              <div>
-                {
-                  FIELD_TYPES_OBJECT[
-                    field.type as keyof typeof FIELD_TYPES_OBJECT
-                  ].icon
-                }
-                {
-                  FIELD_TYPES_OBJECT[
-                    field.type as keyof typeof FIELD_TYPES_OBJECT
-                  ].label
-                }
-              </div>
-            </Button>
-          </Table.Cell>
-          <Table.Cell className="w-8 p-0.5">
-            <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-full w-full text-muted-foreground size-7"
-                >
-                  <IconDots />
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content className="min-w-48">
-                <DropdownMenu.Item asChild>
-                  <Link
-                    to={`/settings/properties/${type}/${groupId}/${field._id}`}
-                  >
-                    <IconEdit />
-                    Edit
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="text-destructive"
-                  disabled={removeFieldLoading}
-                  onClick={() => handleDeleteField(field._id)}
-                >
-                  {removeFieldLoading ? <Spinner /> : <IconTrash />}
-                  Delete
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu>
-          </Table.Cell>
-        </Table.Row>
+        <PropertyRow field={field} groupId={groupId} />
       ))}
     </>
+  );
+};
+
+const PropertyRow = ({
+  field,
+  groupId,
+}: {
+  field: IField;
+  groupId: string;
+}) => {
+  const { confirm } = useConfirm();
+  const { removeField, loading: removeFieldLoading } = useFieldRemove({
+    groupId,
+  });
+  const { type, name, icon, _id } = field;
+
+  const handleDeleteField = (fieldId: string) => {
+    confirm({
+      message: 'Are you sure you want to delete this field?',
+    }).then(() => {
+      removeField({ variables: { id: fieldId } });
+    });
+  };
+
+  const { type: fieldType, relationType } = getFieldType(type || '');
+  const fieldTypeObject = FIELD_TYPES_OBJECT[fieldType];
+
+  return (
+    <Table.Row className="hover:bg-sidebar" key={_id}>
+      <Table.Cell>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-full w-full justify-start hover:bg-transparent"
+          asChild
+        >
+          <div>
+            <IconComponent name={icon} />
+            {name}
+          </div>
+        </Button>
+      </Table.Cell>
+      <Table.Cell>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-full w-full justify-start hover:bg-transparent text-muted-foreground"
+          asChild
+        >
+          <div>
+            {fieldTypeObject?.icon}
+            {fieldTypeObject?.label}
+            {fieldType === 'relation' &&
+              ` (${
+                CORE_RELATION_TYPES.find((type) => type.value === relationType)
+                  ?.label
+              })`}
+          </div>
+        </Button>
+      </Table.Cell>
+      <Table.Cell className="w-8 p-0.5">
+        <DropdownMenu>
+          <DropdownMenu.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-full w-full text-muted-foreground size-7"
+            >
+              <IconDots />
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content className="min-w-48">
+            <DropdownMenu.Item asChild>
+              <Link to={`/settings/properties/${type}/${groupId}/${_id}`}>
+                <IconEdit />
+                Edit
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              className="text-destructive"
+              disabled={removeFieldLoading}
+              onClick={() => handleDeleteField(_id)}
+            >
+              {removeFieldLoading ? <Spinner /> : <IconTrash />}
+              Delete
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu>
+      </Table.Cell>
+    </Table.Row>
   );
 };

@@ -31,7 +31,7 @@ export const PropertyFieldsGroupSettings = () => {
               <Table.Row>
                 <Table.Head>Name</Table.Head>
                 <Table.Head>Data type</Table.Head>
-                <Table.Head></Table.Head>
+                <Table.Head className="w-12"></Table.Head>
               </Table.Row>
             </Table.Header>
           </Table>

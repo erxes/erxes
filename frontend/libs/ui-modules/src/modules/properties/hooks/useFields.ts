@@ -1,13 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { FIELDS_QUERY } from '../graphql/queries/propertiesQueries';
+import { FIELDS_QUERY } from '../graphql/fieldsQueries';
 import { ICursorListResponse } from 'erxes-ui';
-import { IField } from 'ui-modules';
+import { IField } from '../types/fieldsTypes';
 
 export const useFields = ({
   groupId,
   contentType,
 }: {
-  groupId: string;
+  groupId?: string;
   contentType: string;
 }) => {
   const { data, loading } = useQuery<ICursorListResponse<IField>>(
@@ -21,6 +21,7 @@ export const useFields = ({
       },
     },
   );
+
   return {
     fields: data?.fields?.list || [],
     loading,
