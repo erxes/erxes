@@ -1,8 +1,8 @@
 import { ApolloError, MutationHookOptions, useMutation } from '@apollo/client';
 
+import { GET_PRODUCTS } from '@/deals/cards/components/detail/product/graphql/queries/ProductQueries';
 import { IProduct } from 'ui-modules';
 import { productRemove } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
-import { productsMain } from '@/deals/cards/components/detail/product/graphql/queries/ProductQueries';
 import { useToast } from 'erxes-ui';
 
 const PRODUCTS_PAGE_SIZE = 30;
@@ -36,7 +36,7 @@ export const useRemoveProducts = () => {
         try {
           cache.updateQuery(
             {
-              query: productsMain,
+              query: GET_PRODUCTS,
               variables: { perPage: PRODUCTS_PAGE_SIZE, dateFilters: null },
             },
             ({ productsMain }) => ({

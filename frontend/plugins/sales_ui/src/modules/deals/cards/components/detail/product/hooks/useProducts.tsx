@@ -1,7 +1,5 @@
 'use client';
-import { QueryHookOptions, useQuery } from '@apollo/client';
 
-import { GET_PRODUCTS } from '../graphql/queries/ProductQueries';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -9,16 +7,17 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { QueryHookOptions, useQuery } from '@apollo/client';
+
+import { GET_PRODUCTS } from '../graphql/queries/ProductQueries';
 import { IProduct } from 'ui-modules';
-import { PRODUCTS_CURSOR_SESSION_KEY } from '../constant/productsCursorSessionKey';
 
 export const PRODUCTS_PER_PAGE = 30;
 
 export const useProducts = (options?: QueryHookOptions) => {
   const { cursor } = useRecordTableCursor({
-    sessionKey: PRODUCTS_CURSOR_SESSION_KEY,
+    sessionKey: 'products-cursor',
   });
-  console.log('aaa');
   const { data, loading, fetchMore } = useQuery<{
     productsMain: {
       list: IProduct[];
@@ -33,7 +32,7 @@ export const useProducts = (options?: QueryHookOptions) => {
       ...options?.variables,
     },
   });
-  console.log('hereee', data);
+
   const { list: productsMain, totalCount, pageInfo } = data?.productsMain || {};
 
   const handleFetchMore = ({
@@ -71,7 +70,7 @@ export const useProducts = (options?: QueryHookOptions) => {
       },
     });
   };
-  console.log('kkkk', productsMain);
+
   return {
     loading,
     productsMain,

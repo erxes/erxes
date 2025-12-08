@@ -15,8 +15,6 @@ import {
   IconDiamond,
   IconLabel,
   IconPentagonNumber1,
-  IconPercentage,
-  IconRosetteDiscount,
   IconUser,
 } from '@tabler/icons-react';
 
@@ -137,9 +135,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
   {
     id: 'discountPercent',
     accessorKey: 'discountPercent',
-    header: () => (
-      <RecordTable.InlineHead icon={IconRosetteDiscount} label="Discount %" />
-    ),
+    header: () => <RecordTable.InlineHead label="Discount %" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -157,9 +153,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
   {
     id: 'discount',
     accessorKey: 'discount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconPercentage} label="Discount" />
-    ),
+    header: () => <RecordTable.InlineHead label="Discount" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

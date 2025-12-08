@@ -14,7 +14,7 @@ export const ProductsDelete = ({
 }) => {
   const { confirm } = useConfirm();
   const { removeProducts } = useRemoveProducts();
-  const processId = localStorage.getItem('processId');
+  const processId = localStorage.getItem('processId') || '';
 
   return (
     <Button
