@@ -210,6 +210,26 @@ export const useSlotManager = (
         position?: { x: number; y: number };
       },
     ) => {
+      // Compute clamped position if provided
+      let clampedPosition: { x: number; y: number } | undefined;
+      if (dimensions.position !== undefined) {
+        const node = nodesRef.current.find((n) => n.id === nodeId);
+        const nodeWidth =
+          dimensions.width ??
+          node?.data?.width ??
+          DEFAULT_SLOT_DIMENSIONS.WIDTH;
+        const nodeHeight =
+          dimensions.height ??
+          node?.data?.height ??
+          DEFAULT_SLOT_DIMENSIONS.HEIGHT;
+        const maxX = Math.max(0, CANVAS.WIDTH - nodeWidth);
+        const maxY = Math.max(0, CANVAS.HEIGHT - nodeHeight);
+        clampedPosition = {
+          x: clamp(dimensions.position.x, 0, maxX),
+          y: clamp(dimensions.position.y, 0, maxY),
+        };
+      }
+
       const updateNode = (node: CustomNode) => {
         if (node.id === nodeId) {
           const updatedNode = {
@@ -222,17 +242,17 @@ export const useSlotManager = (
               ...(dimensions.height !== undefined && {
                 height: dimensions.height,
               }),
-              ...(dimensions.position !== undefined && {
-                positionX: dimensions.position.x,
-                positionY: dimensions.position.y,
+              ...(clampedPosition !== undefined && {
+                positionX: clampedPosition.x,
+                positionY: clampedPosition.y,
               }),
             },
             ...(dimensions.width !== undefined && { width: dimensions.width }),
             ...(dimensions.height !== undefined && {
               height: dimensions.height,
             }),
-            ...(dimensions.position !== undefined && {
-              position: dimensions.position,
+            ...(clampedPosition !== undefined && {
+              position: clampedPosition,
             }),
           };
           return updatedNode;
@@ -252,15 +272,15 @@ export const useSlotManager = (
             ...(dimensions.height !== undefined && {
               height: dimensions.height,
             }),
-            ...(dimensions.position !== undefined && {
-              positionX: dimensions.position.x,
-              positionY: dimensions.position.y,
+            ...(clampedPosition !== undefined && {
+              positionX: clampedPosition.x,
+              positionY: clampedPosition.y,
             }),
           },
           ...(dimensions.width !== undefined && { width: dimensions.width }),
           ...(dimensions.height !== undefined && { height: dimensions.height }),
-          ...(dimensions.position !== undefined && {
-            position: dimensions.position,
+          ...(clampedPosition !== undefined && {
+            position: clampedPosition,
           }),
         });
 
@@ -272,9 +292,9 @@ export const useSlotManager = (
           ...(dimensions.height !== undefined && {
             height: String(dimensions.height),
           }),
-          ...(dimensions.position !== undefined && {
-            left: String(dimensions.position.x),
-            top: String(dimensions.position.y),
+          ...(clampedPosition !== undefined && {
+            left: String(clampedPosition.x),
+            top: String(clampedPosition.y),
           }),
         }));
       }
@@ -361,7 +381,7 @@ export const useSlotManager = (
     const x = 250 + (nodeCount % 3) * 200;
     const y = 100 + Math.floor(nodeCount / 3) * 150;
 
-    const newNode: CustomNode = {
+    const proposedNode: CustomNode = {
       id: newId,
       type: 'tableNode',
       position: { x, y },
@@ -383,6 +403,17 @@ export const useSlotManager = (
       },
     };
 
+    // Clamp position to canvas bounds
+    const clampedNode = clampPositionForNode(proposedNode);
+    const newNode: CustomNode = {
+      ...clampedNode,
+      data: {
+        ...clampedNode.data,
+        positionX: clampedNode.position.x,
+        positionY: clampedNode.position.y,
+      },
+    };
+
     // Update both ReactFlow state and usePosSlots state
     setNodes((nds) => [...nds, newNode]);
     setHookNodes((nds) => [...nds, newNode]);
@@ -391,7 +422,7 @@ export const useSlotManager = (
       title: 'Slot added',
       description: `Added new slot: ${newNode.data.label}`,
     });
-  }, [generateNextId, setNodes, setHookNodes, toast]);
+  }, [generateNextId, setNodes, setHookNodes, toast, clampPositionForNode]);
 
   const handleSaveSlotDetail = useCallback(async () => {
     if (!selectedNodeRef.current) return false;
