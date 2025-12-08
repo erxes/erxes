@@ -34,6 +34,7 @@ export interface CustomNode {
   };
   width?: number;
   height?: number;
+  zIndex?: number;
 }
 
 export interface SlotDetailForm {

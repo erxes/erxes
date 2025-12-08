@@ -65,6 +65,7 @@ export const DefaultNode: CustomNode = {
   id: '1',
   type: 'tableNode',
   position: { x: 250, y: 100 },
+  zIndex: 0,
   data: {
     label: 'TABLE 1',
     code: '1',

@@ -153,9 +153,9 @@ export const PosFields = ({ form, productGroupsRef }: PosFieldsProps) => {
             {productGroups.map((group) => (
               <div
                 key={group._id}
-                className="flex justify-between items-center px-3 py-2 text-sm rounded-md border bg-background"
+                className="flex gap-2 justify-between items-center px-3 py-2 text-sm rounded-md border bg-background"
               >
-                <span>{group.name}</span>
+                <span className="flex-1 min-w-0 break-all">{group.name}</span>
                 <div className="flex gap-1">
                   <Button
                     variant="outline"

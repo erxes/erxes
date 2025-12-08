@@ -44,6 +44,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
         position: { x, y },
         width,
         height,
+        zIndex: Number(slot.option?.zIndex) || 0,
         data: {
           label: slot.name || `TABLE ${slot._id}`,
           code: slot.code || slot._id,
@@ -80,7 +81,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
             rotateAngle: node.data.rotateAngle || 0,
             borderRadius: Number(node.data.rounded) || 0,
             color: node.data.color || '#4F46E5',
-            zIndex: node.data.zIndex || 0,
+            zIndex: node.zIndex ?? node.data.zIndex ?? 0,
             isShape: false,
           },
         };
@@ -151,6 +152,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
         position: { x, y },
         width,
         height,
+        zIndex: nodeData?.zIndex || 0,
         data: {
           label: nodeData?.label || `TABLE ${newId}`,
           code: nodeData?.code || newId,

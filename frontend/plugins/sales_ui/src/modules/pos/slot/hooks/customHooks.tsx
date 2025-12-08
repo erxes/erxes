@@ -351,6 +351,7 @@ export const useSlotManager = (
       position: { x, y },
       width: DEFAULT_SLOT_DIMENSIONS.WIDTH,
       height: DEFAULT_SLOT_DIMENSIONS.HEIGHT,
+      zIndex: 0,
       data: {
         label: `TABLE ${newId}`,
         code: newId,
@@ -393,6 +394,7 @@ export const useSlotManager = (
       position: { x, y },
       width,
       height,
+      zIndex,
       data: {
         ...selectedNodeRef.current.data,
         label: slotDetail.name || `TABLE ${selectedNodeRef.current.id}`,
@@ -482,6 +484,7 @@ export const useSlotManager = (
         },
         width: nodeToDuplicate.width || nodeToDuplicate.data.width,
         height: nodeToDuplicate.height || nodeToDuplicate.data.height,
+        zIndex: nodeToDuplicate.zIndex ?? nodeToDuplicate.data.zIndex ?? 0,
         data: {
           ...nodeToDuplicate.data,
           code: newId,
@@ -541,6 +544,7 @@ export const useSlotManager = (
         id: newId,
         type: 'tableNode',
         position: { x: newPositionX, y: newPositionY },
+        zIndex: nodeData?.zIndex || 0,
         data: {
           label: nodeData?.label || `TABLE ${newId}`,
           code: nodeData?.code || newId,
@@ -550,7 +554,6 @@ export const useSlotManager = (
           positionX: newPositionX,
           positionY: newPositionY,
           rounded: typeof nodeData?.rounded === 'number' ? nodeData.rounded : 0,
-
           rotateAngle: nodeData?.rotateAngle || 0,
           zIndex: nodeData?.zIndex || 0,
           disabled: nodeData?.disabled || false,

@@ -45,6 +45,19 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
       return;
     }
 
+    if (isSyncErkhet) {
+      const trimmedEmail = userEmail.trim();
+      const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+      if (!trimmedEmail || !isValidEmail) {
+        toast({
+          title: 'Invalid email',
+          description: 'Please enter a valid email address.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     try {
       const currentConfig = cleanData(posDetail?.erkhetConfig || {});
       await posEdit({
@@ -131,6 +144,7 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
                   setUserEmail(e.target.value);
                   setHasChanges(true);
                 }}
+                type="email"
                 placeholder="Enter user email"
               />
             </div>
@@ -143,6 +157,7 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
                   setBeginNumber(e.target.value);
                   setHasChanges(true);
                 }}
+                type="number"
                 placeholder="Enter begin number"
               />
             </div>
