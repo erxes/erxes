@@ -1,11 +1,13 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
+
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
     default: module.MainNavigation,
   })),
 );
+
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
   icon: IconSandbox,
@@ -18,6 +20,7 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
+
   modules: [
     {
       name: 'ebarimt',
