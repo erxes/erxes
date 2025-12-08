@@ -71,6 +71,7 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
             mode="multiple"
             label="By Label"
             variant="card"
+            targetId={_id}
           />
           {/* <SelectCompany
                   value={field.value}
