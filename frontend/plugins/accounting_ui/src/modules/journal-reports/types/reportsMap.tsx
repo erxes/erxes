@@ -22,7 +22,15 @@ export interface IGroupRule {
   group_rule?: IGroupRule | null;
 }
 
-export const GroupRules: any = {
+interface ReportConfig {
+  colCount: number;
+  choices: Array<{ code: string; title: string }>;
+  groups: {
+    [key: string]: IGroupRule;
+  };
+}
+
+export const GroupRules: Record<string, ReportConfig> = {
   tb: {
     colCount: 6,
     choices: [
@@ -34,7 +42,7 @@ export const GroupRules: any = {
         'key': 'gr',
         'group': 'account_id',
         'code': 'account__code',
-        'group_rule': {},
+        'group_rule': null,
         'name': 'account__name',
       },
       cat: {
@@ -48,7 +56,7 @@ export const GroupRules: any = {
           'group': 'account_id',
           'code': 'account__code',
           'name': 'account__name',
-          'group_rule': {}
+          'group_rule': null
         }
       }
     }

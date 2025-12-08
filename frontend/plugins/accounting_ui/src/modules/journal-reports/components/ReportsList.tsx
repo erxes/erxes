@@ -15,7 +15,7 @@ export const ReportsList = () => {
     <ul>
       {AllReportsMap.map((report) => (
         <li key={report.key} className='flex'>
-          {report.icon && <IconComponent name={report.icon} /> || <IconReport />}
+          {report.icon ? <IconComponent name={report.icon} /> : <IconReport />}
           <Button variant="ghost" className={cn(activeReport === report.key && 'text-primary')} onClick={() => setActiveReport(report.key)}>
             {report.title}
           </Button>

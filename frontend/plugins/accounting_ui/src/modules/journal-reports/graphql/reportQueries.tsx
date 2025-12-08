@@ -56,7 +56,7 @@ const trsFilterParams = `
   departmentId: $departmentId,
   currency: $currency,
   journal: $journal,
-  journals: $journals
+  journals: $journals,
   statuses: $statuses,
 
   createdUserId: $createdUserId,

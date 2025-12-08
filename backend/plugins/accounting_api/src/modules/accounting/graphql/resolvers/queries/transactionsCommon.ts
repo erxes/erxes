@@ -193,7 +193,7 @@ const generateFilter = async (
 
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-    filter.description = { $in: [regex] };
+    filter.description = regex;
   }
 
   if (ptrStatus) {

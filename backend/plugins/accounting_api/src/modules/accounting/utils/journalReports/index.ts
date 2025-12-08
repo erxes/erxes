@@ -6,7 +6,7 @@ import { IReportFilterParams } from "../../graphql/resolvers/queries/journalRepo
 import { handleMainTB } from "./tb";
 
 export const getRecords = async (subdomain: string, models: IModels, report: string, filterParams: IReportFilterParams, user: IUserDocument) => {
-  const handler = await getReportHandler(report);
+  const handler = getReportHandler(report);
   if (!handler) throw new Error(`Unsupported journal: ${report}`);
 
   const { records } = await handler(subdomain, models, filterParams, user);
@@ -14,7 +14,7 @@ export const getRecords = async (subdomain: string, models: IModels, report: str
   return records;
 }
 
-const getReportHandler = async (report) => {
+const getReportHandler = (report: string) => {
   const handlers: Record<
     string,
     (
@@ -100,7 +100,7 @@ export const generateFilter = async (
 
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-    filter.description = { $in: [regex] };
+    filter.description = regex;
   }
 
   if (ptrStatus) {
