@@ -5,6 +5,7 @@ import { Button, Sheet, Input, Label, Textarea } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
+import { nanoid } from 'nanoid';
 
 interface AddGroupFormData {
   groupName: string;
@@ -65,11 +66,11 @@ export const AddGroupSheet: React.FC<AddGroupSheetProps> = ({
     }
   };
 
+  const generateId = () => nanoid();
+
   const onSubmit = (data: AddGroupFormData) => {
     const groupData: ProductGroup = {
-      _id:
-        editingGroup?._id ||
-        `temporaryId${Math.random().toString(36).substring(2, 11)}`,
+      _id: editingGroup?._id || `temporaryId${generateId()}`,
       name: data.groupName,
       description: data.groupDescription,
       categoryIds,

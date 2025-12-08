@@ -47,7 +47,13 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
 
     if (isSyncErkhet) {
       const trimmedEmail = userEmail.trim();
-      const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+      const atIndex = trimmedEmail.indexOf('@');
+      const dotIndex = trimmedEmail.lastIndexOf('.');
+      const isValidEmail =
+        atIndex > 0 &&
+        dotIndex > atIndex + 1 &&
+        dotIndex < trimmedEmail.length - 1 &&
+        !trimmedEmail.includes(' ');
       if (!trimmedEmail || !isValidEmail) {
         toast({
           title: 'Invalid email',

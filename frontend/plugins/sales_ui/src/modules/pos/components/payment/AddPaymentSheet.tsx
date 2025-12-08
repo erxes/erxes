@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { nanoid } from 'nanoid';
 import { Button, Label, Input, Select, Sheet } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import PaymentIcon from '@/pos/constants';
@@ -33,13 +34,7 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
   const [formIcon, setFormIcon] = useState('');
   const [formConfig, setFormConfig] = useState('');
 
-  const generateId = () => {
-    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-      return crypto.randomUUID();
-    }
-
-    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  };
+  const generateId = () => nanoid();
 
   useEffect(() => {
     if (editingPayment) {

@@ -16,6 +16,7 @@ import { SelectBoardFormItem } from '@/pos/hooks/useSelectBoard';
 import { SelectPipelineFormItem } from '@/pos/hooks/useSelectPipeline';
 import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
 import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
+import { nanoid } from 'nanoid';
 
 export interface CardConfig {
   _id?: string;
@@ -107,10 +108,11 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
     form.setValue('stageId', '');
   };
 
+  const generateId = () => nanoid();
+
   const onSubmit = (data: CardConfig) => {
     const configData: CardConfig = {
-      _id:
-        editingConfig?._id || `${Math.random().toString(36).substring(2, 11)}`,
+      _id: editingConfig?._id || `temporaryId${generateId()}`,
       branchId: data.branchId,
       boardId: data.boardId,
       pipelineId: data.pipelineId,
