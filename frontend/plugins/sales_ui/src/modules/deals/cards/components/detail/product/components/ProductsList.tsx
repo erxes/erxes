@@ -1,8 +1,9 @@
 import { Button, Input, Label, Switch } from 'erxes-ui';
-import { IProduct, SelectProductsBulk } from 'ui-modules';
+import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 
 import FilterButton from './FilterButton';
+import { IProductRecord } from '@/deals/types/products';
 import { ProductsRecordTable } from './ProductRecordTable';
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
@@ -11,14 +12,17 @@ import { useState } from 'react';
 
 const ProductsList = ({
   products,
+  productsData,
   dealId,
   refetch,
 }: {
   products: IProduct[];
+  productsData: IProductData[];
   dealId: string;
   refetch: () => void;
 }) => {
   const { createDealsProductData } = useDealsCreateProductsData();
+
   const [vatPercent, setVatPercent] = useState(0);
   const [discount, setDiscount] = useState<{
     [currency: string]: { value?: number; percent?: number };
@@ -31,6 +35,11 @@ const ProductsList = ({
   const currentUser = useAtomValue(currentUserState);
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
+
+  const productRecords = productsData.map((data) => ({
+    ...data,
+    product: products.find((p) => p._id === data.productId),
+  }));
 
   const applyVat = () => {
     // const { productsData, onChangeProductsData } = this.props;
@@ -51,7 +60,7 @@ const ProductsList = ({
     // onChangeProductsData(updatedData);
     // this.updateTotal(updatedData);
   };
-
+  console.log('ppp', productRecords);
   // const showTotal = (totalKind: { [currency: string]: number }, kindTxt: string) => {
   //   return (Object.keys(totalKind) || []).map(currency => (
   //     <ProductTotal
@@ -137,7 +146,7 @@ const ProductsList = ({
         </div>
       </div>
       <ProductsRecordTable
-        products={products || ([] as IProduct[])}
+        products={productRecords || ([] as IProductData[])}
         refetch={refetch}
         dealId={dealId}
       />

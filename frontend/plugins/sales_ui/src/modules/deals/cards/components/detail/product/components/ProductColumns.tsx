@@ -1,4 +1,7 @@
+'use client';
+
 import {
+  Checkbox,
   CurrencyCode,
   CurrencyFormatedDisplay,
   INumberFieldContainerProps,
@@ -18,38 +21,68 @@ import {
 } from '@tabler/icons-react';
 
 import { ColumnDef } from '@tanstack/table-core';
-import { IProduct } from 'ui-modules';
+import { IProductData } from 'ui-modules';
+import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
+import clsx from 'clsx';
 import { productMoreColumn } from './ProductMoreColumn';
+import { useState } from 'react';
+import { useUpdateProductRecord } from '../hooks/useProductRecord';
 
-const ProductTextField = ({
+const ProductNumberField = ({
   value,
   field,
   _id,
   product,
-}: INumberFieldContainerProps & { product: IProduct }) => {
-  // const { editProduct } = useProductEdit();
+}: INumberFieldContainerProps & { product: IProductData }) => {
+  const { updateRecord } = useUpdateProductRecord();
+
   return (
     <NumberField
       value={value}
       scope={`product-${_id}-${field}`}
       onSave={(value) => {
-        // editProduct(
-        //   {
-        //     variables: { ...product, [field]: value },
-        //   },
-        //   [field],
-        // );
+        updateRecord(product, { [field]: value });
       }}
     />
   );
 };
 
-export const productColumns: ColumnDef<IProduct>[] = [
+export const CheckInputField = ({
+  value,
+  field,
+  product,
+}: {
+  value: boolean;
+  field: string;
+  product: IProductData;
+}) => {
+  const { updateRecord } = useUpdateProductRecord();
+  const [checked, setChecked] = useState(value);
+
+  const handleChange = (checked: boolean | 'indeterminate') => {
+    const normalized = checked === true;
+    setChecked(normalized); // updates checkbox visually
+    updateRecord(product, { [field]: normalized });
+  };
+
+  return (
+    <RecordTableInlineCell>
+      <Checkbox
+        className="mt-0!"
+        checked={checked}
+        onCheckedChange={handleChange}
+      />
+    </RecordTableInlineCell>
+  );
+};
+
+export const productColumns: ColumnDef<IProductData>[] = [
   productMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IProduct>,
+  RecordTable.checkboxColumn as ColumnDef<IProductData>,
   {
     id: 'name',
     accessorKey: 'name',
+    accessorFn: (row) => row.product?.name,
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label="Product/Service" />
     ),
@@ -64,6 +97,7 @@ export const productColumns: ColumnDef<IProduct>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
+    accessorFn: (row) => row.product?.unitPrice,
     header: () => (
       <RecordTable.InlineHead icon={IconCurrencyDollar} label="Unit Price" />
     ),
@@ -89,8 +123,8 @@ export const productColumns: ColumnDef<IProduct>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductTextField
-            value={cell.getValue() as number}
+          <ProductNumberField
+            value={Number(cell.getValue()) || 0}
             field="quantity"
             _id={cell.row.original._id}
             product={cell.row.original}
@@ -109,8 +143,8 @@ export const productColumns: ColumnDef<IProduct>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductTextField
-            value={cell.getValue() as number}
+          <ProductNumberField
+            value={Number(cell.getValue()) || 0}
             field="discountPercent"
             _id={cell.row.original._id}
             product={cell.row.original}
@@ -118,6 +152,7 @@ export const productColumns: ColumnDef<IProduct>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 100,
   },
   {
     id: 'discount',
@@ -128,8 +163,8 @@ export const productColumns: ColumnDef<IProduct>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductTextField
-            value={(cell.getValue() as number) || 0}
+          <ProductNumberField
+            value={Number(cell.getValue()) || 0}
             field="discount"
             _id={cell.row.original._id}
             product={cell.row.original}
@@ -137,59 +172,78 @@ export const productColumns: ColumnDef<IProduct>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 100,
   },
   {
     id: 'amount',
     accessorKey: 'amount',
+    accessorFn: (row) => {
+      const quantity = row.quantity || 0;
+      const unitPrice = row.unitPrice || row.product?.unitPrice || 0;
+      const discount = row.discount || 0;
+
+      return quantity * unitPrice - discount;
+    },
     header: () => <RecordTable.InlineHead icon={IconDiamond} label="Amount" />,
     cell: ({ cell }) => {
+      const value = cell.getValue() as number;
+
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={`${(cell.getValue() as number) || 0}%`} />
+          <TextOverflowTooltip value={`${value.toLocaleString()}₮`} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'tick',
-    accessorKey: 'tick',
+    id: 'tickUsed',
+    accessorKey: 'tickUsed',
     header: () => <RecordTable.InlineHead label="Tick used" />,
     cell: ({ cell }) => {
+      const value = !!cell.getValue() as boolean;
       return (
-        <RecordTableInlineCell>
-          {cell.getValue() ? 'tick' : '-'}
-        </RecordTableInlineCell>
+        <CheckInputField
+          value={value}
+          field="tickUsed"
+          product={cell.row.original}
+        />
       );
     },
     size: 100,
   },
   {
-    id: 'vat',
-    accessorKey: 'vat',
+    id: 'isVatApplied',
+    accessorKey: 'isVatApplied',
     header: () => <RecordTable.InlineHead label="Vat applied" />,
     cell: ({ cell }) => {
+      const value = !!cell.getValue() as boolean;
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={`${(cell.getValue() as number) || 0}%`} />
-        </RecordTableInlineCell>
+        <CheckInputField
+          value={value}
+          field="isVatApplied"
+          product={cell.row.original}
+        />
       );
     },
-    size: 100,
+    size: 120,
   },
   {
-    id: 'assigned',
-    accessorKey: 'assigned',
+    id: 'assignedUserId',
+    accessorKey: 'assignedUserId',
     header: () => (
       <RecordTable.InlineHead icon={IconUser} label="Assigned to" />
     ),
     cell: ({ cell }) => {
-      const createdUser = cell.getValue() as any;
-      const name = createdUser?.details?.fullName || createdUser?.email || '—';
-      return (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-700">{name}</span>
-        </div>
-      );
+      <SelectAssigneeDeal
+        variant="table"
+        id={cell.row.original._id}
+        value={
+          cell.row.original.assignedUserId
+            ? [cell.row.original.assignedUserId]
+            : []
+        }
+        scope={clsx(cell.row.original._id, 'Assignee')}
+      />;
     },
   },
 ];

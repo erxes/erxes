@@ -1,4 +1,4 @@
-import { IProduct } from 'ui-modules';
+import { IProductData } from 'ui-modules';
 import { ProductCommandBar } from '../product-command-bar/ProductCommandBar';
 import { RecordTable } from 'erxes-ui';
 import { productColumns } from './ProductColumns';
@@ -8,7 +8,7 @@ export const ProductsRecordTable = ({
   refetch,
   dealId,
 }: {
-  products: IProduct[];
+  products: IProductData[];
   refetch: () => void;
   dealId: string;
 }) => {

@@ -7,15 +7,15 @@ import {
 } from '@apollo/client';
 import { useQueryState, useToast } from 'erxes-ui';
 
-import { DEALS_CREATE_PRODUCT_DATA } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
+import { DEALS_EDIT_PRODUCT_DATA } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
 
-export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
+export const useDealsEditProductData = (options?: MutationHookOptions) => {
   const { toast } = useToast();
   const [salesItemId] = useQueryState('salesItemId');
   const client = useApolloClient();
 
-  const [createDealsProductData, { loading, error }] = useMutation(
-    DEALS_CREATE_PRODUCT_DATA,
+  const [editDealsProductData, { loading, error }] = useMutation(
+    DEALS_EDIT_PRODUCT_DATA,
     {
       onCompleted: (data) => {
         toast({
@@ -23,8 +23,8 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
           variant: 'success',
         });
         options?.onCompleted?.(data);
-
-        const newDocs = data.dealsCreateProductsData.productsData;
+        console.log('ddd', data);
+        const newDocs = data.dealsEditProductData.productData;
 
         // Update Apollo cache manually
         client.cache.modify({
@@ -51,7 +51,7 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
     },
   );
   return {
-    createDealsProductData,
+    editDealsProductData,
     loading,
     error,
   };

@@ -824,6 +824,24 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3
 
+  backend/plugins/contentarchive_api:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+      html-to-text:
+        specifier: ^8.2.1
+        version: 8.2.1
+      simple-git:
+        specifier: ^3.26.0
+        version: 3.28.0
+      slugify:
+        specifier: ^1.6.6
+        version: 1.6.6
+      tmp:
+        specifier: ^0.2.3
+        version: 0.2.3
+
   backend/plugins/frontline_api:
     dependencies:
       aws-sdk:

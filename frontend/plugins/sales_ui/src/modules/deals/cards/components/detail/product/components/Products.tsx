@@ -1,14 +1,15 @@
 'use client';
 
+import { IProduct, IProductData } from 'ui-modules';
+
 import { IDeal } from '@/deals/types/deals';
-import { IProduct } from 'ui-modules';
 import ProductsList from './ProductsList';
 import { Tabs } from 'erxes-ui';
 import { useState } from 'react';
 
 const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
-
+  console.log('cdeal', deal);
   return (
     <div className="mt-3 ml-3">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)}>
@@ -32,6 +33,7 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
       {activeTab === 'product' && (
         <ProductsList
           products={deal.products || ([] as IProduct[])}
+          productsData={deal.productsData || ([] as IProductData[])}
           dealId={deal._id}
           refetch={refetch}
         />
