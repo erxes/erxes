@@ -28,6 +28,7 @@ import {
   consumeRPCQueue,
 } from "@erxes/api-utils/src/messageBroker";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { buildFile } from "./exporterByUrl";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("sales:editItem", async ({ subdomain, data }) => {
@@ -389,6 +390,25 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+  
+  consumeRPCQueue("sales:deal.export", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    try {
+      const result = await buildFile(models, subdomain, data);
+
+      return {
+        status: "success",
+        data: result,
+      };
+    } catch (e) {
+      return {
+        status: "error",
+        errorMessage: e.message,
+      };
+    }
+  });
+
 
   consumeRPCQueue("sales:notifiedUserIds", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
