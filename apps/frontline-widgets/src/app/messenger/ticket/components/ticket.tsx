@@ -1,16 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
-import { NotifyCustomerForm } from './notify-customer-form';
 import { useCustomerData } from '../../hooks/useCustomerData';
+import { NotifyCustomerForm } from '../../components/notify-customer-form';
 
 export const Ticket = () => {
   const { hasEmailOrPhone } = useCustomerData();
   const [page, setPage] = useState<'submissions' | 'submit' | 'progress'>(
     'submissions',
   );
-  if (!hasEmailOrPhone)
-    return <NotifyCustomerForm onSuccess={() => setPage('submit')} />;
+  if (!hasEmailOrPhone) return <NotifyCustomerForm />;
 
   const renderPage = () => {
     switch (page) {

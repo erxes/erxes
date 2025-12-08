@@ -230,7 +230,7 @@ export const getConfigPostData = async (
       continue;
     }
 
-    let otherCode: string = '';
+    let otherCode = '';
 
     if (productData.branchId || productData.departmentId) {
       const branch = branchesById[productData.branchId || ''] || {};
@@ -510,7 +510,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       continue;
     }
 
-    let otherCode: string = '';
+    let otherCode = '';
     if (productData.branchId || productData.departmentId) {
       const branch = branchesById[productData.branchId || ''] || {};
       const department = departmentsById[productData.departmentId || ''] || {};

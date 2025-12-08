@@ -7,6 +7,7 @@ export const types = `
         code: String
         type: String
         order: Float
+        options: [String]
         validations: JSON
         logics: JSON
         createdAt: Date
@@ -26,20 +27,6 @@ export const types = `
 
         ${GQL_CURSOR_PARAM_DEFS}
     }
-
-    input FieldInput {  
-        name: String
-        code: String
-        groupId: String
-        contentType: String
-        contentTypeId: String
-        
-        type: String
-        order: Float
-
-        validations: JSON
-        logics: JSON
-    }
 `;
 
 export const queries = `
@@ -47,8 +34,21 @@ export const queries = `
     fieldDetail(_id: String!): Field
 `;
 
+const mutationParams = `
+    name: String
+    code: String
+    groupId: String
+    contentType: String
+    contentTypeId: String
+    
+    type: String
+    options: [String]
+    validations: JSON
+    logics: JSON
+`;
+
 export const mutations = `
-    fieldAdd(doc: FieldInput!): Field
-    fieldEdit(_id: String!, doc: FieldInput!): Field
+    fieldAdd(${mutationParams}): Field
+    fieldEdit(_id: String!, order: Float, ${mutationParams}): Field
     fieldRemove(_id: String!): Field
 `;

@@ -69,13 +69,17 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
 
   if (existingCdr) {
     conversationId = existingCdr.conversationId;
-    await createOrUpdateErxesConversation(subdomain, {
+    const payload = {
       conversationId,
       content: content,
       updatedAt: new Date(),
       owner: operatorPhone || '',
       integrationId: inboxId,
-    });
+    } as any;
+    if (customer) {
+      payload.customerId = customer?.erxesApiId;
+    }
+    await createOrUpdateErxesConversation(subdomain, payload);
   } else {
     console.log('now date:', new Date(), params.start, typeof params.start);
 

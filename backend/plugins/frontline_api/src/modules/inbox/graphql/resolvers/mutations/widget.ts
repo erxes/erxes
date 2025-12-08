@@ -1065,7 +1065,7 @@ export const widgetMutations: Record<string, Resolver> = {
     doc: ITicketWidget,
     { models, subdomain }: IContext,
   ) {
-    const { statusId, type, ...restFields } = doc;
+    const { statusId, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
     if (!status) {
       throw new Error('Status not found');
