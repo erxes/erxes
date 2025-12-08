@@ -163,7 +163,6 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
                   setBeginNumber(e.target.value);
                   setHasChanges(true);
                 }}
-                type="number"
                 placeholder="Enter begin number"
               />
             </div>

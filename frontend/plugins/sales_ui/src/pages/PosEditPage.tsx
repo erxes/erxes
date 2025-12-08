@@ -1,5 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button, Breadcrumb, Select } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { IconCashRegister } from '@tabler/icons-react';

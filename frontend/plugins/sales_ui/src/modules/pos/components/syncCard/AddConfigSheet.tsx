@@ -43,7 +43,6 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
   onEditComplete,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
 
   const { fields: mapFields, loading: fieldsLoading } = useFieldsCombined({
     contentType: 'sales:deal',
@@ -76,7 +75,6 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
         deliveryMapField: editingConfig.deliveryMapField || '',
         title: editingConfig.title || '',
       });
-      setAssignedUserIds(editingConfig.assignedUserIds || []);
     }
   }, [editingConfig, form]);
 
@@ -90,7 +88,6 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
       deliveryMapField: '',
       title: '',
     });
-    setAssignedUserIds([]);
     setOpen(false);
     if (editingConfig) {
       onEditComplete?.();
@@ -117,7 +114,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
       boardId: data.boardId,
       pipelineId: data.pipelineId,
       stageId: data.stageId,
-      assignedUserIds,
+      assignedUserIds: data.assignedUserIds,
       deliveryMapField: data.deliveryMapField,
       title: data.title,
     };
@@ -234,10 +231,10 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
               <div className="space-y-2">
                 <Label>CHOOSE ASSIGNED USERS</Label>
                 <SelectMember.Provider
-                  value={assignedUserIds}
-                  onValueChange={(value) => {
-                    setAssignedUserIds(value as string[]);
-                  }}
+                  value={form.watch('assignedUserIds')}
+                  onValueChange={(value) =>
+                    form.setValue('assignedUserIds', value as string[])
+                  }
                   mode="multiple"
                 >
                   <PopoverScoped>
