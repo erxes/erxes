@@ -8,8 +8,12 @@ import { ChannelDetailsPage } from '~/pages/ChannelDetailsPage';
 import { ChannelMembersPage } from '~/pages/ChannelMembersPage';
 import { ChannelsSettingsIndexPage } from '~/pages/ChannelsSettingsIndexPage';
 import { PipelineDetailPage } from '~/pages/PipelineDetailPage';
+import { ResponseDetailPage } from '~/pages/ResponseDetailPage';
 import { ChannelSettingsPageEffect } from '@/channels/components/settings/ChannelSettingsPageEffect';
 import { ChannelSettingsBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb';
+import { PipielineConfigListPage } from '~/pages/PipielineConfigListPage';
+import { TicketStatusesPage } from '~/pages/TicketStatusesPage';
+
 export const IntegrationDetailPage = lazy(() =>
   import('~/pages/IntegrationDetailPage').then((module) => ({
     default: module.IntegrationDetailPage,
@@ -31,6 +35,12 @@ export const IntegrationConfigPage = lazy(() =>
 export const ChannelPipelinesPage = lazy(() =>
   import('~/pages/PipelinesPage').then((module) => ({
     default: module.ChannelPipelinesPage,
+  })),
+);
+
+export const ChannelResponsePage = lazy(() =>
+  import('~/pages/ResponsePage').then((module) => ({
+    default: module.ChannelResponsePage,
   })),
 );
 
@@ -71,6 +81,22 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.PipelineDetail}
             element={<PipelineDetailPage />}
+          />
+          <Route
+            path={FrontlinePaths.TicketsConfigs}
+            element={<PipielineConfigListPage />}
+          />
+          <Route
+            path={FrontlinePaths.TicketsStatuses}
+            element={<TicketStatusesPage />}
+          />
+          <Route
+            path={FrontlinePaths.ChannelResponsePage}
+            element={<ChannelResponsePage />}
+          />
+          <Route
+            path={FrontlinePaths.ResponseDetail}
+            element={<ResponseDetailPage />}
           />
         </Route>
       </Routes>

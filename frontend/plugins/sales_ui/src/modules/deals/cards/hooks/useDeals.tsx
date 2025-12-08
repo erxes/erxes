@@ -171,15 +171,18 @@ export const useDealDetail = (
   const [activeDealId] = useAtom(dealDetailSheetState);
   const [salesItemId] = useQueryState('salesItemId');
 
+  const passedId = options?.variables?._id;
+  const finalId = passedId || salesItemId || activeDealId;
+
   const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
     GET_DEAL_DETAIL,
     {
       ...options,
       variables: {
         ...options?.variables,
-        _id: salesItemId || activeDealId,
+        _id: finalId,
       },
-      skip: !activeDealId && !salesItemId,
+      skip: !finalId,
     },
   );
 

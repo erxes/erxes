@@ -42,20 +42,26 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
 
     if (!automation) {
       // Log security event (failed webhook attempt)
-      sendWorkerQueue('logs', 'put_log').add('put_log', {
-        subdomain,
-        source: 'webhook',
-        status: 'failed',
-        payload: {
-          type: 'webhook_security',
-          message: `Failed webhook attempt - Automation not found`,
-          webhookId: id,
-          endpoint,
-          method: req.method,
-          ip: req.ip,
-          userAgent: req.get('User-Agent'),
+      sendWorkerQueue('logs', 'put_log').add(
+        'put_log',
+        {
+          subdomain,
+          source: 'webhook',
+          status: 'failed',
+          payload: {
+            type: 'webhook_security',
+            message: `Failed webhook attempt - Automation not found`,
+            webhookId: id,
+            endpoint,
+            method: req.method,
+            ip: req.ip,
+            userAgent: req.get('User-Agent'),
+          },
+        } as ILogDoc,
+        {
+          removeOnComplete: true,
         },
-      } as ILogDoc);
+      );
 
       return res.status(404).json({
         success: false,
@@ -82,21 +88,27 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
       await validateSecurity(req, trigger.config);
     } catch (securityError) {
       // Log security violation
-      sendWorkerQueue('logs', 'put_log').add('put_log', {
-        subdomain,
-        source: 'webhook',
-        status: 'failed',
-        payload: {
-          type: 'webhook_security',
-          message: `Security validation failed: ${securityError.message}`,
-          webhookId: id,
-          endpoint,
-          method: req.method,
-          ip: req.ip,
-          userAgent: req.get('User-Agent'),
-          createdAt: new Date(),
+      sendWorkerQueue('logs', 'put_log').add(
+        'put_log',
+        {
+          subdomain,
+          source: 'webhook',
+          status: 'failed',
+          payload: {
+            type: 'webhook_security',
+            message: `Security validation failed: ${securityError.message}`,
+            webhookId: id,
+            endpoint,
+            method: req.method,
+            ip: req.ip,
+            userAgent: req.get('User-Agent'),
+            createdAt: new Date(),
+          },
+        } as ILogDoc,
+        {
+          removeOnComplete: true,
         },
-      } as ILogDoc);
+      );
 
       return res.status(401).json({
         success: false,
@@ -171,21 +183,27 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
     ).catch(async (error) => {
       // Log execution errors but don't expose to client
       console.error('Webhook action execution failed:', error);
-      sendWorkerQueue('logs', 'put_log').add('put_log', {
-        subdomain,
-        source: 'webhook',
-        status: 'failed',
-        payload: {
-          type: 'webhook_execution_error',
-          message: 'Action execution failed',
-          data: {
-            executionId: execution._id,
-            automationId: automation._id,
-            error: error.message,
+      sendWorkerQueue('logs', 'put_log').add(
+        'put_log',
+        {
+          subdomain,
+          source: 'webhook',
+          status: 'failed',
+          payload: {
+            type: 'webhook_execution_error',
+            message: 'Action execution failed',
+            data: {
+              executionId: execution._id,
+              automationId: automation._id,
+              error: error.message,
+            },
+            createdAt: new Date(),
           },
-          createdAt: new Date(),
+        } as ILogDoc,
+        {
+          removeOnComplete: true,
         },
-      } as ILogDoc);
+      );
     });
 
     // Success response (no sensitive data)

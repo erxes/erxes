@@ -2,6 +2,7 @@ import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import Account from '@/accounting/graphql/resolvers/customResolvers/account';
 import AccountCategory from '@/accounting/graphql/resolvers/customResolvers/accountCategory';
 import AccTransaction from '@/accounting/graphql/resolvers/customResolvers/accTransaction';
+import AccTrRecord from '@/accounting/graphql/resolvers/customResolvers/accTrRecord';
 import AccTrDetail from '@/accounting/graphql/resolvers/customResolvers/accTrDetail';
 import AdjustInvDetail from '@/accounting/graphql/resolvers/customResolvers/adjustInvDetail';
 import {
@@ -22,6 +23,7 @@ import {
   Transactions as QueriesTransactions,
   Inventories as QueriesInventories,
   AdjustInventories as QueriesAdjustInventories,
+  JournalReport as QueriesJournalReport,
 } from '@/accounting/graphql/resolvers/queries';
 
 const resolvers: any = {
@@ -29,6 +31,7 @@ const resolvers: any = {
   Account,
   AccountCategory,
   AccCommonTransaction: AccTransaction,
+  AccCommonTrRecord: AccTrRecord,
   AccTrDetail,
   AdjustInvDetail,
   Mutation: {
@@ -49,6 +52,7 @@ const resolvers: any = {
     ...QueriesTransactions,
     ...QueriesInventories,
     ...QueriesAdjustInventories,
+    ...QueriesJournalReport,
   },
 };
 

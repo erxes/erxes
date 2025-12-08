@@ -80,14 +80,14 @@ export const EcommerceForm: React.FC<EcommerceFormProps> = ({
             name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                  NAME <span className="text-red-500">*</span>
+                <Form.Label className="text-sm font-semibold uppercase">
+                  NAME <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     placeholder="Write here"
-                    className="border border-gray-300 h-10"
+                    className="h-8"
                     disabled={isReadOnly}
                     readOnly={isReadOnly}
                   />
@@ -103,16 +103,14 @@ export const EcommerceForm: React.FC<EcommerceFormProps> = ({
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                    DESCRIPTION <span className="text-red-500">*</span>
+                  <Form.Label className="text-sm font-semibold uppercase">
+                    DESCRIPTION <span className="text-destructive">*</span>
                   </Form.Label>
-                  <p className="text-sm font-medium text-[#71717A]">
-                    What is description?
-                  </p>
+
                   <Form.Control>
                     <Input
                       {...field}
-                      className="border border-gray-300 h-10"
+                      className="h-8"
                       value={field.value || ''}
                       disabled={isReadOnly}
                       readOnly={isReadOnly}
@@ -129,17 +127,15 @@ export const EcommerceForm: React.FC<EcommerceFormProps> = ({
               name="scopeBrandIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm font-semibold uppercase">
                     BRANDS
                   </Form.Label>
-                  <p className="text-sm text-gray-500">
-                    Which specific Brand does this integration belong to?
-                  </p>
+
                   <Form.Control>
                     <SelectBrand
                       value={selectedBrandId}
                       onValueChange={handleBrandChange}
-                      className="w-full h-10 border border-gray-300"
+                      className="w-full h-8"
                       disabled={isReadOnly}
                     />
                   </Form.Control>
@@ -154,10 +150,9 @@ export const EcommerceForm: React.FC<EcommerceFormProps> = ({
             name="allowTypes"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                  TYPE <span className="text-red-500">*</span>
+                <Form.Label className="text-sm font-semibold uppercase">
+                  TYPE <span className="text-destructive">*</span>
                 </Form.Label>
-                <p className="text-sm text-gray-500">How to use types?</p>
                 <Form.Control>
                   <div className="grid grid-cols-3 gap-3">
                     {Array.from({ length: 6 }, (_, index) => {
@@ -172,7 +167,7 @@ export const EcommerceForm: React.FC<EcommerceFormProps> = ({
                             value={currentValue || 'NULL'}
                             disabled={isReadOnly}
                           >
-                            <Select.Trigger className="w-full h-10 px-3 text-left justify-between">
+                            <Select.Trigger className="justify-between px-3 w-full h-8 text-left">
                               <Select.Value
                                 placeholder={`Select Type ${index + 1}`}
                               />
@@ -205,14 +200,14 @@ export const EcommerceForm: React.FC<EcommerceFormProps> = ({
               name="branchId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm font-semibold uppercase">
                     CHOOSE BRANCH
                   </Form.Label>
                   <Form.Control>
                     <SelectBranches.FormItem
                       value={branchId ?? ''}
                       onValueChange={handleBranchChange}
-                      className="w-full h-10"
+                      className="w-full h-8"
                       mode="single"
                     />
                   </Form.Control>
@@ -226,14 +221,14 @@ export const EcommerceForm: React.FC<EcommerceFormProps> = ({
               name="departmentId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm font-semibold uppercase">
                     CHOOSE DEPARTMENT
                   </Form.Label>
                   <Form.Control>
                     <SelectDepartments.FormItem
                       value={departmentId}
                       onValueChange={handleDepartmentChange}
-                      className="w-full h-10"
+                      className="w-full h-8"
                       mode="single"
                     />
                   </Form.Control>

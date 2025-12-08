@@ -38,7 +38,9 @@ export const logHandler = async (
       durationMs: durationMs,
     };
     logDoc.status = 'success';
-    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc);
+    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc, {
+      removeOnComplete: true,
+    });
 
     return result;
   } catch (error) {
@@ -50,7 +52,9 @@ export const logHandler = async (
 
     logDoc.payload = { ...payload, ...onError, error: errorDetails };
     logDoc.status = 'failed';
-    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc);
+    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc, {
+      removeOnComplete: true,
+    });
 
     throw error;
   }
@@ -109,16 +113,16 @@ export type TAfterProcessRule = {
 
 export interface AfterProcessConfigs {
   rules: IAfterProcessRule[];
-  onAfterMutation?: (
+  afterMutation?: (
     context: IContext,
     args: { mutationName: string; args: { [key: string]: any }; result: any },
   ) => void;
-  onAfterAuth?: (
+  afterAuth?: (
     context: IContext,
     args: { userId: string; email: string; result: string },
   ) => void;
-  onAfterApiRequest?: (context: IContext, args: any) => void;
-  onDocumentUpdated?: <TDocument = any>(
+  afterApiRequest?: (context: IContext, args: any) => void;
+  afterDocumentUpdated?: <TDocument = any>(
     context: IContext,
     args: {
       contentType: string;
@@ -130,7 +134,7 @@ export interface AfterProcessConfigs {
       };
     },
   ) => void;
-  onDocumentCreated?: <TDocument = any>(
+  afterDocumentCreated?: <TDocument = any>(
     context: IContext,
     args: {
       contentType: string;
@@ -149,43 +153,43 @@ export const startAfterProcess = async (
   const t = initTRPC.context<IContext>().create();
 
   const {
-    onAfterMutation,
-    onAfterAuth,
-    onAfterApiRequest,
-    onDocumentUpdated,
-    onDocumentCreated,
+    afterMutation,
+    afterAuth,
+    afterApiRequest,
+    afterDocumentUpdated,
+    afterDocumentCreated,
   } = config || {};
 
   const routes: Record<string, any> = {};
 
-  if (onAfterMutation) {
-    routes.onAfterMutation = t.procedure
+  if (afterMutation) {
+    routes.afterMutation = t.procedure
       .input(z.any())
-      .mutation(async ({ ctx, input }) => onAfterMutation(ctx, input));
+      .mutation(async ({ ctx, input }) => afterMutation(ctx, input));
   }
 
-  if (onAfterAuth) {
-    routes.onAfterAuth = t.procedure
+  if (afterAuth) {
+    routes.afterAuth = t.procedure
       .input(z.any())
-      .mutation(async ({ ctx, input }) => onAfterAuth(ctx, input));
+      .mutation(async ({ ctx, input }) => afterAuth(ctx, input));
   }
 
-  if (onAfterApiRequest) {
-    routes.onAfterApiRequest = t.procedure
+  if (afterApiRequest) {
+    routes.afterApiRequest = t.procedure
       .input(z.any())
-      .mutation(async ({ ctx, input }) => onAfterApiRequest(ctx, input));
+      .mutation(async ({ ctx, input }) => afterApiRequest(ctx, input));
   }
 
-  if (onDocumentUpdated) {
-    routes.onDocumentUpdated = t.procedure
+  if (afterDocumentUpdated) {
+    routes.afterDocumentUpdated = t.procedure
       .input(z.any())
-      .mutation(async ({ ctx, input }) => onDocumentUpdated(ctx, input));
+      .mutation(async ({ ctx, input }) => afterDocumentUpdated(ctx, input));
   }
 
-  if (onDocumentCreated) {
-    routes.onDocumentCreated = t.procedure
+  if (afterDocumentCreated) {
+    routes.afterDocumentCreated = t.procedure
       .input(z.any())
-      .mutation(async ({ ctx, input }) => onDocumentCreated(ctx, input));
+      .mutation(async ({ ctx, input }) => afterDocumentCreated(ctx, input));
   }
 
   const afterProcessRouter = t.router(routes);

@@ -3,6 +3,7 @@ import {
   CREATE_EM_MESSENGER_MUTATION,
   SAVE_EM_CONFIGS_MUTATION,
   SAVE_EM_APPEARANCE_MUTATION,
+  SAVE_EM_TICKET_CONFIG_MUTATION,
 } from '../graphql/mutations/createEmMessengerMutations';
 import { toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
@@ -19,6 +20,10 @@ export const useCreateMessenger = () => {
   );
   const [saveAppearanceMutation, { loading: saveAppearanceLoading }] =
     useMutation(SAVE_EM_APPEARANCE_MUTATION, {
+      refetchQueries: ['Integrations'],
+    });
+  const [saveTicketConfigMutation, { loading: saveTicketConfigLoading }] =
+    useMutation(SAVE_EM_TICKET_CONFIG_MUTATION, {
       refetchQueries: ['Integrations'],
     });
 
@@ -60,6 +65,19 @@ export const useCreateMessenger = () => {
           onError(e) {
             toast({
               title: 'Failed to save appearance',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+        });
+        saveTicketConfigMutation({
+          variables: {
+            _id,
+            configId: configFormValues.ticketConfigId,
+          },
+          onError(e) {
+            toast({
+              title: 'Failed to save ticket config',
               description: e.message,
               variant: 'destructive',
             });

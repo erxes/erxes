@@ -1,7 +1,17 @@
-import { Button, RecordTable, Popover, Combobox, Command, CommandBar, Separator, toast } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  Popover,
+  Combobox,
+  Command,
+  CommandBar,
+  Separator,
+  toast,
+  Spinner,
+} from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { useParams } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import {
   CMS_CATEGORIES,
   CMS_CATEGORIES_EDIT,
@@ -23,6 +33,7 @@ import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 
 export function Category() {
   const { websiteId } = useParams();
+  const client = useApolloClient();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any | undefined>(
     undefined,
@@ -66,7 +77,32 @@ export function Category() {
   });
 
   const [removeCategory] = useMutation(CMS_CATEGORIES_REMOVE, {
-    onCompleted: () => refetch(),
+    onCompleted: (data, clientOptions) => {
+      const existingCategories = client.readQuery({
+        query: CMS_CATEGORIES,
+        variables: { clientPortalId: websiteId || '', limit: 100 },
+      });
+
+      if (existingCategories && clientOptions?.variables?.id) {
+        const updatedList = existingCategories.cmsCategories.list.filter(
+          (cat: any) => cat._id !== (clientOptions.variables as any).id,
+        );
+
+        client.writeQuery({
+          query: CMS_CATEGORIES,
+          variables: { clientPortalId: websiteId || '', limit: 100 },
+          data: {
+            ...existingCategories,
+            cmsCategories: {
+              ...existingCategories.cmsCategories,
+              list: updatedList,
+            },
+          },
+        });
+      }
+
+      refetch();
+    },
   });
 
   const categories = data?.cmsCategories?.list || [];
@@ -117,7 +153,7 @@ export function Category() {
         const name = cell.getValue() as string;
         return (
           <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-900">{name}</span>
+            <span className="text-sm">{name}</span>
           </div>
         );
       },
@@ -131,9 +167,7 @@ export function Category() {
       accessorKey: 'description',
       cell: ({ cell }) => (
         <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-500">
-            {(cell.getValue() as string) || ''}
-          </span>
+          <span className="text-sm ">{(cell.getValue() as string) || ''}</span>
         </div>
       ),
       size: 320,
@@ -141,12 +175,21 @@ export function Category() {
     {
       id: 'parent',
       header: () => <RecordTable.InlineHead label="Parent" icon={IconEdit} />,
-      accessorKey: 'parent.name',
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-500">
-          {row.original.parent?.name || '—'}
-        </span>
-      ),
+      accessorKey: 'parent',
+      cell: ({ row }) => {
+        const getParentName = (parent: any): string => {
+          if (!parent) return '—';
+          // If there's a parent with a name, return it
+          if (parent.name) return parent.name;
+          // If there's a nested parent, recursively get its name
+          if (parent.parent) return getParentName(parent.parent);
+          return '—';
+        };
+
+        const parentName = getParentName(row.original.parent);
+
+        return <span className="text-sm text-gray-500">{parentName}</span>;
+      },
       size: 220,
     },
     {
@@ -157,7 +200,7 @@ export function Category() {
         const value = cell.getValue() as string;
         return (
           <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm">
               {value
                 ? new Date(value).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -171,14 +214,16 @@ export function Category() {
       },
       size: 180,
     },
-    
   ];
 
   return (
     <CmsLayout headerActions={headerActions}>
       {loading && (
         <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500">Loading categories...</div>
+          <div className="text-gray-500 text-center items-center flex gap-2">
+            <Spinner size="md" className="ml-2" />
+            Loading categories...
+          </div>
         </div>
       )}
       {error && (
@@ -259,7 +304,9 @@ const CategoriesCommandBar = ({
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((row: any) => row.original._id as string);
+  const selectedIds = selectedRows.map(
+    (row: any) => row.original._id as string,
+  );
 
   return (
     <CommandBar open={selectedRows.length > 0}>
