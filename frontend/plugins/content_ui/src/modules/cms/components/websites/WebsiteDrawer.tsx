@@ -15,7 +15,11 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CLIENT_PORTAL_REMOVE } from '../../graphql/queries';
 import { GET_WEBSITES } from '../../graphql/queries';
-import { CONTENT_CREATE_CMS } from '../../graphql/mutations';
+import {
+  CONTENT_CREATE_CMS,
+  CONTENT_UPDATE_CMS,
+  CONTENT_DELETE_CMS,
+} from '../../graphql/mutations';
 import { useClientPortals } from '../../hooks/useClientPortals';
 import { LANGUAGES } from '../../../../constants';
 
@@ -142,8 +146,6 @@ export function WebsiteDrawer({
       });
     },
     onError: (error) => {
-      console.error('CMS creation error:', error);
-
       const permissionError = error.graphQLErrors?.some(
         (e) =>
           e.message === 'Permission required' ||
@@ -171,26 +173,28 @@ export function WebsiteDrawer({
     },
   });
 
-  const [removeWebsite, { loading: removing }] = useMutation(
-    CLIENT_PORTAL_REMOVE,
+  const [updateCMS, { loading: savingUpdate }] = useMutation(
+    CONTENT_UPDATE_CMS,
     {
       refetchQueries: [{ query: GET_WEBSITES }],
       awaitRefetchQueries: true,
       onCompleted: () => {
         onClose();
         form.reset();
+        if (onSuccess) {
+          onSuccess();
+        }
         toast({
           title: 'Success',
-          description: 'Website deleted successfully',
+          description: 'CMS updated successfully',
           variant: 'default',
         });
       },
       onError: (error) => {
-        console.error('Website delete error:', error);
         toast({
           title: 'Error',
           description:
-            error.message || 'Failed to delete website. Please try again.',
+            error.message || 'Failed to update CMS. Please try again.',
           variant: 'destructive',
           duration: 5000,
         });
@@ -198,8 +202,49 @@ export function WebsiteDrawer({
     },
   );
 
+  const [deleteCMS, { loading: removing }] = useMutation(CONTENT_DELETE_CMS, {
+    refetchQueries: [{ query: GET_WEBSITES }],
+    awaitRefetchQueries: true,
+    onCompleted: () => {
+      onClose();
+      form.reset();
+      toast({
+        title: 'Success',
+        description: 'CMS deleted successfully',
+        variant: 'default',
+      });
+      if (onSuccess) {
+        onSuccess();
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete CMS. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
+      });
+    },
+  });
+
   const onSubmit = (data: WebsiteFormData) => {
     const { name, description, language, languages } = data;
+
+    if (isEditing && website?._id) {
+      updateCMS({
+        variables: {
+          id: website._id,
+          input: {
+            name,
+            description,
+            language: language || undefined,
+            languages: languages || [],
+            clientPortalId: data.kind,
+          },
+        },
+      });
+      return;
+    }
 
     createCMS({
       variables: {
@@ -284,8 +329,6 @@ export function WebsiteDrawer({
               control={form.control}
               name="kind"
               render={({ field }) => {
-                const { clientPortals, loading } = useClientPortals();
-
                 return (
                   <Form.Item>
                     <Form.Label>Client Portal</Form.Label>
@@ -294,12 +337,14 @@ export function WebsiteDrawer({
                         {...field}
                         onValueChange={field.onChange}
                         value={field.value}
-                        disabled={loading}
+                        disabled={clientPortalsLoading}
                       >
                         <Select.Trigger>
                           <Select.Value
                             placeholder={
-                              loading ? 'Loading...' : 'Select client portal'
+                              clientPortalsLoading
+                                ? 'Loading...'
+                                : 'Select client portal'
                             }
                           />
                         </Select.Trigger>
@@ -390,25 +435,11 @@ export function WebsiteDrawer({
             />
 
             <div className="flex justify-end space-x-2">
-              {isEditing && (
-                <Button
-                  variant="destructive"
-                  type="button"
-                  disabled={removing}
-                  onClick={async () => {
-                    try {
-                      await removeWebsite({ variables: { _id: website?._id } });
-                    } catch {}
-                  }}
-                >
-                  {removing ? 'Deleting...' : 'Delete'}
-                </Button>
-              )}
-              <Button onClick={onClose} variant="outline">
-                Cancel
-              </Button>
-              <Button type="submit" disabled={saving || hasPermissionError}>
-                {saving
+              <Button
+                type="submit"
+                disabled={saving || savingUpdate || hasPermissionError}
+              >
+                {saving || savingUpdate
                   ? isEditing
                     ? 'Saving...'
                     : 'Creating...'
@@ -417,6 +448,26 @@ export function WebsiteDrawer({
                   : isEditing
                   ? 'Save Changes'
                   : 'Create CMS'}
+              </Button>
+
+              {isEditing && (
+                <Button
+                  variant="destructive"
+                  type="button"
+                  onClick={async () => {
+                    if (website?._id) {
+                      try {
+                        await deleteCMS({ variables: { id: website._id } });
+                      } catch (error) {}
+                    }
+                  }}
+                  disabled={removing}
+                >
+                  {removing ? 'Deleting...' : 'Delete'}
+                </Button>
+              )}
+              <Button onClick={onClose} variant="outline">
+                Cancel
               </Button>
             </div>
           </form>
