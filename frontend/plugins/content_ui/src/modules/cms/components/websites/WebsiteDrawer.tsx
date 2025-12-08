@@ -146,8 +146,6 @@ export function WebsiteDrawer({
       });
     },
     onError: (error) => {
-      console.error('CMS creation error:', error);
-
       const permissionError = error.graphQLErrors?.some(
         (e) =>
           e.message === 'Permission required' ||
@@ -193,11 +191,10 @@ export function WebsiteDrawer({
         });
       },
       onError: (error) => {
-        console.error('CMS update error:', error);
         toast({
           title: 'Error',
           description:
-            error.message || 'Failed to delete website. Please try again.',
+            error.message || 'Failed to update CMS. Please try again.',
           variant: 'destructive',
           duration: 5000,
         });
@@ -221,7 +218,6 @@ export function WebsiteDrawer({
       }
     },
     onError: (error) => {
-      console.error('CMS delete error:', error);
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete CMS. Please try again.',
@@ -233,6 +229,22 @@ export function WebsiteDrawer({
 
   const onSubmit = (data: WebsiteFormData) => {
     const { name, description, language, languages } = data;
+
+    if (isEditing && website?._id) {
+      updateCMS({
+        variables: {
+          id: website._id,
+          input: {
+            name,
+            description,
+            language: language || undefined,
+            languages: languages || [],
+            clientPortalId: data.kind,
+          },
+        },
+      });
+      return;
+    }
 
     createCMS({
       variables: {
@@ -317,8 +329,6 @@ export function WebsiteDrawer({
               control={form.control}
               name="kind"
               render={({ field }) => {
-                const { clientPortals, loading } = useClientPortals();
-
                 return (
                   <Form.Item>
                     <Form.Label>Client Portal</Form.Label>
@@ -327,12 +337,14 @@ export function WebsiteDrawer({
                         {...field}
                         onValueChange={field.onChange}
                         value={field.value}
-                        disabled={loading}
+                        disabled={clientPortalsLoading}
                       >
                         <Select.Trigger>
                           <Select.Value
                             placeholder={
-                              loading ? 'Loading...' : 'Select client portal'
+                              clientPortalsLoading
+                                ? 'Loading...'
+                                : 'Select client portal'
                             }
                           />
                         </Select.Trigger>
@@ -446,11 +458,7 @@ export function WebsiteDrawer({
                     if (website?._id) {
                       try {
                         await deleteCMS({ variables: { id: website._id } });
-                        onClose();
-                        onSuccess?.();
-                      } catch (error) {
-                        console.error('Error deleting website:', error);
-                      }
+                      } catch (error) {}
                     }
                   }}
                   disabled={removing}

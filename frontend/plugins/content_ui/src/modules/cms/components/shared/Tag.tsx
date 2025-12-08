@@ -94,14 +94,12 @@ export function Tag() {
               await removeTag({
                 variables: { id: row.original._id },
               });
-              refetch();
               toast({
                 title: 'Success',
                 description: 'Tag deleted successfully',
                 variant: 'default',
               });
             } catch (error) {
-              console.error('Error deleting tag:', error);
               toast({
                 title: 'Error',
                 description: 'Failed to delete tag',
@@ -220,8 +218,6 @@ export function Tag() {
       <Button
         onClick={() => {
           setIsTagDrawerOpen(true);
-          console.log(1);
-          console.log('TagDrawer isOpen:', isTagDrawerOpen);
         }}
       >
         <IconPlus className="mr-2 h-4 w-4" />

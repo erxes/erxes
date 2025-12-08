@@ -284,7 +284,6 @@ export function AddPost() {
     'desktop' | 'tablet' | 'mobile'
   >('desktop');
   const [mediaOpen, setMediaOpen] = useState(false);
-  const [isThumbnailUploading, setIsThumbnailUploading] = useState(false);
 
   const form = useForm<PostFormData>({
     defaultValues: {
@@ -434,7 +433,7 @@ export function AddPost() {
         .split('\n')[0]
         .slice(0, 80) ||
       'Untitled';
-    
+
     // Generate unique slug from title
     const generateSlug = (title: string) => {
       const baseSlug = title
@@ -445,7 +444,7 @@ export function AddPost() {
       const timestamp = Date.now().toString(36).slice(-6);
       return `${baseSlug}-${timestamp}`;
     };
-    
+
     // Ensure slug exists
     const combinedImages = [...(data.gallery || [])];
 
