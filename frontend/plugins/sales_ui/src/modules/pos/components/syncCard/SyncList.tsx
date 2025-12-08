@@ -22,22 +22,20 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
-    if (posDetail?.cardsConfig) {
-      const cardsConfig = posDetail.cardsConfig;
-      const configList: CardConfig[] = Object.entries(cardsConfig).map(
-        ([key, value]: [string, any]) => ({
-          _id: key,
-          branchId: value.branchId || '',
-          boardId: value.boardId || '',
-          pipelineId: value.pipelineId || '',
-          stageId: value.stageId || '',
-          assignedUserIds: value.assignedUserIds || [],
-          deliveryMapField: value.deliveryMapField || '',
-          title: value.title || key,
-        }),
-      );
-      setConfigs(configList);
-    }
+    const cardsConfig = posDetail?.cardsConfig || {};
+    const configList: CardConfig[] = Object.entries(cardsConfig).map(
+      ([key, value]: [string, any]) => ({
+        _id: key,
+        branchId: value.branchId || '',
+        boardId: value.boardId || '',
+        pipelineId: value.pipelineId || '',
+        stageId: value.stageId || '',
+        assignedUserIds: value.assignedUserIds || [],
+        deliveryMapField: value.deliveryMapField || '',
+        title: value.title || key,
+      }),
+    );
+    setConfigs(configList);
   }, [posDetail]);
 
   const handleConfigAdded = (config: CardConfig) => {
