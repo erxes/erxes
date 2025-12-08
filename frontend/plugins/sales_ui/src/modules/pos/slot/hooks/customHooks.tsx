@@ -216,16 +216,24 @@ export const useSlotManager = (
             ...node,
             data: {
               ...node.data,
-              ...(dimensions.width && { width: dimensions.width }),
-              ...(dimensions.height && { height: dimensions.height }),
-              ...(dimensions.position && {
+              ...(dimensions.width !== undefined && {
+                width: dimensions.width,
+              }),
+              ...(dimensions.height !== undefined && {
+                height: dimensions.height,
+              }),
+              ...(dimensions.position !== undefined && {
                 positionX: dimensions.position.x,
                 positionY: dimensions.position.y,
               }),
             },
-            ...(dimensions.width && { width: dimensions.width }),
-            ...(dimensions.height && { height: dimensions.height }),
-            ...(dimensions.position && { position: dimensions.position }),
+            ...(dimensions.width !== undefined && { width: dimensions.width }),
+            ...(dimensions.height !== undefined && {
+              height: dimensions.height,
+            }),
+            ...(dimensions.position !== undefined && {
+              position: dimensions.position,
+            }),
           };
           return updatedNode;
         }
@@ -240,23 +248,31 @@ export const useSlotManager = (
           ...selectedNode,
           data: {
             ...selectedNode.data,
-            ...(dimensions.width && { width: dimensions.width }),
-            ...(dimensions.height && { height: dimensions.height }),
-            ...(dimensions.position && {
+            ...(dimensions.width !== undefined && { width: dimensions.width }),
+            ...(dimensions.height !== undefined && {
+              height: dimensions.height,
+            }),
+            ...(dimensions.position !== undefined && {
               positionX: dimensions.position.x,
               positionY: dimensions.position.y,
             }),
           },
-          ...(dimensions.width && { width: dimensions.width }),
-          ...(dimensions.height && { height: dimensions.height }),
-          ...(dimensions.position && { position: dimensions.position }),
+          ...(dimensions.width !== undefined && { width: dimensions.width }),
+          ...(dimensions.height !== undefined && { height: dimensions.height }),
+          ...(dimensions.position !== undefined && {
+            position: dimensions.position,
+          }),
         });
 
         setSlotDetail((prev) => ({
           ...prev,
-          ...(dimensions.width && { width: String(dimensions.width) }),
-          ...(dimensions.height && { height: String(dimensions.height) }),
-          ...(dimensions.position && {
+          ...(dimensions.width !== undefined && {
+            width: String(dimensions.width),
+          }),
+          ...(dimensions.height !== undefined && {
+            height: String(dimensions.height),
+          }),
+          ...(dimensions.position !== undefined && {
             left: String(dimensions.position.x),
             top: String(dimensions.position.y),
           }),
