@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router';
 import { Suspense, lazy } from 'react';
+
 import { Spinner } from 'erxes-ui/components';
 
 const OrdersMain = lazy(() =>
@@ -54,7 +55,7 @@ const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/" element={<PosMain />} />
+        <Route path="/pos" element={<PosMain />} />
         <Route path="/:posId/orders" element={<OrdersMain />} />
         <Route path="/:posId/covers" element={<CoversMain />} />
         <Route path="/:posId/by-items" element={<PosByItemsMain />} />

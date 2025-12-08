@@ -27,8 +27,9 @@
   opacity: 0;
   transition: box-shadow 0.3s ease-in-out, opacity 0.3s;
   border-radius: 50%;
-  filter: drop-shadow(rgba(9, 14, 21, 0.54) 0px 1px 6px)
-    drop-shadow(rgba(9, 14, 21, 0.9) 0px 2px 32px);
+  /* filter: drop-shadow(rgba(9, 14, 21, 0.1) 0px 3px 6px)
+    drop-shadow(rgba(9, 14, 21, 0.1) 0px 1px 12px); */
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16);
 }
 
 .erxes-messenger-hidden {
@@ -81,6 +82,7 @@
 .erxes-notifier-shown > iframe {
   height: 100% !important;
   max-width: none;
+  bottom: 0;
 }
 
 .erxes-notifier-shown {
@@ -100,12 +102,12 @@
   }
 
   .erxes-messenger-shown {
-    height: 100%;
+    height: calc(100% - 72px);
     width: 100%;
     max-height: none;
     display: block;
     right: 0;
-    bottom: 0;
+    bottom: 72px;
   }
 
   #erxes-messenger-iframe {

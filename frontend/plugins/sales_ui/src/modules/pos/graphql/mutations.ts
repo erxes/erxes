@@ -102,14 +102,18 @@ const posRemove = gql`
 `;
 
 const updateConfigs = gql`
-  mutation posConfigsUpdate($posId:String!, $configsMap: JSON!) {
+  mutation posConfigsUpdate($posId: String!, $configsMap: JSON!) {
     posConfigsUpdate(posId: $posId, configsMap: $configsMap)
   }
 `;
 
 const brandAdd = gql`
   mutation brandsAdd($name: String!, $description: String, $emailConfig: JSON) {
-    brandsAdd(name: $name, description: $description, emailConfig: $emailConfig,) {
+    brandsAdd(
+      name: $name
+      description: $description
+      emailConfig: $emailConfig
+    ) {
       _id
     }
   }
@@ -127,6 +131,10 @@ const saveSlots = gql`
   mutation posSlotBulkUpdate($posId: String!, $slots: [SlotInput]) {
     posSlotBulkUpdate(posId: $posId, slots: $slots) {
       _id
+      posId
+      code
+      name
+      option
     }
   }
 `;

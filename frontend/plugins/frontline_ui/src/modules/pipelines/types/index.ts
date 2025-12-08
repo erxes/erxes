@@ -1,6 +1,10 @@
 import { IUser } from 'ui-modules';
 import { z } from 'zod';
-import { CREATE_PIPELINE_FORM_SCHEMA, UPDATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
+import {
+  CREATE_PIPELINE_FORM_SCHEMA,
+  UPDATE_PIPELINE_FORM_SCHEMA,
+} from '@/settings/schema/pipeline';
+import { PIPELINE_CONFIG_SCHEMA } from '../components/configs/schema';
 export interface IPipeline {
   _id: string;
   channelId: string;
@@ -11,7 +15,6 @@ export interface IPipeline {
   userId: string;
   createdUser: IUser;
 }
-
 
 export interface ITicketsPipelineFilter {
   filter: {
@@ -28,9 +31,15 @@ export interface ITicketsPipelineFilter {
   };
 }
 
+export enum ContactType {
+  CUSTOMER = 'customer',
+  COMPANY = 'company',
+}
+
 export type TCreatePipelineForm = z.infer<typeof CREATE_PIPELINE_FORM_SCHEMA>;
 export type TUpdatePipelineForm = z.infer<typeof UPDATE_PIPELINE_FORM_SCHEMA>;
 export type TPipelineForm = TCreatePipelineForm | TUpdatePipelineForm;
 
+export type TPipelineConfig = z.infer<typeof PIPELINE_CONFIG_SCHEMA>;
 
 export * from './PipelineHotkeyScope';

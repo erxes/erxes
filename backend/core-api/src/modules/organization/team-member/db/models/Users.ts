@@ -247,7 +247,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
       models.Roles.create({
         userId: user._id,
-        role: PERMISSION_ROLES.MEMBER,
+        role: isOwner ? PERMISSION_ROLES.OWNER : PERMISSION_ROLES.MEMBER,
       });
 
       return user;

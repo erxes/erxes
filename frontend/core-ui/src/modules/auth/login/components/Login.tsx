@@ -22,7 +22,7 @@ export const Login = () => {
           type="single"
           value={value}
           onValueChange={(value) => setValue(value as string)}
-          className="w-full grid grid-cols-2 p-1 rounded-lg bg-sidebar gap-1"
+          className="w-full grid grid-cols-2 p-1 rounded-lg gap-1"
           variant="outline"
         >
           <ToggleGroup.Item

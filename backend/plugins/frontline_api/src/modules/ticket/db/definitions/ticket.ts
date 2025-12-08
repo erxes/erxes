@@ -34,7 +34,7 @@ export const ticketSchema = new Schema(
     },
     startDate: { type: Date, label: 'Start Date' },
     targetDate: { type: Date, label: 'Target Date' },
-    number: { type: Number, label: 'Number', default: 0 },
+    number: { type: String, label: 'Number' },
     statusType: { type: Number, label: 'Status Type', default: 0 },
   },
   {

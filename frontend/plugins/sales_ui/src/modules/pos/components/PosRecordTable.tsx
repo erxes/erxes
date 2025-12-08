@@ -9,7 +9,7 @@ export const PosRecordTable = () => {
   return (
     <RecordTable.Provider
       columns={posColumns}
-      data={posList}
+      data={posList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'name']}
     >
@@ -19,7 +19,7 @@ export const PosRecordTable = () => {
         dataLength={posList?.length}
         sessionKey="pos_cursor"
       >
-        <RecordTable>
+        <RecordTable className="w-full">
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
@@ -33,6 +33,7 @@ export const PosRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+
       <PosCommandBar />
     </RecordTable.Provider>
   );

@@ -9,8 +9,8 @@ import {
 } from '@/types/paths/SettingsPath';
 import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
-import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
+import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -158,18 +158,14 @@ export function SettingsRoutes() {
           path={SettingsWorkspacePath.Brands}
           element={<BrandsSettingsRoutes />}
         />
-        {isOs && (
-          <Route
-            path={SettingsWorkspacePath.ProductsCatchAll}
-            element={<ProductsSettingsRoutes />}
-          />
-        )}
-        {isOs && (
-          <Route
-            path={SettingsWorkspacePath.AutomationsCatchAll}
-            element={<AutomationSettingsRoutes />}
-          />
-        )}
+        <Route
+          path={SettingsWorkspacePath.ProductsCatchAll}
+          element={<ProductsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.AutomationsCatchAll}
+          element={<AutomationSettingsRoutes />}
+        />
 
         <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
         <Route

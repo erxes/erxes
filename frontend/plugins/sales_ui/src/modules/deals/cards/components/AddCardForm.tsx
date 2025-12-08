@@ -3,11 +3,20 @@ import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
 import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
+import WorkflowFields from './WorkflowFields';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-export function AddCardForm({ onCloseSheet }: { onCloseSheet: () => void }) {
+export function AddCardForm({
+  onCloseSheet,
+  onComplete,
+  showWorkflowFields,
+}: {
+  onCloseSheet: () => void;
+  onComplete?: (dealId: string) => void;
+  showWorkflowFields?: boolean;
+}) {
   const form = useForm<SalesFormType>({
     resolver: zodResolver(salesFormSchema),
     defaultValues: {
@@ -27,9 +36,10 @@ export function AddCardForm({ onCloseSheet }: { onCloseSheet: () => void }) {
       variables: {
         ...data,
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         form.reset();
         onCloseSheet();
+        onComplete?.(data.dealsAdd._id);
       },
     });
   };
@@ -84,6 +94,9 @@ export function AddCardForm({ onCloseSheet }: { onCloseSheet: () => void }) {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
+                {showWorkflowFields && (
+                  <WorkflowFields control={form.control} />
+                )}
                 <Form.Field
                   control={form.control}
                   name="assignedUserIds"
