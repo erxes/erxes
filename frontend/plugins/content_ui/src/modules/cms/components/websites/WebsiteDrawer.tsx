@@ -15,7 +15,11 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CLIENT_PORTAL_REMOVE } from '../../graphql/queries';
 import { GET_WEBSITES } from '../../graphql/queries';
-import { CONTENT_CREATE_CMS } from '../../graphql/mutations';
+import {
+  CONTENT_CREATE_CMS,
+  CONTENT_UPDATE_CMS,
+  CONTENT_DELETE_CMS,
+} from '../../graphql/mutations';
 import { useClientPortals } from '../../hooks/useClientPortals';
 import { LANGUAGES } from '../../../../constants';
 
@@ -418,47 +422,12 @@ export function WebsiteDrawer({
               }}
             />
 
-            <Form.Field
-              control={form.control}
-              name="language"
-              render={({ field }) => {
-                const selectedLanguages = form.watch('languages') || [];
-                const available = LANGUAGES.filter((l) =>
-                  selectedLanguages.includes(l.value),
-                );
-                return (
-                  <Form.Item>
-                    <Form.Label>Default Language</Form.Label>
-                    <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        disabled={available.length === 0}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder="Select default language" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {available.map((opt) => (
-                            <Select.Item key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                );
-              }}
-            />
-
             <div className="flex justify-end space-x-2">
               <Button
                 type="submit"
-                disabled={savingCreate || savingUpdate || hasPermissionError}
+                disabled={saving || savingUpdate || hasPermissionError}
               >
-                {savingCreate || savingUpdate
+                {saving || savingUpdate
                   ? isEditing
                     ? 'Saving...'
                     : 'Creating...'
@@ -491,17 +460,6 @@ export function WebsiteDrawer({
               )}
               <Button onClick={onClose} variant="outline">
                 Cancel
-              </Button>
-              <Button type="submit" disabled={saving || hasPermissionError}>
-                {saving
-                  ? isEditing
-                    ? 'Saving...'
-                    : 'Creating...'
-                  : hasPermissionError
-                  ? 'Permission Required'
-                  : isEditing
-                  ? 'Save Changes'
-                  : 'Create CMS'}
               </Button>
             </div>
           </form>
