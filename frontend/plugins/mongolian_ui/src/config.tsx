@@ -1,6 +1,5 @@
 import { IconSandbox } from '@tabler/icons-react';
 
-
 import { IUIConfig } from 'erxes-ui/types';
 
 export const CONFIG: IUIConfig = {

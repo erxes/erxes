@@ -51,6 +51,11 @@ export function Tag() {
   const { tags, loading, error } = useTags({
     clientPortalId: websiteId || '',
     limit: 20,
+    direction: 'forward',
+    cursor: '',
+    sortField: 'createdAt',
+    sortMode: 'desc',
+    sortDirection: 'desc',
   });
 
   const [removeTag] = useMutation(CMS_TAGS_REMOVE, {

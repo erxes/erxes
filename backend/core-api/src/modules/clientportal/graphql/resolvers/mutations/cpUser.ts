@@ -119,11 +119,31 @@ export const cpUserMutations: Record<string, Resolver> = {
 
     return 'Success';
   },
-  async clientPortalLogout(_root: unknown, _args: unknown, { res }: IContext) {
-    res.clearCookie(
-      'client-auth-token',
-      authCookieOptions({ sameSite: 'none' }),
-    );
+  async clientPortalLogout(
+    _root: unknown,
+    _args: unknown,
+    { res, models, cpUser }: IContext,
+  ) {
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    const options: any = {
+      httpOnly: true,
+    };
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      options.sameSite = 'none';
+      options.secure = true;
+    }
+
+    if (cpUser) {
+      await models.CPUser.updateOne(
+        { _id: cpUser._id || '' },
+        { $set: { lastSeenAt: new Date(), isOnline: false } },
+      );
+    }
+
+    res.clearCookie('client-auth-token', options);
+
     return 'loggedout';
   },
 };
