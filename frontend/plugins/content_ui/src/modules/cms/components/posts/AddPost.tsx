@@ -434,7 +434,7 @@ export function AddPost() {
         .split('\n')[0]
         .slice(0, 80) ||
       'Untitled';
-
+    
     // Generate unique slug from title
     const generateSlug = (title: string) => {
       const baseSlug = title
@@ -445,7 +445,7 @@ export function AddPost() {
       const timestamp = Date.now().toString(36).slice(-6);
       return `${baseSlug}-${timestamp}`;
     };
-
+    
     // Ensure slug exists
     const combinedImages = [...(data.gallery || [])];
 
@@ -1005,41 +1005,25 @@ export function AddPost() {
                                     url: (v as any).url,
                                     name: (v as any).fileInfo?.name || '',
                                   });
-                                  setIsThumbnailUploading(false);
                                 } else {
                                   field.onChange(null);
-                                  setIsThumbnailUploading(false);
                                 }
                               }}
                             >
-                              <Upload.Preview
-                                className="hidden"
-                                onUploadStart={() => setIsThumbnailUploading(true)}
-                                onAllUploadsComplete={() =>
-                                  setIsThumbnailUploading(false)
-                                }
-                              />
+                              <Upload.Preview className="hidden" />
                               <div className="flex flex-col items-stretch gap-2 w-full">
                                 {!field.value && (
-                                  <>
-                                    <Upload.Button
-                                      size="sm"
-                                      variant="secondary"
-                                      type="button"
-                                      className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                                    >
-                                      <IconUpload />
-                                      <span className="text-sm font-medium">
-                                        Upload featured image
-                                      </span>
-                                    </Upload.Button>
-                                    {isThumbnailUploading && (
-                                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                                        <Spinner size="sm" />
-                                        <span>Байршуулж байна...</span>
-                                      </div>
-                                    )}
-                                  </>
+                                  <Upload.Button
+                                    size="sm"
+                                    variant="secondary"
+                                    type="button"
+                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
+                                  >
+                                    <IconUpload />
+                                    <span className="text-sm font-medium">
+                                      Upload featured image
+                                    </span>
+                                  </Upload.Button>
                                 )}
                               </div>
                             </Upload.Root>

@@ -179,7 +179,10 @@ export function Posts() {
         const excerpt = row.original.excerpt || 'No Description';
         return (
           <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm font-medium line-clamp-1" title={excerpt}>
+            <span
+              className="text-sm font-medium text-gray-900 line-clamp-1"
+              title={excerpt}
+            >
               {excerpt}
             </span>
           </div>
@@ -473,14 +476,7 @@ const InlineCategoriesEditor = ({
     [options, selectedIds],
   );
 
-  const [editPost, { loading: saving }] = useMutation(CMS_POSTS_EDIT, {
-    update(cache, { data }) {
-      // Evict all POST_LIST queries to force refetch
-      cache.evict({ fieldName: 'cmsPostList' });
-      cache.gc();
-    },
-    awaitRefetchQueries: true,
-  });
+  const [editPost, { loading: saving }] = useMutation(CMS_POSTS_EDIT);
 
   const handleChange = async (
     opts: Array<{ label: string; value: string }>,

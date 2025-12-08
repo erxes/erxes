@@ -17,12 +17,16 @@ interface SelectTicketTagProps {
   value?: string[];
   onValueChange?: (value: string[]) => void;
   mode?: 'single' | 'multiple';
+  placeholder?: string;
+  parentId?: string;
 }
 
 export function SelectTicketTag({
   value = [],
   onValueChange,
   mode = 'multiple',
+  placeholder = 'Select tags...',
+  parentId,
 }: SelectTicketTagProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -32,7 +36,7 @@ export function SelectTicketTag({
   const { data, loading } = useQuery<{ widgetsGetTicketTags: Tag[] }>(
     GET_WIDGET_TAGS,
     {
-      variables: { configId },
+      variables: { configId, parentId },
       skip: !configId,
     },
   );
@@ -72,12 +76,14 @@ export function SelectTicketTag({
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.Trigger>
           <Combobox.Value
-            placeholder="Select tags..."
+            placeholder={placeholder}
             value={
               selectedTags.length > 0
                 ? mode === 'single'
                   ? selectedTags[0]?.name
-                  : `${selectedTags.length} tag${selectedTags.length > 1 ? 's' : ''} selected`
+                  : `${selectedTags.length} tag${
+                      selectedTags.length > 1 ? 's' : ''
+                    } selected`
                 : undefined
             }
           />
@@ -142,4 +148,3 @@ export function SelectTicketTag({
     </div>
   );
 }
-

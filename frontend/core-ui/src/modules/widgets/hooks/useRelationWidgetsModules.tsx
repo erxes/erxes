@@ -13,7 +13,7 @@ export const useRelationWidgetsModules = (): IRelationModules[] => {
   const plugins = Object.values(pluginsMetaData);
 
   const pluginsRelationWidgets = plugins.flatMap((plugin) =>
-    (plugin.relationWidgets || []).map((module) => ({
+    (plugin.widgets?.relationWidgets || []).map((module) => ({
       pluginName: plugin.name,
       icon: module.icon as Icon,
       name: module.name,

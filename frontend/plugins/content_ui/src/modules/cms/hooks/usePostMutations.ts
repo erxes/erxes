@@ -17,6 +17,7 @@ interface UsePostMutationsOptions {
 export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
   const [createPostMutation, createState] = useMutation(POSTS_ADD, {
     update(cache, { data }) {
+      // Evict all POST_LIST queries to force refetch
       cache.evict({ fieldName: 'cmsPostList' });
       cache.gc();
     },
@@ -24,10 +25,7 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
   });
 
   const [editPostMutation, editState] = useMutation(CMS_POSTS_EDIT, {
-    update(cache, { data }) {
-      cache.evict({ fieldName: 'cmsPostList' });
-      cache.gc();
-    },
+    refetchQueries: 'all',
     awaitRefetchQueries: true,
   });
 

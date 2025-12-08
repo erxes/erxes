@@ -16,28 +16,6 @@ export const CONTENT_CREATE_CMS = gql`
   }
 `;
 
-export const CONTENT_UPDATE_CMS = gql`
-  mutation ContentUpdateCMS($id: String!, $input: ContentCMSInput) {
-    contentUpdateCMS(_id: $id, input: $input) {
-      _id
-      name
-      description
-      clientPortalId
-      content
-      language
-      languages
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const CONTENT_DELETE_CMS = gql`
-  mutation ContentDeleteCMS($id: String!) {
-    contentDeleteCMS(id: $id)
-  }
-`;
-
 export const ADD_TOPIC = gql`
   mutation knowledgeBaseTopicsAdd($input: KnowledgeBaseTopicInput!) {
     knowledgeBaseTopicsAdd(input: $input) {

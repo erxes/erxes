@@ -7,7 +7,6 @@ import {
   CommandBar,
   Separator,
   toast,
-  Spinner,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { useParams } from 'react-router-dom';
@@ -177,25 +176,18 @@ export function Category() {
       header: () => <RecordTable.InlineHead label="Parent" icon={IconEdit} />,
       accessorKey: 'parent',
       cell: ({ row }) => {
-        const getParentName = (parentId: string | null): string => {
-          if (!parentId) return '';
-
-          const parentCategory = categories?.find(
-            (cat: any) => cat._id === parentId,
-          );
-
-          return parentCategory?.name || '';
+        const getParentName = (parent: any): string => {
+          if (!parent) return '—';
+          // If there's a parent with a name, return it
+          if (parent.name) return parent.name;
+          // If there's a nested parent, recursively get its name
+          if (parent.parent) return getParentName(parent.parent);
+          return '—';
         };
 
-        const parentName = row.original.parentId
-          ? getParentName(row.original.parentId)
-          : '';
+        const parentName = getParentName(row.original.parent);
 
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm ">{parentName}</span>
-          </div>
-        );
+        return <span className="text-sm text-gray-500">{parentName}</span>;
       },
       size: 220,
     },
