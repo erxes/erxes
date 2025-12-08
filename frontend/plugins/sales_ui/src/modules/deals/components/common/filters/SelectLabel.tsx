@@ -33,6 +33,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { GET_PIPELINE_LABELS } from '~/modules/deals/graphql/queries/PipelinesQueries';
 import { usePipelineLabels } from '@/deals/pipelines/hooks/usePipelineDetails';
 import { CommandInput } from 'cmdk';
+import LabelForm from '~/modules/deals/cards/components/detail/overview/label/LabelForm';
 
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
@@ -117,6 +118,7 @@ export const SelectLabelsCommand = ({
 
   const [addPipelineLabel] = useMutation(ADD_PIPELINE_LABEL, {
     refetchQueries: [{ query: GET_PIPELINE_LABELS, variables: { pipelineId } }],
+    
     onCompleted: () => {
 
     },
@@ -168,36 +170,51 @@ export const SelectLabelsCommand = ({
     const filtered = pipelineLabels.filter((label: IPipelineLabel) =>
       label.name.toLowerCase().includes(search.toLowerCase()),
     );
+    
 
     return filtered;
   }, [pipelineLabels, search]);
+    const [editLabelId, setEditLabelId] = useState<string | null>(null);
+    const [showForm, setShowForm] = useState(false);
 
-  return (
+  if (showForm) {
+    return (
+      <>
+        <div className="flex items-center justify-between pb-2 border-b">
+          <button
+            onClick={() => setShowForm(false)}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Back
+          </button>
+          <h3 className="text-sm font-semibold text-gray-600">
+            {editLabelId ? 'Edit Label' : 'Add Label'}
+          </h3>
+          <span />
+        </div>
+        <LabelForm
+          onSuccess={() => {
+            setShowForm(false);
+            setEditLabelId(null);
+          }}
+          labelId={editLabelId}
+        />
+      </>
+    );
+  }
+    return (
     <>
-    
-      <div className="flex-auto overflow-hidden py-2">
-        <div className="space-y-4">
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search labels"
-            className="w-full px-3 py-2 rounded-md"
-          />
-
-          {labelsLoading ? (
-            <div className="flex justify-center items-center h-48">
-              <Spinner />
-            </div>
-          ) : (
-            <ul className="space-y-2 max-h-[200px] overflow-y-scroll">
-              {filteredLabels.map((label) => (
+      <Command>
+          <Command.Input placeholder="Search priority" />
+          <Command.List className='px-1 '>
+            {filteredLabels.map((label) => (
                 <li
                   key={label._id}
                   className={cn(
-                    'flex items-center justify-between p-2 rounded-md border cursor-pointer',
+                    'flex items-center justify-between p-2 cursor-pointer my-1',
                     labelIds?.includes(label._id || '')
-                      ? 'bg-blue-50 border-blue-300'
-                      : 'border-gray-200 hover:bg-gray-50',
+                      ? 'bg-blue-50 border-blue-300 rounded-md'
+                      : '',
                   )}
                   onClick={() => toggleLabel(label)}
                 >
@@ -213,11 +230,21 @@ export const SelectLabelsCommand = ({
                     <IconCheck className="w-4 h-4 text-green-600" />
                   )}
                 </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+            ))}
+            
+          </Command.List>
+          <Button
+              type="button"
+              className="w-[90%] mx-auto mb-2"
+              onClick={() => {
+                setEditLabelId(null);
+                setShowForm(true);
+              }}
+            >
+              <IconPlus size={16} />
+              Create a new label
+            </Button>
+        </Command>
     </>
   );
 };

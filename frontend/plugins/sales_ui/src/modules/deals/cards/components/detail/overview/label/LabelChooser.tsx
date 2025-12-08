@@ -1,10 +1,13 @@
 import { IPipelineLabel } from '@/deals/types/pipelines';
 import { IconPlus } from '@tabler/icons-react';
-import LabelOverlay from './LabelOverlay';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { Popover } from 'erxes-ui';
+import { SelectLabelsCommand, SelectLabelsProvider, SelectLabelsContent } from '~/modules/deals/components/common/filters/SelectLabel';
+import { useState } from 'react';
 
 const LabelChooser = ({ labels }: { labels: IPipelineLabel[] }) => {
+  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Labels labels={labels} />
@@ -17,7 +20,13 @@ const LabelChooser = ({ labels }: { labels: IPipelineLabel[] }) => {
         </Popover.Trigger>
 
         <Popover.Content className="w-80">
-          <LabelOverlay labels={labels} />
+          <SelectLabelsProvider
+            value={selectedLabels}
+            onValueChange={setSelectedLabels}
+            mode="multiple"
+          >
+            <SelectLabelsContent />
+          </SelectLabelsProvider>
         </Popover.Content>
       </Popover>
     </div>
