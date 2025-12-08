@@ -39,6 +39,18 @@ const AdjustInventoryDetail = lazy(() =>
   })),
 );
 
+const AccountingJournalReports = lazy(() =>
+  import('~/pages/JournalReports').then((module) => ({
+    default: module.JournalReports,
+  })),
+);
+
+const AccountingGenJournalReport = lazy(() =>
+  import('~/pages/GenJournalReport').then((module) => ({
+    default: module.GenJournalReport,
+  })),
+);
+
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -60,6 +72,9 @@ const PluginAccounting = () => {
           path="/adjustment/inventory/detail"
           element={<AdjustInventoryDetail />}
         />
+        <Route path="/journal-reports" element={<AccountingJournalReports />} />
+        <Route path="/gen-journal-report" element={<AccountingGenJournalReport />} />
+
       </Routes>
       <PageChangeEffect />
     </Suspense>

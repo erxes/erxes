@@ -1,5 +1,6 @@
-import { Cell } from '@tanstack/react-table';
-import { IProduct } from '../types/productTypes';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+
+import { IProduct } from 'ui-modules';
 import { RecordTable } from 'erxes-ui';
 import { atom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
@@ -33,8 +34,8 @@ export const ProductMoreColumnCell = ({
   );
 };
 
-export const productMoreColumn = {
+export const productMoreColumn: ColumnDef<IProduct> = {
   id: 'more',
-  cell: ProductMoreColumnCell,
   size: 33,
+  cell: ProductMoreColumnCell,
 };

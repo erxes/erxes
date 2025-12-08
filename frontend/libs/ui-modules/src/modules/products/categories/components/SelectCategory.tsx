@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-
 import {
   Combobox,
   Command,
   Skeleton,
   TextOverflowTooltip,
   SelectTree,
+  Button,
 } from 'erxes-ui';
+import { Link } from 'react-router-dom';
 import { IProductCategory } from '../types/category';
 import { useProductCategories } from '../hooks/useCategories';
 
@@ -35,7 +36,6 @@ export const SelectCategory = React.forwardRef<
       );
     },
   });
-
   const handleSelect = (categoryId: string) => {
     const category = productCategories?.find(
       (category: IProductCategory) => category._id === categoryId,
@@ -62,7 +62,18 @@ export const SelectCategory = React.forwardRef<
         <Command className="outline-hidden">
           <Command.Input />
           <Command.List>
-            <Combobox.Empty error={error} loading={loading} />
+            {loading ? (
+              <Combobox.Empty error={error} loading={loading} />
+            ) : (
+              <Command.Empty>
+                <div className="text-center text-sm text-muted-foreground flex justify-center flex-col items-center gap-2">
+                  No categories found
+                  <Button variant="secondary" size="sm" asChild>
+                    <Link to="/products/categories">Add Category</Link>
+                  </Button>
+                </div>
+              </Command.Empty>
+            )}
             {productCategories?.map((category: IProductCategory) => (
               <SelectCategoryItem
                 key={category._id}
