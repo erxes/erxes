@@ -17,13 +17,13 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
   const [editDealsProductData, { loading, error }] = useMutation(
     DEALS_EDIT_PRODUCT_DATA,
     {
+      ...options,
       onCompleted: (data) => {
         toast({
           title: 'Success',
           variant: 'success',
         });
         options?.onCompleted?.(data);
-        console.log('ddd', data);
         const newDocs = data.dealsEditProductData.productData;
 
         // Update Apollo cache manually
@@ -47,7 +47,6 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
         });
         options?.onError?.(e);
       },
-      ...options,
     },
   );
   return {

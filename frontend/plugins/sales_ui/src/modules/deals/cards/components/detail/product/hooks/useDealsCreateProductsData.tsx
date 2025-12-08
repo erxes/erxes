@@ -17,6 +17,7 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
   const [createDealsProductData, { loading, error }] = useMutation(
     DEALS_CREATE_PRODUCT_DATA,
     {
+      ...options,
       onCompleted: (data) => {
         toast({
           title: 'Success',
@@ -26,7 +27,6 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
 
         const newDocs = data.dealsCreateProductsData.productsData;
 
-        // Update Apollo cache manually
         client.cache.modify({
           id: client.cache.identify({
             _id: salesItemId as string,
@@ -47,7 +47,6 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
         });
         options?.onError?.(e);
       },
-      ...options,
     },
   );
   return {

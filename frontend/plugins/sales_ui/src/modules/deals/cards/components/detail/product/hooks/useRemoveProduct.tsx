@@ -1,11 +1,7 @@
 import { ApolloError, MutationHookOptions, useMutation } from '@apollo/client';
 
-import { GET_PRODUCTS } from '@/deals/cards/components/detail/product/graphql/queries/ProductQueries';
-import { IProduct } from 'ui-modules';
 import { productRemove } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
 import { useToast } from 'erxes-ui';
-
-const PRODUCTS_PAGE_SIZE = 30;
 
 export const useRemoveProducts = () => {
   const [_removeProducts, { loading }] = useMutation(productRemove);
@@ -29,32 +25,6 @@ export const useRemoveProducts = () => {
           variant: 'destructive',
         });
         options?.onError?.(e);
-      },
-      update: (cache) => {
-        const { dataIds } = options?.variables || {};
-
-        try {
-          cache.updateQuery(
-            {
-              query: GET_PRODUCTS,
-              variables: { perPage: PRODUCTS_PAGE_SIZE, dateFilters: null },
-            },
-            ({ productsMain }) => ({
-              productsMain: {
-                ...productsMain,
-                list: productsMain.list.filter(
-                  (product: IProduct) => !dataIds.includes(product._id),
-                ),
-                totalCount: Math.max(
-                  0,
-                  productsMain.totalCount - dataIds.length,
-                ),
-              },
-            }),
-          );
-        } catch (e) {
-          console.error('Cache update failed:', e);
-        }
       },
     });
   };

@@ -1,11 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button, Input, Label, Switch } from 'erxes-ui';
-import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
+import {
+  IProduct,
+  IProductData,
+  SelectProductsBulk,
+  currentUserState,
+} from 'ui-modules';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 
 import FilterButton from './FilterButton';
-import { IProductRecord } from '@/deals/types/products';
 import { ProductsRecordTable } from './ProductRecordTable';
-import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
 import { useState } from 'react';
@@ -30,7 +34,7 @@ const ProductsList = ({
   const [tax, setTax] = useState<{
     [currency: string]: { value?: number; percent?: number };
   }>({});
-  const [total, setTotal] = useState<{ [currency: string]: number }>({});
+  // const [total, setTotal] = useState<{ [currency: string]: number }>({});
 
   const currentUser = useAtomValue(currentUserState);
   const configs = currentUser?.configs || {};
@@ -60,20 +64,6 @@ const ProductsList = ({
     // onChangeProductsData(updatedData);
     // this.updateTotal(updatedData);
   };
-  console.log('ppp', productRecords);
-  // const showTotal = (totalKind: { [currency: string]: number }, kindTxt: string) => {
-  //   return (Object.keys(totalKind) || []).map(currency => (
-  //     <ProductTotal
-  //       key={kindTxt.concat(currency)}
-  //       totalKind={totalKind[currency]}
-  //       kindTxt={kindTxt}
-  //       currency={currency}
-  //       productsData={productsData}
-  //       updateTotal={this.updateTotal}
-  //       onChangeProductsData={onChangeProductsData}
-  //     />
-  //   ));
-  // }
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
     if (!selectedProducts) return;
@@ -123,7 +113,7 @@ const ProductsList = ({
           placeholder="Vat percent"
           className="w-[40%]"
           value={vatPercent}
-          onChange={(e) => setVatPercent(parseInt(e.target.value))}
+          onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
         />
         <Button className="ml-3" onClick={() => applyVat()}>
           Apply VAT
@@ -153,12 +143,11 @@ const ProductsList = ({
       <div className="sticky bottom-0 right-0 left-0 p-2 flex justify-between items-center z-10 bg-white border-t">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-            Total Products:
+            Total Products:{' '}
             <span className="text-primary">{products?.length || 0}</span>
           </div>
           <div className="flex items-center gap-2">
-            Total Amount:
-            <span className="text-primary">{0}</span>
+            Total Amount: <span className="text-primary">{0}</span>
           </div>
         </div>
         <SelectProductsBulk
