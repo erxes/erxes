@@ -12,11 +12,36 @@ export const FIELDS_QUERY = gql`
         type
         order
         validations
-        logics
+        logics 
         createdAt
         updatedAt
+        options {
+          label
+          value
+        }
       }
       ${GQL_PAGE_INFO}
+    }
+  }
+`;
+
+export const FIELD_DETAILS_QUERY = gql`
+  query FieldDetail($id: String!) {
+    fieldDetail(_id: $id) {
+      _id
+      name
+      code
+      type
+      order
+      options {
+        label
+        value
+      }
+      validations
+      logics
+      icon
+      createdAt
+      updatedAt
     }
   }
 `;

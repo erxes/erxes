@@ -18,24 +18,3 @@ export const FIELD_GROUPS_QUERY = gql`
     }
   }
 `;
-
-export const FIELD_DETAILS_QUERY = gql`
-  query FieldDetail($id: String!) {
-    fieldDetail(_id: $id) {
-      _id
-      name
-      code
-      type
-      order
-      options {
-        label
-        value
-      }
-      validations
-      logics
-      icon
-      createdAt
-      updatedAt
-    }
-  }
-`;

@@ -17,6 +17,7 @@ import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
 import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
+import { PropertyFormMultiple } from './PropertyFormMultiple';
 
 export const PropertyForm = ({
   onSubmit,
@@ -35,14 +36,20 @@ export const PropertyForm = ({
   });
 
   const handleSubmit = (data: IPropertyForm) => {
+    let sendData = data;
+    if (data.multiple) {
+      sendData = {
+        ...data,
+        logics: { ...(data.logics || {}), multiple: true },
+      };
+    }
     if (FIELD_TYPES_OBJECT.relation.value === data.type) {
-      onSubmit({
+      sendData = {
         ...data,
         type: 'relation:' + data.relationType,
-      });
-    } else {
-      onSubmit(data);
+      };
     }
+    onSubmit(sendData);
   };
 
   return (
@@ -135,11 +142,18 @@ export const PropertyForm = ({
             </Form.Item>
           )}
         />
+        <PropertyFormMultiple form={form} />
         <PropertyFormValidation form={form} />
         <PropertyFormSelectFields form={form} />
         <PropertySelectRelationType form={form} />
         <Button type="submit" disabled={loading}>
-          {loading ? <Spinner /> : isEdit ? <IconPencil /> : <IconPlus />}
+          {loading ? (
+            <Spinner containerClassName="flex-none" />
+          ) : isEdit ? (
+            <IconPencil />
+          ) : (
+            <IconPlus />
+          )}
           {isEdit ? 'Update' : 'Add'} Property
         </Button>
       </form>

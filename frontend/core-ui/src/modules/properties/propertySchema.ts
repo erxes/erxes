@@ -15,6 +15,8 @@ export const propertySchema = z
     relationType: z.string().optional(),
     validation: z.string().optional(),
     isSearchable: z.boolean().default(false),
+    multiple: z.boolean().default(false),
+    logics: z.record(z.string(), z.any()).nullable().optional(),
     options: z
       .array(
         z.object({

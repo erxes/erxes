@@ -1,11 +1,7 @@
-import {
-  IconComponent,
-  RecordTable,
-  RecordTableInlineCell,
-  TextOverflowTooltip,
-} from 'erxes-ui';
+import { IconComponent, RecordTable } from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
 import { Cell, ColumnDef } from '@tanstack/react-table';
+import { FieldCell } from '../components/FieldCell';
 
 export const useFieldsColumns = ({
   fields,
@@ -34,11 +30,7 @@ export const useFieldsColumns = ({
       const matchedField = customFieldsData?.find(
         (data) => data.field === field._id,
       );
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={matchedField?.value || ''} />
-        </RecordTableInlineCell>
-      );
+      return <FieldCell field={field} value={matchedField?.value || ''} />;
     },
     size: 200,
   })) as ColumnDef<unknown>[];

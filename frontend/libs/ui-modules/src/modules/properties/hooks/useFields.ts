@@ -22,8 +22,28 @@ export const useFields = ({
     },
   );
 
+  const fields = (data?.fields?.list || []).map((field) => {
+    const type = field.type?.startsWith('relation') ? 'relation' : field.type;
+    const relationType =
+      type === 'relation' ? field.type?.replace('relation:', '') : undefined;
+
+    const logics = Object.fromEntries(
+      Object.entries(field.logics || {}).filter(([key]) => key !== 'multiple'),
+    );
+
+    const multiple = logics?.multiple;
+
+    return {
+      ...field,
+      type,
+      relationType,
+      logics,
+      multiple,
+    };
+  });
+
   return {
-    fields: data?.fields?.list || [],
+    fields: fields,
     loading,
   };
 };

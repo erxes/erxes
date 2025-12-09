@@ -2,7 +2,7 @@ import { PropertyForm } from './PropertyForm';
 import { IPropertyForm } from '../types/Properties';
 import { useAddProperty } from '../hooks/useAddProperty';
 import { toast } from 'erxes-ui';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 export const AddProperty = () => {
   const { groupId, type } = useParams<{
@@ -10,6 +10,7 @@ export const AddProperty = () => {
     type: string;
   }>();
   const { addProperty, loading } = useAddProperty();
+  const navigate = useNavigate();
 
   const onSubmit = (data: IPropertyForm) => {
     // console.log(data);
@@ -21,6 +22,7 @@ export const AddProperty = () => {
       },
       onCompleted: () => {
         toast({ title: 'Property added', variant: 'success' });
+        navigate(`/settings/properties/${groupId}/${groupId}`);
       },
       onError: (error) => {
         toast({
@@ -46,6 +48,7 @@ export const AddProperty = () => {
           code: '',
           validation: '',
           options: [],
+          multiple: false,
         }}
       />
     </div>
