@@ -119,7 +119,7 @@ export const SelectLabelsCommand = ({
     onError: (error) => {},
   });
 
-  const toggleLabel = (label: IPipelineLabel,) => {
+  const toggleLabel = (label: IPipelineLabel) => {
     if (!label._id) {
       return;
     }
