@@ -1,8 +1,10 @@
-import { ReportTable, useQueryState, Spinner, } from "erxes-ui"
+import { ReportTable, useQueryState, Spinner, cn } from "erxes-ui"
 import { useJournalReportData } from "../hooks/useJournalReportData";
 import { IGroupRule, GroupRules } from "../types/reportsMap";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { getCalcReportHandler } from "./includes";
+import { totalsCalc } from "./ReportCalcSummary";
+
 
 export const ReportTableBody = () => {
   const [report] = useQueryState('report');
@@ -14,19 +16,36 @@ export const ReportTableBody = () => {
 
   const { records = [], loading } = useJournalReportData();
 
+  const tableRef = useRef<HTMLTableSectionElement>(null);
+
+  const grouped = React.useMemo(() => {
+    return groupRecords(records, groupRule);
+  }, [records, groupRule]);
+
+
+  // ✅ RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
+  useEffect(() => {
+    if (!tableRef?.current) return;
+    totalsCalc(tableRef.current);
+  }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
+
   if (loading) {
     return <Spinner />;
   }
 
-  const grouped = groupRecords(records, groupRule);
-
   return (
-    <ReportRecursiveRenderer
-      groupedDic={grouped}
-      groupRule={groupRule}
-      colCount={colCount}
-      calcReport={calcReport}
-    />
+    <tbody
+      data-slot="table-body"
+      ref={tableRef}
+      className={cn('[&_tr:last-child]:border-0')}
+    >
+        <ReportRecursiveRenderer
+          groupedDic={grouped}
+          groupRule={groupRule}
+          colCount={colCount}
+          calcReport={calcReport}
+        />
+    </tbody>
   )
 }
 
@@ -80,8 +99,6 @@ const toGroup = (
     resultDic[groupKey]["items"] = dicItems;
   }
 
-  sortGroupByCode(resultDic, `${groupRule.key}_code`);
-
   // if sub-group rule exists, recursively call
   if (groupRule.group_rule?.key) {
     for (const key of Object.keys(resultDic)) {
@@ -92,21 +109,6 @@ const toGroup = (
       );
       resultDic[key]["items"] = undefined
     }
-  }
-}
-
-function sortGroupByCode(resultDic: AnyDict, sortKey: string) {
-  const sortedEntries = Object.entries(resultDic).sort((a: any, b: any) => {
-    const aCode = a[1]?.[sortKey] ?? "";
-    const bCode = b[1]?.[sortKey] ?? "";
-    return String(aCode).localeCompare(String(bCode), "mn");
-  });
-
-  // object-г дахин build хийнэ (JS object өөрөө сортлогддоггүй)
-  Object.keys(resultDic).forEach(k => delete resultDic[k]);
-
-  for (const [k, v] of sortedEntries) {
-    resultDic[k] = v;
   }
 }
 
@@ -155,21 +157,15 @@ function renderGroup(
   if (!Object.keys(groupedDic || {}).length) return [];
 
   const grId = `${groupRule.key}_id`;
-  const grCode = `${groupRule.key}_code`;
   const keyCode = `${groupRule.key}_code`;
   const keyName = `${groupRule.key}_name`;
 
   const sortedValues = Object.values(groupedDic).sort(
-    (a: any, b: any) => String(a[grCode]).localeCompare(String(b[grCode]))
+    (a: any, b: any) => String(a[keyCode]).localeCompare(String(b[keyCode]))
   );
 
   return sortedValues.map((grStep: any, index: number) => {
-    const attr = `data-value-${lastAttr}-${groupRule.key}-${grStep[grId]}`
-      .replace(/--/g, "-")
-      .replace(/ -/g, "-")
-      .replace(/- /g, "-");
-
-    const childAttr = `data-value sum ${leafAttr.replace("data-value-", "")}`;
+    const attr = `${lastAttr && `${lastAttr}*` || ''}${groupRule.key}+${grStep[grId]}`
 
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.group_rule?.key) {
@@ -177,23 +173,24 @@ function renderGroup(
         <React.Fragment key={attr + index}>
           {groupHead && (
             <ReportTable.Row
-              data-value={attr}
-              className={groupRule.format ?? ''}
-              i-group={groupRule.group}
-              i-id={grStep[grId]}
+              data-sum-key={attr}
+              className={cn(groupRule.style ?? '')}
+              data-group={groupRule.group}
+              data-id={grStep[grId]}
             >
               <ReportTable.Cell
-                style={{ paddingLeft: `${padding}px`, textAlign: "left" }}
+                className={`text-left`}
+                style={{ paddingLeft: `${padding}px` }}
               >
                 {grStep[keyCode]}
               </ReportTable.Cell>
 
-              <ReportTable.Cell style={{ textAlign: "left" }}>
+              <ReportTable.Cell className="text-left">
                 {grStep[keyName]}
               </ReportTable.Cell>
 
               {Array.from({ length: colCount }).map((_, i) => (
-                <ReportTable.Cell key={i} />
+                <ReportTable.Cell key={i} className="text-right" />
               ))}
             </ReportTable.Row>
           )}
@@ -202,9 +199,9 @@ function renderGroup(
             grStep[groupRule.group_rule.key],
             groupRule.group_rule,
             colCount,
-            padding + 30,
+            padding + 20,
             attr,
-            leafAttr + attr,
+            `${leafAttr && `${leafAttr},` || ''}${attr}`,
             groupHead,
             calcReport
           )}
@@ -220,19 +217,19 @@ function renderGroup(
     return (
       <ReportTable.Row
         key={attr}
-        style={{ textAlign: "right", ...(groupRule.style ? { cssText: groupRule.style } : {}) }}
-        data-value={childAttr}
-        className={groupRule.format}
-        i-group={groupRule.group}
-        i-id={grStep[grId]}
+        data-keys={`footer,${leafAttr}`}
+        className={cn(groupRule.style ?? '')}
+        data-group={groupRule.group}
+        data-id={grStep[grId]}
       >
         <ReportTable.Cell
-          style={{ paddingLeft: `${padding}px`, textAlign: "left" }}
+          className='text-left'
+          style={{ paddingLeft: `${padding}px` }}
         >
           {grStep[keyCode]}
         </ReportTable.Cell>
 
-        <ReportTable.Cell style={{ textAlign: "left" }}>
+        <ReportTable.Cell className='text-left'>
           {grStep[keyName]}
         </ReportTable.Cell>
 

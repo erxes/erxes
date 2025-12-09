@@ -17,7 +17,6 @@ export interface IGroupRule {
   group: string;
   code: string;
   name?: string;
-  format?: string;
   style?: string;
   group_rule?: IGroupRule | null;
 }
@@ -36,27 +35,49 @@ export const GroupRules: Record<string, ReportConfig> = {
     choices: [
       { code: 'default', title: 'Дансаар' },
       { code: 'cat', title: 'Дансны бүлгээр' },
+      { code: 'all', title: 'Bugderni' },
     ],
     groups: {
       default: {
         'key': 'gr',
         'group': 'account_id',
         'code': 'account__code',
-        'group_rule': null,
         'name': 'account__name',
+        'group_rule': null,
       },
       cat: {
         'key': 'gr1',
         'group': 'account__category_id',
         'code': 'account__category__code',
         'name': 'account__category__name',
-        'format': 'tr-bold',
+        'style': 'font-bold',
         'group_rule': {
           'key': 'gr2',
           'group': 'account_id',
           'code': 'account__code',
           'name': 'account__name',
           'group_rule': null
+        }
+      },
+      all: {
+        'key': 'gr0',
+        'group': '',
+        'code': '',
+        'name': '',
+        'style': 'font-bold',
+        'group_rule': {
+          'key': 'gr1',
+          'group': 'account__category_id',
+          'code': 'account__category__code',
+          'name': 'account__category__name',
+          'style': 'font-semibold',
+          'group_rule': {
+            'key': 'gr2',
+            'group': 'account_id',
+            'code': 'account__code',
+            'name': 'account__name',
+            'group_rule': null
+          }
         }
       }
     }

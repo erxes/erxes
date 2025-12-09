@@ -1,4 +1,4 @@
-import { fixNum, ReportTable } from "erxes-ui";
+import { displayNum, ReportTable } from "erxes-ui";
 import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
 import { TR_SIDES } from "~/modules/transactions/types/constants";
 
@@ -28,12 +28,12 @@ export const HandleMainTB = (dic: any, groupRule: IGroupRule, attr: string) => {
 
   return (
     <>
-      <ReportTable.Cell>{fr_diff > 0 && fixNum(fr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell> {fr_diff < 0 && fixNum(-1 * fr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell> {tr_dt}</ReportTable.Cell>
-      <ReportTable.Cell> {tr_ct}</ReportTable.Cell>
-      <ReportTable.Cell> {lr_diff > 0 && fixNum(lr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell> {lr_diff < 0 && fixNum(-1 * lr_diff) || ''}</ReportTable.Cell>
+      <ReportTable.Cell>{fr_diff > 0 && displayNum(fr_diff) || ''}</ReportTable.Cell>
+      <ReportTable.Cell> {fr_diff < 0 && displayNum(-1 * fr_diff) || ''}</ReportTable.Cell>
+      <ReportTable.Cell> {displayNum(tr_dt)}</ReportTable.Cell>
+      <ReportTable.Cell> {displayNum(tr_ct)}</ReportTable.Cell>
+      <ReportTable.Cell> {lr_diff > 0 && displayNum(lr_diff) || ''}</ReportTable.Cell>
+      <ReportTable.Cell> {lr_diff < 0 && displayNum(-1 * lr_diff) || ''}</ReportTable.Cell>
     </>
   )
 }

@@ -1,4 +1,5 @@
 import { ReportPageContainer, ReportTable } from 'erxes-ui';
+import { useEffect, useRef, useState } from 'react';
 import { ReportFilterCond } from '~/modules/journal-reports/components/ReportFilterCond';
 import { ReportFooter } from '~/modules/journal-reports/components/ReportFooter';
 import { ReportHeader } from '~/modules/journal-reports/components/ReportHeader';
@@ -15,9 +16,7 @@ export const GenJournalReport = () => {
         <ReportTable.Header>
           <ReportTableHeader />
         </ReportTable.Header>
-        <ReportTable.Body>
-          <ReportTableBody />
-        </ReportTable.Body>
+        <ReportTableBody />
         <ReportTable.Footer>
           <ReportTableFooter />
         </ReportTable.Footer>

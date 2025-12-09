@@ -6,15 +6,15 @@ export const ReportTableFooter = () => {
   switch (report) {
     case 'tb':
       return (
-        <ReportTable.Row data-value-sum>
+        <ReportTable.Row data-sum-key="footer">
           <ReportTable.Cell></ReportTable.Cell>
           <ReportTable.Cell className="text-right">НИЙТ ДҮН:</ReportTable.Cell>
-          <ReportTable.Cell sum-1></ReportTable.Cell>
-          <ReportTable.Cell sum-1></ReportTable.Cell>
-          <ReportTable.Cell sum-1></ReportTable.Cell>
-          <ReportTable.Cell sum-1></ReportTable.Cell>
-          <ReportTable.Cell sum-1></ReportTable.Cell>
-          <ReportTable.Cell sum-1></ReportTable.Cell>
+          <ReportTable.Cell className="text-right"></ReportTable.Cell>
+          <ReportTable.Cell className="text-right"></ReportTable.Cell>
+          <ReportTable.Cell className="text-right"></ReportTable.Cell>
+          <ReportTable.Cell className="text-right"></ReportTable.Cell>
+          <ReportTable.Cell className="text-right"></ReportTable.Cell>
+          <ReportTable.Cell className="text-right"></ReportTable.Cell>
         </ReportTable.Row>
       )
     default:
