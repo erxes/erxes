@@ -19,7 +19,6 @@ export const slotDetailAtom = atom<SlotDetailForm>({
 });
 
 export const sidebarViewAtom = atom<'list' | 'detail' | 'hidden'>('list');
-export const isFullscreenAtom = atom<boolean>(false);
 
 export const syncSelectedNodeAtom = atom(
   (get) => get(selectedNodeAtom),
@@ -64,53 +63,3 @@ export const syncSelectedNodeAtom = atom(
     }
   },
 );
-
-export const syncSlotDetailAtom = atom(
-  (get) => get(slotDetailAtom),
-  (get, set, detail: SlotDetailForm) => {
-    set(slotDetailAtom, detail);
-
-    const selectedNode = get(selectedNodeAtom);
-    if (selectedNode) {
-      const x = Number(detail.left) || 0;
-      const y = Number(detail.top) || 0;
-      const width = Number(detail.width) || 80;
-      const height = Number(detail.height) || 80;
-      const rotateAngle = Number(detail.rotateAngle) || 0;
-      const zIndex = Number(detail.zIndex) || 0;
-
-      const updatedNode: CustomNode = {
-        ...selectedNode,
-        position: { x, y },
-        width,
-        height,
-        data: {
-          ...selectedNode.data,
-          label: detail.name || detail.label,
-          code: detail.code,
-          color: detail.color,
-          width,
-          height,
-          positionX: x,
-          positionY: y,
-          rounded: Number(detail.rounded) || 0,
-          rotateAngle,
-          zIndex,
-          disabled: detail.disabled,
-        },
-      };
-
-      set(selectedNodeAtom, updatedNode);
-    }
-  },
-);
-
-export const currentPositionAtom = atom((get) => {
-  const selectedNode = get(selectedNodeAtom);
-  if (!selectedNode) return { x: 0, y: 0 };
-
-  const x = selectedNode.position?.x ?? selectedNode.data.positionX ?? 0;
-  const y = selectedNode.position?.y ?? selectedNode.data.positionY ?? 0;
-
-  return { x, y };
-});
