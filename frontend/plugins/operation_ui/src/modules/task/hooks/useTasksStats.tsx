@@ -152,14 +152,14 @@ export const useTasksStats = ({
     });
     return Array.from(ids);
   }, [tasks]);
-  console.log('projectIds', projectIds);
+
   const { projects: projectsList } = useProjects({
     variables: {
       _ids: projectIds,
     },
     skip: projectIds.length === 0,
   });
-  console.log('projectsList', projectsList);
+  
   const projects: IProject[] = useMemo(() => {
     return projectsList || [];
   }, [projectsList]);
