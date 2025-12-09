@@ -433,7 +433,7 @@ export function AddPost() {
         .split('\n')[0]
         .slice(0, 80) ||
       'Untitled';
-    
+
     // Generate unique slug from title
     const generateSlug = (title: string) => {
       const baseSlug = title
@@ -444,7 +444,7 @@ export function AddPost() {
       const timestamp = Date.now().toString(36).slice(-6);
       return `${baseSlug}-${timestamp}`;
     };
-    
+
     // Ensure slug exists
     const combinedImages = [...(data.gallery || [])];
 
@@ -569,7 +569,14 @@ export function AddPost() {
         onClick={() => form.handleSubmit(onSubmit)()}
         disabled={creating || saving}
       >
-        {editingPost ? 'Save' : 'Create'}
+        {creating || saving ? (
+          <>
+            <Spinner size="sm" className="mr-2" />
+            {editingPost ? 'Saving...' : 'Creating...'}
+          </>
+        ) : (
+          <>{editingPost ? 'Save' : 'Create'}</>
+        )}
       </Button>
     </>
   );
@@ -1488,8 +1495,16 @@ export function AddPost() {
               )} */}
 
               <div className="flex justify-between pt-2">
-                <Button variant="outline">Delete</Button>
-                <Button type="submit">Save</Button>
+                <Button type="submit" disabled={creating || saving}>
+                  {creating || saving ? (
+                    <>
+                      <Spinner size="sm" className="mr-2" />
+                      {editingPost ? 'Saving...' : 'Creating...'}
+                    </>
+                  ) : (
+                    <>{editingPost ? 'Save' : 'Create'}</>
+                  )}
+                </Button>
               </div>
             </form>
           </Form>

@@ -1,5 +1,28 @@
-import { StepConfig } from '../pos-detail/types/IPosLayout';
 import { CustomNode } from '../slot/types';
+import {
+  IconCreditCard,
+  IconCashBanknote,
+  IconBuilding,
+  IconPhone,
+  IconBrandVisa,
+  IconBrandMastercard,
+  IconFile,
+} from '@tabler/icons-react';
+import { isStepVisible } from './fieldConfig';
+
+export {
+  isFieldVisible,
+  isStepVisible,
+  posTypeToContext,
+  FIELD_VISIBILITY_CONFIG,
+  STEP_VISIBILITY_CONFIG,
+} from './fieldConfig';
+export type {
+  FieldContext,
+  FieldConfig,
+  CategoryFieldConfig,
+  PosTypeValue,
+} from './fieldConfig';
 
 export type AllowedPosType =
   | 'eat'
@@ -29,56 +52,6 @@ export const ALLOW_TYPES = [
   { value: 'reject', label: 'Reject', kind: 'out' },
 ] as const;
 
-export const ALLOW_STATUSES = [
-  { value: 'new', label: 'New' },
-  { value: 'doing', label: 'Doing' },
-  { value: 'reDoing', label: 'Redoing' },
-  { value: 'done', label: 'Done' },
-  { value: 'complete', label: 'Complete' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'return', label: 'Return' },
-];
-
-export const FILTER_PARAMS = [
-  'search',
-  'customerId',
-  'customerType',
-  'billType',
-  'registerNumber',
-  'type',
-  'createdStartDate',
-  'createdEndDate',
-  'paidStartDate',
-  'paidEndDate',
-  'financeStartDate',
-  'financeEndDate',
-  'paidDate',
-  'userId',
-  'hasntUser',
-];
-
-export const SCREEN_TYPE_OPTIONS = [
-  { label: 'Time', value: 'time' },
-  { label: 'Manual', value: 'manual' }, // used only in kitchen
-  { label: 'Count', value: 'count' }, // used only in waiting
-];
-//kitchen status change
-export const KITCHEN_TYPE_OPTIONS = [
-  { label: 'Time', value: 'time' },
-  { label: 'Manual', value: 'manual' },
-];
-//waiting change type
-export const WAITING_TYPE_OPTIONS = [
-  { label: 'Time', value: 'time' },
-  { label: 'Count', value: 'count' },
-];
-// kitchen show types
-export const SHOW_TYPE_OPTIONS = [
-  { label: 'All saved orders', value: 'all' },
-  { label: 'Paid all orders', value: 'paid' },
-  // { label: "Orders containing certain products", value: "filtered" }, // optional/future
-  { label: 'Defined orders only', value: 'click' },
-];
 export const options = [
   { value: 'debtAmount', label: 'Зээлийн данс' },
   { value: 'cashAmount', label: 'Бэлэн мөнгө данс' },
@@ -92,9 +65,10 @@ export const DefaultNode: CustomNode = {
   id: '1',
   type: 'tableNode',
   position: { x: 250, y: 100 },
+  zIndex: 0,
   data: {
-    label: 'TABLE',
-    code: '01',
+    label: 'TABLE 1',
+    code: '1',
     color: '#4F46E5',
     width: 80,
     height: 80,
@@ -127,53 +101,74 @@ export const CANVAS = {
   HEIGHT: 1000,
 } as const;
 
-export const LAYOUT = {
-  STEPPER_WIDTH: 'w-44',
-  CONTENT_MAX_HEIGHT: 'max-h-[calc(100vh-120px)]',
-  STEPPER_INDICATOR_LEFT: 'left-[18px]',
-  STEPPER_SEPARATOR_TOP: 'top-9',
-  STEPPER_SEPARATOR_HEIGHT: 'h-8',
-};
-
-export const getSteps = (posCategory: string | null): StepConfig[] => {
-  const baseSteps: StepConfig[] = [
-    { value: 'overview', title: 'Choose category' },
+export const getSteps = (posType: string | null) => {
+  const baseSteps = [
     { value: 'properties', title: 'General information' },
+    { value: 'slots', title: 'Slots' },
     { value: 'payments', title: 'Payments' },
     { value: 'permission', title: 'Permission' },
     { value: 'product', title: 'Product & Service' },
-    { value: 'appearance', title: 'Appearance' },
-    { value: 'screen', title: 'Screen config' },
-    { value: 'ebarimt', title: 'Ebarimt config' },
-    { value: 'finance', title: 'Finance config' },
-    { value: 'delivery', title: 'Delivery config' },
+    { value: 'appearance', title: 'Brand Color & Logo' },
+    { value: 'screen', title: 'Screen' },
+    { value: 'ebarimt', title: 'Ebarimt' },
+    { value: 'finance', title: 'Erkhet' },
+    { value: 'delivery', title: 'Delivery' },
     { value: 'sync', title: 'Sync card' },
   ];
 
-  if (posCategory === 'restaurant') {
-    const updatedSteps = [...baseSteps];
-    updatedSteps.splice(2, 0, { value: 'slot', title: 'Slot' });
-    return updatedSteps;
-  }
-
-  return baseSteps;
+  return baseSteps.filter((step) =>
+    isStepVisible(step.value, posType || undefined),
+  );
 };
 
-export const navigateToTab = (
-  setSearchParams: (params: URLSearchParams) => void,
-  searchParams: URLSearchParams,
-  tabValue: string,
-): void => {
-  const newParams = new URLSearchParams(searchParams);
-  newParams.set('tab', tabValue);
-  setSearchParams(newParams);
+export type PosType = 'ecommerce' | 'restaurant' | 'pos';
+
+export const POS_TYPES = [
+  { value: 'ecommerce', label: 'E-commerce' },
+  { value: 'restaurant', label: 'Restaurant' },
+  { value: 'pos', label: 'POS' },
+] as const;
+
+interface PaymentIconProps {
+  iconType: string;
+  size?: number;
+  className?: string;
+}
+
+const PaymentIcon: React.FC<PaymentIconProps> = ({
+  iconType,
+  size = 16,
+  className = '',
+}) => {
+  const getIcon = () => {
+    switch (iconType) {
+      case 'credit-card':
+        return <IconCreditCard size={size} className={className} />;
+      case 'cash':
+        return <IconCashBanknote size={size} className={className} />;
+      case 'bank':
+        return <IconBuilding size={size} className={className} />;
+      case 'mobile':
+        return <IconPhone size={size} className={className} />;
+      case 'visa':
+        return (
+          <IconBrandVisa size={size} className={`text-blue-600 ${className}`} />
+        );
+      case 'mastercard':
+        return (
+          <IconBrandMastercard
+            size={size}
+            className={`text-destructive ${className}`}
+          />
+        );
+      case 'sign-alt':
+        return <IconFile size={size} className={className} />;
+      default:
+        return <IconCreditCard size={size} className={className} />;
+    }
+  };
+
+  return getIcon();
 };
 
-export const TOAST_MESSAGES = {
-  POS_CREATED: 'POS created successfully',
-  POS_EDITED: 'POS edited successfully',
-  POS_CREATION_FAILED: 'Failed to create POS',
-  SLOTS_SAVED: 'Slots saved successfully',
-  SLOTS_SAVE_FAILED: 'Failed to save slots',
-  TRY_AGAIN: 'Please try again later',
-} as const;
+export default PaymentIcon;

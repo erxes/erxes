@@ -7,6 +7,7 @@ import {
   CommandBar,
   Separator,
   toast,
+  Spinner,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { useParams } from 'react-router-dom';
@@ -152,7 +153,7 @@ export function Category() {
         const name = cell.getValue() as string;
         return (
           <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-900">{name}</span>
+            <span className="text-sm">{name}</span>
           </div>
         );
       },
@@ -166,9 +167,7 @@ export function Category() {
       accessorKey: 'description',
       cell: ({ cell }) => (
         <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-500">
-            {(cell.getValue() as string) || ''}
-          </span>
+          <span className="text-sm ">{(cell.getValue() as string) || ''}</span>
         </div>
       ),
       size: 320,
@@ -201,7 +200,7 @@ export function Category() {
         const value = cell.getValue() as string;
         return (
           <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm">
               {value
                 ? new Date(value).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -221,7 +220,10 @@ export function Category() {
     <CmsLayout headerActions={headerActions}>
       {loading && (
         <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500">Loading categories...</div>
+          <div className="text-gray-500 text-center items-center flex gap-2">
+            <Spinner size="md" className="ml-2" />
+            Loading categories...
+          </div>
         </div>
       )}
       {error && (
