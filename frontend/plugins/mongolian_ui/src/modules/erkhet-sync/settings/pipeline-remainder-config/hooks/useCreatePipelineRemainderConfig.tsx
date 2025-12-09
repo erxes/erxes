@@ -17,7 +17,7 @@ export const useCreatePipelineRemainderConfig = () => {
           description: 'Pipeline remainder config created successfully',
           variant: 'default',
         });
-        setCursor(null);
+        setCursor('');
       },
       onError: (e) => {
         toast({

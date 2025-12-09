@@ -17,7 +17,7 @@ export const useCreateStageInReturnErkhetConfig = () => {
           description: 'Stage in return erkhet config created successfully',
           variant: 'default',
         });
-        setCursor(null);
+        setCursor('');
       },
       onError: (e) => {
         toast({
