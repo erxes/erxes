@@ -1,69 +1,110 @@
-import { useEffect } from 'react';
-import {
-  InfoCard,
-  Input,
-  Form,
-  Select,
-  Button,
-  Checkbox,
-  toast,
-  MultipleSelector,
-} from 'erxes-ui';
-import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
+import { useEffect, useState, useCallback } from 'react';
+import { InfoCard, Form, Button, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
-import { ALLOW_TYPES, POS_TYPES, isFieldVisible } from '@/pos/constants';
+import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import {
+  NameField,
+  TypeField,
+  DescriptionField,
+  MaxSkipNumberField,
+  OrderPasswordField,
+  BranchField,
+  DepartmentField,
+  BrandField,
+  OnServerField,
+  IsOnlineField,
+  AllowBranchesField,
+  PosDomainField,
+  BeginNumberField,
+  AllowTypesField,
+  FormData,
+} from '@/pos/components/properties/PropertiesFields';
 
 interface PropertiesProps {
   posId?: string;
   posType?: string;
 }
 
-interface FormData {
-  name: string;
-  description: string;
-  type: string;
-  maxSkipNumber: string;
-  orderPassword: string;
-  branchId: string;
-  departmentId: string;
-  allowBranchIds: string[];
-  brandId: string;
-  allowTypes: string[];
-  isOnline: boolean;
-  onServer: boolean;
-  pdomain: string;
-  beginNumber: string;
+interface MoreOptionsButtonProps {
+  showMore: boolean;
+  onToggle: () => void;
 }
+
+const MoreOptionsButton = ({ showMore, onToggle }: MoreOptionsButtonProps) => (
+  <Button
+    type="button"
+    variant="outline"
+    className="flex gap-1 items-center text-sm"
+    onClick={onToggle}
+  >
+    {showMore ? (
+      <>
+        <IconChevronUp size={16} />
+        Hide more options
+      </>
+    ) : (
+      <>
+        <IconChevronDown size={16} />
+        More options
+      </>
+    )}
+  </Button>
+);
+
+const LoadingSkeleton = () => (
+  <div className="overflow-y-auto p-6 space-y-6 max-h-screen">
+    <InfoCard title="Properties">
+      <InfoCard.Content>
+        <div className="grid grid-cols-2 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="space-y-2">
+              <div className="w-24 h-4 rounded animate-pulse bg-muted" />
+              <div className="h-8 rounded animate-pulse bg-muted" />
+            </div>
+          ))}
+        </div>
+      </InfoCard.Content>
+    </InfoCard>
+  </div>
+);
+
+const DEFAULT_FORM_VALUES: FormData = {
+  name: '',
+  description: '',
+  type: '',
+  maxSkipNumber: '',
+  orderPassword: '',
+  branchId: '',
+  departmentId: '',
+  allowBranchIds: [],
+  brandId: '',
+  allowTypes: [],
+  isOnline: false,
+  onServer: false,
+  pdomain: '',
+  beginNumber: '',
+};
 
 const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
+  const [showMoreFields, setShowMoreFields] = useState(false);
 
-  const form = useForm<FormData>({
-    defaultValues: {
-      name: '',
-      description: '',
-      type: '',
-      maxSkipNumber: '',
-      orderPassword: '',
-      branchId: '',
-      departmentId: '',
-      allowBranchIds: [],
-      brandId: '',
-      allowTypes: [],
-      isOnline: false,
-      onServer: false,
-      pdomain: '',
-      beginNumber: '',
-    },
-  });
+  const isPosType = posType === 'pos';
+  const isEcomType = posType === 'ecommerce';
+  const isRestaurantType = posType === 'restaurant';
+
+  const form = useForm<FormData>({ defaultValues: DEFAULT_FORM_VALUES });
+  const { control, handleSubmit, reset, watch, formState } = form;
+  const isOnline = watch('isOnline');
 
   useEffect(() => {
     if (posDetail) {
-      form.reset({
+      reset({
         name: posDetail.name || '',
         description: posDetail.description || '',
         type: posDetail.type || '',
@@ -80,74 +121,66 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
         beginNumber: posDetail.beginNumber || '',
       });
     }
-  }, [posDetail, form]);
+  }, [posDetail, reset]);
 
-  const handleSaveChanges = async (data: FormData) => {
-    if (!posId) {
-      toast({
-        title: 'Error',
-        description: 'POS ID is required',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      await posEdit({
-        variables: {
-          _id: posId,
-          name: data.name,
-          description: data.description,
-          type: data.type,
-          maxSkipNumber: (() => {
-            const parsed = parseInt(String(data.maxSkipNumber), 10);
-            return Number.isNaN(parsed) ? 0 : parsed;
-          })(),
-          orderPassword: data.orderPassword,
-          branchId: data.branchId,
-          departmentId: data.departmentId,
-          allowBranchIds: data.allowBranchIds,
-          scopeBrandIds: data.brandId ? [data.brandId] : [],
-          allowTypes: data.allowTypes,
-          isOnline: data.isOnline,
-          onServer: data.onServer,
-          pdomain: data.pdomain,
-          beginNumber: data.beginNumber,
-        },
-      });
-
-      toast({
-        title: 'Success',
-        description: 'Properties saved successfully',
-      });
-      form.reset(data);
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Failed to save properties',
-        variant: 'destructive',
-      });
-    }
+  const parseMaxSkipNumber = (value: string): number => {
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
   };
 
-  if (detailLoading) {
-    return (
-      <div className="overflow-y-auto p-6 space-y-6 max-h-screen">
-        <InfoCard title="Properties">
-          <InfoCard.Content>
-            <div className="grid grid-cols-2 gap-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="space-y-2">
-                  <div className="w-24 h-4 rounded animate-pulse bg-muted" />
-                  <div className="h-8 rounded animate-pulse bg-muted" />
-                </div>
-              ))}
-            </div>
-          </InfoCard.Content>
-        </InfoCard>
-      </div>
-    );
-  }
+  const handleSaveChanges = useCallback(
+    async (data: FormData) => {
+      if (!posId) {
+        toast({
+          title: 'Error',
+          description: 'POS ID is required',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      try {
+        await posEdit({
+          variables: {
+            _id: posId,
+            name: data.name,
+            description: data.description,
+            type: data.type,
+            maxSkipNumber: parseMaxSkipNumber(data.maxSkipNumber),
+            orderPassword: data.orderPassword,
+            branchId: data.branchId,
+            departmentId: data.departmentId,
+            allowBranchIds: data.allowBranchIds,
+            scopeBrandIds: data.brandId ? [data.brandId] : [],
+            allowTypes: data.allowTypes,
+            isOnline: data.isOnline,
+            onServer: data.onServer,
+            pdomain: data.pdomain,
+            beginNumber: data.beginNumber,
+          },
+        });
+
+        toast({
+          title: 'Success',
+          description: 'Properties saved successfully',
+        });
+        reset(data);
+      } catch {
+        toast({
+          title: 'Error',
+          description: 'Failed to save properties',
+          variant: 'destructive',
+        });
+      }
+    },
+    [posId, posEdit, reset],
+  );
+
+  const toggleMoreFields = useCallback(() => {
+    setShowMoreFields((prev) => !prev);
+  }, []);
+
+  if (detailLoading) return <LoadingSkeleton />;
 
   if (error) {
     return (
@@ -165,322 +198,118 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
         <InfoCard.Content>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSaveChanges)}
+              onSubmit={handleSubmit(handleSaveChanges)}
               className="space-y-6"
             >
               <div className="grid grid-cols-2 gap-4">
                 {isFieldVisible('name', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Name</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="text"
-                            placeholder="POS Name"
-                            {...field}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
+                  <NameField control={control} />
                 )}
-                {isFieldVisible('description', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Description</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="text"
-                            placeholder="Description"
-                            {...field}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
+
+                <TypeField control={control} />
+
+                {isPosType && isFieldVisible('chooseBranch', posType) && (
+                  <BranchField control={control} />
                 )}
-                <Form.Field
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Type</Form.Label>
-                      <Form.Control>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Select.Trigger>
-                            <Select.Value placeholder="Select type" />
-                          </Select.Trigger>
-                          <Select.Content>
-                            {POS_TYPES.map((type) => (
-                              <Select.Item key={type.value} value={type.value}>
-                                {type.label}
-                              </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select>
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
-                {isFieldVisible('maxSkipNumber', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="maxSkipNumber"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Max Skip Number</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            placeholder="Max Skip number"
-                            {...field}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                )}
-                {isFieldVisible('orderPassword', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="orderPassword"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Order Password</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="text"
-                            placeholder="Order Password"
-                            {...field}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                )}
-                {isFieldVisible('brand', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="brandId"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Brand</Form.Label>
-                        <Form.Control>
-                          <SelectBrand.FormItem
-                            mode="single"
-                            value={field.value ?? ''}
-                            onValueChange={(brand) => field.onChange(brand)}
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
+
+                {isEcomType && isFieldVisible('isOnline', posType) && (
+                  <IsOnlineField control={control} />
                 )}
               </div>
 
-              {isFieldVisible('allowTypes', posType) && (
-                <Form.Field
-                  control={form.control}
-                  name="allowTypes"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Allow Types</Form.Label>
-                      <Form.Control>
-                        <MultipleSelector
-                          value={field.value?.map((v: string) => ({
-                            value: v,
-                            label:
-                              ALLOW_TYPES.find((t) => t.value === v)?.label ||
-                              v,
-                          }))}
-                          onChange={(options) =>
-                            field.onChange(options.map((o) => o.value))
-                          }
-                          defaultOptions={ALLOW_TYPES.map((t) => ({
-                            value: t.value,
-                            label: t.label,
-                          }))}
-                          placeholder="Select allow types"
-                          hidePlaceholderWhenSelected
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
+              {isEcomType && isOnline && (
+                <div className="grid grid-cols-2 gap-4">
+                  {isFieldVisible('allowBranches', posType) && (
+                    <AllowBranchesField control={control} />
                   )}
-                />
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                {isFieldVisible('chooseBranch', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="branchId"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Branch</Form.Label>
-                        <Form.Control>
-                          <SelectBranches.FormItem
-                            mode="single"
-                            value={field.value ?? ''}
-                            onValueChange={(branch) => field.onChange(branch)}
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                )}
-
-                {isFieldVisible('chooseDepartment', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="departmentId"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>DEPARTMENT</Form.Label>
-                        <Form.Control>
-                          <SelectDepartments.FormItem
-                            mode="single"
-                            value={field.value ?? ''}
-                            onValueChange={(department) =>
-                              field.onChange(department)
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-6">
-                  {isFieldVisible('isOnline', posType) && (
-                    <Form.Field
-                      control={form.control}
-                      name="isOnline"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <div className="flex items-center space-x-2">
-                            <Form.Control>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </Form.Control>
-                            <Form.Label>Is Online</Form.Label>
-                          </div>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
+                  {isFieldVisible('posDomain', posType) && (
+                    <PosDomainField control={control} />
                   )}
-
-                  {form.watch('isOnline') && (
-                    <div className="space-y-6">
-                      {isFieldVisible('allowBranches', posType) && (
-                        <Form.Field
-                          control={form.control}
-                          name="allowBranchIds"
-                          render={({ field }) => (
-                            <Form.Item>
-                              <Form.Label>ALLOW BRANCHES</Form.Label>
-                              <Form.Description>
-                                Select the potential branches for sales from
-                                this pos
-                              </Form.Description>
-                              <Form.Control>
-                                <SelectBranches.FormItem
-                                  mode="multiple"
-                                  value={field.value ?? []}
-                                  onValueChange={(branches) =>
-                                    field.onChange(branches)
-                                  }
-                                />
-                              </Form.Control>
-                              <Form.Message />
-                            </Form.Item>
-                          )}
-                        />
-                      )}
-
-                      {isFieldVisible('posDomain', posType) && (
-                        <Form.Field
-                          control={form.control}
-                          name="pdomain"
-                          render={({ field }) => (
-                            <Form.Item>
-                              <Form.Label>POS Domain</Form.Label>
-                              <Form.Control>
-                                <Input
-                                  type="text"
-                                  placeholder="POS Domain"
-                                  {...field}
-                                />
-                              </Form.Control>
-                              <Form.Message />
-                            </Form.Item>
-                          )}
-                        />
-                      )}
-
-                      {isFieldVisible('beginNumber', posType) && (
-                        <Form.Field
-                          control={form.control}
-                          name="beginNumber"
-                          render={({ field }) => (
-                            <Form.Item>
-                              <Form.Label>Begin Number</Form.Label>
-                              <Form.Control>
-                                <Input
-                                  type="number"
-                                  placeholder="Begin Number"
-                                  {...field}
-                                />
-                              </Form.Control>
-                              <Form.Message />
-                            </Form.Item>
-                          )}
-                        />
-                      )}
-                    </div>
+                  {isFieldVisible('beginNumber', posType) && (
+                    <BeginNumberField control={control} />
                   )}
                 </div>
+              )}
 
-                {isFieldVisible('onServer', posType) && (
-                  <Form.Field
-                    control={form.control}
-                    name="onServer"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <div className="flex items-center space-x-2">
-                          <Form.Control>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </Form.Control>
-                          <Form.Label>On Server</Form.Label>
-                        </div>
-                        <Form.Message />
-                      </Form.Item>
+              {isRestaurantType && (
+                <>
+                  {isFieldVisible('allowTypes', posType) && (
+                    <AllowTypesField control={control} />
+                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    {isFieldVisible('chooseBranch', posType) && (
+                      <BranchField control={control} />
                     )}
-                  />
-                )}
-              </div>
+                  </div>
+                </>
+              )}
 
-              {form.formState.isDirty && (
+              <MoreOptionsButton
+                showMore={showMoreFields}
+                onToggle={toggleMoreFields}
+              />
+
+              {isPosType && showMoreFields && (
+                <div className="grid grid-cols-2 gap-4">
+                  {isFieldVisible('description', posType) && (
+                    <DescriptionField control={control} />
+                  )}
+                  {isFieldVisible('maxSkipNumber', posType) && (
+                    <MaxSkipNumberField control={control} />
+                  )}
+                  {isFieldVisible('orderPassword', posType) && (
+                    <OrderPasswordField control={control} />
+                  )}
+                  {isFieldVisible('chooseDepartment', posType) && (
+                    <DepartmentField control={control} />
+                  )}
+                  {isFieldVisible('onServer', posType) && (
+                    <OnServerField control={control} />
+                  )}
+                </div>
+              )}
+
+              {isEcomType && showMoreFields && (
+                <div className="grid grid-cols-2 gap-4">
+                  {isFieldVisible('description', posType) && (
+                    <DescriptionField control={control} />
+                  )}
+                  {isFieldVisible('brand', posType) && (
+                    <BrandField control={control} />
+                  )}
+                  {isFieldVisible('chooseBranch', posType) && (
+                    <BranchField control={control} />
+                  )}
+                  {isFieldVisible('chooseDepartment', posType) && (
+                    <DepartmentField control={control} />
+                  )}
+                </div>
+              )}
+
+              {isRestaurantType && showMoreFields && (
+                <div className="grid grid-cols-2 gap-4">
+                  {isFieldVisible('description', posType) && (
+                    <DescriptionField control={control} />
+                  )}
+                  {isFieldVisible('maxSkipNumber', posType) && (
+                    <MaxSkipNumberField control={control} />
+                  )}
+                  {isFieldVisible('orderPassword', posType) && (
+                    <OrderPasswordField control={control} />
+                  )}
+                  {isFieldVisible('brand', posType) && (
+                    <BrandField control={control} />
+                  )}
+                  {isFieldVisible('chooseDepartment', posType) && (
+                    <DepartmentField control={control} />
+                  )}
+                  {isFieldVisible('onServer', posType) && (
+                    <OnServerField control={control} />
+                  )}
+                </div>
+              )}
+
+              {formState.isDirty && (
                 <div className="flex justify-end pt-4 border-t">
                   <Button type="submit" disabled={saving}>
                     {saving ? 'Saving...' : 'Save Changes'}

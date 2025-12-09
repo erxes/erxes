@@ -1,5 +1,5 @@
 export { default as Products } from './Products';
-export { AddGroupSheet } from './AddGroupSheet';
+export { AddGroupForm } from './AddGroupForm';
 export { AddMappingSheet } from './AddMappingSheet';
 export { ProductGroupsList } from './ProductGroupsList';
 export { InitialProductCategories } from './InitialProductCategories';

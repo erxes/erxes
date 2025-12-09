@@ -2,8 +2,6 @@ import { IUser } from '@/pos/types/pos';
 
 export interface ProductGroup {
   _id: string;
-  name: string;
-  description?: string;
   categoryIds?: string[];
   excludedCategoryIds?: string[];
   excludedProductIds?: string[];

@@ -17,7 +17,7 @@ import { PosFields } from './PosFields';
 import { RestaurantFields } from './RestaurantFields';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import type { CustomNode } from '@/pos/slot/types';
 import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
 
@@ -44,12 +44,13 @@ export const PosCreate = ({
   onOpenChange,
   onCreateSuccess,
 }: PosCreateDialogProps) => {
-  const { posAdd, loading } = usePosAdd();
+  const { posAdd } = usePosAdd();
   const { toast } = useToast();
   const { productGroupSave } = usePosEditProductGroup();
   const { updatePosSlots } = useUpdatePosSlots();
   const productGroupsRef = useRef<ProductGroup[]>([]);
   const slotsRef = useRef<CustomNode[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const methods = useForm<PosFormData>({
     defaultValues: {
@@ -80,6 +81,7 @@ export const PosCreate = ({
   const isFormValid = selectedName?.trim().length >= 2 && selectedType;
 
   const onSubmit = async (data: PosFormData) => {
+    setIsSubmitting(true);
     try {
       await posAdd({
         variables: {
@@ -185,6 +187,7 @@ export const PosCreate = ({
           slotsRef.current = [];
           onOpenChange(false);
           if (onCreateSuccess) onCreateSuccess();
+          setIsSubmitting(false);
         },
       });
     } catch {
@@ -193,6 +196,7 @@ export const PosCreate = ({
         description: 'Failed to create POS. Please try again.',
         variant: 'destructive',
       });
+      setIsSubmitting(false);
     }
   };
 
@@ -305,12 +309,12 @@ export const PosCreate = ({
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                disabled={loading}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || !isFormValid}>
-                {loading ? 'Creating...' : 'Create POS'}
+              <Button type="submit" disabled={isSubmitting || !isFormValid}>
+                {isSubmitting ? 'Creating...' : 'Create POS'}
               </Button>
             </Sheet.Footer>
           </form>

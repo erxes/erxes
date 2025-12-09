@@ -90,8 +90,6 @@ const productGroups = gql`
     productGroups(posId: $posId) {
       _id
       posId
-      name
-      description
       categoryIds
       excludedCategoryIds
       excludedProductIds

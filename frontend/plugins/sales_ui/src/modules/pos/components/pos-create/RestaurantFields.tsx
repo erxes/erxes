@@ -5,16 +5,21 @@ import {
   MultipleSelector,
   MultiSelectOption,
 } from 'erxes-ui';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { PosFormData } from '@/pos/components/pos-create/PosCreate';
-import { SelectBranches, SelectMember, SelectCategory } from 'ui-modules';
+import {
+  SelectBranches,
+  SelectMember,
+  SelectCategory,
+  SelectProduct,
+} from 'ui-modules';
 import { usePayments } from '@/pos/hooks/usePayments';
-import { AddProductGroupDialog } from '@/pos/components/pos-create/AddProductGroupDialog';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { SlotsDialog } from '@/pos/components/pos-create/SlotsDialog';
 import type { CustomNode } from '@/pos/slot/types';
+import { nanoid } from 'nanoid';
 
 interface RestaurantFieldsProps {
   form: UseFormReturn<PosFormData>;
@@ -27,8 +32,11 @@ export const RestaurantFields = ({
   productGroupsRef,
   slotsRef,
 }: RestaurantFieldsProps) => {
-  const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
-  const [editingGroup, setEditingGroup] = useState<ProductGroup | null>(null);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [excludedCategoryIds, setExcludedCategoryIds] = useState<string[]>([]);
+  const [excludedProductIds, setExcludedProductIds] = useState<string[]>([]);
+  const [showMore, setShowMore] = useState(false);
+
   const { payments, loading: paymentsLoading } = usePayments({
     status: 'active',
   });
@@ -43,26 +51,43 @@ export const RestaurantFields = ({
     selectedPaymentIds.includes(opt.value),
   );
 
-  const handleGroupAdded = (group: ProductGroup) => {
-    setProductGroups((prev) => [...prev, group]);
-  };
+  const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
 
-  const handleGroupRemove = (groupId: string) => {
-    setProductGroups((prev) => prev.filter((g) => g._id !== groupId));
-  };
+  const handleCategorySelect = useCallback((categoryId: string) => {
+    setCategoryIds([categoryId]);
+  }, []);
 
-  const handleGroupUpdated = (updatedGroup: ProductGroup) => {
-    setProductGroups((prev) =>
-      prev.map((g) => (g._id === updatedGroup._id ? updatedGroup : g)),
-    );
-    setEditingGroup(null);
-  };
+  const handleExcludeCategorySelect = useCallback((categoryId: string) => {
+    setExcludedCategoryIds([categoryId]);
+  }, []);
+
+  const handleExcludeProductsChange = useCallback(
+    (value: string | string[]) => {
+      setExcludedProductIds(value as string[]);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (productGroupsRef) {
-      productGroupsRef.current = productGroups;
+      if (
+        categoryIds.length > 0 ||
+        excludedCategoryIds.length > 0 ||
+        excludedProductIds.length > 0
+      ) {
+        const group: ProductGroup = {
+          _id: `temporaryId${nanoid()}`,
+          categoryIds,
+          excludedCategoryIds,
+          excludedProductIds,
+        };
+        productGroupsRef.current = [group];
+      } else {
+        productGroupsRef.current = [];
+      }
     }
-  }, [productGroups, productGroupsRef]);
+  }, [categoryIds, excludedCategoryIds, excludedProductIds, productGroupsRef]);
+
   return (
     <div className="pt-4 space-y-4 border-t">
       <SlotsDialog
@@ -162,44 +187,59 @@ export const RestaurantFields = ({
         />
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Product Groups</Label>
-        {productGroups.length > 0 && (
-          <div className="mt-2 space-y-2">
-            {productGroups.map((group) => (
-              <div
-                key={group._id}
-                className="flex gap-2 justify-between items-center px-3 py-2 text-sm rounded-md border bg-background"
-              >
-                <span className="flex-1 min-w-0 break-all">{group.name}</span>
-                <div className="flex gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setEditingGroup(group)}
-                  >
-                    <IconEdit size={14} />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => group._id && handleGroupRemove(group._id)}
-                    className="text-destructive"
-                  >
-                    <IconTrash size={14} />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">PRODUCT CATEGORY</Label>
+          <SelectCategory
+            selected={categoryIds[0] ?? ''}
+            onSelect={
+              handleCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
+                ((categoryId: string) => void)
+            }
+          />
+        </div>
 
-        <AddProductGroupDialog
-          onGroupAdded={handleGroupAdded}
-          onGroupUpdated={handleGroupUpdated}
-          editingGroup={editingGroup}
-          onEditComplete={() => setEditingGroup(null)}
-        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={toggleMore}
+          className="flex gap-1 items-center text-muted-foreground"
+        >
+          {showMore ? (
+            <IconChevronUp size={16} />
+          ) : (
+            <IconChevronDown size={16} />
+          )}
+          {showMore ? 'Hide more options' : 'More options'}
+        </Button>
+
+        {showMore && (
+          <>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                EXCLUDE PRODUCT CATEGORY
+              </Label>
+              <SelectCategory
+                selected={excludedCategoryIds[0] ?? ''}
+                onSelect={
+                  handleExcludeCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
+                    ((categoryId: string) => void)
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">EXCLUDE PRODUCTS</Label>
+              <SelectProduct
+                mode="multiple"
+                value={excludedProductIds}
+                onValueChange={handleExcludeProductsChange}
+                placeholder="Select products to exclude"
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

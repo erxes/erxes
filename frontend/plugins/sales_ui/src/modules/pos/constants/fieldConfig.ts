@@ -79,7 +79,7 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
   },
   orderPassword: {
     ecom: false,
-    pos: false,
+    pos: true,
     res: true,
   },
   brand: {
