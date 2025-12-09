@@ -96,10 +96,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
         <Label>PRODUCT CATEGORY</Label>
         <SelectCategory
           selected={formState.categoryIds[0] ?? ''}
-          onSelect={
-            handleCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-              ((categoryId: string) => void)
-          }
+          onSelect={handleCategorySelect}
         />
       </div>
 
@@ -120,10 +117,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
             <Label>EXCLUDE PRODUCT CATEGORY</Label>
             <SelectCategory
               selected={formState.excludedCategoryIds[0] ?? ''}
-              onSelect={
-                handleExcludeCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-                  ((categoryId: string) => void)
-              }
+              onSelect={handleExcludeCategorySelect}
             />
           </div>
 

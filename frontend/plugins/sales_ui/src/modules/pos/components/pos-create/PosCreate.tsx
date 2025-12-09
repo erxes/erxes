@@ -202,11 +202,22 @@ export const PosCreate = ({
 
   const handleCancel = () => {
     reset();
+    productGroupsRef.current = [];
+    slotsRef.current = [];
     onOpenChange(false);
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      reset();
+      productGroupsRef.current = [];
+      slotsRef.current = [];
+    }
+    onOpenChange(isOpen);
+  };
+
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <Sheet.View className="flex-col p-0 h-full max-h-screen sm:max-w-md">
         <Sheet.Header className="px-5 shrink-0">
           <Sheet.Title className="text-lg font-bold">Create POS</Sheet.Title>
