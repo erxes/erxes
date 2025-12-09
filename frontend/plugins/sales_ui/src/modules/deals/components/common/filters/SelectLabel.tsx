@@ -32,9 +32,7 @@ import { usePipelineLabelLabel } from '~/modules/deals/pipelines/hooks/usePipeli
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_PIPELINE_LABELS } from '~/modules/deals/graphql/queries/PipelinesQueries';
 import { usePipelineLabels } from '@/deals/pipelines/hooks/usePipelineDetails';
-import { CommandInput } from 'cmdk';
 import LabelForm from '~/modules/deals/cards/components/detail/overview/label/LabelForm';
-
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -99,47 +97,37 @@ export const SelectLabelsProvider = ({
 
 export const SelectLabelsCommand = ({
   disableCreateOption,
-  targetId
+  targetId,
 }: {
   disableCreateOption?: boolean;
   targetId?: string;
 }) => {
-
   const [search, setSearch] = useState<string>('');
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
-  
+
   const [pipelineId] = useQueryState('pipelineId');
 
   const { pipelineLabels = [], loading: labelsLoading } = usePipelineLabels({
     variables: { pipelineId },
   });
 
-
   const [addPipelineLabel] = useMutation(ADD_PIPELINE_LABEL, {
     refetchQueries: [{ query: GET_PIPELINE_LABELS, variables: { pipelineId } }],
-    
-    onCompleted: () => {
 
-    },
-    onError: (error) => {
-
-    }
+    onCompleted: () => {},
+    onError: (error) => {},
   });
 
-  const toggleLabel = (label: IPipelineLabel) => {
-
+  const toggleLabel = (label: IPipelineLabel,) => {
     if (!label._id) {
-
       return;
     }
 
     let newLabelIds = Array.isArray(labelIds) ? [...labelIds] : [];
 
-
     if (newLabelIds.includes(label._id)) {
       newLabelIds = newLabelIds.filter((id) => id !== label._id);
-
     } else {
       newLabelIds.push(label._id);
     }
@@ -157,12 +145,8 @@ export const SelectLabelsCommand = ({
           variables: { pipelineId },
         },
       ],
-      onCompleted: () => {
-
-      },
-      onError: (error) => {
-
-      }
+      onCompleted: () => {},
+      onError: (error) => {},
     });
   };
 
@@ -170,17 +154,16 @@ export const SelectLabelsCommand = ({
     const filtered = pipelineLabels.filter((label: IPipelineLabel) =>
       label.name.toLowerCase().includes(search.toLowerCase()),
     );
-    
-
     return filtered;
   }, [pipelineLabels, search]);
-    const [editLabelId, setEditLabelId] = useState<string | null>(null);
-    const [showForm, setShowForm] = useState(false);
+
+  const [editLabelId, setEditLabelId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   if (showForm) {
     return (
       <>
-        <div className="flex items-center justify-between pb-2 border-b">
+        <div className="flex items-center justify-between border-b px-2 py-2">
           <button
             onClick={() => setShowForm(false)}
             className="text-sm text-blue-600 hover:underline"
@@ -202,57 +185,56 @@ export const SelectLabelsCommand = ({
       </>
     );
   }
-    return (
+  return (
     <>
       <Command>
-          <Command.Input placeholder="Search priority" />
-          <Command.List className='px-1 '>
-            {filteredLabels.map((label) => (
-                <li
-                  key={label._id}
-                  className={cn(
-                    'flex items-center justify-between p-2 cursor-pointer my-1',
-                    labelIds?.includes(label._id || '')
-                      ? 'bg-blue-50 border-blue-300 rounded-md'
-                      : '',
-                  )}
-                  onClick={() => toggleLabel(label)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="inline-block w-4 h-4 rounded-full"
-                      style={{ backgroundColor: label.colorCode }}
-                    />
-                    <span className="text-sm">{label.name}</span>
-                  </div>
-
-                  {labelIds?.includes(label._id || '') && (
-                    <IconCheck className="w-4 h-4 text-green-600" />
-                  )}
-                </li>
-            ))}
-            
-          </Command.List>
-          <Button
-              type="button"
-              className="w-[90%] mx-auto mb-2"
-              onClick={() => {
-                setEditLabelId(null);
-                setShowForm(true);
-              }}
+        <Command.Input placeholder="Search label" />
+        <Command.List className="px-1 ">
+          {filteredLabels.map((label) => (
+            <li
+              key={label._id}
+              className={cn(
+                'flex items-center justify-between p-2 cursor-pointer my-1',
+                labelIds?.includes(label._id || '')
+                  ? 'bg-blue-50 border-blue-300 rounded-md'
+                  : '',
+              )}
+              onClick={() => toggleLabel(label)}
             >
-              <IconPlus size={16} />
-              Create a new label
-            </Button>
-        </Command>
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block w-4 h-4 rounded-full"
+                  style={{ backgroundColor: label.colorCode }}
+                />
+                <span className="text-sm">{label.name}</span>
+              </div>
+
+              {labelIds?.includes(label._id || '') && (
+                <IconCheck className="w-4 h-4 text-green-600" />
+              )}
+            </li>
+          ))}
+        </Command.List>
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
     </>
   );
 };
 
 export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
-  const { onSelect, labelIds } = useSelectLabelsContext();  
+  const { onSelect, labelIds } = useSelectLabelsContext();
   const isSelected = labelIds?.some((b) => b === label._id);
-  
+
   return (
     <SelectTree.Item
       key={label._id}
@@ -281,9 +263,7 @@ export const SelectLabelsValue = () => {
       </span>
     );
 
-  return (
-    <Combobox.Value placeholder="Select labels" />
-  );
+  return <Combobox.Value placeholder="Select labels" />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
@@ -328,42 +308,28 @@ export const SelectLabelsDetail = React.forwardRef<
     > & {
       scope?: string;
     }
->(
-  ({ onValueChange, scope, value, mode, className, ...props }, ref) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <SelectLabelsProvider
-        onValueChange={(value) => {
-          if (mode === 'single') {
-            setOpen(false);
-          }
-          onValueChange?.(value);
-        }}
-        value={value}
-        {...props}
-        mode={mode}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild ref={ref}>
-            <Button
-              className={cn(
-                'w-min inline-flex text-sm font-medium shadow-xs',
-                className,
-              )}
-              variant="outline"
-            >
-              Add Labels
-              <IconPlus className="text-lg" />
-            </Button>
-          </Popover.Trigger>
-          <Combobox.Content className="mt-2">
-            <SelectLabelsContent />
-          </Combobox.Content>
-        </Popover>
-      </SelectLabelsProvider>
-    );
-  },
-);
+>(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <SelectLabelsProvider
+      onValueChange={(value) => {
+        if (mode === 'single') {
+          setOpen(false);
+        }
+        onValueChange?.(value);
+      }}
+      value={value}
+      {...props}
+      mode={mode}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Content className="mt-2">
+          <SelectLabelsContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectLabelsProvider>
+  );
+});
 
 SelectLabelsDetail.displayName = 'SelectLabelsDetail';
 
@@ -476,7 +442,7 @@ export const SelectLabelsFilterBar = ({
   label,
   variant,
   scope,
-  targetId
+  targetId,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;

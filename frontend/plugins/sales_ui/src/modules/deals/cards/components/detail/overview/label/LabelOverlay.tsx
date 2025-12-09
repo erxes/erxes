@@ -59,6 +59,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
           >
             Back
           </button>
+
         </div>
         <LabelForm
           onSuccess={() => {

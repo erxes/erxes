@@ -51,7 +51,7 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Label</h4>
-          <LabelChooser labels={deal.labels || []} />
+          <LabelChooser labels={deal.labels || []} targetId={deal._id}/>
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Priority</h4>
