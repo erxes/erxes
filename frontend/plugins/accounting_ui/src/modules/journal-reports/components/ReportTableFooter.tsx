@@ -6,7 +6,7 @@ export const ReportTableFooter = () => {
   switch (report) {
     case 'tb':
       return (
-        <ReportTable.Row data-sum-key="footer">
+        <ReportTable.Row data-sum-key="footer" className="bg-muted/50">
           <ReportTable.Cell></ReportTable.Cell>
           <ReportTable.Cell className="text-right">НИЙТ ДҮН:</ReportTable.Cell>
           <ReportTable.Cell className="text-right"></ReportTable.Cell>

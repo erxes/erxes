@@ -9,8 +9,9 @@ import { totalsCalc } from "./ReportCalcSummary";
 export const ReportTableBody = () => {
   const [report] = useQueryState('report');
   const [groupKey] = useQueryState('groupKey');
-  const colCount = GroupRules[report as string]?.colCount;
-  const groupRule = GroupRules[report as string]?.groups[groupKey as string || 'default']
+  const reportConf = GroupRules[report as string] || {}
+  const colCount = reportConf.colCount ?? 0;
+  const groupRule = reportConf.groups[groupKey as string || ''] || reportConf.groups['default'] || {}
 
   const calcReport = getCalcReportHandler(report as string || '')
 

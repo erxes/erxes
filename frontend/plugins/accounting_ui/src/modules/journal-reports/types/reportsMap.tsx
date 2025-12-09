@@ -34,8 +34,7 @@ export const GroupRules: Record<string, ReportConfig> = {
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' },
-      { code: 'all', title: 'Bugderni' },
+      { code: 'cat', title: 'Дансны бүлгээр' }
     ],
     groups: {
       default: {
@@ -50,34 +49,13 @@ export const GroupRules: Record<string, ReportConfig> = {
         'group': 'account__category_id',
         'code': 'account__category__code',
         'name': 'account__category__name',
-        'style': 'font-bold',
+        'style': 'font-semibold',
         'group_rule': {
           'key': 'gr2',
           'group': 'account_id',
           'code': 'account__code',
           'name': 'account__name',
           'group_rule': null
-        }
-      },
-      all: {
-        'key': 'gr0',
-        'group': '',
-        'code': '',
-        'name': '',
-        'style': 'font-bold',
-        'group_rule': {
-          'key': 'gr1',
-          'group': 'account__category_id',
-          'code': 'account__category__code',
-          'name': 'account__category__name',
-          'style': 'font-semibold',
-          'group_rule': {
-            'key': 'gr2',
-            'group': 'account_id',
-            'code': 'account__code',
-            'name': 'account__name',
-            'group_rule': null
-          }
         }
       }
     }
