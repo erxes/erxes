@@ -6,6 +6,7 @@ type ContactType = {
   _id: string;
   primaryEmail: string;
   primaryPhone: string;
+  registrationNumber: string;
   avatar: string;
   createdAt: string;
   status: string;
@@ -16,7 +17,7 @@ const generateSort = async ({
   type,
   sortField,
   sortDirection,
-  searchValue
+  searchValue,
 }) => {
   let sort = {};
   const esTypes = getEsTypes(type);
@@ -29,14 +30,14 @@ const generateSort = async ({
   if (!searchValue) {
     sort = {
       [fieldToSort]: {
-        order: sortDirection ? (sortDirection === -1 ? "desc" : "asc") : "desc"
-      }
+        order: sortDirection ? (sortDirection === -1 ? "desc" : "asc") : "desc",
+      },
     };
   }
   return sort;
 };
 
-const generateQuery = async args => {
+const generateQuery = async (args) => {
   const { searchValue, fieldsMustExist } = args;
 
   const positiveList: any = [];
@@ -48,30 +49,30 @@ const generateQuery = async args => {
         {
           match: {
             searchText: {
-              query: searchValue
-            }
-          }
+              query: searchValue,
+            },
+          },
         },
         {
           wildcard: {
-            searchText: `*${searchValue.toLowerCase()}*`
-          }
-        }
-      ]
-    }
+            searchText: `*${searchValue.toLowerCase()}*`,
+          },
+        },
+      ],
+    },
   });
 
   if (!!fieldsMustExist?.length) {
     for (const field of fieldsMustExist) {
       positiveList.push({
         exists: {
-          field
-        }
+          field,
+        },
       });
       negativeList.push({
         term: {
-          [field]: ""
-        }
+          [field]: "",
+        },
       });
     }
   }
@@ -80,13 +81,13 @@ const generateQuery = async args => {
     query: {
       bool: {
         must: positiveList,
-        must_not: negativeList
-      }
-    }
+        must_not: negativeList,
+      },
+    },
   };
 };
 
-const generateAutoCompleteQuery = args => {
+const generateAutoCompleteQuery = (args) => {
   if (args?.usageType !== "autoComplete") {
     return [];
   }
@@ -94,16 +95,16 @@ const generateAutoCompleteQuery = args => {
   return args?.searchValue
     ? args.searchValue
         .split(",")
-        .filter(value => {
+        .filter((value) => {
           if (value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
             args.searchValue = args.searchValue.replace(`${value},`, "");
             return value;
           }
         })
-        .map(value => ({
+        .map((value) => ({
           match: {
-            primaryEmail: { query: value }
-          }
+            primaryEmail: { query: value },
+          },
         }))
     : [];
 };
@@ -133,9 +134,15 @@ const generateFullName = (contentType, source) => {
 };
 
 const generateList = (type, response) => {
-  return response.hits.hits.map(hit => {
-    const { primaryEmail, primaryPhone, avatar, createdAt, status } =
-      hit._source || {};
+  return response.hits.hits.map((hit) => {
+    const {
+      primaryEmail,
+      registrationNumber,
+      primaryPhone,
+      avatar,
+      createdAt,
+      status,
+    } = hit._source || {};
 
     return {
       _id: hit._id,
@@ -145,7 +152,8 @@ const generateList = (type, response) => {
       createdAt,
       status,
       contentType: generateContentType(type, hit._source || {}),
-      fullName: generateFullName(type, hit._source || {})
+      fullName: generateFullName(type, hit._source || {}),
+      registrationNumber,
     };
   });
 };
@@ -153,7 +161,7 @@ const generateList = (type, response) => {
 const contactQueries = {
   async contacts(_root, args, { subdomain }: IContext) {
     const { perPage, page } = args;
-
+    console.log("contacts args:", args);
     let list: ContactType[] = [];
     let autoCompleteList: ContactType[] = [];
 
@@ -161,7 +169,6 @@ const contactQueries = {
     const _limit = Number(perPage || 20);
 
     const autoCompleteQuery = generateAutoCompleteQuery(args);
-
     for (const type of ["customers", "companies"]) {
       const contactsQueryOptions = await generateQuery(args);
       const contactsSortOptions = await generateSort({ type, ...args });
@@ -174,15 +181,15 @@ const contactQueries = {
           body: {
             query: {
               bool: {
-                should: autoCompleteQuery
-              }
-            }
-          }
+                should: autoCompleteQuery,
+              },
+            },
+          },
         });
 
         autoCompleteList = [
           ...autoCompleteList,
-          ...generateList(type, response)
+          ...generateList(type, response),
         ];
       }
 
@@ -198,15 +205,15 @@ const contactQueries = {
           from: (_page - 1) * _limit,
           size: _limit - list.length,
           ...contactsQueryOptions,
-          sort: [contactsSortOptions]
-        }
+          sort: [contactsSortOptions],
+        },
       });
 
       list = [...list, ...generateList(type, response)];
     }
 
     return [...autoCompleteList, ...list];
-  }
+  },
 };
 
 export default contactQueries;
