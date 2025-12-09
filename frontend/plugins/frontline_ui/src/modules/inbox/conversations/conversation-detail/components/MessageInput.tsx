@@ -279,20 +279,19 @@ export const MessageInput = ({
         {showSuggestions && suggestions.length > 0 && (
           <div
             className="
-        absolute
-        left-0 right-0
-        md:left-6 md:right-6
-        top-[72px]
-        z-50
-        bg-white/95 dark:bg-gray-900/95
-        border border-gray-200 dark:border-gray-700
-        rounded-lg shadow-lg
-        max-h-[320px] overflow-y-auto
-        backdrop-blur-sm
-        transform transition-all duration-200
-        mx-2
-        md:mx-0
-        overflow-hidden
+            absolute
+            left-0 right-0
+            md:left-6 md:right-6
+            top-[72px]
+            z-50
+            bg-white/95 dark:bg-gray-900/95
+            border border-gray-200 dark:border-gray-700
+            rounded-lg shadow-lg
+            max-h-[320px] overflow-y-auto
+            backdrop-blur-sm
+            transform transition-all duration-200
+            mx-2
+            md:mx-0
         "
           >
             <div className="sticky top-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm z-10 border-b border-gray-100 dark:border-gray-800 px-4 py-2">
@@ -366,7 +365,6 @@ export const MessageInput = ({
                         {s.preview}
                       </div>
                     </div>
-
                     <div
                       className="
               flex-shrink-0 flex items-center justify-center
@@ -381,7 +379,7 @@ export const MessageInput = ({
                     </div>
                   </div>
 
-                  {s.updatedAt && (
+                  {s.updatedAt && !isNaN(new Date(s.updatedAt).getTime()) && (
                     <div className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
                       Updated{' '}
                       {formatDistanceToNow(new Date(s.updatedAt), {
