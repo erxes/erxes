@@ -39,12 +39,12 @@ export const ReportTableBody = () => {
       ref={tableRef}
       className={cn('[&_tr:last-child]:border-0')}
     >
-        <ReportRecursiveRenderer
-          groupedDic={grouped}
-          groupRule={groupRule}
-          colCount={colCount}
-          calcReport={calcReport}
-        />
+      <ReportRecursiveRenderer
+        groupedDic={grouped}
+        groupRule={groupRule}
+        colCount={colCount}
+        calcReport={calcReport}
+      />
     </tbody>
   )
 }
@@ -180,7 +180,7 @@ function renderGroup(
             >
               <ReportTable.Cell
                 className={`text-left`}
-                style={{ paddingLeft: `${padding}px` }}
+                style={padding && { paddingLeft: `${padding}px` } || {}}
               >
                 {grStep[keyCode]}
               </ReportTable.Cell>
@@ -199,7 +199,7 @@ function renderGroup(
             grStep[groupRule.group_rule.key],
             groupRule.group_rule,
             colCount,
-            padding + 20,
+            padding + 25,
             attr,
             `${leafAttr && `${leafAttr},` || ''}${attr}`,
             groupHead,
@@ -218,13 +218,13 @@ function renderGroup(
       <ReportTable.Row
         key={attr}
         data-keys={`footer,${leafAttr}`}
-        className={cn(groupRule.style ?? '')}
+        className={cn('text-right', groupRule.style ?? '')}
         data-group={groupRule.group}
         data-id={grStep[grId]}
       >
         <ReportTable.Cell
           className='text-left'
-          style={{ paddingLeft: `${padding}px` }}
+          style={padding && { paddingLeft: `${padding}px` } || {}}
         >
           {grStep[keyCode]}
         </ReportTable.Cell>
