@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { format, nextFriday, addDays } from 'date-fns';
 import { Button, Calendar, Command } from 'erxes-ui';
@@ -8,59 +8,6 @@ import {
   IconChevronLeft,
   IconClock,
 } from '@tabler/icons-react';
-
-interface SetDueDateContextValue {
-  taskIds: string[];
-  onSetDueDate: (date: Date) => void;
-  loading: boolean;
-}
-
-const SetDueDateContext = createContext<SetDueDateContextValue | null>(null);
-
-export const useSetDueDateContext = () => {
-  const context = useContext(SetDueDateContext);
-  if (!context) {
-    throw new Error(
-      'useSetDueDateContext must be used within SetDueDateProvider',
-    );
-  }
-  return context;
-};
-
-interface SetDueDateProviderProps {
-  children: ReactNode;
-  taskIds: string[];
-}
-
-export const SetDueDateProvider = ({
-  children,
-  taskIds,
-}: SetDueDateProviderProps) => {
-  const { updateTask, loading } = useUpdateTask();
-  const handleSetDueDate = useCallback(async (date: Date) => {
-    await Promise.all(
-      taskIds.map((id) =>
-        updateTask({
-          variables: {
-            _id: id,
-            targetDate: date.toISOString(),
-          },
-        }),
-      ),
-    );
-  }, [taskIds, updateTask]);
-  return (
-    <SetDueDateContext.Provider
-      value={{
-        taskIds,
-        onSetDueDate: handleSetDueDate,
-        loading,
-      }}
-    >
-      {children}
-    </SetDueDateContext.Provider>
-  );
-};
 
 const getEndOfWeek = (): Date => {
   const today = new Date();
@@ -92,17 +39,28 @@ const buildDueDateOptions = () => {
   ];
 };
 
-export const TaskSetDueDateContent = ({
+export const SetDueDateMenu = ({
+  taskIds,
   setOpen,
 }: {
+  taskIds: string[];
   setOpen: (open: boolean) => void;
 }) => {
-  const { onSetDueDate, loading } = useSetDueDateContext();
+  const { updateTask, loading } = useUpdateTask();
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const handleSelectDate = (date: Date) => {
-    onSetDueDate(date);
-    setShowCalendar(false);
+  const handleSetDueDate = async (date: Date) => {
+    await Promise.all(
+      taskIds.map((id) =>
+        updateTask({
+          variables: {
+            _id: id,
+            targetDate: date.toISOString(),
+          },
+        }),
+      ),
+    );
+    setOpen(false);
   };
 
   if (showCalendar) {
@@ -121,8 +79,7 @@ export const TaskSetDueDateContent = ({
           mode="single"
           onSelect={(date) => {
             if (date) {
-              handleSelectDate(date);
-              setOpen(false);
+              handleSetDueDate(date);
             }
           }}
           disabled={loading}
@@ -151,8 +108,7 @@ export const TaskSetDueDateContent = ({
           <Command.Item
             key={option.label}
             onSelect={() => {
-              handleSelectDate(option.date);
-              setOpen(false);
+              handleSetDueDate(option.date);
             }}
             className="cursor-pointer"
             disabled={loading}
@@ -171,20 +127,14 @@ export const TaskSetDueDateContent = ({
   );
 };
 
-interface SetDueDateCommandBarItemProps {
-  taskIds: string[];
-  setOpen: (open: boolean) => void;
-}
-
 export const TasksSetDueDateCommandBarItem = ({
   taskIds,
   setOpen,
-}: SetDueDateCommandBarItemProps) => {
-  return (
-    <SetDueDateProvider taskIds={taskIds}>
-      <TaskSetDueDateContent setOpen={setOpen} />
-    </SetDueDateProvider>
-  );
+}: {
+  taskIds: string[];
+  setOpen: (open: boolean) => void;
+}) => {
+  return <SetDueDateMenu taskIds={taskIds} setOpen={setOpen} />;
 };
 
 export const TasksSetDueDateTrigger = ({

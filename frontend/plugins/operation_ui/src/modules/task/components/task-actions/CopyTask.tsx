@@ -1,4 +1,3 @@
-import { createContext, useContext, ReactNode, useCallback } from 'react';
 import { ITask } from '@/task/types';
 import { Command, useToast } from 'erxes-ui';
 import {
@@ -16,22 +15,8 @@ import { format } from 'date-fns';
 
 type CopyType = 'url' | 'title' | 'titleAndDescription' | 'markdown';
 
-interface CopyTaskContextValue {
-  onCopy: (type: CopyType) => void;
-}
-
-const CopyTaskContext = createContext<CopyTaskContextValue | null>(null);
-
-const useCopyTaskContext = () => {
-  const context = useContext(CopyTaskContext);
-  if (!context) {
-    throw new Error('useCopyTaskContext must be used within CopyTaskProvider');
-  }
-  return context;
-};
-
 const getTaskUrl = (task: ITask): string => {
-  const baseUrl = globalThis.location.origin;
+  const baseUrl = window.location.origin;
   return `${baseUrl}/operation/team/${task.teamId}/tasks/${task._id}`;
 };
 
@@ -42,19 +27,20 @@ const formatDate = (dateStr?: string): string => {
 
 const parseDescription = (description?: string): string => {
   if (!description) return '';
-  
   try {
     const blocks = JSON.parse(description);
     if (!Array.isArray(blocks)) return description;
-    
-    const extractText = (content: { type: string; text?: string }[]): string => {
+
+    const extractText = (
+      content: { type: string; text?: string }[],
+    ): string => {
       if (!Array.isArray(content)) return '';
       return content
         .filter((item) => item.type === 'text' && item.text)
         .map((item) => item.text)
         .join('');
     };
-    
+
     return blocks
       .map((block) => extractText(block.content || []))
       .filter(Boolean)
@@ -64,17 +50,24 @@ const parseDescription = (description?: string): string => {
   }
 };
 
-interface CopyTaskProviderProps {
-  children: ReactNode;
-  tasks: ITask[];
-  setOpen: (open: boolean) => void;
-}
+const COPY_OPTIONS = [
+  { type: 'url' as const, label: 'URL', icon: IconLink },
+  { type: 'title' as const, label: 'Title', icon: IconLetterCase },
+  {
+    type: 'titleAndDescription' as const,
+    label: 'Title & Description',
+    icon: IconFileText,
+  },
+  { type: 'markdown' as const, label: 'Markdown format', icon: IconMarkdown },
+];
 
-export const CopyTaskProvider = ({
-  children,
+export const CopyTaskMenu = ({
   tasks,
   setOpen,
-}: CopyTaskProviderProps) => {
+}: {
+  tasks: ITask[];
+  setOpen: (open: boolean) => void;
+}) => {
   const { toast } = useToast();
 
   const assigneeIds = [
@@ -140,7 +133,6 @@ export const CopyTaskProvider = ({
   const generateContent = (type: CopyType): string => {
     const isSingle = tasks.length === 1;
     const separator = '\n\n---\n\n';
-
     switch (type) {
       case 'url':
         return tasks.map(getTaskUrl).join('\n');
@@ -148,7 +140,12 @@ export const CopyTaskProvider = ({
         return tasks.map((t) => t.name || '').join('\n');
       case 'titleAndDescription':
         return tasks
-          .map((t) => `**Name:** ${t.name || ''}\n**Description:** ${parseDescription(t.description) || 'No description'}`)
+          .map(
+            (t) =>
+              `**Name:** ${t.name || ''}\n**Description:** ${
+                parseDescription(t.description) || 'No description'
+              }`,
+          )
           .join(isSingle ? '' : separator);
       case 'markdown':
         return tasks.map(generateMarkdown).join(separator);
@@ -157,18 +154,14 @@ export const CopyTaskProvider = ({
     }
   };
 
-  const handleCopy = useCallback(async (type: CopyType) => {
-    // Move helper functions like generateContent inside here 
-    // OR make them pure functions outside the component and pass data in
-    const content = generateContent(type); 
-    
+  const handleCopy = async (type: CopyType) => {
+    const content = generateContent(type);
     const labels: Record<CopyType, string> = {
       url: 'URL',
       title: 'Title',
       titleAndDescription: 'Title & Description',
       markdown: 'Markdown',
     };
-
     try {
       await navigator.clipboard.writeText(content);
       toast({
@@ -183,34 +176,13 @@ export const CopyTaskProvider = ({
         variant: 'destructive',
       });
     }
-  }, [setOpen, generateContent, toast]);
-
-  return (
-    <CopyTaskContext.Provider value={{ onCopy: handleCopy }}>
-      {children}
-    </CopyTaskContext.Provider>
-  );
-};
-
-const COPY_OPTIONS = [
-  { type: 'url' as const, label: 'URL', icon: IconLink },
-  { type: 'title' as const, label: 'Title', icon: IconLetterCase },
-  {
-    type: 'titleAndDescription' as const,
-    label: 'Title & Description',
-    icon: IconFileText,
-  },
-  { type: 'markdown' as const, label: 'Markdown format', icon: IconMarkdown },
-];
-
-export const CopyTaskContent = () => {
-  const { onCopy } = useCopyTaskContext();
+  };
 
   return (
     <Command>
       <Command.List>
         {COPY_OPTIONS.map(({ type, label, icon: Icon }) => (
-          <Command.Item key={type} onSelect={() => onCopy(type)}>
+          <Command.Item key={type} onSelect={() => handleCopy(type)}>
             <Icon className="size-4 mr-2" />
             <span>{label}</span>
           </Command.Item>
@@ -226,11 +198,7 @@ export const CopyTaskCommandBarItem = ({
 }: {
   tasks: ITask[];
   setOpen: (open: boolean) => void;
-}) => (
-  <CopyTaskProvider tasks={tasks} setOpen={setOpen}>
-    <CopyTaskContent />
-  </CopyTaskProvider>
-);
+}) => <CopyTaskMenu tasks={tasks} setOpen={setOpen} />;
 
 export const CopyTaskTrigger = ({
   setCurrentContent,

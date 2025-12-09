@@ -44,6 +44,7 @@ interface ExpandableSectionProps<T> {
   items?: T[];
   loading: boolean;
   renderItem: (item: T) => React.ReactNode;
+  keyExtractor: (item: T) => string | number;
   emptyText: string;
 }
 
@@ -53,6 +54,7 @@ const ExpandableSection = <T,>({
   items,
   loading,
   renderItem,
+  keyExtractor,
   emptyText,
 }: ExpandableSectionProps<T>) => {
   const [expanded, setExpanded] = useState(false);
@@ -86,8 +88,8 @@ const ExpandableSection = <T,>({
       <div className="flex gap-2.5 items-center flex-wrap">
         {hasItems ? (
           <>
-            {displayedItems?.map((item, index) => (
-              <div key={index} className="min-w-0 max-w-full">
+            {displayedItems?.map((item) => (
+              <div key={keyExtractor(item)} className="min-w-0 max-w-full">
                 {renderItem(item)}
               </div>
             ))}
@@ -178,6 +180,7 @@ const AssigneeHoverCard = forwardRef(
               loading={teamsLoading}
               items={teams}
               emptyText="No teams assigned"
+              keyExtractor={(team) => team._id}
               renderItem={(team) => (
                 <div key={team._id} className="text-xs flex items-center gap-1">
                   {team.icon && (
@@ -196,6 +199,7 @@ const AssigneeHoverCard = forwardRef(
               loading={projectsLoading}
               items={projects}
               emptyText="No projects assigned"
+              keyExtractor={(project) => project._id}
               renderItem={(project) => (
                 <div
                   key={project._id}

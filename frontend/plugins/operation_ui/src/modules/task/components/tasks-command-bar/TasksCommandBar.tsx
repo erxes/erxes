@@ -64,10 +64,10 @@ export const TasksCommandBar = () => {
   const singleTask = isSingleTaskSelected ? selectedRows[0].original : null;
 
   return (
-    <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
+    <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {selectedRows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
         <Popover

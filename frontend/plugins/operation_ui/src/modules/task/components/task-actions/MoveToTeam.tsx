@@ -14,14 +14,6 @@ import {
 } from 'erxes-ui';
 import { createContext, useContext, useMemo, useState } from 'react';
 
-const useSafeRecordTable = () => {
-  try {
-    return RecordTable.useRecordTable();
-  } catch {
-    return { table: null };
-  }
-};
-
 interface MoveToTeamContextType {
   tasks: {
     taskId: string;
@@ -118,7 +110,7 @@ export const TaskMoveToTeamContent = ({
 }) => {
   const { tasks, moveTasksToTeam, loading } = useMoveToTeamContext();
   const { teams, loading: teamsLoading } = useGetTeams();
-  const { table } = useSafeRecordTable();
+  const { table } = RecordTable.useRecordTable();
 
   const { projects } = useProjects({
     variables: { _ids: tasks?.map((t) => t.projectId) },
@@ -333,7 +325,7 @@ export const ProjectTeamConflictDialog = ({
   const { updateTask } = useUpdateTask();
   const { toast } = useToast();
   const client = useApolloClient();
-  const { table } = useSafeRecordTable();
+  const { table } = RecordTable.useRecordTable();
 
   const handleAddTeamToProjects = async () => {
     setIsProcessing(true);
