@@ -21,7 +21,7 @@ export const posCommonFields = `
       fullName
     }
   }
-
+  type
   isOnline
   onServer
   branchId
@@ -90,8 +90,6 @@ const productGroups = gql`
     productGroups(posId: $posId) {
       _id
       posId
-      name
-      description
       categoryIds
       excludedCategoryIds
       excludedProductIds
