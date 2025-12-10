@@ -82,7 +82,6 @@ export const facebookWebhook = async (req, res, next) => {
     return;
   }
   for (const entry of data.entry) {
-    console.log('entry =', JSON.stringify(entry, null, 2));
     // receive chat
     try {
       if (entry.messaging) {
@@ -178,7 +177,6 @@ export async function processMessagingEvent(
         ],
       });
 
-      console.log(integration, ' controller integration');
       if (!integration) {
         debugFacebook(`No integration found for pageId: ${pageId}`);
         continue;
@@ -187,7 +185,6 @@ export async function processMessagingEvent(
       const facebookAccounts = await models.FacebookAccounts.getAccount({
         _id: integration.accountId,
       });
-      console.log(facebookAccounts, ' controller facebookAccounts');
 
       if (!facebookAccounts) {
         debugFacebook(
@@ -226,7 +223,6 @@ export async function processMessagingEvent(
         text: activity.message?.text || '',
       };
       debugFacebook(`Processing activity: ${JSON.stringify(activityData)}`);
-      console.log(activityData, ' controller activityData');
 
       await receiveMessage(models, subdomain, integration, activityData);
     }

@@ -35,7 +35,6 @@ export const getConfig = async (
 ) => {
   return await sendTRPCMessage({
     subdomain,
-
     pluginName: 'core',
     module: 'configs',
     action: 'getConfig',

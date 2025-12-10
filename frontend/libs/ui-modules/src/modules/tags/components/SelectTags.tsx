@@ -5,8 +5,10 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
   Popover,
-  SelectTree,
   TextOverflowTooltip,
+  SelectTree,
+  SelectTriggerOperation,
+  SelectOperationContent,
 } from 'erxes-ui';
 import { useTags } from '../hooks/useTags';
 import { useDebounce } from 'use-debounce';
@@ -85,8 +87,8 @@ export const SelectTagsProvider = ({
   );
 };
 
-export const SelectTagsCommand = ({
-  disableCreateOption,
+export const SelectTagGroupsCommand = ({
+  disableCreateOption = true,
 }: {
   disableCreateOption?: boolean;
 }) => {
@@ -99,6 +101,65 @@ export const SelectTagsCommand = ({
     variables: {
       type: tagType,
       searchValue: debouncedSearch,
+      isGroup: true,
+    },
+    skip: !!noTagsSearchValue && debouncedSearch.includes(noTagsSearchValue),
+    onCompleted(data) {
+      const { totalCount } = data?.tags || {};
+      setNoTagsSearchValue(totalCount === 0 ? debouncedSearch : '');
+    },
+  });
+  return (
+    <Command shouldFilter={false}>
+      <Command.Input
+        value={search}
+        onValueChange={setSearch}
+        placeholder="Search tags"
+        focusOnMount
+      />
+      {selectedTags?.length > 0 && (
+        <>
+          <div className="flex flex-wrap p-2 gap-2">
+            <TagList />
+          </div>
+        </>
+      )}
+      <Command.List>
+        <SelectTree.Provider id={targetIds.join(',')} ordered={!search}>
+          <SelectTagsCreate
+            search={search}
+            show={!disableCreateOption && !loading && !tags?.length}
+          />
+          <Combobox.Empty loading={loading} error={error} />
+          {tags?.map((tag) => (
+            <SelectTagsItem key={tag._id} tag={tag} />
+          ))}
+          <Combobox.FetchMore
+            fetchMore={handleFetchMore}
+            currentLength={tags?.length || 0}
+            totalCount={totalCount}
+          />
+        </SelectTree.Provider>
+      </Command.List>
+    </Command>
+  );
+};
+
+export const SelectTagsCommand = ({
+  disableCreateOption = true,
+}: {
+  disableCreateOption?: boolean;
+}) => {
+  const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
+  const { tagType, targetIds, selectedTags } = useSelectTagsContext();
+  const [noTagsSearchValue, setNoTagsSearchValue] = useState('');
+
+  const { tags, loading, error, handleFetchMore, totalCount } = useTags({
+    variables: {
+      type: tagType,
+      searchValue: debouncedSearch,
+      includeWorkspaceTags: true,
     },
     skip: !!noTagsSearchValue && debouncedSearch.includes(noTagsSearchValue),
     onCompleted(data) {
@@ -131,15 +192,39 @@ export const SelectTagsCommand = ({
             show={!disableCreateOption && !loading && !tags?.length}
           />
           <Combobox.Empty loading={loading} error={error} />
-          {tags?.map((tag) => (
-            <SelectTagsItem
-              key={tag._id}
-              tag={{
-                ...tag,
-                hasChildren: tags.some((t) => t.parentId === tag._id),
-              }}
-            />
-          ))}
+          {tags
+            ?.filter((tag) => !tag.parentId && !tag.isGroup)
+            ?.map((tag) => (
+              <SelectTagsItem
+                key={tag._id}
+                tag={{
+                  ...tag,
+                  hasChildren: false,
+                }}
+              />
+            ))}
+
+          {tags
+            ?.filter(
+              (tag) => tag.isGroup && tags.some((t) => t.parentId === tag._id),
+            )
+            ?.map((tag) => (
+              <Command.Group key={tag._id} heading={tag.name}>
+                {tags
+                  .filter((t) => t.parentId === tag._id)
+                  .map((childTag) => (
+                    <SelectTagsItem
+                      key={childTag._id}
+                      tag={{
+                        ...childTag,
+                        hasChildren: tags.some(
+                          (t) => t.parentId === childTag._id,
+                        ),
+                      }}
+                    />
+                  ))}
+              </Command.Group>
+            ))}
           <Combobox.FetchMore
             fetchMore={handleFetchMore}
             currentLength={tags?.length || 0}
@@ -180,21 +265,15 @@ export const SelectTagsItem = ({
 }) => {
   const { onSelect, selectedTags } = useSelectTagsContext();
   const isSelected = selectedTags.some((t) => t._id === tag._id);
+
   return (
-    <SelectTree.Item
-      key={tag._id}
-      _id={tag._id}
-      name={tag.name}
-      order={tag.order || ''}
-      hasChildren={tag.hasChildren}
-      selected={isSelected}
-      onSelect={() => onSelect(tag)}
-    >
+    <Command.Item onSelect={() => onSelect(tag)}>
       <TextOverflowTooltip
         value={tag.name}
         className="flex-auto w-auto font-medium"
       />
-    </SelectTree.Item>
+      <Combobox.Check checked={isSelected} />
+    </Command.Item>
   );
 };
 
@@ -331,29 +410,68 @@ export const SelectTagsDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <Popover.Trigger asChild>
-            <Button
-              ref={ref}
-              {...props}
-              className="w-min text-sm font-medium shadow-xs"
-              variant="outline"
-            >
-              Add Tags
-              <IconPlus className="text-lg" />
-            </Button>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectTagsContent />
-          </Combobox.Content>
-        </PopoverScoped>
-        <TagList />
+        <div className="flex items-center gap-2">
+          <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+            <Popover.Trigger asChild>
+              <Button
+                ref={ref}
+                {...props}
+                className="w-min text-sm font-medium shadow-xs"
+                variant="outline"
+              >
+                Add Tags
+                <IconPlus className="text-lg" />
+              </Button>
+            </Popover.Trigger>
+            <Combobox.Content>
+              <SelectTagsContent />
+            </Combobox.Content>
+          </PopoverScoped>
+          <TagList />
+        </div>
       </SelectTagsProvider>
     );
   },
 );
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
+
+export const SelectTagsFormItem = ({
+  onValueChange,
+  scope,
+  tagType,
+  value,
+  mode = 'multiple',
+}: {
+  tagType?: string;
+  scope?: string;
+  onValueChange: (value: string | string[]) => void;
+  value?: string | string[];
+  mode?: 'single' | 'multiple';
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectTagsProvider
+      value={value}
+      onValueChange={(value) => {
+        onValueChange(value);
+        setOpen(false);
+      }}
+      tagType={tagType || ''}
+      mode={mode}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+        <SelectTriggerOperation variant="form">
+          <SelectTagsValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant="form">
+          <SelectTagsContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectTagsProvider>
+  );
+};
 
 export const SelectTagsCommandbarItem = ({
   onValueChange,
@@ -435,9 +553,11 @@ export const SelectTags = Object.assign(SelectTagsRoot, {
   CommandbarItem: SelectTagsCommandbarItem,
   Content: SelectTagsContent,
   Command: SelectTagsCommand,
+  GroupsCommand: SelectTagGroupsCommand,
   Item: SelectTagsItem,
   Value: SelectTagsValue,
   List: TagList,
   InlineCell: SelectTagsInlineCell,
   Detail: SelectTagsDetail,
+  FormItem: SelectTagsFormItem,
 });

@@ -77,6 +77,14 @@ export const loadNoteClass = (models: IModels) => {
           contentType = 'project';
         }
 
+        const triage = await models.Triage.exists({
+          _id: doc.contentId,
+        });
+
+        if (triage) {
+          contentType = 'triage';
+        }
+
         await createNotifications({
           contentType,
           contentTypeId: doc.contentId,

@@ -132,15 +132,11 @@ export const removeAccount = async (
 
   if (integrations.length > 0) {
     for (const integration of integrations) {
-      try {
-        const response = await removeIntegration(
-          subdomain,
-          integration.erxesApiId,
-        );
-        erxesApiIds.push(response);
-      } catch (e) {
-        throw e;
-      }
+      const response = await removeIntegration(
+        subdomain,
+        integration.erxesApiId,
+      );
+      erxesApiIds.push(response);
     }
   }
   await models.FacebookAccounts.deleteOne({ _id });

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   BlockEditor,
   Button,
@@ -9,12 +9,10 @@ import {
   getMentionedUserIds,
   useBlockEditor,
   usePreviousHotkeyScope,
-  useQueryState,
   useScopedHotkeys,
   useUpload,
   toast,
   Input,
-  Label,
 } from 'erxes-ui';
 import {
   IconArrowUp,
@@ -22,6 +20,7 @@ import {
   IconX,
   IconCommand,
   IconCornerDownLeft,
+  IconMessage2,
 } from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
 import { Block } from '@blocknote/core';
@@ -34,13 +33,21 @@ import {
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
-
-export const MessageInput = () => {
-  const [conversationId] = useQueryState('conversationId');
+import { ResponseTemplateSelector } from './ResponseTemplateSelector';
+import { getPreviewText } from '@/inbox/types/inbox';
+import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
+export const MessageInput = ({
+  conversationId,
+}: {
+  conversationId: string;
+}) => {
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
-
+  const { channels: availableChannels } = useGetChannels();
+  const { responses } = useGetResponses({});
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
@@ -54,7 +61,19 @@ export const MessageInput = () => {
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  /** --- File Upload --- */
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+
+  const preparedResponses = useMemo(
+    () =>
+      (responses || []).map((r) => ({
+        ...r,
+        preview: getPreviewText(r.content || ''),
+      })),
+    [responses],
+  );
+
   const handleFileUpload = useCallback(
     (files: FileList) => {
       if (!files?.length) return;
@@ -78,7 +97,6 @@ export const MessageInput = () => {
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     handleFileUpload(e.target.files);
-
     e.target.value = '';
   };
 
@@ -93,12 +111,111 @@ export const MessageInput = () => {
     toast({ title: 'Attachment removed', variant: 'default' });
   };
 
+  const stripHtml = (html: string): string => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
+  const handleTemplateSelect = async (templateContent: string) => {
+    if (!editor) {
+      return toast({ title: 'Editor not ready', variant: 'destructive' });
+    }
+
+    const parseTemplateToBlocks = (content: string) => {
+      try {
+        const parsed = JSON.parse(content);
+        return Array.isArray(parsed)
+          ? parsed
+          : [{ type: 'paragraph', content, props: {} }];
+      } catch (e) {
+        console.warn('Template JSON parse failed, fallback to plain text:', e);
+        const clean = stripHtml(content).trim();
+        return [{ type: 'paragraph', content: clean, props: {} }];
+      }
+    };
+
+    try {
+      const blocksToInsert = parseTemplateToBlocks(templateContent);
+
+      const existingBlocks = editor.document;
+      if (existingBlocks?.length) {
+        await editor.removeBlocks(existingBlocks.map((b) => b.id));
+      }
+
+      await editor.insertBlocks(
+        blocksToInsert,
+        editor.topLevelBlocks[0]?.id,
+        'before',
+      );
+
+      await editor.focus();
+      setShowSuggestions(false);
+    } catch (error) {
+      console.error('Error inserting template:', error);
+      toast({ title: 'Failed to insert template', variant: 'destructive' });
+    }
+  };
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!showSuggestions) return;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedIndex((prev) =>
+            prev < suggestions.length - 1 ? prev + 1 : prev,
+          );
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+            handleTemplateSelect(suggestions[selectedIndex].content);
+            setShowSuggestions(false);
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          setShowSuggestions(false);
+          break;
+      }
+    },
+    [showSuggestions, selectedIndex, suggestions],
+  );
+
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [suggestions]);
+
   const handleChange = useCallback(async () => {
     const blocks = await editor?.document;
     blocks?.pop();
     setContent(blocks as Block[]);
+
+    const html = await editor?.blocksToHTMLLossy(blocks);
+    const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';
+
+    if (plain.length >= 1) {
+      const searchTerm = plain.toLowerCase();
+      const found = preparedResponses.filter((t) => {
+        const titleMatch = t.name?.toLowerCase().includes(searchTerm);
+        const contentMatch = t.preview?.toLowerCase().includes(searchTerm);
+        return titleMatch || contentMatch;
+      });
+
+      setSuggestions(found.slice(0, 5));
+      setShowSuggestions(found.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+
     setMentionedUserIds(getMentionedUserIds(blocks));
-  }, [editor]);
+  }, [editor, preparedResponses]);
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
@@ -125,6 +242,7 @@ export const MessageInput = () => {
         setIsInternalNote(false);
         setAttachments([]);
         setAttachmentPreview(null);
+        setShowSuggestions(false);
       },
       onError: (err) =>
         toast({
@@ -150,12 +268,25 @@ export const MessageInput = () => {
     <div className="p-2 h-full">
       <div
         onDrop={handleDrop}
+        onKeyDown={handleKeyDown}
         onDragOver={(e) => e.preventDefault()}
         className={cn(
           'flex flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
           isInternalNote && 'bg-yellow-50 dark:bg-yellow-950',
         )}
       >
+        {showSuggestions && (
+          <ResponseTemplateDropdown
+            suggestions={suggestions}
+            selectedIndex={selectedIndex}
+            availableChannels={availableChannels}
+            onSelect={(content) => {
+              handleTemplateSelect(content);
+              setShowSuggestions(false);
+            }}
+          />
+        )}
+
         <BlockEditor
           editor={editor}
           onChange={handleChange}
@@ -194,11 +325,8 @@ export const MessageInput = () => {
                 key={i}
                 className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-md"
               >
-                <span>
-                  <span role="img" aria-label="file">
-                    📁
-                  </span>{' '}
-                  {file.name} ({Math.round(file.size / 1024)} KB)
+                <span role="img" aria-label="file">
+                  📁 {file.name} ({Math.round(file.size / 1024)} KB)
                 </span>
                 <button
                   onClick={() => handleDeleteAttachment(file.name)}
@@ -223,18 +351,31 @@ export const MessageInput = () => {
             Internal Note
           </Toggle>
 
-          <Label htmlFor="file-upload">
-            <Button asChild size="icon" variant="outline" className="size-8">
-              <IconPaperclip />
+          <ResponseTemplateSelector onSelect={handleTemplateSelect}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <IconMessage2 className="h-4 w-4" />
             </Button>
-          </Label>
-          <Input
-            id="file-upload"
-            type="file"
-            onChange={handleFileInput}
-            multiple
-            style={{ display: 'none' }}
-          />
+          </ResponseTemplateSelector>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            onClick={() => document.getElementById('file-upload')?.click()}
+          >
+            <IconPaperclip className="h-4 w-4" />
+            <Input
+              type="file"
+              id="file-upload"
+              className="hidden"
+              onChange={handleFileInput}
+              multiple
+            />
+          </Button>
 
           <Button
             size="lg"

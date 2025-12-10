@@ -56,7 +56,7 @@ export const TasksViewControl = () => {
               size="lg"
               className="h-11 flex-col gap-0"
             >
-              <IconTable className="!size-5" />
+              <IconTable className="size-5!" />
               <span className="text-xs font-normal">List</span>
             </Button>
           </ToggleGroup.Item>
@@ -66,7 +66,7 @@ export const TasksViewControl = () => {
               size="lg"
               className="h-11 flex-col gap-0"
             >
-              <IconLayoutKanban className="!size-5" />
+              <IconLayoutKanban className="size-5!" />
               <span className="text-xs font-normal">Board</span>
             </Button>
           </ToggleGroup.Item>
@@ -76,13 +76,21 @@ export const TasksViewControl = () => {
   );
 };
 
-export const TasksView = () => {
+interface TasksViewProps {
+  isCreatedView?: boolean;
+}
+
+export const TasksView = ({ isCreatedView = false }: TasksViewProps) => {
   const view = useAtomValue(tasksViewAtom);
   const { teamId } = useParams();
 
   return (
     <Suspense>
-      {view === 'list' || !teamId ? <TasksRecordTable /> : <TasksBoard />}
+      {view === 'list' || !teamId ? (
+        <TasksRecordTable isCreatedView={isCreatedView} />
+      ) : (
+        <TasksBoard />
+      )}
       <TaskDetailSheet />
     </Suspense>
   );

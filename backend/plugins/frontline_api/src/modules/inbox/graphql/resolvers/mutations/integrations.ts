@@ -292,7 +292,7 @@ export const integrationMutations = {
       integrationDocs,
     );
 
-    const uiOptions = { logo: fields.logo, color: fields.color };
+    const uiOptions = { logo: fields.logo, primary: fields.primary };
 
     return await models.Integrations.saveMessengerAppearanceData(
       updated._id,
@@ -354,6 +354,25 @@ export const integrationMutations = {
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
+  async integrationsSaveMessengerColorTheme(
+    _root,
+    { _id, colorTheme }: { _id: string; colorTheme: any },
+    { models }: IContext,
+  ) {
+    return models.Integrations.saveMessengerColorTheme(_id, colorTheme);
+  },
+
+  async integrationsGetMessengerColorThemes(_root, _args) {
+    return [
+      {
+        _id: '',
+        primary: {
+          DEFAULT: '#3b82f6',
+          foreground: '#ffffff',
+        },
+      },
+    ];
+  },
   /**
    * Create a new messenger integration
    */
@@ -594,12 +613,12 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { _id, configId }: { _id: string; configId: string },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(
       _id,
-      ticketData,
+      configId,
     );
   },
 };

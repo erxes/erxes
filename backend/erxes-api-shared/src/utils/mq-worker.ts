@@ -44,10 +44,17 @@ export const createMQWorkerWithListeners = (
   return worker;
 };
 
-export const sendWorkerQueue = (serviceName: string, queueName: string) =>
-  new Queue(`${serviceName}-${queueName}`, {
-    connection: redis,
-  });
+export const sendWorkerQueue = (serviceName: string, queueName: string) => {
+  const queueKey = `${serviceName}-${queueName}`;
+  let queue = queueMap.get(queueKey);
+
+  if (!queue) {
+    queue = new Queue(queueKey, { connection: redis });
+    queueMap.set(queueKey, queue);
+  }
+
+  return queue;
+};
 
 export const sendWorkerMessage = async ({
   pluginName,

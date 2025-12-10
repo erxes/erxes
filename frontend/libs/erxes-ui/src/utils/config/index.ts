@@ -33,14 +33,23 @@ const getApi = (): string => {
   return memoizedApiUrl;
 };
 
+
 const cdnUrl = () => {
   return (
     window.env?.REACT_APP_IMAGE_CDN_URL ?? process.env.REACT_APP_IMAGE_CDN_URL
   );
 };
 
+const googleMapApiKey = () => {
+  return (
+    window.env?.REACT_APP_GOOGLE_MAP_API_KEY ??
+    process.env.REACT_APP_GOOGLE_MAP_API_KEY
+  );
+};
+
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const REACT_APP_API_URL = getApi();
 const REACT_APP_IMAGE_CDN_URL = cdnUrl();
+const REACT_APP_GOOGLE_MAP_API_KEY = googleMapApiKey();
 
-export { NODE_ENV, REACT_APP_API_URL, REACT_APP_IMAGE_CDN_URL };
+export { NODE_ENV, REACT_APP_API_URL, REACT_APP_IMAGE_CDN_URL, REACT_APP_GOOGLE_MAP_API_KEY };

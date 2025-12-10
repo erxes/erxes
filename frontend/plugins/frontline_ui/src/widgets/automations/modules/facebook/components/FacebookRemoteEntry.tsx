@@ -1,70 +1,43 @@
 import {
   AutomationRemoteEntryProps,
   AutomationRemoteEntryTypes,
-  getAutomationTypes,
+  AutomationRemoteEntryWrapper,
+  splitAutomationNodeType,
 } from 'ui-modules';
-import { ActionMessageConfigContent } from './action/components/ActionMessageConfigContent';
-import { MessageActionForm } from './action/components/MessageActionForm';
+import { ActionMessageConfigContent } from './action/components/replyMessage/ActionMessageConfigContent';
+import { MessageActionForm } from './action/components/replyMessage/MessageActionForm';
 import { MessageTriggerForm } from './trigger/components/MessageTriggerForm';
 import { TriggerConfigContent } from './trigger/components/TriggerConfigContent';
 import { AutomationBotsRecordTable } from './bots/components/automationBotsRecordTable';
 import { AutomationHistoryName } from '~/widgets/automations/modules/facebook/components/AutomationHistoryName';
 import { AutomationHistoryResult } from '~/widgets/automations/modules/facebook/components/AutomationHistoryResult';
 import { CommentTriggerForm } from '~/widgets/automations/modules/facebook/components/trigger/components/CommentTriggerForm';
-import { CommentActionForm } from '~/widgets/automations/modules/facebook/components/action/components/CommentActionForm';
-import { ActionCommentConfigContent } from '~/widgets/automations/modules/facebook/components/action/components/ActionCommentConfigContent';
+import { CommentActionForm } from '~/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm';
+import { ActionCommentConfigContent } from '~/widgets/automations/modules/facebook/components/action/components/replyComment/ActionCommentConfigContent';
 
 export const FacebookRemoteEntry = (props: AutomationRemoteEntryProps) => {
-  const { componentType = '' } = props;
-
-  switch (componentType) {
-    case 'actionForm':
-      return renderActionForm(
-        props as AutomationRemoteEntryTypes['ActionForm'],
-      );
-
-    case 'triggerForm':
-      return renderTriggerForm(
-        props as AutomationRemoteEntryTypes['TriggerForm'],
-      );
-
-    case 'triggerConfigContent':
-      return (
-        <TriggerConfigContent
-          {...(props as AutomationRemoteEntryTypes['TriggerNodeConfig'])}
-        />
-      );
-
-    case 'actionNodeConfiguration':
-      return renderActionNodeContent(
-        props as AutomationRemoteEntryTypes['ActionNodeConfig'],
-      );
-    case 'automationBotsContent':
-      return <AutomationBotsRecordTable />;
-    case 'historyName':
-      return (
-        <AutomationHistoryName
-          {...(props as AutomationRemoteEntryTypes['HistoryName'])}
-        />
-      );
-    case 'historyActionResult':
-      return (
-        <AutomationHistoryResult
-          {...(props as AutomationRemoteEntryTypes['ActionResult'])}
-        />
-      );
-
-    default:
-      return null;
-  }
+  return (
+    <AutomationRemoteEntryWrapper
+      props={props}
+      remoteEntries={{
+        actionForm: renderActionForm,
+        triggerForm: renderTriggerForm,
+        triggerConfigContent: TriggerConfigContent,
+        actionNodeConfiguration: renderActionNodeContent,
+        automationBotsContent: AutomationBotsRecordTable,
+        historyName: AutomationHistoryName,
+        historyActionResult: AutomationHistoryResult,
+      }}
+    />
+  );
 };
 
 function renderActionNodeContent(
-  props: AutomationRemoteEntryTypes['ActionNodeConfig'],
+  props: AutomationRemoteEntryTypes['actionNodeConfiguration'],
 ) {
   const actionType = props?.type || '';
   const [_pluginName, _moduleName, contentType] =
-    getAutomationTypes(actionType);
+    splitAutomationNodeType(actionType);
 
   switch (contentType) {
     case 'messages':
@@ -76,10 +49,10 @@ function renderActionNodeContent(
   }
 }
 
-function renderActionForm(props: AutomationRemoteEntryTypes['ActionForm']) {
+function renderActionForm(props: AutomationRemoteEntryTypes['actionForm']) {
   const actionType = props.currentAction?.type || '';
   const [_pluginName, _moduleName, contentType] =
-    getAutomationTypes(actionType);
+    splitAutomationNodeType(actionType);
 
   switch (contentType) {
     case 'messages':
@@ -91,10 +64,10 @@ function renderActionForm(props: AutomationRemoteEntryTypes['ActionForm']) {
   }
 }
 
-function renderTriggerForm(props: AutomationRemoteEntryTypes['TriggerForm']) {
+function renderTriggerForm(props: AutomationRemoteEntryTypes['triggerForm']) {
   const triggerType = props.activeTrigger?.type || '';
   const [_pluginName, _moduleName, contentType] =
-    getAutomationTypes(triggerType);
+    splitAutomationNodeType(triggerType);
 
   switch (contentType) {
     case 'messages':

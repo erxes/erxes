@@ -7,11 +7,8 @@ export interface ITrDetail {
   _id?: string;
   accountId?: string;
   originId?: string;
+  originType?: string;
   followInfos?: any;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
 
   side?: string;
   amount?: number;
@@ -43,12 +40,9 @@ interface ICommontTr {
   journal: string;
   ptrStatus?: string;
   originId?: string;
-  followType?: string;
+  originType?: string;
   originSubId?: string;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
+
   followExtras?: any;
   preTrId?: string;
 
@@ -99,4 +93,42 @@ export interface ITrRecord extends ICommontTr {
   shortDetail: ITrDetail;
   detailInd: number;
   trId: string;
+}
+
+export const trsQueryParamTypes: { [key: string]: string } = {
+  ids: 'string[]',
+  excludeIds: 'boolean',
+  status: 'string',
+  searchValue: 'string',
+  number: 'string',
+  accountIds: 'string[]',
+  accountKind: 'string',
+  accountExcludeIds: 'boolean',
+  accountStatus: 'string',
+  accountCategoryId: 'string',
+  accountSearchValue: 'string',
+  accountBrand: 'string',
+  accountIsOutBalance: 'boolean',
+  accountBranchId: 'string',
+  accountDepartmentId: 'string',
+  accountCurrency: 'string',
+  accountJournal: 'string',
+  brandId: 'string',
+  isOutBalance: 'boolean',
+  branchId: 'string',
+  departmentId: 'string',
+  currency: 'string',
+  journal: 'string',
+  statuses: 'string[]',
+  createdUserId: 'string',
+  modifiedUserId: 'string',
+  date: 'startDate,endDate',
+  updatedDate: 'startDate,endDate',
+  createdDate: 'startDate,endDate',
+  startDate: 'Date',
+  endDate: 'Date',
+  startUpdatedDate: 'Date',
+  endUpdatedDate: 'Date',
+  startCreatedDate: 'Date',
+  endCreatedDate: 'Date',
 }

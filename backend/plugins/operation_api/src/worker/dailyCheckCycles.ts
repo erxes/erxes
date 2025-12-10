@@ -60,7 +60,7 @@ export const checkCycle = async (job: Job) => {
 
   const models = await generateModels(subdomain);
 
-  const tzStart = tzToday.clone().startOf('day');
+  const tzStart = tzToday.clone().startOf('day').subtract(1, 'day');
   const tzEnd = tzToday.clone().endOf('day');
 
   console.log('tzStart', tzStart);
@@ -82,8 +82,16 @@ export const checkCycle = async (job: Job) => {
 
       console.log('endDate', endDate);
       const endDateTz = tz(endDate, timezone);
+      const endDateTzEnd = endDateTz
+        .clone()
+        .endOf('day')
+        .add(1, 'day')
+        .startOf('day');
+
       console.log('endDateTz', endDateTz);
-      if (endDateTz.isBetween(tzStart, tzEnd, null, '[]')) {
+      console.log('endDateTzEnd', endDateTzEnd);
+
+      if (endDateTz.isBetween(tzStart, endDateTzEnd, null, '(]')) {
         endCycleIds.push(_id);
       }
     }
@@ -111,7 +119,7 @@ export const checkCycle = async (job: Job) => {
 
       const startDateTz = tz(startDate, timezone);
 
-      if (startDateTz.isBetween(tzStart, tzEnd, null, '[]')) {
+      if (startDateTz.isBetween(tzStart, tzEnd, null, '(]')) {
         startCycleIds.push(_id);
       }
     }

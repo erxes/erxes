@@ -16,9 +16,14 @@ export interface ProcessedLinks {
 // Messenger setup payload type
 export interface MessengerSetupPayload {
   _id: string;
+  ticketConfigId?: string;
   name?: string;
   brandId?: string;
   languageCode?: string;
+  channel?: {
+    _id: string;
+    name?: string;
+  };
   channels?: {
     _id: string;
   }[];
@@ -79,9 +84,10 @@ export interface MessengerSetupPayload {
     isReceiveWebCall?: boolean;
   };
   uiOptions?: {
-    color?: string;
-    textColor?: string;
-    wallpaper?: string;
     logo?: string;
+    primary?: {
+      DEFAULT?: string;
+      foreground?: string;
+    };
   };
 }

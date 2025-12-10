@@ -1,0 +1,391 @@
+import { PopoverScoped, Combobox, Command, Filter, useQueryState, useFilterContext, cn } from 'erxes-ui';
+import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
+import { ICycle } from '@/cycle/types';
+import {
+  SelectOperationContent,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
+} from '@/operation/components/SelectOperation';
+import { useUpdateTask } from '@/task/hooks/useUpdateTask';
+import { useGetTeam } from '@/team/hooks/useGetTeam';
+import { IconRestore } from '@tabler/icons-react';
+import { format } from 'date-fns';
+import React, { useState } from 'react';
+
+interface ITaskCycle {
+  value: CycleFilterType;
+  label: string;
+}
+
+export type CycleFilterType =
+  | 'noCycle'
+  | 'anyPastCycle'
+  | 'previousCycle'
+  | 'currentCycle'
+  | 'upcomingCycle'
+  | 'anyFutureCycle';
+
+const CYCLE_FILTER_OPTIONS: ITaskCycle[] = [
+  {
+    value: 'noCycle',
+    label: 'No Cycle',
+
+  },
+  {
+    value: 'anyPastCycle',
+    label: 'Any past cycle',
+  },
+  {
+    value: 'previousCycle',
+    label: 'Previous cycle',
+  },
+  {
+    value: 'currentCycle',
+    label: 'Current cycle',
+  },
+  {
+    value: 'upcomingCycle',
+    label: 'Upcoming cycle',
+  },
+  {
+    value: 'anyFutureCycle',
+    label: 'Any future cycle',
+  },
+];
+
+interface SelectCycleContextType {
+  value?: string;
+  onValueChange: (value: string) => void;
+  activeCycles: ICycle[];
+  isCompleted?: boolean;
+  isFilter?: boolean;
+}
+
+const SelectCycleContext = React.createContext<SelectCycleContextType | null>(
+  null,
+);
+
+const useSelectCycleContext = () => {
+  const context = React.useContext(SelectCycleContext);
+  if (!context) {
+    throw new Error(
+      'useSelectCycleContext must be used within SelectCycleProvider',
+    );
+  }
+  return context;
+};
+
+export const SelectCycleFormItem = ({
+  onValueChange,
+  teamId,
+  scope,
+  value,
+}: {
+  teamId?: string;
+  scope?: string;
+  onValueChange: (value: string) => void;
+  value?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectCycleProvider
+      value={value}
+      onValueChange={(value: string) => {
+        onValueChange(value);
+        setOpen(false);
+      }}
+      teamId={teamId}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+        <SelectTriggerOperation variant="form">
+          <SelectCycleValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant="form">
+          <SelectCycleContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectCycleProvider>
+  );
+};
+
+const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
+  const { activeCycles, value } = useSelectCycleContext();
+
+  if (!value)
+    return (
+      <div className="flex items-center gap-2 text-accent-foreground">
+        <IconRestore className="size-4" />
+        <span className="truncate font-medium">
+          {placeholder || 'Select cycle'}
+        </span>
+      </div>
+    );
+
+  const selectedCycle = activeCycles.find((c) => c._id === value);
+
+  return (
+    <div className="flex items-center gap-2">
+      <IconRestore className="size-4" />
+      <span className="truncate font-medium">
+        {selectedCycle?.name}&nbsp;
+        <span className="text-xs text-muted-foreground">
+          {selectedCycle?.startDate &&
+            format(new Date(selectedCycle.startDate), 'MMM dd')}
+          -
+          {selectedCycle?.endDate &&
+            format(new Date(selectedCycle.endDate), 'MMM dd')}
+        </span>
+      </span>
+    </div>
+  );
+};
+
+const SelectCycleCommandItem = ({ cycle }: { cycle: ICycle }) => {
+  const { onValueChange, value } = useSelectCycleContext();
+
+  return (
+    <Command.Item value={cycle._id} onSelect={() => onValueChange(cycle._id)}>
+      <div className="flex items-center gap-2">
+        <IconRestore className="size-4" />
+        <span className="truncate font-medium">
+          {cycle.name}&nbsp;
+          <span className="text-xs text-muted-foreground">
+            {cycle.startDate && format(new Date(cycle.startDate), 'MMM dd')}-{' '}
+            {cycle.endDate && format(new Date(cycle.endDate), 'MMM dd')}
+          </span>
+        </span>
+      </div>
+      <Combobox.Check checked={value === cycle._id} />
+    </Command.Item>
+  );
+};
+
+const SelectCycleContent = () => {
+  const { activeCycles } = useSelectCycleContext();
+
+  return (
+    <Command id="cycle-command-menu">
+      <Command.Input placeholder="Search cycle" />
+      <Command.Empty>No cycle found</Command.Empty>
+      <Command.List>
+        <SelectCycleCommandItem
+          cycle={{ _id: '', name: 'No cycle' } as ICycle}
+        />
+        {activeCycles.map((cycle) => (
+          <SelectCycleCommandItem key={cycle._id} cycle={cycle} />
+        ))}
+      </Command.List>
+    </Command>
+  );
+};
+
+const SelectCycleProvider = ({
+  children,
+  value,
+  onValueChange,
+  teamId,
+  taskId,
+  isFilter = false,
+}: {
+  children: React.ReactNode;
+  value?: string;
+  onValueChange: (value: string) => void;
+  teamId?: string;
+  taskId?: string;
+  isFilter?: boolean;
+}) => {
+  const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
+  const { activeCycles } = useGetActiveCycles(teamId, taskId);
+
+  if (!team?.cycleEnabled && !isFilter) return null;
+
+  const selectedCycle = activeCycles?.find((c) => c._id === value);
+
+  const isCompleted = selectedCycle?.isCompleted && !selectedCycle?.isActive;
+
+  const handleValueChange = (cycleId: string) => {
+    if (isCompleted) {
+      return;
+    }
+
+    onValueChange(cycleId);
+  };
+
+  return (
+    <SelectCycleContext.Provider
+      value={{
+        value,
+        onValueChange: handleValueChange,
+        activeCycles: activeCycles || [],
+        isCompleted,
+        isFilter,
+      }}
+    >
+      {children}
+    </SelectCycleContext.Provider>
+  );
+};
+
+const SelectCycleRootContent = ({ 
+  open, 
+  setOpen, 
+  variant 
+}: { 
+  open: boolean; 
+  setOpen: (open: boolean) => void; 
+  variant: `${SelectTriggerVariant}`; 
+}) => {
+  const { isCompleted } = useSelectCycleContext();
+
+  return (
+    <PopoverScoped open={open} onOpenChange={setOpen}>
+      <SelectTriggerOperation variant={variant}>
+        <SelectCycleValue />
+      </SelectTriggerOperation>
+      {!isCompleted && (
+        <SelectOperationContent variant={variant}>
+          <SelectCycleContent />
+        </SelectOperationContent>
+      )}
+    </PopoverScoped>
+  );
+};
+
+const SelectCycleRoot = ({
+  value,
+  taskId,
+  teamId,
+  variant,
+}: {
+  value: string;
+  taskId: string;
+  teamId: string;
+  variant: `${SelectTriggerVariant}`;
+}) => {
+  const [open, setOpen] = useState(false);
+  const { updateTask } = useUpdateTask();
+
+  return (
+    <SelectCycleProvider
+      value={value}
+      onValueChange={(value) => {
+        updateTask({
+          variables: {
+            _id: taskId,
+            cycleId: value || null,
+          },
+        });
+        setOpen(false);
+      }}
+      teamId={teamId}
+      taskId={taskId}
+    >
+      <SelectCycleRootContent 
+        open={open} 
+        setOpen={setOpen} 
+        variant={variant} 
+      />
+    </SelectCycleProvider>
+  );
+};
+
+const SelectCycleFilterContent = () => {
+  const { value, onValueChange } = useSelectCycleContext();
+
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        {CYCLE_FILTER_OPTIONS.map((option) => (
+          <Command.Item
+            key={option.value}
+            onSelect={() => onValueChange(option.value)}
+            className="flex flex-col items-start"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <div
+                className={cn(
+                  'size-4 rounded-full border-2 flex items-center justify-center',
+                  value === option.value
+                    ? 'border-primary bg-primary'
+                    : 'border-border',
+                )}
+              >
+                {value === option.value && (
+                  <div className="size-2 rounded-full bg-primary-foreground" />
+                )}
+              </div>
+              <span className="font-medium">{option.label}</span>
+            </div>
+          </Command.Item>
+        ))}
+      </Command.List>
+    </Command>
+  );
+};
+
+const SelectCycleFilterValue = () => {
+  const { value } = useSelectCycleContext();
+
+  const selectedOption = CYCLE_FILTER_OPTIONS.find((opt) => opt.value === value);
+
+  return (
+    <div className="flex items-center gap-2">
+      <IconRestore className="size-4" />
+      <span className="truncate font-medium">
+        {selectedOption?.label || 'Filter by cycle'}
+      </span>
+    </div>
+  );
+};
+
+export const SelectCycleFilterView = () => {
+  const [cycleFilter, setCycleFilter] = useQueryState<CycleFilterType>('cycleFilter');
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey="cycleFilter">
+      <SelectCycleProvider
+        value={cycleFilter || ''}
+        onValueChange={(value) => {
+          setCycleFilter(value as CycleFilterType);
+          resetFilterState();
+        }}
+        isFilter={true}
+      >
+        <SelectCycleFilterContent />
+      </SelectCycleProvider>
+    </Filter.View>
+  );
+};
+
+export const SelectCycleFilterBar = () => {
+  const [cycleFilter, setCycleFilter] = useQueryState<CycleFilterType>('cycleFilter');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectCycleProvider
+      value={cycleFilter || ''}
+      onValueChange={(value) => {
+        setCycleFilter(value as CycleFilterType);
+        setOpen(false);
+      }}
+      isFilter={true}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant="filter">
+          <SelectCycleFilterValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant="filter">
+          <SelectCycleFilterContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectCycleProvider>
+  );
+};
+
+export const SelectCycle = Object.assign(SelectCycleRoot, {
+  FormItem: SelectCycleFormItem,
+  FilterView: SelectCycleFilterView,
+  FilterBar: SelectCycleFilterBar,
+});

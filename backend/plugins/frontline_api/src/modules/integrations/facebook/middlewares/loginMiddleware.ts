@@ -14,7 +14,6 @@ import { getEnv } from 'erxes-api-shared/utils';
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
-  const { channelId } = req.query;
 
   const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
   const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
@@ -40,8 +39,6 @@ export const loginMiddleware = async (req, res) => {
 
   debugRequest(debugFacebook, req);
 
-  // we don't have a code yet
-  // so we'll redirect to the oauth dialog
   if (!req.query.code) {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
@@ -50,7 +47,6 @@ export const loginMiddleware = async (req, res) => {
       state: `${API_DOMAIN}/pl:frontline/facebook`,
     });
 
-    // checks whether a user denied the app facebook login/permissions
     if (!req.query.error) {
       debugResponse(debugFacebook, req, authUrl);
       return res.redirect(authUrl);
@@ -67,70 +63,53 @@ export const loginMiddleware = async (req, res) => {
     code: req.query.code,
   };
   debugResponse(debugFacebook, req, JSON.stringify(config));
-  // If this branch executes user is already being redirected back with
-  // code (whatever that is)
-  // code is set
-  // we'll send that and get the access token
 
   return graph.authorize(config, async (_err, facebookRes) => {
-    try {
-      if (_err) {
-        console.error('Facebook auth error:', _err);
-        return res.status(500).send('Facebook authorization failed');
-      }
+    const { access_token } = facebookRes;
 
-      if (!facebookRes || !facebookRes.access_token) {
-        console.error('Facebook response invalid:', facebookRes);
-        return res.status(400).send('Invalid Facebook response');
-      }
-
-      const { access_token } = facebookRes;
-
-      const userAccount = await graphRequest.get(
-        'me?fields=id,first_name,last_name',
-        access_token,
+    const userAccount: {
+      id: string;
+      first_name: string;
+      last_name: string;
+    } = await graphRequest.get(
+      'me?fields=id,first_name,last_name',
+      access_token,
+    );
+    const name = `${userAccount.first_name} ${userAccount.last_name}`;
+    const account = await models.FacebookAccounts.findOne({
+      uid: userAccount.id,
+    });
+    let accountId: string;
+    if (account) {
+      await models.FacebookAccounts.updateOne(
+        { _id: account._id },
+        { $set: { token: access_token } },
       );
+      const integrations = await models.FacebookIntegrations.find({
+        accountId: account._id,
+      });
+      accountId = account._id;
 
-      const name = `${userAccount.first_name} ${userAccount.last_name}`;
-      const account = await models.FacebookAccounts.findOne({
+      for (const integration of integrations) {
+        await repairIntegrations(subdomain, integration.erxesApiId);
+      }
+    } else {
+      const newAccount = await models.FacebookAccounts.create({
+        token: access_token,
+        name,
+        kind: 'facebook',
         uid: userAccount.id,
       });
-      let accountId;
-      if (account) {
-        await models.FacebookAccounts.updateOne(
-          { _id: account._id },
-          { $set: { token: access_token } },
-        );
-        const integrations = await models.FacebookIntegrations.find({
-          accountId: account._id,
-        });
-
-        accountId = account?._id;
-
-        for (const integration of integrations) {
-          await repairIntegrations(subdomain, integration.erxesApiId);
-        }
-      } else {
-        const newAccount = await models.FacebookAccounts.create({
-          token: access_token,
-          name,
-          kind: 'facebook',
-          uid: userAccount.id,
-        });
-
-        accountId = newAccount?._id;
-      }
-
-      const reactAppUrl = !DOMAIN.includes('zrok')
-        ? DOMAIN
-        : 'http://localhost:3001';
-
-      const url = `${reactAppUrl}/settings/frontline/channels/details/${channelId}/facebook-messenger?fbAuthorized=true&accountId=${account?._id}`;
-
-      return res.redirect(url);
-    } catch (error) {
-      console.error('Facebook login error:', error);
-      return res.status(500).send('Facebook login failed');
+      accountId = newAccount._id;
     }
+
+    const reactAppUrl = !DOMAIN.includes('zrok')
+      ? DOMAIN
+      : 'http://localhost:3001';
+    const url = `${reactAppUrl}/settings/frontline/channels/fb-auth`;
+
+    debugResponse(debugFacebook, req, url);
+
+    return res.redirect(url);
   });
 };

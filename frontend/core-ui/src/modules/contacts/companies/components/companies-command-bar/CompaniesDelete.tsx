@@ -40,7 +40,8 @@ export const CompaniesDelete = ({
               });
               toast({
                 title: 'Success',
-                variant: 'default',
+                variant: 'success',
+                description: 'Companies deleted successfully',
               });
             },
           });

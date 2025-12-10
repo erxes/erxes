@@ -9,6 +9,14 @@ export const relationsMutations = {
   ) => {
     return models.Relations.createRelation({ relation });
   },
+  createMultipleRelations: async (
+    _parent: undefined,
+    { relations }: { relations: IRelation[] },
+    { models }: { models: IModels },
+  ) => {
+    return models.Relations.createMultipleRelations({ relations });
+  },
+
   updateRelation: async (
     _parent: undefined,
     { id, relation }: { id: string; relation: IRelation },

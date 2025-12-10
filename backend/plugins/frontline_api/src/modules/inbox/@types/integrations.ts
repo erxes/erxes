@@ -13,11 +13,7 @@ export interface ILink {
 }
 
 export interface ITicketData {
-  ticketLabel?: string;
-  ticketToggle?: boolean;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
+  configId: string;
 }
 interface IOnboardingParams {
   brandName: string;
@@ -144,12 +140,13 @@ export interface ILeadDataDocument extends ILeadData, Document {
   viewCount?: number;
   contactsGathered?: number;
 }
-
+export interface IColorDefinition {
+  DEFAULT?: string;
+  foreground?: string;
+}
 export interface IUiOptions {
-  color?: string;
-  wallpaper?: string;
   logo?: string;
-  textColor?: string;
+  primary?: IColorDefinition;
 }
 
 // subdocument schema for messenger UiOptions
@@ -164,12 +161,13 @@ export interface IIntegration {
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
   departmentIds?: string[];
   visibility?: string;
+  configId?: string;
+  ticketConfigId?: string;
 }
 
 export interface IExternalLink {

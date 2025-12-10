@@ -17,6 +17,13 @@ export const cycleMutations = {
   ) => {
     return models.Cycle.removeCycle({ _id });
   },
+  endCycle: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return models.Cycle.endCycle(_id);
+  },
 };
 
 requireLogin(cycleMutations, 'createCycle');

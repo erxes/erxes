@@ -28,8 +28,7 @@ export const OrganizationProvider = () => {
       const link = document.createElement('link');
       link.id = 'favicon';
       link.rel = 'shortcut icon';
-      link.href =
-        'https://static-00.iconduck.com/assets.00/file-type-favicon-icon-2048x2048-q7lmo5fn.png';
+
       document.head.appendChild(link);
     }
   }, [currentOrganization]);

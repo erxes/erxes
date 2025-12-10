@@ -18,10 +18,12 @@ import { productQueries } from '@/products/graphql/resolvers/queries';
 import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
 import { tagQueries } from '@/tags/graphql/queries';
-
+import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { notificationQueries } from '@/notifications/graphql/resolver/queries';
 import { roleQueries } from '@/permissions/graphql/resolvers/queries/role';
 import engageQueries from '~/modules/broadcast/graphql/resolvers/queries/Queries';
+import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
+import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
 
 export const queries = {
   ...contactQueries,
@@ -47,4 +49,7 @@ export const queries = {
   ...internalNoteQueries,
   ...roleQueries,
   ...engageQueries,
+  ...propertiesQueries,
+  ...clientPortalQueries,
+  ...cpUserQueries,
 };

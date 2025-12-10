@@ -1,6 +1,6 @@
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { IContext, IModels } from '~/connectionResolvers';
-import { IAdjustInventory, ADJ_INV_STATUSES, IAdjustInventoryDocument } from '@/accounting/@types/adjustInventory';
+import { IContext } from '~/connectionResolvers';
+import { IAdjustInventory, ADJ_INV_STATUSES } from '@/accounting/@types/adjustInventory';
 import { detailsClear, adjustRunning, checkValidDate, modifierWrapper } from '../../../utils/inventories';
 
 const adjustInventoryMutations = {
@@ -65,7 +65,7 @@ const adjustInventoryMutations = {
     return await detailsClear(models, user, adjusting, date);
   },
 
-  async adjustInventoryRun(_root, { adjustId }: { adjustId: string }, { models, user }: IContext) {
+  async adjustInventoryRun(_root, { adjustId }: { adjustId: string }, { models, user, subdomain }: IContext) {
     const adjustInventory = await models.AdjustInventories.getAdjustInventory(adjustId);
 
     if ([ADJ_INV_STATUSES.RUNNING, ADJ_INV_STATUSES.PUBLISH].includes(adjustInventory.status)) {
@@ -84,7 +84,7 @@ const adjustInventoryMutations = {
       },
     });
 
-    adjustRunning(models, user, { adjustInventory, beginDate, beforeAdjInv });
+    adjustRunning(subdomain, models, user, { adjustInventory, beginDate, beforeAdjInv });
 
     return await models.AdjustInventories.getAdjustInventory(adjustId);
   }

@@ -77,7 +77,13 @@ export const CreateTeam = () => {
         <Form {...form}>
           <form
             className="flex flex-col gap-0 size-full"
-            onSubmit={form.handleSubmit(submitHandler)}
+            onSubmit={form.handleSubmit(submitHandler, (errors) => {
+              toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: Object.entries(errors)[0][1].message,
+              });
+            })}
           >
             <Sheet.Header>
               <Sheet.Title>Add team</Sheet.Title>

@@ -5,6 +5,8 @@ import {
   getSubdomain,
   PERMISSION_ROLES,
   redis,
+  setCPUserHeader,
+  setClientPortalHeader,
   setUserHeader,
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response } from 'express';
@@ -15,7 +17,7 @@ import { generateModels, IModels } from '../connectionResolver';
 dotenv.config();
 
 export default async function userMiddleware(
-  req: Request & { user?: any },
+  req: Request & { user?: any; cpUser?: any; clientPortal?: any },
   res: Response,
   next: NextFunction,
 ) {
@@ -154,42 +156,48 @@ export default async function userMiddleware(
     }
   }
 
-  const clientToken = req.headers['x-app-token'];
+  const clientPortalToken = req.headers['x-app-token'];
+  const clientAuthToken = req.cookies['client-auth-token'];
 
-  if (clientToken) {
-    const token = String(clientToken);
+  if (clientPortalToken) {
+    const clientPortalTokenString = String(clientPortalToken);
+
     try {
-      const decoded: any = jwt.verify(
-        token,
+      const clientPortalTokenDecoded: any = jwt.verify(
+        clientPortalTokenString,
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
-      const client = await models.Clients.findOne({
-        clientId: decoded.clientId,
+      const clientPortal = await models.ClientPortals.findOne({
+        _id: clientPortalTokenDecoded.clientPortalId,
       });
 
-      if (!client) {
+      if (!clientPortal) {
         return next();
       }
 
-      if (
-        client.whiteListedIps?.length > 0 &&
-        !client.whiteListedIps.includes(req.ip)
-      ) {
-        return next();
+      if (clientAuthToken) {
+        const clientAuthTokenString = String(clientAuthToken);
+
+        const clientAuthTokenDecoded: any = jwt.verify(
+          clientAuthTokenString,
+          process.env.JWT_TOKEN_SECRET || 'SECRET',
+        );
+
+        const clientPortalUser = await models.CPUsers.findOne({
+          _id: clientAuthTokenDecoded.userId,
+          clientPortalId: clientPortal._id,
+        });
+
+        if (clientPortalUser) {
+          req.cpUser = clientPortalUser;
+          setCPUserHeader(req.headers, req.cpUser);
+        }
       }
 
-      const systemUser = await models.Users.findOne({
-        role: USER_ROLES.SYSTEM,
-        appId: client._id,
-      });
+      req.clientPortal = clientPortal;
 
-      if (!systemUser) {
-        return next();
-      }
-
-      req.user = systemUser;
-      setUserHeader(req.headers, req.user);
+      setClientPortalHeader(req.headers, req.clientPortal);
 
       return next();
     } catch (e) {

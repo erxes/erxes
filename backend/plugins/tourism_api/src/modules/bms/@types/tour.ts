@@ -18,6 +18,7 @@ export interface ITour {
   groupSize: number;
   guides: IGuideItem[];
   status: string;
+  date_status: string;
   cost: number;
   branchId: string;
   tags: string[];
@@ -58,5 +59,5 @@ export interface TourFilterParams {
 export interface TourListResponse {
   list: ITourDocument[];
   totalCount: number;
-  pageInfo: IPageInfo
+  pageInfo: IPageInfo;
 }

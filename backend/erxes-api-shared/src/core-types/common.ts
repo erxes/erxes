@@ -53,6 +53,16 @@ export interface ICustomField {
   extraValue?: string;
 }
 
+export interface IPropertyField {
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | Date
+    | Array<string | number | boolean | Date>
+    | null;
+}
+
 export interface IBrowserInfo {
   language?: string;
   url?: string;
@@ -77,6 +87,8 @@ export interface IMainContext {
   req: any;
   requestInfo: any;
   user: IUserDocument;
+  cpUser?: any;
+  clientPortal?: any;
   models?: any;
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
@@ -102,7 +114,11 @@ export interface IPageInfo {
 }
 
 export interface IResolverSymbol {
-  skipPermission?: boolean;
+  wrapperConfig?: {
+    skipPermission?: boolean;
+    forClientPortal?: boolean;
+    cpUserRequired?: boolean;
+  };
 }
 
 export type Resolver<

@@ -1,4 +1,10 @@
-import { Button, Skeleton, TextOverflowTooltip, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  IconComponent,
+  Skeleton,
+  TextOverflowTooltip,
+  useQueryState,
+} from 'erxes-ui';
 import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
@@ -27,7 +33,7 @@ export const ChooseChannel = () => {
   ));
 };
 
-const ChannelItem = ({ _id, name }: IChannel) => {
+const ChannelItem = ({ _id, name, icon }: IChannel) => {
   const [channelId, setChannelId] = useQueryState<string>('channelId');
 
   const isActive = channelId === _id;
@@ -39,10 +45,17 @@ const ChannelItem = ({ _id, name }: IChannel) => {
   return (
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
-      className="justify-start pl-7 relative overflow-hidden text-left flex-auto"
+      className="justify-start relative overflow-hidden text-left flex-auto p-2"
       onClick={handleClick}
     >
-      {isActive && <IconCheck className="absolute left-1.5" />}
+      {isActive ? (
+        <IconCheck className="" />
+      ) : (
+        <IconComponent
+          name={icon}
+          className="size-3 text-accent-foreground shrink-0"
+        />
+      )}
       <TextOverflowTooltip value={name} />
     </Button>
   );

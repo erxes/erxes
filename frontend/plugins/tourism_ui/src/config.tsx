@@ -1,4 +1,4 @@
-import { IconBox, IconDirections, IconSandbox } from '@tabler/icons-react';
+import { IconBox, IconDirections } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
@@ -21,16 +21,9 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'pms',
-      icon: IconSandbox,
-      path: 'pms',
-      hasSettings: true,
-      hasRelationWidget: true,
-    },
-    {
-      name: 'tms',
+      name: 'tourism',
       icon: IconBox,
-      path: 'tms',
+      path: 'tourism',
       hasSettings: true,
       hasRelationWidget: true,
     },

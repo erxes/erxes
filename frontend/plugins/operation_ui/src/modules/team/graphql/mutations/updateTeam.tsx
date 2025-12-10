@@ -9,6 +9,7 @@ export const UPDATE_TEAM = gql`
     $memberIds: [String]
     $estimateType: Int
     $cycleEnabled: Boolean
+    $triageEnabled: Boolean
   ) {
     teamUpdate(
       _id: $_id
@@ -18,6 +19,7 @@ export const UPDATE_TEAM = gql`
       memberIds: $memberIds
       estimateType: $estimateType
       cycleEnabled: $cycleEnabled
+      triageEnabled: $triageEnabled
     ) {
       _id
     }

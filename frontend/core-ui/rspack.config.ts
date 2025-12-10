@@ -29,8 +29,21 @@ export default composePlugins(
         'process.env.ENABLED_PLUGINS': JSON.stringify(
           process.env.ENABLED_PLUGINS,
         ),
+
+        'process.env.REACT_APP_GOOGLE_MAP_API_KEY': JSON.stringify(
+          process.env.REACT_APP_GOOGLE_MAP_API_KEY,
+        ),
       }),
     );
+
+    config.module = config.module || {};
+    config.module.rules = config.module.rules || [];
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ['postcss-loader'],
+      type: 'css',
+    });
+
     return config;
   },
 );
