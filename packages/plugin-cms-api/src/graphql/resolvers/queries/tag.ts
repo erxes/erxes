@@ -102,6 +102,26 @@ const queries = {
 
     return tag;
   },
+
+  async cmsTagsCount(_parent: any, args: any, context: IContext): Promise<number> {
+    const { models } = context;
+    const { searchValue, status } = args;
+    const clientPortalId = args.clientPortalId || context.clientPortalId;
+
+    const query: any = { clientPortalId };
+    if (status) query.status = status;
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { slug: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    // ✅ Await the query result before returning
+    const count = await models.PostTags.countDocuments(query);
+    return count;
+  },
 };
 
 export default queries;

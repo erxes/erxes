@@ -23,6 +23,7 @@ type Props = {
   attrConfig?: any;
   onlySet?: boolean;
   customAttributions?: FieldsCombinedByType[];
+  componentClass?: string;
 };
 
 type FinalProps = {
@@ -66,6 +67,7 @@ export default withProps<Props>(
           variables: {
             contentType: triggerType,
             config: attrConfig ? attrConfig : undefined,
+            usageType: "automations",
           },
         }),
       }

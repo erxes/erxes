@@ -1,4 +1,3 @@
-import { skip } from "node:test";
 import { IContext } from "../../../connectionResolver";
 
 const tourQueries = {
@@ -19,7 +18,7 @@ const tourQueries = {
       sortField = "createdAt",
       sortDirection = -1,
       groupCode,
-      date_status,
+      date_status
     },
     { models }: IContext
   ) {
@@ -36,7 +35,7 @@ const tourQueries = {
       selector.status = branchId;
     }
     if (tags) {
-      selector.tags = { $in: tags };
+      selector.tagIds = { $in: tags };
     }
     if (innerDate) {
       const dateToCheck = innerDate;
@@ -87,7 +86,7 @@ const tourQueries = {
 
     return {
       list,
-      total,
+      total
     };
   },
   async bmToursGroup(
@@ -107,7 +106,7 @@ const tourQueries = {
       sortField = "createdAt",
       sortDirection = -1,
       groupCode,
-      date_status,
+      date_status
     },
     { models }: IContext
   ) {
@@ -124,7 +123,7 @@ const tourQueries = {
       selector.status = branchId;
     }
     if (tags) {
-      selector.tags = { $in: tags };
+      selector.tagIds = { $in: tags };
     }
     if (innerDate) {
       const dateToCheck = innerDate;
@@ -170,33 +169,33 @@ const tourQueries = {
 
     const list = await models.Tours.find({
       ...selector,
-      groupCode: { $in: [null, ""] },
+      groupCode: { $in: [null, ""] }
     })
       .limit(perPage)
       .skip(skip)
       .sort({ [sortField]: sortDirection === -1 ? sortDirection : 1 });
     const total = await models.Tours.find({
       ...selector,
-      groupCode: { $nin: [null, ""] },
+      groupCode: { $nin: [null, ""] }
     }).countDocuments();
 
     const group = await models.Tours.aggregate([
       {
         $match: {
           ...selector,
-          groupCode: { $nin: [null, ""] }, // Exclude null and empty strings
-        },
+          groupCode: { $nin: [null, ""] } // Exclude null and empty strings
+        }
       },
       {
         $group: {
           _id: "$groupCode", // group by category
-          items: { $push: "$$ROOT" }, // push full documents into an array
-        },
-      },
+          items: { $push: "$$ROOT" } // push full documents into an array
+        }
+      }
     ]);
     return {
       list: [...group],
-      total,
+      total
     };
   },
   async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
@@ -204,14 +203,14 @@ const tourQueries = {
 
     const list = await models.Tours.find({
       groupCode: groupCode,
-      status: status,
+      status: status
     });
 
     return { _id: groupCode, items: list };
   },
   async bmTourDetail(_root, { _id }, { models }: IContext) {
     return await models.Tours.findById(_id);
-  },
+  }
 };
 
 export default tourQueries;

@@ -1,5 +1,6 @@
 import { sendCommonMessage, sendCoreMessage } from "../../messageBroker";
 import { getEnv } from "../../utils";
+import { GenerateEmailsByType } from "./generateReciepentEmailsByType";
 import { getRecipientEmails } from "./generateRecipientEmails";
 import { replaceDocuments } from "./replaceDocuments";
 import { filterOutSenderEmail, formatFromEmail } from "./utils";
@@ -11,10 +12,12 @@ export const generateEmailPayload = async ({
   triggerType,
   config,
 }) => {
-  const { templateId, fromUserId, sender } = config;
+  const { templateId, fromUserId, fromEmailPlaceHolder, sender } = config;
   const [serviceName, type] = triggerType.split(":");
   const version = getEnv({ name: "VERSION" });
   const DEFAULT_AWS_EMAIL = getEnv({ name: "DEFAULT_AWS_EMAIL" });
+
+  const MAIL_SERVICE = getEnv({ name: "MAIL_SERVICE" });
 
   const template = await sendCoreMessage({
     subdomain,
@@ -28,7 +31,23 @@ export const generateEmailPayload = async ({
 
   let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
 
-  if (fromUserId) {
+  if (MAIL_SERVICE === "custom") {
+    const emailsGeneratorByType = new GenerateEmailsByType({
+      subdomain,
+      execution,
+      target,
+    });
+
+    const emails = await emailsGeneratorByType.getAttributionEmails(
+      { serviceName, contentType: type },
+      fromEmailPlaceHolder,
+      "attributionMail"
+    );
+    if (!emails?.length) {
+      throw new Error("Cannot find from user");
+    }
+    fromUserEmail = emails[0];
+  } else if (fromUserId) {
     const fromUser = await sendCoreMessage({
       subdomain,
       action: "users.findOne",
@@ -49,7 +68,7 @@ export const generateEmailPayload = async ({
 
   replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
-  const { subject, content } = await sendCommonMessage({
+  const { subject, content = "" } = await sendCommonMessage({
     subdomain,
     serviceName,
     action: "automations.replacePlaceHolders",
@@ -81,6 +100,6 @@ export const generateEmailPayload = async ({
     fromEmail: formatFromEmail(sender, fromUserEmail),
     toEmails: filterOutSenderEmail(toEmails, fromUserEmail),
     ccEmails: filterOutSenderEmail(ccEmails, fromUserEmail),
-    customHtml: content,
+    customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, "-"),
   };
 };

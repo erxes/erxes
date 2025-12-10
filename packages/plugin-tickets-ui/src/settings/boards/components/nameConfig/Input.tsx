@@ -2,13 +2,13 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components/form';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+} from "@erxes/ui/src/components/form";
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 
-import { Alert } from '@erxes/ui/src/utils';
-import Attribution from './Attribution';
-import { BoardHeader } from '@erxes/ui-tasks/src/settings/boards/styles';
-import React from 'react';
+import { Alert } from "@erxes/ui/src/utils";
+import Attribution from "./Attribution";
+import { BoardHeader } from "@erxes/ui-tasks/src/settings/boards/styles";
+import React from "react";
 
 type Props = {
   onChange: (key: string, config: string) => void;
@@ -21,27 +21,31 @@ function PlaceHolderInput(props: Props) {
   const { onChange, attributions } = props;
 
   const onChangeConfig = (conf: string) => {
-    if (conf.startsWith(' ')) {
+    if (conf.startsWith(" ")) {
       return Alert.error(
         `Please make sure the number configuration doesn't start with a space`
       );
     }
 
-    onChange('nameConfig', conf);
+    onChange("nameConfig", conf);
+  };
+
+  const setIsHideName = (conf: boolean) => {
+    onChange("isHideName", conf);
   };
 
   const renderAttribution = () => {
     return (
       <Attribution
         config={config}
-        setConfig={conf => onChangeConfig(conf)}
+        setConfig={(conf) => onChangeConfig(conf)}
         attributions={attributions}
       />
     );
   };
 
   const onKeyPress = (e: React.KeyboardEvent) => {
-    if (['Backspace', 'Delete'].includes(e.key)) {
+    if (["Backspace", "Delete"].includes(e.key)) {
       e.preventDefault();
 
       const target = e.target as HTMLInputElement;
@@ -65,7 +69,7 @@ function PlaceHolderInput(props: Props) {
         index += 1;
       }
 
-      const deletes = Object.keys(by).filter(key => {
+      const deletes = Object.keys(by).filter((key) => {
         const val = by[key];
 
         if (start === end && val.min < start && val.max < start) {
@@ -83,7 +87,7 @@ function PlaceHolderInput(props: Props) {
         return key;
       });
 
-      config = matches.filter((_m, i) => !deletes.includes(String(i))).join('');
+      config = matches.filter((_m, i) => !deletes.includes(String(i))).join("");
 
       onChangeConfig(config);
     }
@@ -97,14 +101,14 @@ function PlaceHolderInput(props: Props) {
       <FlexItem count={3}>
         <BoardHeader>
           <FormGroup>
-            <div className='header-row'>
+            <div className="header-row">
               <ControlLabel>Name configuration</ControlLabel>
               <div>{renderAttribution()}</div>
             </div>
             <FormControl
               value={converted}
               onChange={(e: any) => onChangeConfig(e.target.value)}
-              placeholder='Choose an attribute or any number you prefer'
+              placeholder="Choose an attribute or any number you prefer"
             />
           </FormGroup>
         </BoardHeader>

@@ -14,7 +14,7 @@ export const validConfigMsg = async config => {
 const calcPreTaxPercentage = (paymentTypes, deal) => {
   let itemAmountPrePercent = 0;
   const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
-    (p.config || '').includes('preTax: true')
+    (p.config || '').includes('preTax: true') || (p.config || '').includes('"preTax": true')
   ).map(p => p.type);
 
   if (
@@ -237,16 +237,16 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
       after: "debtAmount",
       other: "debtAmount"
     };
-  
+
     let sumSaleAmount = details.reduce((sumAmount, detail) => (sumAmount + detail.amount), 0);
-  
+
     for (const paymentKind of Object.keys(deal.paymentsData || []).filter(pay => !preTaxPaymentTypes.includes(pay))) {
       const payment = deal.paymentsData[paymentKind];
       payments[configure[paymentKind]] =
         (payments[configure[paymentKind]] || 0) + payment.amount;
       sumSaleAmount = sumSaleAmount - payment.amount;
     }
-  
+
     // if payments is less sum sale amount then create debt
     if (sumSaleAmount > 0.005) {
       payments[config.defaultPay] =
@@ -268,7 +268,7 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
         }
       }
     }
-  }  
+  }
 
   let date = new Date().toISOString().slice(0, 10);
   let checkDate = false;

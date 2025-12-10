@@ -16,13 +16,14 @@ import Tagger from '../../../containers/Tagger';
 import Tags from '@erxes/ui/src/components/Tags';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Tip from '@erxes/ui/src/components/Tip';
 
 const Participators = asyncComponent(
   () =>
     import(
       /* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'
     ),
-  { height: '30px', width: '30px', round: true }
+  { height: '30px', width: '30px', round: true },
 );
 
 const ConvertTo = asyncComponent(
@@ -30,7 +31,7 @@ const ConvertTo = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-ConvertTo" */ '../../../components/conversationDetail/workarea/ConvertTo'
     ),
-  { height: '22px', width: '71px' }
+  { height: '22px', width: '71px' },
 );
 
 const Post = asyncComponent(
@@ -38,14 +39,14 @@ const Post = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/Post'
     ),
-  { height: '22px', width: '71px' }
+  { height: '22px', width: '71px' },
 );
 const PostInstagram = asyncComponent(
   () =>
     import(
       /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/PostIg'
     ),
-  { height: '22px', width: '71px' }
+  { height: '22px', width: '71px' },
 );
 type Props = {
   currentConversation: IConversation;
@@ -61,30 +62,30 @@ export default class ActionBar extends React.Component<Props> {
     const participatedUsers = currentConversation.participatedUsers || [];
     const readUsers = currentConversation.readUsers || [];
     const tagTrigger = (
-      <PopoverButton id='conversationTags'>
+      <PopoverButton id="conversationTags">
         {tags.length ? (
-          <Tags
-            tags={tags}
-            limit={1}
-          />
+          <Tags tags={tags} limit={1} />
         ) : (
-          <Label lblStyle='default'>No tags</Label>
+          <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon='angle-down' />
+        <Icon icon="angle-down" />
       </PopoverButton>
     );
 
     const assignTrigger = (
-      <AssignTrigger id='conversationAssignTrigger'>
+      <AssignTrigger id="conversationAssignTrigger">
         {assignedUser && assignedUser._id ? (
-          <AvatarImg src={getUserAvatar(assignedUser)} />
+          <Tip
+            key={assignedUser._id}
+            placement="top"
+            text={assignedUser.details && assignedUser.details.fullName}
+          >
+            <AvatarImg src={getUserAvatar(assignedUser)} />
+          </Tip>
         ) : (
-          <Button
-            id='conversationAssignTo'
-            btnStyle='simple'
-            size='small'>
+          <Button id="conversationAssignTo" btnStyle="simple" size="small">
             {__('Member')}
-            <Icon icon='angle-down' />
+            <Icon icon="angle-down" />
           </Button>
         )}
       </AssignTrigger>
@@ -92,10 +93,7 @@ export default class ActionBar extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
-        <Tagger
-          targets={[currentConversation]}
-          trigger={tagTrigger}
-        />
+        <Tagger targets={[currentConversation]} trigger={tagTrigger} />
         {(isEnabled('sales') ||
           isEnabled('tickets') ||
           isEnabled('tasks') ||
@@ -114,27 +112,21 @@ export default class ActionBar extends React.Component<Props> {
           trigger={assignTrigger}
         />
         {participatedUsers && (
-          <Participators
-            participatedUsers={participatedUsers}
-            limit={3}
-          />
+          <Participators participatedUsers={participatedUsers} limit={3} />
         )}
         {(kind === 'facebook-messenger' || kind === 'instagram-messenger') && (
           <>
             {readUsers &&
               participatedUsers.length === 0 && ( // Check if participatedUsers is falsy
                 <>
-                  <Participators
-                    participatedUsers={readUsers}
-                    limit={3}
-                  />
+                  <Participators participatedUsers={readUsers} limit={3} />
                 </>
               )}
           </>
         )}
 
         {loadDynamicComponent('inboxConversationDetailActionBar', {
-          conversation: currentConversation
+          conversation: currentConversation,
         })}
         {kind === 'facebook-post' && (
           <Post conversation={currentConversation} />
@@ -149,7 +141,7 @@ export default class ActionBar extends React.Component<Props> {
       <Wrapper.ActionBar
         right={actionBarRight}
         left={actionBarLeft}
-        background='colorWhite'
+        background="colorWhite"
       />
     );
   }

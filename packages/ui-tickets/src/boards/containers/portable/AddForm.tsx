@@ -21,7 +21,6 @@ import {
   SaveMutation,
   StagesQueryResponse,
 } from "../../types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type IProps = {
   options: IOptions;
@@ -47,6 +46,7 @@ type IProps = {
   startDate?: Date;
   closeDate?: Date;
   showStageSelect?: boolean;
+  isHideName?: boolean;
 };
 
 type FinalProps = {
@@ -71,7 +71,6 @@ class AddFormContainer extends React.Component<FinalProps> {
       relType,
       relTypeIds,
       editConformity,
-
       parentId,
     } = this.props;
 
@@ -85,7 +84,6 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.description = doc.description || description;
     doc.attachments = doc.attachments || attachments;
     doc.parentId = parentId;
-    console.log("doc", doc);
     if (sourceConversationId) {
       doc.sourceConversationIds = [sourceConversationId];
 
@@ -95,9 +93,10 @@ class AddFormContainer extends React.Component<FinalProps> {
           type: options.type,
           itemId: doc._id,
           itemName: doc.name,
+          isCheckUser: doc.isCheckUserTicket,
           branchIds: doc.branchIds,
           stageId: doc.stageId,
-
+          isHideName: doc.isHideName,
           _id: sourceConversationId || "",
         },
       })
@@ -212,8 +211,7 @@ class AddFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { fieldsQuery, stagesQuery } = this.props;
-
+    const { fieldsQuery, stagesQuery, isHideName } = this.props;
     const extendedProps = {
       ...this.props,
       fields: fieldsQuery?.fields || [],
@@ -221,6 +219,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       saveItem: this.saveItem,
       fetchCards: this.fetchCards,
       stages: stagesQuery?.ticketsStages || [],
+      isHideName: isHideName,
     };
 
     return <AddForm {...extendedProps} />;

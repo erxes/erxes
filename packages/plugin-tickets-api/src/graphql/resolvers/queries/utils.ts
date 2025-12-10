@@ -500,9 +500,12 @@ export const generateCommonFilters = async (
       supervisorDepartmentIds.filter((id) =>
         pipelineDepartmentIds.includes(id)
       ) || [];
-    const isEligibleSeeAllCards = (pipeline.excludeCheckUserIds || []).includes(
-      currentUserId
-    );
+
+    const isEligibleSeeAllCards =
+      user.role === "system" ||
+      user.isOwner ||
+      (pipeline.excludeCheckUserIds || []).includes(currentUserId);
+
     if (
       commonIds?.length > 0 &&
       (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
@@ -580,6 +583,18 @@ export const generateCommonFilters = async (
         });
       }
     }
+
+    // const orConditions: any[] = [{ userId: currentUserId }];
+
+    // if (pipeline.isCheckBranch && user?.branchIds?.length) {
+    //   orConditions.push({ branchIds: { $in: user.branchIds } });
+    // }
+
+    // if (pipeline.isCheckDepartment && user?.departmentIds?.length) {
+    //   orConditions.push({ departmentIds: { $in: user.departmentIds } });
+    // }
+
+    // filter.$or = orConditions;
   }
 
   if (userIds) {
@@ -770,7 +785,7 @@ export const generateTicketCommonFilters = async (
     currentUserId,
     args
   );
-
+  console.log("generateTicketCommonFilters", filter);
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
   }
@@ -1065,15 +1080,9 @@ export const getItemList = async (
   let limit = args.limit !== undefined ? args.limit : 10;
 
   const pipelines: any[] = [
-    {
-      $match: filter,
-    },
-    {
-      $sort: sort,
-    },
-    {
-      $skip: args.skip || 0,
-    },
+    { $match: filter },
+    { $sort: sort },
+    { $skip: args.skip || 0 },
     {
       $lookup: {
         from: "users",
@@ -1128,9 +1137,7 @@ export const getItemList = async (
   ];
 
   if (page && perPage) {
-    pipelines[2] = {
-      $skip: (page - 1) * perPage,
-    };
+    pipelines[2] = { $skip: (page - 1) * perPage };
     limit = perPage;
   }
 
@@ -1138,22 +1145,13 @@ export const getItemList = async (
     pipelines.splice(3, 0, { $limit: limit });
   }
 
-  if (serverTiming) {
-    serverTiming.startTime("getItemsPipelineAggregate");
-  }
-
+  if (serverTiming) serverTiming.startTime("getItemsPipelineAggregate");
   const list = await collection.aggregate(pipelines);
-
-  if (serverTiming) {
-    serverTiming.endTime("getItemsPipelineAggregate");
-  }
+  if (serverTiming) serverTiming.endTime("getItemsPipelineAggregate");
 
   const ids = list.map((item) => item._id);
 
-  if (serverTiming) {
-    serverTiming.startTime("conformities");
-  }
-
+  // Conformities
   const conformities = ids.length
     ? await sendCoreMessage({
         subdomain,
@@ -1168,10 +1166,6 @@ export const getItemList = async (
       })
     : [];
 
-  if (serverTiming) {
-    serverTiming.endTime("conformities");
-  }
-
   const companyIds: string[] = [];
   const customerIds: string[] = [];
   const companyIdsByItemId = {};
@@ -1185,15 +1179,14 @@ export const getItemList = async (
     typeId2
   ) => {
     cocIds.push(conformity[typeId1]);
-
     if (!cocIdsByItemId[conformity[typeId2]]) {
       cocIdsByItemId[conformity[typeId2]] = [];
     }
-
     cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
   };
+
   for (const conf of conformities) {
-    if (conf.mainType === "company") {
+    if (conf.mainType === "company")
       perConformity(
         conf,
         companyIdsByItemId,
@@ -1201,9 +1194,7 @@ export const getItemList = async (
         "mainTypeId",
         "relTypeId"
       );
-      continue;
-    }
-    if (conf.relType === "company") {
+    else if (conf.relType === "company")
       perConformity(
         conf,
         companyIdsByItemId,
@@ -1211,9 +1202,7 @@ export const getItemList = async (
         "relTypeId",
         "mainTypeId"
       );
-      continue;
-    }
-    if (conf.mainType === "customer") {
+    else if (conf.mainType === "customer")
       perConformity(
         conf,
         customerIdsByItemId,
@@ -1221,9 +1210,7 @@ export const getItemList = async (
         "mainTypeId",
         "relTypeId"
       );
-      continue;
-    }
-    if (conf.relType === "customer") {
+    else if (conf.relType === "customer")
       perConformity(
         conf,
         customerIdsByItemId,
@@ -1231,23 +1218,15 @@ export const getItemList = async (
         "relTypeId",
         "mainTypeId"
       );
-      continue;
-    }
   }
 
-  if (serverTiming) {
-    serverTiming.startTime("getItemsCompanies");
-  }
-
+  // Companies & Customers
   const companies = companyIds.length
     ? await sendCoreMessage({
         subdomain,
         action: "companies.findActiveCompanies",
         data: {
-          selector: {
-            _id: { $in: [...new Set(companyIds)] },
-          },
-
+          selector: { _id: { $in: [...new Set(companyIds)] } },
           fields: {
             primaryName: 1,
             primaryEmail: 1,
@@ -1260,22 +1239,12 @@ export const getItemList = async (
       })
     : [];
 
-  if (serverTiming) {
-    serverTiming.endTime("getItemsCompanies");
-  }
-
-  if (serverTiming) {
-    serverTiming.startTime("getItemsCustomers");
-  }
-
   const customers = customerIds.length
     ? await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {
-          selector: {
-            _id: { $in: [...new Set(customerIds)] },
-          },
+          selector: { _id: { $in: [...new Set(customerIds)] } },
           fields: {
             firstName: 1,
             lastName: 1,
@@ -1292,30 +1261,18 @@ export const getItemList = async (
       })
     : [];
 
-  if (serverTiming) {
-    serverTiming.endTime("getItemsCustomers");
-  }
-
   const getCocsByItemId = (
     itemId: string,
     cocIdsByItemId: any,
     cocs: any[]
   ) => {
     const cocIds = cocIdsByItemId[itemId] || [];
-
-    return cocIds.flatMap((cocId: string) => {
-      const found = cocs.find((coc) => cocId === coc._id);
-
-      return found || [];
-    });
+    return cocIds.flatMap(
+      (cocId: string) => cocs.find((coc) => cocId === coc._id) || []
+    );
   };
 
-  const updatedList: any[] = [];
-
-  if (serverTiming) {
-    serverTiming.startTime("getItemsNotifications");
-  }
-
+  // Notifications
   const notifications = ids.length
     ? await sendNotificationsMessage({
         subdomain,
@@ -1333,84 +1290,54 @@ export const getItemList = async (
       })
     : [];
 
-  if (serverTiming) {
-    serverTiming.endTime("getItemsNotifications");
-  }
-
-  if (serverTiming) {
-    serverTiming.startTime("getItemsFields");
-  }
-
+  // Fields
   const fields = await sendCoreMessage({
     subdomain,
     action: "fields.find",
-    data: {
-      query: {
-        showInCard: true,
-        contentType: `tickets:${type}`,
-      },
-    },
+    data: { query: { showInCard: true, contentType: `tickets:${type}` } },
     isRPC: true,
     defaultValue: [],
   });
 
-  if (serverTiming) {
-    serverTiming.endTime("getItemsFields");
-  }
+  const visibleTickets = await canViewTicket(list, user._id);
 
-  // add just incremented order to each item in list, not from db
   let order = 0;
+  const updatedList: any[] = [];
 
-  for (const item of list) {
+  for (const item of visibleTickets) {
     if (
       item.customFieldsData &&
       item.customFieldsData.length > 0 &&
       fields.length > 0
     ) {
       item.customProperties = [];
-
       for (const field of fields) {
         const fieldData = item.customFieldsData.find(
           (f) => f.field === field._id
         );
-
         if (!fieldData) continue;
 
         if (field.type === "users") {
           const valueIds = Array.isArray(fieldData.value)
             ? fieldData.value
             : [fieldData.value];
-
           const users = await sendCoreMessage({
             subdomain,
             action: "users.find",
-            data: {
-              query: { _id: { $in: valueIds } },
-            },
+            data: { query: { _id: { $in: valueIds } } },
             isRPC: true,
             defaultValue: [],
           });
-
           const userNames = users
             .map((u) => u.details?.fullName || u.email || u._id)
             .join(", ");
-
-          item.customProperties.push({
-            name: `${field.text} - ${userNames}`,
-          });
+          item.customProperties.push({ name: `${field.text} - ${userNames}` });
         } else {
           item.customProperties.push({
             name: `${field.text} - ${fieldData.stringValue || fieldData.value || ""}`,
           });
         }
       }
-    }
-
-    if (
-      item.isCheckUserTicket === true &&
-      !(item.userId === user._id || item.assignedUserIds?.includes(user._id))
-    ) {
-      continue;
     }
 
     const notification = notifications.find(
@@ -1430,3 +1357,36 @@ export const getItemList = async (
 
   return updatedList;
 };
+
+async function canViewTicket(tickets: any[], userId: string) {
+  const visibleTickets: any[] = [];
+
+  for (const item of tickets) {
+    if (item.isCheckUserTicket) {
+      const isAssigned = item.assignedUserIds?.includes(userId);
+      const isCreator = item.userId === userId;
+      let inCustomField = false;
+
+      if (item.customFieldsData && item.customFieldsData.length > 0) {
+        for (const customField of item.customFieldsData) {
+          const valueIds = Array.isArray(customField.value)
+            ? customField.value
+            : [customField.value];
+
+          if (valueIds.includes(userId)) {
+            inCustomField = true;
+            break;
+          }
+        }
+      }
+
+      if (!(isAssigned || isCreator || inCustomField)) {
+        continue;
+      }
+    }
+
+    visibleTickets.push(item);
+  }
+
+  return visibleTickets;
+}

@@ -1,13 +1,13 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema } from "mongoose";
 import {
   IRule,
   attachmentSchema,
-  ruleSchema
+  ruleSchema,
 } from "@erxes/api-utils/src/definitions/common";
 import {
   LEAD_LOAD_TYPES,
   LEAD_SUCCESS_ACTIONS,
-  MESSENGER_DATA_AVAILABILITY
+  MESSENGER_DATA_AVAILABILITY,
 } from "./constants";
 import { field, schemaHooksWrapper } from "./utils";
 
@@ -207,7 +207,7 @@ const messengerOnlineHoursSchema = new Schema(
     from: field({ type: String }),
     to: field({ type: String }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 const persistentMenuSchema = new Schema({
@@ -215,7 +215,7 @@ const persistentMenuSchema = new Schema({
   text: { type: String },
   type: { type: String },
   link: { type: String, optional: true },
-  isEditing: { type: Boolean }
+  isEditing: { type: Boolean },
 });
 
 // subdocument schema for MessengerData
@@ -269,28 +269,28 @@ const messengerDataSchema = new Schema(
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
     showVideoCallRequest: field({ type: Boolean, default: false }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 // schema for lead's callout component
 export const calloutSchema = new Schema(
   {
-    title: field({ type: String, optional: true, label: 'Title' }),
-    body: field({ type: String, optional: true, label: 'Body' }),
-    buttonText: field({ type: String, optional: true, label: 'Button text' }),
+    title: field({ type: String, optional: true, label: "Title" }),
+    body: field({ type: String, optional: true, label: "Body" }),
+    buttonText: field({ type: String, optional: true, label: "Button text" }),
     calloutImgSize: field({
       type: String,
       optional: true,
-      label: 'Callout image size',
+      label: "Callout image size",
     }),
     featuredImage: field({
       type: String,
       optional: true,
-      label: 'Featured image',
+      label: "Featured image",
     }),
-    skip: field({ type: Boolean, optional: true, label: 'Skip' }),
+    skip: field({ type: Boolean, optional: true, label: "Skip" }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 const ticketSchema = new Schema(
@@ -299,7 +299,7 @@ const ticketSchema = new Schema(
     ticketToggle: { type: Boolean, required: true },
     ticketStageId: { type: String, required: true },
     ticketPipelineId: { type: String, required: true },
-    ticketBoardId: { type: String, required: true }
+    ticketBoardId: { type: String, required: true },
   },
   { _id: false }
 );
@@ -311,7 +311,7 @@ export const submissionSchema = new Schema(
     customerId: field({ type: String }),
     submittedAt: field({ type: Date }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 // subdocument schema for LeadData
@@ -320,122 +320,122 @@ export const leadDataSchema = new Schema(
     loadType: field({
       type: String,
       enum: LEAD_LOAD_TYPES.ALL,
-      label: 'Load type',
+      label: "Load type",
     }),
     successAction: field({
       type: String,
       enum: LEAD_SUCCESS_ACTIONS.ALL,
       optional: true,
-      label: 'Success action',
+      label: "Success action",
     }),
     fromEmail: field({
       type: String,
       optional: true,
-      label: 'From email',
+      label: "From email",
     }),
     userEmailTitle: field({
       type: String,
       optional: true,
-      label: 'User email title',
+      label: "User email title",
     }),
     userEmailContent: field({
       type: String,
       optional: true,
-      label: 'User email content',
+      label: "User email content",
     }),
     adminEmails: field({
       type: [String],
       optional: true,
-      label: 'Admin emails',
+      label: "Admin emails",
     }),
     adminEmailTitle: field({
       type: String,
       optional: true,
-      label: 'Admin email title',
+      label: "Admin email title",
     }),
     adminEmailContent: field({
       type: String,
       optional: true,
-      label: 'Admin email content',
+      label: "Admin email content",
     }),
     thankTitle: field({
       type: String,
       optional: true,
-      label: 'Thank content title',
+      label: "Thank content title",
     }),
     thankContent: field({
       type: String,
       optional: true,
-      label: 'Thank content',
+      label: "Thank content",
     }),
     redirectUrl: field({
       type: String,
       optional: true,
-      label: 'Redirect URL',
+      label: "Redirect URL",
     }),
     themeColor: field({
       type: String,
       optional: true,
-      label: 'Theme color code',
+      label: "Theme color code",
     }),
     callout: field({
       type: calloutSchema,
       optional: true,
-      label: 'Callout',
+      label: "Callout",
     }),
     viewCount: field({
       type: Number,
       optional: true,
-      label: 'View count',
+      label: "View count",
     }),
     contactsGathered: field({
       type: Number,
       optional: true,
-      label: 'Contacts gathered',
+      label: "Contacts gathered",
     }),
     rules: field({
       type: [ruleSchema],
       optional: true,
-      label: 'Rules',
+      label: "Rules",
     }),
     isRequireOnce: field({
       type: Boolean,
       optional: true,
-      label: 'Do not show again if already filled out',
+      label: "Do not show again if already filled out",
     }),
     saveAsCustomer: field({
       type: Boolean,
       optional: true,
-      label: 'Save as customer',
+      label: "Save as customer",
     }),
     templateId: field({
       type: String,
       optional: true,
-      label: 'Template',
+      label: "Template",
     }),
-    attachments: field({ type: Object, optional: true, label: 'Attachments' }),
+    attachments: field({ type: Object, optional: true, label: "Attachments" }),
     css: field({
       type: String,
       optional: true,
-      label: 'Custom CSS',
+      label: "Custom CSS",
     }),
     successImage: field({
       type: String,
       optional: true,
-      label: 'Success image',
+      label: "Success image",
     }),
     successImageSize: field({
       type: String,
       optional: true,
-      label: 'Success image size',
+      label: "Success image size",
     }),
     verifyEmail: field({
       type: Boolean,
       optional: true,
-      label: 'Verify email',
+      label: "Verify email",
     }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 // subdocument schema for messenger UiOptions
@@ -446,7 +446,7 @@ const uiOptionsSchema = new Schema(
     wallpaper: field({ type: String }),
     logo: field({ type: String }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 const webhookDataSchema = new Schema(
@@ -455,37 +455,38 @@ const webhookDataSchema = new Schema(
     token: field({ type: String }),
     origin: field({ type: String, optional: true }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 // schema for integration document
 export const integrationSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    createdUserId: field({ type: String, label: 'Created by' }),
+    createdUserId: field({ type: String, label: "Created by", required: true }),
 
     kind: field({
       type: String,
-      label: 'Kind',
+      label: "Kind",
+      required: true,
     }),
-    createdAt: field({ type: 'Date', label: 'Created at' }),
+    createdAt: field({ type: Date, default: Date.now, label: "Created At" }),
 
-    name: field({ type: String, label: 'Name' }),
-    brandId: field({ type: String, label: 'Brand' }),
+    name: field({ type: String, label: "Name" }),
+    brandId: field({ type: String, label: "Brand" }),
 
-    tagIds: field({ type: [String], label: 'Tags', index: true }),
-    formId: field({ type: String, label: 'Form' }),
+    tagIds: field({ type: [String], label: "Tags", index: true }),
+    formId: field({ type: String, label: "Form" }),
     isActive: field({
       type: Boolean,
       optional: true,
       default: true,
-      label: 'Is active',
+      label: "Is active",
     }),
     isConnected: field({
       type: Boolean,
       optional: true,
       default: false,
-      label: 'Is connect',
+      label: "Is connect",
     }),
     webhookData: field({ type: webhookDataSchema }),
     // TODO: remove
@@ -493,8 +494,7 @@ export const integrationSchema = schemaHooksWrapper(
     messengerData: field({ type: messengerDataSchema }),
 
     ticketData: field({ type: ticketSchema }),
-    uiOptions: field({ type: uiOptionsSchema })
-
+    uiOptions: field({ type: uiOptionsSchema }),
   }),
-  'erxes_integrations',
+  "erxes_integrations"
 );

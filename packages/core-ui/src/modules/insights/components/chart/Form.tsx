@@ -1,3 +1,5 @@
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useEffect, useState } from "react";
 import ChartFormField, {
   IFilterType,
 } from "../../containers/chart/ChartFormField";
@@ -5,25 +7,22 @@ import {
   Description,
   DragField,
   FlexColumn,
-  FormChart,
   FormContent,
   FormFooter,
   FormWrapper,
 } from "../../styles";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { useEffect, useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
-import ChartRenderer from "../../containers/chart/ChartRenderer";
 import { Form as CommonForm } from "@erxes/ui/src/components/form";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { FormColumn } from "@erxes/ui/src/styles/main";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IChart } from "../../types";
-import Select from "react-select";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FormColumn } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils";
 import { SERVICE_MAP } from "modules/insights/constants";
+import Select from "react-select";
+import ChartRenderer from "../../containers/chart/ChartRenderer";
+import { IChart } from "../../types";
 
 type Props = {
   queryParams: any;
@@ -134,9 +133,12 @@ const Form = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-
     setFilters((prevFilters) => {
-      if (value === undefined || value === null || (Array.isArray(value) && !value.length)) {
+      if (
+        value === undefined ||
+        value === null ||
+        (Array.isArray(value) && !value.length)
+      ) {
         const { [fieldName]: omitted, ...updatedFilters } = prevFilters;
         return updatedFilters;
       }
@@ -257,7 +259,7 @@ const Form = (props: Props) => {
           >
             <div
               key={Math.random()}
-              data-grid={{ x: 0, y: 0, w: 6, h: 4.5, static: true }}
+              data-grid={{ x: 0, y: 0, w: 6, h: 4, static: true }}
               style={{ overflow: "hidden" }}
             >
               <ChartRenderer

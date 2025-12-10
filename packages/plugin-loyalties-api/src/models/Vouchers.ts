@@ -120,7 +120,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
-        throw new Error("Cannot create voucher: voucher is expired");
+        throw new Error("Cannot create voucher: campaign is expired");
       }
 
       if (tagIds?.length) {

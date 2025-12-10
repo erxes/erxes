@@ -30,6 +30,7 @@ export interface IItemCommonFields {
   assignedUserIds?: string[];
   watchedUserIds?: string[];
   notifiedUserIds?: string[];
+  isHideName?: boolean;
   stage?: IStage[];
   labelIds?: string[];
   attachments?: any[];
@@ -97,6 +98,8 @@ export interface IPipeline extends ICommonFields {
   isCheckDate?: boolean;
   isCheckUser?: boolean;
   isCheckDepartment?: boolean;
+  isCheckBranch?: boolean;
+  isHideName?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
@@ -227,6 +230,11 @@ export const commonItemFieldsSchema = {
     optional: true,
     label: "Show only the users created or assigned cards",
   }),
+  isHideName: field({
+    type: Boolean,
+    optional: true,
+    label: "Hide name",
+  }),
   assignedUserIds: field({ type: [String], esType: "keyword" }),
   watchedUserIds: field({ type: [String], esType: "keyword" }),
   labelIds: field({ type: [String], esType: "keyword" }),
@@ -352,6 +360,16 @@ export const pipelineSchema = new Schema({
     type: Boolean,
     optional: true,
     label: "Show only the users created or assigned cards",
+  }),
+  isCheckBranch: field({
+    type: Boolean,
+    optional: true,
+    label: "Show only the branches created or assigned cards",
+  }),
+  isHideName: field({
+    type: Boolean,
+    optional: true,
+    label: "Hide name",
   }),
   isCheckDepartment: field({
     type: Boolean,

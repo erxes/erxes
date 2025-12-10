@@ -251,12 +251,14 @@ class SetProperty extends React.Component<Props, State> {
             />
           </FormGroup>
 
+          {/* <Row> */}
+
           <PlaceHolderInput
             inputName='value'
             label='Value'
             config={rule}
             onChange={onChangeValue}
-            triggerType={triggerType}
+            triggerType={triggerType.split(".")[0]}
             type={type}
             fieldType={this.getFieldType(chosenField)}
             isMulti={this.getIsMulti(chosenField)}
@@ -269,7 +271,25 @@ class SetProperty extends React.Component<Props, State> {
             selectConfig={chosenField?.selectionConfig}
             attrWithSegmentConfig={true}
             additionalContent={additionalContent()}
+            componentClass={rule.isExpression ? "textarea" : "input"}
+            customAttributions={!triggerType.includes(config?.module)?fields.map(({label ='', name ='', type ='', validation =''}: FieldsCombinedByType) => {
+              const moduleName:string =config.module.replace(":", ".").split(".")[1] || ''
+              return {
+                _id: String(Math.random()),
+                label: `${capitalizeFirstLetter(moduleName)} - ${label}`,
+                name: `${moduleName}.${name}`,
+                type: ['select','input'].includes(type) ? capitalizeFirstLetter(validation || '') : type,
+                group:config.module
+              }
+            }):[]}
           />
+
+          <Button
+            btnStyle={rule.isExpression ? "white" : "simple"}
+            onClick={() => onChangeValue({ isExpression: !rule?.isExpression })}
+          >
+            {__("Is Expression")}
+          </Button>
 
           <FormGroup>
             <ControlLabel>{__("Forward to")}</ControlLabel>

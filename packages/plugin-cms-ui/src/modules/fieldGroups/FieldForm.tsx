@@ -12,6 +12,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import { mutations } from './graphql';
 import { queries as formQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import { stringToRegex } from '@erxes/ui-forms/src/settings/properties/utils';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   groupId: string;
@@ -78,13 +79,17 @@ const FieldForm = (props: Props) => {
           variables,
         }).then(() => {
           props.refetch?.();
-        });
+        }).catch((e) => {
+          Alert.error(e.message);
+        })
       } else {
         add({
           variables,
         }).then(() => {
           props.refetch?.();
-        });
+        }).catch((e) => {
+         Alert.error(e.message);
+        })
       }
 
       props.closeModal();

@@ -26,9 +26,9 @@ export interface IScoreCampaign {
   fieldId: string;
   status: string;
 
-  onlyClientPortal?: boolean
-  restrictions?: any
-  additionalConfig?: any
+  onlyClientPortal?: boolean;
+  restrictions?: any;
+  additionalConfig?: any;
 }
 
 export interface IScoreCampaignDocuments extends Document, IScoreCampaign {
@@ -89,5 +89,10 @@ export const scoreCampaignSchema = new Schema({
     type: Schema.Types.Mixed,
     label: "Restrictions",
     optional: true,
+  }),
+  fieldOrigin: field({
+    type: String,
+    enum: ["exists", "new"],
+    label: "Field Origin",
   }),
 });

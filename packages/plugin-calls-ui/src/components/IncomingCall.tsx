@@ -116,11 +116,6 @@ const IncomingCall = (props: Props, context) => {
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
-    if (audioRef.current) {
-      audioRef.current.src = '/sound/incoming.mp3';
-      audioRef.current.play();
-    }
-
     if (status === 'accepted') {
       timer = setInterval(() => {
         setTimeSpent((prev) => prev + 1);
@@ -132,14 +127,33 @@ const IncomingCall = (props: Props, context) => {
       setHaveIncomingCall(true);
     }
 
+    return () => clearInterval(timer);
+  }, [status]);
+
+  useEffect(() => {
+    if (!haveIncomingCall || !audioRef.current) return;
+
+    const audio = audioRef.current;
+    audio.src = '/sound/incoming.mp3';
+    audio.loop = true;
+
+    audio
+      .play()
+      .then(() => {})
+      .catch(() => {
+        console.warn('autoplay blocked: waiting for user interaction');
+        const handler = () => {
+          audio.play();
+          window.removeEventListener('click', handler);
+        };
+        window.addEventListener('click', handler);
+      });
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
-      clearInterval(timer);
+      audio.pause();
+      audio.src = '';
     };
-  }, [status, primaryPhone]);
+  }, [haveIncomingCall]);
 
   const onAcceptCall = () => {
     if (audioRef.current) {
@@ -268,7 +282,7 @@ const IncomingCall = (props: Props, context) => {
           )}
         </PhoneNumber>
 
-        {primaryCustomerTags?.length > 0 && inCall && (
+        {primaryCustomerTags?.length > 0 && (
           <TagsContainer>
             {primaryCustomerTags.map((tag) => (
               <TagItem key={tag._id}>{tag.name}</TagItem>
@@ -290,7 +304,7 @@ const IncomingCall = (props: Props, context) => {
     );
   };
 
-  if (haveIncomingCall) {
+  if (haveIncomingCall && !hideIncomingCall) {
     return (
       <>
         <audio ref={audioRef} loop autoPlay />

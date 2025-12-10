@@ -122,7 +122,11 @@ class PlaceHolderInput extends React.Component<Props, State> {
   }
 
   getOnlySet = () => {
-    const { fieldType, options, isMulti } = this.props;
+    const { fieldType, options, isMulti,componentClass } = this.props;
+
+    if (componentClass === 'textarea') {
+      return false;
+    }
 
     if (!fieldType) {
       return false;
@@ -162,7 +166,8 @@ class PlaceHolderInput extends React.Component<Props, State> {
       fieldType: fieldType,
       attrType: attrType,
       attrTypes: attrTypes,
-      customAttributions: this.props.customAttributions
+      customAttributions: this.props.customAttributions,
+      componentClass: this.props.componentClass
     };
 
     if (attrWithSegmentConfig) {
@@ -180,7 +185,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
   onChange = e => {
     const { inputName, fieldType, componentClass, textLimit } = this.props;
-    if (['select'].includes(fieldType || '')) {
+    if (['select'].includes(fieldType || '') && componentClass !== 'textarea') {
       return;
     }
 

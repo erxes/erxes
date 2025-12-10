@@ -1,5 +1,228 @@
 # Changelog
 
+## [2.17.29](https://github.com/erxes/erxes/compare/2.17.28...2.17.29) (2025-12-05)
+
+### Features
+
+* product lastCode ([#6715](https://github.com/erxes/erxes/issues/6715)) ([6528f90](https://github.com/erxes/erxes/commit/6528f90c15dc693ff96335bec218a35537fe5726))
+* **tickets:** fix create ticket properties ([881c355](https://github.com/erxes/erxes/commit/881c355fa15a68688025749bfd0f5961d50b8aa3))
+
+## [2.17.28](https://github.com/erxes/erxes/compare/2.17.27...2.17.28) (2025-11-19)
+
+## <small>2.17.27 (2025-11-18)</small>
+
+* chore(calls): debug grandsteam requests ([f42d6a4](https://github.com/erxes/erxes/commit/f42d6a4))
+* fix(tickets): convert to ticket in inbox ([f4bb913](https://github.com/erxes/erxes/commit/f4bb913))
+
+## <small>2.17.26 (2025-11-17)</small>
+
+* chore(calls): remove tick provider ([126fa63](https://github.com/erxes/erxes/commit/126fa63))
+* fix(calls): monitor local time ([873f868](https://github.com/erxes/erxes/commit/873f868))
+
+## <small>2.17.25 (2025-11-17)</small>
+
+* fix(cms): fix duplicate fields error ([e5d9156](https://github.com/erxes/erxes/commit/e5d9156))
+* fix(cms): fix duplicate tag slug errors by recursively adding increment numbers ([e9beeff](https://github.com/erxes/erxes/commit/e9beeff))
+* fix(cms): use dynamic search value in tag query ([1ac45bd](https://github.com/erxes/erxes/commit/1ac45bd))
+* fix(ticket): add local storage changer ([2154c92](https://github.com/erxes/erxes/commit/2154c92))
+* chore: add tick provider and debug ([4a9d96e](https://github.com/erxes/erxes/commit/4a9d96e))
+* chore: remove console ([8fdec5a](https://github.com/erxes/erxes/commit/8fdec5a))
+* chore(clientportal): update typo ([fbdfc5e](https://github.com/erxes/erxes/commit/fbdfc5e))
+* feat: show vip customer in incoming call ([9114b0d](https://github.com/erxes/erxes/commit/9114b0d))
+* feat(cms): generate unique slug/code before save models ([6721453](https://github.com/erxes/erxes/commit/6721453))
+
+## <small>2.17.24 (2025-11-07)</small>
+
+* fix: car clientPortal mutations ([625e3c4](https://github.com/erxes/erxes/commit/625e3c4))
+* fix: car clientPortal mutations ([e4dfe14](https://github.com/erxes/erxes/commit/e4dfe14))
+* fix: fix call monitor ([1b08a2d](https://github.com/erxes/erxes/commit/1b08a2d))
+* fix: incoming call ringtone ([4e06b47](https://github.com/erxes/erxes/commit/4e06b47))
+* chore: debug call queue list ([a9ed5bf](https://github.com/erxes/erxes/commit/a9ed5bf))
+* chore: debug call queue list ([4fd0149](https://github.com/erxes/erxes/commit/4fd0149))
+* chore(cms): fix categories/tags pagination ([69e01fb](https://github.com/erxes/erxes/commit/69e01fb))
+* feat: add call cookie resseter ([0a4376a](https://github.com/erxes/erxes/commit/0a4376a))
+* feat(ticket): initialize fields from localStorage and sync with props in componentDidUpdate  ([dd3f23b](https://github.com/erxes/erxes/commit/dd3f23b))
+* Release 2.17.23 ([67c704e](https://github.com/erxes/erxes/commit/67c704e))
+* bugfix(cms): prevent 'isScheduled' from being sent in mutation input ([e298a38](https://github.com/erxes/erxes/commit/e298a38))
+
+* Merge branch 'master' of github.com:erxes/erxes (2dbbdee8d1)
+* feat(ticket): initialize fields from localStorage and sync with props in componentDidUpdate (dd3f23b42f)
+* fix: car clientPortal mutations (625e3c44d4)
+* fix: car clientPortal mutations (e4dfe1432f)
+* chore(cms): fix categories/tags pagination (69e01fb674)
+* bugfix(cms): prevent 'isScheduled' from being sent in mutation input (e298a383ac)
+* Merge branch 'master' of github.com:erxes/erxes (721337422e)
+
+## <small>2.17.23 (2025-11-04)</small>
+
+## <small>2.17.22 (2025-10-31)</small>
+
+* fix: pos ui filter has a remainder ([0b283f6](https://github.com/erxes/erxes/commit/0b283f6))
+* fix: pos, temp save remainders, sort and filter remainder and price (#6547) ([3bf532a](https://github.com/erxes/erxes/commit/3bf532a)), closes [#6547](https://github.com/erxes/erxes/issues/6547)
+* fix: tourism update (#6543) ([d3a6611](https://github.com/erxes/erxes/commit/d3a6611)), closes [#6543](https://github.com/erxes/erxes/issues/6543)
+* fix(ticket): fix required field validation preventing ticket creation ([2e49065](https://github.com/erxes/erxes/commit/2e49065))
+* chore: pos fetch remainder refactor ([ee9a3a2](https://github.com/erxes/erxes/commit/ee9a3a2))
+* debug: add additional console logs for score calculations and updated custom fields in ScoreCampaign ([2d75db9](https://github.com/erxes/erxes/commit/2d75db9))
+* debug: add console logs for placeholder and parent object in ScoreCampaigns and utils ([6770877](https://github.com/erxes/erxes/commit/6770877))
+* debug: update console log to stringify parent object in resolvePlaceholderValue function ([d3448eb](https://github.com/erxes/erxes/commit/d3448eb))
+
+## [2.17.21](https://github.com/erxes/erxes/compare/2.17.20...2.17.21) (2025-10-23)
+
+## [2.17.20](https://github.com/erxes/erxes/compare/2.17.19...2.17.20) (2025-10-23)
+
+## [2.17.19](https://github.com/erxes/erxes/compare/2.17.18...2.17.19) (2025-10-22)
+
+### Bug Fixes
+
+* update regex for value replacement in automations and improve code formatting in RFEditor and SetProperty components ([d2b5b5e](https://github.com/erxes/erxes/commit/d2b5b5ea2a85494fe3a9a3bcfffea085df0c848a))
+
+## [2.17.18](https://github.com/erxes/erxes/compare/2.17.17...2.17.18) (2025-10-21)
+
+### Features
+
+* **core:** add fieldsGroupFix mutation for fixing property groups ([8d1e0df](https://github.com/erxes/erxes/commit/8d1e0df1d1929d2d1edacdf384b63897c849a9e6))
+* **syncer:** add logging for template creation and update Elasticsearch URL handling in initial sync ([3fc6b98](https://github.com/erxes/erxes/commit/3fc6b980acbb1f289991742d51d5ccdfd10db762))
+* **syncer:** implement batch processing for MongoDB to Elasticsearch synchronization with improved concurrency and performance settings ([79208e4](https://github.com/erxes/erxes/commit/79208e4f11aad7eb3857b0d5a86dd29197096395))
+
+### Bug Fixes
+
+* similiraties products per with remainder ([1e5a11d](https://github.com/erxes/erxes/commit/1e5a11d3f3359aa44e9981f199ca2a7b7c27d753))
+* **syncer:** remove unnecessary performance flags from monstache command in initial sync ([a7d3f10](https://github.com/erxes/erxes/commit/a7d3f10d66a7efcca5d1a36226efc4c1614fbc07))
+* tourism update ([1e8b627](https://github.com/erxes/erxes/commit/1e8b627f80b47c2137d81f7efec1c1fdae85037b))
+
+## [2.17.17](https://github.com/erxes/erxes/compare/2.17.16...2.17.17) (2025-10-09)
+
+### Features
+
+* **core:**  Create Relations group if not exists ([902dd7a](https://github.com/erxes/erxes/commit/902dd7a41621dba59ef1d548af98dbace4e377b6))
+* enhance score campaign functionality with new field origin and improved placeholder resolution ([929362b](https://github.com/erxes/erxes/commit/929362b8af15a3923c23840c30f2be88a20395de))
+
+## [2.17.16](https://github.com/erxes/erxes/compare/2.17.15...2.17.16) (2025-10-06)
+
+### Bug Fixes
+
+* add delay and logging in relatedServices function of getItems automation ([e7a81bb](https://github.com/erxes/erxes/commit/e7a81bb8e1d3eb1c16ad22799d870b9c2974920d))
+* update related service name from 'contacts' to 'core' in getItems automation ([3da6e99](https://github.com/erxes/erxes/commit/3da6e997b778d78ab8a24ab4602cc3a9f57dabed))
+
+## [2.17.15](https://github.com/erxes/erxes/compare/2.17.14...2.17.15) (2025-10-06)
+
+### Bug Fixes
+
+* **pos:** check barcode and shop theme show unitPrice and remainder ([3be14d7](https://github.com/erxes/erxes/commit/3be14d7770c316f092be3bb3e2d57275711eff3d))
+* posclient sync util performance ([1d01f51](https://github.com/erxes/erxes/commit/1d01f519fb0aae8175b61ee6540beb9e6c8969e2))
+* update redirect logic in handleMagiclink and handleCoreLogin to support dynamic subdomain routing based on organization type ([a1967ec](https://github.com/erxes/erxes/commit/a1967ec9a5a7f8ccb37002d7149e086bc7ae3785))
+
+## [2.17.14](https://github.com/erxes/erxes/compare/2.17.13...2.17.14) (2025-10-01)
+
+### Features
+
+* enhance automation rule handling with expression support ([3bec802](https://github.com/erxes/erxes/commit/3bec802070a5dcebf628ef9ec3f466691e8527fe))
+
+### Bug Fixes
+
+* cars from clientportal many car many customer ([e292f02](https://github.com/erxes/erxes/commit/e292f0256e55fb1e41866c004c38eba5c6737b9b))
+* posclient groupedSimilarity products with remainder ([2865741](https://github.com/erxes/erxes/commit/28657419a64d2aad9181d46009d9fc70f59aa516))
+* posclient similarity chosen page with remainder ([b34cb62](https://github.com/erxes/erxes/commit/b34cb62cf7385262175805d111050294b5a05be7))
+* posclient similarity chosen page with remainder ([937ff54](https://github.com/erxes/erxes/commit/937ff54dcf60caabc2ba39bd54c2d216f9784b44))
+
+## [2.17.13](https://github.com/erxes/erxes/compare/2.17.12...2.17.13) (2025-09-29)
+
+### Features
+
+* add resume option to main.go configuration ([7d20e0e](https://github.com/erxes/erxes/commit/7d20e0e3f5f08b1cef53692583c1811fd19a44b6))
+* enhance email generation with dynamic from email placeholder ([9068bee](https://github.com/erxes/erxes/commit/9068bee7de60c20e091dc9f2f1303a3698eba518))
+* filter organizations by last active date in main.go ([fdbfcf5](https://github.com/erxes/erxes/commit/fdbfcf5424d4cef4bf089f95706aa28495f02ec6))
+
+### Bug Fixes
+
+* mongo-driver version 1.7 ([b2845a8](https://github.com/erxes/erxes/commit/b2845a85de5ab19b37813326f16a8faa84af7ce8))
+
+## [2.17.12](https://github.com/erxes/erxes/compare/2.17.11...2.17.12) (2025-09-26)
+
+### Bug Fixes
+
+* pos - show remainder on coffeeshop theme ([2c01bd1](https://github.com/erxes/erxes/commit/2c01bd139d0ff1597cb51996f3b51c6514ec1c84))
+* pos ebarimt show choice sum quantity ([3b6f1b6](https://github.com/erxes/erxes/commit/3b6f1b6e1eceb4e6f3a3957f5eb5413c8adc2ca4))
+* pos ebarimt with discount ([65867b3](https://github.com/erxes/erxes/commit/65867b35716c6b807586235223438f273e021947))
+
+## <small>2.17.11 (2025-09-23)</small>
+
+* feat(inbox): add required and default values to createdUserId, kind, createdA ([eb81bf8](https://github.com/erxes/erxes/commit/eb81bf8))
+* feat(ticket): add custom fields and persist ticket in localStorage ([318ce88](https://github.com/erxes/erxes/commit/318ce88))
+* fix(calls):  duplicate histories, unknown caller, call dashboard and pause issues fixed (#6154) ([2579d98](https://github.com/erxes/erxes/commit/2579d98)), closes [#6154](https://github.com/erxes/erxes/issues/6154)
+* fix(tourism): fix ([d90ffd2](https://github.com/erxes/erxes/commit/d90ffd2))
+* pass ci ([b9812d2](https://github.com/erxes/erxes/commit/b9812d2))
+
+## [2.17.10](https://github.com/erxes/erxes/compare/2.17.9...2.17.10) (2025-09-21)
+
+## <small>2.17.9 (2025-09-19)</small>
+
+* revert: create inbox message ([a745ac7](https://github.com/erxes/erxes/commit/a745ac7))
+
+## [2.17.8](https://github.com/erxes/erxes/compare/2.17.7...2.17.8) (2025-09-18)
+
+### Bug Fixes
+
+* **inbox:** correctly set primary phone and prevent duplicate conversations ([a0f42e6](https://github.com/erxes/erxes/commit/a0f42e6703344215fc3d16b495f72431fa8273b2))
+
+## [2.17.7](https://github.com/erxes/erxes/compare/2.17.6...2.17.7) (2025-09-17)
+
+### Bug Fixes
+
+* add phones when render full name ([b774f77](https://github.com/erxes/erxes/commit/b774f775df12f4e368dd3e71ff227c2ccb85b400))
+* **calls:** fix minus waiting call sec ([688f447](https://github.com/erxes/erxes/commit/688f447a1b1806f6f8897c62e1a4521b403b1545))
+
+## [2.17.6](https://github.com/erxes/erxes/compare/2.17.5...2.17.6) (2025-09-15)
+
+### Bug Fixes
+
+* payments type properties to set ([d5f7f0e](https://github.com/erxes/erxes/commit/d5f7f0e0ab094e3c4c360478c1723aac85af1dc3))
+
+## [2.17.5](https://github.com/erxes/erxes/compare/2.17.4...2.17.5) (2025-09-15)
+
+### Bug Fixes
+
+* totalAmount save on deal ([2d450ec](https://github.com/erxes/erxes/commit/2d450ec8a10502d43ea47f858d472a8ba5d0ff76))
+
+## <small>2.17.4 (2025-09-15)</small>
+
+* fix(erxes-ui): include details.position when positions are empty  ([74f9d8c](https://github.com/erxes/erxes/commit/74f9d8c))
+* Update api.ts ([3c619ec](https://github.com/erxes/erxes/commit/3c619ec))
+
+## <small>2.17.3 (2025-09-12)</small>
+
+* feat(ticket): Add Attribution ([47cafdb](https://github.com/erxes/erxes/commit/47cafdb))
+
+## [2.17.2](https://github.com/erxes/erxes/compare/2.17.1...2.17.2) (2025-09-11)
+
+### Bug Fixes
+
+* paymentTypes config format read eval ([1893cbc](https://github.com/erxes/erxes/commit/1893cbc30d0ce93f6339eb8c73e04effa9965ffb))
+
+## [2.17.1](https://github.com/erxes/erxes/compare/2.17.0...2.17.1) (2025-09-10)
+
+### Features
+
+* enhance automation field generation and related value retrieval ([361f7de](https://github.com/erxes/erxes/commit/361f7de7a84fe8bf2411b92fbaa10f55da60a945))
+* **tickets:** allow system or owner users to see all tickets ([7441c63](https://github.com/erxes/erxes/commit/7441c63081842fa91e7888781962f5ad235769c4))
+
+### Bug Fixes
+
+* correct string interpolation and formatting in Docker utility functions ([358b0fd](https://github.com/erxes/erxes/commit/358b0fdb3ef88ad4857294a6c2eb20dcb87d6425))
+
+## [2.17.0](https://github.com/erxes/erxes/compare/2.16.7...2.17.0) (2025-09-09)
+
+### Features
+
+* **inbox:** add tag type and update search filter ([9dd3475](https://github.com/erxes/erxes/commit/9dd3475bb6f2064adc37b1270d69668692a57d78))
+* update cli version to 2.0.3 ([6804f5c](https://github.com/erxes/erxes/commit/6804f5ca1a389cd74ccfda57567cf84456fb5df9))
+
+### Bug Fixes
+
+* An error occured in CLEAN while prepareCustomFieldsData to continue ([97f1df1](https://github.com/erxes/erxes/commit/97f1df1c773b360ea5488a4da708fa212cdd66b2))
+* essyncer base version up and some mappings up  ([c4befba](https://github.com/erxes/erxes/commit/c4befbac04cce2c0170ea5717d04801b470e2589))
+* fields clean with await ([#6130](https://github.com/erxes/erxes/issues/6130)) ([4750c2c](https://github.com/erxes/erxes/commit/4750c2c76f7f8387fa9627a2392374fab50cd829))
+
 ## [2.16.7](https://github.com/erxes/erxes/compare/2.16.6...2.16.7) (2025-09-04)
 
 ### Features

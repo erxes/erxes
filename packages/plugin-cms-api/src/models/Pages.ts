@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { IPage, IPageDocument, pageSchema } from './definitions/pages';
 import { IModels } from '../connectionResolver';
 import slugify from 'slugify';
+import { generateUniqueSlug } from './utils';
 
 export interface IPageModel extends Model<IPageDocument> {
   getPages: (query: any) => Promise<IPageDocument[]>;
@@ -20,8 +21,10 @@ export const loadPageClass = (models: IModels) => {
     };
 
     public static createPage = async (doc: IPage) => {
-      if (!doc.slug && doc.name) {
-        doc.slug = slugify(doc.name, { lower: true });
+      if (doc.name) {
+
+        const baseSlug = doc.slug || slugify(doc.name, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Pages, doc.clientPortalId, 'slug', baseSlug);
       }
 
       const existingPage = await models.Pages.findOne({ slug: doc.slug, clientPortalId: doc.clientPortalId });
@@ -34,8 +37,9 @@ export const loadPageClass = (models: IModels) => {
     };
 
     public static updatePage = async (_id: string, doc: IPage) => {
-      if (!doc.slug && doc.name) {
-        doc.slug = slugify(doc.name, { lower: true });
+      if (doc.name) {
+        const baseSlug = doc.slug || slugify(doc.name, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Pages, doc.clientPortalId, 'slug', baseSlug);
       }
 
       const existingPage = await models.Pages.countDocuments({

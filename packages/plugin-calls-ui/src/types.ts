@@ -45,7 +45,7 @@ export interface IHistoryDoc {
   callEndTime: Date;
   callType: string;
   callStatus: string;
-  timeStamp: number;
+  timeStamp: string;
   updatedAt: Date;
   createdAt: Date;
   createdBy: string;
@@ -72,15 +72,15 @@ export interface ICallConfigDoc extends ICallConfig {
 export interface IQueue {
   queuechairman: string;
   queue: string;
-  total_calls: string;
-  answered_calls: string;
-  answered_rate: string;
-  abandoned_calls: string;
-  avg_wait: string;
-  avg_talk: string;
-  vq_total_calls: string;
-  sla_rate: string;
-  vq_sla_rate: string;
+  totalCalls: string;
+  answeredCalls: string;
+  answeredRate: string;
+  abandonedCalls: string;
+  avgWait: string;
+  avgTalk: string;
+  vqTotalCalls: string;
+  slarate: string;
+  vqSlaRate: string;
 }
 
 interface CallMember {

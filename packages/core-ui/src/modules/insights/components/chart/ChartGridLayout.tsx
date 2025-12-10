@@ -1,8 +1,8 @@
-import { ChartTitle } from "../../styles";
 import React, { useEffect, useState } from "react";
-import { defaultLayout } from "../../utils";
 import ChartRenderer from "../../containers/chart/ChartRenderer";
+import { ChartTitle } from "../../styles";
 import { IChart } from "../../types";
+import { defaultLayout } from "../../utils";
 
 type Props = {
   queryParams: any;
@@ -30,7 +30,7 @@ const ChartGridLayout = (props: Props) => {
     setShowDrawer,
     handleChartDelete,
     dashboardChartsEdit,
-    chartDuplicate
+    chartDuplicate,
   } = props;
 
   const [filters, setFilters] = useState<any>(chart.filter || {});
@@ -47,7 +47,7 @@ const ChartGridLayout = (props: Props) => {
   }, [chart.layout]);
 
   const setFilter = (fieldName: string, value: any) => {
-    setFilters(prevFilters => {
+    setFilters((prevFilters) => {
       if (
         value === undefined ||
         value === null ||
@@ -114,7 +114,7 @@ const ChartGridLayout = (props: Props) => {
         chartHeight={defaultLayout(chart, chartIndex).h * 160}
         chartVariables={{
           serviceName: chart.serviceName,
-          templateType: chart.templateType
+          templateType: chart.templateType,
         }}
         filter={filters}
         setFilter={setFilter}

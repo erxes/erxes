@@ -4,6 +4,7 @@ import {
   modeAtom,
   productCountAtom,
   searchAtom,
+  toggleRemainderAtom,
 } from "@/store"
 import { similarityConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
@@ -24,6 +25,7 @@ export const useProducts = (props?: {
   const [search] = useAtom(searchAtom)
   const [searchValue, setSearchValue] = useState(search)
   const categoryId = useAtomValue(activeCategoryAtom)
+  const toggleRemainder = useAtomValue(toggleRemainderAtom)
   const setProductCount = useSetAtom(productCountAtom)
   const mode = useAtomValue(modeAtom)
 
@@ -34,6 +36,7 @@ export const useProducts = (props?: {
     variables: {
       perPage: perPage || FETCH_MORE_PER_PAGE,
       categoryId: categoryId,
+      minRemainder: toggleRemainder ? 0.005 : undefined,
       searchValue: searchValue,
       page: 1,
       groupedSimilarity: isCafe ? groupedSimilarity : undefined,
@@ -48,6 +51,7 @@ export const useProducts = (props?: {
   const countQuery = useQuery(queries.productsCount, {
     variables: {
       categoryId,
+      minRemainder: toggleRemainder ? 0.005 : undefined,
       searchValue,
       groupedSimilarity: isCafe ? groupedSimilarity : null,
       isKiosk: isKiosk ? true : undefined,

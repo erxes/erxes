@@ -86,7 +86,7 @@ export const sendToGrandStream = async (
       wsServer,
       args.isCronRunning || false,
     );
-
+    console.log(cookie, 'cookie');
     const operator = integration.operators.find(
       (op) => op.userId === user?._id,
     );
@@ -214,7 +214,7 @@ export const getOrSetCallCookie = async (
       if (loginData.status === 0 && loginData.response?.cookie) {
         const { cookie } = loginData.response;
         await redis.set(cookieKey, cookie, 'EX', expiryInSeconds);
-        console.log(`[${userType}] New cookie stored for ${wsServer}.`);
+        console.log(`[${userType}] New cookie stored for ${wsServer}.`, cookie);
         return cookie;
       }
 
@@ -908,39 +908,6 @@ export const getCoreCustomer = async (subdomain, customerId) => {
     return customer;
   } catch (error) {
     throw new Error('Failed to retrieve customer from core service');
-  }
-};
-
-export const createOrUpdateConversation = async (
-  subdomain,
-  customerId,
-  conversationId,
-) => {
-  try {
-    await sendInboxMessage({
-      subdomain: subdomain,
-      action: 'integrations.receive',
-      data: {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId,
-          conversationId,
-          updatedAt: new Date().toISOString(),
-        }),
-      },
-      isRPC: true,
-    });
-  } catch (error) {
-    throw new Error('Failed to create or update conversation');
-  }
-  try {
-    const models = await generateModels(subdomain);
-    await models.CallHistory.updateOne(
-      { conversationId: conversationId },
-      { $set: { customerId } },
-    );
-  } catch (error) {
-    throw new Error('Failed to update existing call history');
   }
 };
 

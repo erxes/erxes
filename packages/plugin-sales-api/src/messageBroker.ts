@@ -1,30 +1,31 @@
 import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
-  MessageArgsOmitService
+  MessageArgsOmitService,
 } from "@erxes/api-utils/src/core";
 
 import { generateModels } from "./connectionResolver";
 import {
   generateAmounts,
-  generateProducts
+  generateProducts,
 } from "./graphql/resolvers/customResolvers/deal";
 import { itemsEdit, publishHelper } from "./graphql/resolvers/mutations/utils";
 import {
   createConformity,
+  getTotalAmounts,
   notifiedUserIds,
-  sendNotifications
+  sendNotifications,
 } from "./graphql/utils";
 import {
   conversationConvertToCard,
   createBoardItem,
-  updateName
+  updateName,
 } from "./models/utils";
 import { getCardItem, convertNestedDate } from "./utils";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
   consumeQueue,
-  consumeRPCQueue
+  consumeRPCQueue,
 } from "@erxes/api-utils/src/messageBroker";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
@@ -37,7 +38,7 @@ export const setupMessageConsumers = async () => {
     if (!itemId || !type || !user || !processId) {
       return {
         status: "error",
-        errorMessage: "you must provide some params"
+        errorMessage: "you must provide some params",
       };
     }
     const collection = models.Deals;
@@ -57,7 +58,7 @@ export const setupMessageConsumers = async () => {
         processId,
         user,
         collection[`update${typeUpperCase}`]
-      )
+      ),
     };
   });
 
@@ -68,13 +69,13 @@ export const setupMessageConsumers = async () => {
 
     const parent = await getCardItem(models, {
       contentType: type,
-      contentTypeId: itemId
+      contentTypeId: itemId,
     });
 
     if (!parent) {
       return {
         status: "error",
-        errorMessage: "Parent not found"
+        errorMessage: "Parent not found",
       };
     }
 
@@ -87,7 +88,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: childCard
+      data: childCard,
     };
   });
 
@@ -110,13 +111,13 @@ export const setupMessageConsumers = async () => {
         mainType: sourceType,
         mainTypeId: itemId,
         relType: type,
-        relTypeId: relatedCard._id
-      }
+        relTypeId: relatedCard._id,
+      },
     });
 
     return {
       status: "success",
-      data: relatedCard
+      data: relatedCard,
     };
   });
 
@@ -130,7 +131,7 @@ export const setupMessageConsumers = async () => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: "deal",
-        mainTypeId: deal._id
+        mainTypeId: deal._id,
       });
     }
 
@@ -138,7 +139,7 @@ export const setupMessageConsumers = async () => {
       await createConformity(subdomain, {
         companyIds: [companyId],
         mainType: "deal",
-        mainTypeId: deal._id
+        mainTypeId: deal._id,
       });
     }
 
@@ -152,7 +153,7 @@ export const setupMessageConsumers = async () => {
       type: `dealAdd`,
       action: `invited you to the ${pipeline?.name}`,
       content: `'${deal.name}'.`,
-      contentType: "deal"
+      contentType: "deal",
     });
 
     const isAutomationsAvailable = await isEnabled("automations");
@@ -164,15 +165,15 @@ export const setupMessageConsumers = async () => {
         action: "trigger",
         data: {
           type: "sales:deal",
-          targets: [deal]
+          targets: [deal],
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
     }
     return {
       status: "success",
-      data: deal
+      data: deal,
     };
   });
 
@@ -183,7 +184,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: await models.Deals.removeDeals(_ids)
+        data: await models.Deals.removeDeals(_ids),
       };
     }
   );
@@ -193,7 +194,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Stages.find(data).sort({ order: 1 }).lean()
+      data: await models.Stages.find(data).sort({ order: 1 }).lean(),
     };
   });
 
@@ -202,7 +203,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Stages.findOne(data).lean()
+      data: await models.Stages.findOne(data).lean(),
     };
   });
 
@@ -211,7 +212,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Pipelines.find(data).lean()
+      data: await models.Pipelines.find(data).lean(),
     };
   });
 
@@ -220,7 +221,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Boards.find(data).lean()
+      data: await models.Boards.find(data).lean(),
     };
   });
 
@@ -229,7 +230,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Boards.findOne(data).lean()
+      data: await models.Boards.findOne(data).lean(),
     };
   });
 
@@ -240,7 +241,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: await models.Boards.find(selector).countDocuments()
+        data: await models.Boards.find(selector).countDocuments(),
       };
     }
   );
@@ -252,7 +253,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: await models.Checklists.removeChecklists(type, itemIds)
+        data: await models.Checklists.removeChecklists(type, itemIds),
       };
     }
   );
@@ -262,7 +263,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await conversationConvertToCard(models, subdomain, data)
+      data: await conversationConvertToCard(models, subdomain, data),
     };
   });
 
@@ -272,7 +273,7 @@ export const setupMessageConsumers = async () => {
     if (!data.query) {
       return {
         status: "success",
-        data: await models.Deals.find(data).lean()
+        data: await models.Deals.find(data).lean(),
       };
     }
 
@@ -284,7 +285,7 @@ export const setupMessageConsumers = async () => {
         .skip(skip || 0)
         .limit(limit || 20)
         .sort(sort)
-        .lean()
+        .lean(),
     };
   });
   consumeRPCQueue("sales:deals.aggregate", async ({ subdomain, data }) => {
@@ -292,7 +293,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Deals.aggregate(convertNestedDate(data))
+      data: await models.Deals.aggregate(convertNestedDate(data)),
     };
   });
   consumeRPCQueue("sales:deals.count", async ({ subdomain, data }) => {
@@ -300,7 +301,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Deals.find(data).countDocuments()
+      data: await models.Deals.find(data).countDocuments(),
     };
   });
 
@@ -309,17 +310,17 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Deals.findOne(data).lean()
+      data: await models.Deals.findOne(data).lean(),
     };
   });
   consumeRPCQueue("sales:updateName", async ({ subdomain, data }) => {
     await updateName(subdomain, data.mainType, data.itemId);
     return {
       status: "success",
-      data: {}
+      data: {},
     };
   });
-  consumeRPCQueue("sales:deals.generateAmounts", async productsData => {
+  consumeRPCQueue("sales:deals.generateAmounts", async (productsData) => {
     return { data: generateAmounts(productsData), status: "success" };
   });
 
@@ -328,7 +329,7 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data }) => {
       return {
         data: await generateProducts(subdomain, data),
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -345,7 +346,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       const dealProductIds = await await models.Deals.find({
-        "productsData.productId": { $in: _ids }
+        "productsData.productId": { $in: _ids },
       }).distinct("productsData.productId");
 
       return { data: dealProductIds, status: "success" };
@@ -357,9 +358,15 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
+      if (modifier.productsData) {
+        modifier.productsData = modifier.productsData.filter((pd) => pd);
+        Object.assign(modifier, {
+          ...(await getTotalAmounts(modifier.productsData)),
+        });
+      }
       return {
         data: await models.Deals.updateMany(selector, modifier),
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -369,9 +376,16 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
+      if (modifier.productsData) {
+        modifier.productsData = modifier.productsData.filter((pd) => pd);
+        Object.assign(modifier, {
+          ...(await getTotalAmounts(modifier.productsData)),
+        });
+      }
+
       return {
         data: await models.Deals.updateOne(selector, modifier),
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -381,7 +395,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await notifiedUserIds(models, data)
+      data: await notifiedUserIds(models, data),
     };
   });
 
@@ -390,7 +404,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await sendNotifications(models, subdomain, data)
+      data: await sendNotifications(models, subdomain, data),
     };
   });
 
@@ -401,13 +415,13 @@ export const setupMessageConsumers = async () => {
 
       const item = await getCardItem(models, {
         contentTypeId: _id,
-        contentType: type
+        contentType: type,
       });
 
       if (!item) {
         return {
           status: "error",
-          errorMessage: "Item not found"
+          errorMessage: "Item not found",
         };
       }
 
@@ -417,7 +431,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
+        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`,
       };
     }
   );
@@ -437,13 +451,13 @@ export const setupMessageConsumers = async () => {
       if (!pipelineId) {
         return {
           status: "error",
-          errorMessage: "Pipeline not found"
+          errorMessage: "Pipeline not found",
         };
       }
 
       return {
         status: "success",
-        data: await models.Pipelines.getPipeline(pipelineId)
+        data: await models.Pipelines.getPipeline(pipelineId),
       };
     }
   );
@@ -455,7 +469,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: await models.PipelineLabels.find(query, fields)
+        data: await models.PipelineLabels.find(query, fields),
       };
     }
   );
@@ -468,12 +482,12 @@ export const setupMessageConsumers = async () => {
           _id: pipelineId,
           proccessId: Math.random(),
           action,
-          data
-        }
+          data,
+        },
       });
 
       return {
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -482,7 +496,7 @@ export const setupMessageConsumers = async () => {
     "sales:productsDataChanged",
     async ({
       subdomain,
-      data: { dealId, action, dataId, doc, productsData }
+      data: { dealId, action, dataId, doc, productsData },
     }) => {
       graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
         productsDataChanged: {
@@ -492,13 +506,13 @@ export const setupMessageConsumers = async () => {
           data: {
             dataId,
             doc,
-            productsData
-          }
-        }
+            productsData,
+          },
+        },
       });
 
       return {
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -529,7 +543,7 @@ export const setupMessageConsumers = async () => {
       }
 
       return {
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -539,18 +553,24 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { module, target, triggerType } }) => {
       let filter;
 
-      if (module.includes("contacts")) {
+      if (module.includes("core")) {
+        const [_triggerService, triggerCollectionType] = triggerType
+          .replace(/\./g, ":")
+          .split(":");
+        const [_moduleService, moduleCollectionType] = module
+          .replace(/\./g, ":")
+          .split(":");
         const relTypeIds = await sendCommonMessage({
           subdomain,
           serviceName: "core",
           action: "conformities.savedConformity",
           data: {
-            mainType: triggerType.split(":")[1],
+            mainType: triggerCollectionType,
             mainTypeId: target._id,
-            relTypes: [module.split(":")[1]]
+            relTypes: [moduleCollectionType],
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
         if (relTypeIds.length) {
@@ -560,7 +580,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: filter
+        data: filter,
       };
     }
   );
@@ -571,7 +591,7 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args
+    ...args,
   });
 };
 
@@ -580,7 +600,7 @@ export const sendEngagesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "engages",
-    ...args
+    ...args,
   });
 };
 
@@ -589,7 +609,7 @@ export const sendInboxMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "inbox",
-    ...args
+    ...args,
   });
 };
 
@@ -598,7 +618,7 @@ export const sendTasksMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "tasks",
-    ...args
+    ...args,
   });
 };
 
@@ -607,7 +627,7 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "notifications",
-    ...args
+    ...args,
   });
 };
 
@@ -616,7 +636,7 @@ export const sendLoyaltiesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "loyalties",
-    ...args
+    ...args,
   });
 };
 
@@ -625,13 +645,13 @@ export const sendPricingMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "pricing",
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
@@ -645,5 +665,5 @@ export const fetchSegment = (
     subdomain,
     action: "fetchSegment",
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });

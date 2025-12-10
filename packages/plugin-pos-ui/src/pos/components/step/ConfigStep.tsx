@@ -39,6 +39,7 @@ type State = {
   kioskExcludeProductIds: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
 };
 
@@ -54,6 +55,7 @@ const ConfigStep = (props: Props) => {
     kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
     isCheckRemainder: (pos && pos.isCheckRemainder) || false,
     checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || [],
+    saveRemainder: (pos && pos.saveRemainder) || false,
     banFractions: (pos && pos.banFractions) || false,
   });
 
@@ -287,6 +289,7 @@ const ConfigStep = (props: Props) => {
             <h4>{__("Remainder configs")}</h4>
             <Description></Description>
             <FormGroup>
+              <ControlLabel>Is Check Remainder</ControlLabel>
               <FormControl
                 checked={state.isCheckRemainder}
                 componentclass="checkbox"
@@ -305,6 +308,16 @@ const ConfigStep = (props: Props) => {
                   onChangeValue("checkExcludeCategoryIds", categoryIds)
                 }
                 multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Has a save remainder</ControlLabel>
+              <FormControl
+                checked={state.saveRemainder}
+                componentclass="checkbox"
+                onChange={(e) => {
+                  onChangeValue("saveRemainder", (e.target as any).checked);
+                }}
               />
             </FormGroup>
             <FormGroup>

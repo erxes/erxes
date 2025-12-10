@@ -12,6 +12,7 @@ export const types = `
         fieldGroupId:String,
         fieldName:String,
         fieldId:String,
+        fieldOrigin:String,
         serviceName:String,
         additionalConfig:JSON
 
@@ -32,6 +33,7 @@ const COMMON_MUTATION_FIELDS = `
     fieldGroupId:String
     fieldName: String
     fieldId: String
+    fieldOrigin:String,
     serviceName:String
     additionalConfig:JSON
 

@@ -1,10 +1,23 @@
 import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
-import * as _ from 'lodash';
 
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
+
+const discountType = (extraData) => {
+  const { couponCode, voucherId } = extraData || {};
+
+  if (couponCode) {
+    return 'Coupon'
+  }
+
+  if (voucherId) {
+    return 'Voucher'
+  }
+
+  return 'Sale'
+}
 
 const getCustomFields = async ({ subdomain }) => {
   let fields: any[] = [];
@@ -51,6 +64,7 @@ const commonFields = [
   { value: 'totalAmountAfterTaxVat', name: 'Total amount after tax and vat' },
   { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
   { value: 'discount', name: 'Discount' },
+  { value: 'discountType', name: 'Discount Type' },
   { value: 'paymentCash', name: 'Payment cash' },
   { value: 'paymentNonCash', name: 'Payment non cash' },
   { value: 'customers.primaryPhone', name: 'customers.primaryPhone' },
@@ -403,7 +417,12 @@ export default {
     );
     const servicesTotalAmount = replaceServicesResult.totalAmount;
 
-    const totalAmount = productsTotalAmount + servicesTotalAmount;
+    let totalAmount = productsTotalAmount + servicesTotalAmount;
+
+    if (replaceProductsResult.discount + replaceServicesResult.discount) {
+      totalAmount -= replaceProductsResult.discount + replaceServicesResult.discount;
+    }
+
     const totalAmountVat = (totalAmount * 10) / 110;
     const totalAmountWithoutVat = totalAmount - totalAmountVat;
 
@@ -487,6 +506,11 @@ export default {
     replacedContent = replacedContent.replace(
       /{{ discount }}/g,
       toMoney(replaceProductsResult.discount + replaceServicesResult.discount)
+    );
+
+    replacedContent = replacedContent.replace(
+      /{{ discountType }}/g,
+      discountType(item.extraData)
     );
 
     for (const customFieldData of item.customFieldsData || []) {
@@ -591,6 +615,10 @@ const salesStage = async (items: any[]) => {
             // Update the total amount for this stage
             aggregatedData.amount.AED += product.amount * product.quantity;
           });
+      }
+
+      if (item.extraData) {
+        aggregatedData.extraData = Object.assign(aggregatedData.extraData || {}, item.extraData);
       }
     });
     return aggregatedData;

@@ -242,7 +242,6 @@ const SipProviderContainer = (props) => {
       },
     ],
   };
-
   return (
     <CallWrapper>
       <SipProvider
@@ -257,6 +256,7 @@ const SipProviderContainer = (props) => {
             {state?.callDirection === CALL_DIRECTION_INCOMING && (
               <IncomingCallContainer
                 {...props}
+                setHideIncomingCall={setHideIncomingCall}
                 callUserIntegrations={callUserIntegrations}
                 hideIncomingCall={hideIncomingCall}
                 currentCallConversationId={currentCallConversationId || ''}
@@ -264,6 +264,7 @@ const SipProviderContainer = (props) => {
             )}
             <WidgetContainer
               {...props}
+              currentIntegrationId={defaultIntegration.inboxId}
               callUserIntegrations={callUserIntegrations}
               setConfig={handleSetConfig}
               setHideIncomingCall={setHideIncomingCall}

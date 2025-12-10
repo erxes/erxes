@@ -64,7 +64,7 @@ module.exports.devCmd = async program => {
     REDIS_PORT: 6379,
     REDIS_PASSWORD: configs.redis.password,
     RABBITMQ_HOST: 'amqp://127.0.0.1',
-    ELASTICSEARCH_URL: 'http://127.0.0.1:9200',
+    ELASTICSEARCH_URL: `http://127.0.0.1:9200`,
     ENABLED_SERVICES_JSON: enabledServicesJson,
     RELEASE: configs.image_tag || 'latest',
     VERSION: configs.version || 'os',

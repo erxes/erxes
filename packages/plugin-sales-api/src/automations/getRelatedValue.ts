@@ -163,7 +163,7 @@ export const getRelatedValue = async (
     return await generateCreatedByFieldValue({ subdomain, target, targetKey });
   }
 
-  if (targetKey.includes('customers.')) {
+  if (targetKey.includes('customers.') || targetKey.includes('customer.')) {
     return await generateCustomersFielValue({ target, targetKey, subdomain });
   }
   if (targetKey.includes('customFieldsData.')) {
@@ -289,7 +289,7 @@ const generateCustomersFielValue = async ({
   subdomain: string;
   target: any;
 }) => {
-  const [_, fieldName] = targetKey.split('.');
+  const [_, fieldName, fieldId] = targetKey.split('.');
 
   const customerIds = await sendCoreMessage({
     subdomain,
@@ -337,6 +337,10 @@ const generateCustomersFielValue = async ({
       .map(({ firstName = '', lastName = '' }) => `${firstName} ${lastName}`)
       .filter(Boolean)
       .join(', ');
+  }
+
+  if(fieldName === 'customFieldsData'){
+    return customers.map((customer) => customer?.customFieldsData?.find((cf) => cf.field === fieldId)?.value).filter(Boolean).join(', ');
   }
 };
 

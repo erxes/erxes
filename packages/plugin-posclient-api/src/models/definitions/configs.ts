@@ -21,6 +21,7 @@ export interface IEbarimtConfig {
   reverseCtaxRules?: string[],
   footerText?: string;
   hasCopy: boolean;
+  hasSumQty: boolean;
 }
 
 interface IConfigColors {
@@ -83,6 +84,7 @@ export interface IConfig {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder?: boolean;
   banFractions: boolean;
 }
 
@@ -132,6 +134,7 @@ const ebarimtConfigSchema = new Schema(
     reverseCtaxRules: field({ type: [String], optional: true, label: 'reverseCtaxRules' }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
+    hasSumQty: field({ type: Boolean, optional: true }),
   },
   { _id: false },
 );
@@ -196,6 +199,7 @@ export const configSchema = new Schema({
   allowTypes: field({ type: [String], label: 'Allow Types' }),
   isCheckRemainder: field({ type: Boolean, optional: true }),
   checkExcludeCategoryIds: field({ type: [String] }),
+  saveRemainder: field({ type: Boolean, optional: true }),
   banFractions: field({ type: Boolean, optional: true }),
   status: field({ type: String, optional: true }),
 });

@@ -42,12 +42,14 @@ export interface IConfig {
   ebarimtConfig?: IEbarimtConfig
   branchId: string
   departmentId: string
+  saveRemainder: boolean
 }
 
 export interface IEbarimtConfig {
   headerText?: string
   footerText?: string
   hasCopy?: boolean
+  hasSumQty?: boolean
   ebarimtUrl?: string
   companyRD?: string
   companyName?: string

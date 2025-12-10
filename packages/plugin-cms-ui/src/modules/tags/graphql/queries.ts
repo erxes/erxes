@@ -28,6 +28,13 @@ const GET_TAGS = gql`
   }
 `;
 
+const GET_TAGS_COUNT = gql`
+query cmsTagsCount($clientPortalId: String, $searchValue: String) {
+  cmsTagsCount(clientPortalId: $clientPortalId, searchValue: $searchValue)
+}
+`;
+
 export default {
   GET_TAGS,
+  GET_TAGS_COUNT,
 };

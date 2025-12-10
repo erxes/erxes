@@ -29,6 +29,7 @@ const commonEnvs = configs => {
   const widgets = configs.widgets || {};
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
+  const elasticsearch = configs.elasticsearch || {};
 
   const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${
     rabbitmq.server_address ||
@@ -47,7 +48,7 @@ const commonEnvs = configs => {
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || "",
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `http://${
+    ELASTICSEARCH_URL: `http://elastic:${elasticsearch.password}@${
       db_server_address ||
       (isSwarm ? "erxes-dbs_elasticsearch" : "elasticsearch")
     }:9200`,
@@ -344,7 +345,9 @@ const deployDbs = async () => {
     dockerComposeConfig.services.elasticsearch = {
       image: "docker.elastic.co/elasticsearch/elasticsearch:7.8.0",
       environment: {
-        "discovery.type": "single-node"
+        "discovery.type": "single-node",
+        "xpack.security.enabled": "true",
+        ELASTIC_PASSWORD: configs.elasticsearch.password
       },
       ports: ["9200:9200"],
       networks: ["erxes"],
@@ -579,7 +582,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services.essyncer = {
       image: `erxes/essyncer:${essyncer_tag}`,
       environment: {
-        ELASTICSEARCH_URL: `http://${
+        ELASTICSEARCH_URL: `http://elastic:${configs.elasticsearch.password}@${
           configs.db_server_address ||
           (isSwarm ? "erxes-dbs_elasticsearch" : "elasticsearch")
         }:9200`,
@@ -715,12 +718,13 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           {
             name: "form_submissions",
             schema: "{ 'value': { 'type': 'text' } }",
-            script: ""
+            script:
+              "if (ns.indexOf('form_submissions') > -1) { if (doc.value && typeof doc.value === 'object') { doc.value = JSON.stringify(doc.value) }}"
           },
           {
             name: "customers",
             schema:
-              "{'createdAt': { 'type': 'date' }, 'organizationId': { 'type': 'keyword' }, 'state': { 'type': 'keyword' }, 'primaryEmail': { 'type': 'text', 'analyzer': 'uax_url_email_analyzer', 'fields': { 'keyword' : { 'type':'keyword' } } }, 'primaryPhone': { 'type': 'text', 'fields': { 'raw': { 'type': 'keyword' } } }, 'primaryAddress': { 'type': 'text', 'fields': { 'raw': { 'type': 'keyword' } } }, 'code': { 'type': 'text', 'fields': { 'raw': { 'type': 'keyword' } } }, 'integrationId': { 'type': 'keyword' }, 'relatedIntegrationIds': { 'type': 'keyword' }, 'scopeBrandIds': { 'type': 'keyword' }, 'ownerId': { 'type': 'keyword' }, 'position': { 'type': 'keyword' }, 'leadStatus': { 'type': 'keyword' }, 'tagIds': { 'type': 'keyword' }, 'companyIds': { 'type': 'keyword' }, 'mergedIds': { 'type': 'keyword' }, 'status': { 'type': 'keyword' }, 'emailValidationStatus': { 'type': 'keyword' }, 'customFieldsData': <nested>, 'trackedData': <nested>}",
+              "{'createdAt': { 'type': 'date' },'registrationNumber': { 'type': 'keyword' },  'organizationId': { 'type': 'keyword' }, 'state': { 'type': 'keyword' }, 'primaryEmail': { 'type': 'text', 'analyzer': 'uax_url_email_analyzer', 'fields': { 'keyword' : { 'type':'keyword' } } }, 'primaryPhone': { 'type': 'text', 'fields': { 'raw': { 'type': 'keyword' } } }, 'primaryAddress': { 'type': 'text', 'fields': { 'raw': { 'type': 'keyword' } } }, 'code': { 'type': 'text', 'fields': { 'raw': { 'type': 'keyword' } } }, 'integrationId': { 'type': 'keyword' }, 'relatedIntegrationIds': { 'type': 'keyword' }, 'scopeBrandIds': { 'type': 'keyword' }, 'ownerId': { 'type': 'keyword' }, 'position': { 'type': 'keyword' }, 'leadStatus': { 'type': 'keyword' }, 'tagIds': { 'type': 'keyword' }, 'companyIds': { 'type': 'keyword' }, 'mergedIds': { 'type': 'keyword' }, 'status': { 'type': 'keyword' }, 'emailValidationStatus': { 'type': 'keyword' }, 'emails': <nested>, 'phones': <nested>, 'customFieldsData': <nested>, 'trackedData': <nested>}",
             script:
               "if (ns.indexOf('customers') > -1) { if (doc.urlVisits) { delete doc.urlVisits } if (doc.trackedDataBackup) { delete doc.trackedDataBackup } if (doc.customFieldsDataBackup) { delete doc.customFieldsDataBackup } if (doc.messengerData) { delete doc.messengerData } if (doc.data) {delete doc.data}}"
           },

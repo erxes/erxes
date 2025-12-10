@@ -55,7 +55,9 @@ const currentConfig = gql`
         companyRD
         footerText
         hasCopy
+        hasSumQty
       }
+      saveRemainder
     }
   }
 `

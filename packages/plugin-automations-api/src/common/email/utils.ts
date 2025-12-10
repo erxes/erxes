@@ -71,8 +71,9 @@ export const formatFromEmail = (sender, fromUserEmail) => {
 
 export const getConfig = (configs, code, defaultValue?: string) => {
   const version = getEnv({ name: "VERSION" });
+  const NODE_ENV = getEnv({ name: "NODE_ENV" });
 
-  if (version === "saas") {
+  if (version === "saas" || NODE_ENV === "development") {
     return getEnv({ name: code, defaultValue });
   }
 

@@ -4,6 +4,8 @@ import { IPost, IPostDocument, postSchema } from './definitions/posts';
 import { IModels } from '../connectionResolver';
 import slugify from 'slugify';
 import { htmlToText } from 'html-to-text';
+import { generateUniqueSlug } from './utils';
+
 
 export interface IPostModel extends Model<IPostDocument> {
   getPosts: (query: any) => Promise<IPostDocument[]>;
@@ -32,29 +34,6 @@ const prepareExcerpt = (content: string) => {
 
 export const loadPostClass = (models: IModels) => {
   class Posts {
-    public static async generateUniqueSlug(
-      title: string,
-      attempt = 0
-    ): Promise<string> {
-      let baseSlug = slugify(title, { lower: true });
-
-      // If it's a retry attempt, append the attempt number to the slug
-      if (attempt > 0) {
-        baseSlug = `${baseSlug}-${attempt}`;
-      }
-
-      // Check if the slug already exists
-      const existingPost = await models.Posts.findOne({ slug: baseSlug });
-
-      // If a post with this slug exists, recursively try again with an incremented attempt number
-      if (existingPost) {
-        return this.generateUniqueSlug(title, attempt + 1);
-      }
-
-      // Return the unique slug
-      return baseSlug;
-    }
-
     public static getPosts = async (query: any, sort: any) => {
       const posts = await models.Posts.find(query).sort(sort).lean();
 
@@ -63,8 +42,8 @@ export const loadPostClass = (models: IModels) => {
 
     public static createPost = async (doc: IPost) => {
       if (!doc.slug && doc.title) {
-        // doc.slug = slugify(doc.title, { lower: true });
-        doc.slug = await this.generateUniqueSlug(doc.title);
+        const baseSlug = slugify(doc.title, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Posts, doc.clientPortalId, 'slug', baseSlug);
       }
 
       if (doc.content && !doc.excerpt) {
@@ -80,8 +59,8 @@ export const loadPostClass = (models: IModels) => {
 
     public static updatePost = async (_id: string, doc: IPost) => {
       if (!doc.slug && doc.title) {
-        // doc.slug = slugify(doc.title, { lower: true });
-        doc.slug = await this.generateUniqueSlug(doc.title);
+        const baseSlug = slugify(doc.title, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Posts, doc.clientPortalId, 'slug', baseSlug);
       }
 
       const post = await models.Posts.findOne({ _id });

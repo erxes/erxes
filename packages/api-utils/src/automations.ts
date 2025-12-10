@@ -31,6 +31,20 @@ export const replacePlaceHolders = async ({
       );
 
       for (const fieldKey of fieldKeys) {
+        const replacedValue = await getRelatedValue(
+          models,
+          subdomain,
+          target,
+          fieldKey,
+          relatedValueProps
+        );
+
+        if (replacedValue) {
+          actionData[actionDataKey] = actionData[actionDataKey].replace(
+            `{{ ${fieldKey} }}`,
+            replacedValue
+          );
+        }
         const targetKey = targetKeys.find(
           (targetKey) => targetKey === fieldKey
         );
@@ -187,7 +201,7 @@ const getPerValue = async (args: {
     sendCommonMessage,
     execution
   } = args;
-  let { field, operator, value } = rule;
+  let { field, operator, value, isExpression } = rule;
 
   const op1Type = typeof convertOp1(relatedItem, field);
 
@@ -217,19 +231,22 @@ const getPerValue = async (args: {
 
   let op1 = convertOp1(relatedItem, field);
 
-  let updatedValue = (
-    await replacePlaceHolders({
-      models,
-      subdomain,
-      getRelatedValue,
-      actionData: { config: value },
-      target,
-      isRelated: op1Type === 'string' ? true : false
-    })
-  ).config;
+  let updatedValue =
+    (
+      await replacePlaceHolders({
+        models,
+        subdomain,
+        getRelatedValue,
+        actionData: { config: value },
+        target,
+        isRelated: op1Type === 'string' ? true : false
+      })
+    ).config || '';
 
-  if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
-    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+  if (isExpression) {
+    updatedValue = eval(updatedValue.replaceAll(/{{.*?}}/g, '0'));
+  } else if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
+    updatedValue = eval(updatedValue.replaceAll(/{{.*?}}/g, '0'));
   }
 
   if (field.includes('Ids')) {

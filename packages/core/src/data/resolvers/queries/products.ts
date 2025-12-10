@@ -683,7 +683,23 @@ const productQueries = {
     }
 
     return products;
-  }
+  },
+
+ async lastCode(_root, { categoryId }, { models }: IContext) {
+  const last = await models.Products.aggregate([
+    { $match: { categoryId } },
+    {
+      $addFields: {
+        codeLen: { $strLenCP: "$code" }
+      }
+    },
+    { $sort: { codeLen: -1, code: -1 } },
+    { $limit: 1 }
+  ]);
+
+  return last?.[0]?.code || null;
+ }
+
 };
 
 requireLogin(productQueries, 'productsTotalCount');
@@ -696,5 +712,7 @@ checkPermission(
 );
 checkPermission(productQueries, 'productCategories', 'showProducts', []);
 checkPermission(productQueries, 'productCountByTags', 'showProducts', []);
+checkPermission(productQueries, 'lastCode', 'showProducts', []);
+
 
 export default productQueries;

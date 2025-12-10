@@ -41,6 +41,7 @@ export interface IPos {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
 }
 export interface IPosDocument extends IPos, Document {
@@ -154,6 +155,7 @@ export const posSchema = schemaHooksWrapper(
       type: [String],
       label: 'Check Exclude Categories',
     }),
+    saveRemainder: field({ type: Boolean, label: 'Save Remainder' }),
     banFractions: field({ type: Boolean, label: 'has Float count' }),
     status: field({ type: String, label: 'Status', optional: true }),
   }),

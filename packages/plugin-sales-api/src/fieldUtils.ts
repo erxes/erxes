@@ -1,11 +1,11 @@
-import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
-import { generateModels, IModels } from './connectionResolver';
+import { generateFieldsFromSchema } from "@erxes/api-utils/src/fieldUtils";
+import { generateModels, IModels } from "./connectionResolver";
 import {
   BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
-  BOARD_ITEM_EXTENDED_FIELDS
-} from './constants';
-import { sendCoreMessage } from './messageBroker';
-import { PROBABILITY } from './models/definitions/constants';
+  BOARD_ITEM_EXTENDED_FIELDS,
+} from "./constants";
+import { sendCoreMessage } from "./messageBroker";
+import { PROBABILITY } from "./models/definitions/constants";
 
 const generateProductsOptions = async (
   name: string,
@@ -18,9 +18,9 @@ const generateProductsOptions = async (
     label,
     type,
     selectionConfig: {
-      queryName: 'products',
-      labelField: 'name'
-    }
+      queryName: "products",
+      labelField: "name",
+    },
   };
 };
 
@@ -35,9 +35,9 @@ const generateProductsCategoriesOptions = async (
     label,
     type,
     selectionConfig: {
-      queryName: 'productCategories',
-      labelField: 'name'
-    }
+      queryName: "productCategories",
+      labelField: "name",
+    },
   };
 };
 
@@ -54,9 +54,9 @@ const generateContactsOptions = async (
     type,
     selectionConfig: {
       ...selectionConfig,
-      labelField: 'primaryEmail',
-      multi: true
-    }
+      labelField: "primaryEmail",
+      multi: true,
+    },
   };
 };
 
@@ -73,9 +73,9 @@ const generateUsersOptions = async (
     type,
     selectionConfig: {
       ...selectionConfig,
-      queryName: 'users',
-      labelField: 'email'
-    }
+      queryName: "users",
+      labelField: "email",
+    },
   };
 };
 
@@ -92,8 +92,8 @@ const generateStructuresOptions = async (
     type,
     selectionConfig: {
       ...selectionConfig,
-      labelField: 'title'
-    }
+      labelField: "title",
+    },
   };
 };
 
@@ -104,29 +104,29 @@ const getStageOptions = async (models: IModels, pipelineId) => {
   for (const stage of stages) {
     options.push({
       value: stage._id,
-      label: stage.name || ''
+      label: stage.name || "",
     });
   }
 
   return {
     _id: Math.random(),
-    name: 'stageId',
-    label: 'Stage',
-    type: 'stage',
-    selectOptions: options
+    name: "stageId",
+    label: "Stage",
+    type: "stage",
+    selectOptions: options,
   };
 };
 
 const getStageProbabilityOptions = () => {
   return {
     _id: Math.random(),
-    name: 'stageProbability',
-    label: 'Stage Probability',
-    type: 'probability',
+    name: "stageProbability",
+    label: "Stage Probability",
+    type: "probability",
     selectOptions: PROBABILITY.ALL.map((prob) => ({
       value: prob,
-      label: prob
-    }))
+      label: prob,
+    })),
   };
 };
 
@@ -137,16 +137,16 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   for (const label of labels) {
     options.push({
       value: label._id,
-      label: label.name
+      label: label.name,
     });
   }
 
   return {
     _id: Math.random(),
-    name: 'labelIds',
-    label: 'Labels',
-    type: 'label',
-    selectOptions: options
+    name: "labelIds",
+    label: "Labels",
+    type: "label",
+    selectOptions: options,
   };
 };
 
@@ -158,12 +158,12 @@ const generateTagOptions = async (
 ) => {
   const options = await sendCoreMessage({
     subdomain,
-    action: 'tagFind',
+    action: "tagFind",
     data: {
-      type: 'sales:deal'
+      type: "sales:deal",
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return {
@@ -173,8 +173,8 @@ const generateTagOptions = async (
     type,
     selectOptions: options.map(({ _id, name }) => ({
       value: _id,
-      label: name
-    }))
+      label: name,
+    })),
   };
 };
 
@@ -197,22 +197,22 @@ export const generateFields = async ({ subdomain, data }) => {
   }> = [];
 
   switch (type) {
-    case 'deal':
+    case "deal":
       schema = models.Deals.schema;
       break;
   }
 
-  if (usageType && usageType === 'import') {
+  if (usageType && usageType === "import") {
     fields = BOARD_ITEM_EXTENDED_FIELDS;
   }
 
-  if (usageType && usageType === 'export') {
+  if (usageType && usageType === "export") {
     fields = BOARD_ITEM_EXPORT_EXTENDED_FIELDS;
   }
 
   if (schema) {
     // generate list using customer or company schema
-    fields = [...(await generateFieldsFromSchema(schema, '')), ...fields];
+    fields = [...(await generateFieldsFromSchema(schema, "")), ...fields];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -221,95 +221,104 @@ export const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
   }
 
   const createdByOptions = await generateUsersOptions(
-    'userId',
-    'Created by',
-    'user',
+    "userId",
+    "Created by",
+    "user",
     { multi: false }
   );
 
   const modifiedByOptions = await generateUsersOptions(
-    'modifiedBy',
-    'Modified by',
-    'user',
+    "modifiedBy",
+    "Modified by",
+    "user",
     { multi: false }
   );
 
   const assignedUserOptions = await generateUsersOptions(
-    'assignedUserIds',
-    'Assigned to',
-    'user',
+    "assignedUserIds",
+    "Assigned to",
+    "user",
     { multi: true }
   );
 
   const watchedUserOptions = await generateUsersOptions(
-    'watchedUserIds',
-    'Watched users',
-    'user',
+    "watchedUserIds",
+    "Watched users",
+    "user",
     { multi: true }
   );
 
   const customersPrimaryEmailOptions = await generateContactsOptions(
-    'customersEmail',
-    'Customers Primary Email',
-    'contact',
+    "customersEmail",
+    "Customers Primary Email",
+    "contact",
     {
-      queryName: 'customers'
+      queryName: "customers",
     }
   );
 
   const customersPrimaryPhoneOptions = await generateContactsOptions(
-    'customersPhone',
-    'Customers Primary Phone',
-    'contact',
+    "customersPhone",
+    "Customers Primary Phone",
+    "contact",
     {
-      queryName: 'customers'
+      queryName: "customers",
     }
   );
 
   const customersFullNameOptions = await generateContactsOptions(
-    'customersName',
-    'Customers Full Name',
-    'contact',
+    "customersName",
+    "Customers Full Name",
+    "contact",
     {
-      queryName: 'customers'
+      queryName: "customers",
+    }
+  );
+
+  const customersOptions = await generateContactsOptions(
+    "customers",
+    "Customers",
+    "contact",
+    {
+      queryName: "customers",
     }
   );
 
   const companiesOptions = await generateContactsOptions(
-    'companies',
-    'Companies',
-    'contact',
+    "companies",
+    "Companies",
+    "contact",
     {
-      queryName: 'companies'
+      queryName: "companies",
     }
   );
 
   const branchesOptions = await generateStructuresOptions(
-    'branchIds',
-    'Branches',
-    'structure',
-    { queryName: 'branches' }
+    "branchIds",
+    "Branches",
+    "structure",
+    { queryName: "branches" }
   );
 
   const departmentsOptions = await generateStructuresOptions(
-    'departmentIds',
-    'Departments',
-    'structure',
-    { queryName: 'branches' }
+    "departmentIds",
+    "Departments",
+    "structure",
+    { queryName: "branches" }
   );
 
   const tagsOptions = await generateTagOptions(
     subdomain,
-    'tagIds',
-    'Tags',
-    'tags'
+    "tagIds",
+    "Tags",
+    "tags"
   );
 
   fields = [
@@ -322,112 +331,143 @@ export const generateFields = async ({ subdomain, data }) => {
       customersFullNameOptions,
       customersPrimaryEmailOptions,
       customersPrimaryPhoneOptions,
+      customersOptions,
       companiesOptions,
       branchesOptions,
       departmentsOptions,
-      tagsOptions
-    ]
+      tagsOptions,
+    ],
   ];
 
-  if (usageType === 'automations') {
+  const pipelineFilter: any = {};
+  if (pipelineId) {
+    pipelineFilter._id = pipelineId;
+  }
+
+  fields.push({
+    _id: Math.random(),
+    name: `paymentsData.cash.amount`,
+    label: "Cash",
+    type: "Number",
+  });
+
+  const paymentTypes =
+    await models.Pipelines.find(pipelineFilter).distinct("paymentTypes");
+  const types: string[] = [];
+
+  for (const { type, title } of paymentTypes) {
+    if (types.includes(type)) {
+      continue;
+    }
+
+    types.push(type);
+    fields.push({
+      _id: Math.random(),
+      name: `paymentsData.${type}.amount`,
+      label: title,
+      type: "Number",
+    });
+  }
+
+  if (usageType === "automations") {
     fields = [
       ...fields,
       {
         _id: Math.random(),
-        name: 'createdBy.email',
-        label: 'Created by Email',
-        type: 'String'
+        name: "createdBy.email",
+        label: "Created by Email",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'createdBy.phone',
-        label: 'Created by Phone',
-        type: 'String'
+        name: "createdBy.phone",
+        label: "Created by Phone",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'createdBy.branch',
-        label: 'Created by Branch',
-        type: 'String'
+        name: "createdBy.branch",
+        label: "Created by Branch",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'createdBy.department',
-        label: 'Created by Department',
-        type: 'String'
+        name: "createdBy.department",
+        label: "Created by Department",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'customers.email',
-        label: 'Customers Email',
-        type: 'String'
+        name: "customers.email",
+        label: "Customers Email",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'customers.phone',
-        label: 'Customers phone',
-        type: 'String'
+        name: "customers.phone",
+        label: "Customers phone",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'customers.fullName',
-        label: 'Customers FullName',
-        type: 'String'
+        name: "customers.fullName",
+        label: "Customers FullName",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'link',
-        label: 'Link',
-        type: 'String'
+        name: "link",
+        label: "Link",
+        type: "String",
       },
       {
         _id: Math.random(),
-        name: 'pipelineLabels',
-        label: 'Pipeline Labels',
-        type: 'String'
-      }
+        name: "pipelineLabels",
+        label: "Pipeline Labels",
+        type: "String",
+      },
     ];
   }
 
-  if (type === 'deal' && usageType !== 'export') {
+  if (type === "deal" && usageType !== "export") {
     const productOptions = await generateProductsOptions(
-      'productsData.productId',
-      'Product',
-      'product'
+      "productsData.productId",
+      "Product",
+      "product"
     );
 
     const productsCategoriesOptions = await generateProductsCategoriesOptions(
-      'productsData.categoryId',
-      'Product Categories',
-      'select'
+      "productsData.categoryId",
+      "Product Categories",
+      "select"
     );
 
     fields = [
       ...fields,
-      ...[productOptions, productsCategoriesOptions, assignedUserOptions]
+      ...[productOptions, productsCategoriesOptions, assignedUserOptions],
     ];
   }
 
-  if (type === 'deal' && usageType === 'export') {
+  if (type === "deal" && usageType === "export") {
     const extendFieldsExport = [
-      { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
-      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
-      { _id: Math.random(), name: 'productsData.branch', label: 'Branch' },
+      { _id: Math.random(), name: "productsData.name", label: "Product Name" },
+      { _id: Math.random(), name: "productsData.code", label: "Product Code" },
+      { _id: Math.random(), name: "productsData.branch", label: "Branch" },
       {
         _id: Math.random(),
-        name: 'productsData.department',
-        label: 'Department'
-      }
+        name: "productsData.department",
+        label: "Department",
+      },
     ];
 
     fields = [...fields, ...extendFieldsExport];
   }
 
-  if (usageType === 'export') {
+  if (usageType === "export") {
     const extendExport = [
-      { _id: Math.random(), name: 'boardId', label: 'Board' },
-      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' },
-      { _id: Math.random(), name: 'labelIds', label: 'Label' }
+      { _id: Math.random(), name: "boardId", label: "Board" },
+      { _id: Math.random(), name: "pipelineId", label: "Pipeline" },
+      { _id: Math.random(), name: "labelIds", label: "Label" },
     ];
 
     fields = [...fields, ...extendExport];
@@ -437,9 +477,9 @@ export const generateFields = async ({ subdomain, data }) => {
     const segment = segmentId
       ? await sendCoreMessage({
           subdomain,
-          action: 'segmentFindOne',
+          action: "segmentFindOne",
           data: { _id: segmentId },
-          isRPC: true
+          isRPC: true,
         })
       : null;
 
@@ -460,9 +500,9 @@ export const generateFields = async ({ subdomain, data }) => {
   } else {
     const stageOptions = {
       _id: Math.random(),
-      name: 'stageId',
-      label: 'Stage',
-      type: 'stage'
+      name: "stageId",
+      label: "Stage",
+      type: "stage",
     };
     //Add probability options in else
     const probabilityOptions = getStageProbabilityOptions();

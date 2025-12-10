@@ -8,6 +8,7 @@ import {
 } from "./conformitiesUtils";
 import {
   conformitySchema,
+  IConformitiesDelete,
   IConformitiesRemove,
   IConformityAdd,
   IConformityChange,
@@ -29,6 +30,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   changeConformity(doc: IConformityChange): Promise<void>;
   removeConformity(doc: IConformityRemove): void;
   removeConformities(doc: IConformitiesRemove): void;
+  deleteConformities(doc: IConformitiesDelete): void;
   savedConformity(doc: IConformitySaved): Promise<string[]>;
   relatedConformity(doc: IConformityRelated): Promise<string[]>;
   filterConformity(doc: IConformityFilter): Promise<string[]>;
@@ -245,6 +247,22 @@ export const loadConformityClass = (models: IModels, _subdomain: string) => {
               { relTypeId: { $in: doc.mainTypeIds } }
             ]
           }
+        ]
+      });
+    }
+
+    public static async deleteConformities(doc: IConformitiesDelete) {
+      const { mainType, mainTypeId, relType, relTypeIds } = doc;
+      await models.Conformities.deleteMany({
+        $or: [
+          {
+            mainType, mainTypeId,
+            relType, relTypeId: { $in: relTypeIds }
+          },
+          {
+            relType: mainType, relTypeId: mainTypeId,
+            mainType: relType, mainTypeId: { $in: relTypeIds },
+          },
         ]
       });
     }

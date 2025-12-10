@@ -1,8 +1,8 @@
 import {
   commonFields,
   commonParamsDef,
-  commonParamsValue
-} from '../../common/graphq';
+  commonParamsValue,
+} from "../../common/graphq";
 
 export const voucherFields = `
   ${commonFields}
@@ -11,10 +11,16 @@ export const voucherFields = `
 
 const listParamsDef = `
   ${commonParamsDef}
+  $searchValue: String
+  $fromDate: String
+  $toDate: String
 `;
 
 const listParamsValue = `
   ${commonParamsValue}
+  searchValue: $searchValue
+  fromDate: $fromDate
+  toDate: $toDate
 `;
 
 export const vouchers = `
@@ -56,5 +62,5 @@ export default {
   vouchers,
   ownerVouchers,
   vouchersMain,
-  voucherDetail
+  voucherDetail,
 };

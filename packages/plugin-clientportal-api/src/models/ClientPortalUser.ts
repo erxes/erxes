@@ -570,7 +570,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         : true;
 
       if (email) {
-        query.email = email;
+        query.email = { $regex: email, $options: 'i' };
       }
 
       if (phone) {
