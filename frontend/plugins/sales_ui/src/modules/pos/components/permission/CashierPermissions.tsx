@@ -1,0 +1,171 @@
+import { useEffect, useState } from 'react';
+import { Button, Label, Input, Switch, toast } from 'erxes-ui';
+import { SelectMember } from 'ui-modules';
+import { useMutation } from '@apollo/client';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
+import { cleanData } from '@/pos/utils/cleanData';
+
+interface CashierPermissionsProps {
+  posId?: string;
+}
+
+export const CashierPermissions: React.FC<CashierPermissionsProps> = ({
+  posId,
+}) => {
+  const [cashierIds, setCashierIds] = useState<string[]>([]);
+  const [isPrintTempBill, setIsPrintTempBill] = useState(false);
+  const [directDiscount, setDirectDiscount] = useState(false);
+  const [directDiscountLimit, setDirectDiscountLimit] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
+  const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
+
+  useEffect(() => {
+    if (posDetail) {
+      setCashierIds(posDetail.cashierIds || []);
+      const cashierConfig = posDetail.permissionConfig?.cashiers;
+      setIsPrintTempBill(cashierConfig?.isTempBill ?? false);
+      setDirectDiscount(cashierConfig?.directDiscount ?? false);
+      setDirectDiscountLimit(
+        cashierConfig?.directDiscountLimit?.toString() || '',
+      );
+    }
+  }, [posDetail]);
+
+  const handleSaveChanges = async () => {
+    if (!posId) {
+      toast({
+        title: 'Error',
+        description: 'POS ID is required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const currentPermissionConfig = cleanData(
+        posDetail?.permissionConfig || {},
+      );
+      const parsedDirectDiscountLimit = Number(directDiscountLimit);
+      const directDiscountLimitValue = Number.isFinite(
+        parsedDirectDiscountLimit,
+      )
+        ? parsedDirectDiscountLimit
+        : 0;
+      await posEdit({
+        variables: {
+          _id: posId,
+          cashierIds,
+          permissionConfig: {
+            ...currentPermissionConfig,
+            cashiers: {
+              isTempBill: isPrintTempBill,
+              directDiscount: directDiscount,
+              directDiscountLimit: directDiscountLimitValue,
+            },
+          },
+        },
+      });
+
+      toast({
+        title: 'Success',
+        description: 'Cashier permissions saved successfully',
+      });
+      setHasChanges(false);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to save cashier permissions',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (detailLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-10 rounded animate-pulse bg-muted" />
+        <div className="h-10 rounded animate-pulse bg-muted" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label>
+          POS CASHIER <span className="text-destructive">*</span>
+        </Label>
+        <SelectMember
+          value={cashierIds}
+          onValueChange={(value) => {
+            const ids = Array.isArray(value) ? value : value ? [value] : [];
+            setCashierIds(ids);
+            setHasChanges(true);
+          }}
+          mode="multiple"
+        />
+      </div>
+
+      <div className="flex gap-8 items-center">
+        <div className="flex gap-2 items-center">
+          <Label className="text-xs">IS PRINT TEMP BILL</Label>
+          <Switch
+            checked={isPrintTempBill}
+            onCheckedChange={(checked) => {
+              setIsPrintTempBill(checked);
+              setHasChanges(true);
+            }}
+          />
+        </div>
+
+        <div className="flex gap-2 items-center">
+          <Label className="text-xs">DIRECT DISCOUNT</Label>
+          <Switch
+            checked={directDiscount}
+            onCheckedChange={(checked) => {
+              setDirectDiscount(checked);
+              setHasChanges(true);
+            }}
+          />
+        </div>
+
+        {directDiscount && (
+          <div className="flex gap-2 items-center">
+            <Label className="text-xs">DIRECT DISCOUNT LIMIT</Label>
+            <Input
+              type="number"
+              value={directDiscountLimit}
+              onChange={(e) => {
+                setDirectDiscountLimit(e.target.value);
+                setHasChanges(true);
+              }}
+              placeholder="Enter limit"
+              className="w-32 h-8"
+            />
+          </div>
+        )}
+      </div>
+
+      {hasChanges && (
+        <div className="flex justify-end pt-4 border-t">
+          <Button onClick={handleSaveChanges} disabled={saving}>
+            {saving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};

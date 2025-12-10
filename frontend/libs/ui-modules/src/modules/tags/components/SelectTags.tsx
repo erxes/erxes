@@ -87,6 +87,64 @@ export const SelectTagsProvider = ({
   );
 };
 
+export const SelectTagGroupsCommand = ({
+  disableCreateOption = true,
+}: {
+  disableCreateOption?: boolean;
+}) => {
+  const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
+  const { tagType, targetIds, selectedTags } = useSelectTagsContext();
+  const [noTagsSearchValue, setNoTagsSearchValue] = useState('');
+
+  const { tags, loading, error, handleFetchMore, totalCount } = useTags({
+    variables: {
+      type: tagType,
+      searchValue: debouncedSearch,
+      isGroup: true,
+    },
+    skip: !!noTagsSearchValue && debouncedSearch.includes(noTagsSearchValue),
+    onCompleted(data) {
+      const { totalCount } = data?.tags || {};
+      setNoTagsSearchValue(totalCount === 0 ? debouncedSearch : '');
+    },
+  });
+  return (
+    <Command shouldFilter={false}>
+      <Command.Input
+        value={search}
+        onValueChange={setSearch}
+        placeholder="Search tags"
+        focusOnMount
+      />
+      {selectedTags?.length > 0 && (
+        <>
+          <div className="flex flex-wrap p-2 gap-2">
+            <TagList />
+          </div>
+        </>
+      )}
+      <Command.List>
+        <SelectTree.Provider id={targetIds.join(',')} ordered={!search}>
+          <SelectTagsCreate
+            search={search}
+            show={!disableCreateOption && !loading && !tags?.length}
+          />
+          <Combobox.Empty loading={loading} error={error} />
+          {tags?.map((tag) => (
+            <SelectTagsItem key={tag._id} tag={tag} />
+          ))}
+          <Combobox.FetchMore
+            fetchMore={handleFetchMore}
+            currentLength={tags?.length || 0}
+            totalCount={totalCount}
+          />
+        </SelectTree.Provider>
+      </Command.List>
+    </Command>
+  );
+};
+
 export const SelectTagsCommand = ({
   disableCreateOption = true,
 }: {
@@ -145,7 +203,7 @@ export const SelectTagsCommand = ({
                 }}
               />
             ))}
-          
+
           {tags
             ?.filter(
               (tag) => tag.isGroup && tags.some((t) => t.parentId === tag._id),
@@ -495,6 +553,7 @@ export const SelectTags = Object.assign(SelectTagsRoot, {
   CommandbarItem: SelectTagsCommandbarItem,
   Content: SelectTagsContent,
   Command: SelectTagsCommand,
+  GroupsCommand: SelectTagGroupsCommand,
   Item: SelectTagsItem,
   Value: SelectTagsValue,
   List: TagList,

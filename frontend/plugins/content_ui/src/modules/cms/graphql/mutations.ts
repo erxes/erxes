@@ -1,5 +1,43 @@
 import { gql } from '@apollo/client';
 
+export const CONTENT_CREATE_CMS = gql`
+  mutation ContentCreateCMS($input: ContentCMSInput) {
+    contentCreateCMS(input: $input) {
+      _id
+      clientPortalId
+      createdAt
+      description
+      language
+      languages
+      name
+      updatedAt
+      content
+    }
+  }
+`;
+
+export const CONTENT_UPDATE_CMS = gql`
+  mutation ContentUpdateCMS($id: String!, $input: ContentCMSInput) {
+    contentUpdateCMS(_id: $id, input: $input) {
+      _id
+      clientPortalId
+      createdAt
+      description
+      language
+      languages
+      name
+      updatedAt
+      content
+    }
+  }
+`;
+
+export const CONTENT_DELETE_CMS = gql`
+  mutation ContentDeleteCMS($id: String!) {
+    contentDeleteCMS(_id: $id)
+  }
+`;
+
 export const ADD_TOPIC = gql`
   mutation knowledgeBaseTopicsAdd($input: KnowledgeBaseTopicInput!) {
     knowledgeBaseTopicsAdd(input: $input) {

@@ -6,7 +6,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { useDebounce } from 'use-debounce'; 
+import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
 import { Block } from '@blocknote/core';
 import { ITicket } from '@/ticket/types';

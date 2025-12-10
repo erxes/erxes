@@ -1,9 +1,14 @@
 export const types = `
+  enum PaymentMethodStatus {
+    active
+    inactive
+  }
+
   type Payment {
     _id: String!
     name: String!
     kind: String!
-    status: String
+    status: PaymentMethodStatus
     config: JSON
     createdAt: Date
   }
@@ -25,7 +30,7 @@ export const inputs = `
   input PaymentInput {
     name: String!
     kind: String!
-    status: String
+    status: PaymentMethodStatus
     config: JSON
   }
 `

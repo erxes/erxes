@@ -269,7 +269,6 @@ export const widgetMutations: Record<string, Resolver> = {
       _id: integrationId,
       kind: 'messenger',
     });
-
     if (!integration) {
       throw new Error('Integration not found');
     }
@@ -297,7 +296,6 @@ export const widgetMutations: Record<string, Resolver> = {
           phone,
           code,
         },
-        defaultValue: [],
       });
 
       const doc = {
@@ -1067,7 +1065,7 @@ export const widgetMutations: Record<string, Resolver> = {
     doc: ITicketWidget,
     { models, subdomain }: IContext,
   ) {
-    const { statusId, type, ...restFields } = doc;
+    const { statusId, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
     if (!status) {
       throw new Error('Status not found');

@@ -123,7 +123,7 @@ export function CategoryDrawer({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Code</Form.Label>
+                  <Form.Label>Code2</Form.Label>
                   <Form.Control>
                     <Input {...field} placeholder="Enter category code" />
                   </Form.Control>

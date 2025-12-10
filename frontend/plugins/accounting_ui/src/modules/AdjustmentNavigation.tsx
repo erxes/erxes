@@ -1,5 +1,5 @@
 import {
-  IconAdjustmentsCode, IconCrane, IconListCheck, IconListDetails
+  IconAdjustmentsCode
 } from '@tabler/icons-react';
 import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
 

@@ -14,13 +14,6 @@ export const usePipelineConfigForm = () => {
       channelId: id,
       pipelineId,
       selectedStatusId: undefined,
-      ticketBasicFields: {
-        isShowAttachment: false,
-        isShowDescription: false,
-        isShowName: false,
-        isShowTags: false,
-      },
-      contactType: undefined,
     },
     resolver: zodResolver(PIPELINE_CONFIG_SCHEMA),
   });

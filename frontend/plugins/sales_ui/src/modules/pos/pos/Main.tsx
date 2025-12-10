@@ -9,7 +9,7 @@ const Pos = lazy(() =>
 
 const PluginPos = () => {
   return (
-    <Suspense fallback={<></>}>
+    <Suspense fallback={<div />}>
       <Routes>
         <Route path="/" element={<Pos />} />
       </Routes>

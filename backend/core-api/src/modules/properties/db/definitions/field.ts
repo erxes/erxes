@@ -16,7 +16,7 @@ export const fieldSchema = new Schema(
       index: true,
     },
     contentType: { type: String, label: 'Content type', required: true },
-    contentTypeId: { type: String, label: 'Content type ID', required: true },
+    contentTypeId: { type: String, label: 'Content type ID' },
 
     type: { type: String, label: 'Type', required: true },
     order: { type: Number, label: 'Order', index: true },

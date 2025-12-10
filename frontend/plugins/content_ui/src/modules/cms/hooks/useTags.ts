@@ -3,22 +3,21 @@ import { CMS_TAGS } from '../graphql/queries';
 
 export interface CmsTag {
   _id: string;
-  clientPortalId: string;
   name: string;
-  slug: string;
   colorCode: string;
   createdAt: string;
-  updatedAt: string;
-  __typename: string;
 }
 
-interface UseTagsProps {
-  clientPortalId: string;
+export interface UseTagsProps {
+  clientPortalId?: string;
+  type?: string;
   searchValue?: string;
   limit?: number;
   cursor?: string;
+  cursorMode?: string;
   direction?: 'forward' | 'backward';
   sortField?: string;
+  sortMode?: string;
   sortDirection?: string;
 }
 
@@ -31,21 +30,27 @@ interface UseTagsResult {
 
 export function useTags({
   clientPortalId,
+  type,
   searchValue,
   limit = 20,
   cursor,
+  cursorMode,
   direction,
   sortField,
+  sortMode,
   sortDirection,
 }: UseTagsProps): UseTagsResult {
   const { data, loading, error, refetch } = useQuery(CMS_TAGS, {
     variables: {
       clientPortalId,
+      type,
       searchValue,
       limit,
       cursor,
+      cursorMode,
       direction,
       sortField,
+      sortMode,
       sortDirection,
     },
     errorPolicy: 'all',

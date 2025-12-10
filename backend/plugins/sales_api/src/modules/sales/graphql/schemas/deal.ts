@@ -155,6 +155,12 @@ export const types = `
     action: String
     deal: Deal
   }
+  type DealProductsDataChangeResponse {
+    _id: String
+    processId: String
+    action: String
+    data: JSON
+  }
 `;
 
 const archivedDealsParams = `
@@ -221,5 +227,5 @@ export const mutations = `
   dealsArchive(stageId: String!, processId: String): String
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
-  dealsDeleteProductData(processId: String, dealId: String, dataId: String): JSON
+  dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
 `;

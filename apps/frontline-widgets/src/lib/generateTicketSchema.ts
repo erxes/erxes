@@ -22,19 +22,19 @@ export function generateTicketSchema(ticketConfig: ITicketConfig | null) {
   }
 
   // Ticket basic fields
-  if (ticketConfig.ticketBasicFields.isShowTags) {
+  if (ticketConfig.formFields.tags?.isShow) {
     schema.tags = z.array(z.string()).default([]);
   }
 
-  if (ticketConfig.ticketBasicFields.isShowName) {
+  if (ticketConfig.formFields.name?.isShow) {
     schema.name = z.string().optional();
   }
 
-  if (ticketConfig.ticketBasicFields.isShowDescription) {
+  if (ticketConfig.formFields.description?.isShow) {
     schema.description = z.string().optional();
   }
 
-  if (ticketConfig.ticketBasicFields.isShowAttachment) {
+  if (ticketConfig.formFields.attachment?.isShow) {
     schema.attachments = z.array(z.any()).optional();
   }
 

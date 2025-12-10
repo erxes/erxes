@@ -23,6 +23,9 @@ const baseSchema = z.object({
     .string()
     .min(1, 'Name is required')
     .max(100, 'Name must be less than 100 characters'),
+  status: z.enum(['active', 'inactive'], {
+    required_error: 'Status is required',
+  }),
 });
 
 const quickQrSchema = z.object({
@@ -31,6 +34,9 @@ const quickQrSchema = z.object({
     .string()
     .min(1, 'Name is required')
     .max(100, 'Name must be less than 100 characters'),
+  status: z.enum(['active', 'inactive'], {
+    required_error: 'Status is required',
+  }),
   type: z.string().min(1, 'Type is required'),
   companyName: z.string().optional(),
   firstName: z.string().optional(),
@@ -47,7 +53,7 @@ const quickQrSchema = z.object({
   bankCode: z.string().min(1, 'Bank code is required'),
   ibanNumber: z.string().min(1, 'IBAN number is required'),
   bankAccountName: z.string().min(1, 'Bank account name is required'),
-}); 
+});
 
 // Dynamic schema generator based on payment kind
 const createPaymentSchema = (selectedKind: string) => {
@@ -130,12 +136,13 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
   // Get default values from payment prop
   const getDefaultValues = useMemo(() => {
     if (!payment) {
-      return { kind: '', name: '' };
+      return { kind: '', name: '', status: 'active' };
     }
 
     const defaultValues: Record<string, any> = {
       kind: payment.kind || '',
       name: payment.name || '',
+      status: payment.status || 'active',
     };
 
     // Add payment config values
@@ -193,17 +200,17 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
     }
   }, [payment, form, getDefaultValues]);
 
-
   const onSubmit = (data: any) => {
     const input: IPayment = {
       name: data.name,
       kind: data.kind,
+      status: data.status,
       config: {},
     };
 
     const config: any = {};
     Object.entries(data).forEach(([key, value]) => {
-      if (key !== 'kind' && key !== 'name') {
+      if (key !== 'kind' && key !== 'name' && key !== 'status') {
         config[key] = value;
       }
     });
@@ -298,6 +305,57 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
                     {...field}
                     placeholder="Enter a name for this payment method"
                   />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+
+          {/* Status */}
+          <Form.Field
+            name="status"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Status *</Form.Label>
+                <Form.Control>
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    <Form.Control>
+                      <Select.Trigger>
+                        <Select.Value
+                          placeholder={
+                            <span className="text-sm font-medium text-center truncate text-muted-foreground">
+                              {'Select status'}
+                            </span>
+                          }
+                        >
+                          <span className="text-sm font-medium text-foreground capitalize">
+                            {field.value}
+                          </span>
+                        </Select.Value>
+                      </Select.Trigger>
+                    </Form.Control>
+                    <Select.Content className="border p-0" align="start">
+                      <Select.Group>
+                        <Select.Item
+                          className="text-xs h-7 capitalize"
+                          value="active"
+                        >
+                          Active
+                        </Select.Item>
+                        <Select.Item
+                          className="text-xs h-7 capitalize"
+                          value="inactive"
+                        >
+                          Inactive
+                        </Select.Item>
+                      </Select.Group>
+                    </Select.Content>
+                  </Select>
                 </Form.Control>
               </Form.Item>
             )}

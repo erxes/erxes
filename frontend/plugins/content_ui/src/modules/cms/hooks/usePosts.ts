@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { POST_LIST } from '../graphql/queries';
+import { POST_LIST } from '../graphql/posts';
 
 export interface PostAuthor {
   _id: string;
@@ -118,8 +118,7 @@ export function usePosts({
       clientPortalId,
       type,
       featured,
-      categoryId:
-        categoryIds && categoryIds.length > 0 ? categoryIds[0] : undefined,
+      categoryIds: categoryIds && categoryIds.length > 0 ? categoryIds : undefined,
       searchValue,
       status,
       limit: perPage,

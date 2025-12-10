@@ -18,7 +18,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { useCallback, useState } from 'react';
 import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { useEditCustomer } from '../hooks/useEditCustomer';
-import { integrationIdAtom } from '../states';
+import { messengerDataAtom } from '../states';
 import { useAtom } from 'jotai';
 import { useConnect } from '../hooks/useConnect';
 
@@ -26,12 +26,12 @@ export const NotifyCustomerForm = () => {
   const { form } = useCreateCustomerForm();
   const { control, handleSubmit, reset } = form;
   const { editCustomer, loading } = useEditCustomer();
-  const [integrationId] = useAtom(integrationIdAtom);
+  const [messengerData] = useAtom(messengerDataAtom);
 
   const customerId = getLocalStorageItem('customerId');
 
   const { connectMutation } = useConnect({
-    integrationId: integrationId ?? '',
+    integrationId: messengerData?.integrationId ?? '',
   });
 
   const onSubmit: SubmitHandler<TCreateCustomerForm> = useCallback(
@@ -49,10 +49,10 @@ export const NotifyCustomerForm = () => {
           setLocalStorageItem('erxes', JSON.stringify(customer));
           setLocalStorageItem('customerId', customer._id);
 
-          if (integrationId && connectMutation) {
+          if (messengerData?.integrationId && connectMutation) {
             await connectMutation({
               variables: {
-                integrationId,
+                integrationId: messengerData?.integrationId ?? '',
                 cachedCustomerId: customer._id,
                 isUser: true,
               },
@@ -75,7 +75,7 @@ export const NotifyCustomerForm = () => {
         },
       });
     },
-    [editCustomer, reset, integrationId, connectMutation],
+    [editCustomer, reset, messengerData?.integrationId, connectMutation],
   );
 
   return (

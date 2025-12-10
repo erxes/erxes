@@ -7,7 +7,7 @@ import { Intro } from './messenger/components/intro';
 import { useConnect } from './messenger/hooks/useConnect';
 import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
-import { connectionAtom, integrationIdAtom } from './messenger/states';
+import { connectionAtom, messengerDataAtom } from './messenger/states';
 import { Ticket } from './messenger/ticket/components/ticket';
 
 export function App() {
@@ -15,9 +15,9 @@ export function App() {
   const [isSmallContainer] = useState(false);
   const { activeTab } = useMessenger();
   const [connection] = useAtom(connectionAtom);
-  const [integrationId, setIntegrationId] = useAtom(integrationIdAtom);
+  const [messengerData, setMessengerData] = useAtom(messengerDataAtom);
   const { loading: connecting } = useConnect({
-    integrationId: integrationId ?? '',
+    integrationId: messengerData?.integrationId ?? '',
   });
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function App() {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.fromPublisher) {
         if (event.data?.settings?.integrationId) {
-          setIntegrationId(event.data.settings.integrationId);
+          setMessengerData(event.data.settings);
         }
 
         if (event.data.action === 'toggleMessenger') {

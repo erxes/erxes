@@ -98,7 +98,14 @@ export const receiveInboxMessage = async (
   }
 
   if (action === 'create-or-update-conversation') {
-    const { conversationId, content, owner, updatedAt, integrationId } = doc;
+    const {
+      conversationId,
+      content,
+      owner,
+      updatedAt,
+      integrationId,
+      customerId,
+    } = doc;
     let user;
 
     if (owner) {
@@ -133,15 +140,18 @@ export const receiveInboxMessage = async (
       }).lean();
 
       if (conversation) {
-        await Conversations.updateConversation(conversationId, {
+        const updatedDoc = {
           content,
           assignedUserId,
           updatedAt,
 
           readUserIds: [],
-
           status: CONVERSATION_STATUSES.OPEN,
-        });
+        } as any;
+        if (customerId) {
+          updatedDoc.customerId = customerId;
+        }
+        await Conversations.updateConversation(conversationId, updatedDoc);
       } else {
         const formattedDoc = {
           _id: doc.conversationId,

@@ -46,7 +46,6 @@ startPlugin({
     context.res = res;
 
     context.config = {};
-
     if (req?.posConfig?._id) {
       context.config = req.posConfig;
     } else if (models) {

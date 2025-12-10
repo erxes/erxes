@@ -289,12 +289,12 @@ export const widgetQueries: Record<string, Resolver> = {
   },
   async widgetsGetTicketTags(
     _root,
-    args: { configId: string },
+    args: { configId: string; parentId?: string },
     { models, subdomain }: IContext,
   ) {
     const config = await models.TicketConfig.getTicketConfig(args.configId);
 
-    if (config && config.ticketBasicFields?.isShowTags) {
+    if (config && config.formFields?.tags?.isShow) {
       return await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -302,7 +302,7 @@ export const widgetQueries: Record<string, Resolver> = {
         module: 'tags',
         action: 'find',
         input: {
-          query: { type: 'frontline:ticket' },
+          query: { type: 'frontline:ticket', parentId: args.parentId },
         },
       });
     }
