@@ -163,7 +163,7 @@ const SelectProjectContent = () => {
       <Command.Empty>No project found</Command.Empty>
       <Command.List>
         <SelectProjectCommandItem
-          project={{ _id: '', name: 'No project' } as IProject}
+          project={{ _id: 'no-project', name: 'No project' } as IProject}
         />
         {projects.map((project) => (
           <SelectProjectCommandItem key={project._id} project={project} />
@@ -178,12 +178,16 @@ const SelectProjectContent = () => {
   );
 };
 
-export const SelectProjectFilterView = () => {
-  const [project, setProject] = useQueryState<string>('project');
+export const SelectProjectFilterView = ({
+  queryKey,
+}: {
+  queryKey?: string;
+}) => {
+  const [project, setProject] = useQueryState<string>(queryKey || 'project');
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={'project'}>
+    <Filter.View filterKey={queryKey || 'project'}>
       <SelectProjectProvider
         value={project || ''}
         onValueChange={(value: string) => {
@@ -274,9 +278,10 @@ const SelectProjectRoot = ({
   );
 };
 
-export const SelectProjectFilterBar = () => {
-  const [project, setProject] = useQueryState<string>('project');
+export const SelectProjectFilterBar = ({ queryKey }: { queryKey?: string }) => {
+  const [project, setProject] = useQueryState<string>(queryKey || 'project');
   const [open, setOpen] = useState(false);
+
   return (
     <SelectProjectProvider
       value={project || ''}

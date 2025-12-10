@@ -146,9 +146,9 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
     });
   const { tasks, totalCount, loading, handleFetchMore } = useTasks({
     variables: {
-      projectId,
+      ...(projectId && { projectId }),
+      ...(cycleId && { cycleId }),
       userId: currentUser?._id,
-      cycleId,
       status: column.id,
     },
   });

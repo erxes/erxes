@@ -25,8 +25,9 @@ import {
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { DEAL_LIST_CHANGED } from '~/modules/deals/graphql/subscriptions/dealListChange';
+import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { IDeal } from '@/deals/types/deals';
+import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { currentUserState } from 'ui-modules';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
@@ -36,6 +37,15 @@ interface IDealChanged {
   salesDealListChanged: {
     action: string;
     deal: IDeal;
+  };
+}
+
+interface ISalesProductsDataChangedPayload {
+  salesProductsDataChanged: {
+    _id: string;
+    processId: string;
+    action: string;
+    data: any;
   };
 }
 
@@ -171,19 +181,47 @@ export const useDealDetail = (
   const [activeDealId] = useAtom(dealDetailSheetState);
   const [salesItemId] = useQueryState('salesItemId');
 
-  const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
-    GET_DEAL_DETAIL,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        _id: salesItemId || activeDealId,
-      },
-      skip: !activeDealId && !salesItemId,
-    },
-  );
+  const passedId = options?.variables?._id;
+  const finalId = passedId || salesItemId || activeDealId;
 
-  return { deal: data?.dealDetail, loading, error };
+  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
+    dealDetail: IDeal;
+  }>(GET_DEAL_DETAIL, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id: finalId,
+    },
+    skip: !finalId,
+  });
+
+  useEffect(() => {
+    if (!salesItemId) return;
+
+    const unsubscribe = subscribeToMore<ISalesProductsDataChangedPayload>({
+      document: PRODUCTS_DATA_CHANGED,
+      variables: { _id: salesItemId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const payload = subscriptionData?.data?.salesProductsDataChanged;
+        if (!payload) return prev;
+
+        const { processId } = payload;
+
+        if (processId === localStorage.getItem('processId')) {
+          return prev;
+        }
+
+        refetch();
+
+        return prev;
+      },
+    });
+
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salesItemId]);
+
+  return { deal: data?.dealDetail, loading, error, refetch };
 };
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
@@ -209,7 +247,7 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     onCompleted: (...args) => {
       toast({
         title: 'Successfully updated a deal',
-        variant: 'default',
+        variant: 'success',
       });
       options?.onCompleted?.(...args);
     },

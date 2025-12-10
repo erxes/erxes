@@ -15,7 +15,6 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
-import { FormProvider } from 'react-hook-form';
 import { FacebookMessageButtonsGenerator } from '~/widgets/automations/modules/facebook/components/action/components/FacebookMessageButtonsGenerator';
 import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
 import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';

@@ -9,7 +9,7 @@ import {
 import { IOrignalCallCdr } from '@/integrations/call/@types/cdrs';
 import { ICallCustomer } from '@/integrations/call/@types/customers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -71,6 +71,54 @@ export const getOrCreateCustomer = async (
     } catch (e: any) {
       await models.CallCustomers.deleteOne({ _id: customer?._id });
       throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
+    }
+  }
+  if (customer && customer.erxesApiId) {
+    const coreCustomer = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: {
+        query: { _id: customer.erxesApiId },
+      },
+    });
+    if (coreCustomer) {
+      await sendTRPCMessage({
+        subdomain,
+
+        pluginName: 'core',
+        method: 'mutation', // this is a mutation, not a query
+        module: 'customers',
+        action: 'updateCustomer',
+        input: {
+          _id: coreCustomer._id,
+          doc: {
+            primaryPhone,
+          },
+        },
+      });
+    }
+    if (!coreCustomer) {
+      const newCustomer = await sendTRPCMessage({
+        subdomain,
+
+        pluginName: 'core',
+        method: 'mutation', // this is a mutation, not a query
+        module: 'customers',
+        action: 'createCustomer',
+        input: {
+          doc: {
+            primaryPhone,
+            state: 'customer',
+          },
+        },
+      });
+      if (newCustomer) {
+        customer.erxesApiId = newCustomer._id;
+        await customer.save();
+      }
     }
   }
   return customer;

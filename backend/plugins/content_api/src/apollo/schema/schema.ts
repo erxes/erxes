@@ -1,126 +1,91 @@
-import { TypeExtensions } from './extensions';
 import {
-  mutations as knowledgeBaseMutations,
-  queries as knowledgeBaseQueries,
-  types as knowledgeBaseTypes,
-} from '@/knowledgebase/graphql/schemas/index';
+  types as cmsTypes,
+  inputs as cmsInputs,
+  queries as cmsQueries,
+  mutations as cmsMutations,
+} from '@/cms/graphql/schemas/cms';
+
 import {
-  queries as vercelQueries,
-  mutations as vercelMutations,
-} from '@/portal/graphql/schemas/vercel';
-import {
-  queries as portalQueries,
-  mutations as portalMutations,
-  types as portalTypes,
-  inputs as portalInputs,
-} from '@/portal/graphql/schemas/portal';
-import {
-  queries as userQueries,
-  mutations as userMutations,
-  types as userTypes,
-  inputs as userInputs,
-} from '@/portal/graphql/schemas/user';
-import {
-  queries as commentQueries,
-  types as commentTypes,
-} from '@/portal/graphql/schemas/comment';
-import {
-  queries as notificationQueries,
-  types as notificationTypes,
-  inputs as notificationInputs,
-  mutations as notificationMutations,
-} from '@/portal/graphql/schemas/notifications';
-import {
-  queries as postQueries,
   types as postTypes,
   inputs as postInputs,
+  queries as postQueries,
   mutations as postMutations,
-} from '@/portal/graphql/schemas/post';
+} from '@/cms/graphql/schemas/posts';
+
 import {
-  queries as pageQueries,
-  types as pageTypes,
-  inputs as pageInputs,
-  mutations as pageMutations,
-} from '@/portal/graphql/schemas/page';
-import {
-  queries as tagQueries,
-  types as tagTypes,
-  inputs as tagInputs,
-  mutations as tagMutations,
-} from '@/portal/graphql/schemas/tag';
-import {
-  queries as menuQueries,
-  types as menuTypes,
-  inputs as menuInputs,
-  mutations as menuMutations,
-} from '@/portal/graphql/schemas/menu';
-import {
-  queries as customPostTypeQueries,
   types as customPostTypeTypes,
   inputs as customPostTypeInputs,
+  queries as customPostTypeQueries,
   mutations as customPostTypeMutations,
-} from '@/portal/graphql/schemas/customPostType';
+} from '@/cms/graphql/schemas/customPostType';
 
 import {
-  queries as categoryQueries,
   types as categoryTypes,
   inputs as categoryInputs,
+  queries as categoryQueries,
   mutations as categoryMutations,
-} from '@/portal/graphql/schemas/category';
+} from '@/cms/graphql/schemas/category';
 
-
+import {
+  types as tagTypes,
+  inputs as tagInputs,
+  queries as tagQueries,
+  mutations as tagMutations,
+} from '@/cms/graphql/schemas/tag';
 
 export const types = `
-    ${TypeExtensions}
-    ${knowledgeBaseTypes}
-    ${portalTypes}
-    ${portalInputs}
-    ${userTypes}
-    ${userInputs} 
-    ${commentTypes}
-    ${notificationTypes}
-    ${notificationInputs}
+
+  enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+  }
+  
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    inheritMaxAge: Boolean
+  ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+  type SomeType {
+    visibility: CacheControlScope
+  }
+
+
+  extend type User @key(fields: "_id") {
+    _id: String @external
+  }
+
+    ${cmsTypes}
+    ${cmsInputs}
     ${postTypes}
-    ${pageTypes}
-    ${tagTypes}
-    ${menuTypes}
-    ${customPostTypeTypes}
-    ${categoryTypes}
     ${postInputs}
-    ${pageInputs}
-    ${tagInputs}
-    ${menuInputs}
+    ${customPostTypeTypes}
     ${customPostTypeInputs}
+    ${categoryTypes}
     ${categoryInputs}
-  `;
+    ${tagTypes}
+    ${tagInputs}
+      `;
 
 export const queries = `
-    ${knowledgeBaseQueries}
-    ${vercelQueries}
-    ${portalQueries}
-    ${userQueries}
-    ${commentQueries}
-    ${notificationQueries}
+   ${cmsQueries}
+
     ${postQueries}
-    ${pageQueries}
-    ${tagQueries}
-    ${menuQueries}
+
     ${customPostTypeQueries}
+
     ${categoryQueries}
+
+    ${tagQueries}
+
   `;
 
 export const mutations = `
-    ${knowledgeBaseMutations}
-    ${vercelMutations}
-    ${portalMutations}
-    ${userMutations}
-    ${notificationMutations}
+    ${cmsMutations}
     ${postMutations}
-    ${pageMutations}
-    ${tagMutations}
-    ${menuMutations}
     ${customPostTypeMutations}
     ${categoryMutations}
+    ${tagMutations}
   `;
 
 export default { types, queries, mutations };
