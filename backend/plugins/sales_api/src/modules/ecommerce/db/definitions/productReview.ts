@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 
 export const productReviewSchema = new Schema({
-  _id: ({ pkey: true }),
+  _id: { type: String, required: true },
   productId: ({ type: String, label: 'Product' }),
   customerId: ({ type: String, label: 'Customer' }),
   review: ({ type: Number, label: 'Review' }),

@@ -1,7 +1,7 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-interface IListParams {
+export interface IListParams {
   page: number;
   perPage: number;
   searchValue: string;
@@ -51,7 +51,7 @@ const generateFilter = async (params: IListParams) => {
   return filter;
 };
 
-const addressQueries = {
+export const addressQueries = {
   address: async (_root, params: { _id: string }, { models }: IContext) => {
     const { _id } = params;
 

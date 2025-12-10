@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 
-const lastViewedItemMutations = {
+export const lastViewedItemMutations = {
   lastViewedItemAdd: async (
     _root,
     params,

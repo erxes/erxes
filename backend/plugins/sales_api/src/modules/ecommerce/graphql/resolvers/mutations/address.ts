@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { IAddress } from '~/modules/ecommerce/@types/address';
 
-const addressMutations = {
+export const addressMutations = {
   addressAdd: async (_root, params: IAddress, { models }: IContext) => {
     console.log('addressMutations', params);
 

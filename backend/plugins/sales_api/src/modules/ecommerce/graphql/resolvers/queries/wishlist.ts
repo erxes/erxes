@@ -1,7 +1,7 @@
 import { IContext } from "~/connectionResolvers";
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-const wishlistQueries = {
+export const wishlistQueries = {
   wish: async (
     _root,
     params,

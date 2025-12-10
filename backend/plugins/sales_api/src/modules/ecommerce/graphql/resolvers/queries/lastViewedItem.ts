@@ -1,7 +1,7 @@
 import { IContext } from "~/connectionResolvers";
 import { sendTRPCMessage } from "erxes-api-shared/utils";
 
-const lastViewedItemQueries = {
+export const lastViewedItemQueries = {
   lastViewedItems: async (_root, params, { subdomain, models }: IContext) => {
     const { customerId } = params;
 

@@ -1,8 +1,4 @@
 export const types = `
-    extend type Customer @key(fields: "_id") {
-        _id: String! @external
-    }
-
     type AddressCoordinate {
         lat: Float
         lng: Float

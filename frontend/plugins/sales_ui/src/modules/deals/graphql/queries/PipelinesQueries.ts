@@ -111,3 +111,10 @@ export const GET_PIPELINES = gql`
   }
 `;
     
+export const queries = {
+  pipelineLabels: GET_PIPELINE_LABELS,
+  pipelineDetail: GET_PIPELINE_DETAIL,
+  pipelineAssignedUsers: GET_PIPELINE_ASSIGNED_USERS,
+  pipelineLabelDetail: GET_PIPELINE_LABEL_DETAIL,
+  pipelines: GET_PIPELINES,
+};

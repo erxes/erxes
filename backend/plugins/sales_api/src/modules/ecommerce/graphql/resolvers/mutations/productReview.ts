@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 
-const productReviewMutations = {
+export const productReviewMutations = {
   productReviewAdd: async (
     _root,
     params,

@@ -59,6 +59,8 @@ import { IProductReviewDocument } from '~/modules/ecommerce/@types/productReview
 import { IWishlistDocument } from '~/modules/ecommerce/@types/wishlist';
 import { ILastViewedItemDocument } from '~/modules/ecommerce/@types/lastViewedItem';
 import { IAddressDocument } from '~/modules/ecommerce/@types/address';
+import { IGoalModel, loadGoalClass } from './modules/goals/db/models/Goals';
+import { IGoalDocument } from './modules/goals/@types/goals';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -82,12 +84,18 @@ export interface IModels {
   Wishlist: IWishlistModel;
   LastViewedItem: ILastViewedItemModel;
   Address: IAddressModel;
+
+  //goals
+  Goals: IGoalModel;
+
 }
 
 export interface IContext extends IMainContext {
   models: IModels;
   subdomain: string;
   commonQuerySelector: any;
+  docModifier: <T>(doc: T) => any;
+  serverTiming: any;
 }
 
 export const loadClasses = (
@@ -168,6 +176,12 @@ export const loadClasses = (
   models.Address = db.model<IAddressDocument, IAddressModel>(
     'ecommerce_address',
     loadAddressClass(models, subdomain));
+
+  //goals
+  models.Goals = db.model<IGoalDocument, IGoalModel>(
+    'goals',
+    loadGoalClass(models, subdomain),
+  );
 
   return models;
 };

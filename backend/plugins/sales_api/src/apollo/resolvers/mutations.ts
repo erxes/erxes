@@ -12,6 +12,16 @@ import {
   cover as MutationsCover,
 } from '@/pos/graphql/resolvers/mutations';
 
+import { addressMutations } from '@/ecommerce/graphql/resolvers/mutations/address';
+import { lastViewedItemMutations } from '@/ecommerce/graphql/resolvers/mutations/lastViewedItem';
+import { productReviewMutations } from '@/ecommerce/graphql/resolvers/mutations/productReview';
+import { wishlistMutations } from '@/ecommerce/graphql/resolvers/mutations/wishlist'
+
+
+
+import { goalMutations } from '@/goals/graphql/resolvers/mutations/goals';
+
+
 export const mutations = {
   ...boardMutations,
   ...pipelineMutations,
@@ -22,4 +32,9 @@ export const mutations = {
   ...MutationsPos,
   ...MutationsOrder,
   ...MutationsCover,
+  ...addressMutations,
+  ...lastViewedItemMutations,
+  ...productReviewMutations,
+  ...wishlistMutations,
+  ...goalMutations,
 };

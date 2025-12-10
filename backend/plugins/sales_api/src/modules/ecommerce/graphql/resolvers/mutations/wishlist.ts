@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 
-const wishlistMutations = {
+export const wishlistMutations = {
   wishlistAdd: async (_root, params, { models: { Wishlist } }: IContext) => {
     const { productId, customerId } = params;
     const wsh = await Wishlist.findOne({ customerId, productId }).lean();
