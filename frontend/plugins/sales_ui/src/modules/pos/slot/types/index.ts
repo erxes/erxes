@@ -34,6 +34,7 @@ export interface CustomNode {
   };
   width?: number;
   height?: number;
+  zIndex?: number;
 }
 
 export interface SlotDetailForm {
@@ -70,29 +71,12 @@ export type TabValue = 'slots' | 'details';
 
 export type SidebarViewType = 'list' | 'detail' | 'hidden';
 
-export interface UseKeyboardShortcutsProps {
-  selectedNode: CustomNode | null;
-  setSelectedNode: React.Dispatch<React.SetStateAction<CustomNode | null>>;
-  isEditMode: boolean;
-  setNodes: React.Dispatch<React.SetStateAction<CustomNode[]>>;
-  sidebarView: SidebarViewType;
-  onDeleteNode: () => void;
-  onSaveNode: () => void;
-  onAddNode: () => void;
-  onToggleSidebar: () => void;
-}
-
 export interface NodeControlsProps {
-  isFullscreen: boolean;
-  toggleFullscreen: () => void;
-  selectedNode: CustomNode | null;
-  onSave: () => void;
-  onAdd: (nodeData?: Partial<TableNodeData>) => void;
-  onDelete: (() => void) | undefined;
   onAddSlot: () => void;
   onArrangeNodes: () => void;
   onSaveChanges?: () => void;
   isCreating?: boolean;
+  saving?: boolean;
 }
 
 export interface MiniMapToggleProps {
@@ -109,8 +93,6 @@ export interface SidebarListProps {
   onAddSlot: () => void;
   onDuplicateSlot: (id: string) => void;
   onDeleteSlot: (id: string) => void;
-  onNodeSelect: (nodeId: string) => void;
-  onAddNew: (nodeData?: Partial<TableNodeData>) => void;
 }
 
 export interface SidebarDetailProps {
@@ -123,20 +105,6 @@ export interface SlotCardProps {
   onEdit: (node: CustomNode, event?: React.MouseEvent) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
-}
-export interface SlotDetail {
-  name: string;
-  code: string;
-  rounded: number;
-  width: string;
-  height: string;
-  top: string;
-  left: string;
-  rotateAngle: string;
-  zIndex: string;
-  color: string;
-  disabled: boolean;
-  label: string;
 }
 
 export interface POSSlotsManagerProps {
