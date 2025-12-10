@@ -91,7 +91,7 @@ function ReportTableCell({ className, ...props }: React.ComponentProps<'td'>) {
     <td
       data-slot="table-cell"
       className={cn(
-        'p-[0.33em] align-middle border text-[1em] whitespace-normal break-all',
+        'p-[0.3em] align-middle border text-[1em] whitespace-normal break-all',
         className,
       )}
       {...props}
