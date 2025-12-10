@@ -57,7 +57,7 @@ export const GroupRules: Record<string, ReportConfig> = {
           'name': 'account__name',
           'group_rule': null
         }
-      }
+      },
     }
   }
 

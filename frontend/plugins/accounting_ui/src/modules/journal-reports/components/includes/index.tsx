@@ -1,8 +1,9 @@
+import { HandleMainAC } from "./main/ac";
 import { HandleMainTB } from "./main/tb";
 
 export const getCalcReportHandler = (report: string) => {
   const handlers: any = {
-    // ac: handleMainAC,
+    ac: HandleMainAC,
     tb: HandleMainTB,
   };
 
