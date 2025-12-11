@@ -46,6 +46,11 @@ export const CONFIG: IUIConfig = {
       hasSettings: true,
       hasAutomation: true,
     },
+    {
+      name: 'pos',
+      path: 'pos',
+      settingsOnly: true,
+    },
   ],
   widgets: {
     relationWidgets: [

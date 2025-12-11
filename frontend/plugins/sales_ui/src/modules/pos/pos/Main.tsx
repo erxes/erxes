@@ -1,17 +1,13 @@
 import { Route, Routes } from 'react-router';
 import { Suspense, lazy } from 'react';
 
-const Pos = lazy(() =>
-  import('~/pages/PosIndexPage').then((module) => ({
-    default: module.PosIndexPage,
-  })),
-);
+const Settings = lazy(() => import('./Settings'));
 
 const PluginPos = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<Pos />} />
+        <Route path="/" element={<Settings />} />
       </Routes>
     </Suspense>
   );

@@ -1,19 +1,10 @@
-import { IconCashRegister, IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconCashRegister, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { PosCardGrid } from '@/pos/components/PosRecordList';
-import { PosCreate } from '~/modules/pos/components/pos-create';
-import { PosFilter } from '~/modules/pos/pos/PosFilter';
-import { useState } from 'react';
+import { PosContent } from '@/pos/components/PosContent';
 
 export const PosIndexPage = () => {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-
-  const onCreatePos = () => {
-    setCreateDialogOpen(true);
-  };
-
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -40,18 +31,10 @@ export const PosIndexPage = () => {
               Go to settings
             </Link>
           </Button>
-          <Button onClick={onCreatePos}>
-            <IconPlus className="mr-2 w-4 h-4" />
-            Create POS
-          </Button>
         </PageHeader.End>
       </PageHeader>
-      <PageHeader>
-        <PosFilter />
-      </PageHeader>
-      <PosCardGrid />
 
-      <PosCreate open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+      <PosContent />
     </div>
   );
 };
