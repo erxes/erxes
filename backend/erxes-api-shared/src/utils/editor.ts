@@ -1,5 +1,5 @@
-import { IBrand, ICustomer, IProduct, IUser } from '@/core-types';
 import { keyBy } from 'lodash';
+import { IBrand, ICustomer, IProduct, IUser } from '../core-types';
 import { isValidURL } from './string';
 import { sendTRPCMessage } from './trpc';
 
