@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { LOG_MESSAGE_TYPES } from '../models/Logs';
+import { LOG_MESSAGE_TYPES } from '../../constants';
 
 export const logSchema = new Schema({
   createdAt: { type: Date, default: new Date(), label: 'Created at' },

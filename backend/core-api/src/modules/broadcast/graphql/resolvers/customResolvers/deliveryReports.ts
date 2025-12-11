@@ -1,17 +1,17 @@
+import { IDeliveryReportsDocument } from '@/broadcast/@types';
 import { IContext } from '~/connectionResolvers';
-import { IDeliveryReportsDocument } from '~/modules/broadcast/db/models/DeliveryReports';
 
 export default {
   async __resolveReference(
     { _id }: IDeliveryReportsDocument,
-    _args,
+    _args: undefined,
     { models }: IContext,
   ) {
     return models.DeliveryReports.findOne({ _id });
   },
   async engage(
     { engageMessageId }: IDeliveryReportsDocument,
-    _args,
+    _args: undefined,
     { models }: IContext,
   ) {
     return models.EngageMessages.findOne(

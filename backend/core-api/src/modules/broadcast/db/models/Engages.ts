@@ -1,21 +1,29 @@
-import { Model } from 'mongoose';
-import { IModels } from '~/connectionResolvers';
-import { IEngageMessage, IEngageMessageDocument } from '../../@types/types';
-import { IEngageData, IMessageDocument } from '../../types';
+import {
+  IEngageData,
+  IEngageMessage,
+  IEngageMessageDocument,
+  IMessageDocument,
+} from '@/broadcast/@types';
 import {
   CAMPAIGN_KINDS,
   CAMPAIGN_METHODS,
   CONTENT_TYPES,
-} from '../../constants';
-import { engageMessageSchema } from '../definitions/engages';
-import { checkCustomerExists, findElk, findUser } from '../../engageUtils';
-import { getEditorAttributeUtil, isUsingElk } from '../../utils';
-import { IUserDocument } from 'erxes-api-shared/core-types';
+} from '@/broadcast/constants';
+import { engageMessageSchema } from '@/broadcast/db/definitions/engages';
+import {
+  checkCustomerExists,
+  checkRules,
+  findElk,
+  getEditorAttributeUtil,
+  getNumberOfVisits,
+  isUsingElk,
+} from '@/broadcast/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { checkRules } from '../../widgetUtils';
+import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 
 export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
-  getEngageMessage(_id: string): IEngageMessageDocument;
+  getEngageMessage(_id: string): Promise<IEngageMessageDocument>;
   createEngageMessage(doc: IEngageMessage): Promise<IEngageMessageDocument>;
 
   updateEngageMessage(
@@ -244,7 +252,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           continue;
         }
 
-        const customerExists = await checkCustomerExists(subdomain, {
+        const customerExists = await checkCustomerExists(subdomain, models, {
           id: customerObj._id,
           customerIds,
           segmentIds,
@@ -256,36 +264,17 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           continue;
         }
 
-        const user = await findUser(subdomain, fromUserId || '');
+        const user = await models.Users.findOne({ _id: fromUserId }).lean();
 
         if (!user) {
           continue;
         }
 
-        // commented
-        // check for rules ===
-        // const numberOfVisits = await sendCoreMessage({
-        //   isRPC: true,
-        //   subdomain,
-        //   action: 'getNumberOfVisits',
-        //   data: {
-        //     url: browserInfo.url,
-        //     visitorId,
-        //     customerId: customer ? customer._id : undefined,
-        //   },
-        // });
-
-        const numberOfVisits = await sendTRPCMessage({
+        const numberOfVisits = await getNumberOfVisits({
           subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'numberOfVisits',
-          action: 'find',
-          input: {
-            url: browserInfo.url,
-            visitorId,
-            customerId: customer ? customer._id : undefined,
-          },
+          url: browserInfo.url,
+          visitorId,
+          customerId: customer ? customer._id : undefined,
         });
 
         const hasPassedAllRules = await checkRules({
@@ -297,7 +286,6 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         // if given visitor is matched with given condition then create
         // conversations
         if (hasPassedAllRules) {
-          // const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
           const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
 
           // replace keys in content
@@ -346,6 +334,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
       return conversationMessages;
     }
+
     /*
      * Creates or update conversation & message object using given info
      */
@@ -353,7 +342,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       customerId?: string;
       visitorId?: string;
       integrationId: string;
-      user: IUserDocument;
+      user;
       engageData: IEngageData;
       replacedContent: string;
     }) {
@@ -394,15 +383,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
         prevMessage = await sendTRPCMessage({
           subdomain,
-          pluginName: 'core',
+
+          pluginName: 'frontline',
           method: 'query',
-          module: 'conversationMessage',
+          module: 'conversationMessages',
           action: 'findOne',
-          input: { query },
+          input: query,
         });
       }
-
-      const commonParams = { isRPC: true, subdomain };
 
       if (prevMessage) {
         if (
@@ -423,9 +411,9 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           });
         } else {
           messages = await sendTRPCMessage({
-            ...commonParams,
             subdomain,
-            pluginName: 'core',
+
+            pluginName: 'frontline',
             method: 'query',
             module: 'conversationMessages',
             action: 'find',
@@ -438,14 +426,13 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           return null;
         }
 
-        // mark as unread again && reset engageData
         await sendTRPCMessage({
-          ...commonParams,
           subdomain,
-          pluginName: 'core',
+
+          pluginName: 'frontline',
           method: 'mutation',
           module: 'conversationMessages',
-          action: 'update',
+          action: 'updateOne',
           input: {
             filter: { _id: prevMessage._id },
             updateDoc: { engageData, isCustomerRead: false },
@@ -455,13 +442,12 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         return null;
       }
 
-      // create conversation and message replaced by messagebroker
       return await sendTRPCMessage({
-        ...commonParams,
         subdomain,
-        pluginName: 'core',
+
+        pluginName: 'frontline',
         method: 'mutation',
-        module: 'conversationMessages',
+        module: 'inbox',
         action: 'createConversationAndMessage',
         input: {
           userId: user._id,

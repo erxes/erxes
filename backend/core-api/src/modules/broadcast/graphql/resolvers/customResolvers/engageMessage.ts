@@ -1,15 +1,11 @@
+import { IEngageMessageDocument } from '@/broadcast/@types';
+import { prepareNotificationStats, prepareSmsStats } from '@/broadcast/utils';
 import { IContext } from '~/connectionResolvers';
-import { IEngageMessageDocument } from '~/modules/broadcast/@types/types';
-import { sendCoreMessage } from '~/modules/broadcast/messageBroker';
-import {
-  prepareNotificationStats,
-  prepareSmsStats,
-} from '~/modules/broadcast/telnyxUtils';
 
 export default {
   async __resolveReference(
     { _id }: IEngageMessageDocument,
-    _args,
+    _args: undefined,
     { models }: IContext,
   ) {
     return models.EngageMessages.findOne({ _id });
@@ -58,20 +54,28 @@ export default {
     return null;
   },
 
-  async stats({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+  async stats(
+    { _id }: IEngageMessageDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
     return models.Stats.findOne({ engageMessageId: _id });
   },
 
-  smsStats({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+  smsStats(
+    { _id }: IEngageMessageDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
     return prepareSmsStats(models, _id);
   },
 
   async notificationStats(
     { _id }: IEngageMessageDocument,
-    _args,
-    { subdomain }: IContext,
+    _args: undefined,
+    { models }: IContext,
   ) {
-    return prepareNotificationStats(subdomain, _id);
+    return prepareNotificationStats(models, _id);
   },
 
   fromIntegration(engageMessage: IEngageMessageDocument) {
@@ -90,30 +94,15 @@ export default {
 
   async createdUserName(
     { createdBy = '' }: IEngageMessageDocument,
-    _args,
-    { subdomain }: IContext,
+    _args: undefined,
+    { models }: IContext,
   ) {
-    const user = await sendCoreMessage({
-      subdomain,
-      action: 'users.findOne',
-      data: {
-        _id: createdBy,
-      },
-      isRPC: true,
-    });
+    const user = await models.Users.findOne({ _id: createdBy }).lean();
 
     if (!user) {
       return '';
     }
 
     return user.username || user.email || user._id;
-  },
-
-  async logs(
-    engageMessage: IEngageMessageDocument,
-    _args,
-    { models }: IContext,
-  ) {
-    return models.Logs.find({ engageMessageId: engageMessage._id }).lean();
   },
 };

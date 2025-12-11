@@ -2,7 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../constants';
-import { createOrUpdate } from '../utils';
+import { createOrUpdate, prepareEngageCustomers } from '../utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -246,5 +246,10 @@ export const customerRouter = t.router({
 
       return response;
     }),
+    prepareEngageCustomers: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+
+      return await prepareEngageCustomers(models, subdomain, input);
+    })
   }),
 });

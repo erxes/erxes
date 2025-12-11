@@ -1,199 +1,173 @@
-const externalId = '_id: String! @external';
-const keyFields = '@key(fields: "_id")';
-
 export const types = `
-    extend type User ${keyFields} {
-      ${externalId}
-    }
+  type EngageMessage {
+    _id: String!
+    kind: String
+    tagIds: [String]
+    customerTagIds: [String]
+    segmentIds: [String]
+    brandIds: [String]
+    customerIds: [String]
+    cpId: String
+    title: String
+    fromUserId: String
+    method: String
+    isDraft: Boolean
+    isLive: Boolean
+    stopDate: Date
+    createdAt: Date
+    type: String
+    messengerReceivedCustomerIds: [String]
+    totalCustomersCount: Int
+    validCustomersCount: Int
+    runCount: Int
+    lastRunAt: Date
 
-    extend type Brand ${keyFields} {
-      ${externalId}
-    }
+    brand: Brand
 
+    email: JSON
+    messenger: JSON
+    shortMessage: EngageMessageSms
+    notification: JSON
+    createdBy: String
 
-    extend type Segment ${keyFields} {
-      ${externalId}
-    }
+    scheduleDate: EngageScheduleDate
 
+    segments: [Segment]
+    customerTags: [Tag]
+    getTags: [Tag]
+    brands: [Brand]
+    fromUser: User
+    fromIntegration: JSON
+    createdUserName: String
 
-    extend type Tag ${keyFields} {
-      ${externalId}
-    }
+    stats: JSON
+    smsStats: JSON
+    notificationStats: JSON
+    logs: [EngageLog]
+  }
 
-    extend type Customer ${keyFields} {
-      ${externalId}
-    }
-    
+  type EngageScheduleDate {
+    type: String,
+    month: String,
+    day: String,
+    dateTime: Date,
+  }
 
-    type EngageMessage ${keyFields} {
-      _id: String!
-      kind: String
-      tagIds: [String]
-      customerTagIds: [String]
-      segmentIds: [String]
-      brandIds: [String]
-      customerIds: [String]
-      cpId: String
-      title: String
-      fromUserId: String
-      method: String
-      isDraft: Boolean
-      isLive: Boolean
-      stopDate: Date
-      createdAt: Date
-      type: String
-      messengerReceivedCustomerIds: [String]
-      totalCustomersCount: Int
-      validCustomersCount: Int
-      runCount: Int
-      lastRunAt: Date
+  type DeliveryReport {
+    _id: String!
+    customerId: String
+    mailId: String
+    status: String
+    engage: EngageMessage
+    createdAt: Date
+    customerName: String
+    email: String
+  }
 
-      brand: Brand
+  type EngageDeliveryReport {
+    list: [DeliveryReport]
+    totalCount: Int
+  }
 
-      email: JSON
-      messenger: JSON
-      shortMessage: EngageMessageSms
-      notification: JSON
-      createdBy: String
+  type AvgEmailStats {
+    avgBouncePercent: Float,
+    avgClickPercent: Float,
+    avgComplaintPercent: Float,
+    avgDeliveryPercent: Float,
+    avgOpenPercent: Float,
+    avgRejectPercent: Float,
+    avgRenderingFailurePercent: Float,
+    avgSendPercent: Float,
+    total: Float
+  }
 
-      scheduleDate: EngageScheduleDate
+  type SmsStatus {
+    date: Date
+    status: String
+  }
 
-      segments: [Segment]
-      customerTags: [Tag]
-      getTags: [Tag]
-      brands: [Brand]
-      fromUser: User
-      fromIntegration: JSON
-      createdUserName: String
+  type SmsDelivery {
+    _id: String!
+    createdAt: Date
+    to: String
 
-      stats: JSON
-      smsStats: JSON
-      notificationStats: JSON
-      logs: [EngageLog]
-    }
+    # telnyx data
+    direction: String
+    status: String
+    responseData: String
+    telnyxId: String
+    statusUpdates: [SmsStatus]
+    errorMessages: [String]
 
-    type EngageScheduleDate {
-      type: String,
-      month: String,
-      day: String,
-      dateTime: Date,
-    }
+    # engage only
+    engageMessageId: String
 
-    type DeliveryReport ${keyFields} {
-      _id: String!
-      customerId: String
-      mailId: String
-      status: String
-      engage: EngageMessage
-      createdAt: Date
-      customerName: String
-      email: String
-    }
+    # integrations only
+    from: String
+    content: String
+    requestData: String
+    erxesApiId: String
+    conversationId: String
+    integrationId: String
+  }    
 
-    type EngageDeliveryReport {
-      list: [DeliveryReport]
-      totalCount: Int
-    }
+  type DeliveryList {
+    list: [SmsDelivery]
+    totalCount: Int
+  }  
 
-    type AvgEmailStats {
-      avgBouncePercent: Float,
-      avgClickPercent: Float,
-      avgComplaintPercent: Float,
-      avgDeliveryPercent: Float,
-      avgOpenPercent: Float,
-      avgRejectPercent: Float,
-      avgRenderingFailurePercent: Float,
-      avgSendPercent: Float,
-      total: Float
-    }
+  input EngageScheduleDateInput {
+    type: String,
+    month: String,
+    day: String,
+    dateTime: Date,
+  }
 
-    type SmsStatus {
-      date: Date
-      status: String
-    }
-  
-    type SmsDelivery {
-      _id: String!
-      createdAt: Date
-      to: String
-  
-      # telnyx data
-      direction: String
-      status: String
-      responseData: String
-      telnyxId: String
-      statusUpdates: [SmsStatus]
-      errorMessages: [String]
-  
-      # engage only
-      engageMessageId: String
-  
-      # integrations only
-      from: String
-      content: String
-      requestData: String
-      erxesApiId: String
-      conversationId: String
-      integrationId: String
-    }    
+  input EngageMessageEmail {
+    content: String,
+    subject: String!,
+    replyTo: String,
+    sender: String,
+    attachments: [JSON]
+    templateId: String
+  }
 
-    type DeliveryList {
-      list: [SmsDelivery]
-      totalCount: Int
-    }  
+  type EngageMessageSms {
+    from: String,
+    content: String!
+    fromIntegrationId: String
+  }
 
-    input EngageScheduleDateInput {
-      type: String,
-      month: String,
-      day: String,
-      dateTime: Date,
-    }
+  input InputRule {
+    _id : String!,
+    kind: String!,
+    text: String!,
+    condition: String!,
+    value: String,
+  }
 
-    input EngageMessageEmail {
-      content: String,
-      subject: String!,
-      replyTo: String,
-      sender: String,
-      attachments: [JSON]
-      templateId: String
-    }
+  input EngageMessageMessenger {
+    brandId: String!,
+    kind: String,
+    sentAs: String,
+    content: String,
+    rules: [InputRule],
+  }
 
-    type EngageMessageSms {
-      from: String,
-      content: String!
-      fromIntegrationId: String
-    }
+  input EngageMessageSmsInput {
+    from: String,
+    content: String!
+    fromIntegrationId: String!
+  }
 
-    input InputRule {
-      _id : String!,
-      kind: String!,
-      text: String!,
-      condition: String!,
-      value: String,
-    }
+  input EngageMessageNotification {
+    title: String!,
+    content: String!,
+    isMobile: Boolean,
+  }
+`;
 
-    input EngageMessageMessenger {
-      brandId: String!,
-      kind: String,
-      sentAs: String,
-      content: String,
-      rules: [InputRule],
-    }
-
-    input EngageMessageSmsInput {
-      from: String,
-      content: String!
-      fromIntegrationId: String!
-    }
-
-    input EngageMessageNotification {
-      title: String!,
-      content: String!,
-      isMobile: Boolean,
-    }
-  `;
-
-const listParams = `
+const queryParams = `
   kind: String
   status: String
   tag: String
@@ -203,8 +177,8 @@ const listParams = `
 `;
 
 export const queries = `
-  engageMessages(${listParams}): [EngageMessage]
-  engageMessagesTotalCount(${listParams}): Int
+  engageMessages(${queryParams}): [EngageMessage]
+  engageMessagesTotalCount(${queryParams}): Int
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
@@ -214,7 +188,7 @@ export const queries = `
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
 `;
 
-const commonParams = `
+const mutationParams = `
   title: String!,
   kind: String!,
   method: String!,
@@ -238,8 +212,8 @@ const commonParams = `
 `;
 
 export const mutations = `
-  engageMessageAdd(${commonParams}): EngageMessage
-  engageMessageEdit(_id: String!, ${commonParams}): EngageMessage
+  engageMessageAdd(${mutationParams}): EngageMessage
+  engageMessageEdit(_id: String!, ${mutationParams}): EngageMessage
   engageMessageRemove(_id: String!): EngageMessage
   engageMessageSetLive(_id: String!): EngageMessage
   engageMessageSetPause(_id: String!): EngageMessage

@@ -1,17 +1,7 @@
-import { Document, Model, Schema } from 'mongoose';
+import { ILogDocument, MessageType } from '@/broadcast/@types/log';
+import { logSchema } from '@/broadcast/db/definitions/log';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { logSchema } from '../definitions/log';
-
-export type MessageType = 'regular' | 'success' | 'failure';
-export const LOG_MESSAGE_TYPES = ['regular', 'success', 'failure'];
-
-export interface ILog {
-  engageMessageId: string;
-  message: string;
-  type: MessageType;
-}
-
-export interface ILogDocument extends ILog, Document {}
 
 export interface ILogModel extends Model<ILogDocument> {
   createLog(
@@ -21,7 +11,7 @@ export interface ILogModel extends Model<ILogDocument> {
   ): Promise<ILogDocument>;
 }
 
-export const loadLogClass = (models: IModels, subdomain: string) => {
+export const loadLogClass = (models: IModels) => {
   class Log {
     public static async createLog(
       engageMessageId: string,

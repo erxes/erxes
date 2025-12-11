@@ -1,9 +1,15 @@
+import { IEngageMessage } from '@/broadcast/@types';
+import {
+  CAMPAIGN_KINDS,
+  CAMPAIGN_METHODS,
+  CONTENT_TYPES,
+} from '@/broadcast/constants';
+import { awsRequests } from '@/broadcast/trackers';
+import { isUsingElk } from '@/broadcast/utils';
+import { fetchSegment } from '@/segments/utils/fetchSegment';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { fetchEs, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { isUsingElk } from './utils';
-import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import { IModels } from '~/connectionResolvers';
-import { IEngageMessage } from './@types/types';
-import { awsRequests } from './trackers.ts/engageTracker';
 
 interface ICustomerSelector {
   engageId?: string;
@@ -41,7 +47,8 @@ export const findElk = async (subdomain: string, index: string, query) => {
 };
 
 export const generateCustomerSelector = async (
-  subdomain,
+  subdomain: string,
+  models: IModels,
   {
     engageId,
     customerIds,
@@ -61,92 +68,86 @@ export const generateCustomerSelector = async (
     customerQuery = { tagIds: { $in: tagIds } };
   }
 
-  const commonParams = { subdomain, isRPC: true };
-
   if (brandIds.length > 0) {
     const integrations = await sendTRPCMessage({
-      ...commonParams,
-      pluginName: 'inbox',
+      subdomain,
+
+      pluginName: 'frontline',
+      method: 'query',
       module: 'integrations',
       action: 'find',
       input: { query: { brandId: { $in: brandIds } } },
-      defaultValue: [],
     });
 
-    if (segmentIds.length > 0) {
-      const segments = await sendTRPCMessage({
-        ...commonParams,
-        pluginName: 'core',
-        module: 'segments',
-        action: 'find',
-        input: { query: { _id: { $in: segmentIds } } },
-        defaultValue: [],
-      });
+    customerQuery = { integrationId: { $in: integrations.map((i) => i._id) } };
+  }
 
-      let customerIdsBySegments: string[] = [];
+  if (segmentIds.length > 0) {
+    const segments = await models.Segments.find({
+      _id: { $in: segmentIds },
+    }).lean();
 
-      for (const segment of segments) {
-        const options: any = { perPage: 5000, scroll: true };
+    let customerIdsBySegments: string[] = [];
 
-        if (!segment.contentType.includes('contacts')) {
-          options.returnAssociated = {
-            mainType: segment.contentType,
-            relType: 'core:customer',
-          };
-        }
+    for (const segment of segments) {
+      const options: any = { perPage: 5000, scroll: true };
 
-        const cIds = await sendTRPCMessage({
-          ...commonParams,
-          pluginName: 'core',
-          module: 'segments',
-          action: 'fetchSegment',
-          input: { segmentId: segment._id, options },
-          defaultValue: [],
-        });
+      if (!segment.contentType.includes('contacts')) {
+        options.returnAssociated = {
+          mainType: segment.contentType,
+          relType: 'core:customer',
+        };
+      }
+
+      const segmentData = await models.Segments.findOne({
+        _id: segment._id,
+      }).lean();
+
+      const cIds = await fetchSegment(models, subdomain, segmentData, options);
+
+      if (
+        engageId &&
+        [
+          'core:company',
+          'sales:deal',
+          // "operation:task",
+          'frontline:ticket',
+          // "purchases:purchase"
+        ].includes(segment.contentType)
+      ) {
+        const returnFields = [
+          'name',
+          'description',
+          'closeDate',
+          'createdAt',
+          'modifiedAt',
+          'customFieldsData',
+        ];
 
         if (
-          engageId &&
-          [
-            'core:company',
-            'sales:deal',
-            'tasks:task',
-            'tickets:ticket',
-            'purchases:purchase',
-          ].includes(segment.contentType)
+          segment.contentType === 'sales:deal'
+          // || segment.contentType === "purchases:purchase"
         ) {
-          const returnFields = [
-            'name',
-            'description',
-            'closeDate',
-            'createdAt',
-            'modifiedAt',
-            'customFieldsData',
-          ];
-
-          if (
-            segment.contentType === 'sales:deal' ||
-            segment.contentType === 'purchases:purchase'
-          ) {
-            returnFields.push('productsData');
-          }
+          returnFields.push('productsData');
         }
+      }
 
-        customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-      } // end segments loop
+      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+    } // end segments loop
 
-      customerQuery = { _id: { $in: customerIdsBySegments } };
-    } // end segmentIds if
+    customerQuery = { _id: { $in: customerIdsBySegments } };
+  } // end segmentIds if
 
-    return {
-      ...customerQuery,
-      $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
-    };
-  }
+  return {
+    ...customerQuery,
+    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
+  };
 };
 
 // check customer exists from elastic or mongo
 export const checkCustomerExists = async (
   subdomain: string,
+  models: IModels,
   params: ICheckCustomerParams,
 ) => {
   const { id, customerIds, segmentIds, tagIds, brandIds } = params;
@@ -154,7 +155,7 @@ export const checkCustomerExists = async (
     const customersSelector = {
       _id: id,
       state: { $ne: CONTENT_TYPES.VISITOR },
-      ...(await generateCustomerSelector(subdomain, {
+      ...(await generateCustomerSelector(subdomain, models, {
         customerIds,
         segmentIds,
         tagIds,
@@ -162,15 +163,7 @@ export const checkCustomerExists = async (
       })),
     };
 
-    const customer = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'customers',
-      action: 'findOne',
-      input: customersSelector,
-      defaultValue: null,
-    });
+    const customer = await models.Customers.findOne(customersSelector).lean();
 
     return customer;
   }
@@ -221,15 +214,11 @@ export const checkCustomerExists = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'segments',
-        action: 'fetchSegment',
-        input: { segmentId: segment._id },
-        defaultValue: [],
-      });
+      const segmentData = await models.Segments.findOne({
+        _id: segment._id,
+      }).lean();
+
+      const cIds = await fetchSegment(models, subdomain, segmentData);
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
@@ -271,29 +260,8 @@ export const checkCustomerExists = async (
   return customers.length > 0;
 };
 
-// find user from elastic or mongo
-export const findUser = async (subdomain: string, userId?: string) => {
-  try {
-    const user = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'users',
-      action: 'findOne',
-      input: userId ? { _id: userId } : {},
-      defaultValue: null,
-    });
-
-    return user;
-  } catch (e) {
-    console.error('Failed to find user:', e);
-    return null;
-  }
-};
-
 export const checkCampaignDoc = async (
   models: IModels,
-  subdomain: string,
   doc: IEngageMessage,
 ) => {
   const {
@@ -332,7 +300,7 @@ export const checkCampaignDoc = async (
   }
 
   if (method === CAMPAIGN_METHODS.EMAIL) {
-    const user = await findUser(subdomain, fromUserId);
+    const user = await models.Users.findOne({ _id: fromUserId }).lean();
 
     if (!user) {
       throw new Error('From user must be specified');
@@ -362,4 +330,111 @@ export const checkCampaignDoc = async (
       );
     }
   }
+};
+
+const count = async (models: IModels, selector: {}): Promise<number> => {
+  const res = await models.EngageMessages.find(selector).countDocuments();
+  return Number(res);
+};
+
+// Tag query builder
+const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
+
+// status query builder
+const statusQueryBuilder = (
+  status: string,
+  user?: IUserDocument,
+):
+  | {
+      [index: string]: boolean | string;
+    }
+  | undefined => {
+  if (status === 'live') {
+    return { isLive: true };
+  }
+
+  if (status === 'draft') {
+    return { isDraft: true };
+  }
+
+  if (status === 'yours' && user) {
+    return { fromUserId: user._id };
+  }
+
+  // status is 'paused'
+  return { isLive: false };
+};
+
+export const countsByKind = async (models: IModels) => ({
+  all: await count(models, {}),
+  auto: await count(models, { kind: 'auto' }),
+  visitorAuto: await count(models, { kind: 'visitorAuto' }),
+  manual: await count(models, { kind: 'manual' }),
+});
+
+// count for each status type
+export const countsByStatus = async (
+  models: IModels,
+  { kind, user }: { kind: string; user },
+): Promise<{
+  [index: string]: number;
+}> => {
+  const query: {
+    kind?: string;
+  } = {};
+
+  if (kind) {
+    query.kind = kind;
+  }
+
+  return {
+    live: await count(models, { ...query, ...statusQueryBuilder('live') }),
+    draft: await count(models, { ...query, ...statusQueryBuilder('draft') }),
+    paused: await count(models, { ...query, ...statusQueryBuilder('paused') }),
+    yours: await count(models, {
+      ...query,
+      ...statusQueryBuilder('yours', user),
+    }),
+  };
+};
+
+// cout for each tag
+export const countsByTag = async (
+  models: IModels,
+  {
+    kind,
+    status,
+    user,
+  }: {
+    kind: string;
+    status: string;
+    user;
+  },
+): Promise<{
+  [index: string]: number;
+}> => {
+  let query: any = {};
+
+  if (kind) {
+    query.kind = kind;
+  }
+
+  if (status) {
+    query = { ...query, ...statusQueryBuilder(status, user) };
+  }
+
+  const tags = await models.Tags.find({ type: 'broadcast:engageMessage' });
+
+  const response: {
+    [index: string]: number;
+  } = {};
+
+  for (const tag of tags) {
+    response[tag._id] = await count(models, {
+      ...query,
+      ...tagQueryBuilder(tag._id),
+    });
+  }
+
+  return response;
 };

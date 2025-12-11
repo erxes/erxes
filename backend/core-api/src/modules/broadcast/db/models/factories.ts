@@ -1,6 +1,6 @@
+import { ISmsRequest } from '@/broadcast/@types';
 import { faker } from '@faker-js/faker';
 import { IModels } from '~/connectionResolvers';
-import { ISmsRequest } from './SmsRequests';
 
 interface ITelnyxWebhookData {
   from?: string;

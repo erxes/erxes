@@ -150,3 +150,5 @@ export const SENT_AS_CHOICES = {
   FULL_MESSAGE: 'fullMessage',
   ALL: ['badge', 'snippet', 'fullMessage'],
 };
+
+export const LOG_MESSAGE_TYPES = ['regular', 'success', 'failure'];

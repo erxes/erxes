@@ -91,51 +91,9 @@ export interface IEngageMessageDocument extends IEngageMessage, Document {
   _id: string;
 }
 
-export interface IConfig {
-  code: string;
-  value: string;
-}
-
-export interface ISESConfig {
-  accessKeyId: string;
-  region: string;
-  secretAccessKey: string;
-}
-export interface IConfigDocument extends IConfig, Document {
-  _id: string;
-}
-
-interface IPaged {
-  page?: number;
-  perPage?: number;
-}
-
-export interface IListArgs extends IPaged {
+export interface IEngageQueryParams {
   kind?: string;
   status?: string;
   tag?: string;
   ids?: string;
-}
-
-export interface IQuery {
-  kind?: string;
-}
-
-export interface IStatusQueryBuilder {
-  [index: string]: boolean | string;
-}
-
-export interface ICount {
-  [index: string]: number;
-}
-
-export interface IReportParams extends IPaged {
-  customerId?: string;
-  status?: string;
-  searchValue?: string;
-}
-
-export interface ISmsDeliveryParams extends IPaged {
-  type: string;
-  to?: string;
 }
