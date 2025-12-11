@@ -223,7 +223,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <SelectProject.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
-                      field.onChange(value);
+                      field.onChange(value || undefined);
                     }}
                     teamId={form.getValues('teamId') || undefined}
                   />

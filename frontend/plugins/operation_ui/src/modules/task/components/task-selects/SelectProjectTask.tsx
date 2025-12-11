@@ -209,7 +209,7 @@ export const SelectProjectFormItem = ({
 }: {
   teamId?: string;
   scope?: string;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string | null) => void;
   value?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -217,8 +217,9 @@ export const SelectProjectFormItem = ({
   return (
     <SelectProjectProvider
       value={value}
-      onValueChange={(value: string) => {
-        onValueChange(value);
+      onValueChange={(selectedValue: string) => {
+        const projectId = selectedValue === 'no-project' ? null : selectedValue;
+        onValueChange(projectId);
         setOpen(false);
       }}
       teamId={teamId}
@@ -255,11 +256,12 @@ const SelectProjectRoot = ({
     <SelectProjectProvider
       teamId={teamId}
       variant={variant}
-      onValueChange={(value) => {
+      onValueChange={(selectedValue) => {
+        const projectId = selectedValue === 'no-project' ? null : selectedValue;
         updateTask({
           variables: {
             _id: taskId,
-            projectId: value || null,
+            projectId: projectId,
           },
         });
         setOpen(false);
