@@ -1,8 +1,13 @@
 import { Spinner } from 'erxes-ui/components';
 import { usePosList } from '@/pos/hooks/usePosList';
 import { PosEmptyState } from '@/pos/components/PosEmptyState';
+import { PosCardGrid } from '@/pos/components/PosRecordList';
 
-export const PosContent = () => {
+interface PosContentProps {
+  onCreatePos?: () => void;
+}
+
+export const PosContent = ({ onCreatePos }: PosContentProps) => {
   const { posList, loading } = usePosList();
 
   if (loading) {
@@ -13,15 +18,9 @@ export const PosContent = () => {
     );
   }
 
-  if (!posList || posList.length === 1) {
-    return <PosEmptyState />;
+  if (!posList || posList.length === 0) {
+    return <PosEmptyState isCreate={false} onCreatePos={onCreatePos} />;
   }
 
-  return (
-    <div className="flex-1 p-6">
-      <p className="text-muted-foreground">
-        You have {posList.length} POS configured.
-      </p>
-    </div>
-  );
+  return <PosCardGrid onCreatePos={onCreatePos} />;
 };
