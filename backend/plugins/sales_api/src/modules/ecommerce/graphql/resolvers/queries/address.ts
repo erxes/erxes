@@ -41,7 +41,7 @@ const generateFilter = async (params: IListParams) => {
   }
 
   if (district) {
-    filter.alias = district;
+    filter.district = district;
   }
 
   if (street) {
