@@ -161,7 +161,7 @@ export const updateGoalData = async (
       data: updatedGoal
     };
   } catch (error) {
-    console.error(`Error updating goal ${goalId}:`, error);
+    console.error('Error updating goal %s:', goalId, error);
     throw error;
   }
 };
