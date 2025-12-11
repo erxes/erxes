@@ -28,6 +28,24 @@ const TEMPLATE_SAVE_FROM = gql`
   }
 `;
 
+const TEMPLATE_SAVE_MULTI = gql`
+  mutation TemplateSaveMulti(
+    $sourceIds: [String!]!
+    $contentType: String!
+    $name: String!
+    $description: String
+    $status: String
+  ) {
+    templateSaveMulti(
+      sourceIds: $sourceIds
+      contentType: $contentType
+      name: $name
+      description: $description
+      status: $status
+    )
+  }
+`;
+
 export interface UseSaveAsTemplateOptions {
   contentType: string;
   onSuccess?: (data: any) => void;
@@ -68,6 +86,43 @@ export const useSaveAsTemplate = ({
   };
 };
 
+export const useSaveAsTemplateMulti = ({
+  contentType,
+  onSuccess,
+  onError,
+}: UseSaveAsTemplateOptions) => {
+  const [saveAsTemplateMulti, { loading, error }] = useMutation(
+    TEMPLATE_SAVE_MULTI,
+    {
+      onCompleted: (data) => {
+        onSuccess?.(data.templateSaveMulti);
+      },
+      onError: (error) => {
+        onError?.(error);
+      },
+    },
+  );
+
+  const handleSave = (
+    input: { name: string; description?: string; status?: string },
+    sourceIds: string[],
+  ) => {
+    return saveAsTemplateMulti({
+      variables: {
+        sourceIds,
+        contentType,
+        ...input,
+      },
+    });
+  };
+
+  return {
+    saveAsTemplateMulti: handleSave,
+    loading,
+    error,
+  };
+};
+
 export const SaveAsTemplateForm = ({
   trigger,
   contentType,
@@ -78,7 +133,7 @@ export const SaveAsTemplateForm = ({
 }: {
   trigger: React.ReactNode;
   contentType: string;
-  contentId: string;
+  contentId?: string | string[];
   title?: string;
   onSuccess?: (data: any) => void;
   onError?: (error: Error) => void;
@@ -88,7 +143,9 @@ export const SaveAsTemplateForm = ({
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('active');
 
-  const { saveAsTemplate, loading } = useSaveAsTemplate({
+  const isMulti = Array.isArray(contentId) && contentId.length > 0;
+
+  const { saveAsTemplate, loading: singleLoading } = useSaveAsTemplate({
     contentType,
     onSuccess: (data) => {
       setOpen(false);
@@ -96,6 +153,19 @@ export const SaveAsTemplateForm = ({
     },
     onError,
   });
+
+  const { saveAsTemplateMulti, loading: multiLoading } = useSaveAsTemplateMulti(
+    {
+      contentType,
+      onSuccess: (data) => {
+        setOpen(false);
+        onSuccess?.(data);
+      },
+      onError,
+    },
+  );
+
+  const loading = isMulti ? multiLoading : singleLoading;
 
   const entityName = contentType.split(':')[1] || 'item';
 
@@ -111,14 +181,17 @@ export const SaveAsTemplateForm = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    saveAsTemplate(
-      {
-        name: name.trim(),
-        description: description.trim() || undefined,
-        status,
-      },
-      contentId,
-    );
+    const input = {
+      name: name.trim(),
+      description: description.trim() || undefined,
+      status,
+    };
+
+    if (isMulti) {
+      saveAsTemplateMulti(input, contentId as string[]);
+    } else if (contentId) {
+      saveAsTemplate(input, contentId as string);
+    }
   };
 
   const handleCancel = () => {

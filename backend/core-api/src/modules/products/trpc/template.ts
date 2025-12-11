@@ -1,0 +1,368 @@
+import { initTRPC } from '@trpc/server';
+import { z } from 'zod';
+import { CoreTRPCContext } from '~/init-trpc';
+
+const t = initTRPC.context<CoreTRPCContext>().create();
+
+export const router = t.router;
+export const publicProcedure = t.procedure;
+
+interface ITemplateProduct {
+  name: string;
+  code: string;
+  shortName?: string;
+  type?: string;
+  description?: string;
+  unitPrice?: number;
+  barcodes?: string[];
+  barcodeDescription?: string;
+  uom?: string;
+  categoryName?: string;
+  categoryCode?: string;
+  brandNames?: string[];
+  brandCodes?: string[];
+}
+
+const ensureUomExists = async (models: any, uomCode?: string) => {
+  if (!uomCode) return undefined;
+
+  const existingUom = await models.Uoms.findOne({ code: uomCode }).lean();
+  if (existingUom) {
+    return uomCode;
+  }
+
+  await models.Uoms.createUom({ code: uomCode, name: uomCode });
+  return uomCode;
+};
+
+const ensureCategoryExists = async (
+  models: any,
+  categoryName?: string,
+  categoryCode?: string,
+) => {
+  if (!categoryCode && !categoryName) return undefined;
+
+  if (categoryCode) {
+    const existingByCode = await models.ProductCategories.findOne({
+      code: categoryCode,
+    }).lean();
+    if (existingByCode) {
+      return existingByCode._id;
+    }
+  }
+
+  if (categoryName) {
+    const existingByName = await models.ProductCategories.findOne({
+      name: categoryName,
+    }).lean();
+    if (existingByName) {
+      return existingByName._id;
+    }
+  }
+
+  const newCategory = await models.ProductCategories.createProductCategory({
+    name: categoryName || categoryCode || 'Default Category',
+    code: categoryCode || categoryName || `CAT_${Date.now()}`,
+  } as any);
+
+  return newCategory._id;
+};
+
+const ensureBrandsExist = async (
+  models: any,
+  brandNames?: string[],
+  brandCodes?: string[],
+) => {
+  if (
+    (!brandNames || brandNames.length === 0) &&
+    (!brandCodes || brandCodes.length === 0)
+  ) {
+    return [];
+  }
+
+  const brandIds: string[] = [];
+  const names = brandNames || [];
+  const codes = brandCodes || [];
+
+  for (let i = 0; i < Math.max(names.length, codes.length); i++) {
+    const name = names[i];
+    const code = codes[i];
+
+    if (code) {
+      const existingByCode = await models.Brands.findOne({ code }).lean();
+      if (existingByCode) {
+        brandIds.push(existingByCode._id);
+        continue;
+      }
+    }
+
+    if (name) {
+      const existingByName = await models.Brands.findOne({ name }).lean();
+      if (existingByName) {
+        brandIds.push(existingByName._id);
+        continue;
+      }
+    }
+
+    if (name || code) {
+      const newBrand = await models.Brands.createBrand({
+        name: name || code || `Brand_${Date.now()}`,
+      });
+      brandIds.push(newBrand._id);
+    }
+  }
+
+  return brandIds;
+};
+
+const convertProductsToTemplate = async (
+  models: any,
+  products: any[],
+  templateName: string,
+) => {
+  const templateProducts: ITemplateProduct[] = [];
+
+  for (const product of products) {
+    let categoryName = '';
+    let categoryCode = '';
+    if (product.categoryId) {
+      const category = await models.ProductCategories.findOne({
+        _id: product.categoryId,
+      }).lean();
+      if (category) {
+        categoryName = category.name || '';
+        categoryCode = category.code || '';
+      }
+    }
+
+    let brandNames: string[] = [];
+    let brandCodes: string[] = [];
+    if (product.scopeBrandIds && product.scopeBrandIds.length > 0) {
+      const brands = await models.Brands.find({
+        _id: { $in: product.scopeBrandIds },
+      }).lean();
+      brandNames = brands.map((b: any) => b.name || '');
+      brandCodes = brands.map((b: any) => b.code || '');
+    }
+
+    templateProducts.push({
+      ...product,
+      categoryName,
+      categoryCode,
+      brandNames,
+      brandCodes,
+    });
+  }
+
+  return {
+    name: templateName,
+    content: JSON.stringify(templateProducts),
+    contentType: 'core:product',
+    pluginType: 'core',
+    status: 'active' as const,
+  };
+};
+
+const parseTemplateToProducts = (
+  templateContent: string,
+): ITemplateProduct[] => {
+  try {
+    return JSON.parse(templateContent);
+  } catch (error) {
+    throw new Error('Invalid template content');
+  }
+};
+
+export const templatesRouter = router({
+  saveAsTemplate: publicProcedure
+    .input(z.any())
+    .mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { sourceId, contentType, name, description } = input;
+
+      if (!contentType || !contentType.includes(':')) {
+        return {
+          status: 'error',
+          errorMessage: 'Invalid contentType format',
+        };
+      }
+
+      const [, type] = contentType.split(':');
+
+      if (type !== 'product') {
+        return {
+          status: 'error',
+          errorMessage: `Unsupported content type: ${type}`,
+        };
+      }
+
+      const product = await models.Products.findOne({ _id: sourceId }).lean();
+
+      if (!product) {
+        return {
+          status: 'error',
+          errorMessage: 'Product not found',
+        };
+      }
+
+      const templateData = await convertProductsToTemplate(
+        models,
+        [product],
+        name || product.name,
+      );
+
+      return {
+        status: 'success',
+        data: {
+          content: templateData.content,
+          description: description || product.description,
+        },
+      };
+    }),
+
+  saveAsTemplateMulti: publicProcedure
+    .input(z.any())
+    .mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { sourceIds, contentType, name, description } = input;
+
+      if (!contentType || !contentType.includes(':')) {
+        return {
+          status: 'error',
+          errorMessage: 'Invalid contentType format',
+        };
+      }
+
+      const [, type] = contentType.split(':');
+
+      if (type !== 'product') {
+        return {
+          status: 'error',
+          errorMessage: `Unsupported content type: ${type}`,
+        };
+      }
+
+      if (!sourceIds || sourceIds.length === 0) {
+        return {
+          status: 'error',
+          errorMessage: 'sourceIds is required',
+        };
+      }
+
+      const products = await models.Products.find({
+        _id: { $in: sourceIds },
+      }).lean();
+
+      if (!products.length) {
+        return {
+          status: 'error',
+          errorMessage: 'Products not found',
+        };
+      }
+
+      const templateData = await convertProductsToTemplate(
+        models,
+        products,
+        name || `${products.length} products template`,
+      );
+
+      return {
+        status: 'success',
+        data: {
+          content: templateData.content,
+          description:
+            description || `Template with ${products.length} products`,
+        },
+      };
+    }),
+
+  useTemplate: publicProcedure
+    .input(
+      z.object({
+        templateContent: z.string(),
+        categoryId: z.string().optional(),
+        prefix: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { templateContent, categoryId, prefix = '' } = input;
+
+      const templateProducts = parseTemplateToProducts(templateContent);
+
+      const createdProducts: any[] = [];
+      const createdRelatedItems = {
+        uoms: [] as string[],
+        categories: [] as string[],
+        brands: [] as string[],
+      };
+
+      for (const product of templateProducts) {
+        const uom = await ensureUomExists(models, product.uom);
+        if (product.uom && !createdRelatedItems.uoms.includes(product.uom)) {
+          const existingUom = await models.Uoms.findOne({
+            code: product.uom,
+          }).lean();
+          if (!existingUom) {
+            createdRelatedItems.uoms.push(product.uom);
+          }
+        }
+
+        let productCategoryId = categoryId;
+        if (!productCategoryId) {
+          productCategoryId = await ensureCategoryExists(
+            models,
+            product.categoryName,
+            product.categoryCode,
+          );
+          if (
+            product.categoryName &&
+            !createdRelatedItems.categories.includes(product.categoryName)
+          ) {
+            createdRelatedItems.categories.push(product.categoryName);
+          }
+        }
+
+        const scopeBrandIds = await ensureBrandsExist(
+          models,
+          product.brandNames,
+          product.brandCodes,
+        );
+        if (product.brandNames) {
+          for (const brandName of product.brandNames) {
+            if (!createdRelatedItems.brands.includes(brandName)) {
+              createdRelatedItems.brands.push(brandName);
+            }
+          }
+        }
+
+        const newProduct = await models.Products.createProduct({
+          name: prefix + product.name,
+          code: prefix + product.code,
+          shortName: product.shortName ? prefix + product.shortName : undefined,
+          type: product.type,
+          description: product.description,
+          unitPrice: product.unitPrice,
+          barcodes: product.barcodes,
+          barcodeDescription: product.barcodeDescription,
+          uom,
+          categoryId: productCategoryId,
+          scopeBrandIds: scopeBrandIds.length > 0 ? scopeBrandIds : undefined,
+          variants: {},
+        });
+
+        createdProducts.push(newProduct);
+      }
+
+      return {
+        products: createdProducts,
+        createdRelatedItems,
+        summary: {
+          totalProducts: createdProducts.length,
+          newUoms: createdRelatedItems.uoms.length,
+          newCategories: createdRelatedItems.categories.length,
+          newBrands: createdRelatedItems.brands.length,
+        },
+      };
+    }),
+});

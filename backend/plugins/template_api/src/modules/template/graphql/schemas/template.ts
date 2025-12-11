@@ -87,4 +87,5 @@ export const mutations = `
   templateRemove(_id: String!): Template
   templateUse(_id: String!, contentType: String, relTypeId: String): JSON
   templateSaveFrom(sourceId: String!, contentType: String!, name: String!, description: String, status: String): JSON
+  templateSaveMulti(sourceIds: [String!]!, contentType: String!, name: String!, description: String, status: String): JSON
 `;

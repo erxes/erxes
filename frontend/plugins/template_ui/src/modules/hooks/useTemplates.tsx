@@ -192,10 +192,29 @@ export const useTemplateUse = (options?: MutationHookOptions) => {
   const [useTemplate, { loading, error }] = useMutation(USE_TEMPLATE, {
     ...options,
     onCompleted: (data, clientOptions) => {
-      toast({
-        title: 'Success',
-        description: 'Template used successfully',
-      });
+      const result = data?.templateUse;
+
+      if (result && typeof result === 'object' && result.summary) {
+        const { totalProducts, newUoms, newCategories, newBrands, newVendors } =
+          result.summary;
+
+        toast({
+          title: 'Template Used Successfully',
+          description: `Created ${totalProducts} products with ${newUoms} UOMs, ${newCategories} categories, ${newBrands} brands, ${newVendors} vendors`,
+        });
+
+        if (result.products && result.products.length > 0) {
+          setTimeout(() => {
+            window.location.href = '/products';
+          }, 1500);
+        }
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Template used successfully',
+        });
+      }
+
       options?.onCompleted?.(data, clientOptions);
     },
     onError: (e) => {

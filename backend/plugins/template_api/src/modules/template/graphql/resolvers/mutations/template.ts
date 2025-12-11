@@ -164,4 +164,77 @@ export const templateMutations = {
       },
     };
   },
+
+  templateSaveMulti: async (
+    _parent: undefined,
+    {
+      sourceIds,
+      contentType,
+      name,
+      description,
+      status,
+    }: {
+      sourceIds: string[];
+      contentType: string;
+      name: string;
+      description?: string;
+      status?: string;
+    },
+    { models, req, user }: IContext,
+  ) => {
+    if (!contentType || !contentType.includes(':')) {
+      throw new Error('Invalid contentType format. Expected: plugin:type');
+    }
+
+    if (!sourceIds || sourceIds.length === 0) {
+      throw new Error('sourceIds is required');
+    }
+
+    const subdomain = getSubdomain(req);
+    const [pluginName] = contentType.split(':');
+
+    if (!pluginName) {
+      throw new Error('Invalid contentType format. Expected: plugin:type');
+    }
+
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName,
+      method: 'mutation',
+      module: 'templates',
+      action: 'saveAsTemplateMulti',
+      input: {
+        sourceIds,
+        contentType,
+        name,
+        description,
+        status,
+        currentUser: user,
+      },
+    });
+
+    if (!result || result.status === 'error') {
+      throw new Error(result?.errorMessage || 'Failed to save as template');
+    }
+
+    const template = await models.Template.createTemplate(
+      {
+        name,
+        content: result.data.content,
+        contentType,
+        pluginType: pluginName,
+        description: description || result.data.description,
+        status: 'active',
+      },
+      user,
+    );
+
+    return {
+      status: 'success',
+      data: {
+        templateId: template._id,
+        message: `Template saved successfully with ${sourceIds.length} items`,
+      },
+    };
+  },
 };
