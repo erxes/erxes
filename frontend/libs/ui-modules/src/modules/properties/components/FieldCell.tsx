@@ -1,27 +1,27 @@
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
-import { IField } from '../types/fieldsTypes';
-import { Badge, PopoverScoped, Switch, Command } from 'erxes-ui';
+import {
+  IField,
+  FieldCellProps,
+  FieldCellValueProps,
+  FieldCellValueContentProps,
+} from '../types/fieldsTypes';
+import { Badge, PopoverScoped, Switch, Command, Combobox } from 'erxes-ui';
 
-export const FieldCell = ({
-  field,
-  value,
-}: {
-  field: IField;
-  value: string;
-}) => {
+export const FieldCell = ({ mutateHook, ...props }: FieldCellProps) => {
+  const { mutate, loading } = mutateHook();
   return (
     <PopoverScoped>
       <RecordTableInlineCell.Trigger>
-        <FieldCellValue field={field} value={value} />
+        <FieldCellValue {...props} />
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <FieldCellContent field={field} value={value} />
+        <FieldCellContent mutate={mutate} loading={loading} {...props} />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );
 };
 
-const FieldCellValue = ({ field, value }: { field: IField; value: string }) => {
+const FieldCellValue = ({ field, value }: FieldCellValueProps) => {
   const { multiple, type, options } = field;
 
   if (field.type === 'boolean') {
@@ -47,11 +47,21 @@ const FieldCellValue = ({ field, value }: { field: IField; value: string }) => {
 export const FieldCellContent = ({
   field,
   value,
-}: {
-  field: IField;
-  value: string;
-}) => {
-  const { multiple, type, options } = field;
+  customFieldsData,
+  mutate,
+  id,
+}: FieldCellValueContentProps) => {
+  // const { multiple, type, options } = field;
+
+  const handleChange = (value: unknown) => {
+    mutate({
+      _id: id,
+      customFieldsData: {
+        ...customFieldsData,
+        [field._id]: value,
+      },
+    });
+  };
 
   if (field.type === 'boolean') {
     return (
@@ -62,24 +72,31 @@ export const FieldCellContent = ({
   }
 
   if (field.type === 'select') {
-    return <FieldSelect field={field} value={value} />;
+    return <FieldSelect field={field} value={value} onChange={handleChange} />;
   }
 };
 
 export const FieldSelect = ({
   field,
   value,
+  onChange,
 }: {
   field: IField;
   value: string;
+  onChange: (value: unknown) => void;
 }) => {
   return (
     <Command>
       <Command.Input placeholder="Search options" />
       <Command.List>
         {field.options?.map((o) => (
-          <Command.Item key={o.value} value={String(o.value)}>
+          <Command.Item
+            key={o.value}
+            value={String(o.value)}
+            onSelect={() => onChange(o.value)}
+          >
             {o.label}
+            <Combobox.Check checked={value === o.value} />
           </Command.Item>
         ))}
       </Command.List>

@@ -1,15 +1,13 @@
 import { IconComponent, RecordTable } from 'erxes-ui';
-import { IField } from '../types/fieldsTypes';
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { FieldColumnProps } from '../types/fieldsTypes';
+import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import { FieldCell } from '../components/FieldCell';
-
 export const useFieldsColumns = ({
   fields,
-}: {
-  fields: IField[];
-}): ColumnDef<unknown>[] =>
+  mutateHook,
+}: FieldColumnProps): ColumnDef<unknown>[] =>
   fields.map((field) => ({
-    id: field.code,
+    id: field._id,
     header: () => (
       <RecordTable.InlineHead
         label={field.name}
@@ -17,20 +15,24 @@ export const useFieldsColumns = ({
       />
     ),
     cell: ({
-      cell,
+      row,
     }: {
-      cell: Cell<
-        { customFieldsData?: Array<{ field: string; value?: string }> },
-        string
+      row: Row<
+        {
+          customFieldsData?: Record<string, unknown>;
+          _id: string;
+        } & Record<string, unknown>
       >;
     }) => {
-      const customFieldsData = cell.row.original?.customFieldsData as
-        | Array<{ field: string; value?: string }>
-        | undefined;
-      const matchedField = customFieldsData?.find(
-        (data) => data.field === field._id,
+      return (
+        <FieldCell
+          field={field}
+          value={row.original.customFieldsData?.[field._id] as string}
+          customFieldsData={row.original.customFieldsData}
+          id={row.original._id}
+          mutateHook={mutateHook}
+        />
       );
-      return <FieldCell field={field} value={matchedField?.value || ''} />;
     },
     size: 200,
   })) as ColumnDef<unknown>[];

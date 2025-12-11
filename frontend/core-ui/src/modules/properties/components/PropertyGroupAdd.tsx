@@ -5,7 +5,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { useAddPropertyGroup } from '../hooks/useAddPropertyGroup';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertyGroupSchema } from '../propertySchema';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { PropertyGroupForm } from './PropertyGroupForm';
 
 export const AddPropertyGroup = () => {
@@ -21,7 +21,6 @@ export const AddPropertyGroup = () => {
     },
   });
   const [open, setOpen] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const submitHandler: SubmitHandler<IPropertyGroupForm> = (data) => {
     addPropertyGroup({
@@ -33,7 +32,6 @@ export const AddPropertyGroup = () => {
       onCompleted: () => {
         form.reset();
         setOpen(false);
-        navigate(`/settings/properties/type`);
       },
     });
   };

@@ -3,8 +3,24 @@ import { useCustomers } from '@/contacts/customers/hooks/useCustomers';
 import { customersColumns } from './CustomersColumns';
 import { CustomersCommandBar } from '@/contacts/customers/components/customers-command-bar';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
-import { ICustomer, useFields, useFieldsColumns } from 'ui-modules';
+import {
+  ICustomer,
+  useCustomerEdit,
+  useFields,
+  useFieldsColumns,
+} from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
+
+const useCustomerCustomFieldEdit = () => {
+  const { customerEdit, loading: customerEditLoading } = useCustomerEdit();
+  return {
+    mutate: (variables: { _id: string } & Record<string, unknown>) =>
+      customerEdit({
+        variables: { ...variables },
+      }),
+    loading: customerEditLoading,
+  };
+};
 
 export const CustomersRecordTable = () => {
   const { customers, handleFetchMore, loading, pageInfo } = useCustomers();
@@ -13,7 +29,11 @@ export const CustomersRecordTable = () => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsCustomerLeadSessionKey();
-  const columns = useFieldsColumns({ fields });
+
+  const columns = useFieldsColumns({
+    fields,
+    mutateHook: useCustomerCustomFieldEdit,
+  });
 
   if (fieldsLoading) return <Spinner />;
 
