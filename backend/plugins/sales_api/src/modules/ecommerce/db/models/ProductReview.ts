@@ -31,7 +31,7 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
     public static async getAllProductReview(customerId: string) {
       return models.ProductReview.find({ customerId }).lean();
     }
-    public static async createProductReview(doc: ProductReview) {
+    public static async createProductReview(doc: IProductReview) {
       const review = await models.ProductReview.create({
         ...doc,
         createdAt: new Date(),
