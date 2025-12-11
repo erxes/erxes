@@ -182,6 +182,8 @@ export const loadFieldClass = (models: IModels) => {
     }
 
     public static async validateFieldValues(customFieldsData: IPropertyField) {
+      const result: Record<string, any> = {};
+
       for (const fieldName in customFieldsData) {
         const fieldValue = customFieldsData[fieldName];
 
@@ -209,11 +211,14 @@ export const loadFieldClass = (models: IModels) => {
         }
 
         try {
-          await this.validateFieldValue(fieldId.toString(), fieldValue);
+          result[fieldName] = await this.validateFieldValue(fieldId.toString(), fieldValue);
+
         } catch (e) {
           throw new Error(e.message);
         }
       }
+
+      return result
     }
   }
 
