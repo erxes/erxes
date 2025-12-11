@@ -3,10 +3,11 @@ import { ITBalanceTransaction } from '../types/TBalance';
 import { ITransactionGroupForm } from '../types/JournalForms';
 import { ITrDetail } from '../../types/Transaction';
 import { RecordTable } from 'erxes-ui';
-import { tbalanceColumns, tbalanceInvColumns } from './TBalanceTableColumns';
+import { tbalanceColumns } from './TBalanceTableColumns';
 import { TBalanceTableRow } from './TBalanceTableRow';
 import { useAtomValue } from 'jotai';
 import { useWatch } from 'react-hook-form';
+import { useMemo } from 'react';
 
 export const TBalance = (
   { form }: {
@@ -31,13 +32,8 @@ export const TBalance = (
   const followTrDocs = useAtomValue(followTrDocsState);
 
   const data: ITBalanceTransaction[] = [];
-  let hasAInv = false;
 
   (trDocs || []).forEach((activeTr, index) => {
-    if (!hasAInv && activeTr.journal.includes('inv')) {
-      hasAInv = true;
-    }
-
     activeTr.details.forEach((detail) => {
       data.push({ ...activeTr, date, number, detail: detail as ITrDetail, journalIndex: index.toString() });
     });
@@ -56,11 +52,13 @@ export const TBalance = (
     })
   })
 
-  let columns = tbalanceColumns
-  if (hasAInv) {
-    columns = columns.concat(tbalanceInvColumns);
-    columns.sort((a, b) => (a.colOrder ?? 0) - (b.colOrder ?? 0))
-  }
+  const columns = useMemo(() => {
+    if (!(trDocs || []).find(tr => tr.journal.includes('inv'))) {
+      return tbalanceColumns.filter(c => !c.id?.includes('inv'))
+    }
+    return tbalanceColumns
+  }, [trDocs])
+
 
   return (
     <RecordTable.Provider

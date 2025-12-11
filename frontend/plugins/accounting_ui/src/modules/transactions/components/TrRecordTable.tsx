@@ -1,27 +1,24 @@
 import { RecordTable, useQueryState } from 'erxes-ui';
 import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTrRecords } from '../hooks/useTrRecords';
-import { trRecordColumns, trRecordInvColumns } from './TrRecordsTableColumns';
-import { useMemo } from 'react';
-
-const getCols = (journal?: string,) => {
-  if (journal?.includes('inv')) {
-    const columns = trRecordColumns.concat(trRecordInvColumns);
-    return columns.sort((a, b) => (a.colOrder ?? 0) - (b.colOrder ?? 0));
-  }
-
-  return trRecordColumns;
-}
+import { trRecordColumns } from './TrRecordsTableColumns';
+import { useEffect, useState } from 'react';
 
 export const TrRecordTable = () => {
   const { trRecords, loading, handleFetchMore, pageInfo } = useTrRecords();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const [journal] = useQueryState<string>('journal');
+  const [columns, setColumns] = useState(trRecordColumns);
 
-  const columns = useMemo(() => {
-    return getCols(journal ?? '')
-  }, [journal]);
+  useEffect(() => {
+    if (!journal?.includes('inv')) {
+      setColumns(trRecordColumns.filter(c => !c.id?.includes('inv')));
+      return;
+    }
+
+    return setColumns(trRecordColumns);
+  }, [journal])
 
 
   return (

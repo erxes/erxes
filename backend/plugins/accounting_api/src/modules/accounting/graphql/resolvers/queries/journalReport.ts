@@ -8,6 +8,7 @@ export interface IReportFilterParams {
   number?: string;
   ptrStatus?: string;
 
+  accountId?: string;
   accountIds?: string[];
   accountKind?: string;
   accountExcludeIds?: boolean;
