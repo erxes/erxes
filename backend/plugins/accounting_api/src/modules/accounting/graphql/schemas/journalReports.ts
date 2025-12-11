@@ -37,6 +37,7 @@ const trsQueryParams = `
   number: String,
   ptrStatus: String,
 
+  accountId: String,
   accountIds: [String],
   accountKind: String,
   accountExcludeIds: Boolean,

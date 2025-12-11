@@ -4,6 +4,7 @@ import { IModels } from "~/connectionResolvers";
 import { TR_STATUSES } from "../../@types/constants";
 import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
 import { handleMainTB } from "./tb";
+import { handleMainAC } from "./ac";
 
 export const getRecords = async (subdomain: string, models: IModels, report: string, filterParams: IReportFilterParams, user: IUserDocument) => {
   const handler = getReportHandler(report);
@@ -31,10 +32,6 @@ const getReportHandler = (report: string) => {
   return handlers[report];
 }
 
-const handleMainAC = async (subdomain: string, models: IModels, filterParams: IReportFilterParams, user: IUserDocument) => {
-  return { records: [] }
-}
-
 export const generateFilter = async (
   subdomain: string,
   models: IModels,
@@ -46,6 +43,7 @@ export const generateFilter = async (
     number,
     journal,
     journals,
+    accountIds,
     brandId,
     branchId,
     departmentId,
@@ -66,6 +64,10 @@ export const generateFilter = async (
 
   if (modifiedUserId) {
     filter.modifiedBy = modifiedUserId
+  }
+
+  if (accountIds?.length) {
+    filter['details.accountId'] = { $in: accountIds }
   }
 
   const dateQry: any = {};

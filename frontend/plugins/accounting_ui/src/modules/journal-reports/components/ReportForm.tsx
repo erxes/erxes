@@ -15,6 +15,7 @@ import { SelectAccountCategory } from '~/modules/settings/account/account-catego
 import { activeReportState } from '../states/renderingReportsStates';
 import { AllReportsMap, GroupRules } from '../types/reportsMap';
 import { useEffect, useState } from 'react';
+import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 
 const getQueryParam = (key: string, value: string | string[] | Date | boolean): string => {
   if (key === 'fromDate' || key === 'toDate') {
@@ -82,6 +83,24 @@ export const ReportForm = () => {
                     selected={field.value}
                     onSelect={field.onChange}
                     recordId={field.name}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="accountIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Accounts</Form.Label>
+                <Form.Control>
+                  <SelectAccount
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode='multiple'
                   />
                 </Form.Control>
                 <Form.Message />

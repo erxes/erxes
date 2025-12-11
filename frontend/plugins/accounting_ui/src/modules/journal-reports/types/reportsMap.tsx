@@ -24,12 +24,48 @@ export interface IGroupRule {
 interface ReportConfig {
   colCount: number;
   choices: Array<{ code: string; title: string }>;
+  initParams?: Object,
   groups: {
     [key: string]: IGroupRule;
   };
 }
 
 export const GroupRules: Record<string, ReportConfig> = {
+  ac: {
+    colCount: 6,
+    choices: [
+      { code: 'default', title: 'Дансаар' },
+      { code: 'cat', title: 'Дансны бүлгээр' }
+    ],
+    initParams: {
+      isMore: true
+    },
+    groups: {
+      default: {
+        'key': 'gr',
+        'group': 'account_id',
+        'code': 'account__code',
+        'name': 'account__name',
+        'style': 'font-semibold bg-[#fefef1]',
+        'group_rule': null,
+      },
+      cat: {
+        'key': 'gr1',
+        'group': 'account__category_id',
+        'code': 'account__category__code',
+        'name': 'account__category__name',
+        'style': 'font-semibold',
+        'group_rule': {
+          'key': 'gr2',
+          'group': 'account_id',
+          'code': 'account__code',
+          'name': 'account__name',
+          'style': 'font-semibold bg-[#fefef1]',
+          'group_rule': null,
+        },
+      }
+    }
+  },
   tb: {
     colCount: 6,
     choices: [

@@ -1,35 +1,65 @@
-import { ReportTable, useQueryState, Spinner, cn, displayNum } from "erxes-ui"
-import { useJournalReportData } from "../hooks/useJournalReportData";
-import { IGroupRule, GroupRules } from "../types/reportsMap";
+import { ReportTable, Spinner, cn, displayNum } from "erxes-ui";
 import React, { useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useJournalReportData } from "../hooks/useJournalReportData";
+import { GroupRules, IGroupRule } from "../types/reportsMap";
 import { getCalcReportHandler } from "./includes";
 
+export function useQueryObject() {
+  const [searchParams] = useSearchParams();
+
+  const obj: any = {};
+  for (const key of searchParams.keys()) {
+    const values = searchParams.getAll(key);
+    obj[key] = values.length > 1 ? values : values[0];
+  }
+
+  return obj;
+}
+
 export const ReportTableBody = () => {
-  const [report] = useQueryState('report');
-  const [groupKey] = useQueryState('groupKey');
-  const reportConf = GroupRules[report as string] || {}
+  const { report, groupKey, ...qryParams } = useQueryObject();
+  const reportConf = GroupRules[report as string];
+
+  if (!report || !reportConf) {
+    return 'NOT FOUND REPORT'
+  }
+
+  const params = { ...qryParams, ...(reportConf.initParams || {}) };
+  const { isMore } = params;
+
   const colCount = reportConf.colCount ?? 0;
-  const groupRule = reportConf.groups[groupKey as string || ''] || reportConf.groups['default'] || {}
+  const groupRule = reportConf.groups?.[groupKey as string || ''] || reportConf.groups?.['default'] || {}
 
   const calcReport = getCalcReportHandler(report as string || '')
 
-  const { records = [], loading } = useJournalReportData();
+  const { records = [], loading, error } = useJournalReportData();
 
   const tableRef = useRef<HTMLTableSectionElement>(null);
 
   const grouped = React.useMemo(() => {
+    if (error) return {};
+
     return groupRecords(records, groupRule);
   }, [records, groupRule]);
-
 
   // ✅ RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
   useEffect(() => {
     if (!tableRef?.current) return;
+
     totalsCalc(tableRef.current);
+
+    if (isMore) {
+      
+    }
   }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
 
   if (loading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    return error.message;
   }
 
   return (
