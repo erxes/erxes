@@ -241,7 +241,7 @@ export const TicketForm = ({
             <Button
               type="button"
               variant="outline"
-              className="h-8 shadow-2xs flex-1"
+              className="shadow-2xs flex-1"
               onClick={handleCancel}
             >
               Cancel
@@ -249,7 +249,7 @@ export const TicketForm = ({
             <Button
               type="submit"
               disabled={loading || saveTicketCustomersLoading}
-              className="bg-primary h-8 shadow-2xs flex-1"
+              className="bg-primary shadow-2xs flex-1"
             >
               {loading || saveTicketCustomersLoading ? (
                 <Spinner size="sm" />
