@@ -101,7 +101,7 @@ export const getCustomerSummary = async (
   const data: any = {};
 
   // Get product reviews by customer
-  const productReviews = await models.ProductReview.find({ customerId }).lean();
+  const productReviews = await models.ProductReview.find({ customerId: { $eq: customerId } }).lean();
   data.productReviews = productReviews;
 
   // Calculate review statistics
@@ -122,18 +122,18 @@ export const getCustomerSummary = async (
   }
 
   // Get wishlist items
-  const wishlistItems = await models.Wishlist.find({ customerId }).lean();
+  const wishlistItems = await models.Wishlist.find({ customerId: { $eq: customerId } }).lean();
   data.wishlistItems = wishlistItems;
 
   // Get last viewed items
-  const lastViewedItems = await models.LastViewedItem.find({ customerId })
+  const lastViewedItems = await models.LastViewedItem.find({ customerId: { $eq: customerId } })
     .sort({ modifiedAt: -1 })
     .limit(20)
     .lean();
   data.lastViewedItems = lastViewedItems;
 
   // Get addresses
-  const addresses = await models.Address.find({ customerId }).lean();
+  const addresses = await models.Address.find({ customerId: { $eq: customerId } }).lean();
   data.addresses = addresses;
 
   // Extract product IDs for fetching details
