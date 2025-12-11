@@ -161,7 +161,7 @@ export const getProductSummary = async (
   const data: any = { productId };
 
   // Get product reviews
-  const productReviews = await models.ProductReview.find({ productId }).lean();
+  const productReviews = await models.ProductReview.find({ productId: { $eq: productId } }).lean();
   data.productReviews = productReviews;
 
   // Calculate review statistics
@@ -188,11 +188,11 @@ export const getProductSummary = async (
   }
 
   // Get wishlist count for this product
-  const wishlistCount = await models.Wishlist.countDocuments({ productId });
+  const wishlistCount = await models.Wishlist.countDocuments({ productId: { $eq: productId } });
   data.wishlistCount = wishlistCount;
 
   // Get last viewed count for this product
-  const lastViewedCount = await models.LastViewedItem.countDocuments({ productId });
+  const lastViewedCount = await models.LastViewedItem.countDocuments({ productId: { $eq: productId } });
   data.lastViewedCount = lastViewedCount;
 
   // Get customer IDs for reviewers and fetch their details
