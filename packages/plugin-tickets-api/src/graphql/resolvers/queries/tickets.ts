@@ -19,21 +19,18 @@ const ticketQueries = {
   async tickets(
     _root,
     args: IListParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const filter = {
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
     };
-    console.log(filter, "filter");
-    console.log(args, "args");
-    console.log(user, "user");
     return await getItemList(models, subdomain, filter, args, user, "ticket");
   },
 
   async ticketsTotalCount(
     _root,
     args: IListParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const filter = {
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
@@ -59,7 +56,7 @@ const ticketQueries = {
   async ticketDetail(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
