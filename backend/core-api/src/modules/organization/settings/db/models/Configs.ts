@@ -1,11 +1,12 @@
 import { Model } from 'mongoose';
 
-import { IModels } from '~/connectionResolvers';
 import { getEnv } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 import {
   configSchema,
   IConfig,
   IConfigDocument,
+  ISESConfig,
 } from '~/modules/organization/settings/db/definitions/configs';
 
 export interface IConfigModel extends Model<IConfigDocument> {
@@ -15,6 +16,9 @@ export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfig({ code, value }: IConfig): Promise<IConfigDocument>;
   constants(): Promise<any>;
   getCloudflareConfigs(): Promise<any>;
+
+  getSESConfigs(): Promise<ISESConfig>;
+  updateConfigs(configsMap): Promise<void>;
 }
 
 export const getValueAsString = async (
@@ -57,7 +61,7 @@ export const loadConfigClass = (models: IModels) => {
       const configsMap = {};
       const filter: any = {};
       if (codes?.length) {
-        filter.code = { $in: codes }
+        filter.code = { $in: codes };
       }
       const configs = await models.Configs.find(filter).lean();
 
@@ -151,6 +155,54 @@ export const loadConfigClass = (models: IModels) => {
         useCdn,
         isPublic,
         apiToken,
+      };
+    }
+
+    /**
+     * Update configs
+     */
+    public static async updateConfigs(configsMap) {
+      const codes = Object.keys(configsMap);
+
+      for (const code of codes) {
+        if (!code) {
+          continue;
+        }
+
+        const value = configsMap[code];
+        const doc = { code, value };
+
+        await models.Configs.createOrUpdateConfig(doc);
+      }
+    }
+
+    /**
+     * Get a Config
+     */
+    public static async getSESConfigs() {
+      const accessKeyId = await getValueAsString(
+        models,
+        'accessKeyId',
+        'AWS_SES_ACCESS_KEY_ID',
+      );
+      const secretAccessKey = await getValueAsString(
+        models,
+        'secretAccessKey',
+        'AWS_SES_SECRET_ACCESS_KEY',
+      );
+      const region = await getValueAsString(models, 'region', 'AWS_REGION');
+      const unverifiedEmailsLimit = await getValueAsString(
+        models,
+        'unverifiedEmailsLimit',
+        'EMAILS_LIMIT',
+        '100',
+      );
+
+      return {
+        accessKeyId,
+        secretAccessKey,
+        region,
+        unverifiedEmailsLimit,
       };
     }
   }

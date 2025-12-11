@@ -1,17 +1,17 @@
-import { initTRPC } from '@trpc/server';
-import { z } from 'zod';
-import { IModels } from '~/connectionResolvers';
+import { IEngageData } from '@/inbox/@types/conversationMessages';
+import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import {
   receiveInboxMessage,
   receiveIntegrationsNotification,
 } from '@/inbox/receiveMessage';
 import { getIntegrationsKinds } from '@/inbox/utils';
-import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { IEngageData } from '@/inbox/@types/conversationMessages';
-import { IConversationDocument } from '../@types/conversations';
+import { initTRPC } from '@trpc/server';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { z } from 'zod';
+import { IModels } from '~/connectionResolvers';
 import { FrontlineTRPCContext } from '~/init-trpc';
+import { IConversationDocument } from '../@types/conversations';
 
 const t = initTRPC.context<FrontlineTRPCContext>().create();
 interface CreateConversationAndMessageParams {
@@ -369,6 +369,15 @@ export const conversationMessagesRouter = t.router({
           process.env.NODE_ENV === 'development' ? error.message : undefined,
       };
     }
+  }),
+
+  updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+    const { filter, updateDoc } = input;
+    const { models } = ctx;
+
+    return await models.ConversationMessages.updateOne(filter, {
+      $set: updateDoc,
+    });
   }),
 });
 

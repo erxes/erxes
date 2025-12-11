@@ -7,7 +7,7 @@ import {
   editDeal,
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
-import { convertNestedDate } from '~/modules/sales/utils';
+import { convertNestedDate, generateAmounts, generateProducts } from '~/modules/sales/utils';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -240,6 +240,19 @@ export const dealTrpcRouter = t.router({
         const { filter, userId } = input;
         const { models, subdomain } = ctx;
         return await generateFilter(models, subdomain, userId, filter);
+      }),
+
+    generateAmounts: t.procedure
+      .input(z.any())
+      .query(async ({ input }) => {
+        return generateAmounts(input);
+      }),
+
+    generateProducts: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { subdomain } = ctx;
+        return await generateProducts(subdomain, input);
       }),
   },
   stage: {
