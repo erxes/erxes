@@ -1,4 +1,5 @@
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import _ from 'lodash';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IGoalDocument } from '~/modules/goals/@types/goals';
 
@@ -296,7 +297,8 @@ export const goalsInit = async (req, res) => {
 
     // Search by name
     if (searchValue) {
-      filter.name = { $regex: new RegExp(searchValue as string, 'i') };
+      const safeSearchValue = _.escapeRegExp(searchValue as string);
+      filter.name = { $regex: new RegExp(safeSearchValue, 'i') };
     }
 
     const result = await getGoalsData(subdomain, models, filter, {
