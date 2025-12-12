@@ -1,4 +1,3 @@
-// frontend/plugins/mongolian_ui/src/components/selects/SelectShared.tsx
 import {
   RecordTableInlineCell,
   Combobox,
@@ -10,7 +9,6 @@ import {
 } from 'erxes-ui';
 import { IconChevronDown } from '@tabler/icons-react';
 
-// Replace enum with const object to avoid runtime issues
 export const SelectTriggerVariant = {
   TABLE: 'table',
   CARD: 'card',
@@ -20,7 +18,6 @@ export const SelectTriggerVariant = {
   ICON: 'icon',
 } as const;
 
-// Export type for type safety
 export type SelectTriggerVariantType =
   (typeof SelectTriggerVariant)[keyof typeof SelectTriggerVariant];
 
@@ -114,7 +111,6 @@ export const SelectTrigger = ({
     );
   }
 
-  // Default variant
   return (
     <Combobox.TriggerBase className="w-fit h-7" disabled={disabled}>
       {children}
