@@ -57,7 +57,7 @@ export const queries = `
     widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
   
     widgetsTicketCustomerDetail(customerId: String, type: String): Customer
-    widgetsGetTicketTags(configId: String): [Tag]
+    widgetsGetTicketTags(configId: String,parentId: String): [Tag]
     widgetTicketCheckProgress(number: String!): Ticket
     widgetTicketComments(contentId: String!): [Note]
     widgetTicketActivityLogs(contentId: String): [TicketActivity]
@@ -130,7 +130,6 @@ export const mutations = `
       description: String
       attachments: [AttachmentInput]
       statusId: String!
-      type: String!
       customerIds: [String!]!
       tagIds: [String!]
     ): Ticket

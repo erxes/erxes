@@ -71,3 +71,5 @@ export const browserInfoAtom = atom<IBrowserInfo | null>(null);
 export const toastUserAtom = atom<boolean>(false);
 
 export const ticketProgressAtom = atom<ITicketCheckProgress | null>(null);
+
+export const userTicketCreatedNumberAtom = atom<string | null>(null);

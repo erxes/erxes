@@ -1,14 +1,18 @@
-import { Form, Input, Separator } from 'erxes-ui';
-import { AnimatePresence, motion } from 'motion/react';
+import {
+  Combobox,
+  Form,
+  Input,
+  Popover,
+  PopoverScoped,
+  Separator,
+} from 'erxes-ui';
 
-import { ContactType, TPipelineConfig } from '@/pipelines/types';
-import { useFieldArray, UseFormReturn, useWatch } from 'react-hook-form';
+import { TPipelineConfig } from '@/pipelines/types';
+import { UseFormReturn } from 'react-hook-form';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectContactType } from './contact-type/SelectContactType';
-import { CustomerFields } from './CustomerFields';
-import { CompanyFields } from './CompanyFields';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TicketBasicFields } from './TicketBasicFields';
+import { SelectTags } from 'ui-modules';
 
 type Props = {
   form: UseFormReturn<TPipelineConfig>;
@@ -16,15 +20,8 @@ type Props = {
 };
 
 export const ConfigsForm = ({ form, defaultValues }: Props) => {
+  const [open, setOpen] = useState(false);
   const { control } = form;
-  const contactType = useWatch({
-    control: control,
-    name: 'contactType',
-  });
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'fieldsConfig',
-  });
 
   useEffect(() => {
     if (defaultValues) {
@@ -70,38 +67,39 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
         />
         <Form.Field
           control={control}
-          name="contactType"
+          name="parentId"
           render={({ field }) => (
             <Form.Item>
-              <SelectContactType.FormItem
-                value={field.value as ContactType}
-                onValueChange={field.onChange}
-                form={form}
-              />
+              <Form.Control>
+                <SelectTags.Provider
+                  tagType="frontline:ticket"
+                  mode="single"
+                  value={field.value as string}
+                  onValueChange={(tag) => {
+                    field.onChange(tag);
+                    setOpen(false);
+                  }}
+                >
+                  <PopoverScoped
+                    open={open}
+                    onOpenChange={setOpen}
+                    scope="configs"
+                  >
+                    <Combobox.Trigger className="w-full h-7 shadow-xs">
+                      <SelectTags.Value placeholder="Select tag group" />
+                    </Combobox.Trigger>
+                    <Combobox.Content onClick={(e) => e.stopPropagation()}>
+                      <SelectTags.GroupsCommand />
+                    </Combobox.Content>
+                  </PopoverScoped>
+                </SelectTags.Provider>
+              </Form.Control>
             </Form.Item>
           )}
         />
       </div>
       <Separator />
       <TicketBasicFields form={form} />
-      <AnimatePresence mode="popLayout">
-        {contactType && (
-          <motion.div
-            key={contactType}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            {contactType === 'customer' ? (
-              <CustomerFields form={form} />
-            ) : (
-              <CompanyFields form={form} />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 };

@@ -1,8 +1,4 @@
-import {
-  IconChecklist,
-  IconClipboard,
-  IconListCheck,
-} from '@tabler/icons-react';
+import { IconChecklist, IconListCheck } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig } from 'erxes-ui';
@@ -61,14 +57,12 @@ export const CONFIG: IUIConfig = {
       settingsOnly: true,
     },
   ],
-  relationWidgets: [
-    {
-      name: 'tasks',
-      icon: IconChecklist,
-    },
-    {
-      name: 'projects',
-      icon: IconClipboard,
-    },
-  ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'tasks',
+        icon: IconChecklist,
+      },
+    ],
+  },
 };

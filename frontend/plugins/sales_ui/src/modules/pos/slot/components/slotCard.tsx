@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button, Card } from 'erxes-ui';
+import { Button, Card, cn } from 'erxes-ui';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
-import { cn } from 'erxes-ui/lib';
 import { SlotCardProps } from '../types';
 
 const SlotCard: React.FC<SlotCardProps> = ({
@@ -11,10 +10,15 @@ const SlotCard: React.FC<SlotCardProps> = ({
   onDuplicate,
   onDelete,
 }) => {
+  const slotLabel =
+    typeof node.data.label === 'string' && node.data.label.length > 0
+      ? node.data.label
+      : node.id;
+
   return (
     <Card
       className={cn(
-        'overflow-hidden transition-all hover:shadow-md',
+        'overflow-hidden transition-all',
         selected ? 'ring-2 ring-indigo-500' : '',
         node.data.disabled ? 'opacity-60' : '',
       )}
@@ -22,7 +26,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
       <div className="p-0">
         <div className="flex items-center p-3">
           <div className="flex-1">
-            <h3 className="font-medium">
+            <h3 className="font-medium text-foreground">
               {node.data.label as React.ReactNode}
             </h3>
           </div>
@@ -30,26 +34,26 @@ const SlotCard: React.FC<SlotCardProps> = ({
             <Button
               variant="outline"
               size="icon"
-              className="bg-gray-100 hover:bg-gray-200"
               onClick={(e) => onEdit(node, e)}
+              aria-label={`Edit slot ${slotLabel}`}
             >
-              <IconEdit className="h-4 w-4 text-gray-500" />
+              <IconEdit className="w-4 h-4 text-foreground" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="bg-gray-100 hover:bg-gray-200"
               onClick={() => onDuplicate(node.id)}
+              aria-label={`Duplicate slot ${slotLabel}`}
             >
-              <IconCopy className="h-4 w-4 text-gray-500" />
+              <IconCopy className="w-4 h-4 text-foreground" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="bg-gray-100 hover:bg-gray-200"
               onClick={() => onDelete(node.id)}
+              aria-label={`Delete slot ${slotLabel}`}
             >
-              <IconTrash className="h-4 w-4 text-red-500" />
+              <IconTrash className="w-4 h-4 text-destructive" />
             </Button>
           </div>
         </div>

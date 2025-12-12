@@ -24,7 +24,6 @@ const CREATE_TICKET = gql`
   mutation WidgetTicketCreated(
     $name: String!
     $statusId: String!
-    $type: String!
     $customerIds: [String!]!
     $description: String
     $attachments: [AttachmentInput]
@@ -33,13 +32,13 @@ const CREATE_TICKET = gql`
     widgetTicketCreated(
       name: $name
       statusId: $statusId
-      type: $type
       customerIds: $customerIds
       description: $description
       attachments: $attachments
       tagIds: $tagIds
     ) {
       _id
+      number
     }
   }
 `;
