@@ -2,14 +2,18 @@ import { RecordTable } from 'erxes-ui';
 import { useCompanies } from '@/contacts/companies/hooks/useCompanies';
 import { CompaniesCommandBar } from '@/contacts/companies/components/companies-command-bar';
 import { companyColumns } from '@/contacts/companies/components/CompanyColumns';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const CompaniesRecordTable = () => {
   const { companies, handleFetchMore, loading, pageInfo } = useCompanies();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { t } = useTranslation('contacts', { keyPrefix: 'company' });
+  const columns = useMemo(() => companyColumns(t), [t]);
   return (
     <RecordTable.Provider
-      columns={companyColumns}
+      columns={columns}
       data={companies || [{}]}
       stickyColumns={['more', 'checkbox', 'avatar', 'primaryName']}
       className="m-3"

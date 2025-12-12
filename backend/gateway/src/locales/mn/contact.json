@@ -1,0 +1,46 @@
+{
+  "customers": "Үйлчлүүлэгчид",
+  "companies": "Компаниуд",
+  "leads": "Харилцагчид",
+  "customer": {
+    "_": "Үйлчлүүлэгч",
+    "add": {
+      "_": "Үйлчлүүлэгч нэмэх",
+      "upload": "Зураг нэмэх",
+      "upload-description": "Зохимжтой харьцаа 1:1, 2МБ хүртэл",
+      "first-name": "Нэр",
+      "last-name": "Овог",
+      "email": "Имэйл",
+      "phone": "Утас",
+      "owner": "Эзэмшигч",
+      "code": "Код",
+      "email-verification-status": "Имэйл баталгаажуулалт",
+      "phone-verification-status": "Утасны баталгаажуулалт",
+      "description": "Тайлбар",
+      "subscribed": "Захиалгатай",
+      "success-message": "Үйлчлүүлэгч амжилттай нэмэгдлээ"
+    },
+    "edit": "Үйлчлүүлэгч засах",
+    "delete": "Үйлчлүүлэгч устгах",
+    "confirm-delete": "Та энэ үйлчлүүлэгчийг устгахдаа итгэлтэй байна уу?",
+    "name": "Нэр",
+    "emails": "Имэйлүүд",
+    "phones": "Утаснууд",
+    "tags": "Тагууд",
+    "sex": "Хүйс",
+    "owner": "Эзэмшигч",
+    "session-count": "Session тоо",
+    "last-seen": "Сүүлд харсан",
+    "created-at": "Бүртгэсэн огноо"
+  },
+  "company": {
+    "name": "Нэр",
+    "emails": "Имэйлүүд",
+    "phones": "Утаснууд",
+    "tags": "Тагууд",
+    "plan": "План",
+    "owner": "Эзэмшигч",
+    "last-seen": "Сүүлд харсан",
+    "profile-score": "Профайл оноо"
+  }
+}

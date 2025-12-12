@@ -32,6 +32,7 @@ import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
 import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
 import { useFilterQueryState } from '../hooks/useFilterQueryState';
 import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
+import { useTranslation } from 'react-i18next';
 
 const FilterProvider = ({
   children,
@@ -77,6 +78,8 @@ const FilterTrigger = React.forwardRef<
     isFiltered?: boolean;
   }
 >(({ isFiltered, ...props }, ref) => {
+  const { t } = useTranslation();
+
   return (
     <Tooltip.Provider>
       <Tooltip delayDuration={0}>
@@ -89,11 +92,11 @@ const FilterTrigger = React.forwardRef<
               {...props}
             >
               <IconFilter2 className="w-4 h-4" />
-              {!isFiltered && 'Filter'}
+              {!isFiltered && t('filter._')}
             </Button>
           </Popover.Trigger>
         </Tooltip.Trigger>
-        <Tooltip.Content>Filter</Tooltip.Content>
+        <Tooltip.Content>{t('filter._')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );
