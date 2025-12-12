@@ -1,9 +1,10 @@
 import React from 'react';
 import { Badge, readImage } from 'erxes-ui';
-import { usePosList } from '../hooks/usePosList';
-import { IPos } from '../types/pos';
+import { usePosList } from '@/pos/hooks/usePosList';
+import { IPos } from '@/pos/types/pos';
 import { IconPhotoCirclePlus } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { PosEmptyState } from '@/pos/components/PosEmptyState';
 
 interface PosCardProps {
   pos: IPos;
@@ -59,7 +60,11 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
   );
 };
 
-export const PosCardGrid = () => {
+interface PosCardGridProps {
+  onCreatePos?: () => void;
+}
+
+export const PosCardGrid = ({ onCreatePos }: PosCardGridProps) => {
   const { posList, loading } = usePosList();
 
   if (loading) {
@@ -88,6 +93,10 @@ export const PosCardGrid = () => {
         </div>
       </div>
     );
+  }
+
+  if (!posList || posList.length === 0) {
+    return <PosEmptyState isCreate={true} onCreatePos={onCreatePos} />;
   }
 
   return (
