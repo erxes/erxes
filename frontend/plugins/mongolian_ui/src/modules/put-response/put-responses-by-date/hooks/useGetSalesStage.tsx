@@ -6,9 +6,7 @@ interface IUseGetSalesStagesResponse {
   salesStages: IStage[];
 }
 
-interface UseGetSalesStagesOptions extends QueryHookOptions {
-  skip?: boolean;
-}
+type UseGetSalesStagesOptions = QueryHookOptions;
 
 export const useGetSalesStages = (
   pipelineId?: string,
@@ -19,8 +17,8 @@ export const useGetSalesStages = (
     {
       ...options,
       variables: {
-        pipelineId: pipelineId || '',
         ...options?.variables,
+        pipelineId: pipelineId || '',
       },
       skip: options?.skip || !pipelineId,
     },

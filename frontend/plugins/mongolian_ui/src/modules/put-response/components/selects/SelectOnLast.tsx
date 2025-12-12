@@ -22,7 +22,7 @@ import { ON_LAST_DATA } from '../../constants/onLastData';
 import {
   SelectContent,
   SelectTrigger,
-  SelectTriggerVariant,
+  SelectTriggerVariantType,
 } from './SelectShared';
 
 interface IOnLast {
@@ -31,9 +31,10 @@ interface IOnLast {
 }
 
 interface SelectOnLastContextType {
-  value: string;
+  value: string | string[];
   onValueChange: (onLast: string) => void;
   onLasts?: IOnLast[];
+  mode: 'single' | 'multiple';
 }
 
 const SelectOnLastContext = createContext<SelectOnLastContextType | null>(null);
@@ -63,20 +64,26 @@ export const SelectOnLastProvider = ({
 
   const handleValueChange = useCallback(
     (onLast: string) => {
-      if (!onLast) return;
-      onValueChange?.(onLast);
+      if (mode === 'multiple') {
+        const currentValues = Array.isArray(value) ? value : [];
+        const newValues = currentValues.includes(onLast)
+          ? currentValues.filter((v) => v !== onLast)
+          : [...currentValues, onLast];
+        onValueChange?.(newValues.join(','));
+      } else {
+        if (!onLast) return;
+        onValueChange?.(onLast);
+      }
     },
-    [onValueChange],
+    [onValueChange, mode, value],
   );
 
   const contextValue = useMemo(
     () => ({
-      value:
-        mode === 'single'
-          ? (value as string) || ''
-          : (value as string[]).join(','),
+      value: mode === 'single' ? (value as string) || '' : value,
       onValueChange: handleValueChange,
       onLasts,
+      mode,
     }),
     [value, handleValueChange, onLasts, mode],
   );
@@ -95,7 +102,31 @@ const SelectOnLastValue = ({
   placeholder?: string;
   className?: string;
 }) => {
-  const { value, onLasts } = useSelectOnLastContext();
+  const { value, onLasts, mode } = useSelectOnLastContext();
+
+  if (mode === 'multiple') {
+    const valueArray = Array.isArray(value) ? value : [];
+    const selectedOnLasts = onLasts?.filter((type) =>
+      valueArray.includes(type.value),
+    );
+
+    if (!selectedOnLasts || selectedOnLasts.length === 0) {
+      return (
+        <span className="text-accent-foreground/80">
+          {placeholder || 'Select on last'}
+        </span>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-2">
+        <p className={cn('font-medium text-sm', className)}>
+          {selectedOnLasts.map((s) => s.label).join(', ')}
+        </p>
+      </div>
+    );
+  }
+
   const selectedOnLast = onLasts?.find((type) => type.value === value);
 
   if (!selectedOnLast) {
@@ -116,8 +147,13 @@ const SelectOnLastValue = ({
 };
 
 const SelectOnLastCommandItem = ({ onLast }: { onLast: IOnLast }) => {
-  const { onValueChange, value } = useSelectOnLastContext();
+  const { onValueChange, value, mode } = useSelectOnLastContext();
   const { value: onLastValue, label } = onLast || {};
+
+  const isChecked =
+    mode === 'multiple'
+      ? Array.isArray(value) && value.includes(onLastValue)
+      : value === onLastValue;
 
   return (
     <Command.Item
@@ -127,7 +163,7 @@ const SelectOnLastCommandItem = ({ onLast }: { onLast: IOnLast }) => {
       }}
     >
       <span className="font-medium">{label}</span>
-      <Combobox.Check checked={value === onLastValue} />
+      <Combobox.Check checked={isChecked} />
     </Command.Item>
   );
 };
@@ -179,9 +215,11 @@ export const SelectOnLastFilterView = ({
         mode={mode}
         value={onLast || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          setOnLast(value as string[] | string);
+          const parsedValue =
+            mode === 'multiple' ? value.split(',').filter(Boolean) : value;
+          setOnLast(parsedValue as string[] | string);
           resetFilterState();
-          onValueChange?.(value);
+          onValueChange?.(parsedValue);
         }}
       >
         <SelectOnLastContent />
@@ -204,27 +242,34 @@ export const SelectOnLastFilterBar = ({
 
   return (
     <Filter.BarItem queryKey={'isLast'}>
-      <Filter.BarName>
-        <IconToggleLeft />
-        On Last
-      </Filter.BarName>
+      {!iconOnly && (
+        <Filter.BarName>
+          <IconToggleLeft />
+          On Last
+        </Filter.BarName>
+      )}
       <SelectOnLastProvider
         mode={mode}
         value={onLast || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          if (value.length > 0) {
-            setOnLast(value as string[] | string);
+          const parsedValue =
+            mode === 'multiple' ? value.split(',').filter(Boolean) : value;
+          if (
+            (Array.isArray(parsedValue) && parsedValue.length > 0) ||
+            (typeof parsedValue === 'string' && parsedValue.length > 0)
+          ) {
+            setOnLast(parsedValue as string[] | string);
           } else {
             setOnLast(null);
           }
           setOpen(false);
-          onValueChange?.(value);
+          onValueChange?.(parsedValue);
         }}
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey={'isLast'}>
-              <SelectOnLastValue />
+              {iconOnly ? <IconToggleLeft /> : <SelectOnLastValue />}
             </Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
@@ -279,7 +324,7 @@ const SelectOnLastRoot = ({
   disabled,
 }: {
   value: string;
-  variant?: `${SelectTriggerVariant}`;
+  variant?: SelectTriggerVariantType;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;

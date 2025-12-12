@@ -10,5 +10,5 @@ export interface IStage {
   age: number;
   defaultTick: boolean;
   probability: number;
-  type: string;
+  type?: string;
 }

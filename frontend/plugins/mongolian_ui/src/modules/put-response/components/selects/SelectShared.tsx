@@ -1,3 +1,4 @@
+// frontend/plugins/mongolian_ui/src/components/selects/SelectShared.tsx
 import {
   RecordTableInlineCell,
   Combobox,
@@ -9,14 +10,19 @@ import {
 } from 'erxes-ui';
 import { IconChevronDown } from '@tabler/icons-react';
 
-export enum SelectTriggerVariant {
-  TABLE = 'table',
-  CARD = 'card',
-  DETAIL = 'detail',
-  FORM = 'form',
-  FILTER = 'filter',
-  ICON = 'icon',
-}
+// Replace enum with const object to avoid runtime issues
+export const SelectTriggerVariant = {
+  TABLE: 'table',
+  CARD: 'card',
+  DETAIL: 'detail',
+  FORM: 'form',
+  FILTER: 'filter',
+  ICON: 'icon',
+} as const;
+
+// Export type for type safety
+export type SelectTriggerVariantType =
+  (typeof SelectTriggerVariant)[keyof typeof SelectTriggerVariant];
 
 export const SelectTrigger = ({
   children,
@@ -24,7 +30,7 @@ export const SelectTrigger = ({
   disabled,
 }: {
   children: React.ReactNode;
-  variant: `${SelectTriggerVariant}`;
+  variant: SelectTriggerVariantType;
   disabled?: boolean;
 }) => {
   if (variant === SelectTriggerVariant.TABLE) {
@@ -34,6 +40,7 @@ export const SelectTrigger = ({
       </RecordTableInlineCell.Trigger>
     );
   }
+
   if (variant === SelectTriggerVariant.CARD) {
     return (
       <Popover.Trigger asChild disabled={disabled}>
@@ -48,10 +55,11 @@ export const SelectTrigger = ({
       </Popover.Trigger>
     );
   }
+
   if (variant === SelectTriggerVariant.FILTER) {
     return (
       <Popover.Trigger asChild disabled={disabled}>
-        <Filter.BarButton>{children}</Filter.BarButton>
+        <Filter.BarButton disabled={disabled}>{children}</Filter.BarButton>
       </Popover.Trigger>
     );
   }
@@ -59,7 +67,10 @@ export const SelectTrigger = ({
   if (variant === SelectTriggerVariant.FORM) {
     return (
       <Form.Control className="w-full">
-        <Combobox.TriggerBase className="w-full h-7 font-medium">
+        <Combobox.TriggerBase
+          className="w-full h-7 font-medium"
+          disabled={disabled}
+        >
           {children}
           <IconChevronDown className="h-4 w-4 opacity-50 ml-auto" />
         </Combobox.TriggerBase>
@@ -69,10 +80,11 @@ export const SelectTrigger = ({
 
   if (variant === SelectTriggerVariant.ICON) {
     return (
-      <Popover.Trigger asChild>
+      <Popover.Trigger asChild disabled={disabled}>
         <Button
           variant="ghost"
           size="icon"
+          disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -83,6 +95,26 @@ export const SelectTrigger = ({
     );
   }
 
+  if (variant === SelectTriggerVariant.DETAIL) {
+    return (
+      <Popover.Trigger asChild disabled={disabled}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          className="h-8 gap-2"
+        >
+          {children}
+          <IconChevronDown className="h-4 w-4 opacity-50" />
+        </Button>
+      </Popover.Trigger>
+    );
+  }
+
+  // Default variant
   return (
     <Combobox.TriggerBase className="w-fit h-7" disabled={disabled}>
       {children}
@@ -94,7 +126,7 @@ export const SelectContent = ({
   variant,
   children,
 }: {
-  variant: `${SelectTriggerVariant}`;
+  variant: SelectTriggerVariantType;
   children: React.ReactNode;
 }) => {
   if (variant === SelectTriggerVariant.TABLE) {
@@ -102,14 +134,19 @@ export const SelectContent = ({
       <RecordTableInlineCell.Content>{children}</RecordTableInlineCell.Content>
     );
   }
+
+  const sideOffset =
+    variant === SelectTriggerVariant.CARD ||
+    variant === SelectTriggerVariant.DETAIL
+      ? 4
+      : 8;
+
   return (
     <Combobox.Content
-      sideOffset={variant === SelectTriggerVariant.CARD ? 4 : 8}
+      sideOffset={sideOffset}
       onClick={(e) => e.stopPropagation()}
     >
       {children}
     </Combobox.Content>
   );
 };
-
-export type { SelectTriggerVariant as SelectTriggerVariantType };

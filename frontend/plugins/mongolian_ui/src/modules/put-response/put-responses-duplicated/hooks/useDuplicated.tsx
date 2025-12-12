@@ -109,7 +109,6 @@ export const useDuplicated = (options?: QueryHookOptions) => {
   }, [data]);
 
   useEffect(() => {
-    if (!totalCount) return;
     setPutResponseDuplicatedTotalCount(totalCount);
   }, [totalCount, setPutResponseDuplicatedTotalCount]);
 

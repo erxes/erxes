@@ -109,8 +109,8 @@ export const useByDate = (options?: QueryHookOptions) => {
     byDateQueries.putResponsesByDate,
     {
       ...options,
+      skip: options?.skip || isUndefinedOrNull(variables.cursor),
       variables: {
-        skip: options?.skip || isUndefinedOrNull(variables.cursor),
         ...variables,
       },
     },
@@ -134,8 +134,7 @@ export const useByDate = (options?: QueryHookOptions) => {
     return data?.putResponsesByDate?.length || 0;
   }, [data]);
   useEffect(() => {
-    if (!totalCount) return;
-    setPutResponseByDateTotalCount(totalCount);
+    setPutResponseByDateTotalCount(totalCount ?? 0);
   }, [totalCount, setPutResponseByDateTotalCount]);
   const handleFetchMore = ({
     direction,

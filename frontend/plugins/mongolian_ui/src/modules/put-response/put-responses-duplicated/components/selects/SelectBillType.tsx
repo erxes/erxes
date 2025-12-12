@@ -120,7 +120,7 @@ const SelectBillTypeValue = ({
 const SelectBillTypeCommandItem = ({ billType }: { billType: IBillType }) => {
   const { onValueChange, value } = useSelectBillTypeContext();
   const { value: billTypeValue, label } = billType || {};
-
+  const isChecked = value.split(',').includes(billTypeValue);
   return (
     <Command.Item
       value={billTypeValue}
@@ -129,7 +129,7 @@ const SelectBillTypeCommandItem = ({ billType }: { billType: IBillType }) => {
       }}
     >
       <span className="font-medium">{label}</span>
-      <Combobox.Check checked={value === billTypeValue} />
+      <Combobox.Check checked={isChecked} />
     </Command.Item>
   );
 };

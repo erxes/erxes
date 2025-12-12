@@ -117,16 +117,15 @@ export const usePutResponse = (options?: QueryHookOptions) => {
     };
   }>(putResponseQueries.putResponses, {
     ...options,
+    skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables: {
-      skip: options?.skip || isUndefinedOrNull(variables.cursor),
       ...variables,
     },
   });
 
   const { list: putResponses, totalCount, pageInfo } = data?.putResponses || {};
   useEffect(() => {
-    if (!totalCount) return;
-    setPutResponseTotalCount(totalCount);
+    setPutResponseTotalCount(totalCount ?? 0);
   }, [totalCount, setPutResponseTotalCount]);
 
   const handleFetchMore = ({

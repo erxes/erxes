@@ -20,7 +20,7 @@ import {
 import {
   SelectTrigger,
   SelectContent,
-  SelectTriggerVariant,
+  SelectTriggerVariantType,
 } from './SelectShared';
 
 import { IconCards } from '@tabler/icons-react';
@@ -87,7 +87,9 @@ export const SelectPipelineProvider = ({
       value:
         mode === 'single'
           ? (value as string) || ''
-          : (value as string[]).join(','),
+          : Array.isArray(value)
+          ? value.join(',')
+          : '',
       onValueChange: handleValueChange,
       pipelines,
       loading,
@@ -234,7 +236,7 @@ const SelectPipelineRoot = ({
 }: {
   value: string;
   boardId?: string;
-  variant?: `${SelectTriggerVariant}`;
+  variant?: `${SelectTriggerVariantType}`;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
