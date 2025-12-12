@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Tooltip } from 'erxes-ui';
+import { Button, Tooltip, Spinner } from 'erxes-ui';
 import { Panel } from '@xyflow/react';
 import {
   IconPlus,
@@ -13,6 +13,7 @@ const NodeControls: React.FC<NodeControlsProps> = ({
   onArrangeNodes,
   onSaveChanges,
   isCreating,
+  saving,
 }) => {
   return (
     <Panel position="top-right" className="p-2 rounded-md border bg-background">
@@ -48,12 +49,21 @@ const NodeControls: React.FC<NodeControlsProps> = ({
           <Tooltip.Provider>
             <Tooltip>
               <Tooltip.Trigger asChild>
-                <Button variant="default" size="icon" onClick={onSaveChanges}>
-                  <IconDeviceFloppy className="w-4 h-4 text-foreground" />
+                <Button
+                  variant="default"
+                  size="icon"
+                  onClick={onSaveChanges}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <IconDeviceFloppy className="w-4 h-4 text-foreground" />
+                  )}
                 </Button>
               </Tooltip.Trigger>
               <Tooltip.Content>
-                <p>Save Changes</p>
+                <p>{saving ? 'Saving...' : 'Save Changes'}</p>
               </Tooltip.Content>
             </Tooltip>
           </Tooltip.Provider>

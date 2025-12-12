@@ -37,8 +37,12 @@ export const FormDetailMessages = () => {
 };
 
 export const ConversationFormDetail = () => {
+  const [conversationId] = useQueryState('conversationId');
+
   return (
-    <ConversationDetailLayout input={<MessageInput />}>
+    <ConversationDetailLayout
+      input={<MessageInput conversationId={conversationId as string} />}
+    >
       <FormDetailMessages />
     </ConversationDetailLayout>
   );

@@ -1241,7 +1241,7 @@ export const itemsAdd = async (
   models: IModels,
   subdomain: string,
   doc: IDeal & {
-    proccessId: string;
+    processId: string;
     aboveItemId: string;
   },
   type: string,
