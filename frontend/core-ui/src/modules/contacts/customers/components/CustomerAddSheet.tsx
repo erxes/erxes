@@ -42,7 +42,7 @@ export const CustomerAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('customer.add')}
+          {t('customer.add._')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -59,9 +59,10 @@ export const CustomerAddSheet = () => {
 };
 
 export const CustomerAddSheetHeader = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>Add contact</Sheet.Title>
+      <Sheet.Title>{t('_')}</Sheet.Title>
       <Sheet.Description className="sr-only">
         Add a new contact to your organization.
       </Sheet.Description>
