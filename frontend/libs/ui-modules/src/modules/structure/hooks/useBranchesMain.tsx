@@ -1,6 +1,7 @@
 import { OperationVariables, useQuery } from '@apollo/client';
 import { GET_BRANCHES_MAIN } from '../graphql/queries/getBranches';
 import { IBranch } from '../types/Branch';
+
 export const useBranchesMain = (options?: OperationVariables) => {
   const { data, loading, fetchMore, error } = useQuery<{
     branchesMain: {

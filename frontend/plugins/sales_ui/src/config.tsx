@@ -20,6 +20,14 @@ const PosOrderNavigation = lazy(() =>
   })),
 );
 
+
+const GoalsNavigation = lazy(() =>
+  import('./modules/goals/GoalsNavigation').then((module) => ({
+    default: module.GoalsNavigation,
+  })),
+);
+
+
 export const CONFIG: IUIConfig = {
   name: 'sales',
   icon: IconBriefcase,
@@ -35,6 +43,7 @@ export const CONFIG: IUIConfig = {
       <Suspense fallback={<div />}>
         <SalesSubNavigation />
         <PosOrderNavigation />
+        <GoalsNavigation />
       </Suspense>
     ),
   },
@@ -45,6 +54,14 @@ export const CONFIG: IUIConfig = {
       path: 'sales',
       hasSettings: true,
       hasAutomation: true,
+    },
+    {
+    name: 'goals',
+    icon: IconSandbox,
+    path: 'goals',
+    hasSettings: false,
+    hasAutomation: false,
+    hasSegmentConfigWidget: true
     },
   ],
   widgets: {
