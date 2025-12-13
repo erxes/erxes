@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { FIELD_GROUP_REMOVE } from '../graphql/mutations/propertiesMutations';
 import { toast } from 'erxes-ui';
-import { FIELD_GROUPS_QUERY } from '../graphql/queries/propertiesQueries';
+import { FIELD_GROUPS_QUERY } from 'ui-modules';
 
 export const useFieldGroupRemove = ({
   contentType,

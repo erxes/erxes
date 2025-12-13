@@ -1,7 +1,8 @@
 import { IconComponent, RecordTable } from 'erxes-ui';
 import { FieldColumnProps } from '../types/fieldsTypes';
-import { Cell, ColumnDef, Row } from '@tanstack/react-table';
-import { FieldCell } from '../components/FieldCell';
+import { ColumnDef, Row } from '@tanstack/react-table';
+import { MemoizedFieldCell } from '../components/FieldCell';
+
 export const useFieldsColumns = ({
   fields,
   mutateHook,
@@ -25,7 +26,7 @@ export const useFieldsColumns = ({
       >;
     }) => {
       return (
-        <FieldCell
+        <MemoizedFieldCell
           field={field}
           value={row.original.customFieldsData?.[field._id] as string}
           customFieldsData={row.original.customFieldsData}

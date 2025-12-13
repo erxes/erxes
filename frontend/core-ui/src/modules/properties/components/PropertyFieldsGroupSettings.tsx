@@ -8,13 +8,13 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
-import { useFieldGroups } from '../hooks/useFieldGroups';
 import { Properties } from './Properties';
 import { useFieldGroupRemove } from '../hooks/useFieldGroupRemove';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 import { activePropertyState } from '../states/activePropertyState';
 import { useSetAtom } from 'jotai';
 import { IFieldGroup } from '../types/Properties';
+import { useFieldGroups } from 'ui-modules';
 
 export const PropertyFieldsGroupSettings = () => {
   const { type } = useParams<{ type: string }>();

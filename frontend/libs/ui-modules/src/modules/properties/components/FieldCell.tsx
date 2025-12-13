@@ -6,20 +6,60 @@ import {
   FieldCellValueContentProps,
 } from '../types/fieldsTypes';
 import { Badge, PopoverScoped, Switch, Command, Combobox } from 'erxes-ui';
+import { FieldRelation } from './FieldRelation';
+import { memo, useState } from 'react';
 
-export const FieldCell = ({ mutateHook, ...props }: FieldCellProps) => {
+export const FieldCell = ({
+  id,
+  customFieldsData,
+  mutateHook,
+  value,
+  ...props
+}: FieldCellProps) => {
   const { mutate, loading } = mutateHook();
+  const [currentValue, setCurrentValue] = useState<unknown>(value);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleChange = (value: unknown) => {
+    mutate({
+      _id: id,
+      customFieldsData: {
+        ...customFieldsData,
+        [props.field._id]: value,
+      },
+    });
+    setCurrentValue(value);
+    setIsOpen(false);
+  };
+
+  if (props.field.type === 'relation') {
+    return (
+      <FieldRelation
+        {...props}
+        value={currentValue}
+        handleChange={handleChange}
+        loading={loading}
+      />
+    );
+  }
   return (
-    <PopoverScoped>
+    <PopoverScoped open={isOpen} onOpenChange={setIsOpen}>
       <RecordTableInlineCell.Trigger>
-        <FieldCellValue {...props} />
+        <FieldCellValue {...props} value={currentValue} />
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <FieldCellContent mutate={mutate} loading={loading} {...props} />
+        <FieldCellContent
+          value={currentValue}
+          handleChange={handleChange}
+          loading={loading}
+          {...props}
+        />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );
 };
+
+export const MemoizedFieldCell = memo(FieldCell);
 
 const FieldCellValue = ({ field, value }: FieldCellValueProps) => {
   const { multiple, type, options } = field;
@@ -40,28 +80,16 @@ const FieldCellValue = ({ field, value }: FieldCellValueProps) => {
         <Badge key={v}>{options?.find((o) => o.value === v)?.label}</Badge>
       ));
     }
-    return <div>{value}</div>;
+    return <div>{value as string}</div>;
   }
 };
 
 export const FieldCellContent = ({
   field,
   value,
-  customFieldsData,
-  mutate,
-  id,
+  handleChange,
 }: FieldCellValueContentProps) => {
   // const { multiple, type, options } = field;
-
-  const handleChange = (value: unknown) => {
-    mutate({
-      _id: id,
-      customFieldsData: {
-        ...customFieldsData,
-        [field._id]: value,
-      },
-    });
-  };
 
   if (field.type === 'boolean') {
     return (
@@ -72,7 +100,13 @@ export const FieldCellContent = ({
   }
 
   if (field.type === 'select') {
-    return <FieldSelect field={field} value={value} onChange={handleChange} />;
+    return (
+      <FieldSelect
+        field={field}
+        value={String(value)}
+        onChange={handleChange}
+      />
+    );
   }
 };
 
@@ -92,7 +126,7 @@ export const FieldSelect = ({
         {field.options?.map((o) => (
           <Command.Item
             key={o.value}
-            value={String(o.value)}
+            value={o.value as string}
             onSelect={() => onChange(o.value)}
           >
             {o.label}

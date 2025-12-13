@@ -3,24 +3,9 @@ import { useCustomers } from '@/contacts/customers/hooks/useCustomers';
 import { customersColumns } from './CustomersColumns';
 import { CustomersCommandBar } from '@/contacts/customers/components/customers-command-bar';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
-import {
-  ICustomer,
-  useCustomerEdit,
-  useFields,
-  useFieldsColumns,
-} from 'ui-modules';
+import { ICustomer, useFields, useFieldsColumns } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
-
-const useCustomerCustomFieldEdit = () => {
-  const { customerEdit, loading: customerEditLoading } = useCustomerEdit();
-  return {
-    mutate: (variables: { _id: string } & Record<string, unknown>) =>
-      customerEdit({
-        variables: { ...variables },
-      }),
-    loading: customerEditLoading,
-  };
-};
+import { useCustomerCustomFieldEdit } from '../hooks/useEditCustomerCustomFields';
 
 export const CustomersRecordTable = () => {
   const { customers, handleFetchMore, loading, pageInfo } = useCustomers();

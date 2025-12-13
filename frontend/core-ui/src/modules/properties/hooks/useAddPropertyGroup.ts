@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { FIELD_GROUP_ADD } from '../graphql/mutations/propertiesMutations';
-import { FIELD_GROUPS_QUERY } from '../graphql/queries/propertiesQueries';
 import { toast, useQueryState } from 'erxes-ui';
+import { FIELD_GROUPS_QUERY } from 'ui-modules';
 
 export const useAddPropertyGroup = () => {
   const [contentType] = useQueryState<string>('type');

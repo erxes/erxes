@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
-import { FIELD_GROUPS_QUERY } from '../graphql/queries/propertiesQueries';
-import { IFieldGroup } from '../types/Properties';
+import { FIELD_GROUPS_QUERY } from '../graphql/fieldsQueries';
+import { IFieldGroup } from '../types/fieldsTypes';
 
 export const useFieldGroups = ({ contentType }: { contentType: string }) => {
   const { data, loading } = useQuery<{ fieldGroups: { list: IFieldGroup[] } }>(

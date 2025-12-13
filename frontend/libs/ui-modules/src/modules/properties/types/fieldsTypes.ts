@@ -11,6 +11,16 @@ export type IField = {
   icon?: string;
 };
 
+export interface IFieldGroup {
+  _id: string;
+  name: string;
+  code: string;
+  description: string;
+  contentType: string;
+  order: number;
+  logics: string;
+}
+
 export type mutateFunction = (
   variables: { _id: string } & Record<string, unknown>,
 ) => void;
@@ -25,7 +35,7 @@ export interface FieldColumnProps {
 
 export interface FieldCellProps {
   field: IField;
-  value: string;
+  value: unknown;
   customFieldsData?: Record<string, unknown>;
   mutateHook: () => {
     mutate: mutateFunction;
@@ -34,9 +44,9 @@ export interface FieldCellProps {
   id: string;
 }
 
-export type FieldCellValueProps = Omit<FieldCellProps, 'mutateHook'>;
+export type FieldCellValueProps = Omit<FieldCellProps, 'mutateHook' | 'id'>;
 
 export type FieldCellValueContentProps = FieldCellValueProps & {
-  mutate: mutateFunction;
+  handleChange: (value: unknown) => void;
   loading: boolean;
 };
