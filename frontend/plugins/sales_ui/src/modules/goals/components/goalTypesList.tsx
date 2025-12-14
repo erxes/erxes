@@ -33,21 +33,8 @@ const GoalTypesList = ({
   };
 
   const handleDeleteOne = (id: string) => {
-    try {
-      remove({ goalTypeIds: [id] });
-      toast({
-        title: 'Success',
-        description: 'Goal Type deleted',
-      });
-    } catch (e: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: e?.message || 'Delete failed',
-      });
-
-    }
-  };
+  remove({ goalTypeIds: [id] });
+};
 
   const renderTable = () => (
     <GoalTypesTableWrapper>
