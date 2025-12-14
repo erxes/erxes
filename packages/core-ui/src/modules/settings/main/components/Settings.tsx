@@ -163,6 +163,14 @@ class Settings extends React.PureComponent {
               ['importHistories', 'removeImportHistories', 'importXlsFile']
             )}
             {this.renderBox(
+  'Auto Numbering',
+  '/images/icons/erxes-18.svg',
+  '/settings/auto-numbering',
+  'autoNumberingsAll',
+  ['showAutoNumberings', 'manageAutoNumberings']
+)}
+
+            {this.renderBox(
               "Apps (legacy)",
               "/images/icons/erxes-20.svg",
               "/settings/apps",
