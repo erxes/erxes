@@ -4,7 +4,7 @@ import {
   IconComponent,
   Sidebar
 } from 'erxes-ui';
-import { AllReportsMap } from '../types/reportsMap'
+import { ReportRules } from '../types/reportsMap'
 import { activeReportState } from '../states/renderingReportsStates';
 import { useAtom } from 'jotai';
 import { IconReport } from '@tabler/icons-react';
@@ -17,11 +17,11 @@ export const ReportsList = () => {
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {AllReportsMap.map((report) => (
-              <Sidebar.MenuItem key={report.key} className='flex'>
-                <Sidebar.MenuButton isActive={activeReport === report.key} onClick={() => setActiveReport(report.key)}>
-                  {report.icon ? <IconComponent name={report.icon} /> : <IconReport />}
-                  {report.title}
+            {Object.keys(ReportRules).map((repKey) => (
+              <Sidebar.MenuItem key={repKey} className='flex'>
+                <Sidebar.MenuButton isActive={activeReport === repKey} onClick={() => setActiveReport(repKey)}>
+                  {ReportRules[repKey].icon ? <IconComponent name={ReportRules[repKey].icon} /> : <IconReport />}
+                  {ReportRules[repKey].title}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

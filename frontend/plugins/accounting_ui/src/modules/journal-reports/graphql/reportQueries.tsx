@@ -81,7 +81,7 @@ export const JOURNAL_REPORT_QUERY = gql`
 export const JOURNAL_REPORT_MORE_QUERY = gql`
   query JournalReportMore(${trsFilterParamDefs}) {
     journalReportMore(${trsFilterParams}) {
-      records
+      trDetails
     }
   }
 `;

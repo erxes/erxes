@@ -5,9 +5,11 @@ import { useJouranlReportVariables } from './useJournalReportVars';
 export const useJournalReportMore = (options?: OperationVariables) => {
   const variables = useJouranlReportVariables(options?.variables);
 
+  const isMore = variables.isMore;
+
   const { data, loading, error } = useQuery<{
-    journalReportData: {
-      records: any[];
+    journalReportMore: {
+      trDetails: any[];
     };
   }>(JOURNAL_REPORT_MORE_QUERY, {
     ...options,
@@ -15,13 +17,14 @@ export const useJournalReportMore = (options?: OperationVariables) => {
       ...options?.variables,
       ...variables
     },
+    skip: !isMore,
   });
 
-  const { records } = data?.journalReportData || {};
+  const { trDetails } = data?.journalReportMore || {};
 
   return {
     loading,
-    records,
+    trDetails,
     error,
   };
 };

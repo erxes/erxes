@@ -2,8 +2,11 @@ import { ReportTable, Spinner, cn, displayNum, useQueryState } from "erxes-ui";
 import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useJournalReportData } from "../hooks/useJournalReportData";
-import { GroupRules, IGroupRule } from "../types/reportsMap";
+import { ReportRules, IGroupRule } from "../types/reportsMap";
 import { getCalcReportHandler, getRenderMoreHandler } from "./includes";
+import { useJournalReportMore } from "../hooks/useJournalReportMore";
+import { useSetAtom } from "jotai";
+import { moreDataState } from "../states/renderingReportsStates";
 
 export function useQueryObject() {
   const [searchParams] = useSearchParams();
@@ -18,24 +21,28 @@ export function useQueryObject() {
 }
 
 export const ReportTableBody = () => {
-  const { report, groupKey, ...qryParams } = useQueryObject();
-  const reportConf = GroupRules[report as string];
+  const { report, groupKey, ...params } = useQueryObject();
+  const reportConf = ReportRules[report as string];
 
   if (!report || !reportConf) {
     return 'NOT FOUND REPORT'
   }
 
-  const params = { ...qryParams, ...(reportConf.initParams || {}) };
+  // const params = { ...qryParams };
   const { isMore } = params;
 
   const colCount = reportConf.colCount ?? 0;
-  const groupRule = reportConf.groups?.[groupKey as string || ''] || reportConf.groups?.['default'] || {}
+  const groupRule = reportConf.groups?.[groupKey as string || ''] || reportConf.groups?.['default'];
 
   const calcReport = getCalcReportHandler(report as string || '')
 
   let renderMore = getRenderMoreHandler(report as string || '', isMore);
 
   const { records = [], loading, error } = useJournalReportData();
+  const { trDetails = [], loading: detailLoading, error: detailError } = useJournalReportMore()
+  const setMoreData = useSetAtom(
+    moreDataState,
+  );
 
   const tableRef = useRef<HTMLTableSectionElement>(null);
 
@@ -50,11 +57,11 @@ export const ReportTableBody = () => {
     if (!tableRef?.current) return;
 
     totalsCalc(tableRef.current);
+    if (!isMore) return;
+    if (detailLoading) return;
+    setMoreData(trDetails);
 
-    if (isMore) {
-
-    }
-  }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
+  }, [grouped, detailLoading]); // ✅ дата солигдох бүрт дахин бодно
 
   if (loading) {
     return <Spinner />;
@@ -82,7 +89,7 @@ export const ReportTableBody = () => {
 }
 
 // toGroup Data
-export const groupRecords = (records: any[], groupRule: IGroupRule) => {
+export const groupRecords = (records: any[], groupRule?: IGroupRule) => {
   if (!groupRule) {
     return { 'items': records }
   }
@@ -147,7 +154,7 @@ const toGroup = (
 // extract and render 
 interface ReportRendererProps {
   groupedDic: any;
-  groupRule: IGroupRule;
+  groupRule?: IGroupRule;
   colCount: number;
   groupHead?: boolean;
   calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode;
@@ -166,7 +173,7 @@ export function ReportRecursiveRenderer({
     <>
       {renderGroup(
         groupedDic,
-        groupRule,
+        groupRule || {} as IGroupRule,
         colCount,
         0,
         "",

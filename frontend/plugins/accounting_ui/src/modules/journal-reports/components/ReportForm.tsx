@@ -13,8 +13,8 @@ import { useForm } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
 import { activeReportState } from '../states/renderingReportsStates';
-import { AllReportsMap, GroupRules } from '../types/reportsMap';
-import { useEffect, useState } from 'react';
+import { IReportConfig, ReportRules } from '../types/reportsMap';
+import { useEffect, useMemo, useState } from 'react';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 
 const getQueryParam = (key: string, value: string | string[] | Date | boolean): string => {
@@ -22,29 +22,35 @@ const getQueryParam = (key: string, value: string | string[] | Date | boolean): 
     return format(value as Date, 'yyyy-MM-dd hh:mm:ss'); // date.isoString // new Date().toISOString();
   }
 
+  if (key === 'isMore') {
+    return 'true'
+  }
+
   return value as string;
 }
 
 export const ReportForm = () => {
   const [activeReport] = useAtom(activeReportState);
-  const activeReportConf = AllReportsMap.find(r => r.key === activeReport);
+  const activeReportConf = useMemo(() => {
+    return ReportRules[activeReport] || ({} as IReportConfig)
+  }, [activeReport]);
 
   const form = useForm<any>({
     defaultValues: {},
   });
 
-  const [groupKeyChoices, setGroupKeyChoices] = useState(GroupRules[activeReport]?.choices || []);
+  const [groupKeyChoices, setGroupKeyChoices] = useState(activeReportConf.choices || []);
 
   useEffect(() => {
-    setGroupKeyChoices(GroupRules[activeReport]?.choices || []);
+    setGroupKeyChoices(activeReportConf?.choices || []);
     form.setValue(`groupKey`, 'default');
   }, [activeReport])
 
   const onSubmit = (data: any) => {
-    const params: any = { ...data };
+    const params: any = { ...data, ...activeReportConf.initParams || {} };
     let result = ''
 
-    for (const key of Object.keys(data)) {
+    for (const key of Object.keys(params)) {
       if (params[key]) {
         const converted = getQueryParam(key, params[key])
         result = `${result}&${key}=${converted}`;

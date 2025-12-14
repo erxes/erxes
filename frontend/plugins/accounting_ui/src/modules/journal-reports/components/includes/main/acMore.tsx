@@ -1,9 +1,15 @@
 import { cn, displayNum, ReportTable } from "erxes-ui";
+import { useAtomValue } from "jotai";
+import { moreDataState } from "~/modules/journal-reports/states/renderingReportsStates";
 import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
 import { AccountKind } from "~/modules/settings/account/types/Account";
 import { TR_SIDES } from "~/modules/transactions/types/constants";
 
 export const HandleMainACMore = (parent: string, child: string) => {
+  const allMoreData = useAtomValue(moreDataState);
+
+  const moreData = allMoreData.filter(md => md);
+
   // moreData Context
   return (
     <ReportTable.Row
@@ -16,54 +22,24 @@ export const HandleMainACMore = (parent: string, child: string) => {
 
           </ReportTable.Header>
           <ReportTable.Body >
-            <ReportTable.Row
-              className={cn('')}
-            >
-              <ReportTable.Cell
-                className={cn(`text-left `)}
+            {moreData.map(tr => (
+              <ReportTable.Row
+                className={cn('')}
               >
-                {parent}
-              </ReportTable.Cell>
-              <ReportTable.Cell className="text-left">
-                {child}
-              </ReportTable.Cell>
+                <ReportTable.Cell
+                  className={cn(`text-left `)}
+                >
+                  {parent}
+                </ReportTable.Cell>
+                <ReportTable.Cell className="text-left">
+                  {child}
+                </ReportTable.Cell>
 
-              {Array.from({ length: 5 }).map((_, i) => (
-                <ReportTable.Cell key={i} className="text-right" />
-              ))}
-            </ReportTable.Row>
-            <ReportTable.Row
-              className={cn('')}
-            >
-              <ReportTable.Cell
-                className={cn(`text-left `)}
-              >
-                11
-              </ReportTable.Cell>
-              <ReportTable.Cell className="text-left">
-                21
-              </ReportTable.Cell>
-
-              {Array.from({ length: 5 }).map((_, i) => (
-                <ReportTable.Cell key={i} className="text-right" />
-              ))}
-            </ReportTable.Row>
-            <ReportTable.Row
-              className={cn('')}
-            >
-              <ReportTable.Cell
-                className={cn(`text-left `)}
-              >
-                12
-              </ReportTable.Cell>
-              <ReportTable.Cell className="text-left">
-                22
-              </ReportTable.Cell>
-
-              {Array.from({ length: 5 }).map((_, i) => (
-                <ReportTable.Cell key={i} className="text-right" />
-              ))}
-            </ReportTable.Row>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <ReportTable.Cell key={i} className="text-right" />
+                ))}
+              </ReportTable.Row>
+            ))}
           </ReportTable.Body>
           <ReportTable.Footer>
           </ReportTable.Footer>

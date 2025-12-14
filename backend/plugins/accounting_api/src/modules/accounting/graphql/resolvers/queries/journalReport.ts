@@ -1,6 +1,6 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { getRecords } from '~/modules/accounting/utils/journalReports';
+import { generateFilter, getRecords } from '~/modules/accounting/utils/journalReports';
 
 export interface IReportFilterParams {
   status?: string;
@@ -52,6 +52,22 @@ const journalReportQueries = {
     const { groupRule, report, ...filters } = params;
     const records = await getRecords(subdomain, models, report, filters, user);
     return { records }
+  },
+
+  async journalReportMore(
+    _root,
+    params: IReportParams & ICursorPaginateParams,
+    { models, user, subdomain }: IContext,
+  ) {
+    const { groupRule, report, ...filters } = params;
+    const match = await generateFilter(subdomain, models, filters, user);
+
+    const trDetails = await models.Transactions.aggregate([
+      { $match: match },
+      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+      { $match: match },
+    ]);
+    return { trDetails }
   },
 };
 

@@ -5,13 +5,6 @@ export const ReportGroups = [
   { key: 'inventory', label: 'Бараа материал' },
 ];
 
-export const AllReportsMap = [
-  { key: 'ac', title: 'Дансны хуулга', group: 'main', icon: 'IconClipboard' },
-  { key: 'tb', title: 'Гүйлгээ баланс', group: 'main' },
-  { key: 'mb', title: 'Ерөнхий дэвтэр', group: 'main' },
-  { key: 'mj', title: 'Ерөнхий журнал', group: 'main' },
-]
-
 export interface IGroupRule {
   key: string;
   group: string;
@@ -21,17 +14,20 @@ export interface IGroupRule {
   group_rule?: IGroupRule | null;
 }
 
-interface ReportConfig {
-  colCount: number;
-  choices: Array<{ code: string; title: string }>;
+export interface IReportConfig {
+  title: string;
+  icon?: string;
+  colCount?: number;
+  choices?: Array<{ code: string; title: string }>;
   initParams?: Object,
-  groups: {
+  groups?: {
     [key: string]: IGroupRule;
   };
 }
 
-export const GroupRules: Record<string, ReportConfig> = {
+export const ReportRules: Record<string, IReportConfig> = {
   ac: {
+    title: 'Дансны хуулга',
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
@@ -67,6 +63,7 @@ export const GroupRules: Record<string, ReportConfig> = {
     }
   },
   tb: {
+    title: 'Гүйлгээ баланс',
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
@@ -95,6 +92,13 @@ export const GroupRules: Record<string, ReportConfig> = {
         }
       },
     }
+  },
+  mb: {
+    title: 'Ерөнхий дэвтэр',
+  },
+  mj: {
+    title: 'Ерөнхий журнал',
   }
+
 
 }
