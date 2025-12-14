@@ -22,7 +22,7 @@ export const HandleMainAC = (dic: any, groupRule: IGroupRule, attr: string) => {
         lr_diff -= rec.sumAmount;
       }
 
-      
+
 
     } else {
       if (rec.side === TR_SIDES.DEBIT) {

@@ -1,9 +1,9 @@
-import { ReportTable, Spinner, cn, displayNum } from "erxes-ui";
+import { ReportTable, Spinner, cn, displayNum, useQueryState } from "erxes-ui";
 import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useJournalReportData } from "../hooks/useJournalReportData";
 import { GroupRules, IGroupRule } from "../types/reportsMap";
-import { getCalcReportHandler } from "./includes";
+import { getCalcReportHandler, getRenderMoreHandler } from "./includes";
 
 export function useQueryObject() {
   const [searchParams] = useSearchParams();
@@ -33,6 +33,8 @@ export const ReportTableBody = () => {
 
   const calcReport = getCalcReportHandler(report as string || '')
 
+  let renderMore = getRenderMoreHandler(report as string || '', isMore);
+
   const { records = [], loading, error } = useJournalReportData();
 
   const tableRef = useRef<HTMLTableSectionElement>(null);
@@ -50,7 +52,7 @@ export const ReportTableBody = () => {
     totalsCalc(tableRef.current);
 
     if (isMore) {
-      
+
     }
   }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
 
@@ -73,6 +75,7 @@ export const ReportTableBody = () => {
         groupRule={groupRule}
         colCount={colCount}
         calcReport={calcReport}
+        renderMore={isMore && renderMore}
       />
     </tbody>
   )
@@ -148,6 +151,7 @@ interface ReportRendererProps {
   colCount: number;
   groupHead?: boolean;
   calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode;
+  renderMore?: (parents: string, child: string) => React.ReactNode;
 }
 
 export function ReportRecursiveRenderer({
@@ -156,6 +160,7 @@ export function ReportRecursiveRenderer({
   colCount,
   groupHead = true,
   calcReport,
+  renderMore
 }: ReportRendererProps) {
   return (
     <>
@@ -167,7 +172,8 @@ export function ReportRecursiveRenderer({
         "",
         "",
         groupHead,
-        calcReport
+        calcReport,
+        renderMore
       )}
     </>
   );
@@ -181,7 +187,8 @@ function renderGroup(
   lastAttr: string,
   leafAttr: string,
   groupHead: boolean,
-  calcReport: Function
+  calcReport: Function,
+  renderMore?: Function
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
 
@@ -232,7 +239,8 @@ function renderGroup(
             attr,
             `${leafAttr && `${leafAttr},` || ''}${attr}`,
             groupHead,
-            calcReport
+            calcReport,
+            renderMore
           )}
         </React.Fragment>
       );
@@ -244,31 +252,34 @@ function renderGroup(
     if (!lastNode) return null;
 
     return (
-      <ReportTable.Row
-        key={attr}
-        data-keys={`footer,${leafAttr}`}
-        className={cn('text-right', groupRule.style ?? '')}
-        data-group={groupRule.group}
-        data-id={grStep[grId]}
-      >
-        <ReportTable.Cell
-          className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
-          style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
+      <React.Fragment key={attr}>
+        <ReportTable.Row
+          key={attr}
+          data-keys={`footer,${leafAttr}`}
+          className={cn('text-right', groupRule.style ?? '')}
+          data-group={groupRule.group}
+          data-id={grStep[grId]}
         >
-          {grStep[keyCode]}
-        </ReportTable.Cell>
+          <ReportTable.Cell
+            className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
+            style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
+          >
+            {grStep[keyCode]}
+          </ReportTable.Cell>
 
-        <ReportTable.Cell className='text-left'>
-          {grStep[keyName]}
-        </ReportTable.Cell>
+          <ReportTable.Cell className='text-left'>
+            {grStep[keyName]}
+          </ReportTable.Cell>
 
-        {lastNode}
-      </ReportTable.Row>
+          {lastNode}
+        </ReportTable.Row>
+        {renderMore && renderMore(leafAttr, `${groupRule.key}+${grStep[grId]}`)}
+      </React.Fragment>
     );
   });
 }
 
-export function totalsCalc(root: HTMLElement) {
+const totalsCalc = (root: HTMLElement) => {
   const table = document.querySelector('table[data-slot="table"]');
   if (!table) return;
 
