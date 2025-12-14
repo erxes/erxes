@@ -1,3 +1,1 @@
-import Goals from './goals';
-
-export { Goals };
+export { default as Goals } from './goals';

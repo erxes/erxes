@@ -27,19 +27,19 @@ const Sidebar = ({ params }: Props) => {
   const updateURLParams = (newParams: Record<string, any>) => {
     const searchParams = new URLSearchParams();
 
-    Object.entries(newParams).forEach(([key, val]) => {
-      if (val === null || val === undefined || val === '') {
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === undefined || value === '') {
         return;
       }
 
-      if (Array.isArray(val)) {
-        if (val.length) {
-          searchParams.set(key, val.join(','));
+      if (Array.isArray(value)) {
+        if (value.length) {
+          searchParams.set(key, value.join(','));
         }
         return;
       }
 
-      searchParams.set(key, String(val));
+      searchParams.set(key, String(value));
     });
 
     navigate(`${location.pathname}?${searchParams.toString()}`);
@@ -51,7 +51,7 @@ const Sidebar = ({ params }: Props) => {
   };
 
   const setFilter = (key: string, value: any) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       [key]: value,
       page: 1
@@ -66,24 +66,31 @@ const Sidebar = ({ params }: Props) => {
 
   return (
     <div className="sidebar border-r p-4 w-64 space-y-4">
-
       <div className="flex justify-between items-center">
         <h3 className="font-semibold text-lg">Filters</h3>
 
         {Object.keys(filters).length > 0 && (
-          <button className="text-sm underline" onClick={clearFilter}>
+          <button
+            type="button"
+            className="text-sm underline"
+            onClick={clearFilter}
+          >
             Clear
           </button>
         )}
       </div>
 
+      {/* Start Date */}
       <div>
-        <label className="block mb-1">Start Date</label>
+        <label htmlFor="startDate" className="block mb-1">
+          Start Date
+        </label>
         <input
+          id="startDate"
           type="date"
           className="w-full border rounded px-2 py-1"
           value={date || ''}
-          onChange={(e) =>
+          onChange={e =>
             setFilter(
               'date',
               e.target.value
@@ -94,13 +101,17 @@ const Sidebar = ({ params }: Props) => {
         />
       </div>
 
+      {/* End Date */}
       <div>
-        <label className="block mb-1">End Date</label>
+        <label htmlFor="endDate" className="block mb-1">
+          End Date
+        </label>
         <input
+          id="endDate"
           type="date"
           className="w-full border rounded px-2 py-1"
           value={endDate || ''}
-          onChange={(e) =>
+          onChange={e =>
             setFilter(
               'endDate',
               e.target.value
@@ -111,51 +122,64 @@ const Sidebar = ({ params }: Props) => {
         />
       </div>
 
+      {/* Branch */}
       <div>
-        <label className="block mb-1">Branch</label>
-        <SelectBranches
-          value={branch || undefined}
-          onValueChange={(v?: string | string[]) =>
-            setFilter('branch', v ?? null)
-          }
-          mode="single"
-        />
+        <label className="block mb-1">
+          Branch
+          <SelectBranches
+            value={branch || undefined}
+            onValueChange={(v?: string | string[]) =>
+              setFilter('branch', v ?? null)
+            }
+            mode="single"
+          />
+        </label>
       </div>
 
+      {/* Department */}
       <div>
-        <label className="block mb-1">Department</label>
-        <SelectDepartments
-          value={department || undefined}
-          onValueChange={(v?: string | string[]) =>
-            setFilter('department', v ?? null)
-          }
-          mode="single"
-        />
+        <label className="block mb-1">
+          Department
+          <SelectDepartments
+            value={department || undefined}
+            onValueChange={(v?: string | string[]) =>
+              setFilter('department', v ?? null)
+            }
+            mode="single"
+          />
+        </label>
       </div>
 
+      {/* Unit */}
       <div>
-        <label className="block mb-1">Unit</label>
-        <SelectUnit
-          value={unit || undefined}
-          onValueChange={(v?: string | string[]) =>
-            setFilter('unit', v ?? null)
-          }
-        >
-          Choose unit
-        </SelectUnit>
+        <label className="block mb-1">
+          Unit
+          <SelectUnit
+            value={unit || undefined}
+            onValueChange={(v?: string | string[]) =>
+              setFilter('unit', v ?? null)
+            }
+          >
+            Choose unit
+          </SelectUnit>
+        </label>
       </div>
 
+      {/* Team Member */}
       <div>
-        <label className="block mb-1">Team Member</label>
-        <SelectMember
-          value={contribution || null}
-          onValueChange={(value: string | string[] | null) =>
-            setFilter('contribution', 
-              Array.isArray(value) ? value[0] : value
-            )
-          }
-          placeholder="Choose member"
-        />
+        <label className="block mb-1">
+          Team Member
+          <SelectMember
+            value={contribution || null}
+            onValueChange={(value: string | string[] | null) =>
+              setFilter(
+                'contribution',
+                Array.isArray(value) ? value[0] : value
+              )
+            }
+            placeholder="Choose member"
+          />
+        </label>
       </div>
 
       <div>
@@ -163,7 +187,6 @@ const Sidebar = ({ params }: Props) => {
           Apply Filter
         </Button>
       </div>
-
     </div>
   );
 };

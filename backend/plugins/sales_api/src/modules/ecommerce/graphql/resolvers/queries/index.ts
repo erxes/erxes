@@ -1,6 +1,4 @@
-import address from './address';
-import lastViewedItem from './lastViewedItem';
-import productReview from './productReview';
-import wishlist from './wishlist';
-
-export { address, lastViewedItem, productReview, wishlist };
+export { default as productReviewQueries } from './productReview';
+export { default as address } from './address';
+export { default as lastViewedItem } from './lastViewedItem';
+export { default as wishlist } from './wishlist';

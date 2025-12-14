@@ -8,10 +8,10 @@ import { MainQueryResponse, RemoveMutationResponse } from '../types';
 import * as queries from '../graphql/queries';
 import * as mutations from '../graphql/mutations';
 
-// helpers
+
 const generatePaginationParams = (queryParams: any) => ({
-  page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-  perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
+  page: queryParams.page ?  Number.parseInt(queryParams.page, 10) : 1,
+  perPage: queryParams.perPage ?  Number.parseInt(queryParams.perPage, 10) : 20,
 });
 
 const normalizeArray = (val?: string | string[] | null) => {

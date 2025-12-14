@@ -1,14 +1,10 @@
 import React from "react";
 import { gql, useQuery, DocumentNode } from "@apollo/client";
-
 import GoalTypeForm from "../containers/goalForm";
 import GoalView from "./goalView";
 import queries from "../graphql/queries"; 
-import { IGoalType } from "../types";
+import { IGoalType, GoalEntity } from "../types";
 
-type GoalEntity = "task" | "ticket" | "purchase" | "deal";
-
-// Fix: Use type assertions for GraphQL queries
 const pipelineQueryMap: Record<GoalEntity, DocumentNode> = {
   task: gql(queries.tasksPipelineDetail as string),
   ticket: gql(queries.ticketsPipelineDetail as string),
@@ -37,7 +33,7 @@ type Props = {
 };
 
 const GoalRow = ({ goalType, onDelete, onEdit }: Props) => {
-  const entity = goalType.entity as GoalEntity;
+  const entity = goalType.entity;
 
   const { data: pipelineData } = useQuery(
     pipelineQueryMap[entity],

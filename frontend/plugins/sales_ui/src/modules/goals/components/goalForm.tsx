@@ -92,7 +92,7 @@ const GoalForm: React.FC<Props> = ({
       segmentCount: 0,
       pipelineLabels: [],
       selectedLabelIds: [],
-      ...(goalType as any),
+      ...(goalType as Partial<GoalFormType>),
     },
   });
  
@@ -201,78 +201,78 @@ const GoalForm: React.FC<Props> = ({
     setValue('periodGoal', currentPeriodGoal);
   };
 
-  const onChangeBranchId = (value: string[] | string) => {
-    setValue('branch', Array.isArray(value) ? value : [value]);
-  };
+  // const onChangeBranchId = (value: string[] | string) => {
+  //   setValue('branch', Array.isArray(value) ? value : [value]);
+  // };
 
-  const onChangePipelineLabel = (
-    newValue: Array<{ value: string; label: string }>,
-  ) => {
-    const ids = newValue?.map((o) => o.value) ?? [];
-    setValue('selectedLabelIds', ids);
-  };
+  // const onChangePipelineLabel = (
+  //   newValue: Array<{ value: string; label: string }>,
+  // ) => {
+  //   const ids = newValue?.map((o) => o.value) ?? [];
+  //   setValue('selectedLabelIds', ids);
+  // };
 
-  const onChangeDepartments = (value: string[] | string) => {
-    setValue('department', Array.isArray(value) ? value : [value]);
-  };
+  // const onChangeDepartments = (value: string[] | string) => {
+  //   setValue('department', Array.isArray(value) ? value : [value]);
+  // };
 
-  const onChangeCompanies = (value: string[] | string) => {
-    setValue('companyIds', Array.isArray(value) ? value : [value]);
-  };
+  // const onChangeCompanies = (value: string[] | string) => {
+  //   setValue('companyIds', Array.isArray(value) ? value : [value]);
+  // };
 
-  const onChangeTags = (value: string[] | string) => {
-    setValue('tagsIds', Array.isArray(value) ? value : [value]);
-  };
+  // const onChangeTags = (value: string[] | string) => {
+  //   setValue('tagsIds', Array.isArray(value) ? value : [value]);
+  // };
 
-  const onChangeProduct = (value: string[] | string) => {
-    setValue('productIds', Array.isArray(value) ? value : [value]);
-  };
+  // const onChangeProduct = (value: string[] | string) => {
+  //   setValue('productIds', Array.isArray(value) ? value : [value]);
+  // };
 
-  const onChangeUnites = (value: string[] | string) => {
-    setValue('unit', Array.isArray(value) ? value : [value]);
-  };
+  // const onChangeUnites = (value: string[] | string) => {
+  //   setValue('unit', Array.isArray(value) ? value : [value]);
+  // };
 
-  const onChangeStage = (stageId: string) => {
-    setValue('stageId', stageId);
-  };
+  // const onChangeStage = (stageId: string) => {
+  //   setValue('stageId', stageId);
+  // };
 
-  const onChangePipeline = async (pipelineId: string) => {
-    try {
-      const { data } = await client.query({
-        query: pipelineQuery.pipelineLabels,
-        fetchPolicy: 'network-only',
-        variables: { pipelineId },
-      });
+  // const onChangePipeline = async (pipelineId: string) => {
+  //   try {
+  //     const { data } = await client.query({
+  //       query: pipelineQuery.pipelineLabels,
+  //       fetchPolicy: 'network-only',
+  //       variables: { pipelineId },
+  //     });
 
-      setValue('pipelineLabels', data?.pipelineLabels ?? []);
-    } catch (e: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: e.message || String(e),
-      });
-    }
+  //     setValue('pipelineLabels', data?.pipelineLabels ?? []);
+  //   } catch (e: any) {
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Error",
+  //       description: e.message || String(e),
+  //     });
+  //   }
 
-    setValue('pipelineId', pipelineId);
-  };
+  //   setValue('pipelineId', pipelineId);
+  // };
 
-  const onChangeBoard = (boardId: string) => {
-    setValue('boardId', boardId);
-  };
+//   const onChangeBoard = (boardId: string) => {
+//     setValue('boardId', boardId);
+//   };
 
-  const onChangeField = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, type, checked, value } = e.target;
-    setValue(name as keyof GoalFormType, type === 'checkbox' ? checked : value);
-  };
+//   const onChangeField = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const { name, type, checked, value } = e.target;
+//     setValue(name as keyof GoalFormType, type === 'checkbox' ? checked : value);
+//   };
 
-  const onUserChange = (userId: string) => {
-  setValue("contribution", [userId]);
-};
+//   const onUserChange = (userId: string) => {
+//   setValue("contribution", [userId]);
+// };
 
 
-  const onChangeSegments = (values: string[] | string) => {
-    setValue('segmentIds', Array.isArray(values) ? values : [values]);
-  };
+//   const onChangeSegments = (values: string[] | string) => {
+//     setValue('segmentIds', Array.isArray(values) ? values : [values]);
+//   };
 
   const onChangeTarget = (
     date: string,

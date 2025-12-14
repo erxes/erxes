@@ -56,7 +56,7 @@ export const loadGoalClass = (models: IModels, subdomain: string, userId?: strin
       await models.Goals.updateOne(
         { _id },
         { $set: doc },
-        { runValidators: true }
+        { runValidators: true },
       );
       return models.Goals.findOne({ _id });
     }
@@ -70,30 +70,30 @@ export const loadGoalClass = (models: IModels, subdomain: string, userId?: strin
     }
 
     public static async progressIdsGoals(filter: any, params: any) {
-     try {
-    const goals = await models.Goals.find(filter)
-      .skip((params.page - 1) * params.perPage)
-      .limit(params.perPage);
+      try {
+        const goals = await fetchGoals(filter, params);
 
-    if (!goals || goals.length === 0) {
-      return [];
-    }
-    
-    const progressIdsPromises = goals.map(goal => 
-      progressFunctionIds(goal, models, subdomain)
-    );
-    
-    const progressIds = await Promise.all(progressIdsPromises);
-    
+        if (!goals.length) {
+          return [];
+        }
 
-    return progressIds.flat();
-  } catch (error) {
-    console.error('Error fetching progress IDs goals:', error);
-    return [];
-  }
+        const progressIds = await Promise.all(
+          goals.map((goal) => progressFunctionIds(goal, models, subdomain)),
+        );
+
+        return progressIds.flat();
+      } catch (error) {
+        console.error('Error fetching progress IDs goals:', error);
+        return [];
+      }
     }
   }
 
+  async function fetchGoals(filter: any, params: any) {
+  return models.Goals.find(filter)
+    .skip((params.page - 1) * params.perPage)
+    .limit(params.perPage);
+  }
 
   async function progressFunctionIds(doc, models, subdomain) {
     interface DataItem {
@@ -145,42 +145,52 @@ export const loadGoalClass = (models: IModels, subdomain: string, userId?: strin
       companyIds?: string[];
       unit?: string[];
     }
-    const getRequestData = (item): RequestData => {
-      let requestData: RequestData = {}; // Explicit type declaration
 
-      // Add tagIds if available
-      if (item.tagsIds && item.tagsIds.length > 0) {
-        requestData.tagIds = item.tagsIds;
-      }
+    function getRequestData(item): RequestData {
+      const requestData: RequestData = {};
 
-      // Add stageId if available
-      if (item.stageId) {
-        requestData.stageId = item.stageId;
-      }
-
-      // Handle assignedUserIds, ensuring it doesn't include empty strings
-      if (item.contributionType === CONTRIBUTIONTYPE.PERSON) {
-        const assignedUserIds = item.contribution.filter((id) => id !== "");
-        if (assignedUserIds.length > 0) {
-          requestData.assignedUserIds = assignedUserIds;
-        }
-      }
-
-      // Handle team-specific data (assuming the same logic for teams)
-      if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
-        const teamGoalMapping = {
-          [TEAMGOALTYPE.DEPARTMENT]: { departmentIds: item.department },
-          [TEAMGOALTYPE.BRANCH]: { branchIds: item.branch },
-          // [TEAMGOALTYPE.COMPANIES]: { companyIds: item.companyIds },
-          [TEAMGOALTYPE.UNITS]: { unit: item.unit }
-        };
-
-        // Merge team-specific data
-        Object.assign(requestData, teamGoalMapping[item.teamGoalType]);
-      }
+      addTags(item, requestData);
+      addStage(item, requestData);
+      addPersonContribution(item, requestData);
+      addTeamContribution(item, requestData);
 
       return requestData;
-    };
+    }
+
+    function addTags(item, requestData: RequestData) {
+      if (item.tagsIds?.length) {
+        requestData.tagIds = item.tagsIds;
+      }
+    }
+
+function addStage(item, requestData: RequestData) {
+  if (item.stageId) {
+    requestData.stageId = item.stageId;
+  }
+}
+
+function addPersonContribution(item, requestData: RequestData) {
+  if (item.contributionType !== CONTRIBUTIONTYPE.PERSON) return;
+
+  const assignedUserIds = item.contribution?.filter(Boolean);
+  if (assignedUserIds?.length) {
+    requestData.assignedUserIds = assignedUserIds;
+  }
+}
+
+function addTeamContribution(item, requestData: RequestData) {
+  if (item.contributionType !== CONTRIBUTIONTYPE.TEAM) return;
+
+  const mapping = {
+    [TEAMGOALTYPE.DEPARTMENT]: { departmentIds: item.department },
+    [TEAMGOALTYPE.BRANCH]: { branchIds: item.branch },
+    [TEAMGOALTYPE.UNITS]: { unit: item.unit }
+  };
+
+  Object.assign(requestData, mapping[item.teamGoalType] || {});
+}
+
+
     
     doc = Array.isArray(doc) ? doc : [doc];
     for (const item of doc) {

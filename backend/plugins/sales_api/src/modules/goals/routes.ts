@@ -226,13 +226,11 @@ export const getGoalProgressData = async (
   }
 };
 
-// Main route handlers
 export const goalsInit = async (req, res) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
-    // Get query parameters
+
     const {
       page = 1,
       perPage = 20,
@@ -250,60 +248,30 @@ export const goalsInit = async (req, res) => {
       searchValue
     } = req.query;
 
-
     const filter: any = {};
 
-    if (branch) {
-      const branchArray = Array.isArray(branch) ? branch : [branch];
-      filter.branch = { $in: branchArray };
-    }
+    // Array-based filters
+    addArrayFilter(filter, 'branch', branch);
+    addArrayFilter(filter, 'department', department);
+    addArrayFilter(filter, 'unit', unit);
+    addArrayFilter(filter, 'contribution', contribution);
 
-    if (department) {
-      const departmentArray = Array.isArray(department) ? department : [department];
-      filter.department = { $in: departmentArray };
-    }
-
-    if (unit) {
-      const unitArray = Array.isArray(unit) ? unit : [unit];
-      filter.unit = { $in: unitArray };
-    }
-
-    if (contribution) {
-      const contributionArray = Array.isArray(contribution) ? contribution : [contribution];
-      filter.contribution = { $in: contributionArray };
-    }
-
+    // Simple equality filters
     if (entity) filter.entity = entity;
     if (metric) filter.metric = metric;
     if (periodGoal) filter.periodGoal = periodGoal;
     if (teamGoalType) filter.teamGoalType = teamGoalType;
     if (contributionType) filter.contributionType = contributionType;
 
-    if (date || endDate) {
-      filter.$and = [];
+    // Date range filter
+    addDateFilter(filter, date as string, endDate as string);
 
-      if (date) {
-        filter.$and.push({
-          endDate: { $gte: new Date(date as string) }
-        });
-      }
-
-      if (endDate) {
-        filter.$and.push({
-          startDate: { $lte: new Date(endDate as string) }
-        });
-      }
-    }
-
-    // Search by name
-    if (searchValue) {
-      const safeSearchValue = _.escapeRegExp(searchValue as string);
-      filter.name = { $regex: new RegExp(safeSearchValue, 'i') };
-    }
+    // Search filter
+    addSearchFilter(filter, searchValue as string);
 
     const result = await getGoalsData(subdomain, models, filter, {
-      page: parseInt(page as string),
-      perPage: parseInt(perPage as string)
+      page: Number(page),
+      perPage: Number(perPage)
     });
 
     res.send(result);
@@ -315,6 +283,35 @@ export const goalsInit = async (req, res) => {
     });
   }
 };
+
+const addArrayFilter = (filter: any, key: string, value: any) => {
+  if (!value) return;
+
+  const values = Array.isArray(value) ? value : [value];
+  filter[key] = { $in: values };
+};
+
+const addDateFilter = (filter: any, date?: string, endDate?: string) => {
+  if (!date && !endDate) return;
+
+  filter.$and = [];
+
+  if (date) {
+    filter.$and.push({ endDate: { $gte: new Date(date) } });
+  }
+
+  if (endDate) {
+    filter.$and.push({ startDate: { $lte: new Date(endDate) } });
+  }
+};
+
+const addSearchFilter = (filter: any, searchValue?: string) => {
+  if (!searchValue) return;
+
+  const safe = _.escapeRegExp(searchValue);
+  filter.name = { $regex: new RegExp(safe, 'i') };
+};
+
 
 export const goalDetail = async (req, res) => {
   try {

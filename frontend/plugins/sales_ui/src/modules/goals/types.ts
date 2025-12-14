@@ -1,5 +1,7 @@
 import { IPipelineLabel } from '~/modules/deals/types/pipelines';
 
+export type GoalEntity = "task" | "ticket" | "purchase" | "deal";
+
 export interface ISpecificPeriodGoal {
   progress: string;
   _id: string;
@@ -13,7 +15,7 @@ export interface IGoalTypeDoc {
   createdAt?: Date;
 
   name: string;
-  entity: string;
+  entity: GoalEntity;
 
   stageId?: string;
   stageName?: string;
@@ -54,7 +56,7 @@ export interface IGoalTypeDoc {
 }
 
 
-// Remove the problematic IGoalType that extends with array methods
+
 export interface IGoalType extends IGoalTypeDoc {
 }
 
@@ -117,19 +119,18 @@ export type DetailQueryResponse = {
   loading: boolean;
 };
 
-// In types.ts
 export interface GoalFormType {
   _id?: string;
   createdAt?: Date;
   name: string;
-  entity: string;
+  entity: GoalEntity;
   stageId: string | null;
   stageName?: string;
   pipelineId: string | null;
   boardId: string | null;
-  contributionType: string; // Changed from optional to required
-  metric: string; // Changed from optional to required
-  goalTypeChoose: string; // Changed from optional to required
+  contributionType: string; 
+  metric: string; 
+  goalTypeChoose: string; 
   contribution: string[];
   department: string[];
   unit: string[];
@@ -141,9 +142,9 @@ export interface GoalFormType {
   segmentIds: string[];
   stageRadio: boolean;
   segmentRadio: boolean;
-  periodGoal: string; // Changed from optional to required
+  periodGoal: string; 
   period?: string;
-  teamGoalType: string; // Changed from optional to required
+  teamGoalType: string; 
   segmentCount?: number;
   pipelineLabels?: any[];
   selectedLabelIds?: string[];
@@ -151,3 +152,4 @@ export interface GoalFormType {
   companyIds: string[];
   tagsIds: string[];
 }
+
