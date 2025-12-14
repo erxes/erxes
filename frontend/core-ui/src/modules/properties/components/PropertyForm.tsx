@@ -121,7 +121,13 @@ export const PropertyForm = ({
             <Form.Item className="flex-auto">
               <Form.Label>Type</Form.Label>
 
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  form.setValue('options', []);
+                }}
+              >
                 <Form.Control>
                   <Select.Trigger>
                     <Select.Value placeholder="Select type" />

@@ -13,7 +13,6 @@ import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { useFieldRemove } from '../hooks/useFieldRemove';
 import { IField } from 'ui-modules';
 import { CORE_RELATION_TYPES } from '../constants/coreRelationTypes';
-import { getFieldType } from '../utils/getFieldType';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
   const { type } = useParams<{ type: string }>();
@@ -49,7 +48,7 @@ export const Properties = ({ groupId }: { groupId: string }) => {
   return (
     <>
       {fields.map((field) => (
-        <PropertyRow field={field} groupId={groupId} />
+        <PropertyRow field={field} groupId={groupId} key={field._id} />
       ))}
     </>
   );
@@ -66,7 +65,7 @@ const PropertyRow = ({
   const { removeField, loading: removeFieldLoading } = useFieldRemove({
     groupId,
   });
-  const { type, name, icon, _id } = field;
+  const { type, name, icon, _id, relationType } = field;
 
   const handleDeleteField = (fieldId: string) => {
     confirm({
@@ -75,9 +74,7 @@ const PropertyRow = ({
       removeField({ variables: { id: fieldId } });
     });
   };
-
-  const { type: fieldType, relationType } = getFieldType(type || '');
-  const fieldTypeObject = FIELD_TYPES_OBJECT[fieldType];
+  const fieldTypeObject = FIELD_TYPES_OBJECT[type || ''];
 
   return (
     <Table.Row className="hover:bg-sidebar" key={_id}>
@@ -104,7 +101,7 @@ const PropertyRow = ({
           <div>
             {fieldTypeObject?.icon}
             {fieldTypeObject?.label}
-            {fieldType === 'relation' &&
+            {type === 'relation' &&
               ` (${
                 CORE_RELATION_TYPES.find((type) => type.value === relationType)
                   ?.label

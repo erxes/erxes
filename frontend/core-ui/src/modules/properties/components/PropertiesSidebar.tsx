@@ -29,7 +29,6 @@ const PropertyTypeMenuItem = ({
 }) => {
   const { type } = useParams<{ type: string }>();
   const isActive = propertyType.contentType === type;
-  console.log(propertyType.contentType, type);
   return (
     <Sidebar.MenuButton isActive={isActive} asChild>
       <Link to={`/settings/properties/${propertyType.contentType}`}>

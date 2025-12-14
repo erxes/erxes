@@ -3,7 +3,6 @@ import { PropertyForm } from './PropertyForm';
 import { useFieldDetail } from '../hooks/useFieldDetail';
 import { useEditProperty } from '../hooks/useEditProperty';
 import { IPropertyForm } from '../types/Properties';
-import { getFieldType } from '../utils/getFieldType';
 
 export const PropertyEdit = () => {
   const { groupId, id, type } = useParams<{
@@ -36,10 +35,7 @@ export const PropertyEdit = () => {
     <PropertyForm
       onSubmit={handleSubmit}
       loading={editPropertyLoading}
-      defaultValues={{
-        ...fieldDetail,
-        ...getFieldType(fieldDetail.type),
-      }}
+      defaultValues={fieldDetail}
       isEdit
     />
   );

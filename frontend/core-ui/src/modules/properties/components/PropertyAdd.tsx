@@ -13,7 +13,6 @@ export const AddProperty = () => {
   const navigate = useNavigate();
 
   const onSubmit = (data: IPropertyForm) => {
-    // console.log(data);
     addProperty({
       variables: {
         ...data,
@@ -22,7 +21,7 @@ export const AddProperty = () => {
       },
       onCompleted: () => {
         toast({ title: 'Property added', variant: 'success' });
-        navigate(`/settings/properties/${groupId}/${groupId}`);
+        navigate(`/settings/properties/${type}`);
       },
       onError: (error) => {
         toast({
