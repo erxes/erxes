@@ -32,8 +32,8 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         <MainOverview deal={deal} />
         <Checklists />
       </div>
-      <SalesNoteAndComment />
-      <ActivityLogs />
+      <SalesNoteAndComment contentType="sales:deal" contentTypeId={deal._id} />
+      <ActivityLogs contentType="sales:deal" contentTypeId={deal._id} />
     </AttachmentProvider>
   );
 };

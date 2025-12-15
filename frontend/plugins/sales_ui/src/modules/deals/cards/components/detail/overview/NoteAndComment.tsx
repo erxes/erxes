@@ -1,23 +1,40 @@
 import {
   BlockEditor,
   Button,
+  Spinner,
   Tabs,
   cn,
   getMentionedUserIds,
+  toast,
   useBlockEditor,
   usePreviousHotkeyScope,
 } from 'erxes-ui';
-import { IconMessageDots, IconNote, IconPaperclip } from '@tabler/icons-react';
+import {
+  IconArrowUp,
+  IconMessageDots,
+  IconNote,
+  IconPaperclip,
+} from '@tabler/icons-react';
 
 import { AssignMemberInEditor } from 'ui-modules';
 import { Block } from '@blocknote/core';
 import { useState } from 'react';
+import { useAddInternalNote } from '../../../hooks/useAddInternalNote';
+import { INTERNAL_NOTE_DETAIL } from '@/deals/graphql/queries/InternalNoteQueries';
+import { useApolloClient } from '@apollo/client';
 
-const SalesNoteAndComment = () => {
+const SalesNoteAndComment = ({
+  contentTypeId,
+  contentType,
+}: {
+  contentTypeId: string;
+  contentType: string;
+}) => {
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-
-  const editor = useBlockEditor();
+  const { addInternalNote, loading } = useAddInternalNote();
+  const client = useApolloClient();
+  const editor = useBlockEditor(); // Add this interface above the component or near other types
 
   const {
     // setHotkeyScopeAndMemorizePreviousScope,
@@ -33,11 +50,35 @@ const SalesNoteAndComment = () => {
   };
 
   const handleNoteSubmit = async () => {
-    if (content?.length === 0) {
+    if (!content || content.length === 0) {
       return;
     }
 
-    const sendContent = JSON.stringify(content);
+    addInternalNote({
+      variables: {
+        mentionedUserIds,
+        content: JSON.stringify(content),
+        contentType,
+        contentTypeId,
+      },
+      onCompleted: (data) => {
+        editor?.removeBlocks(editor?.document);
+        if (data) {
+          client.query({
+            query: INTERNAL_NOTE_DETAIL,
+            variables: {
+              _id: data?.internalNotesAdd?._id,
+            },
+          });
+        }
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+        });
+      },
+    });
 
     // addConversationMessage({
     //   variables: {
@@ -95,7 +136,7 @@ const SalesNoteAndComment = () => {
             <BlockEditor
               editor={editor}
               onChange={handleChange}
-              // disabled={loading}
+              disabled={loading}
               className={cn('h-full w-full overflow-y-auto', 'internal-note')}
               // onFocus={() =>
               //   setHotkeyScopeAndMemorizePreviousScope(
@@ -151,10 +192,10 @@ const SalesNoteAndComment = () => {
               <Button
                 size="lg"
                 className="ml-auto"
-                // disabled={loading || content?.length === 0}
+                disabled={loading || content?.length === 0}
                 onClick={handleCommentSubmit}
               >
-                {/* {loading ? <Spinner size="small" /> : <IconArrowUp />} */}
+                {loading ? <Spinner size="sm" /> : <IconArrowUp />}
                 Add comment
               </Button>
             </div>
