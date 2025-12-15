@@ -1346,7 +1346,7 @@ export async function getDailyCallRecords(models, startDate, endDate) {
   ]);
 }
 
-export async function getAnsweredList(
+export async function getQueueAnsweredList(
   models,
   startDate,
   endDate,
@@ -1359,7 +1359,6 @@ export async function getAnsweredList(
       },
     },
 
-    // Queue салгаж авах
     {
       $addFields: {
         queue: {
@@ -1417,7 +1416,7 @@ export async function getAnsweredList(
   ]);
 }
 
-export async function getMissedList(
+export async function getQueueMissedList(
   models,
   startDate,
   endDate,

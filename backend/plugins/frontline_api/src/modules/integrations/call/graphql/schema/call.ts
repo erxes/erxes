@@ -218,6 +218,31 @@ export const types = `
   new_src: String
   sn: String
 }
+  type AgentStats {
+    agent: String!
+    agentName: String
+    totalCalls: Int!
+    answeredCalls: Int!
+    answeredRate: Float!
+    missedCalls: Int!
+    missedRate: Float!
+    totalTalkTime: Int!
+    averageTalkTime: Float!
+    totalWaitTime: Int!
+    averageWaitTime: Float!
+    shortestCall: Int!
+    longestCall: Int!
+  }
+  type CallbackStats {
+    queue: String!
+    totalMissedCalls: Int!
+    callbackAttempts: Int!
+    successfulCallbacks: Int!
+    callbackRate: Float!
+    pendingCallbacks: Int!
+    averageCallbackTime: Float!
+  }
+
 `;
 
 export const subscriptions = `
@@ -276,6 +301,8 @@ export const queries = `
   callConversationNotes(conversationId: String! getFirst: Boolean, ${pageParams}): [CallConversationNotes]
   callHistoryDetail(_id: String, conversationId: String): CallHistory
   callGetQueueStats(startDate: String!, endDate: String!, queueId: String): [QueueStats!]!
+  callGetAgentStats(startDate: String!,endDate: String!, queueId: String, agentId: String): [AgentStats!]!
+  getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
 `;
 
 export const mutations = `

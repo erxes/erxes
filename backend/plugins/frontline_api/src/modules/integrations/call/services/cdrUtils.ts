@@ -52,10 +52,16 @@ const createNewCdr = async (
   conversationId,
 ) => {
   const camelCaseParams = toCamelCase(cdrParams);
-  const { AcctId: acctId, ...filteredParams } = camelCaseParams as any;
+  const {
+    AcctId: acctId,
+    disposition,
+    ...filteredParams
+  } = camelCaseParams as any;
+  console.log(disposition, 'disposition');
 
   return await models.CallCdrs.create({
     acctId,
+    disposition,
     ...filteredParams,
     inboxIntegrationId: inboxId,
     conversationId,
@@ -180,7 +186,9 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
       (cdr) =>
         cdr.disposition?.toLowerCase() === 'answered' &&
         cdr.lastapp !== 'ForkCDR' &&
-        !cdr.actionType?.includes('IVR'),
+        !cdr.actionType.includes('VM') &&
+        !cdr.actionType?.includes('IVR') &&
+        cdr.billsec > 0,
     );
 
     if (answered) return 'ANSWERED';
@@ -214,7 +222,10 @@ export function selectRelevantCdr(histories: any[]): any | null {
 
   const answered = histories.find(
     (h) =>
-      h.disposition === 'ANSWERED' && h.billsec > 0 && h.lastapp === 'Queue',
+      h.disposition === 'ANSWERED' &&
+      h.billsec > 0 &&
+      h.lastapp === 'Queue' &&
+      h.actionType !== 'VM',
   );
 
   const ivr = histories.find(
