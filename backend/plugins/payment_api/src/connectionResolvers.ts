@@ -13,11 +13,22 @@ import {
   ITransactionModel,
   loadTransactionClass,
 } from '~/modules/payment/db/models/Transactions';
+import {
+  IGolomtBankConfigDocument,
+} from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
+
+import {
+  IGolomtBankConfigModel,
+  loadGolomtBankConfigClass,
+} from '~/modules/corporateGateway/golomtbank/db/models/golomtBankConfigs';
+
 
 export interface IModels {
   PaymentMethods: IPaymentModel;
   Invoices: IInvoiceModel;
   Transactions: ITransactionModel;
+
+  GolomtBankConfigs: IGolomtBankConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -42,6 +53,15 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'payment_transactions',
     loadTransactionClass(models),
   );
+
+  models.GolomtBankConfigs = db.model<
+  IGolomtBankConfigDocument,
+  IGolomtBankConfigModel
+>(
+  'golomt_bank_configs',
+  loadGolomtBankConfigClass(models),
+);
+
 
   return models;
 };
