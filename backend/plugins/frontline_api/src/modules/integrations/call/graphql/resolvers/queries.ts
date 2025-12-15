@@ -778,6 +778,13 @@ const callQueries = {
     //   answeredCount,
     // });
   },
+  async callGetAgentStats(
+    _args,
+    { startDate, endDate, queueId },
+    { models, user }: IContext,
+  ) {
+    console.log('called agent stats');
+  },
 };
 markResolvers(callQueries, {
   wrapperConfig: {
