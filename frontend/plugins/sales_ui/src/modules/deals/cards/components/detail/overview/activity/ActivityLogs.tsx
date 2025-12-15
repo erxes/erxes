@@ -4,7 +4,12 @@ import { ACTIVITY_TYPES } from './constants';
 import ActivityList from './AcitivityList';
 import { useState } from 'react';
 
-const ActivityLogs = () => {
+interface IProps {
+  contentType: string;
+  contentTypeId: string;
+}
+
+const ActivityLogs = ({ contentType, contentTypeId }: IProps) => {
   const [activeType, setActiveType] = useState<string>('All');
 
   return (
@@ -28,7 +33,10 @@ const ActivityLogs = () => {
           ))}
         </Tabs.List>
         <Tabs.Content value={activeType} className="h-full w-full">
-          <ActivityList />
+          <ActivityList
+            contentType={contentType}
+            contentTypeId={contentTypeId}
+          />
         </Tabs.Content>
       </Tabs>
     </div>
