@@ -62,14 +62,16 @@ const SelectPaymentProvider = ({
     onValueChange?.(newSelectedPaymentIds);
   };
 
+  const selectedIds = !value ? [] : Array.isArray(value) ? value : [value];
+
   return (
     <SelectPaymentContext.Provider
       value={{
-        paymentIds: !value ? [] : Array.isArray(value) ? value : [value],
+        paymentIds: selectedIds,
         onSelect,
         payments: _payments,
         setPayments,
-        loading: _payments.length !== value?.length,
+        loading: _payments.length !== selectedIds.length,
       }}
     >
       {children}
@@ -346,10 +348,8 @@ export const SelectPaymentRoot = ({
   const [open, setOpen] = useState(false);
   return (
     <SelectPaymentProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
-        setOpen(false);
-      }}
+      onValueChange={onValueChange}
+      setOpen={setOpen}
       {...props}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
