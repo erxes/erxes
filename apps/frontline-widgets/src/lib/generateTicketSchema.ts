@@ -21,91 +21,21 @@ export function generateTicketSchema(ticketConfig: ITicketConfig | null) {
     schema.selectedStatusId = z.string().default(ticketConfig.selectedStatusId);
   }
 
-  //Contact type
-  if (ticketConfig.contactType) {
-    schema.contactType = z.string().default(ticketConfig.contactType);
-  }
-
   // Ticket basic fields
-  if (ticketConfig.ticketBasicFields.isShowTags) {
+  if (ticketConfig.formFields.tags?.isShow) {
     schema.tags = z.array(z.string()).default([]);
   }
 
-  if (ticketConfig.ticketBasicFields.isShowName) {
+  if (ticketConfig.formFields.name?.isShow) {
     schema.name = z.string().optional();
   }
 
-  if (ticketConfig.ticketBasicFields.isShowDescription) {
+  if (ticketConfig.formFields.description?.isShow) {
     schema.description = z.string().optional();
   }
 
-  if (ticketConfig.ticketBasicFields.isShowAttachment) {
+  if (ticketConfig.formFields.attachment?.isShow) {
     schema.attachments = z.array(z.any()).optional();
-  }
-
-  // Customer fields
-  if (
-    ticketConfig.contactType === 'customer' &&
-    ticketConfig.customer.isShowFirstName
-  ) {
-    schema.firstName = z.string().optional();
-  }
-
-  if (
-    ticketConfig.contactType === 'customer' &&
-    ticketConfig.customer.isShowLastName
-  ) {
-    schema.lastName = z.string().optional();
-  }
-
-  if (
-    ticketConfig.contactType === 'customer' &&
-    ticketConfig.customer.isShowPhoneNumber
-  ) {
-    schema.phoneNumber = z.string().optional();
-  }
-
-  if (
-    ticketConfig.contactType === 'customer' &&
-    ticketConfig.customer.isShowEmail
-  ) {
-    schema.email = z.string().email('Invalid email address').optional();
-  }
-
-  // Company fields
-  if (
-    ticketConfig.contactType === 'company' &&
-    ticketConfig.company.isShowName
-  ) {
-    schema.companyName = z.string().optional();
-  }
-
-  if (
-    ticketConfig.contactType === 'company' &&
-    ticketConfig.company.isShowRegistrationNumber
-  ) {
-    schema.registrationNumber = z.string().optional();
-  }
-
-  if (
-    ticketConfig.contactType === 'company' &&
-    ticketConfig.company.isShowAddress
-  ) {
-    schema.address = z.string().optional();
-  }
-
-  if (
-    ticketConfig.contactType === 'company' &&
-    ticketConfig.company.isShowPhoneNumber
-  ) {
-    schema.companyPhoneNumber = z.string().optional();
-  }
-
-  if (
-    ticketConfig.contactType === 'company' &&
-    ticketConfig.company.isShowEmail
-  ) {
-    schema.companyEmail = z.string().email('Invalid email address').optional();
   }
 
   return z.object(schema);

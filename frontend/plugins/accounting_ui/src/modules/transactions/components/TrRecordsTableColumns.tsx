@@ -8,11 +8,9 @@ import {
   RecordTable,
   RecordTableInlineCell,
   fixNum,
-  useQueryState,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
+import { Link } from 'react-router';
 import { ProductsInline } from 'ui-modules';
-import { renderingTransactionDetailState } from '../states/renderingTransactionDetailStates';
 import { TR_JOURNAL_LABELS, TR_SIDES, TrJournalEnum } from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
 
@@ -149,18 +147,15 @@ const TransactionMoreColumnCell = ({
 }: {
   cell: Cell<ITrRecord, unknown>;
 }) => {
-  const [, setOpen] = useQueryState('transaction_id');
-  const setRenderingContactDetail = useSetAtom(renderingTransactionDetailState);
-  const { _id } = cell.row.original;
+  const { parentId, trId, originId } = cell.row.original;
 
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setOpen(_id);
-        setRenderingContactDetail(false);
-      }}
-    />
+    <Link
+      to={`/accounting/transaction/edit?parentId=${parentId}&trId=${originId || trId
+        }`}
+    >
+      <RecordTable.MoreButton className="w-full h-full" />
+    </Link>
   );
 };
 

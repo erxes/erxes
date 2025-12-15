@@ -107,10 +107,10 @@ export const loadRelationClass = (models: IModels) => {
       contentType: string;
       contentId: string;
     }) {
-      return models.Relations.find({
-        'entities.contentType': { $in: contentType },
-        'entities.contentId': { $in: contentId },
-      });
+      return await models.Relations.find({
+        'entities.contentType': { $in: [contentType] },
+        'entities.contentId': { $in: [contentId] },
+      }).lean();
     }
   }
 

@@ -8,6 +8,7 @@ import { SALES_STATUSES, TIME_TRACK_TYPES } from '../../constants';
 
 export const productDataSchema = new Schema(
   {
+    _id: { type: String },
     productId: { type: String, esType: 'keyword' }, // Product
     name: { type: String, esType: 'name' }, // Product name
     uom: { type: String, esType: 'keyword' }, // Units of measurement

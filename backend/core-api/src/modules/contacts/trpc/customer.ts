@@ -77,10 +77,9 @@ export const customerRouter = t.router({
     getWidgetCustomer: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
-        const { data } = input;
         const { models } = ctx;
 
-        return models.Customers.getWidgetCustomer(data);
+        return models.Customers.getWidgetCustomer(input);
       }),
 
     count: t.procedure
