@@ -1,17 +1,10 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
-import {
-  Label,
-  Input,
-  Button,
-  toast,
-  MultipleSelector,
-  MultiSelectOption,
-} from 'erxes-ui';
+import { useEffect, useState, useRef } from 'react';
+import { Label, Input, Button, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
-import { usePayments } from '@/pos/hooks/usePayments';
 import mutations from '@/pos/graphql/mutations';
 import { isFieldVisible } from '@/pos/constants';
+import { SelectPayment } from '@/pos/components/payment/SelectPayment';
 
 interface PaymentConfigurationProps {
   posId?: string;
@@ -23,22 +16,11 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
   posType,
 }) => {
   const [paymentIds, setPaymentIds] = useState<string[]>([]);
-  const [selectedPayments, setSelectedPayments] = useState<MultiSelectOption[]>(
-    [],
-  );
   const [erxesAppToken, setErxesAppToken] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
 
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
-  const { payments, loading: paymentsLoading } = usePayments({
-    status: 'active',
-  });
-
-  const paymentOptions: MultiSelectOption[] = useMemo(
-    () => payments.map((p) => ({ value: p._id, label: p.name })),
-    [payments],
-  );
 
   const initializedRef = useRef(false);
 
@@ -53,20 +35,8 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
     initializedRef.current = true;
   }, [posDetail]);
 
-  useEffect(() => {
-    if (paymentOptions.length === 0 || paymentIds.length === 0) {
-      return;
-    }
-
-    const selected = paymentOptions.filter((opt) =>
-      paymentIds.includes(opt.value),
-    );
-    setSelectedPayments(selected);
-  }, [paymentOptions, paymentIds]);
-
-  const handlePaymentChange = (values: MultiSelectOption[]) => {
-    setSelectedPayments(values);
-    setPaymentIds(values.map((v) => v.value));
+  const handlePaymentChange = (value: string[] | string | null) => {
+    setPaymentIds(Array.isArray(value) ? value : value ? [value] : []);
     setHasChanges(true);
   };
 
@@ -132,13 +102,11 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
         <div className="space-y-2">
           <Label>PAYMENTS</Label>
 
-          <MultipleSelector
-            value={selectedPayments}
-            onChange={handlePaymentChange}
-            defaultOptions={paymentOptions}
-            placeholder={paymentsLoading ? 'Loading...' : 'Select payments'}
-            hidePlaceholderWhenSelected
-            disabled={paymentsLoading}
+          <SelectPayment
+            mode="multiple"
+            value={paymentIds}
+            onValueChange={handlePaymentChange}
+            placeholder="Select payments"
           />
         </div>
       )}
