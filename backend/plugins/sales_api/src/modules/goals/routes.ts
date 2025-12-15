@@ -407,16 +407,21 @@ export const goalsProgress = async (req, res) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
-    const {
-      page = 1,
-      perPage = 20,
-      ...filter
-    } = req.query;
+
+    const { page = 1, perPage = 20 } = req.query;
+
+    const filter: any = {};
+
+    if (req.query.goalId) filter._id = req.query.goalId;
+    if (req.query.entity) filter.entity = req.query.entity;
+    if (req.query.metric) filter.metric = req.query.metric;
+    if (req.query.contributionType) {
+      filter.contributionType = req.query.contributionType;
+    }
 
     const result = await getGoalProgressData(subdomain, models, filter, {
-      page: parseInt(page as string),
-      perPage: parseInt(perPage as string)
+      page: Number(page),
+      perPage: Number(perPage)
     });
 
     res.send(result);
@@ -428,6 +433,7 @@ export const goalsProgress = async (req, res) => {
     });
   }
 };
+
 
 export const goalsSyncProgress = async (req, res) => {
   try {
