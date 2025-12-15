@@ -49,13 +49,19 @@ export const startChangeStreams = (
 
     changeStream.on('change', (change) => {
       // Send to your worker queue
-      sendWorkerQueue('logs', 'put_log').add('put_log', {
-        subdomain,
-        source: 'mongo',
-        status: 'success',
-        contentType,
-        payload: change,
-      });
+      sendWorkerQueue('logs', 'put_log').add(
+        'put_log',
+        {
+          subdomain,
+          source: 'mongo',
+          status: 'success',
+          contentType,
+          payload: change,
+        },
+        {
+          removeOnComplete: true,
+        },
+      );
     });
 
     changeStream.on('error', (err) => {

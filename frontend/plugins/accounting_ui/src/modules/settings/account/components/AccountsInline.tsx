@@ -115,7 +115,7 @@ export const AccountsInlineTitle = ({ className }: { className?: string }) => {
       return `${account.code} - ${account.name}`;
     }
 
-    return `${account.code}...${accounts.length - 1} accounts`;
+    return `${account.code}... (+${accounts.length - 1} accounts)`;
   };
 
   return (

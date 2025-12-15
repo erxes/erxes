@@ -17,32 +17,33 @@ export const types = `
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
     password: String
+    isVerified: Boolean
+    verificationCode: Int
   }
 
+  enum CPUserType {
+    customer
+    company
+  }
 `;
 
-const userParams = `
+const userRegisterParams = `
   phone: String,
   email: String,
   username: String,
   password: String,
-  secondaryPassword: String,
-
-  companyName: String
-  companyRegistrationNumber: String
-  erxesCompanyId: String
-  
   firstName: String,
   lastName: String,
-  code: String,
-  ownerId: String,
-  links: JSON,
-  customFieldsData: JSON,
-  
-  type: String,
-  avatar: String
+  type: CPUserType,
 `;
 
 export const mutations = `
-  clientPortalRegister(${userParams}): String
+  clientPortalUserRegister(${userRegisterParams}): CPUser
+  clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser
+  clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): String
+  clientPortalLogout: String
+`;
+
+export const queries = `
+  clientPortalCurrentUser: CPUser
 `;

@@ -13,13 +13,14 @@ const SidebarList: React.FC<SidebarListProps> = ({
   onDeleteSlot,
 }) => {
   return (
-    <div className="m-0 border rounded-lg border-gray-200">
-      <div className="p-4 border rounded-t-lg bg-gray-300 dark:border-gray-700 flex justify-between items-center">
-        <h2 className="text-2xl text-[#A1A1AA]">ALL SLOTS</h2>
+    <div className="bg-background">
+      <div className="flex justify-between items-center p-4 border-b">
+        <h2 className="text-2xl text-foreground">ALL SLOTS</h2>
+
         <Badge variant="default">{nodes.length}</Badge>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-10rem)]">
+      <ScrollArea className="h-[calc(100vh-4rem)]">
         <div className="p-4 space-y-3">
           {nodes.length > 0 ? (
             nodes.map((node) => (
@@ -35,10 +36,11 @@ const SidebarList: React.FC<SidebarListProps> = ({
               />
             ))
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No slots available</p>
-              <Button onClick={onAddSlot}>
-                <IconPlus className="h-4 w-4 mr-2" />
+            <div className="py-8 text-center">
+              <p className="mb-4 text-foreground">No slots available</p>
+
+              <Button onClick={onAddSlot} variant="default">
+                <IconPlus className="mr-2 w-4 h-4" />
                 Add your first slot
               </Button>
             </div>
@@ -46,11 +48,11 @@ const SidebarList: React.FC<SidebarListProps> = ({
 
           {nodes.length > 0 && (
             <Button
-              variant="outline"
-              className="w-full mt-4"
+              variant="default"
+              className="mt-4 w-full"
               onClick={onAddSlot}
             >
-              <IconPlus className="h-4 w-4 mr-2" />
+              <IconPlus className="mr-2 w-4 h-4" />
               Add slot
             </Button>
           )}

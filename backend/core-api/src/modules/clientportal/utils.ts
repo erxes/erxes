@@ -39,15 +39,31 @@ export const handleCPContacts = async (args: ICPContactsParams) => {
 
     user = await models.CPUser.findOne(qry);
 
-    if (user) {
-      throw new Error('user is already exists');
+    if (user && user.isVerified) {
+      throw new Error('User already exists');
+    }
+    if (user && !user.isVerified) {
+      user = await models.CPUser.findOneAndUpdate(
+        { _id: user._id },
+        {
+          $set: {
+            ...document,
+            clientPortalId,
+            password:
+              password && (await models.CPUser.generatePassword(password)),
+          },
+        },
+        { new: true },
+      );
     }
 
-    user = await models.CPUser.create({
-      ...document,
-      clientPortalId,
-      password: password && (await models.CPUser.generatePassword(password)),
-    });
+    if (!user) {
+      user = await models.CPUser.create({
+        ...document,
+        clientPortalId,
+        password: password && (await models.CPUser.generatePassword(password)),
+      });
+    }
 
     await linkCustomerToUser(models, user._id, customer._id);
   }

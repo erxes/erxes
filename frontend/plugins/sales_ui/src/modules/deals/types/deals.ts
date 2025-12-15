@@ -1,4 +1,4 @@
-import { IBranch, ICompany, ICustomer, IDepartment, ITag, IUser } from "ui-modules";
+import { IBranch, ICompany, ICustomer, IDepartment, IProduct, IProductData, ITag, IUser } from "ui-modules";
 import { IPipeline, IPipelineLabel } from "./pipelines";
 
 import { IAttachment } from "./attachments";
@@ -71,7 +71,8 @@ export interface IItem {
   }
   
 export interface IDeal extends IItem {
-    products?: any;
+    products?: IProduct[];
+    productsData?: IProductData[];
     paymentsData?: IPaymentsData;
     departments?: IDepartment[];
     branches?: IBranch[];

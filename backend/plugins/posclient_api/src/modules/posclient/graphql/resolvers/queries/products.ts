@@ -1,6 +1,7 @@
 import { IProductCategoryDocument } from 'erxes-api-shared/core-types';
 import {
   escapeRegExp,
+  markResolvers,
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -757,5 +758,9 @@ const productQueries = {
     return JSON.stringify(d);
   },
 };
-
+markResolvers(productQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 export default productQueries;
