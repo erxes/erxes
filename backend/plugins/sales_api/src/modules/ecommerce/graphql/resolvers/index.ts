@@ -9,7 +9,7 @@ import {
 import {
   address as addressQueries,
   lastViewedItem as lastViewedItemQueries,
-  productReview as productReviewQueries,
+  productReviewQueries,
   wishlist as wishlistQueries,
 } from './queries';
 
