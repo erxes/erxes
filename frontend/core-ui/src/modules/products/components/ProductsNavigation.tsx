@@ -3,8 +3,10 @@ import { IconCategory, IconCube } from '@tabler/icons-react';
 import { Breadcrumb, Toggle, Button, Separator } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ProductsNavigation = () => {
+  const { t } = useTranslation('common');
   const { pathname } = useLocation();
   return (
     <PageHeader.Start>
@@ -14,7 +16,7 @@ export const ProductsNavigation = () => {
             <Button variant="ghost" asChild>
               <Link to={ProductsPath.Products}>
                 <IconCube />
-                Products & Services
+                {t('product-service')}
               </Link>
             </Button>
           </Breadcrumb.Item>
@@ -27,7 +29,7 @@ export const ProductsNavigation = () => {
             >
               <Link to={ProductsPath.Products + ProductsPath.Categories}>
                 <IconCategory />
-                Categories
+                {t('categories')}
               </Link>
             </Toggle>
           </Breadcrumb.Page>

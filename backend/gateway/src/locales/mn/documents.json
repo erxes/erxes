@@ -1,0 +1,16 @@
+{
+  "documents": "Баримт бичиг",
+  "document-types": "Баримт бичгийн төрөл",
+  "customer": "Харилцагч",
+  "company": "Компани",
+  "product": "Бүтээгдэхүүн",
+  "team-member": "Багийн гишүүн",
+  "add-document": "Баримт бичиг нэмэх",
+  "no-document-title": "Одоогоор баримт бичиг алга",
+  "no-document-description": "Анхны баримт бичгээ үүсгэж эхлээрэй.",
+  "filter" : {
+    "search": "Хайх",
+    "created-at": "Үүсгэсэн огноо",
+    "assigned-to": "Харилцагч"
+  }
+}

@@ -9,7 +9,7 @@ export const CompaniesRecordTable = () => {
   const { companies, handleFetchMore, loading, pageInfo } = useCompanies();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const { t } = useTranslation('contacts', { keyPrefix: 'company' });
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const columns = useMemo(() => companyColumns(t), [t]);
   return (
     <RecordTable.Provider

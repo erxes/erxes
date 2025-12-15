@@ -1,5 +1,6 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   types: { contentType: string; description: string }[];
@@ -7,11 +8,12 @@ type Props = {
 
 export const SegmentListSidebar = ({ types }: Props) => {
   const [selectedContentType] = useQueryState<string>('contentType');
+  const { t } = useTranslation('segment');
 
   return (
     <Sidebar collapsible="none" className="border-r flex-none">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Segment Types</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('team-member')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {types.map(({ description, contentType }) => (

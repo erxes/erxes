@@ -4,6 +4,7 @@ import { DocumentsFilter } from './DocumentsFilter';
 import { DocumentsGrid } from './DocumentsGrid';
 import { DocumentsList } from './DocumentsList';
 import { IconGitBranch } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   viewType: 'list' | 'grid';
@@ -21,6 +22,7 @@ const DOCUMENTS_VIEW_TYPES: Record<
 export const Documents = ({ viewType, showFilter = true }: Props) => {
   const { documents, loading } = useDocuments();
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
+  const { t } = useTranslation('documents');
 
   return (
     <div className="flex flex-col h-full border-r">
@@ -40,9 +42,9 @@ export const Documents = ({ viewType, showFilter = true }: Props) => {
                   size={64}
                   className="text-muted-foreground mx-auto mb-4"
                 />
-                <h3 className="text-xl font-semibold mb-2">No document yet</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('no-document-title')}</h3>
                 <p className="text-muted-foreground max-w-md">
-                  Get started by creating your first documents.
+                  {t('no-document-description')}
                 </p>
               </div>
             </div>

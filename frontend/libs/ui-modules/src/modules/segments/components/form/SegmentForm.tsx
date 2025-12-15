@@ -14,6 +14,7 @@ import {
 } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { SegmentGroups } from './SegmentGroups';
 import { SegmentConfigWidget } from './SegmentConfigWidget';
+import { useTranslation } from 'react-i18next';
 
 function hasSegmentMetadataForm(children: React.ReactNode): boolean {
   let found = false;
@@ -90,7 +91,6 @@ const SegmentFormHeader = () => {
 
 SegmentFormHeader.displayName = 'SegmentFormHeader';
 
-
 const SegmentFormContent = ({
   callback,
 }: {
@@ -102,6 +102,7 @@ const SegmentFormContent = ({
     control: form.control,
     name: 'conditionSegments',
   });
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
   const { onAddSegmentGroup } = useSegmentActions({ callback });
 
@@ -123,7 +124,7 @@ const SegmentFormContent = ({
         onClick={onAddSegmentGroup}
       >
         <IconPlus />
-        Add Group
+        {t('add-group')}
       </Button>
     </div>
   );

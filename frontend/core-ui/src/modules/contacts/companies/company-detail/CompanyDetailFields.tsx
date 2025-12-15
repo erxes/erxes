@@ -10,6 +10,7 @@ import {
 import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
 import { DataListItem } from '@/contacts/components/ContactsDetail';
 import { CompanyTextField } from '@/contacts/companies/company-detail/CompanyTextField';
+import { useTranslation } from 'react-i18next';
 
 export const CompanyDetailFields = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
@@ -114,10 +115,12 @@ const CompanyDetailSelectTag = ({
     }
   }, [tagIds]);
 
+  const { t } = useTranslation('contacts', { keyPrefix: 'customer.detail' });
+
   return (
     <fieldset className="space-y-2 px-8">
       <Label asChild>
-        <legend>Tags</legend>
+        <legend>{t('tags')}</legend>
       </Label>
       <SelectTags.Detail
         tagType="core:company"

@@ -1,0 +1,28 @@
+{
+  "segment-types": "Бүрэлдэхүүний төрлүүд",
+  "team-member": "Багийн гишүүд",
+  "customer": "Харилцагч",
+  "lead": "Боломжит харилцагч",
+  "product": "Бүтээгдэхүүн",
+  "segment": "Сегмент",
+  "name": "Нэр",
+  "description": "Тайлбар",
+  "count": "Тоо",
+  "create-segment": "Сегмент үүсгэх",
+  "edit": "Засах",
+  "create": "Үүсгэх",
+  "a-segment": "Сегмент",
+  "detail" : {
+    "name" : "Нэр",
+    "parent-segment": "Багийн сегмент",
+    "color": "Өнгө",
+    "description":"Тайлбар",
+    "property":"Шинж чанар",
+    "value":"Харагдах утга",
+    "condition" : "Нөхцөл",
+    "add-condition" : "Нөхцөл үүсгэх",
+    "calculate-segment-reach" : "Сегмент хүрэлцэх",
+    "save-segment" : "Сегмент хадгалах",
+    "add-group" : "Групп нэмэх"
+  }
+}

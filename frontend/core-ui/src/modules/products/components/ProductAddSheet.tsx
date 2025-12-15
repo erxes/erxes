@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { AddProductForm } from 'ui-modules';
 import { productsQueries } from '../graphql';
+import { useTranslation } from 'react-i18next';
 
 export const ProductAddSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -28,6 +29,7 @@ export const ProductAddSheet = () => {
     setOpen(false);
     goBackToPreviousHotkeyScope();
   };
+  const { t } = useTranslation('common');
 
   useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
 
@@ -40,7 +42,7 @@ export const ProductAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add product
+          {t('add-product')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>

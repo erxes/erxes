@@ -31,7 +31,7 @@ import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailState
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 
-export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
+export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
   return [
     RecordTable.checkboxColumn as ColumnDef<TCompany>,
     {
@@ -60,7 +60,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
       id: 'primaryName',
       accessorKey: 'primaryName',
       header: () => (
-        <RecordTable.InlineHead icon={IconLabelFilled} label="Name" />
+        <RecordTable.InlineHead icon={IconLabelFilled} label={t('name')} />
       ),
       cell: ({ cell }) => {
         const { primaryName, _id } = cell.row.original;
@@ -92,7 +92,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
     {
       id: 'emails',
       accessorKey: 'primaryEmail',
-      header: () => <RecordTable.InlineHead label="Emails" />,
+      header: () => <RecordTable.InlineHead label={t('emails')} />,
       cell: ({ cell }) => {
         const { primaryEmail, _id, emails, emailValidationStatus } =
           cell.row.original;
@@ -112,7 +112,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
     {
       id: 'phones',
       accessorKey: 'primaryPhone',
-      header: () => <RecordTable.InlineHead label="Phones" />,
+      header: () => <RecordTable.InlineHead label={t('phones')} />,
       cell: ({ cell }) => {
         const { _id, phones, phoneValidationStatus, primaryPhone } =
           cell.row.original;
@@ -132,7 +132,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
     {
       id: 'owner',
       accessorKey: 'ownerId',
-      header: () => <RecordTable.InlineHead label="Owner" />,
+      header: () => <RecordTable.InlineHead label={t('owner')} />,
       cell: ({ cell }) => {
         const { companiesEdit } = useCompaniesEdit();
         return (
@@ -159,7 +159,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
     {
       id: 'plan',
       accessorKey: 'plan',
-      header: () => <RecordTable.InlineHead label="Plan" />,
+      header: () => <RecordTable.InlineHead label={t('plan')} />,
       cell: ({ cell }) => {
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -171,7 +171,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
     {
       id: 'tagIds',
       accessorKey: 'tagIds',
-      header: () => <RecordTable.InlineHead label="Tags" />,
+      header: () => <RecordTable.InlineHead label={t('tags')} />,
       cell: ({ cell }) => {
         return (
           <SelectTags.InlineCell
@@ -201,7 +201,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
     {
       id: 'lastSeenAt',
       accessorKey: 'lastSeenAt',
-      header: () => <RecordTable.InlineHead label="Last Seen" />,
+      header: () => <RecordTable.InlineHead label={t('last-seen')} />,
       cell: ({ cell }) => {
         return (
           <RecordTableInlineCell>
@@ -214,7 +214,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = () => {
       id: 'profileScore',
       accessorKey: 'score',
       header: () => (
-        <RecordTable.InlineHead icon={IconUser} label="Profile Score" />
+        <RecordTable.InlineHead icon={IconUser} label={t('profile-score')} />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>

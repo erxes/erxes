@@ -4,7 +4,13 @@
   "segments": "Segments",
   "automations": "Automations",
   "documents": "Documents",
-
+  "product-service": "Product Service",
+  "success": "Success",
+  "cancel": "Cancel",
+  "save": "Save",
+  "categories": "Categories",
+  "settings": "Settings",
+  "add-product": "Add Product",
   "filter": {
     "_": "Filter",
     "search": "Search",
@@ -15,6 +21,5 @@
     "last-seen-at": "Last Seen At",
     "birthday": "Birthday"
   },
-
   "records-found": "Records Found"
 }
