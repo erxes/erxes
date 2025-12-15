@@ -1,16 +1,30 @@
 import { gql } from '@apollo/client';
 
+export const CONTENT_CMS_LIST = gql`
+  query ContentCMSList {
+    contentCMSList {
+      _id
+      clientPortalId
+      content
+      createdAt
+      updatedAt
+      name
+      languages
+      language
+      description
+    }
+  }
+`;
+
 export const GET_WEBSITES = gql`
-  query clientPortalGetConfigs($search: String) {
-    clientPortalGetConfigs(search: $search) {
+  query getClientPortals {
+    getClientPortals(filter: {}) {
       list {
         _id
         name
         description
         domain
         createdAt
-        kind
-        url
         __typename
       }
       totalCount
@@ -63,135 +77,6 @@ export const CMS_MENU_REMOVE = gql`
 export const CLIENT_PORTAL_REMOVE = gql`
   mutation ClientPortalRemove($_id: String!) {
     clientPortalRemove(_id: $_id)
-  }
-`;
-
-export const CLIENT_PORTAL_CONFIG_UPDATE = gql`
-  mutation ClientPortalConfigUpdate($config: ClientPortalConfigInput!) {
-    clientPortalConfigUpdate(config: $config) {
-      _id
-      name
-      url
-      kind
-      description
-      logo
-      icon
-      headerHtml
-      footerHtml
-      domain
-      dnsStatus
-      messengerBrandCode
-      knowledgeBaseLabel
-      knowledgeBaseTopicId
-      ticketLabel
-      dealLabel
-      purchaseLabel
-      taskPublicPipelineId
-      taskPublicBoardId
-      taskPublicLabel
-      taskLabel
-      taskStageId
-      taskPipelineId
-      taskBoardId
-      ticketStageId
-      ticketPipelineId
-      ticketBoardId
-      dealStageId
-      dealPipelineId
-      dealBoardId
-      purchaseStageId
-      purchasePipelineId
-      purchaseBoardId
-      styles {
-        bodyColor
-        headerColor
-        footerColor
-        helpColor
-        backgroundColor
-        activeTabColor
-        baseColor
-        headingColor
-        linkColor
-        linkHoverColor
-        baseFont
-        headingFont
-        dividerColor
-        primaryBtnColor
-        secondaryBtnColor
-        __typename
-      }
-      mobileResponsive
-      googleCredentials
-      googleClientId
-      googleClientSecret
-      googleRedirectUri
-      facebookAppId
-      erxesAppToken
-      kbToggle
-      publicTaskToggle
-      ticketToggle
-      taskToggle
-      dealToggle
-      purchaseToggle
-      otpConfig {
-        smsTransporterType
-        content
-        codeLength
-        loginWithOTP
-        expireAfter
-        emailSubject
-        __typename
-      }
-      twoFactorConfig {
-        smsTransporterType
-        content
-        codeLength
-        enableTwoFactor
-        expireAfter
-        emailSubject
-        __typename
-      }
-      verificationMailConfig {
-        subject
-        invitationContent
-        registrationContent
-        __typename
-      }
-      manualVerificationConfig {
-        userIds
-        verifyCustomer
-        verifyCompany
-        __typename
-      }
-      passwordVerificationConfig {
-        verifyByOTP
-        emailSubject
-        emailContent
-        smsContent
-        __typename
-      }
-      socialpayConfig {
-        certId
-        publicKey
-        __typename
-      }
-
-      testUserEmail
-      testUserPhone
-      testUserPassword
-      testUserOTP
-      tokenExpiration
-      refreshTokenExpiration
-      tokenPassMethod
-      vendorParentProductCategoryId
-      language
-      environmentVariables {
-        key
-        value
-        __typename
-      }
-      __typename
-    }
   }
 `;
 
@@ -252,7 +137,7 @@ export const POST_LIST = gql`
     $clientPortalId: String!
     $type: String
     $featured: Boolean
-    $categoryId: String
+    $categoryIds: [String]
     $searchValue: String
     $status: PostStatus
     $limit: Int
@@ -266,7 +151,7 @@ export const POST_LIST = gql`
       clientPortalId: $clientPortalId
       featured: $featured
       type: $type
-      categoryId: $categoryId
+      categoryIds: $categoryIds
       searchValue: $searchValue
       status: $status
       limit: $limit
@@ -308,18 +193,7 @@ export const POST_LIST = gql`
             }
             __typename
           }
-          ... on ClientPortalUser {
-            fullName
-            firstName
-            lastName
-            email
-            username
-            customer {
-              avatar
-              __typename
-            }
-            __typename
-          }
+          # Remove or replace the ClientPortalUser fragment if not needed
           __typename
         }
         categoryIds
@@ -331,15 +205,12 @@ export const POST_LIST = gql`
         featured
         status
         tagIds
-        tags {
-          _id
-          name
-          __typename
-        }
+        # Remove or replace the tags field if not available
         authorId
         createdAt
         autoArchiveDate
         scheduledDate
+        excerpt
         thumbnail {
           url
           __typename
@@ -355,39 +226,41 @@ export const POST_LIST = gql`
 
 export const CMS_TAGS = gql`
   query CmsTags(
-    $clientPortalId: String!
-    $searchValue: String
+    $clientPortalId: String
     $limit: Int
     $cursor: String
+    $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
+    $orderBy: JSON
+    $sortMode: String
     $sortField: String
+    $searchValue: String
+    $language: String
+    $aggregationPipeline: [JSON]
     $sortDirection: String
   ) {
     cmsTags(
       clientPortalId: $clientPortalId
-      searchValue: $searchValue
       limit: $limit
       cursor: $cursor
+      cursorMode: $cursorMode
       direction: $direction
+      orderBy: $orderBy
+      sortMode: $sortMode
       sortField: $sortField
+      searchValue: $searchValue
+      language: $language
+      aggregationPipeline: $aggregationPipeline
       sortDirection: $sortDirection
     ) {
       tags {
         _id
+        colorCode
         clientPortalId
+        createdAt
         name
         slug
-        colorCode
-        createdAt
         updatedAt
-        __typename
-      }
-      totalCount
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        endCursor
-        startCursor
       }
     }
   }
@@ -406,6 +279,111 @@ export const CMS_POSTS_EDIT = gql`
   mutation CmsPostsEdit($id: String!, $input: PostInput!) {
     cmsPostsEdit(_id: $id, input: $input) {
       _id
+      type
+      customPostType {
+        _id
+        code
+        label
+        __typename
+      }
+      authorKind
+      authorId
+      author {
+        ... on User {
+          userId: _id
+          username
+          email
+          details {
+            fullName
+            shortName
+            avatar
+            firstName
+            lastName
+            middleName
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      clientPortalId
+      title
+      slug
+      content
+      excerpt
+      categoryIds
+      status
+      tagIds
+      featured
+      featuredDate
+      scheduledDate
+      autoArchiveDate
+      reactions
+      reactionCounts
+      thumbnail {
+        url
+        type
+        name
+        __typename
+      }
+      images {
+        url
+        name
+        type
+        size
+        duration
+      }
+      video {
+        url
+        type
+        name
+        __typename
+      }
+      audio {
+        url
+        type
+        name
+        __typename
+      }
+      documents {
+        url
+        type
+        name
+        __typename
+      }
+      attachments {
+        url
+        type
+        name
+        __typename
+      }
+      pdfAttachment {
+        pdf {
+          url
+          name
+          type
+          size
+          duration
+        }
+        pages {
+          url
+          name
+          type
+          size
+          duration
+        }
+      }
+      videoUrl
+      createdAt
+      updatedAt
+      categories {
+        _id
+        name
+        slug
+        __typename
+      }
+      customFieldsData
+      customFieldsMap
       __typename
     }
   }
@@ -498,30 +476,12 @@ export const CMS_POST = gql`
           }
           __typename
         }
-        ... on ClientPortalUser {
-          clientPortalUserId: _id
-          fullName
-          firstName
-          lastName
-          email
-          username
-          customer {
-            avatar
-            __typename
-          }
-          __typename
-        }
         __typename
       }
       categories {
         _id
         name
         slug
-        __typename
-      }
-      tags {
-        _id
-        name
         __typename
       }
       customFieldsData
@@ -549,7 +509,12 @@ export const CMS_TAGS_EDIT = gql`
   mutation CmsTagsEdit($_id: String!, $input: PostTagInput!) {
     cmsTagsEdit(_id: $_id, input: $input) {
       _id
-      __typename
+      clientPortalId
+      name
+      slug
+      colorCode
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -559,7 +524,6 @@ export const CMS_TAGS_REMOVE = gql`
     cmsTagsRemove(_id: $id)
   }
 `;
-
 export const CMS_CATEGORIES = gql`
   query CmsCategories(
     $clientPortalId: String!
@@ -592,10 +556,42 @@ export const CMS_CATEGORIES = gql`
         customFieldsData
         parent {
           _id
+          clientPortalId
           name
           slug
+          description
+          parentId
           status
-          __typename
+          parent {
+            _id
+            clientPortalId
+            name
+            slug
+            description
+            parentId
+            status
+            parent {
+              _id
+              clientPortalId
+              name
+              slug
+              description
+              parentId
+              status
+              createdAt
+              updatedAt
+              customFieldsData
+              customFieldsMap
+            }
+            createdAt
+            updatedAt
+            customFieldsData
+            customFieldsMap
+          }
+          createdAt
+          updatedAt
+          customFieldsData
+          customFieldsMap
         }
         parentId
         __typename
@@ -760,6 +756,28 @@ export const CMS_MENU_LIST = gql`
       url
       order
       target
+      __typename
+    }
+  }
+`;
+
+export const GET_CLIENT_PORTALS = gql`
+  query getClientPortals($filter: IClientPortalFilter) {
+    getClientPortals(filter: $filter) {
+      list {
+        _id
+        name
+        domain
+        token
+        createdAt
+        updatedAt
+        __typename
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        __typename
+      }
       __typename
     }
   }

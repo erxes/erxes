@@ -316,7 +316,7 @@ const SelectBoardRoot = React.forwardRef<
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.Trigger
           ref={ref}
-          className={cn('w-full inline-flex', className)}
+          className={cn('inline-flex w-full', className)}
           variant="outline"
           {...props}
         >

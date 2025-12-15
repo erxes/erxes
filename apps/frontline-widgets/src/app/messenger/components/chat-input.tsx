@@ -2,25 +2,24 @@ import { FC, useId } from 'react';
 import { IconArrowUp } from '@tabler/icons-react';
 import { Button, Input, cn, toast } from 'erxes-ui';
 import { useChatInput } from '../hooks/useChatInput';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { InitialMessage } from '../constants';
-import { connectionAtom, toastUserAtom } from '../states';
-import { getLocalStorageItem } from '@libs/utils';
+import { connectionAtom } from '../states';
+import { useCustomerData } from '../hooks/useCustomerData';
 
 interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const [connection] = useAtom(connectionAtom);
-  const setToastUser = useSetAtom(toastUserAtom);
   const { messengerData } = connection.widgetsMessengerConnect || {};
-  const { messages, isOnline } = messengerData || {};
+  const { messages, isOnline, requireAuth } = messengerData || {};
   const placeholder = isOnline
     ? messages?.welcome || InitialMessage.WELCOME
     : messages?.away || InitialMessage.AWAY;
   const id = useId();
-  const erxes = getLocalStorageItem('erxes');
   const { message, handleInputChange, handleSubmit, isDisabled, loading } =
     useChatInput();
+  const { hasEmailOrPhone } = useCustomerData();
 
   return (
     <form
@@ -39,21 +38,23 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           value={message}
           // disabled={!erxes}
           onClick={() => {
-            if (!erxes) {
+            if (!hasEmailOrPhone && requireAuth === true) {
               toast({
                 title: 'Please enter your email or phone number to continue',
                 variant: 'warning',
               });
             }
           }}
-          onChange={(value) =>
-            erxes
-              ? handleInputChange(value)
-              : toast({
-                  title: 'Please enter your email or phone number to continue',
-                  variant: 'warning',
-                })
-          }
+          onChange={(value) => {
+            if (requireAuth === true && !hasEmailOrPhone) {
+              toast({
+                title: 'Please enter your email or phone number to continue',
+                variant: 'warning',
+              });
+              return;
+            }
+            handleInputChange(value);
+          }}
           {...inputProps}
         />
         <Button
@@ -61,7 +62,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           type="submit"
           aria-label="Send"
           className="aspect-square text-accent bg-primary size-8 p-2"
-          disabled={isDisabled || loading || !erxes}
+          disabled={isDisabled || loading || !hasEmailOrPhone}
         >
           <IconArrowUp />
         </Button>

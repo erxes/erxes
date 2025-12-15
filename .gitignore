@@ -49,3 +49,6 @@ Thumbs.db
 
 storybook-static
 backend/plugins/payment_api/src/public/widget/
+
+# Redis dump file
+dump.rdb

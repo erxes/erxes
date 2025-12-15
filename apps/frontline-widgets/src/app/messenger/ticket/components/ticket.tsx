@@ -1,19 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
-import { NotifyCustomerForm } from './notify-customer-form';
-import { getLocalStorageItem } from '@libs/utils';
-import { connectionAtom } from '../../states';
-import { useAtom } from 'jotai';
+import { useCustomerData } from '../../hooks/useCustomerData';
+import { NotifyCustomerForm } from '../../components/notify-customer-form';
 
 export const Ticket = () => {
-  const [connection] = useAtom(connectionAtom);
+  const { hasEmailOrPhone } = useCustomerData();
   const [page, setPage] = useState<'submissions' | 'submit' | 'progress'>(
     'submissions',
   );
-  const erxes = useMemo(() => getLocalStorageItem('erxes'), [connection]);
-  if (!erxes || Object.keys(erxes).length === 0)
-    return <NotifyCustomerForm onSuccess={() => setPage('submit')} />;
+  if (!hasEmailOrPhone) return <NotifyCustomerForm />;
 
   const renderPage = () => {
     switch (page) {

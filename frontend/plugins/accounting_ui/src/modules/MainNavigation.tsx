@@ -1,4 +1,5 @@
 import {
+  IconClipboardTextFilled,
   IconCrane,
   IconListCheck,
   IconListDetails,
@@ -51,6 +52,7 @@ export const MainNavigation = () => {
       <NavigationMenuLinkItem name='Журнал бичилт' icon={IconListCheck} path="accounting/records" />
       {RenderJournals()}
       <NavigationMenuLinkItem name='Бүрэн бус баримтууд' icon={IconCrane} path="accounting/odd-transactions" />
+      <NavigationMenuLinkItem name='Тайлан' icon={IconClipboardTextFilled} path="accounting/journal-reports" />
     </>
   );
 };

@@ -19,6 +19,7 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
             <Table.Row>
               <Table.Head>Payment Method</Table.Head>
               <Table.Head>Name</Table.Head>
+              <Table.Head>Status</Table.Head>
               <Table.Head>Credentials</Table.Head>
               <Table.Head>Created</Table.Head>
               <Table.Head>Actions</Table.Head>
@@ -44,6 +45,17 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
                   </Table.Cell>
                   <Table.Cell className="px-6 py-4 whitespace-nowrap text-gray-900">
                     {payment.name}
+                  </Table.Cell>
+                  <Table.Cell className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                        payment.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {payment.status || 'active'}
+                    </span>
                   </Table.Cell>
                   <Table.Cell className="px-6 py-4 whitespace-nowrap text-gray-500">
                     {'******'}
