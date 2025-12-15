@@ -1,9 +1,9 @@
-import { IconMail, IconUser, IconNote } from '@tabler/icons-react';
+import { IconNote } from '@tabler/icons-react';
 import { INTERNAL_NOTES } from '@/deals/graphql/queries/InternalNoteQueries';
 import dayjs from 'dayjs';
 import { useQuery } from '@apollo/client';
 
-interface ITimelineItem {
+type TimelineBase = {
   _id: string;
   content: string;
   createdAt: string;
@@ -13,8 +13,9 @@ interface ITimelineItem {
       avatar?: string;
     };
   };
-  [key: string]: any;
-}
+};
+
+type ITimelineItem<TExtra = Record<string, unknown>> = TimelineBase & TExtra;
 
 interface IProps {
   contentType: string;
@@ -29,21 +30,6 @@ const ActivityList = ({ contentType, contentTypeId }: IProps) => {
   const timelineItems = [...(data?.internalNotes || [])].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
-
-  // const timelineItems = [
-  //   {
-  //     icon: <IconUser className="text-indigo-500 w-6 h-6" />,
-  //     name: 'User user',
-  //     action: 'posted a comment',
-  //     description: 'The user was successfully registered in the system.',
-  //   },
-  //   {
-  //     icon: <IconMail className="text-indigo-500 w-6 h-6" />,
-  //     name: 'User user',
-  //     action: 'verified email',
-  //     description: 'User user verified their email address.',
-  //   },
-  // ];
 
   if (loading) return <div>Loading..</div>;
   return (

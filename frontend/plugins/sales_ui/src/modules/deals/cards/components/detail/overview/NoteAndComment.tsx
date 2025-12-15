@@ -21,7 +21,7 @@ import { Block } from '@blocknote/core';
 import { useState } from 'react';
 import { useAddInternalNote } from '../../../hooks/useAddInternalNote';
 import { INTERNAL_NOTE_DETAIL } from '@/deals/graphql/queries/InternalNoteQueries';
-import { useApolloClient, useQuery } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 
 const SalesNoteAndComment = ({
   contentTypeId,
@@ -50,6 +50,10 @@ const SalesNoteAndComment = ({
   };
 
   const handleNoteSubmit = async () => {
+    if (!content || content.length === 0) {
+      return;
+    }
+
     addInternalNote({
       variables: {
         mentionedUserIds,
@@ -59,7 +63,6 @@ const SalesNoteAndComment = ({
       },
       onCompleted: (data) => {
         editor?.removeBlocks(editor?.document);
-        console.log(data?.internalNotesAdd?._id);
         if (data) {
           client.query({
             query: INTERNAL_NOTE_DETAIL,
