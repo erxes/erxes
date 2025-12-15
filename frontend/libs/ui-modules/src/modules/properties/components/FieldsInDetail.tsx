@@ -2,7 +2,7 @@ import { Button, Collapsible, Spinner } from 'erxes-ui';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
 import { useFields } from '../hooks/useFields';
-import { FieldInDetail } from './FieldInDetail';
+import { Field } from './Field';
 
 export const FieldsInDetail = ({
   fieldContentType,
@@ -27,15 +27,20 @@ export const FieldsInDetail = ({
   return (
     <div className="p-8">
       {fieldGroups.map((group) => (
-        <Collapsible key={group._id} className="group">
+        <Collapsible key={group._id} className="group" defaultOpen>
           <Collapsible.Trigger asChild>
             <Button variant="secondary" className="w-full justify-start">
               <Collapsible.TriggerIcon />
               {group.name}
             </Button>
           </Collapsible.Trigger>
-          <Collapsible.Content className="pt-2">
-            <FieldsInGroup group={group} contentType={fieldContentType} />
+          <Collapsible.Content className="pt-4">
+            <FieldsInGroup
+              group={group}
+              contentType={fieldContentType}
+              customFieldsData={customFieldsData}
+              mutateHook={mutateHook}
+            />
           </Collapsible.Content>
         </Collapsible>
       ))}
@@ -46,9 +51,16 @@ export const FieldsInDetail = ({
 export const FieldsInGroup = ({
   group,
   contentType,
+  customFieldsData,
+  mutateHook,
 }: {
   group: IFieldGroup;
   contentType: string;
+  customFieldsData: Record<string, unknown>;
+  mutateHook: () => {
+    mutate: mutateFunction;
+    loading: boolean;
+  };
 }) => {
   const { fields, loading } = useFields({ groupId: group._id, contentType });
 
@@ -59,7 +71,14 @@ export const FieldsInGroup = ({
   return (
     <div className="grid gap-4 grid-cols-2">
       {fields.map((field) => (
-        <FieldInDetail key={field._id} field={field} />
+        <Field
+          key={field._id}
+          field={field}
+          value={customFieldsData[field._id] as string}
+          customFieldsData={customFieldsData}
+          id={field._id}
+          mutateHook={mutateHook}
+        />
       ))}
     </div>
   );

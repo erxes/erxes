@@ -31,7 +31,7 @@ export const useFields = ({
       Object.entries(field.logics || {}).filter(([key]) => key !== 'multiple'),
     );
 
-    const multiple = logics?.multiple;
+    const multiple = field.logics?.multiple;
 
     return {
       ...field,
