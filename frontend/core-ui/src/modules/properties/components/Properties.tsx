@@ -48,7 +48,12 @@ export const Properties = ({ groupId }: { groupId: string }) => {
   return (
     <>
       {fields.map((field) => (
-        <PropertyRow field={field} groupId={groupId} key={field._id} />
+        <PropertyRow
+          field={field}
+          groupId={groupId}
+          key={field._id}
+          contentType={type || ''}
+        />
       ))}
     </>
   );
@@ -57,9 +62,11 @@ export const Properties = ({ groupId }: { groupId: string }) => {
 const PropertyRow = ({
   field,
   groupId,
+  contentType,
 }: {
   field: IField;
   groupId: string;
+  contentType: string;
 }) => {
   const { confirm } = useConfirm();
   const { removeField, loading: removeFieldLoading } = useFieldRemove({
@@ -122,7 +129,9 @@ const PropertyRow = ({
           </DropdownMenu.Trigger>
           <DropdownMenu.Content className="min-w-48">
             <DropdownMenu.Item asChild>
-              <Link to={`/settings/properties/${type}/${groupId}/${_id}`}>
+              <Link
+                to={`/settings/properties/${contentType}/${groupId}/${_id}`}
+              >
                 <IconEdit />
                 Edit
               </Link>

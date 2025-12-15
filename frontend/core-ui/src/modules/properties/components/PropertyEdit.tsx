@@ -35,7 +35,10 @@ export const PropertyEdit = () => {
     <PropertyForm
       onSubmit={handleSubmit}
       loading={editPropertyLoading}
-      defaultValues={fieldDetail}
+      defaultValues={{
+        ...fieldDetail,
+        multiple: !!fieldDetail?.logics?.multiple,
+      }}
       isEdit
     />
   );

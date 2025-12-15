@@ -1,6 +1,8 @@
 import { Button, Collapsible, Spinner } from 'erxes-ui';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
+import { useFields } from '../hooks/useFields';
+import { FieldInDetail } from './FieldInDetail';
 
 export const FieldsInDetail = ({
   fieldContentType,
@@ -33,7 +35,7 @@ export const FieldsInDetail = ({
             </Button>
           </Collapsible.Trigger>
           <Collapsible.Content className="pt-2">
-            <FieldsInGroup group={group} />
+            <FieldsInGroup group={group} contentType={fieldContentType} />
           </Collapsible.Content>
         </Collapsible>
       ))}
@@ -41,6 +43,24 @@ export const FieldsInDetail = ({
   );
 };
 
-export const FieldsInGroup = ({ group }: { group: IFieldGroup }) => {
-  return <div className="grid gap-4 grid-cols-2"></div>;
+export const FieldsInGroup = ({
+  group,
+  contentType,
+}: {
+  group: IFieldGroup;
+  contentType: string;
+}) => {
+  const { fields, loading } = useFields({ groupId: group._id, contentType });
+
+  if (loading) {
+    return <Spinner className="py-6" />;
+  }
+
+  return (
+    <div className="grid gap-4 grid-cols-2">
+      {fields.map((field) => (
+        <FieldInDetail key={field._id} field={field} />
+      ))}
+    </div>
+  );
 };
