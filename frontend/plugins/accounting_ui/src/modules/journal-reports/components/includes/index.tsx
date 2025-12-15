@@ -17,7 +17,7 @@ export const getRenderMoreHandler = (report: string, isMore: boolean) => {
   }
   const handlers: any = {
     ac: HandleMainACMore,
-    tb: () => { },
+    tb: () => (null),
   };
 
   return handlers[report];

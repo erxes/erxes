@@ -24,10 +24,6 @@ export const ReportTableBody = () => {
   const { report, groupKey, ...params } = useQueryObject();
   const reportConf = ReportRules[report as string];
 
-  if (!report || !reportConf) {
-    return 'NOT FOUND REPORT'
-  }
-
   // const params = { ...qryParams };
   const { isMore } = params;
 
@@ -36,7 +32,7 @@ export const ReportTableBody = () => {
 
   const calcReport = getCalcReportHandler(report as string || '')
 
-  let renderMore = getRenderMoreHandler(report as string || '', isMore);
+  const renderMore = getRenderMoreHandler(report as string || '', isMore);
 
   const { records = [], loading, error } = useJournalReportData();
   const { trDetails = [], loading: detailLoading, error: detailError } = useJournalReportMore()
@@ -62,6 +58,10 @@ export const ReportTableBody = () => {
     setMoreData(trDetails);
 
   }, [grouped, detailLoading]); // ✅ дата солигдох бүрт дахин бодно
+
+  if (!report || !reportConf) {
+    return 'NOT FOUND REPORT'
+  }
 
   if (loading) {
     return <Spinner />;
@@ -194,8 +194,8 @@ function renderGroup(
   lastAttr: string,
   leafAttr: string,
   groupHead: boolean,
-  calcReport: Function,
-  renderMore?: Function
+  calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode,
+  renderMore?: (parents: string, child: string) => React.ReactNode,
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
 
@@ -208,7 +208,7 @@ function renderGroup(
   );
 
   return sortedValues.map((grStep: any, index: number) => {
-    const attr = `${lastAttr && `${lastAttr}*` || ''}${groupRule.key}+${grStep[grId]}`
+    const attr = `${lastAttr ? `${lastAttr}*` : ''}${groupRule.key}+${grStep[grId]}`
 
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.group_rule?.key) {
@@ -244,7 +244,7 @@ function renderGroup(
             colCount,
             padding + 25,
             attr,
-            `${leafAttr && `${leafAttr},` || ''}${attr}`,
+            `${leafAttr ? `${leafAttr},` : ''}${attr}`,
             groupHead,
             calcReport,
             renderMore
@@ -280,7 +280,7 @@ function renderGroup(
 
           {lastNode}
         </ReportTable.Row>
-        {renderMore && renderMore(leafAttr, `${groupRule.key}+${grStep[grId]}`)}
+        {renderMore && renderMore(leafAttr ?? '', `${groupRule.key}+${grStep[grId]}`)}
       </React.Fragment>
     );
   });

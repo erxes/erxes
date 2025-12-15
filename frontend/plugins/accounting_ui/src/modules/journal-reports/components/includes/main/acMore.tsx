@@ -6,6 +6,8 @@ import { AccountKind } from "~/modules/settings/account/types/Account";
 import { TR_SIDES } from "~/modules/transactions/types/constants";
 
 export const HandleMainACMore = (parent: string, child: string) => {
+  const parentRules = parent.split('*').map(p => child.split('+'));
+  const [leafKey, leafId] = child.split('+');
   const allMoreData = useAtomValue(moreDataState);
 
   const moreData = allMoreData.filter(md => md);
