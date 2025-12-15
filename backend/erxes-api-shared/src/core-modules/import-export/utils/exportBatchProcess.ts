@@ -218,8 +218,22 @@ export const createExportBatchProcessor = (
 
         // Get cursor from last item for next iteration
         const lastItem = batch[batch.length - 1];
-        if (lastItem && lastItem._id) {
+
+        // When ids are provided, use index-based cursor
+        if (exportDoc.ids && exportDoc.ids.length > 0) {
+          const currentIndex = cursor ? parseInt(cursor, 10) : 0;
+          const nextIndex = currentIndex + batch.length;
+          if (nextIndex >= exportDoc.ids.length) {
+            hasMoreData = false;
+          } else {
+            cursor = String(nextIndex);
+          }
+        } else if (lastItem && lastItem._id) {
           cursor = lastItem._id;
+          // If batch is smaller than BATCH_SIZE, we've reached the end
+          if (batch.length < BATCH_SIZE) {
+            hasMoreData = false;
+          }
         } else {
           hasMoreData = false;
         }
@@ -279,7 +293,6 @@ export const createExportBatchProcessor = (
             exportId,
             fileKey,
             fileName,
-            fileIndex: 0,
           });
         } finally {
           await fs.promises
@@ -295,7 +308,7 @@ export const createExportBatchProcessor = (
         lastCursor: undefined,
       });
 
-      return { success: true, fileKeys: fileKey ? [fileKey] : [] };
+      return { success: true, fileKey: fileKey || '' };
     } catch (error: any) {
       // Save last cursor for resume capability
       await coreClient.updateExportProgress(subdomain, exportId, {

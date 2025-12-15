@@ -4,6 +4,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 
 import {
+  EventDispatcherReturn,
   sendNotification,
   USER_ROLES,
   userMovemmentSchema,
@@ -129,7 +130,11 @@ export interface IUserModel extends Model<IUserDocument> {
   createSystemUser(doc: IAppDocument): IUserDocument;
 }
 
-export const loadUserClass = (models: IModels, subdomain: string) => {
+export const loadUserClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class User {
     public static async getUser(_id: string) {
       const user = await models.Users.findOne({ _id });
@@ -244,6 +249,11 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         password: notUsePassword ? '' : await this.generatePassword(password),
         code: await this.generateUserCode(),
       });
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: user.toObject(),
+      });
 
       models.Roles.create({
         userId: user._id,
@@ -257,6 +267,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
      * Update user information
      */
     public static async updateUser(_id: string, doc: IUpdateUser) {
+      const user = await models.Users.getUser(_id);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
       doc.password = (doc.password ?? '').trim();
       doc.email = (doc.email ?? '').toLowerCase().trim();
 
@@ -302,7 +318,16 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
       await models.Users.updateOne({ _id }, operations);
 
-      return models.Users.findOne({ _id });
+      const updatedUser = await models.Users.findOne({ _id });
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: updatedUser.toObject(),
+          prevDocument: user.toObject(),
+        });
+      }
+      return updatedUser;
     }
 
     public static async generateToken(duration?: number) {
@@ -340,6 +365,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
         ...(password && { password: await this.generatePassword(password) }),
+      });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: user.toObject(),
       });
 
       models.Roles.create({
@@ -391,6 +422,8 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         positionIds,
       }: IEditProfile,
     ) {
+      const user = await models.Users.getUser(_id);
+
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
 
@@ -407,7 +440,16 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         { $set: { username, email, details, links, employeeId, positionIds } },
       );
 
-      return models.Users.findOne({ _id });
+      const updatedUser = await models.Users.findOne({ _id });
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: updatedUser.toObject(),
+          prevDocument: user.toObject(),
+        });
+      }
+      return updatedUser;
     }
 
     /*
@@ -857,7 +899,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         return user;
       }
 
-      return models.Users.create({
+      const newUser = await models.Users.create({
         role: USER_ROLES.SYSTEM,
         password: await this.generatePassword(app._id),
         username: app.name,
@@ -870,6 +912,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
           fullName: app.name,
         },
       });
+      sendDbEventLog({
+        action: 'create',
+        docId: newUser._id,
+        currentDocument: newUser.toObject(),
+      });
+      return newUser;
     }
     public static async checkLoginAuth({
       email,

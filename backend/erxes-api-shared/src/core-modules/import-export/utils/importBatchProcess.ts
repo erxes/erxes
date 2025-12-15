@@ -1,5 +1,8 @@
 import { Job } from 'bullmq';
 import { nanoid } from 'nanoid';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { splitType } from '../../../core-modules/automations';
 import { readFileFromStorage } from '../../../utils/file/read';
 import { IImportExportContext, TImportHandlers, ImportJobData } from '../types';
@@ -46,6 +49,9 @@ export const createImportBatchProcessor = (
       config,
     );
 
+    let errorFilePath: string | null = null;
+    let errorFileInitialized = false;
+
     try {
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'validating',
@@ -59,7 +65,7 @@ export const createImportBatchProcessor = (
       const fileName = importDoc.fileName || fileKey;
       const isCSV = fileName.toLowerCase().endsWith('.csv');
 
-      const fileBuffer = await readFileFromStorage({ subdomain, key: fileKey });
+      let fileBuffer = await readFileFromStorage({ subdomain, key: fileKey });
       if (!fileBuffer) {
         throw new Error('File not found');
       }
@@ -70,8 +76,6 @@ export const createImportBatchProcessor = (
       let processedRows = 0;
       let successRows = 0;
       let errorRows = 0;
-      const importedIds: string[] = [];
-      const allErrorRows: any[] = [];
 
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'processing',
@@ -92,10 +96,108 @@ export const createImportBatchProcessor = (
         ? processCSVFile(fileBuffer)
         : processXLSXFile(fileBuffer);
 
+      fileBuffer = null as any;
+
       let rowIndex = 0;
       let headerRow: string[] = [];
       const columnToKeyMap: Record<number, string> = {};
       const keyToHeaderMap: Record<string, string> = {};
+
+      const escapeCsvField = (
+        field: string | number | boolean | null | undefined,
+      ): string => {
+        const value =
+          field === null || field === undefined
+            ? ''
+            : typeof field === 'string'
+            ? field
+            : String(field);
+
+        if (
+          value.includes('"') ||
+          value.includes(',') ||
+          value.includes('\n')
+        ) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+
+        return value;
+      };
+
+      const getCsvHeaders = (): string[] => {
+        return headerRow && headerRow.length > 0
+          ? headerRow
+          : Object.values(keyToHeaderMap);
+      };
+
+      const writeErrorRow = async (row: any) => {
+        if (!errorFilePath) {
+          errorFilePath = path.join(
+            os.tmpdir(),
+            `import-errors-${importId}-${nanoid()}.csv`,
+          );
+        }
+
+        if (!errorFileInitialized) {
+          const csvHeaders = getCsvHeaders();
+          const finalHeaders = [...csvHeaders, 'Error'];
+          await fs.promises.writeFile(
+            errorFilePath,
+            finalHeaders.map(escapeCsvField).join(',') + '\n',
+            'utf8',
+          );
+          errorFileInitialized = true;
+        }
+
+        const csvHeaders = getCsvHeaders();
+        const headerToKeyMap: Record<string, string> = {};
+        Object.entries(keyToHeaderMap).forEach(([key, header]) => {
+          headerToKeyMap[header] = key;
+        });
+
+        const dataValues = csvHeaders.map((header) => {
+          const lookupKey = headerToKeyMap[header] || header;
+          return escapeCsvField(row?.[lookupKey]);
+        });
+
+        const errorMessage =
+          row?.error || row?.errorMessage || row?.message || 'Unknown error';
+
+        dataValues.push(escapeCsvField(errorMessage));
+        await fs.promises.appendFile(
+          errorFilePath,
+          dataValues.join(',') + '\n',
+          'utf8',
+        );
+      };
+
+      const parseCSVLine = (line: string): string[] => {
+        const values: string[] = [];
+        let currentValue = '';
+        let insideQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          const nextChar = line[i + 1];
+
+          if (char === '"') {
+            if (insideQuotes && nextChar === '"') {
+              currentValue += '"';
+              i++;
+            } else {
+              insideQuotes = !insideQuotes;
+            }
+          } else if (char === ',' && !insideQuotes) {
+            values.push(currentValue);
+            currentValue = '';
+          } else {
+            currentValue += char;
+          }
+        }
+
+        values.push(currentValue);
+        return values;
+      };
 
       for await (const row of rowIterator) {
         if (rowIndex === 0) {
@@ -157,9 +259,11 @@ export const createImportBatchProcessor = (
 
           successRows += successIds.length;
           errorRows += result.errorRows.length;
-          importedIds.push(...successIds);
-          allErrorRows.push(...result.errorRows);
           processedRows += batch.length;
+
+          for (const errorRow of result.errorRows) {
+            await writeErrorRow(errorRow);
+          }
 
           await coreClient.updateImportProgress(subdomain, importId, {
             processedRows,
@@ -195,9 +299,11 @@ export const createImportBatchProcessor = (
 
         successRows += successIds.length;
         errorRows += result.errorRows.length;
-        importedIds.push(...successIds);
-        allErrorRows.push(...result.errorRows);
         processedRows += batch.length;
+
+        for (const errorRow of result.errorRows) {
+          await writeErrorRow(errorRow);
+        }
 
         await coreClient.updateImportProgress(subdomain, importId, {
           processedRows,
@@ -212,13 +318,51 @@ export const createImportBatchProcessor = (
       }
 
       let errorFileUrl: string | null = null;
-      if (allErrorRows.length > 0) {
-        errorFileUrl = await coreClient.saveErrorFile(subdomain, {
-          importId,
-          headerRow,
-          errorRows: allErrorRows,
-          keyToHeaderMap,
-        });
+      if (errorFilePath && errorFileInitialized) {
+        const errorFileContent = await fs.promises.readFile(
+          errorFilePath,
+          'utf8',
+        );
+        const errorLines = errorFileContent.trim().split('\n');
+
+        if (errorLines.length > 1) {
+          const allErrorRows: any[] = [];
+          const csvHeaders =
+            headerRow && headerRow.length > 0
+              ? headerRow
+              : Object.values(keyToHeaderMap);
+          const headerToKeyMap: Record<string, string> = {};
+          Object.entries(keyToHeaderMap).forEach(([key, header]) => {
+            headerToKeyMap[header] = key;
+          });
+
+          for (let i = 1; i < errorLines.length; i++) {
+            const line = errorLines[i];
+            const values = parseCSVLine(line);
+            const errorMessage = values.pop() || 'Unknown error';
+            const errorRow: any = { error: errorMessage };
+            csvHeaders.forEach((header, idx) => {
+              if (values[idx] !== undefined) {
+                const key = headerToKeyMap[header] || header;
+                errorRow[key] = values[idx];
+              }
+            });
+            allErrorRows.push(errorRow);
+          }
+
+          errorFileUrl = await coreClient.saveErrorFile(subdomain, {
+            importId,
+            headerRow,
+            errorRows: allErrorRows,
+            keyToHeaderMap,
+          });
+        }
+
+        try {
+          if (errorFilePath) {
+            await fs.promises.unlink(errorFilePath);
+          }
+        } catch {}
       }
 
       await coreClient.updateImportProgress(subdomain, importId, {
@@ -230,8 +374,14 @@ export const createImportBatchProcessor = (
         ...(errorFileUrl && { errorFileUrl }),
       });
 
-      return { success: true, importedIds };
+      return { success: true };
     } catch (error: any) {
+      if (errorFilePath) {
+        try {
+          await fs.promises.unlink(errorFilePath);
+        } catch {}
+      }
+
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'failed',
         errorMessage: error?.message || 'Import worker failed',

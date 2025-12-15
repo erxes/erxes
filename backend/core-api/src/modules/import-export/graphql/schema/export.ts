@@ -10,7 +10,7 @@ export const types = `
     totalRows: Int
     processedRows: Int
     fileFormat: String
-    fileKeys: [String]
+  fileKey: String
     filters: JSON
     ids: [String]
     startedAt: Date
@@ -35,11 +35,24 @@ export const types = `
     isDefault: Boolean
     type: String
   }
+
+  type ExportHistoryList {
+    list: [Export]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
 `;
 
 export const queries = `
   exportProgress(exportId: String!): Export
   activeExports(entityType: String): [Export]
+  exportHistories(
+    entityType: String
+    limit: Int
+    cursor: String
+    direction: CURSOR_DIRECTION
+    cursorMode: CURSOR_MODE
+  ): ExportHistoryList
   exportHeaders(entityType: String!): [ExportHeader]
 `;
 

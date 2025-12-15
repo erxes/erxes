@@ -1,11 +1,10 @@
 import {
   GetExportData,
-  GetExportDataArgs,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
+import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
 import { buildCustomerExportRow } from './buildCustomerExportRow';
-import { IModels } from '~/connectionResolvers';
 
 export async function getCustomerExportData(
   data: GetExportData,
@@ -17,32 +16,54 @@ export async function getCustomerExportData(
     throw new Error('Models not available in context');
   }
 
-  // Build base filter from filters object
   let query: any = {};
 
   if (filters && Object.keys(filters).length > 0) {
     query = await generateFilter(subdomain, filters, models);
   }
 
-  // If specific IDs provided, use them
-  if (ids && ids.length > 0) {
+  if (ids && ids.length > 0 && !cursor) {
     query._id = { $in: ids };
   }
-
-  // Add cursor-based pagination
   if (cursor) {
-    query._id = query._id ? { ...query._id, $gt: cursor } : { $gt: cursor };
+    if (ids && ids.length > 0) {
+      const processedCount = parseInt(cursor, 10) || 0;
+      const remainingIds = ids.slice(processedCount);
+      if (remainingIds.length === 0) {
+        return [];
+      }
+      query._id = { $in: remainingIds.slice(0, limit) };
+    } else {
+      query._id = query._id ? { ...query._id, $gt: cursor } : { $gt: cursor };
+    }
   }
 
-  // Fetch customers with cursor pagination
   const customers = await models.Customers.find(query)
     .sort({ _id: 1 })
     .limit(limit)
     .lean();
 
-  // Transform to export rows with selected fields
+  const allTagIds = new Set<string>();
+  for (const { tagIds = [] } of customers) {
+    for (const tagId of tagIds) {
+      allTagIds.add(tagId);
+    }
+  }
+
+  const tagMap = new Map<string, string>();
+  if (allTagIds.size > 0) {
+    const tags = await models.Tags.find({
+      _id: { $in: Array.from(allTagIds) },
+    })
+      .select('_id name')
+      .lean();
+    for (const tag of tags) {
+      tagMap.set(String(tag._id), tag.name || '');
+    }
+  }
+
   const selectedFields = data.selectedFields;
   return customers.map((customer) =>
-    buildCustomerExportRow(customer, selectedFields),
+    buildCustomerExportRow(customer, selectedFields, tagMap),
   );
 }

@@ -24,8 +24,17 @@ const DepartmentNotificationContent = lazy(() =>
   })),
 );
 
+const ExportNotificationContent = lazy(() =>
+  import(
+    '@/notification/my-inbox/components/contents/import-export/export/components/ExportNotificationContent'
+  ).then((module) => ({
+    default: module.ExportNotificationContent,
+  })),
+);
+
 export const CoreNotificationContent = {
   welcome: WelcomeNotificationContent,
   branch: BranchNotificationContent,
   department: DepartmentNotificationContent,
+  exports: ExportNotificationContent,
 };

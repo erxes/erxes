@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import {
+  cursorPaginate,
   sendCoreModuleProducer,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -8,6 +9,39 @@ import {
   TImportExportProducers,
 } from 'erxes-api-shared/core-modules';
 import { validateExportConfig } from '~/modules/import-export/utils/validateConfig';
+
+const mapExportWithMetrics = (exportDoc: any) => {
+  const progress =
+    exportDoc.totalRows > 0
+      ? Math.round((exportDoc.processedRows / exportDoc.totalRows) * 100)
+      : 0;
+
+  const elapsedSeconds = exportDoc.startedAt
+    ? Math.floor((Date.now() - new Date(exportDoc.startedAt).getTime()) / 1000)
+    : 0;
+
+  const rowsPerSecond =
+    elapsedSeconds > 0 && exportDoc.processedRows > 0
+      ? Math.round(exportDoc.processedRows / elapsedSeconds)
+      : 0;
+
+  const remainingRows = Math.max(
+    0,
+    exportDoc.totalRows - exportDoc.processedRows,
+  );
+
+  const estimatedSecondsRemaining =
+    (exportDoc as any).estimatedSecondsRemaining ||
+    (rowsPerSecond > 0 ? Math.round(remainingRows / rowsPerSecond) : 0);
+
+  return {
+    ...exportDoc,
+    progress,
+    elapsedSeconds,
+    rowsPerSecond,
+    estimatedSecondsRemaining,
+  };
+};
 
 export const exportQueries = {
   async exportProgress(
@@ -48,39 +82,46 @@ export const exportQueries = {
       .limit(3)
       .lean();
 
-    return exports.map((exportDoc) => {
-      const progress =
-        exportDoc.totalRows > 0
-          ? Math.round((exportDoc.processedRows / exportDoc.totalRows) * 100)
-          : 0;
+    return exports.map(mapExportWithMetrics);
+  },
 
-      const elapsedSeconds = exportDoc.startedAt
-        ? Math.floor(
-            (Date.now() - new Date(exportDoc.startedAt).getTime()) / 1000,
-          )
-        : 0;
+  async exportHistories(
+    _root: undefined,
+    args: {
+      entityType?: string;
+      limit?: number;
+      cursor?: string;
+      direction?: 'forward' | 'backward';
+      cursorMode?: string;
+    },
+    { models, subdomain, user }: IContext,
+  ) {
+    const { entityType, ...cursorArgs } = args;
 
-      const rowsPerSecond =
-        elapsedSeconds > 0 && exportDoc.processedRows > 0
-          ? Math.round(exportDoc.processedRows / elapsedSeconds)
-          : 0;
+    const query: any = {
+      subdomain,
+      userId: user._id,
+    };
 
-      const remainingRows = Math.max(
-        0,
-        exportDoc.totalRows - exportDoc.processedRows,
-      );
-      const estimatedSecondsRemaining =
-        (exportDoc as any).estimatedSecondsRemaining ||
-        (rowsPerSecond > 0 ? Math.round(remainingRows / rowsPerSecond) : 0);
+    if (entityType) {
+      query.entityType = entityType;
+    }
 
-      return {
-        ...exportDoc,
-        progress,
-        elapsedSeconds,
-        rowsPerSecond,
-        estimatedSecondsRemaining,
-      };
-    });
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<any>({
+        model: models.Exports as any,
+        params: {
+          ...cursorArgs,
+          orderBy: { createdAt: -1 },
+        },
+        query,
+      });
+
+    return {
+      list: list.map(mapExportWithMetrics),
+      totalCount,
+      pageInfo,
+    };
   },
 
   async exportHeaders(

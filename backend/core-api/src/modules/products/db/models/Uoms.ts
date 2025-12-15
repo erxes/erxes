@@ -1,5 +1,6 @@
 import { IUom, IUomDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { PRODUCT_STATUSES } from '../../constants';
 import { uomSchema } from '../definitions/uoms';
@@ -11,7 +12,11 @@ export interface IUomModel extends Model<IUomDocument> {
   checkUOM(doc: { uom?: string; subUoms?: any[] });
 }
 
-export const loadUomClass = (models: IModels) => {
+export const loadUomClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Uom {
     /**
      * Get Uom
@@ -31,7 +36,13 @@ export const loadUomClass = (models: IModels) => {
      */
     public static async createUom(doc: IUom) {
       await this.checkCodeDuplication(doc.code);
-      return models.Uoms.create(doc);
+      const uom = await models.Uoms.create(doc);
+      sendDbEventLog({
+        action: 'create',
+        docId: uom._id,
+        currentDocument: uom.toObject(),
+      });
+      return uom;
     }
 
     /**
@@ -46,7 +57,16 @@ export const loadUomClass = (models: IModels) => {
 
       await models.Uoms.updateOne({ _id }, { $set: doc });
 
-      return models.Uoms.findOne({ _id });
+      const updatedUom = await models.Uoms.findOne({ _id });
+      if (updatedUom) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUom._id,
+          currentDocument: updatedUom.toObject(),
+          prevDocument: uom.toObject(),
+        });
+      }
+      return updatedUom;
     }
 
     /**
@@ -71,16 +91,32 @@ export const loadUomClass = (models: IModels) => {
       }
 
       if (usedIds.length > 0) {
+        const toUpdate = await models.Uoms.find({ _id: { $in: usedIds } });
         await models.Uoms.updateMany(
           { _id: { $in: usedIds } },
           {
             $set: { status: PRODUCT_STATUSES.DELETED },
           },
         );
+        const updated = await models.Uoms.find({ _id: { $in: usedIds } });
+        sendDbEventLog({
+          action: 'updateMany',
+          docIds: updated.map((d) => d._id),
+          updateDescription: { status: PRODUCT_STATUSES.DELETED },
+        });
         response = 'updated';
       }
 
-      await models.Uoms.deleteMany({ _id: { $in: unUsedIds } });
+      if (unUsedIds.length > 0) {
+        const toDelete = await models.Uoms.find({ _id: { $in: unUsedIds } });
+        await models.Uoms.deleteMany({ _id: { $in: unUsedIds } });
+        if (toDelete.length > 0) {
+          sendDbEventLog({
+            action: 'deleteMany',
+            docIds: toDelete.map((d) => d._id),
+          });
+        }
+      }
 
       return response;
     }
@@ -105,7 +141,14 @@ export const loadUomClass = (models: IModels) => {
         }
       }
 
-      await models.Uoms.insertMany(creatUoms);
+      const inserted = await models.Uoms.insertMany(creatUoms);
+      if (inserted.length > 0) {
+        sendDbEventLog({
+          action: 'create',
+          docId: inserted.map((r) => r._id),
+          currentDocument: inserted.map((r) => r.toObject()),
+        });
+      }
 
       return doc.uom;
     }

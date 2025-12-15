@@ -31,7 +31,7 @@ export const tagMutations = {
       targetIds,
       tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
-    { models, subdomain }: IContext,
+    { models, subdomain, processId, user }: IContext,
   ) {
     const [pluginName, moduleName] = type.split(':');
 
@@ -80,6 +80,10 @@ export const tagMutations = {
       method: 'mutation',
       module: moduleName,
       action: 'tag',
+      context: {
+        processId,
+        userId: user?._id,
+      },
       input: {
         tagIds: tags.map((tag) => tag._id),
         targetIds,

@@ -1,4 +1,33 @@
 import { IContext } from '~/connectionResolvers';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+
+const mapImportWithMetrics = (importDoc: any) => {
+  const progress =
+    importDoc.totalRows > 0
+      ? Math.round((importDoc.processedRows / importDoc.totalRows) * 100)
+      : 0;
+
+  const elapsedSeconds = importDoc.startedAt
+    ? Math.floor((Date.now() - new Date(importDoc.startedAt).getTime()) / 1000)
+    : 0;
+
+  const rowsPerSecond =
+    elapsedSeconds > 0 && importDoc.processedRows > 0
+      ? Math.round(importDoc.processedRows / elapsedSeconds)
+      : 0;
+
+  const remainingRows = importDoc.totalRows - importDoc.processedRows;
+  const estimatedSecondsRemaining =
+    rowsPerSecond > 0 ? Math.round(remainingRows / rowsPerSecond) : 0;
+
+  return {
+    ...importDoc,
+    progress,
+    elapsedSeconds,
+    rowsPerSecond,
+    estimatedSecondsRemaining,
+  };
+};
 
 export const importQueries = {
   async importProgress(
@@ -12,33 +41,7 @@ export const importQueries = {
       throw new Error('Import not found');
     }
 
-    const progress =
-      importDoc.totalRows > 0
-        ? Math.round((importDoc.processedRows / importDoc.totalRows) * 100)
-        : 0;
-
-    const elapsedSeconds = importDoc.startedAt
-      ? Math.floor(
-          (Date.now() - new Date(importDoc.startedAt).getTime()) / 1000,
-        )
-      : 0;
-
-    const rowsPerSecond =
-      elapsedSeconds > 0 && importDoc.processedRows > 0
-        ? Math.round(importDoc.processedRows / elapsedSeconds)
-        : 0;
-
-    const remainingRows = importDoc.totalRows - importDoc.processedRows;
-    const estimatedSecondsRemaining =
-      rowsPerSecond > 0 ? Math.round(remainingRows / rowsPerSecond) : 0;
-
-    return {
-      ...importDoc,
-      progress,
-      elapsedSeconds,
-      rowsPerSecond,
-      estimatedSecondsRemaining,
-    };
+    return mapImportWithMetrics(importDoc);
   },
 
   async activeImports(
@@ -57,34 +60,44 @@ export const importQueries = {
       .limit(3)
       .lean();
 
-    return imports.map((importDoc) => {
-      const progress =
-        importDoc.totalRows > 0
-          ? Math.round((importDoc.processedRows / importDoc.totalRows) * 100)
-          : 0;
+    return imports.map(mapImportWithMetrics);
+  },
 
-      const elapsedSeconds = importDoc.startedAt
-        ? Math.floor(
-            (Date.now() - new Date(importDoc.startedAt).getTime()) / 1000,
-          )
-        : 0;
+  async importHistories(
+    _root: undefined,
+    args: {
+      entityType?: string;
+      limit?: number;
+      cursor?: string;
+      direction?: 'forward' | 'backward';
+      cursorMode?: string;
+    },
+    { models, subdomain, user }: IContext,
+  ) {
+    const { entityType, ...cursorArgs } = args;
 
-      const rowsPerSecond =
-        elapsedSeconds > 0 && importDoc.processedRows > 0
-          ? Math.round(importDoc.processedRows / elapsedSeconds)
-          : 0;
+    const query: any = {
+      subdomain,
+      userId: user._id,
+    };
 
-      const remainingRows = importDoc.totalRows - importDoc.processedRows;
-      const estimatedSecondsRemaining =
-        rowsPerSecond > 0 ? Math.round(remainingRows / rowsPerSecond) : 0;
+    if (entityType) {
+      query.entityType = entityType;
+    }
 
-      return {
-        ...importDoc,
-        progress,
-        elapsedSeconds,
-        rowsPerSecond,
-        estimatedSecondsRemaining,
-      };
+    const { list, totalCount, pageInfo } = await cursorPaginate<any>({
+      model: models.Imports as any,
+      params: {
+        ...cursorArgs,
+        orderBy: { createdAt: -1 },
+      },
+      query,
     });
+
+    return {
+      list: list.map(mapImportWithMetrics),
+      totalCount,
+      pageInfo,
+    };
   },
 };

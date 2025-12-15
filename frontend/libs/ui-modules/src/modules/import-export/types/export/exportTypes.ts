@@ -5,6 +5,7 @@ type TExportProgressStatus =
   | 'completed'
   | 'failed'
   | 'cancelled';
+
 export type TExportProgress = {
   _id: string;
   entityType: string;
@@ -13,7 +14,7 @@ export type TExportProgress = {
   totalRows: number;
   processedRows: number;
   fileFormat: 'csv' | 'xlsx';
-  fileKeys: string[];
+  fileKey?: string;
   filters?: Record<string, any>;
   ids?: string[];
   progress?: number;

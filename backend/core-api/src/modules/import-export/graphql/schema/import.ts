@@ -26,11 +26,24 @@ export const types = `
     createdAt: Date
     updatedAt: Date
   }
+
+  type ImportHistoryList {
+    list: [Import]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
 `;
 
 export const queries = `
   importProgress(importId: String!): Import
   activeImports(entityType: String): [Import]
+  importHistories(
+    entityType: String
+    limit: Int
+    cursor: String
+    direction: CURSOR_DIRECTION
+    cursorMode: CURSOR_MODE
+  ): ImportHistoryList
 `;
 
 export const mutations = `

@@ -7,6 +7,7 @@ import {
   IConfig,
   IConfigDocument,
 } from '~/modules/organization/settings/db/definitions/configs';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
@@ -38,7 +39,11 @@ export const getValueAsString = async (
   return entry.value;
 };
 
-export const loadConfigClass = (models: IModels) => {
+export const loadConfigClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Config {
     /*
      * Get a Config
@@ -57,7 +62,7 @@ export const loadConfigClass = (models: IModels) => {
       const configsMap = {};
       const filter: any = {};
       if (codes?.length) {
-        filter.code = { $in: codes }
+        filter.code = { $in: codes };
       }
       const configs = await models.Configs.find(filter).lean();
 
@@ -92,11 +97,25 @@ export const loadConfigClass = (models: IModels) => {
 
       if (obj) {
         await models.Configs.updateOne({ _id: obj._id }, { $set: { value } });
-
-        return models.Configs.findOne({ _id: obj._id });
+        const updated = await models.Configs.findOne({ _id: obj._id });
+        if (updated) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updated._id,
+            currentDocument: updated.toObject(),
+            prevDocument: obj.toObject(),
+          });
+        }
+        return updated;
       }
 
-      return models.Configs.create({ code, value });
+      const newConfig = await models.Configs.create({ code, value });
+      sendDbEventLog({
+        action: 'create',
+        docId: newConfig._id,
+        currentDocument: newConfig.toObject(),
+      });
+      return newConfig;
     }
 
     public static async getCloudflareConfigs() {

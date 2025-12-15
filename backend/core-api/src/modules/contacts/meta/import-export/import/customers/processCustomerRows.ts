@@ -5,7 +5,6 @@ export async function processCustomerRows(
   rows: any[],
   state: 'lead' | 'customer',
 ): Promise<{ successRows: any[]; errorRows: any[] }> {
-  console.log('processCustomerRows', rows);
   const successRows: any[] = [];
   const errorRows: any[] = [];
 
@@ -41,7 +40,7 @@ export async function processCustomerRows(
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       try {
-        const doc = prepareCustomerDoc(models, row, state);
+        const doc = await prepareCustomerDoc(models, row, state);
 
         const existingDoc =
           (doc.primaryEmail && existingByEmail.get(doc.primaryEmail)) ||
@@ -70,7 +69,6 @@ export async function processCustomerRows(
       }
     }
 
-    console.log('operations', JSON.stringify(operations));
     if (operations.length > 0) {
       const result = await models.Customers.bulkWrite(operations);
 

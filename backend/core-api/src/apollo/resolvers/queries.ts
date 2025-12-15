@@ -27,6 +27,7 @@ import { notificationQueries } from '@/notifications/graphql/resolver/queries';
 import { roleQueries } from '@/permissions/graphql/resolvers/queries/role';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
+import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries';
 
 export const queries = {
   ...contactQueries,
@@ -56,4 +57,5 @@ export const queries = {
   ...importQueries,
   ...exportQueries,
   ...cpUserQueries,
+  ...activityLogQueries,
 };

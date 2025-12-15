@@ -1,4 +1,5 @@
 import { companySchema } from '@/contacts/db/definitions/company';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
   ICompany,
   ICompanyDocument,
@@ -29,7 +30,11 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
   ): Promise<ICompanyDocument>;
 }
 
-export const loadCompanyClass = (models: IModels) => {
+export const loadCompanyClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Company {
     /**
      * Retreive company
@@ -95,6 +100,11 @@ export const loadCompanyClass = (models: IModels) => {
         searchText: this.fillSearchText(doc),
       });
 
+      sendDbEventLog({
+        action: 'create',
+        docId: company._id,
+        currentDocument: company.toObject(),
+      });
       return company;
     }
 
@@ -125,14 +135,30 @@ export const loadCompanyClass = (models: IModels) => {
         { $set: { ...doc, searchText, updatedAt: new Date() } },
       );
 
-      return models.Companies.findOne({ _id });
+      const updatedCompany = await models.Companies.findOne({ _id });
+      if (updatedCompany) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedCompany._id,
+          currentDocument: updatedCompany.toObject(),
+          prevDocument: company.toObject(),
+        });
+      }
+      return updatedCompany;
     }
 
     /**
      * Remove company
      */
     public static async removeCompanies(companyIds: string[]) {
-      return models.Companies.deleteMany({ _id: { $in: companyIds } });
+      const deletedCompanies = await models.Companies.deleteMany({
+        _id: { $in: companyIds },
+      });
+      sendDbEventLog({
+        action: 'deleteMany',
+        docIds: companyIds,
+      });
+      return deletedCompanies;
     }
 
     /**

@@ -5,6 +5,7 @@ type TImportProgressStatus =
   | 'completed'
   | 'failed'
   | 'cancelled';
+
 export type TImportProgress = {
   _id: string;
   entityType: string;
@@ -20,4 +21,7 @@ export type TImportProgress = {
   elapsedSeconds: number;
   rowsPerSecond: number;
   estimatedSecondsRemaining: number;
+  startedAt?: string;
+  completedAt?: string;
+  createdAt?: string;
 };

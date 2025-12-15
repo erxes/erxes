@@ -37,7 +37,7 @@ startPlugin({
       headers: req.headers,
     };
 
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.subdomain = subdomain;
     context.models = models;

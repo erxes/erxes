@@ -35,6 +35,7 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
+import { IMainContext } from '../core-types';
 
 dotenv.config();
 
@@ -72,7 +73,7 @@ type ConfigTypes = {
     context: any,
     req: ApiRequest,
     res: ApiResponse,
-  ) => Promise<void>;
+  ) => Promise<IMainContext>;
   onServerInit?: (app: express.Express) => Promise<void>;
   middlewares?: any;
   apiHandlers?: ApiHandler[];
@@ -259,7 +260,7 @@ export async function startPlugin(
   app.use(
     '/graphql',
     expressMiddleware(apolloServer, {
-      context: generateApolloContext(configs.apolloServerContext),
+      context: generateApolloContext<IMainContext>(configs.apolloServerContext),
     }),
   );
 

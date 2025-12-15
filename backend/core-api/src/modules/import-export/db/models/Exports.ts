@@ -1,5 +1,7 @@
 import { Model } from 'mongoose';
 import { exportSchema } from '../definitions/export';
+import { IModels } from '~/connectionResolvers';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IExportDocument {
   _id: string;
@@ -18,7 +20,7 @@ export interface IExportDocument {
   totalRows: number;
   processedRows: number;
   fileFormat: 'csv' | 'xlsx';
-  fileKeys: string[];
+  fileKey?: string;
   filters?: Record<string, any>;
   ids: string[];
   selectedFields?: string[];
@@ -48,11 +50,40 @@ export interface IExportModel extends Model<IExportDocument> {
     _id: string,
     fileKey: string,
     fileName: string,
-    fileIndex?: number,
   ): Promise<IExportDocument>;
 }
 
-export const loadExportClass = (models: any) => {
+const buildNotificationMessage = (exportDoc: IExportDocument): string => {
+  if (exportDoc.status === 'completed') {
+    const recordsText =
+      exportDoc.totalRows > 0
+        ? ` ${exportDoc.totalRows.toLocaleString()} records exported.`
+        : '';
+    return `Your export "${exportDoc.fileName}" has been completed successfully.${recordsText}`;
+  }
+
+  if (exportDoc.errorMessage) {
+    return `Export "${exportDoc.fileName}" failed: ${exportDoc.errorMessage}`;
+  }
+
+  return `Export "${exportDoc.fileName}" failed. Please try again or contact support if the issue persists.`;
+};
+
+const buildNotificationMetadata = (exportDoc: IExportDocument) => ({
+  exportId: exportDoc._id,
+  fileName: exportDoc.fileName,
+  status: exportDoc.status,
+  processedRows: exportDoc.processedRows,
+  totalRows: exportDoc.totalRows,
+  errorMessage: exportDoc.errorMessage,
+  fileKey: exportDoc.fileKey,
+  fileFormat: exportDoc.fileFormat,
+});
+
+export const loadExportClass = (
+  models: IModels,
+  { sendNotificationMessage }: EventDispatcherReturn,
+) => {
   class Export {
     public static async getExport(_id: string) {
       return models.Exports.findOne({ _id }).lean();
@@ -68,7 +99,7 @@ export const loadExportClass = (models: any) => {
         lastCursor?: string;
       },
     ) {
-      const update: any = {};
+      const update: Record<string, any> = {};
 
       if (progress.processedRows !== undefined) {
         update.processedRows = progress.processedRows;
@@ -88,36 +119,51 @@ export const loadExportClass = (models: any) => {
 
       if (progress.status) {
         update.status = progress.status;
+
         if (progress.status === 'processing' && !update.startedAt) {
           update.startedAt = new Date();
         }
+
         if (progress.status === 'completed' || progress.status === 'failed') {
           update.completedAt = new Date();
         }
       }
 
-      return models.Exports.findOneAndUpdate(
+      const exportDoc = await models.Exports.findOneAndUpdate(
         { _id },
         { $set: update },
         { new: true },
       ).lean();
+
+      if (
+        exportDoc &&
+        (exportDoc.status === 'completed' || exportDoc.status === 'failed')
+      ) {
+        const isCompleted = exportDoc.status === 'completed';
+
+        sendNotificationMessage({
+          userIds: [exportDoc.userId],
+          title: isCompleted ? 'Export completed' : 'Export failed',
+          message: buildNotificationMessage(exportDoc),
+          type: isCompleted ? 'success' : 'error',
+          priority: 'low',
+          kind: 'system',
+          contentType: 'core:import-export.exports',
+          metadata: buildNotificationMetadata(exportDoc),
+        });
+      }
+
+      return exportDoc;
     }
 
     public static async saveExportFile(
       _id: string,
       fileKey: string,
       fileName: string,
-      fileIndex?: number,
     ) {
-      const update: any = {
-        $push: { fileKeys: fileKey },
-      };
-
-      if (fileIndex === 0 || fileIndex === undefined) {
-        update.$set = { fileName };
-      }
-
-      return models.Exports.findOneAndUpdate({ _id }, update, {
+      return models.Exports.findOneAndUpdate({ _id }, {
+        $set: { fileKey, fileName },
+      }, {
         new: true,
       }).lean();
     }

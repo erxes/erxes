@@ -1,5 +1,5 @@
 import { tagSchema } from '@/tags/db/definitions/tags';
-import { removeRelatedTagIds, setRelatedTagIds } from '@/tags/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { ITag, ITagDocument } from 'erxes-api-shared/core-types';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
@@ -11,7 +11,11 @@ export interface ITagModel extends Model<ITagDocument> {
   removeTag(_id: string): Promise<ITagDocument>;
 }
 
-export const loadTagClass = (models: IModels) => {
+export const loadTagClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Tag {
     public static async validate(_id: string | null, doc: ITag) {
       const { name, parentId, isGroup } = doc;
@@ -84,7 +88,12 @@ export const loadTagClass = (models: IModels) => {
         order,
       });
 
-      await setRelatedTagIds(models, tag);
+      await this.setRelatedTagIds(tag);
+      sendDbEventLog({
+        action: 'create',
+        docId: tag._id,
+        currentDocument: tag.toObject(),
+      });
 
       return tag;
     }
@@ -127,7 +136,7 @@ export const loadTagClass = (models: IModels) => {
 
         await models.Tags.bulkWrite(bulkDoc);
 
-        await removeRelatedTagIds(models, tag);
+        await this.removeRelatedTagIds(tag);
       }
 
       const updated = await models.Tags.findOneAndUpdate(
@@ -142,7 +151,7 @@ export const loadTagClass = (models: IModels) => {
       );
 
       if (updated) {
-        await setRelatedTagIds(models, updated);
+        await this.setRelatedTagIds(updated);
       }
 
       return updated;
@@ -160,7 +169,7 @@ export const loadTagClass = (models: IModels) => {
         { $unset: { parentId: 1 } },
       );
 
-      await removeRelatedTagIds(models, tag);
+      await this.removeRelatedTagIds(tag);
 
       return models.Tags.deleteOne({ _id });
     }
@@ -171,6 +180,83 @@ export const loadTagClass = (models: IModels) => {
       const order = tag?.order ? `${tag.order}${name}/` : `${name}/`;
 
       return order;
+    }
+
+    static async setRelatedTagIds(tag: ITagDocument) {
+      if (!tag.parentId) {
+        return;
+      }
+
+      const parentTag = await models.Tags.findOne({ _id: tag.parentId });
+
+      if (!parentTag) {
+        return;
+      }
+
+      const relatedIds: string[] = [tag._id, ...(tag.relatedIds || [])];
+
+      await models.Tags.updateOne(
+        { _id: parentTag._id },
+        {
+          $set: {
+            relatedIds: [
+              ...new Set([...relatedIds, ...(parentTag.relatedIds || [])]),
+            ],
+          },
+        },
+      );
+
+      const updated = await models.Tags.findOne({ _id: tag.parentId });
+
+      if (updated) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updated._id,
+          currentDocument: updated.toObject(),
+          prevDocument: tag.toObject(),
+        });
+        await this.setRelatedTagIds(updated);
+      }
+    }
+
+    static async removeRelatedTagIds(tag: ITagDocument) {
+      const tags = await models.Tags.find({ relatedIds: { $in: tag._id } });
+
+      if (tags.length === 0) {
+        return;
+      }
+
+      const relatedIds: string[] = tag.relatedIds || [];
+
+      relatedIds.push(tag._id);
+
+      const doc: Array<{
+        updateOne: {
+          filter: { _id: string };
+          update: { $set: { relatedIds: string[] } };
+        };
+      }> = [];
+
+      tags.forEach(async (t) => {
+        const ids = (t.relatedIds || []).filter(
+          (id) => !relatedIds.includes(id),
+        );
+
+        doc.push({
+          updateOne: {
+            filter: { _id: t._id },
+            update: { $set: { relatedIds: ids } },
+          },
+        });
+      });
+
+      await models.Tags.bulkWrite(doc);
+
+      sendDbEventLog({
+        action: 'bulkWrite',
+        docIds: tags.map((t) => t._id),
+        updateDescription: doc,
+      });
     }
   }
 

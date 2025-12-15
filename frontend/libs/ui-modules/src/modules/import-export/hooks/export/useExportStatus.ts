@@ -9,25 +9,21 @@ export function useExportStatus(
   exportItem: TExportProgress | undefined,
 ): TUseExportStatusReturn {
   const handleDownload = useCallback(() => {
-    if (!exportItem?.fileKeys?.length) return;
+    if (!exportItem?.fileKey) return;
 
-    exportItem.fileKeys.forEach((fileKey: string, index: number) => {
-      const downloadName =
-        exportItem.fileName ||
-        `export-${exportItem._id}${index > 0 ? `-${index + 1}` : ''}.${
-          exportItem.fileFormat || 'csv'
-        }`;
-      const fileUrl = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
-        fileKey,
-      )}`;
+    const downloadName =
+      exportItem.fileName ||
+      `export-${exportItem._id}.${exportItem.fileFormat || 'csv'}`;
+    const fileUrl = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
+      exportItem.fileKey,
+    )}`;
 
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = downloadName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = downloadName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }, [exportItem]);
 
   return useMemo(() => {
@@ -38,8 +34,7 @@ export function useExportStatus(
     const isFailed = exportItem?.status === 'failed';
     const isCompleted = exportItem?.status === 'completed';
 
-    const canDownload =
-      isCompleted && !!exportItem.fileKeys && exportItem.fileKeys.length > 0;
+    const canDownload = isCompleted && !!exportItem?.fileKey;
 
     const fileName = exportItem?.fileName || 'Export';
     const dateValue =

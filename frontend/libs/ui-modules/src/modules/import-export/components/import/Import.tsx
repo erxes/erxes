@@ -2,6 +2,7 @@ import { IconDownload, IconUpload } from '@tabler/icons-react';
 import { Button, Popover, cn } from 'erxes-ui';
 import { useImportUploadHandler } from '../../hooks/import/useImportUploadHandler';
 import { ImportProgress } from './ImportProgress';
+import { Link } from 'react-router-dom';
 
 export const Import = ({
   title = 'Upload CSV',
@@ -70,6 +71,9 @@ export const Import = ({
               ))}
             </div>
           )}
+          <Button asChild variant="outline" className="w-full">
+            <Link to="/import-export/import">See all imports</Link>
+          </Button>
         </div>
       </Popover.Content>
     </Popover>

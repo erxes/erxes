@@ -1,10 +1,13 @@
 import ExcelJS from 'exceljs';
 import { Readable } from 'stream';
-export function parseCSV(csvContent: string): string[][] {
-  const rows: string[][] = [];
+
+export async function* processCSVFile(
+  fileBuffer: Buffer,
+): AsyncGenerator<string[], void, unknown> {
   let currentRow: string[] = [];
   let currentField = '';
   let insideQuotes = false;
+  const csvContent = fileBuffer.toString('utf-8');
 
   for (let i = 0; i < csvContent.length; i++) {
     const char = csvContent[i];
@@ -24,7 +27,7 @@ export function parseCSV(csvContent: string): string[][] {
       if (char === '\n' || (char === '\r' && nextChar !== '\n')) {
         currentRow.push(currentField.trim());
         if (currentRow.some((field) => field !== '')) {
-          rows.push(currentRow);
+          yield currentRow;
         }
         currentRow = [];
         currentField = '';
@@ -37,21 +40,8 @@ export function parseCSV(csvContent: string): string[][] {
   if (currentField !== '' || currentRow.length > 0) {
     currentRow.push(currentField.trim());
     if (currentRow.some((field) => field !== '')) {
-      rows.push(currentRow);
+      yield currentRow;
     }
-  }
-
-  return rows;
-}
-
-export async function* processCSVFile(
-  fileBuffer: Buffer,
-): AsyncGenerator<string[], void, unknown> {
-  const csvContent = fileBuffer.toString('utf-8');
-  const rows = parseCSV(csvContent);
-
-  for (const row of rows) {
-    yield row;
   }
 }
 

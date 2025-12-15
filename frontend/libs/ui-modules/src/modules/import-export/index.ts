@@ -7,3 +7,6 @@ export * from './hooks/export/useExportProgress';
 export * from './components/epxort/Export';
 export * from './components/epxort/ExportProgress';
 export * from './components/epxort/ExportFieldSelection';
+export * from './components/epxort/ActiveExports';
+export * from './types/export/exportTypes';
+export * from './types/import/importTypes';

@@ -41,11 +41,7 @@ export const exportSchema = schemaWrapper(
         default: 'csv',
         label: 'File Format',
       },
-      fileKeys: {
-        type: [String],
-        default: [],
-        label: 'File Keys',
-      },
+      fileKey: { type: String, label: 'File Key' },
       filters: { type: Schema.Types.Mixed, optional: true, label: 'Filters' },
       ids: { type: [String], default: [], label: 'Selected IDs' },
       selectedFields: {

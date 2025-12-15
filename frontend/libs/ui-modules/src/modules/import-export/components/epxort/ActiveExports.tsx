@@ -3,6 +3,7 @@ import { Button, buttonVariants, Popover, Spinner } from 'erxes-ui';
 import { ExportProgress } from './ExportProgress';
 import { useActiveExports } from '../../hooks/export/useActiveExports';
 import { VariantProps } from 'class-variance-authority';
+import { Link } from 'react-router-dom';
 
 export const ActiveExports = ({ entityType }: { entityType: string }) => {
   const { activeExports, handleRetry, loading } = useActiveExports({
@@ -38,6 +39,9 @@ export const ActiveExports = ({ entityType }: { entityType: string }) => {
           />
         ))}
       </div>
+      <Button asChild variant="outline" className="w-full">
+        <Link to="/import-export/export">See all exports</Link>
+      </Button>
     </div>
   );
 };

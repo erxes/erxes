@@ -16,6 +16,42 @@ import { TExportProgress } from '../../types/export/exportTypes';
 import { Badge } from 'erxes-ui/components/badge';
 import { Button } from 'erxes-ui';
 
+interface ExportFailedNoticeProps {
+  exportItem: TExportProgress;
+  canRetry: boolean;
+  onRetry?: (exportId: string) => void;
+}
+
+function ExportFailedNotice({
+  exportItem,
+  canRetry,
+  onRetry,
+}: ExportFailedNoticeProps) {
+  return (
+    <div className="mt-2">
+      <div className="flex items-start gap-2">
+        <IconX className="size-4 text-destructive mt-0.5 flex-shrink-0" />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-destructive">Export Failed</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {exportItem.errorMessage || 'An error occurred during export'}
+          </p>
+          {canRetry && onRetry && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onRetry(exportItem._id)}
+            >
+              <IconRefresh className="size-4 text-primary" />
+              Retry from last position
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ExportProgress({
   exportItem,
   onRetry,
@@ -79,29 +115,11 @@ export function ExportProgress({
         )}
 
         {isFailed && (
-          <div className="mt-2">
-            <div className="flex items-start gap-2">
-              <IconX className="size-4 text-destructive mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-destructive">
-                  Export Failed
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {exportItem.errorMessage || 'An error occurred during export'}
-                </p>
-                {progress.canRetry && onRetry && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onRetry(exportItem._id)}
-                  >
-                    <IconRefresh className="size-4 text-primary" />
-                    Retry from last position
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
+          <ExportFailedNotice
+            exportItem={exportItem}
+            canRetry={progress.canRetry}
+            onRetry={onRetry}
+          />
         )}
 
         {isCompleted && (

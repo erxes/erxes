@@ -18,6 +18,26 @@ export const types = `
         totalCount: Int
         pageInfo: PageInfo
     }
+
+    type ActivityLogsList {
+        list:[ActivityLog]
+        totalCount: Int
+        pageInfo: PageInfo
+    }
+    type ActivityLog {
+        _id: String
+        createdAt: Date
+        activityType: String
+        actorType: String
+        actor: JSON
+        targetType: String
+        target: JSON
+        action: JSON
+        context: JSON
+        contextType: String
+        changes: JSON
+        metadata: JSON
+    }
 `;
 
 const cursorParams = `
@@ -41,7 +61,15 @@ const commonQueryParams = `
     filters:JSON
 `;
 
+const activityLogQueryParams = `
+    ${cursorParams},
+    targetType: String!
+    targetId: String!
+    action: String
+`;
+
 export const queries = `
+activityLogs(${activityLogQueryParams}):ActivityLogsList
     logsMainList(${commonQueryParams}):MainLogsList
     logDetail(_id:String!):Log
 `;

@@ -1,10 +1,34 @@
 import { IModels } from '~/connectionResolvers';
 
-export function prepareCustomerDoc(
+const generateTagIds = async (models: IModels, tags: string = '') => {
+  const tagNames = tags.split(',');
+
+  const tagIds = await Promise.all(
+    tagNames.map(async (tagName: string) => {
+      const existingTag = await models.Tags.findOne({
+        name: tagName,
+        type: `core:customer`,
+      }).lean();
+
+      if (!existingTag) {
+        const createdTag = await models.Tags.createTag({
+          name: tagName,
+          type: `core:customer`,
+        });
+        return createdTag._id;
+      }
+
+      return existingTag?._id;
+    }),
+  );
+  return tagIds;
+};
+
+export async function prepareCustomerDoc(
   models: IModels,
   row: any,
   state: 'lead' | 'customer',
-): any {
+): Promise<any> {
   const doc: any = { ...row };
   doc.createdAt = new Date();
   doc.updatedAt = new Date();
@@ -18,7 +42,9 @@ export function prepareCustomerDoc(
   if (doc.sex) {
     doc.sex = parseInt(doc.sex);
   }
-
+  if (doc?.tags) {
+    doc.tagIds = await generateTagIds(models, doc?.tags);
+  }
   const pssDoc = models.Customers.calcPSS(doc);
 
   return {

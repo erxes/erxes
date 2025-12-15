@@ -22,7 +22,7 @@ export const START_EXPORT = gql`
       totalRows
       processedRows
       fileFormat
-      fileKeys
+      fileKey
       filters
       ids
       selectedFields

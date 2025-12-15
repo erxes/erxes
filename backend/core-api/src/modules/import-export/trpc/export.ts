@@ -52,7 +52,6 @@ export const exportRouter = t.router({
           exportId: z.string(),
           fileKey: z.string(),
           fileName: z.string(),
-          fileIndex: z.number().optional(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -60,7 +59,6 @@ export const exportRouter = t.router({
           input.exportId,
           input.fileKey,
           input.fileName,
-          input.fileIndex,
         );
       }),
   }),
