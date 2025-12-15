@@ -2,6 +2,8 @@ import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
+import { ReportsView } from '@/report/components/ReportsView';
+import { ReportsBreadcrumbs } from '@/report/components/report-navigations/ReportsBreadcrumbs';
 
 export default function ReportIndexPage() {
   return (
@@ -12,12 +14,13 @@ export default function ReportIndexPage() {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/frontline/report">
+                  <Link to="/frontline/reports">
                     <IconChartHistogram />
                     Reports
                   </Link>
                 </Button>
               </Breadcrumb.Item>
+              <ReportsBreadcrumbs />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
@@ -25,7 +28,7 @@ export default function ReportIndexPage() {
           <></>
         </PageHeader.End>
       </PageHeader>
-      <div>reports</div>
+      <ReportsView />
     </PageContainer>
   );
 }

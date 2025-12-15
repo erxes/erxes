@@ -16,13 +16,18 @@ const Inbox = lazy(() =>
     default: module.default,
   })),
 );
-  
+
 const Ticket = lazy(() =>
   import('~/pages/TicketIndexPage').then((module) => ({
     default: module.default,
   })),
 );
 
+const Report = lazy(() =>
+  import('~/pages/ReportIndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
 const IntegrationsMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -31,6 +36,7 @@ const IntegrationsMain = () => {
         <Route path="/tickets" element={<Ticket />} />
         <Route path="/calls" element={<CallIndexPage />} />
         <Route path="/calls/:id" element={<CallDetailPage />} />
+        <Route path="/reports" element={<Report />} />
       </Routes>
     </Suspense>
   );
