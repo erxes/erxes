@@ -196,7 +196,7 @@ function addTeamContribution(item, requestData: RequestData) {
     for (const item of doc) {
       let amount;
       const type = item.periodGoal;
-      // let requestData: any;
+      
       let requestData = getRequestData(item);
 
       const entityMessageMap = {
@@ -584,7 +584,7 @@ async function getAmount(item, subdomain, requestData) {
   const entityMessageMap = {
     deal: {
     pluginName: 'sales',
-    module: 'deals',
+    module: 'deal',
   },
   task: {
     pluginName: 'tasks',
