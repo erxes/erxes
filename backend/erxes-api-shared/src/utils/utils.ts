@@ -5,7 +5,7 @@ import fetch from 'node-fetch'; // or global fetch in Node 18+
 import { IOrderInput } from '../core-types';
 import { randomAlphanumeric } from './random';
 import { redis } from './redis';
-import { random } from './string';
+import { isValidURL, random } from './string';
 
 export const getEnv = ({
   name,
@@ -416,4 +416,16 @@ export const checkServiceRunning = async (
   } catch (err) {
     return false;
   }
+};
+
+export const readFileUrl = (value: string) => {
+  if (!value || isValidURL(value) || value.includes('/')) {
+    return value;
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+  });
+
+  return `${DOMAIN}/gateway/read-file?key=${value}`;
 };

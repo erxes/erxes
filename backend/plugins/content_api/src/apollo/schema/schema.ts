@@ -1,37 +1,60 @@
 import {
-  types as cmsTypes,
   inputs as cmsInputs,
-  queries as cmsQueries,
   mutations as cmsMutations,
+  queries as cmsQueries,
+  types as cmsTypes,
 } from '@/cms/graphql/schemas/cms';
 
 import {
-  types as postTypes,
   inputs as postInputs,
-  queries as postQueries,
   mutations as postMutations,
+  queries as postQueries,
+  types as postTypes,
 } from '@/cms/graphql/schemas/posts';
 
 import {
-  types as customPostTypeTypes,
   inputs as customPostTypeInputs,
-  queries as customPostTypeQueries,
   mutations as customPostTypeMutations,
+  queries as customPostTypeQueries,
+  types as customPostTypeTypes,
 } from '@/cms/graphql/schemas/customPostType';
 
 import {
-  types as categoryTypes,
   inputs as categoryInputs,
-  queries as categoryQueries,
   mutations as categoryMutations,
+  queries as categoryQueries,
+  types as categoryTypes,
 } from '@/cms/graphql/schemas/category';
 
 import {
-  types as tagTypes,
   inputs as tagInputs,
-  queries as tagQueries,
   mutations as tagMutations,
+  queries as tagQueries,
+  types as tagTypes,
 } from '@/cms/graphql/schemas/tag';
+
+import {
+  inputs as menuInputs,
+  mutations as menuMutations,
+  queries as menuQueries,
+  types as menuTypes,
+} from '@/cms/graphql/schemas/menu';
+
+import {
+  inputs as pageInputs,
+  mutations as pageMutations,
+  queries as pageQueries,
+  types as pageTypes,
+} from '@/cms/graphql/schemas/page';
+
+import {
+  inputs as customFieldGroupInputs,
+  mutations as customFieldGroupMutations,
+  queries as customFieldGroupQueries,
+  types as customFieldGroupTypes,
+} from '@/cms/graphql/schemas/customPostType';
+
+
 
 export const types = `
 
@@ -65,18 +88,23 @@ export const types = `
     ${categoryInputs}
     ${tagTypes}
     ${tagInputs}
-      `;
+    ${menuTypes}
+    ${menuInputs}
+    ${pageTypes}
+    ${pageInputs}
+    ${customFieldGroupTypes}
+    ${customFieldGroupInputs}
+`;
 
 export const queries = `
-   ${cmsQueries}
-
+    ${cmsQueries}
     ${postQueries}
-
     ${customPostTypeQueries}
-
     ${categoryQueries}
-
     ${tagQueries}
+    ${menuQueries}
+    ${pageQueries}
+    ${customFieldGroupQueries}
 
   `;
 
@@ -86,6 +114,9 @@ export const mutations = `
     ${customPostTypeMutations}
     ${categoryMutations}
     ${tagMutations}
+    ${menuMutations}
+    ${pageMutations}
+    ${customFieldGroupMutations}
   `;
 
 export default { types, queries, mutations };
