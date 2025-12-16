@@ -735,6 +735,85 @@ const compareDepartmentIds = (
   return false;
 };
 
+export const generateProducts = async (
+  subdomain: string,
+  productsData?: any[]
+) => {
+  const products: any = [];
+
+  if (!productsData || !productsData.length) {
+    return products;
+  }
+
+  const productIds = productsData
+    .filter(pd => pd.productId)
+    .map(pd => pd.productId);
+
+  const allProducts = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'products',
+    action: "find",
+    input: { query: { _id: { $in: productIds } }, limit: productsData.length },
+    defaultValue: []
+  });
+
+  for (const data of productsData || []) {
+    if (!data.productId) {
+      continue;
+    }
+    const product = allProducts.find(p => p._id === data.productId);
+
+    if (!product) {
+      continue;
+    }
+
+    const { customFieldsData } = product;
+
+    const customFields: any[] = [];
+
+    const fieldIds: string[] = [];
+    for (const customFieldData of customFieldsData || []) {
+      fieldIds.push(customFieldData.field);
+    }
+
+    const fields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: "find",
+      input: {
+        query: {
+          _id: { $in: fieldIds }
+        }
+      },
+      defaultValue: []
+    });
+
+    for (const customFieldData of customFieldsData || []) {
+      const field = fields.find(f => f._id === customFieldData.field);
+
+      if (field) {
+        customFields[customFieldData.field] = {
+          text: field.text,
+          data: customFieldData.value
+        };
+      }
+    }
+
+    product.customFieldsData = customFields;
+
+    products.push({
+      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
+      product
+    });
+  }
+
+  return products;
+};
+
 export const generateAmounts = (productsData, useTick = true) => {
   const amountsMap = {};
 
@@ -1241,7 +1320,7 @@ export const itemsAdd = async (
   models: IModels,
   subdomain: string,
   doc: IDeal & {
-    proccessId: string;
+    processId: string;
     aboveItemId: string;
   },
   type: string,

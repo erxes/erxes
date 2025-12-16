@@ -13,7 +13,7 @@ import {
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { useState, ReactNode } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_WEBSITES } from '../../graphql/queries';
+import { GET_WEBSITES, CONTENT_CMS_LIST } from '../../graphql/queries';
 import { PostDrawer } from '../posts/PostDrawer';
 
 interface CmsLayoutProps {
@@ -51,10 +51,18 @@ export function CmsLayout({
     skip: !websiteId,
     fetchPolicy: 'cache-first',
   });
+
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+  });
+
   const websiteName =
+    cmsData?.contentCMSList?.find((w: any) => w.clientPortalId === websiteId)
+      ?.name ||
     websitesData?.clientPortalGetConfigs?.list?.find(
       (w: any) => w._id === websiteId,
-    )?.name || '';
+    )?.name ||
+    '';
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -83,32 +91,34 @@ export function CmsLayout({
       icon: <IconTag className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/tags` : '/content/cms',
     },
-    {
-      id: 'pages',
-      label: 'Pages',
-      icon: <IconFile className="w-4 h-4" />,
-      href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
-    },
-    {
-      id: 'menus',
-      label: 'Menus',
-      icon: <IconLayoutGrid className="w-4 h-4" />,
-      href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
-    },
-    {
-      id: 'custom-fields',
-      label: 'Custom Fields',
-      icon: <IconLayoutGrid className="w-4 h-4" />,
-      href: websiteId ? `/content/cms/${websiteId}/custom-fields` : '/content/cms',
-    },
-    {
-      id: 'custom-types',
-      label: 'Custom Types',
-      icon: <IconLayout className="w-4 h-4" />,
-      href: websiteId
-        ? `/content/cms/${websiteId}/custom-types`
-        : '/content/cms',
-    },
+    // {
+    //   id: 'pages',
+    //   label: 'Pages',
+    //   icon: <IconFile className="w-4 h-4" />,
+    //   href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
+    // },
+    // {
+    //   id: 'menus',
+    //   label: 'Menus',
+    //   icon: <IconLayoutGrid className="w-4 h-4" />,
+    //   href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
+    // },
+    // {
+    //   id: 'custom-fields',
+    //   label: 'Custom Fields',
+    //   icon: <IconLayoutGrid className="w-4 h-4" />,
+    //   href: websiteId
+    //     ? `/content/cms/${websiteId}/custom-fields`
+    //     : '/content/cms',
+    // },
+    // {
+    //   id: 'custom-types',
+    //   label: 'Custom Types',
+    //   icon: <IconLayout className="w-4 h-4" />,
+    //   href: websiteId
+    //     ? `/content/cms/${websiteId}/custom-types`
+    //     : '/content/cms',
+    // },
   ];
 
   // Determine current active navigation based on URL
@@ -165,7 +175,7 @@ export function CmsLayout({
                         <Breadcrumb.Item>
                           <Button variant="ghost" asChild>
                             <Link to="/content/cms">
-                              {websiteName || websiteId}
+                              {websiteName || 'Website'}
                             </Link>
                           </Button>
                         </Breadcrumb.Item>
