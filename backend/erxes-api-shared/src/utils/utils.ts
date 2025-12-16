@@ -8,6 +8,7 @@ import { redis } from './redis';
 import { random } from './string';
 import { nanoid } from 'nanoid';
 import * as _loadash from 'lodash';
+import { isValidURL, random } from './string';
 
 export const getEnv = ({
   name,
@@ -573,3 +574,14 @@ export function getDiffObjects<TDocument = any>(
     updated: Object.keys(updated).length > 0 ? updated : undefined,
   };
 }
+export const readFileUrl = (value: string) => {
+  if (!value || isValidURL(value) || value.includes('/')) {
+    return value;
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+  });
+
+  return `${DOMAIN}/gateway/read-file?key=${value}`;
+};

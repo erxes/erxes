@@ -19,3 +19,4 @@ export * from './file/read';
 export * from './mongo/cursor-util';
 export * from './string';
 export * from './bulkUtils';
+export * from './editor';

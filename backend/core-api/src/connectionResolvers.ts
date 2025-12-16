@@ -169,6 +169,19 @@ import {
   IExecutionModel,
   loadClass as loadExecutionClass,
 } from './modules/automations/db/models/Executions';
+import {
+  IDeliveryReportModel,
+  IStatsModel,
+  loadStatsClass,
+} from './modules/broadcast/db/models/DeliveryReports';
+import {
+  IEngageMessageModel,
+  loadEngageMessageClass,
+} from './modules/broadcast/db/models/Engages';
+import {
+  ISmsRequestModel,
+  loadSmsRequestClass,
+} from './modules/broadcast/db/models/SmsRequests';
 
 import {
   IFieldModel,
@@ -181,13 +194,12 @@ import {
 } from './modules/properties/db/models/Group';
 
 import {
-  IEmailDeliveryModel,
-  loadEmailDeliveryClass,
-} from './modules/organization/team-member/db/models/EmailDeliveries';
-import {
-  IFieldDocument,
-  IFieldGroupDocument,
-} from './modules/properties/@types';
+  IDeliveryReportsDocument,
+  IEngageMessageDocument,
+  ISmsRequestDocument,
+  IStatsDocument,
+} from './modules/broadcast/@types';
+import { deliveryReportsSchema } from './modules/broadcast/db/definitions/deliveryReports';
 import {
   ICPUserModel,
   loadCPUserClass,
@@ -196,8 +208,16 @@ import {
   IClientPortalModel,
   loadClientPortalClass,
 } from './modules/clientportal/db/models/ClientPortal';
-import { ICPUserDocument } from './modules/clientportal/types/cpUser';
 import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
+import { ICPUserDocument } from './modules/clientportal/types/cpUser';
+import {
+  IEmailDeliveryModel,
+  loadEmailDeliveryClass,
+} from './modules/organization/team-member/db/models/EmailDeliveries';
+import {
+  IFieldDocument,
+  IFieldGroupDocument,
+} from './modules/properties/@types';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -237,12 +257,16 @@ export interface IModels {
   Imports: IImportModel;
   Exports: IExportModel;
   Notifications: Model<INotificationDocument>;
+  EmailDeliveries: IEmailDeliveryModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
-  EmailDeliveries: IEmailDeliveryModel;
   ActivityLogs: Model<IActivityLogDocument>;
+  EngageMessages: IEngageMessageModel;
+  Stats: IStatsModel;
+  SmsRequests: ISmsRequestModel;
+  DeliveryReports: IDeliveryReportModel;
 }
 
 export interface IContext extends IMainContext {
@@ -486,6 +510,7 @@ export const loadClasses = (
     IEmailDeliveryDocument,
     IEmailDeliveryModel
   >('email_deliveries', loadEmailDeliveryClass(models));
+
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
     'automations_ai_agents',
     aiAgentSchema,
@@ -500,6 +525,25 @@ export const loadClasses = (
     IActivityLogDocument,
     Model<IActivityLogDocument>
   >('activity_logs', activityLogsSchema);
+  models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
+    'engage_messages',
+    loadEngageMessageClass(models, subdomain),
+  );
+
+  models.DeliveryReports = db.model<
+    IDeliveryReportsDocument,
+    IDeliveryReportModel
+  >('delivery_reports', deliveryReportsSchema);
+
+  models.Stats = db.model<IStatsDocument, IStatsModel>(
+    'engage_stats',
+    loadStatsClass(models),
+  );
+
+  models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
+    'engage_sms_requests',
+    loadSmsRequestClass(models),
+  );
 
   models.Imports = db.model<IImportDocument, IImportModel>(
     'imports',

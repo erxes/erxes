@@ -17,6 +17,7 @@ import {
   IVisitorContactInfoParams,
 } from '../../@types/customer';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -79,6 +80,16 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     type: string,
     status: string,
   ): Promise<ICustomerDocument[]>;
+
+  updateSubscriptionStatus({
+    _id,
+    customerIds,
+    status,
+  }: {
+    _id?: string;
+    customerIds?: string[];
+    status?: string;
+  }): Promise<ICustomerDocument[]>;
 }
 
 export const loadCustomerClass = (
@@ -652,6 +663,36 @@ export const loadCustomerClass = (
       );
 
       return models.Customers.findOne({ _id });
+    }
+
+    /*
+     * Update customer's subscription status
+     */
+    public static async updateSubscriptionStatus({
+      _id,
+      customerIds,
+      status,
+    }: {
+      _id?: string;
+      customerIds?: string[];
+      status?: string;
+    }) {
+      const update: any = { isSubscribed: 'No' };
+
+      if (status === AWS_EMAIL_STATUSES.BOUNCE) {
+        update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
+      }
+
+      if (_id && status) {
+        return models.Customers.updateOne({ _id }, { $set: update });
+      }
+
+      if (customerIds?.length && !status) {
+        return models.Customers.updateMany(
+          { _id: { $in: customerIds } },
+          { $set: update },
+        );
+      }
     }
 
     public static fixListFields(
