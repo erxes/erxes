@@ -8,16 +8,8 @@ export const CORE_RELATION_TYPES = [
     value: 'core:company',
   },
   {
-    label: 'Leads',
-    value: 'core:lead',
-  },
-  {
     label: 'Products',
     value: 'core:product',
-  },
-  {
-    label: 'Products categories',
-    value: 'core:productCategory',
   },
   {
     label: 'Team members',

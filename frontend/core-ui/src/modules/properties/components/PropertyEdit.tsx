@@ -3,6 +3,8 @@ import { PropertyForm } from './PropertyForm';
 import { useFieldDetail } from '../hooks/useFieldDetail';
 import { useEditProperty } from '../hooks/useEditProperty';
 import { IPropertyForm } from '../types/Properties';
+import { useSetAtom } from 'jotai';
+import { needsToRefreshState } from '../states/needsToRefresh';
 
 export const PropertyEdit = () => {
   const { groupId, id, type } = useParams<{
@@ -13,6 +15,8 @@ export const PropertyEdit = () => {
 
   const { fieldDetail, loading } = useFieldDetail({ id: id || '' });
   const { editProperty, loading: editPropertyLoading } = useEditProperty();
+  const setNeedsToRefresh = useSetAtom(needsToRefreshState);
+
   const navigate = useNavigate();
 
   const handleSubmit = (data: IPropertyForm) => {
@@ -25,6 +29,7 @@ export const PropertyEdit = () => {
       },
       onCompleted: () => {
         navigate(`/settings/properties/${type}`);
+        setNeedsToRefresh(true);
       },
     });
   };

@@ -3,6 +3,8 @@ import { IPropertyForm } from '../types/Properties';
 import { useAddProperty } from '../hooks/useAddProperty';
 import { toast } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router';
+import { useSetAtom } from 'jotai';
+import { needsToRefreshState } from '../states/needsToRefresh';
 
 export const AddProperty = () => {
   const { groupId, type } = useParams<{
@@ -10,6 +12,7 @@ export const AddProperty = () => {
     type: string;
   }>();
   const { addProperty, loading } = useAddProperty();
+  const setNeedsToRefresh = useSetAtom(needsToRefreshState);
   const navigate = useNavigate();
 
   const onSubmit = (data: IPropertyForm) => {
@@ -22,6 +25,7 @@ export const AddProperty = () => {
       onCompleted: () => {
         toast({ title: 'Property added', variant: 'success' });
         navigate(`/settings/properties/${type}`);
+        setNeedsToRefresh(true);
       },
       onError: (error) => {
         toast({

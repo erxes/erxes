@@ -12,14 +12,25 @@ import { Link, useParams } from 'react-router';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { useFieldRemove } from '../hooks/useFieldRemove';
 import { IField } from 'ui-modules';
-import { CORE_RELATION_TYPES } from '../constants/coreRelationTypes';
+import { CORE_RELATION_TYPES } from '../../../../../libs/ui-modules/src/modules/properties/constants/coreRelationTypes';
+import { useAtom } from 'jotai';
+import { needsToRefreshState } from '../states/needsToRefresh';
+import { useEffect } from 'react';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
   const { type } = useParams<{ type: string }>();
-  const { fields, loading } = useFields({
+  const [needsToRefresh, setNeedsToRefresh] = useAtom(needsToRefreshState);
+  const { fields, loading, refetch } = useFields({
     groupId,
     contentType: type || '',
   });
+
+  useEffect(() => {
+    if (needsToRefresh) {
+      refetch();
+      setNeedsToRefresh(false);
+    }
+  }, [needsToRefresh, refetch]);
 
   if (loading)
     return (

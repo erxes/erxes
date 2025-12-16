@@ -2,7 +2,7 @@ export type IField = {
   _id: string;
   name: string;
   code: string;
-  options?: Array<{ label: string; value: string | number }>;
+  options?: Array<{ label: string; value: string }>;
   type?: string;
   group?: string;
   logics?: Record<string, any>;

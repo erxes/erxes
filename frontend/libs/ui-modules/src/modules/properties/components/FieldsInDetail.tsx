@@ -8,6 +8,7 @@ export const FieldsInDetail = ({
   fieldContentType,
   customFieldsData,
   mutateHook,
+  id,
 }: {
   fieldContentType: string;
   customFieldsData: Record<string, unknown>;
@@ -15,13 +16,14 @@ export const FieldsInDetail = ({
     mutate: mutateFunction;
     loading: boolean;
   };
+  id: string;
 }) => {
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
     contentType: fieldContentType,
   });
 
   if (fieldGroupsLoading) {
-    return <Spinner />;
+    return <Spinner containerClassName="py-6" />;
   }
 
   return (
@@ -37,6 +39,7 @@ export const FieldsInDetail = ({
           <Collapsible.Content className="pt-4">
             <FieldsInGroup
               group={group}
+              id={id}
               contentType={fieldContentType}
               customFieldsData={customFieldsData}
               mutateHook={mutateHook}
@@ -53,8 +56,11 @@ export const FieldsInGroup = ({
   contentType,
   customFieldsData,
   mutateHook,
+  id,
 }: {
   group: IFieldGroup;
+  id: string;
+  inCell?: boolean;
   contentType: string;
   customFieldsData: Record<string, unknown>;
   mutateHook: () => {
@@ -65,7 +71,7 @@ export const FieldsInGroup = ({
   const { fields, loading } = useFields({ groupId: group._id, contentType });
 
   if (loading) {
-    return <Spinner className="py-6" />;
+    return <Spinner containerClassName="py-6" />;
   }
 
   return (
@@ -76,7 +82,7 @@ export const FieldsInGroup = ({
           field={field}
           value={customFieldsData[field._id] as string}
           customFieldsData={customFieldsData}
-          id={field._id}
+          id={id}
           mutateHook={mutateHook}
         />
       ))}

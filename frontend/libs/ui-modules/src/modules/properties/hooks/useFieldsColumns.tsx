@@ -28,7 +28,7 @@ export const useFieldsColumns = ({
       return (
         <Field
           field={field}
-          value={row.original.customFieldsData?.[field._id] as string}
+          value={row.original.customFieldsData?.[field._id]}
           customFieldsData={row.original.customFieldsData}
           id={row.original._id}
           mutateHook={mutateHook}

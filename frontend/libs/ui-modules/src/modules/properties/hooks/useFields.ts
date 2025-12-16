@@ -10,7 +10,7 @@ export const useFields = ({
   groupId?: string;
   contentType: string;
 }) => {
-  const { data, loading } = useQuery<ICursorListResponse<IField>>(
+  const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
     FIELDS_QUERY,
     {
       variables: {
@@ -45,5 +45,6 @@ export const useFields = ({
   return {
     fields: fields,
     loading,
+    refetch,
   };
 };

@@ -1,7 +1,7 @@
 import { Form, Select } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { IPropertyForm } from '../types/Properties';
-import { CORE_RELATION_TYPES } from '../constants/coreRelationTypes';
+import { CORE_RELATION_TYPES } from 'ui-modules';
 
 export const PropertySelectRelationType = ({
   form,

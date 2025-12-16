@@ -9,7 +9,7 @@ export const PropertyFormMultiple = ({
 }) => {
   const type = form.watch('type');
 
-  if (!type || ['number', 'boolean', 'date'].includes(type)) {
+  if (!type || ['number', 'boolean'].includes(type)) {
     return null;
   }
 

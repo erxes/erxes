@@ -25,6 +25,7 @@ export const CustomerDetail = () => {
         fieldContentType="core:customer"
         customFieldsData={customerDetail?.customFieldsData || {}}
         mutateHook={useCustomerCustomFieldEdit}
+        id={customerDetail?._id || ''}
       />
     </ContactsDetailLayout>
   );
