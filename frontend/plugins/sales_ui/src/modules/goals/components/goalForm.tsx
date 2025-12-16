@@ -44,33 +44,30 @@ const SelectProduct: any = SelectProductRaw as any;
 const SelectSegment: any = SelectSegmentRaw as any;
 
 const generateSecureId = (): string => {
-  try {
-  
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      return crypto.randomUUID();
-    }
-    
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-      
-      const array = new Uint32Array(4);
-      crypto.getRandomValues(array);
-      
-      let hex = '';
-      for (let i = 0; i < array.length; i++) {
-        hex += array[i].toString(16).padStart(8, '0');
-      }
-      
-      return `temp_${hex}_${Date.now().toString(36)}`;
-    }
-    
-    console.warn('Secure crypto API not available, using fallback ID generation for local state only');
-    return `temp_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-  } catch (error) {
-    
-    console.error('Error generating secure ID:', error);
-    return `temp_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
   }
+
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint32Array(4);
+    crypto.getRandomValues(array);
+    
+    let hex = '';
+    for (let i = 0; i < array.length; i++) {
+      hex += array[i].toString(16).padStart(8, '0');
+    }
+    
+    return `temp_${hex}`;
+  }
+
+  if (typeof performance !== 'undefined' && performance.now) {
+    return `temp_${Date.now()}_${performance.now()}`;
+  }
+
+  return `temp_${Date.now()}`;
 };
+
 
 type Props = {
   renderButton: (props: any) => JSX.Element;
@@ -408,7 +405,6 @@ const GoalForm: React.FC<Props> = ({
         });
       }
 
-      // ✅ Reset & close after successful mutation
       reset();
       closeModal();
     } catch (error: any) {

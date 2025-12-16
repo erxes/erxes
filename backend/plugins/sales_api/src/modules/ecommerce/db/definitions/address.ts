@@ -1,5 +1,5 @@
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
-import { Document, Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 
 
 const CoordinateSchema = new Schema(
