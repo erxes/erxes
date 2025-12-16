@@ -5,7 +5,6 @@ import fetch from 'node-fetch'; // or global fetch in Node 18+
 import { IOrderInput } from '../core-types';
 import { randomAlphanumeric } from './random';
 import { redis } from './redis';
-import { random } from './string';
 import { nanoid } from 'nanoid';
 import * as _loadash from 'lodash';
 import { isValidURL, random } from './string';
