@@ -16,7 +16,6 @@ export const getGoalsData = async (
 
     const query: any = { ...filter, subdomain };
 
-
     const goals = await models.Goals.find(query)
       .skip(skip)
       .limit(perPage)
@@ -26,18 +25,20 @@ export const getGoalsData = async (
     const goalsWithProgress = await Promise.all(
       goals.map(async (goal) => {
         try {
-
           const progressData = await models.Goals.progressIdsGoals(
             { _id: goal._id },
             { page: 1, perPage: 1 }
           );
-          
+
           return {
             ...goal,
             progress: progressData[0] || null
           };
         } catch (error) {
-          console.error(`Error calculating progress for goal ${goal._id}:`, error);
+          console.error('Error calculating progress for goal', {
+            goalId: goal._id,
+            error
+          });
           return { ...goal, progress: null };
         }
       })
@@ -89,7 +90,10 @@ export const getGoalDetailData = async (
       }
     };
   } catch (error) {
-    console.error(`Error fetching goal detail ${goalId}:`, error);
+    console.error('Error fetching goal detail', {
+      goalId,
+      error
+    });
     throw error;
   }
 };
@@ -100,12 +104,22 @@ export const createGoalData = async (
   goalData: any
 ) => {
   try {
+    const requiredFields = [
+      'name',
+      'entity',
+      'contributionType',
+      'metric',
+      'startDate',
+      'endDate'
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !goalData[field]
+    );
 
-    const requiredFields = ['name', 'entity', 'contributionType', 'metric', 'startDate', 'endDate'];
-    const missingFields = requiredFields.filter(field => !goalData[field]);
-    
     if (missingFields.length > 0) {
-      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      throw new Error(
+        `Missing required fields: ${missingFields.join(', ')}`
+      );
     }
 
     const goalToCreate = {
@@ -142,10 +156,8 @@ export const updateGoalData = async (
       throw new Error('Goal not found');
     }
 
-
     Object.assign(goal, updateData);
     await goal.save();
-
 
     await models.Goals.progressIdsGoals(
       { _id: goalId },
@@ -162,7 +174,10 @@ export const updateGoalData = async (
       data: updatedGoal
     };
   } catch (error) {
-    console.error('Error updating goal %s:', goalId, error);
+    console.error('Error updating goal', {
+      goalId,
+      error
+    });
     throw error;
   }
 };
@@ -250,23 +265,18 @@ export const goalsInit = async (req, res) => {
 
     const filter: any = {};
 
-    // Array-based filters
     addArrayFilter(filter, 'branch', branch);
     addArrayFilter(filter, 'department', department);
     addArrayFilter(filter, 'unit', unit);
     addArrayFilter(filter, 'contribution', contribution);
 
-    // Simple equality filters
     if (entity) filter.entity = entity;
     if (metric) filter.metric = metric;
     if (periodGoal) filter.periodGoal = periodGoal;
     if (teamGoalType) filter.teamGoalType = teamGoalType;
     if (contributionType) filter.contributionType = contributionType;
 
-    // Date range filter
     addDateFilter(filter, date as string, endDate as string);
-
-    // Search filter
     addSearchFilter(filter, searchValue as string);
 
     const result = await getGoalsData(subdomain, models, filter, {
@@ -311,7 +321,6 @@ const addSearchFilter = (filter: any, searchValue?: string) => {
   const safe = _.escapeRegExp(searchValue);
   filter.name = { $regex: new RegExp(safe, 'i') };
 };
-
 
 export const goalDetail = async (req, res) => {
   try {
@@ -433,7 +442,6 @@ export const goalsProgress = async (req, res) => {
     });
   }
 };
-
 
 export const goalsSyncProgress = async (req, res) => {
   try {
