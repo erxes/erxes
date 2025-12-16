@@ -1,27 +1,11 @@
 import { RecordTable } from 'erxes-ui';
-import { format } from 'date-fns';
 import { ByDateColumns } from '@/put-response/put-responses-by-date/components/ByDateColumn';
-import { ByDateCommandBar } from '@/put-response/put-responses-by-date/components/by-date-command-bar/ByDateCommandBar';
 import { useByDate } from '@/put-response/put-responses-by-date/hooks/useByDate';
 import { BY_DATE_CURSOR_SESSION_KEY } from '@/put-response/put-responses-by-date/constants/ByDateCursorSessionKey';
+import { IconShoppingCartX } from '@tabler/icons-react';
 
 export const ByDateRecordTable = () => {
-  const now = new Date();
-  const firstDay = format(
-    new Date(now.getFullYear(), now.getMonth(), 1),
-    'yyyy-MM-dd',
-  );
-  const lastDay = format(
-    new Date(now.getFullYear(), now.getMonth() + 1, 0),
-    'yyyy-MM-dd',
-  );
-
-  const { byDate, handleFetchMore, loading, pageInfo } = useByDate({
-    variables: {
-      createdStartDate: firstDay,
-      createdEndDate: lastDay,
-    },
-  });
+  const { byDate, handleFetchMore, loading, pageInfo } = useByDate();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -51,8 +35,22 @@ export const ByDateRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
+        {!loading && byDate?.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="mb-6">
+                <IconShoppingCartX size={48} className="text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                No by date
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating your first by date.
+              </p>
+            </div>
+          </div>
+        )}
       </RecordTable.CursorProvider>
-      <ByDateCommandBar />
     </RecordTable.Provider>
   );
 };
