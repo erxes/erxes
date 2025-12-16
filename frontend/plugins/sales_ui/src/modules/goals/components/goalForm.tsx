@@ -64,7 +64,7 @@ const generateSecureId = (): string => {
     }
     
     console.warn('Secure crypto API not available, using fallback ID generation for local state only');
-    return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `temp_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   } catch (error) {
     
     console.error('Error generating secure ID:', error);
