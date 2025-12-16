@@ -1,7 +1,9 @@
 import { FrontlineReport } from './FrontlineReport';
 import { InfoCard } from 'erxes-ui';
+import { useGetChart } from '@/report/hooks/useGetChart';
 
 export const FrontlineReportsList = () => {
+  const { chartData, loading } = useGetChart();
   return (
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
       <div className="grid grid-cols-4 gap-4">
