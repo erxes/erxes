@@ -2,43 +2,125 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
+  isUndefinedOrNull,
+  parseDateRangeFromString,
+  useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
-import { byDateQueries } from '@/put-response/put-responses-by-date/graphql/ByDateQueries';
-import { IByDate } from '@/put-response/put-responses-by-date/types/ByDateType';
+import { byDateQueries } from '~/modules/put-response/put-responses-by-date/graphql/queries/ByDateQueries';
+import { IPutResponse } from '@/put-response/types/PutResponseType';
 import { BY_DATE_CURSOR_SESSION_KEY } from '@/put-response/put-responses-by-date/constants/ByDateCursorSessionKey';
+import { useSetAtom } from 'jotai';
+import { byDateTotalCountAtom } from '@/put-response/put-responses-by-date/states/ByDateCounts';
 
 export const BY_DATE_PER_PAGE = 30;
 
 interface IByDateResponse {
-  putResponsesByDate: IByDate[];
+  putResponsesByDate: IPutResponse[];
 }
 
-export const useByDate = (options?: QueryHookOptions) => {
+export const useByDateVariables = (
+  variables?: QueryHookOptions<IByDateResponse>['variables'],
+) => {
+  const [
+    {
+      billId,
+      contentType,
+      dealName,
+      boardId,
+      pipelineId,
+      stageId,
+      orderNumber,
+      contractNumber,
+      transactionNumber,
+      status,
+      billType,
+      billIdRule,
+      isLast,
+      dateRange,
+    },
+  ] = useMultiQueryState<{
+    billId: string;
+    contentType: string;
+    dealName: string;
+    boardId: string;
+    pipelineId: string;
+    stageId: string;
+    orderNumber: string;
+    contractNumber: string;
+    transactionNumber: string;
+    status: string;
+    billType: string;
+    billIdRule: string;
+    isLast: string;
+    dateRange: string;
+  }>([
+    'billId',
+    'contentType',
+    'dealName',
+    'boardId',
+    'pipelineId',
+    'stageId',
+    'orderNumber',
+    'contractNumber',
+    'transactionNumber',
+    'status',
+    'billType',
+    'billIdRule',
+    'isLast',
+    'dateRange',
+  ]);
+
   const { cursor } = useRecordTableCursor({
     sessionKey: BY_DATE_CURSOR_SESSION_KEY,
   });
 
+  const result = {
+    limit: BY_DATE_PER_PAGE,
+    cursor,
+    createdStartDate: parseDateRangeFromString(dateRange)?.from,
+    createdEndDate: parseDateRangeFromString(dateRange)?.to,
+    search: Array.isArray(billId) ? billId[0] : billId,
+    contentType: contentType && contentType !== 'all' ? contentType : undefined,
+    boardId: boardId || undefined,
+    pipelineId: pipelineId || undefined,
+    stageId: stageId || undefined,
+    dealName: dealName || undefined,
+    orderNumber: orderNumber || undefined,
+    contractNumber: contractNumber || undefined,
+    transactionNumber: transactionNumber || undefined,
+    success: status && status !== 'all' ? status : undefined,
+    billType: billType || undefined,
+    billIdRule: billIdRule || undefined,
+    isLast: isLast || undefined,
+    ...variables,
+  };
+
+  return result;
+};
+
+export const useByDate = (options?: QueryHookOptions) => {
+  const setPutResponseByDateTotalCount = useSetAtom(byDateTotalCountAtom);
+  const variables = useByDateVariables(options?.variables);
   const { data, loading, fetchMore } = useQuery<IByDateResponse>(
     byDateQueries.putResponsesByDate,
     {
       ...options,
+      skip: options?.skip || isUndefinedOrNull(variables.cursor),
       variables: {
-        limit: BY_DATE_PER_PAGE,
-        cursor,
-        ...options?.variables,
+        ...variables,
       },
     },
   );
 
   const { byDate, pageInfo } = useMemo(() => {
-    const responseData = data?.putResponsesByDate || [];
+    const responseData = data?.putResponsesByDate;
 
     return {
-      byDate: Array.isArray(responseData) ? responseData : [],
+      byDate: responseData || [],
       pageInfo: {
         hasNextPage: false,
         hasPreviousPage: false,
@@ -48,14 +130,23 @@ export const useByDate = (options?: QueryHookOptions) => {
     };
   }, [data]);
 
+  const totalCount = useMemo(() => {
+    return data?.putResponsesByDate?.length || 0;
+  }, [data]);
+  useEffect(() => {
+    setPutResponseByDateTotalCount(totalCount ?? 0);
+  }, [totalCount, setPutResponseByDateTotalCount]);
   const handleFetchMore = ({
     direction,
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (!pageInfo) return;
-
-    if (!validateFetchMore({ direction, pageInfo })) {
+    if (
+      !validateFetchMore({
+        direction,
+        pageInfo,
+      })
+    ) {
       return;
     }
 
@@ -67,23 +158,23 @@ export const useByDate = (options?: QueryHookOptions) => {
             : pageInfo?.startCursor,
         limit: BY_DATE_PER_PAGE,
         direction,
-        ...options?.variables,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
 
-        const newItems = Array.isArray(fetchMoreResult.putResponsesByDate)
+        const prevData = Array.isArray(prev.putResponsesByDate)
+          ? prev.putResponsesByDate
+          : [];
+        const newData = Array.isArray(fetchMoreResult.putResponsesByDate)
           ? fetchMoreResult.putResponsesByDate
           : [];
 
         return {
           ...prev,
-          putResponsesByDate: [
-            ...(Array.isArray(prev.putResponsesByDate)
-              ? prev.putResponsesByDate
-              : []),
-            ...newItems,
-          ],
+          putResponsesByDate:
+            direction === EnumCursorDirection.FORWARD
+              ? [...prevData, ...newData]
+              : [...newData, ...prevData],
         };
       },
     });
@@ -92,7 +183,7 @@ export const useByDate = (options?: QueryHookOptions) => {
   return {
     loading,
     byDate,
-    totalCount: byDate.length,
+    totalCount,
     handleFetchMore,
     pageInfo,
   };

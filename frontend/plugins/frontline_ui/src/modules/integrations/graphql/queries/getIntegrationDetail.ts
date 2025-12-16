@@ -11,7 +11,6 @@ export const GET_INTEGRATION_DETAIL = gql`
       tagIds
       createdAt
       leadData
-      ticketConfig
       messengerData
       uiOptions
       isConnected
