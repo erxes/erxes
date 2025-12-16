@@ -71,7 +71,6 @@ export const generateCustomerSelector = async (
   if (brandIds.length > 0) {
     const integrations = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'frontline',
       method: 'query',
       module: 'integrations',

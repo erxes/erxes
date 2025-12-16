@@ -6,6 +6,7 @@ import {
   createTransporter,
   getEditorAttributeUtil,
   send,
+  sendEngageEmail,
   updateConfigs,
 } from '@/broadcast/utils';
 import { IContext } from '~/connectionResolvers';
@@ -246,7 +247,7 @@ export const engageMutations = {
   async engageSendMail(
     _root: undefined,
     args: any,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const { body, customerId, ...doc } = args;
 
@@ -259,29 +260,21 @@ export const engageMutations = {
     doc.body = body || '';
 
     try {
-      // TODO: uncomment
-      //   await sendTRPCMessage({
-      //     subdomain,
-      //     pluginName: 'core',
-      //     method: 'mutation',
-      //     module: 'emails',
-      //     action: 'sendEmail',
-      //     input: {
-      //       fromEmail: doc.from || '',
-      //       email: {
-      //         content: doc.body,
-      //         subject: doc.subject,
-      //         attachments: doc.attachments,
-      //         sender: doc.from || '',
-      //         cc: doc.cc || [],
-      //         bcc: doc.bcc || [],
-      //       },
-      //       customers: [customer],
-      //       customer,
-      //       createdBy: user._id,
-      //       title: doc.subject,
-      //     },
-      //   });
+      await sendEngageEmail(subdomain, models, {
+        fromEmail: doc.from || '',
+        email: {
+          content: doc.body,
+          subject: doc.subject,
+          attachments: doc.attachments,
+          sender: doc.from || '',
+          cc: doc.cc || [],
+          bcc: doc.bcc || [],
+        },
+        customers: [customer],
+        customer,
+        createdBy: user._id,
+        title: doc.subject,
+      });
     } catch (e) {
       console.log(e);
       throw e;

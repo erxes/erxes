@@ -12,6 +12,8 @@ import {
   SES_DELIVERY_STATUSES,
 } from '@/broadcast/constants';
 import { getApi } from '@/broadcast/trackers';
+import { ISESConfig } from '@/organization/settings/db/definitions/configs';
+import { getValueAsString } from '@/organization/settings/db/models/Configs';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
 import {
   EditorAttributeUtil,
@@ -21,9 +23,8 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ISESConfig } from '@/organization/settings/db/definitions/configs';
+import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
 import { generateCustomerSelector } from './engage';
-import { getValueAsString } from '@/organization/settings/db/models/Configs';
 
 export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
@@ -239,13 +240,8 @@ export const cleanIgnoredCustomers = async (
   }
 
   if (ignoredCustomerIds.length > 0) {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'customers',
-      action: 'setUnsubscribed',
-      input: { customerIds: ignoredCustomerIds },
+    await models.Customers.updateSubscriptionStatus({
+      customerIds: ignoredCustomerIds,
     });
 
     return {
@@ -345,6 +341,7 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
 
 export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getPlugins();
+
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   const editor: any = await new EditorAttributeUtil(
@@ -626,9 +623,150 @@ export const send = async (
   }
 };
 
+export const prepareEngageCustomers = async (
+  { Customers }: IModels,
+  subdomain: string,
+  { engageMessage, customersSelector, action, user },
+): Promise<any> => {
+  const customerInfos: Array<{
+    _id: string;
+    primaryEmail?: string;
+    emailValidationStatus?: string;
+    phoneValidationStatus?: string;
+    primaryPhone?: string;
+    replacers: Array<{ key: string; value: string }>;
+  }> = [];
+
+  const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
+  const emailContent = emailConf.content || '';
+
+  const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent,
+  );
+
+  const exists = { $exists: true, $nin: [null, '', undefined] };
+
+  // Ensure email & phone are valid based on the engage message method
+  if (engageMessage.method === 'email') {
+    customersSelector.primaryEmail = exists;
+    customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
+  }
+  if (engageMessage.method === 'sms') {
+    customersSelector.primaryPhone = exists;
+    customersSelector.phoneValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
+  }
+
+  const customersItemsMapping = JSON.parse('{}');
+
+  // Define fields to include in customer queries
+  const fieldsOption = {
+    primaryEmail: 1,
+    emailValidationStatus: 1,
+    phoneValidationStatus: 1,
+    primaryPhone: 1,
+  };
+
+  for (const field of customerFields || []) {
+    fieldsOption[field] = 1;
+  }
+
+  const customersStream = (
+    Customers.find(customersSelector, fieldsOption) as any
+  ).cursor();
+  const batchSize = 1000;
+  let batch: Array<ICustomerDocument> = [];
+
+  // Function to process each batch of customers
+  const processCustomerBatch = async (batch: Array<ICustomerDocument>) => {
+    const chunkCustomerInfos: Array<any> = [];
+
+    for (const customer of batch) {
+      const itemsMapping = customersItemsMapping[customer._id] || [null];
+
+      for (const item of itemsMapping) {
+        const replacers = await editorAttributeUtil.generateReplacers({
+          content: emailContent,
+          customer,
+          item,
+          customerFields,
+        });
+
+        chunkCustomerInfos.push({
+          _id: customer._id,
+          primaryEmail: customer.primaryEmail,
+          emailValidationStatus: customer.emailValidationStatus,
+          phoneValidationStatus: customer.phoneValidationStatus,
+          primaryPhone: customer.primaryPhone,
+          replacers,
+        });
+      }
+    }
+
+    customerInfos.push(...chunkCustomerInfos);
+
+    // Send the engage message for each batch
+    const data: any = {
+      ...engageMessage,
+      customers: chunkCustomerInfos,
+      fromEmail: user.email,
+      engageMessageId: engageMessage._id,
+    };
+
+    if (engageMessage.method === 'email' && engageMessage.email) {
+      const replacedContent = await editorAttributeUtil.replaceAttributes({
+        customerFields,
+        content: emailContent,
+        user,
+      });
+
+      engageMessage.email.content = replacedContent;
+      data.email = engageMessage.email;
+    }
+
+    // TODO: uncomment
+    // await sendEngagesMessage({
+    //   subdomain,
+    //   action: "notification",
+    //   data: { action, data },
+    // });
+  };
+
+  // Final steps to perform after all customers are processed
+  const onFinishPiping = async () => {
+    // TODO: uncomment
+    // await sendEngagesMessage({
+    //   subdomain,
+    //   action: "pre-notification",
+    //   data: { engageMessage, customerInfos },
+    // });
+    // You can perform any final actions here after processing all batches
+  };
+
+  // Stream processing using async iterator
+  for await (const customer of customersStream) {
+    batch.push(customer);
+
+    if (batch.length >= batchSize) {
+      await processCustomerBatch(batch);
+      batch = []; // Reset the batch after processing
+    }
+  }
+
+  // Process any remaining customers in the last batch
+  if (batch.length > 0) {
+    await processCustomerBatch(batch);
+  }
+
+  // Final actions after all data is processed
+  await onFinishPiping();
+
+  return { status: 'done', customerInfos };
+};
+
 const sendEmailOrSms = async (
   models: IModels,
-  subdomain,
+  subdomain: string,
   { engageMessage, customersSelector, user }: IEngageParams,
   action: 'sendEngage' | 'sendEngageSms',
 ) => {
@@ -645,24 +783,19 @@ const sendEmailOrSms = async (
     // );
   }
 
-  // customer info will be prepared at contacts api
-  sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'customers',
-    action: 'prepareEngageCustomers',
-    input: {
-      engageMessage,
-      customersSelector,
-      action,
-      user,
-    },
+  prepareEngageCustomers(models, subdomain, {
+    engageMessage,
+    customersSelector,
+    action,
+    user,
   });
 };
 
-const sendCampaignNotification = async (models, subdomain, doc) => {
+const sendCampaignNotification = async (
+  models: IModels,
+  subdomain: string,
+  doc: any,
+) => {
   const { groupId } = doc;
   try {
     // TODO: uncomment
@@ -679,13 +812,13 @@ const sendCampaignNotification = async (models, subdomain, doc) => {
     //   );
     // });
   } catch (e) {
-    await models.Logs.createLog(groupId, 'failure', e.message);
+    // await models.Logs.createLog(groupId, 'failure', e.message);
   }
 };
 
 const sendNotifications = async (
   models: IModels,
-  subdomain,
+  subdomain: string,
   { engageMessage, customersSelector, user }: IEngageParams,
 ) => {
   const { notification, cpId } = engageMessage;

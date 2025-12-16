@@ -1,9 +1,9 @@
 import AWS from 'aws-sdk';
 
+import { getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { ISESConfig } from '~/modules/organization/settings/db/definitions/configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
-import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
@@ -33,8 +33,6 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   } catch (e) {
     parsedMessage = message;
   }
-
-  console.log('parsedMessage', parsedMessage);
 
   const { eventType, mail } = parsedMessage;
 
@@ -85,17 +83,9 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     type === SES_DELIVERY_STATUSES.REJECT;
 
   if (rejected) {
-    sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'customers',
-      action: 'setUnsubscribed',
-      input: {
-        _id: mailHeaders.customerId,
-        status: type,
-      },
+    models.Customers.updateSubscriptionStatus({
+      _id: mailHeaders.customerId,
+      status: type,
     });
   }
 
