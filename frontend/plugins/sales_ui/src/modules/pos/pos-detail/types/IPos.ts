@@ -1,5 +1,11 @@
 import { IUser } from '@/pos/types/pos';
-import { ProductGroup } from '~/modules/pos/create-pos/types';
+
+export interface ProductGroup {
+  _id: string;
+  categoryIds?: string[];
+  excludedCategoryIds?: string[];
+  excludedProductIds?: string[];
+}
 
 export interface IScreenConfig {
   isActive: boolean;

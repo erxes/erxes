@@ -59,8 +59,8 @@ export const useSlotManager = (
     nodes: hookNodes,
     setNodes: setHookNodes,
     loading: slotsLoading,
+    saving: slotsSaving,
     error: slotsError,
-    addSlot: hookAddSlot,
     saveSlots: hookSaveSlots,
     deleteSlot: hookDeleteSlot,
     hasSlots,
@@ -97,6 +97,12 @@ export const useSlotManager = (
       setNodes(hookNodes.map(clampPositionForNode));
     }
   }, [hookNodes, setNodes, clampPositionForNode]);
+
+  useEffect(() => {
+    if (!slotsLoading && hookNodes.length === 0 && nodes.length > 0) {
+      setHookNodes(nodes);
+    }
+  }, [slotsLoading, hookNodes.length, nodes, setHookNodes]);
 
   useEffect(() => {
     if (slotsError) {
@@ -195,6 +201,107 @@ export const useSlotManager = (
     ],
   );
 
+  const updateNodeDimensions = useCallback(
+    (
+      nodeId: string,
+      dimensions: {
+        width?: number;
+        height?: number;
+        position?: { x: number; y: number };
+      },
+    ) => {
+      // Compute clamped position if provided
+      let clampedPosition: { x: number; y: number } | undefined;
+      if (dimensions.position !== undefined) {
+        const node = nodesRef.current.find((n) => n.id === nodeId);
+        const nodeWidth =
+          dimensions.width ??
+          node?.data?.width ??
+          DEFAULT_SLOT_DIMENSIONS.WIDTH;
+        const nodeHeight =
+          dimensions.height ??
+          node?.data?.height ??
+          DEFAULT_SLOT_DIMENSIONS.HEIGHT;
+        const maxX = Math.max(0, CANVAS.WIDTH - nodeWidth);
+        const maxY = Math.max(0, CANVAS.HEIGHT - nodeHeight);
+        clampedPosition = {
+          x: clamp(dimensions.position.x, 0, maxX),
+          y: clamp(dimensions.position.y, 0, maxY),
+        };
+      }
+
+      const updateNode = (node: CustomNode) => {
+        if (node.id === nodeId) {
+          const updatedNode = {
+            ...node,
+            data: {
+              ...node.data,
+              ...(dimensions.width !== undefined && {
+                width: dimensions.width,
+              }),
+              ...(dimensions.height !== undefined && {
+                height: dimensions.height,
+              }),
+              ...(clampedPosition !== undefined && {
+                positionX: clampedPosition.x,
+                positionY: clampedPosition.y,
+              }),
+            },
+            ...(dimensions.width !== undefined && { width: dimensions.width }),
+            ...(dimensions.height !== undefined && {
+              height: dimensions.height,
+            }),
+            ...(clampedPosition !== undefined && {
+              position: clampedPosition,
+            }),
+          };
+          return updatedNode;
+        }
+        return node;
+      };
+
+      setNodes((nds) => nds.map(updateNode));
+      setHookNodes((nds) => nds.map(updateNode));
+
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode({
+          ...selectedNode,
+          data: {
+            ...selectedNode.data,
+            ...(dimensions.width !== undefined && { width: dimensions.width }),
+            ...(dimensions.height !== undefined && {
+              height: dimensions.height,
+            }),
+            ...(clampedPosition !== undefined && {
+              positionX: clampedPosition.x,
+              positionY: clampedPosition.y,
+            }),
+          },
+          ...(dimensions.width !== undefined && { width: dimensions.width }),
+          ...(dimensions.height !== undefined && { height: dimensions.height }),
+          ...(clampedPosition !== undefined && {
+            position: clampedPosition,
+          }),
+        });
+
+        setSlotDetail((prev) => ({
+          ...prev,
+          ...(dimensions.width !== undefined && {
+            width: String(dimensions.width),
+          }),
+          ...(dimensions.height !== undefined && {
+            height: String(dimensions.height),
+          }),
+          ...(clampedPosition !== undefined && {
+            left: String(clampedPosition.x),
+            top: String(clampedPosition.y),
+          }),
+        }));
+      }
+    },
+    [setNodes, setHookNodes, selectedNode, setSelectedNode, setSlotDetail],
+  );
+
   const handleNodesChange: OnNodesChange = useCallback(
     (changes) => {
       onNodesChangeInternal(changes as NodeChange<CustomNode>[]);
@@ -268,13 +375,54 @@ export const useSlotManager = (
   );
 
   const handleAddSlot = useCallback(() => {
-    const newNode = hookAddSlot();
+    // Use ReactFlow nodes state to generate next ID (includes default node)
+    const newId = generateNextId(nodesRef.current);
+    const nodeCount = nodesRef.current.length;
+    const x = 250 + (nodeCount % 3) * 200;
+    const y = 100 + Math.floor(nodeCount / 3) * 150;
+
+    const proposedNode: CustomNode = {
+      id: newId,
+      type: 'tableNode',
+      position: { x, y },
+      width: DEFAULT_SLOT_DIMENSIONS.WIDTH,
+      height: DEFAULT_SLOT_DIMENSIONS.HEIGHT,
+      zIndex: 0,
+      data: {
+        label: `TABLE ${newId}`,
+        code: newId,
+        color: '#4F46E5',
+        width: DEFAULT_SLOT_DIMENSIONS.WIDTH,
+        height: DEFAULT_SLOT_DIMENSIONS.HEIGHT,
+        positionX: x,
+        positionY: y,
+        rounded: 0,
+        rotateAngle: 0,
+        zIndex: 0,
+        disabled: false,
+      },
+    };
+
+    // Clamp position to canvas bounds
+    const clampedNode = clampPositionForNode(proposedNode);
+    const newNode: CustomNode = {
+      ...clampedNode,
+      data: {
+        ...clampedNode.data,
+        positionX: clampedNode.position.x,
+        positionY: clampedNode.position.y,
+      },
+    };
+
+    // Update both ReactFlow state and usePosSlots state
     setNodes((nds) => [...nds, newNode]);
+    setHookNodes((nds) => [...nds, newNode]);
+
     toast({
       title: 'Slot added',
       description: `Added new slot: ${newNode.data.label}`,
     });
-  }, [hookAddSlot, setNodes, toast]);
+  }, [generateNextId, setNodes, setHookNodes, toast, clampPositionForNode]);
 
   const handleSaveSlotDetail = useCallback(async () => {
     if (!selectedNodeRef.current) return false;
@@ -293,6 +441,7 @@ export const useSlotManager = (
       position: { x, y },
       width,
       height,
+      zIndex,
       data: {
         ...selectedNodeRef.current.data,
         label: slotDetail.name || `TABLE ${selectedNodeRef.current.id}`,
@@ -322,7 +471,7 @@ export const useSlotManager = (
 
     toast({
       title: 'Slot updated',
-      description: `Updated slot: ${slotDetail.name}. Click 'Save Changes' to persist.`,
+      description: `Updated slot: ${slotDetail.name}.`,
     });
     setSidebarView('list');
     setSelectedNode(null);
@@ -351,7 +500,7 @@ export const useSlotManager = (
 
       toast({
         title: 'Slot deleted',
-        description: `Deleted slot: ${id}. Click 'Save Changes' to persist.`,
+        description: `Deleted slot: ${id}.`,
       });
     },
     [
@@ -382,6 +531,7 @@ export const useSlotManager = (
         },
         width: nodeToDuplicate.width || nodeToDuplicate.data.width,
         height: nodeToDuplicate.height || nodeToDuplicate.data.height,
+        zIndex: nodeToDuplicate.zIndex ?? nodeToDuplicate.data.zIndex ?? 0,
         data: {
           ...nodeToDuplicate.data,
           code: newId,
@@ -441,6 +591,7 @@ export const useSlotManager = (
         id: newId,
         type: 'tableNode',
         position: { x: newPositionX, y: newPositionY },
+        zIndex: nodeData?.zIndex || 0,
         data: {
           label: nodeData?.label || `TABLE ${newId}`,
           code: nodeData?.code || newId,
@@ -450,7 +601,6 @@ export const useSlotManager = (
           positionX: newPositionX,
           positionY: newPositionY,
           rounded: typeof nodeData?.rounded === 'number' ? nodeData.rounded : 0,
-
           rotateAngle: nodeData?.rotateAngle || 0,
           zIndex: nodeData?.zIndex || 0,
           disabled: nodeData?.disabled || false,
@@ -495,12 +645,14 @@ export const useSlotManager = (
     slotDetail,
     sidebarView,
     slotsLoading,
+    slotsSaving,
     hasSlots,
 
     // Actions
     setSelectedNode,
     setSidebarView,
     updateNodePosition,
+    updateNodeDimensions,
 
     // Handlers
     handleNodesChange,
