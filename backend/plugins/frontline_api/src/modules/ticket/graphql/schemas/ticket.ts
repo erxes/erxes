@@ -22,6 +22,7 @@ export const types = `
     statusChangedDate: Date
     number: String
     status: TicketStatus
+    assignee: User
   }
 
   type TicketListResponse {

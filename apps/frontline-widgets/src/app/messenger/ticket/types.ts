@@ -4,6 +4,7 @@ import {
   TicketCheckProgressSchema,
   TicketForgotProgressSchema,
 } from '../schema';
+import { IUser } from '../types';
 
 export enum TicketFormFields {
   name = 'Ticket title',
@@ -69,6 +70,7 @@ export interface ITicketCheckProgress {
   statusChangedDate: string;
   number: string;
   status: ITicketStatus;
+  assignee?: IUser | null;
 }
 
 export interface ITicketStatus {
