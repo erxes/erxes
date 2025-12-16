@@ -219,6 +219,7 @@ function addTeamContribution(item, requestData: RequestData) {
       let companies;
       if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
 
+
         if (item.companyIds && Array.isArray(item.companyIds)) {
           const mainTypeIds = Array.isArray(amount)
             ? amount.map((result) => result._id)
@@ -610,8 +611,8 @@ async function getAmount(item, subdomain, requestData) {
 
   return await sendTRPCMessage({
   subdomain,
-  pluginName: 'sales', 
-  module: 'deal',         
+  pluginName: cardType.pluginName, 
+  module: cardType.module,         
   action: 'find',
   input: requestData,
   defaultValue: [],
