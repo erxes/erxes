@@ -19,6 +19,45 @@ import { TExportProgress } from 'ui-modules';
 import { useExportHistories } from '~/modules/import-export/export/hooks/useExportHistories';
 import { formatImportExportDuration } from '~/modules/import-export/shared/import-export-duration';
 
+function PieChart({ value }: { value: number }) {
+  const size = 20;
+  const radius = size / 2 - 2;
+  const center = size / 2;
+  const circumference = 2 * Math.PI * radius;
+  const normalizedValue = Math.min(Math.max(value, 0), 100);
+  const percentage = normalizedValue / 100;
+  const strokeDashoffset = circumference - percentage * circumference;
+
+  return (
+    <svg width={size} height={size} className="flex-shrink-0">
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="transparent"
+        stroke="hsl(var(--muted))"
+        strokeWidth="2"
+      />
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="transparent"
+        stroke="#10b981"
+        strokeWidth="2"
+        strokeDasharray={circumference}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+        style={{
+          transform: 'rotate(-90deg)',
+          transformOrigin: '50% 50%',
+          transition: 'stroke-dashoffset 0.3s ease',
+        }}
+      />
+    </svg>
+  );
+}
+
 function ExportHistoryActionsCell({
   exportItem,
 }: {
@@ -123,15 +162,8 @@ const exportHistoryColumns: ColumnDef<TExportProgress>[] = [
       return (
         <RecordTableInlineCell className="justify-end whitespace-nowrap">
           {typeof progressValue === 'number' ? (
-            <div className="flex items-center gap-2 w-28">
-              <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-1.5 rounded-full bg-emerald-500"
-                  style={{
-                    width: `${Math.min(Math.max(progressValue, 0), 100)}%`,
-                  }}
-                />
-              </div>
+            <div className="flex items-center gap-2">
+              <PieChart value={Math.min(Math.max(progressValue, 0), 100)} />
               <span className="text-xs text-muted-foreground tabular-nums">
                 {progressValue}%
               </span>

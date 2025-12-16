@@ -503,7 +503,10 @@ export const loadClasses = (
 
   models.Imports = db.model<IImportDocument, IImportModel>(
     'imports',
-    loadImportClass(models),
+    loadImportClass(
+      models,
+      eventDispatcher('core', 'import-export', 'imports'),
+    ),
   );
 
   models.Exports = db.model<IExportDocument, IExportModel>(

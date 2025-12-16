@@ -1,5 +1,7 @@
 import { Model } from 'mongoose';
 import { importSchema } from '../definitions/import';
+import { IModels } from '~/connectionResolvers';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IImportDocument {
   _id: string;
@@ -49,7 +51,42 @@ export interface IImportModel extends Model<IImportDocument> {
   addImportedIds(_id: string, recordIds: string[]): Promise<void>;
 }
 
-export const loadImportClass = (models: any) => {
+const buildNotificationMessage = (importDoc: IImportDocument): string => {
+  if (importDoc.status === 'completed') {
+    const recordsText =
+      importDoc.successRows > 0
+        ? ` ${importDoc.successRows.toLocaleString()} records imported successfully.`
+        : '';
+    const errorText =
+      importDoc.errorRows > 0
+        ? ` ${importDoc.errorRows.toLocaleString()} records failed.`
+        : '';
+    return `Your import "${importDoc.fileName}" has been completed.${recordsText}${errorText}`;
+  }
+
+  if (importDoc.errorMessage) {
+    return `Import "${importDoc.fileName}" failed: ${importDoc.errorMessage}`;
+  }
+
+  return `Import "${importDoc.fileName}" failed. Please try again or contact support if the issue persists.`;
+};
+
+const buildNotificationMetadata = (importDoc: IImportDocument) => ({
+  importId: importDoc._id,
+  fileName: importDoc.fileName,
+  status: importDoc.status,
+  processedRows: importDoc.processedRows,
+  successRows: importDoc.successRows,
+  errorRows: importDoc.errorRows,
+  totalRows: importDoc.totalRows,
+  errorMessage: importDoc.errorMessage,
+  errorFileUrl: importDoc.errorFileUrl,
+});
+
+export const loadImportClass = (
+  models: IModels,
+  { sendNotificationMessage }: EventDispatcherReturn,
+) => {
   class Import {
     public static async getImport(_id: string) {
       return models.Imports.findOne({ _id }).lean();
@@ -103,11 +140,31 @@ export const loadImportClass = (models: any) => {
         }
       }
 
-      return models.Imports.findOneAndUpdate(
+      const importDoc = await models.Imports.findOneAndUpdate(
         { _id },
         { $set: update },
         { new: true },
       ).lean();
+
+      if (
+        importDoc &&
+        (importDoc.status === 'completed' || importDoc.status === 'failed')
+      ) {
+        const isCompleted = importDoc.status === 'completed';
+
+        sendNotificationMessage({
+          userIds: [importDoc.userId],
+          title: isCompleted ? 'Import completed' : 'Import failed',
+          message: buildNotificationMessage(importDoc),
+          type: isCompleted ? 'success' : 'error',
+          priority: 'low',
+          kind: 'system',
+          contentType: 'core:import-export.imports',
+          metadata: buildNotificationMetadata(importDoc),
+        });
+      }
+
+      return importDoc;
     }
 
     public static async addImportedIds(_id: string, recordIds: string[]) {
