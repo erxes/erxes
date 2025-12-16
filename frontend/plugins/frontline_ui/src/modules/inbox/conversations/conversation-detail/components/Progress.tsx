@@ -29,7 +29,7 @@ export const Progress = ({ conversationId }: { conversationId: string }) => {
   };
 
   return (
-    <div className="flex justify-between w-full my-4">
+    <div className="flex justify-between w-full my-4 px-2">
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="open" />

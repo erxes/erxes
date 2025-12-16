@@ -4,20 +4,15 @@ import {
   Collapsible,
   ScrollArea,
   Separator,
-  SideMenu,
   Tabs,
   ToggleGroup,
-  useQueryState,
 } from 'erxes-ui';
-import {
-  IconCaretRightFilled,
-  IconChartHistogram,
-  IconChevronDown,
-} from '@tabler/icons-react';
+import { IconCaretRightFilled } from '@tabler/icons-react';
 import { Progress } from './Progress';
 import { ProgressChart } from './ProgressChart';
 import { useState } from 'react';
 import { ProgressByAssignee } from './ProgressByAssignee';
+import { SelectReportDate } from './SelectReportDate';
 
 export enum ConversationsSideWidgetTabsEnum {
   Assignee = 'assignee',
@@ -37,23 +32,16 @@ export const ConversationReportContent = ({
       onOpenChange={setOpen}
       className="group/collapsible-menu"
     >
-      <Collapsible.Trigger asChild>
-        <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
+        <Collapsible.Trigger asChild>
           <Button variant="secondary" size="sm" onClick={() => setOpen(!open)}>
             <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90 size-3.5" />
             Progress
           </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={(e) => e.stopPropagation()}
-            className="ml-auto"
-          >
-            <IconChevronDown />
-            All Time
-          </Button>
-        </div>
-      </Collapsible.Trigger>
+        </Collapsible.Trigger>
+
+        <SelectReportDate />
+      </div>
       <div className={cn('border-b', open && 'border-b-0')}>
         <Progress conversationId={conversationId as string} />
       </div>
