@@ -23,6 +23,7 @@ const config: ModuleFederationConfig = {
     './posSettings': './src/modules/pos/pos/Settings.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
+      './goals': './src/modules/goals/Main.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
