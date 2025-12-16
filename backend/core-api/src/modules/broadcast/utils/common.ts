@@ -21,8 +21,9 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ISESConfig } from '~/modules/organization/settings/db/definitions/configs';
+import { ISESConfig } from '@/organization/settings/db/definitions/configs';
 import { generateCustomerSelector } from './engage';
+import { getValueAsString } from '@/organization/settings/db/models/Configs';
 
 export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
@@ -61,26 +62,6 @@ interface IEngageParams {
   customersSelector: any;
   user;
 }
-
-// export const getEnv = ({
-//   name,
-//   defaultValue
-// }: {
-//   name: string;
-//   defaultValue?: string;
-// }): string => {
-//   const value = process.env[name];
-
-//   if (!value && typeof defaultValue !== "undefined") {
-//     return defaultValue;
-//   }
-
-//   if (!value) {
-//     console.log(`Missing environment variable configuration for ${name}`);
-//   }
-
-//   return value || "";
-// };
 
 export const subscribeEngage = (models: IModels) => {
   return new Promise(async (resolve, reject) => {
@@ -174,27 +155,6 @@ export const subscribeEngage = (models: IModels) => {
 
     return resolve(true);
   });
-};
-
-export const getValueAsString = async (
-  models: IModels,
-  name: string,
-  envKey: string,
-  defaultValue?: string,
-) => {
-  const VERSION = getEnv({ name: 'VERSION' });
-
-  if (VERSION && VERSION === 'saas') {
-    return getEnv({ name: envKey, defaultValue });
-  }
-
-  const entry = await models.Configs.getConfig(name);
-
-  if (entry.value) {
-    return entry.value.toString();
-  }
-
-  return entry.value;
 };
 
 export const updateConfigs = async (
@@ -731,37 +691,14 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds = await models.Customers.find(customersSelector).distinct("_id")
+  const erxesCustomerIds = await models.Customers.find(
+    customersSelector,
+  ).distinct('_id');
 
-  const cpUserIds = []
-  // TODO: uncomment
-  //   ((await sendTRPCMessage({
-  //     subdomain,
-      
-  //     action: 'clientPortalUsers.getIds',
-  //     data: {
-  //       clientPortalId: cpId,
-  //       erxesCustomerId: { $in: [...erxesCustomerIds] },
-  //     },
-  //   })) as string[]) || [];
-
-  // if (cpUserIds.length === 0) {
-  //   await models.Logs.createLog(
-  //     engageMessageId,
-  //     'regular',
-  //     `No client portal user found`,
-  //   );
-
-  //   return;
-  // }
-
-  // if (cpUserIds.length > 0) {
-  //   await models.Logs.createLog(
-  //     engageMessageId,
-  //     'regular',
-  //     `Preparing to send Notification to "${cpUserIds.length}" customers`,
-  //   );
-  // }
+  const cpUserIds = await models.CPUser.find({
+    clientPortalId: cpId,
+    erxesCustomerId: { $in: [...erxesCustomerIds] },
+  }).distinct('_id');
 
   const doc = {
     createdUser: user,

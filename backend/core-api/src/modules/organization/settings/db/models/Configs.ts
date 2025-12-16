@@ -13,12 +13,12 @@ export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
   getConfigs(codes?: string[]): Promise<{ [code: string]: any }>;
   getConfigValue(code: string, defaultValue: any): Promise<any>;
+  updateConfigs(configsMap): Promise<void>;
   createOrUpdateConfig({ code, value }: IConfig): Promise<IConfigDocument>;
   constants(): Promise<any>;
-  getCloudflareConfigs(): Promise<any>;
 
+  getCloudflareConfigs(): Promise<any>;
   getSESConfigs(): Promise<ISESConfig>;
-  updateConfigs(configsMap): Promise<void>;
 }
 
 export const getValueAsString = async (
@@ -103,6 +103,24 @@ export const loadConfigClass = (models: IModels) => {
       return models.Configs.create({ code, value });
     }
 
+    /**
+     * Update configs
+     */
+    public static async updateConfigs(configsMap) {
+      const codes = Object.keys(configsMap);
+
+      for (const code of codes) {
+        if (!code) {
+          continue;
+        }
+
+        const value = configsMap[code];
+        const doc = { code, value };
+
+        await models.Configs.createOrUpdateConfig(doc);
+      }
+    }
+
     public static async getCloudflareConfigs() {
       const accountId = await getValueAsString(
         models,
@@ -159,24 +177,6 @@ export const loadConfigClass = (models: IModels) => {
     }
 
     /**
-     * Update configs
-     */
-    public static async updateConfigs(configsMap) {
-      const codes = Object.keys(configsMap);
-
-      for (const code of codes) {
-        if (!code) {
-          continue;
-        }
-
-        const value = configsMap[code];
-        const doc = { code, value };
-
-        await models.Configs.createOrUpdateConfig(doc);
-      }
-    }
-
-    /**
      * Get a Config
      */
     public static async getSESConfigs() {
@@ -185,12 +185,15 @@ export const loadConfigClass = (models: IModels) => {
         'accessKeyId',
         'AWS_SES_ACCESS_KEY_ID',
       );
+
       const secretAccessKey = await getValueAsString(
         models,
         'secretAccessKey',
         'AWS_SES_SECRET_ACCESS_KEY',
       );
+
       const region = await getValueAsString(models, 'region', 'AWS_REGION');
+
       const unverifiedEmailsLimit = await getValueAsString(
         models,
         'unverifiedEmailsLimit',

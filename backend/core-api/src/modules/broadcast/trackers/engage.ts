@@ -7,6 +7,7 @@ import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
+
   if (!config) {
     return;
   }
@@ -44,7 +45,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const { headers } = mail;
 
   const engageMessageId = headers.find(
-    (header) => header.name === 'Engagemessageid'
+    (header) => header.name === 'Engagemessageid',
   );
 
   const mailId = headers.find((header) => header.name === 'Mailmessageid');
@@ -52,7 +53,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const customerId = headers.find((header) => header.name === 'Customerid');
 
   const emailDeliveryId = headers.find(
-    (header) => header.name === 'Emaildeliveryid'
+    (header) => header.name === 'Emaildeliveryid',
   );
 
   const to = headers.find((header) => header.name === 'To');
@@ -92,9 +93,10 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
       module: 'customers',
       action: 'setUnsubscribed',
       input: {
-        _id: mailHeaders.customerId, status: type
-      }
-    })
+        _id: mailHeaders.customerId,
+        status: type,
+      },
+    });
   }
 
   return true;
