@@ -70,7 +70,7 @@ export interface ITicketCheckProgress {
   statusChangedDate: string;
   number: string;
   status: ITicketStatus;
-  assignee: IUser;
+  assignee?: IUser | null;
 }
 
 export interface ITicketStatus {

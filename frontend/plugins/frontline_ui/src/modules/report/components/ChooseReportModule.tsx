@@ -9,7 +9,6 @@ export const ChooseReportModule = () => {
 };
 
 export const ReportModuleItem = () => {
-  const [reportModule, setReportModule] = useQueryState<string>('reportModule');
   return (
     <Button
       variant={'ghost'}
