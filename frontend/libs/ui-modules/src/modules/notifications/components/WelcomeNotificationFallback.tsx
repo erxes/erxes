@@ -5,7 +5,7 @@ import {
   IconBrandDiscordFilled,
   IconBrandGithubFilled,
 } from '@tabler/icons-react';
-import { WelcomeMessageBackground } from './WelcomeMessageBackground';
+import { WelcomeMessageBackground } from 'ui-modules/modules/notifications/components/WelcomeMessageBackground';
 import { motion } from 'framer-motion';
 const COMING_SOON_VIDEO_SRC =
   'https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/intro.mp4';
@@ -79,7 +79,7 @@ export const WelcomeNotificationFallback = ({
           transition={{ delay: 0.2 }}
           className="space-y-2 text-center"
         >
-          <div className="w-full text-2xl font-semibold tracking-tight bg-clip-text inline ">
+          <div className="w-full text-2xl font-semibold tracking-tight bg-clip-text ">
             <h1 className="capitalize inline">
               Welcome to {pluginName || 'erxes'}{' '}
             </h1>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { loadRemote } from '@module-federation/enhanced/runtime';
 import { Spinner } from 'erxes-ui';
-import { WelcomeNotificationFallback } from 'ui-modules/modules/notifications/components/WelcomeNotificationFallback';
+import { WelcomeNotificationFallback } from 'ui-modules';
 interface RemoteComponentProps {
   module?: string;
 }
