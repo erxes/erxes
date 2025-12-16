@@ -7,7 +7,6 @@ import {
 } from '@tabler/icons-react';
 import { WelcomeMessageBackground } from './WelcomeMessageBackground';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 const COMING_SOON_VIDEO_SRC =
   'https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/intro.mp4';
 const Socials = [
@@ -44,11 +43,16 @@ const SocialSection = () => (
     <div className="flex flex-wrap justify-center gap-2">
       {Socials.map((item) => {
         return (
-          <Link to={item.url} key={item.url}>
+          <a
+            href={item.url}
+            key={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <div className="bg-muted text-muted-foreground  rounded-sm p-[6px]">
               {item.icon}
             </div>
-          </Link>
+          </a>
         );
       })}
     </div>
