@@ -218,7 +218,6 @@ function addTeamContribution(item, requestData: RequestData) {
       }
       let companies;
       if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
-        // Ensure companyIds exists before attempting to use it
 
         if (item.companyIds && Array.isArray(item.companyIds)) {
           const mainTypeIds = Array.isArray(amount)
@@ -471,7 +470,7 @@ function addTeamContribution(item, requestData: RequestData) {
             { runValidators: true }
           );
         } catch (error) {
-          // Handle the error here
+        
           throw new Error(error);
         }
       }
@@ -611,8 +610,8 @@ async function getAmount(item, subdomain, requestData) {
 
   return await sendTRPCMessage({
   subdomain,
-  pluginName: cardType.pluginName, 
-  module: cardType.module,         
+  pluginName: 'sales', 
+  module: 'deal',         
   action: 'find',
   input: requestData,
   defaultValue: [],
@@ -620,7 +619,7 @@ async function getAmount(item, subdomain, requestData) {
 
 }
 
-// Function to get companies based on companyIds and other item data
+
 async function getCompanies(item, subdomain, mainTypeIds) {
   const conformities = await sendTRPCMessage({
     subdomain,
