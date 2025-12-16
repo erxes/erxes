@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 
-export const adjustFundRateDetailsSchema = schemaWrapper(
+export const adjustDebtRateDetailsSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
 
@@ -15,7 +15,7 @@ export const adjustFundRateDetailsSchema = schemaWrapper(
   })
 );
 
-export const adjustFundRatesSchema = schemaWrapper(
+export const adjustDebtRatesSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
     date: { type: Date, label: 'date' }, // хэднээр ханш тэгшитгэж байна вэ? буюу хүртэлх огноо
@@ -32,7 +32,7 @@ export const adjustFundRatesSchema = schemaWrapper(
     lossAccountId: { type: String, label: 'Loss Account' }, // гарз данс
     transactionId: { type: String, optional: true, label: 'Transaction' }, // детайл бүрийн зөрүүнийдийн нийлбэр 0ээс ялгаатай бол баримт үүснэ
 
-    details: { type: [adjustFundRateDetailsSchema], optional: true, label: 'description' }, // Төгрөгийн эсвэл валютын үлдэгдэлтэй дансдад харгалзаж үүснэ
+    details: { type: [adjustDebtRateDetailsSchema], optional: true, label: 'description' }, // Төгрөгийн эсвэл валютын үлдэгдэлтэй дансдад харгалзаж үүснэ
 
     branchId: { type: String, optional: true, label: 'Branch' }, // салбар сонгож болно. Сонгосон бол баримтууд уг салбараар, сонгоогүй бол дансныхаараа
     departmentId: { type: String, optional: true, label: 'Department' }, // хэлтэс сонгож болно. Сонгосон бол баримтууд уг хэлтэсээр, сонгоогүй бол дансныхаараа
