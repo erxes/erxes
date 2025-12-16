@@ -79,7 +79,7 @@ export const WelcomeNotificationFallback = ({
           transition={{ delay: 0.2 }}
           className="space-y-2 text-center"
         >
-          <div className="w-full text-2xl font-semibold tracking-tight bg-clip-tex inline ">
+          <div className="w-full text-2xl font-semibold tracking-tight bg-clip-text inline ">
             <h1 className="capitalize inline">
               Welcome to {pluginName || 'erxes'}{' '}
             </h1>
