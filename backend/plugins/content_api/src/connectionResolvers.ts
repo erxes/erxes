@@ -3,7 +3,11 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 import { ICMSModel, loadCmsClass } from '@/cms/db/models/Cms';
 
 import mongoose from 'mongoose';
-import { IContentCMSDocument } from '@/cms/@types/cms';
+import {
+  ICMSMenuDocument,
+  ICMSPageDocument,
+  IContentCMSDocument,
+} from '@/cms/@types/cms';
 import {
   IPostCategoryDocument,
   IPostDocument,
@@ -19,16 +23,23 @@ import {
   ICustomPostTypeModel,
   loadCustomPostTypeClass,
 } from '@/cms/db/models/CustomPostType';
-import { ICustomPostTypeDocument } from '@/cms/@types/customPostType';
+import { ICustomFieldGroupDocument, ICustomPostTypeDocument } from '@/cms/@types/customPostType';
 import { ICategoryModel, loadCategoryClass } from '@/cms/db/models/Categories';
 import { IPostTagModel, loadPostTagClass } from '@/cms/db/models/Tag';
+import { ICMSMenuItemModel, loadMenuItemClass } from '@/cms/db/models/Menu';
+import { ICMSPageModel, loadPageClass } from '@/cms/db/models/Page';
+import { ICustomFieldGroupModel, loadCustomFieldGroupClass } from '@/cms/db/models/FieldGroups';
 
 export interface IModels {
   CMS: ICMSModel;
   Posts: IPostModel;
   Translations: ITranslationModel;
+  
   CustomPostTypes: ICustomPostTypeModel;
+  CustomFieldGroups: ICustomFieldGroupModel;
   PostTags: IPostTagModel;
+  MenuItems: ICMSMenuItemModel;
+  Pages: ICMSPageModel;
   Categories: ICategoryModel;
 }
 
@@ -60,6 +71,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     ICustomPostTypeModel
   >('cms_custom_post_types', loadCustomPostTypeClass(models));
 
+  models.CustomFieldGroups = db.model<
+    ICustomFieldGroupDocument,
+    ICustomFieldGroupModel
+  >('cms_custom_field_groups', loadCustomFieldGroupClass(models));
+
   models.Categories = db.model<IPostCategoryDocument, ICategoryModel>(
     'cms_categories',
     loadCategoryClass(models),
@@ -68,6 +84,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.PostTags = db.model<IPostTagDocument, IPostTagModel>(
     'cms_tags',
     loadPostTagClass(models),
+  );
+
+  models.MenuItems = db.model<ICMSMenuDocument, ICMSMenuItemModel>(
+    'cms_menu_items',
+    loadMenuItemClass(models),
+  );
+
+  models.Pages = db.model<ICMSPageDocument, ICMSPageModel>(
+    'cms_pages',
+    loadPageClass(models),
   );
 
   return models;

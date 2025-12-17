@@ -1,28 +1,12 @@
 import { RecordTable } from 'erxes-ui';
-import { format } from 'date-fns';
 import { DuplicatedColumns } from '@/put-response/put-responses-duplicated/components/DuplicatedColumn';
 import { useDuplicated } from '@/put-response/put-responses-duplicated/hooks/useDuplicated';
 import { DUPLICATED_CURSOR_SESSION_KEY } from '@/put-response/put-responses-duplicated/constants/DuplicatedCursorSessionKey';
-import { DuplicatedCommandBar } from '@/put-response/put-responses-duplicated/components/duplicated-command-bar/DuplicatedCommandBar';
+import { IconShoppingCartX } from '@tabler/icons-react';
 
 export const DuplicatedRecordTable = () => {
-  const now = new Date();
-  const firstDay = format(
-    new Date(now.getFullYear(), now.getMonth(), 1),
-    'yyyy-MM-dd',
-  );
-  const lastDay = format(
-    new Date(now.getFullYear(), now.getMonth() + 1, 0),
-    'yyyy-MM-dd',
-  );
-
   const { putResponsesDuplicated, handleFetchMore, loading, pageInfo } =
-    useDuplicated({
-      variables: {
-        createdStartDate: firstDay,
-        createdEndDate: lastDay,
-      },
-    });
+    useDuplicated();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -52,8 +36,22 @@ export const DuplicatedRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
+        {!loading && putResponsesDuplicated?.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="mb-6">
+                <IconShoppingCartX size={48} className="text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                No duplicated
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating your first duplicated.
+              </p>
+            </div>
+          </div>
+        )}
       </RecordTable.CursorProvider>
-      <DuplicatedCommandBar />
     </RecordTable.Provider>
   );
 };
