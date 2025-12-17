@@ -1,4 +1,9 @@
 export const types = `
+  input ConversationReportFilter {
+    status: String
+    limit: Int
+  }
+
   type ReportMetric {
     count: Int
     percentage: Int
@@ -11,20 +16,26 @@ export const types = `
     percentage: Int
   }
 
-  type ConversationSourcesResult {
-    topPerforming: [ReportSource]
-    topConverting: [ReportSource]
-  }
-
-  type ReportChartResult {
-    ConversationOpen: ReportMetric
-    ConversationClosed: ReportMetric
-    ConversationResolved: ReportMetric
-    ConversationSources: ConversationSourcesResult
-    ConversationTag: [ReportSource]
+  type ConversationListResult {
+  list: [Conversation]
+  totalCount: Int
+  page: Int
+  totalPages: Int
+}
+  type ConversationResponseMetric {
+    totalResponses: Int
+    avgResponseTime: Int
+    responseRate: Float
+    count: Int
   }
 `;
 
 export const queries = `
-  chartGetResult: ReportChartResult
+  reportConversationList(filters: ConversationReportFilter): ConversationListResult
+  reportConversationResponses(filters: ConversationReportFilter): ConversationResponseMetric
+  reportConversationOpen(filters: ConversationReportFilter): ReportMetric
+  reportConversationClosed(filters: ConversationReportFilter): ReportMetric
+  reportConversationResolved(filters: ConversationReportFilter): ReportMetric
+  reportConversationTags(filters: ConversationReportFilter): [ReportSource]
+  reportConversationSources(filters: ConversationReportFilter): [ReportSource]
 `;

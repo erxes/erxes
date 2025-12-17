@@ -21,7 +21,13 @@ import {
 } from '@dnd-kit/sortable';
 import { FrontlineReport } from './FrontlineReport';
 import { InfoCard, ScrollArea } from 'erxes-ui';
-import { useGetChart } from '@/report/hooks/useGetChart';
+import { useConversationOpen } from '@/report/hooks/useConversationOpen';
+import { useConversationClosed } from '@/report/hooks/useConversationClose';
+import { useConversationResolved } from '@/report/hooks/useConversationResolved';
+import { useConversationTags } from '@/report/hooks/useConversationTags';
+import { useConversationSources } from '@/report/hooks/useConversationSource';
+import { useConversationResponses } from '@/report/hooks/useConversationResponses';
+import { useConversationList } from '@/report/hooks/useConversationList';
 import { ReportsViewSkeleton } from './ReportsView';
 import { FrontlineReportBySource } from './FrontlineReportBySource';
 import { getTopSource } from '../utils';
@@ -63,7 +69,18 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
 }
 
 export const FrontlineReportsList = () => {
-  const { chartData, loading } = useGetChart();
+  const { conversationOpen = {}, loading: openLoading } = useConversationOpen();
+  const { conversationClosed = {}, loading: closedLoading } =
+    useConversationClosed();
+  const { conversationResolved = {}, loading: resolvedLoading } =
+    useConversationResolved();
+  const { conversationResponses = {}, loading: responsesLoading } =
+    useConversationResponses();
+  const { conversationList = {}, loading: conversationListLoading } =
+    useConversationList();
+  const { conversationTags = {}, loading: tagsLoading } = useConversationTags();
+  const { conversationSources = [], loading: sourcesLoading } =
+    useConversationSources();
   const [cards, setCards] = useState<CardConfig[]>(INITIAL_CARDS);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
@@ -76,19 +93,10 @@ export const FrontlineReportsList = () => {
     }),
   );
 
-  const {
-    ConversationOpen,
-    ConversationClosed,
-    ConversationResolved,
-    ConversationSources,
-  } = chartData || {};
-
-  const topPerformingSource = getTopSource(
-    ConversationSources?.topPerforming || [],
-  );
-  const topConvertingSource = getTopSource(
-    ConversationSources?.topConverting || [],
-  );
+  // Ensure we're passing an array of sources to getTopSource
+  const sources = Array.isArray(conversationSources) ? conversationSources : [];
+  const topPerformingSource = getTopSource(sources);
+  const topConvertingSource = getTopSource(sources);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -147,9 +155,17 @@ export const FrontlineReportsList = () => {
     );
   };
 
-  if (loading) {
+  if (
+    openLoading ||
+    closedLoading ||
+    resolvedLoading ||
+    tagsLoading ||
+    sourcesLoading
+  ) {
     return <ReportsViewSkeleton />;
   }
+
+  console.log(conversationSources, 'conversationSources');
 
   const renderCard = (card: CardConfig) => {
     const { id, colSpan } = card;
@@ -164,7 +180,7 @@ export const FrontlineReportsList = () => {
           <FrontlineReport
             key={id}
             title="Conversation Open"
-            data={ConversationOpen}
+            data={conversationOpen}
             {...commonProps}
           />
         );
@@ -181,7 +197,7 @@ export const FrontlineReportsList = () => {
           <FrontlineReportBySource
             key={id}
             title="Conversation Source"
-            data={ConversationSources}
+            data={{ topPerforming: conversationSources || [] }}
             {...commonProps}
           />
         );
@@ -216,14 +232,14 @@ export const FrontlineReportsList = () => {
         <InfoCard title="Open">
           <InfoCard.Content className="text-center">
             <div>
-              {ConversationOpen?.count} / {ConversationOpen?.percentage}%
+              {conversationOpen?.count} / {conversationOpen?.percentage}%
             </div>
           </InfoCard.Content>
         </InfoCard>
         <InfoCard title="Close">
           <InfoCard.Content className="text-center">
             <div>
-              {ConversationClosed?.count} / {ConversationClosed?.percentage}%
+              {conversationClosed?.count} / {conversationClosed?.percentage}%
             </div>
           </InfoCard.Content>
         </InfoCard>
@@ -255,7 +271,7 @@ export const FrontlineReportsList = () => {
             </div>
           </InfoCard.Content>
         </InfoCard>
-        <InfoCard title="Top converting Source">
+        <InfoCard title="Top Converting Source">
           <InfoCard.Content className="flex flex-row items-center gap-2">
             <Tooltip>
               <Tooltip.Trigger>

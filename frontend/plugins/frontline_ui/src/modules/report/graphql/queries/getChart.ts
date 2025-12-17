@@ -1,40 +1,79 @@
 import { gql } from '@apollo/client';
 
-export const GET_CHART = gql`
-  query ChartGetResult {
-    chartGetResult {
-      ConversationOpen {
-        count
-        percentage
-      }
-      ConversationClosed {
-        count
-        percentage
-      }
-      ConversationResolved {
-        count
-        percentage
-      }
-      ConversationSources {
-        topConverting {
-          _id
-          count
-          name
-          percentage
-        }
-        topPerforming {
-          _id
-          count
-          name
-          percentage
-        }
-      }
-      ConversationTag {
+export const GET_CONVERSATION_OPEN = gql`
+  query ReportConversationOpen($filters: ConversationReportFilter) {
+    reportConversationOpen(filters: $filters) {
+      count
+      percentage
+    }
+  }
+`;
+
+export const GET_CONVERSATION_CLOSE = gql`
+  query ReportConversationClosed($filters: ConversationReportFilter) {
+    reportConversationClosed(filters: $filters) {
+      count
+      percentage
+    }
+  }
+`;
+
+export const GET_CONVERSATION_RESOLVED = gql`
+  query ReportConversationResolved($filters: ConversationReportFilter) {
+    reportConversationResolved(filters: $filters) {
+      count
+      percentage
+    }
+  }
+`;
+
+export const GET_CONVERSATION_TAG = gql`
+  query ReportConversationTags($filters: ConversationReportFilter) {
+    reportConversationTags(filters: $filters) {
+      _id
+      name
+      count
+      percentage
+    }
+  }
+`;
+
+export const GET_CONVERSATION_SOURCE = gql`
+  query ReportConversationSources($filters: ConversationReportFilter) {
+    reportConversationSources(filters: $filters) {
+      _id
+      name
+      count
+      percentage
+    }
+  }
+`;
+
+export const GET_CONVERSATION_RESPONSES = gql`
+  query ReportConversationResponses($filters: ConversationReportFilter) {
+    reportConversationResponses(filters: $filters) {
+      totalResponses
+      avgResponseTime
+      responseRate
+      count
+    }
+  }
+`;
+
+export const GET_CONVERSATION_LIST = gql`
+  query ReportConversationList($filters: ConversationReportFilter) {
+    reportConversationList(filters: $filters) {
+      list {
         _id
-        count
-        percentage
-        name
+        content
+        messages {
+          _id
+          content
+        }
       }
+      page
+      totalCount
+      totalPages
     }
   }
 `;
