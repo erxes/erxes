@@ -4,6 +4,11 @@ import {
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+export interface FieldOption {
+  label: string;
+  value: string;
+}
+
 export interface IField {
   name: string;
   code: string;
@@ -14,7 +19,8 @@ export interface IField {
   type: string;
   order: number;
 
-  options?: string[];
+  options?: FieldOption[];
+  icon?: string;
 
   logics?: any;
   validations?: any;
@@ -28,5 +34,6 @@ export interface IFieldDocument extends IField, Document {
 export interface IFieldParams extends IListParams, ICursorPaginateParams {
   contentType: string;
   contentTypeId?: string;
-  groupIds?: string[];
+  groupId?: string[];
+  icon?: string;
 }
