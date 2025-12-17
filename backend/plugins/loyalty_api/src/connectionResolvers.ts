@@ -34,6 +34,8 @@ import {
   IScoreLogModel,
   loadScoreLogClass,
 } from './modules/score/db/models/ScoreLog';
+import { IPricingPlanModel, loadPricingPlanClass } from '@/pricing/db/models/PricingPlan';
+import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 
 export interface IModels {
   Pricing: IPricingModel;
@@ -47,6 +49,8 @@ export interface IModels {
   Donate: IDonateModel;
   Assignment: IAssignmentModel;
   Agent: IAgentModel;
+
+  PricingPlans: IPricingPlanModel;
 }
 
 export interface IContext extends IMainContext {
@@ -110,6 +114,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Agent = db.model<IAgentDocument, IAgentModel>(
     'loyalty_agent',
     loadAgentClass(models),
+  );
+
+  models.PricingPlans = db.model<IPricingPlanDocument, IPricingPlanModel>(
+    'pricing',
+    loadPricingPlanClass(models),
   );
 
   return models;

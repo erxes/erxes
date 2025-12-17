@@ -1,5 +1,6 @@
 
   import { IContext } from '~/connectionResolvers';
+  import { pricingPlanMutations } from './pricingPlan';
 
   export const pricingMutations = {
     createPricing: async (_parent: undefined, { name }, { models }: IContext) => {
@@ -13,5 +14,7 @@
     removePricing: async (_parent: undefined, { _id }, { models }: IContext) => {
       return models.Pricing.removePricing(_id);
     },
+
+    ...pricingPlanMutations,
   };
 
