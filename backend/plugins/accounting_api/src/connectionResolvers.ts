@@ -3,7 +3,10 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
 import { IAccountDocument } from './modules/accounting/@types/account';
 import { IAccountCategoryDocument } from './modules/accounting/@types/accountCategory';
-import { IAdjustInvDetailDocument, IAdjustInventoryDocument } from './modules/accounting/@types/adjustInventory';
+import {
+  IAdjustInvDetailDocument,
+  IAdjustInventoryDocument,
+} from './modules/accounting/@types/adjustInventory';
 import { IAccountingConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
@@ -17,18 +20,36 @@ import {
   IAccountModel,
   loadAccountClass,
 } from './modules/accounting/db/models/Accounts';
-import { IAdjustInvDetailsModel, IAdjustInventoriesModel, loadAdjustInvDetailsClass, loadAdjustInventoriesClass } from './modules/accounting/db/models/AdjustInventories';
+import {
+  IAdjustInvDetailsModel,
+  IAdjustInventoriesModel,
+  loadAdjustInvDetailsClass,
+  loadAdjustInventoriesClass,
+} from './modules/accounting/db/models/AdjustInventories';
 import {
   IAccountingConfigModel,
   loadAccountingConfigClass,
 } from './modules/accounting/db/models/Configs';
-import { ICtaxRowModel, loadCtaxRowClass } from './modules/accounting/db/models/CtaxRows';
-import { IPermissionModel, loadPermissionClass } from './modules/accounting/db/models/Permissions';
+import {
+  ICtaxRowModel,
+  loadCtaxRowClass,
+} from './modules/accounting/db/models/CtaxRows';
+import {
+  IPermissionModel,
+  loadPermissionClass,
+} from './modules/accounting/db/models/Permissions';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
-import { IVatRowModel, loadVatRowClass } from './modules/accounting/db/models/VatRows';
+import {
+  IVatRowModel,
+  loadVatRowClass,
+} from './modules/accounting/db/models/VatRows';
+import {
+  IAdjustClosingEntryModel,
+  loadAdjustClosingEntryClass,
+} from './modules/accounting/db/models/AdjustClosingEntry';
 
 export interface IModels {
   Accounts: IAccountModel;
@@ -40,6 +61,7 @@ export interface IModels {
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
+  AdjustClosingEntries: IAdjustClosingEntryModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -95,6 +117,11 @@ export const loadClasses = (
     'ctax_rows',
     loadCtaxRowClass(models, subdomain),
   );
+
+  models.AdjustClosingEntries = db.model<
+    IAdjustClosingEntryModel,
+    IAdjustClosingEntryModel
+  >('adjust_closing_entry', loadAdjustClosingEntryClass(models, subdomain));
 
   return models;
 };
