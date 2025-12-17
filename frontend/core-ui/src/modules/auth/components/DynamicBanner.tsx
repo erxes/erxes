@@ -11,7 +11,7 @@ export const DynamicBanner = () => {
       <Polygons />
       <div className="w-full h-full flex flex-col items-center justify-center text-primary-foreground">
         <div className="absolute top-7">
-          <Logo organizationLogo={organization?.orgLogo} />
+          <Logo />
         </div>
         <div className="max-w-[500px] flex-col flex justify-center gap-2">
           <h1 className="text-2xl font-semibold leading-7 text-background dark:text-foreground">

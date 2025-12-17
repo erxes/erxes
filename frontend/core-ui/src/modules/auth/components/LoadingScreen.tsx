@@ -118,7 +118,7 @@ export const IconAnimation = () => {
         {showSpinner ? (
           <Spinner />
         ) : (
-          <OrgLogoIcon className="size-9 text-primary" />
+          <OrgLogoIcon className="size-7 text-primary" />
         )}
       </motion.div>
     </AnimatePresence>

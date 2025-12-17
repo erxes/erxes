@@ -1,12 +1,12 @@
 import { useAtomValue } from 'jotai';
 import { currentOrganizationState } from 'ui-modules';
 
-interface LogoProps extends React.SVGProps<SVGSVGElement> {
-  organizationLogo?: string | null;
-}
+type LogoProps = React.SVGProps<SVGSVGElement>;
 
-export const Logo = ({ organizationLogo, ...props }: LogoProps) => {
-  if (!organizationLogo) {
+export const Logo = ({ ...props }: LogoProps) => {
+  const organization = useAtomValue(currentOrganizationState);
+
+  if (!organization?.orgLogo) {
     return (
       <svg
         width="64"
@@ -43,10 +43,10 @@ export const Logo = ({ organizationLogo, ...props }: LogoProps) => {
       </svg>
     );
   }
-  // TODO: replace with organizationLogo
+
   return (
     <img
-      src={organizationLogo}
+      src={organization.orgLogo}
       alt="Organization Logo"
       className="object-contain h-8 w-auto"
     />
@@ -54,7 +54,7 @@ export const Logo = ({ organizationLogo, ...props }: LogoProps) => {
 };
 
 export const OrgLogoIcon = ({ ...props }: React.SVGProps<SVGSVGElement>) => {
-  const organization = {} as any;
+  const organization = useAtomValue(currentOrganizationState);
 
   if (organization?.orgLogo) {
     return (
