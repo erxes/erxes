@@ -19,6 +19,7 @@ export type CurrentOrganization = {
   orgFavicon?: string;
   orgShortDescription?: string;
   orgShortName?: string;
+  orgCustomOnboarding?: boolean;
 };
 
 export const currentOrganizationState = atom<CurrentOrganization | null>(null);

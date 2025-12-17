@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { Button, Card, PageContainer } from 'erxes-ui';
 import { IconSun, IconKeyboard } from '@tabler/icons-react';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, currentOrganizationState } from 'ui-modules';
+import { useAtomValue } from 'jotai';
 
 interface FeatureProps {
   icon: React.ReactNode;
@@ -20,6 +21,7 @@ const Feature = ({ icon, title, description }: FeatureProps) => (
 );
 
 export const OnBoarding = () => {
+  const organization = useAtomValue(currentOrganizationState);
   const features: FeatureProps[] = [
     {
       icon: <IconSun className="h-4 w-4" />,
@@ -59,7 +61,8 @@ export const OnBoarding = () => {
                 className="space-y-2 text-center"
               >
                 <h1 className="text-3xl font-bold tracking-tight">
-                  Welcome to erxes 3.0 – A New Experience Begins!
+                  Welcome to {organization?.orgShortName || 'erxes 3.0'} – A New
+                  Experience Begins!
                 </h1>
                 <p className="text-muted-foreground">
                   A Fresh Start with a New UX/UI
@@ -100,7 +103,8 @@ export const OnBoarding = () => {
 
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-center">
-                  Your Feedback Shapes erxes 3.0
+                  Your Feedback Shapes{' '}
+                  {organization?.orgShortName || 'erxes 3.0'}
                 </h2>
                 <p className="text-center text-muted-foreground">
                   Your input is essential! Share your thoughts and help us

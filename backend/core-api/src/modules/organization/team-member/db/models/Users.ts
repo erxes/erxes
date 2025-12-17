@@ -45,14 +45,6 @@ interface IUpdateUser extends IEditProfile {
   brandIds?: string[];
 }
 
-interface IConfirmParams {
-  token: string;
-  password: string;
-  passwordConfirmation: string;
-  fullName?: string;
-  username?: string;
-}
-
 interface IInviteParams {
   email: string;
   password?: string;
@@ -758,6 +750,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       }
 
       await sendOnboardNotification(subdomain, models, user._id);
+      await user.updateOne({ $set: { registrationToken: null } });
 
       return {
         token,

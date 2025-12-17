@@ -1,17 +1,15 @@
 import { Button } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useScopedHotkeys } from 'erxes-ui';
-// import { useAtomValue } from 'jotai';
-// import { currentOrganizationState } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import { currentOrganizationState } from 'ui-modules';
 import { OrgLogoIcon } from '@/auth/components/Logo';
 
 export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
 
-  // const organization = useAtomValue(currentOrganizationState);
-
-  const organization = {} as any;
+  const organization = useAtomValue(currentOrganizationState);
 
   return (
     <div className="flex flex-col items-center justify-center gap-10 max-w-sm mx-auto px-6 scale-110 -translate-y-10">
@@ -51,10 +49,13 @@ export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
         className="flex flex-col items-center gap-4 text-center"
       >
         <h1 className=" font-semibold text-foreground text-[2.3rem]">
-          Welcome to {organization?.name || 'erxes'}
+          Welcome to{' '}
+          {organization?.orgCustomOnboarding
+            ? organization?.orgShortName
+            : 'erxes 3.0'}
         </h1>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-          {organization?.orgShortDescription ||
+          {!organization?.orgCustomOnboarding &&
             'An open-source experience operating system (XOS)'}
         </p>
       </motion.div>
