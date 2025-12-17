@@ -1,71 +1,75 @@
 import {
+  Combobox,
+  Tooltip,
+  isUndefinedOrNull,
+} from 'erxes-ui';
+import {
   ProductsInlineContext,
   useProductsInlineContext,
 } from '../contexts/ProductsInlineContext';
-import { Combobox, isUndefinedOrNull, Tooltip } from 'erxes-ui';
 import { IProduct } from '../types/Product';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useProductsInline } from '../hooks/useProducts';
 
-interface ProductsInlineProviderProps {
-  children: React.ReactNode;
+export const ProductsInlineProvider = ({
+  children,
+  productIds,
+  products,
+  placeholder,
+  updateProducts,
+}: {
+  children?: React.ReactNode;
   productIds?: string[];
   products?: IProduct[];
   placeholder?: string;
   updateProducts?: (products: IProduct[]) => void;
-}
+}) => {
+  const [productsList, setProductsList] = useState<IProduct[]>(products || []);
 
-const ProductsInlineProvider = ({
-  children,
-  placeholder,
-  productIds,
-  products,
-  updateProducts,
-}: ProductsInlineProviderProps) => {
   return (
     <ProductsInlineContext.Provider
       value={{
-        products: products || [],
-        // Todo: Add dynamic loading state
+        products: products || productsList,
         loading: false,
+        productIds: productIds || [],
         placeholder: isUndefinedOrNull(placeholder)
           ? 'Select Products'
           : placeholder,
-        updateProducts,
+        updateProducts: updateProducts || setProductsList,
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
       {productIds?.some(
         (id) => !products?.some((product) => product._id === id),
       ) && (
-        <ProductsInlineEffectComponent
-          productIdsWithNoDetails={productIds.filter(
-            (id) => !products?.some((product) => product._id === id),
-          )}
-        />
-      )}
+          <ProductsInlineEffectComponent
+            missingProductIds={productIds.filter(
+              (id) => !products?.some((product) => product._id === id),
+            )}
+          />
+        )}
     </ProductsInlineContext.Provider>
   );
 };
 
 const ProductsInlineEffectComponent = ({
-  productIdsWithNoDetails,
+  missingProductIds,
 }: {
-  productIdsWithNoDetails: string[];
+  missingProductIds: string[];
 }) => {
   const { updateProducts, products } = useProductsInlineContext();
-  const { products: detailMissingProducts } = useProductsInline({
+  const { products: missingProducts } = useProductsInline({
     variables: {
-      ids: productIdsWithNoDetails,
+      ids: missingProductIds,
     },
   });
 
   useEffect(() => {
-    if (detailMissingProducts && detailMissingProducts.length > 0) {
+    if (missingProducts && missingProducts.length > 0) {
       const existingProductsMap = new Map(
         products.map((product) => [product._id, product]),
       );
-      const newProducts = detailMissingProducts.filter(
+      const newProducts = missingProducts.filter(
         (product) => !existingProductsMap.has(product._id),
       );
 
@@ -74,47 +78,52 @@ const ProductsInlineEffectComponent = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detailMissingProducts, updateProducts, productIdsWithNoDetails]);
+  }, [missingProducts, missingProductIds]);
 
   return null;
 };
 
-const ProductsInlineTitle = () => {
-  const { products, loading, placeholder } = useProductsInlineContext();
+export const ProductsInlineTitle = ({ className }: { className?: string }) => {
+  const { products, loading, placeholder } =
+    useProductsInlineContext();
 
   const getDisplayValue = () => {
-    if (products.length === 0) return undefined;
-
-    if (products.length === 1) {
-      if (!products[0].name) {
-        return;
-      }
-      return products[0].name;
+    if (!products || products.length === 0) {
+      return undefined;
     }
 
-    return `${products.length} products selected`;
+    const product = products[0];
+
+    if (products.length === 1) {
+      return `${product.code} - ${product.name}`;
+    }
+
+    return ` ${product.code}...${products.length - 1} products`;
   };
 
   return (
-    <span className="flex items-center gap-2">
-      {products.length === 1 && (
-        <span className="text-muted-foreground">{products[0].code}</span>
-      )}
-      <Combobox.Value
-        value={getDisplayValue()}
-        loading={loading}
-        placeholder={placeholder}
-      />
-    </span>
+    <Combobox.Value
+      value={getDisplayValue()}
+      loading={loading}
+      placeholder={placeholder}
+      className={className}
+    />
   );
 };
 
-const ProductsInlineRoot = ({
+export const ProductsInlineRoot = ({
   productIds,
   products,
   placeholder,
   updateProducts,
-}: Omit<ProductsInlineProviderProps, 'children'>) => {
+  className,
+}: {
+  products?: IProduct[];
+  productIds?: string[];
+  placeholder?: string;
+  updateProducts?: (products: IProduct[]) => void;
+  className?: string;
+}) => {
   return (
     <ProductsInlineProvider
       productIds={productIds}
@@ -122,7 +131,7 @@ const ProductsInlineRoot = ({
       placeholder={placeholder}
       updateProducts={updateProducts}
     >
-      <ProductsInline.Title />
+      <ProductsInlineTitle className={className} />
     </ProductsInlineProvider>
   );
 };

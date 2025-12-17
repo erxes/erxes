@@ -67,7 +67,7 @@ export const CycleProgressByProject = ({
                       {
                         name: 'Progress',
                         value: getProgress(item),
-                        fill: 'hsl(var(--primary))',
+                        fill: 'var(--primary)',
                       },
                     ]}
                     startAngle={90}
@@ -80,7 +80,7 @@ export const CycleProgressByProject = ({
                       tick={false}
                     />
                     <RadialBar
-                      background={{ fill: 'hsl(var(--border))' }}
+                      background={{ fill: 'var(--border)' }}
                       dataKey="value"
                       cornerRadius={10}
                     />
@@ -129,6 +129,6 @@ const chartConfig = {
   },
   safari: {
     label: 'Done',
-    color: 'hsl(var(--primary))',
+    color: 'var(--primary)',
   },
 } satisfies ChartConfig;

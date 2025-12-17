@@ -3,13 +3,13 @@ import {
   Button,
   Checkbox,
   cn,
+  IconComponent,
   RelativeDateDisplay,
-  RelativeDateDisplayShort,
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
 import { useConversationContext } from '../hooks/useConversationContext';
-import { currentUserState, CustomersInline } from 'ui-modules';
+import { currentUserState, CustomersInline, MembersInline } from 'ui-modules';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { activeConversationState } from '../states/activeConversationState';
 import { ConversationIntegrationBadge } from '@/integrations/components/IntegrationBadge';
@@ -45,20 +45,18 @@ export const ConversationItem = ({
                 <CustomersInline.Title className="truncate" />
                 <div className="ml-auto text-accent-foreground">
                   {createdAt && (
-                    <RelativeDateDisplayShort.Value
+                    <RelativeDateDisplay.Value
                       value={updatedAt || createdAt}
+                      isShort
                     />
                   )}
                 </div>
               </div>
-              <div className="w-auto text-left flex-none truncate">
-                {channel && <span title={channel.name}>{channel.name}</span>}
-                {integration && integration.kind !== 'calls' && (
-                  <>
-                    <span> via </span>
-                    <span title={integration.kind}>{integration.kind}</span>
-                  </>
+              <div className="w-auto text-left flex-none truncate flex items-center gap-1 text-xs">
+                {channel && (
+                  <IconComponent name={channel?.icon} className="size-3" />
                 )}
+                {channel && <span title={channel.name}>{channel.name}</span>}
               </div>
             </div>
           </div>
@@ -74,7 +72,7 @@ export const ConversationItem = ({
         <ConversationSelector />
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
-        <div className="truncate w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+        <div className="w-auto text-right flex-none">
           <span> to </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
           <span> via </span>
@@ -95,7 +93,8 @@ export const ConversationItem = ({
 };
 
 export const ConversationItemContent = () => {
-  const { content } = useConversationContext();
+  const inboxLayout = useAtomValue(inboxLayoutState);
+  const { content, assignedUserId, assignedUser } = useConversationContext();
   if (!content) return null;
 
   if (content.includes('callDirection/')) {
@@ -108,8 +107,27 @@ export const ConversationItemContent = () => {
     );
   }
 
+  if (inboxLayout === 'split') {
+    return (
+      <div className="flex items-center gap-2 w-full justify-between flex-nowrap">
+        <div className="**:truncate flex-1 w-3/4 h-4 **:text-sm **:leading-tight **:font-medium">
+          <BlockEditorReadOnly content={content} />
+        </div>
+        {assignedUserId && assignedUser && (
+          <MembersInline.Provider memberIds={[assignedUserId]}>
+            <span className="w-auto flex gap-2 items-center shrink-0">
+              <span className="[1lh] flex items-center">
+                <MembersInline.Avatar size={'sm'} />
+              </span>
+            </span>
+          </MembersInline.Provider>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="[&_*]:truncate w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+    <div className="min-w-0 flex-1 overflow-hidden **:truncate [&_p]:w-full h-4 **:text-sm **:leading-tight **:font-medium">
       <BlockEditorReadOnly content={content} />
     </div>
   );
@@ -139,7 +157,7 @@ const ConversationContainer = ({
       variant={isRead ? 'secondary' : 'ghost'}
       size="lg"
       className={cn(
-        'flex rounded-none h-10 justify-start px-4 gap-3 hover:bg-primary/5 hover:text-foreground w-full',
+        'flex rounded-none h-10 justify-start px-4 gap-3 hover:bg-primary/5 hover:text-foreground w-full overflow-x-hidden',
         className,
         isRead && 'font-medium text-muted-foreground',
         conversationId === _id &&

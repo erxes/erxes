@@ -3,10 +3,12 @@ import {
   coreModelOrganizations,
   getSaasCoreConnection,
 } from '../saas/saas-mongo-connection';
-import { isEnabled } from '../service-discovery';
-import { checkServiceRunning, getEnv, getSubdomain } from '../utils';
+import { getEnv, getSubdomain } from '../utils';
 import { startChangeStreams } from './change-stream';
 import { connect } from './mongo-connection';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const initializeModels = async <IModels>(
   connection: mongoose.Connection,
@@ -20,11 +22,12 @@ const initializeModels = async <IModels>(
     ignoreModels?: string[];
   },
 ) => {
+  const DISABLE_CHANGE_STREAM = process.env.DISABLE_CHANGE_STREAM
+    ? process.env.DISABLE_CHANGE_STREAM === 'true'
+    : false;
+
   const models = await loadClasses(connection, subdomain);
-  if (
-    !logIgnoreOptions?.ignoreChangeStream &&
-    (await checkServiceRunning('logs'))
-  ) {
+  if (!logIgnoreOptions?.ignoreChangeStream && !DISABLE_CHANGE_STREAM) {
     startChangeStreams(models as any, subdomain, logIgnoreOptions);
   }
 
@@ -67,8 +70,6 @@ export const createGenerateModels = <IModels>(
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
-      console.log(subdomain, 'subdomain1');
-
       if (!subdomain) {
         throw new Error(`Subdomain is \`${subdomain}\``);
       }
@@ -77,8 +78,6 @@ export const createGenerateModels = <IModels>(
       if (subdomain && subdomain.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
-
-      console.log(subdomain, 'subdomain2');
 
       await getSaasCoreConnection();
 

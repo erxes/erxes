@@ -16,6 +16,7 @@ import {
   IUpdateMessengerCustomerParams,
   IVisitorContactInfoParams,
 } from '../../@types/customer';
+import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -78,6 +79,16 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     type: string,
     status: string,
   ): Promise<ICustomerDocument[]>;
+
+  updateSubscriptionStatus({
+    _id,
+    customerIds,
+    status,
+  }: {
+    _id?: string;
+    customerIds?: string[];
+    status?: string;
+  }): Promise<ICustomerDocument[]>;
 }
 
 export const loadCustomerClass = (models: IModels) => {
@@ -152,7 +163,7 @@ export const loadCustomerClass = (models: IModels) => {
       }
 
       if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }
@@ -185,7 +196,7 @@ export const loadCustomerClass = (models: IModels) => {
       if (doc.customFieldsData) {
         // clean custom field values
 
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }
@@ -415,16 +426,9 @@ export const loadCustomerClass = (models: IModels) => {
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
-
       return this.createCustomer({
         ...doc,
-        trackedData,
-        customFieldsData,
+        customFieldsData: customData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -443,24 +447,14 @@ export const loadCustomerClass = (models: IModels) => {
 
       this.fixListFields(doc, customData, customer);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
-
       const modifier: any = {
         ...doc,
         state: doc.isUser ? 'customer' : customer.state,
         updatedAt: new Date(),
       };
 
-      if (trackedData && trackedData.length > 0) {
-        modifier.trackedData = trackedData;
-      }
-
-      if (customFieldsData && customFieldsData.length > 0) {
-        modifier.customFieldsData = customFieldsData;
+      if (customData && customData.length > 0) {
+        modifier.customFieldsData = customData;
       }
 
       await models.Customers.updateOne({ _id }, { $set: modifier });
@@ -619,6 +613,36 @@ export const loadCustomerClass = (models: IModels) => {
       );
 
       return models.Customers.findOne({ _id });
+    }
+
+    /*
+     * Update customer's subscription status
+     */
+    public static async updateSubscriptionStatus({
+      _id,
+      customerIds,
+      status,
+    }: {
+      _id?: string;
+      customerIds?: string[];
+      status?: string;
+    }) {
+      const update: any = { isSubscribed: 'No' };
+
+      if (status === AWS_EMAIL_STATUSES.BOUNCE) {
+        update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
+      }
+
+      if (_id && status) {
+        return models.Customers.updateOne({ _id }, { $set: update });
+      }
+
+      if (customerIds?.length && !status) {
+        return models.Customers.updateMany(
+          { _id: { $in: customerIds } },
+          { $set: update },
+        );
+      }
     }
 
     public static fixListFields(

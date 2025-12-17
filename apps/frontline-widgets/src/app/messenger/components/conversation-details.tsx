@@ -6,15 +6,16 @@ import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
   connectionAtom,
   conversationIdAtom,
-  integrationIdAtom,
+  messengerDataAtom,
 } from '../states';
 import { Skeleton, cn } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
 import { BotSeparator } from './bot-separator';
 import { TypingStatus } from './typing-status';
+import { NotifyCustomerForm } from './notify-customer-form';
 
-const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds
+const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
 type Message = NonNullable<
   ReturnType<typeof useConversationDetail>['conversationDetail']
@@ -58,7 +59,7 @@ function shouldGroupMessages(
 
 export const ConversationDetails = () => {
   const conversationId = useAtomValue(conversationIdAtom);
-  const integrationId = useAtomValue(integrationIdAtom);
+  const messengerConnectData = useAtomValue(messengerDataAtom);
   const connection = useAtomValue(connectionAtom);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { widgetsMessengerConnect } = connection || {};
@@ -67,9 +68,9 @@ export const ConversationDetails = () => {
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
-      integrationId,
+      integrationId: messengerConnectData?.integrationId ?? '',
     },
-    skip: !conversationId || !integrationId,
+    skip: !conversationId || !messengerConnectData?.integrationId,
   });
   const { messages } = conversationDetail || {};
 
@@ -105,16 +106,25 @@ export const ConversationDetails = () => {
 
     messagesForDate.forEach((message) => {
       const messageTime = new Date(message.createdAt).getTime();
+      const lastGroup = groups[groups.length - 1];
 
-      const existingGroup = groups.find((group) => {
-        const groupTime = new Date(group.firstMessage.createdAt).getTime();
+      if (lastGroup) {
+        const groupTime = new Date(lastGroup.firstMessage.createdAt).getTime();
         const timeDifference = Math.abs(messageTime - groupTime);
+        const shouldGroup = shouldGroupMessages(
+          message,
+          lastGroup.firstMessage,
+          timeDifference,
+        );
 
-        return shouldGroupMessages(message, group.firstMessage, timeDifference);
-      });
-
-      if (existingGroup) {
-        existingGroup.messages.push({ ...message, showAvatar: false });
+        if (shouldGroup) {
+          lastGroup.messages.push({ ...message, showAvatar: false });
+        } else {
+          groups.push({
+            messages: [{ ...message, showAvatar: true }],
+            firstMessage: message,
+          });
+        }
       } else {
         groups.push({
           messages: [{ ...message, showAvatar: true }],
@@ -123,7 +133,6 @@ export const ConversationDetails = () => {
       }
     });
 
-    // Set avatar visibility: only show on the last message of each group
     groups.forEach((group) => {
       group.messages.forEach((message, index) => {
         message.showAvatar = index === group.messages.length - 1;
@@ -144,12 +153,12 @@ export const ConversationDetails = () => {
   }
 
   return (
-    <div className="flex flex-col max-h-full overflow-y-hidden">
+    <div className="flex flex-col max-h-full overflow-y-hidden relative">
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto scroll-smooth scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
       >
-        {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
+        {isBotTyping && <TypingStatus />}
 
         {sortedDateKeys.map((dateKey, index) => {
           const messagesForDate = messagesByDate[dateKey];
@@ -169,7 +178,10 @@ export const ConversationDetails = () => {
               {messageGroups.map((group, groupIndex) => (
                 <div
                   key={`group-${groupIndex}`}
-                  className={cn(groupIndex !== 0 && 'pt-4', 'space-y-0.5')}
+                  className={cn(
+                    groupIndex !== 0 && 'pt-4 w-full',
+                    'space-y-0.5',
+                  )}
                 >
                   {group.messages.map((message, messageIndex) => {
                     const messagePositionProps = {
@@ -201,6 +213,7 @@ export const ConversationDetails = () => {
                             }
                             createdAt={new Date(message.createdAt)}
                             showAvatar={message.showAvatar}
+                            attachments={message.attachments}
                             {...messagePositionProps}
                           />
                         </div>
@@ -212,17 +225,19 @@ export const ConversationDetails = () => {
                         key={message._id}
                         content={message.content}
                         createdAt={new Date(message.createdAt)}
+                        attachments={message.attachments}
                       />
                     );
                   })}
                 </div>
               ))}
-              {isBotTyping && <TypingStatus />}
             </div>
           );
         })}
+
+        {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
       </div>
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <ChatInput />
       </div>
     </div>

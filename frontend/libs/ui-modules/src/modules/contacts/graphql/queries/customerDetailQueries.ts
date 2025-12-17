@@ -31,7 +31,6 @@ export const CUSTOMER_DETAIL = gql`
         avatar
         primaryName
       }
-      __typename
     }
   }
 `;

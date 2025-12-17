@@ -10,6 +10,7 @@ import { IModels, generateModels } from '~/connectionResolvers';
 import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
 export const getConfig = async (
   subdomain: string,
@@ -871,9 +872,9 @@ export const syncOrderFromClient = async ({
   if (newOrder.paidDate) {
     if (newOrder.customerId && (await checkServiceRunning('automations'))) {
       try {
-        sendWorkerQueue('automations', 'trigger').add('trigger', {
-          subdomain,
-          data: { type: 'pos:posOrder', targets: [newOrder] },
+        sendAutomationTrigger(subdomain, {
+          type: 'pos:posOrder',
+          targets: [newOrder],
         });
       } catch (e) {
         console.log(subdomain, e.message);

@@ -111,8 +111,7 @@ const SelectProductContent = () => {
         {!loading &&
           productsData
             ?.filter(
-              (product) =>
-                !productIds.find((productId) => productId === product._id),
+              (product) => !productIds.includes(product._id)
             )
             .map((product) => (
               <SelectProductCommandItem key={product._id} product={product} />

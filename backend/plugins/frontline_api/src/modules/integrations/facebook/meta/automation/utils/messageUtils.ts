@@ -6,6 +6,7 @@ import {
   TBotConfigMessageButton,
   TBotData,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
 export const triggerFacebookAutomation = async (
   subdomain: string,
@@ -20,13 +21,13 @@ export const triggerFacebookAutomation = async (
   },
 ) => {
   const target: any = { ...conversationMessage };
-  let executionId;
   let type = 'frontline:facebook.messages';
-
+  let repeatOptions;
   if (payload) {
     target.payload = JSON.parse(payload || '{}');
-    if (target?.payload?.executionId) {
-      executionId = target.payload.executionId;
+    const { executionId, actionId, btnId } = target?.payload || {};
+    if (executionId && actionId) {
+      repeatOptions = { executionId, actionId, optionalConnectId: btnId };
     }
   }
 
@@ -35,10 +36,19 @@ export const triggerFacebookAutomation = async (
     type = 'facebook:ads';
   }
 
-  sendWorkerQueue('automations', 'trigger').add('trigger', {
+  sendAutomationTrigger(
     subdomain,
-    data: { type, targets: [target], executionId },
-  });
+    {
+      type,
+      targets: [target],
+      repeatOptions,
+    },
+    {
+      priority: 1,
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
+  );
 };
 
 export const checkIsBot = async (models: IModels, message, recipientId) => {
@@ -50,7 +60,6 @@ export const checkIsBot = async (models: IModels, message, recipientId) => {
       selector = { _id: payload.botId };
     }
   }
-
   const bot = await models.FacebookBots.findOne(selector);
 
   return bot;
@@ -61,12 +70,14 @@ export const generatePayloadString = (
   btn: any,
   customerId: string,
   executionId: string,
+  actionId: string,
 ) => {
   return JSON.stringify({
     btnId: btn._id,
     conversationId: conversation._id,
     customerId,
     executionId,
+    actionId,
   });
 };
 

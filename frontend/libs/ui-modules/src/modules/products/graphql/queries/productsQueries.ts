@@ -1,9 +1,10 @@
-import { gql } from '@apollo/client';
 import {
+  GQL_CURSOR_PARAMS,
   GQL_CURSOR_PARAM_DEFS,
   GQL_PAGE_INFO,
-  GQL_CURSOR_PARAMS,
 } from 'erxes-ui';
+
+import { gql } from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query SelectProduct(
@@ -18,6 +19,16 @@ export const GET_PRODUCTS = gql`
         _id
         code
         name
+        unitPrice
+        category {
+          _id
+          name
+        }
+        categoryId
+        vendor {
+          _id
+          primaryName
+        }
       }
       totalCount
       ${GQL_PAGE_INFO}

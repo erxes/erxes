@@ -7,14 +7,14 @@ import {
   checkMessageTrigger,
 } from '@/integrations/facebook/meta/automation/messages';
 import {
-  IAutomationReceiveActionData,
-  IAutomationWorkerContext,
   ICheckTriggerData,
   IReplacePlaceholdersData,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import {
   replacePlaceHolders,
   setProperty,
+  TAutomationProducers,
+  TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
 
@@ -22,10 +22,10 @@ const getItems = async (
   subdomain: string,
   module: string,
   execution: any,
-  triggerType: string,
+  targetType: string,
 ) => {
   const { target } = execution;
-  if (module === triggerType) {
+  if (module === targetType) {
     return [target];
   }
   return [];
@@ -37,67 +37,33 @@ const getRelatedValue = async () => {
 
 export const facebookAutomationWorkers = {
   receiveActions: async (
-    { models, subdomain }: IAutomationWorkerContext,
     {
       action,
       execution,
-      actionType,
       collectionType,
-      triggerType,
-    }: IAutomationReceiveActionData,
+    }: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
+    { models, subdomain },
   ) => {
-    if (actionType === 'create') {
-      switch (collectionType) {
-        case 'messages':
-          return await actionCreateMessage({
-            models,
-            subdomain,
-            action,
-            execution,
-          });
-        case 'comments':
-          return await actionCreateComment(
-            models,
-            subdomain,
-            action,
-            execution,
-          );
-
-        default:
-          return { result: null };
-      }
-    }
-
-    if (actionType === 'set-property') {
-      const { module, rules } = action.config;
-      const relatedItems = await getItems(
-        subdomain,
-        module,
-        execution,
-        triggerType,
-      );
-      return {
-        result: await setProperty({
+    switch (collectionType) {
+      case 'messages':
+        return await actionCreateMessage({
           models,
           subdomain,
-          getRelatedValue,
-          module,
-          rules,
+          action,
           execution,
-          relatedItems,
-          triggerType,
-        }),
-      };
-    }
+        });
+      case 'comments':
+        return await actionCreateComment(models, subdomain, action, execution);
 
-    return { result: null };
+      default:
+        return { result: null };
+    }
   },
   replacePlaceHolders: async (
-    { subdomain }: IAutomationWorkerContext,
     data: IReplacePlaceholdersData,
+    { models, subdomain },
   ) => {
     const { target, config, relatedValueProps } = data;
-    const models = await generateModels(subdomain);
 
     return await replacePlaceHolders<IModels>({
       models,
@@ -107,12 +73,8 @@ export const facebookAutomationWorkers = {
       target,
     });
   },
-  checkCustomTrigger: async (
-    { subdomain }: IAutomationWorkerContext,
-    data: ICheckTriggerData,
-  ) => {
+  checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {
     const { collectionType } = data;
-
     switch (collectionType) {
       case 'messages':
         return await checkMessageTrigger(subdomain, data);
@@ -124,5 +86,32 @@ export const facebookAutomationWorkers = {
       default:
         return false;
     }
+  },
+
+  setProperties: async (
+    {
+      action,
+      execution,
+      targetType,
+    }: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
+    { models, subdomain },
+  ) => {
+    const { module, rules } = action.config;
+    const relatedItems = await getItems(
+      subdomain,
+      module,
+      execution,
+      targetType,
+    );
+    return await setProperty({
+      models,
+      subdomain,
+      getRelatedValue,
+      module,
+      rules,
+      execution,
+      relatedItems,
+      targetType,
+    });
   },
 };

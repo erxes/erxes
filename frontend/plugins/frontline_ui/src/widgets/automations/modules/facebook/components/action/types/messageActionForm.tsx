@@ -1,18 +1,15 @@
-import {
-  TBotMessage,
-  TMessageActionForm,
-} from '../states/replyMessageActionForm';
+import { FieldPath } from 'react-hook-form';
 import { INITIAL_OBJ_MESSAGE_TYPES } from '../constants/ReplyMessage';
-import { Control, FieldPath } from 'react-hook-form';
+import { TBotMessage } from '../states/replyMessageActionForm';
 
 export type MessageActionTypeNames = keyof typeof INITIAL_OBJ_MESSAGE_TYPES;
 
-export type FacebookMessageProps = {
+export type FacebookMessageProps<U> = {
   index: number;
-  message: TBotMessage;
+  message: Extract<TBotMessage, U>;
   handleMessageChange: (
     messageIndex: number,
-    field: FieldPath<TBotMessage>,
+    field: FieldPath<Extract<TBotMessage, U>>,
     newData: any,
   ) => void;
 };

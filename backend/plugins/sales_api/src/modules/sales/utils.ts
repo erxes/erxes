@@ -676,7 +676,7 @@ export const getItemList = async (
     input: {
       query: {
         showInCard: true,
-        contentType: `sales:deal`,
+        contentType: `sales:sales.deal`,
       },
     },
     defaultValue: [],
@@ -733,6 +733,85 @@ const compareDepartmentIds = (
   }
 
   return false;
+};
+
+export const generateProducts = async (
+  subdomain: string,
+  productsData?: any[]
+) => {
+  const products: any = [];
+
+  if (!productsData || !productsData.length) {
+    return products;
+  }
+
+  const productIds = productsData
+    .filter(pd => pd.productId)
+    .map(pd => pd.productId);
+
+  const allProducts = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'products',
+    action: "find",
+    input: { query: { _id: { $in: productIds } }, limit: productsData.length },
+    defaultValue: []
+  });
+
+  for (const data of productsData || []) {
+    if (!data.productId) {
+      continue;
+    }
+    const product = allProducts.find(p => p._id === data.productId);
+
+    if (!product) {
+      continue;
+    }
+
+    const { customFieldsData } = product;
+
+    const customFields: any[] = [];
+
+    const fieldIds: string[] = [];
+    for (const customFieldData of customFieldsData || []) {
+      fieldIds.push(customFieldData.field);
+    }
+
+    const fields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: "find",
+      input: {
+        query: {
+          _id: { $in: fieldIds }
+        }
+      },
+      defaultValue: []
+    });
+
+    for (const customFieldData of customFieldsData || []) {
+      const field = fields.find(f => f._id === customFieldData.field);
+
+      if (field) {
+        customFields[customFieldData.field] = {
+          text: field.text,
+          data: customFieldData.value
+        };
+      }
+    }
+
+    product.customFieldsData = customFields;
+
+    products.push({
+      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
+      product
+    });
+  }
+
+  return products;
 };
 
 export const generateAmounts = (productsData, useTick = true) => {
@@ -1235,4 +1314,49 @@ export const sendNotifications = async (
       ...notificationDoc,
     },
   });
+};
+
+export const itemsAdd = async (
+  models: IModels,
+  subdomain: string,
+  doc: IDeal & {
+    processId: string;
+    aboveItemId: string;
+  },
+  type: string,
+  createModel: any,
+  user?: IUserDocument,
+  docModifier?: any,
+) => {
+  doc.initialStageId = doc.stageId;
+  doc.watchedUserIds = user && [user._id];
+
+  const modifiedDoc = docModifier ? docModifier(doc) : doc;
+
+  const extendedDoc = {
+    ...modifiedDoc,
+    modifiedBy: user && user._id,
+    userId: user ? user._id : doc.userId,
+    order: await getNewOrder({
+      collection: models.Deals,
+      stageId: doc.stageId,
+      aboveItemId: doc.aboveItemId,
+    }),
+  };
+
+  if (extendedDoc.customFieldsData) {
+    // clean custom field values
+    extendedDoc.customFieldsData = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'fields',
+      action: 'prepareCustomFieldsData',
+      input: extendedDoc.customFieldsData,
+      defaultValue: [],
+    });
+  }
+
+  const item = await createModel(extendedDoc);
+
+  return item;
 };

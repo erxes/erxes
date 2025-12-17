@@ -101,7 +101,8 @@ export function useBranchEdit(
 export function useRemoveBranch() {
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_BRANCHES, {
-    onCompleted: () => toast({ title: 'Removed successfully!' }),
+    onCompleted: () =>
+      toast({ title: 'Removed successfully!', variant: 'success' }),
     refetchQueries: ['Branches'],
   });
 
@@ -140,6 +141,7 @@ export function useBranchInlineEdit() {
         if (data?.branchesEdit) {
           toast({
             title: 'Branch updated successfully!',
+            variant: 'success',
           });
         }
       },

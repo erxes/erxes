@@ -86,7 +86,7 @@ export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
               <Card.Description className="flex items-center justify-between self-stretch">
                 <div className="flex items-center gap-2">
                   <IconCalendarPlus size={18} className="text-black" />
-                  <p className="text-sm flex-shrink-0 text-muted-foreground leading-[100%]">
+                  <p className="text-sm shrink-0 text-muted-foreground leading-[100%]">
                     {document.createdAt ? (
                       <RelativeDateDisplay.Value
                         value={dayjs(document.createdAt as string).format(

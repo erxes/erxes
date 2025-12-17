@@ -24,19 +24,23 @@ import { ConversationSideWidget } from '@/inbox/conversations/conversation-detai
 
 export const ConversationDetail = () => {
   const [conversationId] = useQueryState<string>('conversationId');
+  const [relatedConversationId] = useQueryState<string>(
+    'relatedConversationId',
+  );
   const activeConversationCandidate = useAtomValue(activeConversationState);
   const setExtraInfo = useSetAtom(messageExtraInfoState);
 
   const currentConversation =
-    activeConversationCandidate?._id === conversationId
+    activeConversationCandidate?._id === conversationId ||
+    activeConversationCandidate?._id === relatedConversationId
       ? activeConversationCandidate
       : null;
 
   const { conversationDetail, loading } = useConversationDetail({
     variables: {
-      _id: conversationId,
+      _id: conversationId || relatedConversationId,
     },
-    skip: !conversationId,
+    skip: !conversationId && !relatedConversationId,
     fetchPolicy: 'cache-and-network',
   });
 
@@ -74,41 +78,42 @@ export const ConversationDetail = () => {
     );
   }
 
+  const conversationAllDetails = {
+    ...currentConversation,
+    ...conversationDetail,
+    integration,
+    loading,
+  } as IConversation & {
+    integration?: IIntegration;
+    loading?: boolean;
+  };
+
   return (
-    <ConversationContext.Provider
-      value={
-        {
-          ...currentConversation,
-          ...conversationDetail,
-          integration,
-          loading,
-        } as IConversation & {
-          integration?: IIntegration;
-          loading?: boolean;
-        }
-      }
-    >
-      <div className="flex h-full overflow-hidden">
-        <div className="flex flex-col h-full overflow-hidden flex-auto">
+    <div className="flex h-full overflow-hidden">
+      <div className="flex flex-col h-full overflow-hidden flex-auto">
+        <ConversationContext.Provider value={conversationAllDetails}>
           <ConversationHeader />
           <Separator />
           <ConversationDetailLayout
             input={
               <MessageInputIntegrationWrapper>
-                <MessageInput />
+                <MessageInput conversationId={conversationId || ''} />
               </MessageInputIntegrationWrapper>
             }
           >
             {integration?.kind &&
               ['messenger', 'lead'].includes(integration?.kind) && (
-                <ConversationMessages />
+                <ConversationMessages conversationId={conversationId || ''} />
               )}
             <ConversationIntegrationDetail />
           </ConversationDetailLayout>
           <ConversationMarkAsReadEffect />
-        </div>
-        <ConversationSideWidget />
+        </ConversationContext.Provider>
       </div>
-    </ConversationContext.Provider>
+      <ConversationSideWidget
+        customerId={conversationAllDetails?.customerId || ''}
+        _id={conversationAllDetails?._id || ''}
+      />
+    </div>
   );
 };

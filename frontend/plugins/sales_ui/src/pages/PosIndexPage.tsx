@@ -1,21 +1,19 @@
 import { IconCashRegister, IconPlus, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { Link, useSearchParams } from 'react-router-dom';
-import { PosRecordTable } from '@/pos/components/PosRecordTable';
-import { useAtom } from 'jotai';
-import { PosCreate } from '@/pos/create-pos/components/index/pos-create';
-import { PosEdit } from '@/pos/pos-detail/components/posDetail';
-import { renderingPosCreateAtom } from '@/pos/create-pos/states/renderingPosCreateAtom';
+import { Link } from 'react-router-dom';
+import { PosCardGrid } from '@/pos/components/PosRecordList';
+import { PosCreate } from '~/modules/pos/components/pos-create';
+import { PosFilter } from '~/modules/pos/pos/PosFilter';
+import { useState } from 'react';
 
 export const PosIndexPage = () => {
-  const [, setSearchParams] = useSearchParams();
-  const [, setRenderingPosCreate] = useAtom(renderingPosCreateAtom);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const onCreatePos = () => {
-    setRenderingPosCreate(true);
-    setSearchParams({ create: 'true' });
+    setCreateDialogOpen(true);
   };
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -24,7 +22,7 @@ export const PosIndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/pos">
+                  <Link to="/sales/pos">
                     <IconCashRegister />
                     pos
                   </Link>
@@ -43,14 +41,17 @@ export const PosIndexPage = () => {
             </Link>
           </Button>
           <Button onClick={onCreatePos}>
-            <IconPlus className="mr-2 h-4 w-4" />
+            <IconPlus className="mr-2 w-4 h-4" />
             Create POS
           </Button>
         </PageHeader.End>
       </PageHeader>
-      <PosCreate />
-      <PosRecordTable />
-      <PosEdit />
+      <PageHeader>
+        <PosFilter />
+      </PageHeader>
+      <PosCardGrid />
+
+      <PosCreate open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../constants';
 import { createOrUpdate } from '../utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
@@ -42,7 +41,6 @@ export const customerRouter = t.router({
       if (query?._id) {
         defaultFilter['_id'] = query._id;
       }
-      console.log(defaultFilter, 'defaultFilter');
       return models.Customers.findOne(defaultFilter).lean();
     }),
 
@@ -67,10 +65,9 @@ export const customerRouter = t.router({
     getWidgetCustomer: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
-        const { _id } = input;
         const { models } = ctx;
 
-        return models.Customers.getWidgetCustomer(_id);
+        return models.Customers.getWidgetCustomer(input);
       }),
 
     count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -193,22 +190,11 @@ export const customerRouter = t.router({
         const { customerIds = [], status, _id } = input;
         const { models } = ctx;
 
-        const update: any = { isSubscribed: 'No' };
-
-        if (status === AWS_EMAIL_STATUSES.BOUNCE) {
-          update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
-        }
-
-        if (_id && status) {
-          return models.Customers.updateOne({ _id }, { $set: update });
-        }
-
-        if (customerIds.length > 0 && !status) {
-          return models.Customers.updateMany(
-            { _id: { $in: customerIds } },
-            { $set: update },
-          );
-        }
+        return models.Customers.updateSubscriptionStatus({
+          customerIds,
+          status,
+          _id,
+        });
       }),
 
     createOrUpdate: t.procedure
@@ -222,5 +208,31 @@ export const customerRouter = t.router({
           data: doc,
         });
       }),
+
+    tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { action, _ids, tagIds, targetIds } = input;
+      const { models } = ctx;
+
+      let response = {};
+
+      if (action === 'count') {
+        response = await models.Customers.countDocuments({
+          tagIds: { $in: _ids },
+        });
+      }
+
+      if (action === 'tagObject') {
+        await models.Customers.updateMany(
+          { _id: { $in: targetIds } },
+          { $set: { tagIds } },
+        );
+
+        response = await models.Customers.find({
+          _id: { $in: targetIds },
+        }).lean();
+      }
+
+      return response;
+    }),
   }),
 });

@@ -70,7 +70,7 @@ export const useProjects = (
   const setProjectTotalCount = useSetAtom(projectTotalCountAtom);
   const { toast } = useToast();
   const variables = useProjectsVariables(options?.variables);
-
+  console.log('useProjects variables', variables);
   const { data, loading, fetchMore, subscribeToMore } = useQuery<
     ICursorListResponse<IProject>
   >(GET_PROJECTS, {

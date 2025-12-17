@@ -1,7 +1,7 @@
 import { typeDefs } from './apollo/typeDefs';
 import { appRouter } from './init-trpc';
 
-import { startPlugin } from 'erxes-api-shared/utils';
+import { redis, startPlugin } from 'erxes-api-shared/utils';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { router } from '~/routes';
@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import posUserMiddleware from './userMiddleware';
 import posConfigMiddleware from './configMiddleware';
+import { initMQWorkers } from './worker';
 
 startPlugin({
   name: 'posclient',
@@ -26,7 +27,9 @@ startPlugin({
   //     : 'subscription.ts',
   // ),
   expressRouter: router,
-
+  onServerInit: async () => {
+    await initMQWorkers(redis);
+  },
   apolloServerContext: async (subdomain, context, req: any, res) => {
     const requestInfo = {
       secure: req.secure,
@@ -43,7 +46,6 @@ startPlugin({
     context.res = res;
 
     context.config = {};
-
     if (req?.posConfig?._id) {
       context.config = req.posConfig;
     } else if (models) {

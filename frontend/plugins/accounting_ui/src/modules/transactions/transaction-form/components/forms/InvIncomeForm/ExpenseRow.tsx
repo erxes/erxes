@@ -59,7 +59,7 @@ export const ExpenseRow = ({
           (ftr) =>
             !(
               ftr.originId === trDoc._id &&
-              ftr.followType === 'invIncomeExpense' &&
+              ftr.originType === 'invIncomeExpense' &&
               expense._id === ftr.originSubId
             ),
         ),
@@ -72,7 +72,7 @@ export const ExpenseRow = ({
     const curr = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.followType === 'invIncomeExpense' &&
+        ftr.originType === 'invIncomeExpense' &&
         ftr.originSubId === expense._id,
     );
 
@@ -84,7 +84,7 @@ export const ExpenseRow = ({
         originId: trDoc._id,
         ptrId: trDoc.ptrId,
         parentId: trDoc.parentId,
-        followType: 'invIncomeExpense',
+        originType: 'invIncomeExpense',
         originSubId: expense._id,
         details: [
           {
@@ -105,7 +105,7 @@ export const ExpenseRow = ({
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ftr.followType === 'invIncomeExpense' &&
+            ftr.originType === 'invIncomeExpense' &&
             ftr.originSubId === expense._id
           ),
       ),
@@ -121,7 +121,7 @@ export const ExpenseRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         expenseIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -253,7 +253,6 @@ export const ExpenseRow = ({
                     currency: 'MNT',
                   }}
                   variant="ghost"
-                  inForm
                   scope={AccountingHotkeyScope.TransactionFormSubPage}
                   onCallback={(account) => setAccount(account)}
                 />

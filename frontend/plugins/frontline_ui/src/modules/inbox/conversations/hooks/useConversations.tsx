@@ -16,6 +16,7 @@ import {
   newMessagesCountState,
   resetNewMessagesState,
 } from '@/inbox/conversations/states/newMessagesCountState';
+import { refetchConversationsAtom } from '../states/refetchConversationState';
 
 export const useConversations = (
   options?: QueryHookOptions<ICursorListResponse<IConversation>>,
@@ -31,6 +32,11 @@ export const useConversations = (
   const [refetchNewMessages, resetNewMessagesStates] = useAtom(
     resetNewMessagesState,
   );
+  const setRefetch = useSetAtom(refetchConversationsAtom);
+
+  useEffect(() => {
+    setRefetch(() => refetch);
+  }, [setRefetch]);
 
   useEffect(() => {
     if (refetchNewMessages) {

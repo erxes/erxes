@@ -47,7 +47,10 @@ export const ResetPasswordDialog = () => {
         onError: (error) =>
           toast({ title: error.message, variant: 'destructive' }),
         onCompleted: () => {
-          toast({ title: "This user's password has been changed" });
+          toast({
+            title: "This user's password has been changed",
+            variant: 'success',
+          });
           reset();
           setOpen(null);
           goBackToPreviousHotkeyScope();
