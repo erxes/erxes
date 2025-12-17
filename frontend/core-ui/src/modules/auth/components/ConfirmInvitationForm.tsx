@@ -96,7 +96,7 @@ export const ConfirmInvitationForm = () => {
           transition={{ delay: 0.6, duration: 0.4 }}
           className="absolute bottom-8 text-sm text-muted-foreground/70"
         >
-          © 2024 erxes
+          © {new Date().getFullYear()} erxes
         </motion.footer>
       </>
     );
@@ -171,7 +171,7 @@ export const ConfirmInvitationForm = () => {
         transition={{ delay: 0.6, duration: 0.4 }}
         className="absolute bottom-8 text-sm text-muted-foreground/70"
       >
-        © 2024 erxes
+        © {new Date().getFullYear()} erxes
       </motion.footer>
     </>
   );

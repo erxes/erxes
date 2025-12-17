@@ -8,6 +8,7 @@ import {
   IconBuilding,
   IconChessKnight,
   IconFile,
+  IconHierarchy2,
   IconMail,
   IconPassword,
   IconTag,
@@ -151,6 +152,11 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
       name: 'Brands',
       icon: IconChessKnight,
       path: SettingsWorkspacePath.Brands,
+    },
+    {
+      name: 'Properties',
+      icon: IconHierarchy2,
+      path: SettingsWorkspacePath.Properties,
     },
   ],
   developer: [
