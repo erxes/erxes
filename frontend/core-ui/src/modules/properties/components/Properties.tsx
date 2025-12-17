@@ -12,7 +12,7 @@ import { Link, useParams } from 'react-router';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { useFieldRemove } from '../hooks/useFieldRemove';
 import { IField } from 'ui-modules';
-import { CORE_RELATION_TYPES } from '../../../../../libs/ui-modules/src/modules/properties/constants/coreRelationTypes';
+import { CORE_RELATION_TYPES } from 'ui-modules';
 import { useAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
 import { useEffect } from 'react';
@@ -82,6 +82,7 @@ const PropertyRow = ({
   const { confirm } = useConfirm();
   const { removeField, loading: removeFieldLoading } = useFieldRemove({
     groupId,
+    contentType,
   });
   const { type, name, icon, _id, relationType } = field;
 

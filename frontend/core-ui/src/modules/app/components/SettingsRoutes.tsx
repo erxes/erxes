@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-
 import { getPluginsSettingsRoutes } from '@/app/hooks/usePluginsRouter';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
 import {
@@ -87,14 +86,6 @@ const PropertiesSettingsRoutes = lazy(() =>
   import('@/properties/components/PropertiesRoutes').then((module) => ({
     default: module.PropertiesSettingsRoutes,
   })),
-);
-
-const ContactsSettingsRoutes = lazy(() =>
-  import('@/contacts/settings/components/ContactsSettingsRoutes').then(
-    (module) => ({
-      default: module.ContactsSettingsRoutes,
-    }),
-  ),
 );
 
 export function SettingsRoutes() {

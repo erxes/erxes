@@ -1,3 +1,3 @@
 export const PropertyFormLogicFields = () => {
-  return <div>PropertyFormLogicFields</div>;
+  return <div></div>;
 };

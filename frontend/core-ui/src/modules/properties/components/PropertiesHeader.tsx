@@ -1,6 +1,6 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
-import { Link, useParams } from 'react-router';
+import { Link, useParams } from 'react-router-dom';
 import { IconHierarchy2 } from '@tabler/icons-react';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 

@@ -37,16 +37,16 @@ export const PropertyForm = ({
 
   const handleSubmit = (data: IPropertyForm) => {
     let sendData = data;
-    if (data.multiple) {
+    if (sendData.multiple) {
       sendData = {
-        ...data,
-        logics: { ...(data.logics || {}), multiple: true },
+        ...sendData,
+        logics: { ...(sendData.logics || {}), multiple: true },
       };
     }
-    if (FIELD_TYPES_OBJECT.relation.value === data.type) {
+    if (FIELD_TYPES_OBJECT.relation.value === sendData.type) {
       sendData = {
-        ...data,
-        type: 'relation:' + data.relationType,
+        ...sendData,
+        type: 'relation:' + sendData.relationType,
       };
     }
     onSubmit(sendData);

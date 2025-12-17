@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SpecificFieldProps } from './Field';
 import {
   Badge,
+  isDeeplyEqual,
   PopoverScoped,
   RecordTableInlineCell,
   StringArrayInput,
@@ -31,7 +32,7 @@ export const FieldStringMultipleInCell = (props: SpecificFieldProps) => {
         if (!open) {
           reason === 'close' && setCurrentValue(value);
           if (reason === 'enter') {
-            currentValue !== value && handleChange(currentValue);
+            !isDeeplyEqual(currentValue, value) && handleChange(currentValue);
           }
         }
       }}
@@ -65,7 +66,9 @@ export const FieldStringMultipleDetail = (props: SpecificFieldProps) => {
       id={id}
       value={currentValue}
       onValueChange={(value) => setCurrentValue(value)}
-      onBlur={() => currentValue !== value && handleChange(currentValue)}
+      onBlur={() =>
+        !isDeeplyEqual(currentValue, value) && handleChange(currentValue)
+      }
       styleClasses={{
         inlineTagsContainer: 'shadow-xs',
       }}
