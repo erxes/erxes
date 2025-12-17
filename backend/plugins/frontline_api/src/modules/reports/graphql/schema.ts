@@ -5,16 +5,22 @@ export const types = `
   }
 
   type ReportSource {
+    _id: String
     name: String
     count: Int
     percentage: Int
+  }
+
+  type ConversationSourcesResult {
+    topPerforming: [ReportSource]
+    topConverting: [ReportSource]
   }
 
   type ReportChartResult {
     ConversationOpen: ReportMetric
     ConversationClosed: ReportMetric
     ConversationResolved: ReportMetric
-    ConversationSources: [ReportSource]
+    ConversationSources: ConversationSourcesResult
     ConversationTag: [ReportSource]
   }
 `;

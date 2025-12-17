@@ -6,36 +6,35 @@ export const GET_CHART = gql`
       ConversationOpen {
         count
         percentage
-        __typename
-      }
-      ConversationResolved {
-        count
-        percentage
-        __typename
-      }
-      ConversationResolved {
-        count
-        percentage
-        __typename
       }
       ConversationClosed {
         count
         percentage
-        __typename
+      }
+      ConversationResolved {
+        count
+        percentage
       }
       ConversationSources {
-        name
-        count
-        percentage
-        __typename
+        topConverting {
+          _id
+          count
+          name
+          percentage
+        }
+        topPerforming {
+          _id
+          count
+          name
+          percentage
+        }
       }
       ConversationTag {
-        name
+        _id
         count
         percentage
-        __typename
+        name
       }
-      __typename
     }
   }
 `;

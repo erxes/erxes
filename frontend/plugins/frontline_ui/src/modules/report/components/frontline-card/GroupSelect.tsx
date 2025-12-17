@@ -5,12 +5,12 @@ export const GroupSelect = () => {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex items-center gap-2 shrink-0 flex-none">
-      <span className="text-sm text-muted-foreground whitespace-nowrap">
+      <span className="text-xs text-muted-foreground whitespace-nowrap">
         Group By
       </span>
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase>
-          <span>Source Type</span>
+          <span className='text-xs'>Source Type</span>
         </Combobox.TriggerBase>
         <Combobox.Content>
           <Command>
