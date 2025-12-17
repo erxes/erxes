@@ -1,6 +1,6 @@
 import { CommandBar, Separator } from 'erxes-ui/components';
 import { RecordTable } from 'erxes-ui';
-import { DealsListActionBar } from './DealsListAction';
+import { DealsActions } from './DealsActions';
 
 export const DealsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -16,10 +16,7 @@ export const DealsCommandBar = () => {
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
-        <DealsListActionBar
-          deals={selectedDeals}
-          selectedCount={selectedCount}
-        />
+        <DealsActions deals={selectedDeals} selectedCount={selectedCount} />
         <Separator.Inline />
       </CommandBar.Bar>
     </CommandBar>

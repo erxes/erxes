@@ -6,6 +6,7 @@ import {
   IconPrinter,
   IconTrash,
   IconEdit,
+  IconDotsVertical,
 } from '@tabler/icons-react';
 import { IDeal } from '@/deals/types/deals';
 import {
@@ -20,15 +21,21 @@ interface DealsListActionBarProps {
   selectedCount: number;
 }
 
-export const DealsListActionBar = ({
+export const DealsActions = ({
   deals,
   selectedCount,
-}: DealsListActionBarProps) => {
+}: {
+  deals: IDeal[];
+  selectedCount?: number;
+}) => {
   const { confirm } = useConfirm();
   const { editDeals, loading: editLoading } = useDealsEdit();
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
   const { watchDeals, loading: watchLoading } = useDealsWatch();
+
+  const count = selectedCount || deals.length;
+  const isSingle = count === 1;
 
   const isLoading = editLoading || removeLoading || copyLoading || watchLoading;
 
@@ -38,16 +45,19 @@ export const DealsListActionBar = ({
   const allActive = deals.every((d) => d.status === 'active');
   const allWatched = deals.every((d) => d.isWatched === true);
   const allUnwatched = deals.every((d) => d.isWatched === false);
-
+  const showRemove = deals.every((d) => d.status === 'archived');
   const handleArchive = async () => {
     const newStatus = allArchived ? 'active' : 'archived';
     const action = allArchived ? 'unarchive' : 'archive';
+    const actionLabel = allArchived ? 'Unarchive' : 'Archive';
 
-    await confirm({
-      message: `Are you sure you want to ${action} ${selectedCount} deal${
-        selectedCount > 1 ? 's' : ''
-      }?`,
-    });
+    if (!isSingle) {
+      await confirm({
+        message: `Are you sure you want to ${action} ${count} deal${
+          count > 1 ? 's' : ''
+        }?`,
+      });
+    }
 
     await Promise.all(
       dealIds.map((id) =>
@@ -60,8 +70,8 @@ export const DealsListActionBar = ({
 
   const handleRemove = async () => {
     await confirm({
-      message: `Are you sure you want to remove ${selectedCount} deal${
-        selectedCount > 1 ? 's' : ''
+      message: `Are you sure you want to remove ${count} deal${
+        count > 1 ? 's' : ''
       }? `,
     });
 
@@ -92,9 +102,9 @@ export const DealsListActionBar = ({
     window.print();
   };
   const getArchiveLabel = () => {
-    if (allArchived) return 'Unarchive';
+    if (allArchived) return isSingle ? 'Unarchive' : 'archive';
     if (allActive) return 'Archive';
-    return 'Archive (Mixed)';
+    return isSingle ? 'Archive' : 'Archive (Mixed)';
   };
 
   const getWatchLabel = () => {
@@ -111,19 +121,19 @@ export const DealsListActionBar = ({
           className="flex items-center gap-2"
           disabled={isLoading}
         >
-          <IconEdit />
+          {isSingle ? <IconDotsVertical /> : <IconEdit />}
           Edit
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-48 min-w-fit!">
         <DropdownMenu.Item onClick={handleCopy} disabled={isLoading}>
           <IconCopy />
-          Copy {`(${selectedCount})`}
+          Copy {isSingle ? '' : `(${count})`}
         </DropdownMenu.Item>
 
         <DropdownMenu.Item onClick={handleWatch} disabled={isLoading}>
           <IconEye />
-          {getWatchLabel()} {`(${selectedCount})`}
+          {getWatchLabel()} {isSingle ? '' : `(${count})`}
         </DropdownMenu.Item>
 
         <DropdownMenu.Item onClick={handlePrint} disabled={isLoading}>
@@ -133,17 +143,19 @@ export const DealsListActionBar = ({
 
         <DropdownMenu.Item onClick={handleArchive} disabled={isLoading}>
           <IconArchive />
-          {getArchiveLabel()} {`(${selectedCount})`}
+          {getArchiveLabel()} {isSingle ? '' : `(${count})`}
         </DropdownMenu.Item>
 
-        <DropdownMenu.Item
-          onClick={handleRemove}
-          disabled={isLoading}
-          className="text-red-700 focus:text-red-700"
-        >
-          <IconTrash className="text-red-700" />
-          Remove {`(${selectedCount})`}
-        </DropdownMenu.Item>
+        {showRemove && (
+          <DropdownMenu.Item
+            onClick={handleRemove}
+            disabled={isLoading}
+            className="text-red-700 focus:text-red-700"
+          >
+            <IconTrash className="text-red-700" />
+            Remove {isSingle ? '' : `(${count})`}
+          </DropdownMenu.Item>
+        )}
       </DropdownMenu.Content>
     </DropdownMenu>
   );

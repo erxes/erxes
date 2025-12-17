@@ -33,7 +33,7 @@ export const DealsBoard = () => {
 
   const { changeDeals } = useDealsChange();
   const [pipelineId] = useQueryState<string>('pipelineId');
-
+  const [searchParams] = useSearchParams();
   const { stages, loading: stagesLoading } = useStages({
     variables: {
       pipelineId,
@@ -51,7 +51,6 @@ export const DealsBoard = () => {
 
   const [deals, setDeals] = useAtom(fetchedDealsState);
   const setDealCountByBoard = useSetAtom(dealCountByBoardAtom);
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     setDealCountByBoard({});
@@ -199,7 +198,9 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
   const [dealCountByBoard, setDealCountByBoard] = useAtom(dealCountByBoardAtom);
   const [searchParams] = useSearchParams();
 
-  const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
+  const isArchivedMode = searchParams.get('archivedOnly') === 'true';
+
+  const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId'];
 
   const queryVariables: Record<string, any> = {};
 
@@ -214,7 +215,9 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
     }
   }
 
-  const boardCards = dealCards.filter((deal) => deal.column === column.id);
+  if (isArchivedMode) {
+    queryVariables.noSkipArchive = true;
+  }
 
   const { deals, totalCount, loading, handleFetchMore } = useDeals({
     variables: {
@@ -222,6 +225,15 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
       pipelineId,
       ...queryVariables,
     },
+  });
+
+  const boardCards = dealCards.filter((deal) => deal.column === column.id);
+  const allDealsMap = useAtomValue(allDealsMapState);
+
+  const filteredBoardCards = boardCards.filter((deal) => {
+    const status = allDealsMap[deal.id]?.status;
+
+    return isArchivedMode ? status === 'archived' : status !== 'archived';
   });
 
   const setAllDealsMap = useSetAtom(allDealsMapState);
@@ -232,24 +244,37 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
         const previousDeals = prev.filter(
           (deal) => !deals.some((t) => t._id === deal.id),
         );
+        const otherColumnDeals = prev.filter((d) => d.column !== column.id);
+        // Add the new deals for this column
+        const newColumnDeals = deals.map((deal) => ({
+          id: deal._id,
+          column: deal.stageId,
+        }));
 
-        return [
-          ...previousDeals,
-          ...deals.map((deal) => ({
-            id: deal._id,
-            column: deal.stageId,
-          })),
-        ];
+        return [...otherColumnDeals, ...newColumnDeals];
       });
       setAllDealsMap((prev) => {
+        const filtered = Object.fromEntries(
+          Object.entries(prev).filter(
+            ([_, deal]) => deal.stageId !== column.id,
+          ),
+        );
+
         const newDeals = deals.reduce((acc, deal) => {
           acc[deal._id] = deal;
           return acc;
         }, {} as Record<string, IDeal>);
-        return { ...prev, ...newDeals };
+        return { ...filtered, ...newDeals };
       });
     } else {
       setDealCards((prev) => prev.filter((d) => d.column !== column.id));
+      setAllDealsMap((prev) =>
+        Object.fromEntries(
+          Object.entries(prev).filter(
+            ([_, deal]) => deal.stageId !== column.id,
+          ),
+        ),
+      );
     }
   }, [deals, setDealCards, setAllDealsMap, column.id]);
 
@@ -269,14 +294,17 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
         loading={loading}
         totalCount={dealCountByBoard[column.id] || 0}
       />
-      <Board.Cards id={column.id} items={boardCards.map((deal) => deal.id)}>
+      <Board.Cards
+        id={column.id}
+        items={filteredBoardCards.map((deal) => deal.id)}
+      >
         {loading ? (
           <SkeletonArray
             className="p-24 w-full rounded shadow-xs opacity-80"
             count={10}
           />
         ) : (
-          boardCards.map((deal) => (
+          filteredBoardCards.map((deal) => (
             <Board.Card
               key={deal.id}
               id={deal.id}
@@ -290,7 +318,7 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
         )}
         <DealCardsFetchMore
           totalCount={dealCountByBoard[column.id] || 0}
-          currentLength={boardCards.length}
+          currentLength={filteredBoardCards.length}
           handleFetchMore={() =>
             handleFetchMore({ direction: EnumCursorDirection.FORWARD })
           }

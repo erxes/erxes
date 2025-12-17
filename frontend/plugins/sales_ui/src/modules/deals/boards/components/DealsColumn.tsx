@@ -32,7 +32,14 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
 
     return (
       <RecordTableInlineCell onClick={handleClick}>
-        {deal.name}
+        <div className="flex items-center justify-between w-full gap-2">
+          <span>{deal.name}</span>
+          {deal.status === 'archived' && (
+            <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
+              Archived
+            </span>
+          )}
+        </div>
       </RecordTableInlineCell>
     );
   };
@@ -48,7 +55,13 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       cell: ({ cell }) => <NameCell deal={cell.row.original} />,
       size: 240,
     },
-
+    {
+      id: 'boardId',
+      accessorFn: (row) => row.boardId,
+      header: () => (
+        <RecordTable.InlineHead label="Board ID" icon={IconLabelFilled} />
+      ),
+    },
     {
       id: 'pipeline',
       accessorFn: (row) => row.pipeline?.name,
