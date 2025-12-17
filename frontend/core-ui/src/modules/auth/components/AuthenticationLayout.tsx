@@ -47,7 +47,9 @@ export const AuthenticationLayout = ({
           </div>
         </div>
       </div>
-      <p className="mt-auto text-center text-accent-foreground">© 2024 erxes</p>
+      <p className="mt-auto text-center text-accent-foreground">
+        © {new Date().getFullYear()} erxes
+      </p>
     </div>
   );
 };
