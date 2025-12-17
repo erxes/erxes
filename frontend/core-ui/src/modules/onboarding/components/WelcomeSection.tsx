@@ -1,10 +1,17 @@
-import { Button, ErxesLogoIcon } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useScopedHotkeys } from 'erxes-ui';
+// import { useAtomValue } from 'jotai';
+// import { currentOrganizationState } from 'ui-modules';
+import { OrgLogoIcon } from '@/auth/components/Logo';
 
 export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
+
+  // const organization = useAtomValue(currentOrganizationState);
+
+  const organization = {} as any;
 
   return (
     <div className="flex flex-col items-center justify-center gap-10 max-w-sm mx-auto px-6 scale-110 -translate-y-10">
@@ -29,7 +36,7 @@ export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
             ease: 'easeOut',
           }}
         >
-          <ErxesLogoIcon strokeWidth={2} className="text-primary size-16" />
+          <OrgLogoIcon strokeWidth={2} className="text-primary size-16" />
         </motion.div>
       </motion.div>
 
@@ -44,10 +51,11 @@ export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
         className="flex flex-col items-center gap-4 text-center"
       >
         <h1 className=" font-semibold text-foreground text-[2.3rem]">
-          Welcome to erxes
+          Welcome to {organization?.name || 'erxes'}
         </h1>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-          An open-source experience operating system (XOS)
+          {organization?.orgShortDescription ||
+            'An open-source experience operating system (XOS)'}
         </p>
       </motion.div>
       <motion.div

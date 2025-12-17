@@ -1,4 +1,5 @@
-import { cn } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { currentOrganizationState } from 'ui-modules';
 
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   organizationLogo?: string | null;
@@ -44,21 +45,26 @@ export const Logo = ({ organizationLogo, ...props }: LogoProps) => {
   }
   // TODO: replace with organizationLogo
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 81 113"
-      fill="currentcolor"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-      className={cn('size-6', props.className)}
-    >
-      <path d="M45.1512 57.386C58.0443 39.1897 70.1817 19.9244 80.9291 0C68.6968 13.2829 54.277 32.6105 41.0725 51.5573C34.0734 41.8368 25.6995 31.417 16.1066 21.6561C25.6122 38.571 30.4201 47.8815 36.9976 57.4519C16.9953 86.5184 0.710876 113 0.710876 113C14.4243 97.773 28.0921 81.0082 41.0725 63.1085C46.6361 70.5005 53.8327 78.8701 65.332 91.4281C65.3092 91.4098 58.1317 76.3731 45.1512 57.386Z" />
-    </svg>
+    <img
+      src={organizationLogo}
+      alt="Organization Logo"
+      className="object-contain h-8 w-auto"
+    />
   );
 };
 
-export const ErxesLogoIcon = ({ ...props }: React.SVGProps<SVGSVGElement>) => {
+export const OrgLogoIcon = ({ ...props }: React.SVGProps<SVGSVGElement>) => {
+  const organization = {} as any;
+
+  if (organization?.orgLogo) {
+    return (
+      <img
+        src={organization.orgLogo}
+        alt="Organization Logo"
+        className="object-contain h-8 w-auto"
+      />
+    );
+  }
   return (
     <svg
       viewBox="0 0 23 33"

@@ -13,6 +13,12 @@ export type CurrentOrganization = {
     url: string;
   }[];
   type?: string;
+  orgLogo?: string;
+  orgLoginText?: string;
+  orgLoginDescription?: string;
+  orgFavicon?: string;
+  orgShortDescription?: string;
+  orgShortName?: string;
 };
 
 export const currentOrganizationState = atom<CurrentOrganization | null>(null);
