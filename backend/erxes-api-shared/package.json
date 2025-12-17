@@ -20,7 +20,8 @@
     "@types/ioredis": "^5.0.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "glob": "^11.0.1",
-    "tsx": "^4.19.3"
+    "tsx": "^4.19.3",
+    "@types/lodash": "^4.17.21"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
@@ -46,7 +47,8 @@
     "tslib": "^2.3.0",
     "zod": "3.23.8",
     "express-rate-limit": "^6.11.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "lodash": "^4.17.21"
   },
   "preconstruct": {
     "tsconfig": "tsconfig.lib.json",
