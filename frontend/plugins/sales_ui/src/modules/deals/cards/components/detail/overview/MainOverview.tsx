@@ -2,7 +2,7 @@ import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 
 import { IDeal } from '@/deals/types/deals';
 import LabelChooser from './label/LabelChooser';
-import { SelectDealPriority } from '~/modules/deals/components/deal-selects/SelectDealPriority';
+import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import SelectTags from './tags/SelectTags';
 import { useDealsContext } from '@/deals/context/DealContext';
 
