@@ -2,7 +2,7 @@ import { noteSchema } from '@/ticket/db/definitions/note';
 import { INote, INoteDocument } from '@/ticket/@types/note';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { createNotifications } from '~/modules/ticket/utils/ticket';
+import { createNotifications } from '~/utils/notifications';
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
