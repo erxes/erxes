@@ -573,6 +573,41 @@ export function getDiffObjects<TDocument = any>(
     updated: Object.keys(updated).length > 0 ? updated : undefined,
   };
 }
+
+export function flattenObject(
+  value: unknown,
+  parentKey = '',
+  result: Record<string, unknown> = {},
+): Record<string, unknown> {
+  if (value === null || value === undefined) {
+    if (parentKey) result[parentKey] = value;
+    return result;
+  }
+
+  // Handle arrays
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      const path = parentKey ? `${parentKey}.${index}` : String(index);
+
+      flattenObject(item, path, result);
+    });
+    return result;
+  }
+
+  // Handle objects
+  if (typeof value === 'object') {
+    for (const [key, val] of Object.entries(value)) {
+      const path = parentKey ? `${parentKey}.${key}` : key;
+      flattenObject(val, path, result);
+    }
+    return result;
+  }
+
+  // Primitive
+  result[parentKey] = value;
+  return result;
+}
+
 export const readFileUrl = (value: string) => {
   if (!value || isValidURL(value) || value.includes('/')) {
     return value;

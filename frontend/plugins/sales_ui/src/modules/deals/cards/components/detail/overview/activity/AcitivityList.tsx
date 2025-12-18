@@ -11,7 +11,9 @@ const ActivityList = () => {
   return (
     <div className="h-96">
       <ActivityLogs
-        targetType="sales:sales.deal"
+        pluginName="sales"
+        moduleName="deal"
+        collectionName="deals"
         targetId={salesItemId}
         customActivities={customActivitiesRows}
       />

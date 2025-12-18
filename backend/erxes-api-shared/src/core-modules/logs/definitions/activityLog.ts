@@ -13,9 +13,9 @@ export type TActivityLog<
   TActor = any,
 > = {
   createdAt: Date;
+  activityType: string;
   actorType: string;
   actor: TActor;
-  targetType: string;
   target: TTarget;
   contextType: string;
   context: TContext;
@@ -54,10 +54,11 @@ export const activityLogsSchema = new Schema({
   activityType: { type: String, required: true },
   actorType: { type: String, required: true },
   actor: { type: Object, required: true },
+  targetId: { type: String, required: true },
   targetType: { type: String, required: true },
-  target: { type: entitySchema, required: true },
-  contextType: { type: String, required: true },
-  context: { type: entitySchema, required: true },
+  target: { type: Schema.Types.Mixed, required: true },
+  contextType: { type: String, optional: true },
+  context: { type: Schema.Types.Mixed, optional: true },
   action: {
     type: activityActionSchema,
     required: true,

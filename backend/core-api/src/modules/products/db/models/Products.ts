@@ -15,6 +15,7 @@ import {
   initCustomField,
 } from '@/products/utils';
 import { IModels } from '~/connectionResolvers';
+import { generateProductActivityLogs } from '../../utils/activityLogs';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -31,7 +32,7 @@ export interface IProductModel extends Model<IProductDocument> {
 export const loadProductClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class Product {
     /**
@@ -99,11 +100,25 @@ export const loadProductClass = (
         doc.customFieldsData,
       );
 
-      const product = await models.Products.create({ ...doc, createdAt: new Date() });
+      const product = await models.Products.create({
+        ...doc,
+        createdAt: new Date(),
+      });
       sendDbEventLog({
         action: 'create',
         docId: product._id,
         currentDocument: product.toObject(),
+      });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: product._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Product created',
+        },
+        changes: {},
       });
       return product;
     }
@@ -155,6 +170,12 @@ export const loadProductClass = (
           currentDocument: updatedProduct,
           prevDocument: product,
         });
+        generateProductActivityLogs(
+          product,
+          updatedProduct,
+          models,
+          createActivityLog,
+        );
       }
       return updatedProduct;
     }
@@ -201,7 +222,9 @@ export const loadProductClass = (
       }
 
       if (unUsedIds.length > 0) {
-        const toDelete = await models.Products.find({ _id: { $in: unUsedIds } });
+        const toDelete = await models.Products.find({
+          _id: { $in: unUsedIds },
+        });
         await models.Products.deleteMany({ _id: { $in: unUsedIds } });
         if (toDelete.length > 0) {
           sendDbEventLog({

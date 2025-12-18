@@ -63,13 +63,13 @@ const commonQueryParams = `
 
 const activityLogQueryParams = `
     ${cursorParams},
-    targetType: String!
+    targetType: String
     targetId: String!
     action: String
 `;
 
 export const queries = `
-activityLogs(${activityLogQueryParams}):ActivityLogsList
+    activityLogs(${activityLogQueryParams}):ActivityLogsList
     logsMainList(${commonQueryParams}):MainLogsList
     logDetail(_id:String!):Log
 `;

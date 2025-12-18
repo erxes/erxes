@@ -4,6 +4,7 @@ import { CustomerDetailGeneral } from './CustomerDetailGeneral';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
 import { ContactsDetailLayout } from '@/contacts/components/ContactsDetail';
 import { CustomerDetailFields } from './CustomerDetailFields';
+import { ActivityLogs } from 'ui-modules';
 
 export const CustomerDetail = () => {
   const { customerDetail, loading } = useCustomerDetailWithQuery();
@@ -18,6 +19,7 @@ export const CustomerDetail = () => {
       <CustomerDetailGeneral />
       <Separator />
       <CustomerDetailFields />
+      {customerDetail && <ActivityLogs targetId={customerDetail?._id} />}
     </ContactsDetailLayout>
   );
 };

@@ -4,7 +4,7 @@ export default {
             notificationInserted(userId: String): Notification
             notificationRead(userId: String): JSON
             notificationArchived(userId: String): JSON
-            activityLogInserted(userId: String, targetType: String, targetId: String): ActivityLog
+            activityLogInserted(userId: String, targetId: String): ActivityLog
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -49,13 +49,13 @@ export default {
         resolve: (payload) => {
           return payload.activityLogInserted;
         },
-        subscribe: (_, { userId, targetType, targetId }, { subdomain }) => {
-          if (targetType && targetId) {
+        subscribe: (_, { userId, targetId }, { subdomain }) => {
+          if (targetId) {
             return graphqlPubsub.asyncIterator(
-              `activityLogInserted:${subdomain}:${targetType}:${targetId}`,
+              `activityLogInserted:${subdomain}:${targetId}`,
             );
           }
-          // Fallback to userId-based subscription if targetType/targetId not provided
+          // Fallback to userId-based subscription if targetId not provided
           return graphqlPubsub.asyncIterator(
             `activityLogInserted:${subdomain}:${userId}`,
           );

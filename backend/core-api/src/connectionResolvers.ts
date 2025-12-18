@@ -288,7 +288,11 @@ export const loadClasses = (
 
   models.Users = db.model<IUserDocument, IUserModel>(
     'users',
-    loadUserClass(models, subdomain, eventDispatcher('core', 'user', 'users')),
+    loadUserClass(
+      models,
+      subdomain,
+      eventDispatcher('core', 'organization', 'users'),
+    ),
   );
 
   models.Brands = db.model<IBrandDocument, IBrandModel>(
@@ -426,7 +430,10 @@ export const loadClasses = (
   );
   models.Departments = db.model<IDepartmentDocument, IDepartmentModel>(
     'departments',
-    loadDepartmentClass(models),
+    loadDepartmentClass(
+      models,
+      eventDispatcher('core', 'organization', 'departments'),
+    ),
   );
   models.Units = db.model<IUnitDocument, IUnitModel>(
     'units',
@@ -434,11 +441,17 @@ export const loadClasses = (
   );
   models.Branches = db.model<IBranchDocument, IBranchModel>(
     'branches',
-    loadBranchClass(models),
+    loadBranchClass(
+      models,
+      eventDispatcher('core', 'organization', 'branches'),
+    ),
   );
   models.Positions = db.model<IPositionDocument, IPositionModel>(
     'positions',
-    loadPositionClass(models),
+    loadPositionClass(
+      models,
+      eventDispatcher('core', 'organization', 'positions'),
+    ),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
     'apps',

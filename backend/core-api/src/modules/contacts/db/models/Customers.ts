@@ -18,6 +18,7 @@ import {
 } from '../../@types/customer';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
+import { generateCustomerActivityLogs } from '../../utils/activityLogs';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -95,7 +96,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
 export const loadCustomerClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class Customer {
     public static getCustomerName(customer: ICustomer) {
@@ -190,6 +191,17 @@ export const loadCustomerClass = (
         docId: customer._id,
         currentDocument: customer.toObject(),
       });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: customer._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Customer created',
+        },
+        changes: {},
+      });
 
       return models.Customers.getCustomer(customer._id);
     }
@@ -233,6 +245,12 @@ export const loadCustomerClass = (
           currentDocument: updatedCustomer.toObject(),
           prevDocument: oldCustomer,
         });
+        generateCustomerActivityLogs(
+          oldCustomer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
       }
 
       return updatedCustomer;
@@ -492,6 +510,12 @@ export const loadCustomerClass = (
         currentDocument: { ...pssDoc, ...modifier },
         prevDocument: customer.toObject(),
       });
+      generateCustomerActivityLogs(
+        customer,
+        updateCustomer,
+        models,
+        createActivityLog,
+      );
 
       return models.Customers.findOne({ _id });
     }
@@ -570,6 +594,12 @@ export const loadCustomerClass = (
           currentDocument: updatedCustomer.toObject(),
           prevDocument: customer.toObject(),
         });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
       }
       return updatedCustomer;
     }
@@ -635,34 +665,62 @@ export const loadCustomerClass = (
      * Change state
      */
     public static async changeState(_id: string, value: string) {
-      await models.Customers.findByIdAndUpdate(
+      const customer = await models.Customers.getCustomer(_id);
+
+      const updatedCustomer = await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { state: value },
         },
       );
 
-      sendDbEventLog({
-        action: 'update',
-        docId: _id,
-        currentDocument: { state: value },
-      });
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: customer.toObject(),
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
 
-      return models.Customers.findOne({ _id });
+      return updatedCustomer;
     }
 
     /*
      * Update customer's location info
      */
     public static async updateLocation(_id: string, browserInfo: IBrowserInfo) {
-      await models.Customers.findByIdAndUpdate(
+      const customer = await models.Customers.getCustomer(_id);
+
+      const updatedCustomer = await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { location: browserInfo },
         },
       );
 
-      return models.Customers.findOne({ _id });
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: customer.toObject(),
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedCustomer;
     }
 
     /*

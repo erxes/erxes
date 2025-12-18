@@ -7,7 +7,7 @@ import {
 
 export const ACTIVITY_LOGS = gql`
   query activityLogs(
-    $targetType: String!
+    $targetType: String
     $targetId: String!
     $action: String
     ${GQL_CURSOR_PARAM_DEFS}

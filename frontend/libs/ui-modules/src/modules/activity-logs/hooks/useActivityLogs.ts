@@ -10,10 +10,12 @@ import {
 } from 'erxes-ui';
 
 interface UseActivityLogsParams {
-  targetType: string;
   targetId: string;
   action?: string;
   limit?: number;
+  targetType?: string;
+  contextType?: string;
+  contextId?: string;
 }
 
 export type ActivityLogsQueryData = {
@@ -30,24 +32,24 @@ export type ActivityLogsQueryData = {
 };
 
 export const useActivityLogs = (
-  { targetType, targetId, action, limit }: UseActivityLogsParams,
+  { targetId, action, limit, targetType }: UseActivityLogsParams,
   options?: QueryHookOptions<ActivityLogsQueryData>,
 ) => {
   const { data, loading, error, refetch, subscribeToMore, fetchMore } =
     useQuery<ActivityLogsQueryData>(ACTIVITY_LOGS, {
       ...options,
       variables: {
-        targetType,
         targetId,
+        targetType,
         action,
         limit,
         ...options?.variables,
       },
-      skip: !targetType || !targetId,
+      skip: !targetId,
     });
 
   useEffect(() => {
-    if (!targetType || !targetId) {
+    if (!targetId) {
       return;
     }
 
@@ -56,7 +58,6 @@ export const useActivityLogs = (
     }>({
       document: ACTIVITY_LOG_INSERTED,
       variables: {
-        targetType,
         targetId,
       },
       updateQuery: (prev, { subscriptionData }) => {
@@ -90,7 +91,7 @@ export const useActivityLogs = (
     return () => {
       unsubscribe();
     };
-  }, [targetType, targetId, subscribeToMore]);
+  }, [targetId, subscribeToMore]);
 
   const pageInfo = data?.activityLogs.pageInfo || {
     hasNextPage: false,

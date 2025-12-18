@@ -9,6 +9,7 @@ import {
 import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { generateCompanyActivityLogs } from '../../utils/activityLogs';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompany(_id: string): Promise<ICompanyDocument>;
@@ -33,7 +34,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
 export const loadCompanyClass = (
   subdomain: string,
   models: IModels,
-  { sendDbEventLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class Company {
     /**
@@ -105,6 +106,17 @@ export const loadCompanyClass = (
         docId: company._id,
         currentDocument: company.toObject(),
       });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: company._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Company created',
+        },
+        changes: {},
+      });
       return company;
     }
 
@@ -143,6 +155,12 @@ export const loadCompanyClass = (
           currentDocument: updatedCompany.toObject(),
           prevDocument: company.toObject(),
         });
+        generateCompanyActivityLogs(
+          company,
+          updatedCompany,
+          models,
+          createActivityLog,
+        );
       }
       return updatedCompany;
     }

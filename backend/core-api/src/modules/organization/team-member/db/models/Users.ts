@@ -10,7 +10,7 @@ import {
   userMovemmentSchema,
   userSchema,
 } from 'erxes-api-shared/core-modules';
-import { redis } from 'erxes-api-shared/utils';
+import { redis, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 import { saveValidatedToken } from '@/auth/utils';
 import {
@@ -27,6 +27,12 @@ import { IModels } from '~/connectionResolvers';
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
+import {
+  generateUserActivityLogs,
+  generateLoginActivityLog,
+  generateLogoutActivityLog,
+  generateUserInvitationActivityLog,
+} from '../../utils/activityLogs';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -128,12 +134,13 @@ export interface IUserModel extends Model<IUserDocument> {
   logout(_user: IUserDocument, token: string): Promise<string>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   createSystemUser(doc: IAppDocument): IUserDocument;
+  setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
 
 export const loadUserClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class User {
     public static async getUser(_id: string) {
@@ -326,6 +333,9 @@ export const loadUserClass = (
           currentDocument: updatedUser.toObject(),
           prevDocument: user.toObject(),
         });
+
+        // Generate activity logs for changed activity fields
+        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
       }
       return updatedUser;
     }
@@ -373,6 +383,8 @@ export const loadUserClass = (
         currentDocument: user.toObject(),
       });
 
+      createActivityLog(generateUserInvitationActivityLog(user));
+
       models.Roles.create({
         userId: user._id,
         role: PERMISSION_ROLES.MEMBER,
@@ -404,6 +416,8 @@ export const loadUserClass = (
           registrationTokenExpires: expires,
         },
       );
+
+      createActivityLog(generateUserInvitationActivityLog(user));
 
       return token;
     }
@@ -448,6 +462,8 @@ export const loadUserClass = (
           currentDocument: updatedUser.toObject(),
           prevDocument: user.toObject(),
         });
+
+        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
       }
       return updatedUser;
     }
@@ -495,16 +511,42 @@ export const loadUserClass = (
       if (user.isActive === false) {
         await models.Users.updateOne({ _id }, { $set: { isActive: true } });
 
-        return models.Users.findOne({ _id });
+        const updatedUser = await models.Users.findOne({ _id });
+        if (updatedUser) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updatedUser._id,
+            currentDocument: updatedUser.toObject(),
+            prevDocument: user.toObject(),
+          });
+          generateUserActivityLogs(
+            user,
+            updatedUser,
+            models,
+            createActivityLog,
+          );
+        }
+        return updatedUser;
+      } else {
+        await models.Users.updateOne({ _id }, { $set: { isActive: false } });
+
+        const updatedUser = await models.Users.findOne({ _id });
+        if (updatedUser) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updatedUser._id,
+            currentDocument: updatedUser.toObject(),
+            prevDocument: user.toObject(),
+          });
+          generateUserActivityLogs(
+            user,
+            updatedUser,
+            models,
+            createActivityLog,
+          );
+        }
+        return updatedUser;
       }
-
-      if (user.isOwner) {
-        throw new Error('Can not deactivate owner');
-      }
-
-      await models.Users.updateOne({ _id }, { $set: { isActive: false } });
-
-      return models.Users.findOne({ _id });
     }
 
     /*
@@ -801,6 +843,12 @@ export const loadUserClass = (
 
       await sendOnboardNotification(subdomain, models, user._id);
 
+      const loginActivityLog = generateLoginActivityLog(user, {
+        method: 'email/password',
+        deviceToken,
+      });
+      createActivityLog(loginActivityLog, user._id);
+
       return {
         token,
         refreshToken,
@@ -822,6 +870,9 @@ export const loadUserClass = (
           { _id: user._id },
           { $set: { lastSeenAt: new Date() } },
         );
+
+        const logoutActivityLog = generateLogoutActivityLog(user);
+        createActivityLog(logoutActivityLog);
 
         return 'loggedout';
       }
@@ -948,6 +999,24 @@ export const loadUserClass = (
 
       return user;
     }
+    public static async setChatStatus(_id: string, status: string) {
+      const user = await models.Users.findOne({ _id });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      await models.Users.updateOne({ _id }, { $set: { chatStatus: status } });
+      const updatedUser = await models.Users.findOne({ _id });
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: updatedUser.toObject(),
+          prevDocument: user.toObject(),
+        });
+        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+      }
+      return updatedUser;
+    }
   }
 
   userSchema.loadClass(User);
@@ -963,6 +1032,7 @@ type ICommonUserMovement = {
   contentTypeIds?: string[];
   contentTypeId?: string;
   createdBy?: string;
+  processId?: string;
 };
 
 type IUserStructureAssignee = {
@@ -973,6 +1043,7 @@ type IUserStructureAssignee = {
   contentTypeId?: string;
   userIds?: string[];
   createdBy?: string;
+  processId?: string;
 };
 
 export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
@@ -1062,7 +1133,8 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
     public static async manageStructureUsersMovement(
       params: ICommonUserMovement,
     ) {
-      const { createdBy, userIds, contentType, contentTypeId } = params;
+      const { createdBy, userIds, contentType, contentTypeId, processId } =
+        params;
       const fieldName = `${contentType}Ids`;
 
       this.handleUsersStructureAssignee({
@@ -1073,6 +1145,7 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
         contentTypeId,
         userIds,
         createdBy,
+        processId,
       });
 
       const userMovements = await models.UserMovements.find({
@@ -1137,6 +1210,7 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
       contentTypeId,
       userIds,
       createdBy,
+      processId,
     }: IUserStructureAssignee) {
       const removedAssigneeUserIds = await models.Users.find({
         _id: { $nin: userIds },
@@ -1170,23 +1244,79 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
             update,
           );
 
-          if (contentType && contentTypeId && createdBy) {
-            const notificationType =
-              contentType === 'department'
-                ? 'departmentAssigneeChanged'
-                : 'branchAssigneeChanged';
-            sendNotification(subdomain, {
-              title,
-              message,
-              type: 'info',
-              fromUserId: createdBy,
-              userIds: targetUserIds,
-              contentType: `core:structure.${contentType}`,
-              contentTypeId,
-              action,
-              priority: 'medium',
-              notificationType,
+          if (contentType && contentTypeId) {
+            const schemas = {
+              branch: models.Branches,
+              department: models.Departments,
+              position: models.Positions,
+            };
+
+            const schema = schemas[contentType];
+
+            const content = await schema
+              .find({ _id: contentTypeId }, { title: 1 })
+              .lean();
+            const contextNames = content?.title || `unknown ${contentType}`;
+            const activities = targetUserIds.map((userId) => ({
+              activityType: 'assignment',
+              target: {
+                moduleName: 'organization',
+                collectionName: 'users',
+                _id: userId,
+              },
+              action: {
+                type: action === 'assigned' ? 'assigned' : 'unassigned',
+                description:
+                  action === 'assigned'
+                    ? `assigned to ${contextNames}`
+                    : `unassigned from ${contextNames}`,
+              },
+              changes: {
+                [action === 'assigned' ? 'added' : 'removed']: {
+                  [fieldName]: contentTypeId,
+                },
+              },
+              metadata: {
+                contentType,
+                contentTypeId,
+                action,
+                createdBy,
+              },
+            }));
+
+            sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'mutation',
+              module: 'activityLog',
+              action: 'createActivityLog',
+              input: activities,
+              context: {
+                processId,
+                userId: createdBy,
+              },
             });
+
+            if (createdBy) {
+              const notificationType = {
+                department: 'departmentAssigneeChanged',
+                branch: 'branchAssigneeChanged',
+                position: 'positionAssigneeChanged',
+              }[contentType];
+
+              sendNotification(subdomain, {
+                title,
+                message,
+                type: 'info',
+                fromUserId: createdBy,
+                userIds: targetUserIds,
+                contentType: `core:structure.${contentType}`,
+                contentTypeId,
+                action,
+                priority: 'medium',
+                notificationType,
+              });
+            }
           }
         }
       }

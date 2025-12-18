@@ -3,7 +3,6 @@ import { TActivityLog, ActivityLogCustomActivity } from '../types';
 import { EnumCursorDirection } from 'erxes-ui';
 
 interface ActivityLogContextType {
-  targetType: string;
   targetId: string;
   activityLogs: TActivityLog[];
   loading: boolean;
@@ -16,7 +15,6 @@ interface ActivityLogContextType {
 
 interface ActivityLogProviderProps {
   children: React.ReactNode;
-  targetType: string;
   targetId: string;
   activityLogs: TActivityLog[];
   loading: boolean;
@@ -31,7 +29,6 @@ const ActivityLogContext = createContext<ActivityLogContextType | null>(null);
 
 export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   children,
-  targetType,
   targetId,
   activityLogs,
   loading,
@@ -44,7 +41,6 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   return (
     <ActivityLogContext.Provider
       value={{
-        targetType,
         targetId,
         activityLogs,
         loading,

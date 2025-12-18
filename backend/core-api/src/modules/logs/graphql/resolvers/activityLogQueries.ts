@@ -9,7 +9,7 @@ const generateFilters = (params: any) => {
     filter.targetType = params.targetType;
   }
   if (params.targetId) {
-    filter['target.data._id'] = params.targetId;
+    filter.targetId = params.targetId;
   }
 
   if (params.action) {

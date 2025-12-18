@@ -35,7 +35,6 @@ function hasActivityLogHeader(children: React.ReactNode): boolean {
 }
 
 type ActivityLogFormRootProps = {
-  targetType: string;
   targetId: string;
   action?: string;
   limit?: number;
@@ -45,7 +44,6 @@ type ActivityLogFormRootProps = {
 };
 
 const ActivityLogsRoot = ({
-  targetType,
   targetId,
   action,
   limit,
@@ -62,7 +60,6 @@ const ActivityLogsRoot = ({
     totalCount,
   } = useActivityLogs(
     {
-      targetType,
       targetId,
       action,
       limit,
@@ -78,7 +75,6 @@ const ActivityLogsRoot = ({
 
   return (
     <ActivityLogProvider
-      targetType={targetType}
       targetId={targetId}
       activityLogs={activityLogs}
       loading={loading}
@@ -119,7 +115,6 @@ const ActivityLogsContent = ({ emptyMessage }: { emptyMessage?: string }) => {
 
 // Legacy props interface for backward compatibility
 type LegacyProps = {
-  targetType: string;
   targetId: string;
   action?: string;
   limit?: number;
@@ -130,7 +125,6 @@ type LegacyProps = {
 
 // Legacy component wrapper
 const ActivityLogsLegacy = ({
-  targetType,
   targetId,
   action,
   limit,
@@ -140,7 +134,6 @@ const ActivityLogsLegacy = ({
 }: LegacyProps) => {
   return (
     <ActivityLogsRoot
-      targetType={targetType}
       targetId={targetId}
       action={action}
       limit={limit}

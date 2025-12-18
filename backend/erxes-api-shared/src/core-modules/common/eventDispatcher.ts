@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { getDiffObjects } from '../../utils/utils';
 import { sendAutomationTrigger } from '../automations';
 import { INotificationData, sendNotification } from '../notifications';
+import { sendTRPCMessage } from '../../utils';
 
 enum DbLogActions {
   CREATE = 'create',
@@ -76,18 +77,13 @@ type EventPayload = {
   payload?: any;
 };
 
-type ActivityLogInput = {
+export type ActivityLogInput = {
   activityType: string;
-  targetType: string;
   target: any;
-  contextType: string;
-  context: any;
+  context?: any;
   action: any;
   changes: any;
-  metadata: any;
-  pluginName: string;
-  moduleName: string;
-  collectionName: string;
+  metadata?: any;
 };
 
 const generateDbEventPayload = (
@@ -189,10 +185,19 @@ export type EventDispatcherReturn = {
     targets: any[];
     recordType: 'new' | 'existing';
   }) => any;
-  createActivityLog: (input: ActivityLogInput | ActivityLogInput[]) => any;
+  createActivityLog: (
+    input: ActivityLogInput | ActivityLogInput[],
+    duserId?: string,
+  ) => any;
   sendNotificationMessage: (
     notificationData: { userIds: string[] } & Partial<INotificationData>,
   ) => any;
+
+  getContext: () => {
+    subdomain: string;
+    processId?: string;
+    userId?: string;
+  };
 };
 
 interface CreateEventDispatcherParams {
@@ -298,19 +303,37 @@ export function createEventDispatcher(
     });
   }
 
-  function createActivityLog(input: ActivityLogInput | ActivityLogInput[]) {
+  function createActivityLog(
+    input: ActivityLogInput | ActivityLogInput[],
+    duserId?: string,
+  ) {
     const { processId, userId } = getContext();
 
-    const data = {
+    sendTRPCMessage({
       subdomain,
-      reqContext: { processId, userId },
-      inputData: input,
-    };
-
-    const queue = sendWorkerQueue('logs', 'activity_log');
-    queue.add('activity_log', data, {
-      removeOnComplete: true,
-    });
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'activityLog',
+      action: 'createActivityLog',
+      input: Array.isArray(input)
+        ? input.map((activity) => ({
+            ...activity,
+            pluginName,
+            moduleName,
+            collectionName,
+          }))
+        : [{ ...input, pluginName, moduleName, collectionName }],
+      context: {
+        processId,
+        userId: duserId || userId,
+      },
+    })
+      .then((res) => {
+        console.log('createActivityLog', res);
+      })
+      .catch((err) => {
+        console.error('createActivityLog', err);
+      });
   }
 
   function sendNotificationMessage(
@@ -324,5 +347,6 @@ export function createEventDispatcher(
     sendAutomationTriggerTarget,
     createActivityLog,
     sendNotificationMessage,
+    getContext,
   };
 }

@@ -9,7 +9,6 @@ export const activityLogHandler = async (data: any) => {
 
   for (const {
     activityType,
-    targetType,
     target,
     contextType,
     context,
@@ -21,7 +20,7 @@ export const activityLogHandler = async (data: any) => {
     collectionName,
   } of activities) {
     const targetId = target?._id;
-    const contentType = `${pluginName}:${moduleName}.${collectionName}`;
+    const targetType = `${pluginName}:${moduleName}.${collectionName}`;
     const models = await generateModels(subdomain);
     const user = await models.Users.findOne({ _id: userId });
 
@@ -29,7 +28,7 @@ export const activityLogHandler = async (data: any) => {
       activityType,
       targetType,
       target,
-      contextType: contextType || targetType,
+      contextType,
       context,
       action,
       changes,
@@ -39,13 +38,10 @@ export const activityLogHandler = async (data: any) => {
     });
 
     // Publish subscription for activity log insertion
-    if (targetId && contentType) {
-      graphqlPubsub.publish(
-        `activityLogInserted:${subdomain}:${contentType}:${targetId}`,
-        {
-          activityLogInserted: activityLog.toObject(),
-        },
-      );
+    if (targetId) {
+      graphqlPubsub.publish(`activityLogInserted:${subdomain}:${targetId}`, {
+        activityLogInserted: activityLog.toObject(),
+      });
     }
   }
 };
