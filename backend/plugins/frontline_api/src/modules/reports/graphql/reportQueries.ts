@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { calculatePercentage, normalizeStatus } from '@/reports/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { PipelineStage } from 'mongoose';
 
 export const reportQueries = {
   async reportConversationList(
@@ -45,75 +46,55 @@ export const reportQueries = {
     { models }: IContext,
   ) {
     const status = normalizeStatus(filters.status);
-
-    const match: any = {};
-    if (status) {
-      match.status = status;
-    }
-
-    const responseStats = await models.Conversations.aggregate([
-      { $match: match },
+    const pipeline: PipelineStage[] = [
       {
         $lookup: {
-          from: 'conversation_messages',
-          localField: '_id',
-          foreignField: 'conversationId',
-          as: 'messages',
+          from: 'conversations',
+          localField: 'conversationId',
+          foreignField: '_id',
+          as: 'conversation',
+        },
+      },
+      { $unwind: '$conversation' },
+      {
+        $match: {
+          ...(status && { 'conversation.status': status }),
+          internal: false,
+          userId: { $exists: true, $ne: null },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $group: {
+          _id: '$userId',
+          user: { $first: '$user' },
+          messageCount: { $sum: 1 },
         },
       },
       {
         $project: {
-          _id: 1,
-          messageCount: { $size: '$messages' },
-          firstRespondedDate: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: '$messages',
-                  as: 'msg',
-                  cond: { $eq: ['$$msg.internal', false] },
-                },
-              },
-              0,
-            ],
-          },
+          _id: 0,
+          user: 1,
+          name: '$user.details.fullName',
+          messageCount: 1,
         },
       },
-      {
-        $group: {
-          _id: null,
-          totalResponses: { $sum: '$messageCount' },
-          avgResponseTime: {
-            $avg: {
-              $subtract: ['$firstRespondedDate.createdAt', '$createdAt'],
-            },
-          },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+      { $sort: { messageCount: -1 } },
+    ];
 
-    if (responseStats.length === 0) {
-      return {
-        totalResponses: 0,
-        avgResponseTime: 0,
-        responseRate: 0,
-        count: 0,
-      };
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
     }
 
-    const stats = responseStats[0];
-    const responseRate =
-      stats.count > 0
-        ? Math.round((stats.totalResponses / stats.count) * 100) / 100
-        : 0;
-
-    return {
-      totalResponses: stats.totalResponses,
-      avgResponseTime: Math.round(stats.avgResponseTime || 0),
-      responseRate,
-      count: stats.count,
-    };
+    return models.ConversationMessages.aggregate(pipeline);
   },
 
   async reportConversationOpen(

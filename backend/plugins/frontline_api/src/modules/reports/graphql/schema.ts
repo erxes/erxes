@@ -22,17 +22,15 @@ export const types = `
   page: Int
   totalPages: Int
 }
-  type ConversationResponseMetric {
-    totalResponses: Int
-    avgResponseTime: Int
-    responseRate: Float
-    count: Int
+  type ConversationUserMessageStat {
+    user: User
+    messageCount: Int
   }
 `;
 
 export const queries = `
   reportConversationList(filters: ConversationReportFilter): ConversationListResult
-  reportConversationResponses(filters: ConversationReportFilter): ConversationResponseMetric
+  reportConversationResponses(filters: ConversationReportFilter): [ConversationUserMessageStat]
   reportConversationOpen(filters: ConversationReportFilter): ReportMetric
   reportConversationClosed(filters: ConversationReportFilter): ReportMetric
   reportConversationResolved(filters: ConversationReportFilter): ReportMetric
