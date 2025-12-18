@@ -1,0 +1,65 @@
+{
+  "name": "insurance_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/plugins/insurance_ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/plugins/insurance_ui",
+        "main": "frontend/plugins/insurance_ui/src/main.ts",
+        "tsConfig": "frontend/plugins/insurance_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/plugins/insurance_ui/rspack.config.ts",
+        "assets": [
+          "frontend/plugins/insurance_ui/src/assets"
+        ]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/plugins/insurance_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "insurance_ui:build:development",
+        "port": 3005
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "insurance_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "insurance_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "insurance_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "insurance_ui:serve:production"
+        }
+      }
+    }
+  }
+}
