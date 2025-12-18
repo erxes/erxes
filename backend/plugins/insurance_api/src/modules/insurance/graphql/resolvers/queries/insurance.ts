@@ -1,12 +1,16 @@
 
-  import { IContext } from '~/connectionResolvers';
+import { riskTypeQueries } from './riskType';
+import { insuranceTypeQueries } from './insuranceType';
+import { productQueries } from './product';
+import { vendorQueries } from './vendor';
+import { customerQueries } from './customer';
+import { contractQueries } from './contract';
 
-   export const insuranceQueries = {
-    getInsurance: async (_parent: undefined, { _id }, { models }: IContext) => {
-      return models.Insurance.getInsurance(_id);
-    },
-    
-    getInsurances: async (_parent: undefined, { models }: IContext) => {
-      return models.Insurance.getInsurances();
-    },
-  };
+export const insuranceQueries = {
+  ...riskTypeQueries,
+  ...insuranceTypeQueries,
+  ...productQueries,
+  ...vendorQueries,
+  ...customerQueries,
+  ...contractQueries,
+};
