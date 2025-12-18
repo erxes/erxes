@@ -31,9 +31,11 @@ const NotificationContentWrapper = ({
 }: {
   notification: INotification;
 }) => {
-  const [pluginName, collectionType] = (notification?.contentType || '')
+  const [pluginName = 'core', collectionType = ''] = (
+    notification?.contentType ?? ''
+  )
     .replace(':', '.')
-    .split('.');
+    .split('.', 2);
 
   if (pluginName === 'core') {
     const CoreNotificationComponent =

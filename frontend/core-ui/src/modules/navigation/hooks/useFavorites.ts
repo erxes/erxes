@@ -25,7 +25,7 @@ export function useFavorites(): FavoriteModule[] {
   const currentUser = useAtomValue(currentUserState);
 
   const { data } = useQuery<GetFavoritesResponse>(GET_FAVORITES, {
-    skip: !currentUser || !currentUser?._id,
+    skip: !currentUser?._id,
   });
 
   const favorites = data?.getFavoritesByCurrentUser ?? [];
