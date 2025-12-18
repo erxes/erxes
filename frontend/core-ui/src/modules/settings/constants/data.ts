@@ -110,6 +110,11 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
       icon: IconUserCircle,
       path: SettingsPath.Profile,
     },
+    {
+      name: 'Change password',
+      icon: IconPassword,
+      path: SettingsPath.ChangePassword,
+    },
   ],
   nav: [
     {
@@ -174,11 +179,6 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
   const developer = [...SETTINGS_PATH_DATA.developer];
 
   if (version) {
-    account.push({
-      name: 'Change password',
-      icon: IconPassword,
-      path: SettingsPath.ChangePassword,
-    });
     nav.push(
       {
         name: 'File upload',

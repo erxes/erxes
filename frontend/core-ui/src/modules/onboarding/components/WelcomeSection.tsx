@@ -52,7 +52,7 @@ export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
           Welcome to{' '}
           {organization?.orgCustomOnboarding
             ? organization?.orgShortName
-            : 'erxes 3.0'}
+            : 'erxes'}
         </h1>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
           {!organization?.orgCustomOnboarding &&
