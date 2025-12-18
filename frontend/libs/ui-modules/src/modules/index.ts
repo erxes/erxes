@@ -7,6 +7,7 @@ export * from './internal-notes';
 export * from './notifications';
 export * from './permissions';
 export * from './products';
+export * from './properties';
 export * from './segments';
 export * from './structure';
 export * from './tags';

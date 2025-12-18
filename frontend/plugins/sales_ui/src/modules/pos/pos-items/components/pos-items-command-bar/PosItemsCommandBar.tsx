@@ -21,7 +21,7 @@ export const PosItemsCommandBar = () => {
             .join(',')}
         />
         <Separator.Inline />
-        <Button variant="secondary" onClick={() => {}}>
+        <Button variant="secondary" disabled>
           <IconPlus />
           Create
         </Button>

@@ -197,11 +197,20 @@ import {
 } from './modules/clientportal/db/models/ClientPortal';
 import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
 import { ICPUserDocument } from './modules/clientportal/types/cpUser';
-import { IEmailDeliveryModel, loadEmailDeliveryClass } from './modules/organization/team-member/db/models/EmailDeliveries';
+import {
+  IEmailDeliveryModel,
+  loadEmailDeliveryClass,
+} from './modules/organization/team-member/db/models/EmailDeliveries';
 import {
   IFieldDocument,
   IFieldGroupDocument,
 } from './modules/properties/@types';
+
+import {
+  IOrgWhiteLabelModel,
+  loadOrgWhiteLabelClass,
+} from './modules/organization/whitelabel/db/models/OrgWhiteLabel';
+import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -248,6 +257,7 @@ export interface IModels {
   Stats: IStatsModel;
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
+  OrgWhiteLabel: IOrgWhiteLabelModel;
 }
 
 export interface IContext extends IMainContext {
@@ -452,6 +462,11 @@ export const loadClasses = (
   models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
     'engage_sms_requests',
     loadSmsRequestClass(models),
+  );
+
+  models.OrgWhiteLabel = db.model<IOrgWhiteLabelDocument, IOrgWhiteLabelModel>(
+    'org_white_labels',
+    loadOrgWhiteLabelClass(models),
   );
 
   const db_name = db.name;

@@ -1,7 +1,14 @@
-import queries from '@/pos/orders/graphql/queries';
+import queries from '~/modules/pos/orders/graphql/queries/queries';
 import { useQuery } from '@apollo/client';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect } from 'react';
 import { IOrder } from '@/pos/types/order';
+import {
+  useMultiQueryState,
+  parseDateRangeFromString,
+  useQueryState,
+} from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { posOrderTotalCountAtom } from '../states/usePosOrderCounts';
 
 const POS_PER_PAGE = 30;
 
@@ -23,20 +30,75 @@ interface UseOrdersListReturn {
   };
 }
 
+export const useOrdersVariables = (options: UseOrdersListOptions = {}) => {
+  const { posId, ...otherOptions } = options;
+
+  const [
+    {
+      searchValue,
+      customer,
+      company,
+      user,
+      pos,
+      types,
+      status,
+      excludeStatus,
+      paidDateRange,
+      createdDateRange,
+    },
+  ] = useMultiQueryState<{
+    searchValue: string;
+    customer: string;
+    company: string;
+    user: string;
+    pos: string;
+    types: string;
+    status: string;
+    excludeStatus: string;
+    paidDateRange: string;
+    createdDateRange: string;
+  }>([
+    'searchValue',
+    'customer',
+    'company',
+    'user',
+    'pos',
+    'types',
+    'status',
+    'excludeStatus',
+    'paidDateRange',
+    'createdDateRange',
+  ]);
+  const [number] = useQueryState<string>('number');
+  return {
+    perPage: POS_PER_PAGE,
+    ...(posId && { posId }),
+    search: (() => {
+      const searchParts = [];
+      if (searchValue) searchParts.push(searchValue);
+      if (number) searchParts.push(number);
+      return searchParts.length > 0 ? searchParts.join(' ') : undefined;
+    })(),
+    customerId: customer || company || undefined,
+    userId: user || undefined,
+    posId: pos || undefined,
+    types: types && types !== 'all' ? [types] : undefined,
+    statuses: status && status !== 'all' ? [status] : undefined,
+    excludeStatuses:
+      excludeStatus && excludeStatus !== 'all' ? [excludeStatus] : undefined,
+    paidStartDate: parseDateRangeFromString(paidDateRange)?.from,
+    paidEndDate: parseDateRangeFromString(paidDateRange)?.to,
+    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
+    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
+    ...otherOptions,
+  };
+};
+
 export const useOrdersList = (
   options: UseOrdersListOptions = {},
 ): UseOrdersListReturn => {
-  const { posId, ...otherOptions } = options;
-
-  const variables = useMemo(
-    () => ({
-      perPage: POS_PER_PAGE,
-      ...(posId && { posId }),
-      ...otherOptions,
-    }),
-    [posId, otherOptions],
-  );
-
+  const variables = useOrdersVariables(options);
+  const setOrdersTotalCount = useSetAtom(posOrderTotalCountAtom);
   const { data, loading, fetchMore } = useQuery(queries.POS_ORDERS_QUERY, {
     variables,
   });
@@ -47,8 +109,8 @@ export const useOrdersList = (
   );
 
   const totalCount = useMemo(
-    () => data?.posOrdersTotalCount || 0,
-    [data?.posOrdersTotalCount],
+    () => data?.posOrders?.length || 0,
+    [data?.posOrders],
   );
 
   const handleFetchMore = useCallback(() => {
@@ -66,11 +128,15 @@ export const useOrdersList = (
         return {
           ...prev,
           posOrders: [...(prev.posOrders || []), ...fetchMoreResult.posOrders],
-          posOrdersTotalCount: fetchMoreResult.posOrdersTotalCount,
         };
       },
     });
   }, [ordersList.length, fetchMore, data?.posOrders]);
+
+  useEffect(() => {
+    if (!totalCount) return;
+    setOrdersTotalCount(totalCount);
+  }, [totalCount, setOrdersTotalCount]);
 
   return {
     loading,

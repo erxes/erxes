@@ -24,4 +24,72 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
       );
     },
   },
+  {
+    id: 'customerDetail.primaryName',
+    accessorKey: 'customerDetail.primaryName',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label="Customer Name" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'customerDetail.emails.email',
+    accessorKey: 'customerDetail.emails.email',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label="Customer Email" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'totalOrders',
+    accessorKey: 'totalOrders',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label="Orders Count" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'totalAmount',
+    accessorKey: 'totalAmount',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label="Total Amount" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'customerType',
+    accessorKey: 'customerType',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label="Type" />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
 ];
