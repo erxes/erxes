@@ -6,10 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { UPDATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { Form, Button, Skeleton } from 'erxes-ui';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
-import { Statuses } from '@/status/components/Statuses';
 import { useEffect } from 'react';
 import { TUpdatePipelineForm } from '@/pipelines/types';
 import { PipelineConfigs } from './configs/components/PipelineConfigs';
+import { TicketStatusesButton } from '@/status/components/TicketStatusesButton';
 
 export const PipelineDetail = () => {
   const { pipelineId } = useParams<{
@@ -59,7 +59,7 @@ export const PipelineDetail = () => {
             </form>
           </div>
         </section>
-        <Statuses />
+        <TicketStatusesButton />
         <PipelineConfigs />
       </main>
     </div>

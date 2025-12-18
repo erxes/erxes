@@ -217,7 +217,19 @@ export const GET_DEAL_DETAIL = gql`
       products {
         _id
         name
+        code
+        unitPrice
+        category {
+          _id
+          name
+        }
+        vendor {
+          _id
+          primaryName
+        }
+        categoryId
       }
+      productsData
       relations
     }
   }

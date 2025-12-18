@@ -248,14 +248,21 @@ const SelectAccountValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-export const SelectAccountFilterItem = () => {
+export const SelectAccountFilterItem = ({
+  value,
+  label,
+}: {
+  value?: string;
+  label?: string;
+}) => {
   return (
-    <Filter.Item value="account">
+    <Filter.Item value={value ?? 'account'}>
       <IconShoppingCart />
-      Account
+      {label ?? 'Account'}
     </Filter.Item>
   );
 };
+
 
 export const SelectAccountFilterView = ({
   onValueChange,

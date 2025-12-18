@@ -5,8 +5,7 @@ import { Button, PageContainer } from 'erxes-ui';
 import { IconClipboard } from '@tabler/icons-react';
 import { Outlet } from 'react-router-dom';
 import { ProjectsTagsPage } from '~/pages/ProjectsTagsPage';
-import { TagProvider } from '~/modules/tags/providers/TagProvider';
-import { TagsGroupsAddButtons } from '~/modules/tags/components/TagsGroupsAddButtons';
+import { TagProvider, TagsGroupsAddButtons } from 'ui-modules';
 
 const ProjectsSettings = () => {
   return (

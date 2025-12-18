@@ -69,14 +69,16 @@ export const CONFIG: IUIConfig = {
     },
   ],
 
-  relationWidgets: [
-    {
-      name: 'conversation',
-      icon: IconMail,
-    },
-    {
-      name: 'ticket',
-      icon: IconTicket,
-    },
-  ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'conversation',
+        icon: IconMail,
+      },
+      {
+        name: 'ticket',
+        icon: IconTicket,
+      },
+    ],
+  },
 };

@@ -257,7 +257,6 @@ export const loadPosUserClass = (models) => {
     ) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
-      console.log('email', email, await models.PosUsers.countDocuments());
       const user = await models.PosUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${email}$`, 'i') } },
@@ -266,7 +265,6 @@ export const loadPosUserClass = (models) => {
         isActive: true,
         tokens: { $in: [config.token] },
       });
-      console.log('user', user);
       if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');

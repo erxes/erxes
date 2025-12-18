@@ -25,6 +25,16 @@ export type IUIConfig = {
       icon: React.ElementType;
     }[];
   }[];
+
+  widgets?: {
+    relationWidgets?: {
+      name: string;
+      icon?: React.ElementType;
+    }[];
+    customerDetailWidgets?: {
+      name: string;
+    }[];
+  };
   modules?: {
     name: string;
     icon?: React.ElementType;

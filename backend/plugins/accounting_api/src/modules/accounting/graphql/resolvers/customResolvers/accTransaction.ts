@@ -109,8 +109,8 @@ export default {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details && user.details.operatorPhone) || '',
-        primaryEmail: user.email,
+        primaryPhone: user.details?.operatorPhone ?? '',
+        primaryEmail: user.email ?? '',
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         lastName: user.username,
       };
@@ -153,6 +153,16 @@ export default {
   },
 
   async ptrInfo(transaction: ITransactionDocument, _, { models }: IContext) {
+    if (!transaction.ptrId) {
+      return {
+        len: 0,
+        activeLen: 0,
+        status: 'None',
+        diff: 0,
+        value: 0,
+      };
+    }
+
     const perPtrTrs = await models.Transactions.find(
       { ptrId: transaction.ptrId },
       {
@@ -162,8 +172,8 @@ export default {
       },
     ).lean();
 
-    const debit = perPtrTrs.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0);
-    const credit = perPtrTrs.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0);
+    const debit = perPtrTrs?.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0);
+    const credit = perPtrTrs?.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0);
     return {
       len: perPtrTrs.length,
       activeLen: perPtrTrs.filter((tr) => !tr.originId).length,
