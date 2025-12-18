@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import queries from '@/pos/pos-orders-by-customer/graphql/queries';
+import queries from '~/modules/pos/pos-orders-by-customer/graphql/queries/queries';
 
 const POS_PER_PAGE = 30;
 

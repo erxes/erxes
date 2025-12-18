@@ -204,8 +204,8 @@ export const ADD_DEALS = gql`
 export const EDIT_DEALS = gql`
   mutation dealsEdit($_id: String!, $name: String, ${dealMutationVariables}, ${commonMutationVariables}) {
     dealsEdit(_id: $_id, name: $name, ${dealMutationParams}, ${commonMutationParams}) {
-      _id
-      name
+      ${commonFields}
+      ${dealFields}
     }
   }
 `;

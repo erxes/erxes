@@ -7,10 +7,8 @@ import {
 import { ticketSchema } from '@/ticket/db/definitions/ticket';
 import { Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import {
-  createNotifications,
-  createActivity,
-} from '~/modules/ticket/utils/ticket';
+import { createActivity } from '~/modules/ticket/utils/ticket';
+import { createNotifications } from '~/utils/notifications';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
@@ -167,7 +165,7 @@ export const loadTicketClass = (models: IModels) => {
           contentTypeId: ticket._id,
           fromUserId: userId,
           subdomain,
-          notificationType: 'note',
+          notificationType: 'ticketAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
         });
