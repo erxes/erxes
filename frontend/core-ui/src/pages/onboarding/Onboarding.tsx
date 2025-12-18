@@ -61,8 +61,11 @@ export const OnBoarding = () => {
                 className="space-y-2 text-center"
               >
                 <h1 className="text-3xl font-bold tracking-tight">
-                  Welcome to {organization?.orgShortName || 'erxes 3.0'} – A New
-                  Experience Begins!
+                  Welcome to{' '}
+                  {organization?.orgCustomOnboarding
+                    ? organization?.orgShortName || 'your organization'
+                    : 'erxes 3.0'}{' '}
+                  - A New Experience Begins!
                 </h1>
                 <p className="text-muted-foreground">
                   A Fresh Start with a New UX/UI
@@ -104,7 +107,9 @@ export const OnBoarding = () => {
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-center">
                   Your Feedback Shapes{' '}
-                  {organization?.orgShortName || 'erxes 3.0'}
+                  {organization?.orgCustomOnboarding
+                    ? organization?.orgShortName || 'your organization'
+                    : 'erxes 3.0'}
                 </h2>
                 <p className="text-center text-muted-foreground">
                   Your input is essential! Share your thoughts and help us
