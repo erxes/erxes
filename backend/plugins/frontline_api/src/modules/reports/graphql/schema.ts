@@ -1,7 +1,19 @@
 export const types = `
   input ConversationReportFilter {
+    date: String
+    fromDate: String
+    toDate: String
     status: String
     limit: Int
+    page: Int
+  }
+
+ type ConversationTemplateType{
+      _id: String
+      name: String
+      content: String
+      usageCount: Int
+      lastUsed: String
   }
 
   type ReportMetric {
@@ -15,6 +27,15 @@ export const types = `
     count: Int
     percentage: Int
   }
+  type ConversationDateStat {
+    date: String
+    count: Int
+  }
+
+ type ConversationTemplateStat {
+    template: ConversationTemplateType
+    usageCount: Int
+}
 
   type ConversationListResult {
   list: [Conversation]
@@ -29,6 +50,9 @@ export const types = `
 `;
 
 export const queries = `
+  reportConversationResponseTemplate(filters: ConversationReportFilter): [ConversationTemplateStat]
+  reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
+  reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationList(filters: ConversationReportFilter): ConversationListResult
   reportConversationResponses(filters: ConversationReportFilter): [ConversationUserMessageStat]
   reportConversationOpen(filters: ConversationReportFilter): ReportMetric

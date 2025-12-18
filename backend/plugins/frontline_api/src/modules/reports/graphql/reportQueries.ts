@@ -3,8 +3,151 @@ import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { calculatePercentage, normalizeStatus } from '@/reports/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { PipelineStage } from 'mongoose';
-
+import { getDateRange } from '@/reports/utils';
 export const reportQueries = {
+  async reportConversationOpenDate(
+    _parent: undefined,
+    {
+      filters = {},
+    }: { filters?: { date?: string; fromDate?: string; toDate?: string } },
+    { models }: IContext,
+  ) {
+    const match: any = {};
+
+    if (filters.date) {
+      const range = getDateRange({ type: filters.date });
+      if (range) {
+        match.createdAt = { $gte: range.startDate, $lte: range.endDate };
+      }
+    } else if (filters.fromDate || filters.toDate) {
+      match.createdAt = {};
+      if (filters.fromDate) match.createdAt.$gte = new Date(filters.fromDate);
+      if (filters.toDate) match.createdAt.$lte = new Date(filters.toDate);
+    }
+
+    const pipeline: PipelineStage[] = [
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    const result = await models.Conversations.aggregate(pipeline);
+
+    return result.map((item: any) => ({
+      date: item._id,
+      count: item.count,
+    }));
+  },
+
+  async reportConversationResolvedDate(
+    _parent: undefined,
+    {
+      filters = {},
+    }: { filters?: { date?: string; fromDate?: string; toDate?: string } },
+    { models }: IContext,
+  ) {
+    const match: any = { status: 'resolved', closedAt: { $exists: true } };
+
+    if (filters.date) {
+      const range = getDateRange({ type: filters.date });
+      if (range) {
+        match.closedAt = { $gte: range.startDate, $lte: range.endDate };
+      }
+    } else if (filters.fromDate || filters.toDate) {
+      match.closedAt = {};
+      if (filters.fromDate) match.closedAt.$gte = new Date(filters.fromDate);
+      if (filters.toDate) match.closedAt.$lte = new Date(filters.toDate);
+    }
+
+    const pipeline: PipelineStage[] = [
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$closedAt' } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    const result = await models.Conversations.aggregate(pipeline);
+
+    return result.map((item: any) => ({
+      date: item._id,
+      count: item.count,
+    }));
+  },
+
+  async reportConversationResponseTemplate(
+    _parent: undefined,
+    { filters = {} }: { filters?: any },
+    { models }: IContext,
+  ) {
+    const match: any = {
+      responseTemplateId: { $exists: true, $ne: null },
+    };
+
+    if (filters.date) {
+      const range = getDateRange({ type: filters.date });
+      if (range) {
+        match.createdAt = {
+          $gte: range.startDate,
+          $lte: range.endDate,
+        };
+      }
+    } else if (filters.fromDate || filters.toDate) {
+      match.createdAt = {};
+      if (filters.fromDate) match.createdAt.$gte = new Date(filters.fromDate);
+      if (filters.toDate) match.createdAt.$lte = new Date(filters.toDate);
+    }
+
+    const pipeline: PipelineStage[] = [
+      { $match: match },
+
+      {
+        $lookup: {
+          from: 'response_templates',
+          localField: 'responseTemplateId',
+          foreignField: '_id',
+          as: 'template',
+        },
+      },
+      { $unwind: '$template' },
+
+      {
+        $group: {
+          _id: '$responseTemplateId',
+          template: {
+            $first: {
+              _id: '$template._id',
+              name: '$template.name',
+              content: '$template.content',
+              channelId: '$template.channelId',
+              createdAt: '$template.createdAt',
+              updatedAt: '$template.updatedAt',
+            },
+          },
+          usageCount: { $sum: 1 },
+          lastUsed: { $max: '$createdAt' },
+        },
+      },
+
+      { $sort: { usageCount: -1 } },
+    ];
+
+    if (filters.limit) {
+      const skip = ((filters.page || 1) - 1) * filters.limit;
+      pipeline.push({ $skip: skip }, { $limit: filters.limit });
+    }
+
+    const result = await models.ConversationMessages.aggregate(pipeline);
+    return result;
+  },
   async reportConversationList(
     _parent: undefined,
     {
