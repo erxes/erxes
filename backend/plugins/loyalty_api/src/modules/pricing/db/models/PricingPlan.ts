@@ -28,9 +28,9 @@ export const loadPricingPlanClass = (models: IModels) => {
     public static async createPlan(doc: IPricingPlan, userId: string) {
       return models.PricingPlans.create({
         ...doc,
-        createdAt: new Date(),
+        // createdAt: new Date(),
         createdBy: userId,
-        updatedAt: new Date(),
+        // updatedAt: new Date(),
         updatedBy: userId
       });
     }
@@ -49,8 +49,9 @@ export const loadPricingPlanClass = (models: IModels) => {
     ) {
       const result = await models.PricingPlans.findById(id);
 
-      if (!result) return new Error(`Can't find plan`);
-
+      if (!result) {
+        throw new Error(`Can't find plan`);
+      }
       if (doc._id) delete doc._id;
 
       await models.PricingPlans.findByIdAndUpdate(id, {
@@ -72,7 +73,9 @@ export const loadPricingPlanClass = (models: IModels) => {
     public static async removePlan(id: string) {
       const result = await models.PricingPlans.findById(id);
 
-      if (!result) return new Error(`Can't find plan`);
+      if (!result) {
+        throw new Error(`Can't find plan`);
+      }
 
       return await models.PricingPlans.findByIdAndDelete(id);
     }

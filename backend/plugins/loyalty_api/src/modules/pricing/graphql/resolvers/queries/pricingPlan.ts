@@ -166,7 +166,9 @@ export const pricingPlanQueries = {
   }
 };
 
-moduleRequireLogin(pricingPlanQueries);
-moduleCheckPermission(pricingPlanQueries, 'showPricing');
+(async () => {
+  moduleRequireLogin(pricingPlanQueries);
+  await moduleCheckPermission(pricingPlanQueries, 'showPricing');
+})();
 
 export default pricingPlanQueries;

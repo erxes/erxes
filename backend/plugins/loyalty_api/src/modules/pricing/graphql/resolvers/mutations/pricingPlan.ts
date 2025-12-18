@@ -16,7 +16,7 @@ export const pricingPlanMutations = {
     { doc }: { doc: IPricingPlan },
     { models, user }: IContext,
   ) => {
-    return await models.PricingPlans.createPlan(doc, user._id);
+    return models.PricingPlans.createPlan(doc, user._id);
   },
 
   pricingPlanEdit: async (
@@ -24,13 +24,7 @@ export const pricingPlanMutations = {
     { doc }: { doc: IPricingPlanDocument },
     { models, user }: IContext,
   ) => {
-    const pricingPlan = await models.PricingPlans.findOne({ _id: doc._id });
-
-    if (!pricingPlan) {
-      throw new Error('Pricing plan not found');
-    }
-
-    return await models.PricingPlans.updatePlan(
+    return models.PricingPlans.updatePlan(
       doc._id,
       doc,
       user._id,
@@ -42,17 +36,14 @@ export const pricingPlanMutations = {
     { id }: { id: string },
     { models }: IContext,
   ) => {
-    const pricingPlan = await models.PricingPlans.findOne({ _id: id });
-
-    if (!pricingPlan) {
-      throw new Error('Pricing plan not found');
-    }
-
-    return await models.PricingPlans.removePlan(id);
+    return models.PricingPlans.removePlan(id);
   },
 };
 
-moduleRequireLogin(pricingPlanMutations);
-moduleCheckPermission(pricingPlanMutations, 'managePricing');
+
+(async () => {
+  moduleRequireLogin(pricingPlanMutations);
+  await moduleCheckPermission(pricingPlanMutations, 'managePricing');
+})();
 
 export default pricingPlanMutations;
