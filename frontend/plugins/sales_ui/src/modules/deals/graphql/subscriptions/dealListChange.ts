@@ -1,5 +1,5 @@
+import { commonListFields } from '@/deals/graphql/queries/DealsQueries';
 import { gql } from '@apollo/client';
-import { commonListFields } from '~/modules/deals/graphql/queries/DealsQueries';
 
 export const DEAL_LIST_CHANGED = gql`
   subscription salesDealListChanged($pipelineId: String!, $userId: String, $filter: IDealFilter) {

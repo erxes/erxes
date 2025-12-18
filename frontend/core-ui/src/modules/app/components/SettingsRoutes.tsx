@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-
 import { getPluginsSettingsRoutes } from '@/app/hooks/usePluginsRouter';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
 import {
@@ -49,13 +48,6 @@ const PermissionsSettings = lazy(() =>
     default: module.PermissionPage,
   })),
 );
-// const StructureSettings = lazy(() =>
-//   import('~/pages/settings/workspace/structure/StructureSettingsPage').then(
-//     (module) => ({
-//       default: module.StructureSettingsPage,
-//     }),
-//   ),
-// );
 
 const TagsSettings = lazy(() =>
   import('~/pages/settings/workspace/tags/TagsSettingPage').then((module) => ({
@@ -90,12 +82,10 @@ const AutomationSettingsRoutes = lazy(() =>
   })),
 );
 
-const PropertiesSettins = lazy(() =>
-  import('~/pages/settings/workspace/PropertiesSettingsPage').then(
-    (module) => ({
-      default: module.PropertiesSettingsPage,
-    }),
-  ),
+const PropertiesSettingsRoutes = lazy(() =>
+  import('@/properties/components/PropertiesRoutes').then((module) => ({
+    default: module.PropertiesSettingsRoutes,
+  })),
 );
 
 export function SettingsRoutes() {
@@ -169,8 +159,8 @@ export function SettingsRoutes() {
 
         <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
         <Route
-          path={SettingsWorkspacePath.Properties}
-          element={<PropertiesSettins />}
+          path={SettingsWorkspacePath.PropertiesCatchAll}
+          element={<PropertiesSettingsRoutes />}
         />
         {getPluginsSettingsRoutes()}
       </Routes>

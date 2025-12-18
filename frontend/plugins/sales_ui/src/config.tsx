@@ -48,8 +48,10 @@ export const CONFIG: IUIConfig = {
     },
     {
       name: 'pos',
+      icon: IconBriefcase,
       path: 'pos',
-      settingsOnly: true,
+      hasSettings: true,
+      hasAutomation: false,
     },
   ],
   widgets: {
