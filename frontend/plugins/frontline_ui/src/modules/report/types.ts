@@ -43,3 +43,27 @@ export interface SourceData {
   count: number;
   percentage: number;
 }
+
+export interface ConversationListItem {
+  _id: string;
+  content: string;
+  customerId: string;
+  userId: string;
+  assignedUserId: string;
+  status: string;
+  messages: {
+    _id: string;
+    content: string;
+    userId: string;
+    customerId: string;
+  }[];
+  createdAt: string;
+  readUsers: {
+    _id: string;
+    details: {
+      avatar: string;
+      fullName: string;
+      position: string;
+    };
+  }[];
+}

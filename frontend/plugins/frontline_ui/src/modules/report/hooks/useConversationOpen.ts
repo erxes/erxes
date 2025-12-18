@@ -1,11 +1,21 @@
-import { useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_CONVERSATION_OPEN } from '@/report/graphql/queries/getChart';
 
-export const useConversationOpen = () => {
-  const { data, loading, error } = useQuery(GET_CONVERSATION_OPEN);
+interface IConversationOpen {
+  count: number;
+  percentage: number;
+}
+export const useConversationOpen = (
+  options?: QueryHookOptions<{
+    reportConversationOpen: IConversationOpen;
+  }>,
+) => {
+  const { data, loading, error } = useQuery<{
+    reportConversationOpen: IConversationOpen;
+  }>(GET_CONVERSATION_OPEN, options);
 
   return {
-    conversationOpen: data?.conversationOpen,
+    conversationOpen: data?.reportConversationOpen,
     loading,
     error,
   };

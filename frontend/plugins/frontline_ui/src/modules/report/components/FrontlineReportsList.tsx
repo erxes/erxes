@@ -23,15 +23,15 @@ import { FrontlineReport } from './FrontlineReport';
 import { InfoCard, ScrollArea } from 'erxes-ui';
 import { useConversationOpen } from '@/report/hooks/useConversationOpen';
 import { useConversationClosed } from '@/report/hooks/useConversationClose';
-import { useConversationResolved } from '@/report/hooks/useConversationResolved';
-import { useConversationTags } from '@/report/hooks/useConversationTags';
 import { useConversationSources } from '@/report/hooks/useConversationSource';
-import { useConversationResponses } from '@/report/hooks/useConversationResponses';
-import { useConversationList } from '@/report/hooks/useConversationList';
 import { ReportsViewSkeleton } from './ReportsView';
 import { FrontlineReportBySource } from './FrontlineReportBySource';
 import { getTopSource } from '../utils';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
+import { FrontlineReportByTag } from './FrontlineReportByTag';
+import { FrontlineReportByResponses } from './FrontlineReportByResponses';
+import { FrontlineReportByList } from './FrontlineReportByList';
+import { FrontlineReportOpen } from './FrontlineReportOpen';
 
 interface CardConfig {
   id: string;
@@ -69,18 +69,17 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
 }
 
 export const FrontlineReportsList = () => {
-  const { conversationOpen = {}, loading: openLoading } = useConversationOpen();
-  const { conversationClosed = {}, loading: closedLoading } =
+  const { conversationOpen, loading: openLoading } = useConversationOpen();
+  const { conversationClosed, loading: closedLoading } =
     useConversationClosed();
-  const { conversationResolved = {}, loading: resolvedLoading } =
-    useConversationResolved();
-  const { conversationResponses = {}, loading: responsesLoading } =
-    useConversationResponses();
-  const { conversationList = {}, loading: conversationListLoading } =
-    useConversationList();
-  const { conversationTags = {}, loading: tagsLoading } = useConversationTags();
   const { conversationSources = [], loading: sourcesLoading } =
-    useConversationSources();
+    useConversationSources({
+      variables: {
+        filters: {
+          limit: 10,
+        },
+      },
+    });
   const [cards, setCards] = useState<CardConfig[]>(INITIAL_CARDS);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
@@ -155,13 +154,7 @@ export const FrontlineReportsList = () => {
     );
   };
 
-  if (
-    openLoading ||
-    closedLoading ||
-    resolvedLoading ||
-    tagsLoading ||
-    sourcesLoading
-  ) {
+  if (openLoading || closedLoading || sourcesLoading) {
     return <ReportsViewSkeleton />;
   }
 
@@ -177,10 +170,9 @@ export const FrontlineReportsList = () => {
     switch (id) {
       case 'conversation-open':
         return (
-          <FrontlineReport
+          <FrontlineReportOpen
             key={id}
             title="Conversation Open"
-            data={conversationOpen}
             {...commonProps}
           />
         );
@@ -197,17 +189,20 @@ export const FrontlineReportsList = () => {
           <FrontlineReportBySource
             key={id}
             title="Conversation Source"
-            data={{ topPerforming: conversationSources || [] }}
             {...commonProps}
           />
         );
       case 'conversation-tag':
         return (
-          <FrontlineReport key={id} title="Conversation Tag" {...commonProps} />
+          <FrontlineReportByTag
+            key={id}
+            title="Conversation Tag"
+            {...commonProps}
+          />
         );
       case 'conversation-responses':
         return (
-          <FrontlineReport
+          <FrontlineReportByResponses
             key={id}
             title="Conversation Responses"
             {...commonProps}
@@ -215,7 +210,7 @@ export const FrontlineReportsList = () => {
         );
       case 'conversation-list':
         return (
-          <FrontlineReport
+          <FrontlineReportByList
             key={id}
             title="Conversation List"
             {...commonProps}
@@ -312,7 +307,7 @@ export const FrontlineReportsList = () => {
             items={cards.map((c) => c.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="grid grid-cols-2 gap-3 p-1">
+            <div className="grid xl:grid-cols-2 grid-cols-1 gap-3 p-1">
               {cards.map((card) => (
                 <DroppableArea
                   key={card.id}

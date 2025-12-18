@@ -1,22 +1,22 @@
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
-import { useConversationSources } from '../hooks/useConversationSource';
+import { useConversationTags } from '../hooks/useConversationTags';
 import { ColumnDef } from '@tanstack/react-table';
 
-interface FrontlineReportBySourceProps {
+interface FrontlineReportByTagProps {
   title: string;
   colSpan?: 1 | 2;
   onColSpanChange?: (span: 1 | 2) => void;
 }
 
-export const FrontlineReportBySource = ({
+export const FrontlineReportByTag = ({
   title,
   colSpan = 2,
   onColSpanChange,
-}: FrontlineReportBySourceProps) => {
+}: FrontlineReportByTagProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
-  const { conversationSources, loading } = useConversationSources({
+  const { conversationTags, loading } = useConversationTags({
     variables: {
       filters: {
         limit: 10,
@@ -35,7 +35,7 @@ export const FrontlineReportBySource = ({
       <FrontlineCard.Content>
         <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
           <RecordTable.Provider
-            data={conversationSources || []}
+            data={conversationTags || []}
             columns={columns}
             className="m-3"
           >
@@ -65,25 +65,12 @@ const columns: ColumnDef<{
   percentage: number;
 }>[] = [
   {
-    id: '_id',
-    header: 'Source',
-    accessorKey: '_id',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="px-4 text-xs">
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 28,
-  },
-  {
     id: 'name',
-    header: 'Name',
+    header: 'Tag',
     accessorKey: 'name',
     cell: ({ cell }) => {
       return (
-        <RecordTableInlineCell className="px-4 text-xs truncate">
+        <RecordTableInlineCell className="px-4 text-xs">
           {cell.getValue() as string}
         </RecordTableInlineCell>
       );
@@ -93,6 +80,7 @@ const columns: ColumnDef<{
     id: 'count',
     header: 'Data',
     accessorKey: 'count',
+    size: 10,
     cell: ({ cell }) => {
       const { count, percentage } = cell.row.original || {};
       return (
@@ -101,6 +89,5 @@ const columns: ColumnDef<{
         </RecordTableInlineCell>
       );
     },
-    size: 10,
   },
 ];

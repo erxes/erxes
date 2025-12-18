@@ -1,11 +1,26 @@
-import { useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_CONVERSATION_LIST } from '@/report/graphql/queries/getChart';
+import { ConversationListItem } from '../types';
 
-export const useConversationList = () => {
-  const { data, loading, error } = useQuery(GET_CONVERSATION_LIST);
+interface ConversationListResponse {
+  reportConversationList: {
+    list: ConversationListItem[];
+    totalCount: number;
+    totalPages: number;
+    page: number;
+  };
+}
+
+export const useConversationList = (
+  options?: QueryHookOptions<ConversationListResponse>,
+) => {
+  const { data, loading, error } = useQuery<ConversationListResponse>(
+    GET_CONVERSATION_LIST,
+    options,
+  );
 
   return {
-    conversationList: data?.conversationList,
+    conversationList: data?.reportConversationList,
     loading,
     error,
   };

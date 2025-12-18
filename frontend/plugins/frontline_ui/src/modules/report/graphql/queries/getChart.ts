@@ -69,6 +69,21 @@ export const GET_CONVERSATION_LIST = gql`
         messages {
           _id
           content
+          userId
+          customerId
+        }
+        createdAt
+        customerId
+        userId
+        assignedUserId
+        status
+        readUsers {
+          _id
+          details {
+            avatar
+            fullName
+            position
+          }
         }
       }
       page
