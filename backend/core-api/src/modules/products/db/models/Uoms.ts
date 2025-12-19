@@ -144,9 +144,11 @@ export const loadUomClass = (
       const inserted = await models.Uoms.insertMany(creatUoms);
       if (inserted.length > 0) {
         sendDbEventLog({
-          action: 'create',
-          docId: inserted.map((r) => r._id),
-          currentDocument: inserted.map((r) => r.toObject()),
+          action: 'bulkWrite',
+          docIds: inserted.map((r) => r._id),
+          updateDescription: {
+            newUoms: creatUoms,
+          },
         });
       }
 
