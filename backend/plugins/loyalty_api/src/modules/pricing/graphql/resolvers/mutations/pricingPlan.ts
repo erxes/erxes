@@ -2,55 +2,44 @@ import type { IContext } from '~/connectionResolvers';
 import type {
   IPricingPlan,
   IPricingPlanDocument,
-} from '@/pricing/@types/pricingPlan';
+} from '../../../@types/pricingPlan';
 import {
   moduleRequireLogin,
   moduleCheckPermission,
 } from 'erxes-api-shared/core-modules';
 
 export const pricingPlanMutations = {
-  pricingPlanAdd: moduleRequireLogin(
-    moduleCheckPermission(
-      async (
-        _root: any,
-        { doc }: { doc: IPricingPlan },
-        { models, user }: IContext,
-      ) => {
-        return models.PricingPlans.createPlan(doc, user._id);
-      },
-      'managePricing',
-    ),
-  ),
+  pricingPlanAdd: async (
+    _root: any,
+    { doc }: { doc: IPricingPlan },
+    { models, user }: IContext,
+  ) => {
+    return models.PricingPlans.createPlan(doc, user._id);
+  },
 
-  pricingPlanEdit: moduleRequireLogin(
-    moduleCheckPermission(
-      async (
-        _root: any,
-        { doc }: { doc: IPricingPlanDocument },
-        { models, user }: IContext,
-      ) => {
-        return models.PricingPlans.updatePlan(
-          doc._id,
-          doc,
-          user._id,
-        );
-      },
-      'managePricing',
-    ),
-  ),
+  pricingPlanEdit: async (
+    _root: any,
+    { doc }: { doc: IPricingPlanDocument },
+    { models, user }: IContext,
+  ) => {
+    return models.PricingPlans.updatePlan(
+      doc._id,
+      doc,
+      user._id,
+    );
+  },
 
-  pricingPlanRemove: moduleRequireLogin(
-    moduleCheckPermission(
-      async (
-        _root: any,
-        { id }: { id: string },
-        { models }: IContext,
-      ) => {
-        return models.PricingPlans.removePlan(id);
-      },
-      'managePricing',
-    ),
-  ),
+  pricingPlanRemove: async (
+    _root: any,
+    { id }: { id: string },
+    { models }: IContext,
+  ) => {
+    return models.PricingPlans.removePlan(id);
+  },
 };
 
-export default pricingPlanMutations;
+/**
+ * 🔑 Apply auth & permissions AFTER defining resolvers
+ */
+moduleRequireLogin(pricingPlanMutations);
+moduleCheckPermission(pricingPlanMutations, 'managePricing');
