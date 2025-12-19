@@ -66,48 +66,25 @@ export const checkCondition = async (
   let numberRes = true;
   let checkUomRes = true;
 
-  if (
-    condition.gtCount ||
-    condition.ltCount ||
-    condition.gtUnitPrice ||
-    condition.ltUnitPrice
-  ) {
-    numberRes = false;
-
-    if (condition.gtCount) {
-      if (pdata.quantity <= condition.gtCount) {
-        numberRes = true;
-      } else {
-        numberRes = false;
-      }
-    }
-
-    if (condition.ltCount) {
-      if (pdata.quantity >= condition.ltCount) {
-        numberRes = true;
-      } else {
-        numberRes = false;
-      }
-    }
-
-    if (condition.gtUnitPrice) {
-      if (pdata.unitPrice <= condition.gtUnitPrice) {
-        numberRes = true;
-      } else {
-        numberRes = false;
-      }
-    }
-
-    if (condition.ltUnitPrice) {
-      if (pdata.unitPrice >= condition.ltUnitPrice) {
-        numberRes = true;
-      } else {
-        numberRes = false;
-      }
-    }
+    if (condition.gtCount !== undefined && pdata.quantity <= condition.gtCount) {
+    return false;
   }
 
-  if (!numberRes) {
+  if (condition.ltCount !== undefined && pdata.quantity >= condition.ltCount) {
+    return false;
+  }
+
+  if (
+    condition.gtUnitPrice !== undefined &&
+    pdata.unitPrice <= condition.gtUnitPrice
+  ) {
+    return false;
+  }
+
+  if (
+    condition.ltUnitPrice !== undefined &&
+    pdata.unitPrice >= condition.ltUnitPrice
+  ) {
     return false;
   }
 

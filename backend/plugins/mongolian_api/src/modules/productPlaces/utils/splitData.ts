@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getChildCategories, getChildTags } from "./utils";
+import crypto from 'crypto';
 
 const checkSplit = async (
   subdomain,
@@ -115,18 +116,19 @@ export const splitData = async (
   }
 
   if (config.productTagIds && config.productTagIds.length) {
-    const includeCatIds = (await getChildTags(
+    const includeTagIds = (await getChildTags(
       subdomain,
       config.productTagIds,
     )) as string[];
 
-    const excludeCatIds = (await getChildTags(
+    const excludeTagIds = (await getChildTags(
       subdomain,
       config.excludeTagIds || [],
     )) as string[];
 
-    calcedTagIds = includeCatIds.filter((c) => !excludeCatIds.includes(c));
+    calcedTagIds = includeTagIds.filter((id) => !excludeTagIds.includes(id));
   }
+
 
 
   for (const pdata of productsData) {
@@ -159,7 +161,7 @@ export const splitData = async (
 
       pdatas.push({
         ...pdata,
-        _id: Math.random().toString(),
+        _id: crypto.randomUUID(),
         quantity: newCount,
         amount,
         tax,

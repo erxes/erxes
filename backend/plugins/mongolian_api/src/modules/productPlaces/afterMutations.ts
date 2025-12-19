@@ -236,14 +236,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
             departmentById[department._id] = department;
           }
 
-          await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            module: 'branches',
-            action: 'find',
-            method: 'query',
-            input: {},
-          });
+          // await sendTRPCMessage({
+          //   subdomain,
+          //   pluginName: 'core',
+          //   module: 'branches',
+          //   action: 'find',
+          //   method: 'query',
+          //   input: {},
+          // });
           const content: any = [];
 
           for (const condition of printConfig.conditions) {
