@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell, useQueryState } from 'erxes-ui';
 import {
@@ -12,37 +11,98 @@ import { useSetAtom } from 'jotai';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
-import { SelectPipeline } from '../../pipelines/components/SelectPipelines';
-import { SelectStage } from '../../stage/components/SelectStages';
+import { SelectPipeline } from '@/deals/pipelines/components/SelectPipelines';
+import { SelectStage } from '@/deals/stage/components/SelectStages';
 
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { IDeal } from '../../types/deals';
+import { IDeal } from '@/deals/types/deals';
+import { SelectBoard } from '@/deals/boards/components/SelectBoards';
+
+// Extract cell components to call hooks at top level
+const NameCell = ({ deal }: { deal: IDeal }) => {
+  const setActiveDealId = useSetAtom(dealDetailSheetState);
+  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+
+  const handleClick = () => {
+    setSalesItemId(deal._id);
+    setActiveDealId(deal._id);
+  };
+
+  return (
+    <RecordTableInlineCell onClick={handleClick}>
+      <div className="flex items-center justify-between w-full gap-2">
+        <span>{deal.name}</span>
+        {deal.status === 'archived' && (
+          <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
+            Archived
+          </span>
+        )}
+      </div>
+    </RecordTableInlineCell>
+  );
+};
+
+const BoardCell = ({ deal }: { deal: IDeal }) => {
+  const { editDeals } = useDealsEdit();
+
+  return (
+    <SelectBoard
+      value={deal.boardId}
+      onValueChange={(boardId) => {
+        editDeals({
+          variables: {
+            _id: deal._id,
+            boardId: boardId as string,
+          },
+        });
+      }}
+    />
+  );
+};
+
+const PipelineCell = ({ deal }: { deal: IDeal }) => {
+  const { editDeals } = useDealsEdit();
+
+  return (
+    <SelectPipeline.InlineCell
+      mode="single"
+      value={deal.pipeline?._id}
+      boardId={deal.boardId}
+      onValueChange={(pipelineId) => {
+        editDeals({
+          variables: {
+            _id: deal._id,
+            pipelineId: pipelineId as string,
+          },
+        });
+      }}
+    />
+  );
+};
+
+const StageCell = ({ deal }: { deal: IDeal }) => {
+  const { editDeals } = useDealsEdit();
+
+  return (
+    <SelectStage.InlineCell
+      mode="single"
+      value={deal.stage?._id}
+      pipelineId={deal.pipeline?._id}
+      onValueChange={(stageId) => {
+        editDeals({
+          variables: {
+            _id: deal._id,
+            stageId: stageId as string,
+          },
+        });
+      }}
+    />
+  );
+};
+
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
-
-  const NameCell = ({ deal }: { deal: IDeal }) => {
-    const setActiveDealId = useSetAtom(dealDetailSheetState);
-    const [, setSalesItemId] = useQueryState<string>('salesItemId');
-
-    const handleClick = () => {
-      setSalesItemId(deal._id);
-      setActiveDealId(deal._id);
-    };
-
-    return (
-      <RecordTableInlineCell onClick={handleClick}>
-        <div className="flex items-center justify-between w-full gap-2">
-          <span>{deal.name}</span>
-          {deal.status === 'archived' && (
-            <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
-              Archived
-            </span>
-          )}
-        </div>
-      </RecordTableInlineCell>
-    );
-  };
 
   return [
     checkBoxColumn,
@@ -52,7 +112,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
       ),
-      cell: ({ cell }) => <NameCell deal={cell.row.original} />,
+      cell: ({ row }) => <NameCell deal={row.original} />,
       size: 240,
     },
     {
@@ -61,6 +121,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Board ID" icon={IconLabelFilled} />
       ),
+      cell: ({ row }) => <BoardCell deal={row.original} />,
     },
     {
       id: 'pipeline',
@@ -68,24 +129,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Pipeline" icon={IconProgressCheck} />
       ),
-      cell: ({ cell }) => {
-        const { editDeals } = useDealsEdit();
-        return (
-          <SelectPipeline.InlineCell
-            mode="single"
-            value={cell.row.original.pipeline?._id}
-            boardId={cell.row.original.boardId}
-            onValueChange={(pipelineId) => {
-              editDeals({
-                variables: {
-                  _id: cell.row.original._id,
-                  pipelineId: pipelineId as string,
-                },
-              });
-            }}
-          />
-        );
-      },
+      cell: ({ row }) => <PipelineCell deal={row.original} />,
       size: 170,
     },
     {
@@ -94,41 +138,27 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Stage" icon={IconProgressCheck} />
       ),
-      cell: ({ cell }) => {
-        const { editDeals } = useDealsEdit();
-
-        return (
-          <SelectStage.InlineCell
-            mode="single"
-            value={cell.row.original.stage?._id}
-            pipelineId={cell.row.original.pipeline?._id}
-            onValueChange={(stageId) => {
-              editDeals({
-                variables: {
-                  _id: cell.row.original._id,
-                  stageId: stageId as string,
-                },
-              });
-            }}
-          />
-        );
-      },
+      cell: ({ row }) => <StageCell deal={row.original} />,
       size: 170,
     },
-
+    {
+      id: 'products',
+      accessorFn: (row) => row.products,
+      header: () => (
+        <RecordTable.InlineHead label="Products" icon={IconProgressCheck} />
+      ),
+    },
     {
       id: 'assignedUsers',
       accessorKey: 'assignedUserIds',
       header: () => <RecordTable.InlineHead label="Assignee" icon={IconUser} />,
-      cell: ({ cell }) => {
-        return (
-          <SelectAssigneeDeal
-            variant="table"
-            id={cell.row.original._id}
-            value={cell.row.original.assignedUserIds || []}
-          />
-        );
-      },
+      cell: ({ row }) => (
+        <SelectAssigneeDeal
+          variant="table"
+          id={row.original._id}
+          value={row.original.assignedUserIds || []}
+        />
+      ),
       size: 240,
     },
     {
@@ -140,15 +170,13 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
           icon={IconAlertSquareRounded}
         />
       ),
-      cell: ({ cell }) => {
-        return (
-          <SelectDealPriority
-            value={cell.row.original.priority || ''}
-            variant="table"
-            dealId={cell.row.original._id}
-          />
-        );
-      },
+      cell: ({ row }) => (
+        <SelectDealPriority
+          value={row.original.priority || ''}
+          variant="table"
+          dealId={row.original._id}
+        />
+      ),
       size: 170,
     },
     {
@@ -157,13 +185,13 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Start Date" icon={IconCalendarFilled} />
       ),
-      cell: ({ cell }) => {
-        const startDate = cell.getValue() as string;
+      cell: ({ row }) => {
+        const startDate = row.original.startDate;
         return (
           <DateSelectDeal
             type="startDate"
             value={startDate || ''}
-            id={cell.row.original._id}
+            id={row.original._id}
           />
         );
       },
@@ -175,13 +203,13 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Close Date" icon={IconCalendarFilled} />
       ),
-      cell: ({ cell }) => {
-        const closeDate = cell.getValue() as string;
+      cell: ({ row }) => {
+        const closeDate = row.original.closeDate;
         return (
           <DateSelectDeal
             type="closeDate"
             value={closeDate || ''}
-            id={cell.row.original._id}
+            id={row.original._id}
           />
         );
       },

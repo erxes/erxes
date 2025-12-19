@@ -1,6 +1,6 @@
 import { CommandBar, Separator } from 'erxes-ui/components';
 import { RecordTable } from 'erxes-ui';
-import { DealsActions } from './DealsActions';
+import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 
 export const DealsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
