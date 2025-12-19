@@ -104,13 +104,9 @@ export interface ActivityRule {
   build: (change: NormalizedChange) => Promise<ActivityLogPayload[]>;
 }
 
-/**
- * Check if a field matches a pattern (supports wildcard *)
- * Examples:
- * - "links.*" matches "links.facebook", "links.linkedin", etc.
- * - "details.*" matches "details.firstName", "details.lastName", etc.
- * - "email" matches "email" exactly
- */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 function matchesFieldPattern(field: string, pattern: string): boolean {
   // Exact match
   if (field === pattern) {
@@ -119,11 +115,9 @@ function matchesFieldPattern(field: string, pattern: string): boolean {
 
   // Wildcard pattern matching
   if (pattern.includes('*')) {
-    console.log('pattern', pattern, 'field', field);
     // Convert pattern to regex: "links.*" -> "^links\\..*$"
-    const regexPattern = pattern
-      .replace(/\./g, '\\.') // Escape dots
-      .replace(/\*/g, '.*'); // Convert * to .*
+    const escapedPattern = escapeRegex(pattern);
+    const regexPattern = escapedPattern.replace(/\\\*/g, '.*'); // Convert * to .*
     const regex = new RegExp(`^${regexPattern}$`);
     return regex.test(field);
   }

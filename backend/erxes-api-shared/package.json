@@ -48,7 +48,11 @@
     "zod": "3.23.8",
     "express-rate-limit": "^6.11.0",
     "node-fetch": "^2.6.7",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@azure/storage-blob": "^12.29.1",
+    "@google-cloud/storage": "^7.17.3",
+    "aws-sdk": "^2.1692.0",
+    "exceljs": "^4.4.0"
   },
   "preconstruct": {
     "tsconfig": "tsconfig.lib.json",

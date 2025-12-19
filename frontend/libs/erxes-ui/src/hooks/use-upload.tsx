@@ -94,17 +94,17 @@ export const useUpload = () => {
         ) || 20 * 1024 * 1024;
 
       // skip file that size is more than REACT_APP_FILE_UPLOAD_MAX_SIZE
-      // if (fileInfo.size > fileUploadMaxSize) {
-      //   toast({
-      //     description: `Your file ${
-      //       fileInfo.name
-      //     } size is too large. Upload files less than ${
-      //       fileUploadMaxSize / 1024 / 1024
-      //     }MB of size.`,
-      //   });
+      if (fileInfo.size > fileUploadMaxSize) {
+        toast({
+          description: `Your file ${
+            fileInfo.name
+          } size is too large. Upload files less than ${
+            fileUploadMaxSize / 1024 / 1024
+          }MB of size.`,
+        });
 
-      //   continue;
-      // }
+        continue;
+      }
 
       // after read proccess done
       uploadReader.onloadend = () => {
