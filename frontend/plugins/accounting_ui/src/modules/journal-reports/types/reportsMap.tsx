@@ -10,6 +10,7 @@ export interface IGroupRule {
   group: string;
   code: string;
   name?: string;
+  excMore?: boolean;
   style?: string;
   groupRule?: IGroupRule | null;
 }
@@ -50,6 +51,7 @@ export const ReportRules: Record<string, IReportConfig> = {
         'group': 'accountCategoryId',
         'code': 'accountCategoryCode',
         'name': 'accountCategoryName',
+        'excMore': true,
         'style': 'font-semibold',
         'groupRule': {
           'key': 'gr2',

@@ -86,10 +86,29 @@ export const ReportTableBody = () => {
         colCount={colCount}
         calcReport={calcReport}
         renderMore={isMore && renderMore}
+        firstGroupRule={isMore && getFirstGroupRule([], groupRule)}
       />
     </tbody>
   )
 }
+
+const getFirstGroupRule = (firstGroupRule: IGroupRule[], groupRule?: IGroupRule) => {
+  const subGroupRule = groupRule?.groupRule;
+  if (subGroupRule) {
+    getFirstGroupRule(firstGroupRule, subGroupRule);
+  }
+
+  if (groupRule?.key && !groupRule?.excMore) {
+    firstGroupRule.push({
+      key: groupRule.key,
+      group: groupRule.group,
+      code: groupRule.code,
+    })
+  }
+
+  return firstGroupRule;
+}
+
 
 // toGroup Data
 export const groupRecords = (records: any[], groupRule?: IGroupRule) => {
@@ -159,18 +178,18 @@ interface ReportRendererProps {
   groupedDic: any;
   groupRule?: IGroupRule;
   colCount: number;
-  groupHead?: boolean;
   calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode;
   renderMore?: (parents: string, child: string) => React.ReactNode;
+  firstGroupRule?: IGroupRule[]
 }
 
 export function ReportRecursiveRenderer({
   groupedDic,
   groupRule,
   colCount,
-  groupHead = true,
   calcReport,
-  renderMore
+  renderMore,
+  firstGroupRule
 }: ReportRendererProps) {
   return (
     <>
@@ -181,9 +200,9 @@ export function ReportRecursiveRenderer({
         0,
         "",
         "",
-        groupHead,
         calcReport,
-        renderMore
+        renderMore,
+        firstGroupRule,
       )}
     </>
   );
@@ -196,9 +215,9 @@ function renderGroup(
   padding: number,
   lastAttr: string,
   leafAttr: string,
-  groupHead: boolean,
   calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode,
-  renderMore?: (parents: string, child: string) => React.ReactNode,
+  renderMore?: (parents: string, child: string, groupRule?: IGroupRule[]) => React.ReactNode,
+  firstGrRule?: IGroupRule[],
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
 
@@ -218,7 +237,7 @@ function renderGroup(
     if (groupRule.groupRule?.key) {
       return (
         <React.Fragment key={attr + index}>
-          {groupHead && (
+          {(
             <ReportTable.Row
               key={attr}
               data-sum-key={attr}
@@ -250,9 +269,9 @@ function renderGroup(
             padding + 25,
             attr,
             `${leafAttr && `${leafAttr},` || ''}${attr}`,
-            groupHead,
             calcReport,
-            renderMore
+            renderMore,
+            firstGrRule
           )}
         </React.Fragment>
       );
@@ -285,7 +304,7 @@ function renderGroup(
 
           {lastNode}
         </ReportTable.Row>
-        {renderMore && renderMore(leafAttr || '', `${groupRule.key}+${grStep[grId]}`)}
+        {renderMore && renderMore(leafAttr || '', `${groupRule.key}+${grStep[grId]}`, firstGrRule)}
       </React.Fragment>
     );
   });

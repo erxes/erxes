@@ -5,11 +5,12 @@ import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
 import { AccountKind } from "~/modules/settings/account/types/Account";
 import { TR_SIDES } from "~/modules/transactions/types/constants";
 
-export const HandleMainACMore = (parent: string, child: string) => {
-  const parentRules = parent.split('*').map(p => child.split('+'));
+export const HandleMainACMore = (parent: string, child: string, groupRule: IGroupRule[]) => {
+  const parentRules = parent.split('*').map(p => p.split('+'));
   const [leafKey, leafId] = child.split('+');
   const allMoreData = useAtomValue(moreDataState);
-  console.log('ddddddddddddddddd', parentRules, leafKey, leafId)
+  console.log('ddddddddddddddddd', parentRules, leafKey, leafId, groupRule)
+  
   const moreData = allMoreData.filter(md => md);
 
   // moreData Context
