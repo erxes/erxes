@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Input, Label, Switch } from 'erxes-ui';
+import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
 import {
   IProduct,
   IProductData,
@@ -8,11 +8,12 @@ import {
 } from 'ui-modules';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 
-import FilterButton from './FilterButton';
+import { FilterButton, filterProducts, ProductFilterBar } from './FilterButton';
 import { ProductsRecordTable } from './ProductRecordTable';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
 import { useState } from 'react';
+import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 
 const ProductsList = ({
   products,
@@ -27,6 +28,8 @@ const ProductsList = ({
 }) => {
   const { createDealsProductData } = useDealsCreateProductsData();
 
+  const [filters, setFilters] = useState<ProductFilterState>({});
+
   const [vatPercent, setVatPercent] = useState(0);
   const [discount, setDiscount] = useState<{
     [currency: string]: { value?: number; percent?: number };
@@ -40,10 +43,18 @@ const ProductsList = ({
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
 
-  const productRecords = productsData.map((data) => ({
-    ...data,
-    product: products.find((p) => p._id === data.productId),
-  }));
+  const filteredProducts = filterProducts(products, filters);
+
+  const productRecords = productsData
+    .map((data) => ({
+      ...data,
+      product: products.find((p) => p._id === data.productId),
+    }))
+    .filter((record) => {
+      if (!record.product) return false;
+      // We check if the product in the record is present in the filtered products list
+      return filteredProducts.some((p) => p._id === record.product?._id);
+    });
 
   const applyVat = () => {
     // const { productsData, onChangeProductsData } = this.props;
@@ -81,7 +92,6 @@ const ProductsList = ({
           : 0,
         amount: 0,
         currency,
-        // tickUsed: dealQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
         maxQuantity: 0,
         product,
         quantity: 1,
@@ -107,34 +117,47 @@ const ProductsList = ({
   };
 
   return (
-    <div>
-      <div className=" flex">
-        <Input
-          placeholder="Vat percent"
-          className="w-[40%]"
-          value={vatPercent}
-          onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
-        />
-        <Button className="ml-3" onClick={() => applyVat()}>
-          Apply VAT
-        </Button>
-      </div>
-      <div className="w-full mt-3 flex items-center justify-between">
-        <div className="relative w-[45%]">
-          <IconSearch
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={16}
+    <div className="space-y-4">
+      <Filter id="product-filter">
+        <div className="flex flex-col gap-2 mb-4"></div>
+        <div className="flex">
+          <Input
+            placeholder="Vat percent"
+            className="w-[40%]"
+            value={vatPercent}
+            onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
           />
-          <Input placeholder="Search" className="pl-9 w-full" />
+          <Button className="ml-3" onClick={() => applyVat()}>
+            Apply VAT
+          </Button>
         </div>
-        <div className="flex items-center gap-6">
-          <div>
-            <Label className="mr-3 ">Advanced view</Label>
-            <Switch />
+        <div className="w-full mt-3 flex items-center justify-between">
+          <div className="relative w-[45%]">
+            <IconSearch
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={16}
+            />
+            <Input
+              placeholder="Search"
+              className="pl-9 w-full"
+              value={filters.productSearch || ''}
+              onChange={(e) =>
+                setFilters({ ...filters, productSearch: e.target.value })
+              }
+            />
           </div>
-          <FilterButton />
+          <div className="flex items-center gap-6">
+            <div>
+              <Label className="mr-3 ">Advanced view</Label>
+              <Switch />
+            </div>
+            <FilterButton filters={filters} onFilterChange={setFilters} />
+          </div>
         </div>
-      </div>
+        <div className="flex-1 flex items-center gap-2 overflow-x-auto py-1">
+          <ProductFilterBar filters={filters} onChange={setFilters} />
+        </div>
+      </Filter>
       <ProductsRecordTable
         products={productRecords || ([] as IProductData[])}
         refetch={refetch}
