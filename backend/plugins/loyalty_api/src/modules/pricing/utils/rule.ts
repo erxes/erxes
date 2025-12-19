@@ -30,7 +30,7 @@ export const calculateDiscountValue = (
  * Adjust price
  * @param price Price to calculate
  * @param type Math type to adjust
- * @param position Position
+ * @param factor Factor
  * @returns Calculated Number
  */
 export const calculatePriceAdjust = (

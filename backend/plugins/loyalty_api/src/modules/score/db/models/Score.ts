@@ -50,11 +50,11 @@ export const loadScoreClass = (models: IModels) => {
       const { score } = await models.Score.getScore(ownerId, ownerType);
 
       if (action === 'subtract') {
-        return await this.validateUsage(score, change);
+        return this.validateUsage(score, change);
       }
 
       if (action === 'refund') {
-        return await this.validateRefund(
+        return this.validateRefund(
           ownerId,
           ownerType,
           contentId,
@@ -67,11 +67,11 @@ export const loadScoreClass = (models: IModels) => {
     }
 
     public static async validateUsage(score: number, change: number) {
-      if (score - change < 0) {
+      if (score + change < 0) {
         throw new Error('There has no enough score to subtract');
       }
 
-      return { score: score - change, change };
+      return { score: score + change, change };
     }
 
     public static async validateRefund(
@@ -117,7 +117,7 @@ export const loadScoreClass = (models: IModels) => {
         );
       }
 
-      let { change, action } = scoreLog;
+      const { change, action } = scoreLog;
 
       let refundAmount: number;
 
@@ -130,22 +130,22 @@ export const loadScoreClass = (models: IModels) => {
           action: 'add',
         }).lean();
 
-        if (addedScoreLogs && addedScoreLogs.length > 0) {
-          const totalAddedScore = addedScoreLogs.reduce(
-            (acc, curr) => acc + curr.change,
-            0,
-          );
-          refundAmount = change - totalAddedScore;
-        } else {
-          refundAmount = change;
-        }
+        const totalAddedScore = addedScoreLogs.reduce(
+          (acc, curr) => acc + curr.change,
+          0,
+        );
+
+        refundAmount = Math.abs(change) - totalAddedScore;
       } else if (action === 'add') {
         refundAmount = -change;
       } else {
         throw new Error(`Unsupported action type for refund: ${action}`);
       }
 
-      return { score: score + refundAmount, change: refundAmount };
+      return {
+        score: score + refundAmount,
+        change: refundAmount,
+      };
     }
   }
 

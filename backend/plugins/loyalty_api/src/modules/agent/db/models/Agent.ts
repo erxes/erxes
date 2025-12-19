@@ -32,11 +32,23 @@ const validateDoc = (doc: IAgent) => {
     throw new Error('Invalid status value');
   }
 
-  if (hasReturn && !(returnAmount || returnPercent)) {
+  if (
+    hasReturn &&
+    !(
+      (typeof returnAmount === 'number' && returnAmount > 0) ||
+      (typeof returnPercent === 'number' && returnPercent > 0)
+    )
+  ) {
     throw new Error('Either return amount or percent must be > 0');
   }
 
-  if (!hasReturn && !(prepaidPercent || discountPercent)) {
+  if (
+    !hasReturn &&
+    !(
+      (typeof prepaidPercent === 'number' && prepaidPercent > 0) ||
+      (typeof discountPercent === 'number' && discountPercent > 0)
+    )
+  ) {
     throw new Error('Either prepaid or discount percent must be > 0');
   }
 

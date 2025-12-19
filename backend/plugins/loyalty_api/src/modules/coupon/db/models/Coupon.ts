@@ -50,9 +50,8 @@ export const loadCouponClass = (models: IModels) => {
       }
 
       const campaign = await models.Campaign.getCampaign(campaignId);
-      const coupon = await models.Coupon.getCoupon(code);
-
-      if (coupon) {
+      const existingCoupon = await models.Coupon.findOne({ code }).lean();
+      if (existingCoupon) {
         throw new Error('Coupon already exists');
       }
 

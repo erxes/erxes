@@ -14,7 +14,7 @@ export interface ISpinModel extends Model<ISpinDocument> {
     doc: ISpin,
     user: IUserDocument,
   ): Promise<ISpinDocument>;
-  removeSpin(SpinId: string): Promise<{ ok: number }>;
+  removeSpins(_ids: string[]): Promise<{ ok: number }>;
 
   buySpin(
     params: {
@@ -34,7 +34,7 @@ export const loadSpinClass = (models: IModels) => {
       const spin = await models.Spin.findOne({ _id }).lean();
 
       if (!spin) {
-        throw new Error('not found spin rule');
+        throw new Error('Spin not found');
       }
 
       return spin;
@@ -67,7 +67,7 @@ export const loadSpinClass = (models: IModels) => {
 
       const now = new Date();
 
-      return await models.Spin.updateOne(
+      return await models.Spin.findOneAndUpdate(
         { _id },
         {
           $set: {
@@ -79,6 +79,7 @@ export const loadSpinClass = (models: IModels) => {
             updatedBy: user._id,
           },
         },
+        { new: true },
       );
     }
 
@@ -90,7 +91,7 @@ export const loadSpinClass = (models: IModels) => {
         count?: number;
       },
       user: IUserDocument,
-    ) {
+    ): Promise<ISpinDocument[]> {
       const { campaignId, ownerType, ownerId, count = 1 } = params;
 
       if (!ownerId || !ownerType) {
@@ -115,7 +116,15 @@ export const loadSpinClass = (models: IModels) => {
         createdBy: user._id,
       });
 
-      return models.Spin.createSpin({ campaignId, ownerType, ownerId }, user);
+      const spins: ISpinDocument[] = [];
+      for (let i = 0; i < count; i++) {
+        const spin = await models.Spin.createSpin(
+          { campaignId, ownerType, ownerId },
+          user,
+        );
+        spins.push(spin);
+      }
+      return spins;
     }
 
     public static async removeSpins(_ids: string[]) {

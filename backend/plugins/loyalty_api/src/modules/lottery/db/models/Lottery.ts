@@ -5,6 +5,7 @@ import { IModels } from '~/connectionResolvers';
 import { LOYALTY_CHAR_SET_ADVANCED, LOYALTY_STATUSES } from '~/constants';
 import { randomBetween } from '~/utils';
 import { lotterySchema } from '../definitions/lottery';
+import { randomInt } from 'crypto';
 
 export interface ILotteryModel extends Model<ILotteryDocument> {
   getLottery(_id: string): Promise<ILotteryDocument>;
@@ -103,7 +104,7 @@ export const loadLotteryClass = (models: IModels) => {
     ) {
       const { ownerType, ownerId, status } = doc;
       if (!ownerId || !ownerType) {
-        throw new Error('Not create spin, owner is undefined');
+        throw new Error('Cannot update lottery: owner is undefined');
       }
 
       const spin = await models.Lottery.findOne({ _id }).lean();
@@ -157,7 +158,7 @@ export const loadLotteryClass = (models: IModels) => {
           const charSet = LOYALTY_CHAR_SET_ADVANCED[key] || '0123456789';
 
           for (let i = 0; i < len; i++) {
-            const position = Math.floor(Math.random() * charSet.length);
+            const position = randomInt(0, charSet.length);
             str = `${str}${charSet.substring(position, position + 1)}`;
           }
         }

@@ -17,7 +17,7 @@ export const types = `
     kind: String
   }
 
-  type CampaignListRepsponse {
+  type CampaignListResponse {
     list: [Campaign]
     pageInfo: PageInfo
     totalCount: Int

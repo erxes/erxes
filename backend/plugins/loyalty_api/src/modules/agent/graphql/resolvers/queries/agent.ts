@@ -13,7 +13,8 @@ const generateFilter = (params: IAgentListParams) => {
   const filter: any = {};
 
   if (number) {
-    filter.number = new RegExp(number, 'gi');
+    const escapedNumber = number.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filter.number = new RegExp(escapedNumber, 'gi');
   }
   if (status) {
     filter.status = status;

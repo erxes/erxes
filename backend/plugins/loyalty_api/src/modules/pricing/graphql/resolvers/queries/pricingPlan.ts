@@ -1,4 +1,4 @@
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import dayjs from 'dayjs';
 import {
   moduleCheckPermission,
@@ -8,7 +8,22 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { getAllowedProducts } from '../../../utils/product';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 
-const generateFilter = async (subdomain, models, params) => {
+const generateFilter = async (
+  subdomain: string,
+  models: IModels,
+  params: {
+    status?: string;
+    branchId?: string;
+    departmentId?: string;
+    date?: string | Date;
+    productId?: string;
+    prioritizeRule?: 'only' | 'exclude';
+    isQuantityEnabled?: boolean;
+    isPriceEnabled?: boolean;
+    isExpiryEnabled?: boolean;
+    isRepeatEnabled?: boolean;
+  },
+): Promise<Record<string, any>> => {
   const {
     status,
     branchId,
@@ -19,7 +34,7 @@ const generateFilter = async (subdomain, models, params) => {
     isQuantityEnabled,
     isPriceEnabled,
     isExpiryEnabled,
-    isRepeatEnabled
+    isRepeatEnabled,
   } = params;
   const filter: any = { status: 'active' };
 
@@ -52,32 +67,32 @@ const generateFilter = async (subdomain, models, params) => {
     filter.$or = [
       {
         isStartDateEnabled: false,
-        isEndDateEnabled: false
+        isEndDateEnabled: false,
       },
       {
         isStartDateEnabled: true,
         isEndDateEnabled: false,
         startDate: {
-          $lt: nowISO
-        }
+          $lt: nowISO,
+        },
       },
       {
         isStartDateEnabled: false,
         isEndDateEnabled: true,
         endDate: {
-          $gt: nowISO
-        }
+          $gt: nowISO,
+        },
       },
       {
         isStartDateEnabled: true,
         isEndDateEnabled: true,
         startDate: {
-          $lt: nowISO
+          $lt: nowISO,
         },
         endDate: {
-          $gt: nowISO
-        }
-      }
+          $gt: nowISO,
+        },
+      },
     ];
   }
 
@@ -90,16 +105,16 @@ const generateFilter = async (subdomain, models, params) => {
   if (productId) {
     const planIds: string[] = [];
     const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
-      filter
+      filter,
     ).sort({
       isPriority: 1,
-      value: 1
+      value: 1,
     });
     let allowedProductIds: string[] = [];
 
     for (const plan of plans) {
       allowedProductIds = await getAllowedProducts(subdomain, plan, [
-        productId
+        productId,
       ]);
 
       if (!allowedProductIds.includes(productId)) {
@@ -131,7 +146,7 @@ export const pricingPlanQueries = {
         : { updatedAt: -1 };
 
     if (params.findOne) {
-      return models.PricingPlans.find(filter)
+      return await models.PricingPlans.find(filter)
         .sort(sort)
         .limit(1);
     }
@@ -166,9 +181,7 @@ export const pricingPlanQueries = {
   }
 };
 
-(async () => {
-  moduleRequireLogin(pricingPlanQueries);
-  await moduleCheckPermission(pricingPlanQueries, 'showPricing');
-})();
+moduleRequireLogin(pricingPlanQueries);
+moduleCheckPermission(pricingPlanQueries, 'showPricing');
 
 export default pricingPlanQueries;

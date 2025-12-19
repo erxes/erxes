@@ -13,9 +13,7 @@ export interface IPricingModel extends Model<IPricingDocument> {
 
 export const loadPricingClass = (models: IModels) => {
   class Pricing {
-    /**
-     * Retrieves loyalty
-     */
+
     public static async getPricing(_id: string) {
       const Pricing = await models.Pricing.findOne({ _id }).lean();
 
@@ -26,23 +24,15 @@ export const loadPricingClass = (models: IModels) => {
       return Pricing;
     }
 
-    /**
-     * Retrieves all loyaltys
-     */
     public static async getPricings(): Promise<IPricingDocument[]> {
       return models.Pricing.find().lean();
     }
 
-    /**
-     * Create a loyalty
-     */
     public static async createPricing(doc: IPricing): Promise<IPricingDocument> {
       return models.Pricing.create(doc);
     }
 
-    /*
-     * Update loyalty
-     */
+
     public static async updatePricing(_id: string, doc: IPricing) {
       return await models.Pricing.findOneAndUpdate(
         { _id },
@@ -50,9 +40,6 @@ export const loadPricingClass = (models: IModels) => {
       );
     }
 
-    /**
-     * Remove loyalty
-     */
     public static async removePricing(PricingId: string[]) {
       return models.Pricing.deleteOne({ _id: { $in: PricingId } });
     }

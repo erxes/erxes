@@ -1,3 +1,6 @@
+import { randomBytes } from 'crypto';
+
 export const randomBetween = (min: number, max: number) => {
-  return Math.random() * (max - min) + min;
+  const rand = randomBytes(4).readUInt32BE(0) / 0xffffffff;
+  return rand * (max - min) + min;
 };
