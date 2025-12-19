@@ -2,6 +2,7 @@ export const TypeExtensions = `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+
   extend type Customer @key(fields: "_id") {
     _id: String! @external
   }
@@ -10,7 +11,7 @@ export const TypeExtensions = `
     _id: String! @external
   }
 
-  extend type ClientPortalUser @key(fields: "_id") {
+  extend type ClientPortalUser {
     _id: String! @external
   }
 
