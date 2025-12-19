@@ -97,7 +97,7 @@ export function ActivityLogRow({
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 pt-0.5">
+      <div className="flex-1 min-w-0 pt-0.5 items-center flex">
         {customRenderer ? customRenderer.render(activity) : defaultBody}
       </div>
       <RelativeDateDisplay value={activity.createdAt as string} asChild>

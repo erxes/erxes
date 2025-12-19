@@ -95,7 +95,7 @@ const ActivityLogsWrapper = ({ children }: { children: React.ReactNode }) => {
 
 const ActivityLogsHeader = ({ children }: { children?: React.ReactNode }) => {
   return (
-    <div className="w-full p-2 pb-4 border-b">
+    <div className="w-full p-2 border-b">
       {children || (
         <h4 className="uppercase text-sm text-gray-500">Activity</h4>
       )}

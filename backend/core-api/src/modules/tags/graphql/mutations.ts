@@ -31,66 +31,9 @@ export const tagMutations = {
       targetIds,
       tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
-    { models, subdomain, processId, user }: IContext,
+    { models }: IContext,
   ) {
-    const [pluginName, moduleName] = type.split(':');
-
-    if (!pluginName || !moduleName) {
-      throw new Error(
-        `Invalid type format: expected "service:content", got "${type}"`,
-      );
-    }
-
-    const tags = await models.Tags.find({
-      type,
-      _id: { $in: tagIds },
-      isGroup: { $ne: true },
-    });
-
-    if (tags.length !== tagIds.length) {
-      throw new Error('Tag not found.');
-    }
-
-    if (pluginName === 'core') {
-      const modelMap = {
-        customer: models.Customers,
-        user: models.Users,
-        company: models.Companies,
-        form: models.Forms,
-        product: models.Products,
-        automation: models.Automations,
-      };
-
-      const model = modelMap[moduleName];
-
-      if (!model) {
-        throw new Error(`Unknown content type: ${moduleName}`);
-      }
-
-      return await model.updateMany(
-        { _id: { $in: targetIds } },
-        { $set: { tagIds: tags.map((tag) => tag._id) } },
-      );
-    }
-
-    return await sendTRPCMessage({
-      subdomain,
-
-      pluginName,
-      method: 'mutation',
-      module: moduleName,
-      action: 'tag',
-      context: {
-        processId,
-        userId: user?._id,
-      },
-      input: {
-        tagIds: tags.map((tag) => tag._id),
-        targetIds,
-        type: moduleName,
-        action: 'tagObject',
-      },
-    });
+    return await models.Tags.tagsTag(type, targetIds, tagIds);
   },
 
   /**

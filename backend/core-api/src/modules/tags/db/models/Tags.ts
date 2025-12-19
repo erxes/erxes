@@ -1,7 +1,10 @@
 import { tagSchema } from '@/tags/db/definitions/tags';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  buildBulkActivities,
+  EventDispatcherReturn,
+} from 'erxes-api-shared/core-modules';
 import { ITag, ITagDocument } from 'erxes-api-shared/core-types';
-import { escapeRegExp } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 export interface ITagModel extends Model<ITagDocument> {
@@ -9,12 +12,17 @@ export interface ITagModel extends Model<ITagDocument> {
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(_id: string): Promise<ITagDocument>;
+  tagsTag(
+    type: string,
+    targetIds: string[],
+    tagIds: string[],
+  ): Promise<ITagDocument>;
 }
 
 export const loadTagClass = (
   subdomain: string,
   models: IModels,
-  { sendDbEventLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog, getContext }: EventDispatcherReturn,
 ) => {
   class Tag {
     public static async validate(_id: string | null, doc: ITag) {
@@ -172,6 +180,111 @@ export const loadTagClass = (
       await this.removeRelatedTagIds(tag);
 
       return models.Tags.deleteOne({ _id });
+    }
+
+    public static async tagsTag(
+      type: string,
+      targetIds: string[],
+      tagIds: string[],
+    ) {
+      const [pluginName, moduleName] = type.split(':');
+
+      if (!pluginName || !moduleName) {
+        throw new Error(
+          `Invalid type format: expected "service:content", got "${type}"`,
+        );
+      }
+
+      const tags = await models.Tags.find({
+        type,
+        _id: { $in: tagIds },
+        isGroup: { $ne: true },
+      });
+
+      if (tags.length !== tagIds.length) {
+        throw new Error('Tag not found.');
+      }
+
+      if (pluginName === 'core') {
+        const modelMap = {
+          customer: models.Customers,
+          user: models.Users,
+          company: models.Companies,
+          form: models.Forms,
+          product: models.Products,
+          automation: models.Automations,
+        };
+
+        const model = modelMap[moduleName];
+
+        if (!model) {
+          throw new Error(`Unknown content type: ${moduleName}`);
+        }
+        const targets = await model
+          .find({ _id: { $in: targetIds } }, { tagIds: 1 })
+          .lean();
+
+        const result = await model.updateMany(
+          { _id: { $in: targetIds } },
+          { $set: { tagIds: tags.map((tag) => tag._id) } },
+        );
+
+        console.log('moduleName', moduleName);
+        if (['customer', 'user', 'company', 'product'].includes(moduleName)) {
+          buildBulkActivities(
+            targets,
+            { tagIds },
+            {
+              field: 'tagIds',
+              getContextNames: async (ids) => {
+                const tags = await models.Tags.find({ _id: { $in: ids } });
+                return tags.map((tag) => tag.name);
+              },
+              activityTypeMap: {
+                array: 'tag',
+              },
+              actionTypeMap: {
+                added: 'tag',
+                removed: 'untag',
+              },
+            },
+            createActivityLog,
+            {
+              pluginName: 'core',
+              moduleName: {
+                customer: 'contact',
+                user: 'organization',
+                company: 'contact',
+                product: 'product',
+              }[moduleName],
+              collectionName: `${moduleName}s`,
+            },
+          );
+        }
+
+        return result;
+      }
+
+      const { processId, userId } = getContext();
+
+      return await sendTRPCMessage({
+        subdomain,
+
+        pluginName,
+        method: 'mutation',
+        module: moduleName,
+        action: 'tag',
+        context: {
+          processId,
+          userId,
+        },
+        input: {
+          tagIds: tags.map((tag) => tag._id),
+          targetIds,
+          type: moduleName,
+          action: 'tagObject',
+        },
+      });
     }
 
     public static async generateOrder({ name, parentId }: ITag) {
