@@ -5,7 +5,7 @@ export const types = `
         _id: String!
         name: String!
         code: String!
-        description: String!
+        description: String
         contentType: String!
         order: Float
         logics: JSON

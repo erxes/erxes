@@ -1,14 +1,9 @@
 import { INotification } from '@/notification/my-inbox/types/notifications';
-import {
-  Badge,
-  Button,
-  cn,
-  ErxesLogoIcon,
-  RelativeDateDisplay,
-} from 'erxes-ui';
+import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { Link, useParams } from 'react-router-dom';
 import { pluginsConfigState } from 'ui-modules';
+import { OrgLogoIcon } from '@/auth/components/Logo';
 
 export const NotificationItem = ({
   _id,
@@ -76,7 +71,7 @@ const NotificationIcon = ({ contentType }: { contentType: string }) => {
     pluginName + '_ui'
   ];
   if (pluginName === 'core') {
-    return <ErxesLogoIcon className="size-5 text-primary" />;
+    return <OrgLogoIcon className="size-5 text-primary" />;
   }
   const Icon = pluginMetaData?.icon;
 

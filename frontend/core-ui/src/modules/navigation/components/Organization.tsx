@@ -2,7 +2,6 @@ import { currentOrganizationState } from 'ui-modules';
 
 import { cn, DropdownMenu, Sidebar, TextOverflowTooltip } from 'erxes-ui';
 
-import { Logo } from '@/auth/components/Logo';
 import { useAtom } from 'jotai';
 import { IconSelector } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -10,10 +9,12 @@ import { useAuth } from '@/auth/hooks/useAuth';
 import { User } from '@/navigation/components/User';
 import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { SelectLanguages } from '@/navigation/components/SelectLanguages';
+import { OrgLogoIcon } from '@/auth/components/Logo';
 
 export function Organization() {
   const [currentOrganization] = useAtom(currentOrganizationState);
   const { handleLogout } = useAuth();
+
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -21,16 +22,19 @@ export function Organization() {
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground h-auto p-2"
         >
-          <div className="flex aspect-square size-7 rounded items-center justify-center overflow-hidden bg-primary flex-none">
-            <Logo
-              organizationLogo={currentOrganization?.logo}
-              className="size-6 flex-none text-primary-foreground"
-            />
+          <div className="flex size-8 rounded-lg  items-center justify-center overflow-hidden flex-none shadow-xs">
+            <OrgLogoIcon className="size-7 text-primary flex-none" />
           </div>
           <TextOverflowTooltip
-            value={currentOrganization?.name || 'erxes'}
+            value={
+              currentOrganization?.name
+                ? currentOrganization.name
+                : currentOrganization?.orgShortName || 'erxes'
+            }
             className={cn('font-medium text-sm', {
-              'text-accent-foreground font-normal': !currentOrganization?.name,
+              'text-accent-foreground font-normal':
+                !currentOrganization?.name &&
+                !currentOrganization?.orgShortName,
             })}
           />
           <IconSelector className="ml-auto size-4 text-accent-foreground" />

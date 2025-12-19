@@ -5,7 +5,7 @@ import { FinalSection } from '@/onboarding/components/FinalSection';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserMoreInfoForm } from '@/onboarding/components/UserMoreInfoSection';
-import { useVersion } from 'ui-modules';
+
 import { InviteTeamMemberSection } from '@/onboarding/components/InviteTeamMemberSection';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
@@ -16,8 +16,7 @@ import { LoadingScreen } from '@/auth/components/LoadingScreen';
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 
 export const MainOnboarding = () => {
-  const isSaas = !useVersion();
-  let stepCount = isSaas ? 4 : 5;
+  let stepCount = 5;
   const { usersEdit } = useUserEdit();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
@@ -46,19 +45,19 @@ export const MainOnboarding = () => {
         />
       )}
 
-      {!isSaas && currentStep === 2 && (
+      {currentStep === 2 && (
         <UserCredentialSection onContinue={() => setCurrentStep(3)} />
       )}
 
-      {currentStep === (isSaas ? 2 : 3) && (
+      {currentStep === 3 && (
         <ThemeSection onContinue={() => setCurrentStep(currentStep + 1)} />
       )}
 
-      {currentStep === (isSaas ? 3 : 4) && (
+      {currentStep === 4 && (
         <UserMoreInfoForm onContinue={() => setCurrentStep(currentStep + 1)} />
       )}
 
-      {currentStep === (isSaas ? 4 : 5) + (isOwner ? 0 : 1) && (
+      {currentStep === 5 + (isOwner ? 0 : 1) && (
         <>
           {isOwner && (
             <InviteTeamMemberSection
@@ -67,7 +66,8 @@ export const MainOnboarding = () => {
           )}
         </>
       )}
-      {currentStep === (isSaas ? 4 : 5) + (isOwner ? 1 : 0) && (
+
+      {currentStep === 5 + (isOwner ? 1 : 0) && (
         <FinalSection
           onContinue={() => {
             usersEdit({

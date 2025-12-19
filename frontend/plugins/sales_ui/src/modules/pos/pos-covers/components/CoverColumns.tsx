@@ -4,16 +4,49 @@ import {
   IconLabel,
   IconMobiledata,
   IconPhone,
+  IconTrash,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { Cell } from '@tanstack/react-table';
 import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
+  RelativeDateDisplay,
+  Button,
+  useConfirm,
 } from 'erxes-ui';
 
 import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { coverMoreColumn } from '@/pos/pos-covers/components/CoversMoreColumns';
+
+const ActionsCell = ({ cell }: { cell: Cell<ICovers, unknown> }) => {
+  const { confirm } = useConfirm();
+  const { _id } = cell.row.original;
+
+  const handleDelete = () => {
+    confirm({
+      message: 'Are you sure you want to delete this cover?',
+      options: { confirmationValue: 'delete' },
+    }).then(async () => {
+      console.log('Deleting cover:', _id);
+    });
+  };
+
+  return (
+    <RecordTableInlineCell>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleDelete}
+        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+      >
+        <IconTrash className="w-4 h-4" />
+        <p className="text-xs font-medium text-black">Delete</p>
+      </Button>
+    </RecordTableInlineCell>
+  );
+};
 
 export const coverColumns: ColumnDef<ICovers>[] = [
   coverMoreColumn,
@@ -26,9 +59,13 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     ),
     cell: ({ cell }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value
+              value={(cell.getValue() as string) || 'Invalid Date'}
+            />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       );
     },
   },
@@ -40,9 +77,11 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     ),
     cell: ({ cell }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       );
     },
   },
@@ -76,8 +115,6 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     header: () => (
       <RecordTable.InlineHead icon={IconChartBar} label="Actions" />
     ),
-    cell: ({ cell }) => {
-      return <RecordTableInlineCell></RecordTableInlineCell>;
-    },
+    cell: ActionsCell,
   },
 ];

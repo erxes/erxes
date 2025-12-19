@@ -23,6 +23,8 @@ export interface ITicket {
   statusChangedDate?: Date;
   statusType?: number;
   number?: string;
+  subscribedUserIds?: string[];
+  isSubscribed?: boolean;
 }
 
 export interface ITicketUpdate extends ITicket {
