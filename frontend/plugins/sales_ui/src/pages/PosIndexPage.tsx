@@ -2,7 +2,6 @@ import { IconCashRegister, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { PosContent } from '@/pos/components/PosContent';
 
 export const PosIndexPage = () => {
   return (
@@ -33,8 +32,6 @@ export const PosIndexPage = () => {
           </Button>
         </PageHeader.End>
       </PageHeader>
-
-      <PosContent />
     </div>
   );
 };

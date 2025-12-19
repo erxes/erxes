@@ -21,7 +21,7 @@ const Settings = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/sales/pos">
+                  <Link to="/settings/pos">
                     <IconCashRegister />
                     pos
                   </Link>
