@@ -3,15 +3,13 @@ import {
   startImportExportWorker,
   TImportExportProducers,
   TInsertImportRowsInput,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+  TGetImportHeadersInput,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
 import { contactImportHandlers } from '~/modules/contacts/meta/import-export/import/importHandlers';
 import { Express } from 'express';
-import {
-  TGetExportDataInput,
-  TGetExportHeadersInput,
-  TGetImportHeadersInput,
-} from 'erxes-api-shared/core-modules/import-export/zodSchemas';
 import { contactExportHandlers } from '~/modules/contacts/meta/import-export/export/exportHandlers';
 
 const importModules = {
