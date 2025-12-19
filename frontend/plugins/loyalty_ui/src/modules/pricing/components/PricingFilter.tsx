@@ -301,7 +301,7 @@ export const SingleDateTimeDialogContent = () => {
   };
 
   return (
-    <Dialog.Content className="max-w-sm">
+    <Dialog.Content className="w-full max-w-lg">
       <Dialog.Header className="pb-2">
         <Dialog.Title className="text-lg font-semibold">
           Select Date & Time
@@ -312,10 +312,17 @@ export const SingleDateTimeDialogContent = () => {
           mode="single"
           selected={selectedDate}
           onSelect={(d) => setSelectedDate(d as Date)}
+          className="
+    w-full
+    [&_.rdp-months]:w-full
+    [&_.rdp-months]:justify-center
+    [&_.rdp-month]:w-full
+    [&_.rdp-table]:w-full
+  "
         />
+
         <div className="px-2 space-y-2">
           <div className="flex gap-2 items-center p-3">
-            <IconCalendar size={18} className="text-muted-foreground" />
             <TimeField
               value={selectedTime}
               onChange={setSelectedTime}
