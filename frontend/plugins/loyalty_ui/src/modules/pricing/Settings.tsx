@@ -1,9 +1,3 @@
-const pricingSettings = () => {
-  return (
-    <div>
-      <h1>pricing Settings</h1>
-    </div>
-  );
-};
+import PricingSettings from '~/pages/pricing/PricingSettingsPage';
 
-export default pricingSettings;
+export default PricingSettings;

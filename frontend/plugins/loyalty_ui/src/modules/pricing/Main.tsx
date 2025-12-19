@@ -1,20 +1,14 @@
-import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Route, Routes } from 'react-router-dom';
+import { IndexPage } from '~/pages/pricing/IndexPage';
+import { DetailPage } from '~/pages/pricing/DetailPage';
 
-const IndexPage = lazy(() =>
-  import('~/pages/pricing/IndexPage').then((module) => ({
-    default: module.IndexPage,
-  })),
-);
-
-const pricingMain = () => {
+const Main = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route path="/" element={<IndexPage />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route index element={<IndexPage />} />
+      <Route path=":id" element={<DetailPage />} />
+    </Routes>
   );
 };
 
-export default pricingMain;
+export default Main;
