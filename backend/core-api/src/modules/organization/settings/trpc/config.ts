@@ -40,7 +40,7 @@ export const configTrpcRouter = t.router({
       return await getFileUploadConfigs();
     }),
     createOrUpdateConfig: t.procedure
-      .input(z.object({ data: z.object({ code: z.string(), value: z.any() }) }))
+      .input(z.object({ data: z.any() }))
       .mutation(async ({ ctx, input }) => {
         const { data } = input;
         const { models } = ctx;

@@ -17,14 +17,18 @@ export type MessageProps = {
   input: any;
   defaultValue?: any;
   options?: TRPCRequestOptions;
-  context?: TRPCContext;
+  context?: CommonTRPCContext;
 };
 
-export type TRPCContext = {
+type CommonTRPCContext = {
   processId?: string;
   userId?: string;
   cpUserId?: string;
 };
+
+export type TRPCContext = {
+  subdomain: string;
+} & CommonTRPCContext;
 
 export interface InterMessage {
   subdomain: string;
@@ -50,7 +54,7 @@ export const trpcContextHeaderName = 'x-trpc-context';
 export function encodeTRPCContextHeader(
   subdomain: string,
   method: 'query' | 'mutation',
-  context: TRPCContext | undefined,
+  context: CommonTRPCContext | undefined,
 ): string {
   const contextData = {
     subdomain,
