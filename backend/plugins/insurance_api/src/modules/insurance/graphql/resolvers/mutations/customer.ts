@@ -1,11 +1,16 @@
 import { IContext } from '~/connectionResolvers';
 
 export const customerMutations = {
-  createCustomer: async (_parent: undefined, { name, type, details }: { name: string; type: string; details: any }, { models }: IContext) => {
-    return models.Customer.create({ ...details, name, type });
+  createCustomer: async (_parent: undefined, { input }: { input: any }, { models }: IContext) => {
+    return models.Customer.create(input);
   },
 
-  updateCustomer: async (_parent: undefined, { id, name, details }: { id: string; name?: string; details?: any }, { models }: IContext) => {
-    return models.Customer.findByIdAndUpdate(id, { ...details, name }, { new: true });
+  updateCustomer: async (_parent: undefined, { id, input }: { id: string; input: any }, { models }: IContext) => {
+    return models.Customer.findByIdAndUpdate(id, input, { new: true });
+  },
+
+  deleteCustomer: async (_parent: undefined, { id }: { id: string }, { models }: IContext) => {
+    await models.Customer.findByIdAndDelete(id);
+    return true;
   },
 };

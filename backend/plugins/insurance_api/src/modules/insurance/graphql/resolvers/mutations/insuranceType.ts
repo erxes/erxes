@@ -1,7 +1,8 @@
 import { IContext } from '~/connectionResolvers';
 
 export const insuranceTypeMutations = {
-  createInsuranceType: async (_parent: undefined, { name, attributes }: { name: string; attributes: any[] }, { models }: IContext) => {
+  createInsuranceType: async (_parent: undefined, { name, attributes }: { name: string; attributes: any[] }, { models, user }: IContext) => {
+    // Add role check: if (user.role !== 'admin') throw ForbiddenError
     return models.InsuranceType.create({ name, attributes });
   },
 

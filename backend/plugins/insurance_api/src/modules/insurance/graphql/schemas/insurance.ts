@@ -1,9 +1,21 @@
 export const types = `
+"""
+харилцагчийн төрөл individual=хувь хүн, company=байгууллага
+"""
 enum CustomerType {
- individual
+  """
+  хувь хүн
+  """
+  individual
+  """
+  байгууллага
+  """
   company
 }
 
+"""
+Эрсдлийн төрөл
+"""
 type RiskType {
   id: ID!
   name: String!
@@ -12,6 +24,9 @@ type RiskType {
   updatedAt: Date!
 }
 
+"""
+даатгалын зүйлийн аттрибут
+"""
 type AttributeDefinition {
   name: String!
   dataType: String!
@@ -23,6 +38,9 @@ type AttributeDefinition {
   subAttributes: [AttributeDefinition]
 }
 
+"""
+Даатгалын төрөл
+"""
 type InsuranceType {
   id: ID!
   name: String!
@@ -31,26 +49,41 @@ type InsuranceType {
   updatedAt: Date!
 }
 
+"""
+эрсдлийн хамгаалах хувь тохиргоо
+"""
 type CoveredRisk {
   risk: RiskType!
   coveragePercentage: Int!
 }
 
+"""
+Даатгалын бүтээгдэхүүн
+"""
 type InsuranceProduct {
   id: ID!
   name: String!
   insuranceType: InsuranceType!
   coveredRisks: [CoveredRisk!]!
+  """
+  Даатгалын үнийн тохиргоо, даатгалын хураамжын хувь эсвэл гадаадад зорчих чиглэл өдөр зэргээс хамаарсан хураамжын утга
+  """
   pricingConfig: JSON!
   createdAt: Date!
   updatedAt: Date!
 }
 
+"""
+Даатгалын нийлүүлэгчийн бүтээгдэхүүн
+"""
 type InsuranceVendorProduct {
   product: InsuranceProduct!
   pricingOverride: JSON
 }
 
+"""
+Даатгалын нийлүүлэгч
+"""
 type InsuranceVendor {
   id: ID!
   name: String!
@@ -59,15 +92,23 @@ type InsuranceVendor {
   updatedAt: Date!
 }
 
+"""
+vendor user профайл
+"""
 type InsuranceVendorUser {
   id: ID!
-  username: String!
+  name: String
+  email: String!
+  phone: String
   vendor: InsuranceVendor!
   role: String! 
   createdAt: Date!
   updatedAt: Date!
 }
 
+"""
+даатгуулагч
+"""
 type InsuranceCustomer {
   id: ID!
   firstName: String!
@@ -81,6 +122,9 @@ type InsuranceCustomer {
   updatedAt: Date!
 }
 
+"""
+Даатгалын гэрээ
+"""
 type InsuranceContract {
   id: ID!
   vendor: InsuranceVendor!
@@ -98,6 +142,9 @@ type InsuranceContract {
 `;
 
 export const inputs = `
+  """
+  Аттрибутын input
+  """
   input AttributeInput {
     name: String!
     dataType: String!
@@ -109,6 +156,9 @@ export const inputs = `
     subAttributes: [AttributeInput]
   }
 
+  """
+  даатгуулагчийн input
+  """
   input InsuranceCustomerInput {
     firstName: String!
     lastName: String!
@@ -119,6 +169,9 @@ export const inputs = `
     companyName: String
   }
 
+  """
+  Даатгалын гэрээний input
+  """
   input InsuranceContractInput {
     vendorId: ID!
     customerId: ID!
@@ -138,58 +191,146 @@ export const inputs = `
 `;
 
 export const queries = `
+  """
+  Эрсдлийн төрлүүдийн жагсаалт
+  """
   riskTypes: [RiskType!]!
+  """
+  Эрсдлийн төрөл
+  """
   riskType(id: ID!): RiskType
 
 
+  """
+  Даатгалын төрлүүдийн жагсаалт
+  """
   insuranceTypes: [InsuranceType!]!
+  """
+  Даатгалын төрөл
+  """
   insuranceType(id: ID!): InsuranceType
 
 
+  """
+  Даатгалын бүтээгдэхүүнүүдийн жагсаалт
+  """
   insuranceProducts: [InsuranceProduct!]!
+  """
+  Даатгалын бүтээгдэхүүн
+  """
   insuranceProduct(id: ID!): InsuranceProduct
+  """
+  Төрөлөөр бүтээгдэхүүнүүд
+  """
   productsByType(typeId: ID!): [InsuranceProduct!]!
 
-
+  """
+  vendor компаниудын жагсаалт
+  """
   vendors: [InsuranceVendor!]!
+  """
+  Vendor компани
+  """
   vendor(id: ID!): InsuranceVendor
 
+  """
+  Миний vendor
+  """
   myVendor: InsuranceVendor
 
-  customers(vendorId: ID): [InsuranceCustomer!]!
-  customer(id: ID!): InsuranceCustomer
+  """
+  Даатгалын харилцагчид
+  """
+  insuranceCustomers: [InsuranceCustomer!]!
+  """
+  Даатгалын харилцагч
+  """
+  insuranceCustomer(id: ID!): InsuranceCustomer
 
+  """
+  Админд зориулсан гэрээний жагсаалт
+  """
   contracts(vendorId: ID, customerId: ID): [InsuranceContract!]!
+  """
+  Аднинд Гэрээнийн дэлгэрэнгүй мэдээлэл
+  """
   contract(id: ID!): InsuranceContract
+
+  """
+  Vendor-ийн гэрээний жагсаалт
+  """
+  vendorContracts: [InsuranceContract!]!
+  """
+  Vendor-ийн гэрээний дэлгэрэнгүй мэдээлэл
+  """
+  vendorContract(id: ID!): InsuranceContract
 `;
 
 export const mutations = `
+  """
+  Даатгалын төрөл үүсгэх
+  """
   createInsuranceType(name: String!, attributes: [AttributeInput!]): InsuranceType!
+  """
+  Даатгалын төрөл шинэчлэх
+  """
   updateInsuranceType(id: ID!, name: String, attributes: [AttributeInput!]): InsuranceType!
+  """
+  Даатгалын төрөл устгах
+  """
   deleteInsuranceType(id: ID!): Boolean!
 
+  """
+  Даатгалын бүтээгдэхүүн үүсгэх
+  """
   createInsuranceProduct(
     name: String!
     insuranceTypeId: ID!
     coveredRisks: [CoveredRiskInput!]!
     pricingConfig: JSON!
   ): InsuranceProduct!
+  """
+  Даатгалын бүтээгдэхүүн шинэчлэх
+  """
   updateInsuranceProduct(
     id: ID!
     name: String
     coveredRisks: [CoveredRiskInput!]
     pricingConfig: JSON
   ): InsuranceProduct!
+  """
+  Даатгалын бүтээгдэхүүн устгах
+  """
+  deleteInsuranceProduct(id: ID!): Boolean!
 
 
+  """
+  Vendor-д бүтээгдэхүүн нэмэх
+  """
   addProductToVendor(vendorId: ID!, productId: ID!, pricingOverride: JSON): InsuranceVendor!
+  """
+  Vendor-оос бүтээгдэхүүн хасах
+  """
   removeProductFromVendor(vendorId: ID!, productId: ID!): InsuranceVendor!
 
 
-  createCustomer(name: String!, type: String!, details: JSON!): InsuranceCustomer!
-  updateCustomer(id: ID!, name: String, details: JSON): InsuranceCustomer!
+  """
+  Харилцагч үүсгэх
+  """
+  createCustomer(input: InsuranceCustomerInput!): InsuranceCustomer!
+  """
+  Харилцагч шинэчлэх
+  """
+  updateCustomer(id: ID!, input: InsuranceCustomerInput): InsuranceCustomer!
+  """
+  Харилцагч устгах
+  """
+  deleteCustomer(id: ID!): Boolean!
 
 
+  """
+  Даатгалын гэрээ үүсгэх
+  """
   createInsuranceContract(
     vendorId: ID!
     customerId: ID!
@@ -200,9 +341,21 @@ export const mutations = `
   ): InsuranceContract!
 
 
+  """
+  Vendor хэрэглэгч үүсгэх
+  """
   createVendorUser(username: String!, password: String!, vendorId: ID!, role: String): InsuranceVendorUser!
 
+  """
+  Эрсдлийн төрөл үүсгэх
+  """
   createRiskType(name: String!, description: String): RiskType!
+  """
+  Эрсдлийн төрөл шинэчлэх
+  """
   updateRiskType(id: ID!, name: String, description: String): RiskType!
+  """
+  Эрсдлийн төрөл устгах
+  """
   deleteRiskType(id: ID!): Boolean!
 `;

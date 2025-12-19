@@ -2,9 +2,14 @@ import { IContext } from '~/connectionResolvers';
 
 export const vendorMutations = {
   addProductToVendor: async (_parent: undefined, { vendorId, productId, pricingOverride }: { vendorId: string; productId: string; pricingOverride?: any }, { models }: IContext) => {
-    return models.Vendor.findByIdAndUpdate(vendorId, {
-      $push: { offeredProducts: { product: productId, pricingOverride } }
-    }, { new: true });
+    return models.Vendor.findByIdAndUpdate(
+      vendorId,
+      { $push: { offeredProducts: { product: productId, pricingOverride } } },
+      { new: true }
+    ).populate({
+      path: 'offeredProducts.product',
+      populate: 'insuranceType',
+    });
   },
 
   removeProductFromVendor: async (_parent: undefined, { vendorId, productId }: { vendorId: string; productId: string }, { models }: IContext) => {

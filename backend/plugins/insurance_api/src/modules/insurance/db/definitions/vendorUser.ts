@@ -5,7 +5,6 @@ export const vendorUserSchema = new Schema(
     name: {
       type: String,
     },
-
     email: {
       type: String,
       required: true,
