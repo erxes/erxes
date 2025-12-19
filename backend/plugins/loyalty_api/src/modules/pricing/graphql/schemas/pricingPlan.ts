@@ -1,16 +1,5 @@
-import {
-  graphqlAttachmentType,
-  graphqlAttachmentInput
-} from 'erxes-api-shared/utils';
 
 export const types = () => `
-  ${graphqlAttachmentType}
-  ${graphqlAttachmentInput}
-
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
-
   type QuantityRule {
     type: String,
     value: Float,
@@ -56,7 +45,7 @@ export const types = () => `
     yearEndValue: Date,
   }
 
-  type PricingPlan @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type PricingPlan @key(fields: "_id") {
     _id: String,
     name: String,
     status: String,

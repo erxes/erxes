@@ -1,20 +1,35 @@
+import { IContext } from '~/connectionResolvers';
+import { pricingPlanMutations } from './pricingPlan';
 
-  import { IContext } from '~/connectionResolvers';
-  import { pricingPlanMutations } from './pricingPlan';
+export const pricingMutations = {
 
-  export const pricingMutations = {
-    createPricing: async (_parent: undefined, { name }, { models }: IContext) => {
-      return models.Pricing.createPricing({name});
-    },
+  createPricing: async (
+    _parent: undefined,
+    { name }: { name: string },
+    { models }: IContext,
+  ) => {
+    return models.Pricing.createPricing({ name });
+  },
 
-    updatePricing: async (_parent: undefined, { _id, name }, { models }: IContext) => {
-      return models.Pricing.updatePricing(_id, {name});
-    },
+  updatePricing: async (
+    _parent: undefined,
+    { _id, name }: { _id: string; name: string },
+    { models }: IContext,
+  ) => {
+    return models.Pricing.updatePricing(_id, { name });
+  },
 
-    removePricing: async (_parent: undefined, { _id }, { models }: IContext) => {
-      return models.Pricing.removePricing(_id);
-    },
+  removePricing: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return models.Pricing.removePricing(_id);
+  },
 
-    ...pricingPlanMutations,
-  };
+  pricingPlanAdd: pricingPlanMutations.pricingPlanAdd,
 
+  pricingPlanEdit: pricingPlanMutations.pricingPlanEdit,
+
+  pricingPlanRemove: pricingPlanMutations.pricingPlanRemove,
+};
