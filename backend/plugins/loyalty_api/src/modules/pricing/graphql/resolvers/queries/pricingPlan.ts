@@ -146,12 +146,12 @@ export const pricingPlanQueries = {
         : { updatedAt: -1 };
 
     if (params.findOne) {
-      return await models.PricingPlans.find(filter)
-        .sort(sort)
-        .limit(1);
+      const docs = await models.PricingPlans.find(filter).sort(sort).limit(1);
+
+      return docs || [];
     }
 
-    return cursorPaginate({
+    const result = await cursorPaginate({
       model: models.PricingPlans,
       query: filter,
       params: {
@@ -159,6 +159,8 @@ export const pricingPlanQueries = {
         orderBy: sort,
       },
     });
+
+    return Array.isArray(result?.list) ? result.list : [];
 
   },
 
