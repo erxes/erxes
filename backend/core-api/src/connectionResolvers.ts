@@ -218,6 +218,12 @@ import {
   IFieldDocument,
   IFieldGroupDocument,
 } from './modules/properties/@types';
+
+import {
+  IOrgWhiteLabelModel,
+  loadOrgWhiteLabelClass,
+} from './modules/organization/whitelabel/db/models/OrgWhiteLabel';
+import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -267,6 +273,7 @@ export interface IModels {
   Stats: IStatsModel;
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
+  OrgWhiteLabel: IOrgWhiteLabelModel;
 }
 
 export interface IContext extends IMainContext {
@@ -573,7 +580,10 @@ export const loadClasses = (
       eventDispatcher('core', 'import-export', 'exports'),
     ),
   );
-
+  models.OrgWhiteLabel = db.model<IOrgWhiteLabelDocument, IOrgWhiteLabelModel>(
+    'org_white_labels',
+    loadOrgWhiteLabelClass(models),
+  );
   models.ClientPortal = db.model<IClientPortalDocument, IClientPortalModel>(
     'client_portals',
     loadClientPortalClass(models),

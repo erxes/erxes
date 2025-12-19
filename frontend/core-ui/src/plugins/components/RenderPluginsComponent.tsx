@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { loadRemote } from '@module-federation/enhanced/runtime';
 import { Spinner } from 'erxes-ui';
-import { WelcomeNotificationFallback } from 'ui-modules';
+
 interface RemoteComponentProps {
   module?: string;
 }
@@ -53,7 +53,9 @@ export function RenderPluginsComponent({
 
   if (hasError) {
     return (
-      <WelcomeNotificationFallback pluginName={pluginName.split('_')[0]} />
+      <div className="flex items-center justify-center h-full text-red-500">
+        {hasError.message}
+      </div>
     );
   }
 

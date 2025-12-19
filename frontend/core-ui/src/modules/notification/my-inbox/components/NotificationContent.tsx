@@ -17,7 +17,7 @@ export const NotificationContent = () => {
   }
 
   return (
-    <ScrollArea className="overflow-auto h-full">
+    <ScrollArea className="overflow-hidden h-full">
       <NotificationContentWrapper
         key={notification._id}
         notification={notification}

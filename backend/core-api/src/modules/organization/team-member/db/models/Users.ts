@@ -52,14 +52,6 @@ interface IUpdateUser extends IEditProfile {
   brandIds?: string[];
 }
 
-interface IConfirmParams {
-  token: string;
-  password: string;
-  passwordConfirmation: string;
-  fullName?: string;
-  username?: string;
-}
-
 interface IInviteParams {
   email: string;
   password?: string;
@@ -842,6 +834,7 @@ export const loadUserClass = (
       }
 
       await sendOnboardNotification(subdomain, models, user._id);
+      await user.updateOne({ $set: { registrationToken: null } });
 
       const loginActivityLog = generateLoginActivityLog(user, {
         method: 'email/password',
