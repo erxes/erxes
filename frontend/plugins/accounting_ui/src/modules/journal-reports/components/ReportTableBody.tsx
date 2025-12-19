@@ -1,4 +1,4 @@
-import { ReportTable, Spinner, cn, displayNum, useQueryState } from "erxes-ui";
+import { ReportTable, Spinner, cn, displayNum } from "erxes-ui";
 import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useJournalReportData } from "../hooks/useJournalReportData";
@@ -24,7 +24,6 @@ export const ReportTableBody = () => {
   const { report, groupKey, ...params } = useQueryObject();
   const reportConf = ReportRules[report as string];
 
-  // const params = { ...qryParams };
   const { isMore } = params;
 
   const colCount = reportConf.colCount ?? 0;
@@ -53,10 +52,14 @@ export const ReportTableBody = () => {
     if (!tableRef?.current) return;
 
     totalsCalc(tableRef.current);
+  }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
+
+  useEffect(() => {
+    if (!tableRef?.current) return;
     if (!isMore) return;
     if (detailLoading) return;
+    if (detailError) return;
     setMoreData(trDetails);
-
   }, [grouped, detailLoading]); // ✅ дата солигдох бүрт дахин бодно
 
   if (!report || !reportConf) {
@@ -115,16 +118,16 @@ const toGroup = (
     if (!resultDic[groupKey]) {
       resultDic[groupKey] = {
         items: [],
-        [`${groupRule.key}_id`]: String(groupKey),                     // id
-        [`${groupRule.key}_code`]: String(item[groupRule.code]),       // code
-        [`${groupRule.key}_name`]: groupRule.name
+        [`${groupRule.key}Id`]: String(groupKey),                     // id
+        [`${groupRule.key}Code`]: String(item[groupRule.code]),       // code
+        [`${groupRule.key}Name`]: groupRule.name
           ? String(item[groupRule.name])
           : "",                                                       // name
       };
 
       // if sub-group rule exists -> initialize empty dict
-      if (groupRule.group_rule?.key) {
-        resultDic[groupKey][groupRule.group_rule.key] = {};
+      if (groupRule.groupRule?.key) {
+        resultDic[groupKey][groupRule.groupRule.key] = {};
       }
     }
 
@@ -139,12 +142,12 @@ const toGroup = (
   }
 
   // if sub-group rule exists, recursively call
-  if (groupRule.group_rule?.key) {
+  if (groupRule.groupRule?.key) {
     for (const key of Object.keys(resultDic)) {
       toGroup(
-        resultDic[key][groupRule.group_rule.key],
+        resultDic[key][groupRule.groupRule.key],
         resultDic[key]["items"],
-        groupRule.group_rule
+        groupRule.groupRule
       );
       resultDic[key]["items"] = undefined
     }
@@ -199,23 +202,25 @@ function renderGroup(
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
 
-  const grId = `${groupRule.key}_id`;
-  const keyCode = `${groupRule.key}_code`;
-  const keyName = `${groupRule.key}_name`;
+  const grId = `${groupRule.key}Id`;
+  const keyCode = `${groupRule.key}Code`;
+  const keyName = `${groupRule.key}Name`;
 
   const sortedValues = Object.values(groupedDic).sort(
     (a: any, b: any) => String(a[keyCode]).localeCompare(String(b[keyCode]))
   );
 
   return sortedValues.map((grStep: any, index: number) => {
-    const attr = `${lastAttr ? `${lastAttr}*` : ''}${groupRule.key}+${grStep[grId]}`
+    const lAttr = lastAttr ? `${lastAttr}*` : '';
+    const attr = `${lAttr}${groupRule.key}+${grStep[grId]}`
 
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
-    if (groupRule.group_rule?.key) {
+    if (groupRule.groupRule?.key) {
       return (
         <React.Fragment key={attr + index}>
           {groupHead && (
             <ReportTable.Row
+              key={attr}
               data-sum-key={attr}
               className={cn(groupRule.style ?? '')}
               data-group={groupRule.group}
@@ -233,18 +238,18 @@ function renderGroup(
               </ReportTable.Cell>
 
               {Array.from({ length: colCount }).map((_, i) => (
-                <ReportTable.Cell key={i} className="text-right" />
+                <ReportTable.Cell key={`${attr}-${i}`} className="text-right" />
               ))}
             </ReportTable.Row>
           )}
 
           {renderGroup(
-            grStep[groupRule.group_rule.key],
-            groupRule.group_rule,
+            grStep[groupRule.groupRule.key],
+            groupRule.groupRule,
             colCount,
             padding + 25,
             attr,
-            `${leafAttr ? `${leafAttr},` : ''}${attr}`,
+            `${leafAttr && `${leafAttr},` || ''}${attr}`,
             groupHead,
             calcReport,
             renderMore
@@ -280,7 +285,7 @@ function renderGroup(
 
           {lastNode}
         </ReportTable.Row>
-        {renderMore && renderMore(leafAttr ?? '', `${groupRule.key}+${grStep[grId]}`)}
+        {renderMore && renderMore(leafAttr || '', `${groupRule.key}+${grStep[grId]}`)}
       </React.Fragment>
     );
   });
@@ -290,7 +295,7 @@ const totalsCalc = (root: HTMLElement) => {
   const table = document.querySelector('table[data-slot="table"]');
   if (!table) return;
 
-  const excluded_indexes: number[] = [0, 1]; // not-sum index-үүд энд орно
+  const excludedIndexes: number[] = [0, 1]; // not-sum index-үүд энд орно
   const totals: Record<string, Record<number, number>> = {};
 
   const rows = root.querySelectorAll("tr[data-keys]");
@@ -302,10 +307,10 @@ const totalsCalc = (root: HTMLElement) => {
     const tds = row.querySelectorAll("td");
 
     tds.forEach((td, index) => {
-      if (excluded_indexes.includes(index)) return;
+      if (excludedIndexes.includes(index)) return;
 
-      let recordValue = parseFloat(td.textContent?.replace(/,/g, "") || "0");
-      if (isNaN(recordValue)) recordValue = 0;
+      let recordValue = Number.parseFloat(td.textContent?.replace(/,/g, "") || "0");
+      if (Number.isNaN(recordValue)) recordValue = 0;
 
       Array.from(sumKeys).forEach(sumKey => {
         if (!totals[sumKey]) totals[sumKey] = {};

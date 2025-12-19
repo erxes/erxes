@@ -9,7 +9,7 @@ export const HandleMainACMore = (parent: string, child: string) => {
   const parentRules = parent.split('*').map(p => child.split('+'));
   const [leafKey, leafId] = child.split('+');
   const allMoreData = useAtomValue(moreDataState);
-
+  console.log('ddddddddddddddddd', parentRules, leafKey, leafId)
   const moreData = allMoreData.filter(md => md);
 
   // moreData Context

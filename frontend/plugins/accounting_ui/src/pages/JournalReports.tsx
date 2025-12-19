@@ -1,6 +1,5 @@
 import { AccountingHeader } from '@/layout/components/Header';
 import { AccountingLayout } from '@/layout/components/Layout';
-import { Resizable } from 'erxes-ui';
 import { ReportForm } from '~/modules/journal-reports/components/ReportForm';
 import { ReportsList } from '~/modules/journal-reports/components/ReportsList';
 

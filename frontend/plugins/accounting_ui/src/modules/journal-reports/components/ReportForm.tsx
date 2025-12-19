@@ -47,7 +47,7 @@ export const ReportForm = () => {
   }, [activeReport])
 
   const onSubmit = (data: any) => {
-    const params: any = { ...data, ...activeReportConf.initParams || {} };
+    const params: any = { ...data, ...activeReportConf.initParams };
     let result = ''
 
     for (const key of Object.keys(params)) {
