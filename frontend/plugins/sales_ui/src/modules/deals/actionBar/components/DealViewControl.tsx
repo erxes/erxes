@@ -12,13 +12,13 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { lazy, Suspense, useState } from 'react';
 const DealsBoard = lazy(() =>
-  import('../../boards/components/DealsBoard').then((mod) => ({
+  import('@/deals/boards/components/DealsBoard').then((mod) => ({
     default: mod.DealsBoard,
   })),
 );
 
 const DealsRecordTable = lazy(() =>
-  import('../../boards/components/DealsRecordTable').then((mod) => ({
+  import('@/deals/boards/components/DealsRecordTable').then((mod) => ({
     default: mod.DealsRecordTable,
   })),
 );
