@@ -1,13 +1,9 @@
-// import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import { Button } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
 import React, { useState } from 'react';
-
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
+import { Button } from 'erxes-ui';
+import { contentBoxClass } from '../styles';
+import { IConfigsMap, PerPrintConfig } from '../types';
 import Header from './Header';
-import PerSettings from './PerSettings';
+import PerPrint from './PerPrint';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -15,21 +11,22 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-const GeneralSettings = (props: Props) => {
+const StageSettings = (props: Props) => {
   const [configs, setConfigs] = useState<IConfigsMap>(props.configsMap.dealsProductsDataPlaces || {});
 
-  const add = (e) => {
+  const add = (e: React.MouseEvent) => {
     e.preventDefault();
 
     // must save prev item saved then new item
-    const newPlacesConfig = {
+    const newPlacesConfig: PerPrintConfig = {
       title: 'New Places Config',
       boardId: '',
       pipelineId: '',
       stageId: '',
       conditions: [],
     };
-    setConfigs((prevConfigsMap) => ({
+
+    setConfigs((prevConfigsMap: IConfigsMap) => ({
       ...prevConfigsMap,
       newPlacesConfig,
     }));
@@ -44,20 +41,20 @@ const GeneralSettings = (props: Props) => {
     props.save({ ...props.configsMap, dealsProductsDataPlaces });
   };
 
-  const saveHandler = (key, config) => {
+  const saveHandler = (key: string, config: PerPrintConfig) => {
     const dealsProductsDataPlaces = { ...configs };
     delete dealsProductsDataPlaces['newPlacesConfig'];
     dealsProductsDataPlaces[key] = config;
     setConfigs({ ...dealsProductsDataPlaces });
-    props.save({ ...props.configsMap, dealsProductsDataPlaces })
-  }
+    props.save({ ...props.configsMap, dealsProductsDataPlaces });
+  };
 
-  const renderConfigs = (configs) => {
+  const renderConfigs = (configs: IConfigsMap) => {
     return Object.keys(configs).map((key) => {
       return (
-        <PerSettings
-          key={Math.random()}
-          config={configs[key]}
+        <PerPrint
+          key={key}
+          config={configs[key] as PerPrintConfig}
           currentConfigKey={key}
           save={saveHandler}
           delete={deleteHandler}
@@ -68,41 +65,66 @@ const GeneralSettings = (props: Props) => {
 
   const renderContent = () => {
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <div 
+        id={'StageSettingsMenu'}
+        className={contentBoxClass}
+      >
         {renderConfigs(configs)}
-      </ContentBox>
+      </div>
     );
   };
 
-  const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Places config') },
-  ];
-
   const actionButtons = (
-    <Button btnStyle="primary" onClick={add} icon="plus" uppercase={false}>
+    <Button variant="default" onClick={add} className="flex items-center gap-2">
       New config
     </Button>
   );
 
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header title={__('Places config')} breadcrumb={breadcrumb} />
-      }
-      mainHead={<Header />}
-      actionBar={
-        <Wrapper.ActionBar
-          left={<Title>{__('Places configs')}</Title>}
-          right={actionButtons}
-        />
-      }
-      leftSidebar={<Sidebar />}
-      content={renderContent()}
-      hasBorder={true}
-      transparent={true}
-    />
+    <div className="flex flex-col h-full">
+      {/* Header Section */}
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">Places config</h1>
+            <nav className="flex items-center space-x-2 text-sm text-gray-500">
+              <a href="/settings" className="hover:text-gray-700">
+                Settings
+              </a>
+              <span>/</span>
+              <span className="text-gray-700">Places config</span>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header Component */}
+      <div className="p-4">
+        <Header />
+      </div>
+
+      {/* Action Bar */}
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <div className="text-lg font-medium">Places configs</div>
+          <div>{actionButtons}</div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="w-64 border-r">
+          <Sidebar />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-4 overflow-auto">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default GeneralSettings;
+export default StageSettings;

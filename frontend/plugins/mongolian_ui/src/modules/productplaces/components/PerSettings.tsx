@@ -1,165 +1,293 @@
-import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
-import {
-  Button,
-  CollapseContent,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from "@erxes/ui/src/components";
-import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
-import React, { useState, useEffect } from "react";
-import PerConditions from "./PerConditions";
+// frontend/plugins/mongolian_ui/src/modules/productplaces/components/PerSettings.tsx
 
-type Props = {
-  config: any;
-  currentConfigKey: string;
-  save: (key: string, config: any) => void;
-  delete: (currentConfigKey: string) => void;
-};
+import React, { useState } from 'react';
+import { Button, Form, Select, MultipleSelector } from 'erxes-ui';
+import { Collapsible } from 'erxes-ui/components/collapsible';
 
-const PerSettings = (props: Props) => {
-  const { currentConfigKey, save } = props;
+import { PerSplitConfig, IConfigsMap, PerSettingsProps } from '../types';
 
-  const [config, setConfig] = useState(props.config);
+// Remove the local interfaces since we're importing them from types.ts
+// Use PerSettingsProps directly without extending
 
-  const onChangeBoard = (boardId: string) => {
-    setConfig({ ...config, boardId });
+const PerSettings = ({
+  configsMap,
+  config: initialConfig,
+  currentConfigKey,
+  save,
+  delete: deleteConfig,
+  productCategories,
+  tags,
+  products,
+  segments,
+}: PerSettingsProps) => { // Use PerSettingsProps directly
+  const [config, setConfig] = useState<PerSplitConfig>(initialConfig);
+
+  const onChangeConfig = (key: keyof PerSplitConfig, value: any) => {
+    setConfig((prev: PerSplitConfig) => ({ ...prev, [key]: value }));
   };
 
-  const onChangePipeline = (pipelineId: string) => {
-    setConfig({ ...config, pipelineId });
+  const onChangeInput = (key: keyof PerSplitConfig, e: React.ChangeEvent<HTMLInputElement>) => {
+    onChangeConfig(key, e.target.value);
   };
 
-  const onChangeStage = (stageId: string) => {
-    setConfig({ ...config, stageId });
+  const onSave = () => {
+    if (!config.stageId) return;
+    
+    const updatedConfigsMap: IConfigsMap = { ...configsMap };
+    
+    // Remove old key
+    delete updatedConfigsMap[currentConfigKey];
+    
+    // Add with new key
+    updatedConfigsMap[config.stageId] = config;
+    
+    save(updatedConfigsMap);
   };
 
-  const onSave = e => {
-    e.preventDefault();
-    const key = config.stageId;
-    save(key, config);
+  const onDelete = () => {
+    deleteConfig(currentConfigKey);
   };
 
-  const onDelete = e => {
-    e.preventDefault();
+  // Convert product categories to MultiSelectOption format
+  const productCategoryOptions = productCategories.map(category => ({
+    value: category._id,
+    label: category.name,
+  }));
 
-    props.delete(currentConfigKey);
-  };
+  // Convert tags to MultiSelectOption format
+  const tagOptions = tags.map(tag => ({
+    value: tag._id,
+    label: tag.name,
+  }));
 
-  const onChangeConfig = (code: string, value) => {
-    setConfig({ ...config, [code]: value });
-  };
+  // Convert products to MultiSelectOption format
+  const productOptions = products.map(product => ({
+    value: product._id,
+    label: product.name,
+  }));
 
-  const onChangeInput = (code: string, e) => {
-    onChangeConfig(code, e.target.value);
-  };
+  // Convert segments to MultiSelectOption format
+  const segmentOptions = segments.map(segment => ({
+    value: segment._id,
+    label: segment.name,
+  }));
 
-  const onChangeCheckbox = (code: string, e) => {
-    onChangeConfig(code, e.target.checked);
-  };
-
-  const addCondition = () => {
-    onChangeConfig('conditions', [...config.conditions, { id: Math.random().toString(), }]);
-  };
-
-  const renderConditions = () => {
-    const remove = (id) => {
-      onChangeConfig(
-        "conditions",
-        config.conditions.filter((c) => c.id !== id)
-      );
-    };
-
-    const editCondition = (id, condition) => {
-      const updated = (config.conditions || []).map((c) =>
-        c.id === id ? condition : c
-      );
-      onChangeConfig("conditions", updated);
-    };
-
-    return (config.conditions || []).map((c) => (
-      <PerConditions
-        key={c.id}
-        condition={c}
-        onChange={editCondition}
-        onRemove={remove}
-      />
-    ));
+  // Convert string[] to MultiSelectOption[] for current values
+  const getSelectedOptions = (ids: string[] = [], allOptions: Array<{ value: string; label: string }>) => {
+    return allOptions.filter(option => ids.includes(option.value));
   };
 
   return (
-    <CollapseContent
-      title={__(config.title)}
-      open={currentConfigKey === "newPlacesConfig" ? true : false}
+    <Collapsible
+      defaultOpen={currentConfigKey === "newPlacesConfig"}
+      className="rounded border p-4 space-y-6"
     >
-      <FormGroup>
-        <ControlLabel>{"Title"}</ControlLabel>
-        <FormControl
-          defaultValue={config["title"]}
-          onChange={onChangeInput.bind(this, "title")}
-          required={true}
-          autoFocus={true}
-        />
-      </FormGroup>
-      <FormWrapper>
-        <FormColumn>
-          <FormGroup>
-            <BoardSelectContainer
-              type="deal"
-              autoSelectStage={false}
-              boardId={config.boardId}
-              pipelineId={config.pipelineId}
-              stageId={config.stageId}
-              onChangeBoard={onChangeBoard}
-              onChangePipeline={onChangePipeline}
-              onChangeStage={onChangeStage}
-            />
-          </FormGroup>
-        </FormColumn>
-        <FormColumn>
-          <FormGroup>
-            <ControlLabel>Check pricing</ControlLabel>
-            <FormControl
-              checked={config.checkPricing || false}
-              onChange={onChangeCheckbox.bind(this, "checkPricing")}
-              componentclass="checkbox"
-            />
-          </FormGroup>
-        </FormColumn>
-      </FormWrapper>
+      {/* HEADER */}
+      <Collapsible.TriggerButton>
+        <div className="flex w-full items-center justify-between">
+          <span className="text-sm font-semibold">
+            {config.title || 'Split config'}
+          </span>
+          <Collapsible.TriggerIcon className="h-4 w-4" />
+        </div>
+      </Collapsible.TriggerButton>
 
-      {renderConditions()}
-      <ModalFooter>
-        <Button
-          btnStyle="primary"
-          onClick={addCondition}
-          icon="plus"
-          uppercase={false}
-        >
-          Add condition
-        </Button>
-        <Button
-          btnStyle="simple"
-          icon="cancel-1"
-          onClick={onDelete}
-          uppercase={false}
-        >
-          Delete
-        </Button>
+      {/* CONTENT */}
+      <Collapsible.Content className="space-y-6">
+        {/* TITLE */}
+        <Form.Item>
+          <Form.Label>Title</Form.Label>
+          <Form.Control>
+            <input
+              value={config.title || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChangeInput('title', e)
+              }
+              required
+              autoFocus
+            />
+          </Form.Control>
+        </Form.Item>
 
-        <Button
-          btnStyle="primary"
-          icon="check-circle"
-          onClick={onSave}
-          uppercase={false}
-          disabled={config.stageId ? false : true}
-        >
-          Save
-        </Button>
-      </ModalFooter>
-    </CollapseContent>
+        {/* BOARD / PIPELINE / STAGE */}
+        <div className="grid grid-cols-3 gap-4 rounded border p-4">
+          <Form.Item>
+            <Form.Label>Board</Form.Label>
+            <Select
+              value={config.boardId || ''}
+              onValueChange={(v: string) => onChangeConfig('boardId', v)}
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Select board" />
+              </Select.Trigger>
+              <Select.Content>
+                {/* TODO: Map boards data */}
+              </Select.Content>
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Form.Label>Pipeline</Form.Label>
+            <Select
+              value={config.pipelineId || ''}
+              onValueChange={(v: string) => onChangeConfig('pipelineId', v)}
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Select pipeline" />
+              </Select.Trigger>
+              <Select.Content>
+                {/* TODO: Map pipelines data */}
+              </Select.Content>
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Form.Label>Stage</Form.Label>
+            <Select
+              value={config.stageId || ''}
+              onValueChange={(v: string) => onChangeConfig('stageId', v)}
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Select stage" />
+              </Select.Trigger>
+              <Select.Content>
+                {/* TODO: Map stages data */}
+              </Select.Content>
+            </Select>
+          </Form.Item>
+        </div>
+
+        {/* PRODUCT CATEGORIES */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <Form.Item>
+              <Form.Label>Product Category</Form.Label>
+              <Form.Control>
+                <MultipleSelector
+                  value={getSelectedOptions(config.productCategoryIds, productCategoryOptions)}
+                  options={productCategoryOptions}
+                  placeholder="Choose product category"
+                  onChange={(options) => 
+                    onChangeConfig('productCategoryIds', options.map(opt => opt.value))
+                  }
+                  maxSelected={100}
+                  hideClearAllButton={false}
+                  className="w-full"
+                />
+              </Form.Control>
+            </Form.Item>
+
+            <Form.Item>
+              <Form.Label>Product Tags</Form.Label>
+              <Form.Control>
+                <MultipleSelector
+                  value={getSelectedOptions(config.productTagIds, tagOptions)}
+                  options={tagOptions}
+                  placeholder="Choose product tags"
+                  onChange={(options) => 
+                    onChangeConfig('productTagIds', options.map(opt => opt.value))
+                  }
+                  maxSelected={100}
+                  hideClearAllButton={false}
+                  className="w-full"
+                />
+              </Form.Control>
+            </Form.Item>
+
+            <Form.Item>
+              <Form.Label>Segment</Form.Label>
+              <Form.Control>
+                <MultipleSelector
+                  value={getSelectedOptions(config.segments, segmentOptions)}
+                  options={segmentOptions}
+                  placeholder="Choose segments"
+                  onChange={(options) => 
+                    onChangeConfig('segments', options.map(opt => opt.value))
+                  }
+                  maxSelected={100}
+                  hideClearAllButton={false}
+                  className="w-full"
+                />
+              </Form.Control>
+            </Form.Item>
+          </div>
+
+          <div className="space-y-4">
+            <Form.Item>
+              <Form.Label>Exclude Categories</Form.Label>
+              <Form.Control>
+                <MultipleSelector
+                  value={getSelectedOptions(config.excludeCategoryIds, productCategoryOptions)}
+                  options={productCategoryOptions}
+                  placeholder="Choose categories to exclude"
+                  onChange={(options) => 
+                    onChangeConfig('excludeCategoryIds', options.map(opt => opt.value))
+                  }
+                  maxSelected={100}
+                  hideClearAllButton={false}
+                  className="w-full"
+                />
+              </Form.Control>
+            </Form.Item>
+
+            <Form.Item>
+              <Form.Label>Exclude Tags</Form.Label>
+              <Form.Control>
+                <MultipleSelector
+                  value={getSelectedOptions(config.excludeTagIds, tagOptions)}
+                  options={tagOptions}
+                  placeholder="Choose tags to exclude"
+                  onChange={(options) => 
+                    onChangeConfig('excludeTagIds', options.map(opt => opt.value))
+                  }
+                  maxSelected={100}
+                  hideClearAllButton={false}
+                  className="w-full"
+                />
+              </Form.Control>
+            </Form.Item>
+
+            <Form.Item>
+              <Form.Label>Exclude Products</Form.Label>
+              <Form.Control>
+                <MultipleSelector
+                  value={getSelectedOptions(config.excludeProductIds, productOptions)}
+                  options={productOptions}
+                  placeholder="Choose products to exclude"
+                  onChange={(options) => 
+                    onChangeConfig('excludeProductIds', options.map(opt => opt.value))
+                  }
+                  maxSelected={100}
+                  hideClearAllButton={false}
+                  className="w-full"
+                />
+              </Form.Control>
+            </Form.Item>
+          </div>
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex flex-wrap justify-end gap-2 pt-4 border-t">
+          <Button
+            variant="ghost"
+            onClick={onDelete}
+            className="flex items-center gap-2"
+          >
+            Delete
+          </Button>
+
+          <Button
+            variant="default"
+            disabled={!config.stageId}
+            onClick={onSave}
+            className="flex items-center gap-2"
+          >
+            Save
+          </Button>
+        </div>
+      </Collapsible.Content>
+    </Collapsible>
   );
 };
+
 export default PerSettings;

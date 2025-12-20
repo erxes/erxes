@@ -1,21 +1,11 @@
 import React, { useState } from 'react';
-
-import { Button } from 'erxes-ui';
-import { Form } from 'erxes-ui';
-import { Select } from 'erxes-ui';
+import { Button, Form, Select } from 'erxes-ui';
 
 import Header from './Header';
 import Sidebar from './Sidebar';
 
-import { IConfigsMap } from '../types';
+import { IConfigsMap, DefaultFilterConfig } from '../types';
 import { contentBoxClass } from '../styles';
-
-type Config = {
-  _id: string;
-  title: string;
-  segmentId: string;
-  userIds: string[];
-};
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -38,9 +28,13 @@ const USERS = [
 ];
 
 const DefaultFilterSettings = ({ save, configsMap }: Props) => {
-  const [configs, setConfigs] = useState<Config[]>(
-    configsMap.dealsProductsDefaultFilter || [],
-  );
+  // Get default filter configs or initialize as empty array
+  const defaultFilterData = configsMap.dealsProductsDefaultFilter;
+  const initialConfigs: DefaultFilterConfig[] = Array.isArray(defaultFilterData) 
+    ? defaultFilterData 
+    : [];
+
+  const [configs, setConfigs] = useState<DefaultFilterConfig[]>(initialConfigs);
 
   const addConfig = () => {
     setConfigs(prev => [
@@ -54,7 +48,7 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
     ]);
   };
 
-  const updateConfig = (id: string, updated: Config) => {
+  const updateConfig = (id: string, updated: DefaultFilterConfig) => {
     setConfigs(prev => prev.map(c => (c._id === id ? updated : c)));
   };
 
@@ -62,7 +56,7 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
     setConfigs(prev => prev.filter(c => c._id !== id));
   };
 
-  const toggleUser = (config: Config, userId: string) => {
+  const toggleUser = (config: DefaultFilterConfig, userId: string) => {
     const exists = config.userIds.includes(userId);
 
     updateConfig(config._id, {
@@ -70,6 +64,13 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
       userIds: exists
         ? config.userIds.filter(id => id !== userId)
         : [...config.userIds, userId],
+    });
+  };
+
+  const handleSave = () => {
+    save({
+      ...configsMap,
+      dealsProductsDefaultFilter: configs,
     });
   };
 
@@ -91,12 +92,7 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
 
             <Button
               variant="default"
-              onClick={() =>
-                save({
-                  ...configsMap,
-                  dealsProductsDefaultFilter: configs,
-                })
-              }
+              onClick={handleSave}
             >
               Save
             </Button>
@@ -104,7 +100,7 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
         </div>
 
         {/* Content */}
-        <div className={contentBoxClass}>
+        <div className="p-4">
           {configs.map((config) => (
             <div key={config._id} className="config-card">
               {/* Card header */}
@@ -127,9 +123,9 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
                   <Form.Label>Title</Form.Label>
                   <Form.Control>
                     <input
-                      className="input"
+                      className="w-full p-2 border rounded"
                       value={config.title}
-                      onChange={(e) =>
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         updateConfig(config._id, {
                           ...config,
                           title: e.target.value,
@@ -144,7 +140,7 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
                   <Form.Label>Segment</Form.Label>
                   <Select
                     value={config.segmentId}
-                    onValueChange={(segmentId) =>
+                    onValueChange={(segmentId: string) =>
                       updateConfig(config._id, {
                         ...config,
                         segmentId,
@@ -180,6 +176,7 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
                         type="checkbox"
                         checked={config.userIds.includes(user.id)}
                         onChange={() => toggleUser(config, user.id)}
+                        className="rounded"
                       />
                       {user.name}
                     </label>
@@ -190,22 +187,6 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
           ))}
         </div>
       </div>
-
-      <style>{`
-  .productplaces-content-box {
-    padding: 16px;
-    max-width: 96%;
-    margin: 0 auto;
-  }
-
-  .config-card {
-    border: 1px solid var(--border-primary);
-    border-radius: 6px;
-    padding: 16px;
-    margin-bottom: 16px;
-    background: var(--background);
-  }
-      `}</style>
     </div>
   );
 };

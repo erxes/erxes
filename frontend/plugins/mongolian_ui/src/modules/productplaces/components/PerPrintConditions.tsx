@@ -1,10 +1,9 @@
-import { GroupWrapper } from '@erxes/ui-segments/src/styles';
-import { Button, ControlLabel, Tip } from '@erxes/ui/src/components';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import * as React from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { Button } from 'erxes-ui';
+import { Form } from 'erxes-ui';
+import { Select } from 'erxes-ui';
+
 
 type Props = {
   condition: any;
@@ -12,54 +11,56 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
-const PerPrintConditions = (props: Props) => {
-  const { condition, onChange, onRemove } = props;
+const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
+  const form = useForm({
+    defaultValues: {
+      branchId: condition.branchId,
+      departmentId: condition.departmentId,
+    },
+  });
 
-  const onChangeConfig = (code: string, value) => {
-    onChange(condition.id, { ...condition, [code]: value });
-  };
-
-  const onChangeHandler = (name, value) => {
-    onChangeConfig(name, value);
+  const onSubmit = (values: any) => {
+    onChange(condition.id, { ...condition, ...values });
   };
 
   return (
-    <GroupWrapper>
-      <FormWrapper>
-        <FormColumn>
-          <ControlLabel>{'Branch'}</ControlLabel>
-          <SelectBranches
-            label="Choose Branch"
-            name="branchId"
-            initialValue={condition.branchId}
-            onSelect={(branchId) => onChangeHandler('branchId', branchId)}
-            multi={false}
-            customOption={{ value: '', label: 'Clean branch' }}
-          />
-        </FormColumn>
-        <FormColumn>
-          <ControlLabel>{'Department'}</ControlLabel>
-          <SelectDepartments
-            label="Choose department"
-            name="selectedDepartmentIds"
-            initialValue={condition.departmentId}
-            onSelect={(departmentId) =>
-              onChangeHandler('departmentId', departmentId)
-            }
-            multi={false}
-            customOption={{ value: '', label: 'Clean department' }}
-          />
-        </FormColumn>
-      </FormWrapper>
-      <Tip text={'Delete'}>
-        <Button
-          btnStyle="simple"
-          size="small"
-          onClick={onRemove.bind(this, condition.id)}
-          icon="times"
+    <FormProvider {...form}>
+      <form onBlur={form.handleSubmit(onSubmit)}>
+        <Form.Field
+          name="branchId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Branch</Form.Label>
+
+              <Form.Control>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Choose branch" />
+                  </Select.Trigger>
+
+                  <Select.Content>
+                    <Select.Item value="">Clean branch</Select.Item>
+                    <Select.Item value="1">Branch 1</Select.Item>
+                    <Select.Item value="2">Branch 2</Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+
+              <Form.Message />
+            </Form.Item>
+          )}
         />
-      </Tip>
-    </GroupWrapper>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onRemove(condition.id)}
+        >
+          ✕
+        </Button>
+      </form>
+    </FormProvider>
   );
 };
+
 export default PerPrintConditions;

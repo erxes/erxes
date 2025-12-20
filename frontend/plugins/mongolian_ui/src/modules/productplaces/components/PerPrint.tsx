@@ -3,24 +3,20 @@ import { Button, Form, Select } from 'erxes-ui';
 import { Collapsible } from 'erxes-ui/components/collapsible';
 
 import PerPrintConditions from './PerPrintConditions';
+import { PerPrintConfig, Condition, PerPrintSettingsProps } from '../types';
 
-type Props = {
-  config: any;
-  currentConfigKey: string;
-  save: (key: string, config: any) => void;
-  delete: (currentConfigKey: string) => void;
-};
+// Remove the local Config type and use PerPrintConfig from types.ts
 
 const PerPrintSettings = ({
   config: initialConfig,
   currentConfigKey,
   save,
   delete: deleteConfig,
-}: Props) => {
-  const [config, setConfig] = useState(initialConfig);
+}: PerPrintSettingsProps) => {
+  const [config, setConfig] = useState<PerPrintConfig>(initialConfig);
 
   const onChangeConfig = (key: string, value: any) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    setConfig((prev: PerPrintConfig) => ({ ...prev, [key]: value }));
   };
 
   const addCondition = () => {
@@ -33,14 +29,14 @@ const PerPrintSettings = ({
   const removeCondition = (id: string) => {
     onChangeConfig(
       'conditions',
-      (config.conditions || []).filter((c) => c.id !== id),
+      (config.conditions || []).filter((c: Condition) => c.id !== id),
     );
   };
 
-  const editCondition = (id: string, condition: any) => {
+  const editCondition = (id: string, condition: Condition) => {
     onChangeConfig(
       'conditions',
-      (config.conditions || []).map((c) =>
+      (config.conditions || []).map((c: Condition) =>
         c.id === id ? condition : c,
       ),
     );
@@ -78,7 +74,7 @@ const PerPrintSettings = ({
           <Form.Control>
             <input
               value={config.title || ''}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 onChangeConfig('title', e.target.value)
               }
             />
@@ -91,7 +87,7 @@ const PerPrintSettings = ({
             <Form.Label>Board</Form.Label>
             <Select
               value={config.boardId || ''}
-              onValueChange={(v) =>
+              onValueChange={(v: string) =>
                 onChangeConfig('boardId', v)
               }
             >
@@ -108,7 +104,7 @@ const PerPrintSettings = ({
             <Form.Label>Pipeline</Form.Label>
             <Select
               value={config.pipelineId || ''}
-              onValueChange={(v) =>
+              onValueChange={(v: string) =>
                 onChangeConfig('pipelineId', v)
               }
             >
@@ -125,7 +121,7 @@ const PerPrintSettings = ({
             <Form.Label>Stage</Form.Label>
             <Select
               value={config.stageId || ''}
-              onValueChange={(v) =>
+              onValueChange={(v: string) =>
                 onChangeConfig('stageId', v)
               }
             >
@@ -141,7 +137,7 @@ const PerPrintSettings = ({
 
         {/* CONDITIONS */}
         <div className="space-y-4">
-          {(config.conditions || []).map((condition) => (
+          {(config.conditions || []).map((condition: Condition) => (
             <PerPrintConditions
               key={condition.id}
               condition={condition}

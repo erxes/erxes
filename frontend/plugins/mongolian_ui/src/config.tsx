@@ -94,5 +94,13 @@ export const CONFIG: IUIConfig = {
       hasRelationWidget: false,
       hasFloatingWidget: false,
     },
+    {
+      name: 'productplaces',
+      icon: IconSandbox,
+      path: 'mongolian/product-places',
+      hasSettings: false,
+      hasRelationWidget: false,
+      hasFloatingWidget: false,
+    },
   ],
 };

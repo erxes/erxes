@@ -1,13 +1,16 @@
-// import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import { Button } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
 import React, { useState } from 'react';
+import { Button } from 'erxes-ui';
 
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
+import { 
+  IConfigsMap, 
+  PerSplitConfig, 
+  ProductCategory, 
+  Tag, 
+  Product, 
+  Segment 
+} from '../types';
 import Header from './Header';
-import PerSplit from './PerSplit';
+import PerSettings from './PerSettings';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -15,18 +18,41 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-const GeneralSettings = (props: Props) => {
+const SplitSettings = (props: Props) => {
   const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
-  const add = (e) => {
+  // Mock data - replace with actual data fetching
+  const [productCategories] = useState<ProductCategory[]>([
+    { _id: '1', name: 'Category 1' },
+    { _id: '2', name: 'Category 2' },
+  ]);
+
+  const [tags] = useState<Tag[]>([
+    { _id: '1', name: 'Tag 1', type: 'product' },
+    { _id: '2', name: 'Tag 2', type: 'product' },
+  ]);
+
+  const [products] = useState<Product[]>([
+    { _id: '1', name: 'Product 1' },
+    { _id: '2', name: 'Product 2' },
+  ]);
+
+  const [segments] = useState<Segment[]>([
+    { _id: '1', name: 'Segment 1' },
+    { _id: '2', name: 'Segment 2' },
+  ]);
+
+  const add = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!configsMap.dealsProductsDataSplit) {
-      configsMap.dealsProductsDataSplit = {};
+    const updatedConfigsMap = { ...configsMap };
+    
+    if (!updatedConfigsMap.dealsProductsDataSplit) {
+      updatedConfigsMap.dealsProductsDataSplit = {};
     }
 
     // must save prev item saved then new item
-    const newSplitConfig = {
+    const newSplitConfig: PerSplitConfig = {
       title: 'New Places Config',
       boardId: '',
       pipelineId: '',
@@ -34,81 +60,117 @@ const GeneralSettings = (props: Props) => {
       productCategoryIds: [],
       excludeCategoryIds: [],
       excludeProductIds: [],
-      segmentIds: [],
+      segments: [],
     };
 
-    setConfigsMap((prevConfigsMap) => ({
-      ...prevConfigsMap,
+    const newConfigsMap = {
+      ...updatedConfigsMap,
       dealsProductsDataSplit: {
-        ...prevConfigsMap.dealsProductsDataSplit,
+        ...updatedConfigsMap.dealsProductsDataSplit,
         newSplitConfig,
       },
-    }));
+    };
+
+    setConfigsMap(newConfigsMap);
   };
 
   const deleteHandler = (currentConfigKey: string) => {
-    delete configsMap.dealsProductsDataSplit[currentConfigKey];
-    delete configsMap.dealsProductsDataSplit['newSplitConfig'];
+    const updatedConfigsMap = { ...configsMap };
+    
+    if (updatedConfigsMap.dealsProductsDataSplit) {
+      delete updatedConfigsMap.dealsProductsDataSplit[currentConfigKey];
+      delete updatedConfigsMap.dealsProductsDataSplit['newSplitConfig'];
+    }
 
-    setConfigsMap({ configsMap });
-
-    props.save(configsMap);
+    setConfigsMap(updatedConfigsMap);
+    props.save(updatedConfigsMap);
   };
 
-  const renderConfigs = (configs) => {
+  const renderConfigs = () => {
+    const configs = configsMap.dealsProductsDataSplit || {};
+
     return Object.keys(configs).map((key) => {
+      const config = configs[key] as PerSplitConfig;
+      
       return (
-        <PerSplit
-          key={Math.random()}
+        <PerSettings
+          key={key}
           configsMap={configsMap}
-          config={configs[key]}
+          config={config}
           currentConfigKey={key}
           save={props.save}
           delete={deleteHandler}
+          productCategories={productCategories}
+          tags={tags}
+          products={products}
+          segments={segments}
         />
       );
     });
   };
 
   const renderContent = () => {
-    const configs = configsMap.dealsProductsDataSplit || {};
-
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
-        {renderConfigs(configs)}
-      </ContentBox>
+      <div 
+        id={'SplitSettingsMenu'}
+        className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm"
+      >
+        {renderConfigs()}
+      </div>
     );
   };
 
-  const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Split config') },
-  ];
-
   const actionButtons = (
-    <Button btnStyle="primary" onClick={add} icon="plus" uppercase={false}>
+    <Button variant="default" onClick={add} className="flex items-center gap-2">
       New config
     </Button>
   );
 
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header title={__('Split config')} breadcrumb={breadcrumb} />
-      }
-      mainHead={<Header />}
-      actionBar={
-        <Wrapper.ActionBar
-          left={<Title>{__('Split configs')}</Title>}
-          right={actionButtons}
-        />
-      }
-      leftSidebar={<Sidebar />}
-      content={renderContent()}
-      hasBorder={true}
-      transparent={true}
-    />
+    <div className="flex flex-col h-full">
+      {/* Header Section */}
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">Split config</h1>
+            <nav className="flex items-center space-x-2 text-sm text-gray-500">
+              <a href="/settings" className="hover:text-gray-700">
+                Settings
+              </a>
+              <span>/</span>
+              <span className="text-gray-700">Split config</span>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header Component */}
+      <div className="p-4">
+        <Header />
+      </div>
+
+      {/* Action Bar */}
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <div className="text-lg font-medium">Split configs</div>
+          <div>{actionButtons}</div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="w-64 border-r">
+          <Sidebar />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-4 overflow-auto">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default GeneralSettings;
+export default SplitSettings;

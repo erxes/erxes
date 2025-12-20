@@ -1,11 +1,9 @@
-// import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import { Button } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
-import React, { useState } from 'react';
+// frontend/plugins/mongolian_ui/src/modules/productplaces/components/PrintSettings.tsx
 
+import React, { useState } from 'react';
+import { Button } from 'erxes-ui';
 import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
+import { IConfigsMap, PerPrintConfig } from '../types';
 import Header from './Header';
 import PerPrint from './PerPrint';
 import Sidebar from './Sidebar';
@@ -15,14 +13,14 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-const GeneralSettings = (props: Props) => {
+const PrintSettings = (props: Props) => {
   const [configs, setConfigs] = useState<IConfigsMap>(props.configsMap.dealsProductsDataPrint || {});
 
-  const add = (e) => {
+  const add = (e: React.MouseEvent) => {
     e.preventDefault();
 
     // must save prev item saved then new item
-    const newPrintConfig = {
+    const newPrintConfig: PerPrintConfig = {
       title: 'New Print Config',
       boardId: '',
       pipelineId: '',
@@ -30,7 +28,7 @@ const GeneralSettings = (props: Props) => {
       conditions: [],
     };
 
-    setConfigs((prevConfigsMap) => ({
+    setConfigs((prevConfigsMap: IConfigsMap) => ({
       ...prevConfigsMap,
       newPrintConfig,
     }));
@@ -45,20 +43,20 @@ const GeneralSettings = (props: Props) => {
     props.save({ ...props.configsMap, dealsProductsDataPrint });
   };
 
-  const saveHandler = (key, config) => {
+  const saveHandler = (key: string, config: PerPrintConfig) => {
     const dealsProductsDataPrint = { ...configs };
     delete dealsProductsDataPrint['newPrintConfig'];
     dealsProductsDataPrint[key] = config;
     setConfigs({ ...dealsProductsDataPrint });
-    props.save({ ...props.configsMap, dealsProductsDataPrint })
-  }
+    props.save({ ...props.configsMap, dealsProductsDataPrint });
+  };
 
-  const renderConfigs = (configs) => {
+  const renderConfigs = (configs: IConfigsMap) => {
     return Object.keys(configs).map((key) => {
       return (
         <PerPrint
-          key={Math.random()}
-          config={configs[key]}
+          key={key}
+          config={configs[key] as PerPrintConfig}
           currentConfigKey={key}
           save={saveHandler}
           delete={deleteHandler}
@@ -69,41 +67,68 @@ const GeneralSettings = (props: Props) => {
 
   const renderContent = () => {
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={'PrintSettingsMenu'}>
         {renderConfigs(configs)}
       </ContentBox>
     );
   };
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Print config') },
+    { title: 'Settings', link: '/settings' },
+    { title: 'Print config' },
   ];
 
   const actionButtons = (
-    <Button btnStyle="primary" onClick={add} icon="plus" uppercase={false}>
+    <Button variant="default" onClick={add} className="flex items-center gap-2">
       New config
     </Button>
   );
 
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header title={__('Print config')} breadcrumb={breadcrumb} />
-      }
-      mainHead={<Header />}
-      actionBar={
-        <Wrapper.ActionBar
-          left={<Title>{__('Print configs')}</Title>}
-          right={actionButtons}
-        />
-      }
-      leftSidebar={<Sidebar />}
-      content={renderContent()}
-      hasBorder={true}
-      transparent={true}
-    />
+    <div className="flex flex-col h-full">
+      {/* Header Section */}
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">Print config</h1>
+            <nav className="flex items-center space-x-2 text-sm text-gray-500">
+              <a href="/settings" className="hover:text-gray-700">
+                Settings
+              </a>
+              <span>/</span>
+              <span className="text-gray-700">Print config</span>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header Component */}
+      <div className="p-4">
+        <Header />
+      </div>
+
+      {/* Action Bar */}
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <div className="text-lg font-medium">Print configs</div>
+          <div>{actionButtons}</div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="w-64 border-r">
+          <Sidebar />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-4 overflow-auto">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default GeneralSettings;
+export default PrintSettings;

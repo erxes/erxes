@@ -33,7 +33,7 @@ const ProductPlacesSidebar = () => {
       <Sidebar.Content>
         <Sidebar.Menu>
           {renderItem(
-            '/erxes-plugin-product-places/settings/stage',
+            '/product-places/settings/stage',
             'Stage in product places config',
           )}
 
@@ -43,12 +43,12 @@ const ProductPlacesSidebar = () => {
           )}
 
           {renderItem(
-            '/erxes-plugin-product-places/settings/print',
+            '/product-places/settings/print',
             'Stage in product prints config',
           )}
 
           {renderItem(
-            '/erxes-plugin-product-places/settings/productFilter',
+            '/product-places/settings/productFilter',
             'Products default filter by segment',
           )}
         </Sidebar.Menu>

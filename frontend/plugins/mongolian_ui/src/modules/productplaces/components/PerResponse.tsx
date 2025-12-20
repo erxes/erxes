@@ -1,14 +1,49 @@
 import React from 'react';
 
-const getRows = stocks => {
+// Define types for the data structures
+interface Product {
+  code?: string;
+  name?: string;
+}
+
+interface Stock {
+  product?: Product;
+  unitPrice: string | number;
+  quantity: string | number;
+  amount: string | number;
+}
+
+interface Branch {
+  code?: string;
+  title?: string;
+}
+
+interface Department {
+  code?: string;
+  title?: string;
+}
+
+interface ResponseData {
+  date: string;
+  number?: string;
+  branch?: Branch;
+  department?: Department;
+  customerNo?: string;
+  customerName?: string;
+  pDatas?: Stock[];
+  amount: string | number;
+}
+
+const getRows = (stocks: Stock[]): string => {
   let res = '';
   let ind = 0;
+  
   for (const stock of stocks) {
     ind += 1;
     res = res.concat(`
     <tr>
       <td>
-        ${ind}. ${stock.product?.code} - ${stock.product?.name}
+        ${ind}. ${stock.product?.code || ''} - ${stock.product?.name || ''}
       </td>
       <td>${stock.unitPrice}</td>
       <td colspan="1">${stock.quantity}</td>
@@ -16,13 +51,14 @@ const getRows = stocks => {
     </tr>
     `);
   }
+  
   return res;
 };
 
-export default (response, counter?) => {
+const PerResponse = (response: ResponseData, counter?: number): string => {
   return `
     <div class="receipt" id="">
-      ${(counter > 0 && '<div class="splitter"></div>') || ''}
+      ${(counter && counter > 0 && '<div class="splitter"></div>') || ''}
 
       ${`
         <div>
@@ -34,8 +70,7 @@ export default (response, counter?) => {
           </p>
           <p>
             Department:
-            ${response.department?.code || ''} - ${response.department?.title ||
-        ''}
+            ${response.department?.code || ''} - ${response.department?.title || ''}
           </p>
         </div>
 
@@ -79,3 +114,5 @@ export default (response, counter?) => {
     </script>
   `;
 };
+
+export default PerResponse;

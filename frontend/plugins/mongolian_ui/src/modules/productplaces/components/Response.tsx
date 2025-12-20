@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default content => {
+const Response = (content: string): string => {
   return `
     <!DOCTYPE html>
     <html>
@@ -88,13 +88,14 @@ export default content => {
         }
       </style>
       <script>
-        setTimeout(
-          window.print(),
-          150
-        )
+        setTimeout(() => {
+          window.print();
+        }, 150);
       </script>
     </body>
 
     </html>
   `;
 };
+
+export default Response;
