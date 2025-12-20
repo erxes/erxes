@@ -72,6 +72,7 @@
     "deep-equal": "^2.2.3",
     "dompurify": "^3.2.4",
     "dotenv": "^16.4.7",
+    "emblor": "^1.4.8",
     "erxes-telemetry": "^1.0.4",
     "express": "^4.21.2",
     "express-rate-limit": "^8.0.1",

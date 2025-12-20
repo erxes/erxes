@@ -12,6 +12,7 @@ import { AUTO_BOT_MESSAGES } from '@/inbox/db/definitions/constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { createNotifications } from '~/utils/notifications';
 
 interface DispatchConversationData {
   action: string;
@@ -260,6 +261,20 @@ export const conversationMutations = {
         });
       }
 
+      if (doc.mentionedUserIds && doc.mentionedUserIds.length > 0) {
+        const userIds = doc.mentionedUserIds.filter((id) => id !== userId);
+
+        await createNotifications({
+          contentType: 'inbox',
+          contentTypeId: doc.conversationId,
+          fromUserId: userId,
+          subdomain,
+          notificationType: 'internalNote',
+          userIds,
+          action: 'created',
+        });
+      }
+
       const serviceName = integration.kind.split('-')[0];
       const actionType = kind?.split('-')[1] || 'unknown';
 
@@ -367,6 +382,17 @@ export const conversationMutations = {
       type: 'conversationAssigneeChange',
     });
 
+    if (assignedUserId && assignedUserId !== user?._id) {
+      await createNotifications({
+        contentType: 'inbox',
+        contentTypeId: conversationIds?.[0],
+        fromUserId: user?._id,
+        subdomain,
+        notificationType: 'inboxAssignee',
+        userIds: [assignedUserId],
+        action: 'assignee',
+      });
+    }
     return conversations;
   },
 
