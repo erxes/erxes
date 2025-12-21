@@ -11,7 +11,7 @@ import { OperationPaths } from '~/types/paths';
 import { TeamMembersPage } from '~/pages/TeamMembersPage';
 import { TeamStatusPage } from '~/pages/TeamStatusPage';
 
-const TeamSettings = () => {
+export const TeamSettings = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -48,5 +48,3 @@ const TeamSettings = () => {
     </Suspense>
   );
 };
-
-export default TeamSettings;

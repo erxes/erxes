@@ -14,9 +14,21 @@ const FrontlineSubGroups = lazy(() =>
   })),
 );
 
+const FrontlineSettingsNavigation = lazy(() =>
+  import('./modules/FrontlineSettingsNavigation').then((module) => ({
+    default: module.FrontlineSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'frontline',
-  icon: IconStackFront,
+  path: 'frontline',
+  hasFloatingWidget: true,
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <FrontlineSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'frontline',
     icon: IconStackFront,
@@ -25,7 +37,7 @@ export const CONFIG: IUIConfig = {
         <FrontlineNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <FrontlineSubGroups />
       </Suspense>
