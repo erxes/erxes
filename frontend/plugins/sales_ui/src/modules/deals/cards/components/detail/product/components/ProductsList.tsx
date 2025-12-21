@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button, Input, Label, Switch } from 'erxes-ui';
 import {
   IProduct,
@@ -7,12 +6,13 @@ import {
   currentUserState,
 } from 'ui-modules';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 
 import FilterButton from './FilterButton';
+import ProductTotal from './ProductTotal';
 import { ProductsRecordTable } from './ProductRecordTable';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
-import { useState } from 'react';
 
 const ProductsList = ({
   products,
@@ -34,7 +34,14 @@ const ProductsList = ({
   const [tax, setTax] = useState<{
     [currency: string]: { value?: number; percent?: number };
   }>({});
-  // const [total, setTotal] = useState<{ [currency: string]: number }>({});
+  const [total, setTotal] = useState<{ [currency: string]: number }>({});
+  const [unUsedTotal, setUnUsedTotal] = useState<{
+    [currency: string]: number;
+  }>({});
+  const [bothTotal, setBothTotal] = useState<{ [currency: string]: number }>(
+    {},
+  );
+  const [showAdvancedView, setShowAdvancedView] = useState(false);
 
   const currentUser = useAtomValue(currentUserState);
   const configs = currentUser?.configs || {};
@@ -44,7 +51,7 @@ const ProductsList = ({
     ...data,
     product: products.find((p) => p._id === data.productId),
   }));
-
+  console.log('ohhh', productRecords, currencies);
   const applyVat = () => {
     // const { productsData, onChangeProductsData } = this.props;
     // const { vatPercent } = this.state;
@@ -67,7 +74,7 @@ const ProductsList = ({
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
     if (!selectedProducts) return;
-    const currency = currencies ? currencies[0] : '';
+    const currency = currencies ? currencies[0] : 'MNT';
 
     const docs: any[] = [];
     for (const product of selectedProducts) {
@@ -106,6 +113,89 @@ const ProductsList = ({
     });
   };
 
+  const updateTotal = (productsData: IProductData[]) => {
+    const total: any = {};
+    const unUsedTotal: any = {};
+    const bothTotal: any = {};
+    const tax: any = {};
+    const discount: any = {};
+    console.log('productsData', productsData);
+    productsData.forEach((p) => {
+      if (!p.currency) return;
+
+      if (!bothTotal[p.currency]) {
+        bothTotal[p.currency] = 0;
+      }
+      bothTotal[p.currency] += p.amount || 0;
+
+      if (p.tickUsed) {
+        if (!total[p.currency]) {
+          total[p.currency] = 0;
+          tax[p.currency] = { percent: 0, value: 0 };
+          discount[p.currency] = { percent: 0, value: 0 };
+        }
+
+        discount[p.currency].value += p.discount || 0;
+        tax[p.currency].value += p.tax || 0;
+        total[p.currency] += p.amount || 0;
+      } else {
+        if (!unUsedTotal[p.currency]) {
+          unUsedTotal[p.currency] = 0;
+        }
+        unUsedTotal[p.currency] += p.amount || 0;
+      }
+    });
+
+    for (const currency of Object.keys(discount)) {
+      let clearTotal = total[currency] - tax[currency].value;
+      tax[currency].percent =
+        clearTotal > 0 ? (tax[currency].value * 100) / clearTotal : 0;
+
+      clearTotal = clearTotal + discount[currency].value;
+      discount[currency].percent =
+        clearTotal > 0 ? (discount[currency].value * 100) / clearTotal : 0;
+    }
+
+    setTotal(total);
+    setTax(tax);
+    setDiscount(discount);
+    setBothTotal(bothTotal);
+    setUnUsedTotal(unUsedTotal);
+  };
+
+  const calculatePerProductAmount = (
+    type: string,
+    productData: IProductData,
+    callUpdateTotal = true,
+  ) => {
+    const amount = productData.unitPrice * productData.quantity;
+
+    if (amount > 0) {
+      if (type === 'discount') {
+        productData.discountPercent = (productData.discount * 100) / amount;
+      } else {
+        productData.discount = (amount * productData.discountPercent) / 100;
+      }
+
+      productData.tax =
+        ((amount - productData.discount || 0) * productData.taxPercent) / 100;
+      productData.amount =
+        amount - (productData.discount || 0) + (productData.tax || 0);
+    } else {
+      productData.tax = 0;
+      productData.discount = 0;
+      productData.amount = 0;
+    }
+
+    if (callUpdateTotal) {
+      updateTotal(productsData);
+    }
+  };
+
+  useEffect(() => {
+    updateTotal(productsData);
+  }, [productsData]);
+  console.log('total', total, unUsedTotal, bothTotal);
   return (
     <div>
       <div className=" flex">
@@ -130,7 +220,12 @@ const ProductsList = ({
         <div className="flex items-center gap-6">
           <div>
             <Label className="mr-3 ">Advanced view</Label>
-            <Switch />
+            <Switch
+              checked={showAdvancedView}
+              onCheckedChange={(checked) => {
+                setShowAdvancedView(checked);
+              }}
+            />
           </div>
           <FilterButton />
         </div>
@@ -139,6 +234,7 @@ const ProductsList = ({
         products={productRecords || ([] as IProductData[])}
         refetch={refetch}
         dealId={dealId}
+        showAdvancedView={showAdvancedView}
       />
       <div className="sticky bottom-0 right-0 left-0 p-2 flex justify-between items-center z-10 bg-white border-t">
         <div className="flex items-center gap-2">
@@ -147,7 +243,7 @@ const ProductsList = ({
             <span className="text-primary">{products?.length || 0}</span>
           </div>
           <div className="flex items-center gap-2">
-            Total Amount: <span className="text-primary">{0}</span>
+            Total Amount: <ProductTotal type="total" total={total} />
           </div>
         </div>
         <SelectProductsBulk

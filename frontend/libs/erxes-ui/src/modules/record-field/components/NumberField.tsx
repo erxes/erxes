@@ -32,8 +32,10 @@ export const NumberField = React.forwardRef<
 
     const handleAction = (e: React.FormEvent) => {
       e.preventDefault();
-      if (editingValue === value) return;
-      onSave?.(editingValue);
+      if (editingValue !== value) {
+        onSave?.(editingValue);
+      }
+      setIsOpen(false);
     };
 
     return (

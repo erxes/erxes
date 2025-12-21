@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
-  console.log('cdeal', deal);
+  console.log('cdeal123', deal);
   return (
     <div className="mt-3 ml-3">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)}>
