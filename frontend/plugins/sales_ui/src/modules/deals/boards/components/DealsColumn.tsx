@@ -7,7 +7,7 @@ import {
   IconAlertSquareRounded,
   IconCalendarFilled,
 } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
@@ -18,8 +18,13 @@ import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { IDeal } from '@/deals/types/deals';
 import { SelectBoard } from '@/deals/boards/components/SelectBoards';
-
-// Extract cell components to call hooks at top level
+import {
+  dealBoardState,
+  dealPipelineState,
+  dealStageState,
+} from '@/deals/states/dealContainerState';
+import { GET_PIPELINES } from '@/deals/graphql/queries/PipelinesQueries';
+import { GET_STAGES } from '@/deals/graphql/queries/StagesQueries';
 const NameCell = ({ deal }: { deal: IDeal }) => {
   const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
@@ -44,17 +49,14 @@ const NameCell = ({ deal }: { deal: IDeal }) => {
 };
 
 const BoardCell = ({ deal }: { deal: IDeal }) => {
-  const { editDeals } = useDealsEdit();
+  const setBoardId = useSetAtom(dealBoardState);
 
   return (
     <SelectBoard
       value={deal.boardId}
       onValueChange={(boardId) => {
-        editDeals({
-          variables: {
-            _id: deal._id,
-            boardId: boardId as string,
-          },
+        setBoardId({
+          boardId: boardId as string,
         });
       }}
     />
@@ -62,19 +64,19 @@ const BoardCell = ({ deal }: { deal: IDeal }) => {
 };
 
 const PipelineCell = ({ deal }: { deal: IDeal }) => {
-  const { editDeals } = useDealsEdit();
+  const setPipelineId = useSetAtom(dealPipelineState);
+  const board = useAtomValue(dealBoardState);
+
+  const boardId = board.boardId || deal.boardId;
 
   return (
     <SelectPipeline.InlineCell
       mode="single"
       value={deal.pipeline?._id}
-      boardId={deal.boardId}
+      boardId={boardId}
       onValueChange={(pipelineId) => {
-        editDeals({
-          variables: {
-            _id: deal._id,
-            pipelineId: pipelineId as string,
-          },
+        setPipelineId({
+          pipelineId: pipelineId as string,
         });
       }}
     />
@@ -83,16 +85,23 @@ const PipelineCell = ({ deal }: { deal: IDeal }) => {
 
 const StageCell = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsEdit();
+  const setStageId = useSetAtom(dealStageState);
+  const board = useAtomValue(dealBoardState);
+  const pipeline = useAtomValue(dealPipelineState);
+
+  const pipelineId = pipeline.pipelineId || deal.pipeline?._id;
 
   return (
     <SelectStage.InlineCell
       mode="single"
       value={deal.stage?._id}
-      pipelineId={deal.pipeline?._id}
+      pipelineId={pipelineId}
       onValueChange={(stageId) => {
         editDeals({
           variables: {
             _id: deal._id,
+            boardId: board.boardId || deal.boardId,
+            pipelineId: pipeline.pipelineId || deal.pipeline?._id,
             stageId: stageId as string,
           },
         });

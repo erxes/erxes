@@ -16,11 +16,6 @@ import {
   useDealsWatch,
 } from '@/deals/cards/hooks/useDeals';
 
-interface DealsListActionBarProps {
-  deals: IDeal[];
-  selectedCount: number;
-}
-
 export const DealsActions = ({
   deals,
   selectedCount,
@@ -46,10 +41,10 @@ export const DealsActions = ({
   const allWatched = deals.every((d) => d.isWatched === true);
   const allUnwatched = deals.every((d) => d.isWatched === false);
   const showRemove = deals.every((d) => d.status === 'archived');
+
   const handleArchive = async () => {
     const newStatus = allArchived ? 'active' : 'archived';
     const action = allArchived ? 'unarchive' : 'archive';
-    const actionLabel = allArchived ? 'Unarchive' : 'Archive';
 
     if (!isSingle) {
       await confirm({
