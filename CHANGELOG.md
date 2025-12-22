@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.30](https://github.com/erxes/erxes/compare/2.17.29...2.17.30) (2025-12-22)
+
+### Bug Fixes
+
+* **messageBroker:** improve error handling for non-existing queue names ([70338e2](https://github.com/erxes/erxes/commit/70338e2bf8091c7fd19117890212a1fc3a5bdbef))
+
 ## [2.17.29](https://github.com/erxes/erxes/compare/2.17.28...2.17.29) (2025-12-05)
 
 ### Features
