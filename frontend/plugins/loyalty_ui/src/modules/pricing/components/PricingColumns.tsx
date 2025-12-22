@@ -11,9 +11,9 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  TextOverflowTooltip,
 } from 'erxes-ui';
 import { IPricing } from '@/pricing/types';
+import { MembersInline } from 'ui-modules';
 import { Link } from 'react-router-dom';
 
 export const pricingColumns: ColumnDef<IPricing>[] = [
@@ -46,7 +46,7 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
       return (
         <RecordTableInlineCell>
           <Badge
-            variant={status === 'active' ? 'default' : 'secondary'}
+            variant={status === 'active' ? 'success' : 'secondary'}
             className="uppercase"
           >
             {status}
@@ -88,9 +88,14 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
     accessorKey: 'createdBy',
     header: () => <RecordTable.InlineHead label="created by" icon={IconUser} />,
     cell: ({ cell }) => {
+      const createdById = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <MembersInline
+            memberIds={createdById ? [createdById] : []}
+            size="sm"
+            allowUnassigned
+          />
         </RecordTableInlineCell>
       );
     },

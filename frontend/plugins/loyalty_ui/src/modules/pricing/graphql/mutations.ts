@@ -4,6 +4,7 @@ export const PRICING_PLAN_ADD = gql`
   mutation PricingPlanAdd($doc: PricingPlanAddInput) {
     pricingPlanAdd(doc: $doc) {
       _id
+      updatedBy
     }
   }
 `;
