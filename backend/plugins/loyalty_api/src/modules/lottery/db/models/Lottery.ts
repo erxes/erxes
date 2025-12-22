@@ -5,7 +5,7 @@ import { IModels } from '~/connectionResolvers';
 import { LOYALTY_CHAR_SET_ADVANCED, LOYALTY_STATUSES } from '~/constants';
 import { randomBetween } from '~/utils';
 import { lotterySchema } from '../definitions/lottery';
-import { randomInt } from 'crypto';
+import { randomInt } from 'node:crypto';
 
 export interface ILotteryModel extends Model<ILotteryDocument> {
   getLottery(_id: string): Promise<ILotteryDocument>;
@@ -151,7 +151,7 @@ export const loadLotteryClass = (models: IModels) => {
           let len = Number(
             (str.match(/ \* [0-9]* /g)[0] || '').substring(3) || '0',
           );
-          if (isNaN(len)) {
+          if (Number.isNaN(len)) {
             len = 8;
           }
 
@@ -258,7 +258,7 @@ export const loadLotteryClass = (models: IModels) => {
       { campaignId, awardId, multiple },
       user: IUserDocument,
     ) {
-      Array.from(Array(parseInt(multiple)), async (e, i) => {
+      Array.from(Array(Number.parseInt(multiple)), async (e, i) => {
         try {
           await this.doLottery({ campaignId, awardId }, user);
         } catch (error) {

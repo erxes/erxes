@@ -18,17 +18,6 @@ const validateCampaignConditions = (
   if (!conditions) {
     return;
   }
-
-  const {
-    categoryIds = [],
-    excludeCategoryIds = [],
-    productIds = [],
-    excludeProductIds = [],
-    tagIds = [],
-    excludeTagIds = [],
-  } = conditions || {};
-
-  const targetIds = targets.map((target) => target._id);
 };
 
 export const checkLoyalty = async (
@@ -57,16 +46,6 @@ export const checkLoyalty = async (
 
       loyalties[type] = (loyalties[type] || 0) + amount;
     }
-
-    // if (discountKey === 'couponCode') {
-    //   const coupon = await models.Coupon.checkCoupon(discountValue);
-
-    //   const { type, amount } = await models.CouponCampaign.getCampaign(
-    //     coupon.campaignId,
-    //   );
-
-    //   loyalties[type] = (loyalties[type] || 0) + amount;
-    // }
   }
 
   return loyalties;

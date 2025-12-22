@@ -57,7 +57,6 @@ export const useLogin = () => {
     setCurrentUser(null);
 
     sessionStorage.clear();
-    localStorage.clear();
 
     navigate(AppPath.Login);
   }, [logout, navigate, setCurrentUser, setIsCurrentUserLoaded, client]);
