@@ -23,8 +23,7 @@ import {
   dealPipelineState,
   dealStageState,
 } from '@/deals/states/dealContainerState';
-import { GET_PIPELINES } from '@/deals/graphql/queries/PipelinesQueries';
-import { GET_STAGES } from '@/deals/graphql/queries/StagesQueries';
+
 const NameCell = ({ deal }: { deal: IDeal }) => {
   const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
@@ -85,7 +84,7 @@ const PipelineCell = ({ deal }: { deal: IDeal }) => {
 
 const StageCell = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsEdit();
-  const setStageId = useSetAtom(dealStageState);
+
   const board = useAtomValue(dealBoardState);
   const pipeline = useAtomValue(dealPipelineState);
 
