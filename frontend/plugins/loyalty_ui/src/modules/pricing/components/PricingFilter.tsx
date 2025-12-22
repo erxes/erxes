@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Calendar,
   Combobox,
   Command,
-  Dialog,
   Filter,
   Switch,
   useQueryState,
@@ -18,6 +17,7 @@ import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import {
   IconCalendar,
   IconFilter,
+  IconHierarchy,
   IconShoppingCart,
 } from '@tabler/icons-react';
 
@@ -59,14 +59,14 @@ export const PricingFilterBar = ({
     isRepeatEnabled,
   } = queries || {};
 
+  const displayStatus = status || 'active';
+
   return (
     <>
-      {status && (
-        <Filter.BarItem queryKey="status">
-          <Filter.BarName>Status</Filter.BarName>
-          <Filter.BarButton filterKey="status">{status}</Filter.BarButton>
-        </Filter.BarItem>
-      )}
+      <Filter.BarItem queryKey="status">
+        <Filter.BarName>Status</Filter.BarName>
+        <Filter.BarButton filterKey="status">{displayStatus}</Filter.BarButton>
+      </Filter.BarItem>
 
       {branchId && (
         <SelectBranches.FilterBar
@@ -177,7 +177,7 @@ export const PricingFilterView = () => {
           />
           <Command.List className="p-1">
             <Filter.Item value="status">
-              <IconFilter size={16} />
+              <IconHierarchy size={16} />
               Status
             </Filter.Item>
             <SelectBranches.FilterItem value="branchId" label="Branch" />
@@ -194,7 +194,7 @@ export const PricingFilterView = () => {
               <IconFilter size={16} />
               Prioritize Rule
             </Filter.Item>
-            <Filter.Item value="date" inDialog>
+            <Filter.Item value="date">
               <IconCalendar size={16} />
               Date
             </Filter.Item>
@@ -227,6 +227,7 @@ export const PricingFilterView = () => {
       <Filter.View filterKey="isPriority">
         <PriorityFilterContent />
       </Filter.View>
+      <DateFilterView />
     </>
   );
 };
@@ -264,18 +265,86 @@ const StatusFilterContent = () => {
   );
 };
 
-export const SingleDateTimeDialogContent = () => {
+interface DateFilterContextType {
+  selectedDate?: Date;
+  selectedTime: Time | null;
+  onDateChange: (date?: Date) => void;
+  onTimeChange: (time: Time | null) => void;
+  onApply: () => void;
+  onCancel: () => void;
+}
+
+const DateFilterContext = React.createContext<DateFilterContextType | null>(
+  null,
+);
+
+const useDateFilterContext = () => {
+  const context = React.useContext(DateFilterContext);
+  if (!context) {
+    throw new Error(
+      'useDateFilterContext must be used within DateFilterProvider',
+    );
+  }
+  return context;
+};
+
+const DateFilterContent = () => {
+  const {
+    selectedDate,
+    selectedTime,
+    onDateChange,
+    onTimeChange,
+    onApply,
+    onCancel,
+  } = useDateFilterContext();
+
+  return (
+    <>
+      <div className="py-2 space-y-4">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={onDateChange}
+          defaultMonth={selectedDate}
+        />
+
+        <div className="px-2 space-y-2">
+          <div className="flex gap-2 items-center p-3">
+            <TimeField
+              value={selectedTime}
+              onChange={onTimeChange}
+              aria-label="Time"
+              className="flex-1"
+            >
+              <DateInput />
+            </TimeField>
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-2 justify-end px-2 py-2 border-t">
+        <Button variant="outline" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
+
+        <Button size="sm" onClick={onApply}>
+          Apply
+        </Button>
+      </div>
+    </>
+  );
+};
+
+const DateFilterView = () => {
   const [date, setDate] = useQueryState<string>('date');
   const { resetFilterState } = useFilterContext();
+
+  const parsedDate = date ? dayjs(date, 'YYYY-MM-DD HH:mm') : null;
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    date ? dayjs(date, 'YYYY-MM-DD HH:mm').toDate() : undefined,
+    parsedDate && parsedDate.isValid() ? parsedDate.toDate() : undefined,
   );
   const [selectedTime, setSelectedTime] = useState<Time | null>(
-    date
-      ? new Time(
-          dayjs(date, 'YYYY-MM-DD HH:mm').hour(),
-          dayjs(date, 'YYYY-MM-DD HH:mm').minute(),
-        )
+    parsedDate && parsedDate.isValid()
+      ? new Time(parsedDate.hour(), parsedDate.minute())
       : new Time(0, 0),
   );
 
@@ -301,46 +370,20 @@ export const SingleDateTimeDialogContent = () => {
   };
 
   return (
-    <Dialog.Content className="w-full max-w-lg">
-      <Dialog.Header className="pb-2">
-        <Dialog.Title className="text-lg font-semibold">
-          Select Date & Time
-        </Dialog.Title>
-      </Dialog.Header>
-      <div className="py-2 space-y-4">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={(d) => setSelectedDate(d as Date)}
-          className="
-    w-full
-    [&_.rdp-months]:w-full
-    [&_.rdp-months]:justify-center
-    [&_.rdp-month]:w-full
-    [&_.rdp-table]:w-full
-  "
-        />
-
-        <div className="px-2 space-y-2">
-          <div className="flex gap-2 items-center p-3">
-            <TimeField
-              value={selectedTime}
-              onChange={setSelectedTime}
-              aria-label="Time"
-              className="flex-1"
-            >
-              <DateInput />
-            </TimeField>
-          </div>
-        </div>
-      </div>
-      <Dialog.Footer className="gap-2 pt-4 border-t">
-        <Button variant="outline" onClick={handleCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleApply}>Apply</Button>
-      </Dialog.Footer>
-    </Dialog.Content>
+    <DateFilterContext.Provider
+      value={{
+        selectedDate,
+        selectedTime,
+        onDateChange: setSelectedDate,
+        onTimeChange: setSelectedTime,
+        onApply: handleApply,
+        onCancel: handleCancel,
+      }}
+    >
+      <Filter.View filterKey="date">
+        <DateFilterContent />
+      </Filter.View>
+    </DateFilterContext.Provider>
   );
 };
 
