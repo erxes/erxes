@@ -5,8 +5,16 @@ import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { getChildCategories, getChildTags } from '../../../utils/product';
 
 const PricingPlan = {
+  createdBy(pricingPlan: IPricingPlanDocument) {
+    return pricingPlan.createdBy ?? null;
+  },
+
+  updatedBy(pricingPlan: IPricingPlanDocument) {
+    return pricingPlan.updatedBy ?? null;
+  },
+
   createdUser(pricingPlan: IPricingPlanDocument) {
-    if (!pricingPlan.createdBy) return;
+    if (!pricingPlan.createdBy) return null;
 
     return {
       __typename: 'User',
@@ -15,7 +23,7 @@ const PricingPlan = {
   },
 
   updatedUser(pricingPlan: IPricingPlanDocument) {
-    if (!pricingPlan.updatedBy) return;
+    if (!pricingPlan.updatedBy) return null;
 
     return {
       __typename: 'User',

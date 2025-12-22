@@ -125,11 +125,12 @@ const generateFilter = async (
     isRepeatEnabled?: boolean;
   },
 ): Promise<Record<string, any>> => {
-  const { status, branchId, departmentId, date, productId } = params;
+  const { status, branchId, departmentId, date, productId, prioritizeRule } =
+    params;
 
-  let filter: Record<string, any> = { status: 'active' };
+  let filter: Record<string, any> = {};
 
-  if (status) {
+  if (status && status !== 'all') {
     filter.status = status;
   }
 
@@ -147,7 +148,7 @@ const generateFilter = async (
     filter.$or = buildDateFilter(date);
   }
 
-  filter = applyPrioritizeRuleFilter(filter, params.prioritizeRule);
+  filter = applyPrioritizeRuleFilter(filter, prioritizeRule);
 
   if (productId) {
     filter = await applyProductIdFilter(subdomain, models, filter, productId);
@@ -175,7 +176,7 @@ export const pricingPlanQueries = {
       return docs || [];
     }
 
-    return cursorPaginate({
+    const result = await cursorPaginate({
       model: models.PricingPlans,
       query: filter,
       params: {
@@ -183,6 +184,8 @@ export const pricingPlanQueries = {
         orderBy: sort,
       },
     });
+
+    return Array.isArray(result?.list) ? result.list : [];
   },
 
   pricingPlansCount: async (
