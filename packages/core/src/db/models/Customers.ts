@@ -90,13 +90,13 @@ interface IPSS {
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
     customerFields: ICustomerFieldsInput,
-    idsToExclude?: string[] | string
+    idsToExclude?: string[] | string,
   ): never;
   findActiveCustomers(
     selector,
     fields?,
     skip?,
-    limit?
+    limit?,
   ): Promise<ICustomerDocument[]>;
   getCustomer(_id: string): Promise<ICustomerDocument>;
   getCustomerName(customer: ICustomer): string;
@@ -110,35 +110,35 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   mergeCustomers(
     customerIds: string[],
     customerFields: ICustomer,
-    user?: any
+    user?: any,
   ): Promise<ICustomerDocument>;
   bulkInsert(
     fieldNames: string[],
     fieldValues: string[][],
-    user: any
+    user: any,
   ): Promise<string[]>;
   calcPSS(doc: any): IPSS;
   updateVerificationStatus(
     customerIds: string[],
     type: string,
-    status: string
+    status: string,
   ): Promise<ICustomerDocument[]>;
 
   // widgets ===
   getWidgetCustomer(doc: IGetCustomerParams): Promise<ICustomerDocument | null>;
   createMessengerCustomer(
-    param: ICreateMessengerCustomerParams
+    param: ICreateMessengerCustomerParams,
   ): Promise<ICustomerDocument>;
   updateMessengerCustomer(
-    param: IUpdateMessengerCustomerParams
+    param: IUpdateMessengerCustomerParams,
   ): Promise<ICustomerDocument>;
   updateSession(_id: string): Promise<ICustomerDocument>;
   updateLocation(
     _id: string,
-    browserInfo: IBrowserInfo
+    browserInfo: IBrowserInfo,
   ): Promise<ICustomerDocument>;
   saveVisitorContactInfo(
-    doc: IVisitorContactInfoParams
+    doc: IVisitorContactInfoParams,
   ): Promise<ICustomerDocument>;
 }
 
@@ -149,7 +149,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      */
     public static async checkDuplication(
       customerFields: ICustomerFieldsInput,
-      idsToExclude?: string[] | string
+      idsToExclude?: string[] | string,
     ) {
       // const query: { status: {};[key: string]: any } = {
       //   status: { $ne: 'deleted' },
@@ -218,7 +218,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     public static async findActiveCustomers(selector, fields, skip?, limit?) {
       return models.Customers.find(
         { ...selector, status: { $ne: "deleted" } },
-        fields
+        fields,
       )
         .skip(skip || 0)
         .limit(limit || 0)
@@ -265,7 +265,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      */
     public static async createCustomer(
       doc: ICustomer,
-      user?: IUserDocument
+      user?: IUserDocument,
     ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       try {
@@ -293,7 +293,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       }
 
       doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
-        doc.customFieldsData
+        doc.customFieldsData,
       );
 
       if (doc.integrationId) {
@@ -351,7 +351,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       if (doc.customFieldsData) {
         // clean custom field values
         doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
-          doc.customFieldsData
+          doc.customFieldsData,
         );
       }
 
@@ -410,7 +410,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       await models.Customers.updateOne(
         { _id },
-        { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
+        { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } },
       );
 
       return models.Customers.findOne({ _id }).lean();
@@ -422,7 +422,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     public static async markCustomerAsActive(customerId: string) {
       await models.Customers.updateOne(
         { _id: customerId },
-        { $set: { isOnline: true } }
+        { $set: { isOnline: true } },
       );
 
       return models.Customers.findOne({ _id: customerId }).lean();
@@ -440,7 +440,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
             lastSeenAt: new Date(),
           },
         },
-        { new: true }
+        { new: true },
       );
 
       return models.Customers.findOne({ _id }).lean();
@@ -454,10 +454,13 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       let possibleLead = false;
       let score = 0;
-      let searchText = (customer.emails?.map(e => e.email) || [])
+      let searchText = (customer.emails?.map((e) => e.email) || [])
         .join(" ")
-        .concat(" ", (customer.phones?.map(p => p.phone) || []).join(" "));
+        .concat(" ", (customer.phones?.map((p) => p.phone) || []).join(" "));
 
+      if (!nullValues.includes(customer.registrationNumber || "")) {
+        searchText = searchText.concat(" ", customer.registrationNumber || "");
+      }
       if (!nullValues.includes(customer.firstName || "")) {
         score += 10;
         possibleLead = true;
@@ -486,7 +489,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         possibleLead = true;
         score += 15;
 
-        if (!customer.emails?.some(e => e?.email === customer.primaryEmail)) {
+        if (!customer.emails?.some((e) => e?.email === customer.primaryEmail)) {
           searchText = searchText.concat(" ", customer.primaryEmail || "");
         }
       }
@@ -495,7 +498,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         possibleLead = true;
         score += 10;
 
-        if (!customer.phones?.some(p => p?.phone === customer.primaryPhone)) {
+        if (!customer.phones?.some((p) => p?.phone === customer.primaryPhone)) {
           searchText = searchText.concat(" ", customer.primaryPhone || "");
         }
       }
@@ -508,7 +511,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           " ",
           customer.visitorContactInfo.email || "",
           " ",
-          customer.visitorContactInfo.phone || ""
+          customer.visitorContactInfo.phone || "",
         );
       }
 
@@ -563,7 +566,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customerIds: string[],
       customerFields: ICustomer,
       // user?: IUserDocument
-      user?: any
+      user?: any,
     ) {
       // Checking duplicated fields of customer
       await models.Customers.checkDuplication(customerFields, customerIds);
@@ -626,14 +629,10 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       tagIds = Array.from(new Set(tagIds));
 
       // Remove duplicates by email
-      emails = Array.from(
-        new Map(emails.map(e => [e.email, e])).values()
-      );
-      
+      emails = Array.from(new Map(emails.map((e) => [e.email, e])).values());
+
       // Remove duplicates by phone
-      phones = Array.from(
-        new Map(phones.map(p => [p.phone, p])).values()
-      );
+      phones = Array.from(new Map(phones.map((p) => [p.phone, p])).values());
 
       // Creating customer with properties
       const customer = await this.createCustomer(
@@ -647,7 +646,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           phones,
           state,
         },
-        user
+        user,
       );
 
       // Updating every modules associated with customers
@@ -679,7 +678,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           contentType: "core:customer",
           contentTypeId: { $in: customerIds || [] },
         },
-        { contentTypeId: customer._id }
+        { contentTypeId: customer._id },
       );
 
       return customer;
@@ -735,7 +734,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
           await models.Customers.updateOne(
             { _id: customer._id },
-            { $set: { relatedIntegrationIds: ids } }
+            { $set: { relatedIntegrationIds: ids } },
           );
 
           customer = await models.Customers.findOne({
@@ -768,7 +767,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     public static fixListFields(
       doc: any,
       customData = {},
-      customer?: ICustomerDocument
+      customer?: ICustomerDocument,
     ) {
       let emails: ICustomerEmail[] = [];
       let phones: ICustomerPhone[] = [];
@@ -790,12 +789,12 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.email) {
-        const strEmails = emails.map(e => e.email)
+        const strEmails = emails.map((e) => e.email);
         if (!strEmails.includes(doc.email)) {
           emails.push({
-            type: 'primary',
-            email: doc.email
-          })
+            type: "primary",
+            email: doc.email,
+          });
         }
 
         doc.primaryEmail = doc.email;
@@ -804,11 +803,11 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.phone) {
-        const strPhones = phones.map(p => p.phone)
+        const strPhones = phones.map((p) => p.phone);
         if (!strPhones.includes(doc.phone)) {
           phones.push({
-            type: 'primary',
-            phone: doc.phone
+            type: "primary",
+            phone: doc.phone,
           });
         }
 
@@ -844,7 +843,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       const { customFieldsData, trackedData } =
         await models.Fields.generateCustomFieldsData(
           customData,
-          "core:customer"
+          "core:customer",
         );
 
       return this.createCustomer({
@@ -872,7 +871,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       const { customFieldsData, trackedData } =
         await models.Fields.generateCustomFieldsData(
           customData,
-          "core:customer"
+          "core:customer",
         );
 
       const modifier: any = {
@@ -940,7 +939,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { _id },
         {
           $set: { state: value },
-        }
+        },
       );
 
       return models.Customers.findOne({ _id });
@@ -954,7 +953,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { _id },
         {
           $set: { location: browserInfo },
-        }
+        },
       );
 
       return models.Customers.findOne({ _id });
@@ -965,7 +964,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      * this information later
      */
     public static async saveVisitorContactInfo(
-      args: IVisitorContactInfoParams
+      args: IVisitorContactInfoParams,
     ) {
       const { customerId, type, value } = args;
 
@@ -982,7 +981,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           {
             $set: { "visitorContactInfo.email": value },
             $push: { emails: { email: value, type: "other" } },
-          }
+          },
         );
 
         webhookData.newData = { email: value };
@@ -994,7 +993,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           {
             $set: { "visitorContactInfo.phone": value },
             $push: { phones: { phone: value, type: "other" } },
-          }
+          },
         );
 
         webhookData.newData = { phone: value };
@@ -1023,7 +1022,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     public static async updateVerificationStatus(
       customerIds: string,
       type: string,
-      status: string
+      status: string,
     ) {
       const set: any =
         type !== "email"
@@ -1032,7 +1031,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       await models.Customers.updateMany(
         { _id: { $in: customerIds } },
-        { $set: set }
+        { $set: set },
       );
 
       return models.Customers.find({ _id: { $in: customerIds } });
