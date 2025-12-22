@@ -5,7 +5,7 @@ import { RecordTable } from 'erxes-ui';
 import { IOrder } from '@/pos/types/order';
 import { renderingOrderDetailAtom } from '@/pos/states/orderDetail';
 
-export const ordersMoreColumnCell = ({
+export const OrdersMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IOrder, unknown>;
@@ -33,6 +33,6 @@ export const ordersMoreColumnCell = ({
 
 export const ordersMoreColumn = {
   id: 'more',
-  cell: ordersMoreColumnCell,
+  cell: OrdersMoreColumnCell,
   size: 33,
 };

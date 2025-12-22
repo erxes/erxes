@@ -1218,9 +1218,10 @@ export const widgetMutations: Record<string, Resolver> = {
       content: string;
       customerId: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const { content, contentId, customerId } = args;
+    const userId = user._id;
     return await models.Note.createNote({
       doc: {
         content,
@@ -1228,6 +1229,7 @@ export const widgetMutations: Record<string, Resolver> = {
         createdBy: customerId,
       },
       subdomain,
+      userId,
     });
   },
   async widgetTicketCommentRemove(

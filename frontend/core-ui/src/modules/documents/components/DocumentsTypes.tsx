@@ -1,6 +1,4 @@
-import { FormType } from '@/documents/hooks/useDocumentForm';
 import { Sidebar, useQueryState } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
 import { IDocumentType } from '../types';
@@ -11,7 +9,7 @@ export const DocumentsTypes = () => {
   const { documentsTypes } = useDocumentsTypes();
 
   return (
-    <Sidebar collapsible="none" className="border-r">
+    <Sidebar collapsible="none" className="w-full">
       <Sidebar.Group>
         <Sidebar.GroupLabel className="py-5">Document types</Sidebar.GroupLabel>
         <Sidebar.GroupContent>

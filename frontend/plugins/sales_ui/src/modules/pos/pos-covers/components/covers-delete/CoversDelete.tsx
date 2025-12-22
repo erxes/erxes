@@ -3,7 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useConfirm } from 'erxes-ui/hooks';
 import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
-import { useRemovePos } from '@/pos/hooks/usePosRemove';
+import { useDeletePosCover } from '@/pos/pos-covers/hooks/useDeletePosCover';
 
 interface CoverDeleteProps {
   coverIds: string;
@@ -15,7 +15,7 @@ export const CoverDelete = ({
   onDeleteSuccess,
 }: CoverDeleteProps) => {
   const { confirm } = useConfirm();
-  const { removePos } = useRemovePos();
+  const { removePosCover } = useDeletePosCover();
   const { toast } = useToast();
 
   const coverCount =
@@ -36,7 +36,7 @@ export const CoverDelete = ({
             coverCount > 1 ? 's' : ''
           }?`,
         }).then(() => {
-          removePos(coverIds, {
+          removePosCover(coverIds, {
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',
