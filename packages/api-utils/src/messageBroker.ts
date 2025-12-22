@@ -65,8 +65,7 @@ const checkQueueName = async (queueName, isSend = false) => {
       );
 
       if (isMember === 0) {
-        debugError(`Not existing queuename ${queueName}`);
-        return false;
+        throw new Error(`Not existing queuename ${queueName}`);
       }
     }
 
@@ -286,7 +285,9 @@ export const sendRPCMessageMq = async (
   queueName = queueName.concat(queuePrefix);
 
   if (message && !message.thirdService) {
-    await checkQueueName(queueName, true);
+    await checkQueueName(queueName, true).catch(() => {
+      throw new Error(`Not existing queuename ${queueName}`);
+    });
   }
 
   if (showInfoDebug()) {
@@ -448,7 +449,9 @@ export const sendMessage = async (
   queueName = queueName.concat(queuePrefix);
 
   if (message && !message.thirdService) {
-    await checkQueueName(queueName, true);
+    await checkQueueName(queueName, true).catch(() => {
+      throw new Error(`Not existing queuename ${queueName}`);
+    });
   }
 
   try {
