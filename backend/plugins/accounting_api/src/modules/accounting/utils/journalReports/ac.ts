@@ -69,3 +69,17 @@ export const handleMainAC = async (subdomain: string, models: IModels, filterPar
     }))
   }
 }
+
+export const handleMainACMore = async (subdomain: string, models: IModels, filterParams: IReportFilterParams, user: IUserDocument) => {
+  const { ...filters } = filterParams;
+  const match = await generateFilter(subdomain, models, filters, user);
+
+  return {
+    trDetails: await models.Transactions.aggregate([
+      { $match: match },
+      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+      { $match: match },
+    ])
+  };
+
+}
