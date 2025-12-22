@@ -1,13 +1,13 @@
-import * as amqplib from 'amqplib';
-import { v4 as uuid } from 'uuid';
-import { debugError, debugInfo } from './debuggers';
-import { getPluginAddress } from './serviceDiscovery';
-import app from './app';
-import fetch from 'node-fetch';
-import redis from './redis';
-import * as Agent from 'agentkeepalive';
-import * as dotenv from 'dotenv';
-import { Response } from 'express';
+import * as amqplib from "amqplib";
+import { v4 as uuid } from "uuid";
+import { debugError, debugInfo } from "./debuggers";
+import { getPluginAddress } from "./serviceDiscovery";
+import app from "./app";
+import fetch from "node-fetch";
+import redis from "./redis";
+import * as Agent from "agentkeepalive";
+import * as dotenv from "dotenv";
+import { Response } from "express";
 dotenv.config();
 
 const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
@@ -38,7 +38,7 @@ export interface InterMessage {
 }
 
 const showInfoDebug = () => {
-  if ((process.env.DEBUG || '').includes('error')) {
+  if ((process.env.DEBUG || "").includes("error")) {
     return false;
   }
 
@@ -46,14 +46,14 @@ const showInfoDebug = () => {
 };
 
 let channel: amqplib.Channel | undefined;
-const queuePrefix = MESSAGE_BROKER_PREFIX || '';
+const queuePrefix = MESSAGE_BROKER_PREFIX || "";
 
 const checkQueueName = async (queueName, isSend = false) => {
-  const [serviceName, action] = queueName.split(':');
+  const [serviceName, action] = queueName.split(":");
 
   if (!serviceName) {
     throw new Error(
-      `Invalid queue name. ${queueName}. Queue name must include :`,
+      `Invalid queue name. ${queueName}. Queue name must include :`
     );
   }
 
@@ -61,11 +61,12 @@ const checkQueueName = async (queueName, isSend = false) => {
     if (isSend) {
       const isMember = await redis.sismember(
         `service:queuenames:${serviceName}`,
-        action,
+        action
       );
 
       if (isMember === 0) {
-        throw new Error(`Not existing queuename ${queueName}`);
+        debugError(`Not existing queuename ${queueName}`);
+        return false;
       }
     }
 
@@ -75,11 +76,11 @@ const checkQueueName = async (queueName, isSend = false) => {
 
 export const doesQueueExist = async (
   serviceName: string,
-  action: string,
+  action: string
 ): Promise<boolean> => {
   const isMember = await redis.sismember(
     `service:queuenames:${serviceName}`,
-    action,
+    action
   );
 
   return isMember !== 0;
@@ -111,7 +112,7 @@ export const consumeQueue = async (queueName, handler: ConsumeHandler) => {
             await handler(JSON.parse(msg.content.toString()), msg);
           } catch (e) {
             debugError(
-              `Error occurred during callback ${queueName} ${e.message}`,
+              `Error occurred during callback ${queueName} ${e.message}`
             );
           }
           if (!channel) {
@@ -120,17 +121,17 @@ export const consumeQueue = async (queueName, handler: ConsumeHandler) => {
           channel.ack(msg);
         }
       },
-      { noAck: false },
+      { noAck: false }
     );
   } catch (e) {
     debugError(
-      `Error occurred during consumeq queue ${queueName} ${e.message}`,
+      `Error occurred during consumeq queue ${queueName} ${e.message}`
     );
   }
 };
 
 function splitPluginProcedureName(queueName: string) {
-  const separatorIndex = queueName.indexOf(':');
+  const separatorIndex = queueName.indexOf(":");
 
   const pluginName = queueName.slice(0, separatorIndex);
   const procedureName = queueName.slice(separatorIndex + 1);
@@ -139,11 +140,11 @@ function splitPluginProcedureName(queueName: string) {
 }
 
 export interface RPSuccess {
-  status: 'success';
+  status: "success";
   data?: any;
 }
 export interface RPError {
-  status: 'error';
+  status: "error";
   errorMessage: string;
 }
 export type RPResult = RPSuccess | RPError;
@@ -152,13 +153,13 @@ export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 const httpRpcEndpointSetup = {};
 export const consumeRPCQueue = async (
   queueName,
-  procedure: RP,
+  procedure: RP
 ): Promise<void> => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
-  if (procedureName.includes(':')) {
+  if (procedureName.includes(":")) {
     throw new Error(
-      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`,
+      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
     );
   }
 
@@ -171,7 +172,7 @@ export const consumeRPCQueue = async (
         res.json(response);
       } catch (e) {
         res.json({
-          status: 'error',
+          status: "error",
           errorMessage: e.message,
         });
       }
@@ -184,14 +185,14 @@ export const consumeRPCQueue = async (
 
 export const sendRPCMessage = async (
   queueName: string,
-  message: InterMessage,
+  message: InterMessage
 ): Promise<any> => {
   const { pluginName, procedureName } = splitPluginProcedureName(queueName);
   const address = await getPluginAddress(pluginName);
 
   if (!address) {
     throw new Error(
-      `Plugin ${pluginName} has no address value in service discovery`,
+      `Plugin ${pluginName} has no address value in service discovery`
     );
   }
 
@@ -199,9 +200,9 @@ export const sendRPCMessage = async (
     try {
       const agent = getHttpAgent(message);
       const response = await fetch(`${address}/rpc/${procedureName}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(message),
         agent,
@@ -217,19 +218,19 @@ export const sendRPCMessage = async (
         throw new Error(
           `RPC HTTP error. Status code: ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
             Arguments: ${argsJson}
-          `,
+          `
         );
       }
 
       const result: RPResult = await response.json();
 
-      if (result.status === 'success') {
+      if (result.status === "success") {
         return result.data;
       } else {
         throw new Error(result.errorMessage);
       }
     } catch (e) {
-      if (e.code === 'ERR_SOCKET_TIMEOUT') {
+      if (e.code === "ERR_SOCKET_TIMEOUT") {
         if (message?.defaultValue) {
           return message.defaultValue;
         } else {
@@ -241,7 +242,7 @@ export const sendRPCMessage = async (
           throw new Error(
             `RPC HTTP timeout after ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
               Arguments: ${argsJson}
-            `,
+            `
           );
         }
       }
@@ -260,8 +261,8 @@ export const sendRPCMessage = async (
       lastError = e;
       if (
         e.code &&
-        ['ECONNREFUSED', 'ECONNRESET', 'ERR_STREAM_PREMATURE_CLOSE'].includes(
-          e.code,
+        ["ECONNREFUSED", "ECONNRESET", "ERR_STREAM_PREMATURE_CLOSE"].includes(
+          e.code
         )
       ) {
         const lastTry = tryIdx >= maxTries;
@@ -276,7 +277,7 @@ export const sendRPCMessage = async (
 
 export const sendRPCMessageMq = async (
   queueName: string,
-  message: InterMessage,
+  message: InterMessage
 ): Promise<any> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
@@ -290,7 +291,7 @@ export const sendRPCMessageMq = async (
 
   if (showInfoDebug()) {
     debugInfo(
-      `Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`,
+      `Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`
     );
   }
 
@@ -300,7 +301,7 @@ export const sendRPCMessageMq = async (
     }
     const correlationId = uuid();
 
-    return channel.assertQueue('', { exclusive: true }).then((q) => {
+    return channel.assertQueue("", { exclusive: true }).then((q) => {
       const timeoutMs =
         message.timeout || Number(process.env.RPC_TIMEOUT) || 10000;
       var interval = setTimeout(() => {
@@ -336,19 +337,19 @@ export const sendRPCMessageMq = async (
           if (msg.properties.correlationId === correlationId) {
             const res: RPResult = JSON.parse(msg.content.toString());
 
-            if (res.status === 'success') {
+            if (res.status === "success") {
               if (showInfoDebug()) {
                 debugInfo(
                   `RPC success response for queue ${queueName} ${JSON.stringify(
-                    res,
-                  )}`,
+                    res
+                  )}`
                 );
               }
 
               resolve(res.data);
             } else {
               debugInfo(
-                `RPC error response for queue ${queueName} ${res.errorMessage})}`,
+                `RPC error response for queue ${queueName} ${res.errorMessage})}`
               );
 
               reject(new Error(res.errorMessage));
@@ -357,7 +358,7 @@ export const sendRPCMessageMq = async (
             channel.deleteQueue(q.queue);
           }
         },
-        { noAck: true },
+        { noAck: true }
       );
 
       channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
@@ -373,7 +374,7 @@ export const sendRPCMessageMq = async (
 
 export const consumeRPCQueueMq = async (
   queueName,
-  callback: RP,
+  callback: RP
 ): Promise<void> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
@@ -399,7 +400,7 @@ export const consumeRPCQueueMq = async (
       if (msg !== null) {
         if (showInfoDebug()) {
           debugInfo(
-            `Received rpc ${queueName} queue message ${msg.content.toString()}`,
+            `Received rpc ${queueName} queue message ${msg.content.toString()}`
           );
         }
 
@@ -409,11 +410,11 @@ export const consumeRPCQueueMq = async (
           response = await callback(JSON.parse(msg.content.toString()));
         } catch (e) {
           debugError(
-            `Error occurred during callback ${queueName} ${e.message}`,
+            `Error occurred during callback ${queueName} ${e.message}`
           );
 
           response = {
-            status: 'error',
+            status: "error",
             errorMessage: e.message,
           };
         }
@@ -423,7 +424,7 @@ export const consumeRPCQueueMq = async (
           Buffer.from(JSON.stringify(response)),
           {
             correlationId: msg.properties.correlationId,
-          },
+          }
         );
 
         channel.ack(msg);
@@ -431,14 +432,14 @@ export const consumeRPCQueueMq = async (
     });
   } catch (e) {
     debugError(
-      `Error occurred during consume rpc queue ${queueName} ${e.message}`,
+      `Error occurred during consume rpc queue ${queueName} ${e.message}`
     );
   }
 };
 
 export const sendMessage = async (
   queueName: string,
-  message: InterMessage,
+  message: InterMessage
 ): Promise<void> => {
   if (!channel) {
     throw new Error(`RabbitMQ channel is ${channel}`);
@@ -467,41 +468,42 @@ export const sendMessage = async (
 export type SetupMessageConsumers = () => any;
 
 export const connectToMessageBroker = async (
-  setupMessageConsumers?: SetupMessageConsumers,
+  setupMessageConsumers?: SetupMessageConsumers
 ) => {
   try {
     const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
       noDelay: true,
     });
-    con.once('close', (error) => {
+    con.once("close", (error) => {
       con.removeAllListeners();
       if (error) {
-        console.error('RabbitMQ: connections is closing due to an error:', error);
+        console.error(
+          "RabbitMQ: connections is closing due to an error:",
+          error
+        );
         reconnectToMessageBroker(setupMessageConsumers);
       } else {
-        console.log('RabbitMQ: connection is closing.');
+        console.log("RabbitMQ: connection is closing.");
       }
     });
-    con.on('error', async (e) => {
-      console.error('RabbitMQ: connection error:', e);
+    con.on("error", async (e) => {
+      console.error("RabbitMQ: connection error:", e);
     });
 
     channel = await con.createChannel();
     if (setupMessageConsumers) {
       await setupMessageConsumers();
-      console.log('RabbitMQ: Finished setting up message consumers');
+      console.log("RabbitMQ: Finished setting up message consumers");
     }
     console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
   } catch (e) {
-    await new Promise<void>((resolve) =>
-      setTimeout(resolve, 60000),
-    );
-    reconnectToMessageBroker(setupMessageConsumers)
+    await new Promise<void>((resolve) => setTimeout(resolve, 60000));
+    reconnectToMessageBroker(setupMessageConsumers);
   }
 };
 
 export const reconnectToMessageBroker = async (
-  setupMessageConsumers?: SetupMessageConsumers,
+  setupMessageConsumers?: SetupMessageConsumers
 ) => {
   channel = undefined;
   let reconnectInterval = 5000;
@@ -515,10 +517,10 @@ export const reconnectToMessageBroker = async (
         `RabbitMQ: Error occured while reconnecting to ${RABBITMQ_HOST}. Trying again in ${
           reconnectInterval / 1000
         }s`,
-        e,
+        e
       );
       await new Promise<void>((resolve) =>
-        setTimeout(resolve, reconnectInterval),
+        setTimeout(resolve, reconnectInterval)
       );
       reconnectInterval = reconnectInterval * 2;
     }
