@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type EngageMessage {
     _id: String!
@@ -22,7 +24,7 @@ export const types = `
     runCount: Int
     lastRunAt: Date
 
-    brand: Brand
+    brandId: String
 
     email: JSON
     messenger: JSON
@@ -36,9 +38,7 @@ export const types = `
     customerTags: [Tag]
     getTags: [Tag]
     brands: [Brand]
-    fromUser: User
     fromIntegration: JSON
-    createdUserName: String
 
     stats: JSON
     smsStats: JSON
@@ -164,24 +164,34 @@ export const types = `
     content: String!,
     isMobile: Boolean,
   }
+
+  type EngageMessageListResponse {
+    list: [EngageMessage]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+
+  type EngageMemberListResponse {
+    list: [User]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
 `;
 
 const queryParams = `
   kind: String
   status: String
-  tag: String
-  ids: String
-  page: Int
-  perPage: Int
+  
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
-  engageMessages(${queryParams}): [EngageMessage]
+  engageMessages(${queryParams}): EngageMessageListResponse
   engageMessagesTotalCount(${queryParams}): Int
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
-  engageVerifiedEmails: [String]
+  engageMembers(isVerified: Boolean, ${GQL_CURSOR_PARAM_DEFS}): EngageMemberListResponse
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String, searchValue: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList

@@ -44,14 +44,8 @@ export default {
     }));
   },
 
-  brand(engageMessage: IEngageMessageDocument) {
-    const { messenger } = engageMessage;
-
-    if (messenger && messenger.brandId) {
-      return { __typename: 'Brand', _id: messenger.brandId };
-    }
-
-    return null;
+  brandId({ messenger }: IEngageMessageDocument) {
+    return messenger?.brandId;
   },
 
   async stats(
@@ -90,19 +84,5 @@ export default {
     }
 
     return null;
-  },
-
-  async createdUserName(
-    { createdBy = '' }: IEngageMessageDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    const user = await models.Users.findOne({ _id: createdBy }).lean();
-
-    if (!user) {
-      return '';
-    }
-
-    return user.username || user.email || user._id;
   },
 };

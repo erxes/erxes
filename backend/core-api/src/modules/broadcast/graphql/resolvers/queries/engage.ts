@@ -10,7 +10,8 @@ import {
   countsByTag,
   prepareAvgStats,
 } from '@/broadcast/utils';
-import { getCustomerName } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
+import { cursorPaginate, getCustomerName } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -98,8 +99,10 @@ export const engageQueries = {
   ) {
     const query = await generateFilter(models, args, user);
 
-    return models.EngageMessages.find(query).sort({
-      createdAt: -1,
+    return cursorPaginate({
+      model: models.EngageMessages,
+      params: { ...args, orderBy: { createdAt: -1 } },
+      query,
     });
   },
 
@@ -195,26 +198,37 @@ export const engageQueries = {
   },
 
   /**
-   * Get all verified emails
+   * Get all verified members
    */
-  async engageVerifiedEmails(
+  async engageMembers(
     _root: undefined,
-    _args: undefined,
+    params: {
+      searchValue: string;
+      isVerified: boolean;
+    } & ICursorPaginateParams,
     { models }: IContext,
   ) {
-    const users = await models.Users.find({
+    const { isVerified, searchValue } = params;
+
+    const query: FilterQuery<IUser> = {
       isActive: true,
-    });
+    };
 
-    const userEmails = users.map((u) => u.email);
-    const allVerifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    if (isVerified) {
+      const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
 
-    if (!allVerifiedEmails) {
-      return [];
+      query.email = { $in: verifiedEmails || [] };
     }
 
-    return allVerifiedEmails.filter((email) => userEmails.includes(email));
+    if (searchValue) {
+      query.email = { $regex: searchValue, $options: '$i' };
+    }
+
+    return await cursorPaginate({
+      model: models.Users,
+      params,
+      query,
+    });
   },
 
   async engageEmailPercentages(

@@ -1,6 +1,7 @@
 import {
   IconAddressBook,
   IconAffiliate,
+  IconBroadcast,
   IconBuilding,
   IconCategory,
   IconChartPie,
@@ -80,12 +81,20 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
   ];
 
   if (version) {
-    MODULES.push({
-      name: 'documents',
-      icon: IconFile,
-      path: 'documents',
-      hasSettings: false,
-    });
+    MODULES.push(
+      {
+        name: 'documents',
+        icon: IconFile,
+        path: 'documents',
+        hasSettings: false,
+      },
+      {
+        name: 'broadcasts',
+        icon: IconBroadcast,
+        path: 'broadcasts',
+        hasSettings: false,
+      },
+    );
   }
 
   return MODULES;

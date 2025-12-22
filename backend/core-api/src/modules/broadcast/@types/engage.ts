@@ -1,4 +1,4 @@
-import { IRule } from 'erxes-api-shared/core-types';
+import { ICursorPaginateParams, IRule } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
 interface IEmail {
@@ -91,7 +91,7 @@ export interface IEngageMessageDocument extends IEngageMessage, Document {
   _id: string;
 }
 
-export interface IEngageQueryParams {
+export interface IEngageQueryParams extends ICursorPaginateParams {
   kind?: string;
   status?: string;
   tag?: string;
