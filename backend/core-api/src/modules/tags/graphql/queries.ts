@@ -121,6 +121,10 @@ export const tagQueries = {
     return { list, totalCount, pageInfo };
   },
 
+  async tagsMain(_parent: undefined, _params: undefined, { models }: IContext) {
+    return await models.Tags.find({});
+  },
+
   async tagsQueryCount(
     _parent: undefined,
     {
