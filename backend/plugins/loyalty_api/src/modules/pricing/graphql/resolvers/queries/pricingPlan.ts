@@ -106,7 +106,6 @@ const generateFilter = async (
   subdomain: string,
   models: IModels,
   params: {
-    status?: string;
     branchId?: string;
     departmentId?: string;
     date?: string | Date;
@@ -118,34 +117,36 @@ const generateFilter = async (
     isRepeatEnabled?: boolean;
   },
 ): Promise<Record<string, any>> => {
-  const { status, branchId, departmentId, date, productId } = params;
-  
-  let filter: Record<string, any> = { status: 'active' };
-  
-  if (status) {
-    filter.status = status;
-  }
-  
+  const {
+    branchId,
+    departmentId,
+    date,
+    productId,
+    prioritizeRule,
+  } = params;
+
+  let filter: Record<string, any> = {};
+
   if (branchId) {
     filter.branchIds = { $in: [branchId] };
   }
-  
+
   if (departmentId) {
     filter.departmentIds = { $in: [departmentId] };
   }
-  
+
   filter = applyBooleanFilters(filter, params);
-  
+
   if (date) {
     filter.$or = buildDateFilter(date);
   }
-  
-  filter = applyPrioritizeRuleFilter(filter, params.prioritizeRule);
-  
+
+  filter = applyPrioritizeRuleFilter(filter, prioritizeRule);
+
   if (productId) {
     filter = await applyProductIdFilter(subdomain, models, filter, productId);
   }
-  
+
   return filter;
 };
 
@@ -163,12 +164,14 @@ export const pricingPlanQueries = {
         : { updatedAt: -1 };
     
     if (params.findOne) {
-      return await models.PricingPlans.find(filter)
-        .sort(sort)
-        .limit(1);
+      const plan = await models.PricingPlans.findOne(filter).sort(sort);
+      // Return as array for consistency with the schema
+      return plan ? [plan] : [];
     }
     
-    return cursorPaginate({
+    // The cursorPaginate returns an object with pagination info
+    // We need to extract the data array from it
+    const result = await cursorPaginate({
       model: models.PricingPlans,
       query: filter,
       params: {
@@ -176,6 +179,26 @@ export const pricingPlanQueries = {
         orderBy: sort,
       },
     });
+    
+    // Return the data array, not the entire pagination object
+    // The schema expects an array, not a paginated object
+    if (Array.isArray(result)) {
+      return result;
+    }
+    
+    // Check for common pagination result structures
+    if (result && typeof result === 'object') {
+      // Try different common property names
+      const dataProperties = ['data', 'documents', 'items', 'list', 'results'];
+      for (const prop of dataProperties) {
+        if (prop in result && Array.isArray((result as any)[prop])) {
+          return (result as any)[prop];
+        }
+      }
+    }
+    
+    // If we can't find an array in the result, return empty array
+    return [];
   },
   
   pricingPlansCount: async (

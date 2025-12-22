@@ -58,6 +58,9 @@ export const pricingPlanSchema = new Schema({
   isRepeatEnabled: { type: Boolean, default: false },
   repeatRules: { type: [repeatRuleSchema], default: [] },
 
+  createdBy: { type: String },
+  updatedBy: { type: String },
+
   // Timestamps
 }, {
   timestamps: true // adds createdAt and updatedAt automatically
