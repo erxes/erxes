@@ -185,3 +185,15 @@ export const PRICING_PLAN_DETAIL = gql`
     }
   }
 `;
+
+export const productCategories = gql`
+  query ProductCategories {
+    productCategories {
+      _id
+      parentId
+      code
+      name
+      order
+    }
+  }
+`;

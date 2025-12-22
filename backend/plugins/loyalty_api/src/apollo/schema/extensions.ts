@@ -11,13 +11,5 @@ export const TypeExtensions = `
     _id: String @external
   }
 
-<<<<<<< HEAD
-  extend type ClientPortalUser {
-    _id: String! @external
-  }
-
-  union Owner = User | Customer | Company | ClientPortalUser
-=======
   union Owner = User | Customer | Company 
->>>>>>> 7f2bef970911affd6708b384c930d9308b1ef4b0
 `;

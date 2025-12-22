@@ -11,11 +11,11 @@ import {
   SelectCompany,
   SelectSegment,
   SelectTags,
-  SelectCategory,
   SelectProduct,
 } from 'ui-modules';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { SelectCategory } from '@/pricing/components/SelectCategory';
 
 interface PricingCreateSheetProps {
   trigger?: React.ReactNode;
@@ -70,6 +70,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
 
   const discountType = form.watch('discountType');
   const appliesTo = form.watch('appliesTo');
+  const name = form.watch('name');
+  const status = form.watch('status');
+
+  const isFormValid = name.trim() !== '' && status !== '';
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
@@ -252,10 +256,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     name="discountValue"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>
-                          Discount value{' '}
-                          <span className="text-destructive">*</span>
-                        </Form.Label>
+                        <Form.Label>Discount value</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -392,9 +393,12 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                         <Form.Label>PRODUCT CATEGORIES</Form.Label>
                         <Form.Control>
                           <SelectCategory
-                            selected={field.value[0] || ''}
-                            onSelect={
-                              ((id: string) => field.onChange([id])) as any
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(
+                                Array.isArray(value) ? value : [value],
+                              )
                             }
                           />
                         </Form.Control>
@@ -410,9 +414,12 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                         <Form.Label>EXCLUDE CATEGORIES</Form.Label>
                         <Form.Control>
                           <SelectCategory
-                            selected={field.value[0] || ''}
-                            onSelect={
-                              ((id: string) => field.onChange([id])) as any
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(
+                                Array.isArray(value) ? value : [value],
+                              )
                             }
                           />
                         </Form.Control>
@@ -604,7 +611,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading || !isFormValid}>
                 {loading ? 'Creating...' : 'Create'}
               </Button>
             </Sheet.Footer>

@@ -9,7 +9,6 @@ import { usePricing } from '@/pricing/hooks/usePricing';
 import {
   PricingFilterBar,
   PricingFilterView,
-  SingleDateTimeDialogContent,
 } from '@/pricing/components/PricingFilter';
 
 type PricingFilterState = {
@@ -61,9 +60,6 @@ export function PricingSubHeader() {
           <Filter.Dialog>
             <Filter.View filterKey="searchValue" inDialog>
               <Filter.DialogStringView filterKey="searchValue" />
-            </Filter.View>
-            <Filter.View filterKey="date" inDialog>
-              <SingleDateTimeDialogContent />
             </Filter.View>
           </Filter.Dialog>
 

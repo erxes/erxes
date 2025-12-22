@@ -4,7 +4,6 @@ import {
   SelectCompany,
   SelectSegment,
   SelectTags,
-  SelectCategory,
   SelectProduct,
 } from 'ui-modules';
 import { PricingDateSelect } from '@/pricing/components/PricingDateSelect';
@@ -18,6 +17,7 @@ import {
   PRICE_ADJUST_TYPES,
   PriceAdjustType,
 } from '@/pricing/edit-pricing/components';
+import { SelectCategory } from '@/pricing/components/SelectCategory';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -554,9 +554,12 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
                         <Form.Label>PRODUCT CATEGORIES</Form.Label>
                         <Form.Control>
                           <SelectCategory
-                            selected={field.value[0] || ''}
-                            onSelect={
-                              ((id: string) => field.onChange([id])) as any
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(
+                                Array.isArray(value) ? value : [value],
+                              )
                             }
                           />
                         </Form.Control>
@@ -572,9 +575,12 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
                         <Form.Label>EXCLUDE CATEGORIES</Form.Label>
                         <Form.Control>
                           <SelectCategory
-                            selected={field.value[0] || ''}
-                            onSelect={
-                              ((id: string) => field.onChange([id])) as any
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(
+                                Array.isArray(value) ? value : [value],
+                              )
                             }
                           />
                         </Form.Control>

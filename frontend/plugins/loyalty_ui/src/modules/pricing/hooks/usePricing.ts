@@ -61,7 +61,9 @@ export const usePricing = () => {
     'isRepeatEnabled',
   ]);
 
-  const variables: PricingFilterVariables = {};
+  const variables: PricingFilterVariables = {
+    status: 'all',
+  };
   if (queries?.status) variables.status = queries.status;
   if (queries?.isPriority) variables.prioritizeRule = queries.isPriority;
   if (queries?.branchId) variables.branchId = queries.branchId;
