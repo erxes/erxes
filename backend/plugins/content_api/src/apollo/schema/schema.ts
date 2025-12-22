@@ -47,15 +47,6 @@ import {
   types as pageTypes,
 } from '@/cms/graphql/schemas/page';
 
-import {
-  inputs as customFieldGroupInputs,
-  mutations as customFieldGroupMutations,
-  queries as customFieldGroupQueries,
-  types as customFieldGroupTypes,
-} from '@/cms/graphql/schemas/customPostType';
-
-
-
 export const types = `
 
   enum CacheControlScope {
@@ -92,8 +83,6 @@ export const types = `
     ${menuInputs}
     ${pageTypes}
     ${pageInputs}
-    ${customFieldGroupTypes}
-    ${customFieldGroupInputs}
 `;
 
 export const queries = `
@@ -104,7 +93,7 @@ export const queries = `
     ${tagQueries}
     ${menuQueries}
     ${pageQueries}
-    ${customFieldGroupQueries}
+
 
   `;
 
@@ -116,7 +105,7 @@ export const mutations = `
     ${tagMutations}
     ${menuMutations}
     ${pageMutations}
-    ${customFieldGroupMutations}
+
   `;
 
 export default { types, queries, mutations };

@@ -6,7 +6,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 
 startPlugin({
-  name: 'content',
+  name: 'contentarchieve',
   port: 3303,
   graphql: async () => ({
     typeDefs: await typeDefs(),

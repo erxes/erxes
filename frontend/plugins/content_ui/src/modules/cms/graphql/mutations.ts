@@ -33,8 +33,8 @@ export const CONTENT_UPDATE_CMS = gql`
 `;
 
 export const CONTENT_DELETE_CMS = gql`
-  mutation ContentDeleteCMS($id: String!) {
-    contentDeleteCMS(_id: $id)
+  mutation ContentDeleteCMS($contentDeleteCmsId: String!) {
+    contentDeleteCMS(id: $contentDeleteCmsId)
   }
 `;
 

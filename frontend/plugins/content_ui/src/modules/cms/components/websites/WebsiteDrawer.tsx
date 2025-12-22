@@ -457,7 +457,9 @@ export function WebsiteDrawer({
                   onClick={async () => {
                     if (website?._id) {
                       try {
-                        await deleteCMS({ variables: { id: website._id } });
+                        await deleteCMS({
+                          variables: { contentDeleteCmsId: website._id },
+                        });
                       } catch (error) {}
                     }
                   }}
