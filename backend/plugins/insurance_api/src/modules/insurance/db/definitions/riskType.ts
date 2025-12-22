@@ -5,5 +5,5 @@ export const riskTypeSchema = new Schema(
     name: { type: String, required: true },
     description: { type: String },
   },
-  { timestamps: false },
+  { timestamps: true },
 );

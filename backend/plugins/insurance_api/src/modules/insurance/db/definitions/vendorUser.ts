@@ -20,7 +20,7 @@ export const vendorUserSchema = new Schema(
     },
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsuranceVendor',
+      ref: 'vendors',
       required: true,
     },
     role: {

@@ -4,29 +4,29 @@ export const insuranceContractSchema = new Schema(
   {
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsuranceVendor',
+      ref: 'vendors',
       required: true,
     },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsuranceCustomer',
+      ref: 'customers',
       required: true,
     },
     insuranceType: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsuranceType',
+      ref: 'insurance_types',
       required: true,
     },
     insuranceProduct: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsuranceProduct',
+      ref: 'products',
       required: true,
     },
     coveredRisks: [
       {
         risk: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'RiskType',
+          ref: 'risk_types',
           required: true,
         },
         coveragePercentage: {

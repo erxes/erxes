@@ -8,8 +8,6 @@ const AttributeDefinitionSchema = new Schema(
     },
     key: {
       type: String,
-      required: true,
-      unique: true,
     },
     dataType: {
       type: String,
@@ -45,16 +43,11 @@ AttributeDefinitionSchema.add({
   subAttributes: [AttributeDefinitionSchema],
 });
 
-export const insuranceTypeSchema = 
-  new Schema(
-    {
-      name: { type: String, required: true },
-      code: { type: String, required: true, unique: true },
-      attributes: [AttributeDefinitionSchema],
-    },
-    { timestamps: true },
-  
+export const insuranceTypeSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    code: { type: String, unique: true, sparse: true },
+    attributes: [AttributeDefinitionSchema],
+  },
+  { timestamps: true },
 );
-
-
-

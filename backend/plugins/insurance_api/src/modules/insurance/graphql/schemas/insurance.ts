@@ -239,6 +239,15 @@ export const queries = `
   myVendor: InsuranceVendor
 
   """
+  Vendor хэрэглэгчдийн жагсаалт
+  """
+  vendorUsers(vendorId: ID): [InsuranceVendorUser!]!
+  """
+  Vendor хэрэглэгч
+  """
+  vendorUser(id: ID!): InsuranceVendorUser
+
+  """
   Даатгалын харилцагчид
   """
   insuranceCustomers: [InsuranceCustomer!]!
@@ -305,6 +314,14 @@ export const mutations = `
 
 
   """
+  Vendor үүсгэх
+  """
+  createVendor(name: String!): InsuranceVendor!
+  """
+  Vendor шинэчлэх
+  """
+  updateVendor(id: ID!, name: String!): InsuranceVendor!
+  """
   Vendor-д бүтээгдэхүүн нэмэх
   """
   addProductToVendor(vendorId: ID!, productId: ID!, pricingOverride: JSON): InsuranceVendor!
@@ -344,7 +361,15 @@ export const mutations = `
   """
   Vendor хэрэглэгч үүсгэх
   """
-  createVendorUser(username: String!, password: String!, vendorId: ID!, role: String): InsuranceVendorUser!
+  createVendorUser(name: String, email: String!, phone: String, password: String!, vendorId: ID!, role: String): InsuranceVendorUser!
+  """
+  Vendor хэрэглэгч засах
+  """
+  updateVendorUser(id: ID!, name: String, email: String, phone: String, password: String, role: String): InsuranceVendorUser!
+  """
+  Vendor хэрэглэгч устгах
+  """
+  deleteVendorUser(id: ID!): Boolean!
 
   """
   Эрсдлийн төрөл үүсгэх

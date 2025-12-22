@@ -11,7 +11,7 @@ export const vendorSchema = new Schema(
       {
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'InsuranceProduct',
+          ref: 'products',
           required: true,
         },
         pricingOverride: {

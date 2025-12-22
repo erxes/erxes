@@ -6,16 +6,21 @@ export const productSchema = new Schema(
       type: String,
       required: true,
     },
+    code: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     insuranceType: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsuranceType',
+      ref: 'insurance_types',
       required: true,
     },
     coveredRisks: [
       {
         risk: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'RiskType',
+          ref: 'risk_types',
           required: true,
         },
         coveragePercentage: {

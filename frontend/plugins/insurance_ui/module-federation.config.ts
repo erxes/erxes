@@ -15,7 +15,7 @@ const coreLibraries = new Set([
 const config: ModuleFederationConfig = {
   name: 'insurance_ui',
   exposes: {
-    './config': './src/config.ts',
+    './config': './src/config.tsx',
     './insurance': './src/modules/insurance/Main.tsx',
     './insuranceSettings': './src/modules/insurance/Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
