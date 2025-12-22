@@ -131,7 +131,12 @@ const ColorPickerContent = ({
             mask={/^[0-9A-Fa-f]+$/}
             className={cn(inputVariants(), 'pl-9')}
             value={(value || '').replace('#', '')}
-            onAccept={(value) => onValueChange?.('#' + value)}
+            onAccept={(v) => {
+              const newValue = '#' + v;
+              if (value !== newValue) {
+                onValueChange?.(newValue);
+              }
+            }}
           />
         </div>
       </div>

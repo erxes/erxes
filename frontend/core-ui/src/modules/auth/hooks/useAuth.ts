@@ -36,7 +36,6 @@ export const useAuth = () => {
     setIsCurrentOrganizationLoaded(false);
 
     sessionStorage.clear();
-    localStorage.clear();
 
     navigate(AppPath.Login);
   }, [

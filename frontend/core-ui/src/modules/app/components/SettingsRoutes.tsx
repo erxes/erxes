@@ -10,7 +10,6 @@ import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
-
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
     default: module.SettingsProfilePage,
@@ -52,6 +51,11 @@ const PermissionsSettings = lazy(() =>
 const TagsSettings = lazy(() =>
   import('~/pages/settings/workspace/tags/TagsSettingPage').then((module) => ({
     default: module.TagsSettingPage,
+  })),
+);
+const TagsPage = lazy(() =>
+  import('~/pages/settings/workspace/tags/TagsPage').then((module) => ({
+    default: module.TagsPage,
   })),
 );
 
@@ -144,6 +148,7 @@ export function SettingsRoutes() {
           element={<StructureSettings />}
         /> */}
         <Route path={SettingsWorkspacePath.Tags} element={<TagsSettings />} />
+        <Route path={'tags-new'} element={<TagsPage />}></Route>
         <Route
           path={SettingsWorkspacePath.Brands}
           element={<BrandsSettingsRoutes />}
