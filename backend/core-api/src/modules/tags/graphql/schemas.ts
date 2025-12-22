@@ -43,7 +43,7 @@ const queryParams = `
 export const queries = `
   tagsGetTypes: [JSON]
   tags(${queryParams}): TagsListResponse
-  tagsMain(${queryParams}): [Tag]
+  tagsMain(contentType: String): [Tag]
   tagDetail(_id: String!): Tag
   tagsQueryCount(type: String, searchValue: String): Int
 `;
