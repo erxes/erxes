@@ -10,6 +10,7 @@ import { configTrpcRouter } from '~/modules/organization/settings/trpc/config';
 import { structureTrpcRouter } from '~/modules/organization/structure/trpc';
 import { userTrpcRouter } from '~/modules/organization/team-member/trpc/user';
 import { productTrpcRouter } from '~/modules/products/trpc';
+import { templatesRouter } from '~/modules/products/trpc/template';
 import { relationTrpcRouter } from '~/modules/relations/trpc/relation';
 import { tagTrpcRouter } from '~/modules/tags/trpc/tag';
 import { formsTrpcRouter } from './modules/forms/trpc';
@@ -22,6 +23,10 @@ import { notificationTrpcRouter } from '~/modules/notifications/trpc';
 export type CoreTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<CoreTRPCContext>().create({});
+
+const templatesRouterWrapper = t.router({
+  templates: templatesRouter,
+});
 
 export const appRouter = t.mergeRouters(
   configTrpcRouter,
@@ -38,7 +43,8 @@ export const appRouter = t.mergeRouters(
   permissionTrpcRouter,
   segmentsTRPCRouter,
   automationsRouter,
-  notificationTrpcRouter
+  notificationTrpcRouter,
+  templatesRouterWrapper,
 );
 
 export type AppRouter = typeof appRouter;

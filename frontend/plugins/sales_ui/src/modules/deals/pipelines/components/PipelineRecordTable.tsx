@@ -23,6 +23,7 @@ import {
   IconSettings,
   IconTrash,
   IconUser,
+  IconTemplate,
 } from '@tabler/icons-react';
 import {
   usePipelineArchive,
@@ -31,6 +32,7 @@ import {
   usePipelineRemove,
   usePipelines,
 } from '@/deals/boards/hooks/usePipelines';
+import { SaveAsTemplateForm } from 'ui-modules/modules/template';
 
 import { IPipeline } from '@/deals/types/pipelines';
 import React from 'react';
@@ -43,6 +45,7 @@ export const PipelineMoreColumnCell = ({
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
   const [, setOpen] = useQueryState('pipelineId');
+
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
@@ -102,49 +105,60 @@ export const PipelineMoreColumnCell = ({
   };
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => {
-                setOpen(_id);
-              }}
-            >
-              <IconEdit /> Edit
-            </Command.Item>
-            <Command.Item value="duplicate" onSelect={onDuplicate}>
-              <IconCopy /> Duplicate
-            </Command.Item>
-            <Command.Item value="archive" onSelect={onArchive}>
-              {status === 'active' ? (
-                <>
-                  <IconArchive /> Archive
-                </>
-              ) : (
-                <>
-                  <IconArrowBack /> Unarchive
-                </>
-              )}
-            </Command.Item>
-            <Command.Item value="productConfig">
-              <IconSettings /> Product config
-            </Command.Item>
-            <Command.Item
-              disabled={removeLoading}
-              value="remove"
-              onSelect={onRemove}
-            >
-              <IconTrash /> Delete
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <>
+      <Popover>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item
+                value="edit"
+                onSelect={() => {
+                  setOpen(_id);
+                }}
+              >
+                <IconEdit /> Edit
+              </Command.Item>
+              <Command.Item value="duplicate" onSelect={onDuplicate}>
+                <IconCopy /> Duplicate
+              </Command.Item>
+              <Command.Item value="archive" onSelect={onArchive}>
+                {status === 'active' ? (
+                  <>
+                    <IconArchive /> Archive
+                  </>
+                ) : (
+                  <>
+                    <IconArrowBack /> Unarchive
+                  </>
+                )}
+              </Command.Item>
+              <SaveAsTemplateForm
+                trigger={
+                  <Command.Item value="saveAsTemplate">
+                    <IconTemplate /> Save as Template
+                  </Command.Item>
+                }
+                contentType="sales:pipeline"
+                contentId={_id}
+              />
+              <Command.Item value="productConfig">
+                <IconSettings /> Product config
+              </Command.Item>
+              <Command.Item
+                disabled={removeLoading}
+                value="remove"
+                onSelect={onRemove}
+              >
+                <IconTrash /> Delete
+              </Command.Item>
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+    </>
   );
 };
 

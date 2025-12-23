@@ -3,6 +3,7 @@ import { initTRPC } from '@trpc/server';
 import { productCategoryTrpcRouter } from '@/products/trpc/category';
 import { productConfigTrpcRouter } from '@/products/trpc/config';
 import { productsTrpcRouter } from '@/products/trpc/product';
+import { templatesRouter } from '@/products/trpc/template';
 import { uomTrpcRouter } from '@/products/trpc/uom';
 import { CoreTRPCContext } from '~/init-trpc';
 
@@ -14,3 +15,5 @@ export const productTrpcRouter = t.mergeRouters(
   productCategoryTrpcRouter,
   productConfigTrpcRouter,
 );
+
+export { templatesRouter };

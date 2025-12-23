@@ -13,17 +13,11 @@ const coreLibraries = new Set([
 ]);
 
 const config: ModuleFederationConfig = {
-  name: 'sales_ui',
+  name: 'template_ui',
   exposes: {
     './config': './src/config.tsx',
-    './sales': './src/modules/Main.tsx',
-    './salesSettings': './src/pages/SettingsPage.tsx',
-    './Widgets': './src/widgets/Widgets.tsx',
-    './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
-    './pos': './src/modules/pos/Main.tsx',
-    './posSettings': './src/modules/pos/pos/Settings.tsx',
-    './automationsWidget':
-      './src/widgets/automations/components/AutomationRemoteEntry.tsx',
+    './template': './src/modules/Main.tsx',
+    './widgets': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
@@ -35,7 +29,5 @@ const config: ModuleFederationConfig = {
     return false;
   },
 };
-/**
- * Nx requires a default export of the config to allow correct resolution of the module federation graph.
- **/
+
 export default config;
