@@ -85,6 +85,7 @@ export const loadTicketClass = (models: IModels) => {
 
       const ticket = await models.Ticket.create({
         ...doc,
+        subscribedUserIds: [userId],
         number: new Date().getTime().toString(),
       });
       if (doc.assigneeId && doc.assigneeId !== userId) {
@@ -170,11 +171,45 @@ export const loadTicketClass = (models: IModels) => {
           action: 'assignee',
         });
       }
-      return models.Ticket.findOneAndUpdate(
-        { _id },
-        { $set: { ...rest } },
-        { new: true },
-      );
+      const update = {
+        $set: rest,
+      };
+
+      if (doc.isSubscribed !== false) {
+        update['$addToSet'] = {
+          subscribedUserIds: userId,
+        };
+      }
+
+      if (doc.isSubscribed === false) {
+        update['$pull'] = {
+          subscribedUserIds: userId,
+        };
+      }
+
+      const detail = await models.Ticket.findOneAndUpdate({ _id }, update, {
+        new: true,
+      });
+
+      if (
+        detail &&
+        detail.subscribedUserIds &&
+        detail.subscribedUserIds.length > 0
+      ) {
+        const userIds = detail.subscribedUserIds.filter(
+          (id) => id !== userId && id !== doc.assigneeId,
+        );
+        await createNotifications({
+          contentType: 'ticket',
+          contentTypeId: detail._id,
+          fromUserId: userId,
+          subdomain,
+          notificationType: 'updateTicket',
+          userIds,
+          action: 'updated',
+        });
+      }
+      return detail;
     }
 
     public static async removeTicket(_id: string): Promise<{ ok: number }> {

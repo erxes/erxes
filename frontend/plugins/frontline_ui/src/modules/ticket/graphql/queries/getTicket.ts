@@ -21,6 +21,7 @@ export const GET_TICKET = gql`
       statusChangedDate
       number
       pipelineId
+      isSubscribed
     }
   }
 `;
