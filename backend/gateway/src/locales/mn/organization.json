@@ -1,10 +1,10 @@
 {
-    "settings" : "Тохиргоо",
-    "change-theme" : "Өнгө солих",
-    "change-language" : "Хэл солих",
-    "logout" : "Гарах",
-    "dark" : "Хар",
-    "light" : "Цагаан",
-    "system" : "Систем",
-    "version" : "Хувилбар"
+  "settings": "Тохиргоо",
+  "change-theme": "Загвар солих",
+  "change-language": "Хэл солих",
+  "logout": "Гарах",
+  "dark": "Харанхуй",
+  "light": "Гэрэлтэй",
+  "system": "Системийн",
+  "version": "Хувилбар"
 }
