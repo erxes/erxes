@@ -14,7 +14,7 @@ export const defaultI18nOptions: InitOptions = {
   backend: {
     loadPath: `${REACT_APP_API_URL}/locales/{{lng}}/{{ns}}.json`,
   },
-  ns: ['common', 'contact'],
+  ns: ['common', 'contact', 'product', 'documents', 'organization', 'segment', 'automations', 'settings'],
   defaultNS: 'common',
   fallbackNS: ['common'],
   react: {

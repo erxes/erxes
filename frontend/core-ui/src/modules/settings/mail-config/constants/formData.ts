@@ -1,7 +1,7 @@
 import { TFormData } from '@/settings/mail-config/types';
 import { TFunction } from 'i18next';
 
-export const MAIL_CONFIG_FIELDS: (t : TFunction) => TFormData = (t) => {
+export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
   return {
   common: [
     {

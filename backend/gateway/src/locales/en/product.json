@@ -45,6 +45,7 @@
         "sub-uom" : "Sub UOM",
         "add-sub-uom" : "Add Sub UOM",
         "attachment" : "Attachment",
-        "product-variants": "Product Variants"
+        "product-variants": "Product Variants",
+        "uom-description": "Choose the unit of measure for the product"
     }
 }

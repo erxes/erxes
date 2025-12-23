@@ -30,6 +30,9 @@ const fileMimeTypesOptions: Option[] = FILE_MIME_TYPES.map(
 const FileUpload = () => {
   const { form } = useFileUploadForm();
   const { updateConfig, isLoading, configs } = useConfig();
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'file-upload',
+  });
 
   const dynamicFields = React.useMemo(() => {
     const selectedType = form.watch('UPLOAD_SERVICE_TYPE');
@@ -116,9 +119,6 @@ const FileUpload = () => {
   if (!configs || isLoading) {
     return null;
   }
-  const { t } = useTranslation('settings', {
-    keyPrefix: 'file-upload',
-  });
 
   return (
     <Form {...form}>

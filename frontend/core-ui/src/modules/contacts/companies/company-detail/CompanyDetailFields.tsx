@@ -115,7 +115,7 @@ const CompanyDetailSelectTag = ({
     }
   }, [tagIds]);
 
-  const { t } = useTranslation('contacts', { keyPrefix: 'customer.detail' });
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.detail' });
 
   return (
     <fieldset className="space-y-2 px-8">

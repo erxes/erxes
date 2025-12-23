@@ -12,7 +12,7 @@ export const ProductDetailUom = () => {
   return (
     <InfoCard
       title={t('uom')}
-      description="choose the unit of measure for the product"
+      description={t('uom-description')}
     >
       <InfoCard.Content>
         <div className="space-y-4">

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { IconX } from '@tabler/icons-react';
 import { useUsersInvite } from '@/settings/team-member/hooks/useUsersInvite';
-import { useTranslation } from 'react-i18next';
+
 const emailSchema = z.string().email();
 export const InviteTeamMemberSection = ({
   onContinue,
@@ -16,9 +16,6 @@ export const InviteTeamMemberSection = ({
   const [tags, setTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
-  const { t } = useTranslation('settings', {
-    keyPrefix: 'team-member',
-  });
   const onClick = () => {
     const trimmed = inputValue.trim();
     const emails = [...tags];
