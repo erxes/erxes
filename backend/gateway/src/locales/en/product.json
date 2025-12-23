@@ -4,6 +4,8 @@
     "unit-price": "Unit Price",
     "vendor": "Vendor",
     "category": "Category",
+    "categories": "Categories",
+    "product-service": "Product Service",
     "add": {
         "create-product": "Create Product",
         "name": "Name",
@@ -23,7 +25,8 @@
         "secondary-upload": "Secondary Upload",
         "fill-in-more-info": "Fill in more info",
         "see-less": "See less",
-        "more-info": "More info"
+        "more-info": "More info",
+        "add-product": "Add Product"
     },
     "detail": {
         "product-information" : "Product Information",

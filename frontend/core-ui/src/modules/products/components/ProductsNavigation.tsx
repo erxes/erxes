@@ -6,7 +6,7 @@ import { PageHeader } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export const ProductsNavigation = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('product');
   const { pathname } = useLocation();
   return (
     <PageHeader.Start>

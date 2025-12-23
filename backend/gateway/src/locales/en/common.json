@@ -1,4 +1,5 @@
 {
+  "my-inbox" : "My Inbox",
   "core-modules": {
     "_": "Core modules",
     "contacts": "Contacts",
@@ -6,13 +7,10 @@
     "segments": "Segments",
     "automations": "Automations",
     "documents": "Documents",
-    "product-service": "Product Service",
     "success": "Success",
     "cancel": "Cancel",
     "save": "Save",
-    "categories": "Categories",
-    "settings": "Settings",
-    "add-product": "Add Product"
+    "settings": "Settings"
   },
   "filter": {
     "_": "Filter",

@@ -15,7 +15,7 @@ export const ProductsHeader = () => {
         <Button variant="outline" asChild>
           <Link to="/settings/products">
             <IconSettings />
-            {t('settings')}
+            {t('core-modules.settings')}
           </Link>
         </Button>
         <ProductAddSheet />

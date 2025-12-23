@@ -21,7 +21,7 @@ import { AutomationRecordTableStatusInlineCell } from '@/automations/components/
 const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
 
-export const automationColumns: (
+export const getAutomationColumns: (
   t: (key: string) => string,
 ) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
   checkBoxColumn,

@@ -4,6 +4,8 @@
   "unit-price": "Үнэ",
   "vendor": "Үйлчилгээ",
   "category": "Категори",
+  "categories": "Ангиллууд",
+  "product-service": "Бүтээгдэхүүн, үйлчилгээ",
   "add": {
   "create-product": "Бүтээгдэхүүн үүсгэх",
   "name": "Нэр",
@@ -23,7 +25,8 @@
   "fill-in-more-info": "Нэмэлт мэдээлэл бөглөх",
   "see-less": "Хураах",
   "more-info": "Дэлгэрэнгүй",
-  "primary-upload": "Үндсэн файл байршуулах"
+  "primary-upload": "Үндсэн файл байршуулах",
+  "add-product": "Бүтээгдэхүүн нэмэх"
 },
   "detail": {
     "product-information": "Бүтээгдэхүүний мэдээлэл",

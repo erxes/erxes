@@ -29,7 +29,9 @@ export const ProductAddSheet = () => {
     setOpen(false);
     goBackToPreviousHotkeyScope();
   };
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
 
   useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
 
@@ -57,9 +59,12 @@ export const ProductAddSheet = () => {
 };
 
 export const ProductAddSheetHeader = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
   return (
     <Sheet.Header className="border-b gap-3">
-      <Sheet.Title>Create product</Sheet.Title> <Sheet.Close />
+      <Sheet.Title>{t('create-product')}</Sheet.Title> <Sheet.Close />
     </Sheet.Header>
   );
 };
