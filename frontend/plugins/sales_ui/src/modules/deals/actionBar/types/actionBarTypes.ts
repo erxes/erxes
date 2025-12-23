@@ -27,10 +27,10 @@ export type SalesFilterState = {
 
 export type ProductFilterState = {
   productSearch?: string | null;
-  productCategoryId?: string | null;
-  productBranchId?: string | null;
-  productDepartmentId?: string | null;
-  productVendorId?: string | null;
+  productCategoryIds?: string[] | null;
+  productBranchIds?: string[] | null;
+  productDepartmentIds?: string[] | null;
+  productVendorIds?: string[] | null;
   productTagIds?: string[] | null;
-  productBrandId?: string | null;
+  productBrandIds?: string[] | null;
 };

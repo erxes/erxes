@@ -10,8 +10,6 @@ export interface IProduct {
   code: string;
   categoryId: string;
   category?: IProductCategory;
-  branchId?: string;
-  departmentId?: string;
   tagIds: string[];
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
