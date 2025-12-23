@@ -10,8 +10,8 @@ import { otpService } from '@/clientportal/services/otpService';
 import {
   getSocialUserProfile,
   SocialAuthProvider,
-} from '@/clientportal/utils/socialAuth';
-import { refreshAccessToken } from '@/clientportal/utils/tokenManager';
+} from '~/modules/clientportal/services/helpers/socialAuth';
+import { refreshAccessToken } from '~/modules/clientportal/services/helpers/tokenManager';
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
 
 interface RegisterParams {

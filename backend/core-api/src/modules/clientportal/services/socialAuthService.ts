@@ -1,11 +1,12 @@
 import { IModels } from '~/connectionResolvers';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import {
   SocialAuthProvider,
   SocialUserProfile,
   getSocialUserProfile,
-} from '@/clientportal/utils/socialAuth';
+} from '~/modules/clientportal/services/helpers/socialAuth';
 import { contactService } from './contactService';
 import { AuthenticationError, ValidationError } from './errorHandler';
 
@@ -163,16 +164,6 @@ export class SocialAuthService {
     });
   }
 
-  private async updateLastLogin(
-    userId: string,
-    models: IModels,
-  ): Promise<void> {
-    await models.CPUser.updateOne(
-      { _id: userId },
-      { $set: { lastLoginAt: new Date() } },
-    );
-  }
-
   async loginWithSocial(
     provider: SocialAuthProvider,
     token: string,
@@ -209,7 +200,7 @@ export class SocialAuthService {
       return this.registerWithSocial(provider, profile, clientPortal, models);
     }
 
-    await this.updateLastLogin(user._id, models);
+    await updateLastLogin(user._id, models);
     return user;
   }
 

@@ -6,6 +6,8 @@ export { passwordService } from './passwordService';
 export { socialAuthService } from './socialAuthService';
 export { otpService } from './otpService';
 export { notificationService } from './notificationService';
+export * from './helpers/userUtils';
+export * from './helpers/otpConfigHelper';
 export * from './helpers/validators';
 export * from './helpers/queryBuilders';
 export * from './errorHandler';

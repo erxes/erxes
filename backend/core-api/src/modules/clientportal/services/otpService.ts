@@ -1,6 +1,7 @@
 import { IModels } from '~/connectionResolvers';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import { detectIdentifierType } from './helpers/validators';
 import { buildUserQuery } from './helpers/queryBuilders';
 import {
@@ -43,16 +44,6 @@ export class OTPService {
     }
   }
 
-  private async updateLastLogin(
-    userId: string,
-    models: IModels,
-  ): Promise<void> {
-    await models.CPUser.updateOne(
-      { _id: userId },
-      { $set: { lastLoginAt: new Date() } },
-    );
-  }
-
   async loginWithOTP(
     identifier: string,
     otp: number,
@@ -73,7 +64,7 @@ export class OTPService {
     }
 
     this.validateActionCode(user, otp, identifierType);
-    await this.updateLastLogin(user._id, models);
+    await updateLastLogin(user._id, models);
 
     return user;
   }
@@ -129,15 +120,11 @@ export class OTPService {
     clientPortal: IClientPortalDocument,
   ): boolean {
     const config = this.getOTPResendConfig(clientPortal);
-    console.log('config', config);
     const lastAttempt = user.otpResendLastAttempt
       ? new Date(user.otpResendLastAttempt)
       : null;
     const attempts = user.otpResendAttempts || 0;
-    console.log('lastAttempt', lastAttempt);
-    console.log('attempts', attempts);
     if (this.isWithinCooldown(lastAttempt, config.cooldownPeriodInSeconds)) {
-      console.log('within cooldown');
       return false;
     }
 

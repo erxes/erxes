@@ -11,6 +11,8 @@ import { validateUserRegistration } from './helpers/validators';
 import { buildUserQuery, buildDuplicationQuery } from './helpers/queryBuilders';
 import { detectIdentifierType } from './helpers/validators';
 import { VERIFICATION_CODE_CONFIG } from '../constants';
+import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
+import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
 import {
   AuthenticationError,
   ValidationError,
@@ -99,49 +101,6 @@ export class CPUserService {
     );
   }
 
-  private getOTPConfig(
-    identifierType: 'email' | 'phone',
-    clientPortal: IClientPortalDocument,
-    defaultExpirationSeconds: number,
-  ): {
-    codeLength: number;
-    duration: number;
-    emailSubject: string;
-    messageTemplate: string;
-  } {
-    const otpConfig = clientPortal.securityAuthConfig?.otpConfig;
-    const defaults = {
-      codeLength: VERIFICATION_CODE_CONFIG.DEFAULT_LENGTH,
-      duration: defaultExpirationSeconds,
-      emailSubject: 'Registration verification',
-      messageTemplate: '',
-    };
-
-    if (identifierType === 'email') {
-      const emailConfig = otpConfig?.email;
-      return emailConfig
-        ? {
-            codeLength: emailConfig.codeLength ?? defaults.codeLength,
-            duration: emailConfig.duration ?? defaults.duration,
-            emailSubject: emailConfig.emailSubject ?? defaults.emailSubject,
-            messageTemplate:
-              emailConfig.messageTemplate ?? defaults.messageTemplate,
-          }
-        : defaults;
-    }
-
-    const smsConfig = otpConfig?.sms;
-    return smsConfig
-      ? {
-          codeLength: smsConfig.codeLength ?? defaults.codeLength,
-          duration: smsConfig.duration ?? defaults.duration,
-          emailSubject: defaults.emailSubject,
-          messageTemplate:
-            smsConfig.messageTemplate ?? defaults.messageTemplate,
-        }
-      : defaults;
-  }
-
   private getActionCodeType(
     verificationType: string,
     identifierType: 'email' | 'phone',
@@ -227,9 +186,10 @@ export class CPUserService {
     const expirationSeconds =
       VERIFICATION_CODE_CONFIG.DEFAULT_EXPIRATION_SECONDS;
 
-    const otpConfig = this.getOTPConfig(
+    const otpConfig = getOTPConfig(
       identifierType,
       clientPortal,
+      'registration',
       expirationSeconds,
     );
 
@@ -328,16 +288,6 @@ export class CPUserService {
     }
   }
 
-  private async updateLastLogin(
-    userId: string,
-    models: IModels,
-  ): Promise<void> {
-    await models.CPUser.updateOne(
-      { _id: userId },
-      { $set: { lastLoginAt: new Date() } },
-    );
-  }
-
   async login(
     email: string,
     phone: string,
@@ -363,7 +313,7 @@ export class CPUserService {
       throw new AuthenticationError('Invalid login');
     }
 
-    await this.updateLastLogin(user._id, models);
+    await updateLastLogin(user._id, models);
 
     return user;
   }

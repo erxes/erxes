@@ -8,6 +8,7 @@ import { otpService } from './otpService';
 import { notificationService } from './notificationService';
 import { RateLimitError, ValidationError } from './errorHandler';
 import { buildUserQuery } from './helpers/queryBuilders';
+import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
 
 const VALID_VERIFICATION_TYPES = ['EMAIL_VERIFICATION', 'PHONE_VERIFICATION'];
 
@@ -67,48 +68,6 @@ export class VerificationService {
     }
 
     return new Date(user.actionCode.expires) < new Date();
-  }
-
-  private getOTPConfigForLogin(
-    identifierType: 'email' | 'phone',
-    clientPortal: IClientPortalDocument,
-  ): {
-    codeLength: number;
-    duration: number;
-    emailSubject: string;
-    messageTemplate: string;
-  } {
-    const otpConfig = clientPortal.securityAuthConfig?.otpConfig;
-    const defaults = {
-      codeLength: VERIFICATION_CODE_CONFIG.DEFAULT_LENGTH,
-      duration: VERIFICATION_CODE_CONFIG.DEFAULT_EXPIRATION_SECONDS,
-      emailSubject: 'Login OTP',
-      messageTemplate: '',
-    };
-
-    if (identifierType === 'email') {
-      const emailConfig = otpConfig?.email;
-      return emailConfig
-        ? {
-            codeLength: emailConfig.codeLength ?? defaults.codeLength,
-            duration: emailConfig.duration ?? defaults.duration,
-            emailSubject: emailConfig.emailSubject ?? defaults.emailSubject,
-            messageTemplate:
-              emailConfig.messageTemplate ?? defaults.messageTemplate,
-          }
-        : defaults;
-    }
-
-    const smsConfig = otpConfig?.sms;
-    return smsConfig
-      ? {
-          codeLength: smsConfig.codeLength ?? defaults.codeLength,
-          duration: smsConfig.duration ?? defaults.duration,
-          emailSubject: defaults.emailSubject,
-          messageTemplate:
-            smsConfig.messageTemplate ?? defaults.messageTemplate,
-        }
-      : defaults;
   }
 
   private async updateUserWithOTP(
@@ -191,7 +150,12 @@ export class VerificationService {
       );
     }
 
-    const otpConfig = this.getOTPConfigForLogin(identifierType, clientPortal);
+    const otpConfig = getOTPConfig(
+      identifierType,
+      clientPortal,
+      'login',
+      VERIFICATION_CODE_CONFIG.DEFAULT_EXPIRATION_SECONDS,
+    );
     const { code, codeExpires } = this.generateVerificationCode(
       otpConfig.codeLength,
       otpConfig.duration * 60,
