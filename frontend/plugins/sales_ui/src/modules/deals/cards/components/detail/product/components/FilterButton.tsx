@@ -160,7 +160,7 @@ export const ProductFilterBar = ({
           </Filter.BarButton>
         </CustomFilterItem>
       )}
-
+{/* 
       {productVendorIds !== undefined && (
         <CustomFilterItem
           onClear={() => updateFilter('productVendorIds', undefined)}
@@ -171,11 +171,11 @@ export const ProductFilterBar = ({
           </Filter.BarName>
           <Filter.BarButton>
             {productVendorIds?.[0] && (
-              <span className="">{getCategoryName(productVendorIds[0])}</span>
+              <span className="">{getVendorName(productVendorIds[0])}</span>
             )}
           </Filter.BarButton>
         </CustomFilterItem>
-      )}
+      )} */}
     </>
   );
 };
@@ -198,12 +198,11 @@ const ProductFilterView = ({
           <Command.List className="p-1">
             <Filter.Item value="productCategoryIds">
               <IconCategory />
-              Category
+              By Category
             </Filter.Item>
-          <SelectCompany.FilterItem value="productVendorIds" label="By Vendor" />
+            <SelectCompany.FilterItem value="productVendorIds" label="By Vendor" />
             <Filter.Item value="productTagIds">
               <IconTag />
-              Tag
             </Filter.Item>
           </Command.List>
         </Command>
@@ -212,11 +211,11 @@ const ProductFilterView = ({
       <Filter.View filterKey='productCategoryIds'>
         <SelectCategory
           value={filters.productCategoryIds?.[0]}
-          onSelect={(value: any) => updateFilter('productCategoryIds', value ? [value] : undefined)}
+          onSelect={(value) => updateFilter('productCategoryIds', value ? [value] : undefined)}
         />
       </Filter.View>
 
-        <SelectCompany.FilterView
+      <SelectCompany.FilterView
         mode="multiple"
         filterKey="productVendorIds"
         />

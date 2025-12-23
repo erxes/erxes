@@ -28,9 +28,6 @@ export type SalesFilterState = {
 export type ProductFilterState = {
   productSearch?: string | null;
   productCategoryIds?: string[] | null;
-  productBranchIds?: string[] | null;
-  productDepartmentIds?: string[] | null;
   productVendorIds?: string[] | null;
   productTagIds?: string[] | null;
-  productBrandIds?: string[] | null;
 };
