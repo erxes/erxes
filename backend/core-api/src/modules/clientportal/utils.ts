@@ -24,18 +24,21 @@ export const handleCPContacts = async (args: ICPContactsParams) => {
   let user: any;
 
   if (type === 'customer') {
-    let customer = await models.Customers.findOne({
+    const customer = await models.Customers.findOne({
       $or: [{ primaryEmail: trimmedMail }, { primaryPhone: phone }],
     });
 
-    if (!customer) {
-      customer = await models.Customers.create({
+    let customerId = customer?._id;
+
+    if (!customerId) {
+      const newCustomer = await models.Customers.createCustomer({
         primaryEmail: trimmedMail,
         primaryPhone: phone,
       });
+      customerId = newCustomer._id;
     }
 
-    qry = { erxesCustomerId: customer._id, clientPortalId };
+    qry = { erxesCustomerId: customerId, clientPortalId };
 
     user = await models.CPUser.findOne(qry);
 
@@ -65,7 +68,7 @@ export const handleCPContacts = async (args: ICPContactsParams) => {
       });
     }
 
-    await linkCustomerToUser(models, user._id, customer._id);
+    await linkCustomerToUser(models, user._id, customerId);
   }
 
   if (type === 'company') {
