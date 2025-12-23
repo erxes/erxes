@@ -7,6 +7,7 @@ import { detectIdentifierType } from './helpers/validators';
 import { otpService } from './otpService';
 import { notificationService } from './notificationService';
 import { RateLimitError, ValidationError } from './errorHandler';
+import { buildUserQuery } from './helpers/queryBuilders';
 
 const VALID_VERIFICATION_TYPES = ['EMAIL_VERIFICATION', 'PHONE_VERIFICATION'];
 
@@ -66,22 +67,6 @@ export class VerificationService {
     }
 
     return new Date(user.actionCode.expires) < new Date();
-  }
-
-  private buildUserQuery(
-    identifier: string,
-    clientPortalId: string,
-  ): Record<string, any> {
-    const identifierType = detectIdentifierType(identifier);
-    const query: Record<string, any> = { clientPortalId };
-
-    if (identifierType === 'email') {
-      query.email = { $regex: new RegExp(`^${identifier}$`, 'i') };
-    } else {
-      query.phone = { $regex: new RegExp(`^${identifier}$`, 'i') };
-    }
-
-    return query;
   }
 
   private getOTPConfigForLogin(
@@ -188,7 +173,12 @@ export class VerificationService {
     models: IModels,
   ): Promise<void> {
     const identifierType = detectIdentifierType(identifier);
-    const query = this.buildUserQuery(identifier, clientPortal._id);
+    const query = buildUserQuery(
+      undefined,
+      identifierType === 'email' ? identifier : undefined,
+      identifierType === 'phone' ? identifier : undefined,
+      clientPortal._id,
+    );
     const user = await models.CPUser.findOne(query);
 
     if (!user) {

@@ -2,6 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { detectIdentifierType } from './helpers/validators';
+import { buildUserQuery } from './helpers/queryBuilders';
 import {
   AuthenticationError,
   ValidationError,
@@ -17,22 +18,6 @@ const DEFAULT_OTP_RESEND_CONFIG = {
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
 export class OTPService {
-  private buildUserQuery(
-    identifier: string,
-    clientPortalId: string,
-  ): Record<string, any> {
-    const identifierType = detectIdentifierType(identifier);
-    const query: Record<string, any> = { clientPortalId };
-
-    if (identifierType === 'email') {
-      query.email = { $regex: new RegExp(`^${identifier}$`, 'i') };
-    } else {
-      query.phone = { $regex: new RegExp(`^${identifier}$`, 'i') };
-    }
-
-    return query;
-  }
-
   private validateActionCode(
     user: ICPUserDocument,
     otp: number,
@@ -75,7 +60,12 @@ export class OTPService {
     models: IModels,
   ): Promise<ICPUserDocument> {
     const identifierType = detectIdentifierType(identifier);
-    const query = this.buildUserQuery(identifier, clientPortal._id);
+    const query = buildUserQuery(
+      undefined,
+      identifierType === 'email' ? identifier : undefined,
+      identifierType === 'phone' ? identifier : undefined,
+      clientPortal._id,
+    );
     const user = await models.CPUser.findOne(query);
 
     if (!user) {

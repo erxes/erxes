@@ -12,26 +12,11 @@ import {
   ValidationError,
   TokenExpiredError,
 } from './errorHandler';
+import { buildUserQuery } from './helpers/queryBuilders';
 
 const RESET_TOKEN_EXPIRY_HOURS = 1;
 
 export class PasswordService {
-  private buildUserQuery(
-    identifier: string,
-    clientPortalId: string,
-  ): Record<string, any> {
-    const identifierType = detectIdentifierType(identifier);
-    const query: Record<string, any> = { clientPortalId };
-
-    if (identifierType === 'email') {
-      query.email = { $regex: new RegExp(`^${identifier}$`, 'i') };
-    } else {
-      query.phone = { $regex: new RegExp(`^${identifier}$`, 'i') };
-    }
-
-    return query;
-  }
-
   private async setPasswordResetCode(
     userId: string,
     code: string,
@@ -123,7 +108,12 @@ export class PasswordService {
     subdomain: string,
   ): Promise<void> {
     const identifierType = detectIdentifierType(identifier);
-    const query = this.buildUserQuery(identifier, clientPortal._id);
+    const query = buildUserQuery(
+      undefined,
+      identifierType === 'email' ? identifier : undefined,
+      identifierType === 'phone' ? identifier : undefined,
+      clientPortal._id,
+    );
     const user = await models.CPUser.findOne(query);
 
     if (!user) {

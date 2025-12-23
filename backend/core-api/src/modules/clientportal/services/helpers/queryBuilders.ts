@@ -1,3 +1,5 @@
+import { escapeRegExp } from 'erxes-api-shared/utils';
+
 export interface UserQuery {
   clientPortalId?: string;
   $or?: Array<{
@@ -41,11 +43,15 @@ export function buildUserQuery(
   }
 
   if (email) {
-    orConditions.push({ email: { $regex: new RegExp(`^${email}$`, 'i') } });
+    orConditions.push({
+      email: { $regex: new RegExp(`^${escapeRegExp(email)}$`, 'i') },
+    });
   }
 
   if (phone) {
-    orConditions.push({ phone: { $regex: new RegExp(`^${phone}$`, 'i') } });
+    orConditions.push({
+      phone: { $regex: new RegExp(`^${escapeRegExp(phone)}$`, 'i') },
+    });
   }
 
   if (orConditions.length > 0) {
