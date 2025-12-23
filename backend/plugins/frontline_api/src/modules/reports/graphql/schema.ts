@@ -47,9 +47,14 @@ export const types = `
     user: User
     messageCount: Int
   }
+
 `;
 
 export const queries = `
+  conversationProgressChart(customerId:String!):JSON
+  conversationMemberProgress(customerId:String!):JSON
+  conversationSourceProgress(customerId:String!):JSON
+  conversationTagProgress(customerId:String!):JSON
   reportConversationResponseTemplate(filters: ConversationReportFilter): [ConversationTemplateStat]
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]

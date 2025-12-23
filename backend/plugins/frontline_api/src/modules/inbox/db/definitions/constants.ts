@@ -28,7 +28,7 @@ export const CONVERSATION_SELECT_OPTIONS = {
   STATUS: [
     { label: 'New', value: 'new' },
     { label: 'Open', value: 'open' },
-    { label: 'Resolved', value: 'closed' },
+    { label: 'Resolved', value: 'resolved' },
   ],
 };
 

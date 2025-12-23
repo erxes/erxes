@@ -5,6 +5,254 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { PipelineStage } from 'mongoose';
 import { getDateRange } from '@/reports/utils';
 export const reportQueries = {
+  async conversationProgressChart(
+    _parent: undefined,
+    { customerId }: { customerId: string },
+    { models }: IContext,
+  ) {
+    const statuses = ['new', 'open', 'closed', 'resolved'];
+
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          customerId,
+          status: { $in: statuses },
+        },
+      },
+
+      {
+        $group: {
+          _id: {
+            date: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: '$createdAt',
+              },
+            },
+            status: '$status',
+          },
+          count: { $sum: 1 },
+        },
+      },
+
+      {
+        $group: {
+          _id: '$_id.date',
+          counts: {
+            $push: {
+              k: '$_id.status',
+              v: '$count',
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          counts: { $arrayToObject: '$counts' },
+        },
+      },
+
+      {
+        $project: {
+          date: 1,
+          new: { $ifNull: ['$counts.new', 0] },
+          open: { $ifNull: ['$counts.open', 0] },
+          closed: { $ifNull: ['$counts.closed', 0] },
+          resolved: { $ifNull: ['$counts.resolved', 0] },
+        },
+      },
+
+      { $sort: { date: 1 } },
+    ];
+
+    const chartData = await models.Conversations.aggregate(pipeline);
+
+    const total = chartData.reduce(
+      (sum: number, d: any) => sum + d.new + d.open + d.closed + d.resolved,
+      0,
+    );
+
+    return {
+      total,
+      chartData,
+    };
+  },
+  async conversationMemberProgress(
+    _parent: undefined,
+    { customerId }: { customerId: string },
+    { models }: IContext,
+  ) {
+    const statuses = ['new', 'open', 'closed', 'resolved'];
+
+    return models.Conversations.aggregate([
+      {
+        $match: {
+          customerId,
+          assignedUserId: { $ne: null },
+          status: { $in: statuses },
+        },
+      },
+      {
+        $group: {
+          _id: { assigneeId: '$assignedUserId', status: '$status' },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: '$_id.assigneeId',
+          counts: {
+            $push: {
+              k: '$_id.status',
+              v: '$count',
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          assigneeId: '$_id',
+          counts: { $arrayToObject: '$counts' },
+        },
+      },
+      {
+        $project: {
+          assigneeId: 1,
+          new: { $ifNull: ['$counts.new', 0] },
+          open: { $ifNull: ['$counts.open', 0] },
+          closed: { $ifNull: ['$counts.closed', 0] },
+          resolved: { $ifNull: ['$counts.resolved', 0] },
+        },
+      },
+    ]);
+  },
+
+  async conversationSourceProgress(
+    _parent: undefined,
+    { customerId }: { customerId: string },
+    { models }: IContext,
+  ) {
+    const statuses = [
+      CONVERSATION_STATUSES.NEW,
+      CONVERSATION_STATUSES.OPEN,
+      CONVERSATION_STATUSES.CLOSED,
+      CONVERSATION_STATUSES.RESOLVED,
+    ];
+
+    const facet: Record<string, any[]> = {};
+
+    statuses.forEach((status) => {
+      facet[status.toLowerCase()] = [
+        { $match: { status } },
+
+        {
+          $lookup: {
+            from: 'integrations',
+            localField: 'integrationId',
+            foreignField: '_id',
+            as: 'integration',
+          },
+        },
+
+        {
+          $unwind: {
+            path: '$integration',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+
+        {
+          $group: {
+            _id: { $ifNull: ['$integration.kind', 'unknown'] },
+            count: { $sum: 1 },
+          },
+        },
+
+        {
+          $project: {
+            _id: 0,
+            source: '$_id',
+            count: 1,
+          },
+        },
+
+        { $sort: { count: -1 } },
+      ];
+    });
+
+    return models.Conversations.aggregate([
+      {
+        $match: {
+          customerId,
+          assignedUserId: { $ne: null },
+          status: { $in: statuses },
+        },
+      },
+      { $facet: facet },
+    ]);
+  },
+
+  async conversationTagProgress(
+    _parent: undefined,
+    { customerId }: { customerId: string },
+    { models }: IContext,
+  ) {
+    const statuses = [
+      CONVERSATION_STATUSES.NEW,
+      CONVERSATION_STATUSES.OPEN,
+      CONVERSATION_STATUSES.CLOSED,
+      CONVERSATION_STATUSES.RESOLVED,
+    ];
+
+    const facet: Record<string, any[]> = {};
+
+    statuses.forEach((status) => {
+      facet[status.toLowerCase()] = [
+        { $match: { status } },
+
+        {
+          $unwind: {
+            path: '$tagIds',
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+
+        {
+          $group: {
+            _id: '$tagIds',
+            count: { $sum: 1 },
+          },
+        },
+
+        {
+          $project: {
+            _id: 0,
+            tagId: '$_id',
+            count: 1,
+          },
+        },
+
+        { $sort: { count: -1 } },
+      ];
+    });
+
+    return models.Conversations.aggregate([
+      {
+        $match: {
+          customerId,
+          assignedUserId: { $ne: null },
+          status: { $in: statuses },
+          tagIds: { $exists: true, $not: { $size: 0 } },
+        },
+      },
+      { $facet: facet },
+    ]);
+  },
+
   async reportConversationOpenDate(
     _parent: undefined,
     {

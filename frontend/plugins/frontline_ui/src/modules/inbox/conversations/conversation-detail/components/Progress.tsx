@@ -1,17 +1,26 @@
 import { IconCircleFilled } from '@tabler/icons-react';
 import { cn, Tooltip } from 'erxes-ui';
+import { useGetConversationMemberProgress } from '@/inbox/conversations/conversation-detail/hooks/useProgressConversationByMember';
 
-export const ProgressDot = ({ status }: { status: 'open' | 'close' }) => {
+interface ProgressProps {
+  customerId: string;
+}
+
+type StatusType = 'new' | 'open' | 'closed' | 'resolved';
+
+export const ProgressDot = ({ status }: { status: StatusType }) => {
+  const colorClass = {
+    new: 'text-muted-foreground',
+    open: 'text-warning',
+    closed: 'text-primary',
+    resolved: 'text-success',
+  }[status];
+
   return (
     <Tooltip.Provider>
       <Tooltip delayDuration={0}>
         <Tooltip.Trigger>
-          <IconCircleFilled
-            className={cn('size-2', {
-              'text-warning': status === 'open',
-              'text-success': status === 'close',
-            })}
-          />
+          <IconCircleFilled className={cn('size-2', colorClass)} />
         </Tooltip.Trigger>
         <Tooltip.Content>
           <p className="capitalize">{status}</p>
@@ -21,39 +30,39 @@ export const ProgressDot = ({ status }: { status: 'open' | 'close' }) => {
   );
 };
 
-export const Progress = ({ conversationId }: { conversationId: string }) => {
-  const conversationProgress = {
-    totalScope: 100,
-    openScope: 50,
-    closeScope: 50,
-  };
+export const Progress = ({ customerId }: ProgressProps) => {
+  const { conversationMemberProgress, loading } =
+    useGetConversationMemberProgress({
+      variables: { customerId },
+      skip: !customerId,
+    });
+
+  const totals = conversationMemberProgress?.reduce(
+    (acc, item) => {
+      acc.new += item.new || 0;
+      acc.open += item.open || 0;
+      acc.closed += item.closed || 0;
+      acc.resolved += item.resolved || 0;
+      return acc;
+    },
+    { new: 0, open: 0, closed: 0, resolved: 0 },
+  ) || { new: 0, open: 0, closed: 0, resolved: 0 };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="flex justify-between w-full my-4 px-2">
-      <span className="flex flex-col items-center gap-1">
-        <span className="flex items-center gap-2">
-          <ProgressDot status="open" />
-          <p className="text-xs font-medium text-muted-foreground">
-            Open conversations
-          </p>
+      {(['new', 'open', 'closed', 'resolved'] as StatusType[]).map((status) => (
+        <span key={status} className="flex flex-col items-center gap-1">
+          <span className="flex items-center gap-2">
+            <ProgressDot status={status} />
+            <p className="text-xs font-medium text-muted-foreground capitalize">
+              {status}:
+            </p>
+          </span>
+          <p className="text-xs font-medium">{totals[status]}</p>
         </span>
-        <p className="text-xs font-medium">
-          {conversationProgress?.openScope || 0} /{' '}
-          {conversationProgress?.totalScope || 0}
-        </p>
-      </span>
-      <span className="flex flex-col items-center gap-1">
-        <span className="flex items-center gap-2">
-          <ProgressDot status="close" />
-          <p className="text-xs font-medium text-muted-foreground">
-            Close conversations
-          </p>
-        </span>
-        <p className="text-xs font-medium">
-          {conversationProgress?.closeScope || 0} /{' '}
-          {conversationProgress?.totalScope || 0}
-        </p>
-      </span>
+      ))}
     </div>
   );
 };

@@ -12,6 +12,8 @@ import { Progress } from './Progress';
 import { ProgressChart } from './ProgressChart';
 import { useState } from 'react';
 import { ProgressByAssignee } from './ProgressByAssignee';
+import { ProgressSource } from './ProgressSource';
+import { ProgressTags } from './ProgressTag';
 import { SelectReportDate } from './SelectReportDate';
 
 export enum ConversationsSideWidgetTabsEnum {
@@ -22,8 +24,10 @@ export enum ConversationsSideWidgetTabsEnum {
 
 export const ConversationReportContent = ({
   conversationId,
+  customerId,
 }: {
   conversationId?: string;
+  customerId?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -43,21 +47,21 @@ export const ConversationReportContent = ({
         <SelectReportDate />
       </div>
       <div className={cn('border-b', open && 'border-b-0')}>
-        <Progress conversationId={conversationId as string} />
+        <Progress customerId={customerId as string} />
       </div>
       <Collapsible.Content>
         <div className={cn('border-b-0', open && 'border-b')}>
-          <ProgressChart conversationId={conversationId as string} />
+          <ProgressChart customerId={customerId as string} />
         </div>
         <ConversationsSideWidgetTabs>
           <Tabs.Content value={ConversationsSideWidgetTabsEnum.Assignee}>
-            <ProgressByAssignee />
+            <ProgressByAssignee customerId={customerId as string} />
           </Tabs.Content>
           <Tabs.Content value={ConversationsSideWidgetTabsEnum.Source}>
-            <p>Progress by source</p>
+            <ProgressSource customerId={customerId as string} />
           </Tabs.Content>
           <Tabs.Content value={ConversationsSideWidgetTabsEnum.Tag}>
-            <p>Progress by tag</p>
+            <ProgressTags customerId={customerId as string} />
           </Tabs.Content>
         </ConversationsSideWidgetTabs>
       </Collapsible.Content>
