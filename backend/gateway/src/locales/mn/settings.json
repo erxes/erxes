@@ -31,7 +31,10 @@
     "join-date": "Ажилд орсон огноо",
     "birth-date": "Төрсөн огноо",
     "update": "Хадгалах",
-    "upload": "Байршуулах"
+    "upload": "Байршуулах",
+    "lastname-placeholder": "Овог оруулна уу",
+    "firstname-placeholder": "Нэр оруулна уу",
+    "username-placeholder": "Нэвтрэх нэр оруулна уу"
   },
   "change-password": {
     "_": "Нууц үг солих",

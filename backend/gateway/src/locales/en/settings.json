@@ -20,7 +20,7 @@
     "link-description": "This is your public link address.",
     "more-information": "More Information",
     "more-information-description": "Provide any relevant additional personal information, if applicable.",
-    "lastname": "Lastname",
+    "lastName": "Lastname",
     "firstname": "Firstname",
     "username": "Username",
     "add-position": "Add Position",
@@ -31,7 +31,10 @@
     "join-date": "Join Date",
     "birth-date": "Birth Date",
     "update": "Update",
-    "upload": "Upload"
+    "upload": "Upload",
+    "lastname-placeholder": "Enter Last Name",
+    "firstname-placeholder": "Enter First Name",
+    "username-placeholder": "Enter Username"
   },
   "change-password": {
     "_": "Change Password",
