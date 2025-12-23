@@ -1,7 +1,10 @@
-import { Button, Spinner } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { Button } from 'erxes-ui';
+import { lazy } from 'react';
+import { FallbackProps } from 'react-error-boundary';
 import { NotificationContent } from './system/NotficationContent';
+import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
+import { TicketDetails } from '../../modules/ticket/components/ticket-detail/TicketDetails';
+import { NotificationConversationDetail } from './my-inbox/components/NotificationConversationDetail';
 const ConversationDetailRemoteEntry = lazy(() =>
   import('./my-inbox/components/NotificationConversationDetail').then(
     (module) => ({
@@ -15,15 +18,6 @@ const NotificationChannelContent = lazy(() =>
     default: module.NotificationChannelContent,
   })),
 );
-
-const Remotes: Record<
-  string,
-  React.LazyExoticComponent<React.ComponentType<any>>
-> = {
-  conversation: ConversationDetailRemoteEntry,
-  channel: NotificationChannelContent,
-};
-
 type GenericErrorFallbackProps = FallbackProps & {
   title?: string;
 };
@@ -45,29 +39,35 @@ export const GenericErrorFallback = ({
   );
 };
 
-const NotificationRemoteEntries = ({ contentType, ...props }: any) => {
+const NotificationRemoteEntries = (props: any) => {
+  const { contentTypeId, contentType } = props;
   const [_, moduleName, type] = (contentType || '')
     .replace(':', '.')
     .split('.');
-  const RemoteComponent = Remotes[type];
-
   if (moduleName === 'system' && type) {
     const NotificationComponent =
       NotificationContent[type as keyof typeof NotificationContent];
 
     if (!NotificationComponent) {
-      return <></>;
+      return <div>No notification component found</div>;
     }
 
     return <NotificationComponent {...props} />;
   }
-
+  if (moduleName === 'inbox') {
+    return (
+      <div className="h-screen flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <NotificationConversationDetail contentTypeId={contentTypeId} />
+        </div>
+      </div>
+    );
+  }
   return (
-    <Suspense fallback={<Spinner />}>
-      <ErrorBoundary FallbackComponent={GenericErrorFallback}>
-        <RemoteComponent {...props} />
-      </ErrorBoundary>
-    </Suspense>
+    <div>
+      <TicketDetailSheet />
+      <TicketDetails ticketId={contentTypeId} />
+    </div>
   );
 };
 

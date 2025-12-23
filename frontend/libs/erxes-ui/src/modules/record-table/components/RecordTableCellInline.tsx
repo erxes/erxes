@@ -20,7 +20,7 @@ const RecordTableCellTrigger = React.forwardRef<
       <Button
         variant="ghost"
         className={cn(
-          'h-8 px-2 w-full justify-start text-left rounded-none focus-visible:relative focus-visible:z-10 focus-visible:outline-transparent focus-visible:shadow-subtle overflow-hidden',
+          'h-8 px-2 w-full justify-start text-left rounded-none focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:shadow-subtle overflow-hidden',
           className,
         )}
         ref={ref}

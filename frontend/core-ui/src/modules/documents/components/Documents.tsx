@@ -1,14 +1,11 @@
-import { PageSubHeader, ScrollArea } from 'erxes-ui';
+import { IconGitBranch } from '@tabler/icons-react';
 import { useDocuments } from '../hooks/useDocuments';
-import { DocumentsFilter } from './DocumentsFilter';
 import { DocumentsGrid } from './DocumentsGrid';
 import { DocumentsList } from './DocumentsList';
-import { IconGitBranch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
   viewType: 'list' | 'grid';
-  showFilter?: boolean;
 };
 
 const DOCUMENTS_VIEW_TYPES: Record<
@@ -19,20 +16,14 @@ const DOCUMENTS_VIEW_TYPES: Record<
   list: DocumentsList,
 };
 
-export const Documents = ({ viewType, showFilter = true }: Props) => {
+export const Documents = ({ viewType }: Props) => {
   const { documents, loading } = useDocuments();
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
   const { t } = useTranslation('documents');
 
   return (
-    <div className="flex flex-col h-full border-r">
-      {showFilter && (
-        <PageSubHeader>
-          <DocumentsFilter />
-        </PageSubHeader>
-      )}
-      <ScrollArea className="flex-1" viewportClassName="[&>div]:block">
-        <Component documents={documents} />
+    <div className="h-full overflow-y-auto">
+      <Component documents={documents} />
 
         {!loading && documents?.length === 0 && (
           <div className="h-full w-full px-8 flex justify-center">
@@ -49,8 +40,7 @@ export const Documents = ({ viewType, showFilter = true }: Props) => {
               </div>
             </div>
           </div>
-        )}
-      </ScrollArea>
+      )}
     </div>
   );
 };
