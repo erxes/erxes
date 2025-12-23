@@ -123,15 +123,15 @@ export const tagQueries = {
 
   async tagsMain(
     _parent: undefined,
-    { contentType }: { contentType: string },
+    { type }: { type: string },
     { models }: IContext,
   ) {
     const filter: FilterQuery<ITagFilterQueryParams> = {
       type: { $in: [null, ''] },
     };
 
-    if (contentType) {
-      filter.type = { $in: [null, '', contentType] };
+    if (type) {
+      filter.type = { $in: [null, '', type] };
     }
 
     return await models.Tags.find(filter);
