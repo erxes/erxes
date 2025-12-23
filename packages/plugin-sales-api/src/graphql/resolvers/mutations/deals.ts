@@ -8,6 +8,7 @@ import { IDeal, IProductData } from "../../../models/definitions/deals";
 import { getTotalAmounts } from "../../utils";
 import {
   checkAssignedUserFromPData,
+  checkLoyalties,
   checkPricing,
   confirmLoyalties,
   doScoreCampaign,
@@ -83,6 +84,7 @@ const dealMutations = {
 
       doc.assignedUserIds = assignedUserIds;
 
+      doc.productsData = await checkLoyalties(subdomain, _id, { ...oldDeal, ...doc })
       doc.productsData = await checkPricing(subdomain, models, { ...oldDeal, ...doc })
     }
 
