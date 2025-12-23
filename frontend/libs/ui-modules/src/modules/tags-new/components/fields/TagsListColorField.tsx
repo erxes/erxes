@@ -1,24 +1,20 @@
 import { IconCircleFilled, IconCirclesFilled } from '@tabler/icons-react';
 import { Button, ColorPicker } from 'erxes-ui';
 import { useState } from 'react';
-import { useTagsEdit } from 'ui-modules/modules/tags/hooks/useTagsEdit';
-import { TAG_DEFAULT_COLORS } from '../constants/Colors';
-export const TagsListColorField = ({
-  colorCode,
-  isGroup,
-  id,
-}: {
-  colorCode: string;
-  isGroup: boolean;
-  id?: string;
-}) => {
-  const { tagsEdit } = useTagsEdit();
+import { useTagEdit } from 'ui-modules/modules/tags-new/hooks/useTagEdit';
+import { TAG_DEFAULT_COLORS } from 'ui-modules/modules/tags-new/constants/Colors';
+import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
+export const TagsListColorField = ({ tag }: { tag: ITag }) => {
+  const { editTag } = useTagEdit();
   const [open, setOpen] = useState(false);
   const _handleSave = (newColorCode: string) => {
-    tagsEdit({
+    editTag({
       variables: {
-        id,
+        id: tag._id,
         colorCode: newColorCode,
+      },
+      optimisticResponse: {
+        tagsEdit: { ...tag, colorCode: newColorCode },
       },
     });
   };
@@ -27,7 +23,7 @@ export const TagsListColorField = ({
       open={open}
       onOpenChange={setOpen}
       colors={TAG_DEFAULT_COLORS}
-      value={colorCode}
+      value={tag.colorCode}
       onValueChange={(col) => {
         _handleSave(col);
         setOpen(false);
@@ -35,19 +31,19 @@ export const TagsListColorField = ({
     >
       <ColorPicker.Trigger asChild>
         <Button
-          className="size-6 flex items-center justify-center p-0 shadow-none bg-transparent hover:bg-muted-foreground/20 shrink-0"
+          className="size-7 flex items-center justify-center p-0 shadow-none bg-transparent hover:bg-accent-foreground/10 shrink-0"
           variant="ghost"
           onClick={(e) => e.stopPropagation()}
         >
-          {isGroup ? (
+          {tag.isGroup ? (
             <IconCirclesFilled
               className="size-3!"
-              style={{ color: colorCode }}
+              style={{ color: tag.colorCode }}
             ></IconCirclesFilled>
           ) : (
             <IconCircleFilled
               className="size-3!"
-              style={{ color: colorCode }}
+              style={{ color: tag.colorCode }}
             ></IconCircleFilled>
           )}
         </Button>

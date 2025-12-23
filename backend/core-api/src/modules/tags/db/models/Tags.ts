@@ -58,7 +58,7 @@ export const loadTagClass = (models: IModels) => {
           throw new Error('Nested group is not allowed 3');
         }
 
-        if (!isGroup && childTags.length) {
+        if (!tag.isGroup && childTags.length) {
           throw new Error('Group has tags');
         }
       }

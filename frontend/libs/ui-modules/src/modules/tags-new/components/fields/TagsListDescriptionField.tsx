@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Popover, Badge, Textarea, TextOverflowTooltip } from 'erxes-ui';
-import { useTagsEdit } from 'ui-modules/modules/tags/hooks/useTagsEdit';
-import { TagsListCell } from '../TagsListCell';
+import { TagsListCell } from 'ui-modules/modules/tags-new/components/TagsListCell';
+import { useTagEdit } from 'ui-modules/modules/tags-new/hooks/useTagEdit';
 
 export const TagsListDescriptionField = ({
   description,
@@ -13,7 +13,7 @@ export const TagsListDescriptionField = ({
   const [isOpen, setIsOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [descriptionState, setDescriptionState] = useState(description);
-  const { tagsEdit } = useTagsEdit();
+  const { editTag } = useTagEdit();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,7 +35,7 @@ export const TagsListDescriptionField = ({
     if (descriptionState === description) return;
 
     if (id) {
-      tagsEdit({
+      editTag({
         variables: {
           id,
           description: descriptionState,

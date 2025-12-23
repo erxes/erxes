@@ -6,7 +6,7 @@ import {
   useToast,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useTagsEdit } from 'ui-modules/modules/tags/hooks/useTagsEdit';
+import { useTagEdit } from 'ui-modules/modules/tags-new/hooks/useTagEdit';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +35,7 @@ export const TagsListNameField = ({
   const [warned, setWarned] = useState(false);
   const [isOpen, setIsOpen] = useState(defaultOpen || false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const { tagsEdit } = useTagsEdit();
+  const { editTag } = useTagEdit();
   const { toast } = useToast();
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
@@ -72,7 +72,7 @@ export const TagsListNameField = ({
         return;
       }
       if (id) {
-        tagsEdit({
+        editTag({
           variables: {
             id,
             name: newName,
@@ -140,6 +140,11 @@ export const TagsListNameField = ({
           maxLength={64}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsOpen(false);
+              onEscape?.();
+              return;
+            }
             if (e.key === 'Enter') {
               e.preventDefault();
               form.handleSubmit(

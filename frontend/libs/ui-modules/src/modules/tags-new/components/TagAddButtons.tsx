@@ -1,29 +1,31 @@
 import { Button } from 'erxes-ui';
-import { useTagContext } from '@/settings/tags/providers/TagProvider';
 import { addingTagAtom } from 'ui-modules/modules/tags-new/states/addingTagAtom';
 import { useAtom } from 'jotai';
-export const TagsGroupsAddButtons = () => {
-  const { startAddingTag, startAddingGroup } = useTagContext();
+import { useTagType } from 'ui-modules/modules/tags-new/hooks/useTagType';
+export const TagAddButtons = () => {
+  const tagType = useTagType();
   const [addingTag, setAddingTag] = useAtom(addingTagAtom);
   return (
     <div className="flex gap-2">
       <Button
+        disabled={addingTag?.isGroup}
         onClick={() => {
           setAddingTag({
             isGroup: true,
+            type: tagType as string,
           });
-          startAddingGroup();
         }}
         variant="outline"
       >
         Add Group
       </Button>
       <Button
+        disabled={addingTag !== null && !addingTag?.isGroup}
         onClick={() => {
           setAddingTag({
             isGroup: false,
+            type: tagType as string,
           });
-          startAddingTag();
         }}
       >
         Add Tag

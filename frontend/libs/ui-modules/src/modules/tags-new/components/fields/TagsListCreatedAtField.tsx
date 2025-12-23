@@ -1,4 +1,4 @@
-import { TagsListCell } from '../TagsListCell';
+import { TagsListCell } from 'ui-modules/modules/tags-new/components/TagsListCell';
 export const TagsListCreatedAtField = ({
   createdAt,
 }: {
@@ -13,5 +13,9 @@ export const TagsListCreatedAtField = ({
       year: 'numeric',
     });
   };
-  return <TagsListCell className='max-sm:hidden'>{formatDate(createdAt)}</TagsListCell>;
+  return (
+    <TagsListCell className="max-sm:hidden text-sm font-medium">
+      {formatDate(createdAt)}
+    </TagsListCell>
+  );
 };
