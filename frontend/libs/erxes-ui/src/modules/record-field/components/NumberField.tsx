@@ -51,22 +51,29 @@ export const NumberField = React.forwardRef<
       >
         <RecordTableInlineCell.Trigger {...props} ref={ref}>
           {children}
-          <TextOverflowTooltip value={editingValue.toString() ?? placeholder} />
+          <TextOverflowTooltip
+            value={
+              (isOpen ? editingValue.toString() : value.toLocaleString()) ??
+              placeholder
+            }
+          />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content asChild>
           <form onSubmit={handleAction}>
             <Input
-              type="number"
-              value={editingValue.toString()}
+              type="text"
+              value={editingValue.toLocaleString()}
               onChange={(e) => {
-                const numValue = Number(e.target.value);
-                if (!isNaN(numValue)) {
-                  setEditingValue(numValue);
-                  onValueChange?.(numValue);
+                const rawValue = e.target.value.replace(/,/g, '');
+                const numValue = Number(rawValue);
+                if (!isNaN(numValue) || rawValue === '') {
+                  setEditingValue(numValue || 0);
+                  onValueChange?.(numValue || 0);
                 }
                 setIsOpen(true);
               }}
             />
+
             <button type="submit" className="sr-only">
               Save
             </button>

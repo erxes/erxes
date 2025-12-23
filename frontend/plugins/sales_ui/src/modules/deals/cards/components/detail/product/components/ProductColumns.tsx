@@ -3,7 +3,7 @@
 import {
   CheckInputField,
   ProductAssigneeField,
-  ProductNumberField,
+  ProductCalculatedNumberField,
 } from '../hooks/getProductColumns';
 import {
   CurrencyCode,
@@ -71,7 +71,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductNumberField
+          <ProductCalculatedNumberField
             value={Number(cell.getValue()) || 0}
             field="quantity"
             _id={cell.row.original._id}
@@ -89,7 +89,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductNumberField
+          <ProductCalculatedNumberField
             value={Number(cell.getValue()) || 0}
             field="discountPercent"
             _id={cell.row.original._id}
@@ -107,7 +107,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductNumberField
+          <ProductCalculatedNumberField
             value={Number(cell.getValue()) || 0}
             field="discount"
             _id={cell.row.original._id}

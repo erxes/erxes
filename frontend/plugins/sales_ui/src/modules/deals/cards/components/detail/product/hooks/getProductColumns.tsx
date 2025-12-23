@@ -1,3 +1,4 @@
+
 import {
   Checkbox,
   CurrencyCode,
@@ -20,6 +21,9 @@ import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssign
 import clsx from 'clsx';
 import { useState } from 'react';
 import { useUpdateProductRecord } from '../hooks/useProductRecord';
+import { calculateProductValues } from '../hooks/useProductCalculations';
+import { useAtomValue } from 'jotai';
+import { onLocalChangeAtom } from '../productTableAtom';
 
 export const ProductNumberField = ({
   value,
@@ -31,10 +35,36 @@ export const ProductNumberField = ({
 
   return (
     <NumberField
+     key={`${_id}-${field}-${value}`}
       value={value}
       scope={`product-${_id}-${field}`}
       onSave={(value) => {
         updateRecord(product, { [field]: value });
+      }}
+    />
+  );
+};
+
+export const ProductCalculatedNumberField = ({
+  value,
+  field,
+  _id,
+  product,
+}: INumberFieldContainerProps & { product: IProductData }) => {
+
+  const { updateRecord } = useUpdateProductRecord();
+ const onLocalChange = useAtomValue(onLocalChangeAtom);
+ 
+  return (
+    <NumberField
+      value={value}
+      scope={`product-${_id}-${field}`}
+      onSave={(value) => {
+        const base = { ...product, [field]: value };
+        const updates = calculateProductValues(field, base);
+        const fullUpdate = { [field]: value, ...updates };
+        onLocalChange?.(_id, fullUpdate);
+        updateRecord(product, fullUpdate);
       }}
     />
   );
@@ -89,7 +119,6 @@ export const ProductAssigneeField = ({
       value={value}
       scope={clsx(_id, 'Assignee')}
       onValueChange={(value) => {
-        console.log('value', value);
         updateRecord(product, { [field]: value });
       }}
     />
@@ -196,7 +225,7 @@ export const taxPercent: ColumnDef<IProductData> = {
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
-        <ProductNumberField
+        <ProductCalculatedNumberField
           value={Number(cell.getValue()) || 0}
           field="taxPercent"
           _id={cell.row.original._id}
@@ -215,7 +244,7 @@ export const tax: ColumnDef<IProductData> = {
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
-        <ProductNumberField
+        <ProductCalculatedNumberField
           value={Number(cell.getValue()) || 0}
           field="tax"
           _id={cell.row.original._id}

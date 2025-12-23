@@ -1,80 +1,98 @@
 import { Button, Input, Label, Switch } from 'erxes-ui';
-import {
-  IProduct,
-  IProductData,
-  SelectProductsBulk,
-  currentUserState,
-} from 'ui-modules';
-import { IconPlus, IconSearch } from '@tabler/icons-react';
+import { IProduct, IProductData, currentUserState } from 'ui-modules';
 import { useEffect, useState } from 'react';
 
 import FilterButton from './FilterButton';
-import ProductTotal from './ProductTotal';
+import { IconSearch } from '@tabler/icons-react';
+import ProductFooter from './ProductFooter';
 import { ProductsRecordTable } from './ProductRecordTable';
+import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { useProductCalculations } from '../hooks/useProductCalculations';
+import { useSetAtom } from 'jotai';
 
 const ProductsList = ({
   products,
   productsData,
   dealId,
   refetch,
+  tickUsed,
 }: {
   products: IProduct[];
   productsData: IProductData[];
   dealId: string;
   refetch: () => void;
+  tickUsed: boolean;
 }) => {
   const { createDealsProductData } = useDealsCreateProductsData();
+  const [localProductsData, setLocalProductsData] =
+    useState<IProductData[]>(productsData);
+  const setOnLocalChange = useSetAtom(onLocalChangeAtom);
 
   const [vatPercent, setVatPercent] = useState(0);
-  const [discount, setDiscount] = useState<{
-    [currency: string]: { value?: number; percent?: number };
-  }>({});
-  const [tax, setTax] = useState<{
-    [currency: string]: { value?: number; percent?: number };
-  }>({});
-  const [total, setTotal] = useState<{ [currency: string]: number }>({});
-  const [unUsedTotal, setUnUsedTotal] = useState<{
-    [currency: string]: number;
-  }>({});
-  const [bothTotal, setBothTotal] = useState<{ [currency: string]: number }>(
-    {},
-  );
+  const {
+    total,
+    unUsedTotal,
+    bothTotal,
+    tax,
+    discount,
+    updateTotal,
+    calculatePerProductAmount,
+  } = useProductCalculations(localProductsData);
+  const { editDeals } = useDealsEdit();
   const [showAdvancedView, setShowAdvancedView] = useState(false);
 
   const currentUser = useAtomValue(currentUserState);
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
 
-  const productRecords = productsData.map((data) => ({
+  const productRecords = localProductsData.map((data) => ({
     ...data,
     product: products.find((p) => p._id === data.productId),
   }));
-  console.log('ohhh', productRecords, currencies);
+
+  const updateLocalProduct = (id: string, patch: Partial<IProductData>) => {
+    setLocalProductsData((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, ...patch } : p)),
+    );
+  };
+
+  useEffect(() => {
+    setLocalProductsData(productsData);
+  }, [productsData]);
+
+  useEffect(() => {
+    setOnLocalChange(() => updateLocalProduct);
+    return () => setOnLocalChange(null);
+  }, [setOnLocalChange]);
+
   const applyVat = () => {
-    // const { productsData, onChangeProductsData } = this.props;
-    // const { vatPercent } = this.state;
-    // const updatedData = (productsData || []).map(p => {
-    //   const pData = {
-    //     ...p,
-    //     isVatApplied: true,
-    //     unitPrice: p.isVatApplied
-    //       ? p.unitPrice
-    //       : parseFloat(
-    //           ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-    //         ),
-    //   };
-    //   this.calculatePerProductAmount("", pData, false);
-    //   return pData;
-    // });
-    // onChangeProductsData(updatedData);
-    // this.updateTotal(updatedData);
+    const updatedData = (localProductsData || []).map((p) => {
+      const pData = {
+        ...p,
+        isVatApplied: true,
+        unitPrice: p.isVatApplied
+          ? p.unitPrice
+          : parseFloat(
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
+            ),
+      };
+
+      calculatePerProductAmount('', pData, false);
+
+      return pData;
+    });
+
+    setLocalProductsData(updatedData);
+    updateTotal(updatedData);
   };
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
     if (!selectedProducts) return;
-    const currency = currencies ? currencies[0] : 'MNT';
+    const currency =
+      currencies && currencies.length > 0 ? currencies[0] : 'MNT';
 
     const docs: any[] = [];
     for (const product of selectedProducts) {
@@ -88,7 +106,7 @@ const ProductsList = ({
           : 0,
         amount: 0,
         currency,
-        // tickUsed: dealQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
+        tickUsed,
         maxQuantity: 0,
         product,
         quantity: 1,
@@ -104,6 +122,10 @@ const ProductsList = ({
     const processId = Math.random().toString();
     localStorage.setItem('processId', processId);
 
+    docs.forEach((p) => calculatePerProductAmount('discount', p));
+
+    updateTotal(docs);
+
     createDealsProductData({
       variables: {
         processId,
@@ -113,92 +135,28 @@ const ProductsList = ({
     });
   };
 
-  const updateTotal = (productsData: IProductData[]) => {
-    const total: any = {};
-    const unUsedTotal: any = {};
-    const bothTotal: any = {};
-    const tax: any = {};
-    const discount: any = {};
-    console.log('productsData', productsData);
-    productsData.forEach((p) => {
-      if (!p.currency) return;
+  const handleSave = () => {
+    const processId = localStorage.getItem('processId') || '';
 
-      if (!bothTotal[p.currency]) {
-        bothTotal[p.currency] = 0;
-      }
-      bothTotal[p.currency] += p.amount || 0;
+    const formattedProductsData = localProductsData.map((data) => ({
+      ...data,
+      productId: data.product?._id || data.productId,
+    }));
 
-      if (p.tickUsed) {
-        if (!total[p.currency]) {
-          total[p.currency] = 0;
-          tax[p.currency] = { percent: 0, value: 0 };
-          discount[p.currency] = { percent: 0, value: 0 };
-        }
-
-        discount[p.currency].value += p.discount || 0;
-        tax[p.currency].value += p.tax || 0;
-        total[p.currency] += p.amount || 0;
-      } else {
-        if (!unUsedTotal[p.currency]) {
-          unUsedTotal[p.currency] = 0;
-        }
-        unUsedTotal[p.currency] += p.amount || 0;
-      }
+    editDeals({
+      variables: {
+        productsData: formattedProductsData,
+        paymentsData: null,
+        extraData: null,
+        proccessId: processId,
+        _id: dealId,
+      },
     });
-
-    for (const currency of Object.keys(discount)) {
-      let clearTotal = total[currency] - tax[currency].value;
-      tax[currency].percent =
-        clearTotal > 0 ? (tax[currency].value * 100) / clearTotal : 0;
-
-      clearTotal = clearTotal + discount[currency].value;
-      discount[currency].percent =
-        clearTotal > 0 ? (discount[currency].value * 100) / clearTotal : 0;
-    }
-
-    setTotal(total);
-    setTax(tax);
-    setDiscount(discount);
-    setBothTotal(bothTotal);
-    setUnUsedTotal(unUsedTotal);
   };
 
-  const calculatePerProductAmount = (
-    type: string,
-    productData: IProductData,
-    callUpdateTotal = true,
-  ) => {
-    const amount = productData.unitPrice * productData.quantity;
-
-    if (amount > 0) {
-      if (type === 'discount') {
-        productData.discountPercent = (productData.discount * 100) / amount;
-      } else {
-        productData.discount = (amount * productData.discountPercent) / 100;
-      }
-
-      productData.tax =
-        ((amount - productData.discount || 0) * productData.taxPercent) / 100;
-      productData.amount =
-        amount - (productData.discount || 0) + (productData.tax || 0);
-    } else {
-      productData.tax = 0;
-      productData.discount = 0;
-      productData.amount = 0;
-    }
-
-    if (callUpdateTotal) {
-      updateTotal(productsData);
-    }
-  };
-
-  useEffect(() => {
-    updateTotal(productsData);
-  }, [productsData]);
-  console.log('total', total, unUsedTotal, bothTotal);
   return (
     <div>
-      <div className=" flex">
+      <div className="flex items-center gap-4 flex-wrap">
         <Input
           placeholder="Vat percent"
           className="w-[40%]"
@@ -235,29 +193,22 @@ const ProductsList = ({
         refetch={refetch}
         dealId={dealId}
         showAdvancedView={showAdvancedView}
+        onLocalChange={updateLocalProduct}
       />
-      <div className="sticky bottom-0 right-0 left-0 p-2 flex justify-between items-center z-10 bg-white border-t">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            Total Products:{' '}
-            <span className="text-primary">{products?.length || 0}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            Total Amount: <ProductTotal type="total" total={total} />
-          </div>
-        </div>
-        <SelectProductsBulk
-          productIds={[]}
-          onSelect={(productIds, selectedProducts) =>
-            onPoductBulkSave(selectedProducts || ([] as IProduct[]))
-          }
-        >
-          <Button>
-            <IconPlus />
-            Add Many Products
-          </Button>
-        </SelectProductsBulk>
-      </div>
+      <ProductFooter
+        productsCount={products?.length || 0}
+        total={total}
+        unUsedTotal={unUsedTotal}
+        bothTotal={bothTotal}
+        discount={discount}
+        tax={tax}
+        showAdvancedView={showAdvancedView}
+        productsData={localProductsData}
+        onChangeProductsData={setLocalProductsData}
+        updateTotal={updateTotal}
+        onAddProducts={onPoductBulkSave}
+        onSave={handleSave}
+      />
     </div>
   );
 };

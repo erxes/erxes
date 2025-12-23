@@ -19,11 +19,13 @@ export const ProductsRecordTable = ({
   refetch,
   dealId,
   showAdvancedView,
+  onLocalChange,
 }: {
   products: IProductData[];
   refetch: () => void;
   dealId: string;
   showAdvancedView: boolean;
+  onLocalChange: (id: string, patch: Partial<IProductData>) => void;
 }) => {
   const columns = useMemo<ColumnDef<IProductData>[]>(() => {
     if (!showAdvancedView) return productColumns;
