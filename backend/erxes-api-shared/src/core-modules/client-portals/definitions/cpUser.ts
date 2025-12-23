@@ -1,7 +1,6 @@
 import { Schema } from 'mongoose';
 
 import { mongooseStringRandomId } from '../../../utils';
-import { ICPUserDocument } from '../../../../../core-api/src/modules/clientportal/types/cpUser';
 export const cpNotificationConfigSchema = new Schema(
   {
     notificationType: {
@@ -109,7 +108,7 @@ const verificationRequestSchema = new Schema(
   { _id: false },
 );
 
-export const cpUserSchema = new Schema<ICPUserDocument>(
+export const cpUserSchema = new Schema(
   {
     _id: mongooseStringRandomId,
     type: {
