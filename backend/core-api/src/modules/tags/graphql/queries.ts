@@ -134,7 +134,7 @@ export const tagQueries = {
       filter.type = { $in: [null, '', type] };
     }
 
-    return await models.Tags.find(filter);
+    return await models.Tags.find(filter).sort({ name: 1 });
   },
 
   async tagsQueryCount(
