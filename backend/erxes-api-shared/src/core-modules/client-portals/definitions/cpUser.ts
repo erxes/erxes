@@ -205,3 +205,6 @@ export const cpUserSchema = new Schema(
   },
   { timestamps: true },
 );
+cpUserSchema.index({ clientPortalId: 1 });
+cpUserSchema.index({ email: 1 });
+cpUserSchema.index({ phone: 1 });

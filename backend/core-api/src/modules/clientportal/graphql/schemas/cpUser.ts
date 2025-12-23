@@ -20,8 +20,6 @@ export const types = `
     isPhoneVerified: Boolean!
     isEmailVerified: Boolean!
     fcmTokens: [String]
-    actionCode: ActionCode
-    refreshTokens: [RefreshToken]
     socialAuthProviders: [SocialAuthProviderInfo]
     failedLoginAttempts: Int
     accountLockedUntil: Date
