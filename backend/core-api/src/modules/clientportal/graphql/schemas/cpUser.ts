@@ -6,7 +6,6 @@ export const types = `
     phone: String
     username: String
     code: String
-    password: String
     firstName: String
     lastName: String
     avatar: String
@@ -99,16 +98,25 @@ const userRegisterParams = `
   userType: CPUserType,
 `;
 
+const userEditParams = `
+  firstName: String,
+  lastName: String,
+  avatar: String,
+  username: String,
+  companyName: String,
+  companyRegistrationNumber: String,
+`;
+
 export const mutations = `
   clientPortalUserRegister(${userRegisterParams}): CPUser
-  clientPortalUserSignup(${userRegisterParams}): CPUser
+  clientPortalUserEdit(${userEditParams}): CPUser
   clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): String
   clientPortalLogout: String
   clientPortalUserForgotPassword(identifier: String!): String
   clientPortalUserResetPassword(token: String, newPassword: String!, otp: Int): String
   clientPortalUserRequestOTP(identifier: String!): String
-  clientPortalUserLoginWithOTP(identifier: String!, otp: Int!): String
+  clientPortalUserLoginWithOTP(identifier: String!, otp: Int!): JSON
   clientPortalUserRegisterWithSocial(provider: SocialAuthProvider!, token: String!): CPUser
   clientPortalUserLoginWithSocial(provider: SocialAuthProvider!, token: String!): String
   clientPortalUserLinkSocialAccount(provider: SocialAuthProvider!, token: String!): CPUser

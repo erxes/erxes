@@ -204,7 +204,7 @@ export class VerificationService {
     const otpConfig = this.getOTPConfigForLogin(identifierType, clientPortal);
     const { code, codeExpires } = this.generateVerificationCode(
       otpConfig.codeLength,
-      otpConfig.duration,
+      otpConfig.duration * 60,
     );
 
     const actionCodeType =

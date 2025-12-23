@@ -37,7 +37,8 @@ export class AuthService {
   private getAuthConfig(
     clientPortal: IClientPortalDocument,
   ): typeof DEFAULT_AUTH_CONFIG {
-    return clientPortal.auth?.authConfig || DEFAULT_AUTH_CONFIG;
+    return (clientPortal.auth?.authConfig ??
+      (DEFAULT_AUTH_CONFIG as typeof DEFAULT_AUTH_CONFIG)) as typeof DEFAULT_AUTH_CONFIG;
   }
 
   private createJwtPayload(
@@ -66,7 +67,8 @@ export class AuthService {
   ): { token: string; refreshToken: string } {
     const authConfig = this.getAuthConfig(clientPortal);
     const accessTokenExpirationInDays =
-      authConfig.accessTokenExpirationInDays ?? DEFAULT_AUTH_CONFIG.accessTokenExpirationInDays;
+      authConfig.accessTokenExpirationInDays ??
+      DEFAULT_AUTH_CONFIG.accessTokenExpirationInDays;
     const refreshTokenExpirationInDays =
       authConfig.refreshTokenExpirationInDays ??
       DEFAULT_AUTH_CONFIG.refreshTokenExpirationInDays;
@@ -80,7 +82,10 @@ export class AuthService {
 
     return {
       token: this.signToken(payload, accessTokenExpiry),
-      refreshToken: this.signToken(refreshPayload, refreshTokenExpirationInDays),
+      refreshToken: this.signToken(
+        refreshPayload,
+        refreshTokenExpirationInDays,
+      ),
     };
   }
 

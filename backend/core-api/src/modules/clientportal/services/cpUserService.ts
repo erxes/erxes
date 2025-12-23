@@ -367,6 +367,57 @@ export class CPUserService {
 
     return user;
   }
+
+  async updateUser(
+    userId: string,
+    params: {
+      firstName?: string;
+      lastName?: string;
+      avatar?: string;
+      username?: string;
+      companyName?: string;
+      companyRegistrationNumber?: string;
+    },
+    models: IModels,
+  ): Promise<ICPUserDocument> {
+    const updateData: Record<string, any> = {};
+
+    if (params.firstName !== undefined) {
+      updateData.firstName = params.firstName;
+    }
+    if (params.lastName !== undefined) {
+      updateData.lastName = params.lastName;
+    }
+    if (params.avatar !== undefined) {
+      updateData.avatar = params.avatar;
+    }
+    if (params.username !== undefined) {
+      updateData.username = params.username;
+    }
+    if (params.companyName !== undefined) {
+      updateData.companyName = params.companyName;
+    }
+    if (params.companyRegistrationNumber !== undefined) {
+      updateData.companyRegistrationNumber = params.companyRegistrationNumber;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      const user = await models.CPUser.findOne({ _id: userId });
+      if (!user) {
+        throw new AuthenticationError('User not found');
+      }
+      return user;
+    }
+
+    await models.CPUser.updateOne({ _id: userId }, { $set: updateData });
+
+    const updatedUser = await models.CPUser.findOne({ _id: userId });
+    if (!updatedUser) {
+      throw new AuthenticationError('User not found');
+    }
+
+    return updatedUser;
+  }
 }
 
 export const cpUserService = new CPUserService();

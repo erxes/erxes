@@ -24,6 +24,15 @@ interface RegisterParams {
   userType?: string;
 }
 
+interface EditUserParams {
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  username?: string;
+  companyName?: string;
+  companyRegistrationNumber?: string;
+}
+
 interface VerifyParams {
   userId: string;
   code: number;
@@ -76,6 +85,18 @@ export const cpUserMutations: Record<string, Resolver> = {
     { models, subdomain, clientPortal }: IContext,
   ) {
     return cpUserService.registerUser(subdomain, clientPortal, params, models);
+  },
+
+  async clientPortalUserEdit(
+    _root: unknown,
+    params: EditUserParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    return cpUserService.updateUser(cpUser._id, params, models);
   },
 
   async clientPortalUserSignup(

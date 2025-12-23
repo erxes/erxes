@@ -10,7 +10,7 @@ import {
 
 const DEFAULT_OTP_RESEND_CONFIG = {
   maxAttempts: 3,
-  cooldownPeriodInSeconds: 300, // 5 minutes
+  cooldownPeriodInSeconds: 60, // 1 minutes
   maxAttemptsPerHour: 5,
 };
 
@@ -139,12 +139,15 @@ export class OTPService {
     clientPortal: IClientPortalDocument,
   ): boolean {
     const config = this.getOTPResendConfig(clientPortal);
+    console.log('config', config);
     const lastAttempt = user.otpResendLastAttempt
       ? new Date(user.otpResendLastAttempt)
       : null;
     const attempts = user.otpResendAttempts || 0;
-
+    console.log('lastAttempt', lastAttempt);
+    console.log('attempts', attempts);
     if (this.isWithinCooldown(lastAttempt, config.cooldownPeriodInSeconds)) {
+      console.log('within cooldown');
       return false;
     }
 
@@ -158,9 +161,9 @@ export class OTPService {
       return false;
     }
 
-    if (attempts >= config.maxAttempts) {
-      return false;
-    }
+    // if (attempts >= config.maxAttempts) {
+    //   return false;
+    // }
 
     return true;
   }
