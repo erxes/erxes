@@ -11,6 +11,9 @@ import { ticketMutations } from '@/ticket/graphql/resolvers/mutations/ticket';
 import { widgetMutations } from '@/inbox/graphql/resolvers/mutations/widget';
 import { ticketConfigMutations } from '~/modules/ticket/graphql/resolvers/mutations/ticketConfig';
 import { responseTemplateMutations } from '~/modules/response/graphql/responseTemplateMutations';
+import { formMutations } from '~/modules/form/graphql/resolvers/mutations/forms';
+import { widgetFormMutation } from '~/modules/form/graphql/resolvers/mutations/widget';
+import { fieldMutations } from '~/modules/form/graphql/resolvers/mutations/fields';
 
 export const mutations = {
   ...channelMutations,
@@ -26,4 +29,7 @@ export const mutations = {
   ...noteMutations,
   ...ticketConfigMutations,
   ...responseTemplateMutations,
+  ...formMutations,
+  ...widgetFormMutation,
+  ...fieldMutations,
 };

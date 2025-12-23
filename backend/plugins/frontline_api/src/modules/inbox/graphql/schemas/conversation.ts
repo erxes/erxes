@@ -5,9 +5,6 @@ export const types = `
     _id: String @external
     conversations: [Conversation]
   }
-  extend type Brand @key(fields: "_id") {
-    _id: String @external
-  }
 
   extend type Tag @key(fields: "_id") {
     _id: String @external

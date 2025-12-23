@@ -12,6 +12,8 @@ import { activityQueries } from '~/modules/ticket/graphql/resolvers/queries/acti
 import { noteQueries } from '@/ticket/graphql/resolvers/queries/note';
 import { ticketConfigQueries } from '~/modules/ticket/graphql/resolvers/queries/ticketConfig';
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
+import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
+import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
 
 export const queries = {
   ...channelQueries,
@@ -28,4 +30,6 @@ export const queries = {
   ...noteQueries,
   ...ticketConfigQueries,
   ...responseTemplateQueries,
+  ...formQueries,
+  ...fieldQueries,
 };

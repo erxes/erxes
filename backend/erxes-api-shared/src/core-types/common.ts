@@ -133,3 +133,9 @@ export type Resolver<
   info: GraphQLResolveInfo,
 ) => Promise<Result> | Result) &
   IResolverSymbol;
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
+}

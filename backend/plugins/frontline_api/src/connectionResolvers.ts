@@ -168,6 +168,18 @@ import {
   loadClass as loadResponseTemplateClass,
 } from '@/response/db/models/responseTemplates';
 import { IResponseTemplateDocument } from '@/response/@types/responseTemplates';
+import { IFieldDocument } from './modules/form/db/definitions/fields';
+import { IFieldModel, loadFieldClass } from './modules/form/db/models/Fields';
+import {
+  IForm,
+  IFormSubmissionDocument,
+} from './modules/form/db/definitions/forms';
+import {
+  IFormModel,
+  IFormSubmissionModel,
+  loadFormClass,
+  loadFormSubmissionClass,
+} from './modules/form/db/models/Forms';
 
 export interface IModels {
   //channel
@@ -218,6 +230,10 @@ export interface IModels {
 
   //response templates
   ResponseTemplates: IResponseTemplateModel;
+
+  Fields: IFieldModel;
+  Forms: IFormModel;
+  FormSubmissions: IFormSubmissionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -395,6 +411,18 @@ export const loadClasses = (
     'configs',
     loadConfigClass(models),
   );
+  models.Fields = db.model<IFieldDocument, IFieldModel>(
+    'frontline_form_fields',
+    loadFieldClass(models, subdomain),
+  );
+  models.Forms = db.model<IForm, IFormModel>(
+    'frontline_forms',
+    loadFormClass(models),
+  );
+  models.FormSubmissions = db.model<
+    IFormSubmissionDocument,
+    IFormSubmissionModel
+  >('frontline_form_submissions', loadFormSubmissionClass(models));
   return models;
 };
 

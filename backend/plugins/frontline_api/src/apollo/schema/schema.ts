@@ -79,6 +79,17 @@ import {
   queries as ResponseTemplateQueries,
   types as ResponseTemplateTypes,
 } from '~/modules/response/graphql/schema';
+import {
+  mutations as FormMutations,
+  queries as FormQueries,
+  types as FormTypes,
+} from '~/modules/form/graphql/schema/form';
+
+import {
+  fieldsMutations as FieldMutations,
+  fieldsQueries as FieldQueries,
+  fieldsTypes as FieldTypes,
+} from '~/modules/form/graphql/schema/field';
 
 export const types = `
     ${ChannelsTypes}
@@ -95,7 +106,8 @@ export const types = `
     ${NoteTypes}
     ${TicketConfigTypes}
     ${ResponseTemplateTypes}
-
+    ${FormTypes}
+    ${FieldTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -112,6 +124,8 @@ export const queries = `
     ${NoteQueries}
     ${TicketConfigQueries}
     ${ResponseTemplateQueries}
+    ${FormQueries}
+    ${FieldQueries}
   `;
 
 export const mutations = `
@@ -128,5 +142,7 @@ export const mutations = `
    ${NoteMutations}
    ${TicketConfigMutations}
    ${ResponseTemplateMutations}
+   ${FormMutations}
+   ${FieldMutations}
 `;
 export default { types, queries, mutations };
