@@ -1,24 +1,25 @@
+// frontend/plugins/mongolian_ui/src/modules/MainNavigation.tsx
+import { IconSandbox } from '@tabler/icons-react';
+import { NavigationMenuLinkItem } from 'erxes-ui';
 import React from 'react';
-import { IconSandbox, IconMapPin } from '@tabler/icons-react';
-import { CustomNavItem } from './productplaces/components/CustomNavItem';
 
 export const MainNavigation = () => {
   return (
     <>
-      <CustomNavItem
+      <NavigationMenuLinkItem
         name="Put Response"
         path="mongolian/put-response"
         icon={IconSandbox}
       />
-      <CustomNavItem
+      <NavigationMenuLinkItem
         name="Erkhet Sync"
         path="mongolian/sync-erkhet-history"
         icon={IconSandbox}
       />
-      <CustomNavItem
+      <NavigationMenuLinkItem
         name="Product Places"
         path="mongolian/product-places"
-        icon={IconMapPin}
+        icon={IconSandbox}
       />
     </>
   );
