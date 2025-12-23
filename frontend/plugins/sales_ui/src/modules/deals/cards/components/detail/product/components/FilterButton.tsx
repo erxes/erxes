@@ -203,6 +203,7 @@ const ProductFilterView = ({
             <SelectCompany.FilterItem value="productVendorIds" label="By Vendor" />
             <Filter.Item value="productTagIds">
               <IconTag />
+              By Tag
             </Filter.Item>
           </Command.List>
         </Command>
