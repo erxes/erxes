@@ -27,7 +27,7 @@ export const ContactsBreadcrumb = () => {
             <Button variant="ghost" asChild>
               <Link to={ContactsPath.Index}>
                 <IconBookmarksFilled className="text-accent-foreground" />
-                {t('contacts')}
+                {t('core-modules.contacts')}
               </Link>
             </Button>
           </Breadcrumb.Item>

@@ -13,6 +13,7 @@ import { SERVICE_FIELDS } from '@/settings/file-upload/constants/uploadServiceFi
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
 import { useFileUploadForm } from '@/settings/file-upload/hook/useFileUploadForm';
 import { UploadConfigFormT } from '@/settings/file-upload/types';
+import { useTranslation } from 'react-i18next';
 
 type Option = {
   label: string;
@@ -115,6 +116,9 @@ const FileUpload = () => {
   if (!configs || isLoading) {
     return null;
   }
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'file-upload',
+  });
 
   return (
     <Form {...form}>
@@ -126,7 +130,7 @@ const FileUpload = () => {
           form={form}
           fileMimeTypesOptions={fileMimeTypesOptions}
         />
-        <Label>Upload Service Type</Label>
+        <Label>{t('upload-service-type')}</Label>
 
         <UploadServiceRadioGroup selected={selected} form={form} />
 

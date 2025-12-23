@@ -4,12 +4,12 @@ import { Badge, NavigationMenuLinkItem, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const MyInboxNavigationItem = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   return (
     <NavigationMenuLinkItem
       path={'my-inbox'}
-      name={t('My inbox')}
+      name={t('my-inbox')}
       icon={IconInbox}
       children={<NotificationCount />}
     />
