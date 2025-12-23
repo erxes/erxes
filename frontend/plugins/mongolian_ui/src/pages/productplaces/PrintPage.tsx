@@ -6,7 +6,7 @@ const PrintPage = () => {
   return (
     <SettingsContainer
       component={PrintSettings}
-      configCode="PRODUCT_PLACES_PRINT"
+      configCode="dealsProductsDataPrint"
     />
   );
 };

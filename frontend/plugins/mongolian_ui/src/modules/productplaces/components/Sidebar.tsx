@@ -32,25 +32,10 @@ const ProductPlacesSidebar = () => {
 
       <Sidebar.Content>
         <Sidebar.Menu>
-          {renderItem(
-            '/product-places/settings/stage',
-            'Stage in product places config',
-          )}
-
-          {renderItem(
-            '/erxes-plugin-product-places/settings/split',
-            'Stage in product splits config',
-          )}
-
-          {renderItem(
-            '/product-places/settings/print',
-            'Stage in product prints config',
-          )}
-
-          {renderItem(
-            '/product-places/settings/productFilter',
-            'Products default filter by segment',
-          )}
+{renderItem('/mongolian/product-places/stage', 'Stage in product places config')}
+{renderItem('/mongolian/product-places/split', 'Stage in product splits config')}
+{renderItem('/mongolian/product-places/print', 'Stage in product prints config')}
+{renderItem('/mongolian/product-places/productFilter', 'Products default filter by segment')}
         </Sidebar.Menu>
       </Sidebar.Content>
     </Sidebar>

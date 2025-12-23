@@ -9,20 +9,19 @@ export type ProductPlacesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<ProductPlacesTRPCContext>().create();
 
+// backend/plugins/mongolian_api/src/modules/productPlaces/trpc/productPlaces.ts
 export const productPlacesTrpcRouter = t.router({
-  productPlaces: {
-    afterMutation: t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
-        return await afterMutationHandlers(subdomain, input);
-      }),
+  afterMutation: t.procedure
+    .input(z.any())
+    .mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      return await afterMutationHandlers(subdomain, input);
+    }),
 
-    beforeResolver: t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
-        return await beforeResolverHandlers(models, subdomain, input);
-      }),
-  },
+  beforeResolver: t.procedure
+    .input(z.any())
+    .mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      return await beforeResolverHandlers(models, subdomain, input);
+    }),
 });

@@ -1,12 +1,12 @@
+// frontend/plugins/mongolian_ui/src/modules/productplaces/index.tsx
 import React from 'react';
 import { lazy } from 'react';
 
 // Test if Main is loading
 console.log('ProductPlaces index.tsx is loading');
-
 const ProductPlacesMain = lazy(() => {
   console.log('Starting to load ProductPlacesMain');
-  return import('./main').then(module => {
+  return import('./Main').then(module => {
     console.log('ProductPlacesMain loaded successfully');
     return { default: module.default };
   });

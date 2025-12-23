@@ -1,34 +1,29 @@
+// frontend/plugins/mongolian_ui/src/pages/productplaces/ProductPlacesSettings.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Button } from 'erxes-ui/components/button';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { Button } from 'erxes-ui';
 import { cn } from 'erxes-ui/lib';
-
-// Import all the page components
-import StagePage from './StagePage';
-import SplitPage from './SplitPage';
-import PrintPage from './PrintPage';
-import ProductFilterPage from './ProductFilterPage';
 
 const menus = [
   {
     label: 'Stage in products places config',
     key: 'stage',
-    component: StagePage,
+    path: 'stage',
   },
   {
     label: 'Stage in products splits config',
     key: 'split',
-    component: SplitPage,
+    path: 'split',
   },
   {
     label: 'Stage in products prints config',
     key: 'print',
-    component: PrintPage,
+    path: 'print',
   },
   {
     label: 'Products default filter by Segment',
     key: 'productFilter',
-    component: ProductFilterPage,
+    path: 'product-filter',
   },
 ];
 
@@ -42,19 +37,19 @@ const ProductPlacesSettings = () => {
     const pathParts = location.pathname.split('/');
     const lastPart = pathParts[pathParts.length - 1];
     
-    if (menus.some(menu => menu.key === lastPart)) {
-      setActiveTab(lastPart);
-    } else {
-      // Default to first tab
+    // Find the menu item that matches the current path
+    const activeMenu = menus.find(menu => menu.path === lastPart);
+    if (activeMenu) {
+      setActiveTab(activeMenu.key);
+    } else if (lastPart === 'product-places') {
+      // If we're at the root, default to stage
       setActiveTab('stage');
-      navigate('/mongolian/product-places/stage', { replace: true });
+      navigate('stage', { replace: true });
     }
   }, [location.pathname, navigate]);
 
-  const ActiveComponent = menus.find(menu => menu.key === activeTab)?.component || StagePage;
-
   return (
-    <div className="flex h-full gap-4">
+    <div className="flex h-full gap-4 p-6">
       {/* LEFT SIDEBAR */}
       <div className="w-72 rounded-lg border bg-white p-4">
         <Button
@@ -71,7 +66,7 @@ const ProductPlacesSettings = () => {
               key={menu.key}
               onClick={() => {
                 setActiveTab(menu.key);
-                navigate(menu.key);
+                navigate(menu.path);
               }}
               className={cn(
                 'block w-full rounded-md px-3 py-2 text-sm transition text-left',
@@ -89,7 +84,7 @@ const ProductPlacesSettings = () => {
       {/* RIGHT CONTENT */}
       <div className="flex-1 rounded-lg border bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold">Places configs</h2>
-        <ActiveComponent />
+        <Outlet /> {/* This will render the nested route component */}
       </div>
     </div>
   );

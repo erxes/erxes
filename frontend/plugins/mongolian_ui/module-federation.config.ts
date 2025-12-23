@@ -33,11 +33,20 @@ const config: ModuleFederationConfig = {
     './put-responses-duplicated':
       './src/modules/put-response/put-responses-duplicated/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+     './productplaces': './src/modules/productplaces/Main.tsx',
+      './productplaces-routes': './src/modules/productplaces/index.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
     if (coreLibraries.has(libraryName)) {
-      return defaultConfig;
+       return {
+        ...defaultConfig,
+        // Ensure singleton for React Router
+        singleton: true,
+        requiredVersion: false,
+        eager: true,
+      };
+
     }
 
     return false;

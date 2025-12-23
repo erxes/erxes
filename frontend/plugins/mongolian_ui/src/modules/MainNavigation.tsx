@@ -1,21 +1,21 @@
+import React from 'react';
 import { IconSandbox, IconMapPin } from '@tabler/icons-react';
-
-import { NavigationMenuLinkItem } from 'erxes-ui';
+import { CustomNavItem } from './productplaces/components/CustomNavItem';
 
 export const MainNavigation = () => {
   return (
     <>
-      <NavigationMenuLinkItem
+      <CustomNavItem
         name="Put Response"
         path="mongolian/put-response"
         icon={IconSandbox}
       />
-      <NavigationMenuLinkItem
+      <CustomNavItem
         name="Erkhet Sync"
         path="mongolian/sync-erkhet-history"
         icon={IconSandbox}
       />
-        <NavigationMenuLinkItem
+      <CustomNavItem
         name="Product Places"
         path="mongolian/product-places"
         icon={IconMapPin}

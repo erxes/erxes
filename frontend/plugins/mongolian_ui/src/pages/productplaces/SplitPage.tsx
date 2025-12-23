@@ -6,7 +6,7 @@ const SplitPage = () => {
   return (
     <SettingsContainer
       component={SplitSettings}
-      configCode="PRODUCT_PLACES_SPLIT"
+      configCode="dealsProductsDataSplit"
     />
   );
 };

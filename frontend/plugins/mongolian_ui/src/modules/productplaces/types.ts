@@ -37,9 +37,14 @@ export type DefaultFilterConfig = {
   userIds: string[];
 };
 
-export type IConfigsMap = { 
-  [key: string]: PerPrintConfig | PerSplitConfig;
-};
+export type IConfigsMap = {
+  dealsProductsDataPrint?: Record<string, PerPrintConfig>;
+  dealsProductsDataPlaces?: Record<string, PerPrintConfig>;
+  dealsProductsDataSplit?: Record<string, PerSplitConfig>;
+  dealsProductsDefaultFilter?: DefaultFilterConfig[];
+  // Allow other string keys for flexibility
+  [key: string]: any;
+}
 
 export type IConfig = {
   _id: string;

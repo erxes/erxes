@@ -2,13 +2,13 @@ import React from 'react';
 import SettingsContainer from '../../modules/productplaces/containers/Settings';
 import DefaultFilterSettings from '../../modules/productplaces/components/DefaultFilterSettings';
 
-const DefaultFilterPage = () => {
+const ProductFilterPage = () => {
   return (
     <SettingsContainer
       component={DefaultFilterSettings}
-      configCode="PRODUCT_PLACES_DEFAULT_FILTER"
+      configCode="dealsProductsDefaultFilter"
     />
   );
 };
 
-export default DefaultFilterPage;
+export default ProductFilterPage;
