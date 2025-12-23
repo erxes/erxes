@@ -30,7 +30,7 @@ export const TagsListGroupRow = ({ tag }: { tag: ITag }) => {
     if (addingTag && addingTag.parentId === tag._id) {
       setOpen(true);
     }
-  }, [addingTag]);
+  }, [addingTag, tag._id]);
   return (
     <Collapsible
       className="first:rounded-t-lg last:rounded-b-lg"
@@ -99,7 +99,7 @@ export const TagsListRowContent = ({ tag }: { tag: ITag }) => {
 
 export const TagsListRowSkeleton = () => {
   return (
-    <div className="h-10 w-full shadow-xs flex items-center pr-12 pl-14 bg-background r elative">
+    <div className="h-10 w-full shadow-xs flex items-center pr-12 pl-14 bg-background">
       <TagsListCell className="w-full md:max-w-[30%] gap-2 ">
         <Skeleton className="size-3 rounded-full" />
         <Skeleton className="h-4 w-32" />

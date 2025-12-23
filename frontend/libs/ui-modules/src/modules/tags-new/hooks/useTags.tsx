@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery, QueryHookOptions } from '@apollo/client';
 import { TAGS_QUERY } from '../graphql/tagQueries';
-import { ITag } from 'ui-modules/modules/tags/types/Tag';
+import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 
 export const useTags = (options?: QueryHookOptions) => {
   const { data, loading, error } = useQuery(TAGS_QUERY, options);

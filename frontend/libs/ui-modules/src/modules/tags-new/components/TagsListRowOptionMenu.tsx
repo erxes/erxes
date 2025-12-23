@@ -16,7 +16,6 @@ import { addingTagAtom } from 'ui-modules/modules/tags-new/states/addingTagAtom'
 import { useSetAtom, useAtomValue } from 'jotai';
 import { tagGroupsAtomFamily } from 'ui-modules/modules/tags-new/states/tagGroupsAtom';
 import { useTagType } from 'ui-modules/modules/tags-new/hooks/useTagType';
-import { childTagsMapAtomFamily } from 'ui-modules/modules/tags-new/states/childTagsMap';
 
 export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(
@@ -125,7 +124,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                   }}
                 >
                   <IconCirclesFilled
-                    className="size-3!"
+                    className="size-3"
                     style={{ color: group.colorCode }}
                   ></IconCirclesFilled>
                   {group.name}

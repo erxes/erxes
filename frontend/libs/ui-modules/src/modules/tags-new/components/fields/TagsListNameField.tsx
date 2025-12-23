@@ -44,6 +44,7 @@ export const TagsListNameField = ({
     },
   });
 
+  const watchedName = form.watch('name');
   useEffect(() => {
     if (!isOpen) return;
     setTimeout(() => {
@@ -58,7 +59,7 @@ export const TagsListNameField = ({
         textarea.setSelectionRange(length, length);
       });
     });
-  }, [form.getValues('name'), isOpen]);
+  }, [watchedName, isOpen]);
 
   const { ref: registerRef, ...restRegister } = form.register('name');
 
