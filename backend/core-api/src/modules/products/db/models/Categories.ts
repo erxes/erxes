@@ -6,6 +6,7 @@ import {
 } from 'erxes-api-shared/core-types';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
@@ -23,7 +24,11 @@ export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   ): Promise<IProductCategoryDocument[]>;
 }
 
-export const loadProductCategoryClass = (models: IModels) => {
+export const loadProductCategoryClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class ProductCategory {
     /**
      * Get Product Category
@@ -82,7 +87,13 @@ export const loadProductCategoryClass = (models: IModels) => {
       // Generatingg order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      return models.ProductCategories.create({ ...doc, createdAt: new Date() });
+      const category = await models.ProductCategories.create({ ...doc, createdAt: new Date() });
+      sendDbEventLog({
+        action: 'create',
+        docId: category._id,
+        currentDocument: category.toObject(),
+      });
+      return category;
     }
 
     /**
@@ -131,7 +142,16 @@ export const loadProductCategoryClass = (models: IModels) => {
         );
       }
 
-      return models.ProductCategories.findOne({ _id });
+      const updatedCategory = await models.ProductCategories.findOne({ _id });
+      if (updatedCategory) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedCategory._id,
+          currentDocument: updatedCategory.toObject(),
+          prevDocument: category.toObject(),
+        });
+      }
+      return updatedCategory;
     }
 
     /**
@@ -153,7 +173,15 @@ export const loadProductCategoryClass = (models: IModels) => {
         throw new Error("Can't remove a product category");
       }
 
-      return await models.ProductCategories.deleteOne({ _id });
+      const category = await models.ProductCategories.findOne({ _id });
+      const result = await models.ProductCategories.deleteOne({ _id });
+      if (category) {
+        sendDbEventLog({
+          action: 'delete',
+          docId: category._id,
+        });
+      }
+      return result;
     }
 
     /**
