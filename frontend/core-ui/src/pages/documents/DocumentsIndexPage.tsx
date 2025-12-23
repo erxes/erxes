@@ -1,5 +1,6 @@
 import { DocumentEditor } from '@/documents/components/DocumentEditor';
 import { Documents } from '@/documents/components/Documents';
+import { DocumentsFilter } from '@/documents/components/DocumentsFilter';
 import { DocumentsHeader } from '@/documents/components/DocumentsHeader';
 import { DocumentsLayout } from '@/documents/components/DocumentsLayout';
 import { DocumentsTypes } from '@/documents/components/DocumentsTypes';
@@ -14,6 +15,7 @@ const DocumentsIndexPage = () => {
     <PageContainer>
       <FormProvider {...form}>
         <DocumentsHeader />
+        <DocumentsFilter />
         <DocumentsLayout
           Documents={Documents}
           DocumentsTypes={DocumentsTypes}
