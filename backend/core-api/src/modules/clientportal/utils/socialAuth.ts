@@ -1,4 +1,4 @@
-import { OAuth2Client } from 'google-auth-library';
+// import { OAuth2Client } from 'google-auth-library';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 
 export type SocialAuthProvider = 'GOOGLE' | 'APPLE' | 'FACEBOOK';
@@ -20,16 +20,17 @@ export async function getGoogleAuthUrl(
   redirectUri: string,
   state?: string,
 ): Promise<string> {
-  const client = new OAuth2Client(clientId);
+  // const client = new OAuth2Client(clientId);
 
-  const authUrl = client.generateAuthUrl({
-    access_type: 'offline',
-    scope: ['profile', 'email'],
-    redirect_uri: redirectUri,
-    state: state || '',
-  });
+  // const authUrl = client.generateAuthUrl({
+  //   access_type: 'offline',
+  //   scope: ['profile', 'email'],
+  //   redirect_uri: redirectUri,
+  //   state: state || '',
+  // });
 
-  return authUrl;
+  // return authUrl;
+  return '';
 }
 
 /**
@@ -39,27 +40,35 @@ export async function verifyGoogleToken(
   token: string,
   clientId: string,
 ): Promise<SocialUserProfile> {
-  const client = new OAuth2Client(clientId);
+  // const client = new OAuth2Client(clientId);
 
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: clientId,
-    });
+    // const ticket = await client.verifyIdToken({
+    //   idToken: token,
+    //   audience: clientId,
+    // });
 
-    const payload = ticket.getPayload();
+    // const payload = ticket.getPayload();
 
-    if (!payload) {
-      throw new Error('Invalid Google token');
-    }
+    // if (!payload) {
+    //   throw new Error('Invalid Google token');
+    // }
 
+    // return {
+    //   providerId: payload.sub,
+    //   email: payload.email,
+    //   firstName: payload.given_name,
+    //   lastName: payload.family_name,
+    //   name: payload.name,
+    //   picture: payload.picture,
+    // };
     return {
-      providerId: payload.sub,
-      email: payload.email,
-      firstName: payload.given_name,
-      lastName: payload.family_name,
-      name: payload.name,
-      picture: payload.picture,
+      providerId: '',
+      email: '',
+      firstName: '',
+      lastName: '',
+      name: '',
+      picture: '',
     };
   } catch (error) {
     throw new Error(`Google token verification failed: ${error.message}`);

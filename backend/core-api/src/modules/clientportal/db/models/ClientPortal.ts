@@ -27,7 +27,7 @@ export const loadClientPortalClass = (models: IModels) => {
 
       return models.ClientPortal.findOneAndUpdate(
         { _id: clientPortal._id },
-        { $set: { authenticationToken: token } },
+        { $set: { token: token } },
         { new: true },
       );
     }
@@ -44,7 +44,7 @@ export const loadClientPortalClass = (models: IModels) => {
 
       await models.ClientPortal.findOneAndUpdate(
         { _id },
-        { $set: { authenticationToken: token } },
+        { $set: { token: token } },
       );
       return token;
     }
