@@ -117,3 +117,18 @@ export const SOCIALPAY_TOKEN_URL =
   'https://p2p.golomtbank.com/rpc/smartapptoken/';
 
 export const SOCIALPAY_API_URL = 'http://uat.golomtbank.com:8443';
+
+export const VERIFICATION_CODE_CONFIG = {
+  DEFAULT_LENGTH: 6,
+  DEFAULT_EXPIRATION_SECONDS: 300, // 5 minutes
+} as const;
+
+export const PASSWORD_CONFIG = {
+  MIN_LENGTH: 8,
+  REQUIRE_UPPERCASE: true,
+  REQUIRE_LOWERCASE: true,
+  REQUIRE_NUMBER: true,
+  REGEX: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
+} as const;
+
+export const SALT_WORK_FACTOR = 10;

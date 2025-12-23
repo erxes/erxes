@@ -1,41 +1,197 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from '../../../utils';
 
+const otpEmailConfigSchema = new Schema(
+  {
+    emailSubject: { type: String },
+    messageTemplate: { type: String, required: true },
+    codeLength: { type: Number, required: true },
+    duration: { type: Number, required: true },
+    enableEmailVerification: { type: Boolean },
+    enablePasswordlessLogin: { type: Boolean },
+  },
+  { _id: false },
+);
+
+const otpSMSConfigSchema = new Schema(
+  {
+    messageTemplate: { type: String, required: true },
+    codeLength: { type: Number, required: true },
+    smsProvider: { type: String, required: true },
+    duration: { type: Number, required: true },
+    enablePhoneVerification: { type: Boolean },
+    enablePasswordlessLogin: { type: Boolean },
+  },
+  { _id: false },
+);
+
 const otpConfigSchema = new Schema(
   {
-    content: { type: String, optional: true },
-    codeLength: { type: Number, default: 4, min: 4 },
-    loginWithOTP: { type: Boolean, default: false },
-    expireAfter: { type: Number, default: 1, min: 1, max: 10 },
-    smsTransporterType: {
-      type: String,
-      optional: true,
-    },
-    emailSubject: { type: String, optional: true },
+    email: { type: otpEmailConfigSchema },
+    sms: { type: otpSMSConfigSchema },
   },
   { _id: false },
 );
 
-const twoFactorSchema = new Schema(
+const multiFactorConfigSchema = new Schema(
   {
-    content: { type: String, optional: true },
-    codeLength: { type: Number, default: 4, min: 4 },
-    enableTwoFactor: { type: Boolean, default: false },
-    expireAfter: { type: Number, default: 1, min: 1, max: 10 },
-    smsTransporterType: {
-      type: String,
-      optional: true,
-    },
-    emailSubject: { type: String, optional: true },
+    isEnabled: { type: Boolean, required: true },
+    email: { type: otpEmailConfigSchema },
+    sms: { type: otpSMSConfigSchema },
   },
   { _id: false },
 );
 
-const mailConfigSchema = new Schema(
+const otpResendConfigSchema = new Schema(
   {
-    subject: { type: String, optional: true },
-    invitationContent: { type: String, optional: true },
-    registrationContent: { type: String, optional: true },
+    maxAttempts: { type: Number },
+    cooldownPeriodInSeconds: { type: Number },
+    maxAttemptsPerHour: { type: Number },
+  },
+  { _id: false },
+);
+
+const resetPasswordConfigSchema = new Schema(
+  {
+    mode: {
+      type: String,
+      required: true,
+      enum: ['link', 'code'],
+    },
+    emailSubject: { type: String, required: true },
+    emailContent: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const authConfigSchema = new Schema(
+  {
+    accessTokenExpirationInDays: {
+      type: Number,
+    },
+    refreshTokenExpirationInDays: {
+      type: Number,
+    },
+    deliveryMethod: {
+      type: String,
+      enum: ['cookie', 'header'],
+    },
+  },
+  { _id: false },
+);
+
+const googleOAuthConfigSchema = new Schema(
+  {
+    credentials: { type: String },
+    clientId: { type: String },
+    clientSecret: { type: String },
+    redirectUri: { type: String },
+  },
+  { _id: false },
+);
+
+const facebookOAuthConfigSchema = new Schema(
+  {
+    appId: { type: String },
+    appSecret: { type: String },
+    redirectUri: { type: String },
+  },
+  { _id: false },
+);
+
+const socialpayConfigSchema = new Schema(
+  {
+    enableSocialpay: { type: Boolean },
+    publicKey: { type: String, required: true },
+    certId: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const tokiConfigSchema = new Schema(
+  {
+    enableToki: { type: Boolean },
+    merchantId: { type: String, required: true },
+    apiKey: { type: String, required: true },
+    username: { type: String, required: true },
+    password: { type: String, required: true },
+    production: { type: Boolean },
+  },
+  { _id: false },
+);
+
+const callProConfigSchema = new Schema(
+  {
+    phone: { type: String },
+    token: { type: String },
+  },
+  { _id: false },
+);
+
+const twilioConfigSchema = new Schema(
+  {
+    apiKey: { type: String },
+    apiSecret: { type: String },
+    apiUrl: { type: String },
+  },
+  { _id: false },
+);
+
+const smsProvidersConfigSchema = new Schema(
+  {
+    callPro: { type: callProConfigSchema },
+    twilio: { type: twilioConfigSchema },
+  },
+  { _id: false },
+);
+
+const verificationConfigSchema = new Schema(
+  {
+    type: {
+      type: String,
+      enum: ['email', 'phone', 'both', 'none'],
+    },
+  },
+  { _id: false },
+);
+
+const manualVerificationConfigSchema = new Schema(
+  {
+    userIds: { type: [String], required: true },
+    verifyCustomer: { type: Boolean, required: true },
+    verifyCompany: { type: Boolean, required: true },
+  },
+  { _id: false },
+);
+
+const testUserSchema = new Schema(
+  {
+    enableTestUser: { type: Boolean },
+    email: { type: String },
+    phone: { type: String },
+    password: { type: String },
+    otp: { type: Number },
+  },
+  { _id: false },
+);
+
+const authSchema = new Schema(
+  {
+    authConfig: { type: authConfigSchema },
+    googleOAuth: { type: googleOAuthConfigSchema },
+    facebookOAuth: { type: facebookOAuthConfigSchema },
+    socialpayConfig: { type: socialpayConfigSchema },
+    tokiConfig: { type: tokiConfigSchema },
+  },
+  { _id: false },
+);
+
+const securityAuthConfigSchema = new Schema(
+  {
+    otpConfig: { type: otpConfigSchema },
+    multiFactorConfig: { type: multiFactorConfigSchema },
+    otpResendConfig: { type: otpResendConfigSchema },
+    resetPasswordConfig: { type: resetPasswordConfigSchema },
   },
   { _id: false },
 );
@@ -44,119 +200,21 @@ export const clientPortalSchema = new Schema(
   {
     _id: mongooseStringRandomId,
     name: { type: String },
-    description: { type: String, optional: true },
+    description: { type: String },
     url: { type: String },
-    domain: { type: String, optional: true },
-    otpConfig: { type: otpConfigSchema, optional: true },
-    twoFactorConfig: { type: twoFactorSchema, optional: true },
+    domain: { type: String },
+    token: { type: String, unique: true },
+    erxesIntegrationToken: { type: String },
 
-    enableOTP: { type: Boolean, optional: true },
-    enableTwoFactor: { type: Boolean, optional: true },
-    enableSocialpay: { type: Boolean, optional: true },
-    enableToki: { type: Boolean, optional: true },
-    enableManualVerification: { type: Boolean, optional: true },
-    enablePasswordVerification: { type: Boolean, optional: true },
-    enableTestUser: { type: Boolean, optional: true },
-
-    verificationMailConfig: { type: mailConfigSchema, optional: true },
-
-    verificationType: {
-      type: String,
-      optional: true,
-      enum: ['email', 'phone', 'both', 'none'],
-      default: 'email',
-    },
-
+    auth: { type: authSchema },
+    securityAuthConfig: { type: securityAuthConfigSchema },
+    smsProvidersConfig: { type: smsProvidersConfigSchema },
+    verificationConfig: { type: verificationConfigSchema },
     manualVerificationConfig: {
-      type: {
-        userIds: { type: [String], required: true },
-        verifyCustomer: {
-          type: Boolean,
-          optional: true,
-          default: false,
-        },
-        verifyCompany: {
-          type: Boolean,
-          optional: true,
-          default: false,
-        },
-      },
-      optional: true,
+      type: manualVerificationConfigSchema,
     },
-    googleCredentials: { type: Object, optional: true },
-    googleClientId: { type: String, optional: true },
-    googleClientSecret: { type: String, optional: true },
-    googleRedirectUri: { type: String, optional: true },
-    facebookAppId: { type: String, optional: true },
-    token: { type: String, optional: true, unique: true },
-
-    testUserEmail: { type: String, optional: true },
-    testUserPhone: { type: String, optional: true },
-    testUserPassword: { type: String, optional: true },
-    testUserOTP: { type: Number, optional: true },
-
-    passwordVerificationConfig: {
-      type: {
-        verifyByOTP: {
-          type: Boolean,
-          optional: true,
-          default: false,
-        },
-        emailSubject: { type: String, optional: true },
-        emailContent: { type: String, optional: true },
-        smsContent: { type: String, optional: true },
-      },
-      optional: true,
-    },
-
-    tokenExpiration: {
-      type: Number,
-      optional: true,
-      default: 1,
-      label: 'Token expiration',
-      min: 1,
-      max: 7,
-    },
-
-    refreshTokenExpiration: {
-      type: Number,
-      optional: true,
-      default: 7,
-      min: 1,
-      max: 30,
-      label: 'Refresh token expiration',
-    },
-
-    tokenPassMethod: {
-      type: String,
-      optional: true,
-      default: 'cookie',
-      label: 'Token pass method',
-      enum: ['cookie', 'header'],
-    },
-
-    vendorParentProductCategoryId: {
-      type: String,
-      optional: true,
-    },
-
-    socialpayConfig: {
-      type: {
-        publicKey: { type: String, optional: true },
-        certId: { type: String, optional: true },
-      },
-      optional: true,
-    },
-    tokiConfig: {
-      type: {
-        merchantId: { type: String, optional: true },
-        apiKey: { type: String, optional: true },
-        username: { type: String, optional: true },
-        password: { type: String, optional: true },
-        production: { type: Boolean, optional: true },
-      },
-      optional: true,
-    },
+    enableManualVerification: { type: Boolean },
+    testUser: { type: testUserSchema },
   },
 
   { timestamps: true },

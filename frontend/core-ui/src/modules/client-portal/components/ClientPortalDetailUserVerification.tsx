@@ -14,20 +14,29 @@ export const ClientPortalDetailUserVerification = ({
 }) => {
   const [verificationType, setVerificationType] = useState<
     'email' | 'phone' | 'both' | 'none'
-  >(clientPortal.verificationType || 'email');
+  >(clientPortal?.verificationConfig?.type || 'email');
 
   const form = useForm<z.infer<typeof CLIENTPORTAL_MAIL_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_MAIL_SCHEMA),
-    defaultValues: clientPortal?.verificationMailConfig,
+    defaultValues: {
+      subject: '',
+      invitationContent: '',
+      registrationContent: '',
+    },
   });
   const { updateClientPortal, loading } = useUpdateClientPortal();
 
   function handleSubmit(data: z.infer<typeof CLIENTPORTAL_MAIL_SCHEMA>) {
-    // handle save here
+    // Note: verificationMailConfig is not in the current schema
+    // This might need to be added to the backend or handled differently
     updateClientPortal({
       variables: {
         id: clientPortal?._id,
-        clientPortal: { verificationMailConfig: data },
+        clientPortal: {
+          verificationConfig: {
+            type: verificationType,
+          },
+        },
       },
     });
   }
@@ -38,7 +47,11 @@ export const ClientPortalDetailUserVerification = ({
     updateClientPortal({
       variables: {
         id: clientPortal?._id,
-        clientPortal: { verificationType: value },
+        clientPortal: {
+          verificationConfig: {
+            type: value,
+          },
+        },
       },
     });
 

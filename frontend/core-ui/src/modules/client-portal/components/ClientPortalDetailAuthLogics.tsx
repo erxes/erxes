@@ -1,6 +1,5 @@
 import { InfoCard, ScrollArea, Tabs, ToggleGroup } from 'erxes-ui';
 import { useState } from 'react';
-import { ClientPortalDetailOTP } from './ClientPortalDetailOTPf';
 import { ClientPortalDetail2FA } from './ClientPortalDetail2FA';
 import { ClientPortalDetailUserVerification } from './ClientPortalDetailUserVerification';
 import { ClientPortalDetailResetPassword } from './ClientPortalDetailPasswordVerification';
@@ -25,9 +24,6 @@ export const ClientPortalDetailAuthLogics = ({
           <ToggleGroup.Item value="verification" className="flex-auto">
             User verification
           </ToggleGroup.Item>
-          <ToggleGroup.Item value="otp" className="flex-auto">
-            One-time password
-          </ToggleGroup.Item>
           <ToggleGroup.Item value="two-factor" className="flex-auto">
             Two-factor authentication
           </ToggleGroup.Item>
@@ -42,9 +38,6 @@ export const ClientPortalDetailAuthLogics = ({
         <ScrollArea.Bar orientation="horizontal" />
 
         <Tabs value={authLogic} className="p-2">
-          <Tabs.Content value="otp">
-            <ClientPortalDetailOTP clientPortal={clientPortal} />
-          </Tabs.Content>
           <Tabs.Content value="two-factor">
             <ClientPortalDetail2FA clientPortal={clientPortal} />
           </Tabs.Content>

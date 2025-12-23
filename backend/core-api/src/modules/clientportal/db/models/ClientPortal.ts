@@ -1,5 +1,4 @@
 import { Model } from 'mongoose';
-import * as jwt from 'jsonwebtoken';
 import { IModels } from '~/connectionResolvers';
 import {
   IClientPortal,
@@ -10,16 +9,11 @@ import {
   removeExtraSpaces,
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
-
-const { JWT_TOKEN_SECRET = 'SECRET' } = process.env;
+import { authService } from '@/clientportal/services/authService';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
   createClientPortal(name: string): Promise<IClientPortalDocument>;
-  createClientPortalToken(clientPortalId: string): Promise<string>;
   updateClientPortal(_id: string, doc: IClientPortal): Promise<void>;
   clientPortalChangeToken(_id: string): Promise<string>;
 }
@@ -29,37 +23,29 @@ export const loadClientPortalClass = (models: IModels) => {
     public static async createClientPortal(name: string) {
       const clientPortal = await models.ClientPortal.create({ name });
 
-      const token = await models.ClientPortal.createClientPortalToken(
-        clientPortal._id,
-      );
+      const token = authService.createClientPortalToken(clientPortal._id);
 
       return models.ClientPortal.findOneAndUpdate(
         { _id: clientPortal._id },
-        { $set: { token } },
+        { $set: { authenticationToken: token } },
         { new: true },
       );
     }
 
-    public static async createClientPortalToken(clientPortalId: string) {
+    public static async clientPortalChangeToken(_id: string) {
       const clientPortal = await models.ClientPortal.findOne({
-        _id: clientPortalId,
+        _id,
       });
       if (!clientPortal) {
         throw new Error('Client portal not found');
       }
 
-      const token = jwt.sign(
-        { clientPortalId: clientPortal._id },
-        JWT_TOKEN_SECRET,
+      const token = authService.createClientPortalToken(_id);
+
+      await models.ClientPortal.findOneAndUpdate(
+        { _id },
+        { $set: { authenticationToken: token } },
       );
-
-      return token;
-    }
-
-    public static async clientPortalChangeToken(_id: string) {
-      const token = await models.ClientPortal.createClientPortalToken(_id);
-
-      await models.ClientPortal.findOneAndUpdate({ _id }, { $set: { token } });
       return token;
     }
 

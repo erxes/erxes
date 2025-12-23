@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^"
+    "erxes-api-shared": "workspace:^",
+    "google-auth-library": "^10.5.0"
   }
 }

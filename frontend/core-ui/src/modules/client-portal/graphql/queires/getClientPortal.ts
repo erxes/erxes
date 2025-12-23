@@ -10,68 +10,104 @@ export const GET_CLIENT_PORTAL = gql`
       createdAt
       updatedAt
       token
-      tokenPassMethod
-      refreshTokenExpiration
-      tokenExpiration
+      url
+      erxesIntegrationToken
       enableManualVerification
-      enableOTP
-      enablePasswordVerification
-      enableSocialpay
-      enableTestUser
-      enableToki
-      enableTwoFactor
-      googleClientId
-      googleClientSecret
-      googleCredentials
-      googleRedirectUri
-      facebookAppId
-      otpConfig {
-        smsTransporterType
-        emailSubject
-        content
-        codeLength
-        expireAfter
-        loginWithOTP
+      auth {
+        authConfig {
+          deliveryMethod
+          accessTokenExpirationInDays
+          refreshTokenExpirationInDays
+        }
+        googleOAuth {
+          clientId
+          clientSecret
+          credentials
+          redirectUri
+        }
+        facebookOAuth {
+          appId
+          appSecret
+          redirectUri
+        }
+        socialpayConfig {
+          enableSocialpay
+          publicKey
+          certId
+        }
+        tokiConfig {
+          enableToki
+          merchantId
+          apiKey
+          username
+          password
+          production
+        }
       }
-      twoFactorConfig {
-        codeLength
-        content
-        emailSubject
-        expireAfter
-        smsTransporterType
+      securityAuthConfig {
+        otpConfig {
+          email {
+            emailSubject
+            messageTemplate
+            codeLength
+            duration
+            enableEmailVerification
+            enablePasswordlessLogin
+          }
+          sms {
+            messageTemplate
+            codeLength
+            smsProvider
+            duration
+            enablePhoneVerification
+            enablePasswordlessLogin
+          }
+        }
+        multiFactorConfig {
+          isEnabled
+          email {
+            emailSubject
+            messageTemplate
+            codeLength
+            duration
+          }
+          sms {
+            messageTemplate
+            codeLength
+            smsProvider
+            duration
+          }
+        }
+        otpResendConfig {
+          maxAttempts
+          cooldownPeriodInSeconds
+          maxAttemptsPerHour
+        }
+        resetPasswordConfig {
+          mode
+          emailSubject
+          emailContent
+        }
       }
-      verificationMailConfig {
-        subject
-        invitationContent
-        registrationContent
+      verificationConfig {
+        type
       }
-      passwordVerificationConfig {
-        emailContent
-        emailSubject
-        smsContent
-        verifyByOTP
+      smsProvidersConfig {
+        callPro
+        twilio
       }
       manualVerificationConfig {
         userIds
         verifyCustomer
         verifyCompany
       }
-      socialpayConfig {
-        certId
-        publicKey
-      }
-      tokiConfig {
-        merchantId
-        apiKey
-        username
+      testUser {
+        enableTestUser
+        email
+        phone
         password
+        otp
       }
-      testUserEmail
-      testUserOTP
-      testUserPassword
-      testUserPhone
-      verificationType
-      verificationCodeExpiresIn
     }
   }
 `;
