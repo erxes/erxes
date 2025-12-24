@@ -555,8 +555,13 @@ export const reportQueries = {
     const status =
       normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.OPEN;
 
+    const query = {
+      status,
+      ...buildCreatedAtMatch(filters),
+    };
+
     const [openCount, totalCount] = await Promise.all([
-      models.Conversations.countDocuments({ status }),
+      models.Conversations.countDocuments(query),
       models.Conversations.countDocuments({}),
     ]);
 
@@ -578,8 +583,13 @@ export const reportQueries = {
     const status =
       normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.CLOSED;
 
+    const query = {
+      status,
+      ...buildCreatedAtMatch(filters),
+    };
+
     const [closedCount, totalCount] = await Promise.all([
-      models.Conversations.countDocuments({ status }),
+      models.Conversations.countDocuments(query),
       models.Conversations.countDocuments({}),
     ]);
 
@@ -601,8 +611,13 @@ export const reportQueries = {
     const status =
       normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.CLOSED;
 
+    const query = {
+      status,
+      ...buildClosedAtMatch(filters),
+    };
+
     const [resolvedCount, totalCount] = await Promise.all([
-      models.Conversations.countDocuments({ status }),
+      models.Conversations.countDocuments(query),
       models.Conversations.countDocuments({}),
     ]);
 
