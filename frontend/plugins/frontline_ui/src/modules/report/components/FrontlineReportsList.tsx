@@ -93,7 +93,6 @@ export const FrontlineReportsList = () => {
     }),
   );
 
-  // Ensure we're passing an array of sources to getTopSource
   const sources = Array.isArray(conversationSources) ? conversationSources : [];
   const topPerformingSource = getTopSource(sources);
   const topConvertingSource = getTopSource(sources);

@@ -217,7 +217,6 @@ function buildConversationTagsMatch(filters: IReportTagsFilters) {
     tagIds: { $exists: true, $not: { $size: 0 } },
   };
 
-  // Add date filtering
   if (filters.date) {
     const range = getDateRange({ type: filters.date });
     if (range) {
