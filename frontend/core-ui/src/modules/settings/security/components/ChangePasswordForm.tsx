@@ -91,7 +91,7 @@ export const ChangePasswordForm = () => {
                 <Form.Control>
                   <PasswordInput
                     {...field}
-                    placeholder={t('confirm-placeholder')}
+                    placeholder={t('confirm-password')}
                     autoComplete={field.name}
                   />
                 </Form.Control>
