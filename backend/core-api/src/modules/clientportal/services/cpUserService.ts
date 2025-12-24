@@ -102,6 +102,14 @@ export class CPUserService {
         },
       },
     );
+
+    // Update customer state to 'customer' when user is verified
+    if (user.erxesCustomerId) {
+      await contactService.updateCustomerStateToCustomer(
+        user.erxesCustomerId,
+        models,
+      );
+    }
   }
 
   private async sendVerificationOTP(
@@ -243,6 +251,14 @@ export class CPUserService {
         $unset: { actionCode: '' },
       },
     );
+
+    // Update customer state to 'customer' when user is verified
+    if (user.erxesCustomerId) {
+      await contactService.updateCustomerStateToCustomer(
+        user.erxesCustomerId,
+        models,
+      );
+    }
 
     const updatedUser = await models.CPUser.findOne({ _id: user._id });
     return updatedUser || user;
