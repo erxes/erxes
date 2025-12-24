@@ -151,7 +151,7 @@ export class VerificationService {
     const user = await models.CPUser.findOne(query);
 
     if (!user) {
-      return;
+      throw new ValidationError('User not found');
     }
 
     if (!otpService.checkOTPResendLimit(user, clientPortal)) {

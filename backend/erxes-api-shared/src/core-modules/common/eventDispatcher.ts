@@ -240,7 +240,6 @@ export function createEventDispatcher(
 
     // Get current processId and userId dynamically each time
     const { processId, userId } = getContext();
-    console.log('sendDbEventLog', { processId, userId });
 
     const queue = sendWorkerQueue('logs', 'put_log');
     const payload = generateDbEventPayload(input, collectionName);
@@ -327,13 +326,9 @@ export function createEventDispatcher(
         processId,
         userId: duserId || userId,
       },
-    })
-      .then((res) => {
-        console.log('createActivityLog', res);
-      })
-      .catch((err) => {
-        console.error('createActivityLog', err);
-      });
+    }).catch((err) => {
+      console.error('createActivityLog', err);
+    });
   }
 
   function sendNotificationMessage(
