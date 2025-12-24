@@ -27,7 +27,7 @@ export type SalesFilterState = {
 
 export type ProductFilterState = {
   productSearch?: string | null;
-  productCategoryIds: string[] | null;
-  productVendorIds: string[] | null;
-  productTagIds: string[] | null;
+  productCategoryIds?: string[] | null;
+  productVendorIds?: string[] | null;
+  productTagIds?: string[] | null;
 };

@@ -1,16 +1,12 @@
 import { Button, Combobox, Command, Filter, Popover } from 'erxes-ui';
 import {
-  IconCategory,
-  IconTag,
-  IconBuilding,
-  IconX,
-} from '@tabler/icons-react';
-import {
+  IProduct,
   SelectCategory,
   SelectCompany,
   SelectTags,
-  IProduct,
 } from 'ui-modules';
+import { IconCategory, IconTag, IconX } from '@tabler/icons-react';
+
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useProductCategories } from 'ui-modules/modules/products/categories/hooks/useCategories';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
@@ -19,8 +15,6 @@ interface Props {
   filters: ProductFilterState;
   onFilterChange: (filters: ProductFilterState) => void;
 }
-
-  
 
 const CustomFilterItem = ({
   children,
@@ -71,28 +65,19 @@ export const filterProducts = (
 
   if (filters.productSearch) {
     const search = filters.productSearch.toLowerCase();
-    result = result.filter(
-      (p) =>
-        p.name?.toLowerCase().includes(search)
-    );
+    result = result.filter((p) => p.name?.toLowerCase().includes(search));
   }
   if (filters.productCategoryIds) {
     result = result.filter((p) =>
       filters.productCategoryIds?.includes(p.categoryId || ''),
     );
   }
-  
+
   if (filters.productTagIds) {
     result = result.filter((p) =>
-      p.tagIds?.some((tag) => filters.productTagIds?.includes(tag))
+      p.tagIds?.some((tag) => filters.productTagIds?.includes(tag)),
     );
   }
-  
-  // if (filters.productVendorIds?.length) {
-  //   result = result.filter((p) =>
-  //     p.vendorId && filters.productVendorIds?.includes(p.vendorId)
-  //   );
-  // }
 
   return result;
 };
@@ -106,20 +91,15 @@ export const ProductFilterBar = ({
 }) => {
   const { productCategories: categories = [] } = useProductCategories();
   const { tags = [] } = useTags({ variables: { ids: [] } });
-  const {
-    productCategoryIds,
-    productTagIds,
-    productVendorIds,
-  } = filters;
+  const { productCategoryIds, productTagIds } = filters;
 
   const getCategoryName = (id: string) => {
     const category = categories.find((cat) => cat._id === id);
     return category?.name || id;
   };
 
-    const getTagNames = (tagIds: string[]): string => {
-    const tagNames = tagIds
-      .map((id) => tags?.find((t) => t._id === id)?.name)
+  const getTagNames = (tagIds: string[]): string => {
+    const tagNames = tagIds.map((id) => tags?.find((t) => t._id === id)?.name);
     return tagNames.length > 0 ? tagNames.join(', ') : 'None';
   };
 
@@ -129,7 +109,7 @@ export const ProductFilterBar = ({
 
   return (
     <>
-      {productCategoryIds !== undefined && (
+      {productCategoryIds && (
         <CustomFilterItem
           onClear={() => updateFilter('productCategoryIds', undefined)}
         >
@@ -145,7 +125,7 @@ export const ProductFilterBar = ({
         </CustomFilterItem>
       )}
 
-      {productTagIds !== undefined && (
+      {productTagIds && (
         <CustomFilterItem
           onClear={() => updateFilter('productTagIds', undefined)}
         >
@@ -160,22 +140,6 @@ export const ProductFilterBar = ({
           </Filter.BarButton>
         </CustomFilterItem>
       )}
-{/* 
-      {productVendorIds !== undefined && (
-        <CustomFilterItem
-          onClear={() => updateFilter('productVendorIds', undefined)}
-        >
-          <Filter.BarName>
-            <IconBuilding />
-            Vendor
-          </Filter.BarName>
-          <Filter.BarButton>
-            {productVendorIds?.[0] && (
-              <span className="">{getVendorName(productVendorIds[0])}</span>
-            )}
-          </Filter.BarButton>
-        </CustomFilterItem>
-      )} */}
     </>
   );
 };
@@ -200,7 +164,10 @@ const ProductFilterView = ({
               <IconCategory />
               By Category
             </Filter.Item>
-            <SelectCompany.FilterItem value="productVendorIds" label="By Vendor" />
+            <SelectCompany.FilterItem
+              value="productVendorIds"
+              label="By Vendor"
+            />
             <Filter.Item value="productTagIds">
               <IconTag />
               By Tag
@@ -209,23 +176,24 @@ const ProductFilterView = ({
         </Command>
       </Filter.View>
 
-      <Filter.View filterKey='productCategoryIds'>
+      <Filter.View filterKey="productCategoryIds">
         <SelectCategory
           value={filters.productCategoryIds?.[0]}
-          onSelect={(value) => updateFilter('productCategoryIds', value ? [value] : undefined)}
+          onSelect={(value) =>
+            updateFilter('productCategoryIds', value ? [value] : undefined)
+          }
         />
       </Filter.View>
 
-      <SelectCompany.FilterView
-        mode="multiple"
-        filterKey="productVendorIds"
-        />
+      <SelectCompany.FilterView mode="multiple" filterKey="productVendorIds" />
 
       <Filter.View filterKey="productTagIds">
         <SelectTags
           tagType="product"
           value={filters.productTagIds?.[0]}
-          onValueChange={(value) => updateFilter('productTagIds', value ? [value] : undefined)}
+          onValueChange={(value) =>
+            updateFilter('productTagIds', value ? [value] : undefined)
+          }
         />
       </Filter.View>
     </>
