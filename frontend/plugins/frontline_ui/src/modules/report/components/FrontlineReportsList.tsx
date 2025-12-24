@@ -158,8 +158,6 @@ export const FrontlineReportsList = () => {
     return <ReportsViewSkeleton />;
   }
 
-  console.log(conversationSources, 'conversationSources');
-
   const renderCard = (card: CardConfig) => {
     const { id, colSpan } = card;
     const commonProps = {
@@ -238,7 +236,7 @@ export const FrontlineReportsList = () => {
             </div>
           </InfoCard.Content>
         </InfoCard>
-        <InfoCard title="Top Perporming Source">
+        <InfoCard title="Top Performing Source">
           <InfoCard.Content className="flex flex-row items-center gap-2">
             <Tooltip>
               <Tooltip.Trigger>
