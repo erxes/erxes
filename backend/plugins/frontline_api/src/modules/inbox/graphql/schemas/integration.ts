@@ -65,7 +65,6 @@ export const types = `
     channelId: String
 
     brand: Brand
-    facebookPage: JSON
     channels: [Channel]
 
 
