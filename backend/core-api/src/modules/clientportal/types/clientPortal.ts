@@ -94,12 +94,7 @@ export interface IFacebookOAuthConfig {
   redirectUri?: string;
 }
 
-export interface IVerificationConfig {
-  type?: 'email' | 'phone' | 'both' | 'none';
-}
-
 export interface IOTPResendConfig {
-  maxAttempts?: number; // Default: 3
   cooldownPeriodInSeconds?: number; // Default: 300 (5 minutes)
   maxAttemptsPerHour?: number; // Default: 5
 }
@@ -124,8 +119,6 @@ export interface IClientPortal {
     otpResendConfig?: IOTPResendConfig;
     resetPasswordConfig?: IResetPasswordConfig;
   };
-
-  verificationConfig?: IVerificationConfig;
 
   smsProvidersConfig?: {
     callPro: {

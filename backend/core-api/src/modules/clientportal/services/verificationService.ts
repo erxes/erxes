@@ -2,23 +2,25 @@ import { random } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import { VERIFICATION_CODE_CONFIG } from '../constants';
 import { detectIdentifierType } from './helpers/validators';
 import { otpService } from './otpService';
 import { notificationService } from './notificationService';
 import { RateLimitError, ValidationError } from './errorHandler';
 import { buildUserQuery } from './helpers/queryBuilders';
-import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
+import {
+  getOTPConfig,
+  isPasswordlessLoginEnabled,
+} from '@/clientportal/services/helpers/otpConfigHelper';
 
 const VALID_VERIFICATION_TYPES = ['EMAIL_VERIFICATION', 'PHONE_VERIFICATION'];
 
 export class VerificationService {
   generateVerificationCode(
-    length: number = VERIFICATION_CODE_CONFIG.DEFAULT_LENGTH,
-    expirationInSeconds: number = VERIFICATION_CODE_CONFIG.DEFAULT_EXPIRATION_SECONDS,
+    length: number,
+    expirationInMinutes: number,
   ): { code: string; codeExpires: Date } {
     const code = random('0', length);
-    const codeExpires = new Date(Date.now() + expirationInSeconds * 1000);
+    const codeExpires = new Date(Date.now() + expirationInMinutes * 60 * 1000);
 
     return { code, codeExpires };
   }
@@ -132,6 +134,14 @@ export class VerificationService {
     models: IModels,
   ): Promise<void> {
     const identifierType = detectIdentifierType(identifier);
+
+    // Check if passwordless login is enabled for this identifier type
+    if (!isPasswordlessLoginEnabled(clientPortal, identifierType)) {
+      throw new ValidationError(
+        'Passwordless login is not enabled for this identifier type',
+      );
+    }
+
     const query = buildUserQuery(
       undefined,
       identifierType === 'email' ? identifier : undefined,
@@ -150,15 +160,10 @@ export class VerificationService {
       );
     }
 
-    const otpConfig = getOTPConfig(
-      identifierType,
-      clientPortal,
-      'login',
-      VERIFICATION_CODE_CONFIG.DEFAULT_EXPIRATION_SECONDS,
-    );
+    const otpConfig = getOTPConfig(identifierType, clientPortal, 'login');
     const { code, codeExpires } = this.generateVerificationCode(
       otpConfig.codeLength,
-      otpConfig.duration * 60,
+      otpConfig.duration,
     );
 
     const actionCodeType =

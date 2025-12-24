@@ -79,7 +79,6 @@ export const GET_CLIENT_PORTAL = gql`
           }
         }
         otpResendConfig {
-          maxAttempts
           cooldownPeriodInSeconds
           maxAttemptsPerHour
         }
@@ -88,9 +87,6 @@ export const GET_CLIENT_PORTAL = gql`
           emailSubject
           emailContent
         }
-      }
-      verificationConfig {
-        type
       }
       smsProvidersConfig {
         callPro

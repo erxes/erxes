@@ -45,7 +45,6 @@ export const types = `
   }
 
   type OTPResendConfig {
-    maxAttempts: Int
     cooldownPeriodInSeconds: Int
     maxAttemptsPerHour: Int
   }
@@ -138,10 +137,6 @@ export const types = `
     redirectUri: String
   }
 
-  type VerificationConfig {
-    type: VerificationType
-  }
-
 type ClientPortal {
     _id: String!
     name: String!
@@ -154,7 +149,6 @@ type ClientPortal {
   
     auth: Auth
     securityAuthConfig: SecurityAuthConfig
-    verificationConfig: VerificationConfig
     smsProvidersConfig: SMSProvidersConfig
     manualVerificationConfig: ManualVerificationConfig
     enableManualVerification: Boolean
@@ -209,7 +203,6 @@ type ClientPortal {
   }
 
   input OTPResendConfigInput {
-    maxAttempts: Int
     cooldownPeriodInSeconds: Int
     maxAttemptsPerHour: Int
   }
@@ -302,17 +295,6 @@ type ClientPortal {
     redirectUri: String
   }
 
-  input VerificationConfigInput {
-    type: VerificationType
-  }
-
-  enum VerificationType {
-    email
-    phone
-    both
-    none
-  }
-
   input ClientPortalConfigInput {
     name: String
     description: String
@@ -324,7 +306,6 @@ type ClientPortal {
   
     auth: AuthInput
     securityAuthConfig: SecurityAuthConfigInput
-    verificationConfig: VerificationConfigInput
     smsProvidersConfig: SMSProvidersConfigInput
     manualVerificationConfig: ManualVerificationConfigInput
     enableManualVerification: Boolean

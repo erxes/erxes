@@ -109,7 +109,7 @@ export const mutations = `
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
   clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser
-  clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): String
+  clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): JSON
   clientPortalLogout: String
   clientPortalUserForgotPassword(identifier: String!): String
   clientPortalUserResetPassword(token: String, newPassword: String!, otp: Int): String

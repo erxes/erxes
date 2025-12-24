@@ -6,7 +6,7 @@ import { detectIdentifierType } from './helpers/validators';
 import { validatePassword } from './helpers/validators';
 import { verificationService } from './verificationService';
 import { notificationService } from './notificationService';
-import { VERIFICATION_CODE_CONFIG } from '../constants';
+import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
 import {
   AuthenticationError,
   ValidationError,
@@ -125,10 +125,15 @@ export class PasswordService {
     const mode = resetPasswordConfig?.mode || 'link';
 
     if (mode === 'code') {
+      const otpConfig = getOTPConfig(
+        identifierType,
+        clientPortal,
+        'passwordReset',
+      );
       const { code, codeExpires } =
         verificationService.generateVerificationCode(
-          VERIFICATION_CODE_CONFIG.DEFAULT_LENGTH,
-          VERIFICATION_CODE_CONFIG.DEFAULT_EXPIRATION_SECONDS,
+          otpConfig.codeLength,
+          otpConfig.duration,
         );
 
       await this.setPasswordResetCode(user._id, code, codeExpires, models);

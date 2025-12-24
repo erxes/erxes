@@ -10,9 +10,12 @@ import { notificationService } from './notificationService';
 import { validateUserRegistration } from './helpers/validators';
 import { buildUserQuery, buildDuplicationQuery } from './helpers/queryBuilders';
 import { detectIdentifierType } from './helpers/validators';
-import { VERIFICATION_CODE_CONFIG } from '../constants';
 import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
-import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
+import {
+  getOTPConfig,
+  isEmailVerificationEnabled,
+  isPhoneVerificationEnabled,
+} from '@/clientportal/services/helpers/otpConfigHelper';
 import {
   AuthenticationError,
   ValidationError,
@@ -101,21 +104,6 @@ export class CPUserService {
     );
   }
 
-  private getActionCodeType(
-    verificationType: string,
-    identifierType: 'email' | 'phone',
-  ): 'EMAIL_VERIFICATION' | 'PHONE_VERIFICATION' {
-    if (verificationType === 'phone') {
-      return 'PHONE_VERIFICATION';
-    }
-    if (verificationType === 'both') {
-      return identifierType === 'email'
-        ? 'EMAIL_VERIFICATION'
-        : 'PHONE_VERIFICATION';
-    }
-    return 'EMAIL_VERIFICATION';
-  }
-
   private async sendVerificationOTP(
     subdomain: string,
     user: ICPUserDocument,
@@ -170,27 +158,36 @@ export class CPUserService {
       params.password,
     );
 
-    const verificationType = clientPortal.verificationConfig?.type || 'email';
-
-    if (verificationType === 'none') {
-      await this.autoVerifyUser(user, models);
-      return user;
-    }
-
     const identifier = user.email || user.phone;
     if (!identifier) {
       return user;
     }
 
     const identifierType = detectIdentifierType(identifier);
-    const expirationSeconds =
-      VERIFICATION_CODE_CONFIG.DEFAULT_EXPIRATION_SECONDS;
+
+    // Check if verification is enabled for the identifier type
+    if (
+      identifierType === 'email' &&
+      !isEmailVerificationEnabled(clientPortal)
+    ) {
+      // Email verification is disabled, auto-verify the user
+      await this.autoVerifyUser(user, models);
+      return user;
+    }
+
+    if (
+      identifierType === 'phone' &&
+      !isPhoneVerificationEnabled(clientPortal)
+    ) {
+      // Phone verification is disabled, auto-verify the user
+      await this.autoVerifyUser(user, models);
+      return user;
+    }
 
     const otpConfig = getOTPConfig(
       identifierType,
       clientPortal,
       'registration',
-      expirationSeconds,
     );
 
     const { code, codeExpires } = verificationService.generateVerificationCode(
@@ -198,10 +195,8 @@ export class CPUserService {
       otpConfig.duration,
     );
 
-    const actionCodeType = this.getActionCodeType(
-      verificationType,
-      identifierType,
-    );
+    const actionCodeType =
+      identifierType === 'email' ? 'EMAIL_VERIFICATION' : 'PHONE_VERIFICATION';
 
     await models.CPUser.updateOne(
       { _id: user._id },
@@ -330,26 +325,9 @@ export class CPUserService {
     },
     models: IModels,
   ): Promise<ICPUserDocument> {
-    const updateData: Record<string, any> = {};
-
-    if (params.firstName !== undefined) {
-      updateData.firstName = params.firstName;
-    }
-    if (params.lastName !== undefined) {
-      updateData.lastName = params.lastName;
-    }
-    if (params.avatar !== undefined) {
-      updateData.avatar = params.avatar;
-    }
-    if (params.username !== undefined) {
-      updateData.username = params.username;
-    }
-    if (params.companyName !== undefined) {
-      updateData.companyName = params.companyName;
-    }
-    if (params.companyRegistrationNumber !== undefined) {
-      updateData.companyRegistrationNumber = params.companyRegistrationNumber;
-    }
+    const updateData = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value !== undefined),
+    );
 
     if (Object.keys(updateData).length === 0) {
       const user = await models.CPUser.findOne({ _id: userId });

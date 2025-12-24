@@ -118,11 +118,6 @@ export const SOCIALPAY_TOKEN_URL =
 
 export const SOCIALPAY_API_URL = 'http://uat.golomtbank.com:8443';
 
-export const VERIFICATION_CODE_CONFIG = {
-  DEFAULT_LENGTH: 6,
-  DEFAULT_EXPIRATION_SECONDS: 300, // 5 minutes
-} as const;
-
 export const PASSWORD_CONFIG = {
   MIN_LENGTH: 8,
   REQUIRE_UPPERCASE: true,

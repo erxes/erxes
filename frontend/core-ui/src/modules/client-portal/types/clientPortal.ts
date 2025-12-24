@@ -33,7 +33,6 @@ export interface IClientPortal {
     otpConfig?: IOTPConfig;
     multiFactorConfig?: MultiFactorConfig;
     otpResendConfig?: {
-      maxAttempts?: number;
       cooldownPeriodInSeconds?: number;
       maxAttemptsPerHour?: number;
     };
@@ -42,9 +41,6 @@ export interface IClientPortal {
       emailSubject?: string;
       emailContent?: string;
     };
-  };
-  verificationConfig?: {
-    type?: 'email' | 'phone' | 'both' | 'none';
   };
   smsProvidersConfig?: {
     callPro?: any;

@@ -44,7 +44,6 @@ const multiFactorConfigSchema = new Schema(
 
 const otpResendConfigSchema = new Schema(
   {
-    maxAttempts: { type: Number },
     cooldownPeriodInSeconds: { type: Number },
     maxAttemptsPerHour: { type: Number },
   },

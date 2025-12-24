@@ -20,8 +20,6 @@ const DEFAULT_AUTH_CONFIG = {
   refreshTokenExpirationInDays: 7,
 };
 
-const REMEMBER_ME_MULTIPLIER = 7;
-
 export class AuthService {
   private getJwtSecret(): string {
     const secret = process.env.JWT_TOKEN_SECRET || 'SECRET';
@@ -73,15 +71,11 @@ export class AuthService {
       authConfig.refreshTokenExpirationInDays ??
       DEFAULT_AUTH_CONFIG.refreshTokenExpirationInDays;
 
-    const accessTokenExpiry = rememberMe
-      ? accessTokenExpirationInDays * REMEMBER_ME_MULTIPLIER
-      : accessTokenExpirationInDays;
-
     const payload = this.createJwtPayload(user, clientPortal);
     const refreshPayload = this.createJwtPayload(user, clientPortal, true);
 
     return {
-      token: this.signToken(payload, accessTokenExpiry),
+      token: this.signToken(payload, accessTokenExpirationInDays),
       refreshToken: this.signToken(
         refreshPayload,
         refreshTokenExpirationInDays,

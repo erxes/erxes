@@ -5,13 +5,15 @@ import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import { detectIdentifierType } from './helpers/validators';
 import { buildUserQuery } from './helpers/queryBuilders';
 import {
+  isPasswordlessLoginEnabled,
+} from '@/clientportal/services/helpers/otpConfigHelper';
+import {
   AuthenticationError,
   ValidationError,
   TokenExpiredError,
 } from './errorHandler';
 
 const DEFAULT_OTP_RESEND_CONFIG = {
-  maxAttempts: 3,
   cooldownPeriodInSeconds: 60, // 1 minutes
   maxAttemptsPerHour: 5,
 };
@@ -51,6 +53,14 @@ export class OTPService {
     models: IModels,
   ): Promise<ICPUserDocument> {
     const identifierType = detectIdentifierType(identifier);
+
+    // Check if passwordless login is enabled for this identifier type
+    if (!isPasswordlessLoginEnabled(clientPortal, identifierType)) {
+      throw new ValidationError(
+        'Passwordless login is not enabled for this identifier type',
+      );
+    }
+
     const query = buildUserQuery(
       undefined,
       identifierType === 'email' ? identifier : undefined,
@@ -70,13 +80,11 @@ export class OTPService {
   }
 
   private getOTPResendConfig(clientPortal: IClientPortalDocument): {
-    maxAttempts: number;
     cooldownPeriodInSeconds: number;
     maxAttemptsPerHour: number;
   } {
     const config = clientPortal.securityAuthConfig?.otpResendConfig;
     return {
-      maxAttempts: config?.maxAttempts ?? DEFAULT_OTP_RESEND_CONFIG.maxAttempts,
       cooldownPeriodInSeconds:
         config?.cooldownPeriodInSeconds ??
         DEFAULT_OTP_RESEND_CONFIG.cooldownPeriodInSeconds,
@@ -137,10 +145,6 @@ export class OTPService {
     ) {
       return false;
     }
-
-    // if (attempts >= config.maxAttempts) {
-    //   return false;
-    // }
 
     return true;
   }

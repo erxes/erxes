@@ -111,15 +111,6 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
 
-    // If verification is not required, automatically authenticate the user
-    const verificationType = clientPortal.verificationConfig?.type || 'email';
-    if (verificationType === 'none') {
-      const token = authService.setAuthCookie(res, user, clientPortal);
-      if (token) {
-        return { ...user.toObject(), token };
-      }
-    }
-
     return user;
   },
 
