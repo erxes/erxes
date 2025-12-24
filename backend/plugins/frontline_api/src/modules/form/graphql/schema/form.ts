@@ -189,7 +189,7 @@ export const mutations = `
 
 
   widgetsLeadConnect(
-    brandCode: String!,
+    channelId: String!,
     formCode: String!,
     cachedCustomerId: String
   ): FormConnectResponse

@@ -50,7 +50,6 @@ export const fieldMutations = {
     args: IFieldsBulkAddAndEditParams,
     { user, models }: IContext,
   ) {
-    console.log('frontlineFieldsBulkAction');
     const { contentType, contentTypeId, newFields, updatedFields } = args;
     const tempFieldIdsMap: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];
@@ -67,7 +66,6 @@ export const fieldMutations = {
       }
 
       const tempId = f.tempFieldId;
-      console.log(tempId, 'tempId');
       const field = await models.Fields.createField({
         ...f,
         contentType,
@@ -94,14 +92,13 @@ export const fieldMutations = {
 
       const field = await models.Fields.createField({
         ...f,
-        contentType,
+        contentType: 'form',
         contentTypeId,
         lastUpdatedUserId: user._id,
       });
 
       if (f.tempFieldId) {
         tempFieldIdsMap[f.tempFieldId] = field._id;
-        console.log(tempFieldIdsMap[f.tempFieldId], '-----asdasd');
       }
 
       response.push(field);

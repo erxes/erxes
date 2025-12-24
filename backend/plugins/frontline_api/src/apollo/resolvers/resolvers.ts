@@ -4,6 +4,7 @@ import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
 import { ChannelMember } from '@/channel/graphql/resolvers/customResolvers/member';
 import { Pipeline } from '@/ticket/graphql/resolvers/customResolvers/pipeline';
 import { Ticket } from '@/ticket/graphql/resolvers/customResolvers/status';
+import { Form } from '@/form/graphql/resolvers/customResolvers/forms';
 
 export const customResolvers = {
   ...inboxResolvers,
@@ -12,4 +13,5 @@ export const customResolvers = {
   ChannelMember,
   Pipeline,
   Ticket,
+  Form,
 };

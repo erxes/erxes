@@ -1,10 +1,16 @@
 import { ICustomField } from 'erxes-api-shared/core-types';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IContext, IModels } from '~/connectionResolvers';
-import { getSchemaLabels, getSocialLinkKey } from '~/modules/form/utils';
+import { getSocialLinkKey } from '~/modules/form/utils';
 import { ILink } from '~/modules/inbox/@types/integrations';
 import { createConversationAndMessage } from '~/modules/inbox/trpc/inbox';
 // helpers
+
+type SchemaLabel = {
+  name: string;
+  label: string;
+};
 
 // Helper function to merge customer custom field data
 const mergeCustomFieldsData = (
@@ -173,14 +179,13 @@ export const widgetFormMutation = {
     { models }: IContext,
   ) {
     const channel = await models.Channels.findOne({
-      code: args.channelId,
+      _id: args.channelId,
     }).lean();
 
     const form = await models.Forms.findOne({
       $or: [{ code: args.formCode }, { _id: args.formCode }],
       status: 'active',
     }).lean();
-
     if (!channel || !form) {
       throw new Error('Invalid configuration');
     }
@@ -188,17 +193,6 @@ export const widgetFormMutation = {
     if (form.leadData) {
       await models.Forms.increaseViewCount(form._id);
     }
-
-    // if (form.createdUserId) {
-    //   const user = await models.Users.findOne({ _id: form.createdUserId });
-    //   if (user) {
-    //     await registerOnboardHistory({
-    //       models,
-    //       type: 'leadIntegrationInstalled',
-    //       user,
-    //     });
-    //   }
-    // }
 
     if (form.leadData?.isRequireOnce && args.cachedCustomerId) {
       const submission = await models.FormSubmissions.findOne({
@@ -223,57 +217,76 @@ export const widgetFormMutation = {
       browserInfo: any;
       cachedCustomerId?: string;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const { submissions, formId } = args;
 
-    // Step 1: Validate form and submissions
     const form = await models.Forms.getForm(formId);
     const errors = await models.Forms.validateForm(formId, submissions);
     if (errors.length > 0) return { status: 'error', errors };
 
-    // Step 2: Handle integration
-    const integration: any = null;
-    // if (isEnabled('inbox')) {
-    //   integration = await sendCommonMessage({
-    //     serviceName: 'inbox',
-    //     action: 'integrations.findOne',
-    //     data: { _id: form.integrationId },
-    //     isRPC: true,
-    //     defaultValue: null,
-    //     subdomain,
-    //   });
-    // }
+    let integration: any = null;
 
-    const customerSchemaLabels = await getSchemaLabels('customer');
-    const companySchemaLabels = await getSchemaLabels('company');
+    if (form && form.integrationId) {
+      integration = await models.Integrations.findOne({
+        _id: form.integrationId,
+      });
+    }
+
+    const customerfields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'getFieldList',
+      input: {
+        moduleType: 'contact',
+        collectionType: 'customer',
+      },
+    });
+    const companyfields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'getFieldList',
+      input: {
+        moduleType: 'contact',
+        collectionType: 'company',
+      },
+    });
+
+    const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
+      name: f.name,
+      label: f.label || f.name,
+    }));
+    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
+      name: f.name,
+      label: f.label || f.name,
+    }));
+
     const customerDoc: any = {};
     const companyDoc: any = {};
     const customFieldsData: ICustomField[] = [];
-    const companyCustomData: ICustomField[] = [];
     const customerLinks: ILink = {};
     const companyLinks: ILink = {};
     const submissionValues = {};
 
-    // Step 3: Process submissions
     for (const submission of submissions) {
       const submissionType = submission.type || '';
       const value = submission.value || '';
       submissionValues[submission._id] = submission.value;
 
-      // Handle links (customer or company)
       if (submissionType.includes('customerLinks')) {
         customerLinks[getSocialLinkKey(submissionType)] = value;
       } else if (submissionType.includes('companyLinks')) {
         companyLinks[getSocialLinkKey(submissionType)] = value;
       }
 
-      // Handle pronouns
       if (submissionType === 'pronoun') {
         customerDoc.pronoun = mapPronounToCode(value);
       }
 
-      // Handle customer-specific fields
       if (customerSchemaLabels.some((e) => e.name === submissionType)) {
         if (submissionType === 'avatar' && value.length > 0) {
           customerDoc.avatar = value[0].url;
@@ -282,7 +295,6 @@ export const widgetFormMutation = {
         }
       }
 
-      // Handle company-specific fields
       if (submissionType.includes('company_')) {
         handleCompanyFields(submissionType, value, companyDoc);
       }
@@ -291,7 +303,6 @@ export const widgetFormMutation = {
         companyDoc[submissionType] = value;
       }
 
-      // Handle custom field submissions
       if (submission.associatedFieldId && isCustomField(submissionType)) {
         const field = await models.Fields.findOne({
           _id: submission.associatedFieldId,
@@ -302,8 +313,6 @@ export const widgetFormMutation = {
         targetData.push({ field: submission.associatedFieldId, value });
       }
     }
-
-    // Step 4: Create or update customer
 
     let customerQry: any = {
       _id: args.cachedCustomerId,
@@ -345,26 +354,42 @@ export const widgetFormMutation = {
       }
     }
 
-    const customer: any = null;
+    let customer: any = null;
 
     if (customerQry) {
-      // customer = await models.Customers.findOne(customerQry);
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'customers',
+        action: 'findOne',
+        input: { customerQry },
+        defaultValue: null,
+      });
     }
-
     if (!customer) {
-      // customer = await models.Customers.createCustomer({
-      //   ...customerDoc,
-      //   emails: [{ email: customerDoc.email, type: 'primary' }],
-      //   phones: [{ phone: customerDoc.phone, type: 'primary' }],
-      //   primaryEmail: saveAsCustomer ? customerDoc.email : null,
-      //   primaryPhone: saveAsCustomer ? customerDoc.phone : null,
-      //   state: saveAsCustomer ? 'customer' : 'lead',
-      //   links: customerLinks,
-      //   customFieldsData,
-      //   integrationId: integration?._id,
-      //   relatedIntegrationIds: [integration?._id],
-      //   scopeBrandIds: [form.brandId],
-      // });
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'customers',
+        action: 'createCustomer',
+        input: {
+          doc: {
+            ...customerDoc,
+            emails: [customerDoc.email],
+            phones: [customerDoc.phone],
+            primaryEmail: saveAsCustomer ? customerDoc.email : null,
+            primaryPhone: saveAsCustomer ? customerDoc.phone : null,
+            state: saveAsCustomer ? 'customer' : 'lead',
+            links: customerLinks,
+            customFieldsData,
+            integrationId: integration?._id,
+            relatedIntegrationIds: [integration?._id],
+            scopeBrandIds: [form.channelId],
+          },
+        },
+      });
 
       await models.Forms.increaseContactsGathered(form._id);
     } else {
@@ -382,20 +407,30 @@ export const widgetFormMutation = {
         doc.primaryEmail = customerDoc.email;
         doc.primaryPhone = customerDoc.phone;
       }
-
-      // await models.Customers.updateCustomer(customer._id, doc);
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'customers',
+        action: 'updateCustomer',
+        input: {
+          _id: customer._id,
+          doc: {
+            doc,
+          },
+        },
+      });
     }
 
-    // Step 5: Handle conversation and messages (if inbox is enabled)
-    const conversationId = await createConversationAndMessage(models, {
+    const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,
       integrationId: integration?._id,
       content: form.title,
       formWidgetData: submissions,
       status: 'new',
     });
+    const conversationId = conversation?._id || '';
 
-    // Step 6: Save form submissions
     await saveFormSubmissions(models, {
       submissions,
       formId,
