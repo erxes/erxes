@@ -9,6 +9,10 @@ import {
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
 import { useConversationTags } from '../hooks/useConversationTags';
+import { DateSelector } from './date-selector/DateSelector';
+import { SelectChartType } from './select-chart-type/SelectChartType';
+import { ColumnDef } from '@tanstack/table-core';
+import { getFilters } from '../utils/dateFilters';
 import {
   Area,
   AreaChart,
@@ -32,8 +36,6 @@ import {
 } from 'recharts';
 import { memo, useMemo, useState } from 'react';
 import { ResponsesChartType, TagData } from '../types';
-import { SelectChartType } from './select-chart-type/SelectChartType';
-import { ColumnDef } from '@tanstack/table-core';
 
 interface FrontlineReportByTagProps {
   title: string;
@@ -44,6 +46,10 @@ interface FrontlineReportByTagProps {
 interface TagCardHeaderProps {
   chartType: ResponsesChartType;
   setChartType: (chartType: ResponsesChartType) => void;
+  sourceFilter: string;
+  onSourceFilterChange: (value: string) => void;
+  dateValue: string;
+  onDateValueChange: (value: string) => void;
 }
 
 interface TagChartProps {
@@ -58,14 +64,29 @@ export const FrontlineReportByTag = ({
   const [chartType, setChartType] = useState<ResponsesChartType>(
     ResponsesChartType.Table,
   );
+  const [dateValue, setDateValue] = useState<string>('');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [filters, setFilters] = useState(() => getFilters());
   const id = title.toLowerCase().replace(/\s+/g, '-');
+
   const { conversationTags, loading, error } = useConversationTags({
     variables: {
       filters: {
-        limit: 10,
+        ...filters,
+        source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
   });
+
+  const handleDateValueChange = (value: string) => {
+    setDateValue(value);
+    const newFilters = getFilters(value || undefined);
+    setFilters(newFilters);
+  };
+
+  const handleSourceFilterChange = (value: string) => {
+    setSourceFilter(value);
+  };
 
   if (loading) return <Skeleton className="w-full h-48" />;
 
@@ -116,7 +137,14 @@ export const FrontlineReportByTag = ({
     >
       <FrontlineCard.Header
         filter={
-          <TagCardHeader chartType={chartType} setChartType={setChartType} />
+          <TagCardHeader
+            chartType={chartType}
+            setChartType={setChartType}
+            sourceFilter={sourceFilter}
+            onSourceFilterChange={handleSourceFilterChange}
+            dateValue={dateValue}
+            onDateValueChange={handleDateValueChange}
+          />
         }
       />
       <FrontlineCard.Content>
@@ -155,10 +183,15 @@ export const FrontlineReportByTag = ({
 export const TagCardHeader = ({
   chartType,
   setChartType,
+  sourceFilter,
+  onSourceFilterChange,
+  dateValue,
+  onDateValueChange,
 }: TagCardHeaderProps) => {
   return (
     <>
-      <GroupSelect />
+      <GroupSelect value={sourceFilter} onValueChange={onSourceFilterChange} />
+      <DateSelector value={dateValue} onValueChange={onDateValueChange} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
     </>
   );
@@ -529,7 +562,7 @@ export const TagRadarChart = memo(function TagRadarChart({
     if (!conversationTags || conversationTags.length === 0) {
       return [];
     }
-    // Scale percentage to match count range for better visualization
+
     const scaleFactor =
       maxCount > 0 && maxPercentage > 0 ? maxCount / maxPercentage : 1;
     return conversationTags.map((item) => ({

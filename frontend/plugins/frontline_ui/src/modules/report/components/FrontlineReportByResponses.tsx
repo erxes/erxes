@@ -9,6 +9,8 @@ import {
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
 import { useConversationResponses } from '../hooks/useConversationResponses';
+import { DateSelector } from './date-selector/DateSelector';
+import { getFilters } from '../utils/dateFilters';
 import {
   Area,
   AreaChart,
@@ -31,7 +33,7 @@ import {
   YAxis,
 } from 'recharts';
 import { memo, useMemo, useState } from 'react';
-import { ConversationUserMessageStat, ResponsesChartType } from '../types';
+import { ResponsesChartType, ConversationUserMessageStat } from '../types';
 import { SelectChartType } from './select-chart-type/SelectChartType';
 import { ColumnDef } from '@tanstack/table-core';
 import { IUser, MembersInline } from 'ui-modules';
@@ -45,6 +47,10 @@ interface FrontlineReportByResponsesProps {
 interface ResponsesCardHeaderProps {
   chartType: ResponsesChartType;
   setChartType: (chartType: ResponsesChartType) => void;
+  sourceFilter: string;
+  onSourceFilterChange: (value: string) => void;
+  dateValue: string;
+  onDateValueChange: (value: string) => void;
 }
 
 interface ResponseChartProps {
@@ -59,14 +65,29 @@ export const FrontlineReportByResponses = ({
   const [chartType, setChartType] = useState<ResponsesChartType>(
     ResponsesChartType.Bar,
   );
+  const [dateValue, setDateValue] = useState<string>('');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [filters, setFilters] = useState(() => getFilters());
   const id = title.toLowerCase().replace(/\s+/g, '-');
+
   const { conversationResponses, loading, error } = useConversationResponses({
     variables: {
       filters: {
-        limit: 10,
+        ...filters,
+        source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
   });
+
+  const handleDateValueChange = (value: string) => {
+    setDateValue(value);
+    const newFilters = getFilters(value || undefined);
+    setFilters(newFilters);
+  };
+
+  const handleSourceFilterChange = (value: string) => {
+    setSourceFilter(value);
+  };
 
   if (loading) return <Skeleton className="w-full h-48" />;
 
@@ -120,6 +141,10 @@ export const FrontlineReportByResponses = ({
           <ResponsesCardHeader
             chartType={chartType}
             setChartType={setChartType}
+            sourceFilter={sourceFilter}
+            onSourceFilterChange={handleSourceFilterChange}
+            dateValue={dateValue}
+            onDateValueChange={handleDateValueChange}
           />
         }
       />
@@ -161,10 +186,15 @@ export const FrontlineReportByResponses = ({
 export const ResponsesCardHeader = ({
   chartType,
   setChartType,
+  sourceFilter,
+  onSourceFilterChange,
+  dateValue,
+  onDateValueChange,
 }: ResponsesCardHeaderProps) => {
   return (
     <>
-      <GroupSelect />
+      <GroupSelect value={sourceFilter} onValueChange={onSourceFilterChange} />
+      <DateSelector value={dateValue} onValueChange={onDateValueChange} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
     </>
   );
@@ -382,7 +412,11 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           domain={percentageYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Percentage (%)', angle: 90, position: 'insideRight' }}
+          label={{
+            value: 'Percentage (%)',
+            angle: 90,
+            position: 'insideRight',
+          }}
         />
         <Area
           yAxisId="messageCount"
@@ -464,7 +498,9 @@ export const ResponsePieChart = memo(function ResponsePieChart({
           cy="50%"
           outerRadius={100}
           innerRadius={0}
-          label={({ user, messageCount, percentage }) => `${user}: ${messageCount} (${percentage.toFixed(1)}%)`}
+          label={({ user, messageCount, percentage }) =>
+            `${user}: ${messageCount} (${percentage.toFixed(1)}%)`
+          }
           nameKey="user"
         />
         {chartData?.map((item) => (
@@ -530,7 +566,9 @@ export const ResponseDonutChart = memo(function ResponseDonutChart({
           cy="50%"
           outerRadius={100}
           innerRadius={50}
-          label={({ user, messageCount, percentage }) => `${user}: ${messageCount} (${percentage.toFixed(1)}%)`}
+          label={({ user, messageCount, percentage }) =>
+            `${user}: ${messageCount} (${percentage.toFixed(1)}%)`
+          }
           nameKey="user"
         />
         {chartData?.map((item) => (
@@ -559,10 +597,14 @@ export const ResponseRadarChart = memo(function ResponseRadarChart({
     }),
     [],
   );
-  
+
   const maxMessageCount = useMemo(() => {
-    if (!conversationResponses || conversationResponses.length === 0) return 100;
-    const max = Math.max(...conversationResponses.map((item) => item.messageCount || 0), 0);
+    if (!conversationResponses || conversationResponses.length === 0)
+      return 100;
+    const max = Math.max(
+      ...conversationResponses.map((item) => item.messageCount || 0),
+      0,
+    );
     return Math.ceil(max / 10) * 10 || 100;
   }, [conversationResponses]);
 
@@ -574,9 +616,11 @@ export const ResponseRadarChart = memo(function ResponseRadarChart({
       (sum, item) => sum + (item.messageCount || 0),
       0,
     );
-    // Scale percentage to match count range for better visualization
     const maxPercentage = 100;
-    const scaleFactor = maxMessageCount > 0 && maxPercentage > 0 ? maxMessageCount / maxPercentage : 1;
+    const scaleFactor =
+      maxMessageCount > 0 && maxPercentage > 0
+        ? maxMessageCount / maxPercentage
+        : 1;
     return conversationResponses.map((item) => {
       const messageCount = item.messageCount || 0;
       const percentage = totalCount > 0 ? (messageCount / totalCount) * 100 : 0;
@@ -626,7 +670,10 @@ export const ResponseRadarChart = memo(function ResponseRadarChart({
         <Tooltip
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
-              return [props.payload.percentageOriginal?.toFixed(1) + '%', 'Percentage'];
+              return [
+                props.payload.percentageOriginal?.toFixed(1) + '%',
+                'Percentage',
+              ];
             }
             return [value, name];
           }}

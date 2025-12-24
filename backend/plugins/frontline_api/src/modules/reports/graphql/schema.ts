@@ -4,6 +4,7 @@ export const types = `
     fromDate: String
     toDate: String
     status: String
+    source: String
     limit: Int
     page: Int
   }

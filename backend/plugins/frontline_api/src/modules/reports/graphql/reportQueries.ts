@@ -3,7 +3,21 @@ import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { calculatePercentage, normalizeStatus } from '@/reports/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { PipelineStage } from 'mongoose';
-import { getDateRange } from '@/reports/utils';
+import {
+  applyLimitAndPage,
+  buildCreatedAtMatch,
+  buildPagination,
+  buildStatusMatch,
+  buildConversationTagsPipeline,
+  buildConversationSourcesPipeline,
+  buildSourceFilterPipeline,
+  buildClosedAtMatch,
+  sourceMap,
+} from '@/reports/utils';
+import {
+  IReportFilters,
+  IReportTagsFilters,
+} from '@/reports/@types/reportFilters';
 export const reportQueries = {
   async conversationProgressChart(
     _parent: undefined,
@@ -257,36 +271,45 @@ export const reportQueries = {
     _parent: undefined,
     {
       filters = {},
-    }: { filters?: { date?: string; fromDate?: string; toDate?: string } },
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
-    const match: any = {};
+    const match = {
+      ...buildCreatedAtMatch(filters),
+      ...buildStatusMatch(filters),
+    };
 
-    if (filters.date) {
-      const range = getDateRange({ type: filters.date });
-      if (range) {
-        match.createdAt = { $gte: range.startDate, $lte: range.endDate };
-      }
-    } else if (filters.fromDate || filters.toDate) {
-      match.createdAt = {};
-      if (filters.fromDate) match.createdAt.$gte = new Date(filters.fromDate);
-      if (filters.toDate) match.createdAt.$lte = new Date(filters.toDate);
-    }
+    const pipeline: PipelineStage[] = [{ $match: match }];
 
-    const pipeline: PipelineStage[] = [
-      { $match: match },
+    buildSourceFilterPipeline(pipeline, filters, {
+      createdAt: 1,
+      status: 1,
+    });
+
+    pipeline.push(
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
           count: { $sum: 1 },
         },
       },
       { $sort: { _id: 1 } },
-    ];
+    );
+
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
 
     const result = await models.Conversations.aggregate(pipeline);
 
-    return result.map((item: any) => ({
+    return result.map((item) => ({
       date: item._id,
       count: item.count,
     }));
@@ -296,36 +319,44 @@ export const reportQueries = {
     _parent: undefined,
     {
       filters = {},
-    }: { filters?: { date?: string; fromDate?: string; toDate?: string } },
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
-    const match: any = { status: 'resolved', closedAt: { $exists: true } };
+    const match = {
+      status: CONVERSATION_STATUSES.CLOSED,
+      ...buildClosedAtMatch(filters),
+    };
 
-    if (filters.date) {
-      const range = getDateRange({ type: filters.date });
-      if (range) {
-        match.closedAt = { $gte: range.startDate, $lte: range.endDate };
-      }
-    } else if (filters.fromDate || filters.toDate) {
-      match.closedAt = {};
-      if (filters.fromDate) match.closedAt.$gte = new Date(filters.fromDate);
-      if (filters.toDate) match.closedAt.$lte = new Date(filters.toDate);
-    }
+    const pipeline: PipelineStage[] = [{ $match: match }];
+    buildSourceFilterPipeline(pipeline, filters, {
+      closedAt: 1,
+      status: 1,
+    });
 
-    const pipeline: PipelineStage[] = [
-      { $match: match },
+    pipeline.push(
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$closedAt' } },
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$closedAt',
+            },
+          },
           count: { $sum: 1 },
         },
       },
       { $sort: { _id: 1 } },
-    ];
+    );
+
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
 
     const result = await models.Conversations.aggregate(pipeline);
 
-    return result.map((item: any) => ({
+    return result.map((item) => ({
       date: item._id,
       count: item.count,
     }));
@@ -333,28 +364,19 @@ export const reportQueries = {
 
   async reportConversationResponseTemplate(
     _parent: undefined,
-    { filters = {} }: { filters?: any },
+    {
+      filters = {},
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
-    const match: any = {
+    const match = {
       responseTemplateId: { $exists: true, $ne: null },
+      ...buildCreatedAtMatch(filters),
     };
 
-    if (filters.date) {
-      const range = getDateRange({ type: filters.date });
-      if (range) {
-        match.createdAt = {
-          $gte: range.startDate,
-          $lte: range.endDate,
-        };
-      }
-    } else if (filters.fromDate || filters.toDate) {
-      match.createdAt = {};
-      if (filters.fromDate) match.createdAt.$gte = new Date(filters.fromDate);
-      if (filters.toDate) match.createdAt.$lte = new Date(filters.toDate);
-    }
-
-    const pipeline: PipelineStage[] = [
+    const pipeline: any[] = [
       { $match: match },
 
       {
@@ -388,56 +410,59 @@ export const reportQueries = {
       { $sort: { usageCount: -1 } },
     ];
 
-    if (filters.limit) {
-      const skip = ((filters.page || 1) - 1) * filters.limit;
-      pipeline.push({ $skip: skip }, { $limit: filters.limit });
-    }
+    applyLimitAndPage(pipeline, filters);
 
-    const result = await models.ConversationMessages.aggregate(pipeline);
-    return result;
+    return models.ConversationMessages.aggregate(pipeline);
   },
+
   async reportConversationList(
     _parent: undefined,
     {
       filters = {},
-    }: { filters?: { status?: string; limit?: number; page?: number } },
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
-    const status = normalizeStatus(filters.status);
-    const limit = filters.limit || 20;
-    const page = filters.page || 1;
-    const skip = (page - 1) * limit;
+    const { limit, page, skip } = buildPagination(filters);
 
-    const query: any = {};
+    const query = buildStatusMatch(filters);
 
-    if (status) {
-      query.status = status;
-    }
+    const pipeline: any[] = [{ $match: query }];
 
-    const [conversations, totalCount] = await Promise.all([
-      models.Conversations.find(query)
-        .sort({ updatedAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+    buildSourceFilterPipeline(pipeline, filters);
+
+    pipeline.push(
+      { $sort: { updatedAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    );
+
+    const [conversations, totalCountArr] = await Promise.all([
+      models.Conversations.aggregate(pipeline),
       models.Conversations.countDocuments(query),
     ]);
 
     return {
       list: conversations,
-      totalCount,
+      totalCount: totalCountArr,
       page,
-      totalPages: Math.ceil(totalCount / limit),
+      totalPages: Math.ceil(totalCountArr / limit),
     };
   },
 
   async reportConversationResponses(
     _parent: undefined,
-    { filters = {} }: { filters?: { status?: string; limit?: number } },
+    {
+      filters = {},
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
     const status = normalizeStatus(filters.status);
-    const pipeline: PipelineStage[] = [
+
+    const pipeline: any[] = [
       {
         $lookup: {
           from: 'conversations',
@@ -452,6 +477,7 @@ export const reportQueries = {
           ...(status && { 'conversation.status': status }),
           internal: false,
           userId: { $exists: true, $ne: null },
+          ...buildCreatedAtMatch(filters),
         },
       },
       {
@@ -463,6 +489,34 @@ export const reportQueries = {
         },
       },
       { $unwind: '$user' },
+    ];
+
+    if (filters.source && filters.source !== 'all') {
+      const integrationKind = sourceMap[filters.source];
+      if (integrationKind) {
+        pipeline.push(
+          {
+            $lookup: {
+              from: 'integrations',
+              localField: 'conversation.integrationId',
+              foreignField: '_id',
+              as: 'integration',
+            },
+          },
+          { $unwind: '$integration' },
+          { $match: { 'integration.kind': integrationKind } },
+          {
+            $project: {
+              userId: 1,
+              user: 1,
+              conversation: 1,
+            },
+          },
+        );
+      }
+    }
+
+    pipeline.push(
       {
         $group: {
           _id: '$userId',
@@ -473,13 +527,14 @@ export const reportQueries = {
       {
         $project: {
           _id: 0,
+          userId: '$_id',
           user: 1,
           name: '$user.details.fullName',
           messageCount: 1,
         },
       },
       { $sort: { messageCount: -1 } },
-    ];
+    );
 
     if (filters.limit) {
       pipeline.push({ $limit: filters.limit });
@@ -490,91 +545,87 @@ export const reportQueries = {
 
   async reportConversationOpen(
     _parent: undefined,
-    { filters = {} }: { filters?: { status?: string } },
+    {
+      filters = {},
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
     const status =
       normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.OPEN;
 
-    const [count, total] = await Promise.all([
+    const [openCount, totalCount] = await Promise.all([
       models.Conversations.countDocuments({ status }),
       models.Conversations.countDocuments({}),
     ]);
 
     return {
-      count,
-      percentage: calculatePercentage(count, total),
+      count: openCount,
+      percentage: calculatePercentage(openCount, totalCount),
     };
   },
 
   async reportConversationClosed(
     _parent: undefined,
-    { filters = {} }: { filters?: { status?: string } },
+    {
+      filters = {},
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
     const status =
       normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.CLOSED;
 
-    const [count, total] = await Promise.all([
+    const [closedCount, totalCount] = await Promise.all([
       models.Conversations.countDocuments({ status }),
       models.Conversations.countDocuments({}),
     ]);
 
     return {
-      count,
-      percentage: calculatePercentage(count, total),
+      count: closedCount,
+      percentage: calculatePercentage(closedCount, totalCount),
     };
   },
 
   async reportConversationResolved(
     _parent: undefined,
-    { filters = {} }: { filters?: { status?: string } },
+    {
+      filters = {},
+    }: {
+      filters?: IReportFilters;
+    },
     { models }: IContext,
   ) {
     const status =
-      normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.RESOLVED;
+      normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.CLOSED;
 
-    const [count, total] = await Promise.all([
+    const [resolvedCount, totalCount] = await Promise.all([
       models.Conversations.countDocuments({ status }),
       models.Conversations.countDocuments({}),
     ]);
 
     return {
-      count,
-      percentage: calculatePercentage(count, total),
+      count: resolvedCount,
+      percentage: calculatePercentage(resolvedCount, totalCount),
     };
   },
 
   async reportConversationTags(
     _parent: undefined,
-    { filters = {} }: { filters?: { status?: string; limit?: number } },
+    {
+      filters = {},
+    }: {
+      filters?: IReportTagsFilters;
+    },
     { models, subdomain }: IContext,
   ): Promise<any[]> {
-    const status =
-      normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.CLOSED;
+    const pipeline = buildConversationTagsPipeline(filters);
 
-    const limit = filters.limit ?? 10;
-
-    const tagCounts = await models.Conversations.aggregate([
-      {
-        $match: {
-          status,
-          tagIds: { $exists: true, $not: { $size: 0 } },
-        },
-      },
-      { $unwind: '$tagIds' },
-      {
-        $group: {
-          _id: '$tagIds',
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { count: -1 } },
-      { $limit: limit },
-    ]);
+    const tagCounts = await models.Conversations.aggregate(pipeline);
 
     const total = tagCounts.reduce((sum: number, t: any) => sum + t.count, 0);
-
     const tagIds = tagCounts.map((t: any) => t._id);
 
     const tags = await sendTRPCMessage({
@@ -601,38 +652,16 @@ export const reportQueries = {
 
   async reportConversationSources(
     _parent: undefined,
-    { filters = {} }: { filters?: { status?: string; limit?: number } },
+    {
+      filters = {},
+    }: {
+      filters?: IReportTagsFilters;
+    },
     { models }: IContext,
   ): Promise<any[]> {
-    const status = normalizeStatus(filters.status);
-    const limit = filters.limit ?? 10;
+    const pipeline = buildConversationSourcesPipeline(filters);
 
-    const match: any = {};
-    if (status) {
-      match.status = status;
-    }
-
-    const sources = await models.Conversations.aggregate([
-      { $match: match },
-      {
-        $lookup: {
-          from: 'integrations',
-          localField: 'integrationId',
-          foreignField: '_id',
-          as: 'integration',
-        },
-      },
-      { $unwind: '$integration' },
-      {
-        $group: {
-          _id: '$integration.kind',
-          name: { $first: '$integration.name' },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { count: -1 } },
-      { $limit: limit },
-    ]);
+    const sources = await models.Conversations.aggregate(pipeline);
 
     const total = sources.reduce((sum: number, s: any) => sum + s.count, 0);
 

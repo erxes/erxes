@@ -2,6 +2,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '../hooks/useConversationList';
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
+import { DateSelector } from './date-selector/DateSelector';
+import { getFilters } from '../utils/dateFilters';
 import {
   Alert,
   Badge,
@@ -14,7 +16,7 @@ import {
 import { ConversationListItem } from '../types';
 import { formatDate } from 'date-fns';
 import { CustomersInline, MembersInline } from 'ui-modules';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { IconMessageShare } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,13 +32,28 @@ export const FrontlineReportByList = ({
   onColSpanChange,
 }: FrontlineReportByListProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
+  const [dateValue, setDateValue] = useState<string>('');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [filters, setFilters] = useState(() => getFilters());
+
   const { conversationList, loading, error } = useConversationList({
     variables: {
       filters: {
-        limit: 10,
+        ...filters,
+        source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
   });
+
+  const handleDateValueChange = (value: string) => {
+    setDateValue(value);
+    const newFilters = getFilters(value || undefined);
+    setFilters(newFilters);
+  };
+
+  const handleSourceFilterChange = (value: string) => {
+    setSourceFilter(value);
+  };
 
   if (loading) return <Skeleton className="w-full h-48" />;
 
@@ -85,7 +102,20 @@ export const FrontlineReportByList = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header filter={<GroupSelect />} />
+      <FrontlineCard.Header
+        filter={
+          <>
+            <GroupSelect
+              value={sourceFilter}
+              onValueChange={handleSourceFilterChange}
+            />
+            <DateSelector
+              value={dateValue}
+              onValueChange={handleDateValueChange}
+            />
+          </>
+        }
+      />
       <FrontlineCard.Content>
         <ConversationListTable conversationList={conversationList.list} />
       </FrontlineCard.Content>

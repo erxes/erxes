@@ -44,6 +44,8 @@ interface FrontlineReportBySourceProps {
 interface SourceCardHeaderProps {
   chartType: ResponsesChartType;
   setChartType: (chartType: ResponsesChartType) => void;
+  sourceFilter: string;
+  onSourceFilterChange: (value: string) => void;
 }
 
 interface SourceChartProps {
@@ -58,11 +60,14 @@ export const FrontlineReportBySource = ({
   const [chartType, setChartType] = useState<ResponsesChartType>(
     ResponsesChartType.Bar,
   );
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const id = title.toLowerCase().replace(/\s+/g, '-');
+
   const { conversationSources, loading, error } = useConversationSources({
     variables: {
       filters: {
         limit: 10,
+        source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
   });
@@ -116,7 +121,12 @@ export const FrontlineReportBySource = ({
     >
       <FrontlineCard.Header
         filter={
-          <SourceCardHeader chartType={chartType} setChartType={setChartType} />
+          <SourceCardHeader
+            chartType={chartType}
+            setChartType={setChartType}
+            sourceFilter={sourceFilter}
+            onSourceFilterChange={setSourceFilter}
+          />
         }
       />
       <FrontlineCard.Content>
@@ -155,10 +165,12 @@ export const FrontlineReportBySource = ({
 export const SourceCardHeader = ({
   chartType,
   setChartType,
+  sourceFilter,
+  onSourceFilterChange,
 }: SourceCardHeaderProps) => {
   return (
     <>
-      <GroupSelect />
+      <GroupSelect value={sourceFilter} onValueChange={onSourceFilterChange} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
     </>
   );
@@ -183,9 +195,10 @@ export const SourceBarChart = memo(function SourceBarChart({
     return conversationSources
       .filter((item) => item != null)
       .map((item) => {
-        const count = typeof item.count === 'number' && !isNaN(item.count) ? item.count : 0;
+        const count =
+          typeof item.count === 'number' && !isNaN(item.count) ? item.count : 0;
         const source = String(item.name || item._id || 'Unknown').trim();
-        
+
         return {
           source: source || 'Unknown',
           count: Math.max(0, count),
@@ -200,23 +213,18 @@ export const SourceBarChart = memo(function SourceBarChart({
 
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+      <BarChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+      >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <XAxis
-          dataKey="source"
-          tickLine={false}
-          axisLine={false}
-        />
+        <XAxis dataKey="source" tickLine={false} axisLine={false} />
         <YAxis
           tickLine={false}
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar
-          dataKey="count"
-          fill="var(--primary)"
-          name="Count"
-        />
+        <Bar dataKey="count" fill="var(--primary)" name="Count" />
         <Legend />
         <Tooltip />
       </BarChart>

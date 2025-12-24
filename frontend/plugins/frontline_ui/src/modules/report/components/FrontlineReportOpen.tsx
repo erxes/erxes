@@ -148,6 +148,7 @@ export const FrontlineReportOpen = ({
 }: FrontlineReportOpenProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue, setDateValue] = useState<string>('');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [chartType, setChartType] = useState<ResponsesChartType>(
     ResponsesChartType.Bar,
   );
@@ -155,9 +156,10 @@ export const FrontlineReportOpen = ({
 
   const { reports, loading } = useConversationReportsByStatus({
     variables: {
-      filters:{
+      filters: {
         ...filters,
         status: 'open',
+        source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
     notifyOnNetworkStatusChange: true,
@@ -167,6 +169,10 @@ export const FrontlineReportOpen = ({
     setDateValue(value);
     const newFilters = getFilters(value || undefined);
     setFilters(newFilters);
+  };
+
+  const handleSourceFilterChange = (value: string) => {
+    setSourceFilter(value);
   };
 
   const chartData = useMemo(() => {
@@ -203,7 +209,10 @@ export const FrontlineReportOpen = ({
       <FrontlineCard.Header
         filter={
           <>
-            <GroupSelect />
+            <GroupSelect
+              value={sourceFilter}
+              onValueChange={handleSourceFilterChange}
+            />
             <DateSelector
               value={dateValue}
               onValueChange={handleDateValueChange}
