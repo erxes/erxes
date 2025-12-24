@@ -20,7 +20,8 @@ export const sendAutomationTrigger = async (
   },
   jobOptions?: DefaultJobOptions,
 ) => {
-  sendWorkerQueue('automations', 'trigger').add(
+  const queue = sendWorkerQueue('automations', 'trigger');
+  const job = await queue.add(
     'trigger',
     {
       subdomain,
@@ -28,4 +29,5 @@ export const sendAutomationTrigger = async (
     },
     jobOptions,
   );
+  return job.id;
 };

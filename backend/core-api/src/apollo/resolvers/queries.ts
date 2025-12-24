@@ -22,6 +22,11 @@ import { productQueries } from '@/products/graphql/resolvers/queries';
 import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
 import { tagQueries } from '@/tags/graphql/queries';
+import {
+  importQueries,
+  exportQueries,
+} from '~/modules/import-export/graphql/resolvers';
+import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries';
 import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 
@@ -51,5 +56,8 @@ export const queries = {
   ...broadcastQueries,
   ...propertiesQueries,
   ...clientPortalQueries,
+  ...importQueries,
+  ...exportQueries,
   ...cpUserQueries,
+  ...activityLogQueries,
 };

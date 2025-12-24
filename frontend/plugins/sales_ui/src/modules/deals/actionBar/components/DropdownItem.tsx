@@ -1,5 +1,5 @@
 import { DropdownMenu } from 'erxes-ui';
-import { FilterItem } from '../types/actionBarTypes';
+import { FilterItem } from '@/deals/actionBar/types/actionBarTypes';
 
 type Props = {
   item: FilterItem;

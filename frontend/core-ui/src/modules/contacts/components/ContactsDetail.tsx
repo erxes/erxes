@@ -4,6 +4,7 @@ import {
   cn,
   Label,
   Resizable,
+  ScrollArea,
   Sheet,
   Spinner,
   useQueryState,
@@ -31,7 +32,7 @@ export const ContactsDetailSheet = ({
           <Sheet.Close tabIndex={-1} />
           <Sheet.Description className="sr-only">{title}</Sheet.Description>
         </Sheet.Header>
-        <Sheet.Content className="border-b-0 rounded-b-none">
+        <Sheet.Content className="border-b-0 rounded-b-none overflow-hidden">
           {children}
         </Sheet.Content>
       </Sheet.View>
@@ -63,7 +64,9 @@ export const ContactsDetailLayout = ({
       direction="horizontal"
       className="flex-auto min-h-full overflow-hidden"
     >
-      <Resizable.Panel>{children}</Resizable.Panel>
+      <Resizable.Panel>
+        <ScrollArea className="h-full">{children}</ScrollArea>
+      </Resizable.Panel>
       {actions}
     </Resizable.PanelGroup>
   );
