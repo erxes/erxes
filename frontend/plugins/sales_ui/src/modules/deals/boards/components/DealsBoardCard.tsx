@@ -75,10 +75,11 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
             variant="card"
           />
           <SelectLabels.FilterBar
-            filterKey="labelIds"
+            filterKey=""
             mode="multiple"
             label="By Label"
             variant="card"
+            targetId={_id}
           />
           {/* <SelectCompany
                   value={field.value}
