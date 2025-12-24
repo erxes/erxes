@@ -1,3 +1,6 @@
+import { Icon } from '@tabler/icons-react';
+import { IUser } from 'ui-modules';
+
 export interface ReportMetric {
   count: number;
   percentage: number;
@@ -66,4 +69,24 @@ export interface ConversationListItem {
       position: string;
     };
   }[];
+}
+
+export interface ConversationUserMessageStat {
+  user: IUser;
+  messageCount: number;
+}
+
+export enum ResponsesChartType {
+  Table = 'table',
+  Bar = 'bar',
+  Line = 'line',
+  Pie = 'pie',
+  Donut = 'donut',
+  Radar = 'radar',
+}
+
+export interface ResponsesChartTypeOption {
+  IconComponent: Icon;
+  value: ResponsesChartType;
+  label: string;
 }

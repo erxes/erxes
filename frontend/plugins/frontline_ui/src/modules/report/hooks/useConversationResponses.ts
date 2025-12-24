@@ -1,13 +1,9 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_CONVERSATION_RESPONSES } from '@/report/graphql/queries/getChart';
+import { ConversationUserMessageStat } from '../types';
 
 interface ConversationResponsesResponse {
-  reportConversationResponses: {
-    totalResponses: number;
-    avgResponseTime: number;
-    responseRate: number;
-    count: number;
-  };
+  reportConversationResponses: ConversationUserMessageStat[];
 }
 export const useConversationResponses = (
   options?: QueryHookOptions<ConversationResponsesResponse>,

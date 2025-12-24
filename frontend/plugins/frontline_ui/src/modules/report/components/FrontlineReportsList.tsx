@@ -32,6 +32,7 @@ import { FrontlineReportByTag } from './FrontlineReportByTag';
 import { FrontlineReportByResponses } from './FrontlineReportByResponses';
 import { FrontlineReportByList } from './FrontlineReportByList';
 import { FrontlineReportOpen } from './FrontlineReportOpen';
+import { FrontlineReportByResolved } from './FrontlineReportByResolved';
 
 interface CardConfig {
   id: string;
@@ -41,8 +42,8 @@ interface CardConfig {
 const INITIAL_CARDS: CardConfig[] = [
   { id: 'conversation-open', colSpan: 2 },
   { id: 'conversation-resolved', colSpan: 2 },
-  { id: 'conversation-source', colSpan: 2 },
-  { id: 'conversation-tag', colSpan: 2 },
+  { id: 'conversation-source', colSpan: 1 },
+  { id: 'conversation-tag', colSpan: 1 },
   { id: 'conversation-responses', colSpan: 2 },
   { id: 'conversation-list', colSpan: 2 },
 ];
@@ -178,7 +179,7 @@ export const FrontlineReportsList = () => {
         );
       case 'conversation-resolved':
         return (
-          <FrontlineReport
+          <FrontlineReportByResolved
             key={id}
             title="Conversation Resolved"
             {...commonProps}

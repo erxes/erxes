@@ -1,7 +1,7 @@
 import { ChartContainer, Skeleton } from 'erxes-ui';
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
-import { useConversationReportsByStatus } from '../hooks/useConversationReportsByStatus';
+import { useConversationResolvedByDate } from '../hooks/useConversationResolvedByDate';
 import { DateSelector } from './date-selector/DateSelector';
 import { SelectChartType } from './select-chart-type/SelectChartType';
 import { ResponsesChartType } from '../types';
@@ -9,27 +9,17 @@ import { useState, useMemo, memo } from 'react';
 import {
   Bar,
   BarChart,
-  Line,
-  LineChart,
   Area,
   AreaChart,
-  Pie,
-  PieChart,
-  Cell,
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
   XAxis,
   YAxis,
   Legend,
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { getDateRange, getFilters } from '../utils/dateFilters';
+import { getFilters } from '../utils/dateFilters';
 
-interface FrontlineReportOpenProps {
+interface FrontlineReportByResolvedProps {
   title: string;
   colSpan?: 1 | 2;
   onColSpanChange?: (span: 1 | 2) => void;
@@ -39,15 +29,7 @@ interface ChartProps {
   chartData: Array<{ date: string; count: number }>;
 }
 
-const CHART_COLORS = [
-  'var(--primary)',
-  'var(--success)',
-  'var(--warning)',
-  'var(--danger)',
-  'var(--info)',
-];
-
-export const OpenBarChart = memo(function OpenBarChart({
+export const ResolvedBarChart = memo(function ResolvedBarChart({
   chartData,
 }: ChartProps) {
   const chartConfig = useMemo(
@@ -89,7 +71,7 @@ export const OpenBarChart = memo(function OpenBarChart({
   );
 });
 
-export const OpenLineChart = memo(function OpenLineChart({
+export const ResolvedLineChart = memo(function ResolvedLineChart({
   chartData,
 }: ChartProps) {
   const chartConfig = useMemo(
@@ -141,11 +123,11 @@ export const OpenLineChart = memo(function OpenLineChart({
   );
 });
 
-export const FrontlineReportOpen = ({
+export const FrontlineReportByResolved = ({
   title,
   colSpan = 2,
   onColSpanChange,
-}: FrontlineReportOpenProps) => {
+}: FrontlineReportByResolvedProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue, setDateValue] = useState<string>('');
   const [chartType, setChartType] = useState<ResponsesChartType>(
@@ -153,12 +135,9 @@ export const FrontlineReportOpen = ({
   );
   const [filters, setFilters] = useState(() => getFilters());
 
-  const { reports, loading } = useConversationReportsByStatus({
+  const { reports, loading } = useConversationResolvedByDate({
     variables: {
-      filters:{
-        ...filters,
-        status: 'open',
-      },
+      filters,
     },
     notifyOnNetworkStatusChange: true,
   });
@@ -170,7 +149,7 @@ export const FrontlineReportOpen = ({
   };
 
   const chartData = useMemo(() => {
-    return reports?.reportConversationOpenDate || [];
+    return reports?.reportConversationResolvedDate || [];
   }, [reports]);
 
   if (loading) return <Skeleton className="w-full h-48" />;
@@ -184,11 +163,11 @@ export const FrontlineReportOpen = ({
 
     switch (chartType) {
       case ResponsesChartType.Bar:
-        return <OpenBarChart chartData={chartData} />;
+        return <ResolvedBarChart chartData={chartData} />;
       case ResponsesChartType.Line:
-        return <OpenLineChart chartData={chartData} />;
+        return <ResolvedLineChart chartData={chartData} />;
       default:
-        return <OpenBarChart chartData={chartData} />;
+        return <ResolvedBarChart chartData={chartData} />;
     }
   };
 
@@ -196,7 +175,7 @@ export const FrontlineReportOpen = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Total conversations open in the last 30 days"
+      description="Total conversations resolved in the last 30 days"
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -220,3 +199,4 @@ export const FrontlineReportOpen = ({
     </FrontlineCard>
   );
 };
+

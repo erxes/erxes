@@ -1,8 +1,13 @@
 import React, { createContext, useContext } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, cn } from 'erxes-ui';
-import { IconGripVertical, IconLayoutColumns, IconLayoutList } from '@tabler/icons-react';
+import { Card, cn, Empty } from 'erxes-ui';
+import {
+  IconChartHistogram,
+  IconGripVertical,
+  IconLayoutColumns,
+  IconLayoutList,
+} from '@tabler/icons-react';
 
 type FrontlineCardContextValue = {
   title?: string;
@@ -68,7 +73,10 @@ export function FrontlineCardRoot({
         className,
         colSpan,
         onColSpanChange,
-        dragHandleProps: { ...attributes, ...listeners } as React.HTMLAttributes<HTMLButtonElement>,
+        dragHandleProps: {
+          ...attributes,
+          ...listeners,
+        } as React.HTMLAttributes<HTMLButtonElement>,
       }}
     >
       <Card
@@ -88,7 +96,8 @@ export function FrontlineCardRoot({
 }
 
 export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
-  const { title, dragHandleProps, colSpan, onColSpanChange } = useFrontlineCardContext();
+  const { title, dragHandleProps, colSpan, onColSpanChange } =
+    useFrontlineCardContext();
 
   const toggleColSpan = () => {
     onColSpanChange?.(colSpan === 2 ? 1 : 2);
@@ -104,7 +113,9 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
         >
           <IconGripVertical className="h-4 w-4 text-muted-foreground" />
         </button>
-        <Card.Title className="text-sm font-medium font-mono uppercase">{title}</Card.Title>
+        <Card.Title className="text-sm font-medium font-mono uppercase">
+          {title}
+        </Card.Title>
       </div>
       <div className="flex items-center gap-2 [&_button]:h-7">
         {filter}
@@ -112,7 +123,9 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
           type="button"
           onClick={toggleColSpan}
           className="p-1 hover:bg-accent rounded"
-          title={colSpan === 2 ? 'Switch to half width' : 'Switch to full width'}
+          title={
+            colSpan === 2 ? 'Switch to half width' : 'Switch to full width'
+          }
         >
           {colSpan === 2 ? (
             <IconLayoutColumns className="h-4 w-4 text-muted-foreground" />
@@ -125,15 +138,34 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
   );
 }
 
+export function FrontlineCardEmpty() {
+  const { description } = useFrontlineCardContext();
+  return (
+    <Empty>
+      <Empty.Media variant="icon">
+        <IconChartHistogram className="size-10" />
+      </Empty.Media>
+      <Empty.Header>
+        <Empty.Title>No data available</Empty.Title>
+        <Empty.Description>{description}</Empty.Description>
+      </Empty.Header>
+    </Empty>
+  );
+}
 type FrontlineCardContentProps = {
   children: React.ReactNode;
 };
 
 export function FrontlineCardContent({ children }: FrontlineCardContentProps) {
-  return <Card.Content className='bg-background rounded-md p-0'>{children}</Card.Content>;
+  return (
+    <Card.Content className="bg-background rounded-md p-0">
+      {children}
+    </Card.Content>
+  );
 }
 
 export const FrontlineCard = Object.assign(FrontlineCardRoot, {
   Header: FrontlineCardHeader,
   Content: FrontlineCardContent,
+  Empty: FrontlineCardEmpty,
 });

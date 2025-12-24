@@ -52,10 +52,16 @@ export const GET_CONVERSATION_SOURCE = gql`
 export const GET_CONVERSATION_RESPONSES = gql`
   query ReportConversationResponses($filters: ConversationReportFilter) {
     reportConversationResponses(filters: $filters) {
-      totalResponses
-      avgResponseTime
-      responseRate
-      count
+      user {
+        _id
+        username
+        details {
+          avatar
+          fullName
+          position
+        }
+      }
+      messageCount
     }
   }
 `;
@@ -89,6 +95,24 @@ export const GET_CONVERSATION_LIST = gql`
       page
       totalCount
       totalPages
+    }
+  }
+`;
+
+export const GET_OPEN_CONVERSATIONS_BY_DATE = gql`
+  query ReportConversationOpenDate($filters: ConversationReportFilter) {
+    reportConversationOpenDate(filters: $filters) {
+      count
+      date
+    }
+  }
+`;
+
+export const GET_RESOLVED_CONVERSATIONS_BY_DATE = gql`
+  query ReportConversationResolvedDate($filters: ConversationReportFilter) {
+    reportConversationResolvedDate(filters: $filters) {
+      count
+      date
     }
   }
 `;
