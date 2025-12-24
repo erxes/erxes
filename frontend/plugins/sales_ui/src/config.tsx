@@ -53,6 +53,13 @@ export const CONFIG: IUIConfig = {
       path: 'sales/deals',
       settingsOnly: true,
     },
+    {
+      name: 'pos',
+      icon: IconBriefcase,
+      path: 'pos',
+      hasSettings: true,
+      hasAutomation: false,
+    },
   ],
   widgets: {
     relationWidgets: [

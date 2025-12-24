@@ -111,6 +111,7 @@ export const commonListFields = `
   stage {
     _id
     name
+    defaultTick
   }
   stageId
   isComplete

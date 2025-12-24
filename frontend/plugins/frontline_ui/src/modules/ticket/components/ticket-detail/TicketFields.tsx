@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Input,
   Separator,
@@ -18,6 +19,7 @@ import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateT
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectTags } from 'ui-modules';
+import { Button } from 'erxes-ui';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
@@ -30,10 +32,12 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     statusId,
     channelId,
     tagIds,
+    isSubscribed: _isSubscribed,
   } = ticket || {};
-
+  console.log(ticket, 'ticketticketticketticketticket');
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
+  const isFirstRun = React.useRef(true);
 
   const parseDescription = (desc: string | undefined): Block[] | undefined => {
     if (!desc) return undefined;
@@ -97,6 +101,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   });
   const { updateTicket } = useUpdateTicket();
   const [name, setName] = useState(_name);
+  const [isSubscribed, setSubscribe] = useState<boolean>(
+    _isSubscribed || false,
+  );
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
@@ -104,6 +111,25 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       content.pop();
       setDescriptionContent(content as Block[]);
     }
+  };
+
+  const FieldSubscribeSwitch = ({
+    isSubscribed,
+  }: {
+    isSubscribed: boolean;
+  }) => {
+    return (
+      <div
+        className="space-x-2 flex items-center gap-2"
+        onClick={() => {
+          setSubscribe(!isSubscribed);
+        }}
+      >
+        <Button variant="ghost">
+          <legend>{isSubscribed ? 'UnSubscribe' : 'Subscribe'}</legend>
+        </Button>
+      </div>
+    );
   };
 
   const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
@@ -136,6 +162,23 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
+
+  useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    if (isSubscribed === _isSubscribed) return;
+    if (isSubscribed !== undefined) {
+      updateTicket({
+        variables: {
+          _id: ticketId,
+          isSubscribed: isSubscribed,
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubscribed, _isSubscribed, ticketId]);
   return (
     <div className="flex flex-col gap-3 h-full">
       <Input
@@ -200,6 +243,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             });
           }}
         />
+        <FieldSubscribeSwitch isSubscribed={isSubscribed} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">

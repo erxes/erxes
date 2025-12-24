@@ -21,6 +21,7 @@ import { MessageInputIntegrationWrapper } from '@/integrations/components/Messag
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
+import { useLocation } from 'react-router-dom';
 
 export const ConversationDetail = () => {
   const [conversationId] = useQueryState<string>('conversationId');
@@ -29,6 +30,9 @@ export const ConversationDetail = () => {
   );
   const activeConversationCandidate = useAtomValue(activeConversationState);
   const setExtraInfo = useSetAtom(messageExtraInfoState);
+
+  const location = useLocation();
+  const isInInbox = location.pathname.includes('my-inbox');
 
   const currentConversation =
     activeConversationCandidate?._id === conversationId ||
@@ -41,7 +45,7 @@ export const ConversationDetail = () => {
       _id: conversationId || relatedConversationId,
     },
     skip: !conversationId && !relatedConversationId,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: isInInbox ? 'network-only' : 'cache-and-network',
   });
 
   const { integrationId } = currentConversation || conversationDetail || {};
