@@ -64,7 +64,9 @@ export const types = `
     webhookData: JSON
     channelId: String
 
-    channel: Channel
+    brand: Brand
+    facebookPage: JSON
+    channels: [Channel]
 
 
     healthStatus: JSON
