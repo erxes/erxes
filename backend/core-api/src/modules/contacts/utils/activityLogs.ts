@@ -75,7 +75,6 @@ export async function generateCustomerActivityLogs(
       async (id) => {
         const user = await models.Users.findOne({ _id: id }).lean();
         const result = user?.details?.fullName || user?.email || 'unknown';
-        console.log('result', result);
         return result;
       },
     ),

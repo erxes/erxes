@@ -229,7 +229,6 @@ export const loadTagClass = (
           { $set: { tagIds: tags.map((tag) => tag._id) } },
         );
 
-        console.log('moduleName', moduleName);
         if (['customer', 'user', 'company', 'product'].includes(moduleName)) {
           buildBulkActivities(
             targets,
