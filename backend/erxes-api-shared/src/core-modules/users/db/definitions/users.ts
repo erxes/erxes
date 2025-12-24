@@ -190,7 +190,6 @@ export const userSchema = schemaWrapper(
       label: 'Last seen at',
     }),
   }),
-  { contentType: 'core:contact.user' },
 );
 
 export const userMovemmentSchema = schemaWrapper(

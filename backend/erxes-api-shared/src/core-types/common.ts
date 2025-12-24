@@ -1,6 +1,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
+import { Request as ApiRequest, Response as ApiResponse } from 'express';
 
 export interface IRule {
   kind: string;
@@ -84,7 +85,7 @@ export interface IPdfAttachment {
 
 export interface IMainContext {
   res: any;
-  req: any;
+  req: ApiRequest;
   requestInfo: any;
   user: IUserDocument;
   cpUser?: any;
