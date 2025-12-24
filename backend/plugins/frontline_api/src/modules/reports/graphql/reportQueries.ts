@@ -35,12 +35,24 @@ export const reportQueries = {
       },
 
       {
+        $addFields: {
+          createdAtDate: {
+            $cond: {
+              if: { $eq: [{ $type: '$createdAt' }, 'string'] },
+              then: { $dateFromString: { dateString: '$createdAt' } },
+              else: '$createdAt',
+            },
+          },
+        },
+      },
+
+      {
         $group: {
           _id: {
             date: {
               $dateToString: {
                 format: '%Y-%m-%d',
-                date: '$createdAt',
+                date: '$createdAtDate',
               },
             },
             status: '$status',
@@ -290,11 +302,22 @@ export const reportQueries = {
 
     pipeline.push(
       {
+        $addFields: {
+          createdAtDate: {
+            $cond: {
+              if: { $eq: [{ $type: '$createdAt' }, 'string'] },
+              then: { $dateFromString: { dateString: '$createdAt' } },
+              else: '$createdAt',
+            },
+          },
+        },
+      },
+      {
         $group: {
           _id: {
             $dateToString: {
               format: '%Y-%m-%d',
-              date: '$createdAt',
+              date: '$createdAtDate',
             },
           },
           count: { $sum: 1 },
@@ -337,11 +360,22 @@ export const reportQueries = {
 
     pipeline.push(
       {
+        $addFields: {
+          closedAtDate: {
+            $cond: {
+              if: { $eq: [{ $type: '$closedAt' }, 'string'] },
+              then: { $dateFromString: { dateString: '$closedAt' } },
+              else: '$closedAt',
+            },
+          },
+        },
+      },
+      {
         $group: {
           _id: {
             $dateToString: {
               format: '%Y-%m-%d',
-              date: '$closedAt',
+              date: '$closedAtDate',
             },
           },
           count: { $sum: 1 },
