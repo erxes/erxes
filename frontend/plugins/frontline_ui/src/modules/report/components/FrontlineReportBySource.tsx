@@ -34,6 +34,8 @@ import { ResponsesChartType, SourceData } from '../types';
 import { SelectChartType } from './select-chart-type/SelectChartType';
 import { ColumnDef } from '@tanstack/table-core';
 import { DataKey } from 'recharts/types/util/types';
+import { DateSelector } from './date-selector/DateSelector';
+import { getFilters } from '../utils/dateFilters';
 
 interface FrontlineReportBySourceProps {
   title: string;
@@ -45,6 +47,7 @@ interface SourceCardHeaderProps {
   chartType: ResponsesChartType;
   setChartType: (chartType: ResponsesChartType) => void;
   sourceFilter: string;
+  dateValue: string;
   onSourceFilterChange: (value: string) => void;
 }
 
@@ -60,18 +63,29 @@ export const FrontlineReportBySource = ({
   const [chartType, setChartType] = useState<ResponsesChartType>(
     ResponsesChartType.Bar,
   );
+  const [dateValue, setDateValue] = useState<string>('');
+  const [filters, setFilters] = useState(() => getFilters());
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const id = title.toLowerCase().replace(/\s+/g, '-');
 
   const { conversationSources, loading, error } = useConversationSources({
     variables: {
       filters: {
-        limit: 10,
+        ...filters,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
   });
 
+  const handleSourceFilterChange = (value: string) => {
+    setSourceFilter(value);
+  };
+
+  const handleDateValueChange = (value: string) => {
+    setDateValue(value);
+    const newFilters = getFilters(value || undefined);
+    setFilters(newFilters);
+  };
   if (loading) return <Skeleton className="w-full h-48" />;
 
   if (error) {
@@ -104,6 +118,20 @@ export const FrontlineReportBySource = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
+        <FrontlineCard.Header
+          filter={
+            <>
+              <GroupSelect
+                value={sourceFilter}
+                onValueChange={handleSourceFilterChange}
+              />
+              <DateSelector
+                value={dateValue}
+                onValueChange={handleDateValueChange}
+              />
+            </>
+          }
+        />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -121,12 +149,16 @@ export const FrontlineReportBySource = ({
     >
       <FrontlineCard.Header
         filter={
-          <SourceCardHeader
-            chartType={chartType}
-            setChartType={setChartType}
-            sourceFilter={sourceFilter}
-            onSourceFilterChange={setSourceFilter}
-          />
+          <>
+            <GroupSelect
+              value={sourceFilter}
+              onValueChange={handleSourceFilterChange}
+            />
+            <DateSelector
+              value={dateValue}
+              onValueChange={handleDateValueChange}
+            />
+          </>
         }
       />
       <FrontlineCard.Content>

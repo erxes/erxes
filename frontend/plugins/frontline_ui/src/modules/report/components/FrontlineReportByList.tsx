@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '../hooks/useConversationList';
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
@@ -87,6 +87,20 @@ export const FrontlineReportByList = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
+        <FrontlineCard.Header
+          filter={
+            <>
+              <GroupSelect
+                value={sourceFilter}
+                onValueChange={handleSourceFilterChange}
+              />
+              <DateSelector
+                value={dateValue}
+                onValueChange={handleDateValueChange}
+              />
+            </>
+          }
+        />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -267,19 +281,25 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   {
     id: 'open',
     size: 33,
-    cell: ({ cell }) => {
-      const { _id } = cell.row.original || {};
-      const navigate = useNavigate();
-      return (
-        <RecordTable.MoreButton
-          className="w-full h-full"
-          onClick={() => {
-            navigate(`/frontline/inbox?conversationId=${_id}`);
-          }}
-        >
-          <IconMessageShare />
-        </RecordTable.MoreButton>
-      );
-    },
+    cell: ({ cell }) => <MoreCell cell={cell} />,
   },
 ];
+
+export const MoreCell = ({
+  cell,
+}: {
+  cell: Cell<ConversationListItem, any>;
+}) => {
+  const { _id } = cell.row.original || {};
+  const navigate = useNavigate();
+  return (
+    <RecordTable.MoreButton
+      className="w-full h-full"
+      onClick={() => {
+        navigate(`/frontline/inbox?conversationId=${_id}`);
+      }}
+    >
+      <IconMessageShare />
+    </RecordTable.MoreButton>
+  );
+};

@@ -121,6 +121,20 @@ export const FrontlineReportByResponses = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
+        <FrontlineCard.Header
+          filter={
+            <>
+              <GroupSelect
+                value={sourceFilter}
+                onValueChange={handleSourceFilterChange}
+              />
+              <DateSelector
+                value={dateValue}
+                onValueChange={handleDateValueChange}
+              />
+            </>
+          }
+        />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
