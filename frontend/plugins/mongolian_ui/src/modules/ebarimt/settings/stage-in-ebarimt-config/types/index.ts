@@ -9,19 +9,18 @@ export interface StageInEbarimtConfig {
   posNo: string;
   companyRD: string;
   merchantTin: string;
-  branchOfProvice: string;
-  subProvice: string;
+  branchOfProvince: string;
+  subProvince: string;
   districtCode: string;
   companyName: string;
   defaultUnitedCode: string;
   headerText: string;
   branchNo: string;
-  HasVat: boolean;
+  hasVat: boolean;
   vatPercent: string;
   anotherRulesOfProductsOnVat: string;
   vatPayableAccount: string;
-
-  HasAllCitytax: boolean;
+  hasAllCitytax: boolean;
   allCitytaxPayableAccount: string;
   footerText: string;
   citytaxPercent: string;

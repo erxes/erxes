@@ -1,4 +1,3 @@
-// src/modules/erkhet-sync/settings/stage-in-erkhet-config/components/PipelineFields.tsx
 import { Form } from 'erxes-ui';
 import { SelectSalesBoard } from './selects/SelectBoard';
 import { SelectPipeline } from './selects/SelectPipeline';
