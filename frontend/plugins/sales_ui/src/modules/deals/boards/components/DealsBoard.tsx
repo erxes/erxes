@@ -2,7 +2,6 @@ import {
   Board,
   BoardColumnProps,
   BoardItemProps,
-  Button,
   EnumCursorDirection,
   Skeleton,
   SkeletonArray,
@@ -15,14 +14,14 @@ import { DealsBoardCard } from '@/deals/boards/components/DealsBoardCard';
 import { DealsBoardColumnHeader } from '@/deals/boards/components/DealsBoardColumnHeader';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { IDeal } from '@/deals/types/deals';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import clsx from 'clsx';
 import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Link, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 import { useStages } from '@/deals/stage/hooks/useStages';
-import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 
 const fetchedDealsState = atom<BoardItemProps[]>([]);
 export const allDealsMapState = atom<Record<string, IDeal>>({});
@@ -221,9 +220,6 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
   useEffect(() => {
     if (deals && deals.length !== 0) {
       setDealCards((prev) => {
-        const previousDeals = prev.filter(
-          (deal) => !deals.some((t) => t._id === deal.id),
-        );
         const otherColumnDeals = prev.filter((d) => d.column !== column.id);
         // Add the new deals for this column
         const newColumnDeals = deals.map((deal) => ({

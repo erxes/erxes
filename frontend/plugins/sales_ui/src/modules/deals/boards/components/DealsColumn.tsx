@@ -1,28 +1,27 @@
-import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell, useQueryState } from 'erxes-ui';
 import {
+  IconAlertSquareRounded,
+  IconCalendarFilled,
   IconLabelFilled,
   IconProgressCheck,
   IconUser,
-  IconAlertSquareRounded,
-  IconCalendarFilled,
 } from '@tabler/icons-react';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
-import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
-import { SelectPipeline } from '@/deals/pipelines/components/SelectPipelines';
-import { SelectStage } from '@/deals/stage/components/SelectStages';
-
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { IDeal } from '@/deals/types/deals';
-import { SelectBoard } from '@/deals/boards/components/SelectBoards';
+import { RecordTable, RecordTableInlineCell, useQueryState } from 'erxes-ui';
 import {
   dealBoardState,
   dealPipelineState,
-  dealStageState,
 } from '@/deals/states/dealContainerState';
+import { useAtomValue, useSetAtom } from 'jotai';
+
+import { ColumnDef } from '@tanstack/table-core';
+import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { IDeal } from '@/deals/types/deals';
+import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
+import { SelectBoard } from '@/deals/boards/components/SelectBoards';
+import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { SelectPipeline } from '@/deals/pipelines/components/SelectPipelines';
+import { SelectStage } from '@/deals/stage/components/SelectStages';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
 const NameCell = ({ deal }: { deal: IDeal }) => {
   const setActiveDealId = useSetAtom(dealDetailSheetState);
@@ -82,6 +81,17 @@ const PipelineCell = ({ deal }: { deal: IDeal }) => {
   );
 };
 
+const ProductsCell = ({ deal }: { deal: IDeal }) => {
+  console.log(deal.products);
+  return (
+    <RecordTableInlineCell>
+      <div className="flex items-center justify-between w-full gap-2">
+        <span>{deal.products?.length}</span>
+      </div>
+    </RecordTableInlineCell>
+  );
+};
+
 const StageCell = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsEdit();
 
@@ -127,7 +137,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       id: 'boardId',
       accessorFn: (row) => row.boardId,
       header: () => (
-        <RecordTable.InlineHead label="Board ID" icon={IconLabelFilled} />
+        <RecordTable.InlineHead label="Board" icon={IconLabelFilled} />
       ),
       cell: ({ row }) => <BoardCell deal={row.original} />,
     },
@@ -155,6 +165,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Products" icon={IconProgressCheck} />
       ),
+      cell: ({ row }) => <ProductsCell deal={row.original} />,
     },
     {
       id: 'assignedUsers',
