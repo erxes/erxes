@@ -99,21 +99,6 @@ export const cpUserMutations: Record<string, Resolver> = {
     return cpUserService.updateUser(cpUser._id, params, models);
   },
 
-  async clientPortalUserSignup(
-    _root: unknown,
-    params: RegisterParams,
-    { models, subdomain, clientPortal, res }: IContext,
-  ) {
-    const user = await cpUserService.registerUser(
-      subdomain,
-      clientPortal,
-      params,
-      models,
-    );
-
-    return user;
-  },
-
   async clientPortalUserVerify(
     _root: unknown,
     { userId, code, email, phone }: VerifyParams,
