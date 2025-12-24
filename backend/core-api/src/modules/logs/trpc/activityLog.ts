@@ -28,7 +28,6 @@ export const activityLogRouter = t.router({
       )
       .mutation(async ({ input, ctx }) => {
         const { models, userId, subdomain } = ctx;
-        console.log('createActivityLog', input);
         if (!userId) {
           throw new TRPCError({ code: 'UNAUTHORIZED' });
         }

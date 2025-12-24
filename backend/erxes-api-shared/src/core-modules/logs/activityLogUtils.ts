@@ -390,14 +390,6 @@ export async function buildBulkActivities(
     }
   }
 
-  console.log(
-    'activities',
-    activities.map((activity) => ({
-      ...activity,
-      ...commonActivityData,
-    })),
-  );
-
   createActivityLog(
     activities.map((activity) => ({
       ...activity,
@@ -424,7 +416,6 @@ export async function buildActivities(
       : currentDoc;
 
   const changes = normalizeDiffs(prevPlain, currentPlain);
-  console.log('changes', changes);
   const activities: ActivityLogPayload[] = [];
 
   for (const change of changes) {

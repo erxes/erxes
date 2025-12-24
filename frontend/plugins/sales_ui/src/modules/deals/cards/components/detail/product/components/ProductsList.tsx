@@ -1,73 +1,111 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Input, Label, Switch } from 'erxes-ui';
-import {
-  IProduct,
-  IProductData,
-  SelectProductsBulk,
-  currentUserState,
-} from 'ui-modules';
-import { IconPlus, IconSearch } from '@tabler/icons-react';
+import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
+import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
+import { IProduct, IProductData, currentUserState } from 'ui-modules';
+import { useEffect, useState } from 'react';
 
-import FilterButton from './FilterButton';
+import { IconSearch } from '@tabler/icons-react';
+import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
+import ProductFooter from './ProductFooter';
 import { ProductsRecordTable } from './ProductRecordTable';
+import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
-import { useState } from 'react';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { useProductCalculations } from '../hooks/useProductCalculations';
+import { useSetAtom } from 'jotai';
 
 const ProductsList = ({
   products,
   productsData,
   dealId,
   refetch,
+  tickUsed,
 }: {
   products: IProduct[];
   productsData: IProductData[];
   dealId: string;
   refetch: () => void;
+  tickUsed: boolean;
 }) => {
   const { createDealsProductData } = useDealsCreateProductsData();
+  const [localProductsData, setLocalProductsData] =
+    useState<IProductData[]>(productsData);
+  const setOnLocalChange = useSetAtom(onLocalChangeAtom);
+
+  const [filters, setFilters] = useState<ProductFilterState>(
+    {} as ProductFilterState,
+  );
 
   const [vatPercent, setVatPercent] = useState(0);
-  const [discount, setDiscount] = useState<{
-    [currency: string]: { value?: number; percent?: number };
-  }>({});
-  const [tax, setTax] = useState<{
-    [currency: string]: { value?: number; percent?: number };
-  }>({});
-  // const [total, setTotal] = useState<{ [currency: string]: number }>({});
+  const {
+    total,
+    unUsedTotal,
+    bothTotal,
+    tax,
+    discount,
+    updateTotal,
+    calculatePerProductAmount,
+  } = useProductCalculations(localProductsData);
+  const { editDeals } = useDealsEdit();
+  const [showAdvancedView, setShowAdvancedView] = useState(false);
 
   const currentUser = useAtomValue(currentUserState);
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
 
-  const productRecords = productsData.map((data) => ({
-    ...data,
-    product: products.find((p) => p._id === data.productId),
-  }));
+  const filteredProducts = filterProducts(products, filters);
+
+  const productRecords = localProductsData
+    .map((data) => ({
+      ...data,
+      product: products.find((p) => p._id === data.productId),
+    }))
+    .filter((record) => {
+      if (!record.product) return false;
+      // We check if the product in the record is present in the filtered products list
+      return filteredProducts.some((p) => p._id === record.product?._id);
+    });
+
+  const updateLocalProduct = (id: string, patch: Partial<IProductData>) => {
+    setLocalProductsData((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, ...patch } : p)),
+    );
+  };
+
+  useEffect(() => {
+    setLocalProductsData(productsData);
+  }, [productsData]);
+
+  useEffect(() => {
+    setOnLocalChange(() => updateLocalProduct);
+    return () => setOnLocalChange(null);
+  }, [setOnLocalChange]);
 
   const applyVat = () => {
-    // const { productsData, onChangeProductsData } = this.props;
-    // const { vatPercent } = this.state;
-    // const updatedData = (productsData || []).map(p => {
-    //   const pData = {
-    //     ...p,
-    //     isVatApplied: true,
-    //     unitPrice: p.isVatApplied
-    //       ? p.unitPrice
-    //       : parseFloat(
-    //           ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-    //         ),
-    //   };
-    //   this.calculatePerProductAmount("", pData, false);
-    //   return pData;
-    // });
-    // onChangeProductsData(updatedData);
-    // this.updateTotal(updatedData);
+    const updatedData = (localProductsData || []).map((p) => {
+      const pData = {
+        ...p,
+        isVatApplied: true,
+        unitPrice: p.isVatApplied
+          ? p.unitPrice
+          : parseFloat(
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
+            ),
+      };
+
+      calculatePerProductAmount('', pData, false);
+
+      return pData;
+    });
+
+    setLocalProductsData(updatedData);
+    updateTotal(updatedData);
   };
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
     if (!selectedProducts) return;
-    const currency = currencies ? currencies[0] : '';
+    const currency =
+      currencies && currencies.length > 0 ? currencies[0] : 'MNT';
 
     const docs: any[] = [];
     for (const product of selectedProducts) {
@@ -81,7 +119,7 @@ const ProductsList = ({
           : 0,
         amount: 0,
         currency,
-        // tickUsed: dealQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
+        tickUsed,
         maxQuantity: 0,
         product,
         quantity: 1,
@@ -97,6 +135,10 @@ const ProductsList = ({
     const processId = Math.random().toString();
     localStorage.setItem('processId', processId);
 
+    docs.forEach((p) => calculatePerProductAmount('discount', p));
+
+    updateTotal(docs);
+
     createDealsProductData({
       variables: {
         processId,
@@ -106,62 +148,92 @@ const ProductsList = ({
     });
   };
 
+  const handleSave = () => {
+    const processId = localStorage.getItem('processId') || '';
+
+    const formattedProductsData = localProductsData.map((data) => ({
+      ...data,
+      productId: data.product?._id || data.productId,
+    }));
+
+    editDeals({
+      variables: {
+        productsData: formattedProductsData,
+        paymentsData: null,
+        extraData: null,
+        proccessId: processId,
+        _id: dealId,
+      },
+    });
+  };
+
   return (
-    <div>
-      <div className=" flex">
-        <Input
-          placeholder="Vat percent"
-          className="w-[40%]"
-          value={vatPercent}
-          onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
-        />
-        <Button className="ml-3" onClick={() => applyVat()}>
-          Apply VAT
-        </Button>
-      </div>
-      <div className="w-full mt-3 flex items-center justify-between">
-        <div className="relative w-[45%]">
-          <IconSearch
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={16}
+    <div className="space-y-4">
+      <Filter id="product-filter">
+        <div className="flex items-center gap-4 flex-wrap">
+          <Input
+            placeholder="Vat percent"
+            className="w-[40%]"
+            value={vatPercent}
+            onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
           />
-          <Input placeholder="Search" className="pl-9 w-full" />
+          <Button className="ml-3" onClick={() => applyVat()}>
+            Apply VAT
+          </Button>
         </div>
-        <div className="flex items-center gap-6">
-          <div>
-            <Label className="mr-3 ">Advanced view</Label>
-            <Switch />
+        <div className="w-full mt-3 flex items-center justify-between">
+          <div className="relative w-[45%]">
+            <IconSearch
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={16}
+            />
+            <Input
+              placeholder="Search"
+              className="pl-9 w-full"
+              value={filters.productSearch || ''}
+              onChange={(e) =>
+                setFilters({ ...filters, productSearch: e.target.value })
+              }
+            />
           </div>
-          <FilterButton />
+          <div className="flex items-center gap-6">
+            <div>
+              <Label className="mr-3">Advanced view</Label>
+              <Switch
+                checked={showAdvancedView}
+                onCheckedChange={(checked) => {
+                  setShowAdvancedView(checked);
+                }}
+              />
+            </div>
+            <FilterButton filters={filters} onFilterChange={setFilters} />
+          </div>
         </div>
-      </div>
+        <div className="flex-1 flex items-center gap-2 overflow-x-auto py-1">
+          <ProductFilterBar filters={filters} onChange={setFilters} />
+        </div>
+      </Filter>
       <ProductsRecordTable
         products={productRecords || ([] as IProductData[])}
         refetch={refetch}
         dealId={dealId}
+        showAdvancedView={showAdvancedView}
+        onLocalChange={updateLocalProduct}
       />
-      <div className="sticky bottom-0 right-0 left-0 p-2 flex justify-between items-center z-10 bg-white border-t">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            Total Products:{' '}
-            <span className="text-primary">{products?.length || 0}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            Total Amount: <span className="text-primary">{0}</span>
-          </div>
-        </div>
-        <SelectProductsBulk
-          productIds={[]}
-          onSelect={(productIds, selectedProducts) =>
-            onPoductBulkSave(selectedProducts || ([] as IProduct[]))
-          }
-        >
-          <Button>
-            <IconPlus />
-            Add Many Products
-          </Button>
-        </SelectProductsBulk>
-      </div>
+      <ProductFooter
+        productsCount={products?.length || 0}
+        total={total}
+        unUsedTotal={unUsedTotal}
+        bothTotal={bothTotal}
+        discount={discount}
+        tax={tax}
+        showAdvancedView={showAdvancedView}
+        productsData={localProductsData}
+        onChangeProductsData={setLocalProductsData}
+        updateTotal={updateTotal}
+        onAddProducts={onPoductBulkSave}
+        onSave={handleSave}
+      />
     </div>
   );
 };
