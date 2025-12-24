@@ -19,14 +19,12 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
     new: 'var(--gray)',
     open: 'var(--warning)',
     closed: 'var(--primary)',
-    resolved: 'var(--success)',
   };
 
   const chartConfig = {
     new: { label: 'New', color: statusColors.new },
     open: { label: 'Open', color: statusColors.open },
     closed: { label: 'Closed', color: statusColors.closed },
-    resolved: { label: 'Resolved', color: statusColors.resolved },
   };
 
   const todayEnd = endOfDay(new Date());
@@ -40,7 +38,6 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
         new: item.new ?? 0,
         open: item.open ?? 0,
         closed: item.closed ?? 0,
-        resolved: item.resolved ?? 0,
       };
     }
     return { ...item, totalScope: totalScopeValue };
@@ -52,7 +49,6 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
     new: 0,
     open: 0,
     closed: 0,
-    resolved: 0,
   });
 
   return (
@@ -98,17 +94,6 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
           type="monotone"
           stroke={statusColors.closed}
           fill={statusColors.closed}
-          fillOpacity={0.2}
-          strokeWidth={2}
-          dot={false}
-          connectNulls
-          strokeLinecap="round"
-        />
-        <Area
-          dataKey="resolved"
-          type="monotone"
-          stroke={statusColors.resolved}
-          fill={statusColors.resolved}
           fillOpacity={0.2}
           strokeWidth={2}
           dot={false}

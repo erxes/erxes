@@ -3,7 +3,7 @@ import { Button, HoverCard } from 'erxes-ui';
 import { SelectTags } from 'ui-modules';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 
-type Status = 'new' | 'open' | 'closed' | 'resolved';
+type Status = 'new' | 'open' | 'closed';
 
 interface TagStats {
   statuses: Record<Status, number>;
@@ -36,7 +36,6 @@ export const ProgressTags = ({ customerId }: { customerId: string }) => {
                 new: 0,
                 open: 0,
                 closed: 0,
-                resolved: 0,
               },
             };
           }
@@ -52,7 +51,7 @@ export const ProgressTags = ({ customerId }: { customerId: string }) => {
       (sum, count) => sum + count,
       0,
     );
-    const completed = statuses.closed + statuses.resolved;
+    const completed = statuses.closed;
     return { total, completed };
   };
 

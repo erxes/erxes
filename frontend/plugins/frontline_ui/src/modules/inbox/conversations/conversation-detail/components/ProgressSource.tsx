@@ -17,7 +17,7 @@ const sourceIcons: Record<string, React.ReactNode> = {
   default: <IconUser className="w-4 h-4" />,
 };
 
-const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'];
+const ALL_STATUSES = ['new', 'open', 'closed'];
 
 export const ProgressSource = ({ customerId }: { customerId: string }) => {
   const { conversationSourceProgress } = useGetConversationSourceProgress({
