@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POS_BY_ITEMS_QUERY = gql`
-  query posProducts(
-    $categoryId: String
-    $searchValue: String
+  query PosProducts(
     $page: Int
     $perPage: Int
     $sortField: String
@@ -18,13 +16,16 @@ export const POS_BY_ITEMS_QUERY = gql`
     $customerId: String
     $customerType: String
     $posId: String
+    $posToken: String
     $types: [String]
     $statuses: [String]
     $excludeStatuses: [String]
+    $hasPaidDate: Boolean
+    $brandId: String
+    $categoryId: String
+    $searchValue: String
   ) {
     posProducts(
-      categoryId: $categoryId
-      searchValue: $searchValue
       page: $page
       perPage: $perPage
       sortField: $sortField
@@ -39,30 +40,46 @@ export const POS_BY_ITEMS_QUERY = gql`
       customerId: $customerId
       customerType: $customerType
       posId: $posId
+      posToken: $posToken
       types: $types
       statuses: $statuses
       excludeStatuses: $excludeStatuses
+      hasPaidDate: $hasPaidDate
+      brandId: $brandId
+      categoryId: $categoryId
+      searchValue: $searchValue
     ) {
       products {
         _id
         name
-        type
         code
-        categoryId
+        type
+        uom
         unitPrice
-        category {
-          _id
-          code
-          name
-          __typename
-        }
+        categoryId
+        createdAt
         counts
         count
         amount
-        __typename
+        category {
+          _id
+          name
+          description
+          meta
+          parentId
+          code
+          order
+          scopeBrandIds
+          status
+          isRoot
+          productCount
+          maskType
+          mask
+          isSimilarity
+          similarities
+        }
       }
       totalCount
-      __typename
     }
   }
 `;

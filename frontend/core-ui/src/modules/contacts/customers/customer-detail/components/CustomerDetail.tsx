@@ -4,6 +4,9 @@ import { CustomerDetailGeneral } from './CustomerDetailGeneral';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
 import { ContactsDetailLayout } from '@/contacts/components/ContactsDetail';
 import { CustomerDetailFields } from './CustomerDetailFields';
+import { ActivityLogs } from 'ui-modules';
+import { FieldsInDetail } from 'ui-modules';
+import { useCustomerCustomFieldEdit } from '../../hooks/useEditCustomerCustomFields';
 
 export const CustomerDetail = () => {
   const { customerDetail, loading } = useCustomerDetailWithQuery();
@@ -18,6 +21,14 @@ export const CustomerDetail = () => {
       <CustomerDetailGeneral />
       <Separator />
       <CustomerDetailFields />
+      {customerDetail && <ActivityLogs targetId={customerDetail?._id} />}
+      <Separator />
+      <FieldsInDetail
+        fieldContentType="core:customer"
+        customFieldsData={customerDetail?.customFieldsData || {}}
+        mutateHook={useCustomerCustomFieldEdit}
+        id={customerDetail?._id || ''}
+      />
     </ContactsDetailLayout>
   );
 };

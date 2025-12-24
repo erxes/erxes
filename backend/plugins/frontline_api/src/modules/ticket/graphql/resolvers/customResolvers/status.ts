@@ -8,14 +8,26 @@ export const Ticket = {
     }
     return await models.Status.findOne({ _id: statusId });
   },
-  async assignee( { assigneeId }: { assigneeId: String },_params, { subdomain }: IContext) {
+  async assignee(
+    { assigneeId }: { assigneeId: String },
+    _params,
+    { subdomain }: IContext,
+  ) {
     return sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'users',
-      method:"query",
+      method: 'query',
       action: 'findOne',
       input: { query: { _id: assigneeId } },
     });
+  },
+
+  async isSubscribed({ subscribedUserIds }, _params, { user }: IContext) {
+    if (!subscribedUserIds && subscribedUserIds.lenght === 0) {
+      return false;
+    }
+
+    return subscribedUserIds.includes(user._id);
   },
 };

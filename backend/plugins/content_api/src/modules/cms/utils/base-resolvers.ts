@@ -310,6 +310,9 @@ export const FIELD_MAPPINGS = {
     name: 'title',
     description: 'content',
   },
+  MENU: {
+    label: 'title',
+  },
   KNOWLEDGE_BASE_ARTICLE: {
     title: 'title',
     content: 'content',
