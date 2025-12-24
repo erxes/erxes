@@ -4,6 +4,7 @@ export default {
             notificationInserted(userId: String): Notification
             notificationRead(userId: String): JSON
             notificationArchived(userId: String): JSON
+            activityLogInserted(userId: String, targetId: String): ActivityLog
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -43,6 +44,22 @@ export default {
       notificationArchived: {
         subscribe: (_, { userId }) =>
           graphqlPubsub.asyncIterator(`notificationArchived:${userId}`),
+      },
+      activityLogInserted: {
+        resolve: (payload) => {
+          return payload.activityLogInserted;
+        },
+        subscribe: (_, { userId, targetId }, { subdomain }) => {
+          if (targetId) {
+            return graphqlPubsub.asyncIterator(
+              `activityLogInserted:${subdomain}:${targetId}`,
+            );
+          }
+          // Fallback to userId-based subscription if targetId not provided
+          return graphqlPubsub.asyncIterator(
+            `activityLogInserted:${subdomain}:${userId}`,
+          );
+        },
       },
     };
   },
