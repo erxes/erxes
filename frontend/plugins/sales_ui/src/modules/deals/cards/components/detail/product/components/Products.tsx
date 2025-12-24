@@ -4,12 +4,13 @@ import { IProduct, IProductData } from 'ui-modules';
 
 import { IDeal } from '@/deals/types/deals';
 import ProductsList from './ProductsList';
+import ProductsPayment from './ProductPayment';
 import { Tabs } from 'erxes-ui';
 import { useState } from 'react';
 
 const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
-  console.log('cdeal', deal);
+
   return (
     <div className="mt-3 ml-3">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)}>
@@ -36,12 +37,13 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
           productsData={deal.productsData || ([] as IProductData[])}
           dealId={deal._id}
           refetch={refetch}
+          tickUsed={deal.stage?.defaultTick === false ? false : true}
         />
       )}
 
       {activeTab === 'payment' && (
         <div className="mt-3 ml-3">
-          <h2>Payments content here…</h2>
+          <ProductsPayment deal={deal} refetch={refetch} />
         </div>
       )}
     </div>
