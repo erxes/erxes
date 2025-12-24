@@ -5,7 +5,17 @@ export function validateEmail(email: string): void {
   if (!email) {
     return;
   }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // RFC 5321 specifies max 254 characters for email addresses
+  // Length check first to prevent DoS from extremely long strings
+  if (email.length > 254) {
+    throw new Error('Invalid email format');
+  }
+
+  // Use a more restrictive pattern that avoids ReDoS vulnerabilities
+  // This pattern explicitly matches: local-part@domain.tld
+  // where local-part and domain are non-empty and tld is at least 2 chars
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
     throw new Error('Invalid email format');
   }
@@ -55,11 +65,13 @@ export function detectIdentifierType(identifier: string): 'email' | 'phone' {
     throw new Error('Identifier is required');
   }
 
-  // Email regex pattern
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (emailRegex.test(identifier)) {
-    return 'email';
+  // Email regex pattern - using safer, more restrictive pattern
+  // Length check first to prevent DoS from extremely long strings
+  if (identifier.length <= 254) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (emailRegex.test(identifier)) {
+      return 'email';
+    }
   }
 
   // Phone number - typically contains only digits, may have +, spaces, dashes, parentheses

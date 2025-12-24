@@ -159,70 +159,69 @@ export class CPUserService {
     );
 
     const identifier = user.email || user.phone;
-    if (!identifier) {
-      return user;
-    }
+    let resultUser = user;
 
-    const identifierType = detectIdentifierType(identifier);
+    if (identifier) {
+      const identifierType = detectIdentifierType(identifier);
 
-    // Check if verification is enabled for the identifier type
-    if (
-      identifierType === 'email' &&
-      !isEmailVerificationEnabled(clientPortal)
-    ) {
-      // Email verification is disabled, auto-verify the user
-      await this.autoVerifyUser(user, models);
-      return user;
-    }
+      // Check if verification is enabled for the identifier type
+      const shouldAutoVerify =
+        (identifierType === 'email' &&
+          !isEmailVerificationEnabled(clientPortal)) ||
+        (identifierType === 'phone' &&
+          !isPhoneVerificationEnabled(clientPortal));
 
-    if (
-      identifierType === 'phone' &&
-      !isPhoneVerificationEnabled(clientPortal)
-    ) {
-      // Phone verification is disabled, auto-verify the user
-      await this.autoVerifyUser(user, models);
-      return user;
-    }
+      if (shouldAutoVerify) {
+        // Verification is disabled, auto-verify the user
+        await this.autoVerifyUser(user, models);
+        resultUser = user;
+      } else {
+        const otpConfig = getOTPConfig(
+          identifierType,
+          clientPortal,
+          'registration',
+        );
 
-    const otpConfig = getOTPConfig(
-      identifierType,
-      clientPortal,
-      'registration',
-    );
+        const { code, codeExpires } =
+          verificationService.generateVerificationCode(
+            otpConfig.codeLength,
+            otpConfig.duration,
+          );
 
-    const { code, codeExpires } = verificationService.generateVerificationCode(
-      otpConfig.codeLength,
-      otpConfig.duration,
-    );
+        const actionCodeType =
+          identifierType === 'email'
+            ? 'EMAIL_VERIFICATION'
+            : 'PHONE_VERIFICATION';
 
-    const actionCodeType =
-      identifierType === 'email' ? 'EMAIL_VERIFICATION' : 'PHONE_VERIFICATION';
-
-    await models.CPUser.updateOne(
-      { _id: user._id },
-      {
-        $set: {
-          actionCode: {
-            code,
-            expires: codeExpires,
-            type: actionCodeType,
+        await models.CPUser.updateOne(
+          { _id: user._id },
+          {
+            $set: {
+              actionCode: {
+                code,
+                expires: codeExpires,
+                type: actionCodeType,
+              },
+            },
           },
-        },
-      },
-    );
+        );
 
-    await this.sendVerificationOTP(
-      subdomain,
-      user,
-      identifierType,
-      code,
-      otpConfig.emailSubject,
-      otpConfig.messageTemplate,
-      clientPortal,
-      models,
-    );
+        await this.sendVerificationOTP(
+          subdomain,
+          user,
+          identifierType,
+          code,
+          otpConfig.emailSubject,
+          otpConfig.messageTemplate,
+          clientPortal,
+          models,
+        );
 
-    return user;
+        resultUser = user;
+      }
+    }
+
+    return resultUser;
   }
 
   private async markUserAsVerified(
