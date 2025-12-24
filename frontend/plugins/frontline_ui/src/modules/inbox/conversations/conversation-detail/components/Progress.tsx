@@ -6,14 +6,13 @@ interface ProgressProps {
   customerId: string;
 }
 
-type StatusType = 'new' | 'open' | 'closed' | 'resolved';
+type StatusType = 'new' | 'open' | 'closed';
 
 export const ProgressDot = ({ status }: { status: StatusType }) => {
   const colorClass = {
     new: 'text-muted-foreground',
     open: 'text-warning',
     closed: 'text-primary',
-    resolved: 'text-success',
   }[status];
 
   return (
@@ -42,17 +41,16 @@ export const Progress = ({ customerId }: ProgressProps) => {
       acc.new += item.new || 0;
       acc.open += item.open || 0;
       acc.closed += item.closed || 0;
-      acc.resolved += item.resolved || 0;
       return acc;
     },
-    { new: 0, open: 0, closed: 0, resolved: 0 },
-  ) || { new: 0, open: 0, closed: 0, resolved: 0 };
+    { new: 0, open: 0, closed: 0 },
+  ) || { new: 0, open: 0, closed: 0 };
 
   if (loading) return <p>Loading...</p>;
 
   return (
     <div className="flex justify-between w-full my-4 px-2">
-      {(['new', 'open', 'closed', 'resolved'] as StatusType[]).map((status) => (
+      {(['new', 'open', 'closed'] as StatusType[]).map((status) => (
         <span key={status} className="flex flex-col items-center gap-1">
           <span className="flex items-center gap-2">
             <ProgressDot status={status} />

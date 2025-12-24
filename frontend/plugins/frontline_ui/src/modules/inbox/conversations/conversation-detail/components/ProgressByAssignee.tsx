@@ -15,10 +15,9 @@ export const ProgressByAssignee = ({ customerId }: { customerId: string }) => {
     new: newCount,
     open,
     closed,
-    resolved,
   }: IConversationMemberProgress) => {
-    const total = newCount + open + closed + resolved;
-    const completed = closed + resolved;
+    const total = newCount + open + closed;
+    const completed = closed;
 
     return { total, completed };
   };
@@ -104,14 +103,6 @@ export const ProgressByAssignee = ({ customerId }: { customerId: string }) => {
                   <ProgressDot status="closed" />
                   closed:
                   <span className="text-foreground ml-auto">{item.closed}</span>
-                </p>
-
-                <p className="text-sm flex items-center gap-1">
-                  <ProgressDot status="resolved" />
-                  resolved:
-                  <span className="text-foreground ml-auto">
-                    {item.resolved}
-                  </span>
                 </p>
               </div>
             </HoverCard.Content>

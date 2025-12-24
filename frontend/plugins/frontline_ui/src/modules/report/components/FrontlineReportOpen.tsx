@@ -158,7 +158,6 @@ export const FrontlineReportOpen = ({
     variables: {
       filters: {
         ...filters,
-        status: 'open',
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },

@@ -313,12 +313,6 @@ export function buildSourceFilterPipeline(
 ) {
   if (filters.source && filters.source !== 'all') {
     const integrationKind = sourceMap[filters.source];
-    console.log(
-      'filters.source:',
-      filters.source,
-      'integrationKind:',
-      integrationKind,
-    );
 
     if (integrationKind) {
       pipeline.push(

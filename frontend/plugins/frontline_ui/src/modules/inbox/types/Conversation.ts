@@ -40,7 +40,6 @@ export interface IConversationMemberProgress {
   new: number;
   open: number;
   closed: number;
-  resolved: number;
 }
 
 export interface IConversationSourceProgressItem {
@@ -53,7 +52,6 @@ export interface IConversationSourceProgress {
     new: IConversationSourceProgressItem[];
     open: IConversationSourceProgressItem[];
     closed: IConversationSourceProgressItem[];
-    resolved: IConversationSourceProgressItem[];
   }[];
 }
 
@@ -67,6 +65,5 @@ export interface IConversationTagProgress {
     new: IConversationTagProgressItem[];
     open: IConversationTagProgressItem[];
     closed: IConversationTagProgressItem[];
-    resolved: IConversationTagProgressItem[];
   }[];
 }
