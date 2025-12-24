@@ -81,10 +81,10 @@ export const documentQueries = {
 
   documentsDetail: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Documents.findOne({ _id });
+    return await models.Documents.getDocument({ _id });
   },
 
   documentsTypes: async () => {

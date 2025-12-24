@@ -88,7 +88,6 @@ export const productSchema = schemaWrapper(
       timestamps: true,
     },
   ),
-  { contentType: 'core:product' },
 );
 
 productSchema.index({ _id: 1, createdAt: 1 });

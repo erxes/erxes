@@ -170,6 +170,16 @@ import {
 } from '@/clientportal/graphql/schemas/clientPortal';
 
 import {
+  mutations as ImportMutations,
+  queries as ImportQueries,
+  types as ImportTypes,
+} from '~/modules/import-export/graphql/schema/import';
+import {
+  mutations as ExportMutations,
+  queries as ExportQueries,
+  types as ExportTypes,
+} from '~/modules/import-export/graphql/schema/export';
+import {
   mutations as CPUserMutations,
   queries as CPUserQueries,
   types as CPUserTypes,
@@ -224,6 +234,8 @@ export const types = `
     ${RoleTypes}
     ${PropertiesTypes}
     ${ClientPortalTypes}
+    ${ImportTypes}
+    ${ExportTypes}
     ${CPUserTypes}
     ${BroadcastTypes}
   `;
@@ -258,6 +270,8 @@ export const queries = `
     ${RoleQueries}
     ${PropertiesQueries}
     ${ClientPortalQueries}
+    ${ImportQueries}
+    ${ExportQueries}
     ${CPUserQueries}
     ${BroadcastQueries}
   `;
@@ -291,6 +305,8 @@ export const mutations = `
     ${RoleMutations}
     ${PropertiesMutations}
     ${ClientPortalMutations}
+    ${ImportMutations}
+    ${ExportMutations}
     ${CPUserMutations}
     ${BroadcastMutations}
   `;

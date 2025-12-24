@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { appSchema } from '@/apps/db/definitions/apps';
 import { IAppDocument, IApp } from 'erxes-api-shared/core-types';
@@ -15,7 +16,11 @@ export interface IAppModel extends Model<IAppDocument> {
   removeApp(_id: string): Promise<any>;
 }
 
-export const loadAppClass = (models: IModels) => {
+export const loadAppClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class App {
     public static async getApp(_id: string) {
       const app = await models.Apps.findOne({ _id });
@@ -55,6 +60,12 @@ export const loadAppClass = (models: IModels) => {
         refreshOptions,
       );
 
+      sendDbEventLog({
+        action: 'create',
+        docId: app._id,
+        currentDocument: app.toObject(),
+      });
+
       await models.Apps.updateOne(
         { _id: app._id },
         { $set: { accessToken, refreshToken } },
@@ -68,7 +79,18 @@ export const loadAppClass = (models: IModels) => {
 
       await models.Apps.updateOne({ _id }, { $set: doc });
 
-      return models.Apps.findOne({ _id: app._id });
+      const updatedApp = await models.Apps.findOne({ _id: app._id });
+
+      if (updatedApp) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedApp._id,
+          currentDocument: updatedApp.toObject(),
+          prevDocument: app.toObject(),
+        });
+      }
+
+      return updatedApp;
     }
 
     public static async removeApp(_id: string) {
@@ -77,6 +99,11 @@ export const loadAppClass = (models: IModels) => {
       if (app.isEnabled) {
         throw new Error('Can not remove an enabled app');
       }
+
+      sendDbEventLog({
+        action: 'delete',
+        docId: app._id,
+      });
 
       return models.Apps.deleteOne({ _id });
     }

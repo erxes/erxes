@@ -1,14 +1,15 @@
-import { useQuery } from '@apollo/client';
-import { POS_BY_ITEMS_QUERY } from '@/pos/pos-by-items/graphql/queries';
-import { IProduct } from '@/pos/pos-by-items/types/PosByItemType';
-import { useMemo, useCallback, useEffect } from 'react';
 import {
-  useMultiQueryState,
   parseDateRangeFromString,
+  useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
+import { useCallback, useEffect, useMemo } from 'react';
+
+import { IProduct } from '@/pos/pos-by-items/types/PosByItemType';
+import { POS_BY_ITEMS_QUERY } from '@/pos/pos-by-items/graphql/queries';
 import { posByItemsTotalCountAtom } from '../states/usePosByItemsCounts';
+import { useQuery } from '@apollo/client';
+import { useSetAtom } from 'jotai';
 
 const POS_PER_PAGE = 30;
 
@@ -73,16 +74,6 @@ export const usePosByItemsVariables = (
   ]);
   const [number] = useQueryState<string>('number');
   const customerIdValue = customer || company || undefined;
-
-  console.log('PosByItems Variables:', {
-    customer,
-    company,
-    customerIdValue,
-    searchValue,
-    pos,
-    types,
-    status,
-  });
 
   return {
     perPage: POS_PER_PAGE,
