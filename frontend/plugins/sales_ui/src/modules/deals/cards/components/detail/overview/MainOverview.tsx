@@ -2,7 +2,7 @@ import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 
 import { IDeal } from '@/deals/types/deals';
 import LabelChooser from './label/LabelChooser';
-import Priority from './Priority';
+import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import SelectTags from './tags/SelectTags';
 import { useDealsContext } from '@/deals/context/DealContext';
 
@@ -55,7 +55,11 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Priority</h4>
-          <Priority priority={deal.priority || ''} dealId={deal._id} />
+          <SelectDealPriority
+            dealId={deal._id}
+            value={deal.priority || ''}
+            variant="card"
+          />
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Tags</h4>

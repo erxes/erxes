@@ -27,6 +27,7 @@ import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
 import { DocumentsRoutes } from '../components/DocumentsRoutes';
+import { ImportExportRoutes } from '../components/ImportExportRoutes';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
@@ -113,6 +114,11 @@ export const useCreateAppRouter = () => {
                   element={<DocumentsRoutes />}
                 />
               )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
 
               <Route
                 path={AppPath.MyInboxCatchAll}

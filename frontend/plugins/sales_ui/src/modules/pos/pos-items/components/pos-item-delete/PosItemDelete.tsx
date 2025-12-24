@@ -3,7 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useConfirm } from 'erxes-ui/hooks';
 import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
-import { useRemovePos } from '@/pos/hooks/usePosRemove';
+import { useDeletePosItems } from '~/modules/pos/pos-items/hooks/useDeletePosItems';
 
 interface PosItemDeleteProps {
   posItemIds: string;
@@ -15,7 +15,7 @@ export const PosItemDelete = ({
   onDeleteSuccess,
 }: PosItemDeleteProps) => {
   const { confirm } = useConfirm();
-  const { removePos } = useRemovePos();
+  const { removePosItems } = useDeletePosItems();
   const { toast } = useToast();
 
   const posItemCount = posItemIds.includes(',')
@@ -34,7 +34,7 @@ export const PosItemDelete = ({
               : `the ${posItemCount} selected POS items`
           }?`,
         }).then(() => {
-          removePos(posItemIds, {
+          removePosItems(posItemIds, {
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',
