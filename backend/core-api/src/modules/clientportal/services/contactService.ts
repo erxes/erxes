@@ -5,6 +5,7 @@ import {
   ICPUserRegisterParams,
 } from '@/clientportal/types/cpUser';
 import { normalizeEmail } from '@/clientportal/utils';
+import { ValidationError } from './errorHandler';
 
 export class ContactService {
   async findOrCreateCustomer(
@@ -12,18 +13,34 @@ export class ContactService {
     phone: string,
     models: IModels,
   ): Promise<any> {
-    const customer = await models.Customers.findOne({
-      $or: [{ primaryEmail: email }, { primaryPhone: phone }],
-    });
+    const queryConditions: any[] = [];
+
+    if (email) {
+      queryConditions.push({ primaryEmail: email });
+    }
+
+    if (phone) {
+      queryConditions.push({ primaryPhone: phone });
+    }
+
+    const customer =
+      queryConditions.length > 0
+        ? await models.Customers.findOne({ $or: queryConditions })
+        : null;
 
     if (customer) {
       return customer;
     }
 
-    return models.Customers.create({
-      primaryEmail: email,
-      primaryPhone: phone,
-    });
+    const createData: any = {};
+    if (email) {
+      createData.primaryEmail = email;
+    }
+    if (phone) {
+      createData.primaryPhone = phone;
+    }
+
+    return models.Customers.create(createData);
   }
 
   async findOrCreateCompany(
@@ -31,13 +48,34 @@ export class ContactService {
     phone: string,
     models: IModels,
   ): Promise<any> {
-    const company = await models.Companies.findOne({ email, phone });
+    const queryConditions: any = {};
+
+    if (email) {
+      queryConditions.email = email;
+    }
+
+    if (phone) {
+      queryConditions.phone = phone;
+    }
+
+    const company =
+      Object.keys(queryConditions).length > 0
+        ? await models.Companies.findOne(queryConditions)
+        : null;
 
     if (company) {
       return company;
     }
 
-    return models.Companies.create({ email, phone });
+    const createData: any = {};
+    if (email) {
+      createData.email = email;
+    }
+    if (phone) {
+      createData.phone = phone;
+    }
+
+    return models.Companies.create(createData);
   }
 
   private async linkCustomerToUser(
@@ -62,6 +100,16 @@ export class ContactService {
     );
   }
 
+  async updateCustomerStateToCustomer(
+    customerId: string,
+    models: IModels,
+  ): Promise<void> {
+    await models.Customers.updateOne(
+      { _id: customerId },
+      { $set: { state: 'customer' } },
+    );
+  }
+
   private async prepareUserPassword(
     password: string | undefined,
     models: IModels,
@@ -82,14 +130,49 @@ export class ContactService {
   ): Promise<ICPUserDocument> {
     const query = { erxesCustomerId: customer._id, clientPortalId };
     let user = await models.CPUser.findOne(query);
-
     if (user?.isVerified) {
-      throw new Error('User already exists');
+      throw new Error('Cp User already exists');
+    }
+
+    // Check for unique email and phone within the same clientPortal
+    const normalizedEmail = document.email
+      ? normalizeEmail(document.email)
+      : undefined;
+    const uniquenessQuery: any = {
+      clientPortalId,
+      _id: { $ne: user?._id },
+    };
+
+    const uniquenessConditions: any[] = [];
+    if (normalizedEmail) {
+      uniquenessConditions.push({ email: normalizedEmail });
+    }
+    if (document.phone) {
+      uniquenessConditions.push({ phone: document.phone });
+    }
+
+    if (uniquenessConditions.length > 0) {
+      uniquenessQuery.$or = uniquenessConditions;
+      const existingUser = await models.CPUser.findOne(uniquenessQuery);
+
+      if (existingUser) {
+        if (existingUser.email === normalizedEmail) {
+          throw new ValidationError(
+            'Email already exists in this client portal',
+          );
+        }
+        if (existingUser.phone === document.phone) {
+          throw new ValidationError(
+            'Phone already exists in this client portal',
+          );
+        }
+      }
     }
 
     const hashedPassword = await this.prepareUserPassword(password, models);
     const userData = {
       ...document,
+      ...(normalizedEmail && { email: normalizedEmail }),
       clientPortalId,
       ...(hashedPassword && { password: hashedPassword }),
     };
