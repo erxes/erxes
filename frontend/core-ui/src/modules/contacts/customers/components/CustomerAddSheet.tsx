@@ -11,10 +11,13 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { AddCustomerForm } from './AddCustomerForm';
+import { useTranslation } from 'react-i18next';
 export const CustomerAddSheet = () => {
+  const { t } = useTranslation('contact');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+
   const onOpen = () => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
@@ -39,7 +42,7 @@ export const CustomerAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add customer
+          {t('customer.add._')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -56,9 +59,10 @@ export const CustomerAddSheet = () => {
 };
 
 export const CustomerAddSheetHeader = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>Add contact</Sheet.Title>
+      <Sheet.Title>{t('_')}</Sheet.Title>
       <Sheet.Description className="sr-only">
         Add a new contact to your organization.
       </Sheet.Description>

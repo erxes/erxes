@@ -15,6 +15,7 @@ import {
   IconUserCircle,
   IconUsersGroup,
 } from '@tabler/icons-react';
+import { TFunction } from 'i18next';
 
 export const KEY_LABELS = {
   UPLOAD_FILE_TYPES: 'Upload File Types',
@@ -103,58 +104,44 @@ export const KEY_LABELS = {
   MESSAGE_PRO_PHONE_NUMBER: 'MessagePro phone number',
 };
 
-export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
+export const SETTINGS_PATH_DATA = (
+  t: TFunction = ((key: string) => key) as TFunction
+): { [key: string]: TSettingPath[] } => ({
   account: [
     {
-      name: 'Profile',
+      name: t('profile'),
       icon: IconUserCircle,
       path: SettingsPath.Profile,
     },
     {
-      name: 'Change password',
+      name: t('change-password'),
       icon: IconPassword,
       path: SettingsPath.ChangePassword,
     },
   ],
   nav: [
     {
-      name: 'General',
+      name: t('general'),
       icon: IconAdjustmentsAlt,
       path: SettingsWorkspacePath.General,
     },
     {
-      name: 'Team member',
+      name: t('team-member'),
       icon: IconUsersGroup,
       path: SettingsWorkspacePath.TeamMember,
     },
     // {
-    //   name: 'Permissions',
-    //   icon: IconUserCog,
-    //   path: SettingsWorkspacePath.Permissions,
-    // },
-    // {
-    //   name: 'File upload',
-    //   icon: IconFile,
-    //   path: SettingsWorkspacePath.FileUpload,
-    // },
-    // {
-    //   name: 'Mail config',
-    //   icon: IconMail,
-    //   path: SettingsWorkspacePath.MailConfig,
-    // },
-
-    // {
-    //   name: 'Structure',
-    //   icon: IconChartPie2,
+    //   name: t('structure'),
+    //   icon: IconHierarchy,
     //   path: SettingsWorkspacePath.Structure,
     // },
     {
-      name: 'Tags',
+      name: t('tags'),
       icon: IconTag,
       path: SettingsWorkspacePath.Tags,
     },
     {
-      name: 'Brands',
+      name: t('brands'),
       icon: IconChessKnight,
       path: SettingsWorkspacePath.Brands,
     },
@@ -171,12 +158,13 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
       path: SettingsWorkspacePath.ClientPortals,
     },
   ],
-};
+});
 
-export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
-  const account = [...SETTINGS_PATH_DATA.account];
-  const nav = [...SETTINGS_PATH_DATA.nav];
-  const developer = [...SETTINGS_PATH_DATA.developer];
+export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
+  const settingsData = SETTINGS_PATH_DATA(t);
+  const account = [...settingsData.account];
+  const nav = [...settingsData.nav];
+  const developer = [...settingsData.developer];
 
   if (version) {
     nav.push(

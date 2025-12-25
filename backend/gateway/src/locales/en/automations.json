@@ -1,0 +1,15 @@
+{
+    "automations": "Automations",
+    "name": "Name",
+    "status": "Status",
+    "created-at": "Created at",
+    "triggers": "Triggers",
+    "actions": "Actions",
+    "created-by" : "Created by",
+    "tags": "Tags",
+    "last-updated-at": "Last updated at",
+    "go-to-settings": "Go to settings",
+    "add" : "Add",
+    "updated-user": "Updated user",
+    "created-user": "Created user"
+}

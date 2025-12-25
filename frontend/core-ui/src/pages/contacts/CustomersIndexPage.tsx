@@ -4,9 +4,16 @@ import { CustomersFilter } from '@/contacts/customers/components/CustomersFilter
 import { CustomerDetail } from '@/contacts/customers/customer-detail/components/CustomerDetail';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { ContactsDetailSheet } from '@/contacts/components/ContactsDetail';
+import { useTranslation } from 'react-i18next';
 import { Import } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { useCustomersVariables } from '@/contacts/customers/hooks/useCustomers';
+
+export const CustomersIndexPage = () => {
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer.detail',
+  });
+
 
 export const CustomersIndexPage = () => {
   const variables = useCustomersVariables();
@@ -35,7 +42,7 @@ export const CustomersIndexPage = () => {
         />
       </PageSubHeader>
       <CustomersRecordTable />
-      <ContactsDetailSheet queryKey="contactId" title="Customer Details">
+      <ContactsDetailSheet queryKey="contactId" title={t("customer-detail")}>
         <CustomerDetail />
       </ContactsDetailSheet>
     </PageContainer>

@@ -9,6 +9,7 @@ export const ADD_CONVERSATION_MESSAGE = gql`
     $attachments: [AttachmentInput]
     $contentType: String
     $extraInfo: JSON
+    $responseTemplateId: String
   ) {
     conversationMessageAdd(
       conversationId: $conversationId
@@ -18,6 +19,7 @@ export const ADD_CONVERSATION_MESSAGE = gql`
       attachments: $attachments
       contentType: $contentType
       extraInfo: $extraInfo
+      responseTemplateId: $responseTemplateId
     ) {
       _id
     }

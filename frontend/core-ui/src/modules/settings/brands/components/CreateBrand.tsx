@@ -16,10 +16,14 @@ import { useBrandsAdd } from '../hooks/useBrandsAdd';
 import { SubmitHandler } from 'react-hook-form';
 import { BrandsForm } from './BrandsForm';
 import { BrandsHotKeyScope, TBrandsForm } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const CreateBrand = () => {
   const { toast } = useToast();
   const { brandsAdd, loading } = useBrandsAdd();
+  const { t } = useTranslation('settings', { 
+    keyPrefix: 'brands'
+  });
   const {
     methods,
     methods: { reset, handleSubmit },
@@ -49,7 +53,7 @@ export const CreateBrand = () => {
         onCompleted: () => {
           toast({
             variant: 'success',
-            title: 'Brand created successfully',
+            title: t('brand-created-successfully'),
           });
           reset();
           _setOpen(false);
@@ -70,7 +74,7 @@ export const CreateBrand = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Create brand
+          {t('create-brand')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -82,7 +86,7 @@ export const CreateBrand = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>Create brand</Sheet.Title>
+              <Sheet.Title>{t('create-brand')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -90,10 +94,10 @@ export const CreateBrand = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'secondary'} onClick={onClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create-brand')}
               </Button>
             </Sheet.Footer>
           </form>
