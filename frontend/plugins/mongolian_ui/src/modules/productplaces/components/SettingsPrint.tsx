@@ -1,17 +1,16 @@
+
 import React, { useState } from 'react';
 import { Button } from 'erxes-ui';
-import { ContentBox } from '../styles';
+import { contentBoxClass } from '../styles';
 import { IConfigsMap, PerPrintConfig } from '../types';
-import Header from './Header';
 import PerPrint from './PerPrint';
-import Sidebar from './Sidebar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
 };
 
-const PrintSettings = (props: Props) => {
+const SettingsPrint = (props: Props) => {
   const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
   const add = (e: React.MouseEvent) => {
@@ -75,70 +74,26 @@ const PrintSettings = (props: Props) => {
     });
   };
 
-  const renderContent = () => {
-    return (
-      <ContentBox id={'PrintSettingsMenu'}>
-        {renderConfigs()} 
-      </ContentBox>
-    );
-  };
-
-  const breadcrumb = [
-    { title: 'Settings', link: '/settings' },
-    { title: 'Print config' },
-  ];
-
-  const actionButtons = (
-    <Button variant="default" onClick={add} className="flex items-center gap-2">
-      New config
-    </Button>
-  );
-
   return (
-    <div className="flex flex-col h-full">
-      {/* Header Section */}
-      <div className="border-b p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">Print config</h1>
-            <nav className="flex items-center space-x-2 text-sm text-gray-500">
-              <a href="/settings" className="hover:text-gray-700">
-                Settings
-              </a>
-              <span>/</span>
-              <span className="text-gray-700">Print config</span>
-            </nav>
-          </div>
-        </div>
+    <div className="space-y-4">
+      <div className="border-b pb-4">
+        <h2 className="text-lg font-semibold">Print Configuration</h2>
+        <p className="text-sm text-gray-500">
+          Configure product print settings
+        </p>
       </div>
 
-      {/* Main Header Component */}
-      <div className="p-4">
-        <Header />
+      <div className="flex justify-end">
+        <Button variant="default" onClick={add} className="flex items-center gap-2">
+          + New Config
+        </Button>
       </div>
 
-      {/* Action Bar */}
-      <div className="border-b p-4">
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-medium">Print configs</div>
-          <div>{actionButtons}</div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <div className="w-64 border-r">
-          <Sidebar />
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 p-4 overflow-auto">
-          {renderContent()}
-        </div>
+      <div className={contentBoxClass}>
+        {renderConfigs()}
       </div>
     </div>
   );
 };
 
-export default PrintSettings;
+export default SettingsPrint;

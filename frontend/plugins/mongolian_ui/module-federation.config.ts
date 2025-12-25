@@ -34,7 +34,8 @@ const config: ModuleFederationConfig = {
       './src/modules/put-response/put-responses-duplicated/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
      './productplaces': './src/modules/productplaces/Main.tsx',
-      './productplaces-routes': './src/modules/productplaces/index.tsx',
+     './productplacesSettings':
+      './src/pages/productplaces/ProductPlacesSettings.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

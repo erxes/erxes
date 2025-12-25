@@ -1,4 +1,3 @@
-// frontend/plugins/mongolian_ui/src/modules/MainNavigation.tsx
 import { IconSandbox } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import React from 'react';

@@ -8,9 +8,19 @@ const MainNavigation = lazy(() =>
   })),
 );
 
-// Debug logging
-console.log('Mongolian UI config is loading...');
-console.log('Product Places module should be available at /mongolian/product-places');
+// Import the ProductPlacesMain component
+const ProductPlacesMain = lazy(() =>
+  import('./modules/productplaces/Main').then((module) => ({
+    default: module.default,
+  })),
+);
+
+// Import the ProductPlacesSettings component  
+const ProductPlacesSettings = lazy(() =>
+  import('./pages/productplaces/ProductPlacesSettings').then((module) => ({
+    default: module.default,
+  })),
+);
 
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
@@ -102,7 +112,7 @@ export const CONFIG: IUIConfig = {
       name: 'productplaces',
       icon: IconSandbox,
       path: 'mongolian/product-places',
-      hasSettings: true,  // This should be true
+      hasSettings: true,  
       hasRelationWidget: false,
       hasFloatingWidget: false,
     },

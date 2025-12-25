@@ -12,12 +12,12 @@ type Props = {
 };
 
 const StageSettings = (props: Props) => {
-  const [configs, setConfigs] = useState<IConfigsMap>(props.configsMap.dealsProductsDataPlaces || {});
+  // Initialize with the entire configsMap
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
   const add = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    // must save prev item saved then new item
     const newPlacesConfig: PerPrintConfig = {
       title: 'New Places Config',
       boardId: '',
@@ -26,30 +26,44 @@ const StageSettings = (props: Props) => {
       conditions: [],
     };
 
-    setConfigs((prevConfigsMap: IConfigsMap) => ({
-      ...prevConfigsMap,
-      newPlacesConfig,
+    // Create a new config key with a unique ID
+    const configKey = `config_${Date.now()}`;
+    
+    setConfigsMap(prev => ({
+      ...prev,
+      dealsProductsDataPlaces: {
+        ...(prev.dealsProductsDataPlaces || {}),
+        [configKey]: newPlacesConfig
+      }
     }));
   };
 
   const deleteHandler = (currentConfigKey: string) => {
-    const dealsProductsDataPlaces = { ...configs };
-    delete dealsProductsDataPlaces[currentConfigKey];
-    delete dealsProductsDataPlaces['newPlacesConfig'];
+    const updatedConfigsMap = { ...configsMap };
+    
+    if (updatedConfigsMap.dealsProductsDataPlaces) {
+      delete updatedConfigsMap.dealsProductsDataPlaces[currentConfigKey];
+    }
 
-    setConfigs({ ...dealsProductsDataPlaces });
-    props.save({ ...props.configsMap, dealsProductsDataPlaces });
+    setConfigsMap(updatedConfigsMap);
+    props.save(updatedConfigsMap);
   };
 
   const saveHandler = (key: string, config: PerPrintConfig) => {
-    const dealsProductsDataPlaces = { ...configs };
-    delete dealsProductsDataPlaces['newPlacesConfig'];
-    dealsProductsDataPlaces[key] = config;
-    setConfigs({ ...dealsProductsDataPlaces });
-    props.save({ ...props.configsMap, dealsProductsDataPlaces });
+    const updatedConfigsMap = { ...configsMap };
+    
+    if (!updatedConfigsMap.dealsProductsDataPlaces) {
+      updatedConfigsMap.dealsProductsDataPlaces = {};
+    }
+    
+    updatedConfigsMap.dealsProductsDataPlaces[key] = config;
+    
+    setConfigsMap(updatedConfigsMap);
+    props.save(updatedConfigsMap);
   };
 
-  const renderConfigs = (configs: IConfigsMap) => {
+  const renderConfigs = () => {
+    const configs = configsMap.dealsProductsDataPlaces || {};
     return Object.keys(configs).map((key) => {
       return (
         <PerPrint
@@ -69,7 +83,7 @@ const StageSettings = (props: Props) => {
         id={'StageSettingsMenu'}
         className={contentBoxClass}
       >
-        {renderConfigs(configs)}
+        {renderConfigs()}
       </div>
     );
   };
