@@ -9,10 +9,14 @@ import {
 } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 import { DataListItem } from '@/contacts/components/ContactsDetail';
+import { Translation, useTranslation } from 'react-i18next';
 
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
   const { customerEdit } = useCustomerEdit();
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer.detail',
+  });
   if (!customerDetail) return;
 
   const {
@@ -37,7 +41,7 @@ export const CustomerDetailFields = () => {
         <CustomerDetailSelectTag tagIds={tagIds || []} customerId={_id} />
         <div className="px-8 space-y-2">
           <Label asChild>
-            <legend>Owner</legend>
+            <legend>{t('owner')}</legend>
           </Label>
           <div className="inline-flex">
             <CustomerOwner _id={_id} ownerId={ownerId} />
@@ -45,7 +49,7 @@ export const CustomerDetailFields = () => {
         </div>
         <div className="px-8 font-medium flex gap-5 flex-col">
           <div className="grid grid-cols-2 gap-5 col-span-5">
-            <DataListItem label="Code">
+            <DataListItem label={t('code')}>
               <TextFieldCustomer
                 value={code || ''}
                 placeholder="Add Code"
@@ -53,7 +57,7 @@ export const CustomerDetailFields = () => {
                 _id={_id}
               />
             </DataListItem>
-            <DataListItem label="Emails">
+            <DataListItem label={t('emails')}>
               <CustomerEmails
                 _id={_id}
                 primaryEmail={primaryEmail || ''}
@@ -62,7 +66,7 @@ export const CustomerDetailFields = () => {
                 Trigger={(props) => <Combobox.TriggerBase {...props} />}
               />
             </DataListItem>
-            <DataListItem label="phones">
+            <DataListItem label={t('phones')}>
               <CustomerPhones
                 _id={_id}
                 primaryPhone={primaryPhone || ''}
@@ -71,7 +75,7 @@ export const CustomerDetailFields = () => {
                 Trigger={Combobox.TriggerBase}
               />
             </DataListItem>
-            <DataListItem label="Score">
+            <DataListItem label={t('score')}>
               <TextFieldCustomer
                 value={score?.toString() || ''}
                 placeholder="Add Score"
@@ -80,7 +84,7 @@ export const CustomerDetailFields = () => {
               />
             </DataListItem>
           </div>
-          <DataListItem label="Subscribed">
+          <DataListItem label={t('subscribed')}>
             <Switch
               checked={isSubscribed === 'Yes'}
               onCheckedChange={(checked) => {
@@ -93,7 +97,7 @@ export const CustomerDetailFields = () => {
               }}
             />
           </DataListItem>
-          <DataListItem label="Description">
+          <DataListItem label={t('description')}>
             <Textarea
               value={description || ''}
               onChange={(e) => {
