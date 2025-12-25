@@ -8,6 +8,20 @@ const MainNavigation = lazy(() =>
   })),
 );
 
+// Import the ProductPlacesMain component
+const ProductPlacesMain = lazy(() =>
+  import('./modules/productplaces/Main').then((module) => ({
+    default: module.default,
+  })),
+);
+
+// Import the ProductPlacesSettings component  
+const ProductPlacesSettings = lazy(() =>
+  import('./pages/productplaces/ProductPlacesSettings').then((module) => ({
+    default: module.default,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
   icon: IconSandbox,
@@ -91,6 +105,14 @@ export const CONFIG: IUIConfig = {
       name: 'put-responses-duplicated',
       icon: IconSandbox,
       path: 'mongolian/put-responses-duplicated',
+      hasRelationWidget: false,
+      hasFloatingWidget: false,
+    },
+    {
+      name: 'productplaces',
+      icon: IconSandbox,
+      path: 'mongolian/product-places',
+      hasSettings: true,  
       hasRelationWidget: false,
       hasFloatingWidget: false,
     },
