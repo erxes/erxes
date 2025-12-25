@@ -1,9 +1,9 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import { TAGS_QUERY } from '../graphql/queries/tagsQueries';
-import { ADD_TAG } from '../graphql/mutations/tagsMutations';
+import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
+import { ADD_TAG } from 'ui-modules/modules/tags-new/graphql/tagMutations';
 import { useToast } from 'erxes-ui';
 
-export const useTagsAdd = () => {
+export const useTagAdd = () => {
   const { toast } = useToast();
   const [addTag, { loading }] = useMutation(ADD_TAG);
 
@@ -14,7 +14,7 @@ export const useTagsAdd = () => {
       optimisticResponse: {
         tagsAdd: {
           __typename: 'Tag',
-          _id: 'new',
+          _id: `new-tag-${Date.now()}`,
           name: variables?.name,
           colorCode: variables?.colorCode,
           isGroup: variables?.isGroup || false,
@@ -43,21 +43,21 @@ export const useTagsAdd = () => {
         options?.onCompleted?.(data);
       },
       update: (cache, { data: { tagsAdd } }) => {
-        cache.updateQuery(
-          {
-            query: TAGS_QUERY,
-            variables: {
-              type: variables?.type,
+        try {
+          cache.updateQuery(
+            {
+              query: TAGS_QUERY,
+              variables: {
+                type: variables?.type,
+              },
             },
-          },
-          (data) => ({
-            tags: {
-              ...data?.tags,
-              list: [tagsAdd, ...(data?.tags?.list || [])],
-              totalCount: data?.tags?.totalCount + 1,
-            },
-          }),
-        );
+            (data) => ({
+              tagsMain: [tagsAdd, ...(data?.tagsMain || [])],
+            }),
+          );
+        } catch (error) {
+          console.error(error);
+        }
       },
     });
   };

@@ -41,3 +41,38 @@ export const GIVE_TAGS = gql`
     tagsTag(type: $type, targetIds: $targetIds, tagIds: $tagIds)
   }
 `;
+
+export const EDIT_TAG = gql`
+  mutation TagsEdit(
+    $id: String!
+    $name: String
+    $type: String
+    $colorCode: String
+    $parentId: String
+    $isGroup: Boolean
+    $description: String
+  ) {
+    tagsEdit(
+      _id: $id
+      name: $name
+      type: $type
+      colorCode: $colorCode
+      parentId: $parentId
+      isGroup: $isGroup
+      description: $description
+    ) {
+      _id
+      name
+      colorCode
+      parentId
+      isGroup
+      description
+      type
+    }
+  }
+`;
+
+export const REMOVE_TAG = gql`
+mutation TagsRemove($id: String!) {
+  tagsRemove(_id: $id)
+}`;
