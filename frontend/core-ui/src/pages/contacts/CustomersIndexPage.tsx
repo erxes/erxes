@@ -10,16 +10,12 @@ import { Export } from 'ui-modules/modules/import-export/components/epxort/Expor
 import { useCustomersVariables } from '@/contacts/customers/hooks/useCustomers';
 
 export const CustomersIndexPage = () => {
+  const variables = useCustomersVariables();
   const { t } = useTranslation('contact', {
     keyPrefix: 'customer.detail',
   });
 
-
-export const CustomersIndexPage = () => {
-  const variables = useCustomersVariables();
-
   const getFilters = () => {
-    // Remove cursor-related fields and internal fields that shouldn't be in filters
     const { cursor, limit, orderBy, ...filters } = variables;
     return filters;
   };
@@ -42,7 +38,7 @@ export const CustomersIndexPage = () => {
         />
       </PageSubHeader>
       <CustomersRecordTable />
-      <ContactsDetailSheet queryKey="contactId" title={t("customer-detail")}>
+      <ContactsDetailSheet queryKey="contactId" title={t('customer-detail')}>
         <CustomerDetail />
       </ContactsDetailSheet>
     </PageContainer>
