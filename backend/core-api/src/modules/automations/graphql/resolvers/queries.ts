@@ -12,17 +12,14 @@ import {
   AUTOMATION_STATUSES,
   AUTOMATION_TRIGGERS,
   AutomationConstants,
-  checkPermission,
   IAutomationDocument,
   IAutomationExecutionDocument,
-  IAutomationsActionConfig,
-  IAutomationsTriggerConfig,
   requireLogin,
 } from 'erxes-api-shared/core-modules';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 
-import { IContext } from '~/connectionResolvers';
 import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
+import { IContext } from '~/connectionResolvers';
 
 export interface IListArgs extends ICursorPaginateParams {
   status: string;
@@ -465,9 +462,3 @@ requireLogin(automationQueries, 'automationNotes');
 requireLogin(automationQueries, 'automationDetail');
 requireLogin(automationQueries, 'automationEmailTemplates');
 requireLogin(automationQueries, 'automationEmailTemplateDetail');
-
-checkPermission(automationQueries, 'automations', 'showAutomations', []);
-checkPermission(automationQueries, 'automationsMain', 'showAutomations', {
-  list: [],
-  totalCount: 0,
-});

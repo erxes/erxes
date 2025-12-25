@@ -33,6 +33,9 @@ export enum AppPath {
   Documents = 'documents',
   DocumentsCatchAll = `/${Documents}/*`,
 
+  ImportExport = 'import-export',
+  ImportExportCatchAll = `/${ImportExport}/*`,
+
   //not found
 
   NotFoundWildcard = '/*',
