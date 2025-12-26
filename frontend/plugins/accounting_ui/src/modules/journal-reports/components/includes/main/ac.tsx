@@ -1,13 +1,19 @@
 import { displayNum, ReportTable } from "erxes-ui";
 import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
+import { AccountKind } from "~/modules/settings/account/types/Account";
 import { TR_SIDES } from "~/modules/transactions/types/constants";
 
-export const HandleMainTB = (dic: any, groupRule: IGroupRule, attr: string) => {
+export const HandleMainAC = (dic: any, groupRule: IGroupRule, attr: string) => {
   const { items } = dic;
   let [fr_diff, tr_dt, tr_ct, lr_diff] = [0, 0, 0, 0];
+  let rem = 0;
 
   for (const rec of items) {
+    let multiplier = rec['account__kind'] === AccountKind.ACTIVE ? 1 : -1;
+    multiplier = multiplier * (rec.side === TR_SIDES.DEBIT ? 1 : -1);
+
     if (rec.isBetween) {
+      rem += multiplier * (rec.sumAmount);
       if (rec.side === TR_SIDES.DEBIT) {
         tr_dt += rec.sumAmount;
         lr_diff += rec.sumAmount;
@@ -15,6 +21,9 @@ export const HandleMainTB = (dic: any, groupRule: IGroupRule, attr: string) => {
         tr_ct += rec.sumAmount;
         lr_diff -= rec.sumAmount;
       }
+
+
+
     } else {
       if (rec.side === TR_SIDES.DEBIT) {
         fr_diff += rec.sumAmount;

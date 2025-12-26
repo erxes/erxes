@@ -1,142 +1,123 @@
-import { ReportTable, useQueryState, Spinner, } from "erxes-ui"
+import { ReportTable, cn } from "erxes-ui";
+import { useAtom, useAtomValue } from "jotai";
+import React, { useEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useJournalReportData } from "../hooks/useJournalReportData";
-import { IGroupRule, GroupRules } from "../types/reportsMap";
-import React from "react";
-import { getCalcReportHandler } from "./includes";
+import { useJournalReportMore } from "../hooks/useJournalReportMore";
+import { moreDataState } from "../states/renderingReportsStates";
+import { IGroupRule, ReportRules } from "../types/reportsMap";
+import { getCalcReportHandler, getRenderMoreHandler } from "./includes";
+import { groupRecords, moreDataByKey, totalsCalc } from "./includes/utils";
+
+export function useQueryObject() {
+  const [searchParams] = useSearchParams();
+
+  const obj: any = {};
+  for (const key of searchParams.keys()) {
+    const values = searchParams.getAll(key);
+    obj[key] = values.length > 1 ? values : values[0];
+  }
+
+  return obj;
+}
 
 export const ReportTableBody = () => {
-  const [report] = useQueryState('report');
-  const [groupKey] = useQueryState('groupKey');
-  const colCount = GroupRules[report as string]?.colCount;
-  const groupRule = GroupRules[report as string]?.groups[groupKey as string || 'default']
+  const { report, groupKey, ...params } = useQueryObject();
+  const reportConf = ReportRules[report as string];
+
+  const { isMore } = params;
+
+  const colCount = reportConf.colCount ?? 0;
+  const groupRule = reportConf.groups?.[groupKey as string || ''] || reportConf.groups?.['default'];
 
   const calcReport = getCalcReportHandler(report as string || '')
 
-  const { records = [], loading } = useJournalReportData();
+  const RenderMore = getRenderMoreHandler(report as string || '', isMore);
 
-  if (loading) {
-    return <Spinner />;
+  const { records = [], loading, error } = useJournalReportData();
+  const { trDetails = [], loading: detailLoading, error: detailError } = useJournalReportMore()
+  const [moreData, setMoreData] = useAtom(
+    moreDataState,
+  );
+
+  const tableRef = useRef<HTMLTableSectionElement>(null);
+
+  const grouped = React.useMemo(() => {
+    if (error) return {};
+
+    return groupRecords(records, groupRule);
+  }, [records, groupRule]);
+
+  // ✅ RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
+  useEffect(() => {
+    if (!tableRef?.current) return;
+
+    totalsCalc(tableRef.current);
+  }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
+
+  useEffect(() => {
+    if (!tableRef?.current) return;
+    if (!isMore) return;
+    if (detailLoading) return;
+    if (detailError) return;
+    setMoreData(moreDataByKey(moreData, trDetails, groupRule));
+  }, [grouped, detailLoading]); // ✅ дата солигдох бүрт дахин бодно
+
+  if (!report || !reportConf) {
+    return 'NOT FOUND REPORT'
   }
 
-  const grouped = groupRecords(records, groupRule);
+  if (error) {
+    return error.message;
+  }
+  if (detailError) {
+    return detailError.message;
+  }
 
   return (
-    <ReportRecursiveRenderer
-      groupedDic={grouped}
-      groupRule={groupRule}
-      colCount={colCount}
-      calcReport={calcReport}
-    />
+    <tbody
+      data-slot="table-body"
+      ref={tableRef}
+      className={cn('[&_tr:last-child]:border-0')}
+    >
+      <ReportRecursiveRenderer
+        groupedDic={grouped}
+        groupRule={groupRule}
+        colCount={colCount}
+        calcReport={calcReport}
+      // RenderMore={isMore && RenderMore}
+      />
+    </tbody>
   )
-}
-
-// toGroup Data
-export const groupRecords = (records: any[], groupRule: IGroupRule) => {
-  if (!groupRule) {
-    return { 'items': records }
-  }
-
-  const resultDic = {};
-
-  toGroup(resultDic, records, groupRule);
-  return resultDic;
-}
-
-type AnyDict = { [key: string]: any };
-
-const toGroup = (
-  resultDic: AnyDict,
-  groupRuleItems: AnyDict[],
-  groupRule: IGroupRule
-) => {
-  // iterate over rows to group
-  for (const item of groupRuleItems) {
-    const groupKey = item[groupRule.group];
-
-    // If group does not exist in resultDic, initialize it
-    if (!resultDic[groupKey]) {
-      resultDic[groupKey] = {
-        items: [],
-        [`${groupRule.key}_id`]: String(groupKey),                     // id
-        [`${groupRule.key}_code`]: String(item[groupRule.code]),       // code
-        [`${groupRule.key}_name`]: groupRule.name
-          ? String(item[groupRule.name])
-          : "",                                                       // name
-      };
-
-      // if sub-group rule exists -> initialize empty dict
-      if (groupRule.group_rule?.key) {
-        resultDic[groupKey][groupRule.group_rule.key] = {};
-      }
-    }
-
-    // get existing items under this group
-    const dicItems = resultDic[groupKey]["items"] || [];
-
-    // add current record
-    dicItems.push(item);
-
-    // reassign
-    resultDic[groupKey]["items"] = dicItems;
-  }
-
-  sortGroupByCode(resultDic, `${groupRule.key}_code`);
-
-  // if sub-group rule exists, recursively call
-  if (groupRule.group_rule?.key) {
-    for (const key of Object.keys(resultDic)) {
-      toGroup(
-        resultDic[key][groupRule.group_rule.key],
-        resultDic[key]["items"],
-        groupRule.group_rule
-      );
-      resultDic[key]["items"] = undefined
-    }
-  }
-}
-
-function sortGroupByCode(resultDic: AnyDict, sortKey: string) {
-  const sortedEntries = Object.entries(resultDic).sort((a: any, b: any) => {
-    const aCode = a[1]?.[sortKey] ?? "";
-    const bCode = b[1]?.[sortKey] ?? "";
-    return String(aCode).localeCompare(String(bCode), "mn");
-  });
-
-  // object-г дахин build хийнэ (JS object өөрөө сортлогддоггүй)
-  Object.keys(resultDic).forEach(k => delete resultDic[k]);
-
-  for (const [k, v] of sortedEntries) {
-    resultDic[k] = v;
-  }
 }
 
 // extract and render 
 interface ReportRendererProps {
   groupedDic: any;
-  groupRule: IGroupRule;
+  groupRule?: IGroupRule;
   colCount: number;
-  groupHead?: boolean;
   calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode;
+  // RenderMore?: (parents: string, child: string) => React.ReactNode;
 }
 
 export function ReportRecursiveRenderer({
   groupedDic,
   groupRule,
   colCount,
-  groupHead = true,
   calcReport,
+  // RenderMore,
 }: ReportRendererProps) {
   return (
     <>
       {renderGroup(
         groupedDic,
-        groupRule,
+        groupRule || {} as IGroupRule,
         colCount,
         0,
         "",
         "",
-        groupHead,
-        calcReport
+        calcReport,
+        // RenderMore,
       )}
     </>
   );
@@ -149,64 +130,61 @@ function renderGroup(
   padding: number,
   lastAttr: string,
   leafAttr: string,
-  groupHead: boolean,
-  calcReport: Function
+  calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode,
+  // RenderMore?: (parents: string, child: string, groupRule?: IGroupRule[]) => React.ReactNode,
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
 
-  const grId = `${groupRule.key}_id`;
-  const grCode = `${groupRule.key}_code`;
-  const keyCode = `${groupRule.key}_code`;
-  const keyName = `${groupRule.key}_name`;
+  const grId = `${groupRule.group}Id`;
+  const keyCode = `${groupRule.group}Code`;
+  const keyName = `${groupRule.group}Name`;
 
   const sortedValues = Object.values(groupedDic).sort(
-    (a: any, b: any) => String(a[grCode]).localeCompare(String(b[grCode]))
+    (a: any, b: any) => String(a[keyCode]).localeCompare(String(b[keyCode]))
   );
 
   return sortedValues.map((grStep: any, index: number) => {
-    const attr = `data-value-${lastAttr}-${groupRule.key}-${grStep[grId]}`
-      .replace(/--/g, "-")
-      .replace(/ -/g, "-")
-      .replace(/- /g, "-");
-
-    const childAttr = `data-value sum ${leafAttr.replace("data-value-", "")}`;
+    const lAttr = lastAttr ? `${lastAttr}*` : '';
+    const attr = `${lAttr}${groupRule.group}+${grStep[grId]}`
 
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
-    if (groupRule.group_rule?.key) {
+    if (groupRule.groupRule?.group) {
       return (
         <React.Fragment key={attr + index}>
-          {groupHead && (
+          {(
             <ReportTable.Row
-              data-value={attr}
-              className={groupRule.format ?? ''}
-              i-group={groupRule.group}
-              i-id={grStep[grId]}
+              key={attr}
+              data-sum-key={attr}
+              className={cn(groupRule.style ?? '')}
+              data-group={groupRule.group}
+              data-id={grStep[grId]}
             >
               <ReportTable.Cell
-                style={{ paddingLeft: `${padding}px`, textAlign: "left" }}
+                className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
+                style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
               >
                 {grStep[keyCode]}
               </ReportTable.Cell>
 
-              <ReportTable.Cell style={{ textAlign: "left" }}>
+              <ReportTable.Cell className="text-left">
                 {grStep[keyName]}
               </ReportTable.Cell>
 
               {Array.from({ length: colCount }).map((_, i) => (
-                <ReportTable.Cell key={i} />
+                <ReportTable.Cell key={`${attr}-${i}`} className="text-right" />
               ))}
             </ReportTable.Row>
           )}
 
           {renderGroup(
-            grStep[groupRule.group_rule.key],
-            groupRule.group_rule,
+            grStep[groupRule.groupRule.group],
+            groupRule.groupRule,
             colCount,
-            padding + 30,
+            padding + 25,
             attr,
-            leafAttr + attr,
-            groupHead,
-            calcReport
+            `${leafAttr && `${leafAttr},` || ''}${attr}`,
+            calcReport,
+            // RenderMore
           )}
         </React.Fragment>
       );
@@ -218,26 +196,79 @@ function renderGroup(
     if (!lastNode) return null;
 
     return (
-      <ReportTable.Row
-        key={attr}
-        style={{ textAlign: "right", ...(groupRule.style ? { cssText: groupRule.style } : {}) }}
-        data-value={childAttr}
-        className={groupRule.format}
-        i-group={groupRule.group}
-        i-id={grStep[grId]}
-      >
-        <ReportTable.Cell
-          style={{ paddingLeft: `${padding}px`, textAlign: "left" }}
+      <React.Fragment key={attr}>
+        <ReportTable.Row
+          key={attr}
+          data-keys={`footer,${leafAttr}`}
+          className={cn('text-right', groupRule.style ?? '')}
+          data-group={groupRule.group}
+          data-id={grStep[grId]}
         >
-          {grStep[keyCode]}
-        </ReportTable.Cell>
+          <ReportTable.Cell
+            className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
+            style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
+          >
+            {grStep[keyCode]}
+          </ReportTable.Cell>
 
-        <ReportTable.Cell style={{ textAlign: "left" }}>
-          {grStep[keyName]}
-        </ReportTable.Cell>
+          <ReportTable.Cell className='text-left'>
+            {grStep[keyName]}
+          </ReportTable.Cell>
 
-        {lastNode}
-      </ReportTable.Row>
+          {lastNode}
+        </ReportTable.Row>
+        <RenderMore parentRules={leafAttr?.split(',').slice(-1)[0] || ''} leafRule={`${groupRule.group}+${grStep[grId]}`} />
+      </React.Fragment>
     );
   });
+}
+
+const RenderMore = ({ parentRules, leafRule }: { parentRules: string, leafRule: string }) => {
+  const parents = parentRules.split('*').map(p => p.split('+'));
+  const [leafGroup, leafId] = leafRule.split('+');
+  const perkey = `${parents?.map(pr => pr[1]).join('#')}#${leafId}`;
+  const allMoreData = useAtomValue(moreDataState);
+
+  const moreData = useMemo(() => { return allMoreData?.[perkey] || []; }, [perkey, allMoreData]);
+
+  // moreData Context
+  return (
+    <ReportTable.Row
+      key={perkey}
+      className={cn('text-right')}
+    >
+      <ReportTable.Cell colSpan={8} className="p-0">
+        <ReportTable>
+          <ReportTable.Header>
+
+          </ReportTable.Header>
+          <ReportTable.Body >
+            {moreData.map(tr => (
+              <ReportTable.Row
+                className={cn('')}
+              >
+                <ReportTable.Cell
+                  className={cn(`text-left `)}
+                >
+                  {parents}
+                </ReportTable.Cell>
+                <ReportTable.Cell className="text-left">
+                  {leafId}
+                </ReportTable.Cell>
+                <ReportTable.Cell className="text-left">
+                  {tr.date}
+                </ReportTable.Cell>
+                <ReportTable.Cell className="text-left">
+                  {tr.description}
+                </ReportTable.Cell>
+
+              </ReportTable.Row>
+            ))}
+          </ReportTable.Body>
+          <ReportTable.Footer>
+          </ReportTable.Footer>
+        </ReportTable>
+      </ReportTable.Cell>
+    </ReportTable.Row>
+  )
 }
