@@ -60,7 +60,8 @@ const journalReportQueries = {
     { models, user, subdomain }: IContext,
   ) {
     const { report, ...filters } = params;
-    return await getRecMore(subdomain, models, report, filters, user)
+    const trDetails = await getRecMore(subdomain, models, report, filters, user)
+    return { trDetails }
   },
 };
 

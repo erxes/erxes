@@ -6,11 +6,12 @@ export const ReportGroups = [
 ];
 
 export interface IGroupRule {
-  key: string;
+  // key: string;
   group: string;
   code: string;
   name?: string;
   excMore?: boolean;
+  from?: string[];
   style?: string;
   groupRule?: IGroupRule | null;
 }
@@ -20,7 +21,7 @@ export interface IReportConfig {
   icon?: string;
   colCount?: number;
   choices?: Array<{ code: string; title: string }>;
-  initParams?: Object,
+  initParams?: any,
   groups?: {
     [key: string]: IGroupRule;
   };
@@ -32,35 +33,75 @@ export const ReportRules: Record<string, IReportConfig> = {
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' }
+      { code: 'cat', title: 'Дансны бүлгээр' },
+      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
+      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
     ],
     initParams: {
       isMore: true
     },
     groups: {
       default: {
-        'key': 'gr',
-        'group': 'accountId',
-        'code': 'accountCode',
-        'name': 'accountName',
-        'style': 'font-semibold bg-[#fefef1]',
-        'groupRule': null,
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        style: 'font-semibold bg-[#fefef1]',
+        groupRule: null,
       },
       cat: {
-        'key': 'gr1',
-        'group': 'accountCategoryId',
-        'code': 'accountCategoryCode',
-        'name': 'accountCategoryName',
-        'excMore': true,
-        'style': 'font-semibold',
-        'groupRule': {
-          'key': 'gr2',
-          'group': 'accountId',
-          'code': 'accountCode',
-          'name': 'accountName',
-          'style': 'font-semibold bg-[#fefef1]',
-          'groupRule': null,
+        group: 'accountCategoryId',
+        code: 'accountCategoryCode',
+        name: 'accountCategoryName',
+        excMore: true,
+        style: 'font-semibold',
+        groupRule: {
+          group: 'accountId',
+          code: 'accountCode',
+          name: 'accountName',
+          from: ['details'],
+          style: 'font-semibold bg-[#fefef1]',
+          groupRule: null,
         },
+      },
+      branchDepartment: {
+        group: 'branchId',
+        code: 'branchCode',
+        name: 'branchName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'departmentId',
+          code: 'departmentCode',
+          name: 'departmentName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: 'font-semibold bg-[#fefef1]',
+            groupRule: null,
+          },
+        }
+      },
+      departmentBranch: {
+        group: 'departmentId',
+        code: 'departmentCode',
+        name: 'departmentName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'branchId',
+          code: 'branchCode',
+          name: 'branchName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: 'font-semibold bg-[#fefef1]',
+            groupRule: null,
+          },
+        }
       }
     }
   },
@@ -73,24 +114,21 @@ export const ReportRules: Record<string, IReportConfig> = {
     ],
     groups: {
       default: {
-        'key': 'gr',
-        'group': 'accountId',
-        'code': 'accountCode',
-        'name': 'accountName',
-        'groupRule': null,
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        groupRule: null,
       },
       cat: {
-        'key': 'gr1',
-        'group': 'accountCategoryId',
-        'code': 'accountCategoryCode',
-        'name': 'accountCategoryName',
-        'style': 'font-semibold',
-        'groupRule': {
-          'key': 'gr2',
-          'group': 'accountId',
-          'code': 'accountCode',
-          'name': 'accountName',
-          'groupRule': null
+        group: 'accountCategoryId',
+        code: 'accountCategoryCode',
+        name: 'accountCategoryName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'accountId',
+          code: 'accountCode',
+          name: 'accountName',
+          groupRule: null
         }
       },
     }

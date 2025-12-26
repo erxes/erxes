@@ -2,21 +2,19 @@ import { cn, displayNum, ReportTable } from "erxes-ui";
 import { useAtomValue } from "jotai";
 import { moreDataState } from "~/modules/journal-reports/states/renderingReportsStates";
 import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
-import { AccountKind } from "~/modules/settings/account/types/Account";
-import { TR_SIDES } from "~/modules/transactions/types/constants";
 
 export const HandleMainACMore = (parent: string, child: string, groupRule: IGroupRule[]) => {
   const parentRules = parent.split('*').map(p => p.split('+'));
-  const [leafKey, leafId] = child.split('+');
+  const [leafGroup, leafId] = child.split('+');
+  const perkey = `${parentRules?.map(pr => pr[1]).join('#')}#${leafId}`;
   const allMoreData = useAtomValue(moreDataState);
-  console.log('ddddddddddddddddd', parentRules, leafKey, leafId, groupRule)
-  
-  const moreData = allMoreData.filter(md => md);
+
+  const moreData = allMoreData?.[perkey] || [];
 
   // moreData Context
   return (
     <ReportTable.Row
-      key={'aaaaaa'}
+      key={perkey}
       className={cn('text-right')}
     >
       <ReportTable.Cell colSpan={8} className="p-0">
@@ -37,10 +35,12 @@ export const HandleMainACMore = (parent: string, child: string, groupRule: IGrou
                 <ReportTable.Cell className="text-left">
                   {child}
                 </ReportTable.Cell>
-
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <ReportTable.Cell key={i} className="text-right" />
-                ))}
+                <ReportTable.Cell className="text-left">
+                  {tr.date}
+                </ReportTable.Cell>
+                <ReportTable.Cell className="text-left">
+                  {tr.description}
+                </ReportTable.Cell>
               </ReportTable.Row>
             ))}
           </ReportTable.Body>
