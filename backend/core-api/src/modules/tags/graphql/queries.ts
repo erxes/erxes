@@ -121,6 +121,22 @@ export const tagQueries = {
     return { list, totalCount, pageInfo };
   },
 
+  async tagsMain(
+    _parent: undefined,
+    { type }: { type: string },
+    { models }: IContext,
+  ) {
+    const filter: FilterQuery<ITagFilterQueryParams> = {
+      type: { $in: [null, ''] },
+    };
+
+    if (type) {
+      filter.type = { $in: [null, '', type] };
+    }
+
+    return await models.Tags.find(filter).sort({ name: 1 });
+  },
+
   async tagsQueryCount(
     _parent: undefined,
     {
