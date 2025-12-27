@@ -1,21 +1,23 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 
 // load environment variables
 dotenv.config();
 
-import * as cookieParser from "cookie-parser";
-import * as cors from "cors";
-import * as telemetry from "erxes-telemetry";
-import * as express from "express";
-import * as helmet from "helmet";
-import { createServer } from "http";
-import * as mongoose from "mongoose";
-import * as path from "path";
-import { initApolloServer } from "./apolloClient";
-import { templateExport } from "./data/modules/fileExporter/templateExport";
-import { buildChartFile } from "./data/modules/insight/export";
+import * as cookieParser from 'cookie-parser';
+import * as cors from 'cors';
+import * as telemetry from 'erxes-telemetry';
+import * as express from 'express';
+import * as helmet from 'helmet';
+import { createServer } from 'http';
+import * as mongoose from 'mongoose';
+import * as path from 'path';
+import { initApolloServer } from './apolloClient';
+import { templateExport } from './data/modules/fileExporter/templateExport';
+import { buildChartFile } from './data/modules/insight/export';
+import multer from 'multer';
+import tmp from 'tmp';
 
-import * as fs from "fs";
+import * as fs from 'fs';
 
 import {
   deleteFile,
@@ -24,68 +26,69 @@ import {
   readFileRequest,
   registerOnboardHistory,
   routeErrorHandling,
-  uploadsFolderPath
-} from "./data/utils";
+  uploadFile,
+  uploadsFolderPath,
+} from './data/utils';
 
-import { debugBase, debugError, debugInit } from "./debuggers";
-import { initBroker, sendCommonMessage } from "./messageBroker";
-import { uploader } from "./middlewares/fileMiddleware";
+import { debugBase, debugError, debugInit } from './debuggers';
+import { initBroker, sendCommonMessage } from './messageBroker';
+import { uploader } from './middlewares/fileMiddleware';
 import {
   getService,
   getServices,
   isEnabled,
   join,
-  leave
-} from "@erxes/api-utils/src/serviceDiscovery";
-import logs from "./logUtils";
+  leave,
+} from '@erxes/api-utils/src/serviceDiscovery';
+import logs from './logUtils';
 
-import init from "./startup";
-import forms from "./forms";
-import { generateModels } from "./connectionResolver";
-import { authCookieOptions, getSubdomain } from "@erxes/api-utils/src/core";
-import segments from "./segments";
-import automations from "./automations";
-import templates from "./templates";
-import imports from "./imports";
-import exporter from "./exporter";
-import { moduleObjects } from "./data/permissions/actions/permission";
-import { getEnabledServices } from "@erxes/api-utils/src/serviceDiscovery";
-import { applyInspectorEndpoints } from "@erxes/api-utils/src/inspect";
-import { handleCoreLogin, handleMagiclink, ssocallback } from "./saas";
-import app from "@erxes/api-utils/src/app";
-import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
-import search from "./search";
-import tags from "./tags";
+import init from './startup';
+import forms from './forms';
+import { generateModels } from './connectionResolver';
+import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
+import segments from './segments';
+import automations from './automations';
+import templates from './templates';
+import imports from './imports';
+import exporter from './exporter';
+import { moduleObjects } from './data/permissions/actions/permission';
+import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
+import { handleCoreLogin, handleMagiclink, ssocallback } from './saas';
+import app from '@erxes/api-utils/src/app';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
+import search from './search';
+import tags from './tags';
 import {
   updateContactsValidationStatus,
-  updateContactValidationStatus
-} from "./data/modules/coc/verifierUtils";
-import { buildFile } from "./exporterByUrl";
-import reports from "./reports/reports";
-import { getOrganizationDetail } from "@erxes/api-utils/src/saas/saas";
+  updateContactValidationStatus,
+} from './data/modules/coc/verifierUtils';
+import { buildFile } from './exporterByUrl';
+import reports from './reports/reports';
+import { getOrganizationDetail } from '@erxes/api-utils/src/saas/saas';
 import {
   authorizeClient,
-  refreshAccessToken
-} from "./data/modules/oauth/controller";
+  refreshAccessToken,
+} from './data/modules/oauth/controller';
 
 const {
   JWT_TOKEN_SECRET,
   WIDGETS_DOMAIN,
   DOMAIN,
   CLIENT_PORTAL_DOMAINS,
-  VERSION
+  VERSION,
 } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
-  throw new Error("Please configure JWT_TOKEN_SECRET environment variable.");
+  throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
 
 // don't move it above telnyx controllers
-app.use(express.urlencoded({ limit: "15mb", extended: true }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 app.use(
   express.json({
-    limit: "15mb"
+    limit: '15mb',
   })
 );
 
@@ -94,28 +97,30 @@ app.use(cookieParser());
 const corsOptions = {
   credentials: true,
   origin: [
-    DOMAIN || "http://localhost:3000",
-    WIDGETS_DOMAIN || "http://localhost:3200",
-    ...(CLIENT_PORTAL_DOMAINS || "").split(","),
-    ...(process.env.ALLOWED_ORIGINS || "").split(",").map(c => c && RegExp(c))
-  ]
+    DOMAIN || 'http://localhost:3000',
+    WIDGETS_DOMAIN || 'http://localhost:3200',
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    ...(process.env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((c) => c && RegExp(c)),
+  ],
 };
 
 app.use(cors(corsOptions));
 
-app.use(helmet({ frameguard: { action: "sameorigin" } }));
+app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 
 app.get(
-  "/initial-setup",
+  '/initial-setup',
   routeErrorHandling(async (req: any, res) => {
-    console.debug("initial setup");
+    console.debug('initial setup');
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     const userCount = await models.Users.countDocuments();
 
     if (userCount === 0) {
-      return res.send("no owner");
+      return res.send('no owner');
     }
 
     await models.FieldsGroups.createSystemGroupsFields();
@@ -130,22 +135,22 @@ app.get(
         if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
           await sendCommonMessage({
             subdomain,
-            action: "initialSetup",
+            action: 'initialSetup',
             serviceName,
-            data: {}
+            data: {},
           });
         }
       }
     }
 
-    const envMaps = JSON.parse(req.query.envs || "{}");
+    const envMaps = JSON.parse(req.query.envs || '{}');
 
     for (const key of Object.keys(envMaps)) {
       res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
     }
 
     const configs = await models.Configs.find({
-      code: new RegExp(`.*THEME_.*`, "i")
+      code: new RegExp(`.*THEME_.*`, 'i'),
     }).lean();
 
     await models.FieldsGroups.createSystemGroupsFields();
@@ -155,22 +160,22 @@ app.get(
 );
 
 app.get(
-  "/v3/initial-setup",
+  '/v3/initial-setup',
   routeErrorHandling(async (req: any, res) => {
-    console.debug("initial setup");
+    console.debug('initial setup');
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    const VERSION = getEnv({ name: "VERSION" });
+    const VERSION = getEnv({ name: 'VERSION' });
 
     let organizationInfo;
 
-    if (VERSION === "saas") {
+    if (VERSION === 'saas') {
       organizationInfo = await getOrganizationDetail({ subdomain, models });
     } else {
       organizationInfo = {
-        type: "os",
-        config: {}
+        type: 'os',
+        config: {},
       };
     }
 
@@ -196,22 +201,22 @@ app.get(
         if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
           await sendCommonMessage({
             subdomain,
-            action: "initialSetup",
+            action: 'initialSetup',
             serviceName,
-            data: {}
+            data: {},
           });
         }
       }
     }
 
-    const envMaps = JSON.parse(req.query.envs || "{}");
+    const envMaps = JSON.parse(req.query.envs || '{}');
 
     for (const key of Object.keys(envMaps)) {
       res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
     }
 
     const configs = await models.Configs.find({
-      code: new RegExp(`.*THEME_.*`, "i")
+      code: new RegExp(`.*THEME_.*`, 'i'),
     }).lean();
 
     await models.FieldsGroups.createSystemGroupsFields();
@@ -222,12 +227,12 @@ app.get(
   })
 );
 
-app.get("/get-frontend-plugins", async (_req, res) => {
+app.get('/get-frontend-plugins', async (_req, res) => {
   const plugins: { name: string; url: string }[] = [];
 
   plugins.push({
-    name: "inbox",
-    url: "https://plugins.erxes.io/latest/inbox_ui/remoteEntry.js"
+    name: 'inbox',
+    url: 'https://plugins.erxes.io/latest/inbox_ui/remoteEntry.js',
   });
 
   return res.json({ plugins });
@@ -235,10 +240,10 @@ app.get("/get-frontend-plugins", async (_req, res) => {
 
 // app.post('/webhooks/:id', webhookMiddleware);
 
-app.use("/static", express.static(path.join(__dirname, "private")));
+app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get(
-  "/chart-table-export",
+  '/chart-table-export',
   routeErrorHandling(async (req: any, res) => {
     const { query } = req;
 
@@ -253,7 +258,7 @@ app.get(
 );
 
 app.get(
-  "/download-template",
+  '/download-template',
   routeErrorHandling(async (req: any, res) => {
     const name = req.query.name;
 
@@ -269,7 +274,7 @@ app.get(
 );
 
 app.get(
-  "/template-export",
+  '/template-export',
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
 
@@ -279,7 +284,7 @@ app.get(
     registerOnboardHistory({
       models,
       type: `importDownloadTemplate`,
-      user: req.user
+      user: req.user,
     });
 
     const { name, response } = await templateExport(req.query);
@@ -290,7 +295,7 @@ app.get(
 );
 
 // read file
-app.get("/read-file", async (req: any, res, next) => {
+app.get('/read-file', async (req: any, res, next) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
@@ -298,7 +303,7 @@ app.get("/read-file", async (req: any, res, next) => {
     const { key, inline, name, width } = req.query;
 
     if (!key) {
-      return res.send("Invalid key");
+      return res.send('Invalid key');
     }
 
     const response = await readFileRequest({
@@ -306,13 +311,13 @@ app.get("/read-file", async (req: any, res, next) => {
       subdomain,
       models,
       userId: req.headers.userid,
-      width
+      width,
     });
 
-    if (inline && inline === "true") {
-      const extension = key.split(".").pop();
-      res.setHeader("Content-disposition", 'inline; filename="' + key + '"');
-      res.setHeader("Content-type", `application/${extension}`);
+    if (inline && inline === 'true') {
+      const extension = key.split('.').pop();
+      res.setHeader('Content-disposition', 'inline; filename="' + key + '"');
+      res.setHeader('Content-type', `application/${extension}`);
 
       return res.send(response);
     }
@@ -321,8 +326,8 @@ app.get("/read-file", async (req: any, res, next) => {
 
     return res.send(response);
   } catch (e) {
-    if ((e as Error).message.includes("key does not exist")) {
-      return res.status(404).send("Not found");
+    if ((e as Error).message.includes('key does not exist')) {
+      return res.status(404).send('Not found');
     }
 
     debugError(e);
@@ -332,7 +337,7 @@ app.get("/read-file", async (req: any, res, next) => {
 });
 
 app.get(
-  "/file-export",
+  '/file-export',
   routeErrorHandling(async (req: any, res) => {
     const { query } = req;
     const { segment } = query;
@@ -365,24 +370,24 @@ app.post(
     if (email) {
       await updateContactValidationStatus(models, email);
     } else if (emails) {
-      await updateContactsValidationStatus(models, "email", emails);
+      await updateContactsValidationStatus(models, 'email', emails);
     } else if (phone) {
       await updateContactValidationStatus(models, phone);
     } else if (phones) {
-      await updateContactsValidationStatus(models, "phone", phones);
+      await updateContactsValidationStatus(models, 'phone', phones);
     }
 
-    return res.send("success");
+    return res.send('success');
   })
 );
 
-app.post("/oauth/token", authorizeClient);
-app.post("/oauth/refresh", refreshAccessToken);
+app.post('/oauth/token', authorizeClient);
+app.post('/oauth/refresh', refreshAccessToken);
 
-app.get("/verify", async (req, res) => {
+app.get('/verify', async (req, res) => {
   const { p } = req.query;
 
-  const data = JSON.parse(Buffer.from(p as string, "base64").toString("utf8"));
+  const data = JSON.parse(Buffer.from(p as string, 'base64').toString('utf8'));
 
   const { email, customerId } = data;
 
@@ -392,32 +397,32 @@ app.get("/verify", async (req, res) => {
   const customer = await models.Customers.findOne({ _id: customerId });
 
   if (!customer) {
-    return res.send("Can not find customer");
+    return res.send('Can not find customer');
   }
 
   if (customer.primaryEmail !== email) {
-    return res.send("Customer email does not match");
+    return res.send('Customer email does not match');
   }
 
-  if (customer.emails?.findIndex(e => e.email === email) === -1) {
-    return res.send("Customer email does not match");
+  if (customer.emails?.findIndex((e) => e.email === email) === -1) {
+    return res.send('Customer email does not match');
   }
 
   await models.Customers.updateOne(
     { _id: customerId },
-    { $set: { primaryEmail: email, emailValidationStatus: "valid" } }
+    { $set: { primaryEmail: email, emailValidationStatus: 'valid' } }
   );
 
-  return res.send("Successfully verified, you can close this tab now");
+  return res.send('Successfully verified, you can close this tab now');
 });
 
 // delete file
 app.post(
-  "/delete-file",
+  '/delete-file',
   routeErrorHandling(async (req: any, res) => {
     // require login
     if (!req.headers.userid) {
-      return res.end("forbidden");
+      return res.end('forbidden');
     }
 
     const subdomain = getSubdomain(req);
@@ -425,7 +430,7 @@ app.post(
 
     const status = await deleteFile(models, req.body.fileName);
 
-    if (status === "ok") {
+    if (status === 'ok') {
       return res.send(status);
     }
 
@@ -435,30 +440,217 @@ app.post(
 
 // unsubscribe
 app.get(
-  "/unsubscribe",
+  '/unsubscribe',
   routeErrorHandling(async (req: any, res) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     await handleUnsubscription(models, subdomain, req.query);
 
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
     const template = fs.readFileSync(
-      __dirname + "/private/emailTemplates/unsubscribe.html"
+      __dirname + '/private/emailTemplates/unsubscribe.html'
     );
 
     return res.send(template);
   })
 );
 
-app.post("/upload-file", uploader);
+app.post('/upload-file', uploader);
 
-app.post("/upload-file&responseType=json", uploader);
+app.post('/upload-file&responseType=json', uploader);
 
-app.get("/ml-callback", (req: any, res) => handleMagiclink(req, res));
-app.get("/core-login", (req: any, res) => handleCoreLogin(req, res));
-app.get("/sso-callback", ssocallback);
+// Handles file uploads in chunks for better performance with large files
+
+const tmpDir = tmp.dirSync({ unsafeCleanup: true });
+
+const upload = multer({
+  dest: tmpDir.name,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+  fileFilter: (_req, file, cb) => {
+    // Check the file type (MIME type)
+    cb(null, true); // Accept the file
+  },
+});
+
+interface UploadStatus {
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  key?: string;
+  error?: string;
+  fileName?: string;
+  progress?: number;
+}
+
+const uploadStore = new Map<string, UploadStatus>();
+
+const chunkStore = new Map<
+  string,
+  {
+    chunks: Set<number>;
+    totalChunks: number;
+    fileName: string;
+    fileSize: number;
+    uploadId: string;
+  }
+>();
+
+// 1. Initialize chunked upload
+app.post('/upload-chunked/init', (req, res) => {
+  const { fileName, fileSize, totalChunks } = req.body;
+  const uploadId = crypto.randomUUID();
+
+  chunkStore.set(uploadId, {
+    chunks: new Set(),
+    totalChunks: Number(totalChunks),
+    fileName,
+    fileSize: Number(fileSize),
+    uploadId,
+  });
+
+  res.json({ uploadId });
+});
+
+// 2. Upload a chunk
+app.post(
+  '/upload-chunked/chunk',
+  upload.single('chunk'),
+  async (req: any, res: any) => {
+    const subdomain = getSubdomain(req);
+    const domain = DOMAIN?.replace('<subdomain>', subdomain);
+    const models = await generateModels(subdomain);
+
+    const { uploadId, chunkIndex } = req.body;
+    const file = req.file;
+
+    if (!file || !uploadId || chunkIndex === undefined) {
+      return res.status(400).json({ error: 'Missing data' });
+    }
+
+    let uploadInfo = chunkStore.get(uploadId);
+    if (!uploadInfo) {
+      return res
+        .status(404)
+        .json({ error: 'Upload session expired or invalid' });
+    }
+
+    // Save chunk
+    const chunkDir = path.join(tmpDir.name, uploadId);
+    if (!fs.existsSync(chunkDir)) fs.mkdirSync(chunkDir, { recursive: true });
+    const chunkPath = path.join(chunkDir, `chunk-${chunkIndex}`);
+    fs.renameSync(file.path, chunkPath);
+
+    // Mark chunk as received
+    uploadInfo.chunks.add(Number(chunkIndex));
+    chunkStore.set(uploadId, uploadInfo); // ← IMPORTANT: persist the Set update
+
+    res.json({
+      success: true,
+      received: uploadInfo.chunks.size,
+      total: uploadInfo.totalChunks,
+    });
+
+    // ←←← CRITICAL: Trigger merge OUTSIDE the request/response cycle
+    // This runs even if the client disconnects or another instance gets the request
+    if (uploadInfo.chunks.size === uploadInfo.totalChunks) {
+      setImmediate(async () => {
+        try {
+          // Re-read latest state (in case of race)
+          const latestInfo = chunkStore.get(uploadId);
+          if (!latestInfo || latestInfo.chunks.size < latestInfo.totalChunks)
+            return;
+
+          // Merge chunks
+          const finalPath = path.join(tmpDir.name, `${uploadId}-final`);
+          const writeStream = fs.createWriteStream(finalPath);
+          for (let i = 0; i < latestInfo.totalChunks; i++) {
+            const cp = path.join(chunkDir, `chunk-${i}`);
+            if (fs.existsSync(cp)) {
+              writeStream.write(fs.readFileSync(cp));
+              fs.unlinkSync(cp);
+            }
+          }
+          writeStream.end();
+
+          await new Promise<void>((resolve, reject) => {
+            writeStream.on('finish', () => resolve());
+            writeStream.on('error', (err) => reject(err));
+          });
+
+          // ←←← STATUS UPDATE – THIS MUST RUN
+          uploadStore.set(uploadId, {
+            id: uploadId,
+            status: 'processing',
+            fileName: latestInfo.fileName,
+            progress: 80,
+          });
+
+          const response = await uploadFile(
+            `${DOMAIN}/gateway`,
+            {
+              path: finalPath,
+              name: latestInfo.fileName,
+              type: file.mimetype,
+              size: latestInfo.fileSize,
+              originalname: latestInfo.fileName,
+            },
+            false,
+            models
+          );
+
+          uploadStore.set(uploadId, {
+            id: uploadId,
+            status: 'completed',
+            key: response,
+            fileName: latestInfo.fileName,
+            progress: 100,
+          });
+
+          setTimeout(
+            () => {
+              uploadStore.delete(uploadId);
+              chunkStore.delete(uploadId);
+            },
+            5 * 60 * 1000
+          );
+
+          // Cleanup
+          try {
+            fs.unlinkSync(finalPath);
+          } catch {}
+          try {
+            fs.rmdirSync(chunkDir, { recursive: true });
+          } catch {}
+        } catch (err: any) {
+          console.error('Final merge/upload failed:', err);
+          uploadStore.set(uploadId, {
+            id: uploadId,
+            status: 'failed',
+            error: err.message || 'Processing failed',
+            fileName: uploadInfo.fileName,
+          });
+        }
+      });
+    }
+  }
+);
+
+// check upload status endpoint
+app.get('/upload-status/:uploadId', (req: any, res: any) => {
+  const { uploadId } = req.params;
+  const status = uploadStore.get(uploadId);
+
+  if (!status) {
+    return res.status(404).json({ error: 'Upload not found' });
+  }
+
+  return res.json(status);
+});
+
+app.get('/ml-callback', (req: any, res) => handleMagiclink(req, res));
+app.get('/core-login', (req: any, res) => handleCoreLogin(req, res));
+app.get('/sso-callback', ssocallback);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -466,7 +658,7 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
-app.get("/get-import-file/:fileName", async (req, res) => {
+app.get('/get-import-file/:fileName', async (req, res) => {
   const fileName = req.params.fileName;
 
   const sanitizeFileName = sanitizeFilename(fileName);
@@ -476,23 +668,23 @@ app.get("/get-import-file/:fileName", async (req, res) => {
   res.sendFile(filePath);
 });
 
-app.get("/plugins/enabled/:name", async (req, res) => {
+app.get('/plugins/enabled/:name', async (req, res) => {
   const result = await isEnabled(req.params.name);
   res.json(result);
 });
 
-app.get("/plugins/enabled", async (_req, res) => {
+app.get('/plugins/enabled', async (_req, res) => {
   const result = (await getEnabledServices()) || [];
   res.json(result);
 });
 
-applyInspectorEndpoints("core");
+applyInspectorEndpoints('core');
 
 // Wrap the Express server
 const httpServer = createServer(app);
 
-const PORT = getEnv({ name: "PORT" });
-const MONGO_URL = getEnv({ name: "MONGO_URL" });
+const PORT = getEnv({ name: 'PORT' });
+const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 
 httpServer.listen(PORT, async () => {
   await initApolloServer(app, httpServer);
@@ -501,17 +693,17 @@ httpServer.listen(PORT, async () => {
 
   init()
     .then(() => {
-      telemetry.trackCli("server_started");
+      telemetry.trackCli('server_started');
       telemetry.startBackgroundUpdate();
 
-      debugBase("Startup successfully started");
+      debugBase('Startup successfully started');
     })
-    .catch(e => {
+    .catch((e) => {
       debugError(`Error occured while starting init: ${e.message}`);
     });
 
   await join({
-    name: "core",
+    name: 'core',
     port: PORT,
     hasSubscriptions: false,
     meta: {
@@ -527,10 +719,10 @@ httpServer.listen(PORT, async () => {
       imports,
       exporter,
       cronjobs: {
-        handle10MinutelyJobAvailable: VERSION === "saas" ? true : false
+        handle10MinutelyJobAvailable: VERSION === 'saas' ? true : false,
       },
-      reports
-    }
+      reports,
+    },
   });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);
@@ -542,7 +734,7 @@ process.stdin.resume(); // so the program will not close instantly
 async function closeMongooose() {
   try {
     await mongoose.connection.close();
-    console.debug("Mongoose connection disconnected ");
+    console.debug('Mongoose connection disconnected ');
   } catch (e) {
     console.error(e);
   }
@@ -550,8 +742,8 @@ async function closeMongooose() {
 
 async function leaveServiceDiscovery() {
   try {
-    await leave("core", PORT);
-    console.debug("Left from service discovery");
+    await leave('core', PORT);
+    console.debug('Left from service discovery');
   } catch (e) {
     console.error(e);
   }
@@ -574,7 +766,7 @@ async function closeHttpServer() {
 }
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
-(["SIGINT", "SIGTERM"] as NodeJS.Signals[]).forEach(sig => {
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
     await closeHttpServer();
     await closeMongooose();
