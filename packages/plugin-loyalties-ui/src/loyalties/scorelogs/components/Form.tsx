@@ -25,8 +25,8 @@ type Props = {
 };
 
 type State = {
-  targetId: string;
-  serviceName: string;
+  targetId: string | undefined;
+  serviceName: string | undefined;
   ownerId: string;
   ownerType: string;
   changeScore: number;
@@ -46,8 +46,8 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
     { targetId, serviceName, ownerId, ownerType, changeScore, campaignId },
     setState,
   ] = useState({
-    targetId: "",
-    serviceName: "",
+    targetId: undefined,
+    serviceName: undefined,
     ownerType: "customer",
     ownerId: "",
     changeScore: 0,
@@ -62,7 +62,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
   const renderOwner = () => {
     const handleOwnerId = (id) => {
       if (!id || id !== ownerId) {
-        setState((prev) => ({ ...prev, targetId: "", serviceName: "" }));
+        setState((prev) => ({ ...prev, targetId: undefined, serviceName: undefined }));
       }
 
       setState((prev) => ({ ...prev, ownerId: id }));

@@ -98,6 +98,7 @@ const callsQueries = {
       },
       user,
     )) as any;
+    console.log('callGetAgentStatus queueData:', queueData);
 
     if (queueData && queueData.response) {
       const { CallQueueMembersMessage } = queueData?.response;
@@ -168,6 +169,7 @@ const callsQueries = {
       },
       user,
     )) as any;
+    console.log(queueData, 'extension list queueData');
 
     if (queueData && queueData.response) {
       const { account } = queueData?.response;
@@ -222,6 +224,7 @@ const callsQueries = {
       user,
     )) as any;
 
+    console.log(queueData, 'queueData');
     if (!queueData.ok) {
       throw new Error(`HTTP error! Status: ${queueData.status}`);
     }
@@ -334,7 +337,7 @@ const callsQueries = {
       },
       user,
     )) as any;
-
+    console.log(queueData, 'callQueueMemberList queueData');
     if (queueData && queueData.response) {
       const { CallQueueMembersMessage } = queueData?.response;
 

@@ -94,7 +94,8 @@ export const buildMatchFilter = async (filter, subdomain, models, field?) => {
         tagIds,
         status,
         dateRange,
-        closedDateRange
+        closedDateRange,
+        userIds,
     } = filter;
 
     const matchfilter = {};
@@ -177,6 +178,10 @@ export const buildMatchFilter = async (filter, subdomain, models, field?) => {
     //CLOSED USER FILTER
     if (closedUserIds && closedUserIds.length) {
         matchfilter['closedUserId'] = { $in: closedUserIds };
+    }
+
+    if (userIds && userIds.length) {
+        matchfilter[userFieldType] = { $in: userIds };
     }
 
     // DATE FILTER
