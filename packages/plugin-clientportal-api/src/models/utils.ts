@@ -62,12 +62,16 @@ export const handleContacts = async (args: IContactsParams) => {
       throw new Error('user is already exists');
     }
 
+    if (password) {
+      const { hashedPassword, passwordHistory } = await models.ClientPortalUsers.checkPassword(user, password);
+
+      document.password = hashedPassword;
+      document.passwordHistory = passwordHistory;
+    }
+
     user = await models.ClientPortalUsers.create({
       ...document,
       clientPortalId,
-      // hash password
-      password:
-        password && (await models.ClientPortalUsers.generatePassword(password)),
     });
 
     if (!customer) {

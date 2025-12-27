@@ -73,6 +73,7 @@ export const CUSTOMER_BASIC_INFOS = [
   "integrationId",
   "code",
   "mergedIds",
+  "registrationNumber",
 ];
 
 export const COMPANY_BASIC_INFOS = [

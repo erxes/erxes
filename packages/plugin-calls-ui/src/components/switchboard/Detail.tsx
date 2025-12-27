@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import styled, { keyframes, css } from 'styled-components';
-import { useTick } from '../TickProvider';
 
 // Animations
 const fadeIn = keyframes`
@@ -593,7 +592,9 @@ const formatWaitTime = (starttime: string): string => {
   if (!starttime) return '00:00';
 
   try {
-    const start = new Date(starttime);
+    const localStartString = starttime.replace(' ', 'T');
+
+    const start = new Date(localStartString);
     const now = new Date();
 
     let diffMs = now.getTime() - start.getTime();
@@ -737,14 +738,12 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-  const tick = useTick();
   return (
     <DashboardContainer>
       <Header>
         <HeaderTitle>
           <h1>Call Center Dashboard</h1>
           <p>Live monitoring and agent status</p>
-          <div>tick: {tick}</div>
         </HeaderTitle>
         <LiveClock>
           <div className="time">{currentTime.toLocaleTimeString()}</div>
@@ -936,7 +935,6 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
                         const callerId = matchingCall
                           ? matchingCall.callerid
                           : `External Call`;
-                        console.log(matchingCall, 'matchingCall');
                         return (
                           <CallItem
                             key={`active-${agent.member_extension}`}

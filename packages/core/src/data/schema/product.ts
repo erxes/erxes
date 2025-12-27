@@ -173,6 +173,7 @@ export const queries = `
     sortDirection: Int
   ): [ProductsUsedPipeline]
   productsConfigs: [ProductsConfig]
+  lastCode(categoryId: String!): String
 `;
 
 export const mutations = `
