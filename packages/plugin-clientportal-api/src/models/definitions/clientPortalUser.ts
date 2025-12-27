@@ -47,6 +47,7 @@ export interface IUser {
   customFieldsData?: any;
   facebookId?: string;
   googleId?: string;
+  passwordHistory?: string[];
 
   // verification for company
   verificationRequest?: {
@@ -227,6 +228,8 @@ export const clientPortalUserSchema = new Schema({
 
   resetPasswordToken: field({ type: String, optional: true }),
   resetPasswordExpires: field({ type: Date, optional: true }),
+
+  passwordHistory: field({ type: [String], optional: true }),
 
   registrationToken: field({ type: String }),
   registrationTokenExpires: field({ type: Date }),

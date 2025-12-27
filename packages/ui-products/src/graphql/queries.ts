@@ -283,6 +283,12 @@ const productRules = `
     }
   }
 `;
+const lastCode = `
+  query lastCode($categoryId: String!) {
+    lastCode(categoryId: $categoryId)
+  }
+`;
+
 
 export default {
   productFields,
@@ -295,5 +301,6 @@ export default {
   configs,
   bundleRules,
   bundleRuleDetail,
-  productRules
+  productRules,
+  lastCode
 };

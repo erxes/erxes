@@ -140,6 +140,7 @@ export interface IFormProps {
   resetSubmit?: () => void;
   isSubmitted: boolean;
   isSaved?: boolean;
+  getLastCode?: (categoryId: string) => Promise<string | null>;
 }
 
 export type IOption = {

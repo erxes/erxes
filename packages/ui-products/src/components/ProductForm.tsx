@@ -52,27 +52,28 @@ type Props = {
   currencies: string[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  getLastCode?: (categoryId: string) => Promise<string | null>;
 };
 
 type State = {
-  barcodes: string[];
-  variants: IVariant;
-  barcodeInput: string;
-  barcodeDescription: string;
+  barcodes?: string[];
+  variants?: IVariant;
+  barcodeInput?: string;
+  barcodeDescription?: string;
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
   pdfAttachment?: IPdfAttachment;
-  vendorId: string;
-  description: string;
-  uom: string;
-  subUoms: { _id: string; uom: string; ratio: number }[];
-  scopeBrandIds: string[];
-  categoryId: string;
-  code: string;
+  vendorId?: string;
+  description?: string;
+  uom?: string;
+  subUoms?: { _id: string; uom: string; ratio: number }[];
+  scopeBrandIds?: string[];
+  categoryId?: string | null;
+  code?: string;
   category?: IProductCategory;
   maskStr?: string;
-  type: string;
-  currency: string;
+  type?: string;
+  currency?: string;
   bundleId?: string;
 };
 
@@ -96,7 +97,7 @@ const Form = (props: Props) => {
   } = product;
 
   const paramCategoryId = router.getParam(location, "categoryId");
-  const fixVariants = {};
+  const fixVariants: IVariant = {};
 
   for (const barcode of barcodes || []) {
     fixVariants[barcode] = (variants || {})[barcode] || {};
@@ -114,25 +115,25 @@ const Form = (props: Props) => {
     description: description || "",
     uom: uom || "",
     subUoms: subUoms || [],
-    scopeBrandIds,
+    scopeBrandIds: scopeBrandIds || [],
     code: code || "",
-    categoryId: categoryId || paramCategoryId,
+    categoryId: (categoryId as string) || (paramCategoryId as string | null) || null,
     bundleId: bundleId,
     type: product.type || "",
     currency: product.currency || "",
-    pdfAttachment: product.pdfAttachment || undefined
+    pdfAttachment: (product.pdfAttachment as IPdfAttachment) || undefined
   });
 
   useEffect(() => {
     if (!state.categoryId && props.productCategories.length > 0) {
-      setState({
-        ...state,
+      setState(prev => ({
+        ...prev,
         categoryId: props.productCategories[0]._id
-      });
+      }));
     }
   }, [state.categoryId, props.productCategories]);
 
-  const getMaskStr = categoryId => {
+  const getMaskStr = (categoryId?: string | null) => {
     const { code } = state;
     const { productCategories } = props;
 
@@ -155,7 +156,7 @@ const Form = (props: Props) => {
           maskList.push(`(${Object.values(value.matches).join("|")})`);
         }
       }
-      maskStr = `${maskList.join("")}\w+`;
+      maskStr = `${maskList.join("")}\\w+`;
 
       if (maskList.length && !code) {
         setState(prevState => ({ ...prevState, code: maskList[0] }));
@@ -210,7 +211,7 @@ const Form = (props: Props) => {
       delete pdfAttachment.__typename;
     }
 
-    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+    if (pdfAttachment?.pdf && pdfAttachment.pdf.__typename) {
       delete pdfAttachment.pdf.__typename;
     }
 
@@ -238,7 +239,7 @@ const Form = (props: Props) => {
       pdfAttachment,
       uom,
       subUoms: (subUoms || [])
-        .filter(su => su.uom)
+        .filter((su: any) => su.uom)
         .map(su => ({
           ...su,
           ratio: Math.abs(Number(su.ratio)) || 1
@@ -258,7 +259,7 @@ const Form = (props: Props) => {
       .map(e => e.code);
 
   const renderFormTrigger = (trigger: React.ReactNode) => {
-    const content = formProps => (
+    const content = (formProps: any) => (
       <CategoryForm {...formProps} categories={props.productCategories || []} />
     );
 
@@ -271,23 +272,23 @@ const Form = (props: Props) => {
     const { uoms } = props;
     const { subUoms = [] } = state;
 
-    return subUoms.map(subUom => {
-      const updateUoms = (key, value) => {
-        const { subUoms = [] } = state;
+    return (subUoms || []).map(subUom => {
+      const updateUoms = (key: string, value: any) => {
+        const subs = state.subUoms || [];
 
         setState(prevState => ({
           ...prevState,
-          subUoms: subUoms.map(su =>
+          subUoms: subs.map(su =>
             su._id === subUom._id ? { ...subUom, [key]: value } : su
           )
         }));
       };
 
-      const onChangeUom = ({ selectedOption }) => {
+      const onChangeUom = ({ selectedOption }: any) => {
         updateUoms("uom", selectedOption);
       };
 
-      const onChangeRatio = e => {
+      const onChangeRatio = (e: any) => {
         const name = e.currentTarget.name;
         let value = e.currentTarget.value;
         if (name === "inverse") {
@@ -345,7 +346,13 @@ const Form = (props: Props) => {
                 btnStyle="simple"
                 uppercase={false}
                 icon="cancel-1"
-                onClick={onClickMinusSub.bind(this, subUom._id)}
+                onClick={() => {
+                  const subs = state.subUoms || [];
+                  setState(prev => ({
+                    ...prev,
+                    subUoms: subs.filter(s => s._id !== subUom._id)
+                  }));
+                }}
               />
             </Row>
           </FormColumn>
@@ -354,7 +361,7 @@ const Form = (props: Props) => {
     });
   };
 
-  const onComboEvent = (variable: string, e) => {
+  const onComboEvent = (variable: string, e: any) => {
     let value = "";
 
     switch (variable) {
@@ -368,7 +375,7 @@ const Form = (props: Props) => {
     setState(prevState => ({ ...prevState, [variable]: value }));
   };
 
-  const onChangeUom = ({ selectedOption }) => {
+  const onChangeUom = ({ selectedOption }: any) => {
     setState(prevState => ({ ...prevState, uom: selectedOption }));
   };
 
@@ -380,7 +387,7 @@ const Form = (props: Props) => {
 
     const tempBarcodes = [...(state.barcodes || [])];
 
-    if (barcodes.includes(value)) {
+    if ((barcodes || []).includes(value)) {
       return;
     }
 
@@ -394,15 +401,14 @@ const Form = (props: Props) => {
   };
 
   const onClickAddSub = () => {
-    const subUoms = [...(state.subUoms || [])];
-
-    subUoms.push({ uom: "", ratio: 1, _id: Math.random().toString() });
-    setState(prevState => ({ ...prevState, subUoms }));
+    const subs = [...(state.subUoms || [])];
+    subs.push({ uom: "", ratio: 1, _id: Math.random().toString() });
+    setState(prevState => ({ ...prevState, subUoms: subs }));
   };
 
-  const onClickMinusSub = id => {
-    const subUoms = state.subUoms;
-    const filteredUoms = subUoms.filter(sub => sub._id !== id);
+  const onClickMinusSub = (id: string) => {
+    const subs = state.subUoms || [];
+    const filteredUoms = subs.filter(sub => sub._id !== id);
 
     setState(prevState => ({ ...prevState, subUoms: filteredUoms }));
   };
@@ -429,14 +435,14 @@ const Form = (props: Props) => {
     }));
   };
 
-  const onChangeBarcodeInput = e => {
+  const onChangeBarcodeInput = (e: any) => {
     setState(prevState => ({ ...prevState, barcodeInput: e.target.value }));
 
-    if (e.target.value.length - state.barcodeInput.length > 1)
+    if (e.target.value.length - (state.barcodeInput || "").length > 1)
       updateBarcodes(e.target.value);
   };
 
-  const onKeyDownBarcodeInput = e => {
+  const onKeyDownBarcodeInput = (e: any) => {
     if (e.key === "Enter") {
       e.preventDefault();
 
@@ -447,11 +453,11 @@ const Form = (props: Props) => {
   const onClickBarcode = (value: string) => {
     setState(prevState => ({
       ...prevState,
-      barcodes: state.barcodes.filter(b => b !== value)
+      barcodes: (state.barcodes || []).filter(b => b !== value)
     }));
   };
 
-  const onChangeCateogry = option => {
+  const onChangeCateogry = (option: any) => {
     const value = option.value;
 
     setState(prevState => ({
@@ -461,7 +467,7 @@ const Form = (props: Props) => {
     }));
   };
 
-  const onChangeCurrency = option => {
+  const onChangeCurrency = (option: any) => {
     const value = option.value;
 
     setState(prevState => ({
@@ -469,7 +475,7 @@ const Form = (props: Props) => {
       currency: value
     }));
   };
-  const onChangeBundle = option => {
+  const onChangeBundle = (option: any) => {
     const value = option?.value;
 
     setState(prevState => ({
@@ -487,14 +493,14 @@ const Form = (props: Props) => {
       return <></>;
     }
 
-    const onChangePerImage = (item, e) => {
+    const onChangePerImage = (item: any, e: any) => {
       const value = e.target.value;
       setState(prevState => ({
         ...prevState,
         variants: {
-          ...variants,
+          ...(variants || {}),
           [item]: {
-            ...variants[item],
+            ...((variants || {})[item] || {}),
             image: (attachmentMore || []).find(a => a.url === value)
           }
         }
@@ -512,24 +518,24 @@ const Form = (props: Props) => {
           </tr>
         </thead>
         <tbody>
-          {barcodes.map((item: any) => (
-            <tr>
+          {(barcodes || []).map((item: any) => (
+            <tr key={item}>
               <td>
-                <BarcodeItem key={item} onClick={() => onClickBarcode(item)}>
+                <BarcodeItem onClick={() => onClickBarcode(item)}>
                   {item}
                 </BarcodeItem>
               </td>
               <td>
                 <FormControl
                   name="name"
-                  value={(variants[item] || {}).name || ""}
+                  value={((variants || {})[item] || {}).name || ""}
                   onChange={e =>
                     setState(prevState => ({
                       ...prevState,
                       variants: {
-                        ...variants,
+                        ...(variants || {}),
                         [item]: {
-                          ...variants[item],
+                          ...((variants || {})[item] || {}),
                           name: (e.target as any).value
                         }
                       }
@@ -541,7 +547,7 @@ const Form = (props: Props) => {
                 <FormControl
                   name="image"
                   componentclass="select"
-                  value={((variants[item] || {}).image || {}).url || ""}
+                  value={(((variants || {})[item] || {}).image || {}).url || ""}
                   onChange={onChangePerImage.bind(this, item)}
                 >
                   <option key={Math.random()} value="">
@@ -570,7 +576,7 @@ const Form = (props: Props) => {
     );
   };
 
-  const renderEditorField = (formProps: IFormProps, addinitionalProps) => {
+  const renderEditorField = (formProps: IFormProps, addinitionalProps: any) => {
     const { _id, description } = addinitionalProps;
 
     const finalProps = {
@@ -666,12 +672,23 @@ const Form = (props: Props) => {
                   {...formProps}
                   placeholder={__("Choose a category")}
                   value={generateOptions().find(
-                    option => option.value === categoryId
+                    (option) => option.value === categoryId
                   )}
                   options={generateOptions()}
                   isClearable={true}
-                  onChange={onChangeCateogry}
+                  onChange={async (option: any) => {
+                    const categoryId = option?.value;
+                    setState(prev => ({ ...prev, categoryId }));
+
+                    if (props.getLastCode) {
+                      const result = await props.getLastCode(categoryId);
+                      if (result) {
+                        setState(prev => ({ ...prev, code: result }));
+                      }
+                    }
+                  }}
                 />
+
                 {renderFormTrigger(trigger)}
               </Row>
             </FormGroup>
@@ -681,18 +698,20 @@ const Form = (props: Props) => {
               <p>
                 Depending on your business type, you may type in a barcode or
                 any other UPC (Universal Product Code). If you don't use UPC,
-                type in any numeric value to differentiate your products. With
-                pattern {maskStr}
+                The system automatically generates the next code by looking at 
+                all existing products in the same category and selecting the 
+                one with the longest and largest numeric value.{maskStr}
               </p>
               <FormControl
                 {...formProps}
+                type="text"
                 name="code"
-                value={code}
+                value={code || ""}
                 required={true}
                 onChange={(e: any) => {
-                  setState(prevState => ({
+                  setState((prevState) => ({
                     ...prevState,
-                    code: e.target.value.replace(/\*/g, "")
+                    code: e.target.value.replace(/\*/g, ""),
                   }));
                 }}
               />
@@ -727,15 +746,15 @@ const Form = (props: Props) => {
                 componentclass="select"
                 defaultValue={object.type}
                 required={true}
-                onChange={e =>
-                  setState(prevState => ({
+                onChange={(e: any) =>
+                  setState((prevState) => ({
                     ...prevState,
-                    type: (e.target as HTMLInputElement).value
+                    type: (e.target as HTMLInputElement).value,
                   }))
                 }
               >
                 {Object.keys(TYPES)
-                  .filter(type => type !== "ALL")
+                  .filter((type) => type !== "ALL")
                   .map((typeName, index) => (
                     <option key={index} value={TYPES[typeName]}>
                       {typeName}
@@ -771,7 +790,7 @@ const Form = (props: Props) => {
                 {...formProps}
                 placeholder={__("Choose a currency")}
                 value={generateCurrencyOptions().find(
-                  option => option.value === currency
+                  (option) => option.value === currency
                 )}
                 options={generateCurrencyOptions()}
                 isClearable={true}
@@ -784,7 +803,7 @@ const Form = (props: Props) => {
                 {...formProps}
                 placeholder={__("Choose a bundle")}
                 value={generateBundleRuleOptions().find(
-                  option => option.value === bundleId
+                  (option) => option.value === bundleId
                 )}
                 options={generateBundleRuleOptions()}
                 isClearable={true}
@@ -808,7 +827,7 @@ const Form = (props: Props) => {
               <ControlLabel>Brand</ControlLabel>
               <SelectBrands
                 label={__("Choose brands")}
-                onSelect={brandIds => onChangeBrand(brandIds as string[])}
+                onSelect={(brandIds) => onChangeBrand(brandIds as string[])}
                 initialValue={scopeBrandIds}
                 multi={true}
                 name="selectedBrands"
@@ -839,9 +858,9 @@ const Form = (props: Props) => {
               <PdfUploader
                 attachment={state.pdfAttachment}
                 onChange={(attachment?: IPdfAttachment) => {
-                  setState(prevState => ({
+                  setState((prevState) => ({
                     ...prevState,
-                    pdfAttachment: attachment
+                    pdfAttachment: attachment,
                   }));
                 }}
               />
@@ -853,7 +872,7 @@ const Form = (props: Props) => {
                 <FormControl
                   {...formProps}
                   name="barcodes"
-                  value={state.barcodeInput}
+                  value={state.barcodeInput || ""}
                   autoComplete="off"
                   onChange={onChangeBarcodeInput}
                   onKeyDown={onKeyDownBarcodeInput}
@@ -872,11 +891,11 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel>Barcode Description</ControlLabel>
               <RichTextEditor
-                content={barcodeDescription}
+                content={barcodeDescription || ""}
                 onChange={onChangeBarcodeDescription}
                 height={150}
                 isSubmitted={formProps.isSaved}
-                name={`product_barcode_description_${barcodeDescription}`}
+                name={`product_barcode_description_${barcodeDescription || ""}`}
                 toolbar={[
                   "bold",
                   "italic",
@@ -885,7 +904,7 @@ const Form = (props: Props) => {
                   "link",
                   "unlink",
                   "|",
-                  "image"
+                  "image",
                 ]}
               />
             </FormGroup>
@@ -932,7 +951,7 @@ const Form = (props: Props) => {
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: product
+            object: product,
           })}
         </ModalFooter>
       </>
