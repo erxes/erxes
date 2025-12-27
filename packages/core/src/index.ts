@@ -14,9 +14,9 @@ import * as path from 'path';
 import { initApolloServer } from './apolloClient';
 import { templateExport } from './data/modules/fileExporter/templateExport';
 import { buildChartFile } from './data/modules/insight/export';
-import multer from 'multer';
-import tmp from 'tmp';
-
+import * as multer from 'multer';
+import * as tmp from 'tmp';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 
 import {
@@ -518,7 +518,6 @@ app.post(
   upload.single('chunk'),
   async (req: any, res: any) => {
     const subdomain = getSubdomain(req);
-    const domain = DOMAIN?.replace('<subdomain>', subdomain);
     const models = await generateModels(subdomain);
 
     const { uploadId, chunkIndex } = req.body;
@@ -528,7 +527,7 @@ app.post(
       return res.status(400).json({ error: 'Missing data' });
     }
 
-    let uploadInfo = chunkStore.get(uploadId);
+    const uploadInfo = chunkStore.get(uploadId);
     if (!uploadInfo) {
       return res
         .status(404)

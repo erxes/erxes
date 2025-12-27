@@ -34,6 +34,31 @@ const ToggleButton = styled(styled.div(Delete as any))`
   }
 `;
 
+const ProgressContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ProgressTrack = styled.div`
+  position: relative;
+  width: 100px;
+  height: 4px;
+  border-radius: 4px;
+  background: ${rgba(colors.colorCoreDarkBlue, 0.15)};
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div<{ percent: number }>`
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: ${(props) => Math.max(0, Math.min(100, props.percent))}%;
+  background: ${colors.colorSecondary};
+  transition: width 0.2s ease;
+`;
+
 type Props = {
   attachments: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
@@ -61,7 +86,22 @@ function AttachmentsGallery(props: Props) {
       confirm().then(() => removeAttachment(index));
     };
 
-    const remove = <Delete onClick={onRemove}>{__('Delete')}</Delete>;
+    const uploading = (item as any).uploading;
+    const progress = (item as any).progress || 0;
+
+    const extra = (
+      <>
+        {uploading && (
+          <ProgressContainer>
+            <span>{__('Uploading')} {progress}%</span>
+            <ProgressTrack>
+              <ProgressFill percent={progress} />
+            </ProgressTrack>
+          </ProgressContainer>
+        )}
+        <Delete onClick={onRemove}>{__('Delete')}</Delete>
+      </>
+    );
 
     return (
       <Item key={item.url}>
@@ -69,7 +109,7 @@ function AttachmentsGallery(props: Props) {
           attachment={item}
           attachments={props.attachments}
           index={index}
-          additionalItem={remove}
+          additionalItem={extra}
         />
       </Item>
     );

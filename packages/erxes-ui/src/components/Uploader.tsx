@@ -14,7 +14,7 @@ import { Meta } from './Attachment';
 import Tip from './Tip';
 
 const LoadingContainer = styledTS<{ showOnlyIcon?: boolean }>(styled.div)`
-  ${(props) =>
+  ${(props: { showOnlyIcon?: boolean }) =>
     props.showOnlyIcon
       ? `
   height: 20px;
@@ -109,8 +109,13 @@ type Props = {
   hideUploadButtonOnLoad?: boolean;
 };
 
+type AttachmentWithProgress = IAttachment & {
+  progress?: number;
+  uploading?: boolean;
+};
+
 type State = {
-  attachments: IAttachment[];
+  attachments: AttachmentWithProgress[];
   loading: boolean;
 };
 
@@ -129,7 +134,7 @@ class Uploader extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: any) {
     if (
       JSON.stringify(nextProps.defaultFileList) !==
       JSON.stringify(this.props.defaultFileList)
@@ -138,37 +143,71 @@ class Uploader extends React.Component<Props, State> {
     }
   }
 
-  handleFileInput = ({ target }) => {
+  handleFileInput = ({ target }: { target: HTMLInputElement }) => {
     const files = target.files;
 
     uploadHandler({
       files,
 
       beforeUpload: () => {
-        this.setState({
-          loading: true,
-        });
+        this.setState({ loading: true });
       },
 
-      afterUpload: ({ status, response, fileInfo }) => {
+      afterUpload: ({ status, response, fileInfo, progress }) => {
         if (status !== 'ok') {
-          Alert.error(response.statusText);
-          return this.setState({ loading: false });
+          Alert.error(response?.statusText || response || 'Upload failed');
+          this.setState({ loading: false });
+          return;
+        }
+
+        if (progress !== undefined && progress < 100) {
+          // Update progress for this file
+          this.setState((prev) => ({
+            attachments: prev.attachments.map((a) =>
+              a.name === fileInfo.name && a.size === fileInfo.size
+                ? { ...a, progress }
+                : a
+            ),
+          }));
+          return;
         }
 
         Alert.info('Success');
 
-        // set attachments
-        const attachment = { url: response, ...fileInfo };
+        const attachment: AttachmentWithProgress = {
+          url: response,
+          ...fileInfo,
+          progress: 100,
+          uploading: false,
+        };
 
         const attachments = [attachment, ...this.state.attachments];
 
-        this.props.onChange(attachments);
+        this.props.onChange(
+          attachments.map(({ progress, uploading, ...a }) => a)
+        ); // strip temp fields
 
         this.setState({
           loading: false,
           attachments,
         });
+      },
+
+      afterRead: ({ result, fileInfo }) => {
+        // Add preview immediately
+        this.setState((prev) => ({
+          attachments: [
+            {
+              url: result,
+              name: fileInfo.name,
+              size: fileInfo.size,
+              type: fileInfo.type,
+              progress: 0,
+              uploading: true,
+            },
+            ...prev.attachments,
+          ],
+        }));
       },
     });
 
@@ -201,12 +240,12 @@ class Uploader extends React.Component<Props, State> {
       return (
         <UploadIconBtn>
           <label>
-            <Tip text={__('Attach file')} placement="top">
+            <Tip text={__('Attach file')} placement='top'>
               <Icon icon={icon || 'attach'} />
             </Tip>
 
             <input
-              type="file"
+              type='file'
               multiple={multiple}
               onChange={this.handleFileInput}
               accept={accept || ''}
@@ -222,7 +261,7 @@ class Uploader extends React.Component<Props, State> {
           <label>
             {__('Upload an attachment')}
             <input
-              type="file"
+              type='file'
               multiple={multiple}
               onChange={this.handleFileInput}
               accept={accept || ''}
@@ -244,7 +283,7 @@ class Uploader extends React.Component<Props, State> {
           </div>
 
           <input
-            type="file"
+            type='file'
             multiple={multiple}
             onChange={this.handleFileInput}
             accept={accept || ''}
