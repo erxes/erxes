@@ -1,21 +1,9 @@
-import {
-  Form,
-  Label,
-  MultipleSelector,
-  MultiSelectOption,
-  Button,
-} from 'erxes-ui';
-import {
-  useMemo,
-  useState,
-  useEffect,
-  useCallback,
-  type MutableRefObject,
-} from 'react';
+import { Form, Label, Button } from 'erxes-ui';
+import { useState, useEffect, useCallback, type MutableRefObject } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { PosFormData } from '@/pos/components/pos-create/PosCreate';
 import { SelectBranches, SelectCategory, SelectProduct } from 'ui-modules';
-import { usePayments } from '@/pos/hooks/usePayments';
+import { SelectPayment } from '@/pos/components/payment/SelectPayment';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
@@ -33,20 +21,6 @@ export const EcommerceFields = ({
   const [excludedCategoryIds, setExcludedCategoryIds] = useState<string[]>([]);
   const [excludedProductIds, setExcludedProductIds] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
-
-  const { payments, loading: paymentsLoading } = usePayments({
-    status: 'active',
-  });
-
-  const paymentOptions: MultiSelectOption[] = useMemo(
-    () =>
-      payments.map((payment) => ({ value: payment._id, label: payment.name })),
-    [payments],
-  );
-  const selectedPaymentIds = form.watch('paymentIds') || [];
-  const selectedPayments = paymentOptions.filter((opt) =>
-    selectedPaymentIds.includes(opt.value),
-  );
 
   const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
 
@@ -107,20 +81,15 @@ export const EcommerceFields = ({
         <Label htmlFor="paymentIds" className="text-sm font-medium">
           Choose payment
         </Label>
-        <MultipleSelector
-          value={selectedPayments}
-          onChange={(values) =>
-            form.setValue(
-              'paymentIds',
-              values.map((v) => v.value),
-              { shouldValidate: true },
-            )
+        <SelectPayment
+          mode="multiple"
+          value={form.watch('paymentIds') || []}
+          onValueChange={(value) =>
+            form.setValue('paymentIds', value as string[], {
+              shouldValidate: true,
+            })
           }
-          defaultOptions={paymentOptions}
-          placeholder={paymentsLoading ? 'Loading...' : 'Select payments'}
-          hidePlaceholderWhenSelected
-          disabled={paymentsLoading}
-          className="w-full bg-background"
+          placeholder="Select payments"
         />
       </div>
 
