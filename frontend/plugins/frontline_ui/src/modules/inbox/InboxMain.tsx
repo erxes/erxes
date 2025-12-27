@@ -8,7 +8,7 @@ const Inbox = lazy(() =>
   })),
 );
 
-const InboxMain = () => {
+export const InboxMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -18,5 +18,3 @@ const InboxMain = () => {
     </Suspense>
   );
 };
-
-export default InboxMain;

@@ -3,7 +3,7 @@ import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsCompon
 import { CoreWidgets } from '../core-widgets/CoreWidgets';
 
 export const WidgetsComponent = (props: IRelationWidgetProps) => {
-  const { module, pluginName } = props;
+  const { pluginName } = props;
 
   if (pluginName === 'core') {
     return <CoreWidgets {...props} />;
@@ -13,7 +13,6 @@ export const WidgetsComponent = (props: IRelationWidgetProps) => {
     <RenderPluginsComponent
       pluginName={`${pluginName}_ui`}
       remoteModuleName="relationWidget"
-      moduleName={module}
       props={props}
     />
   );
