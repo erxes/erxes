@@ -46,7 +46,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
   >(initialDescriptionContent);
 
   const editor = useBlockEditor({
-    initialContent: descriptionContent,
+    initialContent: descriptionContent?.length ? descriptionContent : undefined,
     placeholder: 'Description...',
   });
   const { updateTask } = useUpdateTask();
