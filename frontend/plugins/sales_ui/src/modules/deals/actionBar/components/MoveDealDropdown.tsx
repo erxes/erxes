@@ -11,6 +11,10 @@ import { IconLayoutBoard } from '@tabler/icons-react';
 export const MoveDealDropdown = ({ dealId }: { dealId: string }) => {
   const deal = useAtomValue(dealBoardItemAtom)(dealId);
 
+  if (!deal) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
