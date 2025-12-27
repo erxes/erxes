@@ -16,7 +16,9 @@ import {
   IUpdateMessengerCustomerParams,
   IVisitorContactInfoParams,
 } from '../../@types/customer';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
+import { generateCustomerActivityLogs } from '../../utils/activityLogs';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -91,7 +93,11 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   }): Promise<ICustomerDocument[]>;
 }
 
-export const loadCustomerClass = (models: IModels) => {
+export const loadCustomerClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Customer {
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
@@ -173,11 +179,30 @@ export const loadCustomerClass = (models: IModels) => {
       }
 
       const pssDoc = models.Customers.calcPSS(doc);
-
-      const customer = await models.Customers.create({
+      const newDoc = {
         ...doc,
         ...pssDoc,
+      };
+
+      const customer = await models.Customers.create(newDoc);
+
+      sendDbEventLog({
+        action: 'create',
+        docId: customer._id,
+        currentDocument: customer.toObject(),
       });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: customer._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Customer created',
+        },
+        changes: {},
+      });
+
       return models.Customers.getCustomer(customer._id);
     }
 
@@ -206,18 +231,44 @@ export const loadCustomerClass = (models: IModels) => {
         ...doc,
       });
 
-      return await models.Customers.findOneAndUpdate(
+      const modifiedDoc = { ...doc, ...pssDoc };
+
+      const updatedCustomer = await models.Customers.findOneAndUpdate(
         { _id },
-        { $set: { ...doc, ...pssDoc } },
+        { $set: modifiedDoc },
         { new: true },
       );
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: oldCustomer,
+        });
+        generateCustomerActivityLogs(
+          oldCustomer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedCustomer;
     }
 
     /**
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
-      return models.Customers.deleteMany({ _id: { $in: customerIds } });
+      const response = await models.Customers.deleteMany({
+        _id: { $in: customerIds },
+      });
+
+      sendDbEventLog({
+        action: 'deleteMany',
+        docIds: customerIds,
+      });
+      return response;
     }
 
     /**
@@ -309,18 +360,6 @@ export const loadCustomerClass = (models: IModels) => {
         newTypeId: customer._id,
         oldTypeIds: customerIds,
       });
-
-      //  await sendTRPCMessage({subdomain,
-
-      //     pluginName: 'frontline',
-      //     method: 'mutation',
-      //     module: 'inbox',
-      //     action: 'changeCustomer',
-      //     input: {
-      //       customerId: customer._id,
-      //       customerIds,
-      //     },
-      //   });
 
       return customer;
     }
@@ -465,6 +504,19 @@ export const loadCustomerClass = (models: IModels) => {
 
       await models.Customers.updateOne({ _id }, { $set: pssDoc });
 
+      sendDbEventLog({
+        action: 'update',
+        docId: _id,
+        currentDocument: { ...pssDoc, ...modifier },
+        prevDocument: customer.toObject(),
+      });
+      generateCustomerActivityLogs(
+        customer,
+        updateCustomer,
+        models,
+        createActivityLog,
+      );
+
       return models.Customers.findOne({ _id });
     }
 
@@ -534,7 +586,22 @@ export const loadCustomerClass = (models: IModels) => {
 
       await models.Customers.updateOne({ _id: customerId }, { $set: pssDoc });
 
-      return models.Customers.getCustomer(customerId);
+      const updatedCustomer = await models.Customers.getCustomer(customerId);
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: customerId,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: customer.toObject(),
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+      return updatedCustomer;
     }
 
     public static async updateVerificationStatus(
@@ -551,8 +618,15 @@ export const loadCustomerClass = (models: IModels) => {
         { _id: { $in: customerIds } },
         { $set: set },
       );
-
-      return models.Customers.find({ _id: { $in: customerIds } });
+      const updatedCustomers = await models.Customers.find({
+        _id: { $in: customerIds },
+      });
+      sendDbEventLog({
+        action: 'updateMany',
+        docIds: customerIds,
+        updateDescription: set,
+      });
+      return updatedCustomers;
     }
 
     /*
@@ -591,28 +665,62 @@ export const loadCustomerClass = (models: IModels) => {
      * Change state
      */
     public static async changeState(_id: string, value: string) {
-      await models.Customers.findByIdAndUpdate(
+      const customer = await models.Customers.getCustomer(_id);
+
+      const updatedCustomer = await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { state: value },
         },
       );
 
-      return models.Customers.findOne({ _id });
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: customer.toObject(),
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedCustomer;
     }
 
     /*
      * Update customer's location info
      */
     public static async updateLocation(_id: string, browserInfo: IBrowserInfo) {
-      await models.Customers.findByIdAndUpdate(
+      const customer = await models.Customers.getCustomer(_id);
+
+      const updatedCustomer = await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { location: browserInfo },
         },
       );
 
-      return models.Customers.findOne({ _id });
+      if (updatedCustomer) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updatedCustomer.toObject(),
+          prevDocument: customer.toObject(),
+        });
+        generateCustomerActivityLogs(
+          customer,
+          updatedCustomer,
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedCustomer;
     }
 
     /*

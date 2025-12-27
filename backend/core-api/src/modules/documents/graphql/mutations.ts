@@ -17,16 +17,6 @@ export const documentMutations = {
       _id,
       doc: { ...doc, createdUserId: user._id },
     });
-
-    // await sendMessage({
-    //   serviceName: 'core',
-    //   subdomain,
-    //   action: 'registerOnboardHistory',
-    //   data: {
-    //     type: 'documentTemplateCreate',
-    //     user,
-    //   },
-    // });
   },
 
   documentsRemove: async (
@@ -34,7 +24,9 @@ export const documentMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return await models.Documents.findOneAndDelete({ _id });
+    const document = await models.Documents.getDocument({ _id });
+
+    return await models.Documents.findOneAndDelete({ _id: document._id });
   },
 };
 

@@ -9,11 +9,13 @@ import { useAuth } from '@/auth/hooks/useAuth';
 import { User } from '@/navigation/components/User';
 import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { SelectLanguages } from '@/navigation/components/SelectLanguages';
+import { useTranslation } from 'react-i18next';
 import { OrgLogoIcon } from '@/auth/components/Logo';
 
 export function Organization() {
   const [currentOrganization] = useAtom(currentOrganizationState);
   const { handleLogout } = useAuth();
+  const { t } = useTranslation('organization');
 
   return (
     <DropdownMenu>
@@ -45,7 +47,7 @@ export function Organization() {
         <DropdownMenu.Separator />
         <DropdownMenu.Item asChild>
           <Link to="/settings" className="text-sm">
-            Settings
+            {t('settings')}
           </Link>
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
@@ -53,11 +55,11 @@ export function Organization() {
         <SelectLanguages />
         <DropdownMenu.Separator />
         <DropdownMenu.Item className="text-sm" onClick={() => handleLogout()}>
-          Logout
+          {t('logout')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Label className="flex items-center gap-2">
-          Version
+          {t('version')}
           <span className="text-primary ml-auto tracking-wider">
             3.0.0-beta.1
           </span>

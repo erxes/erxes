@@ -4,6 +4,7 @@ import {
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 import { roleSchema } from '../definitions/roles';
@@ -14,7 +15,11 @@ export interface IRoleModel extends Model<IRoleDocument> {
   updateRole(doc: IRole, user: IUserDocument): Promise<IRoleDocument>;
 }
 
-export const loadRoleClass = (models: IModels) => {
+export const loadRoleClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Role {
     public static async validateRole(doc: IRole, user: IUserDocument) {
       const { userId: targetUserId, role: newRole } = doc || {};
@@ -78,7 +83,13 @@ export const loadRoleClass = (models: IModels) => {
           userRole.role = PERMISSION_ROLES.OWNER;
         }
 
-        return await models.Roles.create(userRole);
+        const newRole = await models.Roles.create(userRole);
+        sendDbEventLog({
+          action: 'create',
+          docId: newRole._id,
+          currentDocument: newRole.toObject(),
+        });
+        return newRole;
       }
 
       return role;
@@ -95,7 +106,13 @@ export const loadRoleClass = (models: IModels) => {
         throw new Error('Role already exists');
       }
 
-      return await models.Roles.create(doc);
+      const newRole = await models.Roles.create(doc);
+      sendDbEventLog({
+        action: 'create',
+        docId: newRole._id,
+        currentDocument: newRole.toObject(),
+      });
+      return newRole;
     }
 
     public static async updateRole(doc: IRole, user: IUserDocument) {
@@ -103,9 +120,19 @@ export const loadRoleClass = (models: IModels) => {
 
       const { userId } = doc;
 
-      return await models.Roles.findOneAndUpdate({ userId }, doc, {
+      const oldRole = await models.Roles.findOne({ userId });
+      const updatedRole = await models.Roles.findOneAndUpdate({ userId }, doc, {
         new: true,
       });
+      if (updatedRole && oldRole) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedRole._id,
+          currentDocument: updatedRole.toObject(),
+          prevDocument: oldRole.toObject(),
+        });
+      }
+      return updatedRole;
     }
   }
 

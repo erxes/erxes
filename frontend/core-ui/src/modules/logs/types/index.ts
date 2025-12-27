@@ -1,15 +1,15 @@
 import { IPageInfo, IUser } from 'ui-modules';
 
 export enum ILogSourceType {
-  webhook = 'webhook',
-  graphql = 'graphql',
-  mongo = 'mongo',
-  auth = 'auth',
+  WEBHOOK = 'webhook',
+  GRAPHQL = 'graphql',
+  MONGO = 'mongo',
+  AUTH = 'auth',
 }
 
 export enum ILogStatusType {
-  failed = 'failed',
-  success = 'success',
+  FAILED = 'failed',
+  SUCCESS = 'success',
 }
 
 export interface ILogDoc {
