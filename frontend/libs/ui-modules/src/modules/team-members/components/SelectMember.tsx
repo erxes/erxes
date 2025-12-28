@@ -474,14 +474,12 @@ export const SelectMemberRoot = ({
 export const SelectMemberCustomDetail = ({
   onValueChange,
   className,
-  size = 'xl',
-  placeholder,
+  size = 'lg',
   value,
   ...props
 }: Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> & {
   className?: string;
   size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
-  placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (

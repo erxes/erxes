@@ -54,7 +54,7 @@ export const AddProjectForm = ({
   });
   useEffect(() => {
     form.setFocus('name');
-  }, [form]);
+  }, []);
 
   const { teams } = useGetCurrentUsersTeams({
     skip: !!teamId,
