@@ -56,6 +56,13 @@ export const projectQueries: Record<string, Resolver> = {
       filterQuery.memberIds = { $in: filter.memberIds };
     }
 
+    if (filter.memberId) {
+      filterQuery.$or = [
+        { memberIds: { $in: [filter.memberId] } },
+        { leadId: filter.memberId },
+      ];
+    }
+
     if (filter.tagIds && filter.tagIds.length > 0) {
       filterQuery.tagIds = { $in: filter.tagIds };
     }
@@ -68,7 +75,7 @@ export const projectQueries: Record<string, Resolver> = {
 
     if (
       (filter.teamIds && filter.teamIds.length <= 0 && filter.userId) ||
-      !filter.teamIds
+      (!filter.teamIds && !filter.memberId)
     ) {
       const teamIds = await models.TeamMember.find({
         memberId: filter.userId,

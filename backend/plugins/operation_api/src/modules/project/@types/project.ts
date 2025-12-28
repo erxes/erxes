@@ -30,6 +30,7 @@ export interface IProjectFilter extends ICursorPaginateParams, IListParams {
   targetDate?: Date;
   leadId?: string;
   memberIds?: string[];
+  memberId?: string;
   status?: number;
   userId?: string;
   active?: boolean;

@@ -38,6 +38,7 @@ input IProjectFilter {
     tagIds: [String]
     leadId: String
     memberIds: [String]
+    memberId: String
     startDate: Date
     targetDate: Date
     userId: String
