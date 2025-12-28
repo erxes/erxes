@@ -130,6 +130,7 @@ export const handleMainACMore = async (subdomain: string, models: IModels, filte
       { $match: match },
       { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
       { $match: match },
+      { $sort: { date: 1 } }
     ])
   };
 

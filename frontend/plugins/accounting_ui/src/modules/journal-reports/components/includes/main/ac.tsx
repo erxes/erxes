@@ -2,8 +2,9 @@ import { displayNum, ReportTable } from "erxes-ui";
 import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
 import { AccountKind } from "~/modules/settings/account/types/Account";
 import { TR_SIDES } from "~/modules/transactions/types/constants";
+import { CalcReportResult } from "..";
 
-export const HandleMainAC = (dic: any, groupRule: IGroupRule, attr: string) => {
+export const HandleMainAC = (dic: any, groupRule: IGroupRule, attr: string): CalcReportResult => {
   const { items } = dic;
   let [fr_diff, tr_dt, tr_ct, lr_diff] = [0, 0, 0, 0];
   let rem = 0;
@@ -35,14 +36,18 @@ export const HandleMainAC = (dic: any, groupRule: IGroupRule, attr: string) => {
     }
   }
 
-  return (
-    <>
-      <ReportTable.Cell>{fr_diff > 0 && displayNum(fr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell>{fr_diff < 0 && displayNum(-1 * fr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell>{displayNum(tr_dt)}</ReportTable.Cell>
-      <ReportTable.Cell>{displayNum(tr_ct)}</ReportTable.Cell>
-      <ReportTable.Cell>{lr_diff > 0 && displayNum(lr_diff) || ''}</ReportTable.Cell>
-      <ReportTable.Cell>{lr_diff < 0 && displayNum(-1 * lr_diff) || ''}</ReportTable.Cell>
-    </>
-  )
+  return {
+    lastNode: (
+      <>
+        <ReportTable.Cell>{displayNum(fr_diff > 0 ? fr_diff : 0)}</ReportTable.Cell>
+        <ReportTable.Cell>{displayNum(fr_diff < 0 ? -1 * fr_diff : 0)}</ReportTable.Cell>
+        <ReportTable.Cell>{displayNum(tr_dt)}</ReportTable.Cell>
+        <ReportTable.Cell>{displayNum(tr_ct)}</ReportTable.Cell>
+        <ReportTable.Cell>{displayNum(lr_diff > 0 ? lr_diff : 0)}</ReportTable.Cell>
+        <ReportTable.Cell>{displayNum(lr_diff < 0 ? -1 * lr_diff : 0)}</ReportTable.Cell>
+      </>
+    ),
+    lastData: { fr_diff },
+  }
+
 }

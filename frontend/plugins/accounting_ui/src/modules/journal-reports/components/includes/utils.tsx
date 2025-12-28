@@ -1,5 +1,4 @@
 import { displayNum } from "erxes-ui";
-import get from "lodash/get";
 import { IGroupRule } from "../../types/reportsMap";
 
 
@@ -85,7 +84,11 @@ export const moreDataByKey = (moreData: { [key: string]: any[] }, trDetails: any
   const rules = getFirstGroupRule([], groupRule);
 
   trDetails.forEach((tr) => {
-    const key = rules.map(rule => get(tr, rule)).join('#');
+    const key = rules
+      .map(rule =>
+        rule.split('.').reduce((acc, k) => acc?.[k], tr)
+      )
+      .join('#');
 
     if (!moreData[key]) {
       moreData[key] = []

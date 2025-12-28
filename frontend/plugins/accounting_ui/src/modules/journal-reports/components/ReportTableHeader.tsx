@@ -25,17 +25,7 @@ export const ReportTableHeader = () => {
         </>
       )
     case 'ac':
-      return (
-        <ReportTable.Row>
-          <ReportTable.Head>Огноо</ReportTable.Head>
-          <ReportTable.Head>Харилцагч</ReportTable.Head>
-          <ReportTable.Head>Гүйлгээний утга</ReportTable.Head>
-          <ReportTable.Head>Валют дүн</ReportTable.Head>
-          <ReportTable.Head>Дебет</ReportTable.Head>
-          <ReportTable.Head>Кредит</ReportTable.Head>
-          <ReportTable.Head>Үлдэгдэл</ReportTable.Head>
-          <ReportTable.Head>Харьцсан данс</ReportTable.Head>
-        </ReportTable.Row>
+      return (<></>
       )
     default:
       return <></>

@@ -1,45 +1,83 @@
+import { format } from 'date-fns';
 import { cn, displayNum, ReportTable } from "erxes-ui";
-import { useAtomValue } from "jotai";
-import { moreDataState } from "~/modules/journal-reports/states/renderingReportsStates";
-import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
+import { TR_SIDES } from "~/modules/transactions/types/constants";
 
-export const HandleMainACMore = (parent: string, child: string, groupRule: IGroupRule[]) => {
-  const parentRules = parent.split('*').map(p => p.split('+'));
-  const [leafGroup, leafId] = child.split('+');
-  const perkey = `${parentRules?.map(pr => pr[1]).join('#')}#${leafId}`;
-  const allMoreData = useAtomValue(moreDataState);
+export const HandleMainACMore = ({ moreData, currentKey, nodeData }: { moreData: any[], currentKey: string, nodeData: any }) => {
+  const { fr_diff = 0 } = nodeData;
+  const rows: any[] = [];
+  let rem = fr_diff;
 
-  const moreData = allMoreData?.[perkey] || [];
+  moreData.forEach(md => {
+    const multiplier = md.details.side === TR_SIDES.DEBIT ? 1 : -1;
+    rem += multiplier * md.details.amount;
+    rows.push({
+      ...md,
+      remainder: rem
+    })
+  });
 
-  // moreData Context
   return (
     <ReportTable.Row
-      key={perkey}
+      key={currentKey}
       className={cn('text-right')}
     >
       <ReportTable.Cell colSpan={8} className="p-0">
         <ReportTable>
           <ReportTable.Header>
-
+            <ReportTable.Row>
+              <ReportTable.Head>Огноо</ReportTable.Head>
+              <ReportTable.Head>Дугаар</ReportTable.Head>
+              <ReportTable.Head>Харилцагч</ReportTable.Head>
+              <ReportTable.Head>Гүйлгээний утга</ReportTable.Head>
+              <ReportTable.Head>Валют дүн</ReportTable.Head>
+              <ReportTable.Head>Дебет</ReportTable.Head>
+              <ReportTable.Head>Кредит</ReportTable.Head>
+              <ReportTable.Head>Үлдэгдэл</ReportTable.Head>
+              <ReportTable.Head>Харьцсан данс</ReportTable.Head>
+            </ReportTable.Row>
           </ReportTable.Header>
-          <ReportTable.Body >
-            {moreData.map(tr => (
+          <ReportTable.Body>
+
+            {rows.map((tr, ind) => (
               <ReportTable.Row
                 className={cn('')}
               >
-                <ReportTable.Cell
-                  className={cn(`text-left `)}
-                >
-                  {parent}
+                <ReportTable.Cell className="text-left">
+                  {format(new Date(tr.date), 'yyyy-MM-dd')}
                 </ReportTable.Cell>
                 <ReportTable.Cell className="text-left">
-                  {child}
+                  {tr.number}
                 </ReportTable.Cell>
                 <ReportTable.Cell className="text-left">
-                  {tr.date}
+                  
                 </ReportTable.Cell>
                 <ReportTable.Cell className="text-left">
                   {tr.description}
+                </ReportTable.Cell>
+                <ReportTable.Cell
+                  className={cn(`text-right`)}
+                >
+                  {displayNum(tr.details.currencyAmount)}
+                </ReportTable.Cell>
+                <ReportTable.Cell
+                  className={cn(`text-right`)}
+                >
+                  {tr.details.side === TR_SIDES.DEBIT && displayNum(tr.details.amount)}
+                </ReportTable.Cell>
+                <ReportTable.Cell
+                  className={cn(`text-right`)}
+                >
+                  {tr.details.side === TR_SIDES.CREDIT && displayNum(tr.details.amount)}
+                </ReportTable.Cell>
+                <ReportTable.Cell
+                  className={cn(`text-right `)}
+                >
+                  {displayNum(tr.remainder ?? 0)}
+                </ReportTable.Cell>
+                <ReportTable.Cell
+                  className={cn(`text-left `)}
+                >
+                  {tr.details.relAccounts ?? ''}
                 </ReportTable.Cell>
               </ReportTable.Row>
             ))}
@@ -50,22 +88,5 @@ export const HandleMainACMore = (parent: string, child: string, groupRule: IGrou
       </ReportTable.Cell>
     </ReportTable.Row>
 
-
-    // <ReportTable.Cell colSpan={6} className="p-0">
-    //   <table className='w-full overflow-hidden caption-bottom text-[1em]  border-0'>
-    //     <tr className='hover:bg-muted/50 data-[state=selected]:bg-muted border transition-colors'>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>1</td>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>2</td>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>3</td>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>4</td>
-    //     </tr>
-    //     <tr className='hover:bg-muted/50 data-[state=selected]:bg-muted border transition-colors'>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>10</td>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>20</td>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>30</td>
-    //       <td className='p-[0.3em] align-middle border text-[1em] whitespace-normal break-all'>40</td>
-    //     </tr>
-    //   </table>
-    // </ReportTable.Cell >
   )
 }

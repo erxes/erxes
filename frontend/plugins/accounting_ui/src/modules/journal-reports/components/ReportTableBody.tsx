@@ -6,7 +6,7 @@ import { useJournalReportData } from "../hooks/useJournalReportData";
 import { useJournalReportMore } from "../hooks/useJournalReportMore";
 import { moreDataState } from "../states/renderingReportsStates";
 import { IGroupRule, ReportRules } from "../types/reportsMap";
-import { getCalcReportHandler, getRenderMoreHandler } from "./includes";
+import { CalcReportHandler, getCalcReportHandler, getRenderMoreHandler } from "./includes";
 import { groupRecords, moreDataByKey, totalsCalc } from "./includes/utils";
 
 export function useQueryObject() {
@@ -31,8 +31,6 @@ export const ReportTableBody = () => {
   const groupRule = reportConf.groups?.[groupKey as string || ''] || reportConf.groups?.['default'];
 
   const calcReport = getCalcReportHandler(report as string || '')
-
-  const RenderMore = getRenderMoreHandler(report as string || '', isMore);
 
   const { records = [], loading, error } = useJournalReportData();
   const { trDetails = [], loading: detailLoading, error: detailError } = useJournalReportMore()
@@ -85,7 +83,8 @@ export const ReportTableBody = () => {
         groupRule={groupRule}
         colCount={colCount}
         calcReport={calcReport}
-      // RenderMore={isMore && RenderMore}
+        report={report}
+        isMore={isMore}
       />
     </tbody>
   )
@@ -96,8 +95,9 @@ interface ReportRendererProps {
   groupedDic: any;
   groupRule?: IGroupRule;
   colCount: number;
-  calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode;
-  // RenderMore?: (parents: string, child: string) => React.ReactNode;
+  calcReport: CalcReportHandler;
+  report: string;
+  isMore?: boolean;
 }
 
 export function ReportRecursiveRenderer({
@@ -105,7 +105,8 @@ export function ReportRecursiveRenderer({
   groupRule,
   colCount,
   calcReport,
-  // RenderMore,
+  report,
+  isMore
 }: ReportRendererProps) {
   return (
     <>
@@ -117,7 +118,8 @@ export function ReportRecursiveRenderer({
         "",
         "",
         calcReport,
-        // RenderMore,
+        report,
+        isMore
       )}
     </>
   );
@@ -130,8 +132,9 @@ function renderGroup(
   padding: number,
   lastAttr: string,
   leafAttr: string,
-  calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode,
-  // RenderMore?: (parents: string, child: string, groupRule?: IGroupRule[]) => React.ReactNode,
+  calcReport: CalcReportHandler,
+  report: string,
+  isMore?: boolean,
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
 
@@ -184,14 +187,15 @@ function renderGroup(
             attr,
             `${leafAttr && `${leafAttr},` || ''}${attr}`,
             calcReport,
-            // RenderMore
+            report,
+            isMore
           )}
         </React.Fragment>
       );
     }
 
     // ✅ Навч node
-    const lastNode = calcReport(grStep, groupRule, attr);
+    const { lastNode, lastData } = calcReport(grStep, groupRule, attr);
 
     if (!lastNode) return null;
 
@@ -217,58 +221,27 @@ function renderGroup(
 
           {lastNode}
         </ReportTable.Row>
-        <RenderMore parentRules={leafAttr?.split(',').slice(-1)[0] || ''} leafRule={`${groupRule.group}+${grStep[grId]}`} />
+        {isMore && <RenderMore report={report} parentRules={leafAttr?.split(',').slice(-1)[0] || ''} leafRule={`${groupRule.group}+${grStep[grId]}`} nodeData={lastData} />}
       </React.Fragment>
     );
   });
 }
 
-const RenderMore = ({ parentRules, leafRule }: { parentRules: string, leafRule: string }) => {
+const RenderMore = ({ report, parentRules, leafRule, nodeData }: { report: string, parentRules: string, leafRule: string, nodeData?: any }) => {
+  const ReportMore = getRenderMoreHandler(report as string || '');
   const parents = parentRules.split('*').map(p => p.split('+'));
-  const [leafGroup, leafId] = leafRule.split('+');
+  const [_leafGroup, leafId] = leafRule.split('+');
   const perkey = `${parents?.map(pr => pr[1]).join('#')}#${leafId}`;
   const allMoreData = useAtomValue(moreDataState);
 
   const moreData = useMemo(() => { return allMoreData?.[perkey] || []; }, [perkey, allMoreData]);
 
+  if (!ReportMore) {
+    return null;
+  }
+
   // moreData Context
   return (
-    <ReportTable.Row
-      key={perkey}
-      className={cn('text-right')}
-    >
-      <ReportTable.Cell colSpan={8} className="p-0">
-        <ReportTable>
-          <ReportTable.Header>
-
-          </ReportTable.Header>
-          <ReportTable.Body >
-            {moreData.map(tr => (
-              <ReportTable.Row
-                className={cn('')}
-              >
-                <ReportTable.Cell
-                  className={cn(`text-left `)}
-                >
-                  {parents}
-                </ReportTable.Cell>
-                <ReportTable.Cell className="text-left">
-                  {leafId}
-                </ReportTable.Cell>
-                <ReportTable.Cell className="text-left">
-                  {tr.date}
-                </ReportTable.Cell>
-                <ReportTable.Cell className="text-left">
-                  {tr.description}
-                </ReportTable.Cell>
-
-              </ReportTable.Row>
-            ))}
-          </ReportTable.Body>
-          <ReportTable.Footer>
-          </ReportTable.Footer>
-        </ReportTable>
-      </ReportTable.Cell>
-    </ReportTable.Row>
+    <ReportMore moreData={moreData} currentKey={perkey} nodeData={nodeData} />
   )
 }
