@@ -45,6 +45,7 @@ export const ReportRules: Record<string, IReportConfig> = {
         group: 'accountId',
         code: 'accountCode',
         name: 'accountName',
+        from: ['details'],
         style: 'font-semibold bg-[#fefef1]',
         groupRule: null,
       },

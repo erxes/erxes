@@ -37,7 +37,7 @@ export const getCalcReportHandler = (report: string): CalcReportHandler => {
 export type RenderMoreProps = {
   moreData: any[];
   currentKey: string;
-  nodeData: any;
+  nodeExtra: any;
 };
 
 export const getRenderMoreHandler = (report: string): React.FC<RenderMoreProps> => {

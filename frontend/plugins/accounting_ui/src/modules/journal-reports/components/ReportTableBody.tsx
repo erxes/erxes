@@ -100,6 +100,7 @@ interface ReportRendererProps {
   calcReport: CalcReportHandler;
   report: string;
   isMore?: boolean;
+  moreAttr?: string;
 }
 
 export function ReportRecursiveRenderer({
@@ -121,10 +122,19 @@ export function ReportRecursiveRenderer({
         "",
         calcReport,
         report,
-        isMore
+        isMore,
+        "",
       )}
     </>
   );
+}
+
+const getMoreAttr = (groupRule: IGroupRule, grId: string, moreAttr?: string, isMore?: boolean) => {
+  if (isMore && !groupRule.excMore) {
+    const preMoreAttr = moreAttr ? `${moreAttr}#` : ''
+    return `${preMoreAttr}${grId}`;
+  }
+  return moreAttr;
 }
 
 function renderGroup(
@@ -137,6 +147,7 @@ function renderGroup(
   calcReport: CalcReportHandler,
   report: string,
   isMore?: boolean,
+  moreAttr?: string,
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
 
@@ -155,6 +166,7 @@ function renderGroup(
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.groupRule?.group) {
       const preLeafAttr = leafAttr && `${leafAttr},` || '';
+      const newMoreAttr = getMoreAttr(groupRule, grStep[grId], moreAttr, isMore)
 
       return (
         <React.Fragment key={attr + index}>
@@ -192,7 +204,8 @@ function renderGroup(
             `${preLeafAttr}${attr}`,
             calcReport,
             report,
-            isMore
+            isMore,
+            newMoreAttr
           )}
         </React.Fragment>
       );
@@ -225,19 +238,19 @@ function renderGroup(
 
           {lastNode}
         </ReportTable.Row>
-        {isMore && <RenderMore report={report} parentRules={leafAttr?.split(',').slice(-1)[0] || ''} leafRule={`${groupRule.group}+${grStep[grId]}`} nodeData={lastData} />}
+        {isMore && <RenderMore report={report} treeIds={moreAttr ?? ''} leafId={`${grStep[grId]}`} nodeExtra={lastData} />}
       </React.Fragment>
     );
   });
 }
 
-const RenderMore = ({ report, parentRules, leafRule, nodeData }: { report: string, parentRules: string, leafRule: string, nodeData?: any }) => {
+const RenderMore = ({ report, treeIds, leafId, nodeExtra }: { report: string, treeIds: string, leafId: string, nodeExtra?: any }) => {
   const ReportMore = getRenderMoreHandler(report);
-  const parents = parentRules.split('*').map(p => p.split('+'));
-  const [_leafGroup, leafId] = leafRule.split('+');
-  const perkey = `${parents?.map(pr => pr[1]).join('#')}#${leafId}`;
-  const allMoreData = useAtomValue(moreDataState);
 
+  const treeIdsStr = treeIds ? `${treeIds}#` : '';
+  const perkey = `${treeIdsStr}${leafId}`;
+
+  const allMoreData = useAtomValue(moreDataState);
   const moreData = useMemo(() => { return allMoreData?.[perkey] || []; }, [perkey, allMoreData]);
 
   if (!ReportMore) {
@@ -246,6 +259,6 @@ const RenderMore = ({ report, parentRules, leafRule, nodeData }: { report: strin
 
   // moreData Context
   return (
-    <ReportMore moreData={moreData} currentKey={perkey} nodeData={nodeData} />
+    <ReportMore moreData={moreData} currentKey={perkey} nodeExtra={nodeExtra} />
   )
 }

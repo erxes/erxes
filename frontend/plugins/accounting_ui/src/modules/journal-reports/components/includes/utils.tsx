@@ -101,11 +101,11 @@ export const moreDataByKey = (moreData: { [key: string]: any[] }, trDetails: any
   return moreData;
 }
 
-export const totalsCalc = (root: HTMLElement, groupRule: IGroupRule) => {
+export const totalsCalc = (root: HTMLElement, groupRule?: IGroupRule) => {
   const table = document.querySelector('table[data-slot="table"]');
   if (!table) return;
 
-  const excludedIndexes = new Set([0, 1].concat(groupRule.excTotal || [])); // not-sum index-үүд энд орно
+  const excludedIndexes = new Set([0, 1].concat(groupRule?.excTotal || [])); // not-sum index-үүд энд орно
   const totals: Record<string, Record<number, number>> = {};
 
   const rows = root.querySelectorAll("tr[data-keys]");

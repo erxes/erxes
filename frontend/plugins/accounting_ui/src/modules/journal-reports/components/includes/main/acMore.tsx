@@ -2,8 +2,8 @@ import { format } from 'date-fns';
 import { cn, displayNum, ReportTable } from "erxes-ui";
 import { TR_SIDES } from "~/modules/transactions/types/constants";
 
-export const HandleMainACMore = ({ moreData, currentKey, nodeData }: { moreData: any[], currentKey: string, nodeData: any }) => {
-  const { fr_diff = 0 } = nodeData;
+export const HandleMainACMore = ({ moreData, currentKey, nodeExtra }: { moreData: any[], currentKey: string, nodeExtra: any }) => {
+  const { fr_diff = 0 } = nodeExtra;
   const rows: any[] = [];
   let rem = fr_diff;
 
