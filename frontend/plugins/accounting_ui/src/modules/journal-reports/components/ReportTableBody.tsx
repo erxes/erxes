@@ -100,7 +100,6 @@ interface ReportRendererProps {
   calcReport: CalcReportHandler;
   report: string;
   isMore?: boolean;
-  moreAttr?: string;
 }
 
 export function ReportRecursiveRenderer({
