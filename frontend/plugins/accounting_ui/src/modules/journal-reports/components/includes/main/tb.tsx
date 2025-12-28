@@ -8,18 +8,16 @@ export const HandleMainTB = (dic: any, _groupRule: IGroupRule, _attr: string): C
   let [fr_diff, tr_dt, tr_ct, lr_diff] = [0, 0, 0, 0];
 
   for (const rec of items) {
-    for (const rec of items) {
-      const [dtAmount, ctAmount] = rec.side === TR_SIDES.DEBIT ? [rec.sumAmount, 0] : [0, rec.sumAmount];
-      const diffAmount = dtAmount - ctAmount;
+    const [dtAmount, ctAmount] = rec.side === TR_SIDES.DEBIT ? [rec.sumAmount, 0] : [0, rec.sumAmount];
+    const diffAmount = dtAmount - ctAmount;
 
-      if (rec.isBetween) {
-        tr_dt += dtAmount;
-        tr_ct += ctAmount;
-        lr_diff += diffAmount;
-      } else {
-        fr_diff += diffAmount;
-        lr_diff += diffAmount;
-      }
+    if (rec.isBetween) {
+      tr_dt += dtAmount;
+      tr_ct += ctAmount;
+      lr_diff += diffAmount;
+    } else {
+      fr_diff += diffAmount;
+      lr_diff += diffAmount;
     }
   }
 
