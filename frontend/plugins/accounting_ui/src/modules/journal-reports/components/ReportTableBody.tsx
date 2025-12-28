@@ -49,8 +49,10 @@ export const ReportTableBody = () => {
   // ✅ RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
   useEffect(() => {
     if (!tableRef?.current) return;
+    if (loading) return;
+    if (error) return;
 
-    totalsCalc(tableRef.current);
+    totalsCalc(tableRef.current, groupRule);
   }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
 
   useEffect(() => {
@@ -152,6 +154,8 @@ function renderGroup(
 
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.groupRule?.group) {
+      const preLeafAttr = leafAttr && `${leafAttr},` || '';
+
       return (
         <React.Fragment key={attr + index}>
           {(
@@ -185,7 +189,7 @@ function renderGroup(
             colCount,
             padding + 25,
             attr,
-            `${leafAttr && `${leafAttr},` || ''}${attr}`,
+            `${preLeafAttr}${attr}`,
             calcReport,
             report,
             isMore
@@ -228,7 +232,7 @@ function renderGroup(
 }
 
 const RenderMore = ({ report, parentRules, leafRule, nodeData }: { report: string, parentRules: string, leafRule: string, nodeData?: any }) => {
-  const ReportMore = getRenderMoreHandler(report as string || '');
+  const ReportMore = getRenderMoreHandler(report);
   const parents = parentRules.split('*').map(p => p.split('+'));
   const [_leafGroup, leafId] = leafRule.split('+');
   const perkey = `${parents?.map(pr => pr[1]).join('#')}#${leafId}`;

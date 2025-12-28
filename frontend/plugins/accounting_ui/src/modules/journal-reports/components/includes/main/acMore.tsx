@@ -38,9 +38,10 @@ export const HandleMainACMore = ({ moreData, currentKey, nodeData }: { moreData:
           </ReportTable.Header>
           <ReportTable.Body>
 
-            {rows.map((tr, ind) => (
+            {rows.map((tr) => (
               <ReportTable.Row
                 className={cn('')}
+                key={tr._id}
               >
                 <ReportTable.Cell className="text-left">
                   {format(new Date(tr.date), 'yyyy-MM-dd')}

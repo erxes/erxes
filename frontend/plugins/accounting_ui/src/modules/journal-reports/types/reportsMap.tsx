@@ -6,12 +6,12 @@ export const ReportGroups = [
 ];
 
 export interface IGroupRule {
-  // key: string;
   group: string;
   code: string;
   name?: string;
   excMore?: boolean;
   from?: string[];
+  excTotal?: number[];
   style?: string;
   groupRule?: IGroupRule | null;
 }

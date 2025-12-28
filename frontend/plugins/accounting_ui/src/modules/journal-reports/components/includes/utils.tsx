@@ -69,8 +69,10 @@ export const getFirstGroupRule = (firstGroupRule: string[], groupRule?: IGroupRu
   const subGroupRule = groupRule?.groupRule;
 
   if (groupRule?.group && !groupRule.excMore) {
+    const froms = groupRule.from && `${groupRule.from}.` || '';
+
     firstGroupRule.push(
-      `${groupRule.from && `${groupRule.from}.` || ''}${groupRule.group}`
+      `${froms}${groupRule.group}`
     )
   }
 
@@ -99,23 +101,23 @@ export const moreDataByKey = (moreData: { [key: string]: any[] }, trDetails: any
   return moreData;
 }
 
-export const totalsCalc = (root: HTMLElement) => {
+export const totalsCalc = (root: HTMLElement, groupRule: IGroupRule) => {
   const table = document.querySelector('table[data-slot="table"]');
   if (!table) return;
 
-  const excludedIndexes: number[] = [0, 1]; // not-sum index-үүд энд орно
+  const excludedIndexes = new Set([0, 1].concat(groupRule.excTotal || [])); // not-sum index-үүд энд орно
   const totals: Record<string, Record<number, number>> = {};
 
   const rows = root.querySelectorAll("tr[data-keys]");
 
   rows.forEach(row => {
-    const sumKeyVals = row.getAttribute("data-keys") || '';
+    const sumKeyVals = (row as HTMLTableRowElement).dataset.keys || '';
     const sumKeys = sumKeyVals.split(',');
 
     const tds = row.querySelectorAll("td");
 
     tds.forEach((td, index) => {
-      if (excludedIndexes.includes(index)) return;
+      if (excludedIndexes.has(index)) return;
 
       let recordValue = Number.parseFloat(td.textContent?.replace(/,/g, "") || "0");
       if (Number.isNaN(recordValue)) recordValue = 0;
