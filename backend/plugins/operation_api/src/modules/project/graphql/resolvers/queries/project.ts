@@ -52,6 +52,10 @@ export const projectQueries: Record<string, Resolver> = {
       filterQuery.leadId = filter.leadId;
     }
 
+    if (filter.memberIds && filter.memberIds.length > 0) {
+      filterQuery.memberIds = { $in: filter.memberIds };
+    }
+
     if (filter.tagIds && filter.tagIds.length > 0) {
       filterQuery.tagIds = { $in: filter.tagIds };
     }
@@ -70,7 +74,15 @@ export const projectQueries: Record<string, Resolver> = {
         memberId: filter.userId,
       }).distinct('teamId');
 
-      filterQuery.teamIds = { $in: teamIds };
+      if (filter.userId) {
+        filterQuery.$or = [
+          { teamIds: { $in: teamIds } },
+          { leadId: filter.userId },
+          { memberIds: filter.userId },
+        ];
+      } else {
+        filterQuery.teamIds = { $in: teamIds };
+      }
     }
 
     if (filter.active) {

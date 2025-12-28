@@ -14,6 +14,7 @@ export interface IProject {
   status: number;
   targetDate?: Date;
   leadId?: string;
+  memberIds?: string[];
   createdBy?: string;
   convertedFromId?: string;
 }
@@ -28,6 +29,7 @@ export interface IProjectFilter extends ICursorPaginateParams, IListParams {
   startDate?: Date;
   targetDate?: Date;
   leadId?: string;
+  memberIds?: string[];
   status?: number;
   userId?: string;
   active?: boolean;

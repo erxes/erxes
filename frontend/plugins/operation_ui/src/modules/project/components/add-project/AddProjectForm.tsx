@@ -2,6 +2,7 @@ import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectStatus } from '@/operation/components/SelectStatus';
 import { SelectTags } from 'ui-modules';
 import { DateSelect, SelectLead } from '@/project/components/select';
+import { SelectMember } from 'ui-modules';
 import { useCreateProject } from '@/project/hooks/useCreateProject';
 import { TAddProject, addProjectSchema } from '@/project/types';
 import { ITask } from '@/task/types';
@@ -45,6 +46,7 @@ export const AddProjectForm = ({
       status: 2,
       priority: task?.priority || 0,
       leadId: task?.assigneeId || undefined,
+      memberIds: [] as string[],
       targetDate: task?.targetDate ? new Date(task?.targetDate) : undefined,
       convertedFromId: task?._id,
       tagIds: [] as string[],
@@ -52,7 +54,7 @@ export const AddProjectForm = ({
   });
   useEffect(() => {
     form.setFocus('name');
-  }, []);
+  }, [form]);
 
   const { teams } = useGetCurrentUsersTeams({
     skip: !!teamId,
@@ -187,6 +189,20 @@ export const AddProjectForm = ({
                       field.onChange(value);
                     }}
                     teamIds={form.getValues('teamIds')}
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="memberIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item className="shrink-0">
+                  <Form.Label className="sr-only">Members</Form.Label>
+                  <SelectMember.FormItem
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
                   />
                 </Form.Item>
               )}

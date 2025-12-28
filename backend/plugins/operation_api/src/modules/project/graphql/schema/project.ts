@@ -11,6 +11,7 @@ type Project {
     teamIds: [String]!
     tagIds: [String]
     leadId: String
+    memberIds: [String]
     startDate: Date
     targetDate: Date
     createdBy: String
@@ -36,6 +37,7 @@ input IProjectFilter {
     teamIds: [String]
     tagIds: [String]
     leadId: String
+    memberIds: [String]
     startDate: Date
     targetDate: Date
     userId: String
@@ -53,6 +55,7 @@ type ProjectSubscription {
 const createProjectParams = `
   name: String!
   leadId: String
+  memberIds: [String]
   icon: String
   description: String
   status: Int
@@ -68,6 +71,7 @@ const updateProjectParams = `
   _id: String!
   name: String
   leadId: String
+  memberIds: [String]
   icon: String
   description: String
   status: Int
