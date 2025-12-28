@@ -8,19 +8,20 @@ export const FrontlineSettingsNavigation = () => {
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
-            pathPrefix={FrontlinePaths.Frontline + '/' + FrontlinePaths.Inbox}
-            path={FrontlinePaths.Integrations}
-            name="Integrations"
+            pathPrefix={FrontlinePaths.Frontline}
+            path={FrontlinePaths.Channels}
+            name="Channels"
           />
+
           <SettingsNavigationMenuLinkItem
-            pathPrefix={FrontlinePaths.Frontline + '/' + FrontlinePaths.Inbox}
+            pathPrefix={FrontlinePaths.Frontline}
             path={FrontlinePaths.IntegrationConfig}
             name="Integrations Config"
           />
           <SettingsNavigationMenuLinkItem
-            pathPrefix={FrontlinePaths.Frontline + '/' + FrontlinePaths.Inbox}
-            path={FrontlinePaths.Channels}
-            name="Channels"
+            pathPrefix={FrontlinePaths.Frontline}
+            path={FrontlinePaths.Tickets}
+            name="Tickets"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

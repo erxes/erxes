@@ -43,32 +43,6 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
-  modules: [
-    {
-      name: 'channels',
-      path: 'frontline/channels',
-      settingsOnly: true,
-      hasFloatingWidget: true,
-    },
-    {
-      name: 'configs',
-      path: 'frontline/config',
-      settingsOnly: true,
-    },
-    {
-      name: 'frontline',
-      icon: IconMail,
-      path: 'frontline',
-      hasSettings: false,
-      hasAutomation: true,
-    },
-    {
-      name: 'ticket',
-      path: 'frontline/ticket',
-      settingsOnly: true,
-    },
-  ],
-
   widgets: {
     relationWidgets: [
       {
@@ -81,4 +55,23 @@ export const CONFIG: IUIConfig = {
       },
     ],
   },
+  modules: [
+    {
+      name: 'channels',
+      path: 'frontline/channels',
+    },
+    {
+      name: 'configs',
+      path: 'frontline/config',
+    },
+    {
+      name: 'frontline',
+      icon: IconMail,
+      path: 'frontline',
+    },
+    {
+      name: 'ticket',
+      path: 'frontline/ticket',
+    },
+  ],
 };
