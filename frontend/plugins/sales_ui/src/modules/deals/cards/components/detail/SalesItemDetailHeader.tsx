@@ -28,7 +28,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
       <Button variant="ghost" size="icon">
         <IconLayoutSidebarLeftCollapse />
       </Button>
-      <Sheet.Title className="shrink-0 w-4/5">
+      <Sheet.Title className="flex-1 min-w-0">
         <Input
           className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
           placeholder="Deal Name"
@@ -42,7 +42,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
 
       <div className="flex items-center gap-2 shrink-0">
         {deal?.status === 'archived' && (
-          <span className="text-sm py-1 px-2 bg-yellow-100 text-yellow-800 border-t border-b border-yellow-200 rounded-sm whitespace-nowrap">
+          <span className="text-sm py-1 px-2 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-sm whitespace-nowrap ">
             Archived
           </span>
         )}

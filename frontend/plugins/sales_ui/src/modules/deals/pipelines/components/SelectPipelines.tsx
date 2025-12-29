@@ -17,7 +17,7 @@ import {
 
 import { PipelinesInline } from './PipelinesInline';
 import { IPipeline } from '@/deals/types/pipelines';
-import { IconArrowsRight } from '@tabler/icons-react';
+import { IconArrowsRight, IconChevronDown } from '@tabler/icons-react';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
 import { useDebounce } from 'use-debounce';
 
@@ -275,9 +275,11 @@ export const SelectPipelineFilterBar = ({
 export const SelectPipelineInlineCell = ({
   onValueChange,
   boardId,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof SelectPipelineProvider>, 'children'> & {
   scope?: string;
+  className?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const isDisabled = !boardId;
@@ -292,8 +294,12 @@ export const SelectPipelineInlineCell = ({
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <RecordTableInlineCell.Trigger disabled={isDisabled}>
+        <RecordTableInlineCell.Trigger
+          disabled={isDisabled}
+          className={cn('flex items-center justify-between gap-2', className)}
+        >
           <SelectPipelinesValue placeholder={''} />
+          <IconChevronDown className="size-4 text-zinc-600 shrink-0" />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectPipelineContent />
