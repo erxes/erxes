@@ -10,7 +10,6 @@ import {
 } from './rule';
 import { getAllowedProducts } from './product';
 import { CalculatedRule, OrderItem } from '../types';
-import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 
 export const getMainConditions = ({
   branchId, departmentId, pipelineId, date
@@ -24,27 +23,27 @@ export const getMainConditions = ({
 
   // Build branch/department OR conditions
   const branchDeptOr: Record<string, any>[] = [];
-  
+
   if (branchId) {
     branchDeptOr.push({
       branchIds: { $in: [branchId] },
       departmentIds: { $size: 0 }
     });
   }
-  
+
   if (departmentId) {
     branchDeptOr.push({
       departmentIds: { $in: [departmentId] },
       branchIds: { $size: 0 }
     });
   }
-  
+
   // Always include the case with no branch or department
   branchDeptOr.push({
     branchIds: { $size: 0 },
     departmentIds: { $size: 0 }
   });
-  
+
   if (branchId && departmentId) {
     branchDeptOr.push({
       departmentIds: { $in: [departmentId] },
@@ -98,11 +97,8 @@ export const getMainConditions = ({
       }
     }
   ];
-  
-  andConditions.push({ $or: dateOr });
 
-  // Always include status active
-  andConditions.push({ status: 'active' });
+  andConditions.push({ status: 'active', $or: dateOr });
 
   return {
     $and: andConditions
@@ -177,7 +173,6 @@ const processItemWithPlan = (
   if (hasBonusProducts(priceRule, quantityRule, expiryRule)) {
     type = 'bonus';
     bonusProducts = collectBonusProducts(priceRule, quantityRule, expiryRule);
-    value = 0;
   } else {
     // Find the rule with maximum value
     const maxValueRule = findMaxValueRule(priceRule, quantityRule, expiryRule);
@@ -261,17 +256,17 @@ export const checkPricing = async (params: {
   pipelineId: string;
   orderItems: OrderItem[];
 }) => {
-  const { 
-    models, 
-    subdomain, 
-    prioritizeRule, 
-    totalAmount, 
-    departmentId, 
-    branchId, 
-    pipelineId, 
-    orderItems 
+  const {
+    models,
+    subdomain,
+    prioritizeRule,
+    totalAmount,
+    departmentId,
+    branchId,
+    pipelineId,
+    orderItems
   } = params;
-  
+
   const productIds = orderItems.map(p => p.productId);
   const result: Record<string, { type: string; value: number; bonusProducts: any[] }> = {};
 
@@ -299,7 +294,7 @@ export const checkPricing = async (params: {
     isPriority: 1,
     value: 1
   };
-  
+
   const plans = await models.PricingPlans.find(conditions).sort(sortArgs);
 
   if (plans.length === 0) {
@@ -309,7 +304,7 @@ export const checkPricing = async (params: {
   // Process each plan
   for (const plan of plans) {
     const allowedProductIds = await getAllowedProducts(subdomain, plan, productIds || []);
-    
+
     if (!checkRepeatRule(plan)) {
       continue;
     }
@@ -330,7 +325,7 @@ export const checkPricing = async (params: {
 
       // Calculate discount
       const defaultValue = calculateDefaultDiscount(plan, item);
-      
+
       // Process item with plan rules
       const { type, value, bonusProducts, shouldApply } = processItemWithPlan(
         item,

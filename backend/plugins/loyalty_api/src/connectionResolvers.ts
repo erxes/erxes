@@ -1,41 +1,30 @@
+import { IAssignmentDocument } from '@/assignment/@types/assignment';
+import { IAssignmentModel, loadAssignmentClass, } from '@/assignment/db/models/Assignment';
+import { ICampaignDocument } from '@/campaign/@types';
+import { ICampaignModel, loadCampaignClass, } from '@/campaign/db/models/Campaign';
+import { ICouponDocument } from '@/coupon/@types/coupon';
+import { ICouponModel, loadCouponClass } from '@/coupon/db/models/Coupon';
+import { IDonateDocument } from '@/donate/@types/donate';
+import { IDonateModel, loadDonateClass } from '@/donate/db/models/Donate';
+import { ILotteryDocument } from '@/lottery/@types/lottery';
+import { ILotteryModel, loadLotteryClass } from '@/lottery/db/models/Lottery';
 import { IPricingDocument } from '@/pricing/@types/pricing';
+import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+import { IPricingModel, loadPricingClass } from '@/pricing/db/models/Pricing';
+import { IPricingPlanModel, loadPricingPlanClass } from '@/pricing/db/models/PricingPlan';
+import { IScoreDocument } from '@/score/@types/score';
+import { IScoreModel, loadScoreClass } from '@/score/db/models/Score';
+import { ISpinDocument } from '@/spin/@types/spin';
+import { ISpinModel, loadSpinClass } from '@/spin/db/models/Spin';
+import { IVoucherDocument } from '@/voucher/@types/voucher';
+import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/Voucher';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-
 import mongoose from 'mongoose';
-
-import { IAssignmentDocument } from '@/assignment/@types/assignment';
-import {
-  IAssignmentModel,
-  loadAssignmentClass,
-} from '@/assignment/db/models/assignment';
-import { ICampaignDocument } from '@/campaign/@types';
-import {
-  ICampaignModel,
-  loadCampaignClass,
-} from '@/campaign/db/models/Campaign';
-import { ICouponDocument } from '@/coupon/@types/coupon';
-import { ICouponModel, loadCouponClass } from '@/coupon/db/models/coupon';
-import { IDonateDocument } from '@/donate/@types/donate';
-import { IDonateModel, loadDonateClass } from '@/donate/db/models/donate';
-import { ILotteryDocument } from '@/lottery/@types/lottery';
-import { ILotteryModel, loadLotteryClass } from '@/lottery/db/models/lottery';
-import { IPricingModel, loadPricingClass } from '@/pricing/db/models/pricing';
-import { IScoreDocument } from '@/score/@types/score';
-import { IScoreModel, loadScoreClass } from '@/score/db/models/score';
-import { ISpinDocument } from '@/spin/@types/spin';
-import { ISpinModel, loadSpinClass } from '@/spin/db/models/spin';
-import { IVoucherDocument } from '@/voucher/@types/voucher';
-import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
 import { IAgentDocument } from './modules/agent/@types';
 import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
 import { IScoreLogDocument } from './modules/score/@types/scoreLog';
-import {
-  IScoreLogModel,
-  loadScoreLogClass,
-} from './modules/score/db/models/ScoreLog';
-import { IPricingPlanModel, loadPricingPlanClass } from '@/pricing/db/models/PricingPlan';
-import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+import { IScoreLogModel, loadScoreLogClass, } from './modules/score/db/models/ScoreLog';
 
 export interface IModels {
   Pricing: IPricingModel;

@@ -48,7 +48,7 @@ const SelectCategoryProvider = ({
   mode = 'single',
 }: SelectCategoryProviderProps) => {
   const [categories, setCategories] = useState<IProductCategory[]>([]);
-  const categoryIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const categoryIds = Array.isArray(value) ? value : value && [value] || [];
 
   const onSelect = (category: IProductCategory) => {
     if (!category) return;
@@ -158,9 +158,9 @@ const SelectCategoryCommandItem = ({
 const SelectCategoryRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectCategoryProvider>, 'children'> &
-    React.ComponentProps<typeof Combobox.Trigger> & {
-      placeholder?: string;
-    }
+  React.ComponentProps<typeof Combobox.Trigger> & {
+    placeholder?: string;
+  }
 >(({ onValueChange, className, mode, value, placeholder, ...props }, ref) => {
   const [open, setOpen] = useState(false);
 

@@ -1,4 +1,5 @@
 /* eslint-disable */
+
 export default {
   displayName: 'loyalty-ui',
   preset: '../../../jest.preset.js',

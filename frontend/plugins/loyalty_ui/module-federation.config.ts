@@ -15,7 +15,7 @@ const coreLibraries = new Set([
 const config: ModuleFederationConfig = {
   name: 'loyalty_ui',
   exposes: {
-    './config': './src/config.ts',
+    './config': './src/config.tsx',
     './pricing': './src/modules/pricing/Main.tsx',
     './pricingSettings': './src/modules/pricing/Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',

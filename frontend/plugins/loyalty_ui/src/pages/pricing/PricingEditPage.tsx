@@ -1,11 +1,10 @@
-import { useParams, Link } from 'react-router-dom';
-import { Button, Breadcrumb, Select } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
-import { IconCoins } from '@tabler/icons-react';
 import { PricingEdit } from '@/pricing/edit-pricing/PricingEdit';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import { IPricing } from '@/pricing/types';
-import { useNavigate } from 'react-router-dom';
+import { IconCoins } from '@tabler/icons-react';
+import { Breadcrumb, Button, Select } from 'erxes-ui';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { PageHeader } from 'ui-modules';
 
 export const PricingEditPage = () => {
   const { id } = useParams<{ id: string }>();

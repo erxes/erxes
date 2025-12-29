@@ -1,8 +1,7 @@
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
 import { pricingPlanSchema } from '../definitions/pricingPlan';
-import { 
+import {
   IPricingPlan,
   IPricingPlanDocument,
 } from '@/pricing/@types/pricingPlan';
@@ -44,7 +43,7 @@ export const loadPricingPlanClass = (models: IModels) => {
      */
     public static async updatePlan(
       id: string,
-      doc: IPricingPlan | any,
+      doc: IPricingPlan & { _id?: string },
       userId: string
     ) {
       const result = await models.PricingPlans.findById(id);

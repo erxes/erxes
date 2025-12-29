@@ -1,23 +1,22 @@
-import { useEffect, useState } from 'react';
-import { Input, Select, Button, InfoCard, Checkbox, Form } from 'erxes-ui';
-import {
-  SelectCompany,
-  SelectSegment,
-  SelectTags,
-  SelectProduct,
-} from 'ui-modules';
 import { PricingDateSelect } from '@/pricing/components/PricingDateSelect';
-import { IPricingPlanDetail } from '@/pricing/types';
-import { useToast } from 'erxes-ui';
-import { useEditPricing } from '@/pricing/hooks/useEditPricing';
-import { useForm } from 'react-hook-form';
+import { SelectCategory } from '@/pricing/components/SelectCategory';
 import {
   DISCOUNT_TYPES,
   DiscountType,
   PRICE_ADJUST_TYPES,
   PriceAdjustType,
 } from '@/pricing/edit-pricing/components';
-import { SelectCategory } from '@/pricing/components/SelectCategory';
+import { useEditPricing } from '@/pricing/hooks/useEditPricing';
+import { IPricingPlanDetail } from '@/pricing/types';
+import { Button, Checkbox, Form, InfoCard, Input, Select, useToast } from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import {
+  SelectCompany,
+  SelectProduct,
+  SelectSegment,
+  SelectTags,
+} from 'ui-modules';
 
 interface GeneralInfoProps {
   pricingId?: string;

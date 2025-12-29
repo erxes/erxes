@@ -37,7 +37,7 @@
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "loyalty_ui:build:development",
-        "port": 3005
+        "port": 3009
       },
       "configurations": {
         "development": {},

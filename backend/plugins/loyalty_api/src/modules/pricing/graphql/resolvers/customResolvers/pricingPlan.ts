@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { IContext } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';

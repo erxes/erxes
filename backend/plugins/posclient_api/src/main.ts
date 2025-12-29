@@ -13,7 +13,7 @@ import { initMQWorkers } from './worker';
 
 startPlugin({
   name: 'posclient',
-  port: 3321,
+  port: 3312,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers: resolvers,

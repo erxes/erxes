@@ -145,8 +145,6 @@ export const checkRepeatRule = (plan: any): boolean => {
       case 'everyYear':
         rulePassed = checkEveryYearRule(rule, now);
         break;
-      default:
-        rulePassed = false;
     }
     
     if (rulePassed) {

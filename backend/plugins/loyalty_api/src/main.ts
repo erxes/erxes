@@ -7,7 +7,7 @@ import { initMQWorkers } from './worker';
 
 startPlugin({
   name: 'loyalty',
-  port: 33010,
+  port: 3309,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
