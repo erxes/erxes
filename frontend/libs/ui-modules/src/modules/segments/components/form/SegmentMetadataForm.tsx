@@ -2,9 +2,11 @@ import { Form, Input, Textarea } from 'erxes-ui';
 
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { SelectSegment } from '../SelectSegment';
+import { useTranslation } from 'react-i18next';
 
 export const SegmentMetadataForm = () => {
   const { segment, form } = useSegment();
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
   return (
     <div className="space-y-4 pb-4">
@@ -14,7 +16,7 @@ export const SegmentMetadataForm = () => {
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-1">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>{t('name')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -27,7 +29,7 @@ export const SegmentMetadataForm = () => {
           name="subOf"
           render={({ field }) => (
             <Form.Item className="flex-1">
-              <Form.Label>Parent Segment</Form.Label>
+              <Form.Label>{t('parent-segment')}</Form.Label>
               <Form.Control>
                 <SelectSegment
                   exclude={segment?._id ? [segment._id] : undefined}
@@ -45,7 +47,7 @@ export const SegmentMetadataForm = () => {
           name="color"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Color</Form.Label>
+              <Form.Label>{t('color')}</Form.Label>
               <Form.Control>
                 <Input {...field} type="color" className="p-0" />
               </Form.Control>
@@ -60,7 +62,7 @@ export const SegmentMetadataForm = () => {
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>
@@ -71,4 +73,3 @@ export const SegmentMetadataForm = () => {
     </div>
   );
 };
-

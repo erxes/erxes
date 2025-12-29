@@ -7,45 +7,56 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const customerRouter = t.router({
   customers: t.router({
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+    find: t.procedure
+      .input(z.object({ query: z.any() }))
+      .query(async ({ ctx, input }) => {
+        const { query } = input;
+        const { models } = ctx;
 
-      return models.Customers.find(query).lean();
-    }),
+        return models.Customers.find(query).lean();
+      }),
 
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+    findOne: t.procedure
+      .input(z.object({ query: z.any() }))
+      .query(async ({ ctx, input }) => {
+        const { query } = input;
+        const { models } = ctx;
 
-      const defaultFilter = { status: { $ne: 'deleted' } };
+        const defaultFilter = { status: { $ne: 'deleted' } };
 
-      if (query?.customerPrimaryEmail) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.customerPrimaryEmail] } },
-          { primaryEmail: query.customerPrimaryEmail },
-        ];
-      }
+        if (query?.customerPrimaryEmail) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.customerPrimaryEmail] } },
+            { primaryEmail: query.customerPrimaryEmail },
+          ];
+        }
 
-      if (query?.customerPrimaryPhone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.customerPrimaryPhone] } },
-          { primaryPhone: query.customerPrimaryPhone },
-        ];
-      }
+        if (query?.customerPrimaryPhone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.customerPrimaryPhone] } },
+            { primaryPhone: query.customerPrimaryPhone },
+          ];
+        }
 
-      if (query?.customerCode) {
-        defaultFilter['code'] = query.customerCode;
-      }
+        if (query?.customerCode) {
+          defaultFilter['code'] = query.customerCode;
+        }
 
-      if (query?._id) {
-        defaultFilter['_id'] = query._id;
-      }
-      return models.Customers.findOne(defaultFilter).lean();
-    }),
+        if (query?._id) {
+          defaultFilter['_id'] = query._id;
+        }
+        return models.Customers.findOne(defaultFilter).lean();
+      }),
 
     findActiveCustomers: t.procedure
-      .input(z.any())
+      .input(
+        z.object({
+          query: z.any(),
+          fields: z.any(),
+          skip: z.any(),
+          limit: z.any(),
+        }),
+      )
       .query(async ({ ctx, input }) => {
         const { query, fields, skip, limit } = input;
         const { models } = ctx;
@@ -70,15 +81,17 @@ export const customerRouter = t.router({
         return models.Customers.getWidgetCustomer(input);
       }),
 
-    count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+    count: t.procedure
+      .input(z.object({ query: z.any() }))
+      .query(async ({ ctx, input }) => {
+        const { query } = input;
+        const { models } = ctx;
 
-      return models.Customers.countDocuments(query);
-    }),
+        return models.Customers.countDocuments(query);
+      }),
 
     createCustomer: t.procedure
-      .input(z.any())
+      .input(z.object({ doc: z.any() }))
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
         const { models } = ctx;
@@ -87,19 +100,21 @@ export const customerRouter = t.router({
       }),
 
     updateCustomer: t.procedure
-      .input(z.any())
+      .input(z.object({ _id: z.string(), doc: z.any() }))
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;
         const { models } = ctx;
         return models.Customers.updateCustomer(_id, doc);
       }),
 
-    updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { query, doc } = input;
-      const { models } = ctx;
+    updateOne: t.procedure
+      .input(z.object({ query: z.any(), doc: z.any() }))
+      .mutation(async ({ ctx, input }) => {
+        const { query, doc } = input;
+        const { models } = ctx;
 
-      return models.Customers.updateOne(query, doc);
-    }),
+        return models.Customers.updateOne(query, doc);
+      }),
 
     updateMany: t.procedure
       .input(

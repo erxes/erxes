@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { Separator, useQueryState } from "erxes-ui";
 import { useAtom } from "jotai";
 import { currentOrganizationState } from "ui-modules";
-import { AllReportsMap } from '../types/reportsMap';
+import { ReportRules } from '../types/reportsMap';
 
 const parseQueryDate = (value?: string): string => {
   if (!value) return '';
@@ -16,7 +16,7 @@ export const ReportHeader = () => {
   const [fromDate] = useQueryState('fromDate');
   const [toDate] = useQueryState('toDate');
 
-  const title = AllReportsMap.find(r => r.key === report)?.title;
+  const title = ReportRules[report as string || '']?.title;
   const from = parseQueryDate(fromDate as string);
   const to = parseQueryDate(toDate as string);
 

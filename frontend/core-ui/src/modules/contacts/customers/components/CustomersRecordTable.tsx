@@ -1,11 +1,13 @@
 import { RecordTable, Spinner } from 'erxes-ui';
 import { useCustomers } from '@/contacts/customers/hooks/useCustomers';
-import { customersColumns } from './CustomersColumns';
+import { createCustomersColumns } from './CustomersColumns';
 import { CustomersCommandBar } from '@/contacts/customers/components/customers-command-bar';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
 import { ICustomer, useFields, useFieldsColumns } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
 import { useCustomerCustomFieldEdit } from '../hooks/useEditCustomerCustomFields';
+import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 
 export const CustomersRecordTable = () => {
   const { customers, handleFetchMore, loading, pageInfo } = useCustomers();
@@ -14,6 +16,8 @@ export const CustomersRecordTable = () => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsCustomerLeadSessionKey();
+  const { t } = useTranslation('contact');
+  const customersColumns = useMemo(() => createCustomersColumns(t), [t]);
 
   const columns = useFieldsColumns({
     fields,

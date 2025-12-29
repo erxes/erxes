@@ -35,6 +35,8 @@ export enum AppPath {
 
   Broadcasts = 'broadcasts',
   BroadcastsCatchAll = `/${Broadcasts}/*`,
+  ImportExport = 'import-export',
+  ImportExportCatchAll = `/${ImportExport}/*`,
 
   //not found
 

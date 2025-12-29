@@ -80,7 +80,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
     <div className="group relative flex items-center justify-between w-full hover:bg-gray-100 transition-colors duration-200">
       <Link
         className="w-full"
-        to={`/settings/deals?activeBoardId=${board._id}`}
+        to={`/settings/sales/deals?activeBoardId=${board._id}`}
       >
         <Sidebar.MenuButton className="h-auto" isActive={isActive}>
           {board.name}
