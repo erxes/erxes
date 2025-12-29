@@ -64,6 +64,9 @@ export const MessageInput = ({
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
+    null,
+  );
 
   const preparedResponses = useMemo(
     () =>
@@ -117,7 +120,12 @@ export const MessageInput = ({
     return tmp.textContent || tmp.innerText || '';
   };
 
-  const handleTemplateSelect = async (templateContent: string) => {
+  const handleTemplateSelect = async (
+    templateContent: string,
+    templateId?: string,
+  ) => {
+    console.log(templateContent, 'templateContent');
+    console.log(templateId, 'templateId');
     if (!editor) {
       return toast({ title: 'Editor not ready', variant: 'destructive' });
     }
@@ -151,6 +159,7 @@ export const MessageInput = ({
 
       await editor.focus();
       setShowSuggestions(false);
+      setResponseTemplateId(templateId || null);
     } catch (error) {
       console.error('Error inserting template:', error);
       toast({ title: 'Failed to insert template', variant: 'destructive' });
@@ -175,7 +184,10 @@ export const MessageInput = ({
         case 'Enter':
           e.preventDefault();
           if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-            handleTemplateSelect(suggestions[selectedIndex].content);
+            handleTemplateSelect(
+              suggestions[selectedIndex].content,
+              suggestions[selectedIndex]._id,
+            );
             setShowSuggestions(false);
           }
           break;
@@ -232,6 +244,7 @@ export const MessageInput = ({
         internal: isInternalNote,
         extraInfo: messageExtraInfo,
         attachments,
+        responseTemplateId: responseTemplateId,
       },
       onCompleted: () => {
         toast({ title: 'Message sent!', variant: 'default' });
@@ -243,6 +256,7 @@ export const MessageInput = ({
         setAttachments([]);
         setAttachmentPreview(null);
         setShowSuggestions(false);
+        setResponseTemplateId(null);
       },
       onError: (err) =>
         toast({
@@ -260,6 +274,7 @@ export const MessageInput = ({
     editor,
     addConversationMessage,
     setIsInternalNote,
+    responseTemplateId,
   ]);
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
@@ -280,8 +295,8 @@ export const MessageInput = ({
             suggestions={suggestions}
             selectedIndex={selectedIndex}
             availableChannels={availableChannels}
-            onSelect={(content) => {
-              handleTemplateSelect(content);
+            onSelect={(content: string, templateId: string) => {
+              handleTemplateSelect(content, templateId);
               setShowSuggestions(false);
             }}
           />

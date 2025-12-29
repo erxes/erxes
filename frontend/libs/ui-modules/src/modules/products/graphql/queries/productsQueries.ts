@@ -17,18 +17,25 @@ export const GET_PRODUCTS = gql`
     ) {
       list {
         _id
-        code
-        name
-        unitPrice
         category {
           _id
           name
         }
         categoryId
+        code
+        currency
+        name
+        unitPrice
+        uom
+        vendorId
         vendor {
           _id
+          names
           primaryName
         }
+        type
+        barcodes
+        subUoms
       }
       totalCount
       ${GQL_PAGE_INFO}

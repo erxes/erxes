@@ -21,129 +21,130 @@ import { AutomationRecordTableStatusInlineCell } from '@/automations/components/
 const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
 
-export const automationColumns: ColumnDef<TAutomationRecordTableColumnDefData>[] =
-  [
-    checkBoxColumn,
-    {
-      id: 'name',
-      accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label="Name" />,
-      cell: ({ cell }) => (
+export const getAutomationColumns: (
+  t: (key: string) => string,
+) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
+  checkBoxColumn,
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead label={t('name')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Link to={`/automations/edit/${cell.row.original._id}`}>
+          {cell.getValue() as string}
+        </Link>
+      </RecordTableInlineCell>
+    ),
+    minSize: 120,
+  },
+  {
+    id: 'status',
+    accessorKey: 'status',
+    header: () => <RecordTable.InlineHead label={t('status')} />,
+    cell: ({ cell }) => {
+      return <AutomationRecordTableStatusInlineCell cell={cell} />;
+    },
+    size: 80,
+  },
+  {
+    id: 'triggers',
+    accessorKey: 'triggers',
+    header: () => <RecordTable.InlineHead label={t('triggers')} />,
+    cell: ({ cell }) => {
+      const triggers = (cell.getValue() || []) as TAutomationTrigger[];
+      return (
         <RecordTableInlineCell>
-          <Link to={`/automations/edit/${cell.row.original._id}`}>
-            {cell.getValue() as string}
-          </Link>
+          <IconPointerBolt size={12} />
+          {triggers?.length}
         </RecordTableInlineCell>
-      ),
-      minSize: 120,
+      );
     },
-    {
-      id: 'status',
-      accessorKey: 'status',
-      header: () => <RecordTable.InlineHead label="Status" />,
-      cell: ({ cell }) => {
-        return <AutomationRecordTableStatusInlineCell cell={cell} />;
-      },
-      size: 80,
+    size: 80,
+  },
+  {
+    id: 'actions',
+    accessorKey: 'actions',
+    header: () => <RecordTable.InlineHead label={t('actions')} />,
+    cell: ({ cell }) => {
+      const actions = (cell.getValue() || []) as TAutomationAction[];
+      return (
+        <RecordTableInlineCell>
+          <IconShare size={12} />
+          {actions?.length}
+        </RecordTableInlineCell>
+      );
     },
-    {
-      id: 'triggers',
-      accessorKey: 'triggers',
-      header: () => <RecordTable.InlineHead label="Triggers" />,
-      cell: ({ cell }) => {
-        const triggers = (cell.getValue() || []) as TAutomationTrigger[];
-        return (
+    size: 80,
+  },
+  {
+    id: 'updatedUser',
+    accessorKey: 'updatedUser',
+    header: () => <RecordTable.InlineHead label={t('updated-user')} />,
+    cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
+  },
+  {
+    id: 'createdUser',
+    accessorKey: 'createdUser',
+    header: () => <RecordTable.InlineHead label={t('created-user')} />,
+    cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
+  },
+  {
+    id: 'updatedAt',
+    accessorKey: 'updatedAt',
+    header: () => <RecordTable.InlineHead label={t('last-updated-at')} />,
+    cell: ({ cell }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
           <RecordTableInlineCell>
-            <IconPointerBolt size={12} />
-            {triggers?.length}
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
           </RecordTableInlineCell>
-        );
-      },
-      size: 80,
+        </RelativeDateDisplay>
+      );
     },
-    {
-      id: 'actions',
-      accessorKey: 'actions',
-      header: () => <RecordTable.InlineHead label="Actions" />,
-      cell: ({ cell }) => {
-        const actions = (cell.getValue() || []) as TAutomationAction[];
-        return (
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => <RecordTable.InlineHead label={t('created-at')} />,
+    cell: ({ cell }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
           <RecordTableInlineCell>
-            <IconShare size={12} />
-            {actions?.length}
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
           </RecordTableInlineCell>
-        );
-      },
-      size: 80,
+        </RelativeDateDisplay>
+      );
     },
-    {
-      id: 'updatedUser',
-      accessorKey: 'updatedUser',
-      header: () => <RecordTable.InlineHead label="Last Updated By" />,
-      cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
-    },
-    {
-      id: 'createdUser',
-      accessorKey: 'createdUser',
-      header: () => <RecordTable.InlineHead label="Created By" />,
-      cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
-    },
-    {
-      id: 'updatedAt',
-      accessorKey: 'updatedAt',
-      header: () => <RecordTable.InlineHead label="Last Updated At" />,
-      cell: ({ cell }) => {
-        return (
-          <RelativeDateDisplay value={cell.getValue() as string} asChild>
-            <RecordTableInlineCell>
-              <RelativeDateDisplay.Value value={cell.getValue() as string} />
-            </RecordTableInlineCell>
-          </RelativeDateDisplay>
-        );
-      },
-    },
-    {
-      id: 'createdAt',
-      accessorKey: 'createdAt',
-      header: () => <RecordTable.InlineHead label="Created At" />,
-      cell: ({ cell }) => {
-        return (
-          <RelativeDateDisplay value={cell.getValue() as string} asChild>
-            <RecordTableInlineCell>
-              <RelativeDateDisplay.Value value={cell.getValue() as string} />
-            </RecordTableInlineCell>
-          </RelativeDateDisplay>
-        );
-      },
-    },
-    {
-      id: 'tagIds',
-      accessorKey: 'tagIds',
-      header: () => <RecordTable.InlineHead label="Tags" />,
-      cell: ({ cell }) => {
-        const tagIds = cell.getValue() as string[];
+  },
+  {
+    id: 'tagIds',
+    accessorKey: 'tagIds',
+    header: () => <RecordTable.InlineHead label={t('tags')} />,
+    cell: ({ cell }) => {
+      const tagIds = cell.getValue() as string[];
 
-        return (
-          <SelectTags.InlineCell
-            tagType="core:automation"
-            mode="multiple"
-            value={tagIds}
-            targetIds={[cell.row.original._id]}
-            options={(newSelectedTagIds) => ({
-              update: (cache) => {
-                cache.modify({
-                  id: cache.identify({
-                    __typename: 'Automation',
-                    _id: cell.row.original._id,
-                  }),
-                  fields: {
-                    tagIds: () => newSelectedTagIds,
-                  },
-                });
-              },
-            })}
-          />
-        );
-      },
+      return (
+        <SelectTags.InlineCell
+          tagType="core:automation"
+          mode="multiple"
+          value={tagIds}
+          targetIds={[cell.row.original._id]}
+          options={(newSelectedTagIds) => ({
+            update: (cache) => {
+              cache.modify({
+                id: cache.identify({
+                  __typename: 'Automation',
+                  _id: cell.row.original._id,
+                }),
+                fields: {
+                  tagIds: () => newSelectedTagIds,
+                },
+              });
+            },
+          })}
+        />
+      );
     },
-  ];
+  },
+];

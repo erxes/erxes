@@ -21,10 +21,10 @@ export const ClientPortalDetailTest = ({
   const form = useForm<z.infer<typeof CLIENTPORTAL_TEST_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_TEST_SCHEMA),
     defaultValues: {
-      testUserEmail: clientPortal?.testUserEmail ?? '',
-      testUserPhone: clientPortal?.testUserPhone ?? '',
-      testUserPassword: clientPortal?.testUserPassword ?? '',
-      testUserOTP: clientPortal?.testUserOTP ?? undefined,
+      testUserEmail: clientPortal?.testUser?.email ?? '',
+      testUserPhone: clientPortal?.testUser?.phone ?? '',
+      testUserPassword: clientPortal?.testUser?.password ?? '',
+      testUserOTP: clientPortal?.testUser?.otp?.toString() ?? undefined,
     },
   });
 
@@ -35,10 +35,12 @@ export const ClientPortalDetailTest = ({
       variables: {
         id: clientPortal?._id,
         clientPortal: {
-          testUserEmail: data.testUserEmail,
-          testUserPhone: data.testUserPhone,
-          testUserPassword: data.testUserPassword,
-          testUserOTP: data.testUserOTP,
+          testUser: {
+            email: data.testUserEmail,
+            phone: data.testUserPhone,
+            password: data.testUserPassword,
+            otp: data.testUserOTP ? parseInt(data.testUserOTP) : undefined,
+          },
         },
       },
     });
