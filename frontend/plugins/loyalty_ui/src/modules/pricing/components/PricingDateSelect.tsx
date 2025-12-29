@@ -54,7 +54,6 @@ const PricingDateSelectValue = ({
   placeholder,
 }: {
   placeholder?: string;
-  type?: 'start' | 'target';
 }) => {
   const { value } = usePricingDateSelectContext();
 
