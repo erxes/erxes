@@ -1,4 +1,9 @@
 import {
+  SelectPaymentContext,
+  useSelectPaymentContext,
+} from '@/pos/components/payment/contexts/SelectPaymentContext';
+import { IconPlus } from '@tabler/icons-react';
+import {
   Button,
   Combobox,
   Command,
@@ -8,16 +13,10 @@ import {
   RecordTableInlineCell,
   cn,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import {
-  SelectPaymentContext,
-  useSelectPaymentContext,
-} from '@/pos/components/payment/contexts/SelectPaymentContext';
 
 import { Payment, usePayments } from '@/pos/hooks/usePayments';
-import React from 'react';
+import React, { useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useState } from 'react';
 
 const SelectPaymentProvider = ({
   children,
@@ -34,18 +33,18 @@ const SelectPaymentProvider = ({
   payments?: Payment[];
   setOpen?: (open: boolean) => void;
 }) => {
-  const [_payments, setPayments] = useState<Payment[]>(payments || []);
+  const [currentPayments, setCurrentPayments] = useState<Payment[]>(payments || []);
   const isSingleMode = mode === 'single';
 
   const onSelect = (payment: Payment | null) => {
     if (!payment) {
-      setPayments([]);
+      setCurrentPayments([]);
       onValueChange?.(mode === 'single' ? null : []);
       setOpen?.(false);
       return;
     }
     if (isSingleMode) {
-      setPayments([payment]);
+      setCurrentPayments([payment]);
       setOpen?.(false);
       return onValueChange?.(payment._id);
     }
@@ -56,22 +55,22 @@ const SelectPaymentProvider = ({
       ? arrayValue.filter((id) => id !== payment._id)
       : [...arrayValue, payment._id];
 
-    setPayments((prev) =>
+    setCurrentPayments((prev) =>
       [...prev, payment].filter((p) => newSelectedPaymentIds.includes(p._id)),
     );
     onValueChange?.(newSelectedPaymentIds);
   };
 
-  const selectedIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const selectedIds = Array.isArray(value) ? value : value && [value] || [];
 
   return (
     <SelectPaymentContext.Provider
       value={{
         paymentIds: selectedIds,
         onSelect,
-        payments: _payments,
-        setPayments,
-        loading: _payments.length !== selectedIds.length,
+        payments: currentPayments,
+        setPayments: setCurrentPayments,
+        loading: currentPayments.length !== selectedIds.length,
       }}
     >
       {children}
@@ -248,10 +247,10 @@ export const SelectPaymentFormItem = ({
 export const SelectPaymentInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectPaymentProvider>, 'children'> &
-    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-      scope?: string;
-      placeholder?: string;
-    }
+  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+    scope?: string;
+    placeholder?: string;
+  }
 >(
   (
     {
@@ -316,14 +315,14 @@ export const SelectPaymentDetail = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          {!value ? (
-            <Combobox.TriggerBase className="font-medium">
-              Add Payment <IconPlus />
-            </Combobox.TriggerBase>
-          ) : (
+          {value ? (
             <Button variant="ghost" className="inline-flex w-full">
               <SelectPaymentValue />
             </Button>
+          ) : (
+            <Combobox.TriggerBase className="font-medium">
+              Add Payment <IconPlus />
+            </Combobox.TriggerBase>
           )}
         </Popover.Trigger>
         <Combobox.Content>

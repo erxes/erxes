@@ -36,7 +36,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
   }, [posDetail]);
 
   const handlePaymentChange = (value: string[] | string | null) => {
-    setPaymentIds(Array.isArray(value) ? value : value ? [value] : []);
+    setPaymentIds(Array.isArray(value) ? value : value && [value] || []);
     setHasChanges(true);
   };
 
