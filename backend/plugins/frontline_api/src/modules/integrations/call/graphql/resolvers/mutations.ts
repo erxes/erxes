@@ -237,7 +237,7 @@ const callsMutations = {
       } finally {
         if (lock) {
           try {
-            await lock.unlock();
+            await lock?.unlock();
           } catch (unlockError) {
             console.error('Failed to release lock:', unlockError);
           }

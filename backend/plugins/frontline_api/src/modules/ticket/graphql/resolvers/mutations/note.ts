@@ -8,6 +8,7 @@ export const noteMutations = {
     { content, contentId, mentions },
     { models, user, subdomain }: IContext,
   ) => {
+    const userId = user._id || '';
     return models.Note.createNote({
       doc: {
         content,
@@ -16,6 +17,7 @@ export const noteMutations = {
         createdBy: user._id,
       },
       subdomain,
+      userId,
     });
   },
 

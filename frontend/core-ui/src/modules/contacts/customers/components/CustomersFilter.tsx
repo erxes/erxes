@@ -14,6 +14,7 @@ import {
   useFilterQueryState,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { SelectMember, TagsFilter, SelectBrand } from 'ui-modules';
 import { CustomerTotalCount } from './CustomerTotalCount';
@@ -21,6 +22,7 @@ import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
 
 const CustomersFilterPopover = () => {
+  const { t } = useTranslation('common');
   const [queries] = useMultiQueryState<{
     tags: string[];
     searchValue: string;
@@ -42,37 +44,37 @@ const CustomersFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter._')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('filter.search')}
                 </Filter.Item>
                 <TagsFilter />
                 <Filter.Item value="brand">
                   <IconLabel />
-                  Brand
+                  {t('filter.brand')}
                 </Filter.Item>
                 <SelectMember.FilterItem />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
-                  Created At
+                  {t('filter.created-at')}
                 </Filter.Item>
                 <Filter.Item value="updated">
                   <IconCalendarUp />
-                  Updated At
+                  {t('filter.updated-at')}
                 </Filter.Item>
                 <Filter.Item value="lastSeen">
                   <IconCalendarTime />
-                  Last Seen At
+                  {t('filter.last-seen-at')}
                 </Filter.Item>
                 <Filter.Item value="birthday">
                   <IconCalendar />
-                  Birthday
+                  {t('filter.birthday')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -116,6 +118,7 @@ const CustomersFilterPopover = () => {
 };
 
 export const CustomersFilter = () => {
+  const { t } = useTranslation('common');
   const [searchValue] = useFilterQueryState<string>('searchValue');
   const { sessionKey } = useIsCustomerLeadSessionKey();
 
@@ -125,7 +128,7 @@ export const CustomersFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('filter.search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -135,28 +138,28 @@ export const CustomersFilter = () => {
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
-            Created At
+            {t('filter.created-at')}
           </Filter.BarName>
           <Filter.Date filterKey="created" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updated">
           <Filter.BarName>
             <IconCalendarUp />
-            Updated At
+            {t('filter.updated-at')}
           </Filter.BarName>
           <Filter.Date filterKey="updated" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="lastSeen">
           <Filter.BarName>
             <IconCalendarTime />
-            Last Seen At
+            {t('filter.last-seen-at')}
           </Filter.BarName>
           <Filter.Date filterKey="lastSeen" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="birthday">
           <Filter.BarName>
             <IconCalendar />
-            Birthday
+            {t('filter.birthday')}
           </Filter.BarName>
           <Filter.Date filterKey="birthday" />
         </Filter.BarItem>

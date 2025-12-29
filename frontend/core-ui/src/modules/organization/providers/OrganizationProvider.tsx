@@ -13,7 +13,7 @@ import { isDefined } from 'erxes-ui';
 import { ClientConfigError } from '@/error-handler/components/ClientConfigError';
 import { AppPath } from '@/types/paths/AppPath';
 import { LoadingScreen } from '@/auth/components/LoadingScreen';
-import { useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 
 export const OrganizationProvider = () => {
   const [isCurrentOrganizationLoaded] = useAtom(
@@ -23,13 +23,22 @@ export const OrganizationProvider = () => {
   const [clientConfigApiStatus] = useAtom(clientConfigApiStatusState);
   const [currentOrganization] = useAtom(currentOrganizationState);
 
-  useLayoutEffect(() => {
-    if (isDefined(currentOrganization)) {
-      const link = document.createElement('link');
-      link.id = 'favicon';
-      link.rel = 'shortcut icon';
+  useEffect(() => {
+    if (currentOrganization?.orgShortName) {
+      document.title = currentOrganization.orgShortName;
+    }
 
-      document.head.appendChild(link);
+    if (currentOrganization?.orgFavicon) {
+      let link =
+        document.querySelector<HTMLLinkElement>("link[rel='icon']") ||
+        document.querySelector<HTMLLinkElement>("link[rel='shortcut icon']");
+
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = currentOrganization.orgFavicon;
     }
   }, [currentOrganization]);
 

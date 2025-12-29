@@ -57,11 +57,21 @@ export const getOrCreateCustomer = async (
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
 
-      if (apiCustomerResponse.status === 'success') {
-        if (customer) {
+      if (apiCustomerResponse && apiCustomerResponse.status === 'success') {
+        if (
+          customer &&
+          apiCustomerResponse.data &&
+          apiCustomerResponse.data._id
+        ) {
           customer.erxesApiId = apiCustomerResponse.data._id;
           customer.status = 'completed';
           await customer.save();
+        } else {
+          throw new Error(
+            `API success but no customer ID returned: ${JSON.stringify(
+              apiCustomerResponse,
+            )}`,
+          );
         }
       } else {
         throw new Error(

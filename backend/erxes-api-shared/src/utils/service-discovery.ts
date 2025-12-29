@@ -12,7 +12,6 @@ interface PluginConfig {
   name: string;
   port: number;
   hasSubscriptions?: boolean;
-  importExportTypes?: any;
   meta?: any;
 }
 
@@ -89,7 +88,6 @@ export const joinErxesGateway = async ({
   name,
   port,
   hasSubscriptions = false,
-  importExportTypes,
   meta,
 }: PluginConfig) => {
   await redis.set(
@@ -98,7 +96,6 @@ export const joinErxesGateway = async ({
     JSON.stringify({
       dbConnectionString: MONGO_URL,
       hasSubscriptions,
-      importExportTypes,
       meta,
     }),
   );
