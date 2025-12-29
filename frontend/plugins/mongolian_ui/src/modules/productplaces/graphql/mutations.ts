@@ -1,4 +1,3 @@
-// Settings
 
 const updateConfigs = `
   mutation configsUpdate($configsMap: JSON!) {

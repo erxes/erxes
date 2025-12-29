@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from 'erxes-ui';
 import { ContentBox } from '../styles';
 import { IConfigsMap, PerPrintConfig } from '../types';
@@ -12,10 +12,15 @@ type Props = {
 };
 
 const PrintSettings = (props: Props) => {
-  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
+  const { configsMap, save } = props;
 
+  /* =========================
+   * ADD NEW CONFIG
+   * ========================= */
   const add = (e: React.MouseEvent) => {
     e.preventDefault();
+
+    const configKey = `config_${Date.now()}`;
 
     const newPrintConfig: PerPrintConfig = {
       title: 'New Print Config',
@@ -25,78 +30,68 @@ const PrintSettings = (props: Props) => {
       conditions: [],
     };
 
-    const configKey = `config_${Date.now()}`;
-    
-    setConfigsMap(prev => ({
-      ...prev,
+    const updatedConfigsMap: IConfigsMap = {
+      ...configsMap,
       dealsProductsDataPrint: {
-        ...(prev.dealsProductsDataPrint || {}),
-        [configKey]: newPrintConfig
-      }
-    }));
+        ...(configsMap.dealsProductsDataPrint || {}),
+        [configKey]: newPrintConfig,
+      },
+    };
+
+    save(updatedConfigsMap);
   };
 
+  /* =========================
+   * DELETE CONFIG
+   * ========================= */
   const deleteHandler = (currentConfigKey: string) => {
-    const updatedConfigsMap = { ...configsMap };
-    
-    if (updatedConfigsMap.dealsProductsDataPrint) {
-      delete updatedConfigsMap.dealsProductsDataPrint[currentConfigKey];
-    }
+    const updatedConfigsMap: IConfigsMap = {
+      ...configsMap,
+      dealsProductsDataPrint: {
+        ...(configsMap.dealsProductsDataPrint || {}),
+      },
+    };
 
-    setConfigsMap(updatedConfigsMap);
-    props.save(updatedConfigsMap);
+    delete updatedConfigsMap.dealsProductsDataPrint![currentConfigKey];
+
+    save(updatedConfigsMap);
   };
 
+  /* =========================
+   * SAVE SINGLE CONFIG
+   * ========================= */
   const saveHandler = (key: string, config: PerPrintConfig) => {
-    const updatedConfigsMap = { ...configsMap };
-    
-    if (!updatedConfigsMap.dealsProductsDataPrint) {
-      updatedConfigsMap.dealsProductsDataPrint = {};
-    }
-    
-    updatedConfigsMap.dealsProductsDataPrint[key] = config;
-    
-    setConfigsMap(updatedConfigsMap);
-    props.save(updatedConfigsMap);
+    const updatedConfigsMap: IConfigsMap = {
+      ...configsMap,
+      dealsProductsDataPrint: {
+        ...(configsMap.dealsProductsDataPrint || {}),
+        [key]: config,
+      },
+    };
+
+    save(updatedConfigsMap);
   };
 
+  /* =========================
+   * RENDER CONFIGS
+   * ========================= */
   const renderConfigs = () => {
     const configs = configsMap.dealsProductsDataPrint || {};
-    return Object.keys(configs).map((key) => {
-      return (
-        <PerPrint
-          key={key}
-          config={configs[key] as PerPrintConfig}
-          currentConfigKey={key}
-          save={saveHandler}
-          delete={deleteHandler}
-        />
-      );
-    });
+
+    return Object.keys(configs).map((key) => (
+      <PerPrint
+        key={key}
+        config={configs[key] as PerPrintConfig}
+        currentConfigKey={key}
+        save={saveHandler}
+        delete={deleteHandler}
+      />
+    ));
   };
-
-  const renderContent = () => {
-    return (
-      <ContentBox id={'PrintSettingsMenu'}>
-        {renderConfigs()} 
-      </ContentBox>
-    );
-  };
-
-  const breadcrumb = [
-    { title: 'Settings', link: '/settings' },
-    { title: 'Print config' },
-  ];
-
-  const actionButtons = (
-    <Button variant="default" onClick={add} className="flex items-center gap-2">
-      New config
-    </Button>
-  );
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header Section */}
+      {/* Header */}
       <div className="border-b p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -112,7 +107,7 @@ const PrintSettings = (props: Props) => {
         </div>
       </div>
 
-      {/* Main Header Component */}
+      {/* Main Header */}
       <div className="p-4">
         <Header />
       </div>
@@ -121,20 +116,26 @@ const PrintSettings = (props: Props) => {
       <div className="border-b p-4">
         <div className="flex items-center justify-between">
           <div className="text-lg font-medium">Print configs</div>
-          <div>{actionButtons}</div>
+          <Button
+            variant="default"
+            onClick={add}
+            className="flex items-center gap-2"
+          >
+            New config
+          </Button>
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Content */}
       <div className="flex flex-1">
-        {/* Sidebar */}
         <div className="w-64 border-r">
           <Sidebar />
         </div>
 
-        {/* Content */}
         <div className="flex-1 p-4 overflow-auto">
-          {renderContent()}
+          <ContentBox id="PrintSettingsMenu">
+            {renderConfigs()}
+          </ContentBox>
         </div>
       </div>
     </div>

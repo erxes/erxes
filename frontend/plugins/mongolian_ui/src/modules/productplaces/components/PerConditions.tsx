@@ -1,8 +1,5 @@
 import React from 'react';
-import { Button } from 'erxes-ui';
-import { Form } from 'erxes-ui';
-import { Select } from 'erxes-ui';
-
+import { Button, Select } from 'erxes-ui';
 
 type Props = {
   condition: any;
@@ -11,18 +8,18 @@ type Props = {
 };
 
 const PerConditions = ({ condition, onChange, onRemove }: Props) => {
-  const onChangeConfig = (code: string, value: any) => {
-    onChange(condition.id, { ...condition, [code]: value });
+  const onChangeConfig = (key: string, value: any) => {
+    onChange(condition.id, { ...condition, [key]: value });
   };
 
   return (
-    <div className="rounded border p-4 space-y-4">
+    <div className="rounded border p-4 space-y-6 bg-white">
       {/* MAIN FORM */}
       <div className="grid grid-cols-2 gap-6">
         {/* LEFT COLUMN */}
         <div className="space-y-4">
-          <Form.Item>
-            <Form.Label>Product Category</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Product Category</label>
             <Select
               value={condition.productCategoryIds}
               onValueChange={(v) =>
@@ -32,14 +29,12 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               <Select.Trigger>
                 <Select.Value placeholder="Choose product category" />
               </Select.Trigger>
-              <Select.Content>
-                {/* TODO: map categories */}
-              </Select.Content>
+              <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
 
-          <Form.Item>
-            <Form.Label>Exclude categories</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Exclude categories</label>
             <Select
               value={condition.excludeCategoryIds}
               onValueChange={(v) =>
@@ -51,10 +46,10 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               </Select.Trigger>
               <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
 
-          <Form.Item>
-            <Form.Label>Product Tags</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Product Tags</label>
             <Select
               value={condition.productTagIds}
               onValueChange={(v) =>
@@ -66,10 +61,10 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               </Select.Trigger>
               <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
 
-          <Form.Item>
-            <Form.Label>Exclude tags</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Exclude tags</label>
             <Select
               value={condition.excludeTagIds}
               onValueChange={(v) =>
@@ -81,10 +76,10 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               </Select.Trigger>
               <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
 
-          <Form.Item>
-            <Form.Label>Exclude products</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Exclude products</label>
             <Select
               value={condition.excludeProductIds}
               onValueChange={(v) =>
@@ -96,10 +91,10 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               </Select.Trigger>
               <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
 
-          <Form.Item>
-            <Form.Label>Segment</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Segment</label>
             <Select
               value={condition.segments}
               onValueChange={(v) =>
@@ -111,65 +106,61 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               </Select.Trigger>
               <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="space-y-4">
-          <Form.Item>
-            <Form.Label>Low Count</Form.Label>
-            <Form.Control>
-              <input
-                type="number"
-                value={condition.ltCount || ''}
-                onChange={(e) =>
-                  onChangeConfig('ltCount', e.target.value)
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Low Count</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded"
+              value={condition.ltCount ?? ''}
+              onChange={(e) =>
+                onChangeConfig('ltCount', e.target.value)
+              }
+            />
+          </div>
 
-          <Form.Item>
-            <Form.Label>Great Count</Form.Label>
-            <Form.Control>
-              <input
-                type="number"
-                value={condition.gtCount || ''}
-                onChange={(e) =>
-                  onChangeConfig('gtCount', e.target.value)
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Great Count</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded"
+              value={condition.gtCount ?? ''}
+              onChange={(e) =>
+                onChangeConfig('gtCount', e.target.value)
+              }
+            />
+          </div>
 
-          <Form.Item>
-            <Form.Label>Low UnitPrice</Form.Label>
-            <Form.Control>
-              <input
-                type="number"
-                value={condition.ltUnitPrice || ''}
-                onChange={(e) =>
-                  onChangeConfig('ltUnitPrice', e.target.value)
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Low Unit Price</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded"
+              value={condition.ltUnitPrice ?? ''}
+              onChange={(e) =>
+                onChangeConfig('ltUnitPrice', e.target.value)
+              }
+            />
+          </div>
 
-          <Form.Item>
-            <Form.Label>Great UnitPrice</Form.Label>
-            <Form.Control>
-              <input
-                type="number"
-                value={condition.gtUnitPrice || ''}
-                onChange={(e) =>
-                  onChangeConfig('gtUnitPrice', e.target.value)
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Great Unit Price</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded"
+              value={condition.gtUnitPrice ?? ''}
+              onChange={(e) =>
+                onChangeConfig('gtUnitPrice', e.target.value)
+              }
+            />
+          </div>
 
-          <Form.Item>
-            <Form.Label>Sub uom type</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Sub uom type</label>
             <Select
               value={condition.subUomType || ''}
               onValueChange={(v) =>
@@ -187,15 +178,15 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
                 </Select.Item>
               </Select.Content>
             </Select>
-          </Form.Item>
+          </div>
         </div>
       </div>
 
       {/* BRANCH & DEPARTMENT */}
       <div className="rounded border p-4">
         <div className="grid grid-cols-2 gap-4">
-          <Form.Item>
-            <Form.Label>Set branch</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Set branch</label>
             <Select
               value={condition.branchId || ''}
               onValueChange={(v) =>
@@ -207,10 +198,10 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               </Select.Trigger>
               <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
 
-          <Form.Item>
-            <Form.Label>Set department</Form.Label>
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Set department</label>
             <Select
               value={condition.departmentId || ''}
               onValueChange={(v) =>
@@ -222,9 +213,9 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               </Select.Trigger>
               <Select.Content />
             </Select>
-          </Form.Item>
+          </div>
         </div>
-        </div>
+      </div>
 
       {/* DELETE */}
       <div className="flex justify-end">

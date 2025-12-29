@@ -1,6 +1,5 @@
-// frontend/plugins/mongolian_ui/src/modules/productplaces/containers/Settings.tsx
 import { gql } from '@apollo/client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Spinner } from 'erxes-ui';
 import { useQuery, useMutation } from '@apollo/client';
 
@@ -13,25 +12,32 @@ type Props = {
 };
 
 const SettingsContainer = (props: Props) => {
-  console.log('SettingsContainer - configCode:', props.configCode);
+  const { component: Component, configCode } = props;
 
-  const configsQuery = useQuery<ConfigsQueryResponse>(gql(queries.configs), {
-    variables: {
-      code: props.configCode,
-    },
-    fetchPolicy: 'network-only',
-  });
-
-  console.log('SettingsContainer - query state:', {
-    loading: configsQuery.loading,
-    error: configsQuery.error,
-    data: configsQuery.data
-  });
+  const configsQuery = useQuery<ConfigsQueryResponse>(
+    gql(queries.configs),
+    {
+      variables: { code: configCode },
+      fetchPolicy: 'network-only',
+    }
+  );
 
   const [updateConfigs] = useMutation(gql(mutations.updateConfigs));
 
+  /** 🟢 DRAFT STATE */
+  const [draftConfigsMap, setDraftConfigsMap] =
+    useState<IConfigsMap>({});
+
+  /** 🔁 Sync server → draft */
+  useEffect(() => {
+    if (configsQuery.data?.configsGetValue?.value) {
+      setDraftConfigsMap(configsQuery.data.configsGetValue.value);
+    } else {
+      setDraftConfigsMap({});
+    }
+  }, [configsQuery.data]);
+
   if (configsQuery.loading) {
-    console.log('SettingsContainer - loading...');
     return (
       <div className="flex items-center justify-center h-64">
         <Spinner />
@@ -40,7 +46,6 @@ const SettingsContainer = (props: Props) => {
   }
 
   if (configsQuery.error) {
-    console.log('SettingsContainer - error:', configsQuery.error);
     return (
       <div className="p-4 bg-red-50 text-red-700 rounded-md">
         Error loading configuration: {configsQuery.error.message}
@@ -48,11 +53,15 @@ const SettingsContainer = (props: Props) => {
     );
   }
 
-  // create or update action
-  const save = (map: IConfigsMap) => {
-    console.log('SettingsContainer - saving:', map);
+  /** 💾 Persist to backend ONLY */
+  const saveToServer = (map: IConfigsMap) => {
     updateConfigs({
-      variables: { configsMap: map },
+      variables: {
+        configsMap: {
+          code: configCode,
+          value: map,
+        },
+      },
     })
       .then(() => {
         configsQuery.refetch();
@@ -63,29 +72,14 @@ const SettingsContainer = (props: Props) => {
       });
   };
 
-  const config = configsQuery.data?.configsGetValue;
-  
-  console.log('SettingsContainer - config:', config);
-  
-  if (!config) {
-    console.log('SettingsContainer - no config found');
-    return (
-      <div className="p-4 bg-yellow-50 text-yellow-700 rounded-md">
-        No configuration found for code: {props.configCode}
-      </div>
-    );
-  }
-
-  // Check what the config value actually is
-  console.log('SettingsContainer - config value:', config.value);
-  
-  // The configsMap should be structured like: { [configCode]: config.value }
-  const configsMap = { [config.code]: config.value };
-  
-  console.log('SettingsContainer - final configsMap:', configsMap);
-
-  const Component = props.component;
-  return <Component {...props} configsMap={configsMap} save={save} />;
+  return (
+    <Component
+      {...props}
+      configsMap={draftConfigsMap}
+      save={setDraftConfigsMap}   // 👈 children edit draft
+      saveToServer={saveToServer} // 👈 optional explicit save
+    />
+  );
 };
 
 export default SettingsContainer;

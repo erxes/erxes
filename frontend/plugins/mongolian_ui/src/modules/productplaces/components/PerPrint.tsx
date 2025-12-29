@@ -1,179 +1,109 @@
-import React, { useState } from 'react';
-import { Button, Form, Select } from 'erxes-ui';
-import { Collapsible } from 'erxes-ui/components/collapsible';
+import React from 'react';
+import { Button, Select } from 'erxes-ui';
+import { PerPrintConfig } from '../types';
 
-import PerPrintConditions from './PerPrintConditions';
-import { PerPrintConfig, Condition, PerPrintSettingsProps } from '../types';
+type Props = {
+  config: PerPrintConfig;
+  currentConfigKey: string;
+  save: (key: string, config: PerPrintConfig) => void;
+  delete: (key: string) => void;
+};
 
-// Remove the local Config type and use PerPrintConfig from types.ts
+const PerPrint = ({ config, currentConfigKey, save, delete: deleteHandler }: Props) => {
+  if (!config) {
+    return null;
+  }
 
-const PerPrintSettings = ({
-  config: initialConfig,
-  currentConfigKey,
-  save,
-  delete: deleteConfig,
-}: PerPrintSettingsProps) => {
-  const [config, setConfig] = useState<PerPrintConfig>(initialConfig);
-
-  const onChangeConfig = (key: string, value: any) => {
-    setConfig((prev: PerPrintConfig) => ({ ...prev, [key]: value }));
-  };
-
-  const addCondition = () => {
-    onChangeConfig('conditions', [
-      ...(config.conditions || []),
-      { id: Math.random().toString() },
-    ]);
-  };
-
-  const removeCondition = (id: string) => {
-    onChangeConfig(
-      'conditions',
-      (config.conditions || []).filter((c: Condition) => c.id !== id),
-    );
-  };
-
-  const editCondition = (id: string, condition: Condition) => {
-    onChangeConfig(
-      'conditions',
-      (config.conditions || []).map((c: Condition) =>
-        c.id === id ? condition : c,
-      ),
-    );
-  };
-
-  const onSave = () => {
-    if (!config.stageId) return;
-    save(config.stageId, config);
-  };
-
-  const onDelete = () => {
-    deleteConfig(currentConfigKey);
+  const onChangeConfig = (key: keyof PerPrintConfig, value: any) => {
+    save(currentConfigKey, {
+      ...config,
+      [key]: value,
+    });
   };
 
   return (
-    <Collapsible
-      defaultOpen={currentConfigKey === 'newPrintConfig'}
-      className="rounded border p-4 space-y-6"
-    >
-      {/* HEADER */}
-      <Collapsible.TriggerButton>
-        <div className="flex w-full items-center justify-between">
-          <span className="text-sm font-semibold">
-            {config.title || 'Print config'}
-          </span>
-          <Collapsible.TriggerIcon className="h-4 w-4" />
-        </div>
-      </Collapsible.TriggerButton>
-
-      {/* CONTENT */}
-      <Collapsible.Content className="space-y-6">
-        {/* TITLE */}
-        <Form.Item>
-          <Form.Label>Title</Form.Label>
-          <Form.Control>
-            <input
-              value={config.title || ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                onChangeConfig('title', e.target.value)
-              }
-            />
-          </Form.Control>
-        </Form.Item>
-
-        {/* BOARD / PIPELINE / STAGE */}
-        <div className="grid grid-cols-3 gap-4 rounded border p-4">
-          <Form.Item>
-            <Form.Label>Board</Form.Label>
-            <Select
-              value={config.boardId || ''}
-              onValueChange={(v: string) =>
-                onChangeConfig('boardId', v)
-              }
-            >
-              <Select.Trigger>
-                <Select.Value placeholder="Select board" />
-              </Select.Trigger>
-              <Select.Content>
-                {/* TODO: map boards */}
-              </Select.Content>
-            </Select>
-          </Form.Item>
-
-          <Form.Item>
-            <Form.Label>Pipeline</Form.Label>
-            <Select
-              value={config.pipelineId || ''}
-              onValueChange={(v: string) =>
-                onChangeConfig('pipelineId', v)
-              }
-            >
-              <Select.Trigger>
-                <Select.Value placeholder="Select pipeline" />
-              </Select.Trigger>
-              <Select.Content>
-                {/* TODO: map pipelines */}
-              </Select.Content>
-            </Select>
-          </Form.Item>
-
-          <Form.Item>
-            <Form.Label>Stage</Form.Label>
-            <Select
-              value={config.stageId || ''}
-              onValueChange={(v: string) =>
-                onChangeConfig('stageId', v)
-              }
-            >
-              <Select.Trigger>
-                <Select.Value placeholder="Select stage" />
-              </Select.Trigger>
-              <Select.Content>
-                {/* TODO: map stages */}
-              </Select.Content>
-            </Select>
-          </Form.Item>
-        </div>
-
-        {/* CONDITIONS */}
+    <div className="rounded border p-4 space-y-6 bg-white">
+      {/* MAIN SETTINGS */}
+      <div className="grid grid-cols-2 gap-6">
+        {/* LEFT */}
         <div className="space-y-4">
-          {(config.conditions || []).map((condition: Condition) => (
-            <PerPrintConditions
-              key={condition.id}
-              condition={condition}
-              onChange={editCondition}
-              onRemove={removeCondition}
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Print type</label>
+            <Select
+              value={config.type || ''}
+              onValueChange={(v) => onChangeConfig('type', v)}
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Choose print type" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="invoice">Invoice</Select.Item>
+                <Select.Item value="receipt">Receipt</Select.Item>
+                <Select.Item value="label">Label</Select.Item>
+              </Select.Content>
+            </Select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Paper size</label>
+            <Select
+              value={config.paperSize || ''}
+              onValueChange={(v) => onChangeConfig('paperSize', v)}
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Choose paper size" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="A4">A4</Select.Item>
+                <Select.Item value="A5">A5</Select.Item>
+                <Select.Item value="80mm">80mm</Select.Item>
+              </Select.Content>
+            </Select>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Copies</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded"
+              value={config.copies ?? ''}
+              min={1}
+              onChange={(e) =>
+                onChangeConfig('copies', Number(e.target.value))
+              }
             />
-          ))}
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Printer</label>
+            <Select
+              value={config.printerId || ''}
+              onValueChange={(v) => onChangeConfig('printerId', v)}
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Choose printer" />
+              </Select.Trigger>
+              <Select.Content />
+            </Select>
+          </div>
         </div>
+      </div>
 
-        {/* ACTIONS */}
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button
-            variant="secondary"
-            onClick={addCondition}
-          >
-            Add condition
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={onDelete}
-          >
-            Delete
-          </Button>
-
-          <Button
-            variant="default"
-            disabled={!config.stageId}
-            onClick={onSave}
-          >
-            Save
-          </Button>
-        </div>
-      </Collapsible.Content>
-    </Collapsible>
+      {/* FOOTER */}
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => deleteHandler(currentConfigKey)}
+        >
+          Delete
+        </Button>
+      </div>
+    </div>
   );
 };
 
-export default PerPrintSettings;
+export default PerPrint;

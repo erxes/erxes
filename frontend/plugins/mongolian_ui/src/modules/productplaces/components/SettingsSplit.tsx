@@ -1,5 +1,4 @@
-// frontend/plugins/mongolian_ui/src/modules/productplaces/components/SettingsSplit.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Form, Select } from 'erxes-ui';
 import { IConfigsMap, PerSplitConfig } from '../types';
 
@@ -8,7 +7,7 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-// Mock data - in real app, these would come from props or API
+/* Mock data – replace with real data later */
 const mockProductCategories = [
   { _id: '1', name: 'Category 1' },
   { _id: '2', name: 'Category 2' },
@@ -30,10 +29,15 @@ const mockSegments = [
 ];
 
 const SettingsSplit = (props: Props) => {
-  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
+  const { configsMap, save } = props;
 
+  /* =========================
+   * ADD NEW CONFIG
+   * ========================= */
   const add = (e: React.MouseEvent) => {
     e.preventDefault();
+
+    const configKey = `config_${Date.now()}`;
 
     const newSplitConfig: PerSplitConfig = {
       title: 'New Split Config',
@@ -48,45 +52,57 @@ const SettingsSplit = (props: Props) => {
       segments: [],
     };
 
-    const configKey = `config_${Date.now()}`;
-    
-    setConfigsMap(prev => ({
-      ...prev,
+    const updatedConfigsMap: IConfigsMap = {
+      ...configsMap,
       dealsProductsDataSplit: {
-        ...(prev.dealsProductsDataSplit || {}),
-        [configKey]: newSplitConfig
-      }
-    }));
+        ...(configsMap.dealsProductsDataSplit || {}),
+        [configKey]: newSplitConfig,
+      },
+    };
+
+    save(updatedConfigsMap);
   };
 
+  /* =========================
+   * DELETE CONFIG
+   * ========================= */
   const deleteHandler = (currentConfigKey: string) => {
-    const updatedConfigsMap = { ...configsMap };
-    
-    if (updatedConfigsMap.dealsProductsDataSplit) {
-      delete updatedConfigsMap.dealsProductsDataSplit[currentConfigKey];
-    }
+    const updatedConfigsMap: IConfigsMap = {
+      ...configsMap,
+      dealsProductsDataSplit: {
+        ...(configsMap.dealsProductsDataSplit || {}),
+      },
+    };
 
-    setConfigsMap(updatedConfigsMap);
-    props.save(updatedConfigsMap);
+    delete updatedConfigsMap.dealsProductsDataSplit![currentConfigKey];
+
+    save(updatedConfigsMap);
   };
 
+  /* =========================
+   * UPDATE / SAVE CONFIG
+   * ========================= */
   const updateConfig = (key: string, config: PerSplitConfig) => {
-    const updatedConfigsMap = { ...configsMap };
-    
-    if (!updatedConfigsMap.dealsProductsDataSplit) {
-      updatedConfigsMap.dealsProductsDataSplit = {};
-    }
-    
-    updatedConfigsMap.dealsProductsDataSplit[key] = config;
-    
-    setConfigsMap(updatedConfigsMap);
-    props.save(updatedConfigsMap);
+    const updatedConfigsMap: IConfigsMap = {
+      ...configsMap,
+      dealsProductsDataSplit: {
+        ...(configsMap.dealsProductsDataSplit || {}),
+        [key]: config,
+      },
+    };
+
+    save(updatedConfigsMap);
   };
 
+  /* =========================
+   * RENDER CONFIGS
+   * ========================= */
   const renderConfigs = () => {
     const configs = configsMap.dealsProductsDataSplit || {};
+
     return Object.keys(configs).map((key) => {
       const config = configs[key] as PerSplitConfig;
+
       return (
         <div key={key} className="border rounded p-4 mb-4">
           <Form.Item>
@@ -94,17 +110,21 @@ const SettingsSplit = (props: Props) => {
             <Form.Control>
               <input
                 value={config.title || ''}
-                onChange={(e) => updateConfig(key, { ...config, title: e.target.value })}
+                onChange={(e) =>
+                  updateConfig(key, { ...config, title: e.target.value })
+                }
               />
             </Form.Control>
           </Form.Item>
-          
+
           <div className="grid grid-cols-3 gap-4 mt-4">
             <Form.Item>
               <Form.Label>Board</Form.Label>
               <Select
                 value={config.boardId || ''}
-                onValueChange={(v) => updateConfig(key, { ...config, boardId: v })}
+                onValueChange={(v) =>
+                  updateConfig(key, { ...config, boardId: v })
+                }
               >
                 <Select.Trigger>
                   <Select.Value placeholder="Select board" />
@@ -120,7 +140,9 @@ const SettingsSplit = (props: Props) => {
               <Form.Label>Pipeline</Form.Label>
               <Select
                 value={config.pipelineId || ''}
-                onValueChange={(v) => updateConfig(key, { ...config, pipelineId: v })}
+                onValueChange={(v) =>
+                  updateConfig(key, { ...config, pipelineId: v })
+                }
               >
                 <Select.Trigger>
                   <Select.Value placeholder="Select pipeline" />
@@ -136,7 +158,9 @@ const SettingsSplit = (props: Props) => {
               <Form.Label>Stage</Form.Label>
               <Select
                 value={config.stageId || ''}
-                onValueChange={(v) => updateConfig(key, { ...config, stageId: v })}
+                onValueChange={(v) =>
+                  updateConfig(key, { ...config, stageId: v })
+                }
               >
                 <Select.Trigger>
                   <Select.Value placeholder="Select stage" />
@@ -179,7 +203,11 @@ const SettingsSplit = (props: Props) => {
       </div>
 
       <div className="flex justify-end">
-        <Button variant="default" onClick={add} className="flex items-center gap-2">
+        <Button
+          variant="default"
+          onClick={add}
+          className="flex items-center gap-2"
+        >
           + New Config
         </Button>
       </div>

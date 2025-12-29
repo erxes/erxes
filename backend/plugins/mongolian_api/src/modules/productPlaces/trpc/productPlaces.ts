@@ -9,7 +9,6 @@ export type ProductPlacesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<ProductPlacesTRPCContext>().create();
 
-// backend/plugins/mongolian_api/src/modules/productPlaces/trpc/productPlaces.ts
 export const productPlacesTrpcRouter = t.router({
   afterMutation: t.procedure
     .input(z.any())

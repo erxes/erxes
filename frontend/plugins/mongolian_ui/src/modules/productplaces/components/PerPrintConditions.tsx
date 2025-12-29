@@ -1,9 +1,6 @@
 import * as React from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
-import { Button } from 'erxes-ui';
-import { Form } from 'erxes-ui';
-import { Select } from 'erxes-ui';
-
+import { useForm } from 'react-hook-form';
+import { Button, Form, Select } from 'erxes-ui';
 
 type Props = {
   condition: any;
@@ -11,29 +8,41 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
+type FormValues = {
+  branchId?: string;
+  departmentId?: string;
+};
+
 const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
-  const form = useForm({
+  const form = useForm<FormValues>({
     defaultValues: {
-      branchId: condition.branchId,
-      departmentId: condition.departmentId,
+      branchId: condition.branchId || '',
+      departmentId: condition.departmentId || '',
     },
   });
 
-  const onSubmit = (values: any) => {
+  const handleSubmit = (values: FormValues) => {
     onChange(condition.id, { ...condition, ...values });
   };
 
   return (
-    <FormProvider {...form}>
-      <form onBlur={form.handleSubmit(onSubmit)}>
+    <Form {...form}>
+      <form
+        onBlur={form.handleSubmit(handleSubmit)}
+        className="flex items-center gap-2"
+      >
         <Form.Field
+          control={form.control}
           name="branchId"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Branch</Form.Label>
 
               <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
                   <Select.Trigger>
                     <Select.Value placeholder="Choose branch" />
                   </Select.Trigger>
@@ -52,6 +61,7 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
         />
 
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => onRemove(condition.id)}
@@ -59,7 +69,7 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
           ✕
         </Button>
       </form>
-    </FormProvider>
+    </Form>
   );
 };
 
