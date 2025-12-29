@@ -2,6 +2,7 @@ import { Form, MultipleSelector, MultiSelectOption } from 'erxes-ui';
 import { ControllerRenderProps, useFormContext, Path } from 'react-hook-form';
 import { TGeneralSettingsProps } from '@/settings/general/types';
 import { CURRENCY_CODES } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const Selector = (
   field: ControllerRenderProps<TGeneralSettingsProps, 'dealCurrency'>,
@@ -16,6 +17,9 @@ const Selector = (
     label,
     value,
   }));
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'general',
+  });
 
   const handleOnChange = (options: MultiSelectOption[]) => {
     const formattedOptions = options?.map((option) => option.value);
@@ -23,7 +27,7 @@ const Selector = (
   };
   return (
     <Form.Item className="pb-4">
-      <Form.Label>Currency</Form.Label>
+      <Form.Label>{t('currency')}</Form.Label>
       <Form.Control>
         <MultipleSelector
           options={currencyOptions}
@@ -36,6 +40,7 @@ const Selector = (
 };
 export function SelectCurrency() {
   const { control } = useFormContext<TGeneralSettingsProps>();
+
   return (
     <Form.Field
       control={control}

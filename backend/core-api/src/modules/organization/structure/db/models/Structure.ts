@@ -1,4 +1,7 @@
-import { STRUCTURE_STATUSES } from 'erxes-api-shared/core-modules';
+import {
+  EventDispatcherReturn,
+  STRUCTURE_STATUSES,
+} from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import {
   IDepartmentDocument,
@@ -113,7 +116,10 @@ export interface IDepartmentModel extends Model<IDepartmentDocument> {
   removeDepartments(ids?: string[]): Promise<IDepartmentDocument>;
 }
 
-export const loadDepartmentClass = (models: IModels) => {
+export const loadDepartmentClass = (
+  models: IModels,
+  { getContext }: EventDispatcherReturn,
+) => {
   class Department {
     /*
      * Get a department
@@ -145,11 +151,13 @@ export const loadDepartmentClass = (models: IModels) => {
         createdAt: new Date(),
         createdBy: user._id,
       });
+      const { processId } = getContext();
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || department.userIds || [],
         contentType: 'department',
         contentTypeId: department._id,
         createdBy: user._id,
+        processId,
       });
 
       return department;
@@ -196,12 +204,13 @@ export const loadDepartmentClass = (models: IModels) => {
           },
         );
       }
-
+      const { processId } = getContext();
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'department',
         contentTypeId: _id,
         createdBy: user._id,
+        processId,
       });
       await models.Departments.updateOne(
         { _id },
@@ -337,7 +346,10 @@ export interface IBranchModel extends Model<IBranchDocument> {
   removeBranches(ids?: string[]): Promise<IBranchDocument>;
 }
 
-export const loadBranchClass = (models: IModels) => {
+export const loadBranchClass = (
+  models: IModels,
+  { getContext }: EventDispatcherReturn,
+) => {
   class Branch {
     /*
      * Get a branch
@@ -369,13 +381,15 @@ export const loadBranchClass = (models: IModels) => {
         createdAt: new Date(),
         createdBy: user._id,
       });
-        await models.UserMovements.manageStructureUsersMovement({
+      const { processId } = getContext();
+      await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || branch.userIds || [],
         contentType: 'branch',
         contentTypeId: branch._id,
         createdBy: user._id,
+        processId,
       });
-      
+
       return branch;
     }
 
@@ -419,11 +433,13 @@ export const loadBranchClass = (models: IModels) => {
           },
         );
       }
+      const { processId } = getContext();
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'branch',
         contentTypeId: _id,
         createdBy: user._id,
+        processId,
       });
 
       await models.Branches.updateOne(
@@ -484,7 +500,10 @@ export interface IPositionModel extends Model<IPositionDocument> {
   removePositions(ids?: string[]): Promise<IPositionDocument>;
 }
 
-export const loadPositionClass = (models: IModels) => {
+export const loadPositionClass = (
+  models: IModels,
+  { getContext }: EventDispatcherReturn,
+) => {
   class Position {
     /*
      * Get a position
@@ -517,11 +536,13 @@ export const loadPositionClass = (models: IModels) => {
         createdBy: user._id,
       });
 
+      const { processId } = getContext();
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || position.userIds || [],
         contentType: 'position',
         contentTypeId: position._id,
         createdBy: user._id,
+        processId,
       });
 
       return position;
@@ -567,11 +588,13 @@ export const loadPositionClass = (models: IModels) => {
           },
         );
       }
+      const { processId } = getContext();
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'position',
         contentTypeId: _id,
         createdBy: user._id,
+        processId,
       });
 
       await models.Positions.updateOne(

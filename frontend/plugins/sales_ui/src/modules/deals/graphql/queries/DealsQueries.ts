@@ -111,6 +111,7 @@ export const commonListFields = `
   stage {
     _id
     name
+    defaultTick
   }
   stageId
   isComplete
@@ -170,6 +171,11 @@ export const GET_DEALS = gql`
             title
           }
           relations
+          pipeline {
+            _id
+            name
+          }
+          boardId
         }
         pageInfo {
           endCursor
@@ -177,6 +183,7 @@ export const GET_DEALS = gql`
           hasNextPage
           hasPreviousPage
         }
+       
         totalCount
       }
   }
