@@ -9,6 +9,7 @@ import {
 import { useSearchParams } from 'react-router';
 import { SelectMember } from 'ui-modules';
 import { DocumentFilterState } from '../types';
+import { useTranslation } from 'react-i18next';
 
 // TODO: Change assignedTo to createdBy
 
@@ -60,13 +61,16 @@ export const DocumentsFilter = () => {
 
 const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
   const { searchValue, assignedTo } = queries || {};
+  const { t } = useTranslation('documents', {
+    keyPrefix: 'filter',
+  });
 
   return (
     <>
       <Filter.BarItem queryKey="searchValue">
         <Filter.BarName>
           <IconSearch />
-          Search
+          {t('search')}
         </Filter.BarName>
         <Filter.BarButton filterKey="searchValue" inDialog>
           {searchValue}
@@ -76,7 +80,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          Created At
+          {t('created-at')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
@@ -86,6 +90,9 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
 };
 
 const DocumentFilterView = () => {
+  const { t } = useTranslation('documents', {
+    keyPrefix: 'filter',
+  });
   return (
     <>
       <Filter.View>
@@ -98,14 +105,14 @@ const DocumentFilterView = () => {
           <Command.List className="p-1">
             <Filter.Item value="searchValue" inDialog>
               <IconSearch />
-              Search
+              {t('search')}
             </Filter.Item>
 
             <SelectMember.FilterItem />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdAt">
               <IconCalendarPlus />
-              Created At
+              {t('created-at')}
             </Filter.Item>
           </Command.List>
         </Command>

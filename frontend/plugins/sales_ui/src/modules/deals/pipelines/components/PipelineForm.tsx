@@ -1,8 +1,8 @@
 import { Button, Tabs } from 'erxes-ui';
 
 import GeneralForm from '@/deals/boards/components/detail/GeneralForm';
-import PipelineConfig from './PipelineConfig';
 import PipelineStages from './PipelineStages';
+import ProductConfig from '@/deals/cards/components/detail/product/components/ProductConfig';
 
 type Props = {
   form: any;
@@ -48,7 +48,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
         value="productConfig"
         className="h-full py-4 px-5 overflow-auto"
       >
-        <PipelineConfig form={form} />
+        <ProductConfig form={form} />
       </Tabs.Content>
     </Tabs>
   );

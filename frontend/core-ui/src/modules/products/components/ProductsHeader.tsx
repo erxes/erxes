@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom';
 import { ProductAddSheet } from './ProductAddSheet';
 import { IconSettings } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ProductsHeader = () => {
+  const { t } = useTranslation('common');
   return (
     <PageHeader>
       <ProductsNavigation />
@@ -13,7 +15,7 @@ export const ProductsHeader = () => {
         <Button variant="outline" asChild>
           <Link to="/settings/products">
             <IconSettings />
-            Settings
+            {t('core-modules.settings')}
           </Link>
         </Button>
         <ProductAddSheet />
