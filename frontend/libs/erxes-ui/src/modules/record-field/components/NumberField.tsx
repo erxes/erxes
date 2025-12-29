@@ -1,8 +1,17 @@
 import { ButtonProps, Input, TextOverflowTooltip } from 'erxes-ui/components';
+import React, { useState } from 'react';
+
 import { PopoverScoped } from 'erxes-ui/modules/hotkey';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 
-import React, { useState } from 'react';
+export interface INumberFieldContainerProps {
+  placeholder?: string;
+  value: number;
+  field: string;
+  fieldId?: string;
+  _id: string;
+  scope?: string;
+}
 
 export const NumberField = React.forwardRef<
   HTMLButtonElement,
@@ -23,8 +32,10 @@ export const NumberField = React.forwardRef<
 
     const handleAction = (e: React.FormEvent) => {
       e.preventDefault();
-      if (editingValue === value) return;
-      onSave?.(editingValue);
+      if (editingValue !== value) {
+        onSave?.(editingValue);
+      }
+      setIsOpen(false);
     };
 
     return (
@@ -40,22 +51,29 @@ export const NumberField = React.forwardRef<
       >
         <RecordTableInlineCell.Trigger {...props} ref={ref}>
           {children}
-          <TextOverflowTooltip value={editingValue.toString() ?? placeholder} />
+          <TextOverflowTooltip
+            value={
+              (isOpen ? editingValue.toString() : value.toLocaleString()) ??
+              placeholder
+            }
+          />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content asChild>
           <form onSubmit={handleAction}>
             <Input
-              type="number"
-              value={editingValue.toString()}
+              type="text"
+              value={editingValue.toLocaleString()}
               onChange={(e) => {
-                const numValue = Number(e.target.value);
-                if (!isNaN(numValue)) {
-                  setEditingValue(numValue);
-                  onValueChange?.(numValue);
+                const rawValue = e.target.value.replace(/,/g, '');
+                const numValue = Number(rawValue);
+                if (!isNaN(numValue) || rawValue === '') {
+                  setEditingValue(numValue || 0);
+                  onValueChange?.(numValue || 0);
                 }
                 setIsOpen(true);
               }}
             />
+
             <button type="submit" className="sr-only">
               Save
             </button>

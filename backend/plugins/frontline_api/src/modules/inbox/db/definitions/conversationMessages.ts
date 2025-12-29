@@ -54,4 +54,5 @@ export const messageSchema = new Schema({
     default: MESSAGE_TYPES.TEXT,
   },
   botId: { type: String },
+  responseTemplateId: { type: String },
 });

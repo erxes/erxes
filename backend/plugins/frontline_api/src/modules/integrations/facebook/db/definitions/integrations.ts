@@ -21,5 +21,4 @@ export const integrationSchema = schemaWrapper(
     healthStatus: String,
     error: String,
   }),
-  { contentType: 'frontline:facebook.integration' },
 );

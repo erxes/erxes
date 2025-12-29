@@ -1,4 +1,5 @@
 import {
+  IconClipboardTextFilled,
   IconCrane,
   IconListCheck,
   IconListDetails,
@@ -7,7 +8,6 @@ import {
 import { cn, NavigationMenuLinkItem, Sidebar, useQueryState } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { TR_JOURNAL_LABELS, TrJournalEnum } from './transactions/types/constants';
-
 
 function RenderJournals() {
   const path = 'accounting/records';
@@ -47,10 +47,11 @@ function RenderJournals() {
 export const MainNavigation = () => {
   return (
     <>
-      <NavigationMenuLinkItem name='Баримтууд' icon={IconListDetails} path="accounting/main" />
-      <NavigationMenuLinkItem name='Журнал бичилт' icon={IconListCheck} path="accounting/records" />
-      {RenderJournals()}
-      <NavigationMenuLinkItem name='Бүрэн бус баримтууд' icon={IconCrane} path="accounting/odd-transactions" />
+      <NavigationMenuLinkItem name='Баримтууд' icon={IconListDetails} path="main" pathPrefix="accounting" />
+      <NavigationMenuLinkItem name='Журнал бичилт' icon={IconListCheck} path="records" pathPrefix="accounting" />
+      <RenderJournals />
+      <NavigationMenuLinkItem name='Бүрэн бус баримтууд' icon={IconCrane} path="odd-transactions" pathPrefix="accounting" />
+      <NavigationMenuLinkItem name='Тайлан' icon={IconClipboardTextFilled} path="journal-reports" pathPrefix="accounting" />
     </>
   );
 };
