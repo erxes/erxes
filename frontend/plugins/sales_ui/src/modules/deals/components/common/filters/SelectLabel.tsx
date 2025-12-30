@@ -24,13 +24,14 @@ import {
   ISelectLabelProviderProps,
 } from '@/deals/types/pipelines';
 import { IconLabel, IconPlus, IconCheck } from '@tabler/icons-react';
-import { useContext, useState, useMemo } from 'react';
+import { useContext, useState, useMemo, useEffect } from 'react';
 import React from 'react';
 import { createContext } from 'react';
 import { ADD_PIPELINE_LABEL } from '~/modules/deals/graphql/mutations/PipelinesMutations';
 import { usePipelineLabelLabel } from '~/modules/deals/pipelines/hooks/usePipelineDetails';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_PIPELINE_LABELS } from '~/modules/deals/graphql/queries/PipelinesQueries';
+import { GET_DEALS } from '~/modules/deals/graphql/queries/DealsQueries';
 import { usePipelineLabels } from '@/deals/pipelines/hooks/usePipelineDetails';
 import LabelForm from '~/modules/deals/cards/components/detail/overview/label/LabelForm';
 
@@ -132,22 +133,32 @@ export const SelectLabelsCommand = ({
       newLabelIds.push(label._id);
     }
 
-    onSelect(label);
-
-    labelPipelineLabel({
-      variables: {
-        targetId: targetId,
-        labelIds: newLabelIds,
-      },
-      refetchQueries: [
-        {
-          query: GET_PIPELINE_LABELS,
-          variables: { pipelineId },
+    // Only update context for non-card usage (filters)
+    // For cards, the mutation will update the backend and the UI will refresh from the deal data
+    if (targetId) {
+      // Card variant - just update the backend and refetch deals
+      labelPipelineLabel({
+        variables: {
+          targetId: targetId,
+          labelIds: newLabelIds,
         },
-      ],
-      onCompleted: () => {},
-      onError: (error) => {},
-    });
+        refetchQueries: [
+          {
+            query: GET_PIPELINE_LABELS,
+            variables: { pipelineId },
+          },
+          {
+            query: GET_DEALS,
+            variables: { pipelineId },
+          },
+        ],
+        onCompleted: () => {},
+        onError: (error) => {},
+      });
+    } else {
+      // Filter variant - update context
+      onSelect(label);
+    }
   };
 
   const filteredLabels = useMemo(() => {
@@ -443,6 +454,7 @@ export const SelectLabelsFilterBar = ({
   variant,
   scope,
   targetId,
+  initialValue,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
@@ -450,9 +462,23 @@ export const SelectLabelsFilterBar = ({
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
   targetId?: string;
+  initialValue?: string[];
 }) => {
-  const [query, setQuery] = useQueryState<string[]>(filterKey);
+  const isCardVariant = variant === 'card';
+
+  // Use local state for card variant, URL state for filter variant
+  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
+  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
+
+  // Sync local state with initialValue when it changes (for card variant)
+  useEffect(() => {
+    if (isCardVariant && initialValue) {
+      setLocalQuery(initialValue);
+    }
+  }, [initialValue, isCardVariant]);
+
+  const query = isCardVariant ? localQuery : urlQuery;
 
   if (!query && variant !== 'card') {
     return null;
@@ -464,9 +490,17 @@ export const SelectLabelsFilterBar = ({
       value={query || []}
       onValueChange={(value) => {
         if (value && value.length > 0) {
-          setQuery(value as string[]);
+          if (isCardVariant) {
+            setLocalQuery(value as string[]);
+          } else {
+            setUrlQuery(value as string[]);
+          }
         } else {
-          setQuery(null);
+          if (isCardVariant) {
+            setLocalQuery([]);
+          } else {
+            setUrlQuery(null);
+          }
         }
         setOpen(false);
       }}

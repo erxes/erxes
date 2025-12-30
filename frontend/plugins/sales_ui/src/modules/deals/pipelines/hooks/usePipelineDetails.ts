@@ -183,13 +183,13 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
             pipelineId,
           },
         },
-        {
-          query: GET_DEAL_DETAIL,
-          variables: {
-            ...options?.variables,
-            _id,
-          },
-        },
+        // {
+        //   query: GET_DEAL_DETAIL,
+        //   variables: {
+        //     ...options?.variables,
+        //     _id,
+        //   },
+        // },
       ],
       awaitRefetchQueries: true,
       onCompleted: (...args) => {

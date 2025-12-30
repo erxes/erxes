@@ -80,6 +80,7 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
             label="By Label"
             variant="card"
             targetId={_id}
+            initialValue={labels?.map((label) => label._id || '') || []}
           />
           {/* <SelectCompany
                   value={field.value}
