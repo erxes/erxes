@@ -26,7 +26,7 @@ const SalesMain = () => {
     <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/deals" element={<DealsMain />} />
-        <Route path="/pos" element={<PosMain />} />
+        <Route path="/pos/*" element={<PosMain />} />
         <Route path="/pos/:id" element={<PosEditPage />} />
       </Routes>
     </Suspense>

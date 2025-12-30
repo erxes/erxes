@@ -1,5 +1,4 @@
 import { RecordTable } from 'erxes-ui';
-import { PosOrdersByCustomerCommandBar } from '@/pos/pos-orders-by-customer/components/pos-orders-by-customer-command-bar/PosOrdersByCustomerCommandBar';
 import { PosOrdersByCustomerColumns } from '@/pos/pos-orders-by-customer/components/PosOrdersByCustomerColumns';
 import { usePosOrderByCustomerList } from '@/pos/pos-orders-by-customer/hooks/UsePosOrderByCustomer';
 
@@ -38,7 +37,6 @@ export const PosOrdersByCustomerRecordTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <PosOrdersByCustomerCommandBar />
     </RecordTable.Provider>
   );
 };

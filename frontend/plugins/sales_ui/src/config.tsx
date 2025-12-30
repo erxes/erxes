@@ -49,7 +49,7 @@ export const CONFIG: IUIConfig = {
     {
       name: 'pos',
       icon: IconBriefcase,
-      path: 'pos',
+      path: 'sales/pos',
       hasSettings: true,
       hasAutomation: false,
     },

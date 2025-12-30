@@ -7,6 +7,7 @@ import { PosOrderFilter } from '@/pos/orders/components/PosOrderFilter';
 
 export const OrdersPage = () => {
   const { posId } = useParams();
+  console.log('posId:', posId);
 
   return (
     <>

@@ -1,6 +1,5 @@
 import { RecordTable } from 'erxes-ui';
 import { PosSummaryColumns } from './PosSummaryColumns';
-import { PosSummaryCommandBar } from '@/pos/pos-summary/components/pos-summary-command-bar/PosSummaryCommandBar';
 import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummaryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 
@@ -50,7 +49,6 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
           </div>
         )}
       </RecordTable.CursorProvider>
-      <PosSummaryCommandBar />
     </RecordTable.Provider>
   );
 };

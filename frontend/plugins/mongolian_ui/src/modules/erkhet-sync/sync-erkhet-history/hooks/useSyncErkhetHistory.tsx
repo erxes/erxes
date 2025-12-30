@@ -81,7 +81,7 @@ export const useSyncErkhetHistoryVariables = (
     type: isHistory ? 'syncErkhetHistory' : 'isSyncErkhetHistory',
     userId: user || undefined,
     ...variables,
-  };
+  };  
 };
 export const useSyncErkhetHistory = (
   options?: QueryHookOptions<{
