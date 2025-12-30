@@ -1,6 +1,6 @@
 import { IconSandbox } from '@tabler/icons-react';
-
 import { NavigationMenuLinkItem } from 'erxes-ui';
+import React from 'react';
 
 export const MainNavigation = () => {
   return (
@@ -13,6 +13,11 @@ export const MainNavigation = () => {
       <NavigationMenuLinkItem
         name="Erkhet Sync"
         path="mongolian/sync-erkhet-history"
+        icon={IconSandbox}
+      />
+      <NavigationMenuLinkItem
+        name="Product Places"
+        path="mongolian/product-places"
         icon={IconSandbox}
       />
     </>
