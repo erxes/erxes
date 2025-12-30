@@ -6,17 +6,19 @@ import { z } from 'zod';
 import { FORM_APPEARENCE_SCHEMA } from '../constants/formSchema';
 import { FormMutateLayout } from './FormMutateLayout';
 import { ColorPicker, Form, ToggleGroup } from 'erxes-ui';
+import { FormValueEffectComponent } from './FormValueEffectComponent';
 
 export const FormAppearence = () => {
-  const [appearance, setAppearance] = useAtom(formSetupAppearanceAtom);
-
   const form = useForm<z.infer<typeof FORM_APPEARENCE_SCHEMA>>({
     resolver: zodResolver(FORM_APPEARENCE_SCHEMA),
-    defaultValues: appearance,
+    defaultValues: {
+      primaryColor: '',
+      appearance: 'iframe',
+    },
   });
 
   const onSubmit = (values: z.infer<typeof FORM_APPEARENCE_SCHEMA>) => {
-    setAppearance(values);
+    console.log(values);
   };
 
   return (
@@ -26,6 +28,7 @@ export const FormAppearence = () => {
       form={form}
       onSubmit={onSubmit}
     >
+      <FormValueEffectComponent form={form} atom={formSetupAppearanceAtom} />
       <div className="px-5 space-y-5">
         <Form.Field
           name="primaryColor"

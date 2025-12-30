@@ -9,14 +9,22 @@ export const FORM_CONTENT_SCHEMA = z.object({
   title: z.string(),
   description: z.string(),
   buttonText: z.string(),
+  steps: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+    }),
+  ),
   fields: z.array(
     z.object({
+      id: z.string(),
       type: z.string(),
       label: z.string(),
       description: z.string(),
       placeholder: z.string(),
       required: z.boolean(),
       options: z.array(z.string()),
+      stepId: z.string(),
     }),
   ),
 });

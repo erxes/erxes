@@ -1,29 +1,65 @@
-import { useAtom } from 'jotai';
 import { formSetupContentAtom } from '../states/formSetupStates';
 import { FormMutateLayout } from './FormMutateLayout';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, DropdownMenu, InfoCard } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { FORM_FIELD_TYPES } from '../constants/formFieldTypes';
-import { ErxesFormField } from './FormField';
+import { InfoCard } from 'erxes-ui';
+import { FormValueEffectComponent } from './FormValueEffectComponent';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { StepContainer } from './StepContainer';
+import { FormFieldActions } from './FormFieldActions';
+import { useFormFieldsByStep } from '../hooks/useFormFieldsByStep';
+import { useFormDragAndDrop } from '../hooks/useFormDragAndDrop';
 
 export const FormContent = () => {
-  const [content, setContent] = useAtom(formSetupContentAtom);
   const form = useForm<z.infer<typeof FORM_CONTENT_SCHEMA>>({
     resolver: zodResolver(FORM_CONTENT_SCHEMA),
-    defaultValues: content,
+    defaultValues: {
+      title: '',
+      description: '',
+      buttonText: '',
+      steps: [
+        {
+          id: 'step-1',
+          label: 'Step 1',
+        },
+      ],
+      fields: [],
+    },
   });
 
   const onSubmit = (values: z.infer<typeof FORM_CONTENT_SCHEMA>) => {
-    setContent(values);
+    console.log(values);
   };
 
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: formFields,
+    append,
+    remove,
+  } = useFieldArray({
     control: form.control,
     name: 'fields',
+  });
+
+  const {
+    fields: steps,
+    append: appendStep,
+    remove: removeStep,
+  } = useFieldArray({
+    control: form.control,
+    name: 'steps',
+  });
+
+  const { fieldsByStep, getStepFields, getStepFieldIds, getFirstStepId } =
+    useFormFieldsByStep(formFields, steps);
+
+  const { sensors, handleDragEnd } = useFormDragAndDrop({
+    form,
+    fields: formFields,
+    steps,
+    fieldsByStep,
+    getFirstStepId,
   });
 
   return (
@@ -33,46 +69,42 @@ export const FormContent = () => {
       form={form}
       onSubmit={onSubmit}
     >
+      <FormValueEffectComponent form={form} atom={formSetupContentAtom} />
       <InfoCard title="Fields">
         <InfoCard.Content>
-          <div className="grid grid-cols-2 gap-4">
-            {fields.map((field, index) => (
-              <ErxesFormField
-                key={field.id}
-                field={field}
-                remove={() => remove(index)}
-              />
-            ))}
-          </div>
-          <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <Button variant="secondary">
-                  <IconPlus /> Add field
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
-                {FORM_FIELD_TYPES.map((type) => (
-                  <DropdownMenu.Item
-                    key={type.value}
-                    onClick={() => {
-                      append({
-                        type: type.value,
-                        label: type.label,
-                        placeholder: '',
-                        description: '',
-                        required: false,
-                        options: [],
-                      });
-                    }}
-                  >
-                    {type.icon}
-                    {type.label}
-                  </DropdownMenu.Item>
-                ))}
-              </DropdownMenu.Content>
-            </DropdownMenu>
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="flex flex-col gap-6">
+              {steps.map((step) => {
+                const stepFields = getStepFields(step.id);
+                const stepFieldIds = getStepFieldIds(step.id);
+
+                return (
+                  <StepContainer
+                    key={step.id}
+                    step={step}
+                    stepFields={stepFields}
+                    stepFieldIds={stepFieldIds}
+                    steps={steps}
+                    formFields={formFields}
+                    form={form}
+                    removeStep={removeStep}
+                    removeField={remove}
+                    getFirstStepId={getFirstStepId}
+                  />
+                );
+              })}
+            </div>
+            <FormFieldActions
+              steps={steps}
+              appendStep={appendStep}
+              appendField={append}
+              getFirstStepId={getFirstStepId}
+            />
+          </DndContext>
         </InfoCard.Content>
       </InfoCard>
     </FormMutateLayout>

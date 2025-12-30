@@ -30,7 +30,10 @@ export const FormCreatePage = () => {
           {step === 3 && <FormMutateLayoutPreviousStepButton />}
         </Resizable.Panel>
         <Resizable.Handle />
-        <Resizable.Panel defaultSize={50}>
+        <Resizable.Panel
+          defaultSize={50}
+          className="flex flex-col overflow-hidden"
+        >
           <Preview>
             <div className="bg-background">
               <Preview.Toolbar

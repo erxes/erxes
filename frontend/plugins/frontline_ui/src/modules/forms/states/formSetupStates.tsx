@@ -33,6 +33,12 @@ export const formSetupContentAtom = atomWithStorage<
     title: '',
     description: '',
     buttonText: '',
+    steps: [
+      {
+        id: 'step-1',
+        label: 'Step 1',
+      },
+    ],
     fields: [],
   },
   undefined,
