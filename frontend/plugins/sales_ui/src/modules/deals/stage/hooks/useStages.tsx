@@ -161,9 +161,9 @@ export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
     },
   });
 
-  const sortItems = (stageId: string, sortType: string) =>
+  const sortItems = (stageId: string, sortType: string, processId?: string) =>
     sortItemsBase({
-      variables: { stageId, sortType },
+      variables: { stageId, sortType, processId },
       refetchQueries: [{ query: GET_DEALS, variables: { stageId } }],
     });
 
