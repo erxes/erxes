@@ -77,8 +77,11 @@ export const tagQueries = {
    */
   async tagsGetTypes() {
     const services = await getPlugins();
-    const fieldTypes: Array<{ description: string; contentType: string }> = [];
+    const types = {};
+
     for (const serviceName of services) {
+      const fieldTypes: Array<{ description: string; contentType: string }> = [];
+
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.tags) {
@@ -91,9 +94,13 @@ export const tagQueries = {
           });
         }
       }
+
+      if (fieldTypes.length > 0) {
+        types[serviceName] = fieldTypes;
+      }
     }
 
-    return fieldTypes;
+    return types;
   },
   /**
    * Get tags

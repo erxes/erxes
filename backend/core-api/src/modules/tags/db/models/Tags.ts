@@ -111,6 +111,17 @@ export const loadTagClass = (
 
       const tag = await models.Tags.getTag(_id);
 
+      if (tag.isGroup && !doc.isGroup) {
+        const childTags = await models.Tags.find({ parentId: _id }).lean();
+
+        if (childTags.length) {
+          await models.Tags.updateMany(
+            { _id: { $in: childTags.map((tag) => tag._id) } },
+            { $unset: { parentId: 1 } },
+          );
+        }
+      }
+
       const order = await this.generateOrder(doc);
 
       const childTags = await models.Tags.find({

@@ -62,5 +62,17 @@ startPlugin({
         types: [{ name: 'note', text: 'Mentioned in note' }],
       },
     ],
+    tags: {
+      types: [
+        {
+          description: 'Task',
+          type: 'task',
+        },
+        {
+          description: 'Project',
+          type: 'project',
+        }
+      ],
+    },
   },
 });
