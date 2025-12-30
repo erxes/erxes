@@ -80,6 +80,11 @@ import {
   types as ResponseTemplateTypes,
 } from '~/modules/response/graphql/schema';
 
+import {
+  queries as ReportQueries,
+  types as ReportTypes,
+} from '@/reports/graphql/schema';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -95,6 +100,7 @@ export const types = `
     ${NoteTypes}
     ${TicketConfigTypes}
     ${ResponseTemplateTypes}
+    ${ReportTypes}
 
   `;
 export const queries = `
@@ -112,6 +118,7 @@ export const queries = `
     ${NoteQueries}
     ${TicketConfigQueries}
     ${ResponseTemplateQueries}
+    ${ReportQueries}
   `;
 
 export const mutations = `

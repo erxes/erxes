@@ -1,19 +1,19 @@
+import { useDocumentRemove } from '@/documents/hooks/useDocumentRemove';
+import {
+  IconCalendarPlus,
+  IconChevronDown,
+  IconTrash,
+} from '@tabler/icons-react';
+import dayjs from 'dayjs';
 import {
   AlertDialog,
   Card,
   RelativeDateDisplay,
   useSetQueryStateByKey,
 } from 'erxes-ui';
-import {
-  IconCalendarPlus,
-  IconChevronDown,
-  IconTrash,
-} from '@tabler/icons-react';
+import { useState } from 'react';
 import { MembersInline } from 'ui-modules';
 import { DocumentPreview } from './DocumentPreview';
-import { useDocumentRemove } from '@/documents/hooks/useDocumentRemove';
-import { useState } from 'react';
-import dayjs from 'dayjs';
 
 export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
   const setQuery = useSetQueryStateByKey();
@@ -98,7 +98,7 @@ export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
                     )}
                   </p>
                 </div>
-                <MembersInline.Provider members={[document.createdUser]}>
+                <MembersInline.Provider members={[document.createdUser || {}]}>
                   <MembersInline.Avatar size="lg" />
                 </MembersInline.Provider>
               </Card.Description>

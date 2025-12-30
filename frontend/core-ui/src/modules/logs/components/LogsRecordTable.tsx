@@ -70,7 +70,8 @@ export const LogsRecordTable = () => {
               <RecordTable.CursorBackwardSkeleton
                 handleFetchMore={handleFetchMore}
               />
-              {!totalCount && (
+              {loading && <RecordTable.RowSkeleton rows={40} />}
+              {!totalCount && !loading && (
                 <tr className="h-[80vh]">
                   <td colSpan={6} className="py-10 text-center">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -81,7 +82,6 @@ export const LogsRecordTable = () => {
                 </tr>
               )}
 
-              {loading && <RecordTable.RowSkeleton rows={40} />}
               <RecordTable.RowList />
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}

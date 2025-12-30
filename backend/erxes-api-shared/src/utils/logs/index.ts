@@ -143,6 +143,22 @@ export interface AfterProcessConfigs {
   ) => void;
 }
 
+export interface AfterProcessModuleConfig<TModels = any> {
+  rules: IAfterProcessRule[];
+  createdDocument?: Record<
+    string,
+    (models: TModels, data: any) => Promise<void>
+  >;
+  updatedDocument?: Record<
+    string,
+    (subdomain: string, models: TModels, data: any) => Promise<void>
+  >;
+}
+
+export interface AfterProcessModules<TModels = any> {
+  [moduleName: string]: AfterProcessModuleConfig<TModels>;
+}
+
 export const startAfterProcess = async (
   app: Express,
   pluginName: string,

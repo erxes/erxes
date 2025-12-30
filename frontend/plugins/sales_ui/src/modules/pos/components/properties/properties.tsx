@@ -218,7 +218,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
               </div>
 
               {isEcomType && isOnline && (
-                <div className="grid grid-cols-2 gap-4">
+                <>
                   {isFieldVisible('allowBranches', posType) && (
                     <AllowBranchesField control={control} />
                   )}
@@ -228,7 +228,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
                   {isFieldVisible('beginNumber', posType) && (
                     <BeginNumberField control={control} />
                   )}
-                </div>
+                </>
               )}
 
               {isRestaurantType && (

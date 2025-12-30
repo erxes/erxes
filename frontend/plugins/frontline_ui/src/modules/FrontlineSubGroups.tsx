@@ -4,12 +4,18 @@ import { CreateChannel } from '@/channels/components/settings/channels-list/Crea
 import { NavigationMenuGroup } from 'erxes-ui';
 import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
 import { useLocation } from 'react-router-dom';
+import { ReportNavigations } from '@/report/components/report-navigations/ReportNavigations';
+
 export const FrontlineSubGroups = () => {
   const location = useLocation();
   const isInbox = location.pathname.startsWith('/frontline/inbox');
   const isTickets = location.pathname.startsWith('/frontline/tickets');
+  const isReport = location.pathname.startsWith('/frontline/reports');
   if (isTickets) {
     return <TicketNavigations />;
+  }
+  if (isReport) {
+    return <ReportNavigations />;
   }
   if (!isInbox) return null;
   return (

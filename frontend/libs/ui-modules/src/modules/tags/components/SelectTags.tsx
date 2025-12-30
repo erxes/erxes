@@ -23,6 +23,7 @@ import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
 import { IconPlus, IconTag } from '@tabler/icons-react';
 import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
 import { TagBadge } from './TagBadge';
+import { useTranslation } from 'react-i18next';
 
 export const SelectTagsProvider = ({
   children,
@@ -402,6 +403,9 @@ export const SelectTagsDetail = React.forwardRef<
     ref,
   ) => {
     const [open, setOpen] = useState(false);
+    const { t } = useTranslation('contact', {
+      keyPrefix: 'customer.detail',
+    });
     return (
       <SelectTagsProvider
         onValueChange={(value) => {
@@ -419,7 +423,7 @@ export const SelectTagsDetail = React.forwardRef<
                 className="w-min text-sm font-medium shadow-xs"
                 variant="outline"
               >
-                Add Tags
+                {t("add-tags")}
                 <IconPlus className="text-lg" />
               </Button>
             </Popover.Trigger>

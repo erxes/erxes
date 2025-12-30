@@ -37,10 +37,13 @@ import {
 import { useSetAtom } from 'jotai';
 import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
 import clsx from 'clsx';
+import { TFunction } from 'i18next';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
-export const customersColumns: ColumnDef<ICustomer>[] = [
+export const createCustomersColumns = (
+  t: TFunction,
+): ColumnDef<ICustomer>[] => [
   checkBoxColumn,
   {
     id: 'avatar',
@@ -65,7 +68,10 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
     id: 'name',
     accessorKey: 'name',
     header: () => (
-      <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
+      <RecordTable.InlineHead
+        label={t('customer.name')}
+        icon={IconLabelFilled}
+      />
     ),
     cell: ({ cell }) => {
       const [, setDetailOpen] = useQueryState('contactId');
@@ -107,7 +113,9 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
   {
     id: 'emails',
     accessorKey: 'primaryEmail',
-    header: () => <RecordTable.InlineHead label="Emails" icon={IconMail} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('customer.emails')} icon={IconMail} />
+    ),
     cell: ({ cell }) => {
       const { primaryEmail, _id, emailValidationStatus, emails } =
         cell.row.original;
@@ -126,7 +134,9 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
   {
     id: 'phones',
     accessorKey: 'primaryPhone',
-    header: () => <RecordTable.InlineHead label="Phones" icon={IconPhone} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('customer.phones')} icon={IconPhone} />
+    ),
     cell: ({ cell }) => {
       const { _id, primaryPhone, phones, phoneValidationStatus } =
         cell.row.original;
@@ -147,8 +157,10 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
   {
     id: 'tagIds',
     accessorKey: 'tagIds',
-    header: () => <RecordTable.InlineHead label="Tags" icon={IconTags} />,
-    cell: ({ cell }) => { 
+    header: () => (
+      <RecordTable.InlineHead label={t('customer.tags')} icon={IconTags} />
+    ),
+    cell: ({ cell }) => {
       return (
         <SelectTags.InlineCell
           tagType="core:customer"
@@ -177,7 +189,9 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
   {
     id: 'sex',
     accessorKey: 'sex',
-    header: () => <RecordTable.InlineHead label="Sex" icon={IconGenderMale} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('customer.sex')} icon={IconGenderMale} />
+    ),
     cell: ({ cell }) => {
       const { customerEdit } = useCustomerEdit();
       const [open, setOpen] = useState(false);
@@ -211,7 +225,9 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
   {
     id: 'owner',
     accessorKey: 'owner',
-    header: () => <RecordTable.InlineHead label="Owner" icon={IconUser} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('customer.owner')} icon={IconUser} />
+    ),
     cell: ({ cell }) => {
       return (
         <CustomerOwner
@@ -226,7 +242,12 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
   {
     id: 'lastSeenAt',
     accessorKey: 'lastSeenAt',
-    header: () => <RecordTable.InlineHead label="Last Seen" icon={IconClock} />,
+    header: () => (
+      <RecordTable.InlineHead
+        label={t('customer.last-seen')}
+        icon={IconClock}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -241,7 +262,10 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
     id: 'sessionCount',
     accessorKey: 'sessionCount',
     header: () => (
-      <RecordTable.InlineHead label="Session Count" icon={IconChartBar} />
+      <RecordTable.InlineHead
+        label={t('customer.session-count')}
+        icon={IconChartBar}
+      />
     ),
     cell: ({ cell }) => {
       return (
@@ -255,7 +279,10 @@ export const customersColumns: ColumnDef<ICustomer>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
+      <RecordTable.InlineHead
+        label={t('customer.created-at')}
+        icon={IconCalendarPlus}
+      />
     ),
     cell: ({ cell }) => {
       return (
