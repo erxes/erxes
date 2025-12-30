@@ -1,4 +1,10 @@
 export const types = `
+enum Sort {
+  ASC
+  DESC
+}
+
+
 """
 харилцагчийн төрөл individual=хувь хүн, company=байгууллага
 """
@@ -127,6 +133,7 @@ type InsuranceCustomer {
 """
 type InsuranceContract {
   id: ID!
+  contractNumber: String!
   vendor: InsuranceVendor!
   customer: InsuranceCustomer!
   insuranceType: InsuranceType!
@@ -250,7 +257,7 @@ export const queries = `
   """
   Даатгалын харилцагчид
   """
-  insuranceCustomers: [InsuranceCustomer!]!
+  insuranceCustomers(search: String, page: Int, limit: Int, sort: Sort, sortField: String, filter: JSON): [InsuranceCustomer!]!
   """
   Даатгалын харилцагч
   """

@@ -1,13 +1,33 @@
 import { IContext } from '~/connectionResolvers';
 
 export const customerQueries = {
-  customers: async (_parent: undefined, { vendorId }: { vendorId?: string }, { models, user }: IContext) => {
-    // Restrict to own vendor unless admin
-    if (vendorId) return models.Customer.find({ vendor: vendorId });
-    if (!user) throw new Error('Must be logged in');
-    const vendorUser = await models.VendorUser.findById(user.id);
-    if (!vendorUser) throw new Error('Vendor user not found');
-    return models.Customer.find({ vendor: vendorUser.vendor });
+  insuranceCustomers: async (_parent: undefined, args: any, { models, user }: IContext) => {
+    const {search, page, limit, sort, sortField, filter} = args;
+    const query: any = {};
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (filter) {
+      Object.keys(filter).forEach(key => {
+        if (filter[key]) {
+          query[key] = filter[key];
+        }
+      });
+    }
+
+    const sortOptions: any = {};
+    if (sort && sortField) {
+      sortOptions[sortField] = sort === 'DESC' ? -1 : 1;
+    }
+
+    const skip = (page - 1) * limit;
+
+    return models.Customer.find(query).sort(sortOptions).skip(skip).limit(limit);
   },
 
   customer: async (_parent: undefined, { id }: { id: string }, { models }: IContext) => {

@@ -69,7 +69,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.Customer = db.model<ICustomerDocument, ICustomerModel>(
-    'customers',
+    'insurance_customers',
     loadCustomerClass(models),
   );
 

@@ -9,7 +9,7 @@ export const insuranceContractSchema = new Schema(
     },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'customers',
+      ref: 'insurance_customers',
       required: true,
     },
     insuranceType: {
@@ -62,6 +62,12 @@ export const insuranceContractSchema = new Schema(
       type: String,
       enum: ['pending', 'paid'],
       default: 'pending',
+    },
+
+    contractNumber: {
+      type: String,
+      required: true,
+      unique: true,
     },
   },
   {
