@@ -1,13 +1,13 @@
 // scripts/start-dev.js
 require('dotenv').config();
 
-const { ENABLED_PLUGINS } = process.env;
+const { ENABLED_PLUGINS_UI } = process.env;
 const { execSync } = require('child_process');
 
 let devRemotesArg = '';
-if (ENABLED_PLUGINS) {
+if (ENABLED_PLUGINS_UI) {
   try {
-    const remotes = ENABLED_PLUGINS.split(',').map((plugin) => `${plugin}_ui`);
+    const remotes = ENABLED_PLUGINS_UI.split(',').map((plugin) => `${plugin}_ui`);
 
     devRemotesArg = `--devRemotes="${remotes}"`;
   } catch (error) {

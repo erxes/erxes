@@ -1,12 +1,12 @@
-import { ReportTable, Spinner, cn, displayNum, useQueryState } from "erxes-ui";
-import React, { useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useJournalReportData } from "../hooks/useJournalReportData";
-import { ReportRules, IGroupRule } from "../types/reportsMap";
-import { getCalcReportHandler, getRenderMoreHandler } from "./includes";
-import { useJournalReportMore } from "../hooks/useJournalReportMore";
-import { useSetAtom } from "jotai";
-import { moreDataState } from "../states/renderingReportsStates";
+import { ReportTable, Spinner, cn, displayNum, useQueryState } from 'erxes-ui';
+import React, { useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useJournalReportData } from '../hooks/useJournalReportData';
+import { ReportRules, IGroupRule } from '../types/reportsMap';
+import { getCalcReportHandler, getRenderMoreHandler } from './includes';
+import { useJournalReportMore } from '../hooks/useJournalReportMore';
+import { useSetAtom } from 'jotai';
+import { moreDataState } from '../states/renderingReportsStates';
 
 export function useQueryObject() {
   const [searchParams] = useSearchParams();
@@ -28,17 +28,21 @@ export const ReportTableBody = () => {
   const { isMore } = params;
 
   const colCount = reportConf.colCount ?? 0;
-  const groupRule = reportConf.groups?.[groupKey as string || ''] || reportConf.groups?.['default'];
+  const groupRule =
+    reportConf.groups?.[(groupKey as string) || ''] ||
+    reportConf.groups?.['default'];
 
-  const calcReport = getCalcReportHandler(report as string || '')
+  const calcReport = getCalcReportHandler((report as string) || '');
 
-  const renderMore = getRenderMoreHandler(report as string || '', isMore);
+  const renderMore = getRenderMoreHandler((report as string) || '', isMore);
 
   const { records = [], loading, error } = useJournalReportData();
-  const { trDetails = [], loading: detailLoading, error: detailError } = useJournalReportMore()
-  const setMoreData = useSetAtom(
-    moreDataState,
-  );
+  const {
+    trDetails = [],
+    loading: detailLoading,
+    error: detailError,
+  } = useJournalReportMore();
+  const setMoreData = useSetAtom(moreDataState);
 
   const tableRef = useRef<HTMLTableSectionElement>(null);
 
@@ -56,15 +60,39 @@ export const ReportTableBody = () => {
     if (!isMore) return;
     if (detailLoading) return;
     setMoreData(trDetails);
-
   }, [grouped, detailLoading]); // ✅ дата солигдох бүрт дахин бодно
 
   if (!report || !reportConf) {
-    return 'NOT FOUND REPORT'
+    return 'NOT FOUND REPORT';
   }
 
-  if (loading) {
-    return <Spinner />;
+  const tableRef = useRef<HTMLTableSectionElement>(null);
+
+  const grouped = React.useMemo(() => {
+    if (error) return {};
+
+    return groupRecords(records, groupRule);
+  }, [records, groupRule]);
+
+  // ✅ RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
+  useEffect(() => {
+    if (!tableRef?.current) return;
+    if (loading) return;
+    if (error) return;
+
+    totalsCalc(tableRef.current, groupRule);
+  }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
+
+  useEffect(() => {
+    if (!tableRef?.current) return;
+    if (!isMore) return;
+    if (detailLoading) return;
+    if (detailError) return;
+    setMoreData(moreDataByKey(moreData, trDetails, groupRule));
+  }, [grouped, detailLoading]); // ✅ дата солигдох бүрт дахин бодно
+
+  if (!report || !reportConf) {
+    return 'NOT FOUND REPORT';
   }
 
   if (error) {
@@ -85,27 +113,27 @@ export const ReportTableBody = () => {
         renderMore={isMore && renderMore}
       />
     </tbody>
-  )
-}
+  );
+};
 
 // toGroup Data
 export const groupRecords = (records: any[], groupRule?: IGroupRule) => {
   if (!groupRule) {
-    return { 'items': records }
+    return { items: records };
   }
 
   const resultDic = {};
 
   toGroup(resultDic, records, groupRule);
   return resultDic;
-}
+};
 
 type AnyDict = { [key: string]: any };
 
 const toGroup = (
   resultDic: AnyDict,
   groupRuleItems: AnyDict[],
-  groupRule: IGroupRule
+  groupRule: IGroupRule,
 ) => {
   // iterate over rows to group
   for (const item of groupRuleItems) {
@@ -115,11 +143,11 @@ const toGroup = (
     if (!resultDic[groupKey]) {
       resultDic[groupKey] = {
         items: [],
-        [`${groupRule.key}_id`]: String(groupKey),                     // id
-        [`${groupRule.key}_code`]: String(item[groupRule.code]),       // code
+        [`${groupRule.key}_id`]: String(groupKey), // id
+        [`${groupRule.key}_code`]: String(item[groupRule.code]), // code
         [`${groupRule.key}_name`]: groupRule.name
           ? String(item[groupRule.name])
-          : "",                                                       // name
+          : '', // name
       };
 
       // if sub-group rule exists -> initialize empty dict
@@ -129,13 +157,13 @@ const toGroup = (
     }
 
     // get existing items under this group
-    const dicItems = resultDic[groupKey]["items"] || [];
+    const dicItems = resultDic[groupKey]['items'] || [];
 
     // add current record
     dicItems.push(item);
 
     // reassign
-    resultDic[groupKey]["items"] = dicItems;
+    resultDic[groupKey]['items'] = dicItems;
   }
 
   // if sub-group rule exists, recursively call
@@ -143,21 +171,25 @@ const toGroup = (
     for (const key of Object.keys(resultDic)) {
       toGroup(
         resultDic[key][groupRule.group_rule.key],
-        resultDic[key]["items"],
-        groupRule.group_rule
+        resultDic[key]['items'],
+        groupRule.group_rule,
       );
-      resultDic[key]["items"] = undefined
+      resultDic[key]['items'] = undefined;
     }
   }
-}
+};
 
-// extract and render 
+// extract and render
 interface ReportRendererProps {
   groupedDic: any;
   groupRule?: IGroupRule;
   colCount: number;
   groupHead?: boolean;
-  calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode;
+  calcReport: (
+    dic: any,
+    groupRule: IGroupRule,
+    attr: string,
+  ) => React.ReactNode;
   renderMore?: (parents: string, child: string) => React.ReactNode;
 }
 
@@ -165,26 +197,38 @@ export function ReportRecursiveRenderer({
   groupedDic,
   groupRule,
   colCount,
-  groupHead = true,
   calcReport,
-  renderMore
+  renderMore,
 }: ReportRendererProps) {
   return (
     <>
       {renderGroup(
         groupedDic,
-        groupRule || {} as IGroupRule,
+        groupRule || ({} as IGroupRule),
         colCount,
         0,
-        "",
-        "",
+        '',
+        '',
         groupHead,
         calcReport,
-        renderMore
+        renderMore,
       )}
     </>
   );
 }
+
+const getMoreAttr = (
+  groupRule: IGroupRule,
+  grId: string,
+  moreAttr?: string,
+  isMore?: boolean,
+) => {
+  if (isMore && !groupRule.excMore) {
+    const preMoreAttr = moreAttr ? `${moreAttr}#` : '';
+    return `${preMoreAttr}${grId}`;
+  }
+  return moreAttr;
+};
 
 function renderGroup(
   groupedDic: any,
@@ -194,7 +238,11 @@ function renderGroup(
   lastAttr: string,
   leafAttr: string,
   groupHead: boolean,
-  calcReport: (dic: any, groupRule: IGroupRule, attr: string) => React.ReactNode,
+  calcReport: (
+    dic: any,
+    groupRule: IGroupRule,
+    attr: string,
+  ) => React.ReactNode,
   renderMore?: (parents: string, child: string) => React.ReactNode,
 ): React.ReactNode[] {
   if (!Object.keys(groupedDic || {}).length) return [];
@@ -203,18 +251,28 @@ function renderGroup(
   const keyCode = `${groupRule.key}_code`;
   const keyName = `${groupRule.key}_name`;
 
-  const sortedValues = Object.values(groupedDic).sort(
-    (a: any, b: any) => String(a[keyCode]).localeCompare(String(b[keyCode]))
+  const sortedValues = Object.values(groupedDic).sort((a: any, b: any) =>
+    String(a[keyCode]).localeCompare(String(b[keyCode])),
   );
 
   return sortedValues.map((grStep: any, index: number) => {
-    const attr = `${lastAttr ? `${lastAttr}*` : ''}${groupRule.key}+${grStep[grId]}`
+    const attr = `${lastAttr ? `${lastAttr}*` : ''}${groupRule.key}+${
+      grStep[grId]
+    }`;
 
     // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
-    if (groupRule.group_rule?.key) {
+    if (groupRule.groupRule?.group) {
+      const preLeafAttr = (leafAttr && `${leafAttr},`) || '';
+      const newMoreAttr = getMoreAttr(
+        groupRule,
+        grStep[grId],
+        moreAttr,
+        isMore,
+      );
+
       return (
         <React.Fragment key={attr + index}>
-          {groupHead && (
+          {
             <ReportTable.Row
               data-sum-key={attr}
               className={cn(groupRule.style ?? '')}
@@ -223,7 +281,9 @@ function renderGroup(
             >
               <ReportTable.Cell
                 className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
-                style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
+                style={
+                  { '--cellPadding': `${padding}px` } as React.CSSProperties
+                }
               >
                 {grStep[keyCode]}
               </ReportTable.Cell>
@@ -236,25 +296,25 @@ function renderGroup(
                 <ReportTable.Cell key={i} className="text-right" />
               ))}
             </ReportTable.Row>
-          )}
+          }
 
           {renderGroup(
-            grStep[groupRule.group_rule.key],
-            groupRule.group_rule,
+            grStep[groupRule.groupRule.group],
+            groupRule.groupRule,
             colCount,
             padding + 25,
             attr,
             `${leafAttr ? `${leafAttr},` : ''}${attr}`,
             groupHead,
             calcReport,
-            renderMore
+            renderMore,
           )}
         </React.Fragment>
       );
     }
 
     // ✅ Навч node
-    const lastNode = calcReport(grStep, groupRule, attr);
+    const { lastNode, lastData } = calcReport(grStep, groupRule, attr);
 
     if (!lastNode) return null;
 
@@ -274,13 +334,14 @@ function renderGroup(
             {grStep[keyCode]}
           </ReportTable.Cell>
 
-          <ReportTable.Cell className='text-left'>
+          <ReportTable.Cell className="text-left">
             {grStep[keyName]}
           </ReportTable.Cell>
 
           {lastNode}
         </ReportTable.Row>
-        {renderMore && renderMore(leafAttr ?? '', `${groupRule.key}+${grStep[grId]}`)}
+        {renderMore &&
+          renderMore(leafAttr ?? '', `${groupRule.key}+${grStep[grId]}`)}
       </React.Fragment>
     );
   });
@@ -293,21 +354,21 @@ const totalsCalc = (root: HTMLElement) => {
   const excluded_indexes: number[] = [0, 1]; // not-sum index-үүд энд орно
   const totals: Record<string, Record<number, number>> = {};
 
-  const rows = root.querySelectorAll("tr[data-keys]");
+  const rows = root.querySelectorAll('tr[data-keys]');
 
-  rows.forEach(row => {
-    const sumKeyVals = row.getAttribute("data-keys") || '';
+  rows.forEach((row) => {
+    const sumKeyVals = row.getAttribute('data-keys') || '';
     const sumKeys = sumKeyVals.split(',');
 
-    const tds = row.querySelectorAll("td");
+    const tds = row.querySelectorAll('td');
 
     tds.forEach((td, index) => {
       if (excluded_indexes.includes(index)) return;
 
-      let recordValue = parseFloat(td.textContent?.replace(/,/g, "") || "0");
+      let recordValue = parseFloat(td.textContent?.replace(/,/g, '') || '0');
       if (isNaN(recordValue)) recordValue = 0;
 
-      Array.from(sumKeys).forEach(sumKey => {
+      Array.from(sumKeys).forEach((sumKey) => {
         if (!totals[sumKey]) totals[sumKey] = {};
         if (!totals[sumKey][index]) totals[sumKey][index] = 0;
 
@@ -317,10 +378,10 @@ const totalsCalc = (root: HTMLElement) => {
   });
 
   // ✅ БОДОГДСОН ДҮНГ TABLE-Д ШАХАХ
-  Object.keys(totals).forEach(rowId => {
+  Object.keys(totals).forEach((rowId) => {
     const colIndexes = Object.keys(totals[rowId]);
 
-    colIndexes.forEach(colIndex => {
+    colIndexes.forEach((colIndex) => {
       const value = totals[rowId][Number(colIndex)];
       const childIndex = Number(colIndex) + 1;
       const selector = `tr[data-sum-key="${rowId}"] td:nth-child(${childIndex})`;
@@ -330,4 +391,4 @@ const totalsCalc = (root: HTMLElement) => {
       cell.textContent = displayNum(value, 2).toString();
     });
   });
-}
+};

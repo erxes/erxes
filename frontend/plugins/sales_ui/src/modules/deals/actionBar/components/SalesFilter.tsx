@@ -204,8 +204,8 @@ const SalesFilterView = () => {
               label="By Assigned user"
             />
             <SelectMember.FilterItem value="userIds" label="Created By" />
-            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
             <Command.Separator className="my-1" />
+            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
             <SelectDepartments.FilterItem
               value="departmentIds"
               label="By Department"

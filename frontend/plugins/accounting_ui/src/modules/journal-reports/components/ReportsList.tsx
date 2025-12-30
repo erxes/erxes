@@ -1,6 +1,9 @@
 import {
+<<<<<<< HEAD
   Button,
   cn,
+=======
+>>>>>>> 9cfd10db61f566ef2c1ae623a902776969ee615a
   IconComponent,
   Sidebar
 } from 'erxes-ui';

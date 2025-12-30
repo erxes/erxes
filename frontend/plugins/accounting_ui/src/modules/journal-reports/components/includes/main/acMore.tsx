@@ -1,36 +1,27 @@
-import { cn, displayNum, ReportTable } from "erxes-ui";
-import { useAtomValue } from "jotai";
-import { moreDataState } from "~/modules/journal-reports/states/renderingReportsStates";
-import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
-import { AccountKind } from "~/modules/settings/account/types/Account";
-import { TR_SIDES } from "~/modules/transactions/types/constants";
+import { cn, displayNum, ReportTable } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { moreDataState } from '~/modules/journal-reports/states/renderingReportsStates';
+import { IGroupRule } from '~/modules/journal-reports/types/reportsMap';
+import { AccountKind } from '~/modules/settings/account/types/Account';
+import { TR_SIDES } from '~/modules/transactions/types/constants';
 
 export const HandleMainACMore = (parent: string, child: string) => {
-  const parentRules = parent.split('*').map(p => child.split('+'));
+  const parentRules = parent.split('*').map((p) => child.split('+'));
   const [leafKey, leafId] = child.split('+');
   const allMoreData = useAtomValue(moreDataState);
 
-  const moreData = allMoreData.filter(md => md);
+  const moreData = allMoreData.filter((md) => md);
 
   // moreData Context
   return (
-    <ReportTable.Row
-      key={'aaaaaa'}
-      className={cn('text-right')}
-    >
+    <ReportTable.Row key={'aaaaaa'} className={cn('text-right')}>
       <ReportTable.Cell colSpan={8} className="p-0">
         <ReportTable>
-          <ReportTable.Header>
-
-          </ReportTable.Header>
-          <ReportTable.Body >
-            {moreData.map(tr => (
-              <ReportTable.Row
-                className={cn('')}
-              >
-                <ReportTable.Cell
-                  className={cn(`text-left `)}
-                >
+          <ReportTable.Header></ReportTable.Header>
+          <ReportTable.Body>
+            {moreData.map((tr) => (
+              <ReportTable.Row className={cn('')}>
+                <ReportTable.Cell className={cn(`text-left `)}>
                   {parent}
                 </ReportTable.Cell>
                 <ReportTable.Cell className="text-left">
@@ -43,12 +34,10 @@ export const HandleMainACMore = (parent: string, child: string) => {
               </ReportTable.Row>
             ))}
           </ReportTable.Body>
-          <ReportTable.Footer>
-          </ReportTable.Footer>
+          <ReportTable.Footer></ReportTable.Footer>
         </ReportTable>
       </ReportTable.Cell>
     </ReportTable.Row>
-
 
     // <ReportTable.Cell colSpan={6} className="p-0">
     //   <table className='w-full overflow-hidden caption-bottom text-[1em]  border-0'>
@@ -66,5 +55,5 @@ export const HandleMainACMore = (parent: string, child: string) => {
     //     </tr>
     //   </table>
     // </ReportTable.Cell >
-  )
-}
+  );
+};

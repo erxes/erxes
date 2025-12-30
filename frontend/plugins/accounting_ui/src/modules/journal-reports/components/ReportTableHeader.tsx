@@ -1,4 +1,4 @@
-import { ReportTable, useQueryState } from "erxes-ui"
+import { ReportTable, useQueryState } from 'erxes-ui';
 
 export const ReportTableHeader = () => {
   const [report] = useQueryState('report');
@@ -23,7 +23,7 @@ export const ReportTableHeader = () => {
             <ReportTable.Head>Кредит</ReportTable.Head>
           </ReportTable.Row>
         </>
-      )
+      );
     case 'ac':
       return (
         <ReportTable.Row>
@@ -36,9 +36,8 @@ export const ReportTableHeader = () => {
           <ReportTable.Head>Үлдэгдэл</ReportTable.Head>
           <ReportTable.Head>Харьцсан данс</ReportTable.Head>
         </ReportTable.Row>
-      )
+      );
     default:
-      return <></>
+      return <></>;
   }
-
-}
+};

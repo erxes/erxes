@@ -1,6 +1,9 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { generateFilter, getRecords } from '~/modules/accounting/utils/journalReports';
+import {
+  generateFilter,
+  getRecords,
+} from '~/modules/accounting/utils/journalReports';
 
 export interface IReportFilterParams {
   status?: string;
@@ -16,15 +19,15 @@ export interface IReportFilterParams {
   accountCategoryId?: string;
   accountSearchValue?: string;
   accountBrand?: string;
-  accountIsTemp?: boolean,
-  accountIsOutBalance?: boolean,
+  accountIsTemp?: boolean;
+  accountIsOutBalance?: boolean;
   accountBranchId: string;
   accountDepartmentId: string;
   accountCurrency: string;
   accountJournal: string;
 
   brandId?: string;
-  isOutBalance?: boolean,
+  isOutBalance?: boolean;
   branchId?: string;
   departmentId?: string;
   currency?: string;
@@ -51,7 +54,7 @@ const journalReportQueries = {
   ) {
     const { groupRule, report, ...filters } = params;
     const records = await getRecords(subdomain, models, report, filters, user);
-    return { records }
+    return { records };
   },
 
   async journalReportMore(
@@ -67,7 +70,7 @@ const journalReportQueries = {
       { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
       { $match: match },
     ]);
-    return { trDetails }
+    return { trDetails };
   },
 };
 

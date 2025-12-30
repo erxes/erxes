@@ -15,7 +15,7 @@ export const useJournalReportMore = (options?: OperationVariables) => {
     ...options,
     variables: {
       ...options?.variables,
-      ...variables
+      ...variables,
     },
     skip: !isMore,
   });

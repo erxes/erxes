@@ -1,19 +1,29 @@
-import { IUserDocument } from "erxes-api-shared/core-types";
-import { escapeRegExp, getPureDate, sendTRPCMessage } from "erxes-api-shared/utils";
-import { IModels } from "~/connectionResolvers";
-import { TR_STATUSES } from "../../@types/constants";
-import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
-import { handleMainTB } from "./tb";
-import { handleMainAC } from "./ac";
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import {
+  escapeRegExp,
+  getPureDate,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { TR_STATUSES } from '../../@types/constants';
+import { IReportFilterParams } from '../../graphql/resolvers/queries/journalReport';
+import { handleMainTB } from './tb';
+import { handleMainAC } from './ac';
 
-export const getRecords = async (subdomain: string, models: IModels, report: string, filterParams: IReportFilterParams, user: IUserDocument) => {
+export const getRecords = async (
+  subdomain: string,
+  models: IModels,
+  report: string,
+  filterParams: IReportFilterParams,
+  user: IUserDocument,
+) => {
   const handler = getReportHandler(report);
   if (!handler) throw new Error(`Unsupported journal: ${report}`);
 
   const { records } = await handler(subdomain, models, filterParams, user);
 
   return records;
-}
+};
 
 const getReportHandler = (report: string) => {
   const handlers: Record<
@@ -22,7 +32,7 @@ const getReportHandler = (report: string) => {
       subdomain: string,
       models: IModels,
       filterParams: IReportFilterParams,
-      user: IUserDocument
+      user: IUserDocument,
     ) => Promise<{ records: any[] }>
   > = {
     ac: handleMainAC,
@@ -30,7 +40,7 @@ const getReportHandler = (report: string) => {
   };
 
   return handlers[report];
-}
+};
 
 export const generateFilter = async (
   subdomain: string,
@@ -59,15 +69,15 @@ export const generateFilter = async (
   const filter: any = {};
 
   if (createdUserId) {
-    filter.createdBy = createdUserId
+    filter.createdBy = createdUserId;
   }
 
   if (modifiedUserId) {
-    filter.modifiedBy = modifiedUserId
+    filter.modifiedBy = modifiedUserId;
   }
 
   if (accountIds?.length) {
-    filter['details.accountId'] = { $in: accountIds }
+    filter['details.accountId'] = { $in: accountIds };
   }
 
   const dateQry: any = {};
@@ -82,17 +92,17 @@ export const generateFilter = async (
   }
 
   if (journals?.length) {
-    filter.journal = { $in: journals }
+    filter.journal = { $in: journals };
   }
 
   if (journal) {
-    filter.journal = journal
+    filter.journal = journal;
   }
 
   if (statuses?.length) {
-    filter.status = { $in: statuses }
+    filter.status = { $in: statuses };
   } else {
-    filter.status = { $in: TR_STATUSES.ACTIVE }
+    filter.status = { $in: TR_STATUSES.ACTIVE };
   }
 
   if (number) {
@@ -114,7 +124,7 @@ export const generateFilter = async (
   }
 
   if (brandId) {
-    filter.scopeBrandIds = { $in: [brandId] }
+    filter.scopeBrandIds = { $in: [brandId] };
   }
 
   if (branchId) {
@@ -131,7 +141,7 @@ export const generateFilter = async (
       defaultValue: [],
     });
 
-    filter.branchId = { $in: branches.map((item) => item._id) }
+    filter.branchId = { $in: branches.map((item) => item._id) };
   }
 
   if (departmentId) {
@@ -148,7 +158,7 @@ export const generateFilter = async (
       defaultValue: [],
     });
 
-    filter.departmentId = { $in: departments.map((item) => item._id) }
+    filter.departmentId = { $in: departments.map((item) => item._id) };
   }
 
   if (currency) {

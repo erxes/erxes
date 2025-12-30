@@ -245,7 +245,6 @@ export const customerSchema = schemaWrapper(
       timestamps: true,
     },
   ),
-  { contentType: 'core:customer' },
 );
 
 customerSchema.index({ _id: 1, createdAt: 1, searchText: 1 });

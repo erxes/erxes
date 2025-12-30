@@ -20,7 +20,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, filterPar
 
   const $project = {
     _id: 0,
-    account_id: '$_id.accountId',
+    accountId: '$_id.accountId',
     side: '$_id.side',
     sumAmount: 1,
     sumCurrencyAmount: 1,
@@ -43,7 +43,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, filterPar
 
   const records = [...fbRecs, ...betRecs];
 
-  const accountIds = records.map(r => r.account_id);
+  const accountIds = records.map(r => r.accountId);
   const accounts = await models.Accounts.find(
     { _id: { $in: accountIds } },
     { _id: 1, code: 1, name: 1, kind: 1, categoryId: 1 }
@@ -61,11 +61,11 @@ export const handleMainTB = async (subdomain: string, models: IModels, filterPar
   return {
     records: records.map(r => ({
       ...r,
-      account__code: accountById[r.account_id]?.code,
-      account__name: accountById[r.account_id]?.name,
-      account__category_id: accountById[r.account_id]?.categoryId?._id,
-      account__category__code: accountById[r.account_id]?.categoryId?.code,
-      account__category__name: accountById[r.account_id]?.categoryId?.name,
+      accountCode: accountById[r.accountId]?.code,
+      accountName: accountById[r.accountId]?.name,
+      accountCategoryId: accountById[r.accountId]?.categoryId?._id,
+      accountCategoryCode: accountById[r.accountId]?.categoryId?.code,
+      accountCategoryName: accountById[r.accountId]?.categoryId?.name,
     }))
   }
 }

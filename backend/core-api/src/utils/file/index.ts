@@ -60,10 +60,10 @@ export const checkFile = async (
 
   const { size } = file;
 
-  // 20mb
-  if (size > 20 * 1024 * 1024) {
-    return 'Too large file';
-  }
+  // // 20mb
+  // if (size > 20 * 1024 * 1024) {
+  //   return 'Too large file';
+  // }
 
   // read file
   const buffer = await fs.promises.readFile(file.filepath);
