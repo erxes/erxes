@@ -4,23 +4,26 @@ import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 const generateFilter = async (models: IModels, params: IFieldParams) => {
-  const { contentType, contentTypeId, groupIds } = params;
-
+  const { contentType, contentTypeId, groupId } = params;
   const filter: FilterQuery<IField> = { contentType };
 
   if (contentTypeId) {
     filter.contentTypeId = contentTypeId;
   }
 
-  if (groupIds?.length) {
-    filter.groupId = { $in: groupIds };
+  if (groupId) {
+    filter.groupId = groupId;
   }
 
   return filter;
 };
 
 export const fieldQueries = {
-  fields: async (_: undefined, params: IFieldParams, { models }: IContext) => {
+  fields: async (
+    _: undefined,
+    { params }: { params: IFieldParams },
+    { models }: IContext,
+  ) => {
     const filter = await generateFilter(models, params);
 
     if (!params.orderBy) {

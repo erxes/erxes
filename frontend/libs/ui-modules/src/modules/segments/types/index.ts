@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { segmentFormSchema } from '../states/segmentFormSchema';
+import { IField } from 'ui-modules/modules/properties';
 
 export type TSegmentForm = z.infer<typeof segmentFormSchema>;
 export interface ListQueryResponse {
@@ -57,27 +58,6 @@ export interface ISegment {
 
   config?: any;
 }
-
-export type IField = {
-  _id: string;
-  name: string;
-  selectOptions?: Array<{ label: string; value: string | number }>;
-  type?: string;
-  group?: string;
-  value: string;
-  label: string;
-  options?: string[];
-  validation?: string;
-  choiceOptions?: string[];
-  selectionConfig?: {
-    queryName: string;
-    selectionName: string;
-    valueField: string;
-    labelField: string;
-    multi?: boolean;
-  };
-  groupDetail?: any;
-};
 
 export type FieldQueryResponse = {
   fieldsCombinedByContentType: IField[];

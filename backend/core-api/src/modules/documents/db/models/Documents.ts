@@ -5,19 +5,16 @@ import { documents } from '~/meta/documents';
 import { IDocumentDocument } from '~/modules/documents/types';
 import { prepareContent } from '~/modules/documents/utils';
 import { documentSchema } from '../definitions/documents';
-
 export interface IDocumentModel extends Model<IDocumentDocument> {
-  getDocument({ _id }): Promise<IDocumentDocument>;
+  getDocument({ _id }: { _id: string }): Promise<IDocumentDocument>;
   saveDocument({ _id, doc }): Promise<IDocumentDocument>;
   processDocument({ _id, replacerIds, config }): Promise<IDocumentDocument>;
 }
 
 export const loadDocumentClass = (models: IModels, subdomain: string) => {
   class Document {
-    public static async getDocument({ _id }) {
-      const document = await models.Documents.findOne({
-        $or: [{ _id }, { code: _id }],
-      }).lean();
+    public static async getDocument({ _id }: { _id: string }) {
+      const document = await models.Documents.findOne({ _id });
 
       if (!document) {
         throw new Error('Document not found');
@@ -31,8 +28,10 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
      */
     public static async saveDocument({ _id, doc }) {
       if (_id) {
+        const document = await models.Documents.getDocument({ _id });
+
         return await models.Documents.findOneAndUpdate(
-          { _id },
+          { _id: document._id },
           { $set: doc },
           { new: true },
         );

@@ -3,8 +3,10 @@ import { NotificationSort } from '@/notification/my-inbox/components/Notificatio
 import { IconInbox } from '@tabler/icons-react';
 import { Button, Separator, Sidebar } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const MyInboxHeader = () => {
+  const { t } = useTranslation('common');
   return (
     <>
       <div className="flex flex-col h-13 shrink-0 bg-sidebar w-full">
@@ -13,7 +15,7 @@ export const MyInboxHeader = () => {
           <Button variant="ghost" asChild>
             <Link to="/my-inbox">
               <IconInbox />
-              My Inbox
+              {t('my-inbox')}
             </Link>
           </Button>
           <div className="flex gap-2 items-center ml-auto">

@@ -6,7 +6,7 @@ import { generateModels } from './connectionResolvers';
 
 startPlugin({
   name: 'mongolian',
-  port: 33011,
+  port: 3307,
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
@@ -20,7 +20,7 @@ startPlugin({
     resolvers,
   }),
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
 
