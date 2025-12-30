@@ -6,11 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { InfoCard } from 'erxes-ui';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
-import { DndContext, closestCenter } from '@dnd-kit/core';
+import { DndContext, DragOverlay } from '@dnd-kit/core';
+import { createPortal } from 'react-dom';
 import { StepContainer } from './StepContainer';
 import { FormFieldActions } from './FormFieldActions';
 import { useFormFieldsByStep } from '../hooks/useFormFieldsByStep';
 import { useFormDragAndDrop } from '../hooks/useFormDragAndDrop';
+import { ErxesFormField } from './FormField';
 
 export const FormContent = () => {
   const form = useForm<z.infer<typeof FORM_CONTENT_SCHEMA>>({
@@ -54,13 +56,25 @@ export const FormContent = () => {
   const { fieldsByStep, getStepFields, getStepFieldIds, getFirstStepId } =
     useFormFieldsByStep(formFields, steps);
 
-  const { sensors, handleDragEnd } = useFormDragAndDrop({
+  const {
+    sensors,
+    activeId,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+    handleDragCancel,
+    collisionDetectionStrategy,
+  } = useFormDragAndDrop({
     form,
     fields: formFields,
     steps,
     fieldsByStep,
     getFirstStepId,
   });
+
+  const activeField = activeId
+    ? formFields.find((f) => f.id === String(activeId))
+    : null;
 
   return (
     <FormMutateLayout
@@ -74,8 +88,11 @@ export const FormContent = () => {
         <InfoCard.Content>
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={collisionDetectionStrategy}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
           >
             <div className="flex flex-col gap-6">
               {steps.map((step) => {
@@ -104,6 +121,22 @@ export const FormContent = () => {
               appendField={append}
               getFirstStepId={getFirstStepId}
             />
+            {createPortal(
+              <DragOverlay>
+                {activeField ? (
+                  <div className="w-64">
+                    <ErxesFormField
+                      field={activeField}
+                      remove={() => {
+                        // No-op for drag overlay
+                      }}
+                      isDragOverlay
+                    />
+                  </div>
+                ) : null}
+              </DragOverlay>,
+              document.body,
+            )}
           </DndContext>
         </InfoCard.Content>
       </InfoCard>

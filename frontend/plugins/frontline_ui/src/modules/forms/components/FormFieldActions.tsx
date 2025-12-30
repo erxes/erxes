@@ -61,6 +61,7 @@ export function FormFieldActions({
                   required: false,
                   options: [],
                   stepId: firstStepId,
+                  span: 1,
                 });
               }}
             >

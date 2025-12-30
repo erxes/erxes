@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { useAtomValue, useSetAtom, WritableAtom } from 'jotai';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 
 export const FormValueEffectComponent = ({
@@ -72,26 +72,16 @@ export const FormValueSetterEffectComponent = ({
   atom: WritableAtom<any, [value: any], void>;
   persistValueTaken: boolean;
 }) => {
+  const formValues = useWatch({
+    control: form.control,
+  });
   const setAtomValue = useSetAtom(atom);
-  const persistValueTakenRef = useRef(persistValueTaken);
 
   useEffect(() => {
-    persistValueTakenRef.current = persistValueTaken;
-  }, [persistValueTaken]);
-
-  useEffect(() => {
-    if (!persistValueTaken) {
-      return;
+    if (persistValueTaken) {
+      setAtomValue(formValues);
     }
-
-    const subscription = form.watch((value) => {
-      if (persistValueTakenRef.current) {
-        setAtomValue(value);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [form, setAtomValue]);
+  }, [formValues, persistValueTaken, setAtomValue]);
 
   return null;
 };

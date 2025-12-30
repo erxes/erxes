@@ -1,7 +1,7 @@
 import { Button, Input } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { z } from 'zod';
 import { UseFormReturn } from 'react-hook-form';
@@ -88,11 +88,8 @@ export function StepContainer({
           </Button>
         )}
       </div>
-      <SortableContext
-        items={stepFieldIds}
-        strategy={verticalListSortingStrategy}
-      >
-        <div className="grid grid-cols-2 gap-4">
+      <SortableContext items={stepFieldIds} strategy={rectSortingStrategy}>
+        <div className="grid grid-cols-2 gap-4 auto-rows-fr">
           {stepFields.map((field) => {
             const globalIndex = formFields.findIndex((f) => f.id === field.id);
             return (
@@ -112,4 +109,3 @@ export function StepContainer({
     </div>
   );
 }
-

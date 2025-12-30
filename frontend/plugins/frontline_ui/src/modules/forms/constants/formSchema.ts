@@ -25,6 +25,7 @@ export const FORM_CONTENT_SCHEMA = z.object({
       required: z.boolean(),
       options: z.array(z.string()),
       stepId: z.string(),
+      span: z.number().optional().default(1),
     }),
   ),
 });
