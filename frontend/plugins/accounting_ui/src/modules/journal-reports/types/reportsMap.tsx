@@ -5,61 +5,141 @@ export const ReportGroups = [
   { key: 'inventory', label: 'Бараа материал' },
 ];
 
-export const AllReportsMap = [
-  { key: 'ac', title: 'Дансны хуулга', group: 'main', icon: 'IconClipboard' },
-  { key: 'tb', title: 'Гүйлгээ баланс', group: 'main' },
-  { key: 'mb', title: 'Ерөнхий дэвтэр', group: 'main' },
-  { key: 'mj', title: 'Ерөнхий журнал', group: 'main' },
-]
-
 export interface IGroupRule {
-  key: string;
   group: string;
   code: string;
   name?: string;
-  format?: string;
+  excMore?: boolean;
+  from?: string[];
+  excTotal?: number[];
   style?: string;
-  group_rule?: IGroupRule | null;
+  groupRule?: IGroupRule | null;
 }
 
-interface ReportConfig {
-  colCount: number;
-  choices: Array<{ code: string; title: string }>;
-  groups: {
+export interface IReportConfig {
+  title: string;
+  icon?: string;
+  colCount?: number;
+  choices?: Array<{ code: string; title: string }>;
+  initParams?: any,
+  groups?: {
     [key: string]: IGroupRule;
   };
 }
 
-export const GroupRules: Record<string, ReportConfig> = {
-  tb: {
+export const ReportRules: Record<string, IReportConfig> = {
+  ac: {
+    title: 'Дансны хуулга',
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
       { code: 'cat', title: 'Дансны бүлгээр' },
+      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
+      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
     ],
+    initParams: {
+      isMore: true
+    },
     groups: {
       default: {
-        'key': 'gr',
-        'group': 'account_id',
-        'code': 'account__code',
-        'group_rule': null,
-        'name': 'account__name',
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold bg-[#fefef1]',
+        groupRule: null,
       },
       cat: {
-        'key': 'gr1',
-        'group': 'account__category_id',
-        'code': 'account__category__code',
-        'name': 'account__category__name',
-        'format': 'tr-bold',
-        'group_rule': {
-          'key': 'gr2',
-          'group': 'account_id',
-          'code': 'account__code',
-          'name': 'account__name',
-          'group_rule': null
+        group: 'accountCategoryId',
+        code: 'accountCategoryCode',
+        name: 'accountCategoryName',
+        excMore: true,
+        style: 'font-semibold',
+        groupRule: {
+          group: 'accountId',
+          code: 'accountCode',
+          name: 'accountName',
+          from: ['details'],
+          style: 'font-semibold bg-[#fefef1]',
+          groupRule: null,
+        },
+      },
+      branchDepartment: {
+        group: 'branchId',
+        code: 'branchCode',
+        name: 'branchName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'departmentId',
+          code: 'departmentCode',
+          name: 'departmentName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: 'font-semibold bg-[#fefef1]',
+            groupRule: null,
+          },
+        }
+      },
+      departmentBranch: {
+        group: 'departmentId',
+        code: 'departmentCode',
+        name: 'departmentName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'branchId',
+          code: 'branchCode',
+          name: 'branchName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: 'font-semibold bg-[#fefef1]',
+            groupRule: null,
+          },
         }
       }
     }
+  },
+  tb: {
+    title: 'Гүйлгээ баланс',
+    colCount: 6,
+    choices: [
+      { code: 'default', title: 'Дансаар' },
+      { code: 'cat', title: 'Дансны бүлгээр' }
+    ],
+    groups: {
+      default: {
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        groupRule: null,
+      },
+      cat: {
+        group: 'accountCategoryId',
+        code: 'accountCategoryCode',
+        name: 'accountCategoryName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'accountId',
+          code: 'accountCode',
+          name: 'accountName',
+          groupRule: null
+        }
+      },
+    }
+  },
+  mb: {
+    title: 'Ерөнхий дэвтэр',
+  },
+  mj: {
+    title: 'Ерөнхий журнал',
   }
+
 
 }
