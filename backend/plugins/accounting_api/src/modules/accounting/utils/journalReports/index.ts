@@ -4,6 +4,7 @@ import { IModels } from "~/connectionResolvers";
 import { TR_STATUSES } from "../../@types/constants";
 import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
 import { handleMainTB } from "./tb";
+import { handleMainAC, handleMainACMore } from "./ac";
 
 export const getRecords = async (subdomain: string, models: IModels, report: string, filterParams: IReportFilterParams, user: IUserDocument) => {
   const handler = getReportHandler(report);
@@ -31,8 +32,30 @@ const getReportHandler = (report: string) => {
   return handlers[report];
 }
 
-const handleMainAC = async (subdomain: string, models: IModels, filterParams: IReportFilterParams, user: IUserDocument) => {
-  return { records: [] }
+export const getRecMore = async (subdomain: string, models: IModels, report: string, filterParams: IReportFilterParams, user: IUserDocument) => {
+  const handler = getReportMoreHandler(report);
+  if (!handler) throw new Error(`Unsupported journal: ${report}`);
+
+  const { trDetails } = await handler(subdomain, models, filterParams, user);
+
+  return trDetails;
+}
+
+const getReportMoreHandler = (report: string) => {
+  const handlers: Record<
+    string,
+    (
+      subdomain: string,
+      models: IModels,
+      filterParams: IReportFilterParams,
+      user: IUserDocument
+    ) => Promise<{ trDetails: any[] }>
+  > = {
+    ac: handleMainACMore,
+    tb: async () => ({ trDetails: [] }),
+  };
+
+  return handlers[report];
 }
 
 export const generateFilter = async (
@@ -46,6 +69,7 @@ export const generateFilter = async (
     number,
     journal,
     journals,
+    accountIds,
     brandId,
     branchId,
     departmentId,
@@ -66,6 +90,10 @@ export const generateFilter = async (
 
   if (modifiedUserId) {
     filter.modifiedBy = modifiedUserId
+  }
+
+  if (accountIds?.length) {
+    filter['details.accountId'] = { $in: accountIds }
   }
 
   const dateQry: any = {};

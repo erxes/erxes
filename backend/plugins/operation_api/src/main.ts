@@ -9,7 +9,7 @@ export const router: Router = Router();
 
 startPlugin({
   name: 'operation',
-  port: 3306,
+  port: 3307,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,

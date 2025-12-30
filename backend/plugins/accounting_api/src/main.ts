@@ -7,7 +7,7 @@ import { appRouter } from './init-trpc';
 
 startPlugin({
   name: 'accounting',
-  port: 3307,
+  port: 3308,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
