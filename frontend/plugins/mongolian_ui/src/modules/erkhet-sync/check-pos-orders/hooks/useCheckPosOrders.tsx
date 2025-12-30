@@ -15,14 +15,23 @@ export const CHECK_POS_ORDERS_PER_PAGE = 30;
 export const useCheckPosOrdersVariables = (
   variables?: QueryHookOptions<ICheckPosOrders[]>['variables'],
 ) => {
-  const [{ posToken, pos, paidDateRange, createdDateRange, searchValue }] =
-    useMultiQueryState<{
-      posToken: string;
-      pos: string;
-      paidDateRange: string;
-      createdDateRange: string;
-      searchValue: string;
-    }>(['posToken', 'pos', 'paidDateRange', 'createdDateRange', 'searchValue']);
+  const [
+    { posToken, pos, user, paidDateRange, createdDateRange, searchValue },
+  ] = useMultiQueryState<{
+    posToken: string;
+    pos: string;
+    user: string;
+    paidDateRange: string;
+    createdDateRange: string;
+    searchValue: string;
+  }>([
+    'posToken',
+    'pos',
+    'user',
+    'paidDateRange',
+    'createdDateRange',
+    'searchValue',
+  ]);
   const [number] = useQueryState<string>('number');
 
   const paidDateParsed = paidDateRange
@@ -43,6 +52,7 @@ export const useCheckPosOrdersVariables = (
       return searchParts.length > 0 ? searchParts.join(' ') : undefined;
     })(),
     posId: pos || undefined,
+    userId: user || undefined,
     ...(posToken && { posToken }),
     ...(paidDateParsed && {
       paidStartDate: paidDateParsed.from,
