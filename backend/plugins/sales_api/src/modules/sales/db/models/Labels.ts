@@ -6,6 +6,8 @@ import {
   IPipelineLabelDocument,
 } from '../../@types';
 import { pipelineLabelSchema } from '../definitions/labels';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { generatePipelineLabelActivityLogs } from '~/utils/activityLogs';
 
 interface IFilter extends IPipelineLabel {
   _id?: any;
@@ -13,18 +15,26 @@ interface IFilter extends IPipelineLabel {
 
 export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
   getPipelineLabel(_id: string): Promise<IPipelineLabelDocument>;
-  createPipelineLabel(doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
+  createPipelineLabel(
+    doc: IPipelineLabel,
+    userId?: string,
+  ): Promise<IPipelineLabelDocument>;
   updatePipelineLabel(
     _id: string,
     doc: IPipelineLabel,
+    userId?: string,
   ): Promise<IPipelineLabelDocument>;
-  removePipelineLabel(_id: string): void;
+  removePipelineLabel(_id: string): Promise<IPipelineLabelDocument>;
   labelsLabel(targetId: string, labelIds: string[]): void;
   validateUniqueness(filter: IFilter, _id?: string): Promise<boolean>;
   labelObject(params: ILabelObjectParams): void;
 }
 
-export const loadPipelineLabelClass = (models: IModels) => {
+export const loadPipelineLabelClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class PipelineLabel {
     public static async getPipelineLabel(_id: string) {
       const pipelineLabel = await models.PipelineLabels.findOne({ _id });
@@ -35,8 +45,9 @@ export const loadPipelineLabelClass = (models: IModels) => {
 
       return pipelineLabel;
     }
+
     /*
-     * Validates label uniquness
+     * Validates label uniqueness
      */
     public static async validateUniqueness(
       filter: IFilter,
@@ -56,7 +67,6 @@ export const loadPipelineLabelClass = (models: IModels) => {
     /*
      * Common helper for objects like deal and growth hack etc ...
      */
-
     public static async labelObject({
       labelIds,
       targetId,
@@ -80,7 +90,10 @@ export const loadPipelineLabelClass = (models: IModels) => {
     /**
      * Create a pipeline label
      */
-    public static async createPipelineLabel(doc: IPipelineLabel) {
+    public static async createPipelineLabel(
+      doc: IPipelineLabel,
+      userId?: string,
+    ) {
       const filter: IFilter = {
         name: doc.name,
         pipelineId: doc.pipelineId,
@@ -93,13 +106,59 @@ export const loadPipelineLabelClass = (models: IModels) => {
         throw new Error('Label duplicated');
       }
 
-      return models.PipelineLabels.create(doc);
+      const pipelineLabel = await models.PipelineLabels.create({
+        ...doc,
+        userId,
+      });
+
+      // Send database event log
+      sendDbEventLog({
+        action: 'create',
+        docId: pipelineLabel._id,
+        currentDocument: pipelineLabel.toObject(),
+      });
+
+      // Create activity log
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: pipelineLabel._id,
+          moduleName: 'sales',
+          collectionName: 'pipelineLabels',
+        },
+        action: {
+          type: 'create',
+          description: 'Pipeline label created',
+        },
+        changes: {
+          name: pipelineLabel.name,
+          colorCode: pipelineLabel.colorCode,
+          pipelineId: pipelineLabel.pipelineId,
+          createdAt: new Date(),
+        },
+        metadata: {
+          pipelineId: pipelineLabel.pipelineId,
+          userId,
+        },
+      });
+
+      return pipelineLabel;
     }
 
     /**
      * Update pipeline label
      */
-    public static async updatePipelineLabel(_id: string, doc: IPipelineLabel) {
+    public static async updatePipelineLabel(
+      _id: string,
+      doc: IPipelineLabel,
+      userId?: string,
+    ) {
+      const prevLabel = await models.PipelineLabels.findOne({ _id });
+
+      if (!prevLabel) {
+        throw new Error('Label not found');
+      }
+
       const isUnique = await models.PipelineLabels.validateUniqueness(
         { ...doc },
         _id,
@@ -109,9 +168,32 @@ export const loadPipelineLabelClass = (models: IModels) => {
         throw new Error('Label duplicated');
       }
 
-      await models.PipelineLabels.updateOne({ _id }, { $set: doc });
+      await models.PipelineLabels.updateOne(
+        { _id },
+        { $set: { ...doc, userId } },
+      );
 
-      return models.PipelineLabels.findOne({ _id });
+      const updatedLabel = await models.PipelineLabels.findOne({ _id });
+
+      if (updatedLabel) {
+        // Send database event log
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedLabel._id,
+          currentDocument: updatedLabel.toObject(),
+          prevDocument: prevLabel.toObject(),
+        });
+
+        // Generate activity logs for changed fields
+        await generatePipelineLabelActivityLogs(
+          prevLabel.toObject(),
+          updatedLabel.toObject(),
+          models,
+          createActivityLog,
+        );
+      }
+
+      return updatedLabel;
     }
 
     /**
@@ -124,13 +206,44 @@ export const loadPipelineLabelClass = (models: IModels) => {
         throw new Error('Label not found');
       }
 
+      // Send database event log before deletion
+      sendDbEventLog({
+        action: 'delete',
+        docId: pipelineLabel._id,
+      });
+
+      // Create activity log
+      createActivityLog({
+        activityType: 'delete',
+        target: {
+          _id: pipelineLabel._id,
+          moduleName: 'sales',
+          collectionName: 'pipelineLabels',
+        },
+        action: {
+          type: 'delete',
+          description: 'Pipeline label deleted',
+        },
+        changes: {
+          name: pipelineLabel.name,
+          colorCode: pipelineLabel.colorCode,
+          deletedAt: new Date(),
+        },
+        metadata: {
+          pipelineId: pipelineLabel.pipelineId,
+          userId: pipelineLabel.userId,
+        },
+      });
+
       // delete labelId from collection that used labelId
       await models.Deals.updateMany(
         { labelIds: { $in: [pipelineLabel._id] } },
         { $pull: { labelIds: pipelineLabel._id } },
       );
 
-      return models.PipelineLabels.deleteOne({ _id });
+      await pipelineLabel.deleteOne();
+
+      return pipelineLabel;
     }
 
     /**
