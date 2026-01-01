@@ -26,8 +26,8 @@ export default composePlugins(
         'process.env.REACT_APP_IMAGE_CDN_URL': JSON.stringify(
           process.env.REACT_APP_IMAGE_CDN_URL,
         ),
-        'process.env.ENABLED_PLUGINS_UI': JSON.stringify(
-          process.env.ENABLED_PLUGINS_UI,
+        'process.env.ENABLED_PLUGINS': JSON.stringify(
+          process.env.ENABLED_PLUGINS,
         ),
 
         'process.env.REACT_APP_GOOGLE_MAP_API_KEY': JSON.stringify(
