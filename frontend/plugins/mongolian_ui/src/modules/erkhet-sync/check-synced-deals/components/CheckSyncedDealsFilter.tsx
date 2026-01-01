@@ -1,5 +1,13 @@
 import { IconCalendar, IconBuilding, IconHash } from '@tabler/icons-react';
-import { Combobox, Command, Filter, useFilterQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useFilterQueryState,
+  useQueryState,
+} from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { CheckSyncedDealsHotKeyScope } from '../types/CheckSyncedDealsHotKeyScope';
 import { useMultiQueryState } from 'erxes-ui/hooks';
@@ -9,10 +17,11 @@ import { SelectSalesBoard } from './selects/SelectBoard';
 import { SelectPipeline } from './selects/SelectPipeline';
 import { SelectStage } from './selects/SelectStage';
 import { SelectDateType } from './selects/SelectDateType';
-
+import { useState } from 'react';
 export const CheckSyncedDealsFilterPopover = () => {
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
+  const [user, setUser] = useQueryState<string>('user');
   const [queries] = useMultiQueryState<{
     boardId: string;
     pipelineId: string;
@@ -37,6 +46,7 @@ export const CheckSyncedDealsFilterPopover = () => {
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
+  const { resetFilterState } = useFilterContext();
   return (
     <>
       <Filter.Popover scope={CheckSyncedDealsHotKeyScope.CheckSyncedDealsPage}>
@@ -53,7 +63,7 @@ export const CheckSyncedDealsFilterPopover = () => {
                 <SelectSalesBoard.FilterItem />
                 <SelectPipeline.FilterItem />
                 <SelectStage.FilterItem />
-                <SelectMember.FilterItem />
+                <SelectMember.FilterItem value="user" label="Assigned To" />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dealSearch" inDialog>
                   <IconBuilding />
@@ -71,7 +81,18 @@ export const CheckSyncedDealsFilterPopover = () => {
               </Command.List>
             </Command>
           </Filter.View>
-          <SelectMember.FilterView />
+          <Filter.View filterKey="user">
+            <SelectMember.Provider
+              mode="single"
+              value={user || ''}
+              onValueChange={(value) => {
+                setUser(value as any);
+                resetFilterState();
+              }}
+            >
+              <SelectMember.Content />
+            </SelectMember.Provider>
+          </Filter.View>
           <SelectSalesBoard.FilterView />
           <SelectPipeline.FilterView boardId={boardId || undefined} />
           <SelectStage.FilterView pipelineId={pipelineId || undefined} />
@@ -82,9 +103,6 @@ export const CheckSyncedDealsFilterPopover = () => {
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
-        <Filter.View filterKey="user" inDialog>
-          <Filter.DialogStringView filterKey="user" />
-        </Filter.View>
         <Filter.View filterKey="dealSearch" inDialog>
           <Filter.DialogStringView filterKey="dealSearch" />
         </Filter.View>
@@ -107,6 +125,8 @@ export const CheckSyncedDealsFilter = () => {
   const [number] = useFilterQueryState<string>('number');
   const [dealSearch] = useFilterQueryState<string>('dealSearch');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
+  const [user, setUser] = useQueryState<string>('user');
+  const [open, setOpen] = useState<boolean>(false);
   const { sessionKey } = useCheckSyncedDealsLeadSessionKey();
 
   return (
@@ -142,7 +162,28 @@ export const CheckSyncedDealsFilter = () => {
         <SelectSalesBoard.FilterBar />
         <SelectPipeline.FilterBar boardId={boardId || undefined} />
         <SelectStage.FilterBar pipelineId={pipelineId || undefined} />
-        <SelectMember.FilterBar />
+        <Filter.BarItem queryKey="user">
+          <Filter.BarName>Assigned To</Filter.BarName>
+          <SelectMember.Provider
+            mode="single"
+            value={user || ''}
+            onValueChange={(value) => {
+              setUser(value as any);
+              setOpen(false);
+            }}
+          >
+            <Popover open={open} onOpenChange={setOpen}>
+              <Popover.Trigger asChild>
+                <Filter.BarButton filterKey="user">
+                  <SelectMember.Value />
+                </Filter.BarButton>
+              </Popover.Trigger>
+              <Combobox.Content>
+                <SelectMember.Content />
+              </Combobox.Content>
+            </Popover>
+          </SelectMember.Provider>
+        </Filter.BarItem>
         <SelectDateType.FilterBar />
         <CheckSyncedDealsTotalCount />
       </Filter.Bar>

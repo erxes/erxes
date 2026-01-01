@@ -1,5 +1,4 @@
 import { RecordTable } from 'erxes-ui';
-import { PosItemsCommandBar } from './pos-items-command-bar/PosItemsCommandBar';
 import { PosItemColumns } from './PosItemColumns';
 import { usePosItemsList } from '@/pos/pos-items/hooks/UsePosItemsList';
 import { IconShoppingCartX } from '@tabler/icons-react';
@@ -51,7 +50,6 @@ export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <PosItemsCommandBar />
     </RecordTable.Provider>
   );
 };

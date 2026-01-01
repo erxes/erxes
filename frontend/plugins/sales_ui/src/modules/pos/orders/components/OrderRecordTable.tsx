@@ -1,7 +1,6 @@
 import { RecordTable } from 'erxes-ui';
 import { orderColumns } from '@/pos/orders/components/OrderColumns';
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
-import { OrderCommandBar } from '@/pos/orders/components/order-command-bar/OrderCommandBar';
 import { IconShoppingCartX } from '@tabler/icons-react';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
@@ -51,7 +50,6 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
           </div>
         )}
       </RecordTable.CursorProvider>
-      <OrderCommandBar />
     </RecordTable.Provider>
   );
 };

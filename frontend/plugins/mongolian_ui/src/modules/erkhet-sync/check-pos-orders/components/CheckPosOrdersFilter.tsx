@@ -22,10 +22,18 @@ export const CheckPosOrdersFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     posToken: string;
     pos: string;
+    user: string;
     number: string;
     paidDateRange: string;
     createdDateRange: string;
-  }>(['posToken', 'pos', 'number', 'paidDateRange', 'createdDateRange']);
+  }>([
+    'posToken',
+    'pos',
+    'user',
+    'number',
+    'paidDateRange',
+    'createdDateRange',
+  ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
@@ -51,7 +59,7 @@ export const CheckPosOrdersFilterPopover = () => {
                   <IconCashRegister />
                   POS
                 </Filter.Item>
-                <SelectMember.FilterItem />
+                <SelectMember.FilterItem value="user" label="Assigned To" />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="number" inDialog>
                   <IconHash />
@@ -68,7 +76,7 @@ export const CheckPosOrdersFilterPopover = () => {
               </Command.List>
             </Command>
           </Filter.View>
-          <SelectMember.FilterView />
+          <SelectMember.FilterView queryKey="user" />
           <SelectPos.FilterView />
           <Filter.View filterKey="paidDateRange">
             <Filter.DateView filterKey="paidDateRange" />
@@ -137,7 +145,7 @@ export const CheckPosOrdersFilter = () => {
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <SelectPos.FilterBar />
-        <SelectMember.FilterBar />
+        <SelectMember.FilterBar queryKey="user" label="Assigned To" />
         <CheckPosOrdersTotalCount />
       </Filter.Bar>
     </Filter>
