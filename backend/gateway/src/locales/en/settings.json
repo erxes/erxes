@@ -130,6 +130,8 @@
     "add-tag": "Add Tag",
     "name": "Name",
     "description": "Description",
-    "created": "Created"
+    "created-at": "Created At",
+    "not-found": "No tags found",
+    "workspace-description": "Workspace tags are shared tags that can be used across all tag types."
   }
 }

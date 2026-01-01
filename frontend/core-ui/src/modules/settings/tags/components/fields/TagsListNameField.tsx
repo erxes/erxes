@@ -6,7 +6,8 @@ import {
   useToast,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useTagEdit } from 'ui-modules/modules/tags-new/hooks/useTagEdit';
+import { Popover as PopoverPrimitive } from 'radix-ui';
+import { useTagEdit } from 'ui-modules';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -127,7 +128,11 @@ export const TagsListNameField = ({
           )}
         </Badge>
       </Popover.Trigger>
-      {isOpen && <div className="absolute inset-0"></div>}
+      {isOpen && (
+        <PopoverPrimitive.Portal>
+          <div className="absolute inset-0 z-20 "></div>
+        </PopoverPrimitive.Portal>
+      )}
       <Popover.Content
         align="start"
         sideOffset={-24}

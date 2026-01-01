@@ -1,18 +1,18 @@
-import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
-import { TagsListDescriptionField } from 'ui-modules/modules/tags-new/components/fields/TagsListDescriptionField';
-import { TagsListNameField } from 'ui-modules/modules/tags-new/components/fields/TagsListNameField';
-import { TagsListCell } from 'ui-modules/modules/tags-new/components/TagsListCell';
-import { TagsListCreatedAtField } from 'ui-modules/modules/tags-new/components/fields/TagsListCreatedAtField';
-import { TagsListColorField } from 'ui-modules/modules/tags-new/components/fields/TagsListColorField';
+import { ITag } from 'ui-modules';
+import { TagsListDescriptionField } from '@/settings/tags/components/fields/TagsListDescriptionField';
+import { TagsListNameField } from '@/settings/tags/components/fields/TagsListNameField';
+import { TagsListCell } from '@/settings/tags/components/TagsListCell';
+import { TagsListCreatedAtField } from '@/settings/tags/components/fields/TagsListCreatedAtField';
+import { TagsListColorField } from '@/settings/tags/components/fields/TagsListColorField';
 import { Collapsible, cn, Skeleton } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { childTagsMapAtomFamily } from 'ui-modules/modules/tags-new/states/childTagsMap';
+import { childTagsMapAtomFamily } from '@/settings/tags/states/childTagsMap';
 import { IconCaretRightFilled } from '@tabler/icons-react';
-import { TagsListRowOptionMenu } from 'ui-modules/modules/tags-new/components/TagsListRowOptionMenu';
-import { TagsListRowForm } from 'ui-modules/modules/tags-new/components/TagsListRowForm';
-import { addingTagAtom } from 'ui-modules/modules/tags-new/states/addingTagAtom';
-import { useTagType } from 'ui-modules/modules/tags-new/hooks/useTagType';
+import { TagsListRowOptionMenu } from '@/settings/tags/components/TagsListRowOptionMenu';
+import { TagsListRowForm } from '@/settings/tags/components/TagsListRowForm';
+import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
+import { useQueryState } from 'erxes-ui';
 
 export const TagsListRow = ({ tag }: { tag: ITag }) => {
   if (tag.isGroup) {
@@ -24,7 +24,7 @@ export const TagsListRow = ({ tag }: { tag: ITag }) => {
 export const TagsListGroupRow = ({ tag }: { tag: ITag }) => {
   const [open, setOpen] = useState(false);
   const addingTag = useAtomValue(addingTagAtom);
-  const type = useTagType();
+  const [type] = useQueryState<string>('tagType');
   const childTagsMap = useAtomValue(childTagsMapAtomFamily(type));
   useEffect(() => {
     if (addingTag && addingTag.parentId === tag._id) {

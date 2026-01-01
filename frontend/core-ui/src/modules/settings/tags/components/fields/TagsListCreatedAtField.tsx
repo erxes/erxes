@@ -1,4 +1,4 @@
-import { TagsListCell } from 'ui-modules/modules/tags-new/components/TagsListCell';
+import { TagsListCell } from '@/settings/tags/components/TagsListCell';
 export const TagsListCreatedAtField = ({
   createdAt,
 }: {

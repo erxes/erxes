@@ -1,2 +1,3 @@
-export * from './TagsPageTemplate';
-export * from './TagsList';
+export * from './TagTypeSelect';
+export * from './TagsInline';
+export * from './TagsSelect';

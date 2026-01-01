@@ -9,13 +9,11 @@ import {
   IconCirclesFilled,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import { useTagEdit } from 'ui-modules/modules/tags-new/hooks/useTagEdit';
-import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
-import { useTagRemove } from 'ui-modules/modules/tags-new/hooks/useTagRemove';
-import { addingTagAtom } from 'ui-modules/modules/tags-new/states/addingTagAtom';
+import { useTagEdit, ITag, useTagRemove } from 'ui-modules';
+import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { useSetAtom, useAtomValue } from 'jotai';
-import { tagGroupsAtomFamily } from 'ui-modules/modules/tags-new/states/tagGroupsAtom';
-import { useTagType } from 'ui-modules/modules/tags-new/hooks/useTagType';
+import { tagGroupsAtomFamily } from '@/settings/tags/states/tagGroupsAtom';
+import { useQueryState } from 'erxes-ui';
 
 export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(
@@ -25,10 +23,11 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   const { editTag } = useTagEdit();
   const { removeTag } = useTagRemove();
   const setAddingTag = useSetAtom(addingTagAtom);
-  const type = useTagType();
+  const [type] = useQueryState<string>('tagType');
   const tagGroupsFiltered = useAtomValue(tagGroupsAtomFamily(type)).filter(
     (group) => group._id !== tag._id,
   );
+
   return (
     <Popover
       open={open}

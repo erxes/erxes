@@ -1,5 +1,3 @@
-import { DropdownMenu } from 'erxes-ui';
-
 export const TagsSelect = () => {
-  return <DropdownMenu></DropdownMenu>;
+  return <div>a</div>;
 };

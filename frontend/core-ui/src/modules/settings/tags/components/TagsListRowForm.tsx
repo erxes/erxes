@@ -1,25 +1,25 @@
-import { TagsListCell } from 'ui-modules/modules/tags-new/components/TagsListCell';
-import { TagsListColorField } from 'ui-modules/modules/tags-new/components/fields/TagsListColorField';
-import { TagsListNameField } from 'ui-modules/modules/tags-new/components/fields/TagsListNameField';
-import { useTagAdd } from 'ui-modules/modules/tags-new/hooks/useTagAdd';
-import { TagsListCreatedAtField } from 'ui-modules/modules/tags-new/components/fields/TagsListCreatedAtField';
-import { TagsListDescriptionField } from 'ui-modules/modules/tags-new/components/fields/TagsListDescriptionField';
-import { addingTagAtom } from 'ui-modules/modules/tags-new/states/addingTagAtom';
+import { TagsListCell } from '@/settings/tags/components/TagsListCell';
+import { TagsListColorField } from '@/settings/tags/components/fields/TagsListColorField';
+import { TagsListNameField } from '@/settings/tags/components/fields/TagsListNameField';
+import { useTagAdd, ITag } from 'ui-modules';
+import { TagsListCreatedAtField } from '@/settings/tags/components/fields/TagsListCreatedAtField';
+import { TagsListDescriptionField } from '@/settings/tags/components/fields/TagsListDescriptionField';
+import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { useAtom } from 'jotai';
-import { TAG_DEFAULT_COLORS } from 'ui-modules/modules/tags-new/constants/Colors';
-import { cn } from 'erxes-ui';
-import { useTagType } from 'ui-modules/modules/tags-new/hooks/useTagType';
+import { TAG_DEFAULT_COLORS } from '@/settings/tags/constants/Colors';
+import { useQueryState, cn, usePreviousHotkeyScope } from 'erxes-ui';
 import { useMemo } from 'react';
-import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
+
 export const TagsListRowForm = () => {
+  const { goBackToPreviousHotkeyScope } = usePreviousHotkeyScope();
   const [addingTag, setAddingTag] = useAtom(addingTagAtom);
   const DEFAULT_COLOR = useMemo(() => {
     return Object.values(TAG_DEFAULT_COLORS)[
       Math.floor(Math.random() * Object.values(TAG_DEFAULT_COLORS).length)
     ];
-  }, [addingTag]);
+  }, []);
   const { addTag } = useTagAdd();
-  const tagType = useTagType();
+  const [type] = useQueryState<string>('tagType');
 
   const handleSave = (value: string) => {
     setAddingTag(null);
@@ -27,10 +27,11 @@ export const TagsListRowForm = () => {
       variables: {
         name: value,
         colorCode: DEFAULT_COLOR,
-        type: tagType,
         ...addingTag,
+        type: type,
       },
     });
+    goBackToPreviousHotkeyScope();
   };
   return (
     <div
@@ -74,7 +75,10 @@ export const TagsListRowForm = () => {
           defaultOpen={true}
           handleSave={(value) => handleSave(value)}
           isForm
-          onEscape={() => setAddingTag(null)}
+          onEscape={() => {
+            setAddingTag(null);
+            goBackToPreviousHotkeyScope();
+          }}
         />
       </TagsListCell>
       <TagsListDescriptionField description="" />

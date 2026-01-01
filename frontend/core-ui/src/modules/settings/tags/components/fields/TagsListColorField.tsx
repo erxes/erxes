@@ -1,9 +1,9 @@
 import { IconCircleFilled, IconCirclesFilled } from '@tabler/icons-react';
 import { Button, ColorPicker } from 'erxes-ui';
 import { useState } from 'react';
-import { useTagEdit } from 'ui-modules/modules/tags-new/hooks/useTagEdit';
-import { TAG_DEFAULT_COLORS } from 'ui-modules/modules/tags-new/constants/Colors';
-import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
+
+import { TAG_DEFAULT_COLORS } from '@/settings/tags/constants/Colors';
+import { ITag, useTagEdit } from 'ui-modules';
 export const TagsListColorField = ({ tag }: { tag: ITag }) => {
   const { editTag } = useTagEdit();
   const [open, setOpen] = useState(false);

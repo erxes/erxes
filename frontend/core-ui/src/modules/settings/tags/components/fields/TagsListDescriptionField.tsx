@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Popover, Badge, Textarea, TextOverflowTooltip } from 'erxes-ui';
-import { TagsListCell } from 'ui-modules/modules/tags-new/components/TagsListCell';
-import { useTagEdit } from 'ui-modules/modules/tags-new/hooks/useTagEdit';
+import { TagsListCell } from '@/settings/tags/components/TagsListCell';
+import { useTagEdit } from 'ui-modules';
+import { Popover as PopoverPrimitive } from 'radix-ui';
 
 export const TagsListDescriptionField = ({
   description,
@@ -77,6 +78,11 @@ export const TagsListDescriptionField = ({
             )}
           </Badge>
         </Popover.Trigger>
+        {isOpen && (
+          <PopoverPrimitive.Portal>
+            <div className="absolute inset-0 z-20 "></div>
+          </PopoverPrimitive.Portal>
+        )}
         <Popover.Content
           align="start"
           sideOffset={-24}

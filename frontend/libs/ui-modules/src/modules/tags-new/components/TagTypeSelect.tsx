@@ -1,60 +1,66 @@
-import { pluginsConfigState } from 'ui-modules/states';
-import {
-  Button,
-  cn,
-  Combobox,
-  Command,
-  Popover,
-  useQueryState,
-} from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { useGetTagsTypes } from 'ui-modules/modules/tags-new/hooks/useGetTagTypes';
+import { Button, cn, Popover, Command, useQueryState } from 'erxes-ui';
+import { useTagTypes } from 'ui-modules/modules/tags-new/hooks/useTagTypes';
+import { IconChevronDown, IconCheck } from '@tabler/icons-react';
+import { getTagTypeDescription } from '../utils/getTagTypeDescription';
 import { useState } from 'react';
 
 export const TagTypeSelect = () => {
-  const [tagType, setTagType] = useQueryState<string>('tagType');
+  const [type, setType] = useQueryState<string>('tagType');
   const [open, setOpen] = useState(false);
-  const pluginsConfig = useAtomValue(pluginsConfigState);
-  const { types, loading } = useGetTagsTypes();
-  console.log(pluginsConfig, 'a');
+  const { types } = useTagTypes();
+
+  const handleSelect = (contentType: string) => {
+    setType(contentType);
+    setOpen(false);
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <Button variant="secondary" size="sm" className="w-fit">
-          {types.length
-            ? types.find((type) => type.contentType === tagType)?.description
-            : 'All'}
-          {' tags'}
+          <span>
+            {getTagTypeDescription({ type, tagTypes: types })}
+            {' tags'}
+          </span>
+          <IconChevronDown className="transition-all duration-200" />
         </Button>
       </Popover.Trigger>
-      <Combobox.Content className="min-w-60 w-min">
+      <Popover.Content className="p-0" align="start">
         <Command>
-          <Command.Input placeholder="Search..." />
+          <Command.Input placeholder="Search tag types..." autoFocus />
           <Command.List>
-            <Combobox.Empty loading={loading} />
-            {types && (
-              <Command.Group className="p-0">
-                {[{ contentType: null, description: 'All' }, ...types].map(
-                  (type) => (
-                    <Command.Item
-                      key={type.contentType}
+            <Command.Empty>No tag types found.</Command.Empty>
+            {Object.entries(types).map(([key, value]) => (
+              <Command.Group
+                key={key}
+                heading={key === 'core' ? 'Core tags' : `${key} tags`}
+                className="capitalize [&>*:first-child]:px-1 [&>*:first-child]:pb-1 [&>*:first-child]:pt-0"
+              >
+                {value.map((_type) => (
+                  <Command.Item
+                    key={_type.contentType}
+                    value={_type.description}
+                    onSelect={() => handleSelect(_type.contentType)}
+                    className="cursor-pointer"
+                  >
+                    <span
                       className={cn(
-                        tagType === type.contentType && 'text-primary',
+                        _type.contentType === type &&
+                          'text-primary font-medium',
                       )}
-                      onSelect={() => {
-                        setTagType(type.contentType);
-                        setOpen(false);
-                      }}
                     >
-                      {type.description} {' tags'}
-                    </Command.Item>
-                  ),
-                )}
+                      {_type.description} tags
+                    </span>
+                    {_type.contentType === type && (
+                      <IconCheck className="ml-auto h-4 w-4 text-primary" />
+                    )}
+                  </Command.Item>
+                ))}
               </Command.Group>
-            )}
+            ))}
           </Command.List>
         </Command>
-      </Combobox.Content>
+      </Popover.Content>
     </Popover>
   );
 };
