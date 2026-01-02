@@ -1,11 +1,28 @@
 import { IContext } from '~/connectionResolvers';
 
-// Helper function to generate code from name
+// Helper function to generate unique code from name
 const generateCode = (name: string): string => {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
+};
+
+// Generate unique code by checking for duplicates
+const generateUniqueCode = async (
+  models: any,
+  baseName: string,
+): Promise<string> => {
+  let code = generateCode(baseName);
+  let counter = 1;
+
+  // Check if code exists
+  while (await models.Product.findOne({ code })) {
+    code = `${generateCode(baseName)}_${counter}`;
+    counter++;
+  }
+
+  return code;
 };
 
 export const productMutations = {
@@ -15,7 +32,7 @@ export const productMutations = {
     { models }: IContext,
   ) => {
     const { insuranceTypeId, coveredRisks, name, ...rest } = args;
-    const code = generateCode(name);
+    const code = await generateUniqueCode(models, name);
     const product = await models.Product.create({
       ...rest,
       name,

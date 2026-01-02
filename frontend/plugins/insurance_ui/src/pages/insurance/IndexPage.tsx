@@ -119,19 +119,23 @@ export const IndexPage = () => {
               </div>
             </Card>
 
-            <Card className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-100 rounded-lg">
-                  <IconUsers className="text-indigo-600" size={24} />
+            <Link to="/insurance/vendor-users">
+              <Card className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-indigo-100 rounded-lg">
+                    <IconUsers className="text-indigo-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Vendor Users
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {vendorUsersLoading ? '...' : vendorUsers.length}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Vendor Users</p>
-                  <p className="text-2xl font-bold">
-                    {vendorUsersLoading ? '...' : vendorUsers.length}
-                  </p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           </div>
 
           {/* Quick Navigation */}

@@ -85,6 +85,7 @@ export interface InsuranceCustomer {
 
 export interface InsuranceContract {
   id: string;
+  contractNumber: string;
   vendor: InsuranceVendor;
   customer: InsuranceCustomer;
   insuranceType: InsuranceType;
@@ -94,6 +95,8 @@ export interface InsuranceContract {
   startDate: Date;
   endDate: Date;
   insuredObject: any;
+  paymentKind: string;
+  paymentStatus: string;
   createdAt: Date;
   updatedAt: Date;
 }

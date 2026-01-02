@@ -163,6 +163,7 @@ export const CREATE_INSURANCE_CONTRACT = gql`
     $insuredObject: JSON!
     $startDate: Date!
     $endDate: Date!
+    $paymentKind: String!
   ) {
     createInsuranceContract(
       vendorId: $vendorId
@@ -171,6 +172,7 @@ export const CREATE_INSURANCE_CONTRACT = gql`
       insuredObject: $insuredObject
       startDate: $startDate
       endDate: $endDate
+      paymentKind: $paymentKind
     ) {
       ${insuranceContractFields}
     }
