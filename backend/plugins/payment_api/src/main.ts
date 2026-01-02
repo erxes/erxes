@@ -10,7 +10,7 @@ import { callbackHandler } from '~/apis/controller';
 
 startPlugin({
   name: 'payment',
-  port: 33010,
+  port: 3310,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
