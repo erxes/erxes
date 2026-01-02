@@ -84,6 +84,7 @@ export const insuranceCustomerFields = `
 
 export const insuranceContractFields = `
   id
+  contractNumber
   vendor {
     id
     name
@@ -109,6 +110,8 @@ export const insuranceContractFields = `
   startDate
   endDate
   insuredObject
+  paymentKind
+  paymentStatus
   createdAt
   updatedAt
 `;

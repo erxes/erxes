@@ -21,6 +21,7 @@ export const ContractForm = ({ open, onOpenChange }: ContractFormProps) => {
     startDate: '',
     endDate: '',
     insuredObject: {},
+    paymentKind: 'cash',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,6 +36,7 @@ export const ContractForm = ({ open, onOpenChange }: ContractFormProps) => {
           insuredObject: formData.insuredObject,
           startDate: new Date(formData.startDate),
           endDate: new Date(formData.endDate),
+          paymentKind: formData.paymentKind,
         },
       });
 
@@ -46,6 +48,7 @@ export const ContractForm = ({ open, onOpenChange }: ContractFormProps) => {
         startDate: '',
         endDate: '',
         insuredObject: {},
+        paymentKind: 'cash',
       });
       onOpenChange(false);
     } catch (error) {
@@ -142,6 +145,24 @@ export const ContractForm = ({ open, onOpenChange }: ContractFormProps) => {
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="paymentKind">Payment Method</Label>
+            <Select
+              value={formData.paymentKind}
+              onValueChange={(value) =>
+                setFormData({ ...formData, paymentKind: value })
+              }
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Select payment method" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="cash">Cash</Select.Item>
+                <Select.Item value="qpay">QPay</Select.Item>
+              </Select.Content>
+            </Select>
           </div>
 
           <div className="space-y-2">

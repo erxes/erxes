@@ -6,6 +6,7 @@ export interface ICoveredRisk {
 }
 
 export interface IInsuranceContract {
+  contractNumber: string;
   vendor: string;
   customer: string;
   insuranceType: string;
@@ -24,4 +25,3 @@ export interface IContractDocument extends IInsuranceContract, Document {
   createdAt: Date;
   updatedAt: Date;
 }
-

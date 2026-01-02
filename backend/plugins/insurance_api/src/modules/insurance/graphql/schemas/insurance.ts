@@ -143,6 +143,8 @@ type InsuranceContract {
   startDate: Date!
   endDate: Date!
   insuredObject: JSON!
+  paymentKind: String!
+  paymentStatus: String!
   createdAt: Date!
   updatedAt: Date!
 }
@@ -362,6 +364,7 @@ export const mutations = `
     insuredObject: JSON!
     startDate: Date!
     endDate: Date!
+    paymentKind: String!
   ): InsuranceContract!
 
 

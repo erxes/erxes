@@ -7,6 +7,7 @@ export interface IProductCoveredRisk {
 
 export interface IProduct {
   name: string;
+  code?: string;
   insuranceType: string;
   coveredRisks: IProductCoveredRisk[];
   pricingConfig: any;

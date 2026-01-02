@@ -37,6 +37,12 @@ const VendorDetailPage = lazy(() =>
   })),
 );
 
+const VendorUsersPage = lazy(() =>
+  import('~/pages/insurance/VendorUsersPage').then((module) => ({
+    default: module.VendorUsersPage,
+  })),
+);
+
 const insuranceMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -44,6 +50,7 @@ const insuranceMain = () => {
         <Route path="/" element={<IndexPage />} />
         <Route path="/vendors" element={<VendorsPage />} />
         <Route path="/vendors/:id" element={<VendorDetailPage />} />
+        <Route path="/vendor-users" element={<VendorUsersPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/risks" element={<RiskTypesPage />} />
         <Route path="/types" element={<InsuranceTypesPage />} />
