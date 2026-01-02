@@ -14,7 +14,7 @@ export const ProjectsRecordTable = () => {
 
   const variables = {
     teamIds: teamId ? [teamId] : undefined,
-    userId: currentUser?._id,
+    memberId: !teamId ? currentUser?._id : undefined,
   };
 
   const { projects, handleFetchMore, pageInfo, loading } = useProjects({

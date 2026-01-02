@@ -12,6 +12,7 @@ export const projectSchema = new Schema(
     startDate: { type: Date, label: 'Start Date', default: null },
     targetDate: { type: Date, label: 'Target Date', default: null },
     leadId: { type: String, label: 'Lead ID', default: null },
+    memberIds: { type: [String], label: 'Member IDs' },
     createdBy: { type: String, label: 'Created By', default: null },
     convertedFromId: { type: Schema.Types.ObjectId, label: 'Converted From' },
   },
