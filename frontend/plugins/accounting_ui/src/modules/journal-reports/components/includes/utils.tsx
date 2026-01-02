@@ -98,6 +98,7 @@ export const moreDataByKey = (moreData: { [key: string]: any[] }, trDetails: any
 
     moreData[key].push(tr)
   });
+
   return moreData;
 }
 
