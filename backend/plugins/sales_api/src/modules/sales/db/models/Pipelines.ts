@@ -141,25 +141,28 @@ export const loadPipelineClass = (
 
       const updatedPipeline = await models.Pipelines.findOne({ _id });
 
-      if (updatedPipeline) {
-        // Send database event log
-        sendDbEventLog({
-          action: 'update',
-          docId: updatedPipeline._id,
-          currentDocument: updatedPipeline.toObject(),
-          prevDocument: prevPipeline.toObject(),
-        });
-
-        // Generate activity logs for changed fields
-        await generatePipelineActivityLogs(
-          prevPipeline.toObject(),
-          updatedPipeline.toObject(),
-          models,
-          createActivityLog,
-        );
+      if (!updatedPipeline) {
+        throw new Error('Pipeline not found after update');
       }
 
+      // Send database event log
+      sendDbEventLog({
+        action: 'update',
+        docId: updatedPipeline._id,
+        currentDocument: updatedPipeline.toObject(),
+        prevDocument: prevPipeline.toObject(),
+      });
+
+      // Generate activity logs for changed fields
+      await generatePipelineActivityLogs(
+        prevPipeline.toObject(),
+        updatedPipeline.toObject(),
+        models,
+        createActivityLog,
+      );
+
       return updatedPipeline;
+
     }
 
     /*
@@ -175,7 +178,7 @@ export const loadPipelineClass = (
       // Create activity logs for order changes
       for (const order of orders) {
         const pipelineBefore = pipelinesBeforeUpdate.find(
-          (p) => p._id === order._id,
+          (p) => p._id.toString() === order._id,
         );
         if (pipelineBefore && pipelineBefore.order !== order.order) {
           createActivityLog({

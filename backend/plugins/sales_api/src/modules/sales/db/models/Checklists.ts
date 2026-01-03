@@ -173,6 +173,10 @@ export const loadCheckListClass = (
       await models.Checklists.updateOne({ _id }, { $set: doc });
 
       const updatedChecklist = await models.Checklists.findOne({ _id });
+
+      if (!updatedChecklist) {
+        throw new Error('Checklist not found');
+      }
       
       if (updatedChecklist) {
         // Send database event log
@@ -403,7 +407,9 @@ export const loadCheckListItemClass = (
           });
         }
       }
-
+      if (!checklistItem) {
+        throw new Error(`Checklist item not found after update with id ${_id}`);
+      }
       return checklistItem;
     }
 
@@ -459,17 +465,66 @@ export const loadCheckListItemClass = (
 
       const prevOrder = currentItem.order;
 
-      await models.ChecklistItems.updateOne(
-        { checklistId: currentItem.checklistId, order: destinationOrder },
-        { $set: { order: prevOrder } },
-      );
+      const swappedItem = await models.ChecklistItems.findOne({
+        checklistId: currentItem.checklistId,
+        order: destinationOrder,
+      });
+
+      if (swappedItem) {
+        await models.ChecklistItems.updateOne(
+          { _id: swappedItem._id },
+          { $set: { order: prevOrder } },
+        );
+
+        const updatedSwappedItem = {
+          ...swappedItem.toObject(),
+          order: prevOrder,
+        };
+
+        // DB event log
+        sendDbEventLog({
+          action: 'update',
+          docId: swappedItem._id,
+          currentDocument: updatedSwappedItem,
+          prevDocument: swappedItem.toObject(),
+        });
+
+        // Activity log
+        createActivityLog({
+          activityType: 'reorder',
+          target: {
+            _id: swappedItem._id,
+            moduleName: 'sales',
+            collectionName: 'checklistItems',
+          },
+          action: {
+            type: 'reorder',
+            description: 'Checklist item order changed',
+          },
+          changes: {
+            order: {
+              from: swappedItem.order,
+              to: prevOrder,
+            },
+            reorderedAt: new Date(),
+          },
+          metadata: {
+            checklistId: swappedItem.checklistId,
+            userId: swappedItem.userId,
+          },
+        });
+      }
 
       await models.ChecklistItems.updateOne(
         { _id },
         { $set: { order: destinationOrder } },
       );
 
-      const updatedItem = await models.ChecklistItems.findOne({ _id }).lean();
+      const updatedItem = await models.ChecklistItems.findOne({ _id });
+
+      if (!updatedItem) {
+        throw new Error(`Checklist item not found after reorder: ${_id}`);
+      }
       
       if (updatedItem) {
         // Send database event log for order change

@@ -122,25 +122,28 @@ export const loadStageClass = (
 
       const updatedStage = await models.Stages.findOne({ _id });
 
-      if (updatedStage) {
-        // Send database event log
-        sendDbEventLog({
-          action: 'update',
-          docId: updatedStage._id,
-          currentDocument: updatedStage.toObject(),
-          prevDocument: prevStage.toObject(),
-        });
-
-        // Generate activity logs for changed fields
-        await generateStageActivityLogs(
-          prevStage.toObject(),
-          updatedStage.toObject(),
-          models,
-          createActivityLog,
-        );
+      if (!updatedStage) {
+        throw new Error('Stage not found after update');
       }
 
+      // Send database event log
+      sendDbEventLog({
+        action: 'update',
+        docId: updatedStage._id,
+        currentDocument: updatedStage.toObject(),
+        prevDocument: prevStage.toObject(),
+      });
+
+      // Generate activity logs for changed fields
+      await generateStageActivityLogs(
+        prevStage.toObject(),
+        updatedStage.toObject(),
+        models,
+        createActivityLog,
+      );
+
       return updatedStage;
+
     }
 
     /*

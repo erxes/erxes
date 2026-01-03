@@ -88,6 +88,10 @@ export const loadBoardClass = (
 
       const updatedBoard = await models.Boards.findOne({ _id });
 
+      if (!updatedBoard) {
+         throw new Error('Board not found');
+      }
+
       if (updatedBoard) {
         // Send database event log
         sendDbEventLog({

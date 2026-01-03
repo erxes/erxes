@@ -158,7 +158,7 @@ export const loadClasses = (
     loadPipelineLabelClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'labels'),
+      eventDispatcher('sales', 'pipeline', 'pipelineLabels'),
     ),
   );
 

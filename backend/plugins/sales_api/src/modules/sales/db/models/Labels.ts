@@ -175,7 +175,9 @@ export const loadPipelineLabelClass = (
 
       const updatedLabel = await models.PipelineLabels.findOne({ _id });
 
-      if (updatedLabel) {
+      if (!updatedLabel) {
+        throw new Error('Label not found after update');
+      }
         // Send database event log
         sendDbEventLog({
           action: 'update',
@@ -191,7 +193,7 @@ export const loadPipelineLabelClass = (
           models,
           createActivityLog,
         );
-      }
+      
 
       return updatedLabel;
     }
