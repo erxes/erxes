@@ -49,6 +49,7 @@ const PipelineStageItem = (props: Props) => {
     transition,
     transform,
     wrapperStyle,
+    attributes,
     index,
     stage,
     control,
@@ -68,6 +69,7 @@ const PipelineStageItem = (props: Props) => {
             : ''
         }
       `}
+      {...attributes}
       style={
         {
           ...wrapperStyle,
@@ -102,7 +104,6 @@ const PipelineStageItem = (props: Props) => {
         `}
         style={style}
         data-cypress="draggable-item"
-        {...props}
         tabIndex={!handle ? 0 : undefined}
       >
         <span className="absolute top-1/2 left-0 h-full w-[3px] -translate-y-1/2 rounded-l-sm bg-purple-500" />
