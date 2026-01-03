@@ -5,7 +5,7 @@ import { IReportFilterParams } from "../../graphql/resolvers/queries/journalRepo
 import { sendTRPCMessage } from "erxes-api-shared/utils";
 
 export const handleMainTB = async (subdomain: string, models: IModels, groupRules: IGroupCommon[], filterParams: IReportFilterParams, user: IUserDocument) => {
-  const groupsStr = groupRules.map(gr => gr.group);
+  const groups = groupRules.map(gr => gr.group);
   const { fromDate, toDate, ...filters } = filterParams
   const match = await generateFilter(subdomain, models, filters, user);
 
@@ -30,12 +30,12 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
     isBetween: 1
   };
 
-  if (groupsStr.includes('branchId')) {
+  if (groups.includes('branchId')) {
     $group._id['branchId'] = '$branchId';
     $project['branchId'] = '$_id.branchId';
   }
 
-  if (groupsStr.includes('departmentId')) {
+  if (groups.includes('departmentId')) {
     $group._id['departmentId'] = '$departmentId'
     $project['departmentId'] = '$_id.departmentId';
   }
@@ -72,7 +72,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
   }
 
   const branchById = {};
-  if (groupsStr.includes('branchId')) {
+  if (groups.includes('branchId')) {
     const branchIds = records.map(r => r.branchId);
     const branches = await sendTRPCMessage({
       subdomain,
@@ -96,7 +96,7 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
   }
 
   const departmentById = {};
-  if (groupsStr.includes('departmentId')) {
+  if (groups.includes('departmentId')) {
     const departmentIds = records.map(r => r.departmentId);
     const departments = await sendTRPCMessage({
       subdomain,
