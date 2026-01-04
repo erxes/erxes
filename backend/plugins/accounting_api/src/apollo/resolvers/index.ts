@@ -12,7 +12,8 @@ import {
   VatRows as MutationsVatRow,
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
-  AdjustInventories as MutationsAdjustInventories
+  AdjustInventories as MutationsAdjustInventories,
+  AdjustFundRates as MutationsAdjustFundRates,
 } from '@/accounting/graphql/resolvers/mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,
@@ -24,6 +25,7 @@ import {
   Inventories as QueriesInventories,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
+  AdjustFundRates as QueriesAdjustFundRates,
 } from '@/accounting/graphql/resolvers/queries';
 
 const resolvers: any = {
@@ -42,6 +44,7 @@ const resolvers: any = {
     ...MutationsCtaxRow,
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
+    ...MutationsAdjustFundRates,
   },
   Query: {
     ...QueriesAccount,
@@ -53,6 +56,7 @@ const resolvers: any = {
     ...QueriesInventories,
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
+    ...QueriesAdjustFundRates,
   },
 };
 
