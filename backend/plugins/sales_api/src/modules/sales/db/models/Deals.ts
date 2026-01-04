@@ -54,7 +54,9 @@ export const loadDealClass = (
 
       if (doc.productsData) {
         doc.productsData = doc.productsData.filter((pd) => pd);
-        Object.assign(doc, { ...getTotalAmounts(doc.productsData) });
+
+        const totals = await getTotalAmounts(doc.productsData);
+        Object.assign(doc, totals);
       }
 
       const deal = await createBoardItem(models, doc);
@@ -84,50 +86,55 @@ export const loadDealClass = (
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd && pd.productId);
-        Object.assign(doc, { ...getTotalAmounts(doc.productsData) });
+        doc.productsData = doc.productsData.filter(
+          (pd) => pd && pd.productId,
+        );
+
+        const totals = await getTotalAmounts(doc.productsData);
+        Object.assign(doc, totals);
       }
 
       await models.Deals.updateOne({ _id }, { $set: doc, searchText });
 
       const updatedDeal = await models.Deals.findOne({ _id });
 
-      if (updatedDeal) {
-        // Send database event log
-        sendDbEventLog({
-          action: 'update',
-          docId: updatedDeal._id,
-          currentDocument: updatedDeal.toObject(),
-          prevDocument: prevDeal.toObject(),
-        });
+      if (!updatedDeal) {
+        throw new Error('Deal not found after update');
+      }
 
-        // Check if stage was changed
-        if (doc.stageId && doc.stageId !== prevDeal.stageId) {
-          const [fromStage, toStage] = await Promise.all([
-            models.Stages.findOne({ _id: prevDeal.stageId }, { name: 1 }),
-            models.Stages.findOne({ _id: doc.stageId }, { name: 1 }),
-          ]);
+      // Send database event log
+      sendDbEventLog({
+        action: 'update',
+        docId: updatedDeal._id,
+        currentDocument: updatedDeal.toObject(),
+        prevDocument: prevDeal.toObject(),
+      });
 
-          // Create activity log for stage movement
-          createActivityLog(
-            generateDealMovedActivityLog(
-              updatedDeal,
-              prevDeal.stageId,
-              doc.stageId,
-              fromStage?.name,
-              toStage?.name,
-            ),
-          );
-        }
+      // Check if stage was changed
+      if (doc.stageId && doc.stageId !== prevDeal.stageId) {
+        const [fromStage, toStage] = await Promise.all([
+          models.Stages.findOne({ _id: prevDeal.stageId }, { name: 1 }),
+          models.Stages.findOne({ _id: doc.stageId }, { name: 1 }),
+        ]);
 
-        // Generate activity logs for other field changes
-        await generateDealActivityLogs(
-          prevDeal.toObject(),
-          updatedDeal.toObject(),
-          models,
-          createActivityLog,
+        createActivityLog(
+          generateDealMovedActivityLog(
+            updatedDeal,
+            prevDeal.stageId,
+            doc.stageId,
+            fromStage?.name,
+            toStage?.name,
+          ),
         );
       }
+
+      // Generate activity logs for other field changes
+      await generateDealActivityLogs(
+        prevDeal.toObject(),
+        updatedDeal.toObject(),
+        models,
+        createActivityLog,
+      );
 
       return updatedDeal;
     }
@@ -137,17 +144,14 @@ export const loadDealClass = (
     }
 
     public static async removeDeals(_ids: string[]) {
-      // Create activity logs for each deal being deleted
       const deals = await models.Deals.find({ _id: { $in: _ids } });
 
       for (const deal of deals) {
-        // Send database event log
         sendDbEventLog({
           action: 'delete',
           docId: deal._id,
         });
 
-        // Create activity log
         createActivityLog({
           activityType: 'delete',
           target: {
@@ -170,7 +174,6 @@ export const loadDealClass = (
         });
       }
 
-      // completely remove all related things
       for (const _id of _ids) {
         await destroyBoardItemRelations(models, _id);
       }
