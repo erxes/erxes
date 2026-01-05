@@ -9,7 +9,7 @@ interface PosDeleteProps {
 }
 
 const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
-  const { posRemove } = usePosRemove();
+  const { posRemove, loading } = usePosRemove();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { confirm } = useConfirm();
@@ -45,9 +45,14 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
   };
 
   return (
-    <Button variant="default" size="sm" onClick={handleDelete}>
+    <Button
+      variant="default"
+      size="sm"
+      onClick={handleDelete}
+      disabled={loading}
+    >
       <IconTrash className="mr-2 w-4 h-4" />
-      Remove POS
+      {loading ? 'Deleting...' : 'Remove POS'}
     </Button>
   );
 };
