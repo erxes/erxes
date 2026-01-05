@@ -1090,6 +1090,11 @@ export const checkLoyalties = async (
   }
 
   for (const item of activeProductsData || []) {
+    
+    if (item.discountPercent) {
+      continue;
+    }
+
     const loyalty = loyalties[item.productId];
 
     item.unitPrice = item.unitPrice || 0;
