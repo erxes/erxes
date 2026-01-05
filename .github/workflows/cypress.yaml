@@ -5,7 +5,7 @@ on:
     branches:
       - "dev"
       - "master"
-      - "state-bank"
+      - "v1-state-bank"
       - "rc"
 jobs:
   runtest:

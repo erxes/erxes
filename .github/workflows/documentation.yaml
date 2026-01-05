@@ -11,7 +11,7 @@ on:
       - erxes-docs-blog
       - dev
       - master
-      - state-bank
+      - v1-state-bank
       - rc
     paths:
       - "docs/**"
