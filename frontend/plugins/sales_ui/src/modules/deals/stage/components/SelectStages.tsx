@@ -17,7 +17,7 @@ import {
 
 import { StagesInline } from './StagesInline';
 import { IStage } from '@/deals/types/stages';
-import { IconListCheck } from '@tabler/icons-react';
+import { IconListCheck, IconChevronDown } from '@tabler/icons-react';
 import { useStages } from '../hooks/useStages';
 import { useDebounce } from 'use-debounce';
 
@@ -77,7 +77,7 @@ export const SelectStageProvider = ({
 };
 
 const SelectStagesValue = ({ placeholder }: { placeholder?: string }) => {
-  const { stageIds, stages, setStages, pipelineId } = useSelectStagesContext();
+  const { stageIds, stages, setStages } = useSelectStagesContext();
 
   return (
     <StagesInline
@@ -85,7 +85,6 @@ const SelectStagesValue = ({ placeholder }: { placeholder?: string }) => {
       stages={stages.length > 0 ? stages : undefined}
       updateStages={setStages}
       placeholder={placeholder}
-      pipelineId={pipelineId}
     />
   );
 };
@@ -269,9 +268,11 @@ export const SelectStageFilterBar = ({
 export const SelectStageInlineCell = ({
   onValueChange,
   pipelineId,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof SelectStageProvider>, 'children'> & {
   scope?: string;
+  className?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const isDisabled = !pipelineId;
@@ -286,8 +287,12 @@ export const SelectStageInlineCell = ({
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <RecordTableInlineCell.Trigger disabled={isDisabled}>
+        <RecordTableInlineCell.Trigger
+          disabled={isDisabled}
+          className={cn('flex items-center justify-between gap-2', className)}
+        >
           <SelectStagesValue placeholder={''} />
+          <IconChevronDown className="size-4 text-zinc-600 shrink-0" />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectStageContent />
