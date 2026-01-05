@@ -5,9 +5,9 @@ import { format } from 'date-fns';
 import { useFormContext } from 'react-hook-form';
 import { MilestoneFields } from './MilestoneFields';
 import { MilestoneInline } from './MilestoneInline';
+import { useQueryState } from 'erxes-ui';
 
 type Props = {
-  projectId: string;
   milestone: IMilestone & IMilestoneProgress;
   extraContent?: React.ReactNode;
   isActive: boolean;
@@ -15,38 +15,17 @@ type Props = {
 };
 
 export const EditMilestone = ({
-  projectId,
   milestone,
   extraContent,
   isActive,
   setActiveMilestone,
 }: Props) => {
-  const { updateMilestone, removeMilestone } = useUpdateMilestone();
+  const { removeMilestone } = useUpdateMilestone();
 
-  const { reset, setValue } = useFormContext();
-
+  const { reset } = useFormContext();
+  const [, setMilestoneId] = useQueryState('milestone');
   const handleClick = () => {
-    setValue('name', milestone.name);
-    setValue(
-      'targetDate',
-      milestone.targetDate ? new Date(milestone.targetDate) : undefined,
-    );
-
-    setActiveMilestone(milestone._id);
-  };
-
-  const onSubmit = async (data: any) => {
-    updateMilestone({
-      variables: {
-        id: milestone._id,
-        ...data,
-        projectId,
-      },
-      onCompleted: () => {
-        reset();
-        setActiveMilestone(null);
-      },
-    });
+    setMilestoneId(milestone._id);
   };
 
   const onRemove = (e: React.MouseEvent) => {
@@ -95,7 +74,7 @@ export const EditMilestone = ({
     <MilestoneFields
       isActive={isActive}
       triggerContent={triggerContent}
-      onSubmit={onSubmit}
+      onSubmit={() => undefined}
       onClick={handleClick}
       setActiveMilestone={setActiveMilestone}
     />

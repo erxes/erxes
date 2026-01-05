@@ -99,7 +99,6 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
           <HoverCard.Trigger asChild>
             <div>
               <EditMilestone
-                projectId={projectId}
                 milestone={milestone}
                 extraContent={extraContent(milestone)}
                 isActive={activeMilestone === milestone._id}

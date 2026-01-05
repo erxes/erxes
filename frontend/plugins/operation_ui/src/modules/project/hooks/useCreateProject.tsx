@@ -13,6 +13,11 @@ export const useCreateProject = () => {
   const [createProjectMutation, { loading, error }] = useMutation(
     CREATE_PROJECT_MUTATION,
     {
+      refetchQueries: [
+        'getProjects',
+        'getConvertedProject',
+        'getProjectsInline',
+      ],
       onCompleted: () => {
         toast({
           title: 'Success',
