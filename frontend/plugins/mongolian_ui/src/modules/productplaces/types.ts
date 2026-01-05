@@ -1,5 +1,3 @@
-// frontend/plugins/mongolian_ui/src/modules/productplaces/types.ts
-
 // SETTINGS
 
 export type Condition = {

@@ -1,15 +1,6 @@
 import React from 'react';
 import { Button } from 'erxes-ui';
-
-import {
-  IConfigsMap,
-  PerSplitConfig,
-  ProductCategory,
-  Tag,
-  Product,
-  Segment,
-} from '../types';
-
+import { IConfigsMap, PerSplitConfig } from '../types';
 import Header from './Header';
 import PerSettings from './PerSettings';
 import Sidebar from './Sidebar';
@@ -25,22 +16,22 @@ const SplitSettings = (props: Props) => {
   /* =========================
    * MOCK DATA (replace later)
    * ========================= */
-  const productCategories: ProductCategory[] = [
+  const productCategories = [
     { _id: '1', name: 'Category 1' },
     { _id: '2', name: 'Category 2' },
   ];
 
-  const tags: Tag[] = [
+  const tags = [
     { _id: '1', name: 'Tag 1', type: 'product' },
     { _id: '2', name: 'Tag 2', type: 'product' },
   ];
 
-  const products: Product[] = [
+  const products = [
     { _id: '1', name: 'Product 1' },
     { _id: '2', name: 'Product 2' },
   ];
 
-  const segments: Segment[] = [
+  const segments = [
     { _id: '1', name: 'Segment 1' },
     { _id: '2', name: 'Segment 2' },
   ];
@@ -54,7 +45,7 @@ const SplitSettings = (props: Props) => {
     const configKey = `config_${Date.now()}`;
 
     const newSplitConfig: PerSplitConfig = {
-      title: 'New Places Config',
+      title: 'New Split Config',
       boardId: '',
       pipelineId: '',
       stageId: '',
@@ -94,6 +85,21 @@ const SplitSettings = (props: Props) => {
   };
 
   /* =========================
+   * UPDATE CONFIG
+   * ========================= */
+  const updateConfig = (key: string, config: PerSplitConfig) => {
+    const updatedConfigsMap: IConfigsMap = {
+      ...configsMap,
+      dealsProductsDataSplit: {
+        ...(configsMap.dealsProductsDataSplit || {}),
+        [key]: config,
+      },
+    };
+
+    save(updatedConfigsMap);
+  };
+
+  /* =========================
    * RENDER CONFIGS
    * ========================= */
   const renderConfigs = () => {
@@ -105,7 +111,18 @@ const SplitSettings = (props: Props) => {
         configsMap={configsMap}
         config={configs[key] as PerSplitConfig}
         currentConfigKey={key}
-        save={save}
+        save={(newConfigsMap) => {
+          // Handle the save from PerSettings
+          if (newConfigsMap.dealsProductsDataSplit) {
+            save({
+              ...configsMap,
+              dealsProductsDataSplit: {
+                ...(configsMap.dealsProductsDataSplit || {}),
+                ...newConfigsMap.dealsProductsDataSplit,
+              },
+            });
+          }
+        }}
         delete={deleteHandler}
         productCategories={productCategories}
         tags={tags}
@@ -161,7 +178,7 @@ const SplitSettings = (props: Props) => {
         <div className="flex-1 p-4 overflow-auto">
           <div
             id="SplitSettingsMenu"
-            className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm"
+            className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm space-y-4"
           >
             {renderConfigs()}
           </div>
