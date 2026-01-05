@@ -21,6 +21,7 @@
       "success-message": "Харилцагч амжилттай нэмэгдлээ"
     },
     "detail": {
+      "add-tags": "Таг нэмэх",
       "add-phone": "Утас нэмэх",
       "edit-phone": "Утас засах",
       "add-company": "Компани нэмэх",

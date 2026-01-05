@@ -119,11 +119,9 @@ export const SelectTagGroupsCommand = ({
         focusOnMount
       />
       {selectedTags?.length > 0 && (
-        <>
-          <div className="flex flex-wrap p-2 gap-2">
-            <TagList />
-          </div>
-        </>
+        <div className="flex flex-wrap p-2 gap-2">
+          <TagList />
+        </div>
       )}
       <Command.List>
         <SelectTree.Provider id={targetIds.join(',')} ordered={!search}>
@@ -193,39 +191,97 @@ export const SelectTagsCommand = ({
             show={!disableCreateOption && !loading && !tags?.length}
           />
           <Combobox.Empty loading={loading} error={error} />
-          {tags
-            ?.filter((tag) => !tag.parentId && !tag.isGroup)
-            ?.map((tag) => (
-              <SelectTagsItem
-                key={tag._id}
-                tag={{
-                  ...tag,
-                  hasChildren: false,
-                }}
-              />
-            ))}
+          {search ? (
+            <>
+              {tags
+                ?.filter((tag) => !tag.parentId && !tag.isGroup)
+                ?.map((tag) => (
+                  <SelectTagsItem
+                    key={tag._id}
+                    tag={{
+                      ...tag,
+                      hasChildren: false,
+                    }}
+                  />
+                ))}
 
-          {tags
-            ?.filter(
-              (tag) => tag.isGroup && tags.some((t) => t.parentId === tag._id),
-            )
-            ?.map((tag) => (
-              <Command.Group key={tag._id} heading={tag.name}>
-                {tags
-                  .filter((t) => t.parentId === tag._id)
-                  .map((childTag) => (
-                    <SelectTagsItem
-                      key={childTag._id}
-                      tag={{
-                        ...childTag,
-                        hasChildren: tags.some(
-                          (t) => t.parentId === childTag._id,
-                        ),
-                      }}
-                    />
-                  ))}
-              </Command.Group>
-            ))}
+              {tags
+                ?.filter(
+                  (tag) =>
+                    tag.isGroup && tags.some((t) => t.parentId === tag._id),
+                )
+                ?.map((tag) => (
+                  <Command.Group key={tag._id} heading={tag.name}>
+                    {tags
+                      .filter((t) => t.parentId === tag._id)
+                      .map((childTag) => (
+                        <SelectTagsItem
+                          key={childTag._id}
+                          tag={{
+                            ...childTag,
+                            hasChildren: tags.some(
+                              (t) => t.parentId === childTag._id,
+                            ),
+                          }}
+                        />
+                      ))}
+                  </Command.Group>
+                ))}
+              {tags
+                ?.filter(
+                  (tag) =>
+                    tag.parentId &&
+                    !tags.some((t) => t._id === tag.parentId) &&
+                    !tag.isGroup,
+                )
+                .map((tag) => (
+                  <SelectTagsItem
+                    key={tag._id}
+                    tag={{
+                      ...tag,
+                      hasChildren: false,
+                    }}
+                  />
+                ))}
+            </>
+          ) : (
+            <>
+              {tags
+                ?.filter((tag) => !tag.parentId && !tag.isGroup)
+                ?.map((tag) => (
+                  <SelectTagsItem
+                    key={tag._id}
+                    tag={{
+                      ...tag,
+                      hasChildren: false,
+                    }}
+                  />
+                ))}
+
+              {tags
+                ?.filter(
+                  (tag) =>
+                    tag.isGroup && tags.some((t) => t.parentId === tag._id),
+                )
+                ?.map((tag) => (
+                  <Command.Group key={tag._id} heading={tag.name}>
+                    {tags
+                      .filter((t) => t.parentId === tag._id)
+                      .map((childTag) => (
+                        <SelectTagsItem
+                          key={childTag._id}
+                          tag={{
+                            ...childTag,
+                            hasChildren: tags.some(
+                              (t) => t.parentId === childTag._id,
+                            ),
+                          }}
+                        />
+                      ))}
+                  </Command.Group>
+                ))}
+            </>
+          )}
           <Combobox.FetchMore
             fetchMore={handleFetchMore}
             currentLength={tags?.length || 0}
@@ -423,7 +479,7 @@ export const SelectTagsDetail = React.forwardRef<
                 className="w-min text-sm font-medium shadow-xs"
                 variant="outline"
               >
-                {t("add-tags")}
+                {t('add-tags')}
                 <IconPlus className="text-lg" />
               </Button>
             </Popover.Trigger>
