@@ -1,10 +1,11 @@
 import { IUserDocument } from "erxes-api-shared/core-types";
 import { IModels } from "~/connectionResolvers";
-import { generateFilter } from ".";
+import { generateFilter, IGroupCommon } from ".";
 import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
 import { sendTRPCMessage } from "erxes-api-shared/utils";
 
-export const handleMainAC = async (subdomain: string, models: IModels, filterParams: IReportFilterParams, user: IUserDocument) => {
+export const handleMainAC = async (subdomain: string, models: IModels, groupRules: IGroupCommon[], filterParams: IReportFilterParams, user: IUserDocument) => {
+  const groups = new Set(groupRules.map(gr => gr.group));
   const { fromDate, toDate, ...filters } = filterParams
   const match = await generateFilter(subdomain, models, filters, user);
 
@@ -14,7 +15,7 @@ export const handleMainAC = async (subdomain: string, models: IModels, filterPar
   ];
 
   const $group = {
-    _id: { accountId: '$details.accountId', side: '$details.side', branchId: '$branchId', departmentId: '$departmentId' },
+    _id: { side: '$details.side', accountId: '$details.accountId' },
     sumAmount: { $sum: '$details.amount' },
     sumCurrencyAmount: { $sum: '$details.currencyAmount' }
   };
@@ -25,10 +26,20 @@ export const handleMainAC = async (subdomain: string, models: IModels, filterPar
     side: '$_id.side',
     sumAmount: 1,
     sumCurrencyAmount: 1,
-    branchId: '$_id.branchId',
+
     departmentId: '$_id.departmentId',
     isBetween: 1
   };
+
+  if (groups.has('branchId')) {
+    $group._id['branchId'] = '$branchId';
+    $project['branchId'] = '$_id.branchId';
+  }
+
+  if (groups.has('departmentId')) {
+    $group._id['departmentId'] = '$departmentId'
+    $project['departmentId'] = '$_id.departmentId';
+  }
 
   const fbRecs = await models.Transactions.aggregate([
     { $match: { date: { $lte: fromDate } } },
@@ -61,48 +72,52 @@ export const handleMainAC = async (subdomain: string, models: IModels, filterPar
     accountById[account._id] = account;
   }
 
-  const branchIds = records.map(r => r.branchId);
   const branchById = {};
-  const branches = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'branches',
-    action: 'find',
-    input: {
-      query: { _id: { $in: branchIds } },
-      fields: {
-        _id: 1,
-        title: 1,
-        code: 1,
+  if (groups.has('branchId')) {
+    const branchIds = records.map(r => r.branchId);
+    const branches = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'branches',
+      action: 'find',
+      input: {
+        query: { _id: { $in: branchIds } },
+        fields: {
+          _id: 1,
+          title: 1,
+          code: 1,
+        },
       },
-    },
-    defaultValue: [],
-  });
-  for (const branch of branches) {
-    branchById[branch._id] = branch;
+      defaultValue: [],
+    });
+    for (const branch of branches) {
+      branchById[branch._id] = branch;
+    }
   }
 
-  const departmentIds = records.map(r => r.departmentId);
   const departmentById = {};
-  const departments = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'departments',
-    action: 'find',
-    input: {
-      query: { _id: { $in: departmentIds } },
-      fields: {
-        _id: 1,
-        title: 1,
-        code: 1,
+  if (groups.has('departmentId')) {
+    const departmentIds = records.map(r => r.departmentId);
+    const departments = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'departments',
+      action: 'find',
+      input: {
+        query: { _id: { $in: departmentIds } },
+        fields: {
+          _id: 1,
+          title: 1,
+          code: 1,
+        },
       },
-    },
-    defaultValue: [],
-  });
-  for (const department of departments) {
-    departmentById[department._id] = department;
+      defaultValue: [],
+    });
+    for (const department of departments) {
+      departmentById[department._id] = department;
+    }
   }
 
   return {

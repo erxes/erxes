@@ -36,7 +36,17 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    const matchingTags = await models.Tags.find({
+      ...commonQuerySelector,
+      name: new RegExp(`.*${searchValue}.*`, 'i'),
+    }).lean();
+
+    const matchingTagIds = matchingTags.map((tag) => tag._id);
+    const parentIds = matchingTags
+      .map((tag) => tag.parentId)
+      .filter((id) => !!id);
+
+    filter._id = { $in: [...matchingTagIds, ...parentIds] };
   }
 
   if (ids?.length) {

@@ -3,30 +3,33 @@ import { IModels } from "~/connectionResolvers";
 import { generateFilter, IGroupCommon } from ".";
 import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
 import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { JOURNALS } from "../../@types/constants";
 
-export const handleMainTB = async (subdomain: string, models: IModels, groupRules: IGroupCommon[], filterParams: IReportFilterParams, user: IUserDocument) => {
+export const handleInvCost = async (subdomain: string, models: IModels, groupRules: IGroupCommon[], filterParams: IReportFilterParams, user: IUserDocument) => {
   const groups = new Set(groupRules.map(gr => gr.group));
   const { fromDate, toDate, ...filters } = filterParams
   const match = await generateFilter(subdomain, models, filters, user);
 
   const aggPipe = [
-    { $match: match },
+    { $match: { journal: { $in: JOURNALS.ALL_REAL_INV }, 'details.productId': { $exists: true, $ne: '' }, ...match } },
     { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
   ];
 
   const $group = {
-    _id: { side: '$details.side', accountId: '$details.accountId' },
+    _id: { accountId: '$details.accountId', side: '$details.side', productId: '$details.productId' },
     sumAmount: { $sum: '$details.amount' },
+    sumCount: { $sum: '$details.count' },
     sumCurrencyAmount: { $sum: '$details.currencyAmount' }
   };
 
   const $project = {
     _id: 0,
     accountId: '$_id.accountId',
+    productId: '$_id.productId',
     side: '$_id.side',
     sumAmount: 1,
+    sumCount: 1,
     sumCurrencyAmount: 1,
-    departmentId: '$_id.departmentId',
     isBetween: 1
   };
 
@@ -70,6 +73,25 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
   for (const account of accounts) {
     accountById[account._id] = account;
   }
+
+  const productIds = records.filter(r => r.productId).map(r => r.productId);
+  const products = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'products',
+    action: 'find',
+    input: {
+      query: { _id: { $in: productIds } },
+      fields: { _id: 1, code: 1, name: 1, categoryId: 1 },
+      limit: productIds.length,
+    },
+    defaultValue: []
+  });
+  const productById = {};
+  for (const product of products) {
+    productById[product._id] = product;
+  };
 
   const branchById = {};
   if (groups.has('branchId')) {
@@ -127,6 +149,9 @@ export const handleMainTB = async (subdomain: string, models: IModels, groupRule
       accountCategoryId: accountById[r.accountId]?.categoryId?._id,
       accountCategoryCode: accountById[r.accountId]?.categoryId?.code,
       accountCategoryName: accountById[r.accountId]?.categoryId?.name,
+      productCode: productById[r.productId]?.code,
+      productName: productById[r.productId]?.name,
+      productCategoryId: productById[r.productId]?.categoryId?._id,
       branchCode: branchById[r.branchId]?.code,
       branchName: branchById[r.branchId]?.title,
       departmentCode: departmentById[r.departmentId]?.code,
