@@ -33,6 +33,10 @@ export default composePlugins(
         'process.env.REACT_APP_GOOGLE_MAP_API_KEY': JSON.stringify(
           process.env.REACT_APP_GOOGLE_MAP_API_KEY,
         ),
+
+        'process.env.REACT_APP_HIDE_CORE_MODULES': JSON.stringify(
+          process.env.REACT_APP_HIDE_CORE_MODULES,
+        ),
       }),
     );
 
