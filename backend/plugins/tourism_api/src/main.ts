@@ -7,7 +7,7 @@ import resolvers from './apollo/resolvers';
 
 startPlugin({
   name: 'tourism',
-  port: 3308,
+  port: 3311,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers: resolvers,

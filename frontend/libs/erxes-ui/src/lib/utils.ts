@@ -18,6 +18,15 @@ export function fixNum(value: any, p = 4) {
   return Number((big / multiplier).toFixed(p));
 }
 
+export function displayNum(value: any, p = 2) {
+  const num = fixNum(value, p);
+
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: p,
+    maximumFractionDigits: p,
+  }).format(num);
+}
+
 /**
  * Send desktop notification
  */

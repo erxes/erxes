@@ -33,7 +33,7 @@
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "frontline_ui:build:development",
-        "port": 3005
+        "port": 3004
       },
       "configurations": {
         "development": {},

@@ -29,6 +29,10 @@ export const types = `
   type AccJournalReportResponse {
     records: [JSON],
   }
+
+  type AccJournalReportMoreResponse {
+    trDetails: [JSON],
+  }
 `;
 
 const trsQueryParams = `
@@ -37,6 +41,7 @@ const trsQueryParams = `
   number: String,
   ptrStatus: String,
 
+  accountId: String,
   accountIds: [String],
   accountKind: String,
   accountExcludeIds: Boolean,
@@ -74,4 +79,9 @@ export const queries = `
     ${trsQueryParams},
     ${GQL_CURSOR_PARAM_DEFS}
   ): AccJournalReportResponse
+
+  journalReportMore(
+    ${trsQueryParams},
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): AccJournalReportMoreResponse
 `;

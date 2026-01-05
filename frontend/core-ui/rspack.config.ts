@@ -15,7 +15,7 @@ export default composePlugins(
   withNx(),
   withReact(),
   withModuleFederation(config, { dts: false }),
-  (config) => {
+  (config: any) => {
     // Define environment variables
     config.plugins?.push(
       new DefinePlugin({

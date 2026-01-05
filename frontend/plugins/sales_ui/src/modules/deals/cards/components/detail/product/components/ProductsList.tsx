@@ -1,9 +1,10 @@
-import { Button, Input, Label, Switch } from 'erxes-ui';
+import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
+import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 import { useEffect, useState } from 'react';
 
-import FilterButton from './FilterButton';
 import { IconSearch } from '@tabler/icons-react';
+import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import ProductFooter from './ProductFooter';
 import { ProductsRecordTable } from './ProductRecordTable';
 import { onLocalChangeAtom } from '../productTableAtom';
@@ -31,6 +32,10 @@ const ProductsList = ({
     useState<IProductData[]>(productsData);
   const setOnLocalChange = useSetAtom(onLocalChangeAtom);
 
+  const [filters, setFilters] = useState<ProductFilterState>(
+    {} as ProductFilterState,
+  );
+
   const [vatPercent, setVatPercent] = useState(0);
   const {
     total,
@@ -48,10 +53,18 @@ const ProductsList = ({
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
 
-  const productRecords = localProductsData.map((data) => ({
-    ...data,
-    product: products.find((p) => p._id === data.productId),
-  }));
+  const filteredProducts = filterProducts(products, filters);
+
+  const productRecords = localProductsData
+    .map((data) => ({
+      ...data,
+      product: products.find((p) => p._id === data.productId),
+    }))
+    .filter((record) => {
+      if (!record.product) return false;
+      // We check if the product in the record is present in the filtered products list
+      return filteredProducts.some((p) => p._id === record.product?._id);
+    });
 
   const updateLocalProduct = (id: string, patch: Partial<IProductData>) => {
     setLocalProductsData((prev) =>
@@ -155,39 +168,51 @@ const ProductsList = ({
   };
 
   return (
-    <div>
-      <div className="flex items-center gap-4 flex-wrap">
-        <Input
-          placeholder="Vat percent"
-          className="w-[40%]"
-          value={vatPercent}
-          onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
-        />
-        <Button className="ml-3" onClick={() => applyVat()}>
-          Apply VAT
-        </Button>
-      </div>
-      <div className="w-full mt-3 flex items-center justify-between">
-        <div className="relative w-[45%]">
-          <IconSearch
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={16}
+    <div className="space-y-4">
+      <Filter id="product-filter">
+        <div className="flex items-center gap-4 flex-wrap">
+          <Input
+            placeholder="Vat percent"
+            className="w-[40%]"
+            value={vatPercent}
+            onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
           />
-          <Input placeholder="Search" className="pl-9 w-full" />
+          <Button className="ml-3" onClick={() => applyVat()}>
+            Apply VAT
+          </Button>
         </div>
-        <div className="flex items-center gap-6">
-          <div>
-            <Label className="mr-3 ">Advanced view</Label>
-            <Switch
-              checked={showAdvancedView}
-              onCheckedChange={(checked) => {
-                setShowAdvancedView(checked);
-              }}
+        <div className="w-full mt-3 flex items-center justify-between">
+          <div className="relative w-[45%]">
+            <IconSearch
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={16}
+            />
+            <Input
+              placeholder="Search"
+              className="pl-9 w-full"
+              value={filters.productSearch || ''}
+              onChange={(e) =>
+                setFilters({ ...filters, productSearch: e.target.value })
+              }
             />
           </div>
-          <FilterButton />
+          <div className="flex items-center gap-6">
+            <div>
+              <Label className="mr-3">Advanced view</Label>
+              <Switch
+                checked={showAdvancedView}
+                onCheckedChange={(checked) => {
+                  setShowAdvancedView(checked);
+                }}
+              />
+            </div>
+            <FilterButton filters={filters} onFilterChange={setFilters} />
+          </div>
         </div>
-      </div>
+        <div className="flex-1 flex items-center gap-2 overflow-x-auto py-1">
+          <ProductFilterBar filters={filters} onChange={setFilters} />
+        </div>
+      </Filter>
       <ProductsRecordTable
         products={productRecords || ([] as IProductData[])}
         refetch={refetch}
