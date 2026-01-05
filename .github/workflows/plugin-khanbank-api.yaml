@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - master
+      - state-bank
       - rc
       - staging
     paths:
@@ -15,6 +16,7 @@ on:
     branches:
       - dev
       - master
+      - state-bank
       - rc
       - staging
     paths:
