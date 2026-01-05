@@ -21,8 +21,8 @@ export const BroadcastSelectRuleCondition = ({
     <Select onValueChange={onValueChange} value={value}>
       <Form.Control>
         <Select.Trigger className="m-0">
-          <Select.Value placeholder={'Select condition'}>
-            {CONDITIONS[value] || 'Select condition'}
+          <Select.Value placeholder={title}>
+            {CONDITIONS[value] || title}
           </Select.Value>
         </Select.Trigger>
       </Form.Control>

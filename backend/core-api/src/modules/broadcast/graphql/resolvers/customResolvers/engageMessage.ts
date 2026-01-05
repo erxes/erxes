@@ -1,6 +1,7 @@
 import { IEngageMessageDocument } from '@/broadcast/@types';
 import { prepareNotificationStats, prepareSmsStats } from '@/broadcast/utils';
 import { IContext } from '~/connectionResolvers';
+import { CAMPAIGN_METHODS } from '~/modules/broadcast/constants';
 
 export default {
   async __resolveReference(
@@ -49,29 +50,25 @@ export default {
   },
 
   async stats(
-    { _id }: IEngageMessageDocument,
+    { _id, method }: IEngageMessageDocument,
     _args: undefined,
     { models }: IContext,
   ) {
-    return models.Stats.findOne({ engageMessageId: _id });
-  },
 
-  smsStats(
-    { _id }: IEngageMessageDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    return prepareSmsStats(models, _id);
-  },
+    if (method === CAMPAIGN_METHODS.EMAIL) {
+      return models.Stats.findOne({ engageMessageId: _id });
+    }
 
-  async notificationStats(
-    { _id }: IEngageMessageDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    return prepareNotificationStats(models, _id);
-  },
+    if (method === CAMPAIGN_METHODS.SMS) {
+      return prepareSmsStats(models, _id);
+    }
 
+    if (method === CAMPAIGN_METHODS.NOTIFICATION) {
+      return prepareNotificationStats(models, _id);
+    }
+
+    return 'Invalid method';
+  },
   fromIntegration(engageMessage: IEngageMessageDocument) {
     if (
       engageMessage.shortMessage &&

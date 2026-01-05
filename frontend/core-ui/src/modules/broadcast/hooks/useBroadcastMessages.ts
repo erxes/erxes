@@ -2,12 +2,38 @@ import { useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   mergeCursorData,
+  useMultiQueryState,
   validateFetchMore,
 } from 'erxes-ui';
 import { BROADCAST_MESSAGES } from '../graphql/queries';
 
+const useBroadcastMessageVariables = () => {
+  const [{ searchValue, brand, fromUser, kind, status, method }] =
+    useMultiQueryState<{
+      searchValue: string;
+      brand: string;
+      fromUser: String;
+      kind: string;
+      status: string;
+      method: string;
+    }>(['searchValue', 'brand', 'fromUser', 'kind', 'status', 'method']);
+
+  return {
+    searchValue: searchValue || undefined,
+    brandId: brand || undefined,
+    fromUserId: fromUser || undefined,
+    kind: kind || undefined,
+    status: status || undefined,
+    method: method || undefined,
+  };
+};
+
 export const useMessages = () => {
-  const { data, loading, fetchMore } = useQuery(BROADCAST_MESSAGES);
+  const variables = useBroadcastMessageVariables();
+
+  const { data, loading, fetchMore } = useQuery(BROADCAST_MESSAGES, {
+    variables,
+  });
 
   const { list: messages, pageInfo } = data?.engageMessages || {};
 

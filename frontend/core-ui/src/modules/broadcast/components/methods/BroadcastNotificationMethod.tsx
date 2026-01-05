@@ -11,13 +11,15 @@ export const BroadcastNotificationMethod = () => {
         <Form.Field
           name="notification.inApp"
           control={control}
-          render={() => (
+          render={({ field }) => (
             <Form.Item>
               <Form.Control>
                 <div
                   className={cn(
                     'flex h-full cursor-pointer flex-col items-center gap-3 rounded-sm border-2 p-3 text-center transition-colors',
-                    'border-primary bg-muted',
+                    field.value
+                      ? 'border-primary bg-muted'
+                      : 'hover:border-primary hover:bg-muted',
                   )}
                 >
                   <IconBellRinging className="text-muted-foreground" />
@@ -73,7 +75,7 @@ export const BroadcastNotificationMethod = () => {
         )}
       />
       <Form.Field
-        name="notification.content"
+        name="notification.message"
         control={control}
         render={({ field }) => (
           <Form.Item>

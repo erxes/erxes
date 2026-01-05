@@ -28,7 +28,7 @@ export const BroadcastMessengerMethod = () => {
           )}
         />
         <Form.Field
-          name="email.subject"
+          name="messenger.brandId"
           control={control}
           render={({ field }) => (
             <Form.Item>
@@ -47,7 +47,7 @@ export const BroadcastMessengerMethod = () => {
 
       <div className="grid grid-cols-2 gap-3">
         <Form.Field
-          name="email.sender"
+          name="messenger.kind"
           control={control}
           render={({ field }) => (
             <Form.Item>
@@ -62,7 +62,7 @@ export const BroadcastMessengerMethod = () => {
           )}
         />
         <Form.Field
-          name="email.replyTo"
+          name="messanger.sentAs"
           control={control}
           render={({ field }) => (
             <Form.Item>

@@ -4,6 +4,12 @@ export const BROADCAST_MESSAGE_KINDS: Record<string, string> = {
   MANUAL: 'manual',
 };
 
+export const BROADCAST_MESSAGE_METHOD_KINDS: Record<string, string> = {
+  email: 'manual',
+  messenger: 'visitorAuto',
+  notification: 'manual',
+};
+
 export const BROADCAST_METHODS: Record<string, string> = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
@@ -98,4 +104,24 @@ export const BROADCAST_RULES: Record<
 export const BROADCAST_TARGET_TYPE: Record<string, string> = {
   segment: 'Segment',
   tag: 'Tag',
+  brand: 'Brand',
 };
+
+export const BROADCAST_MESSAGE_STATUS = [
+  { value: 'sent', label: 'Sent' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'paused', label: 'Paused' },
+  { value: 'sending', label: 'Sending' },
+  { value: 'notSent', label: 'Not Sent' },
+];
+
+export const BROADCAST_MESSAGE_METHODS = [
+  { value: 'email', label: 'Email' },
+  { value: 'messenger', label: 'Messenger' },
+  { value: 'notification', label: 'Notification' },
+];
+
+export const BROADCAST_MESSAGE_KIND = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'manual', label: 'Manual' },
+];

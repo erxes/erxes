@@ -41,8 +41,6 @@ export const types = `
     fromIntegration: JSON
 
     stats: JSON
-    smsStats: JSON
-    notificationStats: JSON
   }
 
   type EngageScheduleDate {
@@ -128,7 +126,6 @@ export const types = `
     replyTo: String,
     sender: String,
     attachments: [JSON]
-    templateId: String
   }
 
   type EngageMessageSms {
@@ -146,7 +143,7 @@ export const types = `
   }
 
   input EngageMessageMessenger {
-    brandId: String!,
+    integrationId: String!,
     kind: String,
     sentAs: String,
     content: String,
@@ -163,6 +160,7 @@ export const types = `
     title: String!,
     content: String!,
     isMobile: Boolean,
+    inApp: Boolean
   }
 
   type EngageMessageListResponse {
@@ -181,6 +179,10 @@ export const types = `
 const queryParams = `
   kind: String
   status: String
+  method: String
+  brandId: String
+  fromUserId: String
+  searchValue: String
   
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -198,26 +200,21 @@ export const queries = `
 `;
 
 const mutationParams = `
-  title: String!,
-  kind: String!,
-  method: String!,
-  fromUserId: String,
-  isDraft: Boolean,
-  isLive: Boolean,
-  stopDate: Date,
-  scheduleDate: Date,
-  type: String
-  segmentIds: [String],
-  customerTagIds: [String],
-  brandIds: [String],
-  customerIds: [String],
-  cpId: String,
-  email: EngageMessageEmail,
-  scheduleDate: EngageScheduleDateInput,
-  messenger: EngageMessageMessenger,
-  notification: EngageMessageNotification,
-  shortMessage: EngageMessageSmsInput
-  forceCreateConversation: Boolean
+  title: String
+  kind: String
+  method: String
+  fromUserId: String
+
+  targetType: String
+  targetIds: [String]
+  targetCount: Int
+
+  isDraft: Boolean
+  isLive: Boolean
+
+  email: EngageMessageEmail
+  messenger: EngageMessageMessenger
+  notification: EngageMessageNotification
 `;
 
 export const mutations = `

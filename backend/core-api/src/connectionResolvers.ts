@@ -546,7 +546,7 @@ export const loadClasses = (
     Model<IActivityLogDocument>
   >('activity_logs', activityLogsSchema);
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
-    'engage_messages',
+    'broadcast_engage_messages',
     loadEngageMessageClass(models, subdomain),
   );
 
@@ -556,12 +556,12 @@ export const loadClasses = (
   >('delivery_reports', deliveryReportsSchema);
 
   models.Stats = db.model<IStatsDocument, IStatsModel>(
-    'engage_stats',
+    'broadcast_engage_stats',
     loadStatsClass(models),
   );
 
   models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
-    'engage_sms_requests',
+    'broadcast_engage_sms_requests',
     loadSmsRequestClass(models),
   );
 

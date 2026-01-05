@@ -6,7 +6,7 @@ export const BroadcastSelectRule = ({
   onValueChange,
 }: {
   values: Record<string, string>[];
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string, title: string) => void;
 }) => {
   const AVAILABLE_RULES = Object.keys(BROADCAST_RULES).filter(
     (key) => !values.some((field) => field.rule === key),
@@ -16,8 +16,14 @@ export const BroadcastSelectRule = ({
     return null;
   }
 
+  const handleValueChange = (value: string) => {
+    const { title } = BROADCAST_RULES[value];
+
+    onValueChange(value, title);
+  };
+
   return (
-    <Select value="" onValueChange={onValueChange}>
+    <Select value="" onValueChange={handleValueChange}>
       <Form.Control>
         <Select.Trigger>
           <Select.Value

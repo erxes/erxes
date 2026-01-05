@@ -12,6 +12,7 @@ export const BroadcastEmailMethod = () => {
         <Form.Field
           name="fromUserId"
           control={control}
+          rules={{ required: 'From user is required' }}
           render={({ field }) => (
             <Form.Item>
               <Form.Label>From User</Form.Label>
@@ -30,6 +31,7 @@ export const BroadcastEmailMethod = () => {
         <Form.Field
           name="email.subject"
           control={control}
+          rules={{ required: 'Email subject is required' }}
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Email Subject</Form.Label>
@@ -77,7 +79,7 @@ export const BroadcastEmailMethod = () => {
       <Form.Field
         name="email.attachments"
         control={control}
-        render={({ field }) => (
+        render={() => (
           <Form.Item>
             <Form.Label>Attachments</Form.Label>
             <Form.Control>

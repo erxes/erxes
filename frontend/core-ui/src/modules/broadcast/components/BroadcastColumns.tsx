@@ -14,6 +14,7 @@ import {
   BadgeProps,
   RecordTable,
   RecordTableInlineCell,
+  useQueryState,
 } from 'erxes-ui';
 import { BrandsInline, MembersInline } from 'ui-modules';
 import {
@@ -31,8 +32,20 @@ export const broadcastColumns: ColumnDef<any>[] = [
       <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
+      const [_, setMessageId] = useQueryState('messageId');
+
+      const { _id, method } = cell.row.original || {};
+
+      const handleClick = () => {
+        if (method !== 'email') {
+          return;
+        }
+
+        setMessageId(_id);
+      };
+
       return (
-        <RecordTableInlineCell>
+        <RecordTableInlineCell onClick={handleClick}>
           {cell.getValue() as string}
         </RecordTableInlineCell>
       );

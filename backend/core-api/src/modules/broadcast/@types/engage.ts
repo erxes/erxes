@@ -7,7 +7,6 @@ interface IEmail {
   content?: string;
   replyTo?: string;
   sender?: string;
-  templateId?: string;
 }
 
 interface IEmailDocument extends IEmail, Document {}
@@ -22,7 +21,7 @@ interface IScheduleDate {
 export interface IScheduleDateDocument extends IScheduleDate, Document {}
 
 interface IMessenger {
-  brandId?: string;
+  channelId?: string;
   kind?: string;
   sentAs?: string;
   content: string;
@@ -41,6 +40,7 @@ interface INotification {
   title?: string;
   content?: string;
   isMobile?: boolean;
+  inApp?: boolean;
 }
 
 interface INotificationDocument extends INotification, Document {}
@@ -52,48 +52,47 @@ export interface IShortMessage {
 
 export interface IEngageMessage {
   kind: string;
-  segmentIds?: string[];
-  brandIds?: string[];
-  // normal tagging
-  tagIds?: string[];
-  // customer selection tags
-  customerTagIds?: string[];
-  customerIds?: string[];
+  targetType: string;
+  targetIds: string[];
+  targetCount: number;
+
   cpId: string;
   title: string;
   fromUserId?: string;
   method: string;
   isDraft?: boolean;
   isLive?: boolean;
-  stopDate?: Date;
+
   messengerReceivedCustomerIds?: string[];
   email?: IEmail;
-  scheduleDate?: IScheduleDate;
   messenger?: IMessenger;
   notification?: INotification;
+
   lastRunAt?: Date;
-  shortMessage?: IShortMessage;
 
   totalCustomersCount?: number;
   validCustomersCount?: number;
+
   runCount?: number;
   createdBy?: string;
-  forceCreateConversation?: boolean;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
-  scheduleDate?: IScheduleDateDocument;
+  _id: string;
   createdAt: Date;
+  updatedAt: Date;
 
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
   notification?: INotificationDocument;
-  _id: string;
 }
 
 export interface IEngageQueryParams extends ICursorPaginateParams {
   kind?: string;
   status?: string;
   tag?: string;
-  ids?: string;
+  method?: string;
+  brandId?: string;
+  fromUserId?: string;
+  searchValue?: string;
 }

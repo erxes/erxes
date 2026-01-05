@@ -1,3 +1,4 @@
+import { useBroadcastAdd } from '@/broadcast/hooks/useBroadcastAdd';
 import { useBroadcastForm } from '@/broadcast/hooks/useBroadcastForm';
 import {
   Badge,
@@ -6,11 +7,13 @@ import {
   Resizable,
   Separator,
   Sheet,
-  toast,
+  useQueryState,
   useRemoveQueryStateByKey,
+  useToast,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
+import { BROADCAST_MESSAGE_METHOD_KINDS } from '../../constants';
 import { BroadcastPreview } from '../BroadcastPreview';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
 import { BroadcastTargetStep } from './BroadcastTargetStep';
@@ -20,11 +23,13 @@ const BROADCAST_STEPS = [
     title: 'Broadcast recipients',
     description: 'Segment who’s going to receive this broacast',
     content: BroadcastTargetStep,
+    validateFields: ['title', 'targetType', 'targetIds'],
   },
   {
     title: 'Broadcast Config',
     description: 'Configure, Write and Compose your broadcast',
     content: BroadcastConfigStep,
+    validateFields: ['fromUserId', 'email.subject', 'email.content'],
   },
 ];
 
@@ -33,8 +38,13 @@ export const BroadcastSteps = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const [method] = useQueryState<string>('method');
   const removeQueryStateByKey = useRemoveQueryStateByKey();
+  const { toast } = useToast();
+
   const { form } = useBroadcastForm();
+
+  const { addBroadcast } = useBroadcastAdd();
 
   const [step, setStep] = useState(0);
 
@@ -44,20 +54,51 @@ export const BroadcastSteps = ({
     removeQueryStateByKey('method');
   };
 
-  const handleSubmit = () => {
-    toast({
-      variant: 'default',
-      title: 'Broadcast created',
+  const onSubmit = (data: any, action?: 'draft' | 'live') => {
+    if (action === 'draft') {
+      data['isDraft'] = true;
+    }
+
+    if (action === 'live') {
+      data['isLive'] = true;
+    }
+
+    if (method) {
+      data['method'] = method;
+      data['kind'] = BROADCAST_MESSAGE_METHOD_KINDS[method];
+    }
+
+    addBroadcast({
+      variables: data,
+      onCompleted: () => {
+        toast({
+          variant: 'default',
+          title:
+            action === 'draft'
+              ? 'Broadcast saved as draft'
+              : 'Broadcast created',
+        });
+      },
     });
   };
 
-  const handleAction = (step: number) => {
+  const handleAction = async (step: number, action?: 'draft' | 'live') => {
     if (step < 0) {
       handleClose();
     }
 
+    const currentStep = BROADCAST_STEPS[step - 1];
+
+    if (currentStep && currentStep.validateFields) {
+      const isValid = await form.trigger(currentStep.validateFields as any);
+
+      if (!isValid) {
+        return;
+      }
+    }
+
     if (step > BROADCAST_STEPS.length - 1) {
-      handleSubmit();
+      form.handleSubmit((data) => onSubmit(data, action))();
       handleClose();
     }
 
@@ -102,9 +143,7 @@ export const BroadcastSteps = ({
 export const BroadcastStep = ({ step }: { step: number }) => {
   const BROADCAST_STEP = BROADCAST_STEPS[step];
 
-  const { title, description, content } = BROADCAST_STEP;
-
-  const StepContent = content;
+  const { title, description, content: StepContent } = BROADCAST_STEP;
 
   return (
     <>
@@ -141,15 +180,20 @@ export const BroadcastStepActions = ({
   handleAction,
 }: {
   step: number;
-  handleAction: (step: number) => void;
+  handleAction: (step: number, action?: 'draft' | 'live') => void;
 }) => {
   return (
     <Sheet.Footer>
       <Button onClick={() => handleAction(step - 1)} variant="secondary">
         {step === 0 ? 'Cancel' : 'Previous step'}
       </Button>
-      <Button onClick={() => handleAction(step + 1)}>
-        {step + 1 === BROADCAST_STEPS.length ? 'Finish' : 'Next step'}
+      {step + 1 === BROADCAST_STEPS.length && (
+        <Button onClick={() => handleAction(step + 1, 'draft')}>
+          Save & Draft
+        </Button>
+      )}
+      <Button onClick={() => handleAction(step + 1, 'live')}>
+        {step + 1 === BROADCAST_STEPS.length ? 'Save & Live' : 'Next step'}
       </Button>
     </Sheet.Footer>
   );

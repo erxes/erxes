@@ -263,38 +263,9 @@ export const checkCampaignDoc = async (
   models: IModels,
   doc: IEngageMessage,
 ) => {
-  const {
-    brandIds = [],
-    kind,
-    method,
-    scheduleDate,
-    segmentIds = [],
-    customerTagIds = [],
-    customerIds = [],
-    fromUserId,
-  } = doc;
+  const { kind, method, targetIds = [], fromUserId } = doc;
 
-  const noDate =
-    !scheduleDate ||
-    (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
-
-  if (
-    kind === CAMPAIGN_KINDS.AUTO &&
-    method === CAMPAIGN_METHODS.EMAIL &&
-    noDate
-  ) {
-    throw new Error('Schedule date & type must be chosen in auto campaign');
-  }
-
-  if (
-    kind !== CAMPAIGN_KINDS.VISITOR_AUTO &&
-    !(
-      brandIds.length > 0 ||
-      segmentIds.length > 0 ||
-      customerTagIds.length > 0 ||
-      customerIds.length > 0
-    )
-  ) {
+  if (kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !targetIds.length) {
     throw new Error('One of brand or segment or tag must be chosen');
   }
 

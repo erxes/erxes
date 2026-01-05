@@ -32,7 +32,7 @@ export const engageMutations = {
       createdBy: user._id,
     });
 
-    await send(models, subdomain, engageMessage, doc.forceCreateConversation);
+    // await send(models, subdomain, engageMessage, doc.forceCreateConversation);
 
     return engageMessage;
   },

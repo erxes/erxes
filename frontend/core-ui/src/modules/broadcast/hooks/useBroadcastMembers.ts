@@ -6,7 +6,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { IUser } from 'ui-modules';
-import { GET_BROADCAST_MEMBERS } from '../graphql/queries';
+import { BROADCAST_MEMBERS } from '../graphql/queries';
 
 const USERS_LIMIT = 30;
 
@@ -15,7 +15,7 @@ export const useBroadcastMembers = (
 ) => {
   const { data, loading, fetchMore, error } = useQuery<
     ICursorListResponse<IUser>
-  >(GET_BROADCAST_MEMBERS, {
+  >(BROADCAST_MEMBERS, {
     ...options,
     variables: {
       limit: USERS_LIMIT,

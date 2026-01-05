@@ -1,11 +1,12 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, DropdownMenu, Label, useSetQueryStateByKey } from 'erxes-ui';
 
-export const BroadcastMethod = () => {
+export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
   const setQueryStateByKey = useSetQueryStateByKey();
 
   const handleSelect = (method: string) => {
     setQueryStateByKey('method', method);
+    onSelect();
   };
 
   return (
@@ -27,7 +28,11 @@ export const BroadcastMethod = () => {
               </div>
             </div>
           </DropdownMenu.RadioItem>
-          <DropdownMenu.RadioItem value="messenger" className="cursor-pointer">
+          <DropdownMenu.RadioItem
+            value="messenger"
+            className="cursor-pointer"
+            disabled
+          >
             <div className="flex flex-col gap-1 p-2">
               <Label variant="peer">Messenger</Label>
               <div className="text-xs text-accent-foreground">
@@ -38,6 +43,7 @@ export const BroadcastMethod = () => {
           <DropdownMenu.RadioItem
             value="notification"
             className="cursor-pointer"
+            disabled
           >
             <div className="flex flex-col  gap-1 p-2">
               <Label variant="peer">Notification</Label>

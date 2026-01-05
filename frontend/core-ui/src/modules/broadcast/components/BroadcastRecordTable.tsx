@@ -1,5 +1,5 @@
 import { broadcastColumns } from '@/broadcast/components/BroadcastColumns';
-import { useMessages } from '@/broadcast/hooks/useMessages';
+import { useMessages } from '@/broadcast/hooks/useBroadcastMessages';
 import { RecordTable } from 'erxes-ui';
 
 export const BroadcastRecordTable = () => {

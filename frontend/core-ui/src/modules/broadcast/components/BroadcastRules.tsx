@@ -1,16 +1,18 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label } from 'erxes-ui';
 import { useFieldArray, useFormContext } from 'react-hook-form';
+import { z } from 'zod';
 import { BROADCAST_RULES } from '../constants';
+import { broadcastSchema } from '../schema';
 import { BroadcastSelectRule } from './select/BroadcastSelectRule';
 import { BroadcastSelectRuleCondition } from './select/BroadcastSelectRuleCondition';
 
 export const BroadcastRules = () => {
-  const { control } = useFormContext();
+  const { control } = useFormContext<z.infer<typeof broadcastSchema>>();
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'rules',
+    name: 'messenger.rules',
   });
 
   return (
@@ -25,19 +27,19 @@ export const BroadcastRules = () => {
           <Label>Add rules</Label>
         </div>
       )}
-      {fields.map(({ id, rule }, index) => {
-        const { placeholder } = BROADCAST_RULES[rule];
+      {fields.map(({ id, kind }, index) => {
+        const { placeholder } = BROADCAST_RULES[kind];
 
         return (
           <div className="grid grid-cols-2 gap-3" key={id}>
             <Form.Field
-              name={`rules.${index}.condition`}
+              name={`messenger.rules.${index}.condition`}
               control={control}
               render={({ field }) => (
                 <Form.Item className="flex-auto">
                   <Form.Control>
                     <BroadcastSelectRuleCondition
-                      rule={rule}
+                      rule={kind}
                       value={field.value}
                       onValueChange={field.onChange}
                     />
@@ -48,7 +50,7 @@ export const BroadcastRules = () => {
             />
             <div className="flex gap-3">
               <Form.Field
-                name={`rules.${index}.value`}
+                name={`messenger.rules.${index}.value`}
                 control={control}
                 render={({ field }) => (
                   <Form.Item>
@@ -74,9 +76,10 @@ export const BroadcastRules = () => {
 
       <BroadcastSelectRule
         values={fields}
-        onValueChange={(value) =>
+        onValueChange={(value, text) =>
           append({
-            rule: value,
+            kind: value,
+            text,
             condition: '',
             value: '',
           })

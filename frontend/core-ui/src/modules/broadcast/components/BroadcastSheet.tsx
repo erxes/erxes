@@ -18,9 +18,8 @@ export const BroadcastSheet = () => {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <Sheet.Trigger>
-        <BroadcastMethod />
-      </Sheet.Trigger>
+      <BroadcastMethod onSelect={() => setOpen(true)} />
+
       <Sheet.View
         className="sm:max-w-7xl"
         onEscapeKeyDown={(e) => {
