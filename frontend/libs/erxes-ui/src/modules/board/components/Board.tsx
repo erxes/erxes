@@ -4,7 +4,7 @@ import type {
   DragStartEvent,
 } from '@dnd-kit/core';
 import {
-  rectIntersection,
+  closestCorners,
   DndContext,
   DragOverlay,
   KeyboardSensor,
@@ -28,7 +28,7 @@ import {
   BoardProviderProps,
 } from '../types/boardTypes';
 import { Portal } from 'radix-ui';
-import { type HTMLAttributes, useContext } from 'react';
+import { type HTMLAttributes, useContext, memo, useCallback } from 'react';
 import { BoardContext } from '../contexts/BoardContext';
 import {
   activeCardIdState,
@@ -38,41 +38,40 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { AnimatePresence, motion } from 'motion/react';
 export type { DragEndEvent } from '@dnd-kit/core';
 
-const BoardCards = ({
-  id,
-  children,
-  className,
-  items,
-  ...props
-}: HTMLAttributes<HTMLDivElement> & {
-  id: string;
-  children: React.ReactNode;
-  className?: string;
-  items: string[];
-}) => {
-  return (
-    <ScrollArea className="overflow-hidden">
-      <SortableContext items={items}>
-        <div
-          className={cn(
-            'flex grow flex-col gap-2 p-2 pt-px relative',
-            className,
-          )}
-          {...props}
-        >
-          {children}
-        </div>
-      </SortableContext>
-      <ScrollArea.Bar orientation="vertical" />
-    </ScrollArea>
-  );
-};
+const BoardCards = memo(
+  ({
+    id,
+    children,
+    className,
+    items,
+    ...props
+  }: HTMLAttributes<HTMLDivElement> & {
+    id: string;
+    children: React.ReactNode;
+    className?: string;
+    items: string[];
+  }) => {
+    return (
+      <ScrollArea className="overflow-hidden">
+        <SortableContext items={items}>
+          <div
+            className={cn(
+              'flex grow flex-col gap-2 p-2 pt-px relative',
+              className,
+            )}
+            {...props}
+          >
+            {children}
+          </div>
+        </SortableContext>
+        <ScrollArea.Bar orientation="vertical" />
+      </ScrollArea>
+    );
+  },
+);
+BoardCards.displayName = 'BoardCards';
 
-const BoardCard = <T extends BoardItemProps = BoardItemProps>({
-  id,
-  children,
-  className,
-}: BoardCardProps<T>) => {
+const BoardCard = memo(({ id, children, className }: BoardCardProps) => {
   const {
     attributes,
     listeners,
@@ -131,7 +130,8 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
       )}
     </>
   );
-};
+});
+BoardCard.displayName = 'BoardCard';
 
 const BoardProvider = <
   T extends BoardItemProps = BoardItemProps,
@@ -158,49 +158,53 @@ const BoardProvider = <
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 10,
+        distance: 8,
       },
     }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    }),
+
     useSensor(KeyboardSensor),
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const card = data.find((item) => item.id === event.active.id);
-    if (card) {
-      setActiveCardId(event.active.id as string);
-    }
-    onDragStart?.(event);
-  };
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const card = data.find((item) => item.id === event.active.id);
+      if (card) {
+        setActiveCardId(event.active.id as string);
+      }
+      onDragStart?.(event);
+    },
+    [data, setActiveCardId, onDragStart],
+  );
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event;
+      if (!over) return;
 
-    const activeItem = data.find((item) => item.id === active.id);
-    if (!activeItem) return;
+      const activeItem = data.find((item) => item.id === active.id);
+      if (!activeItem) return;
 
-    const overItem = data.find((item) => item.id === over.id);
+      const overItem = data.find((item) => item.id === over.id);
 
-    if (overItem) {
-      setDragOverBoardColumnId(overItem.column as string);
-    } else {
+      if (overItem) {
+        setDragOverBoardColumnId(overItem.column as string);
+      } else {
+        setDragOverBoardColumnId(null);
+      }
+
+      onDragOver?.(event);
+    },
+    [data, setDragOverBoardColumnId, onDragOver],
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveCardId(null);
       setDragOverBoardColumnId(null);
-    }
-
-    onDragOver?.(event);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    setActiveCardId(null);
-    setDragOverBoardColumnId(null);
-    onDragEnd?.(event);
-  };
+      onDragEnd?.(event);
+    },
+    [setActiveCardId, setDragOverBoardColumnId, onDragEnd],
+  );
 
   if (!columns || columns.length === 0) {
     if (!fallbackComponent) return null;
@@ -210,7 +214,7 @@ const BoardProvider = <
   return (
     <BoardContext.Provider value={{ columns, data, boardId }}>
       <DndContext
-        collisionDetection={rectIntersection}
+        collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
@@ -259,7 +263,6 @@ export const BoardRoot = ({
     },
   });
 
-  // Determine if this column is active
   const isActive = isOver || dragOverBoardColumnId === id;
 
   return (
