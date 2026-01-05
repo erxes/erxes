@@ -18,6 +18,8 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './pricing': './src/modules/pricing/Main.tsx',
     './pricingSettings': './src/modules/pricing/Settings.tsx',
+    './loyalty': './src/modules/loyalties/Settings.tsx',
+    './loyaltySettings': './src/modules/loyalties/Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
