@@ -8,15 +8,21 @@ export const CONFIG: IUIConfig = {
   navigationGroup: {
     name: 'Loyalty',
     icon: IconAward,
-    content: () => (
-      <></>
-    )
+    content: () => null,
   },
   modules: [
     {
       name: 'pricing',
       icon: IconAward,
       path: 'pricing',
+      hasSettings: true,
+      hasRelationWidget: false,
+      hasFloatingWidget: false,
+    },
+    {
+      name: 'loyalty',
+      icon: IconAward,
+      path: 'loyalty',
       hasSettings: true,
       hasRelationWidget: false,
       hasFloatingWidget: false,
