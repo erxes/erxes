@@ -9,7 +9,7 @@ import { isUsingElk } from "./utils";
 import {
   sendInboxMessage,
   sendCoreMessage,
-  sendClientPortalMessage
+
 } from "./messageBroker";
 import { getEnv } from "@erxes/api-utils/src";
 import { IModels } from "./connectionResolver";
@@ -368,18 +368,12 @@ const sendEmailOrSms = async (
 const sendCampaignNotification = async (models, subdomain, doc) => {
   const { groupId } = doc;
   try {
-    await sendClientPortalMessage({
-      subdomain,
-      action: "sendNotification",
-      data: doc,
-      isRPC: false
-    }).then(async () => {
+
       await models.Logs.createLog(groupId, "success", "Notification sent");
       await models.EngageMessages.updateOne(
         { _id: groupId },
         { $inc: { runCount: 1 } }
       );
-    });
   } catch (e) {
     await models.Logs.createLog(groupId, "failure", e.message);
   }
@@ -401,16 +395,7 @@ const sendNotifications = async (
     defaultValue: []
   });
 
-  const cpUserIds =
-    ((await sendClientPortalMessage({
-      subdomain,
-      isRPC: true,
-      action: "clientPortalUsers.getIds",
-      data: {
-        clientPortalId: cpId,
-        erxesCustomerId: { $in: [...erxesCustomerIds] }
-      }
-    })) as string[]) || [];
+  const cpUserIds = []
 
   if (cpUserIds.length === 0) {
     await models.Logs.createLog(

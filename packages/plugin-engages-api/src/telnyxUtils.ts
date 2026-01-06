@@ -5,7 +5,6 @@ import { IModels } from './connectionResolver';
 import { SMS_DELIVERY_STATUSES } from './constants';
 import {
   sendIntegrationsMessage,
-  sendClientPortalMessage,
 } from './messageBroker';
 import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
 
@@ -86,16 +85,7 @@ export const prepareNotificationStats = async (
   subdomain,
   engageMessageId: string,
 ) => {
-  const clientPortalNotifications = await sendClientPortalMessage({
-    subdomain,
-    action: 'clientPortalEngageNotifications',
-    data: {
-      selector: { isRead: true, groupId: engageMessageId },
-    },
-    isRPC: true,
-    defaultValue: 0,
-  });
-
+  const clientPortalNotifications = {};
   const result: any = { read: clientPortalNotifications || 0 };
 
   return result;
