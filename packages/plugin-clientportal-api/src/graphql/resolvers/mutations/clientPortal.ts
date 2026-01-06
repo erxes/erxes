@@ -14,10 +14,11 @@ export interface IVerificationParams {
 }
 
 const clientPortalMutations = {
+  //test
   async clientPortalTicketAdd(
     _root,
     doc: any & { processId: string; aboveItemId: string },
-    { models, subdomain, cpUser, user }: IContext
+    { models, subdomain, cpUser, user }: IContext,
   ) {
     if (!cpUser) {
       throw new Error("You are not logged in");
@@ -83,7 +84,7 @@ const clientPortalMutations = {
   async clientPortalConfigUpdate(
     _root,
     { config }: { config: IClientPortal },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     try {
       const cpUser = await models.ClientPortalUsers.findOne({
@@ -168,7 +169,7 @@ const clientPortalMutations = {
   async clientPortalRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     if (isEnabled("cms")) {
       sendCommonMessage({
@@ -187,7 +188,7 @@ const clientPortalMutations = {
   async clientPortalCreateCard(
     _root,
     args,
-    { subdomain, cpUser, models }: IContext
+    { subdomain, cpUser, models }: IContext,
   ) {
     if (!cpUser) {
       throw new Error("You are not logged in");
@@ -208,7 +209,7 @@ const clientPortalMutations = {
       cpUserIds: [string];
       oldCpUserIds: [string];
     },
-    { subdomain, cpUser, models }: IContext
+    { subdomain, cpUser, models }: IContext,
   ) {
     return participantEditRelation(
       subdomain,
@@ -216,7 +217,7 @@ const clientPortalMutations = {
       type,
       cardId,
       oldCpUserIds,
-      cpUserIds
+      cpUserIds,
     );
   },
 
@@ -233,7 +234,7 @@ const clientPortalMutations = {
       offeredAmount: number;
       hasVat: Boolean;
     },
-    { subdomain, cpUser, models }: IContext
+    { subdomain, cpUser, models }: IContext,
   ) {
     const { _id, ...rest } = args;
     await models.ClientPortalUserCards.updateOne(
@@ -242,17 +243,22 @@ const clientPortalMutations = {
         $set: {
           ...rest,
         },
-      }
+      },
     );
     return models.ClientPortalUserCards.findOne({ _id: args._id });
   },
 
   async clientPortalCheckTokiInvoice(
     _root,
-    { clientPortalId, transactionId }: { clientPortalId: string; transactionId: string },
-    { models }: IContext
+    {
+      clientPortalId,
+      transactionId,
+    }: { clientPortalId: string; transactionId: string },
+    { models }: IContext,
   ) {
-    const clientPortal = await models.ClientPortals.findOne({ _id: clientPortalId });
+    const clientPortal = await models.ClientPortals.findOne({
+      _id: clientPortalId,
+    });
     if (!clientPortal) {
       throw new Error("Client portal not found");
     }
@@ -261,35 +267,39 @@ const clientPortalMutations = {
       throw new Error("Toki config not found");
     }
 
-    const baseApiUrl = tokiConfig.production ? "ms-api.toki.mn" : "qams-api.toki.mn";
-   
-    const apiUrl = tokiConfig.production ? baseApiUrl : "qams-api.toki.mn";
-    const {username, password, apiKey} = tokiConfig;
+    const baseApiUrl = tokiConfig.production
+      ? "ms-api.toki.mn"
+      : "qams-api.toki.mn";
 
-    const authString = Buffer.from(`${username}:${password}`).toString("base64");
+    const apiUrl = tokiConfig.production ? baseApiUrl : "qams-api.toki.mn";
+    const { username, password, apiKey } = tokiConfig;
+
+    const authString = Buffer.from(`${username}:${password}`).toString(
+      "base64",
+    );
 
     const response = await fetch(
       `https://${apiUrl}/third-party-service/v1/auth/token`,
       {
         method: "GET",
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: `Basic ${authString}`,
         },
-      }
+      },
     );
 
     const contentType = response.headers.get("content-type");
-  
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Toki API Error (${response.status}): ${errorText}`);
     }
-    
+
     if (contentType && contentType.includes("application/json")) {
       const data: any = await response.json();
-      const {accessToken} = data.data;
+      const { accessToken } = data.data;
       const invoiceResponse = await fetch(
         `https://${apiUrl}/third-party-service/v1/payment-request/status?requestId=${transactionId}`,
         {
@@ -299,7 +309,7 @@ const clientPortalMutations = {
             Authorization: `Bearer ${accessToken}`,
             "api-key": apiKey,
           },
-        }
+        },
       );
 
       return await invoiceResponse.json();
@@ -313,13 +323,13 @@ const clientPortalMutations = {
 checkPermission(
   clientPortalMutations,
   "clientPortalConfigUpdate",
-  "manageClientPortal"
+  "manageClientPortal",
 );
 
 checkPermission(
   clientPortalMutations,
   "clientPortalRemove",
-  "removeClientPortal"
+  "removeClientPortal",
 );
 
 export default clientPortalMutations;
