@@ -159,6 +159,7 @@ export const GET_DEALS = gql`
             _id
             name
           }
+          productsData
           unUsedAmount
           amount
           ${commonListFields}

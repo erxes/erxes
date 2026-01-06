@@ -1,4 +1,4 @@
-import { ReportTable, useQueryState } from 'erxes-ui';
+import { ReportTable, useQueryState } from "erxes-ui"
 
 export const ReportTableHeader = () => {
   const [report] = useQueryState('report');
@@ -24,20 +24,39 @@ export const ReportTableHeader = () => {
           </ReportTable.Row>
         </>
       );
+
     case 'ac':
       return (
-        <ReportTable.Row>
-          <ReportTable.Head>Огноо</ReportTable.Head>
-          <ReportTable.Head>Харилцагч</ReportTable.Head>
-          <ReportTable.Head>Гүйлгээний утга</ReportTable.Head>
-          <ReportTable.Head>Валют дүн</ReportTable.Head>
-          <ReportTable.Head>Дебет</ReportTable.Head>
-          <ReportTable.Head>Кредит</ReportTable.Head>
-          <ReportTable.Head>Үлдэгдэл</ReportTable.Head>
-          <ReportTable.Head>Харьцсан данс</ReportTable.Head>
-        </ReportTable.Row>
+        <></>
       );
+
+    case 'invCost':
+      return (
+        <>
+          <ReportTable.Row>
+            <ReportTable.Head rowSpan={2}>Код</ReportTable.Head>
+            <ReportTable.Head rowSpan={2}>Нэр</ReportTable.Head>
+            <ReportTable.Head colSpan={2}>Эхний үлдэгдэл</ReportTable.Head>
+            <ReportTable.Head colSpan={2}>Орлого</ReportTable.Head>
+            <ReportTable.Head colSpan={2}>Зарлага</ReportTable.Head>
+            <ReportTable.Head colSpan={2}>Эцсийн үлдэгдэл</ReportTable.Head>
+            <ReportTable.Head rowSpan={2}>Нэгж өртөг</ReportTable.Head>
+          </ReportTable.Row>
+          <ReportTable.Row>
+            <ReportTable.Head>Тоо</ReportTable.Head>
+            <ReportTable.Head>Дүн</ReportTable.Head>
+            <ReportTable.Head>Тоо</ReportTable.Head>
+            <ReportTable.Head>Дүн</ReportTable.Head>
+            <ReportTable.Head>Тоо</ReportTable.Head>
+            <ReportTable.Head>Дүн</ReportTable.Head>
+            <ReportTable.Head>Тоо</ReportTable.Head>
+            <ReportTable.Head>Дүн</ReportTable.Head>
+          </ReportTable.Row>
+        </>
+      );
+
     default:
-      return <></>;
+      return <></>
   }
-};
+
+}

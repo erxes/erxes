@@ -1,6 +1,9 @@
+import React from 'react';
+import { IGroupRule } from '../../types/reportsMap';
 import { HandleMainAC } from './main/ac';
 import { HandleMainACMore } from './main/acMore';
 import { HandleMainTB } from './main/tb';
+import { HandleInvCost } from './inventory/invCost';
 
 export type CalcReportResult = {
   lastNode: JSX.Element;
@@ -23,6 +26,7 @@ export const getCalcReportHandler = (report: string): CalcReportHandler => {
   const handlers: any = {
     ac: HandleMainAC,
     tb: HandleMainTB,
+    invCost: HandleInvCost,
   };
 
   if (!handlers[report]) {

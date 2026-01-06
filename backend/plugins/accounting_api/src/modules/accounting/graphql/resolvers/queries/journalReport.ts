@@ -1,9 +1,6 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import {
-  generateFilter,
-  getRecords,
-} from '~/modules/accounting/utils/journalReports';
+import { getFirstGroupRule, getRecMore, getRecords, IGroupRule } from '~/modules/accounting/utils/journalReports';
 
 export interface IReportFilterParams {
   status?: string;
@@ -19,15 +16,15 @@ export interface IReportFilterParams {
   accountCategoryId?: string;
   accountSearchValue?: string;
   accountBrand?: string;
-  accountIsTemp?: boolean;
-  accountIsOutBalance?: boolean;
+  accountIsTemp?: boolean,
+  accountIsOutBalance?: boolean,
   accountBranchId: string;
   accountDepartmentId: string;
   accountCurrency: string;
   accountJournal: string;
 
   brandId?: string;
-  isOutBalance?: boolean;
+  isOutBalance?: boolean,
   branchId?: string;
   departmentId?: string;
   currency?: string;
@@ -43,7 +40,7 @@ export interface IReportFilterParams {
 
 interface IReportParams extends IReportFilterParams {
   report: string;
-  groupRule: any;
+  groupRule: IGroupRule;
 }
 
 const journalReportQueries = {
@@ -53,8 +50,9 @@ const journalReportQueries = {
     { models, user, subdomain }: IContext,
   ) {
     const { groupRule, report, ...filters } = params;
-    const records = await getRecords(subdomain, models, report, filters, user);
-    return { records };
+    const firstGroupRules = getFirstGroupRule([], groupRule);
+    const records = await getRecords(subdomain, models, report, firstGroupRules, filters, user);
+    return { records }
   },
 
   async journalReportMore(
@@ -62,15 +60,9 @@ const journalReportQueries = {
     params: IReportParams & ICursorPaginateParams,
     { models, user, subdomain }: IContext,
   ) {
-    const { groupRule, report, ...filters } = params;
-    const match = await generateFilter(subdomain, models, filters, user);
-
-    const trDetails = await models.Transactions.aggregate([
-      { $match: match },
-      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
-      { $match: match },
-    ]);
-    return { trDetails };
+    const { report, ...filters } = params;
+    const trDetails = await getRecMore(subdomain, models, report, filters, user)
+    return { trDetails }
   },
 };
 
