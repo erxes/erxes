@@ -72,12 +72,6 @@ class ChannelStep extends React.Component<Props> {
           'comment-alt-message',
           `Send bulk SMS online with simple and direct texts`
         )} */}
-        {isEnabled('clientportal') &&
-          this.renderBox(
-            METHODS.NOTIFICATION,
-            'message',
-            'Send automated notifications to your customers'
-          )}
       </FullContent>
     );
   }
