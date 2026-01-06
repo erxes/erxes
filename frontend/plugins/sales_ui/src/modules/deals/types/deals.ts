@@ -25,6 +25,8 @@ export interface IItem {
     labels: IPipelineLabel[];
     pipeline: IPipeline;
     stage?: IStage;
+    stageId?: string;
+    columnId?: string;
     isWatched?: boolean;
     priority?: string;
     hasNotified?: boolean;
@@ -71,7 +73,7 @@ export interface IItem {
   }
   
 export interface IDeal extends IItem {
-    products?: IProduct[];
+    products?: any[];
     productsData?: IProductData[];
     paymentsData?: IPaymentsData;
     departments?: IDepartment[];
