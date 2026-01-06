@@ -5,8 +5,8 @@ on:
     branches:
       - erxes-docs-blog
     paths:
-      - 'docs/**'
-      - '.github/workflows/documentation.yaml'
+      - "docs/**"
+      - ".github/workflows/documentation.yaml"
   pull_request:
     branches:
       - erxes-docs-blog
@@ -14,9 +14,9 @@ on:
       - master
       - rc
     paths:
-      - 'docs/**'
+      - "docs/**"
 
-jobs: 
+jobs:
   checks:
     if: github.event_name != 'push'
     runs-on: ubuntu-22.04

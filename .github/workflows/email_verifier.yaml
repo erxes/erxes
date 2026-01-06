@@ -22,7 +22,7 @@ on:
       - "email-verifier/**"
       - ".github/workflows/email_verifier.yaml"
 
-jobs: 
+jobs:
   email-verifier:
     runs-on: ubuntu-22.04
 
