@@ -651,7 +651,7 @@ export function CustomFields() {
                           label: `${type.label} (${type.code})`,
                           value: type._id,
                         }));
-                        const selectedOptions = options.filter((opt) =>
+                        const selectedOptions = options.filter((opt: any) =>
                           (field.value || []).includes(opt.value),
                         );
                         return (
