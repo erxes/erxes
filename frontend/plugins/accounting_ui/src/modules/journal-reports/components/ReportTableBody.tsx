@@ -44,13 +44,13 @@ export const ReportTableBody = () => {
   } = useJournalReportMore();
   const setMoreData = useSetAtom(moreDataState);
 
-  const tableRef = useRef<HTMLTableSectionElement>(null);
+  // const tableRef = useRef<HTMLTableSectionElement>(null);
 
-  const grouped = React.useMemo(() => {
-    if (error) return {};
+  // const grouped = React.useMemo(() => {
+  //   if (error) return {};
 
-    return groupRecords(records, groupRule);
-  }, [records, groupRule]);
+  //   return groupRecords(records, groupRule);
+  // }, [records, groupRule]);
 
   // ✅ RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
   useEffect(() => {

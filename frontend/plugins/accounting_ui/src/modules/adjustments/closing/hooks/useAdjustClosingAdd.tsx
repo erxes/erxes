@@ -41,7 +41,7 @@ export const useAdjustClosingAdd = (options?: OperationVariables) => {
       ],
       awaitRefetchQueries: true,
       update: (_cache, { data }) => {
-        const newId = data?.adjustClosingAdd[0]?.id;
+        const newId = data?.adjustClosingEntriesAdd?._id;
 
         const pathname = newId
           ? `/accounting/adjustment/closing/edit?id=${newId}`

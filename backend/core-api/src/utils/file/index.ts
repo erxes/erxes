@@ -1,4 +1,4 @@
-import { fileTypeFromBuffer } from 'file-type/core';
+import type { FileTypeResult } from 'file-type';
 import * as fs from 'fs';
 import { Jimp } from 'jimp';
 import { tmpdir } from 'os';

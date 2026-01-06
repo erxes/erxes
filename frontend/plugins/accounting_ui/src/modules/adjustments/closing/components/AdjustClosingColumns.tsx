@@ -18,7 +18,7 @@ import { useState } from 'react';
 
 const DescriptionCell = ({ getValue, row }: any) => {
   const [description, setDescription] = useState(getValue() as string);
-  const { _id } = row.original;
+  const _id = row?.original?._id;
 
   return (
     <PopoverScoped scope={`transaction-${_id}-description`}>
@@ -36,9 +36,10 @@ const DescriptionCell = ({ getValue, row }: any) => {
 };
 
 const DateCell = ({ getValue }: any) => {
+  const date = getValue();
   return (
     <RecordTableInlineCell>
-      {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
+      {date ? dayjs(date).format('YYYY-MM-DD') : '-'}
     </RecordTableInlineCell>
   );
 };
@@ -55,6 +56,11 @@ const TransactionMoreColumnCell = ({
       <RecordTable.MoreButton className="w-full h-full" />
     </Link>
   );
+};
+
+const TextCell = ({ getValue }: any) => {
+  const value = getValue();
+  return <RecordTableInlineCell>{value || '-'}</RecordTableInlineCell>;
 };
 
 const transactionMoreColumn = {
@@ -105,7 +111,7 @@ export const adjustClosingTableColumns: ColumnDef<IAdjustClosing>[] = [
       />
     ),
     accessorKey: 'integrateAccountId',
-    cell: ({ getValue }) => <DescriptionCell getValue={getValue} />,
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
   },
 
   {
@@ -117,7 +123,7 @@ export const adjustClosingTableColumns: ColumnDef<IAdjustClosing>[] = [
       />
     ),
     accessorKey: 'periodGLAccountId',
-    cell: ({ getValue }) => <DescriptionCell getValue={getValue} />,
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
   },
 
   {
@@ -126,18 +132,18 @@ export const adjustClosingTableColumns: ColumnDef<IAdjustClosing>[] = [
       <RecordTable.InlineHead icon={IconBuildingBank} label="Earning account" />
     ),
     accessorKey: 'earningAccountId',
-    cell: ({ getValue }) => <DescriptionCell getValue={getValue} />,
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
   },
 
   {
-    id: 'taxPayableaccountId',
+    id: 'taxPayableAccountId',
     header: () => (
       <RecordTable.InlineHead
         icon={IconBuildingBank}
         label="Tax payable account"
       />
     ),
-    accessorKey: 'taxPayableaccountId',
-    cell: ({ getValue }) => <DescriptionCell getValue={getValue} />,
+    accessorKey: 'taxPayableAccountId',
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
   },
 ];

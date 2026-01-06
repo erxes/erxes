@@ -1,19 +1,23 @@
 export const types = `
     type AdjustClosingEntry @key(fields: "_id") @cacheControl(maxAge: 3) {
-        _id: String!
-        code: String
-        name: String
-        description: String
-        status: String
-        createdAt: Date
-        updatedAt: Date
+      _id: String!
+      code: String
+      name: String
+      description: String
+      status: String
+      date: Date
+      beginDate: Date
+      integrateAccountId: String
+      periodGLAccountId: String
+      earningAccountId: String
+      taxPayableAccountId: String
+      createdAt: Date
+      updatedAt: Date
+      createdBy: String
+      modifiedBy: String
     }
 
-    type AdjustClosingEntriesListResponse {
-        list: [AdjustClosingEntry]
-        pageInfo: PageInfo
-        totalCount: Int
-    }
+  
     `;
 
 const adjustClosingEntryQueryParams = `
@@ -24,9 +28,9 @@ const adjustClosingEntryQueryParams = `
     `;
 
 export const queries = `
-    adjustClosingEntires(
+    adjustClosingEntries(
         ${adjustClosingEntryQueryParams}
-    ): AdjustClosingEntriesListResponse
+    ): [AdjustClosingEntry]
 
     adjustClosingEntriesCount(
         ${adjustClosingEntryQueryParams}
@@ -38,11 +42,18 @@ export const queries = `
     `;
 
 export const mutations = `
-    adjustClosingEntriesAdd(
-        code: String
-        name: String
-        description: String
-    ): AdjustClosingEntry
+  adjustClosingEntriesAdd(
+    code: String
+    name: String
+    description: String
+    status: String
+    date: Date
+    beginDate: Date
+    integrateAccountId: String
+    periodGLAccountId: String
+    earningAccountId: String
+    taxPayableAccountId: String
+  ): AdjustClosingEntry
 
     adjustClosingEntriesEdit(
         _id: String!

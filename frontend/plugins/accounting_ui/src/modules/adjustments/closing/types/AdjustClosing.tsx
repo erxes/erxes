@@ -1,4 +1,4 @@
-export interface AdjustClosing {
+export interface IAdjustClosing {
   _id: string;
   createdAt: Date;
   createdBy?: string;

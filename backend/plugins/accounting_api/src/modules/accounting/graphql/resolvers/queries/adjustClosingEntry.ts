@@ -22,7 +22,7 @@ const adjustClosingEntryQueries = {
   /**
    * Adjust closing list
    */
-  async adjustClosingEntires(
+  async adjustClosingEntries(
     _root: undefined,
     params: IQueryParams,
     { models }: IContext,

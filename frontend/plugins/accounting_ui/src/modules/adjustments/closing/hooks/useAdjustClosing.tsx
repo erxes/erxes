@@ -7,14 +7,14 @@ export const useAdjustClosing = (options?: OperationVariables) => {
     ...options,
     variables: { ...options?.variables, page: 1, perPage: ACC_TRS__PER_PAGE },
   });
-  const { adjustClosing, adjustClosingCount } = data || {};
+  const { adjustClosingEntries, adjustClosingCount } = data || {};
 
   const handleFetchMore = () => {
-    if (adjustClosing?.length < adjustClosingCount) {
+    if (adjustClosingEntries?.length < adjustClosingCount) {
       fetchMore({
         variables: {
           perPage: ACC_TRS__PER_PAGE,
-          page: Math.ceil(adjustClosing?.length / ACC_TRS__PER_PAGE) + 1,
+          page: Math.ceil(adjustClosingEntries?.length / ACC_TRS__PER_PAGE) + 1,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           return {
@@ -31,7 +31,7 @@ export const useAdjustClosing = (options?: OperationVariables) => {
   };
 
   return {
-    adjustClosing: data?.adjustClosing,
+    adjustClosing: adjustClosingEntries,
     totalCount: data?.adjustClosingCount,
     loading,
     error,
