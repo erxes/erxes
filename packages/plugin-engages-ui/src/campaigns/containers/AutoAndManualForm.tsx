@@ -9,13 +9,11 @@ import React, { useCallback, useState } from "react";
 
 import { AddMutationResponse } from "@erxes/ui-segments/src/types";
 import AutoAndManualForm from "../components/AutoAndManualForm";
-import { ClientPortalConfigsQueryResponse } from "@erxes/plugin-clientportal-ui/src/types";
 import FormBase from "../components/FormBase";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IConfig } from "@erxes/ui-settings/src/general/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { IntegrationsQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
-import { queries as clientPortalQueries } from "@erxes/plugin-clientportal-ui/src/graphql";
 import { gql, useQuery, useLazyQuery } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries as integrationQueries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
@@ -41,7 +39,7 @@ type FinalProps = {
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   smsConfig: IConfig;
-  clientPortalConfigsQuery: ClientPortalConfigsQueryResponse;
+  clientPortalConfigsQuery: any;
 } & Props &
   AddMutationResponse;
 
@@ -57,12 +55,8 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     integrationsQuery
   } = props;
 
-  const [
-    clientPortalConfigsQuery,
-    { loading, data = {} as ClientPortalConfigsQueryResponse }
-  ] = useLazyQuery<ClientPortalConfigsQueryResponse>(
-    gql(clientPortalQueries.getConfigs)
-  );
+  const [clientPortalConfigsQuery, { loading, data = {} as any }] =
+    {} as any;
 
   const handleClientPortalKindChange = useCallback(
     (businessPortalKind: string) => {

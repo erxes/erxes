@@ -8,7 +8,6 @@ import {
   BUSINESS_PORTAL_KINDS
 } from "@erxes/ui-engage/src/constants";
 import { SelectMessageType } from "@erxes/ui-engage/src/styles";
-import { ClientPortalConfig } from "@erxes/plugin-clientportal-ui/src/types";
 import { EmptyState, Spinner } from "@erxes/ui/src";
 import React from "react";
 import BrandStep from "../../containers/BrandStep";
@@ -26,7 +25,7 @@ type Props = {
   segmentIds: string[];
   brandIds: string[];
   tagIds: string[];
-  clientPortalGetConfigs?: ClientPortalConfig[];
+  clientPortalGetConfigs?: any[];
   businessPortalKind?: string;
   handleClientPortalKindChange: (kind: string) => void;
   selectedCpId?: string;
