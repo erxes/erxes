@@ -27,6 +27,8 @@ export const loadAccountCategoryClass = (models: IModels) => {
       const accountingCategory =
         await models.AccountCategories.findOne(selector);
 
+        //test
+
       if (!accountingCategory) {
         throw new Error('Accounting & service category not found');
       }
