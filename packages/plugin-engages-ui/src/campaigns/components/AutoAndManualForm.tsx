@@ -28,7 +28,6 @@ import {
   IEmailTemplate,
   IIntegrationWithPhone,
 } from '@erxes/ui-engage/src/types';
-import { ClientPortalConfig } from '@erxes/plugin-clientportal-ui/src/types';
 import SmsForm from './SmsForm';
 import NotificationForm from './NotificationForm';
 import ChannelStep from './step/ChannelStep';
@@ -55,7 +54,7 @@ type Props = {
   smsConfig: IConfig;
   integrations: IIntegrationWithPhone[];
   currentUser: IUser;
-  clientPortalGetConfigs: ClientPortalConfig[];
+  clientPortalGetConfigs: any[];
   businessPortalKind?: string;
   handleClientPortalKindChange: (kind: string) => void;
   segmentsTypes?: any[];
