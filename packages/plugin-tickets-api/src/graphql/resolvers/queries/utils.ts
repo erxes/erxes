@@ -172,7 +172,7 @@ export const generateCommonFilters = async (
   models: IModels,
   subdomain: string,
   currentUserId: string,
-  args: any
+  args: any,
 ) => {
   const {
     _ids,
@@ -498,7 +498,7 @@ export const generateCommonFilters = async (
 
     const commonIds =
       supervisorDepartmentIds.filter((id) =>
-        pipelineDepartmentIds.includes(id)
+        pipelineDepartmentIds.includes(id),
       ) || [];
 
     const isEligibleSeeAllCards =
@@ -545,7 +545,7 @@ export const generateCommonFilters = async (
         if (pipeline.isCheckDepartment) {
           const userDepartmentIds = user?.departmentIds || [];
           const commonIds = userDepartmentIds.filter((id) =>
-            pipelineDepartmentIds.includes(id)
+            pipelineDepartmentIds.includes(id),
           );
 
           const otherDepartmentUsers = await sendCoreMessage({
@@ -564,7 +564,7 @@ export const generateCommonFilters = async (
 
           if (
             !!pipelineDepartmentIds.filter((departmentId) =>
-              userDepartmentIds.includes(departmentId)
+              userDepartmentIds.includes(departmentId),
             ).length
           ) {
             includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
@@ -584,17 +584,22 @@ export const generateCommonFilters = async (
       }
     }
 
-    // const orConditions: any[] = [{ userId: currentUserId }];
+    const orConditions: any[] = [{ userId: currentUserId }];
 
-    // if (pipeline.isCheckBranch && user?.branchIds?.length) {
-    //   orConditions.push({ branchIds: { $in: user.branchIds } });
-    // }
+    if (pipeline.isCheckBranch === true && user?.branchIds?.length) {
+      orConditions.push({ branchIds: { $in: user.branchIds } });
+    }
 
-    // if (pipeline.isCheckDepartment && user?.departmentIds?.length) {
-    //   orConditions.push({ departmentIds: { $in: user.departmentIds } });
-    // }
+    if (pipeline.isCheckDepartment === true && user?.departmentIds?.length) {
+      orConditions.push({ departmentIds: { $in: user.departmentIds } });
+    }
 
-    // filter.$or = orConditions;
+    if (
+      (pipeline.isCheckBranch === true && user?.branchIds?.length) ||
+      (pipeline.isCheckDepartment === true && user?.departmentIds?.length)
+    ) {
+      filter.$or = orConditions;
+    }
   }
 
   if (userIds) {
@@ -744,7 +749,7 @@ export const generateDealCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any
+  extraParams?: any,
 ) => {
   args.type = "deal";
   const { productIds } = extraParams || args;
@@ -752,7 +757,7 @@ export const generateDealCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args
+    args,
   );
 
   if (extraParams) {
@@ -774,7 +779,7 @@ export const generateTicketCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any
+  extraParams?: any,
 ) => {
   args.type = "ticket";
   const { productIds } = extraParams || args;
@@ -783,9 +788,8 @@ export const generateTicketCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args
+    args,
   );
-  console.log("generateTicketCommonFilters", filter);
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
   }
@@ -817,7 +821,7 @@ export const generateGrowthHackCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any
+  extraParams?: any,
 ) => {
   args.type = "growthHack";
 
@@ -827,7 +831,7 @@ export const generateGrowthHackCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args
+    args,
   );
 
   if (extraParams) {
@@ -867,7 +871,7 @@ const dateSelector = (date: IDate) => {
 // comparing pipelines departmentIds and current user departmentIds
 const compareDepartmentIds = (
   pipelineDepartmentIds: string[],
-  userDepartmentIds: string[]
+  userDepartmentIds: string[],
 ): boolean => {
   if (!pipelineDepartmentIds?.length || !userDepartmentIds?.length) {
     return false;
@@ -886,7 +890,7 @@ export const checkItemPermByUser = async (
   subdomain: string,
   models: IModels,
   user: any,
-  item: IItemCommonFields
+  item: IItemCommonFields,
 ) => {
   const stage = await models.Stages.getStage(item.stageId);
 
@@ -937,7 +941,7 @@ export const checkItemPermByUser = async (
 
   const isSuperVisorInDepartment = compareDepartmentIds(
     departmentIds,
-    supervisorDepartmentIds
+    supervisorDepartmentIds,
   );
   if (isSuperVisorInDepartment) {
     return item;
@@ -949,7 +953,7 @@ export const checkItemPermByUser = async (
 export const archivedItems = async (
   models: IModels,
   params: IArchiveArgs,
-  collection: any
+  collection: any,
 ) => {
   const { pipelineId, ...listArgs } = params;
 
@@ -976,7 +980,7 @@ export const archivedItems = async (
 export const archivedItemsCount = async (
   models: IModels,
   params: IArchiveArgs,
-  collection: any
+  collection: any,
 ) => {
   const { pipelineId } = params;
 
@@ -993,7 +997,7 @@ export const archivedItemsCount = async (
 
 const generateArhivedItemsFilter = (
   params: IArchiveArgs,
-  stages: IStageDocument[]
+  stages: IStageDocument[],
 ) => {
   const {
     search,
@@ -1072,7 +1076,7 @@ export const getItemList = async (
   type: string,
   extraFields?: { [key: string]: number },
   getExtraFields?: (item: any) => { [key: string]: any },
-  serverTiming?
+  serverTiming?,
 ) => {
   const { collection } = getCollection(models, type);
   const { page, perPage } = args;
@@ -1176,7 +1180,7 @@ export const getItemList = async (
     cocIdsByItemId,
     cocIds,
     typeId1,
-    typeId2
+    typeId2,
   ) => {
     cocIds.push(conformity[typeId1]);
     if (!cocIdsByItemId[conformity[typeId2]]) {
@@ -1192,7 +1196,7 @@ export const getItemList = async (
         companyIdsByItemId,
         companyIds,
         "mainTypeId",
-        "relTypeId"
+        "relTypeId",
       );
     else if (conf.relType === "company")
       perConformity(
@@ -1200,7 +1204,7 @@ export const getItemList = async (
         companyIdsByItemId,
         companyIds,
         "relTypeId",
-        "mainTypeId"
+        "mainTypeId",
       );
     else if (conf.mainType === "customer")
       perConformity(
@@ -1208,7 +1212,7 @@ export const getItemList = async (
         customerIdsByItemId,
         customerIds,
         "mainTypeId",
-        "relTypeId"
+        "relTypeId",
       );
     else if (conf.relType === "customer")
       perConformity(
@@ -1216,7 +1220,7 @@ export const getItemList = async (
         customerIdsByItemId,
         customerIds,
         "relTypeId",
-        "mainTypeId"
+        "mainTypeId",
       );
   }
 
@@ -1264,11 +1268,11 @@ export const getItemList = async (
   const getCocsByItemId = (
     itemId: string,
     cocIdsByItemId: any,
-    cocs: any[]
+    cocs: any[],
   ) => {
     const cocIds = cocIdsByItemId[itemId] || [];
     return cocIds.flatMap(
-      (cocId: string) => cocs.find((coc) => cocId === coc._id) || []
+      (cocId: string) => cocs.find((coc) => cocId === coc._id) || [],
     );
   };
 
@@ -1313,7 +1317,7 @@ export const getItemList = async (
       item.customProperties = [];
       for (const field of fields) {
         const fieldData = item.customFieldsData.find(
-          (f) => f.field === field._id
+          (f) => f.field === field._id,
         );
         if (!fieldData) continue;
 
@@ -1341,7 +1345,7 @@ export const getItemList = async (
     }
 
     const notification = notifications.find(
-      (n) => n.contentTypeId === item._id
+      (n) => n.contentTypeId === item._id,
     );
 
     updatedList.push({
