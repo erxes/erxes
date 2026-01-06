@@ -29,6 +29,7 @@ export const AccountCategoriesTable = () => {
       ) || {}
     );
   }, [accountCategories]);
+  console.log({ accountCategories });
 
   return (
     <RecordTable.Provider
