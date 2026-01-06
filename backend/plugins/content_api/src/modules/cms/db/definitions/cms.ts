@@ -1,7 +1,9 @@
-import { ICMSMenuDocument, ICMSPageDocument, IContentCMSDocument } from '@/cms/@types/cms';
 import {
-  customFieldSchema
-} from 'erxes-api-shared/core-modules';
+  ICMSMenuDocument,
+  ICMSPageDocument,
+  IContentCMSDocument,
+} from '@/cms/@types/cms';
+import { customFieldSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import mongoose, { Schema } from 'mongoose';
 

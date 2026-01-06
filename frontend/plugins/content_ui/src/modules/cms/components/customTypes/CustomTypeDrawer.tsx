@@ -2,7 +2,7 @@ import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { CMS_CUSTOM_POST_TYPES_ADD } from '../../graphql/mutations';
+import { CMS_CUSTOM_POST_TYPE_ADD } from '../../graphql/queries';
 
 interface CustomTypeDrawerProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ export function CustomTypeDrawer({
   onCreate,
 }: CustomTypeDrawerProps) {
   const [addCustomPostType, { loading }] = useMutation(
-    CMS_CUSTOM_POST_TYPES_ADD,
+    CMS_CUSTOM_POST_TYPE_ADD,
   );
   const form = useForm<CustomTypeFormData>({
     defaultValues: {
@@ -85,7 +85,8 @@ export function CustomTypeDrawer({
         pretty = 'Custom type code already exists for this site';
       }
       if (/invalid characters/i.test(msg)) {
-        pretty = 'Code has invalid characters. Use only letters, numbers, and underscores';
+        pretty =
+          'Code has invalid characters. Use only letters, numbers, and underscores';
       }
       if (/system post type/i.test(msg)) {
         pretty = 'Cannot use reserved system type codes (page, post, category)';

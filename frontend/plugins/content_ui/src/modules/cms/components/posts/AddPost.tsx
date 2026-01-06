@@ -116,12 +116,17 @@ import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconChevronDown, IconX } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CmsLayout } from '../shared/CmsLayout';
 import { useQuery } from '@apollo/client';
 import { Block } from '@blocknote/core';
 import { useTags } from '../../hooks/useTags';
-import { CMS_CATEGORIES, CMS_POST } from '../../graphql/queries';
+import {
+  CMS_CATEGORIES,
+  CMS_POST,
+  CMS_CUSTOM_POST_TYPES,
+  CMS_CUSTOM_FIELD_GROUPS,
+} from '../../graphql/queries';
 import { usePostMutations } from '../../hooks/usePostMutations';
 
 interface PostFormData {
@@ -146,6 +151,7 @@ interface PostFormData {
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
+  customFieldsData?: { field: string; value: any }[];
 }
 
 // Helper to create AttachmentInput from URL
@@ -189,6 +195,131 @@ interface GalleryUploaderProps {
   value?: string[];
   onChange: (urls: string[]) => void;
 }
+
+// Custom Field Input Component with proper state management
+const CustomFieldInput = ({
+  field,
+  value,
+  onChange,
+}: {
+  field: any;
+  value: any;
+  onChange: (value: any) => void;
+}) => {
+  if (field.type === 'text') {
+    return (
+      <Input
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  if (field.type === 'textarea') {
+    return (
+      <Textarea
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        rows={3}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  if (field.type === 'number') {
+    return (
+      <Input
+        type="number"
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  if (field.type === 'email') {
+    return (
+      <Input
+        type="email"
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  if (field.type === 'url') {
+    return (
+      <Input
+        type="url"
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  if (field.type === 'date') {
+    return (
+      <Input
+        type="date"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  if (field.type === 'checkbox') {
+    return (
+      <div className="flex items-center gap-2">
+        <Switch
+          checked={!!value}
+          onCheckedChange={(checked) => onChange(checked)}
+        />
+        <span className="text-sm text-gray-600">{field.label}</span>
+      </div>
+    );
+  }
+
+  if (field.type === 'select' && field.options) {
+    return (
+      <Select value={value || ''} onValueChange={(val) => onChange(val)}>
+        <Select.Trigger>
+          <Select.Value placeholder={`Select ${field.label.toLowerCase()}`} />
+        </Select.Trigger>
+        <Select.Content>
+          {field.options.map((option: string, idx: number) => (
+            <Select.Item key={idx} value={option}>
+              {option}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    );
+  }
+
+  if (field.type === 'radio' && field.options) {
+    return (
+      <div className="space-y-2">
+        {field.options.map((option: string, idx: number) => (
+          <div key={idx} className="flex items-center gap-2">
+            <input
+              type="radio"
+              name={field._id}
+              value={option}
+              checked={value === option}
+              onChange={(e) => onChange(e.target.value)}
+            />
+            <label className="text-sm">{option}</label>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return null;
+};
 
 const GalleryUploader = ({ value, onChange }: GalleryUploaderProps) => {
   const urls = value || [];
@@ -283,7 +414,7 @@ export function AddPost() {
   const [previewDevice, setPreviewDevice] = useState<
     'desktop' | 'tablet' | 'mobile'
   >('desktop');
-  const [mediaOpen, setMediaOpen] = useState(false);
+  const previousTypeRef = useRef<string | undefined>();
 
   const form = useForm<PostFormData>({
     defaultValues: {
@@ -292,7 +423,7 @@ export function AddPost() {
       description: '',
       content: '',
       type: undefined,
-      status: undefined,
+      status: 'draft',
       categoryIds: [],
       tagIds: [],
       featured: false,
@@ -308,6 +439,7 @@ export function AddPost() {
       scheduledDate: null,
       autoArchiveDate: null,
       enableAutoArchive: false,
+      customFieldsData: [],
     },
   });
 
@@ -407,6 +539,7 @@ export function AddPost() {
         scheduledDate: toDate(fullPost.scheduledDate) || null,
         autoArchiveDate: toDate(fullPost.autoArchiveDate) || null,
         enableAutoArchive: !!fullPost.autoArchiveDate,
+        customFieldsData: fullPost.customFieldsData || [],
       });
     } else {
       const title = form.getValues('title');
@@ -414,6 +547,7 @@ export function AddPost() {
         form.setValue('slug', generateSlug(title));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullPost]);
 
   const { createPost, editPost, creating, saving } = usePostMutations({
@@ -421,6 +555,23 @@ export function AddPost() {
   });
 
   const onSubmit = async (data: PostFormData) => {
+    console.log('🔍 Form data on submit:', {
+      type: data.type,
+      title: data.title,
+      customFieldsData: data.customFieldsData,
+    });
+
+    // Validate that a custom post type is selected
+    if (!data.type) {
+      console.error('❌ Validation failed: No post type selected');
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a post type',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const extractText = (html: string) => {
       const tmp = document.createElement('div');
       tmp.innerHTML = html || '';
@@ -442,7 +593,9 @@ export function AddPost() {
         .replace(/^-+|-+$/g, '');
       // Add timestamp to ensure uniqueness
       const timestamp = Date.now().toString(36).slice(-6);
-      return `${baseSlug}-${timestamp}`;
+      // If baseSlug is empty, use 'post' as default
+      const finalSlug = baseSlug || 'post';
+      return `${finalSlug}-${timestamp}`;
     };
 
     // Ensure slug exists
@@ -463,7 +616,7 @@ export function AddPost() {
       slug: editingPost?._id ? data.slug : generateSlug(computedTitle),
       content: data.content,
       type: data.type,
-      status: data.status,
+      status: data.status || 'draft',
       categoryIds: data.categoryIds,
       tagIds: data.tagIds,
       featured: data.featured,
@@ -481,23 +634,54 @@ export function AddPost() {
       documents: documentsPayload.length ? documentsPayload : undefined,
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
       pdfAttachment: pdfPayload ? { pdf: pdfPayload } : undefined,
+      customFieldsData: (() => {
+        if (!data.customFieldsData || data.customFieldsData.length === 0) {
+          return undefined;
+        }
+        const filtered = data.customFieldsData.filter(
+          (item) =>
+            item.value !== '' &&
+            item.value !== null &&
+            item.value !== undefined,
+        );
+        return filtered.length > 0 ? filtered : undefined;
+      })(),
     };
 
-    if (editingPost?._id) {
-      await editPost(editingPost._id, input);
-      toast({ title: 'Saved', description: 'Post updated' });
-    } else {
-      await createPost(input);
-      toast({ title: 'Saved', description: 'Post created' });
-    }
-    navigate(`/content/cms/${websiteId}/posts`, { replace: true });
-  };
-
-  const onUploadThumbnail = (url?: string) => {
-    form.setValue('thumbnail', url || null, {
-      shouldDirty: true,
-      shouldTouch: true,
+    console.log('📝 Submitting post with data:', {
+      title: input.title,
+      type: input.type,
+      status: input.status,
+      customFieldsData: input.customFieldsData,
+      fullInput: input,
     });
+
+    try {
+      if (editingPost?._id) {
+        const result = await editPost(editingPost._id, input);
+        console.log('✅ Post updated successfully:', result);
+        toast({ title: 'Saved', description: 'Post updated' });
+        navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+      } else {
+        const result = await createPost(input);
+        console.log('✅ Post created successfully:', result);
+        toast({ title: 'Saved', description: 'Post created' });
+        navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+      }
+    } catch (error: any) {
+      console.error('❌ Error saving post:', error);
+      console.error('❌ Error details:', {
+        message: error?.message,
+        graphQLErrors: error?.graphQLErrors,
+        networkError: error?.networkError,
+        extraInfo: error?.extraInfo,
+      });
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to save post',
+        variant: 'destructive',
+      });
+    }
   };
 
   const Preview = () => {
@@ -562,6 +746,76 @@ export function AddPost() {
     label: t.name,
     value: t._id,
   }));
+
+  const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
+    variables: { clientPortalId: websiteId },
+    skip: !websiteId,
+  });
+  const customTypes = customTypesData?.cmsCustomPostTypes || [];
+
+  const selectedType = form.watch('type');
+  const { data: fieldGroupsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: { clientPortalId: websiteId },
+    skip: !websiteId || !selectedType,
+  });
+
+  const fieldGroups = (
+    fieldGroupsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: any) =>
+      !group.customPostTypeIds ||
+      group.customPostTypeIds.length === 0 ||
+      group.customPostTypeIds.includes(selectedType),
+  );
+
+  // Clear custom fields data when post type changes (only for new posts, not when editing)
+  useEffect(() => {
+    if (
+      !editingPost &&
+      selectedType &&
+      previousTypeRef.current &&
+      previousTypeRef.current !== selectedType
+    ) {
+      console.log(
+        '🔄 Post type changed from',
+        previousTypeRef.current,
+        'to',
+        selectedType,
+        '- clearing custom fields data',
+      );
+      form.setValue('customFieldsData', []);
+    }
+    previousTypeRef.current = selectedType;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedType, editingPost]);
+
+  const updateCustomFieldValue = (fieldId: string, value: any) => {
+    const currentData = form.getValues('customFieldsData') || [];
+    const existingIndex = currentData.findIndex(
+      (item) => item.field === fieldId,
+    );
+
+    let updated;
+    if (existingIndex >= 0) {
+      updated = [...currentData];
+      updated[existingIndex] = { field: fieldId, value };
+    } else {
+      updated = [...currentData, { field: fieldId, value }];
+    }
+
+    console.log('🔧 Updating custom field:', { fieldId, value, updated });
+    form.setValue('customFieldsData', updated, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: false,
+    });
+  };
+
+  const getCustomFieldValue = (fieldId: string) => {
+    const currentData = form.watch('customFieldsData') || [];
+    const item = currentData.find((item) => item.field === fieldId);
+    return item?.value ?? '';
+  };
 
   const headerActions = (
     <>
@@ -643,7 +897,7 @@ export function AddPost() {
                         </Form.Item>
                       )}
                     />
-                    {/* <Form.Field
+                    <Form.Field
                       control={form.control}
                       name="type"
                       render={({ field }) => (
@@ -658,15 +912,18 @@ export function AddPost() {
                                 <Select.Value placeholder="Choose type" />
                               </Select.Trigger>
                               <Select.Content>
-                                <Select.Item value="post">Post</Select.Item>
-                                <Select.Item value="page">Page</Select.Item>
+                                {customTypes.map((type: any) => (
+                                  <Select.Item key={type._id} value={type._id}>
+                                    {type.label}
+                                  </Select.Item>
+                                ))}
                               </Select.Content>
                             </Select>
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
                       )}
-                    /> */}
+                    />
                   </div>
 
                   <Form.Field
@@ -975,6 +1232,47 @@ export function AddPost() {
                     )}
                   />
 
+                  {/* Custom Fields */}
+                  {selectedType && fieldGroups.length > 0 && (
+                    <div className="space-y-4 mt-6 pt-6 border-t">
+                      <div className="text-sm font-semibold">Custom Fields</div>
+                      {fieldGroups.map((group: any) => (
+                        <Collapsible key={group._id} defaultOpen={true}>
+                          <Collapsible.Trigger className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-md hover:bg-gray-100">
+                            <span className="font-medium text-sm">
+                              {group.label}
+                            </span>
+                            <IconChevronDown className="h-4 w-4 transition-transform" />
+                          </Collapsible.Trigger>
+                          <Collapsible.Content className="mt-2 space-y-3 pl-3">
+                            {(group.fields || []).map((field: any) => (
+                              <div key={field._id} className="space-y-1">
+                                <label className="block text-sm font-medium">
+                                  {field.label}
+                                  {field.isRequired && (
+                                    <span className="text-red-500 ml-1">*</span>
+                                  )}
+                                </label>
+                                {field.description && (
+                                  <p className="text-xs text-gray-500">
+                                    {field.description}
+                                  </p>
+                                )}
+                                <CustomFieldInput
+                                  field={field}
+                                  value={getCustomFieldValue(field._id)}
+                                  onChange={(value) =>
+                                    updateCustomFieldValue(field._id, value)
+                                  }
+                                />
+                              </div>
+                            ))}
+                          </Collapsible.Content>
+                        </Collapsible>
+                      ))}
+                    </div>
+                  )}
+
                   {/* moved media fields into Media tab */}
                 </>
               )}
@@ -996,7 +1294,9 @@ export function AddPost() {
                           <Form.Control>
                             <Upload.Root
                               value={
-                                (field.value as any)?.url || field.value || ''
+                                typeof field.value === 'string'
+                                  ? field.value
+                                  : (field.value as any)?.url || ''
                               }
                               onChange={(v: any) => {
                                 if (v && typeof v === 'object' && 'url' in v) {
@@ -1038,7 +1338,9 @@ export function AddPost() {
                         <div className="relative">
                           <img
                             src={readImage(
-                              (form.watch('thumbnail') as any)?.url || '',
+                              typeof form.watch('thumbnail') === 'string'
+                                ? form.watch('thumbnail')
+                                : (form.watch('thumbnail') as any)?.url || '',
                             )}
                             alt="Featured preview"
                             className="w-full h-32 object-cover rounded border"

@@ -35,6 +35,8 @@ import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useTags } from '../../hooks/useTags';
 import { useCategories } from '../../hooks/useCategories';
 import { usePostMutations } from '../../hooks/usePostMutations';
+import { useQuery } from '@apollo/client';
+import { CMS_CUSTOM_POST_TYPES } from '../../graphql/queries';
 
 export function Posts() {
   const { websiteId } = useParams();
@@ -46,6 +48,7 @@ export function Posts() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined,
   );
+  const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [tagFilters, setTagFilters] = useState<string[]>([]);
 
@@ -59,7 +62,7 @@ export function Posts() {
     refetch: refetchPosts,
   } = usePosts({
     clientPortalId: websiteId || '',
-    type: 'post',
+    type: typeFilter, // Filter by selected custom type or show all
     perPage: 20,
     page: 1,
     searchValue,
@@ -69,6 +72,13 @@ export function Posts() {
   });
 
   const { removePost } = usePostMutations({ websiteId });
+
+  // Fetch custom post types for filter
+  const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
+    variables: { clientPortalId: websiteId },
+    skip: !websiteId,
+  });
+  const customTypes = customTypesData?.cmsCustomPostTypes || [];
 
   if (loading) {
     return (
@@ -169,6 +179,7 @@ export function Posts() {
       ),
       size: 300,
     },
+
     {
       id: 'excerpt',
       header: () => (
@@ -263,6 +274,12 @@ export function Posts() {
       <div className="bg-white border rounded-lg p-4 mb-4">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="text-sm font-semibold text-gray-700">Filters:</div>
+          {/* Custom Type Filter */}
+          <CustomTypeFilterButton
+            typeFilter={typeFilter}
+            onTypeChange={setTypeFilter}
+            customTypes={customTypes}
+          />
           {/* Categories */}
           <CategoriesFilterButton
             categoryFilters={categoryFilters}
@@ -279,6 +296,7 @@ export function Posts() {
             variant="ghost"
             size="sm"
             onClick={() => {
+              setTypeFilter(undefined);
               setCategoryFilters([]);
               setTagFilters([]);
             }}
@@ -547,6 +565,47 @@ const InlineCategoriesEditor = ({
         </div>
       </RecordTableInlineCell.Content>
     </PopoverScoped>
+  );
+};
+
+const CustomTypeFilterButton = ({
+  typeFilter,
+  onTypeChange,
+  customTypes,
+}: {
+  typeFilter?: string;
+  onTypeChange: (value: string | undefined) => void;
+  customTypes: any[];
+}) => {
+  const selectedType = customTypes.find((t) => t._id === typeFilter);
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <Button variant="outline" size="sm">
+          <IconLayoutGrid className="mr-2 h-4 w-4" />
+          Type: {selectedType ? selectedType.label : 'All'}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content className="w-64 p-2">
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="all" onSelect={() => onTypeChange(undefined)}>
+              All Types
+            </Command.Item>
+            {customTypes.map((type: any) => (
+              <Command.Item
+                key={type._id}
+                value={type._id}
+                onSelect={() => onTypeChange(type._id)}
+              >
+                {type.label}
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Popover.Content>
+    </Popover>
   );
 };
 
