@@ -653,34 +653,6 @@ window.plugins = [
     url: 'https://bg.bichilglobus.mn/js/plugins/plugin-chats-ui/remoteEntry.js'
   },
   {
-    name: 'clientportal',
-    scope: 'clientportal',
-    exposes: {
-      './routes': './src/routes.tsx',
-      './cardDetailAction': './src/containers/comments/CardDetailAction.tsx'
-    },
-    cardDetailAction: './cardDetailAction',
-    routes: {
-      url:
-        'https://bg.bichilglobus.mn/js/plugins/plugin-clientportal-ui/remoteEntry.js',
-      scope: 'clientportal',
-      module: './routes'
-    },
-    menus: [
-      {
-        text: 'Client Portal',
-        to: '/settings/client-portal',
-        image: '/images/icons/erxes-32.png',
-        location: 'settings',
-        scope: 'clientportal',
-        action: '',
-        permissions: []
-      }
-    ],
-    url:
-      'https://bg.bichilglobus.mn/js/plugins/plugin-clientportal-ui/remoteEntry.js'
-  },
-  {
     name: 'products',
     scope: 'products',
     exposes: {
@@ -763,47 +735,6 @@ window.plugins = [
     ],
     url:
       'https://bg.bichilglobus.mn/js/plugins/plugin-emailtemplates-ui/remoteEntry.js'
-  },
-  {
-    name: 'exm',
-    exposes: { './routes': './src/routes.tsx' },
-    routes: {
-      url: 'https://bg.bichilglobus.mn/js/plugins/plugin-exm-ui/remoteEntry.js',
-      scope: 'exm',
-      module: './routes'
-    },
-    menus: [
-      {
-        text: 'Exm core',
-        to: '/erxes-plugin-exm/home',
-        image: '/images/icons/erxes-30.png',
-        location: 'settings',
-        action: '',
-        permissions: ['showExms']
-      }
-    ],
-    url: 'https://bg.bichilglobus.mn/js/plugins/plugin-exm-ui/remoteEntry.js'
-  },
-  {
-    name: 'exmfeed',
-    exposes: { './routes': './src/routes.tsx' },
-    routes: {
-      url:
-        'https://bg.bichilglobus.mn/js/plugins/plugin-exmfeed-ui/remoteEntry.js',
-      scope: 'exmfeed',
-      module: './routes'
-    },
-    menus: [
-      {
-        text: 'Exm feed',
-        url: '/erxes-plugin-exm-feed/home',
-        icon: 'icon-list-2',
-        location: 'mainNavigation',
-        permission: 'showExmActivityFeed'
-      }
-    ],
-    url:
-      'https://bg.bichilglobus.mn/js/plugins/plugin-exmfeed-ui/remoteEntry.js'
   },
   {
     name: 'timeclock',
