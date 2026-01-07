@@ -11,7 +11,7 @@ interface IChannelQuery {
 
 const channelQueries = {
   /**
-   * Channels list
+   * Channels list by members
    */
   async channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
     return models.Channels.find({ memberIds: { $in: memberIds } });
