@@ -11,6 +11,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 export const uploader = async (req: any, res, next) => {
+  // TODO: remove this
   const subdomain = getSubdomain(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
