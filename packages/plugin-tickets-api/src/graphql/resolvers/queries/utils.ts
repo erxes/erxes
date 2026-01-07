@@ -640,17 +640,11 @@ export const generateCommonFilters = async (
   }
 
   if (vendorCustomerIds?.length > 0) {
-    const cards = await sendCommonMessage({
-      subdomain,
-      serviceName: "clientportal",
-      action: "clientPortalUserCards.find",
-      data: {
-        contentType: "ticket",
-        cpUserId: { $in: vendorCustomerIds },
-      },
-      isRPC: true,
-      defaultValue: [],
-    });
+    const cards =[
+      {
+        contentTypeId: ""
+      }
+    ]
     const cardIds = cards.map((d) => d.contentTypeId);
     if (filter._id) {
       const ids = filter._id.$in;

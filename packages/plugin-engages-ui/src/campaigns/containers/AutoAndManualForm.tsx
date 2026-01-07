@@ -9,7 +9,6 @@ import React, { useCallback, useState } from "react";
 
 import { AddMutationResponse } from "@erxes/ui-segments/src/types";
 import AutoAndManualForm from "../components/AutoAndManualForm";
-import { ClientPortalConfigsQueryResponse } from "@erxes/plugin-clientportal-ui/src/types";
 import FormBase from "../components/FormBase";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IConfig } from "@erxes/ui-settings/src/general/types";
@@ -41,7 +40,7 @@ type FinalProps = {
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   smsConfig: IConfig;
-  clientPortalConfigsQuery: ClientPortalConfigsQueryResponse;
+  clientPortalConfigsQuery: any;
 } & Props &
   AddMutationResponse;
 
@@ -57,12 +56,16 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     integrationsQuery
   } = props;
 
-  const [
-    clientPortalConfigsQuery,
-    { loading, data = {} as ClientPortalConfigsQueryResponse }
-  ] = useLazyQuery<ClientPortalConfigsQueryResponse>(
-    gql(clientPortalQueries.getConfigs)
-  );
+
+
+const [
+  clientPortalConfigsQuery,
+  { loading, data = {} as any }
+] = [
+  (options?: any) => {},
+  { loading: false, data: {} as any }
+];
+
 
   const handleClientPortalKindChange = useCallback(
     (businessPortalKind: string) => {

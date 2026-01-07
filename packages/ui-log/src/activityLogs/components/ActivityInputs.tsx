@@ -54,11 +54,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       );
     }
 
-    if (currentTab === "newComment" && isEnabled("clientportal")) {
-      return (
-        <CommentForm contentType={contentType} contentTypeId={contentTypeId} />
-      );
-    }
+
 
     if (currentTab === "ticket" && isEnabled("sales")) {
       return (
@@ -113,8 +109,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
           <Tabs>
             {this.renderTabTitle("newNote", "file-plus", "New note")}
 
-            {isEnabled("clientportal") &&
-              this.renderTabTitle("newComment", "comment-plus", "New comment")}
+
 
             {this.renderExtraTab()}
           </Tabs>

@@ -188,15 +188,9 @@ export default {
     _args,
     { subdomain }: IContext
   ) {
-    return sendCommonMessage({
-      subdomain,
-      serviceName: "clientportal",
-      action: "clientPortalUserCards.users",
-      data: {
-        contentType: "ticket",
-        contentTypeId: ticket.id,
-      },
-      isRPC: true,
-    });
+    return {
+      __typename: "User",
+      _id: ticket.userId,
+    }
   },
 };

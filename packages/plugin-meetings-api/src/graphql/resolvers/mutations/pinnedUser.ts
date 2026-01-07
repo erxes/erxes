@@ -13,6 +13,7 @@ const pinnedUserMutations = {
     { pinnedUserIds },
     { models, user }: IContext
   ) {
+    //test
     return models.PinnedUsers.updatePinnedUser(pinnedUserIds, user);
   }
 };

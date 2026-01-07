@@ -52,18 +52,10 @@ const contractMutations = {
     doc.savingAmount = 0;
     const contract = await models.Contracts.createContract(doc);
 
-    const validate = await sendMessageBroker(
-      {
-        subdomain,
-        action: 'clientPortalUsers.validatePassword',
-        data: {
-          userId: doc.customerId,
-          password: doc.secondaryPassword,
-          secondary: true
-        }
-      },
-      'clientportal'
-    );
+    const validate = {
+      status: 'success',
+      errorMessage: ''
+    };
 
     if (validate?.status === 'error') {
       throw new Error(validate.errorMessage);
