@@ -16,7 +16,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import app from '@erxes/api-utils/src/app';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import userMiddleware from '@erxes/api-utils/src/middlewares/user';
-import cpUserMiddleware from '@erxes/api-utils/src/middlewares/clientportal';
 import { can } from '@erxes/api-utils/src/permissions';
 import { buildFile } from './utils';
 
@@ -45,7 +44,7 @@ export default {
     return context;
   },
 
-  middlewares: [cookieParser(), userMiddleware, cpUserMiddleware],
+  middlewares: [cookieParser(), userMiddleware, ""],
 
   onServerInit: async () => {
     app.get(
