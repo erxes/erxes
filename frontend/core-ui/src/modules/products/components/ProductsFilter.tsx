@@ -3,6 +3,7 @@ import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { TagsFilter } from 'ui-modules';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
+import { useTranslation } from 'react-i18next';
 
 export const ProductsFilter = () => {
   return (
@@ -15,6 +16,9 @@ export const ProductsFilter = () => {
 };
 
 export const ProductsFilterPopover = () => {
+  const { t } = useTranslation('common', {
+    keyPrefix: 'filter',
+  });
   return (
     <>
       <Filter.Popover scope={ProductHotKeyScope.ProductsPage}>
@@ -27,7 +31,7 @@ export const ProductsFilterPopover = () => {
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <TagsFilter />
               </Command.List>

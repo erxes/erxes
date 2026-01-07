@@ -1,6 +1,6 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { generateFilter, getRecords } from '~/modules/accounting/utils/journalReports';
+import { getFirstGroupRule, getRecMore, getRecords, IGroupRule } from '~/modules/accounting/utils/journalReports';
 
 export interface IReportFilterParams {
   status?: string;
@@ -40,7 +40,7 @@ export interface IReportFilterParams {
 
 interface IReportParams extends IReportFilterParams {
   report: string;
-  groupRule: any;
+  groupRule: IGroupRule;
 }
 
 const journalReportQueries = {
@@ -50,7 +50,8 @@ const journalReportQueries = {
     { models, user, subdomain }: IContext,
   ) {
     const { groupRule, report, ...filters } = params;
-    const records = await getRecords(subdomain, models, report, filters, user);
+    const firstGroupRules = getFirstGroupRule([], groupRule);
+    const records = await getRecords(subdomain, models, report, firstGroupRules, filters, user);
     return { records }
   },
 
@@ -59,14 +60,8 @@ const journalReportQueries = {
     params: IReportParams & ICursorPaginateParams,
     { models, user, subdomain }: IContext,
   ) {
-    const { groupRule, report, ...filters } = params;
-    const match = await generateFilter(subdomain, models, filters, user);
-
-    const trDetails = await models.Transactions.aggregate([
-      { $match: match },
-      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
-      { $match: match },
-    ]);
+    const { report, ...filters } = params;
+    const trDetails = await getRecMore(subdomain, models, report, filters, user)
     return { trDetails }
   },
 };

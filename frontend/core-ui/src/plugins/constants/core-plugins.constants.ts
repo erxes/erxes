@@ -11,44 +11,45 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
+import { TFunction } from 'i18next';
 
-export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
+export const GET_CORE_MODULES = (t: TFunction, version?: boolean): IUIConfig['modules'] => {
   const MODULES: IUIConfig['modules'] = [
     {
-      name: 'contacts',
+      name: t('contacts'),
       icon: IconAddressBook,
       path: 'contacts',
       hasSettings: false,
       submenus: [
         {
-          name: 'customers',
+          name: t('customers'),
           path: 'contacts/customers',
           icon: IconUser,
         },
         {
-          name: 'leads',
+          name: t('leads'),
           path: 'contacts/leads',
           icon: IconMagnet,
         },
         {
-          name: 'companies',
+          name: t('companies'),
           path: 'contacts/companies',
           icon: IconBuilding,
         },
         {
-          name: 'vendors',
+          name: t('vendors'),
           path: 'contacts/vendors',
           icon: IconSpiral,
         },
         {
-          name: 'clients',
+          name: t('clients'),
           path: 'contacts/clients',
           icon: IconSpiral,
         },
       ],
     },
     {
-      name: 'products',
+      name: t('products'),
       icon: IconShoppingCart,
       path: 'products',
       hasSettings: true,
@@ -61,19 +62,19 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
       ],
     },
     {
-      name: 'segments',
+      name: t('segments'),
       icon: IconChartPie,
       path: 'segments',
       hasSettings: false,
     },
     {
-      name: 'automations',
+      name: t('automations'),
       icon: IconAffiliate,
       path: 'automations',
       hasSettings: true,
     },
     {
-      name: 'logs',
+      name: t('logs'),
       path: 'logs',
       settingsOnly: true,
     },
@@ -81,7 +82,7 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
 
   if (version) {
     MODULES.push({
-      name: 'documents',
+      name: t('documents'),
       icon: IconFile,
       path: 'documents',
       hasSettings: false,

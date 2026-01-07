@@ -47,7 +47,7 @@ export const ReportForm = () => {
   }, [activeReport])
 
   const onSubmit = (data: any) => {
-    const params: any = { ...data, ...activeReportConf.initParams || {} };
+    const params: any = { ...data, ...activeReportConf.initParams };
     let result = ''
 
     for (const key of Object.keys(params)) {
@@ -75,7 +75,7 @@ export const ReportForm = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="py-4 pt-4 mx-auto grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-5 max-h-96 overflow-auto"
+          className="py-4 pt-4 mx-auto grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-5 overflow-auto"
         >
           <Form.Field
             control={form.control}

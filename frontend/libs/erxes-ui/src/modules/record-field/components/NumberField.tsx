@@ -28,12 +28,15 @@ export const NumberField = React.forwardRef<
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [editingValue, setEditingValue] = useState(value);
+    const [editingValue, setEditingValue] = useState(String(value));
 
     const handleAction = (e: React.FormEvent) => {
       e.preventDefault();
-      if (editingValue === value) return;
-      onSave?.(editingValue);
+      const numValue = Number(editingValue) || 0;
+      if (numValue !== value) {
+        onSave?.(numValue);
+      }
+      setIsOpen(false);
     };
 
     return (
@@ -43,28 +46,42 @@ export const NumberField = React.forwardRef<
         onOpenChange={(open: boolean) => {
           setIsOpen(open);
           if (open) {
-            setEditingValue(value);
+            setEditingValue(String(value));
           }
         }}
       >
         <RecordTableInlineCell.Trigger {...props} ref={ref}>
           {children}
-          <TextOverflowTooltip value={editingValue.toString() ?? placeholder} />
+          <TextOverflowTooltip
+            value={
+              (isOpen ? editingValue.toString() : value.toLocaleString()) ??
+              placeholder
+            }
+          />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content asChild>
           <form onSubmit={handleAction}>
             <Input
-              type="number"
-              value={editingValue.toString()}
-              onChange={(e) => {
-                const numValue = Number(e.target.value);
-                if (!isNaN(numValue)) {
-                  setEditingValue(numValue);
-                  onValueChange?.(numValue);
+              type="text"
+              value={editingValue.toLocaleString()}
+              onChange={(e: any) => {
+                const rawValue = e.target.value.replace(/,/g, '');
+
+                if (
+                  rawValue === '' ||
+                  rawValue === '-' ||
+                  rawValue.match(/^-?\d*\.?\d*$/)
+                ) {
+                  setEditingValue(rawValue);
+                  const numValue = Number(rawValue);
+                  if (!isNaN(numValue)) {
+                    onValueChange?.(numValue);
+                  }
                 }
                 setIsOpen(true);
               }}
             />
+
             <button type="submit" className="sr-only">
               Save
             </button>

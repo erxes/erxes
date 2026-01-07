@@ -32,7 +32,7 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
 
     await models.Transactions.updateOne(
       { _id: transaction._id },
-      { status, updatedAt: new Date() }
+      { status, updatedAt: new Date() },
     );
 
     return models.Transactions.getTransaction({ _id: transaction._id });
@@ -75,15 +75,16 @@ export class QpayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
             ).toString('base64'),
         },
       }).then((r) => r.json());
 
       if (res.error) {
-
-        if (res.error === 'NO_CREDENDIALS')  {
-          throw new Error('Invalid credentials!!! Please check your credentials');
+        if (res.error === 'NO_CREDENDIALS') {
+          throw new Error(
+            'Invalid credentials!!! Please check your credentials',
+          );
         }
 
         throw new Error(res.error);
@@ -114,7 +115,7 @@ export class QpayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
             ).toString('base64'),
         },
       }).then((r) => r.json());
@@ -123,7 +124,7 @@ export class QpayAPI extends BaseAPI {
         `qpay_token_${this.qpayMerchantUser}`,
         res.access_token,
         'EX',
-        3600
+        3600,
       );
 
       return {
@@ -143,12 +144,14 @@ export class QpayAPI extends BaseAPI {
       const data: IQpayInvoice = {
         invoice_code: qpayInvoiceCode,
         sender_invoice_no:
-        transaction.details?.sender_invoice_no || transaction.description || transaction.code,
+          transaction.details?.sender_invoice_no ||
+          transaction.description ||
+          transaction.code,
         invoice_receiver_code: 'terminal',
         invoice_description: transaction.description || 'test invoice',
         // sender_branch_code: this.branchCode, TODO: renable after proper branch code config
         amount: transaction.amount,
-        callback_url: `${this.domain}/pl-payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
       };
 
       // console.debug("callback_url", `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`)

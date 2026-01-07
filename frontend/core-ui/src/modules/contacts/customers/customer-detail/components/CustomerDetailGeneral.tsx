@@ -3,8 +3,12 @@ import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustom
 import { Avatar, Button, readImage } from 'erxes-ui';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { CustomerName, SelectCompany, useCustomerEdit } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerDetailGeneral = () => {
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer.detail',
+  });
   const { customerDetail } = useCustomerDetailWithQuery();
   const {
     _id,
@@ -44,7 +48,7 @@ export const CustomerDetailGeneral = () => {
       </div>
       <fieldset className="space-y-2">
         <Label asChild>
-          <legend>Works At</legend>
+          <legend>{t('works-at')}</legend>
         </Label>
         <SelectCompany.Detail
           value={customerDetail?.companies?.map((c) => c._id) || []}

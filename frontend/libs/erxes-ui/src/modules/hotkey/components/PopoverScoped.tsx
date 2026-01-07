@@ -18,7 +18,8 @@ export const PopoverScoped = ({
   options,
   open,
   ...props
-}: PopoverProps & {
+}: Omit<PopoverProps, 'onOpenChange'> & {
+  onOpenChange?: (open: boolean, reason?: 'enter' | 'close') => void;
   scope?: string;
   onEnter?: () => void;
   closeOnEnter?: boolean;
@@ -38,7 +39,7 @@ export const PopoverScoped = ({
       onEnter?.();
       if (closeOnEnter) {
         _setOpen(false);
-        onOpenChange?.(false);
+        onOpenChange?.(false, 'enter');
       }
       if (scope) {
         goBackToPreviousHotkeyScope();
@@ -59,7 +60,7 @@ export const PopoverScoped = ({
       open={open ?? _open}
       onOpenChange={(op) => {
         _setOpen(op);
-        onOpenChange?.(op);
+        onOpenChange?.(op, 'close');
         if (scope) {
           op
             ? setHotkeyScopeAndMemorizePreviousScope(scope + '.Popover')

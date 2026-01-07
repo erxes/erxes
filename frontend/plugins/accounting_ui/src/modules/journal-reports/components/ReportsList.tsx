@@ -1,6 +1,4 @@
 import {
-  Button,
-  cn,
   IconComponent,
   Sidebar
 } from 'erxes-ui';

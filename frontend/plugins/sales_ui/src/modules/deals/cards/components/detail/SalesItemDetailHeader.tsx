@@ -1,19 +1,13 @@
-import { Button, DropdownMenu, Input, Sheet } from 'erxes-ui';
-import {
-  IconArchive,
-  IconCopy,
-  IconDotsVertical,
-  IconEye,
-  IconLayoutSidebarLeftCollapse,
-  IconPrinter,
-} from '@tabler/icons-react';
-
+import { Button, Input, Sheet } from 'erxes-ui';
+import { IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
 import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useState } from 'react';
+import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 
 export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
+
   const [name, setName] = useState(deal?.name || 'Untitled deal');
 
   const handleName = () => {
@@ -45,33 +39,14 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
           onBlur={handleName}
         />
       </Sheet.Title>
-      <div className="flex items-center w-full justify-end">
-        <DropdownMenu>
-          <DropdownMenu.Trigger>
-            <Button variant="outline" className="flex items-center gap-2">
-              <IconDotsVertical />
-              Edit
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="w-48 min-w-fit!">
-            <DropdownMenu.Item>
-              <IconCopy />
-              Copy
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <IconEye />
-              Watch
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <IconPrinter />
-              Print document
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <IconArchive />
-              Archive
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
+
+      <div className="flex items-center gap-2 shrink-0">
+        {deal?.status === 'archived' && (
+          <span className="text-sm py-1 px-2 bg-yellow-100 text-yellow-800 border-t border-b border-yellow-200 rounded-sm whitespace-nowrap">
+            Archived
+          </span>
+        )}
+        <DealsActions deals={[deal]} />
       </div>
       <Sheet.Close />
     </Sheet.Header>

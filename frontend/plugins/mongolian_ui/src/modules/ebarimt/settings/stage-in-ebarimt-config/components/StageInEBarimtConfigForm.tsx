@@ -35,16 +35,16 @@ export const StageInEbarimtConfigForm = () => {
           posNo: formData.posNo,
           companyRD: formData.companyRD,
           merchantTin: formData.merchantTin,
-          branchOfProvice: formData.branchOfProvice,
-          subProvice: formData.subProvice,
+          branchOfProvince: formData.branchOfProvince,
+          subProvince: formData.subProvince,
           districtCode: formData.districtCode,
           companyName: formData.companyName,
           defaultUnitedCode: formData.defaultUnitedCode,
           headerText: formData.headerText,
           branchNo: formData.branchNo,
           citytaxPercent: formData.citytaxPercent,
-          HasVat: formData.HasVat,
-          HasAllCitytax: formData.HasAllCitytax,
+          hasVat: formData.hasVat,
+          hasAllCitytax: formData.hasAllCitytax,
           vatPercent: formData.vatPercent,
           anotherRulesOfProductsOnVat: formData.anotherRulesOfProductsOnVat,
           vatPayableAccount: formData.vatPayableAccount,
@@ -91,6 +91,7 @@ export const StageInEbarimtConfigForm = () => {
           onNewConfig={() => setShowNewConfig(true)}
           onSubmit={handleSubmit}
           loading={createLoading}
+          onCancel={() => setShowNewConfig(false)}
         />
       )}
     </div>

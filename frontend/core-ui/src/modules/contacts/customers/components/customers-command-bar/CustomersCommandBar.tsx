@@ -5,6 +5,7 @@ import { ICustomer, SelectTags } from 'ui-modules';
 import { ApolloError } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { Row } from '@tanstack/table-core';
+import { Export } from 'ui-modules';
 
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -58,6 +59,14 @@ export const CustomersCommandBar = () => {
               });
             },
           })}
+        />
+        <Separator.Inline />
+        <Export
+          pluginName="core"
+          moduleName="contact"
+          collectionName="customer"
+          buttonVariant="secondary"
+          ids={customerIds}
         />
         <Separator.Inline />
         <CustomersMerge

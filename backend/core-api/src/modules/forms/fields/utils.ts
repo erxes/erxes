@@ -210,7 +210,7 @@ export const generateFormFields = async ({ subdomain, data }) => {
     label?: string;
     type?: string;
     validations?: string[];
-    options?: string[];
+    options?: Array<{ label: string; value: string }>;
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 

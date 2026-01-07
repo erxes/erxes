@@ -36,6 +36,7 @@ export const ticketSchema = new Schema(
     targetDate: { type: Date, label: 'Target Date' },
     number: { type: String, label: 'Number' },
     statusType: { type: Number, label: 'Status Type', default: 0 },
+    subscribedUserIds: { type: [String], label: 'subscribed user IDs' },
   },
   {
     timestamps: true,

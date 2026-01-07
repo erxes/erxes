@@ -20,7 +20,8 @@ const config: ModuleFederationConfig = {
     './dealsSettings': './src/pages/SettingsPage.tsx',
     './Widgets': './src/widgets/Widgets.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
-    './posSettings': './src/modules/pos/pos/Settings.tsx',
+    './pos': './src/modules/pos/Main.tsx',
+    './posSettings': './src/modules/pos/pos/Main.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
   },

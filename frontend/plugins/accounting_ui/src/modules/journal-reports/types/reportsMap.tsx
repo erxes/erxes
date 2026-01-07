@@ -6,12 +6,14 @@ export const ReportGroups = [
 ];
 
 export interface IGroupRule {
-  key: string;
   group: string;
   code: string;
   name?: string;
+  excMore?: boolean;
+  from?: string[];
+  excTotal?: number[];
   style?: string;
-  group_rule?: IGroupRule | null;
+  groupRule?: IGroupRule | null;
 }
 
 export interface IReportConfig {
@@ -19,7 +21,7 @@ export interface IReportConfig {
   icon?: string;
   colCount?: number;
   choices?: Array<{ code: string; title: string }>;
-  initParams?: Object,
+  initParams?: any,
   groups?: {
     [key: string]: IGroupRule;
   };
@@ -31,35 +33,77 @@ export const ReportRules: Record<string, IReportConfig> = {
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' }
+      { code: 'cat', title: 'Дансны бүлгээр' },
+      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
+      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
     ],
     initParams: {
       isMore: true
     },
     groups: {
       default: {
-        'key': 'gr',
-        'group': 'account_id',
-        'code': 'account__code',
-        'name': 'account__name',
-        'style': 'font-semibold bg-[#fefef1]',
-        'group_rule': null,
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold bg-[#fefef1]',
+        groupRule: null,
       },
       cat: {
-        'key': 'gr1',
-        'group': 'account__category_id',
-        'code': 'account__category__code',
-        'name': 'account__category__name',
-        'style': 'font-semibold',
-        'group_rule': {
-          'key': 'gr2',
-          'group': 'account_id',
-          'code': 'account__code',
-          'name': 'account__name',
-          'style': 'font-semibold bg-[#fefef1]',
-          'group_rule': null,
+        group: 'accountCategoryId',
+        code: 'accountCategoryCode',
+        name: 'accountCategoryName',
+        excMore: true,
+        style: 'font-semibold',
+        groupRule: {
+          group: 'accountId',
+          code: 'accountCode',
+          name: 'accountName',
+          from: ['details'],
+          style: 'font-semibold bg-[#fefef1]',
+          groupRule: null,
         },
-      }
+      },
+      branchDepartment: {
+        group: 'branchId',
+        code: 'branchCode',
+        name: 'branchName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'departmentId',
+          code: 'departmentCode',
+          name: 'departmentName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: 'font-semibold bg-[#fefef1]',
+            groupRule: null,
+          },
+        }
+      },
+      departmentBranch: {
+        group: 'departmentId',
+        code: 'departmentCode',
+        name: 'departmentName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'branchId',
+          code: 'branchCode',
+          name: 'branchName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: 'font-semibold bg-[#fefef1]',
+            groupRule: null,
+          },
+        }
+      },
     }
   },
   tb: {
@@ -67,30 +111,70 @@ export const ReportRules: Record<string, IReportConfig> = {
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' }
+      { code: 'cat', title: 'Дансны бүлгээр' },
+      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
+      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
     ],
     groups: {
       default: {
-        'key': 'gr',
-        'group': 'account_id',
-        'code': 'account__code',
-        'name': 'account__name',
-        'group_rule': null,
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        groupRule: null,
       },
       cat: {
-        'key': 'gr1',
-        'group': 'account__category_id',
-        'code': 'account__category__code',
-        'name': 'account__category__name',
-        'style': 'font-semibold',
-        'group_rule': {
-          'key': 'gr2',
-          'group': 'account_id',
-          'code': 'account__code',
-          'name': 'account__name',
-          'group_rule': null
+        group: 'accountCategoryId',
+        code: 'accountCategoryCode',
+        name: 'accountCategoryName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'accountId',
+          code: 'accountCode',
+          name: 'accountName',
+          groupRule: null
         }
       },
+      branchDepartment: {
+        group: 'branchId',
+        code: 'branchCode',
+        name: 'branchName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'departmentId',
+          code: 'departmentCode',
+          name: 'departmentName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: '',
+            groupRule: null,
+          },
+        }
+      },
+      departmentBranch: {
+        group: 'departmentId',
+        code: 'departmentCode',
+        name: 'departmentName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'branchId',
+          code: 'branchCode',
+          name: 'branchName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: '',
+            groupRule: null,
+          },
+        }
+      }
     }
   },
   mb: {
@@ -98,6 +182,81 @@ export const ReportRules: Record<string, IReportConfig> = {
   },
   mj: {
     title: 'Ерөнхий журнал',
+  },
+
+  invCost: {
+    title: 'Барааны тайлан /өртгөөр/',
+    colCount: 9,
+    choices: [
+      { code: 'default', title: 'Данс' },
+      { code: 'accBranchDep', title: 'Данс-Салбар-Хэлтэс' },
+      { code: 'accDepBranch', title: 'Данс-Хэлтэс-Салбар' },
+    ],
+    groups: {
+      default: {
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold',
+        groupRule: {
+          group: 'productId',
+          code: 'productCode',
+          name: 'productName',
+          from: ['details']
+        }
+      },
+      accBranchDep: {
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold',
+        groupRule: {
+          group: 'branchId',
+          code: 'branchCode',
+          name: 'branchName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'departmentId',
+            code: 'departmentCode',
+            name: 'departmentName',
+            style: 'font-semibold',
+            groupRule: {
+              group: 'productId',
+              code: 'productCode',
+              name: 'productName',
+              from: ['details']
+            }
+          }
+        }
+      },
+      accDepBranch: {
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold',
+        groupRule: {
+          group: 'departmentId',
+          code: 'departmentCode',
+          name: 'departmentName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'branchId',
+            code: 'branchCode',
+            name: 'branchName',
+            style: 'font-semibold',
+            groupRule: {
+              group: 'productId',
+              code: 'productCode',
+              name: 'productName',
+              from: ['details']
+            }
+          }
+        }
+      },
+    }
   }
 
 
