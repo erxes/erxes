@@ -13,7 +13,7 @@ import { getFullDate, getTomorrow } from "./utils";
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
 
-  //test
+  //test ci
   const filter: any = commonQuerySelector;
 
   if (params.search) {
