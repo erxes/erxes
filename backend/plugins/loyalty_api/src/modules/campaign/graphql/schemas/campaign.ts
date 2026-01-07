@@ -36,7 +36,7 @@ const queryParams = `
 
 export const queries = `
   getCampaign(_id: String!): Campaign
-  getCampaigns(${queryParams}): CampaignListRepsponse
+  getCampaigns(${queryParams}): CampaignListResponse
 `;
 
 const mutationParams = `
