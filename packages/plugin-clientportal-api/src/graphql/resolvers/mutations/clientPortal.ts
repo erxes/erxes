@@ -25,7 +25,7 @@ const clientPortalMutations = {
     }
 
     try {
-      // Step 1: Attempt to create a ticket via RPC call
+      // Step 1: Attempt to create a ticket via RPC call  test
       const ticket = await sendTicketsMessage({
         subdomain,
         action: "widgets.createTicket",
