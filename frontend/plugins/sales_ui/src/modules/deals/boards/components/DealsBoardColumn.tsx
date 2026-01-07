@@ -9,7 +9,7 @@ import { BoardDealColumn } from '@/deals/types/boards';
 import { DealsBoardColumnHeader } from './DealsBoardColumnHeader';
 import { useAtomValue } from 'jotai';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface DealsBoardColumnProps {
   column: BoardDealColumn;
@@ -29,10 +29,13 @@ export function DealsBoardColumn({
   const [, setAllDealsMap] = useAllDealsMap();
   const [, setDealCountByColumn] = useDealCountByColumn();
 
+  const [sortOrder, setSortOrder] = useState<any>(null);
+
   const { deals, totalCount, loading } = useDeals({
     variables: {
       stageId: column._id,
       pipelineId,
+      ...(sortOrder && { orderBy: sortOrder }),
       ...queryVariables,
     },
   });
@@ -94,6 +97,7 @@ export function DealsBoardColumn({
       column={column}
       loading={loading}
       totalCount={count || 0}
+      onSort={setSortOrder}
     />
   );
 }
