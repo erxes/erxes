@@ -73,10 +73,11 @@ export const DealsBoardColumnHeader = ({
 
   const { probability, name, _id, amount, unUsedAmount } = column;
 
-  const { deals } = useDeals({
+  const { deals, loading: dealsLoading } = useDeals({
     variables: {
       stageId: _id,
     },
+    skip: !showPrintDialog,
   });
 
   const handleArchiveStage = () => {
