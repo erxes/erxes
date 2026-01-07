@@ -1,13 +1,14 @@
-import { IContext } from '../../connectionResolver';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { updateConfigs } from '../../helpers';
-import receiveCall from '../../receiveCall';
-import { Department } from '../../models/definitions/integrations';
+import { IContext } from "../../connectionResolver";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { updateConfigs } from "../../helpers";
+import receiveCall from "../../receiveCall";
+import { Department } from "../../models/definitions/integrations";
 export interface ISession {
   sessionCode: string;
 }
 
 const callsMutations = {
+  //test
   async cloudflareMakeCall(
     _root,
     {
@@ -46,7 +47,7 @@ const callsMutations = {
     }).lean();
 
     if (!integration) {
-      throw new Error('Integration not found');
+      throw new Error("Integration not found");
     }
 
     const department = integration.departments?.find(
@@ -57,18 +58,18 @@ const callsMutations = {
       throw new Error(`Department not found`);
     }
     department.operators.forEach((operator) => {
-      graphqlPubsub.publish('cloudflareReceiveCall', {
+      graphqlPubsub.publish("cloudflareReceiveCall", {
         cloudflareReceiveCall: {
           callerNumber,
-          roomState: 'ready',
+          roomState: "ready",
           audioTrack,
           userId: operator.userId,
-          conversationId: history?.conversationId || '',
+          conversationId: history?.conversationId || "",
         },
       });
     });
 
-    return 'Success';
+    return "Success";
   },
   async cloudflareAnswerCall(
     _root,
@@ -84,24 +85,24 @@ const callsMutations = {
   ) {
     await models.CallHistory.updateOne(
       { customerAudioTrack },
-      { $set: { acceptedUserId: user._id, callStatus: 'active' } },
+      { $set: { acceptedUserId: user._id, callStatus: "active" } },
     );
-    await graphqlPubsub.publish('cloudflareReceivedCall', {
+    await graphqlPubsub.publish("cloudflareReceivedCall", {
       cloudflareReceivedCall: {
-        roomState: 'answered',
+        roomState: "answered",
         audioTrack,
         customerAudioTrack,
       },
     });
-    await graphqlPubsub.publish('cloudflareReceiveCall', {
+    await graphqlPubsub.publish("cloudflareReceiveCall", {
       cloudflareReceiveCall: {
-        roomState: 'answered',
+        roomState: "answered",
         audioTrack,
         customerAudioTrack,
       },
     });
 
-    return 'success';
+    return "success";
   },
 
   async cloudflareLeaveCall(
@@ -119,7 +120,7 @@ const callsMutations = {
     },
     { models }: IContext,
   ) {
-    if (originator === 'web' && audioTrack) {
+    if (originator === "web" && audioTrack) {
       const history = await models.CallHistory.findOne({
         customerAudioTrack: audioTrack,
       });
@@ -131,21 +132,21 @@ const callsMutations = {
           {
             $set: {
               callDuration: duration,
-              callStatus: 'answered',
-              endedBy: 'customer',
+              callStatus: "answered",
+              endedBy: "customer",
             },
           },
         );
       }
-      await graphqlPubsub.publish('cloudflareReceiveCall', {
+      await graphqlPubsub.publish("cloudflareReceiveCall", {
         cloudflareReceiveCall: {
-          roomState: 'leave',
+          roomState: "leave",
           audioTrack,
         },
       });
-      return 'success';
+      return "success";
     }
-    if (originator === 'erxes' && audioTrack) {
+    if (originator === "erxes" && audioTrack) {
       const history = await models.CallHistory.findOne({
         customerAudioTrack: audioTrack,
       });
@@ -157,29 +158,29 @@ const callsMutations = {
           {
             $set: {
               callDuration: duration,
-              callStatus: 'answered',
-              endedBy: 'operator',
+              callStatus: "answered",
+              endedBy: "operator",
             },
           },
         );
       }
-      await graphqlPubsub.publish('cloudflareReceivedCall', {
+      await graphqlPubsub.publish("cloudflareReceivedCall", {
         cloudflareReceivedCall: {
           roomState: roomState,
           customerAudioTrack: audioTrack,
         },
       });
 
-      await graphqlPubsub.publish('cloudflareReceiveCall', {
+      await graphqlPubsub.publish("cloudflareReceiveCall", {
         cloudflareReceiveCall: {
           roomState,
           audioTrack,
         },
       });
-      return 'success';
+      return "success";
     }
 
-    return 'failed';
+    return "failed";
   },
 
   async cloudflareCallsUpdateConfigs(
@@ -189,7 +190,7 @@ const callsMutations = {
   ) {
     await updateConfigs(models, configsMap);
 
-    return { status: 'ok' };
+    return { status: "ok" };
   },
 };
 
