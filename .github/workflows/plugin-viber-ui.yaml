@@ -66,7 +66,7 @@ jobs:
         with:
           node-version: 18.20.x
 
-      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
+      # https://github.com/actions/cache/blob/main/examples.md#node---yarn path
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
