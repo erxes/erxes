@@ -1,4 +1,15 @@
-import { Button, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
+import {
+  DropdownMenu,
+  Skeleton,
+  useConfirm,
+  Dialog,
+  Input,
+  Label,
+  Select,
+  Button,
+  Combobox,
+  Popover,
+} from 'erxes-ui';
 import { IconArrowLeft, IconDots, IconPlus } from '@tabler/icons-react';
 import {
   dealCreateDefaultValuesState,
@@ -12,20 +23,44 @@ import {
 
 import { BoardDealColumn } from '@/deals/types/boards';
 import ItemProductProbabilities from './ItemProductProbabilities';
-import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
+import { useDealsArchive, useDeals } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
+
+function convertSortTypeToOrderBy(sortType: string): any {
+  switch (sortType) {
+    case 'created-desc':
+      return { createdAt: -1 };
+    case 'created-asc':
+      return { createdAt: 1 };
+    case 'modified-desc':
+      return { modifiedAt: -1 };
+    case 'modified-asc':
+      return { modifiedAt: 1 };
+    case 'close-desc':
+      return { closeDate: -1 };
+    case 'close-asc':
+      return { closeDate: 1 };
+    case 'alphabetically-asc':
+      return { name: 1 };
+    default:
+      return { order: 1 };
+  }
+}
 
 type Props = {
   column: BoardDealColumn;
   loading: boolean;
   totalCount: number;
+  onSort?: (orderBy: any) => void;
 };
 
 export const DealsBoardColumnHeader = ({
   column,
   loading,
   totalCount,
+  onSort,
 }: Props) => {
   const [showSortOptions, setShowSortOptions] = useState(false);
   const { archiveDeals } = useDealsArchive();
@@ -33,8 +68,16 @@ export const DealsBoardColumnHeader = ({
   const { editStage } = useStagesEdit();
   const { sortItems } = useStagesSortItems();
   const { confirm } = useConfirm();
+  const [isOpen, setIsOpen] = useState(false);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
 
   const { probability, name, _id, amount, unUsedAmount } = column;
+
+  const { deals } = useDeals({
+    variables: {
+      stageId: _id,
+    },
+  });
 
   const handleArchiveStage = () => {
     confirm({
@@ -61,17 +104,204 @@ export const DealsBoardColumnHeader = ({
   };
 
   const handleSortOptionClick = (sortType: string) => {
+    const sortLabel =
+      sortType === 'created-desc'
+        ? 'Date created (Newest first)'
+        : sortType === 'created-asc'
+        ? 'Date created (Oldest first)'
+        : sortType === 'modified-desc'
+        ? 'Date modified (Newest first)'
+        : sortType === 'modified-asc'
+        ? 'Date modified (Oldest first)'
+        : sortType === 'close-asc'
+        ? 'Date assigned (Earliest first)'
+        : sortType === 'close-desc'
+        ? 'Date assigned (Latest first)'
+        : 'Alphabetically';
     confirm({
-      message: `Are you sure you want to sort this list by ${sortType}?`,
+      message: `Are you sure you want to sort this list by ${sortLabel}?`,
     }).then(() => {
+      if (onSort) {
+        const orderBy = convertSortTypeToOrderBy(sortType);
+        onSort(orderBy);
+      }
       sortItems(_id, sortType);
     });
     setShowSortOptions(false);
   };
 
+  const handleBackClick = useCallback((e: Event) => {
+    e.preventDefault();
+    setShowSortOptions(false);
+  }, []);
+
+  const handleSortMenuClick = (e: Event) => {
+    e.preventDefault();
+    setShowSortOptions(true);
+  };
+
+  const handlePrint = (e: Event) => {
+    e.preventDefault();
+    setShowPrintDialog(true);
+  };
+
+  const PrintDialog = ({ deals }: { deals: any[] }) => {
+    const [formData, setFormData] = useState({
+      copies: 1,
+      width: 100,
+      brandId: '',
+      branchId: '',
+      departmentId: '',
+      documentType: 'invoice',
+    });
+
+    const handleInputChange = (field: string, value: string | number) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    };
+
+    return (
+      <Dialog open={showPrintDialog} onOpenChange={setShowPrintDialog}>
+        <Dialog.Content>
+          <form>
+            <Dialog.Header>
+              <Dialog.Title>Print Document</Dialog.Title>
+            </Dialog.Header>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="copies">Copies</Label>
+                <Input
+                  id="copies"
+                  type="number"
+                  min="1"
+                  value={formData.copies}
+                  onChange={(e) =>
+                    handleInputChange('copies', parseInt(e.target.value) || 1)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="width">Width (px)</Label>
+                <Input
+                  id="width"
+                  type="number"
+                  placeholder="Enter width"
+                  value={formData.width}
+                  onChange={(e) =>
+                    handleInputChange('width', parseInt(e.target.value) || 100)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Brand</Label>
+                <SelectBrand
+                  value={formData.brandId}
+                  onValueChange={(value) =>
+                    handleInputChange('brandId', value as string)
+                  }
+                  placeholder="Select a brand"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Branch</Label>
+                <SelectBranches
+                  value={formData.branchId}
+                  onValueChange={(value) =>
+                    handleInputChange('branchId', value as string)
+                  }
+                  mode="single"
+                >
+                  <Popover>
+                    <Popover.Trigger asChild>
+                      <Combobox.Trigger className="w-full">
+                        <SelectBranches.Value />
+                      </Combobox.Trigger>
+                    </Popover.Trigger>
+                    <Combobox.Content>
+                      <SelectBranches.Content />
+                    </Combobox.Content>
+                  </Popover>
+                </SelectBranches>
+              </div>
+              <div className="space-y-2">
+                <Label>Department</Label>
+                <SelectDepartments
+                  value={formData.departmentId}
+                  onValueChange={(value) =>
+                    handleInputChange('departmentId', value as string)
+                  }
+                  mode="single"
+                >
+                  <Popover>
+                    <Popover.Trigger asChild>
+                      <Combobox.Trigger className="w-full">
+                        <SelectDepartments.Value />
+                      </Combobox.Trigger>
+                    </Popover.Trigger>
+                    <Combobox.Content>
+                      <SelectDepartments.Content />
+                    </Combobox.Content>
+                  </Popover>
+                </SelectDepartments>
+              </div>
+              <div className="space-y-2">
+                <Label>Select Document</Label>
+                <Select
+                  value={formData.documentType}
+                  onValueChange={(value) =>
+                    handleInputChange('documentType', value)
+                  }
+                >
+                  <Select.Trigger>
+                    <Select.Value placeholder="Select document" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="invoice">sales</Select.Item>
+                    <Select.Item value="quote">sales</Select.Item>
+                    <Select.Item value="receipt">sales</Select.Item>
+                  </Select.Content>
+                </Select>
+              </div>
+              <div>
+                <Label>Name</Label>
+                <div>
+                  {deals?.length > 0 ? (
+                    deals.map((deal: any, index: number) => (
+                      <div
+                        key={deal._id || index}
+                        className="py-1 flex items-center gap-2"
+                      >
+                        <input type="checkbox" />
+                        <span>{deal.name || `Deal ${index + 1}`}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-muted-foreground">
+                      No deals found in this stage
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <Dialog.Footer className="mt-6">
+              <Dialog.Close asChild>
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button>Print</Button>
+            </Dialog.Footer>
+          </form>
+        </Dialog.Content>
+      </Dialog>
+    );
+  };
+
   const SortMenu = () => (
     <>
-      <DropdownMenu.Item onClick={() => setShowSortOptions(false)}>
+      <DropdownMenu.Item onSelect={handleBackClick}>
         <IconArrowLeft className="w-4 h-4 mr-2" />
         Back
       </DropdownMenu.Item>
@@ -118,7 +348,15 @@ export const DealsBoardColumnHeader = ({
           </h4>
         </div>
         <div className="flex items-center">
-          <DropdownMenu>
+          <DropdownMenu
+            open={isOpen}
+            onOpenChange={(open) => {
+              setIsOpen(open);
+              if (!open) {
+                setShowSortOptions(false);
+              }
+            }}
+          >
             <DropdownMenu.Trigger asChild>
               <Button variant="ghost" size="icon" className="size-6 relative">
                 <IconDots />
@@ -145,10 +383,10 @@ export const DealsBoardColumnHeader = ({
                   </DropdownMenu.Group>
                   <DropdownMenu.Separator />
                   <DropdownMenu.Group>
-                    <DropdownMenu.Item onClick={() => setShowSortOptions(true)}>
+                    <DropdownMenu.Item onSelect={handleSortMenuClick}>
                       Sort By
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item>
+                    <DropdownMenu.Item onSelect={handlePrint}>
                       Print Document
                       <DropdownMenu.Shortcut>⌘+T</DropdownMenu.Shortcut>
                     </DropdownMenu.Item>
@@ -159,10 +397,10 @@ export const DealsBoardColumnHeader = ({
               )}
             </DropdownMenu.Content>
           </DropdownMenu>
-
           <DealCreateSheetTrigger stageId={column._id} />
         </div>
       </div>
+      {showPrintDialog && <PrintDialog deals={deals || []} />}
       <ItemProductProbabilities
         totalAmount={amount as Record<string, number> | undefined}
         unusedTotalAmount={unUsedAmount as Record<string, number> | undefined}
