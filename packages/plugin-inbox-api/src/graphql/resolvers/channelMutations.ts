@@ -25,6 +25,7 @@ export const sendChannelNotifications = async (
   user: any,
   receivers?: string[]
 ) => {
+  //test
   let action = `invited you to the`;
 
   if (type === 'removed') {
