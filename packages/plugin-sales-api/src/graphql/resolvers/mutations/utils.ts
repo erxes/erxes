@@ -1100,9 +1100,14 @@ export const checkLoyalties = async (
     item.unitPrice = item.unitPrice || 0;
 
     if (loyalty) {
+
+      if (!loyalty.discount) {
+        continue;
+      }
+
       item.discountPercent = loyalty.discount
       item.discount = fixNum(((item.quantity * item.unitPrice) / 100) * loyalty.discount);
-      item.amount = fixNum(item.unitPrice - (item.unitPrice / 100) * loyalty.discount);
+      item.amount = fixNum((item.unitPrice - (item.unitPrice / 100) * loyalty.discount) * item.quantity);
     }
   }
 
