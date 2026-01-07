@@ -5,24 +5,26 @@ on:
     branches:
       - dev
       - master
+      - v1-state-bank
       - rc
       - staging
       - v1
     paths:
-      - 'pos/**'
-      - '.github/workflows/pos-ui.yaml'
+      - "pos/**"
+      - ".github/workflows/pos-ui.yaml"
 
   pull_request:
     branches:
       - dev
       - master
+      - v1-state-bank
       - rc
       - v1
     paths:
-      - 'pos/**'
-      - '.github/workflows/pos-ui.yaml'
+      - "pos/**"
+      - ".github/workflows/pos-ui.yaml"
 
-jobs: 
+jobs:
   pos-ui:
     runs-on: ubuntu-22.04
 
@@ -42,7 +44,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/v1-state-bank'  || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
           cd pos
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

@@ -5,6 +5,7 @@ on:
     branches:
       - "dev"
       - master
+      - v1-state-bank
       - rc
       - staging
       - v2
@@ -13,7 +14,7 @@ on:
       - "packages/gateway/**"
       - ".github/workflows/gateway.yaml"
 
-jobs: 
+jobs:
   gateway:
     runs-on: ubuntu-22.04
 
@@ -47,7 +48,7 @@ jobs:
           yarn build gateway
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/v2' )
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/v1-state-bank'  || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/v2' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

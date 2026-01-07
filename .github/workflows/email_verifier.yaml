@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - master
+      - v1-state-bank
       - rc
       - staging
       - v1
@@ -16,13 +17,14 @@ on:
     branches:
       - dev
       - master
+      - v1-state-bank
       - rc
       - v1
     paths:
       - "email-verifier/**"
       - ".github/workflows/email_verifier.yaml"
 
-jobs: 
+jobs:
   email-verifier:
     runs-on: ubuntu-22.04
 
@@ -62,7 +64,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'   )
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/v1-state-bank'  || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'   )
         run: |
           cd email-verifier
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

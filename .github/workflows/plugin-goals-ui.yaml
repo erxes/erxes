@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - master
+      - v1-state-bank
       - rc
       - staging
     paths:
@@ -31,6 +32,7 @@ on:
     branches:
       - dev
       - master
+      - v1-state-bank
       - rc
       - staging
     paths:
@@ -87,7 +89,7 @@ jobs:
           cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/v1-state-bank'  || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_V2 }}
@@ -95,7 +97,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/v1-state-bank'  || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
           tar -cf build.tar --directory=packages/plugin-goals-ui/dist .
           cp build.tar packages/plugin-goals-ui/dist

@@ -17,7 +17,7 @@ const {
 
 const isSwarm = DEPLOYMENT_METHOD !== "docker-compose";
 
-const buildPlugins = ["dev", "staging", "v2", "rc", "master", "v1"];
+const buildPlugins = ["dev", "staging", "v2", "rc", "master", "v1", "v1-state-bank"];
 
 const commonEnvs = configs => {
   const enabledServices = (configs.plugins || []).map(plugin => plugin.name);
@@ -677,7 +677,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           },
           {
             name: "conformities",
-            schema: ` 
+            schema: `
             {
               "mainType": {
                 "type": "keyword"

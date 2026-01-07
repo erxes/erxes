@@ -3,10 +3,11 @@ name: Cypress Tests
 on:
   pull_request:
     branches:
-      - 'dev'
-      - master
-      - rc
-jobs: 
+      - "dev"
+      - "master"
+      - "v1-state-bank"
+      - "rc"
+jobs:
   runtest:
     runs-on: ubuntu-latest
     strategy:
@@ -48,10 +49,10 @@ jobs:
 
       - run: sleep 30
 
-      - name: 'run test'
+      - name: "run test"
         uses: cypress-io/github-action@v5
         with:
-          wait-on: 'http://localhost:3000'
+          wait-on: "http://localhost:3000"
           wait-on-timeout: 1000
           browser: chrome
           record: true
@@ -61,4 +62,4 @@ jobs:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEBUG: 'cypress:server:args'
+          DEBUG: "cypress:server:args"
