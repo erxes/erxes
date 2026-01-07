@@ -28,52 +28,46 @@ export interface IDealModel extends Model<IDealDocument> {
 export const loadDealClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  dispatcher: EventDispatcherReturn,
 ) => {
+  const { sendDbEventLog, createActivityLog } = dispatcher;
+
   class Deal {
     public static async getDeal(_id: string) {
       const deal = await models.Deals.findOne({ _id });
-
-      if (!deal) {
-        throw new Error('Deal not found');
-      }
-
+      if (!deal) throw new Error('Deal not found');
       return deal;
     }
 
     public static async createDeal(doc: IDeal) {
-      if (doc.sourceConversationIds) {
-        const convertedDeal = await models.Deals.findOne({
+      // Prevent duplicate conversion from conversation
+      if (doc.sourceConversationIds?.length) {
+        const existing = await models.Deals.findOne({
           sourceConversationIds: { $in: doc.sourceConversationIds },
         });
-
-        if (convertedDeal) {
-          throw new Error('Already converted a deal');
-        }
+        if (existing) throw new Error('Already converted a deal');
       }
 
+      // Filter and calculate totals
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd);
-
+        doc.productsData = doc.productsData.filter(pd => pd);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
 
       const deal = await createBoardItem(models, doc);
 
-      // Send database event log
-      sendDbEventLog({
+      sendDbEventLog?.({
         action: 'create',
         docId: deal._id,
         currentDocument: deal.toObject(),
       });
 
-      // Create activity log for deal creation
-      createActivityLog(generateDealCreatedActivityLog(deal, doc.userId));
+      createActivityLog?.(generateDealCreatedActivityLog(deal, doc.userId));
 
-      // Create conversion activity log if it came from conversation
-      if (doc.sourceConversationIds && doc.sourceConversationIds.length > 0) {
-        createActivityLog(
+      // Conversion activity log
+      if (doc.sourceConversationIds?.length) {
+        createActivityLog?.(
           generateDealConvertedActivityLog(deal, doc.sourceConversationIds[0]),
         );
       }
@@ -83,41 +77,35 @@ export const loadDealClass = (
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
+
+      // Fill searchText for search indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(
-          (pd) => pd && pd.productId,
-        );
-
+        doc.productsData = doc.productsData.filter(pd => pd && pd.productId);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
 
       await models.Deals.updateOne({ _id }, { $set: doc, searchText });
-
       const updatedDeal = await models.Deals.findOne({ _id });
+      if (!updatedDeal) throw new Error('Deal not found after update');
 
-      if (!updatedDeal) {
-        throw new Error('Deal not found after update');
-      }
-
-      // Send database event log
-      sendDbEventLog({
+      sendDbEventLog?.({
         action: 'update',
         docId: updatedDeal._id,
         currentDocument: updatedDeal.toObject(),
         prevDocument: prevDeal.toObject(),
       });
 
-      // Check if stage was changed
+      // Stage moved
       if (doc.stageId && doc.stageId !== prevDeal.stageId) {
         const [fromStage, toStage] = await Promise.all([
           models.Stages.findOne({ _id: prevDeal.stageId }, { name: 1 }),
           models.Stages.findOne({ _id: doc.stageId }, { name: 1 }),
         ]);
 
-        createActivityLog(
+        createActivityLog?.(
           generateDealMovedActivityLog(
             updatedDeal,
             prevDeal.stageId,
@@ -128,13 +116,8 @@ export const loadDealClass = (
         );
       }
 
-      // Generate activity logs for other field changes
-      await generateDealActivityLogs(
-        prevDeal.toObject(),
-        updatedDeal.toObject(),
-        models,
-        createActivityLog,
-      );
+      // Other field changes
+      await generateDealActivityLogs(prevDeal.toObject(), updatedDeal.toObject(), models, createActivityLog);
 
       return updatedDeal;
     }
@@ -147,30 +130,13 @@ export const loadDealClass = (
       const deals = await models.Deals.find({ _id: { $in: _ids } });
 
       for (const deal of deals) {
-        sendDbEventLog({
-          action: 'delete',
-          docId: deal._id,
-        });
-
-        createActivityLog({
+        sendDbEventLog?.({ action: 'delete', docId: deal._id });
+        createActivityLog?.({
           activityType: 'delete',
-          target: {
-            _id: deal._id,
-            moduleName: 'sales',
-            collectionName: 'deals',
-          },
-          action: {
-            type: 'delete',
-            description: 'Deal deleted',
-          },
-          changes: {
-            name: deal.name,
-            deletedAt: new Date(),
-          },
-          metadata: {
-            stageId: deal.stageId,
-            userId: deal.userId,
-          },
+          target: { _id: deal._id, moduleName: 'sales', collectionName: 'deals' },
+          action: { type: 'delete', description: 'Deal deleted' },
+          changes: { name: deal.name, deletedAt: new Date() },
+          metadata: { stageId: deal.stageId, userId: deal.userId },
         });
       }
 
@@ -183,6 +149,5 @@ export const loadDealClass = (
   }
 
   dealSchema.loadClass(Deal);
-
   return dealSchema;
 };

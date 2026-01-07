@@ -12,176 +12,92 @@ export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;
   createStage(doc: IStage, userId?: string): Promise<IStageDocument>;
   removeStage(_id: string): Promise<IStageDocument>;
-  updateStage(
-    _id: string,
-    doc: IStage,
-    userId?: string,
-  ): Promise<IStageDocument>;
+  updateStage(_id: string, doc: IStage, userId?: string): Promise<IStageDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
-  checkCodeDuplication(code: string): string;
+  checkCodeDuplication(code: string): Promise<void>;
 }
 
 export const loadStageClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  dispatcher: EventDispatcherReturn,
 ) => {
+  const { sendDbEventLog, createActivityLog } = dispatcher;
+
   class Stage {
-    /*
-     * Get a stage
-     */
+    /** Get a stage */
     public static async getStage(_id: string) {
       const stage = await models.Stages.findOne({ _id });
-
-      if (!stage) {
-        throw new Error('Stage not found');
-      }
-
+      if (!stage) throw new Error('Stage not found');
       return stage;
     }
 
-    static async checkCodeDuplication(code: string) {
-      const stage = await models.Stages.findOne({
-        code,
-      });
-
-      if (stage) {
-        throw new Error('Code must be unique');
-      }
+    /** Check code uniqueness */
+    public static async checkCodeDuplication(code: string) {
+      const stage = await models.Stages.findOne({ code });
+      if (stage) throw new Error('Code must be unique');
     }
 
-    /**
-     * Create a stage
-     */
+    /** Create a stage */
     public static async createStage(doc: IStage, userId?: string) {
-      if (doc.code) {
-        await this.checkCodeDuplication(doc.code);
-      }
+      if (doc.code) await this.checkCodeDuplication(doc.code);
 
-      const stage = await models.Stages.create({
-        ...doc,
-        userId,
-      });
+      const stage = await models.Stages.create({ ...doc, userId });
 
-      // Send database event log
-      sendDbEventLog({
+      sendDbEventLog?.({
         action: 'create',
         docId: stage._id,
         currentDocument: stage.toObject(),
       });
 
-      // Create activity log
-      createActivityLog({
+      createActivityLog?.({
         activityType: 'create',
-        target: {
-          _id: stage._id,
-          moduleName: 'sales',
-          collectionName: 'stages',
-        },
-        action: {
-          type: 'create',
-          description: 'Stage created',
-        },
-        changes: {
-          name: stage.name,
-          pipelineId: stage.pipelineId,
-          type: stage.type,
-          createdAt: new Date(),
-        },
-        metadata: {
-          pipelineId: stage.pipelineId,
-          userId,
-        },
+        target: { _id: stage._id, moduleName: 'sales', collectionName: 'stages' },
+        action: { type: 'create', description: 'Stage created' },
+        changes: { name: stage.name, pipelineId: stage.pipelineId, type: stage.type, createdAt: new Date() },
+        metadata: { pipelineId: stage.pipelineId, userId },
       });
 
       return stage;
     }
 
-    /**
-     * Update Stage
-     */
-    public static async updateStage(
-      _id: string,
-      doc: IStage,
-      userId?: string,
-    ) {
+    /** Update a stage */
+    public static async updateStage(_id: string, doc: IStage, userId?: string) {
       const prevStage = await models.Stages.findOne({ _id });
+      if (!prevStage) throw new Error('Stage not found');
 
-      if (!prevStage) {
-        throw new Error('Stage not found');
-      }
+      if (doc.code) await this.checkCodeDuplication(doc.code);
 
-      if (doc.code) {
-        await this.checkCodeDuplication(doc.code);
-      }
-
-      await models.Stages.updateOne(
-        { _id },
-        { $set: { ...doc, userId } },
-      );
-
+      await models.Stages.updateOne({ _id }, { $set: { ...doc, userId } });
       const updatedStage = await models.Stages.findOne({ _id });
+      if (!updatedStage) throw new Error('Stage not found after update');
 
-      if (!updatedStage) {
-        throw new Error('Stage not found after update');
-      }
-
-      // Send database event log
-      sendDbEventLog({
+      sendDbEventLog?.({
         action: 'update',
         docId: updatedStage._id,
         currentDocument: updatedStage.toObject(),
         prevDocument: prevStage.toObject(),
       });
 
-      // Generate activity logs for changed fields
-      await generateStageActivityLogs(
-        prevStage.toObject(),
-        updatedStage.toObject(),
-        models,
-        createActivityLog,
-      );
+      await generateStageActivityLogs(prevStage.toObject(), updatedStage.toObject(), models, createActivityLog);
 
       return updatedStage;
-
     }
 
-    /*
-     * Update given stages orders
-     */
+    /** Update stages order */
     public static async updateOrder(orders: IOrderInput[]) {
-      const stagesBeforeUpdate = await models.Stages.find({
-        _id: { $in: orders.map((order) => order._id) },
-      }).lean();
-
+      const stagesBeforeUpdate = await models.Stages.find({ _id: { $in: orders.map(o => o._id) } }).lean();
       const result = await updateOrder(models.Stages, orders);
 
-      // Create activity logs for order changes
       for (const order of orders) {
-        const stageBefore = stagesBeforeUpdate.find((s) => s._id === order._id);
+        const stageBefore = stagesBeforeUpdate.find(s => s._id.toString() === order._id);
         if (stageBefore && stageBefore.order !== order.order) {
-          createActivityLog({
+          createActivityLog?.({
             activityType: 'reorder',
-            target: {
-              _id: order._id,
-              moduleName: 'sales',
-              collectionName: 'stages',
-            },
-            action: {
-              type: 'reorder',
-              description: 'Stage order changed',
-            },
-            changes: {
-              order: {
-                from: stageBefore.order,
-                to: order.order,
-              },
-              reorderedAt: new Date(),
-            },
-            metadata: {
-              pipelineId: stageBefore.pipelineId,
-              userId: stageBefore.userId,
-            },
+            target: { _id: order._id, moduleName: 'sales', collectionName: 'stages' },
+            action: { type: 'reorder', description: 'Stage order changed' },
+            changes: { order: { from: stageBefore.order, to: order.order }, reorderedAt: new Date() },
+            metadata: { pipelineId: stageBefore.pipelineId, userId: stageBefore.userId },
           });
         }
       }
@@ -189,36 +105,18 @@ export const loadStageClass = (
       return result;
     }
 
+    /** Remove a stage */
     public static async removeStage(_id: string) {
       const stage = await models.Stages.getStage(_id);
 
-      // Send database event log before deletion
-      sendDbEventLog({
-        action: 'delete',
-        docId: stage._id,
-      });
+      sendDbEventLog?.({ action: 'delete', docId: stage._id });
 
-      // Create activity log
-      createActivityLog({
+      createActivityLog?.({
         activityType: 'delete',
-        target: {
-          _id: stage._id,
-          moduleName: 'sales',
-          collectionName: 'stages',
-        },
-        action: {
-          type: 'delete',
-          description: 'Stage deleted',
-        },
-        changes: {
-          name: stage.name,
-          pipelineId: stage.pipelineId,
-          deletedAt: new Date(),
-        },
-        metadata: {
-          pipelineId: stage.pipelineId,
-          userId: stage.userId,
-        },
+        target: { _id: stage._id, moduleName: 'sales', collectionName: 'stages' },
+        action: { type: 'delete', description: 'Stage deleted' },
+        changes: { name: stage.name, pipelineId: stage.pipelineId, deletedAt: new Date() },
+        metadata: { pipelineId: stage.pipelineId, userId: stage.userId },
       });
 
       await removeStageItems(models, _id);
@@ -230,19 +128,15 @@ export const loadStageClass = (
           method: 'mutation',
           module: 'forms',
           action: 'removeForm',
-          input: {
-            formId: stage.formId,
-          },
+          input: { formId: stage.formId },
         });
       }
 
       await models.Stages.deleteOne({ _id });
-
       return stage;
     }
   }
 
   stageSchema.loadClass(Stage);
-
   return stageSchema;
 };
