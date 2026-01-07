@@ -404,8 +404,8 @@ export const generateCommonFilters = async (
 
   if (search) {
     filter.$or = [
-      regexSearchText(search),            
-      { number: { $in: [new RegExp(`.*${escapeRegExp(search)}.*`, 'i')] } } 
+      regexSearchText(search),
+      { number: { $in: [new RegExp(`.*${escapeRegExp(search)}.*`, 'i')] } }
     ];
   }
 
@@ -623,17 +623,13 @@ export const generateCommonFilters = async (
     filter.number = { $regex: `${number}`, $options: 'mui' };
   }
   if (vendorCustomerIds?.length > 0) {
-    const cards = await sendCommonMessage({
-      subdomain,
-      serviceName: 'clientportal',
-      action: 'clientPortalUserCards.find',
-      data: {
-        contentType: 'deal',
-        cpUserId: { $in: vendorCustomerIds }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+    const cards =  [
+      {
+        contentTypeId: '',
+        contentType: '',
+        cpUserId: ''
+      }
+    ]
 
     const cardIds = cards.map(d => d.contentTypeId);
     if (filter._id) {

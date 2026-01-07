@@ -12,6 +12,8 @@ import { getCompanyInfo, getConfig, getPostData } from "../../../utils";
 import { getFullDate, getTomorrow } from "./utils";
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
+
+  //ebarimt filter
   const filter: any = commonQuerySelector;
 
   if (params.search) {

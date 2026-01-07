@@ -37,12 +37,10 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
   const contactsEnabled = true;
-  const clientPortalEnabled = await isEnabled("clientportal");
 
   const isEnabledTable = {
     contacts: contactsEnabled,
     forms: true,
-    clientPortal: clientPortalEnabled
   };
 
   return gql`
@@ -52,7 +50,7 @@ const typeDefs = async () => {
     extend type User @key(fields: "_id") {
       _id: String! @external
     }
-  
+
     extend type Branch @key(fields: "_id") {
           _id: String! @external
     }
@@ -66,7 +64,7 @@ const typeDefs = async () => {
         extend type Company @key(fields: "_id") {
           _id: String! @external
         }
-  
+
         extend type Customer @key(fields: "_id") {
           _id: String! @external
         }
@@ -76,16 +74,9 @@ const typeDefs = async () => {
 
       extend type Tag @key(fields: "_id") {
           _id: String! @external
-        } 
-    
-    ${clientPortalEnabled
-      ? `
-        extend type ClientPortalUser @key(fields: "_id") {
-          _id: String! @external
         }
-      `
-      : ""
-    }
+
+
     ${boardTypes()}
     ${ticketTypes(isEnabledTable)}
 
@@ -102,7 +93,7 @@ const typeDefs = async () => {
       ${ptQueries}
       ${checkListQueries}
     }
-    
+
     extend type Mutation {
       ${boardMutations}
       ${ticketMutations}

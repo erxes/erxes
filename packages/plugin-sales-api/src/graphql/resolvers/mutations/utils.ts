@@ -1028,6 +1028,96 @@ export const doScoreCampaign = async (
   await refundScoreCampaign(subdomain, _id, customerId, pipeline, doc.stageId);
 };
 
+export const checkLoyalties = async (
+  subdomain: string,
+  _id: string,
+  deal: IDeal
+) => {
+  let loyalties: any = {};
+
+  const activeProductsData =
+    deal.productsData?.filter((pd) => pd.tickUsed && !pd.bonusCount) || [];
+
+  if (!activeProductsData.length) {
+    return deal.productsData;
+  }
+
+  try {
+    const totalAmount = activeProductsData.reduce(
+      (sum, pd) => sum + (pd.amount || 0),
+      0
+    );
+
+    let ownerId = "";
+    let ownerType = "";
+
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: "conformities.savedConformity",
+      data: {
+        mainType: "deal",
+        mainTypeId: _id,
+        relTypes: ["customer"],
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    if (customerIds.length) {
+      ownerId = customerIds[0];
+      ownerType = "customer";
+    }
+
+    loyalties = await sendLoyaltiesMessage({
+      subdomain,
+      action: "checkLoyalties",
+      data: {
+        ownerType,
+        ownerId,
+        totalAmount,
+        products: activeProductsData.map((i) => ({
+          itemId: i._id,
+          productId: i.productId,
+          quantity: i.quantity,
+          price: i.unitPrice,
+        })),
+      },
+      isRPC: true,
+      defaultValue: {},
+    });
+  } catch (e) {
+    throw new Error(e.message);
+  }
+
+  for (const item of activeProductsData || []) {
+    
+    if (item.discountPercent) {
+      continue;
+    }
+
+    const loyalty = loyalties[item.productId];
+
+    item.unitPrice = item.unitPrice || 0;
+
+    if (loyalty) {
+
+      if (!loyalty.discount) {
+        continue;
+      }
+
+      item.discountPercent = loyalty.discount
+      item.discount = fixNum(((item.quantity * item.unitPrice) / 100) * loyalty.discount);
+      item.amount = fixNum((item.unitPrice - (item.unitPrice / 100) * loyalty.discount) * item.quantity);
+    }
+  }
+
+  return [
+    ...(deal.productsData || [])
+      .filter((pd) => !pd.bonusCount)
+      .map((pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd),
+  ];
+};
+
 export const confirmLoyalties = async (
   subdomain: string,
   _id: string,

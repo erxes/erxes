@@ -196,11 +196,6 @@ function EditForm(props: Props) {
               </li>
               <li>
                 <ActionItem>
-                  {(isEnabled("clientportal") && <Comment item={item} />) || ""}
-                </ActionItem>
-              </li>
-              <li>
-                <ActionItem>
                   <ArchiveBtn
                     item={item}
                     removeItem={removeItem}

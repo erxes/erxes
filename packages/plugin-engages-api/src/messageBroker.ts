@@ -163,12 +163,7 @@ export const sendIntegrationsMessage = async (
   });
 };
 
-export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
-  return sendMessage({
-    serviceName: "clientportal",
-    ...args
-  });
-};
+
 
 export const sendImapMessage = (args: MessageArgsOmitService) => {
   return sendMessage({

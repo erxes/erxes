@@ -90,19 +90,12 @@ const engageMessages = `
       getTags {
         ${tagFields}
       }
-      
+
       customerTags {
         ${tagFields}
       }
-        ${
-          isEnabled("clientportal")
-            ? `
-            cpId
-          `
-            : ""
-        }
     }
-  
+
   }
 `;
 
@@ -127,7 +120,6 @@ export const engageDetailFields = `
     name
   }
 
-  ${isEnabled("clientportal") ? "cpId" : ""}
 
   customerTags {
     ${tagFields}
