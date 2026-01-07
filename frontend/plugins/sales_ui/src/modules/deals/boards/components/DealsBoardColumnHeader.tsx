@@ -49,6 +49,191 @@ function convertSortTypeToOrderBy(sortType: string): any {
   }
 }
 
+
+type PrintDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  deals: any[];
+  onSubmit: (formData: any, selectedDealIds: string[]) => void;
+};
+
+const PrintDialog = ({
+  open,
+  onOpenChange,
+  deals,
+  onSubmit,
+}: PrintDialogProps) => {
+  const [formData, setFormData] = useState({
+    copies: 1,
+    width: 100,
+    brandId: '',
+    branchId: '',
+    departmentId: '',
+    documentType: 'invoice',
+  });
+  const [selectedDealIds, setSelectedDealIds] = useState<string[]>([]);
+
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleCheckboxChange = (dealId: string, checked: boolean) => {
+    setSelectedDealIds((prev) =>
+      checked ? [...prev, dealId] : prev.filter((id) => id !== dealId),
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData, selectedDealIds);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog.Content>
+        <form onSubmit={handleSubmit}>
+          <Dialog.Header>
+            <Dialog.Title>Print Document</Dialog.Title>
+          </Dialog.Header>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="copies">Copies</Label>
+              <Input
+                id="copies"
+                type="number"
+                min="1"
+                value={formData.copies}
+                onChange={(e) =>
+                  handleInputChange('copies', parseInt(e.target.value) || 1)
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="width">Width (px)</Label>
+              <Input
+                id="width"
+                type="number"
+                placeholder="Enter width"
+                value={formData.width}
+                onChange={(e) =>
+                  handleInputChange('width', parseInt(e.target.value) || 100)
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Brand</Label>
+              <SelectBrand
+                value={formData.brandId}
+                onValueChange={(value) =>
+                  handleInputChange('brandId', value as string)
+                }
+                placeholder="Select a brand"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Branch</Label>
+              <SelectBranches
+                value={formData.branchId}
+                onValueChange={(value) =>
+                  handleInputChange('branchId', value as string)
+                }
+                mode="single"
+              >
+                <Popover>
+                  <Popover.Trigger asChild>
+                    <Combobox.Trigger className="w-full">
+                      <SelectBranches.Value />
+                    </Combobox.Trigger>
+                  </Popover.Trigger>
+                  <Combobox.Content>
+                    <SelectBranches.Content />
+                  </Combobox.Content>
+                </Popover>
+              </SelectBranches>
+            </div>
+            <div className="space-y-2">
+              <Label>Department</Label>
+              <SelectDepartments
+                value={formData.departmentId}
+                onValueChange={(value) =>
+                  handleInputChange('departmentId', value as string)
+                }
+                mode="single"
+              >
+                <Popover>
+                  <Popover.Trigger asChild>
+                    <Combobox.Trigger className="w-full">
+                      <SelectDepartments.Value />
+                    </Combobox.Trigger>
+                  </Popover.Trigger>
+                  <Combobox.Content>
+                    <SelectDepartments.Content />
+                  </Combobox.Content>
+                </Popover>
+              </SelectDepartments>
+            </div>
+            <div className="space-y-2">
+              <Label>Select Document</Label>
+              <Select
+                value={formData.documentType}
+                onValueChange={(value) =>
+                  handleInputChange('documentType', value)
+                }
+              >
+                <Select.Trigger>
+                  <Select.Value placeholder="Select document" />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="invoice">Invoice</Select.Item>
+                  <Select.Item value="quote">Quote</Select.Item>
+                  <Select.Item value="receipt">Receipt</Select.Item>
+                </Select.Content>
+              </Select>
+            </div>
+            <div>
+              <Label>Name</Label>
+              <div>
+                {deals?.length > 0 ? (
+                  deals.map((deal: any, index: number) => (
+                    <div
+                      key={deal._id || index}
+                      className="py-1 flex items-center gap-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedDealIds.includes(deal._id)}
+                        onChange={(e) =>
+                          handleCheckboxChange(deal._id, e.target.checked)
+                        }
+                      />
+                      <span>{deal.name || `Deal ${index + 1}`}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-muted-foreground">
+                    No deals found in this stage
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <Dialog.Footer className="mt-6">
+            <Dialog.Close asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </Dialog.Close>
+            <Button>Print</Button>
+          </Dialog.Footer>
+        </form>
+      </Dialog.Content>
+    </Dialog>
+  );
+};
+
 type Props = {
   column: BoardDealColumn;
   loading: boolean;
@@ -72,6 +257,7 @@ export const DealsBoardColumnHeader = ({
   const [showPrintDialog, setShowPrintDialog] = useState(false);
 
   const { probability, name, _id, amount, unUsedAmount } = column;
+
 
   const { deals, loading: dealsLoading } = useDeals({
     variables: {
@@ -109,16 +295,16 @@ export const DealsBoardColumnHeader = ({
       sortType === 'created-desc'
         ? 'Date created (Newest first)'
         : sortType === 'created-asc'
-        ? 'Date created (Oldest first)'
-        : sortType === 'modified-desc'
-        ? 'Date modified (Newest first)'
-        : sortType === 'modified-asc'
-        ? 'Date modified (Oldest first)'
-        : sortType === 'close-asc'
-        ? 'Date assigned (Earliest first)'
-        : sortType === 'close-desc'
-        ? 'Date assigned (Latest first)'
-        : 'Alphabetically';
+          ? 'Date created (Oldest first)'
+          : sortType === 'modified-desc'
+            ? 'Date modified (Newest first)'
+            : sortType === 'modified-asc'
+              ? 'Date modified (Oldest first)'
+              : sortType === 'close-asc'
+                ? 'Date assigned (Earliest first)'
+                : sortType === 'close-desc'
+                  ? 'Date assigned (Latest first)'
+                  : 'Alphabetically';
     confirm({
       message: `Are you sure you want to sort this list by ${sortLabel}?`,
     }).then(() => {
@@ -146,158 +332,12 @@ export const DealsBoardColumnHeader = ({
     setShowPrintDialog(true);
   };
 
-  const PrintDialog = ({ deals }: { deals: any[] }) => {
-    const [formData, setFormData] = useState({
-      copies: 1,
-      width: 100,
-      brandId: '',
-      branchId: '',
-      departmentId: '',
-      documentType: 'invoice',
-    });
-
-    const handleInputChange = (field: string, value: string | number) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    };
-
-    return (
-      <Dialog open={showPrintDialog} onOpenChange={setShowPrintDialog}>
-        <Dialog.Content>
-          <form>
-            <Dialog.Header>
-              <Dialog.Title>Print Document</Dialog.Title>
-            </Dialog.Header>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="copies">Copies</Label>
-                <Input
-                  id="copies"
-                  type="number"
-                  min="1"
-                  value={formData.copies}
-                  onChange={(e) =>
-                    handleInputChange('copies', parseInt(e.target.value) || 1)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="width">Width (px)</Label>
-                <Input
-                  id="width"
-                  type="number"
-                  placeholder="Enter width"
-                  value={formData.width}
-                  onChange={(e) =>
-                    handleInputChange('width', parseInt(e.target.value) || 100)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Brand</Label>
-                <SelectBrand
-                  value={formData.brandId}
-                  onValueChange={(value) =>
-                    handleInputChange('brandId', value as string)
-                  }
-                  placeholder="Select a brand"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Branch</Label>
-                <SelectBranches
-                  value={formData.branchId}
-                  onValueChange={(value) =>
-                    handleInputChange('branchId', value as string)
-                  }
-                  mode="single"
-                >
-                  <Popover>
-                    <Popover.Trigger asChild>
-                      <Combobox.Trigger className="w-full">
-                        <SelectBranches.Value />
-                      </Combobox.Trigger>
-                    </Popover.Trigger>
-                    <Combobox.Content>
-                      <SelectBranches.Content />
-                    </Combobox.Content>
-                  </Popover>
-                </SelectBranches>
-              </div>
-              <div className="space-y-2">
-                <Label>Department</Label>
-                <SelectDepartments
-                  value={formData.departmentId}
-                  onValueChange={(value) =>
-                    handleInputChange('departmentId', value as string)
-                  }
-                  mode="single"
-                >
-                  <Popover>
-                    <Popover.Trigger asChild>
-                      <Combobox.Trigger className="w-full">
-                        <SelectDepartments.Value />
-                      </Combobox.Trigger>
-                    </Popover.Trigger>
-                    <Combobox.Content>
-                      <SelectDepartments.Content />
-                    </Combobox.Content>
-                  </Popover>
-                </SelectDepartments>
-              </div>
-              <div className="space-y-2">
-                <Label>Select Document</Label>
-                <Select
-                  value={formData.documentType}
-                  onValueChange={(value) =>
-                    handleInputChange('documentType', value)
-                  }
-                >
-                  <Select.Trigger>
-                    <Select.Value placeholder="Select document" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value="invoice">sales</Select.Item>
-                    <Select.Item value="quote">sales</Select.Item>
-                    <Select.Item value="receipt">sales</Select.Item>
-                  </Select.Content>
-                </Select>
-              </div>
-              <div>
-                <Label>Name</Label>
-                <div>
-                  {deals?.length > 0 ? (
-                    deals.map((deal: any, index: number) => (
-                      <div
-                        key={deal._id || index}
-                        className="py-1 flex items-center gap-2"
-                      >
-                        <input type="checkbox" />
-                        <span>{deal.name || `Deal ${index + 1}`}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-muted-foreground">
-                      No deals found in this stage
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            <Dialog.Footer className="mt-6">
-              <Dialog.Close asChild>
-                <Button type="button" variant="outline">
-                  Cancel
-                </Button>
-              </Dialog.Close>
-              <Button>Print</Button>
-            </Dialog.Footer>
-          </form>
-        </Dialog.Content>
-      </Dialog>
-    );
+  const handlePrintSubmit = (
+    formData: any,
+    selectedDealIds: string[],
+  ) => {
+    // console.log('Print submitted:', formData, selectedDealIds);
+    setShowPrintDialog(false);
   };
 
   const SortMenu = () => (
@@ -401,7 +441,14 @@ export const DealsBoardColumnHeader = ({
           <DealCreateSheetTrigger stageId={column._id} />
         </div>
       </div>
-      {showPrintDialog && <PrintDialog deals={deals || []} />}
+      {showPrintDialog && (
+        <PrintDialog
+          open={showPrintDialog}
+          onOpenChange={setShowPrintDialog}
+          deals={deals || []}
+          onSubmit={handlePrintSubmit}
+        />
+      )}
       <ItemProductProbabilities
         totalAmount={amount as Record<string, number> | undefined}
         unusedTotalAmount={unUsedAmount as Record<string, number> | undefined}
