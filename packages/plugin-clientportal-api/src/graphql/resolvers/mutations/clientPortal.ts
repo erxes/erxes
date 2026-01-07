@@ -14,7 +14,7 @@ export interface IVerificationParams {
 }
 
 const clientPortalMutations = {
-  // Create a ticket
+  // Create a ticket test
   async clientPortalTicketAdd(
     _root,
     doc: any & { processId: string; aboveItemId: string },
