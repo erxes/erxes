@@ -2,8 +2,10 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { ADJUST_FUND_RATE_REMOVE } from '../graphql/adjustFundRateRemove';
 import { toast } from 'erxes-ui';
 import { ADJUST_FUND_RATE_QUERY } from '../graphql/adjustFundRateQueries';
+import { useNavigate } from 'react-router-dom';
 
 export const useAdjustFundRateRemove = (options?: OperationVariables) => {
+  const navigate = useNavigate();
   const [_removeAdjustFundRate, { loading }] = useMutation(
     ADJUST_FUND_RATE_REMOVE,
     options,
@@ -38,6 +40,10 @@ export const useAdjustFundRateRemove = (options?: OperationVariables) => {
         },
       ],
       awaitRefetchQueries: true,
+      update: (cashe) => {
+        const pathname = '/accounting/adjustment/fundRate';
+        navigate(pathname);
+      },
     });
   };
 

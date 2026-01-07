@@ -20,6 +20,7 @@ import { TAdjustFundRateForm } from '../types/adjustFundRateSchema';
 import { adjustFundRateSchema } from '../types/adjustFundRateSchema';
 import { IAdjustFundRate } from '../types/AdjustFundRate';
 import { FILTERED_CURRENCIES } from '../constants';
+import { useGetExchangeRate } from '~/modules/transactions/transaction-form/hooks/useGetExchangeRate';
 
 export const AddAdjustFundRate = () => {
   const [open, setOpen] = useState(false);
@@ -102,6 +103,25 @@ const AdjustFundRateFormContent = ({
       });
     }
   }, [adjustFundRate, form]);
+
+  const date = form.watch('date');
+  const mainCurrency = form.watch('mainCurrency');
+  const currency = form.watch('currency');
+
+  const { spotRate: fetchedSpotRate } = useGetExchangeRate({
+    variables: {
+      date,
+      currency,
+      mainCurrency,
+    },
+    skip: !date || !mainCurrency || !currency,
+  });
+
+  useEffect(() => {
+    if (fetchedSpotRate && fetchedSpotRate > 0) {
+      form.setValue('spotRate', fetchedSpotRate);
+    }
+  }, [fetchedSpotRate, form]);
 
   const { addAdjustFundRate, loading: addLoading } = useAdjustFundRateAdd();
   const { changeAdjustFundRate, loading: changeLoading } =
@@ -236,6 +256,7 @@ const AdjustFundRateFormContent = ({
                   <SelectAccount
                     value={field.value}
                     onValueChange={field.onChange}
+                    defaultFilter={{ journal: 'exchangeDiff' }}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -255,6 +276,7 @@ const AdjustFundRateFormContent = ({
                   <SelectAccount
                     value={field.value}
                     onValueChange={field.onChange}
+                    defaultFilter={{ journal: 'exchangeDiff' }}
                   />
                 </Form.Control>
                 <Form.Message />
