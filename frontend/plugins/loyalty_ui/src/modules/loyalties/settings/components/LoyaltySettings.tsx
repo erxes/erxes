@@ -57,6 +57,7 @@ const LoyaltySettings = () => {
     <Filter id="loyalty-settings">
       <div className="flex flex-col flex-auto overflow-hidden">
         <SettingsHeader breadcrumbs={<LoyaltyBreadcrumb />} />
+
         <div className="flex flex-auto overflow-hidden">
           <LoyaltySidebar />
           <Suspense

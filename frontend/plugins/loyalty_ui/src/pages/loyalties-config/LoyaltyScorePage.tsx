@@ -1,3 +1,10 @@
+import { PageContainer } from 'erxes-ui';
+import { LoyaltyScoreRecordTable } from '~/modules/loyalties/settings/score/components/LoyaltyScoreRecordTable';
+
 export const LoyaltyScorePage = () => {
-  return <div>Loyalty Score Page</div>;
+  return (
+    <PageContainer>
+      <LoyaltyScoreRecordTable />
+    </PageContainer>
+  );
 };
