@@ -1,5 +1,4 @@
 import { RecordTable } from 'erxes-ui';
-import { PosOrdersBySubsCommandBar } from '@/pos/pos-order-by-subsription/components/pos-order-by-subs-command-bar/PosOrderBySubsCommandBar';
 import { PosOrdersBySubsColumns } from '@/pos/pos-order-by-subsription/components/PosOrdersBySubsColumns';
 import { usePosOrderBySubscriptionList } from '@/pos/pos-order-by-subsription/hooks/usePosOrderBySubsriptionList';
 import { IconShoppingCartX } from '@tabler/icons-react';
@@ -50,7 +49,6 @@ export const PosOrdersBySubsRecordTable = ({ posId }: { posId?: string }) => {
           </div>
         )}
       </RecordTable.CursorProvider>
-      <PosOrdersBySubsCommandBar />
     </RecordTable.Provider>
   );
 };
