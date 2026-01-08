@@ -10,7 +10,7 @@ import { ORDER_STATUSES } from "@/lib/constants"
 const Order = ({ number, modifiedAt, status, _id }: IOrder) => {
   const { value } = useAtomValue(waitingScreenAtom) || {}
   const [expireDate, setExpireDate] = useState<any>()
-  const waitingSec = parseInt(value || "3") * 60
+  const waitingSec = Number.parseInt(value || "3") * 60
 
   const { changeStatus } = useChangeOrderStatus()
 

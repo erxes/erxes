@@ -5,9 +5,9 @@ import usePaymentType from "./usePaymentType"
 
 export const objToString = (details: any) => {
   const formBody = []
-  for (var property in details) {
-    var encodedKey = encodeURIComponent(property)
-    var encodedValue = encodeURIComponent(details[property])
+  for (const property in details) {
+    const encodedKey = encodeURIComponent(property)
+    const encodedValue = encodeURIComponent(details[property])
     formBody.push(encodedKey + "=" + encodedValue)
   }
   return formBody.join("&")
