@@ -81,7 +81,6 @@ export enum ResponsesChartType {
   Bar = 'bar',
   Line = 'line',
   Pie = 'pie',
-  Donut = 'donut',
   Radar = 'radar',
 }
 

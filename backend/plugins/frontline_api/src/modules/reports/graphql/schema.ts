@@ -28,6 +28,7 @@ export const types = `
     count: Int
     percentage: Int
   }
+    
   type ConversationDateStat {
     date: String
     count: Int

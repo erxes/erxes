@@ -3,7 +3,6 @@ import {
   IconChartBar,
   IconChartRadar,
   IconChartPie,
-  IconChartDonut,
   IconChartLine,
   IconTable,
 } from '@tabler/icons-react';
@@ -46,11 +45,6 @@ export const RESPONSES_CHART_TYPE_OPTIONS: ResponsesChartTypeOption[] = [
     IconComponent: IconChartPie,
     value: ResponsesChartType.Pie,
     label: 'Pie',
-  },
-  {
-    IconComponent: IconChartDonut,
-    value: ResponsesChartType.Donut,
-    label: 'Donut',
   },
   {
     IconComponent: IconChartRadar,

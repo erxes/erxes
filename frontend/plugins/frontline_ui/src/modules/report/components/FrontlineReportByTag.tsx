@@ -1,10 +1,10 @@
 import {
   Alert,
   ChartContainer,
+  ChartTooltipContent,
   cn,
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
 } from 'erxes-ui';
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
@@ -34,13 +34,21 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import { ResponsesChartType, TagData } from '../types';
+import { CustomLegendContent } from './chart/legend';
+import { type LegendPayload } from 'recharts';
+import { useAtom } from 'jotai';
+import {
+  getReportChartTypeAtom,
+  getReportDateFilterAtom,
+  getReportSourceFilterAtom,
+} from '../states';
 
 interface FrontlineReportByTagProps {
   title: string;
-  colSpan?: 1 | 2;
-  onColSpanChange?: (span: 1 | 2) => void;
+  colSpan?: 6 | 12;
+  onColSpanChange?: (span: 6 | 12) => void;
 }
 
 interface TagCardHeaderProps {
@@ -58,16 +66,21 @@ interface TagChartProps {
 
 export const FrontlineReportByTag = ({
   title,
-  colSpan = 1,
+  colSpan = 6,
   onColSpanChange,
 }: FrontlineReportByTagProps) => {
-  const [chartType, setChartType] = useState<ResponsesChartType>(
-    ResponsesChartType.Table,
-  );
-  const [dateValue, setDateValue] = useState<string>('');
-  const [sourceFilter, setSourceFilter] = useState<string>('all');
-  const [filters, setFilters] = useState(() => getFilters());
   const id = title.toLowerCase().replace(/\s+/g, '-');
+  const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
+  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter, setSourceFilter] = useAtom(
+    getReportSourceFilterAtom(id),
+  );
+  const [filters, setFilters] = useState(() => getFilters());
+
+  useEffect(() => {
+    const newFilters = getFilters(dateValue || undefined);
+    setFilters(newFilters);
+  }, [dateValue]);
 
   const { conversationTags, loading, error } = useConversationTags({
     variables: {
@@ -80,15 +93,36 @@ export const FrontlineReportByTag = ({
 
   const handleDateValueChange = (value: string) => {
     setDateValue(value);
-    const newFilters = getFilters(value || undefined);
-    setFilters(newFilters);
   };
 
-  const handleSourceFilterChange = (value: string) => {
-    setSourceFilter(value);
-  };
 
-  if (loading) return <Skeleton className="w-full h-48" />;
+  if (loading) {
+    return (
+      <FrontlineCard
+        id={id}
+        title={title}
+        description="Conversation statistics by tag"
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Header
+          filter={
+            <TagCardHeader
+              chartType={chartType}
+              setChartType={setChartType}
+              sourceFilter={sourceFilter}
+              onSourceFilterChange={setSourceFilter}
+              dateValue={dateValue}
+              onDateValueChange={handleDateValueChange}
+            />
+          }
+        />
+        <FrontlineCard.Content>
+          <FrontlineCard.Skeleton />
+        </FrontlineCard.Content>
+      </FrontlineCard>
+    );
+  }
 
   if (error) {
     return (
@@ -125,7 +159,7 @@ export const FrontlineReportByTag = ({
             <>
               <GroupSelect
                 value={sourceFilter}
-                onValueChange={handleSourceFilterChange}
+                onValueChange={setSourceFilter}
               />
               <DateSelector
                 value={dateValue}
@@ -155,7 +189,7 @@ export const FrontlineReportByTag = ({
             chartType={chartType}
             setChartType={setChartType}
             sourceFilter={sourceFilter}
-            onSourceFilterChange={handleSourceFilterChange}
+            onSourceFilterChange={setSourceFilter}
             dateValue={dateValue}
             onDateValueChange={handleDateValueChange}
           />
@@ -178,9 +212,6 @@ export const FrontlineReportByTag = ({
           )}
           {chartType === ResponsesChartType.Pie && (
             <TagPieChart conversationTags={conversationTags} />
-          )}
-          {chartType === ResponsesChartType.Donut && (
-            <TagDonutChart conversationTags={conversationTags} />
           )}
           {chartType === ResponsesChartType.Radar && (
             <TagRadarChart conversationTags={conversationTags} />
@@ -306,8 +337,13 @@ export const TagBarChart = memo(function TagBarChart({
           stackId="stack-tag"
           name="Percentage"
         />
-        <Legend />
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent {...props} />
+          )}
+        />
         <Tooltip
+          content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
               return [props.payload.percentage?.toFixed(1) + '%', 'Percentage'];
@@ -412,8 +448,12 @@ export const TagLineChart = memo(function TagLineChart({
           strokeWidth={2}
           strokeLinecap="round"
         />
-        <Legend />
-        <Tooltip />
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent {...props} />
+          )}
+        />
+        <Tooltip content={<ChartTooltipContent />} />
       </AreaChart>
     </ChartContainer>
   );
@@ -422,6 +462,7 @@ export const TagLineChart = memo(function TagLineChart({
 export const TagPieChart = memo(function TagPieChart({
   conversationTags,
 }: TagChartProps) {
+  const [hoveredTag, setHoveredTag] = useState<string | undefined>(undefined);
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -436,16 +477,17 @@ export const TagPieChart = memo(function TagPieChart({
       return [];
     }
     const colors = [
-      'var(--primary)',
-      'var(--success)',
-      'var(--warning)',
-      'var(--destructive)',
-      'var(--info)',
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
+      'var(--chart-50)',
+      'var(--chart-100)',
+      'var(--chart-200)',
+      'var(--chart-300)',
+      'var(--chart-400)',
+      'var(--chart-500)',
+      'var(--chart-600)',
+      'var(--chart-700)',
+      'var(--chart-800)',
+      'var(--chart-900)',
+      'var(--chart-950)',
     ];
     return conversationTags.map((item, index) => ({
       tag: item.name || 'Unknown',
@@ -454,6 +496,13 @@ export const TagPieChart = memo(function TagPieChart({
       fill: colors[index % colors.length],
     }));
   }, [conversationTags]);
+
+  const handleMouseEnter = (tag: string) => {
+    setHoveredTag(tag);
+  };
+  const handleMouseLeave = () => {
+    setHoveredTag(undefined);
+  };
 
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
@@ -464,82 +513,37 @@ export const TagPieChart = memo(function TagPieChart({
           cx="50%"
           cy="50%"
           outerRadius={100}
-          innerRadius={0}
-          label={({ tag, count, percentage }) =>
-            `${tag}: ${count} (${percentage.toFixed(1)}%)`
-          }
+          innerRadius={70}
           nameKey="tag"
+        >
+          {chartData?.map((item, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={item.fill}
+              opacity={hoveredTag && hoveredTag !== item.tag ? 0.5 : 1}
+            />
+          ))}
+        </Pie>
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent
+              {...props}
+              onMouseEnter={(data: LegendPayload) => {
+                const tag = data.value as string;
+                if (tag) {
+                  handleMouseEnter(tag);
+                }
+              }}
+              onMouseLeave={handleMouseLeave}
+            />
+          )}
         />
-        {chartData?.map((item) => (
-          <Cell key={item.tag} fill={item.fill} />
-        ))}
-        <Legend />
-        <Tooltip />
+        <Tooltip content={<ChartTooltipContent />} />
       </PieChart>
     </ChartContainer>
   );
 });
 
-export const TagDonutChart = memo(function TagDonutChart({
-  conversationTags,
-}: TagChartProps) {
-  const chartConfig = useMemo(
-    () => ({
-      count: {
-        label: 'Count',
-        color: 'var(--primary)',
-      },
-    }),
-    [],
-  );
-  const chartData = useMemo(() => {
-    if (!conversationTags || conversationTags.length === 0) {
-      return [];
-    }
-    const colors = [
-      'var(--primary)',
-      'var(--success)',
-      'var(--warning)',
-      'var(--destructive)',
-      'var(--info)',
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
-    ];
-    return conversationTags.map((item, index) => ({
-      tag: item.name || 'Unknown',
-      count: item.count || 0,
-      percentage: item.percentage || 0,
-      fill: colors[index % colors.length],
-    }));
-  }, [conversationTags]);
-
-  return (
-    <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <PieChart data={chartData}>
-        <Pie
-          dataKey="count"
-          data={chartData}
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          innerRadius={50}
-          label={({ tag, count, percentage }) =>
-            `${tag}: ${count} (${percentage.toFixed(1)}%)`
-          }
-          nameKey="tag"
-        />
-        {chartData?.map((item) => (
-          <Cell key={item.tag} fill={item.fill} />
-        ))}
-        <Legend />
-        <Tooltip />
-      </PieChart>
-    </ChartContainer>
-  );
-});
 
 export const TagRadarChart = memo(function TagRadarChart({
   conversationTags,
@@ -620,8 +624,13 @@ export const TagRadarChart = memo(function TagRadarChart({
           fill="var(--success)"
           fillOpacity={0.3}
         />
-        <Legend />
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent {...props} />
+          )}
+        />
         <Tooltip
+          content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
               return [

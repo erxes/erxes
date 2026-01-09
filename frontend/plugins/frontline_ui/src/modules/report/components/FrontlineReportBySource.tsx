@@ -1,10 +1,10 @@
 import {
   Alert,
   ChartContainer,
+  ChartTooltipContent,
   cn,
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
 } from 'erxes-ui';
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
@@ -17,7 +17,6 @@ import {
   CartesianGrid,
   Cell,
   Legend,
-  LegendPayload,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -29,18 +28,26 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import { ResponsesChartType, SourceData } from '../types';
+import { useAtom } from 'jotai';
+import {
+  getReportChartTypeAtom,
+  getReportDateFilterAtom,
+  getReportSourceFilterAtom,
+} from '../states';
 import { SelectChartType } from './select-chart-type/SelectChartType';
 import { ColumnDef } from '@tanstack/table-core';
 import { DataKey } from 'recharts/types/util/types';
 import { DateSelector } from './date-selector/DateSelector';
 import { getFilters } from '../utils/dateFilters';
+import { CustomLegendContent } from './chart/legend';
+import { type LegendPayload } from 'recharts';
 
 interface FrontlineReportBySourceProps {
   title: string;
-  colSpan?: 1 | 2;
-  onColSpanChange?: (span: 1 | 2) => void;
+  colSpan?: 6 | 12;
+  onColSpanChange?: (span: 6 | 12) => void;
 }
 
 interface SourceCardHeaderProps {
@@ -57,16 +64,21 @@ interface SourceChartProps {
 
 export const FrontlineReportBySource = ({
   title,
-  colSpan = 1,
+  colSpan = 6,
   onColSpanChange,
 }: FrontlineReportBySourceProps) => {
-  const [chartType, setChartType] = useState<ResponsesChartType>(
-    ResponsesChartType.Bar,
-  );
-  const [dateValue, setDateValue] = useState<string>('');
-  const [filters, setFilters] = useState(() => getFilters());
-  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const id = title.toLowerCase().replace(/\s+/g, '-');
+  const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
+  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter, setSourceFilter] = useAtom(
+    getReportSourceFilterAtom(id),
+  );
+  const [filters, setFilters] = useState(() => getFilters());
+
+  useEffect(() => {
+    const newFilters = getFilters(dateValue || undefined);
+    setFilters(newFilters);
+  }, [dateValue]);
 
   const { conversationSources, loading, error } = useConversationSources({
     variables: {
@@ -77,16 +89,39 @@ export const FrontlineReportBySource = ({
     },
   });
 
-  const handleSourceFilterChange = (value: string) => {
-    setSourceFilter(value);
-  };
-
   const handleDateValueChange = (value: string) => {
     setDateValue(value);
-    const newFilters = getFilters(value || undefined);
-    setFilters(newFilters);
   };
-  if (loading) return <Skeleton className="w-full h-48" />;
+  if (loading) {
+    return (
+      <FrontlineCard
+        id={id}
+        title={title}
+        description="Conversation statistics by source"
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Header
+          filter={
+            <>
+              <GroupSelect
+                value={sourceFilter}
+                onValueChange={setSourceFilter}
+              />
+              <DateSelector
+                value={dateValue}
+                onValueChange={handleDateValueChange}
+              />
+              <SelectChartType onValueChange={setChartType} value={chartType} />
+            </>
+          }
+        />
+        <FrontlineCard.Content>
+          <FrontlineCard.Skeleton />
+        </FrontlineCard.Content>
+      </FrontlineCard>
+    );
+  }
 
   if (error) {
     return (
@@ -123,7 +158,7 @@ export const FrontlineReportBySource = ({
             <>
               <GroupSelect
                 value={sourceFilter}
-                onValueChange={handleSourceFilterChange}
+                onValueChange={setSourceFilter}
               />
               <DateSelector
                 value={dateValue}
@@ -152,12 +187,13 @@ export const FrontlineReportBySource = ({
           <>
             <GroupSelect
               value={sourceFilter}
-              onValueChange={handleSourceFilterChange}
+              onValueChange={setSourceFilter}
             />
             <DateSelector
               value={dateValue}
               onValueChange={handleDateValueChange}
             />
+            <SelectChartType onValueChange={setChartType} value={chartType} />
           </>
         }
       />
@@ -178,9 +214,6 @@ export const FrontlineReportBySource = ({
           )}
           {chartType === ResponsesChartType.Pie && (
             <SourcePieChart conversationSources={conversationSources} />
-          )}
-          {chartType === ResponsesChartType.Donut && (
-            <SourceDonutChart conversationSources={conversationSources} />
           )}
           {chartType === ResponsesChartType.Radar && (
             <SourceRadarChart conversationSources={conversationSources} />
@@ -257,8 +290,12 @@ export const SourceBarChart = memo(function SourceBarChart({
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Bar dataKey="count" fill="var(--primary)" name="Count" />
-        <Legend />
-        <Tooltip />
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent {...props} />
+          )}
+        />
+        <Tooltip content={<ChartTooltipContent />} />
       </BarChart>
     </ChartContainer>
   );
@@ -379,10 +416,15 @@ export const SourceLineChart = memo(function SourceLineChart({
           strokeLinecap="round"
         />
         <Legend
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          content={(props: any) => (
+            <CustomLegendContent
+              {...props}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            />
+          )}
         />
-        <Tooltip />
+        <Tooltip content={<ChartTooltipContent />} />
       </AreaChart>
     </ChartContainer>
   );
@@ -391,6 +433,9 @@ export const SourceLineChart = memo(function SourceLineChart({
 export const SourcePieChart = memo(function SourcePieChart({
   conversationSources,
 }: SourceChartProps) {
+  const [hoveredSource, setHoveredSource] = useState<string | undefined>(
+    undefined,
+  );
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -405,16 +450,17 @@ export const SourcePieChart = memo(function SourcePieChart({
       return [];
     }
     const colors = [
-      'var(--primary)',
-      'var(--success)',
-      'var(--warning)',
-      'var(--destructive)',
-      'var(--info)',
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
+      'var(--chart-50)',
+      'var(--chart-100)',
+      'var(--chart-200)',
+      'var(--chart-300)',
+      'var(--chart-400)',
+      'var(--chart-500)',
+      'var(--chart-600)',
+      'var(--chart-700)',
+      'var(--chart-800)',
+      'var(--chart-900)',
+      'var(--chart-950)',
     ];
     return conversationSources.map((item, index) => ({
       source: item.name || item._id || 'Unknown',
@@ -423,6 +469,13 @@ export const SourcePieChart = memo(function SourcePieChart({
       fill: colors[index % colors.length],
     }));
   }, [conversationSources]);
+
+  const handleMouseEnter = (source: string) => {
+    setHoveredSource(source);
+  };
+  const handleMouseLeave = () => {
+    setHoveredSource(undefined);
+  };
 
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
@@ -433,82 +486,37 @@ export const SourcePieChart = memo(function SourcePieChart({
           cx="50%"
           cy="50%"
           outerRadius={100}
-          innerRadius={0}
-          label={({ source, count, percentage }) =>
-            `${source}: ${count} (${percentage.toFixed(1)}%)`
-          }
+          innerRadius={70}
           nameKey="source"
+        >
+          {chartData?.map((item, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={item.fill}
+              opacity={hoveredSource && hoveredSource !== item.source ? 0.5 : 1}
+            />
+          ))}
+        </Pie>
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent
+              {...props}
+              onMouseEnter={(data: LegendPayload) => {
+                const source = data.value as string;
+                if (source) {
+                  handleMouseEnter(source);
+                }
+              }}
+              onMouseLeave={handleMouseLeave}
+            />
+          )}
         />
-        {chartData?.map((item) => (
-          <Cell key={item.source} fill={item.fill} />
-        ))}
-        <Legend />
-        <Tooltip />
+        <Tooltip content={<ChartTooltipContent />} />
       </PieChart>
     </ChartContainer>
   );
 });
 
-export const SourceDonutChart = memo(function SourceDonutChart({
-  conversationSources,
-}: SourceChartProps) {
-  const chartConfig = useMemo(
-    () => ({
-      count: {
-        label: 'Count',
-        color: 'var(--primary)',
-      },
-    }),
-    [],
-  );
-  const chartData = useMemo(() => {
-    if (!conversationSources || conversationSources.length === 0) {
-      return [];
-    }
-    const colors = [
-      'var(--primary)',
-      'var(--success)',
-      'var(--warning)',
-      'var(--destructive)',
-      'var(--info)',
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
-    ];
-    return conversationSources.map((item, index) => ({
-      source: item.name || item._id || 'Unknown',
-      count: item.count || 0,
-      percentage: item.percentage || 0,
-      fill: colors[index % colors.length],
-    }));
-  }, [conversationSources]);
-
-  return (
-    <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <PieChart data={chartData}>
-        <Pie
-          dataKey="count"
-          data={chartData}
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          innerRadius={50}
-          label={({ source, count, percentage }) =>
-            `${source}: ${count} (${percentage.toFixed(1)}%)`
-          }
-          nameKey="source"
-        />
-        {chartData?.map((item) => (
-          <Cell key={item.source} fill={item.fill} />
-        ))}
-        <Legend />
-        <Tooltip />
-      </PieChart>
-    </ChartContainer>
-  );
-});
 
 export const SourceRadarChart = memo(function SourceRadarChart({
   conversationSources,
@@ -548,7 +556,6 @@ export const SourceRadarChart = memo(function SourceRadarChart({
     if (!conversationSources || conversationSources.length === 0) {
       return [];
     }
-    // Scale percentage to match count range for better visualization
     const scaleFactor =
       maxCount > 0 && maxPercentage > 0 ? maxCount / maxPercentage : 1;
     return conversationSources.map((item) => ({
@@ -592,8 +599,13 @@ export const SourceRadarChart = memo(function SourceRadarChart({
           fill="var(--success)"
           fillOpacity={0.3}
         />
-        <Legend />
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent {...props} />
+          )}
+        />
         <Tooltip
+          content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
               return [

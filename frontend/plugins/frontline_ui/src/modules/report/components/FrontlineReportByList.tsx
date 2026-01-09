@@ -22,13 +22,13 @@ import { useNavigate } from 'react-router-dom';
 
 interface FrontlineReportByListProps {
   title: string;
-  colSpan?: 1 | 2;
-  onColSpanChange?: (span: 1 | 2) => void;
+  colSpan?: 6 | 12;
+  onColSpanChange?: (span: 6 | 12) => void;
 }
 
 export const FrontlineReportByList = ({
   title,
-  colSpan = 2,
+  colSpan = 6,
   onColSpanChange,
 }: FrontlineReportByListProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
@@ -55,7 +55,21 @@ export const FrontlineReportByList = ({
     setSourceFilter(value);
   };
 
-  if (loading) return <Skeleton className="w-full h-48" />;
+  if (loading) {
+    return (
+      <FrontlineCard
+        id={id}
+        title={title}
+        description="Total conversations open in the last 30 days"
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Content>
+          <FrontlineCard.Skeleton />
+        </FrontlineCard.Content>
+      </FrontlineCard>
+    );
+  }
 
   if (error) {
     return (

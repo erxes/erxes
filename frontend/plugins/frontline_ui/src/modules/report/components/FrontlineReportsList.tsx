@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -12,45 +12,41 @@ import {
   useSensors,
   useDroppable,
 } from '@dnd-kit/core';
-import { getPluginAssetsUrl, Skeleton, Tooltip } from 'erxes-ui';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { getPluginAssetsUrl, Tooltip, Skeleton } from 'erxes-ui';
 import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
-import { FrontlineReport } from './FrontlineReport';
 import { InfoCard, ScrollArea } from 'erxes-ui';
 import { useConversationOpen } from '@/report/hooks/useConversationOpen';
 import { useConversationClosed } from '@/report/hooks/useConversationClose';
 import { useConversationSources } from '@/report/hooks/useConversationSource';
 import { ReportsViewSkeleton } from './ReportsView';
-import { FrontlineReportBySource } from './FrontlineReportBySource';
 import { getTopSource } from '../utils';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
-import { FrontlineReportByTag } from './FrontlineReportByTag';
-import { FrontlineReportByResponses } from './FrontlineReportByResponses';
-import { FrontlineReportByList } from './FrontlineReportByList';
-import { FrontlineReportOpen } from './FrontlineReportOpen';
-import { FrontlineReportByResolved } from './FrontlineReportByResolved';
+import {
+  reportComponents,
+  DEFAULT_CARD_CONFIGS,
+  ReportComponentProps,
+  ReportCardConfig,
+} from '../types/component-registry';
 
 interface CardConfig {
   id: string;
-  colSpan: 1 | 2;
+  colSpan: 6 | 12;
 }
 
-const INITIAL_CARDS: CardConfig[] = [
-  { id: 'conversation-open', colSpan: 2 },
-  { id: 'conversation-resolved', colSpan: 2 },
-  { id: 'conversation-source', colSpan: 1 },
-  { id: 'conversation-tag', colSpan: 1 },
-  { id: 'conversation-responses', colSpan: 2 },
-  { id: 'conversation-list', colSpan: 2 },
-];
+const INITIAL_CARDS: CardConfig[] = DEFAULT_CARD_CONFIGS.map((config) => ({
+  id: config.id,
+  colSpan: config.colSpan,
+}));
 
 interface DroppableAreaProps {
   id: string;
-  colSpan: 1 | 2;
+  colSpan: 6 | 12;
   children: React.ReactNode;
 }
 
@@ -61,7 +57,7 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
     <div
       ref={setNodeRef}
       className={`transition-colors ${
-        colSpan === 2 ? 'col-span-2' : 'col-span-1'
+        colSpan === 6 ? 'col-span-6' : 'col-span-12'
       } ${isOver ? 'bg-accent/50 rounded-lg' : ''}`}
     >
       {children}
@@ -84,7 +80,7 @@ export const FrontlineReportsList = () => {
   const [cards, setCards] = useState<CardConfig[]>(INITIAL_CARDS);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
-  const [previewColSpan, setPreviewColSpan] = useState<1 | 2>(2);
+  const [previewColSpan, setPreviewColSpan] = useState<6 | 12>(12);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -92,6 +88,8 @@ export const FrontlineReportsList = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  const modifiers = useMemo(() => [restrictToWindowEdges], []);
 
   const sources = Array.isArray(conversationSources) ? conversationSources : [];
   const topPerformingSource = getTopSource(sources);
@@ -102,17 +100,15 @@ export const FrontlineReportsList = () => {
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    console.log('event', event);
     const { over } = event;
     setOverId(over?.id as string | null);
 
     if (over) {
       const overCard = cards.find((c) => c.id === over.id);
-      console.log('overCard', overCard?.colSpan);
-      if (overCard?.colSpan === 1) {
-        setPreviewColSpan(1);
+      if (overCard?.colSpan === 6) {
+        setPreviewColSpan(6);
       } else {
-        setPreviewColSpan(2);
+        setPreviewColSpan(12);
       }
     }
   };
@@ -127,28 +123,28 @@ export const FrontlineReportsList = () => {
       setCards((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
 
-        if (overCard?.colSpan === 1) {
+        if (overCard?.colSpan === 6) {
           const reordered = arrayMove(items, oldIndex, overIndex);
           return reordered.map((item) =>
-            item.id === active.id ? { ...item, colSpan: 1 as const } : item,
+            item.id === active.id ? { ...item, colSpan: 6 as const } : item,
           );
         }
 
         const reordered = arrayMove(items, oldIndex, overIndex);
         return reordered.map((item) =>
-          item.id === active.id ? { ...item, colSpan: 2 as const } : item,
+          item.id === active.id ? { ...item, colSpan: 12 as const } : item,
         );
       });
     }
 
     setActiveId(null);
     setOverId(null);
-    setPreviewColSpan(2);
+    setPreviewColSpan(12);
   };
 
   const activeCard = cards.find((c) => c.id === activeId);
 
-  const handleColSpanChange = (id: string, colSpan: 1 | 2) => {
+  const handleColSpanChange = (id: string, colSpan: 6 | 12) => {
     setCards((items) =>
       items.map((item) => (item.id === id ? { ...item, colSpan } : item)),
     );
@@ -158,65 +154,47 @@ export const FrontlineReportsList = () => {
     return <ReportsViewSkeleton />;
   }
 
-  const renderCard = (card: CardConfig) => {
+  const getCardConfig = (id: string): ReportCardConfig | null => {
+    const config = DEFAULT_CARD_CONFIGS.find((c) => c.id === id);
+    const Component = reportComponents[id];
+
+    if (!config || !Component) {
+      return null;
+    }
+
+    return {
+      ...config,
+      component: Component,
+    };
+  };
+
+  const renderCard = (card: CardConfig, overrideColSpan?: 6 | 12) => {
     const { id, colSpan } = card;
-    const commonProps = {
-      colSpan,
-      onColSpanChange: (span: 1 | 2) => handleColSpanChange(id, span),
+    const cardConfig = getCardConfig(id);
+
+    if (!cardConfig) {
+      return null;
+    }
+
+    const Component = cardConfig.component;
+    const commonProps: ReportComponentProps = {
+      title: cardConfig.title,
+      colSpan: overrideColSpan ?? colSpan,
+      onColSpanChange: (span: 6 | 12) => handleColSpanChange(id, span),
     };
 
-    switch (id) {
-      case 'conversation-open':
-        return (
-          <FrontlineReportOpen
-            key={id}
-            title="Conversation Open"
-            {...commonProps}
-          />
-        );
-      case 'conversation-resolved':
-        return (
-          <FrontlineReportByResolved
-            key={id}
-            title="Conversation Resolved"
-            {...commonProps}
-          />
-        );
-      case 'conversation-source':
-        return (
-          <FrontlineReportBySource
-            key={id}
-            title="Conversation Source"
-            {...commonProps}
-          />
-        );
-      case 'conversation-tag':
-        return (
-          <FrontlineReportByTag
-            key={id}
-            title="Conversation Tag"
-            {...commonProps}
-          />
-        );
-      case 'conversation-responses':
-        return (
-          <FrontlineReportByResponses
-            key={id}
-            title="Conversation Responses"
-            {...commonProps}
-          />
-        );
-      case 'conversation-list':
-        return (
-          <FrontlineReportByList
-            key={id}
-            title="Conversation List"
-            {...commonProps}
-          />
-        );
-      default:
-        return null;
-    }
+    return (
+      <Suspense
+        key={id}
+        fallback={
+          <div className={`${colSpan === 6 ? 'col-span-6' : 'col-span-12'}`}>
+            <Skeleton className="h-64 w-full" />
+          </div>
+        }
+      >
+        <Component {...commonProps} />
+      </Suspense>
+    );
   };
 
   return (
@@ -297,6 +275,7 @@ export const FrontlineReportsList = () => {
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          modifiers={modifiers}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
@@ -305,7 +284,7 @@ export const FrontlineReportsList = () => {
             items={cards.map((c) => c.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="grid xl:grid-cols-2 grid-cols-1 gap-3 p-1">
+            <div className="grid grid-cols-12 gap-3 p-1">
               {cards.map((card) => (
                 <DroppableArea
                   key={card.id}
@@ -317,16 +296,15 @@ export const FrontlineReportsList = () => {
               ))}
             </div>
           </SortableContext>
-          <DragOverlay>
+          <DragOverlay
+            style={{
+              opacity: 0.95,
+              cursor: 'grabbing',
+            }}
+          >
             {activeCard ? (
-              <div
-                className={`rounded-lg border bg-card transition-all ${
-                  previewColSpan === 1 ? 'w-1/2' : 'w-full'
-                }`}
-              >
-                <div className="p-4 space-y-3">
-                  <Skeleton className="h-6 w-1/3" />
-                </div>
+              <div className="shadow-2xl border-2 border-primary/20 rounded-lg overflow-hidden">
+                {renderCard(activeCard, previewColSpan)}
               </div>
             ) : null}
           </DragOverlay>

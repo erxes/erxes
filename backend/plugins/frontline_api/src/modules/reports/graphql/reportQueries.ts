@@ -695,6 +695,7 @@ export const reportQueries = {
       _id: tag._id,
       name: tagMap.get(tag._id.toString()) || 'Unknown Tag',
       count: tag.count,
+      colorCode: tag.colorCode || '#000',
       percentage: calculatePercentage(tag.count, total),
     }));
   },

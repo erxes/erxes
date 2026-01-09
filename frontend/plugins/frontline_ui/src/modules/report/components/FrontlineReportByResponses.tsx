@@ -1,6 +1,7 @@
 import {
   Alert,
   ChartContainer,
+  ChartTooltipContent,
   cn,
   RecordTable,
   RecordTableInlineCell,
@@ -32,16 +33,24 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import { ResponsesChartType, ConversationUserMessageStat } from '../types';
 import { SelectChartType } from './select-chart-type/SelectChartType';
 import { ColumnDef } from '@tanstack/table-core';
 import { IUser, MembersInline } from 'ui-modules';
+import { CustomLegendContent } from './chart/legend';
+import { type LegendPayload } from 'recharts';
+import { useAtom } from 'jotai';
+import {
+  getReportChartTypeAtom,
+  getReportDateFilterAtom,
+  getReportSourceFilterAtom,
+} from '../states';
 
 interface FrontlineReportByResponsesProps {
   title: string;
-  colSpan?: 1 | 2;
-  onColSpanChange?: (span: 1 | 2) => void;
+  colSpan?: 6 | 12;
+  onColSpanChange?: (span: 6 | 12) => void;
 }
 
 interface ResponsesCardHeaderProps {
@@ -59,16 +68,21 @@ interface ResponseChartProps {
 
 export const FrontlineReportByResponses = ({
   title,
-  colSpan = 2,
+  colSpan = 6,
   onColSpanChange,
 }: FrontlineReportByResponsesProps) => {
-  const [chartType, setChartType] = useState<ResponsesChartType>(
-    ResponsesChartType.Bar,
-  );
-  const [dateValue, setDateValue] = useState<string>('');
-  const [sourceFilter, setSourceFilter] = useState<string>('all');
-  const [filters, setFilters] = useState(() => getFilters());
   const id = title.toLowerCase().replace(/\s+/g, '-');
+  const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
+  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter, setSourceFilter] = useAtom(
+    getReportSourceFilterAtom(id),
+  );
+  const [filters, setFilters] = useState(() => getFilters());
+
+  useEffect(() => {
+    const newFilters = getFilters(dateValue || undefined);
+    setFilters(newFilters);
+  }, [dateValue]);
 
   const { conversationResponses, loading, error } = useConversationResponses({
     variables: {
@@ -81,15 +95,36 @@ export const FrontlineReportByResponses = ({
 
   const handleDateValueChange = (value: string) => {
     setDateValue(value);
-    const newFilters = getFilters(value || undefined);
-    setFilters(newFilters);
   };
 
-  const handleSourceFilterChange = (value: string) => {
-    setSourceFilter(value);
-  };
 
-  if (loading) return <Skeleton className="w-full h-48" />;
+  if (loading) {
+    return (
+      <FrontlineCard
+        id={id}
+        title={title}
+        description="Message response statistics by user"
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Header
+          filter={
+            <ResponsesCardHeader
+              chartType={chartType}
+              setChartType={setChartType}
+              sourceFilter={sourceFilter}
+              onSourceFilterChange={setSourceFilter}
+              dateValue={dateValue}
+              onDateValueChange={handleDateValueChange}
+            />
+          }
+        />
+        <FrontlineCard.Content>
+          <FrontlineCard.Skeleton />
+        </FrontlineCard.Content>
+      </FrontlineCard>
+    );
+  }
 
   if (error) {
     return (
@@ -126,7 +161,7 @@ export const FrontlineReportByResponses = ({
             <>
               <GroupSelect
                 value={sourceFilter}
-                onValueChange={handleSourceFilterChange}
+                onValueChange={setSourceFilter}
               />
               <DateSelector
                 value={dateValue}
@@ -156,7 +191,7 @@ export const FrontlineReportByResponses = ({
             chartType={chartType}
             setChartType={setChartType}
             sourceFilter={sourceFilter}
-            onSourceFilterChange={handleSourceFilterChange}
+            onSourceFilterChange={setSourceFilter}
             dateValue={dateValue}
             onDateValueChange={handleDateValueChange}
           />
@@ -179,9 +214,6 @@ export const FrontlineReportByResponses = ({
           )}
           {chartType === ResponsesChartType.Pie && (
             <ResponsePieChart conversationResponses={conversationResponses} />
-          )}
-          {chartType === ResponsesChartType.Donut && (
-            <ResponseDonutChart conversationResponses={conversationResponses} />
           )}
           {chartType === ResponsesChartType.Radar && (
             <ResponseRadarChart conversationResponses={conversationResponses} />
@@ -334,8 +366,9 @@ export const ResponseBarChart = memo(function ResponseBarChart({
           stackId="stack-responses"
           name="Percentage"
         />
-        <Legend />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
+          content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
               return [props.payload.percentage?.toFixed(1) + '%', 'Percentage'];
@@ -452,8 +485,8 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           strokeWidth={2}
           strokeLinecap="round"
         />
-        <Legend />
-        <Tooltip />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Tooltip content={<ChartTooltipContent />} />
       </AreaChart>
     </ChartContainer>
   );
@@ -462,6 +495,7 @@ export const ResponseLineChart = memo(function ResponseLineChart({
 export const ResponsePieChart = memo(function ResponsePieChart({
   conversationResponses,
 }: ResponseChartProps) {
+  const [hoveredUser, setHoveredUser] = useState<string | undefined>(undefined);
   const chartConfig = useMemo(
     () => ({
       messageCount: {
@@ -480,16 +514,17 @@ export const ResponsePieChart = memo(function ResponsePieChart({
       0,
     );
     const colors = [
-      'var(--primary)',
-      'var(--success)',
-      'var(--warning)',
-      'var(--destructive)',
-      'var(--info)',
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
+      'var(--chart-50)',
+      'var(--chart-100)',
+      'var(--chart-200)',
+      'var(--chart-300)',
+      'var(--chart-400)',
+      'var(--chart-500)',
+      'var(--chart-600)',
+      'var(--chart-700)',
+      'var(--chart-800)',
+      'var(--chart-900)',
+      'var(--chart-950)',
     ];
     return conversationResponses.map((item, index) => {
       const messageCount = item.messageCount || 0;
@@ -502,74 +537,14 @@ export const ResponsePieChart = memo(function ResponsePieChart({
       };
     });
   }, [conversationResponses]);
-  return (
-    <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <PieChart data={chartData}>
-        <Pie
-          dataKey="messageCount"
-          data={chartData}
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          innerRadius={0}
-          label={({ user, messageCount, percentage }) =>
-            `${user}: ${messageCount} (${percentage.toFixed(1)}%)`
-          }
-          nameKey="user"
-        />
-        {chartData?.map((item) => (
-          <Cell key={item.user} fill={item.fill} />
-        ))}
-        <Legend />
-        <Tooltip />
-      </PieChart>
-    </ChartContainer>
-  );
-});
 
-export const ResponseDonutChart = memo(function ResponseDonutChart({
-  conversationResponses,
-}: ResponseChartProps) {
-  const chartConfig = useMemo(
-    () => ({
-      messageCount: {
-        label: 'Message Count',
-        color: 'var(--primary)',
-      },
-    }),
-    [],
-  );
-  const chartData = useMemo(() => {
-    if (!conversationResponses || conversationResponses.length === 0) {
-      return [];
-    }
-    const totalCount = conversationResponses.reduce(
-      (sum, item) => sum + (item.messageCount || 0),
-      0,
-    );
-    const colors = [
-      'var(--primary)',
-      'var(--success)',
-      'var(--warning)',
-      'var(--destructive)',
-      'var(--info)',
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
-    ];
-    return conversationResponses.map((item, index) => {
-      const messageCount = item.messageCount || 0;
-      const percentage = totalCount > 0 ? (messageCount / totalCount) * 100 : 0;
-      return {
-        user: item.user?.details?.fullName || 'Unknown',
-        messageCount,
-        percentage: Math.round(percentage * 100) / 100,
-        fill: colors[index % colors.length],
-      };
-    });
-  }, [conversationResponses]);
+  const handleMouseEnter = (user: string) => {
+    setHoveredUser(user);
+  };
+  const handleMouseLeave = () => {
+    setHoveredUser(undefined);
+  };
+
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <PieChart data={chartData}>
@@ -579,17 +554,32 @@ export const ResponseDonutChart = memo(function ResponseDonutChart({
           cx="50%"
           cy="50%"
           outerRadius={100}
-          innerRadius={50}
-          label={({ user, messageCount, percentage }) =>
-            `${user}: ${messageCount} (${percentage.toFixed(1)}%)`
-          }
+          innerRadius={70}
           nameKey="user"
+        >
+          {chartData?.map((item, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={item.fill}
+              opacity={hoveredUser && hoveredUser !== item.user ? 0.5 : 1}
+            />
+          ))}
+        </Pie>
+        <Legend
+          content={(props: any) => (
+            <CustomLegendContent
+              {...props}
+              onMouseEnter={(data: LegendPayload) => {
+                const user = data.value as string;
+                if (user) {
+                  handleMouseEnter(user);
+                }
+              }}
+              onMouseLeave={handleMouseLeave}
+            />
+          )}
         />
-        {chartData?.map((item) => (
-          <Cell key={item.user} fill={item.fill} />
-        ))}
-        <Legend />
-        <Tooltip />
+        <Tooltip content={<ChartTooltipContent />} />
       </PieChart>
     </ChartContainer>
   );
@@ -680,8 +670,9 @@ export const ResponseRadarChart = memo(function ResponseRadarChart({
           fill="var(--success)"
           fillOpacity={0.3}
         />
-        <Legend />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
+          content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
               return [
