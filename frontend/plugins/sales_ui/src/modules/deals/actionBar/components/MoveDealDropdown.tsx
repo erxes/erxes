@@ -22,11 +22,6 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
   const setBoardId = useSetAtom(dealBoardState);
   const setPipelineId = useSetAtom(dealPipelineState);
 
-  useEffect(() => {
-    setBoardId({ boardId: deal.boardId || '' });
-    setPipelineId({ pipelineId: deal.pipeline?._id || '' });
-  }, [deal, setBoardId, setPipelineId]);
-
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>

@@ -93,13 +93,11 @@ export function DealsBoardColumn({
   }, [filteredDeals, isDragging, column._id, setBoardState, setAllDealsMap]);
 
   useEffect(() => {
-    if (totalCount !== undefined) {
-      setDealCountByColumn((prev) => ({
-        ...prev,
-        [column._id]: filteredDeals.length,
-      }));
-    }
-  }, [totalCount, column._id, setDealCountByColumn, filteredDeals.length]);
+    setDealCountByColumn((prev) => ({
+      ...prev,
+      [column._id]: filteredDeals.length,
+    }));
+  }, [filteredDeals.length, column._id, setDealCountByColumn]);
 
   return (
     <DealsBoardColumnHeader
