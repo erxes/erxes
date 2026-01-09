@@ -99,6 +99,8 @@ const Row = (props: Props) => {
     );
   };
 
+  
+
   return (
     <tr>
       <td key={post._id + 'title'}>
@@ -131,15 +133,19 @@ const Row = (props: Props) => {
         <Icon icon='calender' />{' '}
         <DateWrapper>{dayjs(post.createdAt).format('lll')}</DateWrapper>
       </td>
-
       <td>
         <Icon icon='calender' />{' '}
-        <DateWrapper>{dayjs(post.createdAt).format('lll')}</DateWrapper>
+        <DateWrapper>{dayjs(post.publishedDate).format('lll')}</DateWrapper>
       </td>
 
       <td>
         <Icon icon='calender' />{' '}
-        <DateWrapper>{dayjs(post.createdAt).format('lll')}</DateWrapper>
+        <DateWrapper>{dayjs(post.updatedAt).format('lll')}</DateWrapper>
+      </td>
+
+      <td>
+       
+        {post.authorKind === 'user' ? renderUser(user) : renderCPUser(user)}
       </td>
 
       <td>

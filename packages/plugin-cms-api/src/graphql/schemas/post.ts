@@ -65,7 +65,7 @@ export const types = `
         videoUrl: String
         createdAt: Date
         updatedAt: Date
-
+        publishedDate: Date
         
         categories: [PostCategory]
         tags: [PostTag]
@@ -105,6 +105,7 @@ export const inputs = `
         tagIds: [String]
         authorId: String
         scheduledDate: Date
+        publishedDate: Date
         autoArchiveDate: Date
         reactions: [String]
         reactionCounts: JSON

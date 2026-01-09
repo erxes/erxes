@@ -106,6 +106,7 @@ const List = (props: Props) => {
                   <th>{__('Status')}</th>
                   <th>{__('Author')}</th>
                   <th>{__('Created date')}</th>
+                  <th>{__('Published date')}</th>
                   <th>{__('Last modified date')}</th>
                   <th>{__('Last modified by')}</th>
                   <th>{__('Actions')}</th>
