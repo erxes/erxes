@@ -5,7 +5,7 @@ import {
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
@@ -14,6 +14,7 @@ import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
 import { useQueryState } from 'erxes-ui';
+import { useSearchParams } from 'react-router-dom';
 import { useStagesOrder } from '@/deals/stage/hooks/useStages';
 
 export const DealsBoard = () => {
@@ -23,6 +24,36 @@ export const DealsBoard = () => {
   const [pipelineId] = useQueryState<string>('pipelineId');
   const { changeDeals } = useDealsChange();
   const { updateStagesOrder } = useStagesOrder();
+  const [searchParams] = useSearchParams();
+
+  const queryVariables = useMemo(() => {
+    const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
+    const vars: Record<string, any> = {};
+
+    for (const [key, value] of searchParams.entries()) {
+      if (ignoredKeys.includes(key)) continue;
+
+      try {
+        const parsed = JSON.parse(value);
+        vars[key] = parsed;
+      } catch {
+        vars[key] = value;
+      }
+    }
+
+    if (searchParams.get('archivedOnly') === 'true') {
+      vars.noSkipArchive = true;
+    }
+
+    return vars;
+  }, [searchParams]);
+
+  const archivedOnly = searchParams.get('archivedOnly') === 'true';
+
+  // Reset board state when archivedOnly changes
+  useEffect(() => {
+    setBoardState(null);
+  }, [archivedOnly, setBoardState]);
 
   useEffect(() => {
     if (columns.length > 0 && !boardState) {
@@ -33,7 +64,7 @@ export const DealsBoard = () => {
       };
       setBoardState(initialState);
     }
-  }, [columns, setBoardState]);
+  }, [columns, setBoardState, boardState]);
 
   useEffect(() => {
     setBoardState((prev) => {
@@ -107,7 +138,6 @@ export const DealsBoard = () => {
   if (!boardState || columnsLoading) {
     return <StagesLoading />;
   }
-
   return (
     <GenericBoard<any, any>
       initialState={boardState}
@@ -118,6 +148,7 @@ export const DealsBoard = () => {
           column={column}
           count={count}
           pipelineId={pipelineId || ''}
+          queryVariables={queryVariables}
         />
       )}
     />

@@ -26,7 +26,7 @@ const Overview = ({ deal }: { deal: IDeal }) => {
             <AttachmentUploader />
           </div>
           <div className="flex py-2 px-4">
-            <MoveDealDropdown dealId={deal._id} />
+            <MoveDealDropdown deal={deal} />
           </div>
         </div>
       </div>

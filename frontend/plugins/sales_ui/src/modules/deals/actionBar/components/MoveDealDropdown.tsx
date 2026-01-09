@@ -1,19 +1,31 @@
 import { Button, DropdownMenu, Separator } from 'erxes-ui';
+import {
+  dealBoardState,
+  dealPipelineState,
+} from '@/deals/states/dealContainerState';
+import { memo, useEffect } from 'react';
 
-import { dealBoardItemAtom } from '@/deals/boards/components/DealsBoardCard';
 import {
   BoardCell,
   PipelineCell,
   StageCell,
 } from '@/deals/components/deal-selects/MoveDealSelect';
-import { useAtomValue } from 'jotai';
+import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
-export const MoveDealDropdown = ({ dealId }: { dealId: string }) => {
-  const deal = useAtomValue(dealBoardItemAtom)(dealId);
+import { useSetAtom } from 'jotai';
+interface MoveDealDropdownProps {
+  deal: IDeal;
+}
+export const MoveDealDropdown = memo(function MoveDealDropdown({
+  deal,
+}: MoveDealDropdownProps) {
+  const setBoardId = useSetAtom(dealBoardState);
+  const setPipelineId = useSetAtom(dealPipelineState);
 
-  if (!deal) {
-    return null;
-  }
+  useEffect(() => {
+    setBoardId({ boardId: deal.boardId || '' });
+    setPipelineId({ pipelineId: deal.pipeline?._id || '' });
+  }, [deal, setBoardId, setPipelineId]);
 
   return (
     <DropdownMenu>
@@ -65,4 +77,4 @@ export const MoveDealDropdown = ({ dealId }: { dealId: string }) => {
       </DropdownMenu.Content>
     </DropdownMenu>
   );
-};
+});
