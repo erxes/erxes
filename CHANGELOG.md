@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.31](https://github.com/erxes/erxes/compare/2.17.30...2.17.31) (2026-01-06)
+
+### Features
+
+* add loyalty voucher discount calculation for deals ([f1bfdd7](https://github.com/erxes/erxes/commit/f1bfdd70fd2ec6dad05fad2894ff9c671c3c21c6))
+* **core:** add chunked file upload support to core package ([944ecbd](https://github.com/erxes/erxes/commit/944ecbde8e02f5fe558d2495eb6161ead77ab201))
+
 ## [2.17.30](https://github.com/erxes/erxes/compare/2.17.29...2.17.30) (2025-12-22)
 
 ### Bug Fixes

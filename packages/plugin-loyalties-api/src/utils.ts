@@ -215,7 +215,7 @@ export const directVoucher = async ({
             value,
             product: {
               ...item,
-              discount: result[_id].discount || 0,
+              discount: result[_id]?.discount || 0,
             },
             totalAmount: restrictedAmount,
           });
@@ -227,7 +227,7 @@ export const directVoucher = async ({
             discount,
             voucherName: title,
             type: voucherType,
-            sumDiscount: result[_id].sumDiscount + discount,
+            sumDiscount: result[_id]?.sumDiscount + discount,
           };
         }
       }

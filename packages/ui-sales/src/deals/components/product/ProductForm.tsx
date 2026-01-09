@@ -129,6 +129,12 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.productsData !== this.props.productsData) {
+      this.updateTotal(this.props.productsData);
+    }
+  }
+
   duplicateProductItem = _id => {
     const {
       productsData,
