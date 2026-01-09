@@ -85,7 +85,6 @@ const PostForm = (props: Props) => {
     const fieldsToDelete = [
       'viewCount',
       'featuredDate',
-      'publishedDate',
       'createdAt',
       'updatedAt',
       '__typename',

@@ -81,6 +81,7 @@ const POST_LIST = gql`
         createdAt
         autoArchiveDate
         scheduledDate
+        publishedDate
         thumbnail {
           url
         }
@@ -108,6 +109,7 @@ const POST = gql`
       featured
       featuredDate
       scheduledDate
+      publishedDate
       autoArchiveDate
       reactions
       reactionCounts
