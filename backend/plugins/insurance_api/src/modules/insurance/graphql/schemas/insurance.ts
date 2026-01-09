@@ -148,6 +148,18 @@ type InsuranceContract {
   createdAt: Date!
   updatedAt: Date!
 }
+
+ type InsuranceContractTemplate {
+  id: ID!
+  name: String!
+  insuranceType: InsuranceType!
+  content: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+
+
 `;
 
 export const inputs = `
