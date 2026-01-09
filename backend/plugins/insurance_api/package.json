@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^"
+    "erxes-api-shared": "workspace:^",
+    "handlebars": "^4.7.8",
+    "puppeteer": "^24.23.0"
   },
   "devDependencies": {}
 }

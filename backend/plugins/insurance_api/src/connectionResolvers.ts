@@ -19,6 +19,8 @@ import { IRiskTypeModel, loadRiskTypeClass } from '@/insurance/db/models/riskTyp
 import { IVendorModel, loadVendorClass } from '@/insurance/db/models/vendor';
 import { IVendorUserModel, loadVendorUserClass } from '@/insurance/db/models/vendorUser';
 import { IContractDocument } from '@/insurance/@types/contract';
+import { ITemplateModel, loadTemplateClass } from '@/insurance/db/models/template';
+import { ITemplateDocument } from '@/insurance/@types/template';
 
 
 export interface IModels {
@@ -29,6 +31,7 @@ export interface IModels {
   Vendor: IVendorModel;
   VendorUser: IVendorUserModel;
   Customer: ICustomerModel;
+  Template: ITemplateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -71,6 +74,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Customer = db.model<ICustomerDocument, ICustomerModel>(
     'insurance_customers',
     loadCustomerClass(models),
+  );
+
+  models.Template = db.model<ITemplateDocument, ITemplateModel>(
+    'insurance_contract_templates',
+    loadTemplateClass(models),
   );
 
   return models;

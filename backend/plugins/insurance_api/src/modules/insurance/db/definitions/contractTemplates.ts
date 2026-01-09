@@ -1,0 +1,63 @@
+import mongoose, { Schema } from 'mongoose';
+import { INSURANCE_TYPES } from '@/insurance/@types/enums';
+
+export const templateSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    insuranceType: {
+      type: String,
+      required: true,
+      unique: true,
+      enum: INSURANCE_TYPES,
+    },
+    description: String,
+
+    // 
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'products',
+      optional: true,
+    },
+
+    vendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'vendors',
+      optional: true,
+    },
+
+    // HTML content with Handlebars placeholders
+    htmlContent: {
+      type: String,
+      required: true,
+    },
+
+    // CSS for styling
+    cssContent: {
+      type: String,
+      default: '',
+    },
+
+    // Version control
+    version: {
+      type: Number,
+      default: 1,
+    },
+
+    // Status
+    status: {
+      type: String,
+      enum: ['draft', 'active', 'archived'],
+      default: 'draft',
+    },
+
+    // Metadata
+    createdBy: String,
+    updatedBy: String,
+  },
+  {
+    timestamps: true,
+  },
+);
