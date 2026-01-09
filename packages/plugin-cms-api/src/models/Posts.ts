@@ -50,7 +50,7 @@ export const loadPostClass = (models: IModels) => {
         doc.excerpt = prepareExcerpt(doc.content);
       }
 
-      if (doc.status === 'published') {
+      if (doc.status === 'published' && !doc.publishedDate) {
         doc.publishedDate = new Date();
       }
 
