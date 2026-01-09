@@ -29,6 +29,8 @@ export default function ListContainer(props: Props) {
       ...router.generatePaginationParams(props.queryParams || {}),
       clientPortalId: cpId,
       type: props.queryParams?.type,
+      sortField: 'createdAt',
+      sortDirection: 'desc',
     },
     fetchPolicy: 'network-only',
   });
