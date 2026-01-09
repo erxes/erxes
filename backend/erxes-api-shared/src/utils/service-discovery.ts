@@ -55,7 +55,7 @@ export const getAvailablePlugins = async (
       ) {
         const pluginName = key.split(':')[0];
 
-        const enabledPluginsArray = ENABLED_PLUGINS.split(',');
+        const enabledPluginsArray = [...ENABLED_PLUGINS.split(',')];
         enabledPluginsArray.push(...ENABLED_API_PLUGINS.split(','));
 
         if (enabledPluginsArray.includes(pluginName)) {
