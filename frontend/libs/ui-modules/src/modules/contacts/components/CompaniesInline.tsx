@@ -1,18 +1,19 @@
 import {
-  CompaniesInlineContext,
-  useCompaniesInlineContext,
-} from '../contexts/CompaniesInlineContext';
-import {
   Avatar,
   AvatarProps,
   Badge,
-  cn,
   Combobox,
-  isUndefinedOrNull,
   Tooltip,
+  cn,
+  isUndefinedOrNull,
 } from 'erxes-ui';
-import { ICompany } from '../types';
+import {
+  CompaniesInlineContext,
+  useCompaniesInlineContext,
+} from '../contexts/CompaniesInlineContext';
 import { useEffect, useState } from 'react';
+
+import { ICompany } from '../types';
 import { useCompaniesInline } from '../hooks/useCompanies';
 
 interface CompaniesInlineProviderProps {
@@ -75,7 +76,9 @@ const CompanyInlineEffectComponent = ({
         companies.map((company) => [company._id, company]),
       );
       const newCompanies = detailMissingCompanies.filter(
-        (company) => !existingCompaniesMap.has(company._id),
+        (company) =>
+          !existingCompaniesMap.has(company._id) &&
+          companyIdsWithNoDetails.includes(company._id),
       );
 
       if (newCompanies.length > 0) {

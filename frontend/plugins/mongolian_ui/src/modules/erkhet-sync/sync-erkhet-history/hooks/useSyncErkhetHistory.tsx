@@ -15,9 +15,7 @@ import { useSyncErkhetHistoryLeadSessionKey } from '../hooks/useSyncErkhetHistor
 import { syncErkhetHistoryTotalCountAtom } from '../states/syncErkhetHistoryCounts';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-
 export const SYNC_HISTORIES_PER_PAGE = 30;
-
 export const useSyncErkhetHistoryVariables = (
   variables?: QueryHookOptions<{
     syncHistories: {
@@ -59,11 +57,9 @@ export const useSyncErkhetHistoryVariables = (
     'searchError',
   ]);
   const { sessionKey } = useSyncErkhetHistoryLeadSessionKey();
-
   const { cursor } = useRecordTableCursor({
     sessionKey,
   });
-
   return {
     limit: SYNC_HISTORIES_PER_PAGE,
     orderBy: {
@@ -109,18 +105,15 @@ export const useSyncErkhetHistory = (
       ...variables,
     },
   });
-
   const {
     list: SyncHistories,
     totalCount,
     pageInfo,
   } = data?.syncHistories || {};
-
   useEffect(() => {
     if (!totalCount) return;
     setSyncErkhetHistoryTotalCount(totalCount);
   }, [totalCount, setSyncErkhetHistoryTotalCount]);
-
   const handleFetchMore = ({
     direction,
   }: {
@@ -134,7 +127,6 @@ export const useSyncErkhetHistory = (
     ) {
       return;
     }
-
     fetchMore({
       variables: {
         cursor:
@@ -160,7 +152,6 @@ export const useSyncErkhetHistory = (
       },
     });
   };
-
   return {
     loading,
     SyncHistories,

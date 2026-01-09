@@ -111,13 +111,16 @@ export const ReportRules: Record<string, IReportConfig> = {
     colCount: 6,
     choices: [
       { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' }
+      { code: 'cat', title: 'Дансны бүлгээр' },
+      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
+      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
     ],
     groups: {
       default: {
         group: 'accountId',
         code: 'accountCode',
         name: 'accountName',
+        from: ['details'],
         groupRule: null,
       },
       cat: {
@@ -132,6 +135,46 @@ export const ReportRules: Record<string, IReportConfig> = {
           groupRule: null
         }
       },
+      branchDepartment: {
+        group: 'branchId',
+        code: 'branchCode',
+        name: 'branchName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'departmentId',
+          code: 'departmentCode',
+          name: 'departmentName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: '',
+            groupRule: null,
+          },
+        }
+      },
+      departmentBranch: {
+        group: 'departmentId',
+        code: 'departmentCode',
+        name: 'departmentName',
+        style: 'font-semibold',
+        groupRule: {
+          group: 'branchId',
+          code: 'branchCode',
+          name: 'branchName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'accountId',
+            code: 'accountCode',
+            name: 'accountName',
+            from: ['details'],
+            style: '',
+            groupRule: null,
+          },
+        }
+      }
     }
   },
   mb: {
@@ -139,6 +182,81 @@ export const ReportRules: Record<string, IReportConfig> = {
   },
   mj: {
     title: 'Ерөнхий журнал',
+  },
+
+  invCost: {
+    title: 'Барааны тайлан /өртгөөр/',
+    colCount: 9,
+    choices: [
+      { code: 'default', title: 'Данс' },
+      { code: 'accBranchDep', title: 'Данс-Салбар-Хэлтэс' },
+      { code: 'accDepBranch', title: 'Данс-Хэлтэс-Салбар' },
+    ],
+    groups: {
+      default: {
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold',
+        groupRule: {
+          group: 'productId',
+          code: 'productCode',
+          name: 'productName',
+          from: ['details']
+        }
+      },
+      accBranchDep: {
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold',
+        groupRule: {
+          group: 'branchId',
+          code: 'branchCode',
+          name: 'branchName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'departmentId',
+            code: 'departmentCode',
+            name: 'departmentName',
+            style: 'font-semibold',
+            groupRule: {
+              group: 'productId',
+              code: 'productCode',
+              name: 'productName',
+              from: ['details']
+            }
+          }
+        }
+      },
+      accDepBranch: {
+        group: 'accountId',
+        code: 'accountCode',
+        name: 'accountName',
+        from: ['details'],
+        style: 'font-semibold',
+        groupRule: {
+          group: 'departmentId',
+          code: 'departmentCode',
+          name: 'departmentName',
+          style: 'font-semibold',
+          groupRule: {
+            group: 'branchId',
+            code: 'branchCode',
+            name: 'branchName',
+            style: 'font-semibold',
+            groupRule: {
+              group: 'productId',
+              code: 'productCode',
+              name: 'productName',
+              from: ['details']
+            }
+          }
+        }
+      },
+    }
   }
 
 
