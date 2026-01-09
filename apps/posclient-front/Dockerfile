@@ -1,43 +1,8 @@
-# Build jo from source
-FROM alpine:3.11 AS jo-builder
-RUN apk add --no-cache alpine-sdk && \
-    cd /tmp && curl -s -LO https://github.com/jpmens/jo/releases/download/1.3/jo-1.3.tar.gz && \
-    tar xzf jo-1.3.tar.gz && \
-    cd jo-1.3 && \
-    ./configure && \
-    make check && \
-    make install
-
-# Build the application
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install
-COPY . .
-RUN pnpm nx build posclient-front --configuration=production --verbose
-
-# Final stage
-FROM nginx:alpine
-
-# Copy jo from builder
-COPY --from=jo-builder /usr/local/bin/jo /usr/local/bin/jo
-
-# Install bash
-RUN apk add --no-cache bash
-
-# Copy application files
-COPY --from=build /app/dist/apps/posclient-front /usr/share/nginx/html
-
-# Copy configuration files
-COPY apps/posclient-front/docker-entrypoint.sh /usr/local/bin/
-
-# Set up entrypoint script
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
-    chmod +x /usr/local/bin/jo && \
-    mkdir -p /usr/share/nginx/html/js
-
-# Expose port 80
-EXPOSE 80
-
-ENTRYPOINT ["sh", "/usr/local/bin/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:22-alpine AS base
+WORKDIR /erxespos/
+RUN chown -R node:node /erxespos
+COPY --chown=node:node . /erxespos
+USER node
+RUN npm run build
+ENTRYPOINT [ "sh", "./docker-entrypoint.sh" ]
+CMD [ "npm", "start" ]
