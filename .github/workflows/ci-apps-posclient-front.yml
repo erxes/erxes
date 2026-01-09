@@ -13,7 +13,7 @@ on:
       - '.github/workflows/ci-apps-posclient-front.yml'
 
 jobs: 
-  pos-ui:
+  posclient-front:
     runs-on: ubuntu-22.04
 
     steps:
@@ -34,7 +34,7 @@ jobs:
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main')
         run: |
-          cd pos
+          cd apps/posclient-front
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build -t erxes/pos-ui:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/pos-ui:${GITHUB_REF#refs/heads/}
+          DOCKER_BUILDKIT=1 docker build -t erxes/posclient-front:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/posclient-front:${GITHUB_REF#refs/heads/}
