@@ -15,7 +15,7 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
 
   return (
     <Link
-      to={`/settings/pos/${pos._id}`}
+      to={`/settings/sales/pos/${pos._id}`}
       className="p-2 rounded-2xl border h-[200px]"
     >
       <div className="grid grid-cols-2 h-full">
