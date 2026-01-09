@@ -15,12 +15,21 @@ import { generatePipelineActivityLogs } from '~/utils/activityLogs';
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
   getPipeline(_id: string): Promise<IPipelineDocument>;
-  createPipeline(doc: IPipeline, stages?: IStageDocument[], userId?: string): Promise<IPipelineDocument>;
-  updatePipeline(_id: string, doc: IPipeline, stages?: IStageDocument[], userId?: string): Promise<IPipelineDocument>;
+  createPipeline(
+    doc: IPipeline,
+    stages?: IStageDocument[],
+    userId?: string,
+  ): Promise<IPipelineDocument>;
+  updatePipeline(
+    _id: string,
+    doc: IPipeline,
+    stages?: IStageDocument[],
+    userId?: string,
+  ): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
-  removePipeline(_id: string, checked?: boolean): Promise<IPipelineDocument>;
-  archivePipeline(_id: string, userId?: string): Promise<IPipelineDocument>;
+  removePipeline(_id: string, checked?: boolean, userId?: string): object;
+  archivePipeline(_id: string, userId?: string): object;
 }
 
 export const loadPipelineClass = (
@@ -28,23 +37,35 @@ export const loadPipelineClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog, createActivityLog} = dispatcher;
 
   class Pipeline {
-    /** Get a single pipeline */
+    /** Get pipeline */
     public static async getPipeline(_id: string) {
-      const pipeline = await models.Pipelines.findOne({ _id }).lean();
-      if (!pipeline) throw new Error('Pipeline not found');
+      const pipeline = await models.Pipelines.findOne({ _id });
+
+      if (!pipeline) {
+        throw new Error('Pipeline not found');
+      }
+
       return pipeline;
     }
 
-    /** Create a pipeline */
-    public static async createPipeline(doc: IPipeline, stages?: IStageDocument[], userId?: string) {
+    /** Create pipeline */
+    public static async createPipeline(
+      doc: IPipeline,
+      stages?: IStageDocument[],
+      userId?: string,
+    ) {
       if (doc.numberSize) {
         doc.lastNum = await generateLastNum(models, doc);
       }
 
       const pipeline = await models.Pipelines.create({ ...doc, userId });
+
+      if (stages) {
+        await createOrUpdatePipelineStages(models, stages, pipeline._id);
+      }
 
       sendDbEventLog?.({
         action: 'create',
@@ -52,40 +73,34 @@ export const loadPipelineClass = (
         currentDocument: pipeline.toObject(),
       });
 
-      createActivityLog?.({
-        activityType: 'create',
-        target: { _id: pipeline._id, moduleName: 'sales', collectionName: 'pipelines' },
-        action: { type: 'create', description: 'Pipeline created' },
-        changes: { name: pipeline.name, boardId: pipeline.boardId, type: pipeline.type, status: pipeline.status, createdAt: new Date() },
-        metadata: { boardId: pipeline.boardId, userId },
-      });
-
-      if (stages) {
-        await createOrUpdatePipelineStages(models, stages, pipeline._id);
-      }
-
       return pipeline;
     }
 
-    /** Update a pipeline */
-    public static async updatePipeline(_id: string, doc: IPipeline, stages?: IStageDocument[], userId?: string) {
-      const prevPipeline = await models.Pipelines.findOne({ _id });
-      if (!prevPipeline) throw new Error('Pipeline not found');
+    /** Update pipeline */
+    public static async updatePipeline(
+      _id: string,
+      doc: IPipeline,
+      stages?: IStageDocument[],
+      userId?: string,
+    ) {
+      const prevPipeline = await models.Pipelines.getPipeline(_id);
 
       if (stages) {
         await createOrUpdatePipelineStages(models, stages, _id);
       }
 
       if (doc.numberSize) {
-        const pipeline = await models.Pipelines.getPipeline(_id);
-        if (pipeline.numberConfig !== doc.numberConfig) {
+        if (prevPipeline.numberConfig !== doc.numberConfig) {
           doc.lastNum = await generateLastNum(models, doc);
         }
       }
 
-      await models.Pipelines.updateOne({ _id }, { $set: { ...doc, userId } });
-      const updatedPipeline = await models.Pipelines.findOne({ _id });
-      if (!updatedPipeline) throw new Error('Pipeline not found after update');
+      await models.Pipelines.updateOne(
+        { _id },
+        { $set: { ...doc, userId } },
+      );
+
+      const updatedPipeline = await models.Pipelines.getPipeline(_id);
 
       sendDbEventLog?.({
         action: 'update',
@@ -94,45 +109,28 @@ export const loadPipelineClass = (
         prevDocument: prevPipeline.toObject(),
       });
 
-      await generatePipelineActivityLogs(prevPipeline.toObject(), updatedPipeline.toObject(), models, createActivityLog);
+      await generatePipelineActivityLogs(
+        prevPipeline.toObject(),
+        updatedPipeline.toObject(),
+        models,
+        createActivityLog
+      );
 
       return updatedPipeline;
     }
 
-    /** Update pipelines order */
+    /** Update pipeline order (UNCHANGED) */
     public static async updateOrder(orders: IOrderInput[]) {
-      const pipelinesBeforeUpdate = await models.Pipelines.find({ _id: { $in: orders.map((o) => o._id) } }).lean();
-      const result = await updateOrder(models.Pipelines, orders);
-
-      for (const order of orders) {
-        const pipelineBefore = pipelinesBeforeUpdate.find((p) => p._id.toString() === order._id);
-        if (pipelineBefore && pipelineBefore.order !== order.order) {
-          createActivityLog?.({
-            activityType: 'reorder',
-            target: { _id: order._id, moduleName: 'sales', collectionName: 'pipelines' },
-            action: { type: 'reorder', description: 'Pipeline order changed' },
-            changes: { order: { from: pipelineBefore.order, to: order.order }, reorderedAt: new Date() },
-            metadata: { boardId: pipelineBefore.boardId, userId: pipelineBefore.userId },
-          });
-        }
-      }
-
-      return result;
+      return updateOrder(models.Pipelines, orders);
     }
 
-    /** Remove a pipeline */
-    public static async removePipeline(_id: string, checked?: boolean) {
+    /** Remove pipeline */
+    public static async removePipeline(
+      _id: string,
+      checked?: boolean,
+      userId?: string,
+    ) {
       const pipeline = await models.Pipelines.getPipeline(_id);
-      if (!pipeline) throw new Error('Pipeline not found');
-
-      sendDbEventLog?.({ action: 'delete', docId: pipeline._id });
-      createActivityLog?.({
-        activityType: 'delete',
-        target: { _id: pipeline._id, moduleName: 'sales', collectionName: 'pipelines' },
-        action: { type: 'delete', description: 'Pipeline deleted' },
-        changes: { name: pipeline.name, boardId: pipeline.boardId, deletedAt: new Date() },
-        metadata: { boardId: pipeline.boardId, userId: pipeline.userId },
-      });
 
       if (!checked) {
         await removePipelineStagesWithItems(models, pipeline._id);
@@ -143,35 +141,41 @@ export const loadPipelineClass = (
         await models.Stages.removeStage(stage._id);
       }
 
+      sendDbEventLog?.({
+        action: 'delete',
+        docId: pipeline._id,
+      });
+
       await models.Pipelines.deleteOne({ _id });
       return pipeline;
     }
 
-    /** Archive or unarchive a pipeline */
+    /** Archive / unarchive pipeline */
     public static async archivePipeline(_id: string, userId?: string) {
       const pipeline = await models.Pipelines.getPipeline(_id);
-      const status = pipeline.status === SALES_STATUSES.ACTIVE ? SALES_STATUSES.ARCHIVED : SALES_STATUSES.ACTIVE;
-      const prevStatus = pipeline.status;
 
-      await models.Pipelines.updateOne({ _id }, { $set: { status, userId } });
-      const updatedPipeline = await models.Pipelines.findOne({ _id }).lean();
+      const status =
+        pipeline.status === SALES_STATUSES.ACTIVE
+          ? SALES_STATUSES.ARCHIVED
+          : SALES_STATUSES.ACTIVE;
 
-      if (updatedPipeline) {
-        sendDbEventLog?.({ action: 'update', docId: updatedPipeline._id, currentDocument: updatedPipeline, prevDocument: pipeline });
+      await models.Pipelines.updateOne(
+        { _id },
+        { $set: { status, userId } },
+      );
 
-        createActivityLog?.({
-          activityType: 'archive',
-          target: { _id: updatedPipeline._id, moduleName: 'sales', collectionName: 'pipelines' },
-          action: { type: status === SALES_STATUSES.ARCHIVED ? 'archive' : 'unarchive', description: status === SALES_STATUSES.ARCHIVED ? 'Pipeline archived' : 'Pipeline unarchived' },
-          changes: { status: { from: prevStatus, to: status }, changedAt: new Date() },
-          metadata: { boardId: updatedPipeline.boardId, userId },
-        });
-      }
-
-      return updatedPipeline;
+      sendDbEventLog?.({
+        action: 'update',
+        docId: pipeline._id,
+        currentDocument: {
+          ...pipeline.toObject(),
+          status,
+        },
+        prevDocument: pipeline.toObject(),
+      });
     }
 
-    /** Watch a pipeline */
+    /** Watch pipeline */
     public static watchPipeline(_id: string, isAdd: boolean, userId: string) {
       return watchItem(models.Pipelines, _id, isAdd, userId);
     }

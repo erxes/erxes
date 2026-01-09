@@ -120,7 +120,7 @@ export async function generatePipelineActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void ,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(

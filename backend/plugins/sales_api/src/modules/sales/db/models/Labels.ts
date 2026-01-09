@@ -50,10 +50,18 @@ export const loadPipelineLabelClass = (
     }
 
     public static async labelObject({ labelIds, targetId, collection }: ILabelObjectParams) {
-      const existingCount = await models.PipelineLabels.find({ _id: { $in: labelIds } }).countDocuments();
-      if (existingCount !== labelIds.length) throw new Error('Label not found');
+      const existingCount = await models.PipelineLabels.countDocuments({
+        _id: { $in: labelIds },
+      });
 
-      await collection.updateMany({ _id: targetId }, { $set: { labelIds } }, { multi: true });
+      if (existingCount !== labelIds.length) {
+        throw new Error('Label not found');
+      }
+
+      await collection.updateOne(
+        { _id: targetId },
+        { $set: { labelIds } },
+      );
     }
 
     public static async createPipelineLabel(doc: IPipelineLabel, userId?: string) {
@@ -73,19 +81,6 @@ export const loadPipelineLabelClass = (
         currentDocument: pipelineLabel.toObject(),
       });
 
-      createActivityLog?.({
-        activityType: 'create',
-        target: { _id: pipelineLabel._id, moduleName: 'sales', collectionName: 'pipelineLabels' },
-        action: { type: 'create', description: 'Pipeline label created' },
-        changes: {
-          name: pipelineLabel.name,
-          colorCode: pipelineLabel.colorCode,
-          pipelineId: pipelineLabel.pipelineId,
-          createdAt: new Date(),
-        },
-        metadata: { pipelineId: pipelineLabel.pipelineId, userId },
-      });
-
       return pipelineLabel;
     }
 
@@ -93,10 +88,21 @@ export const loadPipelineLabelClass = (
       const prevLabel = await models.PipelineLabels.findOne({ _id });
       if (!prevLabel) throw new Error('Label not found');
 
-      const isUnique = await models.PipelineLabels.validateUniqueness(doc, _id);
+      const isUnique = await models.PipelineLabels.validateUniqueness(
+        {
+          name: doc.name,
+          pipelineId: doc.pipelineId,
+          colorCode: doc.colorCode,
+        },
+        _id,
+      );
+
       if (!isUnique) throw new Error('Label duplicated');
 
-      await models.PipelineLabels.updateOne({ _id }, { $set: { ...doc, userId } });
+      await models.PipelineLabels.updateOne(
+        { _id },
+        { $set: { ...doc, userId } },
+      );
 
       const updatedLabel = await models.PipelineLabels.findOne({ _id });
       if (!updatedLabel) throw new Error('Label not found after update');
@@ -122,23 +128,13 @@ export const loadPipelineLabelClass = (
       const pipelineLabel = await models.PipelineLabels.findOne({ _id });
       if (!pipelineLabel) throw new Error('Label not found');
 
-      sendDbEventLog?.({ action: 'delete', docId: pipelineLabel._id });
-
-      createActivityLog?.({
-        activityType: 'delete',
-        target: { _id: pipelineLabel._id, moduleName: 'sales', collectionName: 'pipelineLabels' },
-        action: { type: 'delete', description: 'Pipeline label deleted' },
-        changes: {
-          name: pipelineLabel.name,
-          colorCode: pipelineLabel.colorCode,
-          deletedAt: new Date(),
-        },
-        metadata: { pipelineId: pipelineLabel.pipelineId, userId: pipelineLabel.userId },
+      sendDbEventLog?.({
+        action: 'delete',
+        docId: pipelineLabel._id,
       });
 
-      // Remove label from Deals
       await models.Deals.updateMany(
-        { labelIds: { $in: [pipelineLabel._id] } },
+        { labelIds: pipelineLabel._id },
         { $pull: { labelIds: pipelineLabel._id } },
       );
 
@@ -147,7 +143,11 @@ export const loadPipelineLabelClass = (
     }
 
     public static async labelsLabel(targetId: string, labelIds: string[]) {
-      await models.PipelineLabels.labelObject({ labelIds, targetId, collection: models.Deals });
+      await models.PipelineLabels.labelObject({
+        labelIds,
+        targetId,
+        collection: models.Deals,
+      });
     }
   }
 

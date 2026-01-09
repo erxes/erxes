@@ -10,12 +10,6 @@ import {
 } from '../../utils';
 import { dealSchema } from '../definitions/deals';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import {
-  generateDealActivityLogs,
-  generateDealCreatedActivityLog,
-  generateDealMovedActivityLog,
-  generateDealConvertedActivityLog,
-} from '~/utils/activityLogs';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
@@ -30,15 +24,17 @@ export const loadDealClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class Deal {
+    /** Get single deal */
     public static async getDeal(_id: string) {
       const deal = await models.Deals.findOne({ _id });
       if (!deal) throw new Error('Deal not found');
       return deal;
     }
 
+    /** Create deal */
     public static async createDeal(doc: IDeal) {
       // Prevent duplicate conversion from conversation
       if (doc.sourceConversationIds?.length) {
@@ -48,7 +44,7 @@ export const loadDealClass = (
         if (existing) throw new Error('Already converted a deal');
       }
 
-      // Filter and calculate totals
+      // Calculate totals
       if (doc.productsData) {
         doc.productsData = doc.productsData.filter(pd => pd);
         const totals = await getTotalAmounts(doc.productsData);
@@ -63,31 +59,28 @@ export const loadDealClass = (
         currentDocument: deal.toObject(),
       });
 
-      createActivityLog?.(generateDealCreatedActivityLog(deal, doc.userId));
-
-      // Conversion activity log
-      if (doc.sourceConversationIds?.length) {
-        createActivityLog?.(
-          generateDealConvertedActivityLog(deal, doc.sourceConversationIds[0]),
-        );
-      }
-
       return deal;
     }
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
 
-      // Fill searchText for search indexing
+      // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter(pd => pd && pd.productId);
+        doc.productsData = doc.productsData.filter(
+          pd => pd && pd.productId,
+        );
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
 
-      await models.Deals.updateOne({ _id }, { $set: doc, searchText });
+      await models.Deals.updateOne(
+        { _id },
+        { $set: { ...doc, searchText } },
+      );
+
       const updatedDeal = await models.Deals.findOne({ _id });
       if (!updatedDeal) throw new Error('Deal not found after update');
 
@@ -98,45 +91,20 @@ export const loadDealClass = (
         prevDocument: prevDeal.toObject(),
       });
 
-      // Stage moved
-      if (doc.stageId && doc.stageId !== prevDeal.stageId) {
-        const [fromStage, toStage] = await Promise.all([
-          models.Stages.findOne({ _id: prevDeal.stageId }, { name: 1 }),
-          models.Stages.findOne({ _id: doc.stageId }, { name: 1 }),
-        ]);
-
-        createActivityLog?.(
-          generateDealMovedActivityLog(
-            updatedDeal,
-            prevDeal.stageId,
-            doc.stageId,
-            fromStage?.name,
-            toStage?.name,
-          ),
-        );
-      }
-
-      // Other field changes
-      await generateDealActivityLogs(prevDeal.toObject(), updatedDeal.toObject(), models, createActivityLog);
-
       return updatedDeal;
     }
 
+    /** Watch / unwatch deal */
     public static watchDeal(_id: string, isAdd: boolean, userId: string) {
       return watchItem(models.Deals, _id, isAdd, userId);
     }
-
     public static async removeDeals(_ids: string[]) {
       const deals = await models.Deals.find({ _id: { $in: _ids } });
 
       for (const deal of deals) {
-        sendDbEventLog?.({ action: 'delete', docId: deal._id });
-        createActivityLog?.({
-          activityType: 'delete',
-          target: { _id: deal._id, moduleName: 'sales', collectionName: 'deals' },
-          action: { type: 'delete', description: 'Deal deleted' },
-          changes: { name: deal.name, deletedAt: new Date() },
-          metadata: { stageId: deal.stageId, userId: deal.userId },
+        sendDbEventLog?.({
+          action: 'delete',
+          docId: deal._id,
         });
       }
 
