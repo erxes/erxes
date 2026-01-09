@@ -29,8 +29,6 @@ RUN apk add --no-cache bash
 COPY --from=build /app/dist/apps/posclient-front /usr/share/nginx/html
 
 # Copy configuration files
-COPY apps/posclient-front/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY apps/posclient-front/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY apps/posclient-front/docker-entrypoint.sh /usr/local/bin/
 
 # Set up entrypoint script
