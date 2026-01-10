@@ -21,12 +21,7 @@ import React, {
 } from 'react';
 import { TagInline } from './TagInline';
 import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
-import {
-  IconCheck,
-  IconChevronDown,
-  IconPlus,
-  IconTagsFilled,
-} from '@tabler/icons-react';
+import { IconCheck, IconChevronDown, IconPlus } from '@tabler/icons-react';
 import { TagBadge } from 'ui-modules/modules/tags-new/components/TagBadge';
 import { useTagAdd } from 'ui-modules/modules/tags-new/hooks/useTagAdd';
 import { TAG_DEFAULT_COLORS } from 'ui-modules/modules/tags-new/constants';
