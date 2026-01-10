@@ -21,6 +21,7 @@
       "success-message": "Customer added successfully"
     },
     "detail": {
+      "add-tags": "Add tags",
       "add-phone": "Add Phone",
       "edit-phone": "Edit Phone",
       "add-company": "Add Company",

@@ -28,12 +28,13 @@ export const NumberField = React.forwardRef<
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [editingValue, setEditingValue] = useState(value);
+    const [editingValue, setEditingValue] = useState(String(value));
 
     const handleAction = (e: React.FormEvent) => {
       e.preventDefault();
-      if (editingValue !== value) {
-        onSave?.(editingValue);
+      const numValue = Number(editingValue) || 0;
+      if (numValue !== value) {
+        onSave?.(numValue);
       }
       setIsOpen(false);
     };
@@ -45,7 +46,7 @@ export const NumberField = React.forwardRef<
         onOpenChange={(open: boolean) => {
           setIsOpen(open);
           if (open) {
-            setEditingValue(value);
+            setEditingValue(String(value));
           }
         }}
       >
@@ -63,12 +64,19 @@ export const NumberField = React.forwardRef<
             <Input
               type="text"
               value={editingValue.toLocaleString()}
-              onChange={(e) => {
+              onChange={(e: any) => {
                 const rawValue = e.target.value.replace(/,/g, '');
-                const numValue = Number(rawValue);
-                if (!isNaN(numValue) || rawValue === '') {
-                  setEditingValue(numValue || 0);
-                  onValueChange?.(numValue || 0);
+
+                if (
+                  rawValue === '' ||
+                  rawValue === '-' ||
+                  rawValue.match(/^-?\d*\.?\d*$/)
+                ) {
+                  setEditingValue(rawValue);
+                  const numValue = Number(rawValue);
+                  if (!isNaN(numValue)) {
+                    onValueChange?.(numValue);
+                  }
                 }
                 setIsOpen(true);
               }}
