@@ -50,7 +50,6 @@ export const DealsBoard = () => {
 
   const archivedOnly = searchParams.get('archivedOnly') === 'true';
 
-  // Reset board state when archivedOnly changes
   useEffect(() => {
     setBoardState(null);
   }, [archivedOnly, setBoardState]);

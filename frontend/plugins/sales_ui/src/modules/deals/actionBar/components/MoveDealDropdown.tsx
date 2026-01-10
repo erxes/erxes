@@ -1,9 +1,5 @@
 import { Button, DropdownMenu, Separator } from 'erxes-ui';
-import {
-  dealBoardState,
-  dealPipelineState,
-} from '@/deals/states/dealContainerState';
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 
 import {
   BoardCell,
@@ -12,16 +8,12 @@ import {
 } from '@/deals/components/deal-selects/MoveDealSelect';
 import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
 interface MoveDealDropdownProps {
   deal: IDeal;
 }
 export const MoveDealDropdown = memo(function MoveDealDropdown({
   deal,
 }: MoveDealDropdownProps) {
-  const setBoardId = useSetAtom(dealBoardState);
-  const setPipelineId = useSetAtom(dealPipelineState);
-
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
