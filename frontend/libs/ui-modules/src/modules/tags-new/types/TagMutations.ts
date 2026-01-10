@@ -6,7 +6,7 @@ export type GiveTagsMutationVariables = {
 };
 
 export type GiveTagsMutationResponse = {
-  tagsTag: null;
+  tagsTag: ITag | null;
 };
 
 export type AddTagMutationResponse = {

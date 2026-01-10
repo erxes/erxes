@@ -158,6 +158,9 @@ const TagsSelectProvider = ({
       value={{
         loading,
         value,
+        onValueChange: onValueChange as (
+          value: string | string[] | undefined,
+        ) => void,
         open,
         setOpen,
         selectedTags,

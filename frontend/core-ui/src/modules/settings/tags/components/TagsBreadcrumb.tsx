@@ -15,7 +15,7 @@ export const TagsBreadcrumb = () => {
         {' tags'}
       </Button>
       <Tooltip>
-        <Tooltip.Trigger>
+        <Tooltip.Trigger aria-label={t('tags.workspace-description')}>
           <IconInfoCircle className="size-4 text-accent-foreground" />
         </Tooltip.Trigger>
         <Tooltip.Content>

@@ -12,11 +12,9 @@ import { getTagTypeDescription } from '../utils/getTagTypeDescription';
 import { useState } from 'react';
 
 export const TagTypeSelect = ({
-  className,
   scope,
   ...props
 }: {
-  className?: string;
   scope?: string;
   props?: React.ComponentProps<typeof Button>;
 }) => {
