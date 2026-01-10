@@ -5,6 +5,7 @@ import {
   FORM_CONTENT_SCHEMA,
 } from '../constants/formSchema';
 import { z } from 'zod';
+import { atom } from 'jotai';
 
 export const formSetupStepAtom = atomWithStorage<number>(
   FORM_STORAGE_KEYS.STEP,
@@ -27,22 +28,35 @@ export const formSetupAppearanceAtom = atomWithStorage<
 
 export const formSetupContentAtom = atomWithStorage<
   z.infer<typeof FORM_CONTENT_SCHEMA>
->(
-  FORM_STORAGE_KEYS.CONTENT,
-  {
-    title: '',
-    description: '',
-    buttonText: '',
-    steps: [
-      {
-        id: 'step-1',
-        label: 'Step 1',
-      },
-    ],
-    fields: [],
+>(FORM_STORAGE_KEYS.CONTENT, {
+  title: '',
+  description: '',
+  buttonText: '',
+  steps: {
+    '1': {
+      order: 1,
+      fields: [],
+    },
   },
-  undefined,
-  {
-    getOnInit: true,
-  },
-);
+});
+
+// atomWithStorage<
+// z.infer<typeof FORM_CONTENT_SCHEMA>
+// >(
+// FORM_STORAGE_KEYS.CONTENT,
+// {
+//   title: '',
+//   description: '',
+//   buttonText: '',
+//   steps: {
+//     '1': {
+//       order: 1,
+//       fields: [],
+//     },
+//   },
+// },
+// undefined,
+// {
+//   getOnInit: true,
+// },
+// );

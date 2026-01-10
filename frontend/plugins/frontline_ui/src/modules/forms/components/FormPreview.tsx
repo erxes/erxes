@@ -5,21 +5,23 @@ import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import {
   Button,
   Checkbox,
+  cn,
   DatePicker,
   Form,
   InfoCard,
   Input,
+  Select,
   Textarea,
-  toast,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React from 'react';
+import React, { useState } from 'react';
 
 export const FormPreview = () => {
   const formContent = useAtomValue(formSetupContentAtom);
+  const [activeStep, setActiveStep] = useState<string | null>(null);
 
-  if (!formContent || !formContent.fields) {
+  if (!formContent || !formContent.steps) {
     return (
       <div className="p-5">
         <InfoCard title="Preview">
@@ -31,214 +33,191 @@ export const FormPreview = () => {
     );
   }
 
-  const formSchema: Record<string, z.ZodType> = {};
-  formContent.fields.forEach((field) => {
-    if (!field || !field.type) return;
+  const { steps } = formContent;
 
-    if (field.type === 'text' || field.type === 'textarea') {
-      formSchema[field.id] = z.string();
-    } else if (field.type === 'email') {
-      formSchema[field.id] = z.string().email();
-    } else if (field.type === 'number') {
-      formSchema[field.id] = z.number();
-    } else if (field.type === 'date') {
-      formSchema[field.id] = z.date();
-    } else if (field.type === 'boolean') {
-      formSchema[field.id] = z.boolean();
-    } else if (field.type === 'select') {
-      formSchema[field.id] = z.string();
-    }
-  });
+  const formSchemas = Object.fromEntries(
+    Object.entries(steps).map(([stepId, step]) => {
+      const formSchema: Record<string, z.ZodType> = {};
+      step.fields.forEach((field) => {
+        if (!field || !field.type) return;
 
-  const defaultValues = formContent.fields.reduce((acc, field) => {
-    if (!field || !field.type) return acc;
+        if (field.type === 'text' || field.type === 'textarea') {
+          formSchema[field.id] = z.string();
+        } else if (field.type === 'email') {
+          formSchema[field.id] = z.string().email();
+        } else if (field.type === 'number') {
+          formSchema[field.id] = z.number();
+        } else if (field.type === 'date') {
+          formSchema[field.id] = z.date();
+        } else if (field.type === 'boolean') {
+          formSchema[field.id] = z.boolean();
+        } else if (field.type === 'select') {
+          formSchema[field.id] = z.string();
+        }
+      });
+      return [stepId, z.object(formSchema)];
+    }),
+  );
 
-    if (
-      field.type === 'text' ||
-      field.type === 'textarea' ||
-      field.type === 'email' ||
-      field.type === 'select'
-    ) {
-      acc[field.id] = '';
-    } else if (field.type === 'number') {
-      acc[field.id] = 0;
-    } else if (field.type === 'date') {
-      acc[field.id] = new Date();
-    } else if (field.type === 'boolean') {
-      acc[field.id] = false;
-    }
-    return acc;
-  }, {} as Record<string, any>);
+  const defaultValues = Object.fromEntries(
+    Object.entries(formContent.steps).map(([stepId, step]) => {
+      const stepDefaultValues: Record<string, any> = {};
+      step.fields.forEach((field) => {
+        if (!field || !field.type) return;
+        if (
+          field.type === 'text' ||
+          field.type === 'textarea' ||
+          field.type === 'email' ||
+          field.type === 'select'
+        ) {
+          stepDefaultValues[field.id] = '';
+        } else if (field.type === 'number') {
+          stepDefaultValues[field.id] = 0;
+        } else if (field.type === 'date') {
+          stepDefaultValues[field.id] = new Date();
+        } else if (field.type === 'boolean') {
+          stepDefaultValues[field.id] = false;
+        }
+      });
+      return [stepId, stepDefaultValues];
+    }),
+  );
 
   return (
-    <FormPreviewContent
-      schema={z.object(formSchema)}
-      fields={formContent.fields}
-      steps={formContent.steps || []}
-      defaultValues={defaultValues}
-    />
+    <div className="p-5">
+      {Object.entries(formContent.steps)
+        .sort((a, b) => a[1].order - b[1].order)
+        .map(([stepId, step], index) => (
+          <FormPreviewContent
+            key={stepId}
+            visible={activeStep === stepId || (!activeStep && index === 0)}
+            schema={formSchemas[stepId]}
+            defaultValues={defaultValues[stepId]}
+            fields={step.fields}
+          />
+        ))}
+    </div>
   );
 };
 
 export const FormPreviewContent = ({
+  visible,
   schema,
-  fields,
-  steps,
   defaultValues,
+  fields,
 }: {
+  visible: boolean;
   schema: z.ZodType;
-  fields: z.infer<typeof FORM_CONTENT_SCHEMA>['fields'];
-  steps: z.infer<typeof FORM_CONTENT_SCHEMA>['steps'];
   defaultValues: Record<string, any>;
+  fields: z.infer<typeof FORM_CONTENT_SCHEMA>['steps'][number]['fields'];
 }) => {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
   });
-
-  const onSubmit = (data: z.infer<typeof schema>) => {
-    toast({
-      title: 'Success!',
-      description: (
-        <div>
-          {Object.entries(data).map(([key, value]) => (
-            <div key={key}>
-              <span className="font-bold">
-                {fields.find((field) => field?.id === key)?.label}:
-              </span>{' '}
-              {String(value as string)}
-            </div>
-          ))}
-        </div>
-      ),
-    });
-  };
-
-  const fieldsByStep = React.useMemo(() => {
-    const grouped: Record<string, typeof fields> = {};
-    const firstStepId = steps[0]?.id || 'step-1';
-
-    fields.forEach((field) => {
-      if (!field) return;
-      const stepId = field.stepId || firstStepId;
-      if (!grouped[stepId]) {
-        grouped[stepId] = [];
-      }
-      grouped[stepId].push(field);
-    });
-
-    return grouped;
-  }, [fields, steps]);
-
-  const orderedSteps = React.useMemo(() => {
-    if (!steps || steps.length === 0) {
-      return [{ id: 'step-1', label: 'Step 1' }];
-    }
-    return steps;
-  }, [steps]);
-
+  console.log(form.formState.errors);
   return (
-    <div className="p-5">
-      <InfoCard title="Preview">
-        <InfoCard.Content>
-          <Form {...form}>
-            <form
-              className="flex flex-col gap-6"
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              {orderedSteps.map((step) => {
-                const stepFields = fieldsByStep[step.id] || [];
-                if (stepFields.length === 0) return null;
-
+    <Form {...form}>
+      <form aria-hidden={!visible} className={cn('hidden', visible && 'block')}>
+        <InfoCard title="Preview" className="p-2">
+          <InfoCard.Content className="mt-2">
+            <div className="grid grid-cols-2 gap-4 mb-2">
+              {fields.map((erxesField) => {
+                console.log(erxesField);
                 return (
-                  <div key={step.id} className="flex flex-col gap-4">
-                    <h3 className="text-lg font-semibold">{step.label}</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {stepFields
-                        .filter((formField) => formField != null)
-                        .map((formField) => (
-                          <Form.Field
-                            key={formField.id}
-                            name={formField.id}
-                            render={({ field }) => (
-                              <React.Fragment key={formField.id}>
-                                {(formField.type === 'text' ||
-                                  formField.type === 'textarea' ||
-                                  formField.type === 'email') && (
-                                  <Form.Item>
-                                    <Form.Label>{formField.label}</Form.Label>
-                                    <Form.Control>
-                                      {formField.type === 'textarea' ? (
-                                        <Textarea {...field} />
-                                      ) : (
-                                        <Input type="text" {...field} />
-                                      )}
-                                    </Form.Control>
-                                  </Form.Item>
-                                )}
-                                {formField.type === 'number' && (
-                                  <Form.Item>
-                                    <Form.Label>{formField.label}</Form.Label>
-                                    <Form.Control>
-                                      <Input.Number {...field} />
-                                    </Form.Control>
-                                  </Form.Item>
-                                )}
-                                {formField.type === 'date' && (
-                                  <Form.Item>
-                                    <Form.Label>{formField.label}</Form.Label>
-                                    <DatePicker
-                                      value={field.value}
-                                      onChange={field.onChange}
-                                    />
-                                  </Form.Item>
-                                )}
-                                {formField.type === 'boolean' && (
-                                  <Form.Item className="flex items-center space-x-2 space-y-0">
-                                    <Form.Control>
-                                      <Checkbox
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                      />
-                                    </Form.Control>
-                                    <Form.Label variant="peer">
-                                      {formField.label}
-                                    </Form.Label>
-                                  </Form.Item>
-                                )}
-                                {formField.type === 'select' && (
-                                  <Form.Item>
-                                    <Form.Label>{formField.label}</Form.Label>
-                                    <Form.Control>
-                                      <select
-                                        {...field}
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                      >
-                                        <option value="">Select...</option>
-                                        {formField.options?.map((option) => (
-                                          <option key={option} value={option}>
-                                            {option}
-                                          </option>
-                                        ))}
-                                      </select>
-                                    </Form.Control>
-                                  </Form.Item>
-                                )}
-                              </React.Fragment>
-                            )}
-                          />
-                        ))}
-                    </div>
-                  </div>
+                  <Form.Field
+                    key={erxesField.id}
+                    name={erxesField.id}
+                    control={form.control}
+                    render={({ field }) => {
+                      if (erxesField.type === 'boolean') {
+                        return (
+                          <ErxesFormItem
+                            span={erxesField.span}
+                            className="flex items-end gap-2 space-y-0"
+                          >
+                            <div className="flex items-center gap-2 h-8">
+                              <Form.Control>
+                                <Checkbox {...field} />
+                              </Form.Control>
+                              <Form.Label variant="peer">
+                                {erxesField.label}
+                              </Form.Label>
+                            </div>
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+                      if (erxesField.type === 'textarea') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <Textarea {...field} />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'select') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <Form.Control>
+                                <Select.Trigger>
+                                  <Select.Value
+                                    placeholder={erxesField.placeholder}
+                                  />
+                                </Select.Trigger>
+                              </Form.Control>
+                              <Select.Content>
+                                {erxesField.options.map((option) => (
+                                  <Select.Item key={option} value={option}>
+                                    {option}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select>
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'date') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <DatePicker {...field} />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      return (
+                        <ErxesFormItem span={erxesField.span}>
+                          <Form.Label>{erxesField.label}</Form.Label>
+                          <Input {...field} />
+                        </ErxesFormItem>
+                      );
+                    }}
+                  />
                 );
               })}
-              <div className="text-right">
-                <Button type="submit">Submit</Button>
-              </div>
-            </form>
-          </Form>
-        </InfoCard.Content>
-      </InfoCard>
-    </div>
+            </div>
+          </InfoCard.Content>
+          <div className="flex justify-end mt-2 gap-2">
+            <Button variant="secondary">Previous</Button>
+            <Button type="submit">Next</Button>
+          </div>
+        </InfoCard>
+      </form>
+    </Form>
   );
 };
+
+export const ErxesFormItem = ({
+  span,
+  ...props
+}: React.ComponentProps<typeof Form.Item> & { span: number }) => (
+  <Form.Item {...props} className={cn(props.className, span && `col-span-2`)} />
+);
