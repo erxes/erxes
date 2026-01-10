@@ -1,7 +1,7 @@
 import { IconCircleFilled, IconCirclesFilled } from '@tabler/icons-react';
 import { Button, ColorPicker } from 'erxes-ui';
 import { useState } from 'react';
-
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 import { TAG_DEFAULT_COLORS } from '@/settings/tags/constants/Colors';
 import { ITag, useTagEdit } from 'ui-modules';
 export const TagsListColorField = ({ tag }: { tag: ITag }) => {
@@ -24,6 +24,7 @@ export const TagsListColorField = ({ tag }: { tag: ITag }) => {
       onOpenChange={setOpen}
       colors={TAG_DEFAULT_COLORS}
       value={tag.colorCode}
+      scope={SettingsHotKeyScope.TagsInput}
       onValueChange={(col) => {
         _handleSave(col);
         setOpen(false);

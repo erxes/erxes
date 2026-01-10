@@ -1,4 +1,11 @@
-import { Button, cn, Combobox, Command, Popover } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  Combobox,
+  Command,
+  Popover,
+  PopoverScoped,
+} from 'erxes-ui';
 import {
   IconDots,
   IconTransform,
@@ -14,6 +21,7 @@ import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { tagGroupsAtomFamily } from '@/settings/tags/states/tagGroupsAtom';
 import { useQueryState } from 'erxes-ui';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 
 export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(
@@ -29,7 +37,8 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   );
 
   return (
-    <Popover
+    <PopoverScoped
+      scope={SettingsHotKeyScope.TagsInput}
       open={open}
       onOpenChange={(open) => {
         setOpen(open);
@@ -55,7 +64,9 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
         className="min-w-50 w-min"
       >
         {menuContent === 'main' && (
-          <Command shouldFilter={false}>
+          <Command>
+            <Command.Input />
+            <Combobox.Empty />
             <Command.List className="[&>div>div]:cursor-pointer">
               <Command.Item
                 onSelect={() => {
@@ -75,9 +86,10 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
               </Command.Item>
               {tag.isGroup ? (
                 <Command.Item
-                  onSelect={() =>
-                    setAddingTag({ parentId: tag._id, isGroup: false })
-                  }
+                  onSelect={() => {
+                    setAddingTag({ parentId: tag._id, isGroup: false });
+                    setOpen(false);
+                  }}
                 >
                   <IconPlus />
                   Add tag to group
@@ -106,6 +118,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
               focusOnMount
               placeholder="Search tag groups"
             />
+            <Command.Empty>No groups found</Command.Empty>
             <Command.List className="[&>div>div]:cursor-pointer">
               {tagGroupsFiltered.map((group) => (
                 <Command.Item
@@ -133,6 +146,6 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
           </Command>
         )}
       </Combobox.Content>
-    </Popover>
+    </PopoverScoped>
   );
 };

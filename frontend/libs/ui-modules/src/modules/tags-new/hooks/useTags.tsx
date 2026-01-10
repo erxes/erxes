@@ -5,7 +5,6 @@ import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 
 export const useGetTags = (options?: QueryHookOptions) => {
   const { data, loading, error } = useQuery(TAGS_QUERY, options);
-
   const { allTags, rootTags, tagsByParentId, tagGroups } = useMemo(() => {
     const allTags = (data?.tagsMain || []) as ITag[];
     const rootTags: ITag[] = [];

@@ -1,13 +1,24 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import {
+  MutationHookOptions,
+  OperationVariables,
+  useMutation,
+} from '@apollo/client';
 import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
 import { ADD_TAG } from 'ui-modules/modules/tags-new/graphql/tagMutations';
 import { useToast } from 'erxes-ui';
+import { AddTagMutationResponse } from 'ui-modules/modules/tags-new/types/TagMutations';
 
 export const useTagAdd = () => {
   const { toast } = useToast();
-  const [addTag, { loading }] = useMutation(ADD_TAG);
+  const [addTag, { loading }] = useMutation<
+    AddTagMutationResponse,
+    OperationVariables
+  >(ADD_TAG);
 
-  const mutate = ({ variables, ...options }: MutationHookOptions) => {
+  const mutate = ({
+    variables,
+    ...options
+  }: MutationHookOptions<AddTagMutationResponse, OperationVariables>) => {
     addTag({
       ...options,
       variables,
@@ -23,7 +34,6 @@ export const useTagAdd = () => {
           type: variables?.type,
           createdAt: new Date().toISOString(),
           relatedIds: variables?.relatedIds || null,
-          order: variables?.order || null,
           objectCount: variables?.objectCount || null,
           totalObjectCount: variables?.totalObjectCount || null,
         },
@@ -42,7 +52,9 @@ export const useTagAdd = () => {
         });
         options?.onCompleted?.(data);
       },
-      update: (cache, { data: { tagsAdd } }) => {
+      update: (cache, { data }) => {
+        const tagsAdd = data?.tagsAdd;
+        if (!tagsAdd) return;
         try {
           cache.updateQuery(
             {

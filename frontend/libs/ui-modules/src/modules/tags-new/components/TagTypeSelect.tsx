@@ -1,27 +1,47 @@
-import { Button, cn, Popover, Command, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  Popover,
+  Command,
+  useQueryState,
+  PopoverScoped,
+} from 'erxes-ui';
 import { useTagTypes } from 'ui-modules/modules/tags-new/hooks/useTagTypes';
 import { IconChevronDown, IconCheck } from '@tabler/icons-react';
 import { getTagTypeDescription } from '../utils/getTagTypeDescription';
 import { useState } from 'react';
 
-export const TagTypeSelect = () => {
+export const TagTypeSelect = ({
+  className,
+  scope,
+  ...props
+}: {
+  className?: string;
+  scope?: string;
+  props?: React.ComponentProps<typeof Button>;
+}) => {
   const [type, setType] = useQueryState<string>('tagType');
   const [open, setOpen] = useState(false);
   const { types } = useTagTypes();
 
-  const handleSelect = (contentType: string) => {
+  const handleSelect = (contentType: string | null) => {
     setType(contentType);
     setOpen(false);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
-        <Button variant="secondary" size="sm" className="w-fit">
-          <span>
+        <Button
+          variant="secondary"
+          size="sm"
+          className={cn('w-fit text-muted-foreground')}
+          {...props}
+        >
+          <div className="flex items-center gap-2 ">
             {getTagTypeDescription({ type, tagTypes: types })}
             {' tags'}
-          </span>
+          </div>
           <IconChevronDown className="transition-all duration-200" />
         </Button>
       </Popover.Trigger>
@@ -36,6 +56,23 @@ export const TagTypeSelect = () => {
                 heading={key === 'core' ? 'Core tags' : `${key} tags`}
                 className="capitalize [&>*:first-child]:px-1 [&>*:first-child]:pb-1 [&>*:first-child]:pt-0"
               >
+                {key === 'core' && (
+                  <Command.Item
+                    onSelect={() => handleSelect(null)}
+                    className="cursor-pointer"
+                  >
+                    <span
+                      className={cn(
+                        type === null && 'text-primary font-medium',
+                      )}
+                    >
+                      {'Workspace tags'}
+                    </span>
+                    {type === null && (
+                      <IconCheck className="ml-auto h-4 w-4 text-primary" />
+                    )}
+                  </Command.Item>
+                )}
                 {value.map((_type) => (
                   <Command.Item
                     key={_type.contentType}
@@ -61,6 +98,6 @@ export const TagTypeSelect = () => {
           </Command.List>
         </Command>
       </Popover.Content>
-    </Popover>
+    </PopoverScoped>
   );
 };

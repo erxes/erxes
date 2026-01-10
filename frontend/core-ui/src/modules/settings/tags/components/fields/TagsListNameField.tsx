@@ -5,12 +5,13 @@ import {
   Textarea,
   useToast,
   TextOverflowTooltip,
+  PopoverScoped,
 } from 'erxes-ui';
-import { Popover as PopoverPrimitive } from 'radix-ui';
 import { useTagEdit } from 'ui-modules';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -91,7 +92,9 @@ export const TagsListNameField = ({
     );
   }
   return (
-    <Popover
+    <PopoverScoped
+      scope={SettingsHotKeyScope.TagsInput}
+      modal
       open={isOpen}
       onOpenChange={(open) => {
         if (!warned && !open && !form.getValues('name') && isForm) {
@@ -128,11 +131,6 @@ export const TagsListNameField = ({
           )}
         </Badge>
       </Popover.Trigger>
-      {isOpen && (
-        <PopoverPrimitive.Portal>
-          <div className="absolute inset-0 z-20 "></div>
-        </PopoverPrimitive.Portal>
-      )}
       <Popover.Content
         align="start"
         sideOffset={-24}
@@ -176,6 +174,6 @@ export const TagsListNameField = ({
           }}
         />
       </Popover.Content>
-    </Popover>
+    </PopoverScoped>
   );
 };

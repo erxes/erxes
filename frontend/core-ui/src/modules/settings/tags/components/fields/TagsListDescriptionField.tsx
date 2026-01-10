@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Popover, Badge, Textarea, TextOverflowTooltip } from 'erxes-ui';
+import {
+  Popover,
+  Badge,
+  Textarea,
+  TextOverflowTooltip,
+  PopoverScoped,
+} from 'erxes-ui';
 import { TagsListCell } from '@/settings/tags/components/TagsListCell';
 import { useTagEdit } from 'ui-modules';
 import { Popover as PopoverPrimitive } from 'radix-ui';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 
 export const TagsListDescriptionField = ({
   description,
@@ -50,7 +57,9 @@ export const TagsListDescriptionField = ({
 
   return (
     <TagsListCell className="flex-1 max-md:hidden pr-5">
-      <Popover
+      <PopoverScoped
+        modal
+        scope={SettingsHotKeyScope.TagsInput}
         open={isOpen}
         onOpenChange={(open) => {
           setIsOpen(open);
@@ -107,7 +116,7 @@ export const TagsListDescriptionField = ({
             autoFocus
           />
         </Popover.Content>
-      </Popover>
+      </PopoverScoped>
     </TagsListCell>
   );
 };

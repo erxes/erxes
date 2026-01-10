@@ -1,3 +1,3 @@
 export * from './TagTypeSelect';
-export * from './TagsInline';
+export * from './TagInline';
 export * from './TagsSelect';

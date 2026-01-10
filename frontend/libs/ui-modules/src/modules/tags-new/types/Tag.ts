@@ -10,4 +10,5 @@ export interface ITag {
   relatedIds?: string[];
   description?: string;
   totalObjectCount?: number;
+  __typename?: 'Tag';
 }
