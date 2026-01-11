@@ -34,7 +34,6 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         <Checklists />
       </div>
       <SalesNoteAndComment />
-      <ActivityList />
     </AttachmentProvider>
   );
 };
