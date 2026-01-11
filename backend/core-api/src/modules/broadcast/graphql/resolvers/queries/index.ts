@@ -1,1 +1,5 @@
-export const broadcastQueries = {};
+import { engageQueries } from './engage';
+
+export const broadcastQueries = {
+  ...engageQueries,
+};
