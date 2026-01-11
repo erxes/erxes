@@ -23,12 +23,12 @@ export const start = async (
 
   const configs = await getConfigs(models);
 
-  // const configSet = await getValueAsString(
-  //   models,
-  //   'configSet',
-  //   'AWS_SES_CONFIG_SET',
-  //   'erxes',
-  // );
+  const configSet = await getValueAsString(
+    models,
+    'AWS_SES_CONFIG_SET',
+    'AWS_SES_CONFIG_SET',
+    'erxes',
+  );
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId },
@@ -48,7 +48,7 @@ export const start = async (
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
-      await transporter.sendMail(prepareEmailParams(subdomain, customer, data));
+      await transporter.sendMail(prepareEmailParams(subdomain, customer, data, configSet));
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
@@ -287,13 +287,13 @@ export const sendEngageEmail = async (
 
   const configSet = await getValueAsString(
     models,
-    'configSet',
+    'AWS_SES_CONFIG_SET',
     'AWS_SES_CONFIG_SET',
     'erxes',
   );
 
   try {
-    await transporter.sendMail(prepareEmailParams(subdomain, customer, data));
+    await transporter.sendMail(prepareEmailParams(subdomain, customer, data, configSet));
 
     console.log(`Sent email to: ${customer?.primaryEmail}`);
   } catch (e) {

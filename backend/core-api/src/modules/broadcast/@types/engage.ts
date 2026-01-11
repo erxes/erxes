@@ -26,6 +26,7 @@ interface IMessenger {
   sentAs?: string;
   content: string;
   rules?: IRule[];
+  brandId?: string;
 }
 
 interface IMessengerDocument extends IMessenger, Document {}
