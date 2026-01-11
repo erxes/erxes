@@ -129,11 +129,11 @@ const SelectBroadcastMessageStatusFilterView = ({
 }: {
   queryKey?: string;
 }) => {
-  const [types, setStatus] = useQueryState<string>(queryKey || 'method');
+  const [types, setStatus] = useQueryState<string>(queryKey || 'methods');
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={queryKey || 'method'}>
+    <Filter.View filterKey={queryKey || 'methods'}>
       <SelectProjectStatusProvider
         value={types as string}
         onValueChange={(value) => {
@@ -152,7 +152,7 @@ const SelectBroadcastMessageStatusFilterBar = ({
 }: {
   queryKey?: string;
 }) => {
-  const [status, setStatus] = useQueryState<string>(queryKey || 'method');
+  const [status, setStatus] = useQueryState<string>(queryKey || 'methods');
   const [open, setOpen] = useState(false);
 
   return (
@@ -165,7 +165,7 @@ const SelectBroadcastMessageStatusFilterBar = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <Filter.BarButton filterKey={queryKey || 'method'}>
+          <Filter.BarButton filterKey={queryKey || 'methods'}>
             <SelectProjectStatusValue />
           </Filter.BarButton>
         </Popover.Trigger>

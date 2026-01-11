@@ -14,10 +14,12 @@ export const BroadcastEmailPreview = () => {
     <div className="h-full p-10">
       <div
         className={`
-          bg-white rounded-xl h-full py-8 border border-gray-200 transition-all duration-300
-          ${hasError 
-            ? 'shadow-[0_0_15px_rgba(239,68,68,0.5)]' 
-            : 'shadow-sm hover:shadow-md'}
+          bg-white overflow-y-auto rounded-xl h-full py-8 border border-gray-200 transition-all duration-300
+          ${
+            hasError
+              ? 'shadow-[0_0_15px_rgba(239,68,68,0.5)]'
+              : 'shadow-sm hover:shadow-md'
+          }
         `}
       >
         <Form.Field

@@ -1,3 +1,5 @@
+import { BadgeProps } from 'erxes-ui';
+
 export const BROADCAST_MESSAGE_KINDS: Record<string, string> = {
   AUTO: 'auto',
   VISITOR_AUTO: 'visitorAuto',
@@ -114,6 +116,15 @@ export const BROADCAST_MESSAGE_STATUS = [
   { value: 'sending', label: 'Sending' },
   { value: 'notSent', label: 'Not Sent' },
 ];
+
+export const BROADCAST_MESSAGE_STATUS_MAP: Record<
+  string,
+  { text: string; style: BadgeProps['variant'] }
+> = {
+  sending: { text: 'Sending', style: 'info' },
+  completed: { text: 'Sent', style: 'success' },
+  failed: { text: 'Not Sent', style: 'warning' },
+};
 
 export const BROADCAST_MESSAGE_METHODS = [
   { value: 'email', label: 'Email' },

@@ -2,14 +2,10 @@ import { IModels } from '~/connectionResolvers';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 import { ICustomer, IEmailParams, ISmsParams } from '../@types';
 import { CAMPAIGN_KINDS } from '../constants';
-import {
-  createTransporter,
-  getConfig,
-  getConfigs,
-  setCampaignCount,
-} from './common';
+import { getConfig, getConfigs, setCampaignCount } from './common';
 import { prepareEmailParams } from './email';
 import { getTelnyxInfo, handleMessageCallback, prepareMessage } from './telnyx';
+import { createTransporter } from './transporter';
 
 export const start = async (
   models: IModels,
@@ -26,12 +22,13 @@ export const start = async (
   } = data;
 
   const configs = await getConfigs(models);
-  const configSet = await getValueAsString(
-    models,
-    'configSet',
-    'AWS_SES_CONFIG_SET',
-    'erxes',
-  );
+
+  // const configSet = await getValueAsString(
+  //   models,
+  //   'configSet',
+  //   'AWS_SES_CONFIG_SET',
+  //   'erxes',
+  // );
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId },
@@ -51,9 +48,7 @@ export const start = async (
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
-      await transporter.sendMail(
-        prepareEmailParams(subdomain, customer, data, configSet),
-      );
+      await transporter.sendMail(prepareEmailParams(subdomain, customer, data));
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
@@ -298,9 +293,7 @@ export const sendEngageEmail = async (
   );
 
   try {
-    await transporter.sendMail(
-      prepareEmailParams(subdomain, customer, data, configSet),
-    );
+    await transporter.sendMail(prepareEmailParams(subdomain, customer, data));
 
     console.log(`Sent email to: ${customer?.primaryEmail}`);
   } catch (e) {

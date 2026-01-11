@@ -37,7 +37,9 @@ export const BroadcastBrandChooser = ({
               onChange([...(value || []), brand._id]);
             }}
             className={`mb-1 flex justify-between cursor-pointer ${
-              value?.includes(brand._id) ? 'bg-accent' : ''
+              value?.includes(brand._id)
+                ? 'bg-primary/10 hover:bg-primary/10'
+                : ''
             }`}
           >
             <span>{brand.name}</span>

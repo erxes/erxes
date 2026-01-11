@@ -553,10 +553,10 @@ export const loadClasses = (
   models.DeliveryReports = db.model<
     IDeliveryReportsDocument,
     IDeliveryReportModel
-  >('delivery_reports', deliveryReportsSchema);
+  >('broadcast_delivery_reports', deliveryReportsSchema);
 
   models.Stats = db.model<IStatsDocument, IStatsModel>(
-    'broadcast_engage_stats',
+    'broadcast_stats',
     loadStatsClass(models),
   );
 

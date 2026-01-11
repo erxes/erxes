@@ -14,12 +14,14 @@ import {
   BadgeProps,
   RecordTable,
   RecordTableInlineCell,
+  Tooltip,
   useQueryState,
 } from 'erxes-ui';
 import { BrandsInline, MembersInline } from 'ui-modules';
 import {
   BROADCAST_KIND_FILTERS,
   BROADCAST_MESSAGE_KINDS,
+  BROADCAST_MESSAGE_STATUS_MAP,
   BROADCAST_METHODS,
 } from '../constants';
 
@@ -58,7 +60,8 @@ export const broadcastColumns: ColumnDef<any>[] = [
       <RecordTable.InlineHead label="Status" icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
-      const { kind, isLive, runCount, isDraft } = cell.row.original;
+      const { kind, isLive, runCount, isDraft, status, progress } =
+        cell.row.original;
 
       let labelStyle: BadgeProps['variant'] = 'default';
       let labelText = 'Sending';
@@ -86,6 +89,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
         labelText = 'Draft';
       }
 
+      if (status) {
+        labelStyle = BROADCAST_MESSAGE_STATUS_MAP[status].style;
+        labelText = BROADCAST_MESSAGE_STATUS_MAP[status].text;
+      }
+
       return (
         <RecordTableInlineCell>
           <Badge variant={labelStyle}>{labelText}</Badge>
@@ -100,12 +108,41 @@ export const broadcastColumns: ColumnDef<any>[] = [
       <RecordTable.InlineHead label="Total" icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
+      const { validCustomersCount, totalCustomersCount } = cell.row.original;
+
+      const percentage =
+        totalCustomersCount > 0
+          ? (validCustomersCount / totalCustomersCount) * 100
+          : 0;
+
       return (
         <RecordTableInlineCell>
           <Badge variant="secondary">
             <IconUser className="w-4 h-4" />
             {(cell.getValue() as number) || 0}
           </Badge>
+
+          <Tooltip.Provider>
+            <Tooltip delayDuration={500}>
+              <Tooltip.Trigger asChild>
+                <Badge variant="secondary">
+                  {Number.isInteger(percentage)
+                    ? percentage
+                    : percentage.toFixed(2)}
+                  %
+                </Badge>
+              </Tooltip.Trigger>
+              {validCustomersCount && totalCustomersCount ? (
+                <Tooltip.Content
+                  className="max-w-96"
+                  side="right"
+                  align="start"
+                >
+                  {`${validCustomersCount} of ${totalCustomersCount} customers are valid`}
+                </Tooltip.Content>
+              ) : null}
+            </Tooltip>
+          </Tooltip.Provider>
         </RecordTableInlineCell>
       );
     },

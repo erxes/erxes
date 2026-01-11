@@ -68,7 +68,6 @@ const BROADCAST_DETAIL_STATISTIC = {
   },
 };
 
-
 export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
   const { stats, runCount, lastRunAt } = message || {};
 
@@ -82,18 +81,34 @@ export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
         <span className="text-muted-foreground inline-flex gap-2">
           Last run at:
           <strong className="text-primary">
-            {lastRunAt ? new Date(lastRunAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : 'Never'}
+            {lastRunAt
+              ? new Date(lastRunAt).toLocaleString('en-US', {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                })
+              : 'Never'}
           </strong>
         </span>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        {Object.entries(BROADCAST_DETAIL_STATISTIC).map(
-          ([key, { title, description, icon: Icon }]) => {
-            if (!(key in (stats || {}))) {
-              return null
-            }
+      <BroadcastTabStatistics stats={stats} />
+    </div>
+  );
+};
 
-            return (
+export const BroadcastTabStatistics = ({
+  stats,
+}: {
+  stats: Record<string, number>;
+}) => {
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      {Object.entries(BROADCAST_DETAIL_STATISTIC).map(
+        ([key, { title, description, icon: Icon }]) => {
+          if (Object.keys(stats || {})?.length && !(key in (stats || {}))) {
+            return null;
+          }
+
+          return (
             <div key={key} className="flex flex-col border rounded-md p-5">
               <div className="mb-3">
                 <div className="inline-flex items-center gap-2 text-primary">
@@ -101,19 +116,27 @@ export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
                   <span className="font-medium">{title}</span>
                 </div>
                 <div className="mt-1 flex justify-between items-center">
-                  <span className='text-2xl text-primary font-semibold'>{stats?.[key] || 0}</span>
+                  <span className="text-2xl text-primary font-semibold">
+                    {stats?.[key] || 0}
+                  </span>
 
-                  <Badge variant='secondary'>
-                    {stats.total ? (v => Number.isInteger(v) ? v : v.toFixed(2))(Math.min((stats[key] * 100) / stats.total, 100)) : '0.0'}%
+                  <Badge variant="secondary">
+                    {stats?.total
+                      ? ((v) => (Number.isInteger(v) ? v : v.toFixed(2)))(
+                          Math.min((stats[key] * 100) / stats.total, 100),
+                        )
+                      : '-'}
+                    %
                   </Badge>
                 </div>
               </div>
-              <p className="mt-auto text-justify text-muted-foreground">{description}</p>
+              <p className="mt-auto text-justify text-muted-foreground">
+                {description}
+              </p>
             </div>
-          )
-          }
-        )}
-      </div>
+          );
+        },
+      )}
     </div>
   );
 };

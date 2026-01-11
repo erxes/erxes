@@ -7,16 +7,16 @@ import {
 } from 'erxes-ui';
 import { BROADCAST_MESSAGES } from '../graphql/queries';
 
-const useBroadcastMessageVariables = () => {
-  const [{ searchValue, brand, fromUser, kind, status, method }] =
+export const useBroadcastMessageVariables = () => {
+  const [{ searchValue, brand, fromUser, kind, status, methods }] =
     useMultiQueryState<{
       searchValue: string;
       brand: string;
       fromUser: String;
       kind: string;
       status: string;
-      method: string;
-    }>(['searchValue', 'brand', 'fromUser', 'kind', 'status', 'method']);
+      methods: string;
+    }>(['searchValue', 'brand', 'fromUser', 'kind', 'status', 'methods']);
 
   return {
     searchValue: searchValue || undefined,
@@ -24,7 +24,7 @@ const useBroadcastMessageVariables = () => {
     fromUserId: fromUser || undefined,
     kind: kind || undefined,
     status: status || undefined,
-    method: method || undefined,
+    method: methods || undefined,
   };
 };
 

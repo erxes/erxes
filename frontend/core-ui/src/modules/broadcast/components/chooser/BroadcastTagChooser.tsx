@@ -2,9 +2,8 @@ import {
   CUSTOMER_RELATION_TYPE,
   useBroadcastChooser,
 } from '@/broadcast/hooks/useBroadcastChooser';
-import { Command, Combobox } from 'erxes-ui';
+import { Combobox, Command } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
-
 
 export const BroadcastTagChooser = ({
   tags,
@@ -54,7 +53,9 @@ export const BroadcastTagChooser = ({
                   setValue('targetCount', targetCount);
                 }}
                 className={`mb-1 flex justify-between cursor-pointer ${
-                  value?.includes(tag._id) ? 'bg-accent' : ''
+                  value?.includes(tag._id)
+                    ? 'bg-primary/10 hover:bg-primary/10'
+                    : ''
                 }`}
               >
                 <span>{tag.name}</span>
@@ -96,7 +97,9 @@ export const BroadcastTagChooser = ({
                     setValue('targetCount', targetCount);
                   }}
                   className={`mb-1 pl-5 flex justify-between cursor-pointer ${
-                    value?.includes(child._id) ? 'bg-accent' : ''
+                    value?.includes(child._id)
+                      ? 'bg-primary/10 hover:bg-primary/10'
+                      : ''
                   }`}
                 >
                   <span>{child.name}</span>

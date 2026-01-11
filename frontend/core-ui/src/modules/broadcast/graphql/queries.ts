@@ -44,6 +44,8 @@ export const BROADCAST_MESSAGES = gql`
         validCustomersCount
         runCount
         fromUserId
+        status
+        progress
         shortMessage {
           from
           content

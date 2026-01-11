@@ -1,30 +1,21 @@
 import { IEngageMessage } from '@/broadcast/@types';
-import {
-  CAMPAIGN_KINDS,
-  CAMPAIGN_METHODS,
-  CONTENT_TYPES,
-} from '@/broadcast/constants';
+import { CAMPAIGN_METHODS, CONTENT_TYPES } from '@/broadcast/constants';
 import { awsRequests } from '@/broadcast/trackers';
 import { isUsingElk } from '@/broadcast/utils';
-import { fetchSegment } from '@/segments/utils/fetchSegment';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { fetchEs, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 interface ICustomerSelector {
   engageId?: string;
-  customerIds?: string[];
-  segmentIds?: string[];
-  tagIds?: string[];
-  brandIds?: string[];
+  targetType?: string;
+  targetIds?: string[];
 }
 
 interface ICheckCustomerParams {
   id?: string;
-  customerIds?: string[];
-  segmentIds?: string[];
-  tagIds?: string[];
-  brandIds?: string[];
+  targetType?: string;
+  targetIds?: string[];
 }
 
 export const findElk = async (subdomain: string, index: string, query) => {
@@ -49,93 +40,16 @@ export const findElk = async (subdomain: string, index: string, query) => {
 export const generateCustomerSelector = async (
   subdomain: string,
   models: IModels,
-  {
-    engageId,
-    customerIds,
-    segmentIds = [],
-    tagIds = [],
-    brandIds = [],
-  }: ICustomerSelector,
+  { engageId, targetType, targetIds }: ICustomerSelector,
 ): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
 
-  if (customerIds && customerIds.length > 0) {
-    customerQuery = { _id: { $in: customerIds } };
+  switch (targetType) {
+    case 'tag': {
+      customerQuery = { tagIds: { $in: targetIds } };
+    }
   }
-
-  if (tagIds.length > 0) {
-    customerQuery = { tagIds: { $in: tagIds } };
-  }
-
-  if (brandIds.length > 0) {
-    const integrations = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'frontline',
-      method: 'query',
-      module: 'integrations',
-      action: 'find',
-      input: { query: { brandId: { $in: brandIds } } },
-    });
-
-    customerQuery = { integrationId: { $in: integrations.map((i) => i._id) } };
-  }
-
-  if (segmentIds.length > 0) {
-    const segments = await models.Segments.find({
-      _id: { $in: segmentIds },
-    }).lean();
-
-    let customerIdsBySegments: string[] = [];
-
-    for (const segment of segments) {
-      const options: any = { perPage: 5000, scroll: true };
-
-      if (!segment.contentType.includes('contacts')) {
-        options.returnAssociated = {
-          mainType: segment.contentType,
-          relType: 'core:customer',
-        };
-      }
-
-      const segmentData = await models.Segments.findOne({
-        _id: segment._id,
-      }).lean();
-
-      const cIds = await fetchSegment(models, subdomain, segmentData, options);
-
-      if (
-        engageId &&
-        [
-          'core:company',
-          'sales:deal',
-          // "operation:task",
-          'frontline:ticket',
-          // "purchases:purchase"
-        ].includes(segment.contentType)
-      ) {
-        const returnFields = [
-          'name',
-          'description',
-          'closeDate',
-          'createdAt',
-          'modifiedAt',
-          'customFieldsData',
-        ];
-
-        if (
-          segment.contentType === 'sales:deal'
-          // || segment.contentType === "purchases:purchase"
-        ) {
-          returnFields.push('productsData');
-        }
-      }
-
-      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-    } // end segments loop
-
-    customerQuery = { _id: { $in: customerIdsBySegments } };
-  } // end segmentIds if
 
   return {
     ...customerQuery,
@@ -149,16 +63,15 @@ export const checkCustomerExists = async (
   models: IModels,
   params: ICheckCustomerParams,
 ) => {
-  const { id, customerIds, segmentIds, tagIds, brandIds } = params;
+  const { id, targetType, targetIds } = params;
   if (!isUsingElk()) {
     const customersSelector = {
       _id: id,
       state: { $ne: CONTENT_TYPES.VISITOR },
       ...(await generateCustomerSelector(subdomain, models, {
-        customerIds,
-        segmentIds,
-        tagIds,
-        brandIds,
+        engageId: id,
+        targetType,
+        targetIds,
       })),
     };
 
@@ -181,53 +94,53 @@ export const checkCustomerExists = async (
     },
   });
 
-  if (customerIds && customerIds.length > 0) {
-    must.push({ terms: { _id: customerIds } });
-  }
+  // if (customerIds && customerIds.length > 0) {
+  //   must.push({ terms: { _id: customerIds } });
+  // }
 
-  if (tagIds && tagIds.length > 0) {
-    must.push({ terms: { tagIds } });
-  }
+  // if (tagIds && tagIds.length > 0) {
+  //   must.push({ terms: { tagIds } });
+  // }
 
-  if (brandIds && brandIds.length > 0) {
-    const integraiontIds = await findElk(subdomain, 'integrations', {
-      bool: {
-        must: [{ terms: { 'brandId.keyword': brandIds } }],
-      },
-    });
+  // if (brandIds && brandIds.length > 0) {
+  //   const integraiontIds = await findElk(subdomain, 'integrations', {
+  //     bool: {
+  //       must: [{ terms: { 'brandId.keyword': brandIds } }],
+  //     },
+  //   });
 
-    must.push({
-      terms: {
-        integrationId: integraiontIds.map((e) => e._id),
-      },
-    });
-  }
+  //   must.push({
+  //     terms: {
+  //       integrationId: integraiontIds.map((e) => e._id),
+  //     },
+  //   });
+  // }
 
-  if (segmentIds && segmentIds.length > 0) {
-    const segments = await findElk(subdomain, 'segments', {
-      bool: {
-        must: [{ terms: { _id: segmentIds } }],
-      },
-    });
+  // if (segmentIds && segmentIds.length > 0) {
+  //   const segments = await findElk(subdomain, 'segments', {
+  //     bool: {
+  //       must: [{ terms: { _id: segmentIds } }],
+  //     },
+  //   });
 
-    let customerIdsBySegments: string[] = [];
+  //   let customerIdsBySegments: string[] = [];
 
-    for (const segment of segments) {
-      const segmentData = await models.Segments.findOne({
-        _id: segment._id,
-      }).lean();
+  //   for (const segment of segments) {
+  //     const segmentData = await models.Segments.findOne({
+  //       _id: segment._id,
+  //     }).lean();
 
-      const cIds = await fetchSegment(models, subdomain, segmentData);
+  //     const cIds = await fetchSegment(models, subdomain, segmentData);
 
-      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-    }
+  //     customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+  //   }
 
-    must.push({
-      terms: {
-        _id: customerIdsBySegments,
-      },
-    });
-  }
+  //   must.push({
+  //     terms: {
+  //       _id: customerIdsBySegments,
+  //     },
+  //   });
+  // }
 
   must.push({
     bool: {
@@ -263,10 +176,14 @@ export const checkCampaignDoc = async (
   models: IModels,
   doc: IEngageMessage,
 ) => {
-  const { kind, method, targetIds = [], fromUserId } = doc;
+  const { method, targetIds = [], fromUserId } = doc;
 
-  if (kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !targetIds.length) {
-    throw new Error('One of brand or segment or tag must be chosen');
+  if (!CAMPAIGN_METHODS.ALL.includes(method)) {
+    throw new Error(`Unsupported broadcast method: ${method}`);
+  }
+
+  if (!targetIds.length) {
+    throw new Error('Target ids must be specified');
   }
 
   if (method === CAMPAIGN_METHODS.EMAIL) {

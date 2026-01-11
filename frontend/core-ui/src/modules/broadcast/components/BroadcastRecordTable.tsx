@@ -1,6 +1,7 @@
 import { broadcastColumns } from '@/broadcast/components/BroadcastColumns';
 import { useMessages } from '@/broadcast/hooks/useBroadcastMessages';
 import { RecordTable } from 'erxes-ui';
+import { BroadcastCommandBar } from './BroadcastCommandBar';
 
 export const BroadcastRecordTable = () => {
   const { messages, pageInfo, loading, handleFetchMore } = useMessages();
@@ -37,6 +38,7 @@ export const BroadcastRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <BroadcastCommandBar />
     </RecordTable.Provider>
   );
 };

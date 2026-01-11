@@ -15,8 +15,10 @@ export const BroadcastEditor = ({
   const editor = useBlockEditor({});
 
   useEffect(() => {
-    const unsubscribe = editor.onChange((editor: IBlockEditor) => {
-      onChange(JSON.stringify(editor.document));
+    const unsubscribe = editor.onChange(async (editor: IBlockEditor) => {
+      const html = await editor.blocksToFullHTML(editor.document);
+
+      onChange(html);
     });
 
     return unsubscribe;
@@ -27,7 +29,9 @@ export const BroadcastEditor = ({
       editor={editor}
       className={cn('flex-1 w-full overflow-y-auto')}
     >
-      {attribute && <AttributeInEditor editor={editor} />}
+      {attribute && (
+        <AttributeInEditor editor={editor} contentType="core:customer" />
+      )}
       {document && <DocumentInEditor editor={editor} />}
     </BlockEditor>
   );

@@ -70,6 +70,15 @@ export interface IEngageMessage {
 
   lastRunAt?: Date;
 
+  status: 'processing' | 'completed' | 'failed';
+  progress: {
+    totalBatches: number;
+    processedBatches: number;
+    successCount: number;
+    failureCount: number;
+    lastUpdated: Date;
+  };
+
   totalCustomersCount?: number;
   validCustomersCount?: number;
 

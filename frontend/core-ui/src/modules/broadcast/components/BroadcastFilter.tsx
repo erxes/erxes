@@ -61,7 +61,7 @@ const BroadcastFilterPopover = () => {
                   <IconProgress />
                   Status
                 </Filter.Item>
-                <Filter.Item value="method">
+                <Filter.Item value="methods">
                   <IconBroadcast />
                   Method
                 </Filter.Item>
@@ -133,7 +133,7 @@ export const BroadcastFilter = () => {
           <BroadcastMessageStatus.FilterBar />
         </Filter.BarItem>
 
-        <Filter.BarItem queryKey="method">
+        <Filter.BarItem queryKey="methods">
           <Filter.BarName>
             <IconBroadcast />
             Method

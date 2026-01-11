@@ -24,6 +24,9 @@ export const types = `
     runCount: Int
     lastRunAt: Date
 
+    status: String
+    progress: JSON
+
     brandId: String
 
     email: JSON
@@ -220,7 +223,7 @@ const mutationParams = `
 export const mutations = `
   engageMessageAdd(${mutationParams}): EngageMessage
   engageMessageEdit(_id: String!, ${mutationParams}): EngageMessage
-  engageMessageRemove(_id: String!): EngageMessage
+  engageMessageRemove(_ids: [String]): JSON
   engageMessageSetLive(_id: String!): EngageMessage
   engageMessageSetPause(_id: String!): EngageMessage
   engageMessageSetLiveManual(_id: String!): EngageMessage

@@ -46,6 +46,20 @@ export const engageMessageSchema = new Schema(
     lastRunAt: { type: Date, label: 'Last run at' },
     runCount: { type: Number, label: 'Run count', default: 0 },
 
+    status: {
+      type: String,
+      enum: ['sending', 'completed', 'failed'],
+      label: 'Status',
+    },
+
+    progress: {
+      totalBatches: { type: Number, label: 'Total batches' },
+      processedBatches: { type: Number, label: 'Processed batches' },
+      successCount: { type: Number, label: 'Success count' },
+      failureCount: { type: Number, label: 'Failure count' },
+      lastUpdated: { type: Date, label: 'Last updated' },
+    },
+
     totalCustomersCount: { type: Number, label: 'Total customers count' },
     validCustomersCount: { type: Number, label: 'Valid customers count' },
 
