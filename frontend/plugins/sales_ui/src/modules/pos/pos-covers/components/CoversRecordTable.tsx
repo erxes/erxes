@@ -1,7 +1,6 @@
 import { RecordTable } from 'erxes-ui';
 import { useCoversList } from '@/pos/pos-covers/hooks/UseCoversList';
 import { coverColumns } from '@/pos/pos-covers/components/CoverColumns';
-import { CoverCommandBar } from '@/pos/pos-covers/components/cover-command-bar/CoverCommandBar';
 import { useIsPosCoverLeadSessionKey } from '@/pos/pos-covers/hooks/UsePosCoverLeadSessionKey';
 import { IconShoppingCartX } from '@tabler/icons-react';
 
@@ -51,7 +50,6 @@ export const CoversRecordTable = () => {
           </div>
         )}
       </RecordTable.CursorProvider>
-      <CoverCommandBar />
     </RecordTable.Provider>
   );
 };

@@ -14,7 +14,50 @@ export interface IBoardCount {
     _id: string;
     name: string;
     count: number;
-}     
+}  
+
+export interface BaseBoardItem {
+  id: string;
+  columnId: string;
+}
+
+export interface BaseBoardColumn {
+  _id: string;
+  name: string;
+}
+
+export interface GenericBoardState<
+  TItem extends BaseBoardItem,
+  TColumn extends BaseBoardColumn,
+> {
+  columns: TColumn[];
+  items: Record<string, TItem>;
+  columnItems: Record<string, string[]>;
+}
+
+export interface GenericBoardProps<
+  TItem extends BaseBoardItem,
+  TColumn extends BaseBoardColumn,
+> {
+  initialState: GenericBoardState<TItem, TColumn>;
+  onStateChange?: (
+    newState: GenericBoardState<TItem, TColumn>, 
+    oldState: GenericBoardState<TItem, TColumn>,
+    draggedItemId?: string
+  ) => void;
+  onDragStart?: (itemId: string) => void;
+  renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
+  renderColumnHeader?: (column: TColumn, itemCount: number) => React.ReactNode;
+  columnClassName?: string;
+  cardClassName?: string;
+}
+export interface BoardDealColumn extends BaseBoardColumn {
+  type: string;
+  probability?: string;
+  itemsTotalCount?: number;
+  amount?: number | string | null;
+  unUsedAmount?: number;
+}
 
 export interface ISelectBoardsProviderProps {
   targetIds?: string[];
@@ -32,6 +75,11 @@ export interface ISelectBoardsProviderProps {
     OperationVariables
   >;
 }
+
+export type ActiveDragItem = 
+  | { type: 'column'; column: BoardDealColumn }
+  | { type: 'card'; item: any }
+  | null;
 
 export interface ISelectBoardsContext {
   boardIds: string[];
