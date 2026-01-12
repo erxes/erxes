@@ -210,7 +210,6 @@ export default async function userMiddleware(
         setCPUserHeader(req.headers, req.cpUser);
       }
     } catch (e) {
-      console.error(e);
       if (e instanceof jwt.TokenExpiredError) {
         return next();
       } else {

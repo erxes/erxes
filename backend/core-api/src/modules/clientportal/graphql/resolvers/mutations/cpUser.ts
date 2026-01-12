@@ -115,7 +115,7 @@ export const cpUserMutations: Record<string, Resolver> = {
 
     const tokens = authService.setAuthCookie(res, user, clientPortal);
 
-    if (tokens) {
+    if (tokens?.token && tokens?.refreshToken) {
       return { ...user.toObject(), ...tokens };
     }
 
@@ -137,7 +137,7 @@ export const cpUserMutations: Record<string, Resolver> = {
 
     const tokens = authService.setAuthCookie(res, user, clientPortal);
 
-    if (tokens) {
+    if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
     }
 
@@ -189,7 +189,7 @@ export const cpUserMutations: Record<string, Resolver> = {
 
     const tokens = authService.setAuthCookie(res, user, clientPortal);
 
-    if (tokens) {
+    if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
     }
     return 'Password reset successful';
@@ -221,7 +221,8 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
     const tokens = authService.setAuthCookie(res, user, clientPortal);
-    if (tokens) {
+    
+    if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
     }
     return 'Success';
@@ -240,7 +241,8 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
     const tokens = authService.setAuthCookie(res, user, clientPortal);
-    if (tokens) {
+    
+    if (tokens?.token && tokens?.refreshToken) {
       return { ...user.toObject(), ...tokens };
     }
     return user;
@@ -258,7 +260,8 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
     const tokens = authService.setAuthCookie(res, user, clientPortal);
-    if (tokens) {
+    
+    if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
     }
     return 'Success';
