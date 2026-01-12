@@ -160,6 +160,18 @@ export const FormPreviewContent = ({
                     name={erxesField.id}
                     control={form.control}
                     render={({ field }) => {
+                      if (erxesField.type === 'number') {
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <Input.Number
+                              value={field.value}
+                              onChange={(value) => field.onChange(value)}
+                              placeholder={erxesField.placeholder}
+                            />
+                          </ErxesFormItem>
+                        );
+                      }
                       if (erxesField.type === 'boolean') {
                         return (
                           <ErxesFormItem
@@ -182,7 +194,10 @@ export const FormPreviewContent = ({
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
-                            <Textarea {...field} />
+                            <Textarea
+                              {...field}
+                              placeholder={erxesField.placeholder}
+                            />
                           </ErxesFormItem>
                         );
                       }
@@ -218,7 +233,10 @@ export const FormPreviewContent = ({
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
-                            <DatePicker {...field} />
+                            <DatePicker
+                              {...field}
+                              placeholder={erxesField.placeholder}
+                            />
                           </ErxesFormItem>
                         );
                       }
@@ -226,7 +244,10 @@ export const FormPreviewContent = ({
                       return (
                         <ErxesFormItem span={erxesField.span}>
                           <Form.Label>{erxesField.label}</Form.Label>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder={erxesField.placeholder}
+                          />
                         </ErxesFormItem>
                       );
                     }}

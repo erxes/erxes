@@ -1,4 +1,12 @@
-import { Label, Input, Sheet, Textarea, ToggleGroup, Button } from 'erxes-ui';
+import {
+  Label,
+  Input,
+  Sheet,
+  Textarea,
+  ToggleGroup,
+  Button,
+  StringArrayInput,
+} from 'erxes-ui';
 import { IFieldData, useFormDnd } from './FormDndProvider';
 import { useState } from 'react';
 import { UniqueIdentifier } from '@dnd-kit/core';
@@ -33,7 +41,10 @@ export const FormFieldDetail = ({
     return null;
   }
 
-  const handleValueChange = (key: keyof IFieldData, value: string | number) => {
+  const handleValueChange = (
+    key: keyof IFieldData,
+    value: string | number | string[],
+  ) => {
     handleChangeField(stepId, fieldId, {
       ...fieldData,
       [key]: value,
@@ -85,6 +96,18 @@ export const FormFieldDetail = ({
             <Input
               value={fieldData?.placeholder}
               onChange={(e) => handleValueChange('placeholder', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2 col-span-2">
+            <Label>Options</Label>
+            <StringArrayInput
+              styleClasses={{
+                inlineTagsContainer: 'shadow-xs',
+              }}
+              value={fieldData?.options ?? []}
+              onValueChange={(value) =>
+                handleValueChange('options', value as string[])
+              }
             />
           </div>
         </div>

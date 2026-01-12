@@ -4,7 +4,16 @@ import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
 import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
-import { IconArrowsDiagonal, IconPlus } from '@tabler/icons-react';
+import {
+  IconArrowsDiagonal,
+  IconCheck,
+  IconCalendarEvent,
+  IconNumbers,
+  IconPlus,
+  IconTextScan2,
+  IconTextSize,
+  IconChevronDown,
+} from '@tabler/icons-react';
 import { FORM_FIELD_TYPES } from '../constants/formFieldTypes';
 import { useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
@@ -39,7 +48,7 @@ export const FormDndField = ({
     <>
       <div
         className={cn(
-          'p-1 text-sm border rounded-md flex items-center justify-between px-2',
+          'p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2',
           fieldData?.span === 2 && 'col-span-2',
           mountedWhileDragging && 'fade-in',
         )}
@@ -47,8 +56,14 @@ export const FormDndField = ({
         style={{ transition, transform: CSS.Translate.toString(transform) }}
         {...listeners}
       >
+        <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
         {fieldData?.label}
-        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-auto"
+          onClick={() => setOpen(true)}
+        >
           <IconArrowsDiagonal />
         </Button>
       </div>
@@ -62,6 +77,23 @@ export const FormDndField = ({
       </FormFieldDetailSheet>
     </>
   );
+};
+
+export const FormDndFieldIcon = ({ type }: { type: string }) => {
+  switch (type) {
+    case 'number':
+      return <IconNumbers />;
+    case 'boolean':
+      return <IconCheck />;
+    case 'date':
+      return <IconCalendarEvent />;
+    case 'select':
+      return <IconChevronDown />;
+    case 'textarea':
+      return <IconTextScan2 />;
+    default:
+      return <IconTextSize />;
+  }
 };
 
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
@@ -79,7 +111,7 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             key={type.value}
             onClick={() => handleAddField(step, type)}
           >
-            {type.icon}
+            <FormDndFieldIcon type={type.value} />
             {type.label}
           </DropdownMenu.Item>
         ))}
