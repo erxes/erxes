@@ -1,8 +1,7 @@
 import { IPipelineLabel } from '@/deals/types/pipelines';
-import { IconPlus } from '@tabler/icons-react';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { Popover } from 'erxes-ui';
-import { SelectLabels } from '~/modules/deals/components/common/filters/SelectLabel';
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 
 const LabelChooser = ({
   labels,
@@ -22,6 +21,7 @@ const LabelChooser = ({
             label="By Label"
             variant="card"
             targetId={targetId}
+            initialValue={labels?.map((label) => label._id || '') || []}
           />
         </Popover.Trigger>
       </Popover>

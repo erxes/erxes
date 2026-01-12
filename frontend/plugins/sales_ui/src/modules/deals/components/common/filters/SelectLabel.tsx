@@ -15,25 +15,24 @@ import {
   cn,
   useFilterContext,
   useQueryState,
-  Spinner,
-  Input,
 } from 'erxes-ui';
 import {
   IPipelineLabel,
   ISelectLabelContext,
   ISelectLabelProviderProps,
 } from '@/deals/types/pipelines';
-import { IconLabel, IconPlus, IconCheck } from '@tabler/icons-react';
-import { useContext, useState, useMemo, useEffect } from 'react';
+import { IconCheck, IconLabel, IconPlus } from '@tabler/icons-react';
+import { useContext, useEffect, useState } from 'react';
+import {
+  usePipelineLabelLabel,
+  usePipelineLabels,
+} from '@/deals/pipelines/hooks/usePipelineDetails';
+
+import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
+import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
+import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
 import React from 'react';
 import { createContext } from 'react';
-import { ADD_PIPELINE_LABEL } from '~/modules/deals/graphql/mutations/PipelinesMutations';
-import { usePipelineLabelLabel } from '~/modules/deals/pipelines/hooks/usePipelineDetails';
-import { useMutation, useQuery } from '@apollo/client';
-import { GET_PIPELINE_LABELS } from '~/modules/deals/graphql/queries/PipelinesQueries';
-import { GET_DEALS } from '~/modules/deals/graphql/queries/DealsQueries';
-import { usePipelineLabels } from '@/deals/pipelines/hooks/usePipelineDetails';
-import LabelForm from '~/modules/deals/cards/components/detail/overview/label/LabelForm';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -96,28 +95,18 @@ export const SelectLabelsProvider = ({
   );
 };
 
-export const SelectLabelsCommand = ({
-  disableCreateOption,
-  targetId,
-}: {
-  disableCreateOption?: boolean;
-  targetId?: string;
-}) => {
-  const [search, setSearch] = useState<string>('');
+export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
 
   const [pipelineId] = useQueryState('pipelineId');
 
-  const { pipelineLabels = [], loading: labelsLoading } = usePipelineLabels({
+  const {
+    pipelineLabels = [],
+    loading,
+    error,
+  } = usePipelineLabels({
     variables: { pipelineId },
-  });
-
-  const [addPipelineLabel] = useMutation(ADD_PIPELINE_LABEL, {
-    refetchQueries: [{ query: GET_PIPELINE_LABELS, variables: { pipelineId } }],
-
-    onCompleted: () => {},
-    onError: (error) => {},
   });
 
   const toggleLabel = (label: IPipelineLabel) => {
@@ -133,10 +122,7 @@ export const SelectLabelsCommand = ({
       newLabelIds.push(label._id);
     }
 
-    // Only update context for non-card usage (filters)
-    // For cards, the mutation will update the backend and the UI will refresh from the deal data
     if (targetId) {
-      // Card variant - just update the backend and refetch deals
       labelPipelineLabel({
         variables: {
           targetId: targetId,
@@ -152,21 +138,11 @@ export const SelectLabelsCommand = ({
             variables: { pipelineId },
           },
         ],
-        onCompleted: () => {},
-        onError: (error) => {},
       });
     } else {
-      // Filter variant - update context
       onSelect(label);
     }
   };
-
-  const filteredLabels = useMemo(() => {
-    const filtered = pipelineLabels.filter((label: IPipelineLabel) =>
-      label.name.toLowerCase().includes(search.toLowerCase()),
-    );
-    return filtered;
-  }, [pipelineLabels, search]);
 
   const [editLabelId, setEditLabelId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -196,49 +172,49 @@ export const SelectLabelsCommand = ({
       </>
     );
   }
-  return (
-    <>
-      <Command>
-        <Command.Input placeholder="Search label" />
-        <Command.List className="px-1 ">
-          {filteredLabels.map((label) => (
-            <li
-              key={label._id}
-              className={cn(
-                'flex items-center justify-between p-2 cursor-pointer my-1',
-                labelIds?.includes(label._id || '')
-                  ? 'bg-blue-50 border-blue-300 rounded-md'
-                  : '',
-              )}
-              onClick={() => toggleLabel(label)}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="inline-block w-4 h-4 rounded-full"
-                  style={{ backgroundColor: label.colorCode }}
-                />
-                <span className="text-sm">{label.name}</span>
-              </div>
 
-              {labelIds?.includes(label._id || '') && (
-                <IconCheck className="w-4 h-4 text-green-600" />
-              )}
-            </li>
-          ))}
-        </Command.List>
-        <Button
-          type="button"
-          className="w-[90%] mx-auto mb-2"
-          onClick={() => {
-            setEditLabelId(null);
-            setShowForm(true);
-          }}
-        >
-          <IconPlus size={16} />
-          Create a new label
-        </Button>
-      </Command>
-    </>
+  return (
+    <Command>
+      <Command.Input placeholder="Search label" />
+      <Command.List className="px-1 ">
+        <Combobox.Empty loading={loading} error={error} />
+        {pipelineLabels.map((label) => (
+          <li
+            key={label._id}
+            className={cn(
+              'flex items-center justify-between p-2 cursor-pointer my-1',
+              labelIds?.includes(label._id || '')
+                ? 'bg-blue-50 border-blue-300 rounded-md'
+                : '',
+            )}
+            onClick={() => toggleLabel(label)}
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className="inline-block w-4 h-4 rounded-full"
+                style={{ backgroundColor: label.colorCode }}
+              />
+              <span className="text-sm">{label.name}</span>
+            </div>
+
+            {labelIds?.includes(label._id || '') && (
+              <IconCheck className="w-4 h-4 text-green-600" />
+            )}
+          </li>
+        ))}
+      </Command.List>
+      <Button
+        type="button"
+        className="w-[90%] mx-auto mb-2"
+        onClick={() => {
+          setEditLabelId(null);
+          setShowForm(true);
+        }}
+      >
+        <IconPlus size={16} />
+        Create a new label
+      </Button>
+    </Command>
   );
 };
 
@@ -265,7 +241,7 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
 };
 
 export const SelectLabelsValue = () => {
-  const { selectedLabels, mode } = useSelectLabelsContext();
+  const { selectedLabels } = useSelectLabelsContext();
 
   if (selectedLabels?.length > 1)
     return (
