@@ -147,7 +147,6 @@ const AdjustDebtRateFormContent = ({
   const loading = addLoading || changeLoading;
 
   const onSubmit = (data: TAdjustDebtRateForm) => {
-    console.log('Form data:', data);
     if (adjustDebtRate) {
       changeAdjustDebtRate({
         variables: { _id: adjustDebtRate._id, ...data },
@@ -165,10 +164,6 @@ const AdjustDebtRateFormContent = ({
         },
       });
     }
-  };
-
-  const onError = (error: any) => {
-    console.log(error);
   };
 
   const SelectCustomerComponent =

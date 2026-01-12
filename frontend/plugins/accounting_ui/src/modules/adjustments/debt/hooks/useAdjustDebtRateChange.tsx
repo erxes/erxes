@@ -88,7 +88,7 @@ export const useAdjustDebtRateRemove = (options?: OperationVariables) => {
       ],
       awaitRefetchQueries: true,
       update: () => {
-        const pathname = '/accounting/adjustment/debtRate';
+        const pathname = '/accounting/adjustment/debRate';
         navigate(pathname);
       },
     });
