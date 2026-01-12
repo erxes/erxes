@@ -16,8 +16,7 @@ export const TagTypeSelect = ({
   ...props
 }: {
   scope?: string;
-  props?: React.ComponentProps<typeof Button>;
-}) => {
+} & React.ComponentProps<typeof Button>) => {
   const [type, setType] = useQueryState<string>('tagType');
   const [open, setOpen] = useState(false);
   const { types } = useTagTypes();
