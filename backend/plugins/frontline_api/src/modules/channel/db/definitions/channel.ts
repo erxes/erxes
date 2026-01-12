@@ -27,9 +27,6 @@ export const channelSchema = schemaWrapper(
       label: 'Open conversation count',
     },
   }),
-  {
-    contentType: 'frontline:inbox.channel',
-  },
 );
 
 const channelMemberRole = {

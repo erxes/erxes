@@ -14,8 +14,12 @@ import {
   useProfileForm,
 } from '@/settings/profile/hooks/useProfileForm';
 import { Button, Form, Spinner, Upload } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ProfileForm = () => {
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'profile',
+  });
   const { form } = useProfileForm();
 
   const { loading, profileUpdate, profile, updating } = useProfile();
@@ -49,7 +53,7 @@ export const ProfileForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(submitHandler)} className="grid gap-5">
         <div className="flex flex-col gap-4">
-          <Form.Label>Profile picture</Form.Label>
+          <Form.Label>{t('profile-picture')}</Form.Label>
           <Form.Field
             control={form.control}
             name="details.avatar"
@@ -75,7 +79,7 @@ export const ProfileForm = () => {
                         />
                       </div>
                       <Form.Description>
-                        Upload a profile picture to help identify you.
+                        {t('profile-description')}
                       </Form.Description>
                     </div>
                   </Upload.Root>
@@ -85,14 +89,14 @@ export const ProfileForm = () => {
           />
         </div>
         <div className="flex flex-col gap-3">
-          <Form.Label>Name</Form.Label>
-          <Form.Description>This is your public display name.</Form.Description>
+          <Form.Label>{t('name')}</Form.Label>
+          <Form.Description>{t('name-description')}</Form.Description>
           <DefaultFields />
         </div>
         <div className="flex flex-col gap-3">
-          <Form.Label>Email</Form.Label>
+          <Form.Label>{t('email')}</Form.Label>
           <Form.Description>
-            This is your public email address.
+            {t('email-description')}
           </Form.Description>
           <FormField
             name={'email' as keyof FormType}
@@ -107,14 +111,14 @@ export const ProfileForm = () => {
           <AdvancedFields />
         </div>
         <div className="flex flex-col flex-1 gap-3">
-          <Form.Label>Links</Form.Label>
-          <Form.Description>This is your social links.</Form.Description>
+          <Form.Label>{t('link')}</Form.Label>
+          <Form.Description>{t('link-description')}</Form.Description>
           <LinkFields />
         </div>
         <div className="w-full flex justify-end">
           <Button type="submit" disabled={updating} size="sm">
             {(updating && <Spinner size={'sm'} className="text-white" />) ||
-              'Update'}
+              t('update')}
           </Button>
         </div>
       </form>

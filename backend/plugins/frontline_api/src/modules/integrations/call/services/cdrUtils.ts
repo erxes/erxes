@@ -243,7 +243,6 @@ export function selectRelevantCdr(histories: any[]): any | null {
 
   return answered || noAnswer || ivr || histories[histories.length - 1] || null;
 }
-
 export const calculateFileDir = (doc) => {
   let fileDir = 'monitor';
 

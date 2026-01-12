@@ -47,6 +47,7 @@ export const DOCUMENTS_QUERY = gql`
         _id
         name
         code
+        content
       }
       ${GQL_PAGE_INFO}
     }

@@ -1,33 +1,11 @@
 import { gql } from '@apollo/client';
 
-const CONVERSATIONS_FRAGMENT = `
-  conversations {
-    _id
-    assignedUser {
-      _id
-    }
-    content
-    messageCount
-    integrationId
-    messages {
-      _id
-      attachments {
-        name
-        size
-        type
-        url
-        duration
-      }
-      content
-    }
-  }
-`;
-
 export const CUSTOMER_DETAIL = gql`
   query CustomerDetail($_id: String!) {
     customerDetail(_id: $_id) {
       _id
       avatar
+      customFieldsData
       firstName
       lastName
       middleName
@@ -54,7 +32,6 @@ export const CUSTOMER_DETAIL = gql`
         avatar
         primaryName
       }
-      ${CONVERSATIONS_FRAGMENT}
     }
   }
 `;

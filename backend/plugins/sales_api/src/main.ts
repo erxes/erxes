@@ -15,7 +15,6 @@ startPlugin({
     resolvers,
   }),
   expressRouter: router,
-
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
@@ -25,7 +24,7 @@ startPlugin({
       : 'subscription.ts',
   ),
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
 

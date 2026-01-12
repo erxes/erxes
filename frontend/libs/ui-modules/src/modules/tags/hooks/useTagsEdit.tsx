@@ -1,6 +1,7 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { ITag } from '../types/Tag';
 
 const ADD_TAG = gql`
   mutation TagsAdd(
@@ -20,7 +21,17 @@ const ADD_TAG = gql`
       isGroup: $isGroup
     ) {
       _id
+      name
+      colorCode
+      parentId
+      relatedIds
+      isGroup
+      description
+      type
       order
+      objectCount
+      totalObjectCount
+      createdAt
     }
   }
 `;
@@ -28,12 +39,12 @@ const ADD_TAG = gql`
 const EDIT_TAG = gql`
   mutation TagsEdit(
     $id: String!
-    $name: String!
+    $name: String
     $type: String
     $colorCode: String
     $parentId: String
-    $description: String
     $isGroup: Boolean
+    $description: String
   ) {
     tagsEdit(
       _id: $id
@@ -41,10 +52,16 @@ const EDIT_TAG = gql`
       type: $type
       colorCode: $colorCode
       parentId: $parentId
-      description: $description
       isGroup: $isGroup
+      description: $description
     ) {
       _id
+      name
+      colorCode
+      parentId
+      isGroup
+      description
+      type
     }
   }
 `;
@@ -56,7 +73,6 @@ export const useTagsAdd = () => {
     addTag({
       ...options,
       variables,
-      refetchQueries: ['Tags'],
       onCompleted: (data) => {
         if (data?.tagsAdd) {
           toast({ title: 'Tag added successfully!' });
@@ -84,17 +100,37 @@ export const useTagsEdit = () => {
     editTag({
       ...options,
       variables,
-      refetchQueries: ['Tags'],
+      optimisticResponse: {
+        tagsEdit: {
+          id: variables?.id,
+          __typename: 'Tag',
+          ...variables,
+        },
+      },
+      update: (cache, { data: { tagsEdit } }) => {
+        cache.modify({
+          id: cache.identify(tagsEdit),
+          fields: Object.keys(variables || {}).reduce(
+            (fields: Record<string, () => any>, field) => {
+              fields[field] = () => (variables || {})[field as keyof ITag];
+              return fields;
+            },
+            {},
+          ),
+        });
+      },
       onCompleted: (data) => {
         if (data?.tagsEdit) {
           toast({ title: 'Tag updated successfully!' });
         }
+        options.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
           title: error?.message || 'Failed to update tag',
           variant: 'destructive',
         });
+        options.onError?.(error);
       },
     });
   };

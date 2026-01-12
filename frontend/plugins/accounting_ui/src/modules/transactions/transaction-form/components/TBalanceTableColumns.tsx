@@ -1,6 +1,6 @@
 import { TR_SIDES } from '@/transactions/types/constants';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
-import { Cell, ColumnDef, RowData } from '@tanstack/react-table';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
   CurrencyCode,
@@ -178,12 +178,7 @@ const transactionMoreColumn = {
   size: 33,
 };
 
-export type ExtendedColumnDef<TData extends RowData, TValue = unknown> =
-  ColumnDef<TData, TValue> & {
-    colOrder?: number;
-  };
-
-export const tbalanceColumns: ExtendedColumnDef<ITBalanceTransaction>[] = [
+export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
   transactionMoreColumn,
   {
     id: 'account',
@@ -192,42 +187,56 @@ export const tbalanceColumns: ExtendedColumnDef<ITBalanceTransaction>[] = [
     ),
     accessorKey: 'account',
     cell: ({ row }) => <AccountCell row={row} />,
-    colOrder: 0,
   },
   {
     id: 'number',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Number" />,
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
-    colOrder: 1,
   },
   {
     id: 'date',
     header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
-    colOrder: 2,
   },
   {
     id: 'debit',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Debit" />,
     accessorKey: 'debit',
     cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
-    colOrder: 10,
   },
   {
     id: 'credit',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Credit" />,
     accessorKey: 'credit',
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
-    colOrder: 11,
+  },
+  {
+    id: 'product-inv',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
+    ),
+    accessorKey: 'product-inv',
+    cell: ({ row }) => <ProductCell row={row} />,
+  },
+  {
+    id: 'unitPrice-inv',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    accessorKey: 'unitPrice-inv',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />,
+  },
+  {
+    id: 'count-inv',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
+    accessorKey: 'count-inv',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />,
   },
   {
     id: 'branch',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
     accessorKey: 'branch',
     cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
-    colOrder: 20,
   },
   {
     id: 'department',
@@ -236,7 +245,6 @@ export const tbalanceColumns: ExtendedColumnDef<ITBalanceTransaction>[] = [
     cell: ({ getValue, row }) => (
       <DepartmentCell getValue={getValue} row={row} />
     ),
-    colOrder: 21,
   },
   {
     id: 'description',
@@ -248,32 +256,5 @@ export const tbalanceColumns: ExtendedColumnDef<ITBalanceTransaction>[] = [
       <DescriptionCell getValue={getValue} row={row} />
     ),
     size: 300,
-    colOrder: 30,
-  },
-];
-
-export const tbalanceInvColumns: ExtendedColumnDef<ITBalanceTransaction>[] = [
-  {
-    id: 'product',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
-    accessorKey: 'product',
-    cell: ({ row }) => <ProductCell row={row} />,
-    colOrder: 15,
-  },
-  {
-    id: 'unitPrice',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
-    accessorKey: 'unitPrice',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />,
-    colOrder: 16,
-  },
-  {
-    id: 'count',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
-    accessorKey: 'count',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />,
-    colOrder: 17,
   },
 ];

@@ -3,6 +3,7 @@ import { IBrand, IBrandDocument } from '@/organization/brand/types';
 import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IBrandModel extends Model<IBrandDocument> {
   getBrand(doc: any): Promise<IBrandDocument>;
@@ -12,7 +13,11 @@ export interface IBrandModel extends Model<IBrandDocument> {
   removeBrands(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadBrandClass = (models: IModels) => {
+export const loadBrandClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Brand {
     /*
      * Get a Brand
@@ -57,7 +62,7 @@ export const loadBrandClass = (models: IModels) => {
         code = await this.generateCode();
       }
 
-      return models.Brands.create({
+      const newBrand = await models.Brands.create({
         ...doc,
         code,
         emailConfig:
@@ -65,18 +70,40 @@ export const loadBrandClass = (models: IModels) => {
             ? doc.emailConfig
             : { type: 'simple' },
       });
+      sendDbEventLog({
+        action: 'create',
+        docId: newBrand._id,
+        currentDocument: newBrand.toObject(),
+      });
+      return newBrand;
     }
 
     public static async updateBrand(_id: string, fields: IBrand) {
-      return models.Brands.findOneAndUpdate(
+      const updatedBrand = await models.Brands.findOneAndUpdate(
         { _id },
         { $set: { ...fields } },
         { new: true },
       );
+      if (updatedBrand) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedBrand._id,
+          currentDocument: updatedBrand.toObject(),
+          prevDocument: updatedBrand.toObject(),
+        });
+      }
+      return updatedBrand;
     }
 
     public static async removeBrands(_ids: string[]) {
-      return await models.Brands.deleteMany({ _id: _ids });
+      const deletedBrands = await models.Brands.deleteMany({ _id: _ids });
+      if (deletedBrands.deletedCount > 0) {
+        sendDbEventLog({
+          action: 'deleteMany',
+          docIds: _ids,
+        });
+      }
+      return deletedBrands;
     }
   }
 

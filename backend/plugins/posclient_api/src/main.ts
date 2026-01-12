@@ -13,7 +13,7 @@ import { initMQWorkers } from './worker';
 
 startPlugin({
   name: 'posclient',
-  port: 3321,
+  port: 3312,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
@@ -37,7 +37,7 @@ startPlugin({
       headers: req.headers,
     };
 
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.subdomain = subdomain;
     context.models = models;
@@ -46,7 +46,6 @@ startPlugin({
     context.res = res;
 
     context.config = {};
-
     if (req?.posConfig?._id) {
       context.config = req.posConfig;
     } else if (models) {

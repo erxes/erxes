@@ -22,9 +22,9 @@ const generateFilter = async (params: IFieldGroupParams) => {
 };
 
 export const groupQueries = {
-  fieldsGroups: async (
+  fieldGroups: async (
     _: undefined,
-    params: IFieldGroupParams,
+    { params }: { params: IFieldGroupParams },
     { models }: IContext,
   ) => {
     const filter = await generateFilter(params);

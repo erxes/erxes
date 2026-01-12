@@ -102,9 +102,15 @@ export function PipelineFormBar() {
         ? 'Pipeline updated successfully'
         : 'Pipeline added successfully';
 
-      const variables = pipelineId
-        ? { _id: pipelineId, ...data } // include _id for edit
-        : { ...data };
+      const { otherPayments, token, payment, ...rest } = data;
+
+      const variables = {
+        ...(pipelineId && { _id: pipelineId }),
+        ...rest,
+        paymentTypes: otherPayments || [],
+        erxesAppToken: token || '',
+        paymentIds: payment ? [payment] : [],
+      };
 
       managePipeline({
         variables,
@@ -154,6 +160,12 @@ export function PipelineFormBar() {
         isCheckDate: pipelineDetail?.isCheckDate || false,
         isCheckUser: pipelineDetail?.isCheckUser || false,
         isCheckDepartment: pipelineDetail?.isCheckDepartment || false,
+        initialCategoryIds: pipelineDetail?.initialCategoryIds || [],
+        excludeCategoryIds: pipelineDetail?.excludeCategoryIds || [],
+        excludeProductIds: pipelineDetail?.excludeProductIds || [],
+        erxesAppToken: pipelineDetail?.erxesAppToken || '',
+        paymentIds: pipelineDetail?.paymentIds || [],
+        paymentTypes: pipelineDetail?.paymentTypes || [],
       });
     } else {
       reset({
@@ -171,6 +183,12 @@ export function PipelineFormBar() {
         isCheckDate: false,
         isCheckUser: false,
         isCheckDepartment: false,
+        initialCategoryIds: [],
+        excludeCategoryIds: [],
+        excludeProductIds: [],
+        erxesAppToken: '',
+        paymentIds: [],
+        paymentTypes: [],
       });
     }
   }, [pipelineId, pipelineDetail, reset, boardId, methods]);

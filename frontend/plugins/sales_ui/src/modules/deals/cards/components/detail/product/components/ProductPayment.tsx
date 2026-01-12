@@ -1,0 +1,194 @@
+import { Button, CurrencyCode, CurrencyField, Input } from 'erxes-ui';
+import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
+import { Label, Switch } from 'erxes-ui';
+import { useCallback, useMemo, useState } from 'react';
+
+import { IDeal } from '@/deals/types/deals';
+
+interface IPaymentsData {
+  [key: string]: { amount: number; currency: string };
+}
+
+const ProductsPayment = ({
+  deal,
+  paymentsData: initialPaymentsData,
+  onChangePaymentsData,
+  refetch,
+}: {
+  deal: IDeal;
+  paymentsData?: IPaymentsData;
+  onChangePaymentsData?: (data: IPaymentsData) => void;
+  refetch: () => void;
+}) => {
+  const [paymentsData, setPaymentsData] = useState<IPaymentsData>(
+    initialPaymentsData || {},
+  );
+  const [showAdvancedView, setShowAdvancedView] = useState(false);
+
+  const total = useMemo(() => {
+    const amounts: { [currency: string]: number } = {};
+    (deal.productsData || []).forEach((data) => {
+      if (data.currency && data.tickUsed) {
+        amounts[data.currency] =
+          (amounts[data.currency] || 0) + (data.amount || 0);
+      }
+    });
+    return amounts;
+  }, [deal.productsData]);
+
+  const paidAmounts = useMemo(() => {
+    const paid: { [currency: string]: number } = {};
+    Object.values(paymentsData).forEach((payment) => {
+      if (payment.amount && payment.currency) {
+        paid[payment.currency] = (paid[payment.currency] || 0) + payment.amount;
+      }
+    });
+    return paid;
+  }, [paymentsData]);
+
+  const changeAmounts = useMemo(() => {
+    const change: { [currency: string]: number } = {};
+    const allCurrencies = new Set([
+      ...Object.keys(total),
+      ...Object.keys(paidAmounts),
+    ]);
+    allCurrencies.forEach((currency) => {
+      change[currency] = (paidAmounts[currency] || 0) - (total[currency] || 0);
+    });
+    return change;
+  }, [total, paidAmounts]);
+
+  const defaultCurrency = Object.keys(total)[0] || 'MNT';
+
+  const updatePayment = useCallback(
+    (type: string, field: 'amount' | 'currency', value: number | string) => {
+      setPaymentsData((prev) => {
+        const updated = {
+          ...prev,
+          [type]: {
+            ...prev[type],
+            [field]: value,
+            currency:
+              field === 'currency'
+                ? (value as string)
+                : prev[type]?.currency || defaultCurrency,
+          },
+        };
+        onChangePaymentsData?.(updated);
+        return updated;
+      });
+    },
+    [defaultCurrency, onChangePaymentsData],
+  );
+
+  const fillRemaining = useCallback(() => {
+    const currency = paymentsData['cash']?.currency || defaultCurrency;
+    const totalForCurrency = total[currency] || 0;
+    const currentPaid = paidAmounts[currency] || 0;
+    const currentCashAmount = paymentsData['cash']?.amount || 0;
+    const remaining = totalForCurrency - (currentPaid - currentCashAmount);
+
+    if (remaining > 0) {
+      updatePayment('cash', 'amount', remaining);
+    }
+  }, [paymentsData, defaultCurrency, total, paidAmounts, updatePayment]);
+
+  const renderAmount = (amount: number, currency: string) => {
+    if (amount < 0) {
+      return (
+        <span className="text-red-500">
+          {amount.toLocaleString()} {currency}
+        </span>
+      );
+    }
+    return (
+      <span>
+        {amount.toLocaleString()} {currency}
+      </span>
+    );
+  };
+
+  const renderTotals = (amounts: { [currency: string]: number }) => {
+    const entries = Object.entries(amounts).filter(([_, val]) => val !== 0);
+    if (entries.length === 0) {
+      return <span>0 {defaultCurrency}</span>;
+    }
+    return entries.map(([currency, amount]) => (
+      <div key={currency}>{renderAmount(amount, currency)}</div>
+    ));
+  };
+
+  return (
+    <div className="flex flex-col gap-4 px-8">
+      <div className="flex bg-muted/50 rounded-lg p-3 gap-12 justify-center">
+        <div className="flex flex-col items-center">
+          <span className="text-xs font-medium text-muted-foreground uppercase">
+            Total
+          </span>
+          <div className="font-semibold text-lg">{renderTotals(total)}</div>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-xs font-medium text-muted-foreground uppercase">
+            Change
+          </span>
+          <div className="font-semibold text-lg">
+            {renderTotals(changeAmounts)}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 py-2">
+        <p className="w-28 font-medium text-sm text-muted-foreground uppercase">
+          CASH
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 w-[300px]">
+            <Input
+              type="number"
+              value={paymentsData['cash']?.amount || ''}
+              onChange={(e) =>
+                updatePayment('cash', 'amount', parseFloat(e.target.value) || 0)
+              }
+              onClick={fillRemaining}
+              className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+              placeholder="Type amount"
+            />
+          </div>
+          <div className="w-[300px]">
+            <CurrencyField.SelectCurrency
+              value={
+                (paymentsData['cash']?.currency as CurrencyCode) ||
+                (defaultCurrency as CurrencyCode)
+              }
+              onChange={(val) => updatePayment('cash', 'currency', val)}
+              variant="ghost"
+              className="w-full justify-end"
+            />
+          </div>
+          <Button variant="ghost" size="icon" onClick={fillRemaining}>
+            <IconCircleCheck className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center gap-2">
+          <Switch
+            id="advanced-view"
+            checked={showAdvancedView}
+            onCheckedChange={setShowAdvancedView}
+          />
+          <Label htmlFor="advanced-view" className="text-sm cursor-pointer">
+            Advanced view
+          </Label>
+        </div>
+        <Button size="sm">
+          <IconDeviceFloppy className="w-4 h-4 mr-1" />
+          Save
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductsPayment;

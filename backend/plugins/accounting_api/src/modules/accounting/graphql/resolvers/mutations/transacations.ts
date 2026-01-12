@@ -7,8 +7,7 @@ const transactionsMutations = {
     return await models.Transactions.linkTransaction(ids, ptrId)
   },
   /**
-   * Creates a new account category
-   * @param {Object} doc Account category document
+   * Creates a new perfect transaction form
    */
   async accTransactionsCreate(
     _root,
@@ -22,9 +21,7 @@ const transactionsMutations = {
   },
 
   /**
-   * Edits a account category
-   * @param {string} param2._id VatRow id
-   * @param {Object} param2.doc VatRow info
+   * Edits a perfect transaction form
    */
   async accTransactionsUpdate(
     _root,
@@ -37,8 +34,7 @@ const transactionsMutations = {
   },
 
   /**
-   * Removes a account category
-   * @param {string} param1._id VatRow id
+   * Removes a transactions of parent
    */
   async accTransactionsRemove(
     _root,

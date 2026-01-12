@@ -21,6 +21,7 @@ import { ICompany } from '../types';
 import { useCompanies } from 'ui-modules/modules/contacts/hooks/useCompanies';
 import { useDebounce } from 'use-debounce';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectCompanyProviderProps {
   children: React.ReactNode;
@@ -248,6 +249,9 @@ const SelectCompanyDetail = ({
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer.detail',
+  });
 
   return (
     <SelectCompanyProvider
@@ -266,7 +270,7 @@ const SelectCompanyDetail = ({
             className={cn('w-min inline-flex shadow-xs font-medium', className)}
             variant="outline"
           >
-            Add Companies
+            {t('add-company')}
             <IconPlus className="text-lg" />
           </Button>
         </Popover.Trigger>

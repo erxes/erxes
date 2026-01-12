@@ -118,8 +118,6 @@ export const documents = {
             return dayjs(value).format(dateFormat);
           }
 
-          // console.log('value', value);
-
           return value?.toString() || '-';
         },
       });

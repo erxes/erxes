@@ -24,7 +24,6 @@ const CREATE_TICKET = gql`
   mutation WidgetTicketCreated(
     $name: String!
     $statusId: String!
-    $type: String!
     $customerIds: [String!]!
     $description: String
     $attachments: [AttachmentInput]
@@ -33,13 +32,13 @@ const CREATE_TICKET = gql`
     widgetTicketCreated(
       name: $name
       statusId: $statusId
-      type: $type
       customerIds: $customerIds
       description: $description
       attachments: $attachments
       tagIds: $tagIds
     ) {
       _id
+      number
     }
   }
 `;
@@ -60,4 +59,18 @@ const SAVE_CUSTOMER_NOTIFIED = gql`
   }
 `;
 
-export { SAVE_TICKET_CUSTOMERS, CREATE_TICKET, SAVE_CUSTOMER_NOTIFIED };
+const TICKET_NUMBER_FORGET = gql`
+  mutation WidgetTicketCheckProgressForget(
+    $email: String
+    $phoneNumber: String
+  ) {
+    widgetTicketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
+  }
+`;
+
+export {
+  SAVE_TICKET_CUSTOMERS,
+  CREATE_TICKET,
+  SAVE_CUSTOMER_NOTIFIED,
+  TICKET_NUMBER_FORGET,
+};

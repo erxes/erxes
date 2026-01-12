@@ -1,35 +1,34 @@
 import { TFormData } from '@/settings/mail-config/types';
+import { TFunction } from 'i18next';
 
-export const MAIL_CONFIG_FIELDS: TFormData = {
+export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
+  return {
   common: [
     {
       name: 'COMPANY_EMAIL_FROM',
       inputType: 'input',
       type: 'email',
-      label: 'Email',
-      description:
-        'Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc.',
+      label: t('email'),
+      description: t('email-desc'),
     },
     {
       name: 'COMPANY_EMAIL_TEMPLATE_TYPE',
       inputType: 'select',
-      label: 'Type',
-      description:
-        'Choose "custom" to change the template of transactional emails.',
+      label: t('type'),
+      description: t('type-desc'),
       options: ['simple', 'custom'],
     },
     {
       name: 'COMPANY_EMAIL_TEMPLATE',
       inputType: 'editor',
-      label: 'Template',
-      description: 'Your email will be sent with erxes email template.',
+      label: t('template'),
+      description: t('temp-desc'),
     },
     {
       name: 'DEFAULT_EMAIL_SERVICE',
       inputType: 'select',
-      label: 'DEFAULT EMAIL SERVICE',
-      description:
-        'Choose your email service name. The default email service is SES.',
+      label: t('default-email-service'),
+      description: t('default-email-service-desc'),
       options: ['SES', 'custom'],
     },
   ],
@@ -100,4 +99,4 @@ export const MAIL_CONFIG_FIELDS: TFormData = {
       description: '',
     },
   ],
-};
+}}

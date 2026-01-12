@@ -29,7 +29,7 @@ export const HEADER_ITEMS: IHeaderItem[] = [
     title: 'Issue a ticket',
     Icon: IconSend,
     value: 'ticket',
-    disabled: false,
+    disabled: true,
   },
   {
     title: 'FAQ',

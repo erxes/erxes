@@ -22,6 +22,7 @@ import { IconChevronDown, IconUpload } from '@tabler/icons-react';
 import { SelectBrand } from 'ui-modules/modules/brands';
 import { SelectCompany } from 'ui-modules/modules/contacts';
 import { MutationHookOptions } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 export function AddProductForm({
   onOpenChange,
@@ -81,6 +82,9 @@ export function AddProductForm({
       },
     });
   }
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
 
   return (
     <Form {...form}>
@@ -92,7 +96,7 @@ export function AddProductForm({
         className="flex flex-col h-full overflow-hidden"
       >
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>Create product</Sheet.Title> <Sheet.Close />
+          <Sheet.Title>{t('create-product')}</Sheet.Title> <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex-auto overflow-hidden">
           <ScrollArea className="h-full">
@@ -105,10 +109,10 @@ export function AddProductForm({
                 <Collapsible.Trigger asChild>
                   <Button variant="secondary" className="group" size="sm">
                     <span className="group-data-[state=open]:hidden">
-                      Fill in more info
+                      {t('fill-in-more-info')}
                     </span>
                     <span className="group-data-[state=closed]:hidden">
-                      See less
+                      {t('see-less')}
                     </span>
                     <IconChevronDown
                       size={12}
@@ -128,13 +132,13 @@ export function AddProductForm({
             variant="ghost"
             className="bg-background hover:bg-background/90"
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -147,6 +151,9 @@ const ProductAddCoreFields = ({
 }: {
   form: UseFormReturn<IProductFormValues>;
 }) => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
   return (
     <div className="grid grid-cols-2 gap-5 ">
       <Form.Field
@@ -154,7 +161,7 @@ const ProductAddCoreFields = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>NAME</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -167,7 +174,7 @@ const ProductAddCoreFields = ({
         name="code"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>CODE</Form.Label>
+            <Form.Label>{t('code')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -180,7 +187,7 @@ const ProductAddCoreFields = ({
         name="uom"
         render={({ field }) => (
           <Form.Item className="flex flex-col">
-            <Form.Label>UNIT OF MEASUREMENTS</Form.Label>
+            <Form.Label>{t('unit-of-measure')}</Form.Label>
             <SelectUOM
               value={field.value}
               onValueChange={field.onChange}
@@ -195,7 +202,7 @@ const ProductAddCoreFields = ({
         name="unitPrice"
         render={({ field }) => (
           <Form.Item className="flex flex-col">
-            <Form.Label>UNIT PRICE</Form.Label>
+            <Form.Label>{t('unit-price')}</Form.Label>
             <Form.Control>
               <CurrencyField.ValueInput
                 value={field.value}
@@ -212,7 +219,7 @@ const ProductAddCoreFields = ({
         name="categoryId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>CATEGORY</Form.Label>
+            <Form.Label>{t('category')}</Form.Label>
             <Form.Control>
               <SelectCategory
                 selected={field.value}
@@ -228,7 +235,7 @@ const ProductAddCoreFields = ({
         name="shortName"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>SHORT NAME</Form.Label>
+            <Form.Label>{t('short-name')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -241,7 +248,7 @@ const ProductAddCoreFields = ({
         name="type"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>TYPE</Form.Label>
+            <Form.Label>{t('type')}</Form.Label>
             <SelectProductType
               value={field.value}
               onValueChange={field.onChange}
@@ -260,11 +267,14 @@ const ProductAddMoreFields = ({
 }: {
   form: UseFormReturn<IProductFormValues>;
 }) => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
   return (
     <>
       <div className="flex items-center my-4">
         <div className="flex-1 border-t" />
-        <Form.Label className="mx-2">More Info</Form.Label>
+        <Form.Label className="mx-2">{t('more-info')}</Form.Label>
         <div className="flex-1 border-t" />
       </div>
       <Form.Field
@@ -272,7 +282,7 @@ const ProductAddMoreFields = ({
         name="description"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>DESCRIPTION</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <Form.Control>
               <Editor initialContent={field.value} onChange={field.onChange} />
             </Form.Control>
@@ -285,7 +295,7 @@ const ProductAddMoreFields = ({
         name="barcodes"
         render={({ field }) => (
           <Form.Item className="flex flex-col mb-5">
-            <Form.Label>BARCODES</Form.Label>
+            <Form.Label>{t('barcodes')}</Form.Label>
             <div className="flex flex-col">
               <Form.Control>
                 <Input
@@ -304,7 +314,7 @@ const ProductAddMoreFields = ({
         name="barcodeDescription"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>BARCODE DESCRIPTION</Form.Label>
+            <Form.Label>{t('barcode-description')}</Form.Label>
             <Form.Control>
               <Editor initialContent={field.value} onChange={field.onChange} />
             </Form.Control>
@@ -318,7 +328,7 @@ const ProductAddMoreFields = ({
           name="scopeBrandIds"
           render={({ field }) => (
             <Form.Item className="flex flex-col">
-              <Form.Label>BRAND</Form.Label>
+              <Form.Label>{t('brand')}</Form.Label>
               <Form.Control>
                 <SelectBrand
                   value={field.value || []}
@@ -336,7 +346,7 @@ const ProductAddMoreFields = ({
           name="vendorId"
           render={({ field }) => (
             <Form.Item className="flex flex-col">
-              <Form.Label>VENDOR</Form.Label>
+              <Form.Label>{t('vendor')}</Form.Label>
               <Form.Control>
                 <SelectCompany
                   value={field.value}
@@ -353,7 +363,7 @@ const ProductAddMoreFields = ({
         name="attachment"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>UPLOAD</Form.Label>
+            <Form.Label>{t('upload')}</Form.Label>
             <Form.Control>
               <Upload.Root {...field}>
                 <Upload.Preview className="hidden" />
@@ -364,7 +374,9 @@ const ProductAddMoreFields = ({
                   className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
                 >
                   <IconUpload />
-                  <span className="text-sm font-medium">Primary upload</span>
+                  <span className="text-sm font-medium">
+                    {t('primary-upload')}
+                  </span>
                 </Upload.Button>
               </Upload.Root>
             </Form.Control>
@@ -377,7 +389,7 @@ const ProductAddMoreFields = ({
         name="attachmentMore"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>SECONDARY UPLOAD</Form.Label>
+            <Form.Label>{t('secondary-upload')}</Form.Label>
             <Form.Control>
               <Upload.Root {...field}>
                 <Upload.Preview className="hidden" />
@@ -388,7 +400,9 @@ const ProductAddMoreFields = ({
                   className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
                 >
                   <IconUpload />
-                  <span className="text-sm font-medium">Secondary upload</span>
+                  <span className="text-sm font-medium">
+                    {t('secondary-upload')}
+                  </span>
                 </Upload.Button>
               </Upload.Root>
             </Form.Control>

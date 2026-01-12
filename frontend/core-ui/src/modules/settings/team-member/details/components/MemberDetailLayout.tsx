@@ -101,6 +101,11 @@ const MemberDetailTabs = ({ children }: { children: React.ReactNode }) => {
                     <Sidebar.MenuButton>Properties</Sidebar.MenuButton>
                   </TabsPrimitive.Trigger>
                 </Sidebar.MenuItem>
+                <Sidebar.MenuItem>
+                  <TabsPrimitive.Trigger value="activity" asChild>
+                    <Sidebar.MenuButton>Activity</Sidebar.MenuButton>
+                  </TabsPrimitive.Trigger>
+                </Sidebar.MenuItem>
               </Sidebar.Menu>
             </Sidebar.GroupContent>
           </Sidebar.Group>

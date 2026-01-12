@@ -1,19 +1,25 @@
-import { SelectCustomerContext } from '../contexts/SelectCustomerContext';
-import { ICustomer } from '../types';
-import { useSelectCustomerContext } from '../hooks/useSelectCustomerContext';
-import { useCustomers } from '../hooks';
-import { useDebounce } from 'use-debounce';
-import { useState } from 'react';
 import {
-  cn,
   Combobox,
   Command,
+  Filter,
   Form,
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
+  cn,
+  useFilterContext,
+  useQueryState,
 } from 'erxes-ui';
+
 import { CustomersInline } from './CustomersInline';
+import { ICustomer } from '../types';
+import { IconUser } from '@tabler/icons-react';
+import { SelectCustomerContext } from '../contexts/SelectCustomerContext';
+import { useCustomers } from '../hooks';
+import { useDebounce } from 'use-debounce';
+import { useSearchParams } from 'react-router-dom';
+import { useSelectCustomerContext } from '../hooks/useSelectCustomerContext';
+import { useState } from 'react';
 
 interface SelectCustomerProviderProps {
   children: React.ReactNode;
@@ -173,6 +179,46 @@ const SelectCustomerInlineCell = ({
   );
 };
 
+const SelectCustomerFilter = ({
+  queryKey = 'customerIds',
+  className,
+}: {
+  queryKey?: string;
+  className?: string;
+}) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [open, setOpen] = useState(false);
+
+  const customerIds = searchParams.getAll(queryKey);
+
+  const handleValueChange = (value: string[] | string) => {
+    searchParams.delete(queryKey);
+    const values = Array.isArray(value) ? value : [value];
+    values.forEach((v) => searchParams.append(queryKey, v));
+    setSearchParams(searchParams, { replace: true });
+  };
+
+  return (
+    <SelectCustomerProvider
+      value={customerIds}
+      onValueChange={handleValueChange}
+      mode="multiple"
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger
+          className={cn('w-full inline-flex', className)}
+          variant="outline"
+        >
+          <SelectCustomer.Value />
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <SelectCustomer.Content />
+        </Combobox.Content>
+      </Popover>
+    </SelectCustomerProvider>
+  );
+};
+
 const SelectCustomerRoot = ({
   onValueChange,
   className,
@@ -252,6 +298,99 @@ const SelectCustomerFormItem = ({
   );
 };
 
+export const SelectCustomerFilterItem = ({
+  value,
+  label,
+}: {
+  value: string;
+  label: string;
+}) => {
+  return (
+    <Filter.Item value={value}>
+      <IconUser />
+      {label}
+    </Filter.Item>
+  );
+};
+
+export const SelectCustomerFilterView = ({
+  mode = 'multiple',
+  filterKey,
+}: {
+  mode?: 'single' | 'multiple';
+  filterKey: string;
+}) => {
+  const [query, setQuery] = useQueryState<string[] | string | undefined>(
+    filterKey,
+  );
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey={filterKey}>
+      <SelectCustomerProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={(value) => {
+          setQuery(value as string[]);
+          resetFilterState();
+        }}
+      >
+        <SelectCustomer.Content />
+      </SelectCustomerProvider>
+    </Filter.View>
+  );
+};
+
+export const SelectCustomerFilterBar = ({
+  mode = 'multiple',
+  filterKey,
+  label,
+}: {
+  mode?: 'single' | 'multiple';
+  filterKey: string;
+  label: string;
+}) => {
+  const [query, setQuery] = useQueryState<string[]>(filterKey);
+  const [open, setOpen] = useState<boolean>(false);
+
+  if (!query || query.length === 0) {
+    return null;
+  }
+
+  return (
+    <Filter.BarItem queryKey={filterKey}>
+      <Filter.BarName>
+        <IconUser />
+        {label}
+      </Filter.BarName>
+      <SelectCustomerProvider
+        mode={mode}
+        value={query}
+        onValueChange={(value) => {
+          const values = value as string[];
+          if (values.length > 0) {
+            setQuery(values);
+          } else {
+            setQuery(null);
+          }
+          setOpen(false);
+        }}
+      >
+        <Popover open={open} onOpenChange={setOpen}>
+          <Popover.Trigger asChild>
+            <Filter.BarButton filterKey={filterKey}>
+              <SelectCustomerValue />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectCustomer.Content />
+          </Combobox.Content>
+        </Popover>
+      </SelectCustomerProvider>
+    </Filter.BarItem>
+  );
+};
+
 export const SelectCustomer = Object.assign(SelectCustomerRoot, {
   Provider: SelectCustomerProvider,
   Content: SelectCustomerContent,
@@ -259,4 +398,7 @@ export const SelectCustomer = Object.assign(SelectCustomerRoot, {
   InlineCell: SelectCustomerInlineCell,
   Value: SelectCustomerValue,
   FormItem: SelectCustomerFormItem,
+  FilterItem: SelectCustomerFilterItem,
+  FilterView: SelectCustomerFilterView,
+  FilterBar: SelectCustomerFilterBar,
 });

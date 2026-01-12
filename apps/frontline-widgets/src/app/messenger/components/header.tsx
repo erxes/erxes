@@ -1,7 +1,6 @@
 import { useAtom } from 'jotai';
 import { connectionAtom } from '../states';
 import { WelcomeMessage } from '../constants';
-import { formatTimeZoneLabel } from 'erxes-ui';
 import { HeaderTabList } from './header-tab-list';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';

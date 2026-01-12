@@ -9,7 +9,7 @@ export const router: Router = Router();
 
 startPlugin({
   name: 'operation',
-  port: 3306,
+  port: 3307,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
@@ -23,7 +23,7 @@ startPlugin({
       : 'subscription.ts',
   ),
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
 

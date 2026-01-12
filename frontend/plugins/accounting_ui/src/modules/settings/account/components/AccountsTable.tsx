@@ -1,8 +1,8 @@
-import { useAccountsMain } from '@/settings/account/hooks/useAccounts';
+import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
 import { RecordTable } from 'erxes-ui';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
 import { AccountsCommandbar } from './AccountsCommandBar';
-import { ACCOUNTS_CURSOR_SESSION_KEY } from '../constants/accountsSessionKeys';
+import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
 
 export const AccountsTable = () => {
   const { accountsMain, loading, handleFetchMore, pageInfo } = useAccountsMain();

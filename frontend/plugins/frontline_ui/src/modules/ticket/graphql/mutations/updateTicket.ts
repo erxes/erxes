@@ -14,6 +14,7 @@ export const UPDATE_TICKET_MUTATION = gql`
     $assigneeId: String
     $startDate: Date
     $targetDate: Date
+    $isSubscribed: Boolean
   ) {
     updateTicket(
       _id: $_id
@@ -28,6 +29,7 @@ export const UPDATE_TICKET_MUTATION = gql`
       assigneeId: $assigneeId
       startDate: $startDate
       targetDate: $targetDate
+      isSubscribed: $isSubscribed
     ) {
       _id
     }

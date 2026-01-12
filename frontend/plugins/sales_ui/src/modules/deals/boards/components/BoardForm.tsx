@@ -4,7 +4,7 @@ import {
   useBoardAdd,
   useBoardDetail,
   useBoardEdit,
-} from '@/deals/boards/hooks/useBoards';
+} from '~/modules/deals/boards/hooks/useBoards';
 
 import { IconPlus } from '@tabler/icons-react';
 import React from 'react';

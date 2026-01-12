@@ -15,7 +15,7 @@ import { ContactsPath } from '@/types/paths/ContactsPath';
 import { ApolloError } from '@apollo/client';
 import { useLocation } from 'react-router-dom';
 import { useQueryState } from 'erxes-ui';
-
+import { useTranslation } from 'react-i18next';
 export function AddCustomerForm({
   onOpenChange,
 }: {
@@ -32,7 +32,7 @@ export function AddCustomerForm({
   });
   const { toast } = useToast();
   const [, setCustomerId] = useQueryState('contactId');
-
+  const { t } = useTranslation('contact');
   const onSubmit = (data: CustomerFormType) => {
     const state = pathname.includes(ContactsPath.Leads) ? 'lead' : 'customer';
 
@@ -53,9 +53,9 @@ export function AddCustomerForm({
         onOpenChange?.(false);
         setCustomerId(data?.customersAdd._id);
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Customer created successfully',
+          description: t('customer.add.success-message'),
         });
       },
     });
@@ -80,13 +80,13 @@ export function AddCustomerForm({
             className="bg-background hover:bg-background/90"
             onClick={() => onOpenChange?.(false)}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

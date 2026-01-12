@@ -15,10 +15,10 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
   >({
     resolver: zodResolver(CLIENTPORTAL_GOOGLE_SCHEMA),
     defaultValues: {
-      googleClientId: clientPortal.googleClientId || '',
-      googleClientSecret: clientPortal.googleClientSecret || '',
-      googleCredentials: clientPortal.googleCredentials || '',
-      googleRedirectUri: clientPortal.googleRedirectUri || '',
+      googleClientId: clientPortal?.auth?.googleOAuth?.clientId || '',
+      googleClientSecret: clientPortal?.auth?.googleOAuth?.clientSecret || '',
+      googleCredentials: clientPortal?.auth?.googleOAuth?.credentials || '',
+      googleRedirectUri: clientPortal?.auth?.googleOAuth?.redirectUri || '',
     },
   });
 
@@ -31,7 +31,14 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
       variables: {
         id: clientPortal?._id,
         clientPortal: {
-          ...values,
+          auth: {
+            googleOAuth: {
+              clientId: values.googleClientId,
+              clientSecret: values.googleClientSecret,
+              credentials: values.googleCredentials,
+              redirectUri: values.googleRedirectUri,
+            },
+          },
         },
       },
     });
@@ -42,6 +49,7 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
         className="grid gap-4 grid-cols-2"
+        autoComplete="off"
       >
         <Form.Field
           control={form.control}
@@ -72,6 +80,7 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
                   type="password"
                   placeholder="Enter Google Client Secret"
                   disabled={loading}
+                  autoComplete="new-password"
                 />
               </Form.Control>
               <Form.Message />

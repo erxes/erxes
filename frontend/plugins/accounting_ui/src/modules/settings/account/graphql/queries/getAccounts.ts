@@ -30,7 +30,7 @@ export const ACCOUNT_FIELDS = `
 `;
 
 const ACCOUNT_PARAM_DEFS = `
-  $accountsStatus: String
+  $status: String
   $categoryId: String
   $currency: String
   $searchValue: String
@@ -41,6 +41,7 @@ const ACCOUNT_PARAM_DEFS = `
   $isOutBalance: Boolean
   $branchId: String
   $departmentId: String
+  $journal: String
   $journals: [String]
   $kind: String
   $code: String
@@ -49,7 +50,7 @@ const ACCOUNT_PARAM_DEFS = `
 `;
 
 const ACCOUNT_PARAMS = `
-  status: $accountsStatus
+  status: $status
   categoryId: $categoryId
   searchValue: $searchValue
   brand: $brand
@@ -60,6 +61,7 @@ const ACCOUNT_PARAMS = `
   branchId: $branchId
   currency: $currency
   departmentId: $departmentId
+  journal: $journal
   journals: $journals
   kind: $kind
   code: $code

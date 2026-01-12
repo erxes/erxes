@@ -19,11 +19,10 @@ import * as http from 'http';
 import * as path from 'path';
 
 import { startPayments } from '../common-modules/payment/worker';
-import {
-  SegmentConfigs,
-  startAutomations,
-  initSegmentProducers,
-} from '../core-modules';
+import { initSegmentProducers, startAutomations } from '../core-modules';
+import { startImportExportWorker } from '../core-modules/import-export/worker';
+import type { SegmentConfigs } from '../core-modules';
+import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
@@ -36,6 +35,7 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
+import { IMainContext } from '../core-types';
 
 dotenv.config();
 
@@ -73,14 +73,14 @@ type ConfigTypes = {
     context: any,
     req: ApiRequest,
     res: ApiResponse,
-  ) => Promise<void>;
+  ) => Promise<IMainContext>;
   onServerInit?: (app: express.Express) => Promise<void>;
-  importExportTypes?: any;
   middlewares?: any;
   apiHandlers?: ApiHandler[];
   hasSubscriptions?: boolean;
   corsOptions?: any;
   subscriptionPluginPath?: any;
+  importExport?: ImportExportConfigs;
   trpcAppRouter?: {
     router: any;
     createContext: <TContext>(
@@ -260,7 +260,7 @@ export async function startPlugin(
   app.use(
     '/graphql',
     expressMiddleware(apolloServer, {
-      context: generateApolloContext(configs.apolloServerContext),
+      context: generateApolloContext<IMainContext>(configs.apolloServerContext),
     }),
   );
 
@@ -310,12 +310,21 @@ export async function startPlugin(
     name: configs.name,
     port: PORT,
     hasSubscriptions: configs.hasSubscriptions,
-    importExportTypes: configs.importExportTypes,
     meta: configs.meta,
   });
 
   if (configs.onServerInit) {
     configs.onServerInit(app);
+  }
+
+  if (configs.importExport) {
+    startImportExportWorker({
+      pluginName: configs.name,
+      config: {
+        ...configs.importExport,
+      },
+      app,
+    });
   }
 
   //   applyInspectorEndpoints(configs.name);

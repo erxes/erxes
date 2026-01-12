@@ -13,6 +13,7 @@ export const badgeVariants = cva(
       variant: {
         default: 'bg-primary/10 text-primary border-primary/10',
         secondary: 'bg-accent',
+        ghost: 'hover:bg-accent border-none hover:shadow-xs',
         success: 'bg-success/10 text-success border-success/10',
         warning: 'bg-warning/10 text-warning border-warning/10',
         destructive: 'bg-destructive/10 text-destructive border-destructive/10',

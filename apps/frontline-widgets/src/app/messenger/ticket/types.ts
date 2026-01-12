@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { createCustomerSchema } from '../schema';
+import {
+  createCustomerSchema,
+  TicketCheckProgressSchema,
+  TicketForgotProgressSchema,
+} from '../schema';
+import { IUser } from '../types';
 
 export enum TicketFormFields {
   name = 'Ticket title',
@@ -38,3 +43,40 @@ export enum TicketFormPlaceholders {
 }
 
 export type TCreateCustomerForm = z.infer<typeof createCustomerSchema>;
+export type TTicketForgotProgressForm = z.infer<
+  typeof TicketForgotProgressSchema
+>;
+export type TTicketCheckProgressForm = z.infer<
+  typeof TicketCheckProgressSchema
+>;
+
+export interface ITicketCheckProgress {
+  _id: string;
+  name: string;
+  description: string;
+  pipelineId: string;
+  statusId: string;
+  priority: string;
+  labelIds: string[];
+  tagIds: string[];
+  assigneeId: string;
+  createdBy: string;
+  userId: string;
+  startDate: string;
+  targetDate: string;
+  createdAt: string;
+  updatedAt: string;
+  channelId: string;
+  statusChangedDate: string;
+  number: string;
+  status: ITicketStatus;
+  assignee: IUser;
+}
+
+export interface ITicketStatus {
+  _id: string;
+  color: string;
+  name: string;
+  description: string;
+  type: number;
+}

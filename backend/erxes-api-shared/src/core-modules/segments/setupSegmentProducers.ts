@@ -56,6 +56,13 @@ export const initSegmentProducers = async (
       .query(async ({ ctx, input }) => esTypesMap(input, ctx));
   }
 
+  if (!Object.keys(segmentProducers)?.length) {
+    console.warn(
+      `[Segments] No segment producers found for plugin ${pluginName}`,
+    );
+    return;
+  }
+
   const segmentsRouter = t.router(segmentProducers);
 
   const trpcMiddleware = trpcExpress.createExpressMiddleware({

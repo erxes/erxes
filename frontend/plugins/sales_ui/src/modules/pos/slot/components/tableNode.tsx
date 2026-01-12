@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useMemo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { useAtom } from 'jotai';
 import { slotDetailAtom } from '../states/slot';
@@ -19,7 +19,7 @@ export function TableNode({ id, data, selected }: NodeProps) {
         color: '#5E5CFF',
         width: 80,
         height: 80,
-        rounded: false,
+        rounded: 0,
         rotateAngle: 0,
         zIndex: 0,
         disabled: false,
@@ -28,16 +28,28 @@ export function TableNode({ id, data, selected }: NodeProps) {
         positionY: 0,
       };
 
-  const resizeRefs = {
-    topLeft: useRef<HTMLDivElement>(null),
-    top: useRef<HTMLDivElement>(null),
-    topRight: useRef<HTMLDivElement>(null),
-    right: useRef<HTMLDivElement>(null),
-    bottomRight: useRef<HTMLDivElement>(null),
-    bottom: useRef<HTMLDivElement>(null),
-    bottomLeft: useRef<HTMLDivElement>(null),
-    left: useRef<HTMLDivElement>(null),
-  };
+  const topLeftRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const topRightRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const bottomRightRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const bottomLeftRef = useRef<HTMLDivElement>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
+
+  const resizeRefs = useMemo(
+    () => ({
+      topLeft: topLeftRef,
+      top: topRef,
+      topRight: topRightRef,
+      right: rightRef,
+      bottomRight: bottomRightRef,
+      bottom: bottomRef,
+      bottomLeft: bottomLeftRef,
+      left: leftRef,
+    }),
+    [],
+  );
 
   const setupResize = useCallback(
     (direction: string) => {
@@ -157,10 +169,11 @@ export function TableNode({ id, data, selected }: NodeProps) {
     [
       id,
       nodeData.rotateAngle,
-      nodeData.positionX ?? 0,
-      nodeData.positionY ?? 0,
+      nodeData.positionX,
+      nodeData.positionY,
       selected,
       setSlotDetail,
+      resizeRefs,
     ],
   );
 
@@ -196,13 +209,12 @@ export function TableNode({ id, data, selected }: NodeProps) {
       <div
         ref={nodeRef}
         className={`flex items-center justify-center font-medium text-center ${
-          selected ? 'ring-2 ring-white ring-opacity-80' : ''
-        }`}
+          selected ? 'ring-2 ring-white ring-opacity-80' : ''}`}
         style={{
           backgroundColor: nodeData.color || '#5E5CFF',
           width: nodeData.width || 100,
           height: nodeData.height || 80,
-          borderRadius: nodeData.rounded ? '9999px' : '6px',
+          borderRadius: `${Number(nodeData.rounded ?? 0)}px`,
           transform: `rotate(${nodeData.rotateAngle || 0}deg)`,
           zIndex: nodeData.zIndex || 0,
           color: '#ffffff',

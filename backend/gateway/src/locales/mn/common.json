@@ -1,0 +1,57 @@
+{
+  "my-inbox": "Миний инбокс",
+  "core-modules": {
+    "_": "Үндсэн модулиуд",
+    "contacts": "Харилцагчид",
+    "products": "Бүтээгдэхүүнүүд",
+    "segments": "Сегментүүд",
+    "automations": "Автоматжуулалтууд",
+    "documents": "Баримтууд",
+    "broadcasts": "Броадкастууд",
+    "success": "Амжилттай",
+    "cancel": "Цуцлах",
+    "save": "Хадгалах",
+    "settings": "Тохиргоо"
+  },
+  "filter": {
+    "_": "Шүүлтүүр",
+    "search": "Хайх",
+    "brand": "Брэнд",
+    "assigned-to": "Хариуцсан",
+    "created-at": "Үүсгэсэн огноо",
+    "updated-at": "Шинэчилсэн огноо",
+    "last-seen-at": "Сүүлд идэвхтэй байсан",
+    "birthday": "Төрсөн өдөр"
+  },
+  "records-found": "Бичлэг олдлоо",
+  "organization": {
+    "settings": "Тохиргоо",
+    "change-theme": "Дизайн өөрчлөх",
+    "change-language": "Хэл солих",
+    "logout": "Гарах",
+    "dark": "Харанхуй",
+    "light": "Гэрэлтэй",
+    "system": "Системийн",
+    "version": "Хувилбар"
+  },
+  "sidebar": {
+    "profile": "Профайл",
+    "change-password": "Нууц үг солих",
+    "general": "Ерөнхий",
+    "team-member": "Багийн гишүүн",
+    "tags": "Тагууд",
+    "brands": "Брэндүүд",
+    "file-upload": "Файл байршуулах",
+    "mail-config": "И-мэйл тохиргоо",
+    "client-portal": "Харилцагчийн портал",
+    "products": "Бүтээгдэхүүнүүд",
+    "automations": "Автоматжуулалтууд",
+    "account": "Бүртгэл",
+    "developer": "Хөгжүүлэгч",
+    "workspace": "Ажлын орчин",
+    "core-modules": "Үндсэн модулиуд",
+    "exit-settings": "Тохиргооноос гарах",
+    "favorites": "Дуртай",
+    "my-inbox": "Миний инбокс"
+  }
+}

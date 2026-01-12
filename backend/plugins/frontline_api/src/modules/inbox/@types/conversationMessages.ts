@@ -41,6 +41,7 @@ export interface IMessage {
   engageData?: IEngageData;
   contentType?: string;
   botId?: string;
+  responseTemplateId?: string;
 }
 
 export interface IResolveAllConversationParam {
@@ -63,4 +64,5 @@ export interface IConversationMessageAdd {
   attachments?: any;
   userId?: string;
   extraInfo?: any;
+  responseTemplateId?: string;
 }

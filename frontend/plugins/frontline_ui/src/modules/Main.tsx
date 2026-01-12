@@ -35,22 +35,18 @@ const Ticket = lazy(() =>
   })),
 );
 
+const Report = lazy(() =>
+  import('~/pages/ReportIndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
 const IntegrationsMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/tickets" element={<Ticket />} />
-        <Route path="/calls/dashboard" element={<CallDashboardIndexPage />} />
-        <Route
-          path="/calls/dashboard/:id"
-          element={<CallDashboardDetailPage />}
-        />
-        <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
-        <Route
-          path="/calls/statistics/:id"
-          element={<CallStatisticsDetailPage />}
-        />
+        <Route path="/reports" element={<Report />} />
       </Routes>
     </Suspense>
   );

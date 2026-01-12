@@ -7,13 +7,13 @@ import resolvers from './apollo/resolvers';
 
 startPlugin({
   name: 'tourism',
-  port: 3308,
+  port: 3311,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
   }),
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
 

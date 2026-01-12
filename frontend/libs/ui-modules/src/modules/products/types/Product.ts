@@ -1,4 +1,5 @@
 import { CurrencyCode, IAttachment } from 'erxes-ui';
+
 import { PRODUCT_FORM_SCHEMA } from '../constants/addProductFormSchema';
 import { z } from 'zod';
 
@@ -13,6 +14,61 @@ export interface IProduct {
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
   currency: CurrencyCode;
+}
+export interface IBundleRuleItem {
+  code: string;
+  quantity: number;
+  productIds: string[];
+  products: IProduct[];
+  priceValue: number;
+  percent: number;
+  priceType: "thisProductPricePercent" | "price" | "mainPricePercent";
+  priceAdjustType: string;
+  priceAdjustFactor: number;
+  allowSkip: boolean;
+}
+export interface IDiscountValue {
+  bonusName: string;
+  discount: number;
+  potentialBonus: number;
+  sumDiscount: number;
+  type: string;
+  voucherCampaignId: string;
+  voucherId: string;
+  voucherName: string;
+}
+export interface IDealBundleItem {
+  bundleCode: string;
+  count: number;
+  total: number;
+  selectedProductId?: string;
+  selectedProduct?: IProduct;
+  bundleSnapshot?: IBundleRuleItem;
+}
+export interface IProductData {
+  _id: string;
+  productId?: string;
+  product?: IProduct;
+  uom?: string;
+  currency?: string;
+  quantity: number;
+  unitPrice: number;
+  globalUnitPrice: number;
+  unitPricePercent: number;
+  taxPercent: number;
+  tax: number;
+  vatPercent: number;
+  discountPercent: number;
+  discount: number;
+  amount: number;
+  tickUsed?: boolean;
+  isVatApplied?: boolean;
+  assignUserId?: string;
+  maxQuantity: number;
+  branchId?: string;
+  departmentId?: string;
+  assignedUserId?: string;
+  conditions?: IDealBundleItem[];
 }
 
 export interface IProductCategory {

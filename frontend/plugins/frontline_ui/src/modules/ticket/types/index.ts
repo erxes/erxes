@@ -20,6 +20,7 @@ export interface ITicket {
   number: number;
   pipelineId: string;
   createdBy: string;
+  isSubscribed?: boolean;
 }
 
 export type TAddTicket = z.infer<typeof addTicketSchema>;

@@ -1,12 +1,14 @@
 import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
 import { MyInboxNavigationItem } from '@/notification/my-inbox/components/MyInboxNavigationItem';
+import { useTranslation } from 'react-i18next';
 
 export function SidebarNavigationFavorites() {
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const favorites = useFavorites();
 
   return (
-    <NavigationMenuGroup name="Favorites" separate={false}>
+    <NavigationMenuGroup name={t('favorites')} separate={false}>
       <MyInboxNavigationItem />
       {favorites.map((item) => {
         return <SidebarNavigationFavoritesItem key={item.name} {...item} />;

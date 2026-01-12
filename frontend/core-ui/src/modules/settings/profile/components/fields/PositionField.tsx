@@ -3,8 +3,12 @@ import { Form } from 'erxes-ui';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { SelectPositions } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const PositionField = () => {
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'profile',
+  });
   const form = useFormContext<FormType>();
 
   return (
@@ -13,8 +17,8 @@ export const PositionField = () => {
         control={form.control}
         name="positionIds"
         render={({ field }) => (
-          <Form.Item className='flex flex-col space-y-2'>
-            <Form.Label>Positions</Form.Label>
+          <Form.Item className="flex flex-col space-y-2">
+            <Form.Label>{t('position')}</Form.Label>
             <Form.Control>
               <SelectPositions.Detail
                 value={field.value}

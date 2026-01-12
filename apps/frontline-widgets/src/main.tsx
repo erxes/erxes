@@ -1,7 +1,7 @@
 import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
-import { Tooltip } from 'erxes-ui';
+import { Toaster, Tooltip } from 'erxes-ui';
 
 import App from './app/app';
 import { apolloClient } from './lib/apollo-client';
@@ -15,6 +15,7 @@ root.render(
     <BrowserRouter>
       <Tooltip.Provider>
         <App />
+        <Toaster />
       </Tooltip.Provider>
     </BrowserRouter>
   </ApolloProvider>,

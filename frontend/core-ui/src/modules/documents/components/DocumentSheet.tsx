@@ -40,11 +40,7 @@ export const DocumentSheet = () => {
   }
 
   return (
-    <Button
-      onClick={handleSubmit(submitHandler)}
-      disabled={!hasChanges}
-      variant={hasChanges ? 'default' : 'secondary'}
-    >
+    <Button onClick={handleSubmit(submitHandler)} disabled={!hasChanges}>
       Save Document
     </Button>
   );

@@ -78,7 +78,8 @@ export function ConversationMessage({
   const { readConversation } = useReadConversation();
   const { messages, content } = conversation || {};
   const lastMessage = messages?.[messages.length - 1];
-  const { userId, customerId, user, isCustomerRead } = lastMessage || {};
+  const { userId, customerId, user, isCustomerRead, fromBot } =
+    lastMessage || {};
 
   const handleClick = () => {
     readConversation({
@@ -98,7 +99,7 @@ export function ConversationMessage({
     [messages],
   );
 
-  if (customerId) {
+  if (customerId || fromBot) {
     return (
       <div
         role="tabpanel"

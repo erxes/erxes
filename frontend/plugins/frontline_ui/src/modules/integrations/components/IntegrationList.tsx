@@ -8,7 +8,7 @@ import { gql, useQuery } from '@apollo/client';
 
 export const IntegrationList = () => {
   return (
-    <Command className='h-auto'>
+    <Command className="h-auto">
       {/* <div className="relative m-1 mb-8">
         <Command.Primitive.Input placeholder="Search integrations" asChild>
           <Input className="pl-8" placeholder="Search integrations" />
@@ -17,7 +17,7 @@ export const IntegrationList = () => {
           <IconSearch className="size-4 text-accent-foreground" />
         </div>
       </div> */}
-      <Command.List className="p-0">
+      <Command.List>
         <Command.Group
           heading="Integrations"
           className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"

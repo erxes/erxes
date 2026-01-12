@@ -6,7 +6,7 @@ export const types = `
   }
 
   extend type Product @key(fields: "_id") {
-    _id: String @external
+    _id: String! @external
   }
 
   type AutomationResponse {

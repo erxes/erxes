@@ -1,28 +1,24 @@
 import { useState } from 'react';
 import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
-import { NotifyCustomerForm } from './notify-customer-form';
-import { getLocalStorageItem } from '@libs/utils';
+import { useCustomerData } from '../../hooks/useCustomerData';
+import { NotifyCustomerForm } from '../../components/notify-customer-form';
+import { Tabs } from 'erxes-ui';
 
 export const Ticket = () => {
-  const erxes = JSON.parse(getLocalStorageItem('erxes') ?? '{}');
-  const [page, setPage] = useState<'submissions' | 'submit'>('submit');
+  const { hasEmailOrPhone } = useCustomerData();
+  const [page, setPage] = useState<'submissions' | 'submit'>('submissions');
+  if (!hasEmailOrPhone) return <NotifyCustomerForm />;
 
-  if (!erxes || Object.keys(erxes).length === 0)
-    return <NotifyCustomerForm onSuccess={() => setPage('submit')} />;
-
-  const renderPage = () => {
-    switch (page) {
-      case 'submit':
-        return <TicketForm setPage={setPage} />;
-      default:
-        return <TicketSubmissions setPage={setPage} />;
-    }
+  const renderContent = () => {
+    if (page === 'submissions') return <TicketSubmissions setPage={setPage} />;
+    if (page === 'submit') return <TicketForm setPage={setPage} />;
+    return null;
   };
 
   return (
     <div className="flex flex-col gap-3 w-full h-full overflow-y-auto styled-scroll">
-      {renderPage()}
+      {renderContent()}
     </div>
   );
 };

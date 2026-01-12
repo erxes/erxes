@@ -1,9 +1,7 @@
 import { TICKET_DEFAULT_STATUSES } from '@/ticket/constants/types';
 import { IModels, generateModels } from '~/connectionResolvers';
-import { sendNotification } from 'erxes-api-shared/core-modules';
 import { ITicket, ITicketDocument } from '@/ticket/@types/ticket';
 import { subMinutes, isAfter } from 'date-fns';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const generateDefaultStatuses = (pipelineId: string) => {
   return TICKET_DEFAULT_STATUSES.map((status, index) => ({
@@ -46,60 +44,6 @@ export const checkPipeline = async ({
     throw new Error('Pipeline is not found');
   }
   return pipeline;
-};
-
-const getTitle = (contentType: string) => {
-  if (contentType === 'ticket') {
-    return 'ticket';
-  }
-};
-
-const getMessage = (contentType: string, notificationType: string) => {
-  switch (notificationType) {
-    case 'ticketAssignee':
-      return 'You have been assigned to ticket';
-    case 'ticketStatus':
-      return 'Ticket status updated';
-    case 'note':
-      return `You have been mentioned in ${contentType}'s note`;
-    default:
-      return 'Notification';
-  }
-};
-
-export const createNotifications = async ({
-  contentType,
-  contentTypeId,
-  fromUserId,
-  subdomain,
-  notificationType,
-  userIds,
-  action,
-}: {
-  contentType: string;
-  contentTypeId: string;
-  fromUserId: string;
-  subdomain: string;
-  notificationType: string;
-  userIds: string[];
-  action: string;
-}) => {
-  sendNotification(subdomain, {
-    title: getTitle(contentType),
-    message: getMessage(contentType, notificationType),
-    type: 'info',
-    userIds,
-    priority: 'low',
-    kind: 'user',
-    fromUserId,
-    contentType: `ticket:${contentType}`,
-    contentTypeId,
-    notificationType,
-    action,
-    metadata: {
-      contentTypeId,
-    },
-  });
 };
 
 enum Action {

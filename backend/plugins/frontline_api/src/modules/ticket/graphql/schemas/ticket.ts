@@ -20,7 +20,10 @@ export const types = `
     updatedAt: Date
     channelId: String
     statusChangedDate: Date
-    number: Int
+    number: String
+    status: TicketStatus
+    assignee: User
+    isSubscribed: Boolean
   }
 
   type TicketListResponse {
@@ -81,6 +84,7 @@ const updateTicketParams = `
   assigneeId: String
   startDate: Date
   targetDate: Date
+  isSubscribed: Boolean
 `;
 
 export const queries = `

@@ -1,5 +1,6 @@
 import { IUserGroup, IUserGroupDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { userGroupSchema } from '../definitions/user-groups';
 
@@ -21,7 +22,11 @@ export interface IUserGroupModel extends Model<IUserGroupDocument> {
   ): Promise<IUserGroupDocument>;
 }
 
-export const loadUserGroupClass = (models: IModels) => {
+export const loadUserGroupClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class UserGroup {
     public static async getGroup(_id: string) {
       const userGroup = await models.UsersGroups.findOne({ _id });
@@ -38,6 +43,11 @@ export const loadUserGroupClass = (models: IModels) => {
      */
     public static async createGroup(doc: IUserGroup, memberIds?: string[]) {
       const group = await models.UsersGroups.create(doc);
+      sendDbEventLog({
+        action: 'create',
+        docId: group._id,
+        currentDocument: group.toObject(),
+      });
 
       await models.Users.updateMany(
         { _id: { $in: memberIds || [] } },
@@ -55,6 +65,7 @@ export const loadUserGroupClass = (models: IModels) => {
       doc: IUserGroup,
       memberIds?: string[],
     ) {
+      const oldGroup = await models.UsersGroups.findOne({ _id });
       // remove groupId from old members
       await models.Users.updateMany(
         { groupIds: { $in: [_id] } },
@@ -69,7 +80,16 @@ export const loadUserGroupClass = (models: IModels) => {
         { $push: { groupIds: _id } },
       );
 
-      return models.UsersGroups.findOne({ _id });
+      const updatedGroup = await models.UsersGroups.findOne({ _id });
+      if (updatedGroup && oldGroup) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedGroup._id,
+          currentDocument: updatedGroup.toObject(),
+          prevDocument: oldGroup.toObject(),
+        });
+      }
+      return updatedGroup;
     }
 
     /**
@@ -83,6 +103,11 @@ export const loadUserGroupClass = (models: IModels) => {
       if (!groupObj) {
         throw new Error(`Group not found with id ${_id}`);
       }
+
+      sendDbEventLog({
+        action: 'delete',
+        docId: groupObj._id,
+      });
 
       await models.Users.updateMany(
         { groupIds: { $in: [_id] } },

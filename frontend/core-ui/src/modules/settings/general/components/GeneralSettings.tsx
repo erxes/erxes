@@ -12,6 +12,7 @@ import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import { useEffect } from 'react';
 import { SubmitHandler } from 'react-hook-form';
 import { useSwitchLanguage } from '~/i18n';
+import { useTranslation } from 'react-i18next';
 
 const GeneralSettings = () => {
   const { languages } = useSwitchLanguage();
@@ -22,6 +23,9 @@ const GeneralSettings = () => {
     handleLanguage,
   } = useGeneralSettingsForms();
   const { configs, updateConfig, loading, isLoading } = useConfig();
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'general',
+  });
 
   const updateCurrency = (data: TGeneralSettingsProps) => {
     const updatedConfigs = {
@@ -86,7 +90,7 @@ const GeneralSettings = () => {
             languages.some((lng) => lang.value === lng),
           )}
           placeholder="Languages"
-          label="Language"
+          label= {t('language')}
         />
         <SelectMainCurrency />
         <SelectCurrency />
@@ -95,7 +99,7 @@ const GeneralSettings = () => {
           {isLoading ? (
             <Spinner className="stroke-white/90 w-4 h-4" />
           ) : (
-            'Update'
+            t('update')
           )}
         </Button>
       </form>

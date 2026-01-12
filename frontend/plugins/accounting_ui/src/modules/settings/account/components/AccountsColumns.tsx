@@ -16,7 +16,7 @@ import { accountDetailAtom } from '../states/accountStates';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
-  const { original } = cell.row
+  const { original } = cell.row;
   const { editAccount } = useAccountEdit();
   return (
     <SelectAccountCategory
@@ -59,6 +59,7 @@ const AccountTextField = ({
           [field],
         );
       }}
+      className={'shadow-none rounded-none px-2'}
     />
   );
 };

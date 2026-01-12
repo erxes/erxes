@@ -8,12 +8,12 @@ import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
+import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
   const { pathname } = useLocation();
 
-  // Determine base path
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks`
     : `/operation/tasks`;
@@ -38,11 +38,16 @@ export const TasksPage = () => {
         </PageHeader.Start>
         <AddTaskSheet />
       </PageHeader>
-      <PageSubHeader>
-        <TasksFilter />
-        <TasksViewControl />
-      </PageSubHeader>
-      <TasksView isCreatedView={isCreatedView} />
+      <div className="flex overflow-hidden w-full h-full">
+        <div className="flex flex-col overflow-hidden w-full h-full">
+          <PageSubHeader>
+            <TasksFilter />
+            <TasksViewControl />
+          </PageSubHeader>
+          <TasksView isCreatedView={isCreatedView} />
+        </div>
+        {<TasksSideWidget />}
+      </div>
     </>
   );
 };

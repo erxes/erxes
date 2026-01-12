@@ -13,6 +13,8 @@ import { AppPath } from '@/types/paths/AppPath';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 
+import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
+import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
 import { ProductsRoutes } from '@/app/components/ProductsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
@@ -26,7 +28,7 @@ import { currentUserState, useVersion } from 'ui-modules';
 import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
-import { DocumentsRoutes } from '../components/DocumentsRoutes';
+import { ImportExportRoutes } from '../components/ImportExportRoutes';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
@@ -113,6 +115,18 @@ export const useCreateAppRouter = () => {
                   element={<DocumentsRoutes />}
                 />
               )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.BroadcastsCatchAll}
+                  element={<BroadcastRoutes />}
+                />
+              )}
+
+              <Route
+                path={AppPath.ImportExportCatchAll}
+                element={<ImportExportRoutes />}
+              />
 
               <Route
                 path={AppPath.MyInboxCatchAll}

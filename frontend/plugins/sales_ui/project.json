@@ -33,7 +33,7 @@
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "sales_ui:build:development",
-        "port": 3009
+        "port": 3005
       },
       "configurations": {
         "development": {},

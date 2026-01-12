@@ -24,20 +24,20 @@ const AuthContent = lazy(() =>
 );
 
 const LogDetailComponents: Record<ILogSourceType, any> = {
-  [ILogSourceType.mongo]: MongoContent,
-  [ILogSourceType.graphql]: GraphqlContent,
-  [ILogSourceType.auth]: AuthContent,
-  [ILogSourceType.webhook]: ({ payload }: ILogDoc) => (
+  [ILogSourceType.MONGO]: MongoContent,
+  [ILogSourceType.GRAPHQL]: GraphqlContent,
+  [ILogSourceType.AUTH]: AuthContent,
+  [ILogSourceType.WEBHOOK]: ({ payload }: ILogDoc) => (
     <ReactJson src={payload} collapsed={1} />
   ),
 };
 
 const generateOperationText = ({ source, action, payload }: ILogDoc) => {
   const operationTextMap = {
-    [ILogSourceType.mongo]: action,
-    [ILogSourceType.graphql]: payload?.mutationName,
-    [ILogSourceType.auth]: action,
-    [ILogSourceType.webhook]: action,
+    [ILogSourceType.MONGO]: action,
+    [ILogSourceType.GRAPHQL]: payload?.mutationName,
+    [ILogSourceType.AUTH]: action,
+    [ILogSourceType.WEBHOOK]: action,
   };
 
   return operationTextMap[source] || '-';
@@ -67,7 +67,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
           <LogDetailSideBarItem title="Status">
             <Badge
               variant={
-                status === ILogStatusType.failed ? 'destructive' : 'success'
+                status === ILogStatusType.FAILED ? 'destructive' : 'success'
               }
               className="uppercase"
             >

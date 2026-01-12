@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
-import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
+import { useBoardDetail } from '~/modules/deals/boards/hooks/useBoards';
 
 const BoardsInlineRoot = (props: BoardsInlineProps) => {
   return (

@@ -3,6 +3,7 @@ import {
   IconDotsVertical,
   IconSettings,
   IconTicket,
+  IconChartHistogram,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +53,11 @@ export const FrontlineNavigation = () => {
         path="frontline/tickets"
       />
       <IntegrationNavigation />
+      <NavigationMenuLinkItem
+        name="Reports"
+        icon={IconChartHistogram}
+        path="frontline/reports"
+      />
     </>
   );
 };

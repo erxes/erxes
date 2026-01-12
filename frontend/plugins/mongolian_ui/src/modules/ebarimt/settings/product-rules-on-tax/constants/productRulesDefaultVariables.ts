@@ -1,0 +1,6 @@
+export const PRODUCT_RULES_ROW_PER_PAGE = 20;
+
+export const PRODUCT_RULES_ROW_DEFAULT_VARIABLES = {
+  page: 1,
+  perPage: PRODUCT_RULES_ROW_PER_PAGE,
+};

@@ -2,6 +2,7 @@ import { CurrencyField, Editor, InfoCard, Input, Label } from 'erxes-ui';
 import { IProductDetail, SelectCategory, SelectProductType } from 'ui-modules';
 import { atomWithStorage } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 const descriptionAtom = atomWithStorage<string | undefined>(
   'description',
@@ -24,43 +25,46 @@ export const ProductDetailGeneral = ({
   const [description, setDescription] = useAtom<string | undefined>(
     descriptionAtom,
   );
+  const { t } = useTranslation('product', {
+    keyPrefix: 'detail',
+  });
   return (
-    <InfoCard title="Product Information">
+    <InfoCard title={t('product-information')}>
       <InfoCard.Content>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Name</Label>
+            <Label>{t('name')}</Label>
             <Input value={name} />
           </div>
           <div className="space-y-2">
-            <Label>Code</Label>
+            <Label>{t('code')}</Label>
             <Input value={code} />
           </div>
           <div className="space-y-2">
-            <Label>Short Name</Label>
+            <Label>{t('short-name')}</Label>
             <Input value={shortName} />
           </div>
           <div className="space-y-2">
-            <Label>Type</Label>
+            <Label>{t('type')}</Label>
             <SelectProductType value={type} onValueChange={() => null} />
           </div>
           <div className="space-y-2">
-            <Label>Category</Label>
+            <Label>{t('category')}</Label>
             <SelectCategory selected={categoryId} onSelect={() => null} />
           </div>
           <div className="space-y-2 col-start-1">
-            <Label>Currency</Label>
+            <Label>{t('currency')}</Label>
             <CurrencyField.SelectCurrency
               value={currency}
               onChange={() => null}
             />
           </div>
           <div className="space-y-2">
-            <Label>Unit price</Label>
+            <Label>{t('unit-price')}</Label>
             <CurrencyField.ValueInput value={unitPrice} onChange={() => null} />
           </div>
           <div className="space-y-2 col-span-2">
-            <Label>Description</Label>
+            <Label>{t('description')}</Label>
             <Editor
               isHTML={true}
               initialContent={description}

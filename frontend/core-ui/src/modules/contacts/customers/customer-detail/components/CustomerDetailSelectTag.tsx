@@ -1,6 +1,7 @@
 import { Label } from 'erxes-ui';
 import { SelectTags } from 'ui-modules';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerDetailSelectTag = ({
   tagIds,
@@ -10,10 +11,13 @@ export const CustomerDetailSelectTag = ({
   customerId: string;
 }) => {
   const [tagIdsValue, setTagIdsValue] = useState<string[]>(tagIds);
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer.detail',
+  });
   return (
     <fieldset className="space-y-2 px-8">
       <Label asChild>
-        <legend>Tags</legend>
+        <legend>{t('tags')}</legend>
       </Label>
       <SelectTags.Detail
         mode="multiple"

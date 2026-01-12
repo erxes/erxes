@@ -110,8 +110,6 @@ export const authMutations = {
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    console.log(subdomain, models, DOMAIN, link);
-
     // await utils.sendEmail(
     //   subdomain,
     //   {

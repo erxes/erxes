@@ -3,7 +3,7 @@ import { Accordion, Sidebar } from 'erxes-ui';
 import { IPipeline } from '@/deals/types/pipelines';
 import { Link } from 'react-router-dom';
 import { PipelineListLoading } from '@/deals/components/loading/PipelineListLoading';
-import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
+import { useBoardDetail } from '~/modules/deals/boards/hooks/useBoards';
 
 export const PipelineList = ({
   boardId,

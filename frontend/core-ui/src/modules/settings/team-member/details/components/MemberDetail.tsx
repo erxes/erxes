@@ -9,10 +9,11 @@ import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { ApolloError } from '@apollo/client';
 import { MemberGeneral } from '@/settings/team-member/details/components/MemberGeneral';
 import { UserDetailActions } from '@/settings/team-member/details/components/UserDetailActions';
+import { ActivityLogs } from 'ui-modules';
 
 export function MemberDetail() {
   const { toast } = useToast();
-  const { error } = useUserDetail({
+  const { error, userDetail } = useUserDetail({
     onError: (e: ApolloError) => {
       if (!e.message.includes('not found')) {
         toast({
@@ -37,8 +38,11 @@ export function MemberDetail() {
           <MemberDetailTabContent value="overview">
             <MemberGeneral />
           </MemberDetailTabContent>
-          <MemberDetailTabContent value="links" className='h-full'>
+          <MemberDetailTabContent value="links" className="h-full">
             <MemberLinks />
+          </MemberDetailTabContent>
+          <MemberDetailTabContent value="activity" className="h-full">
+            {userDetail ? <ActivityLogs targetId={userDetail._id} /> : <></>}
           </MemberDetailTabContent>
         </Sheet.Content>
       </div>

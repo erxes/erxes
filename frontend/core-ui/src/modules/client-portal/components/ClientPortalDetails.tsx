@@ -8,6 +8,7 @@ import { ClientPortalDetailTest } from './ClientPortalDetailTest';
 import { ClientPortalDetailAuthLogics } from './ClientPortalDetailAuthLogics';
 import { ClientPortalDetail3rdPartyAuths } from './ClientPortalDetail3rdPartyAuths';
 import { ClientPortalDetailToken } from './ClientPortalDetailToken';
+import { ClientPortalDetailSMSProviders } from './ClientPortalDetailSMSProviders';
 
 export const ClientPortalDetails = () => {
   const { clientPortalId } = useParams<{ clientPortalId: string }>();
@@ -51,6 +52,9 @@ export const ClientPortalDetails = () => {
         <div className="flex flex-col gap-4">
           <ClientPortalDetailTest clientPortal={clientPortal} />
         </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <ClientPortalDetailSMSProviders clientPortal={clientPortal} />
       </div>
     </ScrollArea>
   );

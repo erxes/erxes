@@ -4,7 +4,6 @@ import { cursorPaginate, defaultPaginate, escapeRegExp } from 'erxes-api-shared/
 import { IContext, IModels } from '~/connectionResolvers';
 
 interface IQueryParams {
-  type: string;
   ids?: string[];
   excludeIds?: boolean;
   status?: string;
@@ -33,7 +32,6 @@ export const generateFilter = async (
   user: IUserDocument
 ) => {
   const {
-    type,
     categoryId,
     searchValue,
     brand,
@@ -60,9 +58,6 @@ export const generateFilter = async (
 
   if (params.status) {
     filter.status = params.status;
-  }
-  if (type) {
-    filter.type = type;
   }
 
   if (categoryId) {
@@ -111,7 +106,7 @@ export const generateFilter = async (
 
   if (code) {
     filter.code = new RegExp(
-      `^${code.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+      `${code.replace(/\*/g, '.').replace(/_/g, '.')}`,
       'igu',
     );
   }

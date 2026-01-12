@@ -12,6 +12,7 @@ import { IconSend, IconX } from '@tabler/icons-react';
 import { useUsersInvite } from '@/settings/team-member/hooks/useUsersInvite';
 import { z } from 'zod';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 const emailSchema = z.string().email();
 
@@ -25,7 +26,9 @@ export function InviteForm({
   const [tags, setTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
-
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'team-member',
+  });
   const addTag = (value: string) => {
     const trimmedValue = value.trim();
 
@@ -119,7 +122,7 @@ export function InviteForm({
           {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
           {!error && (
             <p className="text-sm text-muted-foreground mt-1.5">
-              Separate emails with comma, space, or enter
+              {t('seperate-emails')}
             </p>
           )}
         </div>
@@ -148,7 +151,7 @@ export function InviteForm({
           {(loading && <Spinner size={'sm'} className="stroke-white" />) || (
             <IconSend size={16} />
           )}
-          Send invites
+          {t('send-invites')}
         </Button>
       </div>
     </div>

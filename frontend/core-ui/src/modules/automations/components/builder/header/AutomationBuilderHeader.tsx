@@ -50,7 +50,7 @@ export const AutomationBuilderHeader = () => {
           </Button>
         </PageHeader.End>
       </PageHeader>
-      <PageSubHeader className={cn('flex items-center justify-between')}>
+      <PageSubHeader className="flex items-center justify-between">
         <div className="flex items-center gap-24">
           <AutomationBuilderNameInput />
           <AutomationHeaderTabs toggleTabs={toggleTabs} />

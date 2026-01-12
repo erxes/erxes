@@ -1,4 +1,4 @@
-import { IconPlus, IconX, IconZoomExclamation } from '@tabler/icons-react';
+import { IconX, IconZoomExclamation } from '@tabler/icons-react';
 import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
@@ -217,18 +217,17 @@ export const TransactionsTabsList = ({
             className={cn('tBalance' === activeJournal && "font-bold", "capitalize py-1 gap-2 pr-1 h-8")}
             asChild
           >
-            <div>
-              {'T Balance'}
-            </div>
+            <div>{'T Balance'}</div>
           </Tabs.Trigger>
 
           {!isPerfect && (
-            <AddTransaction inForm onClick={handleAddTransaction}>
-              <Button variant="ghost">
-                <IconPlus />
-                New Transaction
-              </Button>
-            </AddTransaction>
+            <div className='inline-flex items-center justify-center rounded-sm px-3 text-sm font-medium hover:bg-accent capitalize py-1 gap-2 pr-1 h-8'>
+              <AddTransaction inForm onClick={handleAddTransaction}>
+                <div>
+                  {'+ New Transaction'}
+                </div>
+              </AddTransaction>
+            </div>
           )}
         </Tabs.List>
 

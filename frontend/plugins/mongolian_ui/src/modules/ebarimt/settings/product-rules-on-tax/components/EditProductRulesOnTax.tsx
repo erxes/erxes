@@ -1,0 +1,177 @@
+import { Dialog, isDeeplyEqual, Spinner, useQueryState, toast } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { ProductRulesOnTaxForm } from './ProductRulesOnTaxForm';
+
+import { EBarimtDialog } from '~/modules/put-response/layout/components/Dialog';
+import {
+  productRulesOnTaxSchema,
+  TProductRulesOnTaxForm,
+} from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxSchema.ts';
+import { useProductRulesOnTaxEdit } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxEdit';
+import { useProductRulesOnTaxRowDetail } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRowDetail';
+
+export const EditProductRulesOnTax = () => {
+  const [open, setOpen] = useQueryState<string>('product_rules_on_tax_id');
+  const { productRulesOnTaxDetail, closeDetail, loading } =
+    useProductRulesOnTaxRowDetail();
+  const { editProductRulesOnTaxRow, loading: editLoading } =
+    useProductRulesOnTaxEdit();
+
+  const form = useForm<TProductRulesOnTaxForm>({
+    resolver: zodResolver(productRulesOnTaxSchema),
+    defaultValues: {
+      title: '',
+      taxType: '',
+      taxCode: '',
+      kind: '',
+      percent: 0,
+      productCategories: '',
+      excludeCategories: '',
+      products: '',
+      excludeProducts: '',
+      tags: '',
+      excludeTags: '',
+      status: '',
+    },
+  });
+  const { reset } = form;
+
+  useEffect(() => {
+    if (productRulesOnTaxDetail) {
+      const productCategories =
+        productRulesOnTaxDetail.productCategoryIds?.join(', ') || '';
+      const excludeCategories =
+        productRulesOnTaxDetail.excludeCategoryIds?.join(', ') || '';
+      const products = productRulesOnTaxDetail.productIds?.join(', ') || '';
+      const excludeProducts =
+        productRulesOnTaxDetail.excludeProductIds?.join(', ') || '';
+      const tags = productRulesOnTaxDetail.tagIds?.join(', ') || '';
+      const excludeTags =
+        productRulesOnTaxDetail.excludeTagIds?.join(', ') || '';
+
+      reset({
+        title: productRulesOnTaxDetail.title || '',
+        taxType: productRulesOnTaxDetail.taxType || '',
+        taxCode: productRulesOnTaxDetail.taxCode || '',
+        kind: productRulesOnTaxDetail.kind || '',
+        percent: productRulesOnTaxDetail.taxPercent || 0,
+        productCategories,
+        excludeCategories,
+        products,
+        excludeProducts,
+        tags,
+        excludeTags,
+        status: productRulesOnTaxDetail.status || '',
+      });
+    }
+  }, [productRulesOnTaxDetail, reset]);
+
+  const handleSubmit = (data: TProductRulesOnTaxForm) => {
+    if (!productRulesOnTaxDetail) return;
+
+    const productCategoryIds = data.productCategories
+      ? data.productCategories.split(',').map((s) => s.trim())
+      : [];
+    const excludeCategoryIds = data.excludeCategories
+      ? data.excludeCategories.split(',').map((s) => s.trim())
+      : [];
+    const productIds = data.products
+      ? data.products.split(',').map((s) => s.trim())
+      : [];
+    const excludeProductIds = data.excludeProducts
+      ? data.excludeProducts.split(',').map((s) => s.trim())
+      : [];
+    const tagIds = data.tags ? data.tags.split(',').map((s) => s.trim()) : [];
+    const excludeTagIds = data.excludeTags
+      ? data.excludeTags.split(',').map((s) => s.trim())
+      : [];
+
+    const initialData = {
+      title: productRulesOnTaxDetail.title || '',
+      taxType: productRulesOnTaxDetail.taxType || '',
+      taxCode: productRulesOnTaxDetail.taxCode || '',
+      kind: productRulesOnTaxDetail.kind || '',
+      taxPercent: productRulesOnTaxDetail.taxPercent || 0,
+      productCategoryIds: productRulesOnTaxDetail.productCategoryIds || [],
+      excludeCategoryIds: productRulesOnTaxDetail.excludeCategoryIds || [],
+      productIds: productRulesOnTaxDetail.productIds || [],
+      excludeProductIds: productRulesOnTaxDetail.excludeProductIds || [],
+      tagIds: productRulesOnTaxDetail.tagIds || [],
+      excludeTagIds: productRulesOnTaxDetail.excludeTagIds || [],
+    };
+
+    const newData = {
+      title: data.title,
+      taxType: data.taxType,
+      taxCode: data.taxCode,
+      kind: data.kind,
+      taxPercent: data.percent,
+      productCategoryIds,
+      excludeCategoryIds,
+      productIds,
+      excludeProductIds,
+      tagIds,
+      excludeTagIds,
+    };
+
+    if (isDeeplyEqual(newData, initialData)) {
+      toast({
+        title: 'Success',
+        description: 'No changes made',
+      });
+      reset();
+      return closeDetail();
+    }
+
+    editProductRulesOnTaxRow({
+      variables: {
+        id: productRulesOnTaxDetail._id,
+        ...newData,
+        tags: data.tags,
+        excludeTags: data.excludeTags,
+        status: data.status,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Product rules on tax updated successfully',
+        });
+        closeDetail();
+        reset();
+        setOpen(null);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to update product rules on tax',
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
+  return (
+    <Dialog
+      open={open !== null}
+      onOpenChange={(isOpen) => !isOpen && setOpen(null)}
+    >
+      <EBarimtDialog
+        title="Edit Product Rules On Tax"
+        description="Edit a product rules on tax"
+      >
+        <ProductRulesOnTaxForm
+          form={form}
+          onSubmit={handleSubmit}
+          loading={editLoading || loading}
+        />
+        {loading && (
+          <div className="absolute inset-0 bg-background/10 backdrop-blur-sm flex items-center justify-center rounded-md">
+            <Spinner />
+          </div>
+        )}
+      </EBarimtDialog>
+    </Dialog>
+  );
+};

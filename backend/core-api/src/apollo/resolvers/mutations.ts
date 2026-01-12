@@ -17,10 +17,15 @@ import { productMutations } from '@/products/graphql/resolvers/mutations';
 import { relationsMutations } from '@/relations/graphql/mutations';
 import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
 import { tagMutations } from '@/tags/graphql/mutations';
+import { broadcastMutations } from '~/modules/broadcast/graphql/resolvers/mutations';
 import { notificationMutations } from '~/modules/notifications/graphql/resolver/mutations';
 import { roleMutations } from '~/modules/permissions/graphql/resolvers/mutations/role';
 import { propertiesMutations } from '~/modules/properties/graphql/resolvers/mutations';
 import { clientPortalMutations } from '@/clientportal/graphql/resolvers/mutations/clientPortal';
+import {
+  importMutations,
+  exportMutations,
+} from '~/modules/import-export/graphql/resolvers';
 import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUser';
 
 export const mutations = {
@@ -45,7 +50,10 @@ export const mutations = {
   ...notificationMutations,
   ...internalNoteMutations,
   ...roleMutations,
+  ...broadcastMutations,
   ...propertiesMutations,
   ...clientPortalMutations,
+  ...importMutations,
+  ...exportMutations,
   ...cpUserMutations,
 };

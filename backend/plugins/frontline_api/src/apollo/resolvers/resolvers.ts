@@ -3,6 +3,7 @@ import integrationFacebookResolvers from '@/integrations/facebook/graphql/resolv
 import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
 import { ChannelMember } from '@/channel/graphql/resolvers/customResolvers/member';
 import { Pipeline } from '@/ticket/graphql/resolvers/customResolvers/pipeline';
+import { Ticket } from '@/ticket/graphql/resolvers/customResolvers/status';
 
 export const customResolvers = {
   ...inboxResolvers,
@@ -10,4 +11,5 @@ export const customResolvers = {
   Channel,
   ChannelMember,
   Pipeline,
+  Ticket,
 };

@@ -1,6 +1,7 @@
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { Badge, cn } from 'erxes-ui';
 import React, { useId, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TProps = {
   value: string;
@@ -9,14 +10,15 @@ type TProps = {
 };
 
 const PasswordStrength = ({ value, reTypeValue, errors }: TProps) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'change-password' });
   const id = useId();
 
   const checkStrength = (pass: string, reType: string) => {
     const requirements = [
-      { regex: /.{8,}/, text: 'At least 8 characters' },
-      { regex: /[0-9]/, text: 'At least 1 number' },
-      { regex: /[a-z]/, text: 'At least 1 lowercase letter' },
-      { regex: /[A-Z]/, text: 'At least 1 uppercase letter' },
+      { regex: /.{8,}/, text: t('atleast-8') },
+      { regex: /[0-9]/, text: t('least-number') },
+      { regex: /[a-z]/, text: t('least-lowercase') },
+      { regex: /[A-Z]/, text: t('least-uppercase') },
     ];
 
     const baseChecks = requirements.map((req) => ({
@@ -26,7 +28,7 @@ const PasswordStrength = ({ value, reTypeValue, errors }: TProps) => {
 
     const confirmCheck = {
       met: pass.length > 0 && pass === reType,
-      text: 'Passwords must match',
+      text: t('password-same'),
     };
 
     return [...baseChecks, confirmCheck];

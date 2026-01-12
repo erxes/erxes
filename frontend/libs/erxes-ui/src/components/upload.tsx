@@ -13,6 +13,7 @@ import { ButtonProps } from './button';
 import { cn } from '../lib/utils';
 import { readImage } from 'erxes-ui/utils/core';
 import { useUpload } from 'erxes-ui/hooks';
+import { useTranslation } from 'react-i18next';
 
 type IUploadContext = {
   url: string | undefined;
@@ -240,6 +241,10 @@ const UploadButton = React.forwardRef<
 
   const { handleThumbnailClick } = uploadContext;
 
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'profile',
+  });
+
   return (
     <Button
       ref={ref}
@@ -249,7 +254,7 @@ const UploadButton = React.forwardRef<
     >
       {children || (
         <>
-          <IconUpload /> Upload
+          <IconUpload /> {t('upload')}
         </>
       )}
     </Button>

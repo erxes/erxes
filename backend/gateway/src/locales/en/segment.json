@@ -1,0 +1,28 @@
+{
+    "segment-types": "Segment Types",
+    "team-member" : "Team Member",
+    "customer": "Customer",
+    "lead": "Lead",
+    "product": "Product",
+    "segment": "Segment",
+    "name" : "Name",
+    "description" : "Description",
+    "count" : "Count",
+    "create-segment" : "Create Segment",
+    "edit": "Edit",
+    "create": "Create",
+    "a-segment": "a segment",
+    "detail" : {
+        "name" : "Name",
+        "parent-segment": "Parent segment",
+        "color": "Color",
+        "description":"Description",
+        "property":"Property",
+        "value":"Value",
+        "condition" : "Condition",
+        "add-condition" : "Add condition",
+        "calculate-segment-reach" : "Calculate segment reach",
+        "save-segment" : "Save segment" ,
+        "add-group" : "Add group"
+    }
+}

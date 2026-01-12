@@ -47,12 +47,12 @@ export function Spinner({
     <div className={cn(spinnerVariants({ show }), containerClassName)}>
       <div className={cn(loaderVariants({ size }), className)}>
         <div className="relative size-full left-1/2 top-1/2">
-          {[...Array(12)].map((_, i) => (
+          {[...Array(10)].map((_, i) => (
             <div
               key={i}
               style={{
-                transform: `translate(146%) rotate(${i * 30 + 0.001}deg)`,
-                animationDelay: `-${(12 - i) * 0.08}s`,
+                transform: `translate(146%) rotate(${i * 36 + 0.001}deg)`,
+                animationDelay: `-${(10 - i) * 0.096}s`,
               }}
               className="absolute h-[8%] w-[24%] left-[-10%] top-[-3.9%] origin-[-100%] rounded-md bg-current animate-spinner "
             />

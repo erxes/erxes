@@ -1,13 +1,15 @@
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 export const CHANGE_PASSWORD_SCHEMA = z
+
   .object({
     currentPassword: z
       .string({
-        required_error: 'Please provide your current password',
+        required_error: 'password-error',
       })
       .trim()
-      .min(8, { message: 'Please provide your current password' }),
+      .min(8, { message: 'password-error' }),
     newPassword: z
       .string()
       .refine((val) => /.{8,}/.test(val), { message: 'At least 8 characters' })

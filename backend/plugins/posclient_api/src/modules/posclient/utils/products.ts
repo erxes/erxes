@@ -1,4 +1,5 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import fetch from 'node-fetch';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IProductDocument } from '~/modules/posclient/@types/products';
@@ -57,8 +58,10 @@ export const checkRemainders = async (
         }
 
         if (account && location) {
-          const response = await fetch(
-            configs.getRemainderApiUrl +
+          let jsonRes = {}
+          try {
+            const response = await fetch(
+              configs.getRemainderApiUrl +
               '?' +
               new URLSearchParams({
                 kind: 'remainder',
@@ -69,9 +72,11 @@ export const checkRemainders = async (
                 locations: location,
                 inventories: products.map((p) => p.code).join(','),
               }),
-          );
-
-          const jsonRes = await response.json();
+            );
+            jsonRes = await response.json();
+          } catch (e) {
+            console.log(e.message)
+          }
           let responseByCode = {};
 
           if (account && location) {
@@ -137,8 +142,8 @@ export const checkRemainders = async (
   const branchIds = paramBranchId
     ? [paramBranchId]
     : config.isOnline
-    ? config.allowBranchIds || []
-    : (config.branchId && [config.branchId]) || [];
+      ? config.allowBranchIds || []
+      : (config.branchId && [config.branchId]) || [];
   const departmentIds = config.departmentId ? [config.departmentId] : [];
   const productIds = products.map((p) => p._id);
 
@@ -146,8 +151,8 @@ export const checkRemainders = async (
     const branchIds = paramBranchId
       ? [paramBranchId]
       : config.isOnline
-      ? config.allowBranchIds || []
-      : (config.branchId && [config.branchId]) || [];
+        ? config.allowBranchIds || []
+        : (config.branchId && [config.branchId]) || [];
     const departmentIds = config.departmentId ? [config.departmentId] : [];
     const productIds = products.map((p) => p._id);
     const inventoryResponse = await sendTRPCMessage({

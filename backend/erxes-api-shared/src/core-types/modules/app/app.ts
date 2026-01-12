@@ -1,3 +1,5 @@
+import { Document } from 'mongoose';
+
 export interface IApp {
   isEnabled?: boolean;
   name: string;

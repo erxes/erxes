@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { AddProductForm } from 'ui-modules';
 import { productsQueries } from '../graphql';
+import { useTranslation } from 'react-i18next';
 
 export const ProductAddSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -28,6 +29,9 @@ export const ProductAddSheet = () => {
     setOpen(false);
     goBackToPreviousHotkeyScope();
   };
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
 
   useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
 
@@ -40,7 +44,7 @@ export const ProductAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add product
+          {t('add-product')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -55,9 +59,12 @@ export const ProductAddSheet = () => {
 };
 
 export const ProductAddSheetHeader = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
   return (
     <Sheet.Header className="border-b gap-3">
-      <Sheet.Title>Create product</Sheet.Title> <Sheet.Close />
+      <Sheet.Title>{t('create-product')}</Sheet.Title> <Sheet.Close />
     </Sheet.Header>
   );
 };

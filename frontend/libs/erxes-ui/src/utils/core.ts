@@ -1,4 +1,5 @@
 import { REACT_APP_API_URL, REACT_APP_IMAGE_CDN_URL } from 'erxes-ui/utils';
+
 import { isValidURL } from 'erxes-ui/utils/urlParser';
 
 export const readImage = (
@@ -44,3 +45,38 @@ export const readImage = (
 
   return url;
 };
+
+export const renderFullName = (data: any, noPhone?: boolean) => {
+  if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
+    return (
+      (data.firstName || '') +
+      ' ' +
+      (data.middleName || '') +
+      ' ' +
+      (data.lastName || '') +
+      ' ' +
+      ((!noPhone && data.primaryPhone) || '')
+    );
+  }
+
+  if (data.primaryEmail || data.primaryPhone) {
+    return data.primaryEmail || data.primaryPhone;
+  }
+
+  if (data.emails && data.emails.length > 0) {
+    return data.emails[0]?.email || 'Unknown';
+  }
+
+  if (data.phones && data.phones.length > 0) {
+    return data.phones[0]?.phone || 'Unknown';
+  }
+
+  const { visitorContactInfo } = data;
+
+  if (visitorContactInfo) {
+    return visitorContactInfo.phone || visitorContactInfo.email || 'Unknown';
+  }
+
+  return 'Unknown';
+};
+

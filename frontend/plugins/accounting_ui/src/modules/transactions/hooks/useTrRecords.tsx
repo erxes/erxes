@@ -1,44 +1,74 @@
-import { TR_RECORDS_QUERY } from '../graphql/transactionQueries';
 import { OperationVariables, useQuery } from '@apollo/client';
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+  validateFetchMore
+} from 'erxes-ui';
+import { TR_RECORDS_QUERY } from '../graphql/transactionQueries';
 import { ACC_TRS__PER_PAGE } from '../types/constants';
+import { ITrRecord } from '../types/Transaction';
+import { useTransactionsVariables } from './useTransactionVars';
 
 export const useTrRecords = (options?: OperationVariables) => {
-  const { data, loading, error, fetchMore } = useQuery(
-    TR_RECORDS_QUERY,
-    {
-      ...options,
+  const variables = useTransactionsVariables(options?.variables);
+  const { data, loading, error, fetchMore } = useQuery<{
+    accTrRecordsMain: {
+      list: ITrRecord[];
+      totalCount: number;
+      pageInfo: IRecordTableCursorPageInfo;
+    };
+  }>(TR_RECORDS_QUERY, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      ...variables
+    },
+  });
+
+  const { list: trRecords, totalCount, pageInfo } = data?.accTrRecordsMain || {};
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (
+      !validateFetchMore({
+        direction,
+        pageInfo,
+      })
+    ) {
+      return;
+    }
+
+    fetchMore({
       variables: {
-        ...options?.variables,
-        page: 1,
-        perPage: ACC_TRS__PER_PAGE,
+        cursor:
+          direction === EnumCursorDirection.FORWARD
+            ? pageInfo?.endCursor
+            : pageInfo?.startCursor,
+        limit: ACC_TRS__PER_PAGE,
+        direction,
       },
-    }
-  );
-  const { accTrRecords, accTrRecordsCount } = data || {};
-
-  const handleFetchMore = () => {
-    if (accTrRecords?.length < accTrRecordsCount) {
-      fetchMore({
-        variables: {
-          perPage: ACC_TRS__PER_PAGE,
-          page: Math.ceil(accTrRecords?.length / ACC_TRS__PER_PAGE) + 1,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          return {
-            ...prev,
-            ...fetchMoreResult,
-            accTrRecords: [...prev.accTrRecords, ...fetchMoreResult.accTrRecords],
-          };
-        },
-      });
-    }
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return Object.assign({}, prev, {
+          accTrRecordsMain: mergeCursorData({
+            direction,
+            fetchMoreResult: fetchMoreResult.accTrRecordsMain,
+            prevResult: prev.accTrRecordsMain,
+          }),
+        });
+      },
+    });
   };
-
   return {
-    trRecords: data?.accTrRecords,
-    totalCount: data?.accTrRecordsCount,
     loading,
+    trRecords,
+    totalCount,
     error,
     handleFetchMore,
+    pageInfo,
   };
 };

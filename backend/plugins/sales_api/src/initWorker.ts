@@ -25,16 +25,6 @@ export const sendPosclientHealthCheck = async ({
     input: { channelToken: pos.token },
     defaultValue: { healthy: 'no' },
   });
-  // return await sendMessage({
-  //   subdomain,
-  //   isRPC: true,
-  //   isMQ: true,
-  //   serviceName: "",
-  //   action: `posclient:health_check_${pos.token}`,
-  //   data: { token: pos.token, thirdService: true },
-  //   timeout: 1000,
-  //   defaultValue: { healthy: "no" }
-  // });
 };
 
 export const sendPosclientMessage = async (args: any) => {

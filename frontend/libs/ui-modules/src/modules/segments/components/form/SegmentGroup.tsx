@@ -3,6 +3,7 @@ import { Button, Card, Label } from 'erxes-ui';
 import { useFieldArray } from 'react-hook-form';
 import { SegmentProperty } from './SegmentProperty';
 import { useSegment } from '../../context/SegmentProvider';
+import { useTranslation } from 'react-i18next';
 type Props = {
   parentFieldName?: `conditionSegments.${number}`;
   onRemove?: () => void;
@@ -11,7 +12,7 @@ type Props = {
 export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
   const { form, contentType } = useSegment();
   const { control } = form;
-
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
   const {
     fields: conditionFields,
     append,
@@ -24,13 +25,13 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
     <Card className="bg-accent rounded-md">
       <Card.Header className="flex flex-row gap-2 items-center px-6 py-2 group">
         <div className="w-2/5 mt-2 ">
-          <Label>Property</Label>
+          <Label>{t('property')}</Label>
         </div>
         <div className="w-1/5 ">
-          <Label>Condition</Label>
+          <Label>{t('condition')}</Label>
         </div>
         <div className="w-2/5 pl-4">
-          <Label>Value</Label>
+          <Label>{t('value')}</Label>
         </div>
         {onRemove && (
           <Button
@@ -68,7 +69,7 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
           }
         >
           <IconPlus />
-          Add Condition
+          {t('add-condition')}
         </Button>
       </Card>
     </Card>

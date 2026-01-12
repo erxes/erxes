@@ -139,39 +139,40 @@ export const loadFieldClass = (models: IModels) => {
 
       const { type, validations } = field;
 
-      // required
-      for (const validation of validations) {
-        //required
-        if (validation.isRequired && (!value || !value.toString().trim())) {
-          throw new Error(`${field.name}: required`);
+      for (const key in validations) {
+        const validation = validations[key];
+
+        if (!validation) continue;
+
+        // required
+        if (key === 'required') {
+          if (!value || !value.toString().trim()) {
+            throw new Error(`${field.name}: required`);
+          }
         }
 
         // email
-        if (
-          (type === 'email' || validation.email) &&
-          !validator.isEmail(value)
-        ) {
-          throw new Error(`${field.name}: Invalid email`);
+        if (key === 'email') {
+          if (!validator.isEmail(value)) {
+            throw new Error(`${field.name}: Invalid email`);
+          }
         }
 
         // number
-        if (
-          !['check', 'radio', 'select'].includes(type || '') &&
-          validation.number &&
-          !validator.isFloat(value.toString())
-        ) {
-          throw new Error(`${field.name}: Invalid number`);
+        if (key === 'number') {
+          if (
+            !['check', 'radio', 'select'].includes(type || '') &&
+            !validator.isFloat(value.toString())
+          ) {
+            throw new Error(`${field.name}: Invalid number`);
+          }
         }
 
         // date
-        if (validation.date) {
-          value = new Date(value);
+        if (key === 'date') {
+          const dateObj = new Date(value);
 
-          if (
-            !(value instanceof Date
-              ? !isNaN(value.getTime())
-              : validator.isISO8601(value.toString()))
-          ) {
+          if (isNaN(dateObj.getTime())) {
             throw new Error(`${field.name}: Invalid date`);
           }
         }
@@ -181,6 +182,8 @@ export const loadFieldClass = (models: IModels) => {
     }
 
     public static async validateFieldValues(customFieldsData: IPropertyField) {
+      const result: Record<string, any> = {};
+
       for (const fieldName in customFieldsData) {
         const fieldValue = customFieldsData[fieldName];
 
@@ -208,11 +211,14 @@ export const loadFieldClass = (models: IModels) => {
         }
 
         try {
-          await this.validateFieldValue(fieldId.toString(), fieldValue);
+          result[fieldName] = await this.validateFieldValue(fieldId.toString(), fieldValue);
+
         } catch (e) {
           throw new Error(e.message);
         }
       }
+
+      return result
     }
   }
 

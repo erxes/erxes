@@ -1,6 +1,12 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+
+  enum CUSTOMER_RELATION_TYPE {
+    TAG
+    BRAND
+  }
+
   type Customer @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     state: String
@@ -109,6 +115,7 @@ const queryParams = `
 
 export const queries = `
   customers(${queryParams}): CustomersListResponse
+  customersCount(types: [CUSTOMER_RELATION_TYPE]): JSON
   customerDetail(_id: String!): Customer
   contactsLogs(action: String, content:JSON, contentType: String): JSON
 `;

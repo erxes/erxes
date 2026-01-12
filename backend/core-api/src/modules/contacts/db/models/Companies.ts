@@ -1,4 +1,5 @@
 import { companySchema } from '@/contacts/db/definitions/company';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
   ICompany,
   ICompanyDocument,
@@ -8,6 +9,7 @@ import {
 import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { generateCompanyActivityLogs } from '../../utils/activityLogs';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompany(_id: string): Promise<ICompanyDocument>;
@@ -29,7 +31,11 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
   ): Promise<ICompanyDocument>;
 }
 
-export const loadCompanyClass = (models: IModels) => {
+export const loadCompanyClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Company {
     /**
      * Retreive company
@@ -95,6 +101,22 @@ export const loadCompanyClass = (models: IModels) => {
         searchText: this.fillSearchText(doc),
       });
 
+      sendDbEventLog({
+        action: 'create',
+        docId: company._id,
+        currentDocument: company.toObject(),
+      });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: company._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Company created',
+        },
+        changes: {},
+      });
       return company;
     }
 
@@ -125,14 +147,36 @@ export const loadCompanyClass = (models: IModels) => {
         { $set: { ...doc, searchText, updatedAt: new Date() } },
       );
 
-      return models.Companies.findOne({ _id });
+      const updatedCompany = await models.Companies.findOne({ _id });
+      if (updatedCompany) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedCompany._id,
+          currentDocument: updatedCompany.toObject(),
+          prevDocument: company.toObject(),
+        });
+        generateCompanyActivityLogs(
+          company,
+          updatedCompany,
+          models,
+          createActivityLog,
+        );
+      }
+      return updatedCompany;
     }
 
     /**
      * Remove company
      */
     public static async removeCompanies(companyIds: string[]) {
-      return models.Companies.deleteMany({ _id: { $in: companyIds } });
+      const deletedCompanies = await models.Companies.deleteMany({
+        _id: { $in: companyIds },
+      });
+      sendDbEventLog({
+        action: 'deleteMany',
+        docIds: companyIds,
+      });
+      return deletedCompanies;
     }
 
     /**

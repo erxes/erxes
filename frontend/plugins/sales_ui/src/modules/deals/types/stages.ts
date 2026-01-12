@@ -5,7 +5,7 @@ export interface IStage {
   probability: string;
   index?: number;
   itemId?: string;
-  unusedAmount?: number;
+  unUsedAmount?: number;
   amount?: number | string | null;
   itemsTotalCount: number;
   formId: string;

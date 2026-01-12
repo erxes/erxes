@@ -35,6 +35,7 @@ const SelectAssigneeValue = ({
   variant?: `${SelectTriggerVariant}`;
 }) => {
   const { memberIds, members, setMembers } = useSelectMemberContext();
+
   if (variant === SelectTriggerVariant.CARD) {
     return (
       <MembersInline.Provider
@@ -47,6 +48,7 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
+
   return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
 };
 
@@ -182,12 +184,14 @@ const SelectAssigneeDealRoot = ({
   variant,
   id,
   teamIds,
+  onValueChange,
 }: {
   value: string[];
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamIds?: string[] | string;
   id?: string;
+  onValueChange?: (value: string | string[] | null) => void;
 }) => {
   const { editDeals } = useDealsEdit();
   const [open, setOpen] = useState(false);
@@ -204,10 +208,17 @@ const SelectAssigneeDealRoot = ({
     setOpen(false);
   };
 
+  const onChange = (value: string | string[] | null) => {
+    if (onValueChange) {
+      onValueChange(value);
+    }
+    setOpen(false);
+  };
+
   return (
     <SelectAssigneeProvider
       value={value}
-      onValueChange={handleValueChange}
+      onValueChange={onValueChange ? onChange : handleValueChange}
       mode="single"
       allowUnassigned
     >

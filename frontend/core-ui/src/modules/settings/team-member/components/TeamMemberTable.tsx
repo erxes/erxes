@@ -2,10 +2,16 @@ import { RecordTable } from 'erxes-ui';
 import { useUsers } from '@/settings/team-member/hooks/useUsers';
 import { teamMemberColumns } from '@/settings/team-member/components/record/TeamMemberColumns';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../constants/teamMemberCursorSessionKey';
+import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 
 const TeamMemberTable = () => {
   const { users, handleFetchMore, loading, error, pageInfo } = useUsers();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'team-member',
+  });
+  const columns = useMemo(() => teamMemberColumns(t), [t]);
 
   if (error) {
     return (
@@ -17,7 +23,7 @@ const TeamMemberTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={teamMemberColumns}
+      columns={columns}
       data={users || []}
       stickyColumns={['avatar', 'name']}
       className="m-3"

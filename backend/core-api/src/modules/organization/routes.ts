@@ -36,6 +36,17 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
     organizationInfo.type = 'saas';
   }
 
+  if (VERSION && VERSION === 'os') {
+    const orgWhiteLabel = await models.OrgWhiteLabel.getOrgWhiteLabel();
+
+    if (orgWhiteLabel && orgWhiteLabel.enabled) {
+      organizationInfo = {
+        ...organizationInfo,
+        ...orgWhiteLabel,
+      };
+    }
+  }
+
   const userCount = await models.Users.countDocuments({
     isOwner: true,
   });

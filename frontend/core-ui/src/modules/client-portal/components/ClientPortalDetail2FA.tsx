@@ -1,20 +1,37 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Label, Spinner, Switch } from 'erxes-ui';
+import { Button, Form, Input, Label, Spinner, Switch, Tabs } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_2FA_SCHEMA } from '../constants/clientPortalEditSchema';
 import { z } from 'zod';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useState } from 'react';
 
 export const ClientPortalDetail2FA = ({
   clientPortal,
 }: {
   clientPortal: IClientPortal;
 }) => {
-  const isOpen = clientPortal.enableTwoFactor ?? false;
+  const multiFactorConfig = clientPortal?.securityAuthConfig?.multiFactorConfig;
+  const isOpen = multiFactorConfig?.isEnabled ?? false;
+  const [activeTab, setActiveTab] = useState<'email' | 'sms'>('email');
+
   const form = useForm<z.infer<typeof CLIENTPORTAL_2FA_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_2FA_SCHEMA),
-    defaultValues: clientPortal?.twoFactorConfig,
+    defaultValues: {
+      email: {
+        emailSubject: multiFactorConfig?.email?.emailSubject || '',
+        messageTemplate: multiFactorConfig?.email?.messageTemplate || '',
+        codeLength: multiFactorConfig?.email?.codeLength,
+        duration: multiFactorConfig?.email?.duration,
+      },
+      sms: {
+        smsProvider: multiFactorConfig?.sms?.smsProvider || '',
+        messageTemplate: multiFactorConfig?.sms?.messageTemplate || '',
+        codeLength: multiFactorConfig?.sms?.codeLength,
+        duration: multiFactorConfig?.sms?.duration,
+      },
+    },
   });
   const { updateClientPortal, loading } = useUpdateClientPortal();
 
@@ -22,7 +39,15 @@ export const ClientPortalDetail2FA = ({
     updateClientPortal({
       variables: {
         id: clientPortal?._id,
-        clientPortal: { twoFactorConfig: data },
+        clientPortal: {
+          securityAuthConfig: {
+            multiFactorConfig: {
+              isEnabled: true,
+              email: data.email,
+              sms: data.sms,
+            },
+          },
+        },
       },
     });
   };
@@ -31,7 +56,13 @@ export const ClientPortalDetail2FA = ({
     updateClientPortal({
       variables: {
         id: clientPortal?._id,
-        clientPortal: { enableTwoFactor: value },
+        clientPortal: {
+          securityAuthConfig: {
+            multiFactorConfig: {
+              isEnabled: value,
+            },
+          },
+        },
       },
     });
   };
@@ -53,99 +84,190 @@ export const ClientPortalDetail2FA = ({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid grid-cols-2 gap-x-4 gap-y-2"
+            className="flex flex-col gap-4"
           >
-            <Form.Field
-              control={form.control}
-              name="smsTransporterType"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>SMS Config</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value)}
-                    />
-                  </Form.Control>
-                  <Form.Description />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="emailSubject"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Email Subject</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Description />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <Form.Item className="col-span-2">
-                  <Form.Label>Content</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Description>2FA message body</Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="codeLength"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Code Length</Form.Label>
-                  <Form.Control>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </Form.Control>
-                  <Form.Description />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="expireAfter"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Expire After</Form.Label>
-                  <Form.Control>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </Form.Control>
-                  <Form.Description>
-                    2FA code expiration duration (min)
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            <Tabs
+              value={activeTab}
+              onValueChange={(val) => setActiveTab(val as 'email' | 'sms')}
+            >
+              <Tabs.List>
+                <Tabs.Trigger value="email">Email</Tabs.Trigger>
+                <Tabs.Trigger value="sms">SMS/Phone</Tabs.Trigger>
+              </Tabs.List>
+
+              <Tabs.Content value="email" className="mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Form.Field
+                    control={form.control}
+                    name="email.emailSubject"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Email Subject</Form.Label>
+                        <Form.Control>
+                          <Input {...field} />
+                        </Form.Control>
+                        <Form.Description>2FA email subject</Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="email.codeLength"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Code Length</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          2FA code length (4-6 digits)
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="email.messageTemplate"
+                    render={({ field }) => (
+                      <Form.Item className="col-span-2">
+                        <Form.Label>Message Template</Form.Label>
+                        <Form.Control>
+                          <Input {...field} />
+                        </Form.Control>
+                        <Form.Description>
+                          Email message body with {'{code}'} placeholder
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="email.duration"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          2FA code expiration duration in minutes
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              </Tabs.Content>
+
+              <Tabs.Content value="sms" className="mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Form.Field
+                    control={form.control}
+                    name="sms.smsProvider"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>SMS Provider</Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          SMS provider configuration
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="sms.codeLength"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Code Length</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          2FA code length (4-6 digits)
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="sms.messageTemplate"
+                    render={({ field }) => (
+                      <Form.Item className="col-span-2">
+                        <Form.Label>Message Template</Form.Label>
+                        <Form.Control>
+                          <Input {...field} />
+                        </Form.Control>
+                        <Form.Description>
+                          SMS message body with {'{code}'} placeholder
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="sms.duration"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          2FA code expiration duration in minutes
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              </Tabs.Content>
+            </Tabs>
 
             <Button
               type="submit"
               variant="secondary"
-              className="mt-2 w-full col-span-2"
+              className="mt-2"
               disabled={loading}
             >
               {loading && (

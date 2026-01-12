@@ -5,12 +5,6 @@ export const types = `
     byStatus: JSON
   }
 
-  enum CustomerType {
-    company
-    customer
-    user
-  }
-
   type Invoice @key(fields: "_id") {
     _id: String
     invoiceNumber: String

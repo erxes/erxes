@@ -55,7 +55,7 @@ const corsOptions = {
 };
 
 const myQueue = new Queue('gateway-service-discovery', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     removeOnComplete: false,
   },
@@ -83,14 +83,22 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/locales/:lng', async (req, res) => {
+app.get('/locales/:lng/:file', async (req, res) => {
+  const localesRoot = path.join(__dirname, './locales');
   try {
-    const lngJson = fs.readFileSync(
-      path.join(__dirname, `./locales/${req.params.lng}`),
+    const requestedPath = path.resolve(
+      localesRoot,
+      req.params.lng,
+      req.params.file,
     );
+    const realPath = fs.realpathSync(requestedPath);
+    if (!realPath.startsWith(localesRoot + path.sep)) {
+      return res.status(403).send('Forbidden');
+    }
+    const lngJson = fs.readFileSync(realPath);
     res.json(JSON.parse(lngJson.toString()));
   } catch {
-    res.status(500).send('Error fetching services');
+    res.status(500).send('Error fetching locale');
   }
 });
 app.use('/pl:serviceName', async (req, res) => {

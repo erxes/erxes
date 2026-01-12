@@ -6,40 +6,49 @@ import {
   IconBrandX,
   IconWorldWww,
 } from '@tabler/icons-react';
+import { TFunction } from 'i18next';
 
-const PROFILE_ADVANCED_FIELDS = [
+const PROFILE_ADVANCED_FIELDS = (t: TFunction): Array<{
+  fieldLabel: string;
+  fieldName: string;
+  fieldPath: string;
+  field: {
+    element: string;
+    attributes?: Record<string, any>;
+  };
+}> => [
   {
-    fieldLabel: 'Middle Name',
+    fieldLabel: t('middle-name'),
     fieldName: 'middleName',
     fieldPath: 'details',
     field: { element: 'input', attributes: { type: 'text' } },
   },
   {
-    fieldLabel: 'Short Name',
+    fieldLabel: t('short-name'),
     fieldName: 'shortName',
     fieldPath: 'details',
     field: { element: 'input', attributes: { type: 'text' } },
   },
   {
-    fieldLabel: 'Employee Id',
+    fieldLabel: t('employee-id'),
     fieldName: 'employeeId',
     fieldPath: 'details',
     field: { element: 'input', attributes: { type: 'text' } },
   },
   {
-    fieldLabel: 'Phone (Operator)',
+    fieldLabel: t('phone-operator'),
     fieldName: 'operatorPhone',
     fieldPath: 'details',
     field: { element: 'telephone' },
   },
   {
-    fieldLabel: 'Join Date',
+    fieldLabel: t('join-date'),
     fieldName: 'workStartedDate',
     fieldPath: 'details',
     field: { element: 'date' },
   },
   {
-    fieldLabel: 'Birth Date',
+    fieldLabel: t('birth-date'),
     fieldName: 'birthDate',
     fieldPath: 'details',
     field: { element: 'date', attributes: { withPresent: true } },

@@ -1,7 +1,7 @@
 import { Breadcrumb, Button, Separator, Skeleton } from 'erxes-ui';
 import { IconCards, IconLayoutCards } from '@tabler/icons-react';
 
-import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
+import { useBoardDetail } from '~/modules/deals/boards/hooks/useBoards';
 import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
 
 export const SalesBreadCrumb = ({

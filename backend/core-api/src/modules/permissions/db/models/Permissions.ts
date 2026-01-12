@@ -5,6 +5,7 @@ import {
   IPermissionParams,
 } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { getPermissionActionsMap } from '../../utils';
 import { permissionSchema } from '../definitions/permissions';
@@ -15,7 +16,11 @@ export interface IPermissionModel extends Model<IPermissionDocument> {
   getPermission(id: string): Promise<IPermissionDocument>;
 }
 
-export const loadPermissionClass = (models: IModels) => {
+export const loadPermissionClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Permission {
     /**
      * Create a permission
@@ -56,6 +61,11 @@ export const loadPermissionClass = (models: IModels) => {
                 ...entry,
                 userId,
               });
+              sendDbEventLog({
+                action: 'create',
+                docId: newEntry._id,
+                currentDocument: newEntry.toObject(),
+              });
               permissions.push(newEntry);
             }
           }
@@ -71,6 +81,11 @@ export const loadPermissionClass = (models: IModels) => {
               const newEntry = await models.Permissions.create({
                 ...entry,
                 groupId,
+              });
+              sendDbEventLog({
+                action: 'create',
+                docId: newEntry._id,
+                currentDocument: newEntry.toObject(),
               });
               permissions.push(newEntry);
             }
@@ -95,7 +110,15 @@ export const loadPermissionClass = (models: IModels) => {
         throw new Error('Permission not found');
       }
 
-      return models.Permissions.deleteMany({ _id: { $in: ids } });
+      const toDelete = await models.Permissions.find({ _id: { $in: ids } });
+      const result = await models.Permissions.deleteMany({ _id: { $in: ids } });
+      if (toDelete.length > 0) {
+        sendDbEventLog({
+          action: 'deleteMany',
+          docIds: toDelete.map((d) => d._id),
+        });
+      }
+      return result;
     }
 
     public static async getPermission(id: string) {

@@ -2,13 +2,15 @@ import { IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
 import { ToggleGroup, Tooltip } from 'erxes-ui';
 import { ThemeOption, themeState } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
+  const { t } = useTranslation('organization');
 
   return (
     <div className="flex items-center gap-2 px-2 font-medium h-7 text-sm">
-      Change Theme
+      {t('change-theme')}
       <Tooltip.Provider delayDuration={100}>
         <ToggleGroup
           value={theme}
@@ -27,7 +29,7 @@ export const ThemeSelector = () => {
                 <IconSun />
               </Tooltip.Trigger>
             </ToggleGroup.Item>
-            <Tooltip.Content alignOffset={4}>Light</Tooltip.Content>
+            <Tooltip.Content alignOffset={4}>{t('light')}</Tooltip.Content>
           </Tooltip>
           <Tooltip>
             <ToggleGroup.Item
@@ -39,7 +41,7 @@ export const ThemeSelector = () => {
                 <IconMoon />
               </Tooltip.Trigger>
             </ToggleGroup.Item>
-            <Tooltip.Content alignOffset={4}>Dark</Tooltip.Content>
+            <Tooltip.Content alignOffset={4}>{t('dark')}</Tooltip.Content>
           </Tooltip>
           <Tooltip>
             <ToggleGroup.Item
@@ -52,7 +54,7 @@ export const ThemeSelector = () => {
               </Tooltip.Trigger>
             </ToggleGroup.Item>
 
-            <Tooltip.Content alignOffset={4}>System</Tooltip.Content>
+            <Tooltip.Content alignOffset={4}>{t('system')}</Tooltip.Content>
           </Tooltip>
         </ToggleGroup>
       </Tooltip.Provider>

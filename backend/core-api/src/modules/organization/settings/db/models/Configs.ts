@@ -1,20 +1,25 @@
 import { Model } from 'mongoose';
 
-import { IModels } from '~/connectionResolvers';
 import { getEnv } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 import {
   configSchema,
   IConfig,
   IConfigDocument,
+  ISESConfig,
 } from '~/modules/organization/settings/db/definitions/configs';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
   getConfigs(codes?: string[]): Promise<{ [code: string]: any }>;
   getConfigValue(code: string, defaultValue: any): Promise<any>;
+  updateConfigs(configsMap): Promise<void>;
   createOrUpdateConfig({ code, value }: IConfig): Promise<IConfigDocument>;
   constants(): Promise<any>;
+
   getCloudflareConfigs(): Promise<any>;
+  getSESConfigs(): Promise<ISESConfig>;
 }
 
 export const getValueAsString = async (
@@ -38,7 +43,11 @@ export const getValueAsString = async (
   return entry.value;
 };
 
-export const loadConfigClass = (models: IModels) => {
+export const loadConfigClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Config {
     /*
      * Get a Config
@@ -57,7 +66,7 @@ export const loadConfigClass = (models: IModels) => {
       const configsMap = {};
       const filter: any = {};
       if (codes?.length) {
-        filter.code = { $in: codes }
+        filter.code = { $in: codes };
       }
       const configs = await models.Configs.find(filter).lean();
 
@@ -92,11 +101,43 @@ export const loadConfigClass = (models: IModels) => {
 
       if (obj) {
         await models.Configs.updateOne({ _id: obj._id }, { $set: { value } });
-
-        return models.Configs.findOne({ _id: obj._id });
+        const updated = await models.Configs.findOne({ _id: obj._id });
+        if (updated) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updated._id,
+            currentDocument: updated.toObject(),
+            prevDocument: obj.toObject(),
+          });
+        }
+        return updated;
       }
 
-      return models.Configs.create({ code, value });
+      const newConfig = await models.Configs.create({ code, value });
+      sendDbEventLog({
+        action: 'create',
+        docId: newConfig._id,
+        currentDocument: newConfig.toObject(),
+      });
+      return newConfig;
+    }
+
+    /**
+     * Update configs
+     */
+    public static async updateConfigs(configsMap) {
+      const codes = Object.keys(configsMap);
+
+      for (const code of codes) {
+        if (!code) {
+          continue;
+        }
+
+        const value = configsMap[code];
+        const doc = { code, value };
+
+        await models.Configs.createOrUpdateConfig(doc);
+      }
     }
 
     public static async getCloudflareConfigs() {
@@ -151,6 +192,39 @@ export const loadConfigClass = (models: IModels) => {
         useCdn,
         isPublic,
         apiToken,
+      };
+    }
+
+    /**
+     * Get a Config
+     */
+    public static async getSESConfigs() {
+      const accessKeyId = await getValueAsString(
+        models,
+        'AWS_SES_ACCESS_KEY_ID',
+        'AWS_SES_ACCESS_KEY_ID',
+      );
+
+      const secretAccessKey = await getValueAsString(
+        models,
+        'AWS_SES_SECRET_ACCESS_KEY',
+        'AWS_SES_SECRET_ACCESS_KEY',
+      );
+
+      const region = await getValueAsString(models, 'AWS_REGION', 'AWS_REGION');
+
+      const unverifiedEmailsLimit = await getValueAsString(
+        models,
+        'EMAILS_LIMIT',
+        'EMAILS_LIMIT',
+        '100',
+      );
+
+      return {
+        accessKeyId,
+        secretAccessKey,
+        region,
+        unverifiedEmailsLimit,
       };
     }
   }

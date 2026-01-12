@@ -27,6 +27,11 @@ export enum AccountKind {
   PASSIVE = 'passive',
 }
 
+export enum AccountStatus {
+  ACTIVE = 'active',
+  DELETED = 'deleted',
+}
+
 export enum JournalEnum {
   MAIN = 'main',
   TAX = 'tax',

@@ -28,6 +28,8 @@ import {
 import React, { useState } from 'react';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
 import { ITag, ITagQueryResponse } from 'ui-modules/modules/tags/types/Tag';
+import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const MoveTagPopover: React.FC<{
   tagId: string;
@@ -168,8 +170,8 @@ const NewItemCell: React.FC<NewItemCellProps> = ({ tagType }) => {
         mode === 'adding-group'
           ? 'Enter group name...'
           : mode === 'adding-tag-to-group'
-            ? 'Enter tag name for this group...'
-            : 'Enter tag name...'
+          ? 'Enter tag name for this group...'
+          : 'Enter tag name...'
       }
       value={value}
       onChange={(e) => setValue(e.target.value)}
@@ -365,10 +367,11 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
         >
           <div className="flex items-center gap-2 min-w-0">
             <span
-              className={`truncate ${isGroup
-                ? 'text-muted-foreground'
-                : 'font-semibold text-foreground'
-                }`}
+              className={`truncate ${
+                isGroup
+                  ? 'text-muted-foreground'
+                  : 'font-semibold text-foreground'
+              }`}
             >
               {cell.getValue() as string}
             </span>
@@ -427,18 +430,21 @@ const DescriptionCell: React.FC<{ cell: Cell<ITag, unknown> }> = ({ cell }) => {
   );
 };
 
-export const createTagsColumns = (tagType: string): ColumnDef<ITag>[] => [
+export const createTagsColumns = (
+  tagType: string,
+  t: TFunction,
+): ColumnDef<ITag>[] => [
   {
     id: 'name',
-    header: 'Name',
+    header: t('name'),
     accessorKey: 'name',
     cell: ({ cell }) => <NameCell cell={cell} tagType={tagType} />,
     minSize: 200,
     size: 300,
   },
-
   {
     id: 'description',
+    header: t('description'),
     accessorKey: 'description',
     cell: ({ cell }) => <DescriptionCell cell={cell} />,
     minSize: 200,
@@ -446,7 +452,7 @@ export const createTagsColumns = (tagType: string): ColumnDef<ITag>[] => [
     maxSize: 600,
   },
   {
-    header: 'Created',
+    header: t('created'),
     accessorKey: 'createdAt',
     cell: ({ cell }) => {
       const formatDate = (dateString: string) => {

@@ -34,3 +34,36 @@ export enum ConversationStatus {
   OPEN = 'open',
   CLOSED = 'closed',
 }
+
+export interface IConversationMemberProgress {
+  assigneeId: string;
+  new: number;
+  open: number;
+  closed: number;
+}
+
+export interface IConversationSourceProgressItem {
+  count: number;
+  source: string;
+}
+
+export interface IConversationSourceProgress {
+  conversationSourceProgress: {
+    new: IConversationSourceProgressItem[];
+    open: IConversationSourceProgressItem[];
+    closed: IConversationSourceProgressItem[];
+  }[];
+}
+
+export interface IConversationTagProgressItem {
+  count: number;
+  tagId: string;
+}
+
+export interface IConversationTagProgress {
+  conversationTagProgress: {
+    new: IConversationTagProgressItem[];
+    open: IConversationTagProgressItem[];
+    closed: IConversationTagProgressItem[];
+  }[];
+}

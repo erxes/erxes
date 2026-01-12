@@ -4,13 +4,15 @@ import { IUIConfig } from 'erxes-ui';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { pluginsConfigState } from 'ui-modules';
 import { useVersion } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
 
   const version = useVersion();
+  const { t } = useTranslation('common', { keyPrefix: 'core-modules' });
 
-  const CORE_MODULES = GET_CORE_MODULES(version);
+  const CORE_MODULES = GET_CORE_MODULES(t, version);
 
   const modules = useMemo(() => {
     if (pluginsMetaData) {
@@ -25,7 +27,7 @@ export const usePluginsModules = () => {
       return [...CORE_MODULES, ...pluginsModules] as IUIConfig['modules'];
     }
     return CORE_MODULES;
-  }, [pluginsMetaData]);
+  }, [pluginsMetaData, t, version]);
 
   return modules;
 };

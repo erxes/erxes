@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { SegmentForm } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   onRefresh: () => void;
@@ -16,6 +17,7 @@ export function SegmentDetail({ onRefresh }: Props) {
 
   const [segmentId, setOpen] = useQueryState<string>('segmentId');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const { t } = useTranslation('segment');
 
   return (
     <Sheet
@@ -33,7 +35,7 @@ export function SegmentDetail({ onRefresh }: Props) {
           onClick={() => setIsCreatingNew(!isCreatingNew)}
           disabled={!selectedContentType}
         >
-          <IconPlus /> Create Segment
+          <IconPlus /> {t('create-segment')}
         </Button>
       </Sheet.Trigger>
 
@@ -46,9 +48,9 @@ export function SegmentDetail({ onRefresh }: Props) {
         <Sheet.Content className="h-full">
           <div className="h-full flex flex-col">
             <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
-              <Sheet.Title>{`${
-                segmentId ? 'Edit' : 'Create'
-              } a segment`}</Sheet.Title>
+              <Sheet.Title>{`${segmentId ? t('edit') : t('create')} ${t(
+                'a-segment',
+              )}`}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <SegmentForm

@@ -97,7 +97,13 @@ export const projectQueries: Record<string, Resolver> = {
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IProjectDocument>({
         model: models.Project,
-        params: filter,
+        params: {
+          ...filter,
+          orderBy: {
+            status: 1,
+            createdAt: -1,
+          },
+        },
         query: filterQuery,
       });
 
