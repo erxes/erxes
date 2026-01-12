@@ -5,17 +5,19 @@ import { IModels } from '~/connectionResolvers';
 import { IDoc } from './@types/common';
 import { getConfig, getEbarimtData, getPostData } from './utils';
 
-export default {
-  'sales:deal': ['update'],
-};
-
 export const afterMutationHandlers = async (
   models: IModels,
-  subdomain,
-  params,
+  subdomain: string,
+  processId: string,
+  params: any,
 ) => {
-  const { type, action, user } = params;
-
+  const {
+    sourceStageId,
+    destinationStageId,
+    deal: result,
+    userId
+  } = params;
+  
   if (type === 'sales:deal') {
     if (action === 'update') {
       const deal = params.updatedDocument;

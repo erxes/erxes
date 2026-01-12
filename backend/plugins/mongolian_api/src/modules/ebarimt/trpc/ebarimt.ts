@@ -11,18 +11,5 @@ const t = initTRPC.context<EbarimtTRPCContext>().create();
 
 export const ebarimtTrpcRouter = t.router({
   ebarimt: {
-    afterMutation: t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
-        return await afterMutationHandlers(models, subdomain, input);
-      }),
-
-    beforeMutation: t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { subdomain } = ctx;
-        return await beforeResolverHandlers(subdomain, input);
-      }),
   },
 });

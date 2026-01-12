@@ -115,7 +115,7 @@ export interface AfterProcessConfigs {
   rules: IAfterProcessRule[];
   afterMutation?: (
     context: IContext,
-    args: { mutationName: string; args: { [key: string]: any }; result: any },
+    args: { mutationName: string; args: { [key: string]: any }; result: any, userId?: string },
   ) => void;
   afterAuth?: (
     context: IContext,
@@ -153,6 +153,7 @@ export interface AfterProcessModuleConfig<TModels = any> {
     string,
     (subdomain: string, models: TModels, data: any) => Promise<void>
   >;
+  afterMutation?: Record<string, (subdomain: string, models: TModels, data: any) => Promise<void>>;
 }
 
 export interface AfterProcessModules<TModels = any> {
@@ -219,5 +220,5 @@ export const startAfterProcess = async (
     }),
   });
 
-  app.use('/after-process', trpcMiddleware);
+  app.use('/afterProcess', trpcMiddleware);
 };
