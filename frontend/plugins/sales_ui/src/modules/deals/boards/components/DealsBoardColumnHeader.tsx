@@ -212,6 +212,7 @@ export const DealsBoardColumnHeader = ({
           open={showPrintDialog}
           onClose={() => setShowPrintDialog(false)}
           deals={deals || []}
+          stageId={column._id}
         />
       )}
       <ItemProductProbabilities
