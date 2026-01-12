@@ -1,11 +1,12 @@
-import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { Breadcrumb, Button, PageContainer, Separator } from 'erxes-ui';
+import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
 import { ReportsView } from '@/report/components/ReportsView';
 import { ReportsBreadcrumbs } from '@/report/components/report-navigations/ReportsBreadcrumbs';
 
 export default function ReportIndexPage() {
+  const location = useLocation();
   return (
     <PageContainer>
       <PageHeader>
@@ -20,6 +21,33 @@ export default function ReportIndexPage() {
                   </Link>
                 </Button>
               </Breadcrumb.Item>
+
+              {/* Submenu Breadcrumbs */}
+              {location.pathname.includes('/inbox') && (
+                <>
+                  <Separator.Inline />
+                  <Breadcrumb.Item>
+                    <span className="font-medium">Inbox</span>
+                  </Breadcrumb.Item>
+                </>
+              )}
+              {location.pathname.includes('/ticket') && (
+                <>
+                  <Separator.Inline />
+                  <Breadcrumb.Item>
+                    <span className="font-medium">Ticket</span>
+                  </Breadcrumb.Item>
+                </>
+              )}
+              {location.pathname.includes('/call') && (
+                <>
+                  <Separator.Inline />
+                  <Breadcrumb.Item>
+                    <span className="font-medium">Call</span>
+                  </Breadcrumb.Item>
+                </>
+              )}
+
               <ReportsBreadcrumbs />
             </Breadcrumb.List>
           </Breadcrumb>

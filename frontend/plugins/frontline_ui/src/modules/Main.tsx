@@ -46,7 +46,7 @@ const IntegrationsMain = () => {
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/tickets" element={<Ticket />} />
-        <Route path="/reports" element={<Report />} />
+        <Route path="/reports/*" element={<Report />} />
       </Routes>
     </Suspense>
   );
