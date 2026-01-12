@@ -113,10 +113,10 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
 
-    const token = authService.setAuthCookie(res, user, clientPortal);
+    const tokens = authService.setAuthCookie(res, user, clientPortal);
 
-    if (token) {
-      return { ...user.toObject(), token };
+    if (tokens) {
+      return { ...user.toObject(), ...tokens };
     }
 
     return user;
@@ -135,10 +135,10 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
 
-    const token = authService.setAuthCookie(res, user, clientPortal);
+    const tokens = authService.setAuthCookie(res, user, clientPortal);
 
-    if (token) {
-      return { success: true, token };
+    if (tokens) {
+      return { success: true, ...tokens };
     }
 
     return 'Success';
@@ -186,9 +186,11 @@ export const cpUserMutations: Record<string, Resolver> = {
       otp,
       models,
     );
-    const authToken = authService.setAuthCookie(res, user, clientPortal);
-    if (authToken) {
-      return { success: true, token: authToken };
+
+    const tokens = authService.setAuthCookie(res, user, clientPortal);
+
+    if (tokens) {
+      return { success: true, ...tokens };
     }
     return 'Password reset successful';
   },
@@ -218,9 +220,9 @@ export const cpUserMutations: Record<string, Resolver> = {
       clientPortal,
       models,
     );
-    const token = authService.setAuthCookie(res, user, clientPortal);
-    if (token) {
-      return { success: true, token };
+    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    if (tokens) {
+      return { success: true, ...tokens };
     }
     return 'Success';
   },
@@ -237,9 +239,9 @@ export const cpUserMutations: Record<string, Resolver> = {
       clientPortal,
       models,
     );
-    const authToken = authService.setAuthCookie(res, user, clientPortal);
-    if (authToken) {
-      return { ...user.toObject(), token: authToken };
+    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    if (tokens) {
+      return { ...user.toObject(), ...tokens };
     }
     return user;
   },
@@ -255,9 +257,9 @@ export const cpUserMutations: Record<string, Resolver> = {
       clientPortal,
       models,
     );
-    const authToken = authService.setAuthCookie(res, user, clientPortal);
-    if (authToken) {
-      return { success: true, token: authToken };
+    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    if (tokens) {
+      return { success: true, ...tokens };
     }
     return 'Success';
   },

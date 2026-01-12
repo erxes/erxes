@@ -1,7 +1,7 @@
 import { Job } from 'bullmq';
 import {
   getEnv,
-  getSaasOrganizations,
+  getSaasOrganizationsByFilter,
   sendTRPCMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
@@ -12,7 +12,7 @@ export const dailyCheckCycles = async () => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   if (VERSION && VERSION === 'saas') {
-    const orgs = await getSaasOrganizations();
+    const orgs = await getSaasOrganizationsByFilter({ cycleEnabled: true });
 
     for (const org of orgs) {
       sendWorkerQueue('operations', 'checkCycle').add('checkCycle', {
