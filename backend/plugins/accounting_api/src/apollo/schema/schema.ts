@@ -43,6 +43,11 @@ import {
   queries as adjustFundRateQueries,
   types as adjustFundRateTypes,
 } from '~/modules/accounting/graphql/schemas/adjustFundRate';
+import {
+  mutations as adjustDebtRateMutations,
+  queries as adjustDebtRateQueries,
+  types as adjustDebtRateTypes,
+} from '~/modules/accounting/graphql/schemas/adjustDebtRate';
 
 export const types = `
   enum CacheControlScope {
@@ -68,6 +73,7 @@ export const types = `
   ${accInventoryTypes}
   ${adjustInventoryTypes}
   ${adjustFundRateTypes()}
+  ${adjustDebtRateTypes()}
   ${journalReportTypes}
 `;
 
@@ -80,6 +86,7 @@ export const queries = `
   ${accInventoryQueries}
   ${adjustInventoryQueries}
   ${adjustFundRateQueries}
+  ${adjustDebtRateQueries}
   ${journalReportQueries}
 `;
 
@@ -92,6 +99,7 @@ export const mutations = `
   ${accInventoryMutations}
   ${adjustInventoryMutations}
   ${adjustFundRateMutations}
+  ${adjustDebtRateMutations}
 `;
 
 export default { types, queries, mutations };

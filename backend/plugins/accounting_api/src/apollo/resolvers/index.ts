@@ -14,6 +14,7 @@ import {
   Transactions as MutationsTransactions,
   AdjustInventories as MutationsAdjustInventories,
   AdjustFundRates as MutationsAdjustFundRates,
+  AdjustDebtRates as MutationsAdjustDebtRates,
 } from '@/accounting/graphql/resolvers/mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,
@@ -26,6 +27,7 @@ import {
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
   AdjustFundRates as QueriesAdjustFundRates,
+  AdjustDebtRates as QueriesAdjustDebtRates,
 } from '@/accounting/graphql/resolvers/queries';
 
 const resolvers: any = {
@@ -45,6 +47,7 @@ const resolvers: any = {
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
     ...MutationsAdjustFundRates,
+    ...MutationsAdjustDebtRates,
   },
   Query: {
     ...QueriesAccount,
@@ -57,6 +60,7 @@ const resolvers: any = {
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
     ...QueriesAdjustFundRates,
+    ...QueriesAdjustDebtRates,
   },
 };
 

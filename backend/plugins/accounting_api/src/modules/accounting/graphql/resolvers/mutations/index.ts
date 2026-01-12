@@ -6,6 +6,7 @@ import AccountingConfigs from './configs';
 import Transactions from './transacations';
 import AdjustInventories from './adjustInventories';
 import AdjustFundRates from './adjustFundRates';
+import AdjustDebtRates from './adjustDebtRates';
 
 export {
   Accounts,
@@ -16,4 +17,5 @@ export {
   Transactions,
   AdjustInventories,
   AdjustFundRates,
+  AdjustDebtRates,
 };
