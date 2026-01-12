@@ -6,11 +6,11 @@ import {
   IconLayoutKanban,
   IconList,
 } from '@tabler/icons-react';
-
-import { dealsViewAtom } from '@/deals/states/dealsViewState';
+import { Suspense, lazy, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { lazy, Suspense, useState } from 'react';
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
+
 const DealsBoard = lazy(() =>
   import('@/deals/boards/components/DealsBoard').then((mod) => ({
     default: mod.DealsBoard,
