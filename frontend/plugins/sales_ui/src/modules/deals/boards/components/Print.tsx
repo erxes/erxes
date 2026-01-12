@@ -1,4 +1,14 @@
-import { Button, Dialog, Input, Label, Table, Select, Form } from 'erxes-ui';
+import {
+  Button,
+  Dialog,
+  Input,
+  Label,
+  Table,
+  Select,
+  Form,
+  REACT_APP_API_URL,
+  toast,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 import { useForm } from 'react-hook-form';
@@ -7,9 +17,10 @@ type Props = {
   open: boolean;
   onClose: () => void;
   deals: any[];
+  stageId: string;
 };
 
-export const PrintDialog = ({ open, onClose, deals }: Props) => {
+export const PrintDialog = ({ open, onClose, deals, stageId }: Props) => {
   const form = useForm({
     defaultValues: {
       copies: 1,
@@ -30,8 +41,47 @@ export const PrintDialog = ({ open, onClose, deals }: Props) => {
   };
 
   const print = () => {
-    //Print Logic Here
-    onClose();
+    const { copies, width, brandId, documentType } = form.getValues();
+
+    if (!documentType) {
+      toast({
+        title: 'Error',
+        description: 'Please select document !!!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!selectedDealIds.length) {
+      toast({
+        title: 'Error',
+        description: 'Please select item !!!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const searchParams = new URLSearchParams({
+        _id: documentType,
+        itemIds: selectedDealIds.join(','),
+        stageId,
+        copies: String(copies || 1),
+        width: String(width || 300),
+        brandId: brandId || '',
+        contentype: `${documentType}:stage`,
+      });
+
+      const url = `${REACT_APP_API_URL}/pl:documents/print?${searchParams.toString()}`;
+
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (e: any) {
+      toast({
+        title: 'Error',
+        description: e?.message || 'An error occurred',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -208,7 +258,9 @@ export const PrintDialog = ({ open, onClose, deals }: Props) => {
                   Cancel
                 </Button>
               </Dialog.Close>
-              <Button onClick={() => print()}>Print</Button>
+              <Button type="button" onClick={() => print()}>
+                Print
+              </Button>
             </Dialog.Footer>
           </form>
         </Form>
