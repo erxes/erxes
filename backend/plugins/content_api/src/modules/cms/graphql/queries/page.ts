@@ -98,7 +98,7 @@ const queries: Record<string, Resolver> = {
     new PageQueryResolver(context).cpPages(_parent, args, context),
 };
 
-queries.cpPages.wrapperConfig = {
+queries.cmsPages.wrapperConfig = {
   forClientPortal: true,
 };
 

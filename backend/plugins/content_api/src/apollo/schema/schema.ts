@@ -93,7 +93,6 @@ export const queries = `
     ${tagQueries}
     ${menuQueries}
     ${pageQueries}
-
   `;
 
 export const mutations = `
@@ -104,6 +103,6 @@ export const mutations = `
     ${tagMutations}
     ${menuMutations}
     ${pageMutations}
-  `;
+`;
 
 export default { types, queries, mutations };

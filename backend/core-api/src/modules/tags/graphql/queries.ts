@@ -36,7 +36,17 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    const matchingTags = await models.Tags.find({
+      ...commonQuerySelector,
+      name: new RegExp(`.*${searchValue}.*`, 'i'),
+    }).lean();
+
+    const matchingTagIds = matchingTags.map((tag) => tag._id);
+    const parentIds = matchingTags
+      .map((tag) => tag.parentId)
+      .filter((id) => !!id);
+
+    filter._id = { $in: [...matchingTagIds, ...parentIds] };
   }
 
   if (ids?.length) {
@@ -119,6 +129,22 @@ export const tagQueries = {
     });
 
     return { list, totalCount, pageInfo };
+  },
+
+  async tagsMain(
+    _parent: undefined,
+    { type }: { type: string },
+    { models }: IContext,
+  ) {
+    const filter: FilterQuery<ITagFilterQueryParams> = {
+      type: { $in: [null, ''] },
+    };
+
+    if (type) {
+      filter.type = { $in: [null, '', type] };
+    }
+
+    return await models.Tags.find(filter).sort({ name: 1 });
   },
 
   async tagsQueryCount(

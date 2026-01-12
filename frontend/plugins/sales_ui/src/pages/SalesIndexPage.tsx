@@ -13,13 +13,8 @@ import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
-import { lazy } from 'react';
 
-const DealBoard = lazy(() =>
-  import('@/deals/boards/components/DealsBoard').then((mod) => ({
-    default: mod.DealsBoard,
-  })),
-);
+import { DealsView } from '@/deals/actionBar/components/DealViewControl';
 
 export const SalesIndexPage = () => {
   const [searchParams] = useSearchParams();
@@ -56,7 +51,7 @@ export const SalesIndexPage = () => {
             <MainActionBar />
           </PageSubHeader>
 
-          <DealBoard />
+          <DealsView />
           <SalesItemDetail />
         </PageContainer>
       </div>

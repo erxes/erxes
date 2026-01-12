@@ -56,4 +56,50 @@ const GET_TICKET_PROGRESS = gql`
   }
 `;
 
-export { GET_TICKET_CUSTOMER_DETAILS, GET_WIDGET_TAGS, GET_TICKET_PROGRESS };
+const GET_TICKETS_BY_CUSTOMER_ID = gql`
+  query WidgetTicketsByCustomer($customerId: String) {
+    widgetTicketsByCustomer(customerId: $customerId) {
+      _id
+      name
+      description
+      pipelineId
+      statusId
+      priority
+      labelIds
+      tagIds
+      assigneeId
+      createdBy
+      userId
+      startDate
+      targetDate
+      createdAt
+      updatedAt
+      channelId
+      statusChangedDate
+      number
+      status {
+        _id
+        color
+        name
+        description
+        type
+      }
+      assignee {
+        _id
+        details {
+          avatar
+          firstName
+          lastName
+          fullName
+        }
+      }
+    }
+  }
+`;
+
+export {
+  GET_TICKET_CUSTOMER_DETAILS,
+  GET_WIDGET_TAGS,
+  GET_TICKET_PROGRESS,
+  GET_TICKETS_BY_CUSTOMER_ID,
+};

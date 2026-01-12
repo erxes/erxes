@@ -1,19 +1,18 @@
-import {
-  RecordTable,
-  RecordTableTree,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { RecordTable, RecordTableTree, useMultiQueryState } from 'erxes-ui';
 import React from 'react';
 import { useTagContext } from 'ui-modules/modules/tags/components/TagProvider';
 import { createTagsColumns } from './TagsColumns';
 import { ITag } from 'ui-modules/modules/tags/types/Tag';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
+import { useTranslation } from 'react-i18next';
 
 interface TagsRecordTableProps {
   tagType: string;
 }
 
-export const TagsRecordTable: React.FC<TagsRecordTableProps> = ({ tagType }) => {
+export const TagsRecordTable: React.FC<TagsRecordTableProps> = ({
+  tagType,
+}) => {
   const { mode, targetGroupId } = useTagContext();
   const [queries] = useMultiQueryState<{
     searchValue: string;
@@ -75,7 +74,12 @@ export const TagsRecordTable: React.FC<TagsRecordTableProps> = ({ tagType }) => 
     return result;
   }, [tags, mode, targetGroupId]);
 
-  const tagsColumns = React.useMemo(() => createTagsColumns(tagType), [tagType]);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
+
+  const tagsColumns = React.useMemo(
+    () => createTagsColumns(tagType, t),
+    [tagType, t],
+  );
 
   return (
     <RecordTable.Provider

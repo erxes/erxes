@@ -28,6 +28,8 @@ const getMessage = (contentType: string, notificationType: string) => {
       return 'You have been assigned to conversation';
     case 'internalNote':
       return `You have been mentioned in ${contentType}'s conversation`;
+    case 'updateTicket':
+      return `Ticket updated`;
     case 'note':
       return `You have been mentioned in ${contentType}'s note`;
     case 'channel':
