@@ -55,18 +55,18 @@ const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/pos" element={<PosMain />} />
-        <Route path="/:posId/orders" element={<OrdersMain />} />
-        <Route path="/:posId/covers" element={<CoversMain />} />
-        <Route path="/:posId/by-items" element={<PosByItemsMain />} />
-        <Route path="/:posId/items" element={<PosItemsMain />} />
-        <Route path="/:posId/summary" element={<PosSummaryMain />} />
+        <Route path="/" element={<PosMain />} />
+        <Route path=":posId/orders" element={<OrdersMain />} />
+        <Route path=":posId/covers" element={<CoversMain />} />
+        <Route path=":posId/by-items" element={<PosByItemsMain />} />
+        <Route path=":posId/items" element={<PosItemsMain />} />
+        <Route path=":posId/summary" element={<PosSummaryMain />} />
         <Route
-          path="/:posId/orders-by-customer"
+          path=":posId/orders-by-customer"
           element={<PosOrdersByCustomerMain />}
         />
         <Route
-          path="/:posId/orders-by-subscription"
+          path=":posId/orders-by-subscription"
           element={<PosOrdersBySubsMain />}
         />
       </Routes>

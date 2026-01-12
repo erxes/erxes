@@ -82,7 +82,6 @@ const PipelineCell = ({ deal }: { deal: IDeal }) => {
 };
 
 const ProductsCell = ({ deal }: { deal: IDeal }) => {
-  console.log(deal.products);
   return (
     <RecordTableInlineCell>
       <div className="flex items-center justify-between w-full gap-2">

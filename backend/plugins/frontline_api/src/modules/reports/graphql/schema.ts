@@ -7,6 +7,7 @@ export const types = `
     source: String
     limit: Int
     page: Int
+    channelId: [String]
   }
 
  type ConversationTemplateType{
@@ -57,7 +58,6 @@ export const queries = `
   conversationMemberProgress(customerId:String!):JSON
   conversationSourceProgress(customerId:String!):JSON
   conversationTagProgress(customerId:String!):JSON
-  reportConversationResponseTemplate(filters: ConversationReportFilter): [ConversationTemplateStat]
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationList(filters: ConversationReportFilter): ConversationListResult
