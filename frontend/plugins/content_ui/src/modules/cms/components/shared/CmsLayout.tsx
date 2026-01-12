@@ -9,12 +9,13 @@ import {
   IconFolder,
   IconFile,
   IconLayout,
+  IconMenu2,
+  IconAlignJustified,
 } from '@tabler/icons-react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { useState, ReactNode } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_WEBSITES, CONTENT_CMS_LIST } from '../../graphql/queries';
-import { PostDrawer } from '../posts/PostDrawer';
 
 interface CmsLayoutProps {
   children: ReactNode;
@@ -100,13 +101,13 @@ export function CmsLayout({
     {
       id: 'menus',
       label: 'Menus',
-      icon: <IconLayoutGrid className="w-4 h-4" />,
+      icon: <IconMenu2 className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
     },
     {
       id: 'custom-fields',
       label: 'Custom Fields',
-      icon: <IconLayoutGrid className="w-4 h-4" />,
+      icon: <IconAlignJustified className="w-4 h-4" />,
       href: websiteId
         ? `/content/cms/${websiteId}/custom-fields`
         : '/content/cms',
