@@ -6,7 +6,6 @@ import {
   IEbarimtFull,
 } from '@/ebarimt/@types';
 import { ebarimtSchema } from '@/ebarimt/db/definitions/ebarimt';
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import fetch from 'node-fetch';
 import { IModels } from '~/connectionResolvers';

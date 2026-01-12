@@ -1,9 +1,6 @@
-import { IAfterProcessRule } from 'erxes-api-shared/utils';
-import {
-  AfterProcessConfigs,
-} from 'erxes-api-shared/utils';
-import { generateModels, IModels } from '~/connectionResolvers';
-import { afterMutationHandlers as dealAfterEbarimt } from '~/modules/ebarimt/afterMutations'
+import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
+import { afterMutationHandlers as dealAfterEbarimt } from '~/modules/ebarimt/afterMutations';
 
 const ebarimtMutationNames = ['dealsChange', 'dealsEdit', 'dealsAdd'];
 const allRules: IAfterProcessRule[] = [

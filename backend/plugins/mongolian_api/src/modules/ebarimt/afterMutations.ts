@@ -169,6 +169,4 @@ export const afterMutationHandlers = async (
   } catch (e) {
     throw new Error(e.message);
   }
-
-  return;
 };
