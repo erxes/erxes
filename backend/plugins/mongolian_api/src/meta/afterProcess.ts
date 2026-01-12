@@ -26,7 +26,6 @@ export const afterProcess: AfterProcessConfigs = {
           deal: result,
           userId
         });
-
       }
     }
   }
