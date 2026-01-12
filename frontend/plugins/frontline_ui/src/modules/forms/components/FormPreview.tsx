@@ -297,7 +297,7 @@ export const FormPreviewContent = ({
             </div>
           </InfoCard.Content>
           {stepsLength > 1 ? (
-            <div className="flex justify-end mt-2 gap-2">
+            <div className="flex justify-end mt-4 mb-2 mr-2 gap-2">
               <Button
                 variant="secondary"
                 onClick={() => setActiveStep(step - 1)}
@@ -310,7 +310,7 @@ export const FormPreviewContent = ({
               </Button>
             </div>
           ) : (
-            <div className="flex justify-end mt-2 gap-2">
+            <div className="flex justify-end mt-4 mb-2 mr-2 gap-2">
               <Button type="submit">{formGeneral.buttonText || 'Send'}</Button>
             </div>
           )}
