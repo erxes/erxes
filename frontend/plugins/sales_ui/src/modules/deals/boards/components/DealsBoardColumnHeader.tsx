@@ -1,5 +1,7 @@
 import { Button, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
 import { IconArrowLeft, IconDots, IconPlus } from '@tabler/icons-react';
+import { PrintDialog } from './Print';
+
 import {
   dealCreateDefaultValuesState,
   dealCreateSheetState,
@@ -15,6 +17,7 @@ import ItemProductProbabilities from './ItemProductProbabilities';
 import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
+import { useDeals } from '@/deals/cards/hooks/useDeals';
 
 type Props = {
   column: BoardDealColumn;
@@ -33,6 +36,14 @@ export const DealsBoardColumnHeader = ({
   const { editStage } = useStagesEdit();
   const { sortItems } = useStagesSortItems();
   const { confirm } = useConfirm();
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
+
+  const { deals } = useDeals({
+    variables: {
+      stageId: column._id,
+    },
+    skip: !showPrintDialog,
+  });
 
   const { probability, name, _id, amount, unUsedAmount } = column;
 
@@ -61,17 +72,40 @@ export const DealsBoardColumnHeader = ({
   };
 
   const handleSortOptionClick = (sortType: string) => {
+    const sortLabel =
+      sortType === 'created-desc'
+        ? 'Date created (Newest first)'
+        : sortType === 'created-asc'
+        ? 'Date created (Oldest first)'
+        : sortType === 'modified-desc'
+        ? 'Date modified (Newest first)'
+        : sortType === 'modified-asc'
+        ? 'Date modified (Oldest first)'
+        : sortType === 'close-asc'
+        ? 'Date assigned (Earliest first)'
+        : sortType === 'close-desc'
+        ? 'Date assigned (Latest first)'
+        : sortType === 'alphabetically-asc'
+        ? 'Alphabetically'
+        : '';
     confirm({
-      message: `Are you sure you want to sort this list by ${sortType}?`,
+      message: `Are you sure you want to sort this list by ${sortLabel}?`,
     }).then(() => {
-      sortItems(_id, sortType);
+      const processId = Math.random().toString();
+      localStorage.setItem('processId', processId);
+      sortItems(_id, sortType, processId);
     });
     setShowSortOptions(false);
   };
 
   const SortMenu = () => (
     <>
-      <DropdownMenu.Item onClick={() => setShowSortOptions(false)}>
+      <DropdownMenu.Item
+        onSelect={(e) => {
+          e.preventDefault();
+          setShowSortOptions(false);
+        }}
+      >
         <IconArrowLeft className="w-4 h-4 mr-2" />
         Back
       </DropdownMenu.Item>
@@ -145,12 +179,22 @@ export const DealsBoardColumnHeader = ({
                   </DropdownMenu.Group>
                   <DropdownMenu.Separator />
                   <DropdownMenu.Group>
-                    <DropdownMenu.Item onClick={() => setShowSortOptions(true)}>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        setShowSortOptions(true);
+                      }}
+                    >
                       Sort By
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        setShowPrintDialog(true);
+                      }}
+                    >
                       Print Document
-                      <DropdownMenu.Shortcut>⌘+T</DropdownMenu.Shortcut>
+                      <DropdownMenu.Shortcut>⌘T</DropdownMenu.Shortcut>
                     </DropdownMenu.Item>
                   </DropdownMenu.Group>
                 </>
@@ -163,6 +207,14 @@ export const DealsBoardColumnHeader = ({
           <DealCreateSheetTrigger stageId={column._id} />
         </div>
       </div>
+      {showPrintDialog && (
+        <PrintDialog
+          open={showPrintDialog}
+          onClose={() => setShowPrintDialog(false)}
+          deals={deals || []}
+          stageId={column._id}
+        />
+      )}
       <ItemProductProbabilities
         totalAmount={amount as Record<string, number> | undefined}
         unusedTotalAmount={unUsedAmount as Record<string, number> | undefined}
