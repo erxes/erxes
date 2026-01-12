@@ -31,6 +31,7 @@ export type ICoreModule = {
   icon?: React.ElementType;
   path: string;
   hasSettings?: boolean;
+  settingsOnly?: boolean;
   submenus?: {
     name: string;
     path: string;
