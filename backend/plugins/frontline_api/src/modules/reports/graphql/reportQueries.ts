@@ -367,7 +367,10 @@ export const reportQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
   ) {
-    const convPipeline = await buildConversationPipeline(filters, models);
+    const conversationPipeline = await buildConversationPipeline(
+      filters,
+      models,
+    );
 
     const pipeline: any[] = [
       {
@@ -381,7 +384,7 @@ export const reportQueries = {
       { $unwind: '$conversation' },
     ];
 
-    convPipeline.forEach((stage) => {
+    conversationPipeline.forEach((stage) => {
       if (stage.$match) {
         const nested: any = {};
         Object.entries(stage.$match).forEach(([k, v]) => {
