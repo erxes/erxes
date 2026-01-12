@@ -34,9 +34,6 @@ interface ProductsListProps {
   categoryIds?: string[];
   excludeCategoryIds?: string[];
   excludeProductIds?: string[];
-  erxesAppToken?: string;
-  paymentIds?: string[];
-  paymentTypes?: string[];
 }
 
 export const SelectProductsBulk = ({
@@ -155,9 +152,6 @@ const ProductsList = ({
   categoryIds,
   excludeCategoryIds,
   excludeProductIds,
-  erxesAppToken,
-  paymentIds,
-  paymentTypes,
 }: ProductsListProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
@@ -177,8 +171,6 @@ const ProductsList = ({
   const filteredProducts = products.filter((product) => {
     if (excludeProductIds?.includes(product._id)) return false;
     if (excludeCategoryIds?.includes(product.categoryId)) return false;
-    // if (paymentIds?.includes(product.paymentId)) return false;
-    // if (paymentTypes?.includes(product.paymentType)) return false;
     return true;
   });
 
