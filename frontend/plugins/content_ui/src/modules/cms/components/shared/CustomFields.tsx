@@ -303,7 +303,7 @@ export function CustomFields() {
     <CmsLayout>
       <div className="flex h-full">
         {/* Left Sidebar - Groups List */}
-        <div className="w-80 border-r bg-gray-50 flex flex-col">
+        <div className="w-80 border-r flex flex-col">
           <div className="p-4 border-b bg-white">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold">Field Groups</h2>
@@ -358,7 +358,7 @@ export function CustomFields() {
                     key={group._id}
                     className={`group flex items-center justify-between p-3 mb-1 rounded-lg cursor-pointer transition-colors ${
                       selectedGroup?._id === group._id
-                        ? 'bg-blue-50 border border-blue-200'
+                        ? 'border border-primary'
                         : 'hover:bg-white border border-transparent'
                     }`}
                     onClick={() => setSelectedGroup(group)}

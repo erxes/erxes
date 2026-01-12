@@ -17,20 +17,77 @@ export const loadTranslationClass = (models: IModels) => {
     }
 
     public static async updateTranslation(doc: ITranslation) {
-      const { postId, language } = doc;
+      const {
+        postId,
+        language,
+        title,
+        content,
+        excerpt,
+        customFieldsData,
+        type,
+      } = doc;
+
+      console.log('🔍 updateTranslation called with:', {
+        postId,
+        language,
+        doc,
+      });
+
+      // Prepare only the fields that should be updated (exclude postId and language from $set)
+      const updateFields: any = {
+        title: title || '',
+        content: content || '',
+        excerpt: excerpt || '',
+        type: type || 'post',
+      };
+
+      if (customFieldsData) {
+        updateFields.customFieldsData = customFieldsData;
+      }
+
+      console.log('📝 Update fields prepared:', updateFields);
 
       // Find existing translation by postId and language
       const existing = await models.Translations.findOne({ postId, language });
 
+      console.log(
+        '🔎 Existing translation found:',
+        existing ? existing._id : 'none',
+      );
+
       if (existing) {
-        // Update existing translation
-        return await models.Translations.findByIdAndUpdate(existing._id, doc, {
-          new: true,
-        });
+        // Update existing translation using $set operator
+        const updated = await models.Translations.findByIdAndUpdate(
+          existing._id,
+          { $set: updateFields },
+          {
+            new: true,
+            runValidators: true,
+          },
+        );
+
+        console.log('✅ Translation updated:', updated);
+
+        if (!updated) {
+          console.error(
+            '❌ Failed to update translation - findByIdAndUpdate returned null',
+          );
+          throw new Error('Failed to update translation');
+        }
+
+        return updated;
       }
 
       // Create new translation if not found
-      return await models.Translations.create(doc);
+      console.log('➕ Creating new translation...');
+      const translationData = {
+        postId,
+        language,
+        ...updateFields,
+      };
+      const created = await models.Translations.create(translationData);
+      console.log('✅ Translation created:', created);
+      return created;
     }
 
     public static async deleteTranslation(_id: string) {

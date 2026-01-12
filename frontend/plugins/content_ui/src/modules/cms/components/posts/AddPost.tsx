@@ -118,7 +118,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 import { CmsLayout } from '../shared/CmsLayout';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { Block } from '@blocknote/core';
 import { useTags } from '../../hooks/useTags';
 import {
@@ -126,6 +126,9 @@ import {
   CMS_POST,
   CMS_CUSTOM_POST_TYPES,
   CMS_CUSTOM_FIELD_GROUPS,
+  CONTENT_CMS_LIST,
+  CMS_TRANSLATIONS,
+  CMS_EDIT_TRANSLATION,
 } from '../../graphql/queries';
 import { usePostMutations } from '../../hooks/usePostMutations';
 
@@ -411,6 +414,8 @@ export function AddPost() {
   const [activeTab, setActiveTab] = useState<'content' | 'media' | 'seo'>(
     'content',
   );
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [translations, setTranslations] = useState<Record<string, any>>({});
   const [previewDevice, setPreviewDevice] = useState<
     'desktop' | 'tablet' | 'mobile'
   >('desktop');
@@ -506,6 +511,31 @@ export function AddPost() {
   });
 
   const fullPost = (fullPostData?.cmsPost as any) || editingPost;
+
+  // Fetch translations for editing post
+  const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
+    variables: { postId: editingPost?._id },
+    skip: !editingPost?._id,
+    fetchPolicy: 'network-only',
+  });
+
+  const [saveTranslation] = useMutation(CMS_EDIT_TRANSLATION);
+
+  // Load translations when editing
+  useEffect(() => {
+    if (translationsData?.cmsTranslations) {
+      const translationsMap: Record<string, any> = {};
+      translationsData.cmsTranslations.forEach((t: any) => {
+        translationsMap[t.language] = {
+          title: t.title || '',
+          content: t.content || '',
+          excerpt: t.excerpt || '',
+          customFieldsData: t.customFieldsData || [],
+        };
+      });
+      setTranslations(translationsMap);
+    }
+  }, [translationsData]);
 
   useEffect(() => {
     if (fullPost) {
@@ -658,10 +688,46 @@ export function AddPost() {
 
     try {
       if (editingPost?._id) {
-        const result = await editPost(editingPost._id, input);
-        console.log('✅ Post updated successfully:', result);
-        toast({ title: 'Saved', description: 'Post updated' });
-        navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+        // If editing a non-default language, save as translation
+        if (selectedLanguage && selectedLanguage !== defaultLanguage) {
+          await saveTranslation({
+            variables: {
+              input: {
+                postId: editingPost._id,
+                language: selectedLanguage,
+                title: data.title || '',
+                content: data.content || '',
+                excerpt: data.description || '',
+                customFieldsData: data.customFieldsData || [],
+                type: 'post',
+              },
+            },
+          });
+
+          // Update translations state
+          setTranslations((prev) => ({
+            ...prev,
+            [selectedLanguage]: {
+              title: data.title,
+              content: data.content,
+              excerpt: data.description,
+              customFieldsData: data.customFieldsData,
+            },
+          }));
+
+          console.log('✅ Translation saved successfully');
+          toast({
+            title: 'Saved',
+            description: `${selectedLanguage.toUpperCase()} translation saved`,
+          });
+          navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+        } else {
+          // Default language - update the post itself
+          const result = await editPost(editingPost._id, input);
+          console.log('✅ Post updated successfully:', result);
+          toast({ title: 'Saved', description: 'Post updated' });
+          navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+        }
       } else {
         const result = await createPost(input);
         console.log('✅ Post created successfully:', result);
@@ -752,6 +818,23 @@ export function AddPost() {
     skip: !websiteId,
   });
   const customTypes = customTypesData?.cmsCustomPostTypes || [];
+
+  // Fetch CMS configuration to get available languages
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+  });
+  const cmsConfig = cmsData?.contentCMSList?.find(
+    (cms: any) => cms.clientPortalId === websiteId,
+  );
+  const availableLanguages = cmsConfig?.languages || [];
+  const defaultLanguage = cmsConfig?.language || 'en';
+
+  // Initialize selected language with default language
+  useEffect(() => {
+    if (!selectedLanguage && defaultLanguage) {
+      setSelectedLanguage(defaultLanguage);
+    }
+  }, [defaultLanguage, selectedLanguage]);
 
   const selectedType = form.watch('type');
   const { data: fieldGroupsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
@@ -873,13 +956,217 @@ export function AddPost() {
             >
               {activeTab === 'content' && (
                 <>
+                  {/* Language Selector */}
+                  {editingPost?._id && availableLanguages.length > 0 && (
+                    <div className="space-y-3 p-2 rounded-md border">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium text-gray-700">
+                            Language:
+                          </span>
+                          <Select
+                            value={selectedLanguage}
+                            onValueChange={async (lang) => {
+                              // Save current translation before switching
+                              if (
+                                selectedLanguage !== defaultLanguage &&
+                                editingPost?._id
+                              ) {
+                                try {
+                                  await saveTranslation({
+                                    variables: {
+                                      input: {
+                                        postId: editingPost._id,
+                                        language: selectedLanguage,
+                                        title: form.getValues('title') || '',
+                                        content:
+                                          form.getValues('content') || '',
+                                        excerpt:
+                                          form.getValues('description') || '',
+                                        customFieldsData:
+                                          form.getValues('customFieldsData') ||
+                                          [],
+                                        type: 'post',
+                                      },
+                                    },
+                                  });
+
+                                  // Update translations state with saved data
+                                  setTranslations((prev) => ({
+                                    ...prev,
+                                    [selectedLanguage]: {
+                                      title: form.getValues('title'),
+                                      content: form.getValues('content'),
+                                      excerpt: form.getValues('description'),
+                                      customFieldsData:
+                                        form.getValues('customFieldsData'),
+                                    },
+                                  }));
+
+                                  toast({
+                                    title: 'Translation saved',
+                                    description: `${selectedLanguage.toUpperCase()} translation has been saved`,
+                                  });
+                                } catch (error) {
+                                  console.error(
+                                    'Error saving translation:',
+                                    error,
+                                  );
+                                  toast({
+                                    title: 'Error',
+                                    description: 'Failed to save translation',
+                                    variant: 'destructive',
+                                  });
+                                  return; // Don't switch language if save failed
+                                }
+                              }
+
+                              // Load translation for new language
+                              if (lang === defaultLanguage) {
+                                form.setValue('title', fullPost?.title || '');
+                                form.setValue(
+                                  'content',
+                                  fullPost?.content || '',
+                                );
+                                form.setValue(
+                                  'description',
+                                  fullPost?.excerpt ||
+                                    fullPost?.description ||
+                                    '',
+                                );
+                                form.setValue(
+                                  'customFieldsData',
+                                  fullPost?.customFieldsData || [],
+                                );
+                              } else {
+                                const translation = translations[lang];
+                                form.setValue(
+                                  'title',
+                                  translation?.title || '',
+                                );
+                                form.setValue(
+                                  'content',
+                                  translation?.content || '',
+                                );
+                                form.setValue(
+                                  'description',
+                                  translation?.excerpt || '',
+                                );
+                                form.setValue(
+                                  'customFieldsData',
+                                  translation?.customFieldsData || [],
+                                );
+                              }
+
+                              setSelectedLanguage(lang);
+
+                              toast({
+                                title: 'Language switched',
+                                description: `Now editing ${
+                                  lang === defaultLanguage
+                                    ? 'default'
+                                    : lang.toUpperCase()
+                                } version`,
+                              });
+                            }}
+                          >
+                            <Select.Trigger className="w-[180px]">
+                              <Select.Value />
+                            </Select.Trigger>
+                            <Select.Content>
+                              {availableLanguages.map((lang: string) => (
+                                <Select.Item key={lang} value={lang}>
+                                  {lang.toUpperCase()}
+                                  {lang === defaultLanguage && (
+                                    <span className="ml-2 text-xs text-gray-500">
+                                      (Default)
+                                    </span>
+                                  )}
+                                  {translations[lang] &&
+                                    lang !== defaultLanguage && (
+                                      <span className="ml-2 text-green-600">
+                                        ✓
+                                      </span>
+                                    )}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                        </div>
+                        {selectedLanguage !== defaultLanguage && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={async () => {
+                              try {
+                                await saveTranslation({
+                                  variables: {
+                                    input: {
+                                      postId: editingPost._id,
+                                      language: selectedLanguage,
+                                      title: form.getValues('title') || '',
+                                      content: form.getValues('content') || '',
+                                      excerpt:
+                                        form.getValues('description') || '',
+                                      customFieldsData:
+                                        form.getValues('customFieldsData') ||
+                                        [],
+                                      type: 'post',
+                                    },
+                                  },
+                                });
+
+                                // Update translations state
+                                setTranslations((prev) => ({
+                                  ...prev,
+                                  [selectedLanguage]: {
+                                    title: form.getValues('title'),
+                                    content: form.getValues('content'),
+                                    excerpt: form.getValues('description'),
+                                    customFieldsData:
+                                      form.getValues('customFieldsData'),
+                                  },
+                                }));
+
+                                toast({
+                                  title: 'Translation saved',
+                                  description: `${selectedLanguage.toUpperCase()} translation has been saved`,
+                                });
+                              } catch (error) {
+                                console.error(
+                                  'Error saving translation:',
+                                  error,
+                                );
+                                toast({
+                                  title: 'Error',
+                                  description: 'Failed to save translation',
+                                  variant: 'destructive',
+                                });
+                              }
+                            }}
+                          >
+                            Save Translation
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <Form.Field
                       control={form.control}
                       name="title"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Post</Form.Label>
+                          <Form.Label>
+                            Post Title
+                            {selectedLanguage !== defaultLanguage && (
+                              <span className="ml-2 text-xs text-blue-600">
+                                ({selectedLanguage})
+                              </span>
+                            )}
+                          </Form.Label>
                           <Form.Control>
                             <Input
                               {...field}
@@ -887,7 +1174,10 @@ export function AddPost() {
                               onChange={(e) => {
                                 field.onChange(e);
                                 const val = e.target.value;
-                                if (!form.getValues('slug')) {
+                                if (
+                                  selectedLanguage === defaultLanguage &&
+                                  !form.getValues('slug')
+                                ) {
                                   form.setValue('slug', generateSlug(val));
                                 }
                               }}
@@ -931,7 +1221,14 @@ export function AddPost() {
                     name="description"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Description</Form.Label>
+                        <Form.Label>
+                          Description
+                          {selectedLanguage !== defaultLanguage && (
+                            <span className="ml-2 text-xs text-blue-600">
+                              ({selectedLanguage})
+                            </span>
+                          )}
+                        </Form.Label>
                         <Form.Control>
                           <Textarea
                             {...field}
@@ -948,16 +1245,21 @@ export function AddPost() {
                     name="content"
                     render={() => (
                       <Form.Item>
-                        <Form.Label>Content</Form.Label>
+                        <Form.Label>
+                          Content
+                          {selectedLanguage !== defaultLanguage && (
+                            <span className="ml-2 text-xs text-blue-600">
+                              ({selectedLanguage})
+                            </span>
+                          )}
+                        </Form.Label>
                         <Form.Control>
                           <Editor
-                            key={`editor-${fullPost?._id || 'new'}-${
-                              (fullPost?.content || '').length
+                            key={`editor-${selectedLanguage}-${
+                              fullPost?._id || 'new'
                             }`}
                             initialContent={formatInitialContent(
-                              form.getValues('content') ||
-                                fullPost?.content ||
-                                '',
+                              form.getValues('content') || '',
                             )}
                             onChange={handleEditorChange}
                           />

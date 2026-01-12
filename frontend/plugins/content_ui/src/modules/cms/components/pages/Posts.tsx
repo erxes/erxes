@@ -23,7 +23,8 @@ import {
   IconCalendarUp,
   IconFilter,
 } from '@tabler/icons-react';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { CmsLayout } from '../shared/CmsLayout';
@@ -39,6 +40,7 @@ import { useQuery } from '@apollo/client';
 import { CMS_CUSTOM_POST_TYPES } from '../../graphql/queries';
 
 export function Posts() {
+  const { t } = useTranslation();
   const { websiteId } = useParams();
   const navigate = useNavigate();
   const { confirm } = useConfirm();
@@ -83,11 +85,9 @@ export function Posts() {
   if (loading) {
     return (
       <CmsLayout>
-        <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500 text-center flex justify-center items-center gap-2">
-            <Spinner size="md" />
-            <p>Loading posts...</p>
-          </div>
+        <div className="flex flex-col justify-center items-center h-[calc(100vh-200px)]">
+          <Spinner size="lg" />
+          <p className="mt-4 text-sm text-gray-600">{t('Loading posts...')}</p>
         </div>
       </CmsLayout>
     );
@@ -96,9 +96,37 @@ export function Posts() {
   if (error) {
     return (
       <CmsLayout>
-        <div className="flex justify-center items-center h-64">
-          <div className="text-red-500">
-            Error loading posts: {error.message}
+        <div className="flex flex-col justify-center items-center h-[calc(100vh-200px)]">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-red-800">
+                  {t('Error loading posts')}
+                </h3>
+                <p className="mt-1 text-sm text-red-700">{error.message}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => refetchPosts()}
+                >
+                  {t('Try again')}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </CmsLayout>
@@ -167,12 +195,19 @@ export function Posts() {
     {
       id: 'title',
       header: () => (
-        <RecordTable.InlineHead label="Post Name" icon={IconFile} />
+        <RecordTable.InlineHead label={t('Post Name')} icon={IconFile} />
       ),
       accessorKey: 'title',
       cell: ({ cell, row }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm font-medium ">
+        <div
+          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all hover:bg-blue-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent"
+          onClick={() =>
+            navigate(`/content/cms/${websiteId}/posts/add`, {
+              state: { post: row.original },
+            })
+          }
+        >
+          <span className="text-sm font-medium">
             {cell.getValue() as string}
           </span>
         </div>
@@ -183,15 +218,15 @@ export function Posts() {
     {
       id: 'excerpt',
       header: () => (
-        <RecordTable.InlineHead label="Description" icon={IconFile} />
+        <RecordTable.InlineHead label={t('Description')} icon={IconFile} />
       ),
       accessorKey: 'excerpt',
       cell: ({ row }) => {
-        const excerpt = row.original.excerpt || 'No Description';
+        const excerpt = row.original.excerpt || t('No Description');
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
             <span
-              className="text-sm font-medium text-gray-900 line-clamp-1"
+              className="text-sm font-medium text-gray-600 line-clamp-1"
               title={excerpt}
             >
               {excerpt}
@@ -236,11 +271,12 @@ export function Posts() {
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead label="Created Date" icon={IconList} />
+        <RecordTable.InlineHead label={t('Created Date')} icon={IconList} />
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-green-50 border-green-200 text-green-700">
+          <IconCalendarPlus className="h-3 w-3" />
           {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -253,11 +289,12 @@ export function Posts() {
     {
       id: 'updatedAt',
       header: () => (
-        <RecordTable.InlineHead label="Modified Date" icon={IconList} />
+        <RecordTable.InlineHead label={t('Modified Date')} icon={IconList} />
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-blue-50 border-blue-200 text-blue-700">
+          <IconCalendarUp className="h-3 w-3" />
           {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -271,9 +308,8 @@ export function Posts() {
 
   return (
     <CmsLayout>
-      <div className="bg-white border rounded-lg p-4 mb-4">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="text-sm font-semibold text-gray-700">Filters:</div>
+      <div className="bg-white border rounded-lg mb-4">
+        <div className="p-2 flex items-center gap-3 flex-wrap">
           {/* Custom Type Filter */}
           <CustomTypeFilterButton
             typeFilter={typeFilter}
@@ -293,34 +329,34 @@ export function Posts() {
             websiteId={websiteId}
           />
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => {
               setTypeFilter(undefined);
               setCategoryFilters([]);
               setTagFilters([]);
             }}
+            className="ml-auto"
           >
-            Clear filters
+            Clear filter
           </Button>
-          <div className="ml-auto text-sm text-gray-600">
-            <span className="font-medium">{totalCount}</span> posts
-          </div>
         </div>
       </div>
 
       {!loading && (posts || []).length === 0 ? (
-        <div className="bg-white rounded-lg overflow-hidden">
-          <EmptyState
-            icon={IconFile}
-            title="No posts yet"
-            description="Get started by creating your first post."
-            actionLabel="Create post"
-            onAction={() => navigate(`/content/cms/${websiteId}/posts/add`)}
-          />
+        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+          <div className="p-12">
+            <EmptyState
+              icon={IconFile}
+              title={t('No posts yet')}
+              description={t('Get started by creating your first post.')}
+              actionLabel={t('Create post')}
+              onAction={() => navigate(`/content/cms/${websiteId}/posts/add`)}
+            />
+          </div>
         </div>
       ) : (
-        <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+        <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
           <RecordTable.Provider
             columns={columns}
             data={posts}

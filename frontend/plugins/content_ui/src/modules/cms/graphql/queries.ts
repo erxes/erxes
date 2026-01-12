@@ -895,3 +895,45 @@ export const CMS_CUSTOM_POST_TYPE_REMOVE = gql`
     cmsCustomPostTypesRemove(_id: $_id)
   }
 `;
+
+export const CMS_TRANSLATIONS = gql`
+  query cmsTranslations($postId: String!) {
+    cmsTranslations(postId: $postId) {
+      _id
+      postId
+      language
+      title
+      content
+      excerpt
+      customFieldsData
+    }
+  }
+`;
+
+export const CMS_ADD_TRANSLATION = gql`
+  mutation cmsAddTranslation($input: TranslationInput!) {
+    cmsAddTranslation(input: $input) {
+      _id
+      postId
+      language
+      title
+      content
+      excerpt
+      customFieldsData
+    }
+  }
+`;
+
+export const CMS_EDIT_TRANSLATION = gql`
+  mutation cmsEditTranslation($input: TranslationInput!) {
+    cmsEditTranslation(input: $input) {
+      _id
+      postId
+      language
+      title
+      content
+      excerpt
+      customFieldsData
+    }
+  }
+`;

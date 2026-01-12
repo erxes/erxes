@@ -35,6 +35,7 @@ export function CustomTypes() {
   const { confirm } = useConfirm();
   const { websiteId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editingType, setEditingType] = useState<any>(null);
 
   const { data, loading, refetch } = useQuery(CMS_CUSTOM_POST_TYPES, {
     variables: { clientPortalId: websiteId },
@@ -85,8 +86,10 @@ export function CustomTypes() {
             removeType({ variables: { _id: row.original._id } });
           });
         };
-        const onView = () => {};
-        const onEdit = () => {};
+        const onEdit = () => {
+          setEditingType(row.original);
+          setIsDrawerOpen(true);
+        };
         return (
           <Popover>
             <Popover.Trigger asChild>
@@ -95,9 +98,6 @@ export function CustomTypes() {
             <Combobox.Content>
               <Command shouldFilter={false}>
                 <Command.List>
-                  <Command.Item value="view" onSelect={onView}>
-                    <IconEye /> View
-                  </Command.Item>
                   <Command.Item value="edit" onSelect={onEdit}>
                     <IconEdit /> Edit
                   </Command.Item>
@@ -258,10 +258,18 @@ export function CustomTypes() {
 
       <CustomTypeDrawer
         isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setEditingType(null);
+        }}
         clientPortalId={websiteId || ''}
+        customType={editingType}
         onCreate={() => {
           refetch();
+        }}
+        onUpdate={() => {
+          refetch();
+          setEditingType(null);
         }}
       />
     </>
