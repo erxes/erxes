@@ -11,12 +11,14 @@ export const FormMutateLayout = ({
   description,
   form,
   onSubmit,
+  isLoading,
 }: {
   children: React.ReactNode;
   title: string;
   description: string;
   form: UseFormReturn<z.infer<any>>;
   onSubmit?: (values: z.infer<any>) => void;
+  isLoading?: boolean;
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
   return (
@@ -53,8 +55,12 @@ export const FormMutateLayout = ({
             Cancel
           </Button>
           <FormMutateLayoutPreviousStepButton />
-          <Button type="submit">
-            {step === 7 ? 'Create form' : 'Next step'}
+          <Button type="submit" disabled={isLoading}>
+            {isLoading
+              ? 'Creating form...'
+              : step === 3
+              ? 'Create form'
+              : 'Next step'}
           </Button>
         </Sheet.Footer>
       </form>

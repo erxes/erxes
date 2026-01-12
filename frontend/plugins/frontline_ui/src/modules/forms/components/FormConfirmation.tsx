@@ -8,6 +8,7 @@ import {
   formSetupConfirmationAtom,
   formSetupGeneralAtom,
   formSetupContentAtom,
+  formSetupStepAtom,
 } from '../states/formSetupStates';
 import {
   Form,
@@ -20,14 +21,18 @@ import {
   Button,
   IAttachment,
   DropzoneEmptyState,
+  toast,
 } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { useFormAdd, useFormFieldAdd } from '../hooks/useFormAdd';
-import { useParams } from 'react-router';
-import { useAtomValue } from 'jotai';
+import { useNavigate, useParams } from 'react-router';
+import { useAtom, useSetAtom } from 'jotai';
+import { FORM_STATES_DEFAULT_VALUES } from '../constants/formStatesDefaultValues';
+import { useState } from 'react';
 
 export const FormConfirmation = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof FORM_CONFIRMATION_SCHEMA>>({
     resolver: zodResolver(FORM_CONFIRMATION_SCHEMA),
     defaultValues: {
@@ -36,13 +41,18 @@ export const FormConfirmation = () => {
       image: null,
     },
   });
-  const formGeneral = useAtomValue(formSetupGeneralAtom);
-  const formConfirmation = useAtomValue(formSetupConfirmationAtom);
-  const formContent = useAtomValue(formSetupContentAtom);
+  const [formGeneral, setFormGeneral] = useAtom(formSetupGeneralAtom);
+  const [formConfirmation, setFormConfirmation] = useAtom(
+    formSetupConfirmationAtom,
+  );
+  const [formContent, setFormContent] = useAtom(formSetupContentAtom);
+  const setFormStep = useSetAtom(formSetupStepAtom);
+  const [isLoading, setIsLoading] = useState(false);
   const { addForm } = useFormAdd();
   const { addFormField } = useFormFieldAdd();
 
   const onSubmit = () => {
+    setIsLoading(true);
     addForm({
       variables: {
         title: formGeneral.title,
@@ -85,6 +95,8 @@ export const FormConfirmation = () => {
           })
           .flat();
 
+        let addedFields = 0;
+
         allFormFields.map((field) => {
           addFormField({
             variables: {
@@ -99,6 +111,35 @@ export const FormConfirmation = () => {
               order: field.order + (field.span === 2 ? 0.5 : 0),
               groupId: field.stepId,
             },
+            onCompleted: () => {
+              if (addedFields + 1 === allFormFields.length) {
+                toast({
+                  title: 'Form created successfully',
+                  description: 'Form created successfully',
+                  variant: 'success',
+                });
+                setFormGeneral(FORM_STATES_DEFAULT_VALUES.GENERAL);
+                setFormConfirmation(FORM_STATES_DEFAULT_VALUES.CONFIRMATION);
+                setFormContent(FORM_STATES_DEFAULT_VALUES.CONTENT);
+                setFormStep(1);
+                navigate(`/settings/frontline/forms/${params.channelId}`);
+                setIsLoading(false);
+              } else {
+                addedFields++;
+              }
+            },
+            onError: (e) => {
+              toast({
+                title: 'Error',
+                description: e.message,
+                variant: 'destructive',
+              });
+              if (addedFields + 1 === allFormFields.length) {
+                setIsLoading(false);
+              } else {
+                addedFields++;
+              }
+            },
           });
         });
       },
@@ -111,6 +152,7 @@ export const FormConfirmation = () => {
       description="Confirmation settings"
       form={form}
       onSubmit={onSubmit}
+      isLoading={isLoading}
     >
       <FormValueEffectComponent form={form} atom={formSetupConfirmationAtom} />
       <div className="px-5 space-y-5">
