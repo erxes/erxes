@@ -1,0 +1,40 @@
+name: POSCLIENT-FRONT CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/posclient-front/**'
+      - '.github/workflows/ci-apps-posclient-front.yml'
+  pull_request:
+    paths:
+      - 'apps/posclient-front/**'
+      - '.github/workflows/ci-apps-posclient-front.yml'
+
+jobs: 
+  posclient-front:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.19.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+
+      - name: Build
+        run: |
+          cd apps/posclient-front
+          rm -rf node_modules
+          npm install
+          npm run build
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main')
+        run: |
+          cd apps/posclient-front
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build -t erxes/posclient-front:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/posclient-front:${GITHUB_REF#refs/heads/}

@@ -5,118 +5,22 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { RecordTable, RecordTableInlineCell, useQueryState } from 'erxes-ui';
-import {
-  dealBoardState,
-  dealPipelineState,
-} from '@/deals/states/dealContainerState';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { RecordTable } from 'erxes-ui';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
-import { SelectBoard } from '@/deals/boards/components/SelectBoards';
+
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { SelectPipeline } from '@/deals/pipelines/components/SelectPipelines';
-import { SelectStage } from '@/deals/stage/components/SelectStages';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
-const NameCell = ({ deal }: { deal: IDeal }) => {
-  const setActiveDealId = useSetAtom(dealDetailSheetState);
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
-
-  const handleClick = () => {
-    setSalesItemId(deal._id);
-    setActiveDealId(deal._id);
-  };
-
-  return (
-    <RecordTableInlineCell onClick={handleClick}>
-      <div className="flex items-center justify-between w-full gap-2">
-        <span>{deal.name}</span>
-        {deal.status === 'archived' && (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
-            Archived
-          </span>
-        )}
-      </div>
-    </RecordTableInlineCell>
-  );
-};
-
-const BoardCell = ({ deal }: { deal: IDeal }) => {
-  const setBoardId = useSetAtom(dealBoardState);
-
-  return (
-    <SelectBoard
-      value={deal.boardId}
-      onValueChange={(boardId) => {
-        setBoardId({
-          boardId: boardId as string,
-        });
-      }}
-    />
-  );
-};
-
-const PipelineCell = ({ deal }: { deal: IDeal }) => {
-  const setPipelineId = useSetAtom(dealPipelineState);
-  const board = useAtomValue(dealBoardState);
-
-  const boardId = board.boardId || deal.boardId;
-
-  return (
-    <SelectPipeline.InlineCell
-      mode="single"
-      value={deal.pipeline?._id}
-      boardId={boardId}
-      onValueChange={(pipelineId) => {
-        setPipelineId({
-          pipelineId: pipelineId as string,
-        });
-      }}
-    />
-  );
-};
-
-const ProductsCell = ({ deal }: { deal: IDeal }) => {
-  return (
-    <RecordTableInlineCell>
-      <div className="flex items-center justify-between w-full gap-2">
-        <span>{deal.products?.length}</span>
-      </div>
-    </RecordTableInlineCell>
-  );
-};
-
-const StageCell = ({ deal }: { deal: IDeal }) => {
-  const { editDeals } = useDealsEdit();
-
-  const board = useAtomValue(dealBoardState);
-  const pipeline = useAtomValue(dealPipelineState);
-
-  const pipelineId = pipeline.pipelineId || deal.pipeline?._id;
-
-  return (
-    <SelectStage.InlineCell
-      mode="single"
-      value={deal.stage?._id}
-      pipelineId={pipelineId}
-      onValueChange={(stageId) => {
-        editDeals({
-          variables: {
-            _id: deal._id,
-            boardId: board.boardId || deal.boardId,
-            pipelineId: pipeline.pipelineId || deal.pipeline?._id,
-            stageId: stageId as string,
-          },
-        });
-      }}
-    />
-  );
-};
+import {
+  BoardCell,
+  PipelineCell,
+  StageCell,
+  NameCell,
+  ProductsCell,
+} from '@/deals/components/deal-selects/MoveDealSelect';
 
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
