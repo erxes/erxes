@@ -21,19 +21,10 @@ const generateFilterQuery = async (
   }
 
   if (channelId) {
-    const integrations = await models.Integrations.find(
-      { channelId },
-      { _id: 1 },
-    ).lean();
 
-    const integrationIds = integrations.map((i) => i._id);
+    query.channelId = channelId;
+    return query;
 
-    if (!integrationIds.length) {
-      query.integrationId = { $in: [] };
-      return query;
-    }
-
-    query.integrationId = { $in: integrationIds };
   }
   if (!channelId) {
     const channelMemberships = await models.ChannelMembers.find({
@@ -92,7 +83,6 @@ const formQueries = {
     const qry = {
       ...(await generateFilterQuery(args, models, user._id)),
     };
-
     if (args.type === 'lead') {
       console.log(qry, 'qry');
       return models.Forms.findLeadForms(qry, args);
@@ -101,7 +91,7 @@ const formQueries = {
     return cursorPaginate({
       model: models.Forms,
       params: { ...args, orderBy: { createdAt: 1 } },
-      query: { qry },
+      query: { ...qry },
     });
   },
 
