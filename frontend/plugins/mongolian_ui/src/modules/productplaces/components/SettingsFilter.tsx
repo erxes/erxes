@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button, Form, Select } from 'erxes-ui';
+import { useForm, Controller } from 'react-hook-form';
+import { nanoid } from 'nanoid';
 import { IConfigsMap, DefaultFilterConfig } from '../types';
 
 type Props = {
@@ -20,7 +22,10 @@ const USERS = [
 ];
 
 const SettingsFilter = ({ save, configsMap }: Props) => {
-  const [configs, setConfigs] = useState<DefaultFilterConfig[]>([]);
+  const [configs, setConfigs] = React.useState<DefaultFilterConfig[]>([]);
+  
+  // Initialize react-hook-form
+  const form = useForm();
 
   /**
    * 🔑 Sync local state with configsMap
@@ -32,14 +37,16 @@ const SettingsFilter = ({ save, configsMap }: Props) => {
   }, [configsMap.dealsProductsDefaultFilter]);
 
   const addConfig = () => {
+    const newConfig = {
+      _id: nanoid(),
+      title: 'New Filter Config',
+      segmentId: '',
+      userIds: [],
+    };
+
     setConfigs(prev => [
       ...prev,
-      {
-        _id: crypto.randomUUID(),
-        title: 'New Filter Config',
-        segmentId: '',
-        userIds: [],
-      },
+      newConfig,
     ]);
   };
 
@@ -72,129 +79,154 @@ const SettingsFilter = ({ save, configsMap }: Props) => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="border-b pb-4">
-        <h2 className="text-lg font-semibold">
-          Default Filter Configuration
-        </h2>
-        <p className="text-sm text-gray-500">
-          Configure default product filters by segment
-        </p>
-      </div>
-
-      <div className="flex justify-between items-center">
-        <Button
-          variant="default"
-          onClick={addConfig}
-          className="flex items-center gap-2"
-        >
-          + New Config
-        </Button>
-
-        <Button variant="default" onClick={handleSave}>
-          Save All
-        </Button>
-      </div>
-
+    <Form {...form}> {/* Wrap everything in Form context */}
       <div className="space-y-4">
-        {configs.map(config => (
-          <div
-            key={config._id}
-            className="border rounded p-4 bg-white"
+        <div className="border-b pb-4">
+          <h2 className="text-lg font-semibold">
+            Default Filter Configuration
+          </h2>
+          <p className="text-sm text-gray-500">
+            Configure default product filters by segment
+          </p>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <Button
+            variant="default"
+            onClick={addConfig}
+            className="flex items-center gap-2"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium">
-                {config.title || 'Untitled'}
-              </h3>
+            + New Config
+          </Button>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => deleteConfig(config._id)}
-              >
-                Delete
-              </Button>
-            </div>
+          <Button variant="default" onClick={handleSave}>
+            Save All
+          </Button>
+        </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Item>
-                <Form.Label>Title</Form.Label>
-                <Form.Control>
-                  <input
-                    className="w-full p-2 border rounded"
-                    value={config.title}
-                    onChange={e =>
-                      updateConfig(config._id, {
-                        ...config,
-                        title: e.target.value,
-                      })
-                    }
-                  />
-                </Form.Control>
-              </Form.Item>
+        <div className="space-y-4">
+          {configs.map((config, index) => (
+            <div
+              key={config._id}
+              className="border rounded p-4 bg-white"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium">
+                  {config.title || 'Untitled'}
+                </h3>
 
-              <Form.Item>
-                <Form.Label>Segment</Form.Label>
-                <Select
-                  value={config.segmentId}
-                  onValueChange={segmentId =>
-                    updateConfig(config._id, {
-                      ...config,
-                      segmentId,
-                    })
-                  }
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteConfig(config._id)}
                 >
-                  <Select.Trigger>
-                    <Select.Value placeholder="Choose segment" />
-                  </Select.Trigger>
+                  Delete
+                </Button>
+              </div>
 
-                  <Select.Content>
-                    {SEGMENTS.map(segment => (
-                      <Select.Item
-                        key={segment._id}
-                        value={segment._id}
-                      >
-                        {segment.name}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Item>
-            </div>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Title Field using Form.Field */}
+                <Form.Field
+                  name={`configs.${index}.title`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Title</Form.Label>
+                      <Form.Control>
+                        <input
+                          className="w-full p-2 border rounded"
+                          value={config.title || ''}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            updateConfig(config._id, {
+                              ...config,
+                              title: e.target.value,
+                            });
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
 
-            <div className="mt-4">
-              <p className="text-sm font-semibold mb-2">
-                Assigned users
-              </p>
+                {/* Segment Field using Form.Field with Controller for Select */}
+                <Form.Field
+                  name={`configs.${index}.segmentId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Segment</Form.Label>
+                      <Form.Control>
+                        <Controller
+                          control={form.control}
+                          name={field.name}
+                          render={({ field: controllerField }) => (
+                            <Select
+                              value={controllerField.value || ''}
+                              onValueChange={(value: string) => {
+                                controllerField.onChange(value);
+                                updateConfig(config._id, {
+                                  ...config,
+                                  segmentId: value,
+                                });
+                              }}
+                            >
+                              <Select.Trigger>
+                                <Select.Value placeholder="Choose segment" />
+                              </Select.Trigger>
+                              <Select.Content>
+                                {SEGMENTS.map(segment => (
+                                  <Select.Item
+                                    key={segment._id}
+                                    value={segment._id}
+                                  >
+                                    {segment.name}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select>
+                          )}
+                        />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              </div>
 
-              <div className="flex flex-wrap gap-3">
-                {USERS.map(user => (
-                  <label
-                    key={user._id}
-                    className="flex items-center gap-2 text-sm cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={config.userIds.includes(user._id)}
-                      onChange={() =>
-                        toggleUser(config, user._id)
-                      }
-                    />
-                    {user.name}
-                  </label>
-                ))}
+              <div className="mt-4">
+                <p className="text-sm font-semibold mb-2">
+                  Assigned users
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  {USERS.map(user => (
+                    <label
+                      key={user._id}
+                      className="flex items-center gap-2 text-sm cursor-pointer"
+                      htmlFor={`user-${config._id}-${user._id}`}
+                    >
+                      <input
+                        id={`user-${config._id}-${user._id}`}
+                        type="checkbox"
+                        checked={config.userIds.includes(user._id)}
+                        onChange={() =>
+                          toggleUser(config, user._id)
+                        }
+                      />
+                      {user.name}
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {!configs.length && (
-          <div className="text-sm text-gray-400 text-center py-10">
-            No filter configs yet. Click “New Config” to add one.
-          </div>
-        )}
+          {!configs.length && (
+            <div className="text-sm text-gray-400 text-center py-10">
+              No filter configs yet. Click "New Config" to add one.
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Form>
   );
 };
 

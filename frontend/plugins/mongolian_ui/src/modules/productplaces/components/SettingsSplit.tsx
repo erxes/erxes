@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Select } from 'erxes-ui';
+import { Button } from 'erxes-ui'; 
 import { IConfigsMap, PerSplitConfig } from '../types';
 
 type Props = {
@@ -7,33 +7,9 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-/* Mock data – replace with real data later */
-const mockProductCategories = [
-  { _id: '1', name: 'Category 1' },
-  { _id: '2', name: 'Category 2' },
-];
-
-const mockTags = [
-  { _id: '1', name: 'Tag 1' },
-  { _id: '2', name: 'Tag 2' },
-];
-
-const mockProducts = [
-  { _id: '1', name: 'Product 1' },
-  { _id: '2', name: 'Product 2' },
-];
-
-const mockSegments = [
-  { _id: '1', name: 'Segment 1' },
-  { _id: '2', name: 'Segment 2' },
-];
-
 const SettingsSplit = (props: Props) => {
   const { configsMap, save } = props;
 
-  /* =========================
-   * ADD NEW CONFIG
-   * ========================= */
   const add = (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -104,73 +80,67 @@ const SettingsSplit = (props: Props) => {
       const config = configs[key] as PerSplitConfig;
 
       return (
-        <div key={key} className="border rounded p-4 mb-4">
-          <Form.Item>
-            <Form.Label>Title</Form.Label>
-            <Form.Control>
-              <input
-                value={config.title || ''}
-                onChange={(e) =>
-                  updateConfig(key, { ...config, title: e.target.value })
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+        <div key={key} className="border rounded p-4 mb-4 bg-white">
+          {/* Title Field */}
+          <div className="space-y-1 mb-4">
+            <label className="text-sm font-medium">Title</label>
+            <input
+              className="w-full p-2 border rounded"
+              value={config.title || ''}
+              onChange={(e) =>
+                updateConfig(key, { ...config, title: e.target.value })
+              }
+            />
+          </div>
 
           <div className="grid grid-cols-3 gap-4 mt-4">
-            <Form.Item>
-              <Form.Label>Board</Form.Label>
-              <Select
+            {/* Board Field */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Board</label>
+              <select
+                className="w-full p-2 border rounded"
                 value={config.boardId || ''}
-                onValueChange={(v) =>
-                  updateConfig(key, { ...config, boardId: v })
+                onChange={(e) =>
+                  updateConfig(key, { ...config, boardId: e.target.value })
                 }
               >
-                <Select.Trigger>
-                  <Select.Value placeholder="Select board" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="board1">Board 1</Select.Item>
-                  <Select.Item value="board2">Board 2</Select.Item>
-                </Select.Content>
-              </Select>
-            </Form.Item>
+                <option value="">Select board</option>
+                <option value="board1">Board 1</option>
+                <option value="board2">Board 2</option>
+              </select>
+            </div>
 
-            <Form.Item>
-              <Form.Label>Pipeline</Form.Label>
-              <Select
+            {/* Pipeline Field */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Pipeline</label>
+              <select
+                className="w-full p-2 border rounded"
                 value={config.pipelineId || ''}
-                onValueChange={(v) =>
-                  updateConfig(key, { ...config, pipelineId: v })
+                onChange={(e) =>
+                  updateConfig(key, { ...config, pipelineId: e.target.value })
                 }
               >
-                <Select.Trigger>
-                  <Select.Value placeholder="Select pipeline" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="pipeline1">Pipeline 1</Select.Item>
-                  <Select.Item value="pipeline2">Pipeline 2</Select.Item>
-                </Select.Content>
-              </Select>
-            </Form.Item>
+                <option value="">Select pipeline</option>
+                <option value="pipeline1">Pipeline 1</option>
+                <option value="pipeline2">Pipeline 2</option>
+              </select>
+            </div>
 
-            <Form.Item>
-              <Form.Label>Stage</Form.Label>
-              <Select
+            {/* Stage Field */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Stage</label>
+              <select
+                className="w-full p-2 border rounded"
                 value={config.stageId || ''}
-                onValueChange={(v) =>
-                  updateConfig(key, { ...config, stageId: v })
+                onChange={(e) =>
+                  updateConfig(key, { ...config, stageId: e.target.value })
                 }
               >
-                <Select.Trigger>
-                  <Select.Value placeholder="Select stage" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="stage1">Stage 1</Select.Item>
-                  <Select.Item value="stage2">Stage 2</Select.Item>
-                </Select.Content>
-              </Select>
-            </Form.Item>
+                <option value="">Select stage</option>
+                <option value="stage1">Stage 1</option>
+                <option value="stage2">Stage 2</option>
+              </select>
+            </div>
           </div>
 
           <div className="mt-4 flex justify-end">
@@ -214,6 +184,12 @@ const SettingsSplit = (props: Props) => {
 
       <div className="space-y-4">
         {renderConfigs()}
+        
+        {Object.keys(configsMap.dealsProductsDataSplit || {}).length === 0 && (
+          <div className="text-sm text-gray-400 text-center py-10">
+            No split configs yet. Click "New Config" to add one.
+          </div>
+        )}
       </div>
     </div>
   );

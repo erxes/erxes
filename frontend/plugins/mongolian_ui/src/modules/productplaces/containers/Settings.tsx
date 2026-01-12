@@ -53,7 +53,7 @@ const SettingsContainer = (props: Props) => {
     );
   }
 
-  /** 💾 Persist to backend ONLY */
+  /** Persist to backend ONLY */
   const saveToServer = (map: IConfigsMap) => {
     updateConfigs({
       variables: {
@@ -65,7 +65,6 @@ const SettingsContainer = (props: Props) => {
     })
       .then(() => {
         configsQuery.refetch();
-        console.log('Successfully updated configuration');
       })
       .catch((error) => {
         console.error('Failed to update configuration:', error.message);

@@ -147,7 +147,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
                     isSetPricing = true;
 
                     if (discount.type === "percentage") {
-                      item.discountPercent = parseFloat(
+                      item.discountPercent = Number.parseFloat(
                         (
                           (discount.value / (item.unitPrice || 1)) *
                           100

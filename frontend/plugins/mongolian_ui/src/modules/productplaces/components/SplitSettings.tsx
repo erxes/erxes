@@ -108,21 +108,11 @@ const SplitSettings = (props: Props) => {
     return Object.keys(configs).map((key) => (
       <PerSettings
         key={key}
-        configsMap={configsMap}
+        // REMOVED: configsMap={configsMap} - PerSettings doesn't accept this!
         config={configs[key] as PerSplitConfig}
         currentConfigKey={key}
-        save={(newConfigsMap) => {
-          // Handle the save from PerSettings
-          if (newConfigsMap.dealsProductsDataSplit) {
-            save({
-              ...configsMap,
-              dealsProductsDataSplit: {
-                ...(configsMap.dealsProductsDataSplit || {}),
-                ...newConfigsMap.dealsProductsDataSplit,
-              },
-            });
-          }
-        }}
+        // Fixed: Changed from (newConfigsMap) => ... to (updatedConfig) => ...
+        save={(updatedConfig: PerSplitConfig) => updateConfig(key, updatedConfig)}
         delete={deleteHandler}
         productCategories={productCategories}
         tags={tags}
@@ -181,6 +171,12 @@ const SplitSettings = (props: Props) => {
             className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm space-y-4"
           >
             {renderConfigs()}
+            
+            {Object.keys(configsMap.dealsProductsDataSplit || {}).length === 0 && (
+              <div className="text-sm text-gray-400 text-center py-10">
+                No split configs yet. Click "New config" to add one.
+              </div>
+            )}
           </div>
         </div>
       </div>

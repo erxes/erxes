@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Select } from 'erxes-ui';
+import { Button } from 'erxes-ui'; // Removed Select import
 
 type Props = {
   split: any;
@@ -19,36 +19,30 @@ const PerSplit = ({ split, onChange, onRemove }: Props) => {
         <div className="space-y-4">
           <div className="space-y-1">
             <label className="text-sm font-medium">Split by</label>
-            <Select
+            <select
+              className="w-full p-2 border rounded"
               value={split.by || ''}
-              onValueChange={(v) => onChangeConfig('by', v)}
+              onChange={(e) => onChangeConfig('by', e.target.value)}
             >
-              <Select.Trigger>
-                <Select.Value placeholder="Choose field" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="amount">Amount</Select.Item>
-                <Select.Item value="quantity">Quantity</Select.Item>
-                <Select.Item value="category">Category</Select.Item>
-              </Select.Content>
-            </Select>
+              <option value="">Choose field</option>
+              <option value="amount">Amount</option>
+              <option value="quantity">Quantity</option>
+              <option value="category">Category</option>
+            </select>
           </div>
 
           <div className="space-y-1">
             <label className="text-sm font-medium">Operator</label>
-            <Select
+            <select
+              className="w-full p-2 border rounded"
               value={split.operator || ''}
-              onValueChange={(v) => onChangeConfig('operator', v)}
+              onChange={(e) => onChangeConfig('operator', e.target.value)}
             >
-              <Select.Trigger>
-                <Select.Value placeholder="Choose operator" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="equals">Equals</Select.Item>
-                <Select.Item value="greater">Greater than</Select.Item>
-                <Select.Item value="less">Less than</Select.Item>
-              </Select.Content>
-            </Select>
+              <option value="">Choose operator</option>
+              <option value="equals">Equals</option>
+              <option value="greater">Greater than</option>
+              <option value="less">Less than</option>
+            </select>
           </div>
         </div>
 

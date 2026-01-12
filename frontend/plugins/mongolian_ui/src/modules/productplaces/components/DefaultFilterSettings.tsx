@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Select } from 'erxes-ui';
-
-import Header from './Header';
-import Sidebar from './Sidebar';
-
+import { Button } from 'erxes-ui';
+import { Select } from 'erxes-ui'; // This imports the correct Select component
+import { nanoid } from 'nanoid';
 import { IConfigsMap, DefaultFilterConfig } from '../types';
 
 type Props = {
@@ -38,15 +36,13 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
   }, [configsMap.dealsProductsDefaultFilter]);
 
   const addConfig = () => {
-    setConfigs(prev => [
-      ...prev,
-      {
-        _id: crypto.randomUUID(),
-        title: 'New Filter Config',
-        segmentId: '',
-        userIds: [],
-      },
-    ]);
+    const newConfig = {
+      _id: nanoid(),
+      title: 'New Filter Config',
+      segmentId: '',
+      userIds: [],
+    };
+    setConfigs(prev => [...prev, newConfig]);
   };
 
   const updateConfig = (id: string, updated: DefaultFilterConfig) => {
@@ -59,7 +55,6 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
 
   const toggleUser = (config: DefaultFilterConfig, userId: string) => {
     const exists = config.userIds.includes(userId);
-
     updateConfig(config._id, {
       ...config,
       userIds: exists
@@ -76,129 +71,125 @@ const DefaultFilterSettings = ({ save, configsMap }: Props) => {
   };
 
   return (
-    <div className="flex h-full">
-      <Sidebar />
+    <div className="space-y-4">
+      <div className="border-b pb-4">
+        <h2 className="text-lg font-semibold">
+          Default Filter Configuration
+        </h2>
+        <p className="text-sm text-gray-500">
+          Configure default product filters by segment
+        </p>
+      </div>
 
-      <div className="flex-1 overflow-auto">
-        <Header />
+      <div className="flex justify-between items-center">
+        <Button variant="default" onClick={addConfig}>
+          + New Config
+        </Button>
+        <Button variant="default" onClick={handleSave}>
+          Save All
+        </Button>
+      </div>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">Default filter configs</h2>
+      <div className="space-y-4">
+        {configs.map(config => (
+          <div key={config._id} className="border rounded p-4 bg-white">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">
+                {config.title || 'Untitled'}
+              </h3>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteConfig(config._id)}
+              >
+                Delete
+              </Button>
+            </div>
 
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={addConfig}>
-              New config
-            </Button>
-
-            <Button variant="default" onClick={handleSave}>
-              Save
-            </Button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-4 space-y-4">
-          {configs.map(config => (
-            <div
-              key={config._id}
-              className="border rounded-md p-4 bg-white space-y-4"
-            >
-              {/* Card header */}
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">
-                  {config.title || 'Untitled'}
-                </h3>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteConfig(config._id)}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Title Field */}
+              <div className="space-y-2">
+                <label 
+                  htmlFor={`title-${config._id}`}
+                  className="text-sm font-medium block"
                 >
-                  Delete
-                </Button>
+                  Title
+                </label>
+                <input
+                  id={`title-${config._id}`}
+                  className="w-full p-2 border rounded"
+                  value={config.title}
+                  onChange={e =>
+                    updateConfig(config._id, {
+                      ...config,
+                      title: e.target.value,
+                    })
+                  }
+                />
               </div>
 
-              {/* Card body */}
-              <div className="grid grid-cols-2 gap-4">
-                {/* Title */}
-                <div className="space-y-1">
-                  <label className="text-sm font-medium">Title</label>
-                  <input
-                    className="w-full p-2 border rounded"
-                    value={config.title}
-                    onChange={e =>
-                      updateConfig(config._id, {
-                        ...config,
-                        title: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+              {/* Segment Field - CORRECT Select Usage */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium block">
+                  Segment
+                </label>
+                {/* This is the correct way to use the Select component */}
+                <Select
+                  value={config.segmentId}
+                  onValueChange={(segmentId: string) =>
+                    updateConfig(config._id, {
+                      ...config,
+                      segmentId,
+                    })
+                  }
+                >
+                  <Select.Trigger className="w-full">
+                    <Select.Value placeholder="Choose segment" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {SEGMENTS.map(segment => (
+                      <Select.Item key={segment.id} value={segment.id}>
+                        {segment.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </div>
+            </div>
 
-                {/* Segment */}
-                <div className="space-y-1">
-                  <label className="text-sm font-medium">Segment</label>
-                  <Select
-                    value={config.segmentId}
-                    onValueChange={segmentId =>
-                      updateConfig(config._id, {
-                        ...config,
-                        segmentId,
-                      })
-                    }
+            {/* Users Section */}
+            <div className="mt-4">
+              <p className="text-sm font-semibold mb-2">
+                Assigned users
+              </p>
+              
+              <div className="flex flex-wrap gap-3">
+                {USERS.map(user => (
+                  <label
+                    key={user.id}
+                    className="flex items-center gap-2 text-sm cursor-pointer"
+                    htmlFor={`user-${config._id}-${user.id}`}
                   >
-                    <Select.Trigger>
-                      <Select.Value placeholder="Choose segment" />
-                    </Select.Trigger>
-
-                    <Select.Content>
-                      {SEGMENTS.map(segment => (
-                        <Select.Item
-                          key={segment.id}
-                          value={segment.id}
-                        >
-                          {segment.name}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Users */}
-              <div>
-                <p className="text-sm font-semibold mb-2">
-                  Assigned users
-                </p>
-
-                <div className="flex flex-wrap gap-3">
-                  {USERS.map(user => (
-                    <label
-                      key={user.id}
-                      className="flex items-center gap-2 text-sm cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={config.userIds.includes(user.id)}
-                        onChange={() =>
-                          toggleUser(config, user.id)
-                        }
-                      />
-                      {user.name}
-                    </label>
-                  ))}
-                </div>
+                    <input
+                      id={`user-${config._id}-${user.id}`}
+                      type="checkbox"
+                      checked={config.userIds.includes(user.id)}
+                      onChange={() => toggleUser(config, user.id)}
+                    />
+                    {user.name}
+                  </label>
+                ))}
               </div>
             </div>
-          ))}
+          </div>
+        ))}
 
-          {!configs.length && (
-            <div className="text-sm text-muted-foreground text-center py-10">
-              No default filter configs yet. Click “New config” to add one.
-            </div>
-          )}
-        </div>
+        {!configs.length && (
+          <div className="text-sm text-gray-400 text-center py-10">
+            No filter configs yet. Click "New Config" to add one.
+          </div>
+        )}
       </div>
     </div>
   );

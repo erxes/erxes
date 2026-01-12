@@ -1,215 +1,191 @@
-import React from 'react';
-import { Button, Select, Switch } from 'erxes-ui';
-import { PerSplitConfig, ProductCategory, Tag, Product, Segment } from '../types';
+import React, { useEffect, useState } from 'react';
+import { Button } from 'erxes-ui';  // Removed Select import
+import { nanoid } from 'nanoid';
+import { IConfigsMap, PerSplitConfig } from '../types';
+import PerSplit from './PerSplit';
 
 type Props = {
-  configsMap: any;
   config: PerSplitConfig;
   currentConfigKey: string;
-  save: (configsMap: any) => void;
-  delete: (currentConfigKey: string) => void;
-  productCategories: ProductCategory[];
-  tags: Tag[];
-  products: Product[];
-  segments: Segment[];
+  save: (config: PerSplitConfig) => void;
+  delete: (key: string) => void;
+  productCategories: any[];
+  tags: any[];
+  products: any[];
+  segments: any[];
 };
 
-const PerSettings = ({ 
-  config, 
-  currentConfigKey, 
-  save, 
-  delete: deleteHandler,
-  productCategories,
-  tags,
-  products,
-  segments
-}: Props) => {
-  const onChangeConfig = (key: keyof PerSplitConfig, value: any) => {
-    // Create a new configsMap update
-    const updatedConfig = {
-      ...config,
-      [key]: value,
-    };
-    
-    // This should be updated to actually save to configsMap
-    // For now, we'll pass it back through save
-    save({
-      dealsProductsDataSplit: {
-        [currentConfigKey]: updatedConfig
-      }
-    });
+const PerSettings = (props: Props) => {
+  const { config, currentConfigKey, save, delete: deleteHandler, productCategories, tags, products, segments } = props;
+
+  const [localConfig, setLocalConfig] = useState<PerSplitConfig>(config);
+  const [splits, setSplits] = useState<any[]>([]);
+
+  // Sync local state with prop changes
+  useEffect(() => {
+    setLocalConfig(config);
+  }, [config]);
+
+  const updateLocalConfig = (key: string, value: any) => {
+    const updated = { ...localConfig, [key]: value };
+    setLocalConfig(updated);
+    save(updated);
   };
 
-  // For multi-select arrays, we need a different approach
-  // Since Select component only accepts string values
-  
-  const renderMultiSelect = (
-    label: string,
-    value: string[] = [],
-    options: { _id: string; name: string }[],
-    onChange: (ids: string[]) => void,
-    placeholder: string
-  ) => (
-    <div className="space-y-1">
-      <label className="text-sm font-medium">{label}</label>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => {
-          const isSelected = value.includes(option._id);
-          return (
-            <label
-              key={option._id}
-              className="flex items-center gap-1 text-sm cursor-pointer border px-2 py-1 rounded"
-            >
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => {
-                  const newValue = isSelected
-                    ? value.filter(id => id !== option._id)
-                    : [...value, option._id];
-                  onChange(newValue);
-                }}
-              />
-              {option.name}
-            </label>
-          );
-        })}
-        {options.length === 0 && (
-          <span className="text-sm text-gray-500">{placeholder}</span>
-        )}
-      </div>
-    </div>
-  );
+  const addSplit = () => {
+    const newSplit = {
+      id: nanoid(),
+      by: '',
+      operator: '',
+      value: '',
+    };
+    const updatedSplits = [...splits, newSplit];
+    setSplits(updatedSplits);
+  };
+
+  const updateSplit = (id: string, updatedSplit: any) => {
+    const updatedSplits = splits.map(split => 
+      split.id === id ? updatedSplit : split
+    );
+    setSplits(updatedSplits);
+  };
+
+  const removeSplit = (id: string) => {
+    const updatedSplits = splits.filter(split => split.id !== id);
+    setSplits(updatedSplits);
+  };
 
   return (
-    <div className="rounded border p-4 space-y-6 bg-white">
+    <div className="rounded border p-6 space-y-6 mb-6">
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">
+          {localConfig.title || 'Untitled Split Config'}
+        </h3>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => save(localConfig)}
+          >
+            Save
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => deleteHandler(currentConfigKey)}
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
+
       {/* BASIC SETTINGS */}
       <div className="grid grid-cols-2 gap-6">
-        {/* LEFT */}
         <div className="space-y-4">
           <div className="space-y-1">
             <label className="text-sm font-medium">Title</label>
             <input
               className="w-full p-2 border rounded"
-              value={config.title || ''}
-              onChange={(e) => onChangeConfig('title', e.target.value)}
-              placeholder="Config title"
+              value={localConfig.title || ''}
+              onChange={(e) => updateLocalConfig('title', e.target.value)}
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Board</label>
-            <Select
-              value={config.boardId || ''}
-              onValueChange={(v) => onChangeConfig('boardId', v)}
+            <label className="text-sm font-medium">Stage</label>
+            {/* Replace Select with native select to avoid Form context issues */}
+            <select
+              className="w-full p-2 border rounded"
+              value={localConfig.stageId || ''}
+              onChange={(e) => updateLocalConfig('stageId', e.target.value)}
             >
-              <Select.Trigger>
-                <Select.Value placeholder="Choose board" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="board1">Board 1</Select.Item>
-                <Select.Item value="board2">Board 2</Select.Item>
-              </Select.Content>
-            </Select>
+              <option value="">Choose stage</option>
+              <option value="stage-1">Stage 1</option>
+              <option value="stage-2">Stage 2</option>
+            </select>
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Pipeline</label>
-            <Select
-              value={config.pipelineId || ''}
-              onValueChange={(v) => onChangeConfig('pipelineId', v)}
+            <label className="text-sm font-medium">Product Categories</label>
+            <select
+              className="w-full p-2 border rounded"
+              value=""
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v) {
+                  const currentIds = localConfig.productCategoryIds || [];
+                  if (!currentIds.includes(v)) {
+                    updateLocalConfig('productCategoryIds', [...currentIds, v]);
+                  }
+                  // Reset the select
+                  e.target.value = '';
+                }
+              }}
             >
-              <Select.Trigger>
-                <Select.Value placeholder="Choose pipeline" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="pipeline1">Pipeline 1</Select.Item>
-                <Select.Item value="pipeline2">Pipeline 2</Select.Item>
-              </Select.Content>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Stage</label>
-            <Select
-              value={config.stageId || ''}
-              onValueChange={(v) => onChangeConfig('stageId', v)}
-            >
-              <Select.Trigger>
-                <Select.Value placeholder="Choose stage" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="stage1">Stage 1</Select.Item>
-                <Select.Item value="stage2">Stage 2</Select.Item>
-              </Select.Content>
-            </Select>
+              <option value="">Add categories</option>
+              {productCategories.map(cat => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            
+            {localConfig.productCategoryIds && localConfig.productCategoryIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {localConfig.productCategoryIds.map(id => {
+                  const cat = productCategories.find(c => c._id === id);
+                  return cat ? (
+                    <span key={id} className="px-2 py-1 bg-gray-100 rounded text-sm">
+                      {cat.name}
+                      <button
+                        type="button"
+                        className="ml-2 text-red-500 hover:text-red-700"
+                        onClick={() => {
+                          const updatedIds = localConfig.productCategoryIds?.filter(catId => catId !== id) || [];
+                          updateLocalConfig('productCategoryIds', updatedIds);
+                        }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ) : null;
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* CATEGORIES & TAGS - Using multi-select checkboxes */}
-      <div className="rounded border p-4 space-y-4">
-        {renderMultiSelect(
-          "Product Categories",
-          config.productCategoryIds || [],
-          productCategories,
-          (ids) => onChangeConfig('productCategoryIds', ids),
-          "No categories available"
-        )}
+      {/* SPLIT RULES */}
+      <div className="border-t pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-medium">Split Rules</h4>
+          <Button variant="outline" size="sm" onClick={addSplit}>
+            + Add Split Rule
+          </Button>
+        </div>
 
-        {renderMultiSelect(
-          "Exclude Categories",
-          config.excludeCategoryIds || [],
-          productCategories,
-          (ids) => onChangeConfig('excludeCategoryIds', ids),
-          "No categories available"
-        )}
-
-        {renderMultiSelect(
-          "Product Tags",
-          config.productTagIds || [],
-          tags,
-          (ids) => onChangeConfig('productTagIds', ids),
-          "No tags available"
-        )}
-
-        {renderMultiSelect(
-          "Exclude Tags",
-          config.excludeTagIds || [],
-          tags,
-          (ids) => onChangeConfig('excludeTagIds', ids),
-          "No tags available"
-        )}
-
-        {renderMultiSelect(
-          "Exclude Products",
-          config.excludeProductIds || [],
-          products,
-          (ids) => onChangeConfig('excludeProductIds', ids),
-          "No products available"
-        )}
-
-        {renderMultiSelect(
-          "Segments",
-          config.segments || [],
-          segments,
-          (ids) => onChangeConfig('segments', ids),
-          "No segments available"
-        )}
-      </div>
-
-      {/* FOOTER */}
-      <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => deleteHandler(currentConfigKey)}
-        >
-          Delete
-        </Button>
+        <div className="space-y-4">
+          {splits.map(split => (
+            <PerSplit
+              key={split.id}
+              split={split}
+              onChange={updateSplit}
+              onRemove={removeSplit}
+            />
+          ))}
+          
+          {splits.length === 0 && (
+            <div className="text-sm text-gray-400 text-center py-8">
+              No split rules yet. Click "Add Split Rule" to create one.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
