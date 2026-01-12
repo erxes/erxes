@@ -12,7 +12,13 @@ import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { ITask } from '@/task/types';
 import { Block } from '@blocknote/core';
-import { BlockEditor, Separator, Textarea, useBlockEditor } from 'erxes-ui';
+import {
+  BlockEditor,
+  Separator,
+  Textarea,
+  useBlockEditor,
+  Combobox,
+} from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { TagsSelect } from 'ui-modules';
@@ -179,7 +185,9 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           <IconTags className="size-5 ml-2"></IconTags>
           <TagsSelect.SelectedList />
           <TagsSelect.Trigger variant="ICON" />
-          <TagsSelect.Content />
+          <Combobox.Content>
+            <TagsSelect.Content />
+          </Combobox.Content>
         </div>
       </TagsSelect.Provider>
       <Separator className="mb-4 mt-2" />

@@ -7,76 +7,28 @@ import {
   RecordTableInlineCell,
   Skeleton,
   cn,
+  buttonVariants,
+  Form,
 } from 'erxes-ui';
 import { useGetTags } from 'ui-modules/modules/tags-new/hooks/useTags';
 import { useTagsTypes } from 'ui-modules/modules/tags/hooks/useTagsTypes';
 import { getTagTypeDescription } from 'ui-modules/modules/tags-new/utils/getTagTypeDescription';
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  createContext,
-  useContext,
-  forwardRef,
-} from 'react';
+import type { VariantProps } from 'class-variance-authority';
+import React, { useState, useEffect, useMemo, forwardRef } from 'react';
 import { TagInline } from './TagInline';
 import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
-import { IconCheck, IconChevronDown, IconPlus } from '@tabler/icons-react';
+import { IconCheck, IconPlus, IconTags } from '@tabler/icons-react';
 import { TagBadge } from 'ui-modules/modules/tags-new/components/TagBadge';
 import { useTagAdd } from 'ui-modules/modules/tags-new/hooks/useTagAdd';
 import { TAG_DEFAULT_COLORS } from 'ui-modules/modules/tags-new/constants';
 import { useGiveTags } from 'ui-modules/modules/tags-new/hooks/useGiveTags';
-import { MutationHookOptions } from '@apollo/client';
+import { TagsSelectProps } from 'ui-modules/modules/tags-new/types/TagsSelect';
 import {
-  GiveTagsMutationResponse,
-  GiveTagsMutationVariables,
-} from 'ui-modules/modules/tags-new/types/TagMutations';
+  TagsSelectContext,
+  useTagsSelectContext,
+} from 'ui-modules/modules/tags-new/hooks/useTagsSelectContext';
 
-type SingleTagsSelectProps = {
-  mode: 'single';
-  value?: string;
-  onValueChange?: (value: string | undefined) => void;
-};
-
-type MultipleTagsSelectProps = {
-  mode: 'multiple';
-  value?: string[];
-  onValueChange?: (value: string[]) => void;
-};
-
-type TagsSelectProps = {
-  type: string | null;
-  children?: React.ReactNode;
-  scope?: string;
-  targetIds?: string[];
-  options?: (
-    newSelectedTagIds: string[],
-  ) => MutationHookOptions<GiveTagsMutationResponse, GiveTagsMutationVariables>;
-} & (SingleTagsSelectProps | MultipleTagsSelectProps);
-
-type TagsSelectContextType = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  selectedTags: ITag[];
-  setSelectedTags: (tags: ITag[]) => void;
-  tags?: ITag[];
-  rootTags?: ITag[];
-  tagsByParentId: Record<string, ITag[]>;
-  handleChange: (tag: ITag) => void;
-  mode: 'single' | 'multiple';
-  value?: string | string[];
-  onValueChange?: (value: string | string[] | undefined) => void;
-  tagGroups: ITag[];
-  type: string | null;
-  loading: boolean;
-  targetIds?: string[];
-};
-
-const TagsSelectContext = createContext<TagsSelectContextType>(
-  {} as TagsSelectContextType,
-);
-
-const useTagsSelectContext = () => useContext(TagsSelectContext);
+type ButtonProps = VariantProps<typeof buttonVariants>;
 
 const TagsSelectProvider = ({
   type,
@@ -129,6 +81,7 @@ const TagsSelectProvider = ({
       }
       (onValueChange as ((value: string) => void) | undefined)?.(tag._id);
     } else {
+      setOpen(false);
       const isSelected = selectedTags.some((t) => t._id === tag._id);
       let newTags: ITag[];
       if (isSelected) {
@@ -147,6 +100,7 @@ const TagsSelectProvider = ({
           ...options?.(newTags.map((t) => t._id)),
         });
       }
+
       (onValueChange as ((value: string[]) => void) | undefined)?.(
         newTags.map((t) => t._id),
       );
@@ -211,13 +165,14 @@ const TagsSelectTrigger = forwardRef<
   Omit<React.ComponentProps<typeof Button>, 'variant'> & {
     showValue?: boolean;
     placeholder?: string;
-    variant?: 'DEFAULT' | 'ICON';
+    variant?: ButtonProps['variant'] | 'ICON';
+    size?: ButtonProps['size'];
   }
->(({ showValue, placeholder, variant = 'DEFAULT', ...props }, ref) => {
+>(({ showValue, placeholder = 'Tag', variant, size, ...props }, ref) => {
   if (variant === 'ICON') {
     return (
       <Popover.Trigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size={'icon'}>
           <IconPlus />
         </Button>
       </Popover.Trigger>
@@ -227,11 +182,13 @@ const TagsSelectTrigger = forwardRef<
     <Popover.Trigger asChild>
       <Button
         ref={ref}
+        variant={variant}
+        size={size}
         {...props}
-        className="w-min text-sm font-medium shadow-xs"
+        className={cn('w-min text-sm font-medium shadow-xs', props.className)}
       >
+        <IconTags />
         <TagsSelectValue showValue={false} placeholder={placeholder} />
-        <IconChevronDown />
       </Button>
     </Popover.Trigger>
   );
@@ -258,39 +215,58 @@ const TagsSelectContent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
   return (
-    <Combobox.Content className="p-0 w-[200px]" align="start">
-      <Command>
-        <Command.Input
-          placeholder="Search tag..."
-          value={search}
-          onValueChange={setSearch}
-          focusOnMount
-        />
-        <div className="flex flex-wrap gap-x-2 gap-y-1 w-full p-1">
-          <TagsSelectedList />
-        </div>
-        {!selectedTags || selectedTags.length === 0 ? null : (
-          <Command.Separator />
-        )}
-        <Command.List>
-          {loading ? (
-            <Command.Empty>
-              <div className="flex flex-col gap-2 items-start p-4">
-                <Skeleton className="w-2/3 h-4" />
-                <Skeleton className="w-full h-4" />
-                <Skeleton className="w-32 h-4" />
-                <Skeleton className="w-2/3 h-4" />
-                <Skeleton className="w-full h-4" />
-                <Skeleton className="w-32 h-4" />
-              </div>
-            </Command.Empty>
-          ) : rootTags?.length === 0 ? (
-            <Command.Empty>
-              <div>No results found.</div>
-            </Command.Empty>
-          ) : (
-            <Command.Empty className="p-0">
-              <div className="flex flex-col gap-px">
+    <Command>
+      <Command.Input
+        placeholder="Search tag..."
+        value={search}
+        onValueChange={setSearch}
+        focusOnMount
+      />
+      <div className="flex flex-wrap gap-x-2 gap-y-1 w-full p-1">
+        <TagsSelectedList />
+      </div>
+      {!selectedTags || selectedTags.length === 0 ? null : (
+        <Command.Separator />
+      )}
+      <Command.List>
+        {loading ? (
+          <Command.Empty>
+            <div className="flex flex-col gap-2 items-start p-4">
+              <Skeleton className="w-2/3 h-4" />
+              <Skeleton className="w-full h-4" />
+              <Skeleton className="w-32 h-4" />
+              <Skeleton className="w-2/3 h-4" />
+              <Skeleton className="w-full h-4" />
+              <Skeleton className="w-32 h-4" />
+            </div>
+          </Command.Empty>
+        ) : rootTags?.length === 0 ? (
+          <Command.Empty>
+            <div>No results found.</div>
+          </Command.Empty>
+        ) : (
+          <Command.Empty className="p-0">
+            <div className="flex flex-col gap-px">
+              <Button
+                variant="ghost"
+                className="w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer"
+                onClick={() => {
+                  addTag({
+                    variables: {
+                      name: search,
+                      type: null,
+                      colorCode: DEFAULT_COLOR,
+                    },
+                    onCompleted: (data) => {
+                      handleChange(data.tagsAdd);
+                    },
+                  });
+                }}
+              >
+                <IconPlus />
+                Add workspace tag: "{search}"
+              </Button>
+              {type && (
                 <Button
                   variant="ghost"
                   className="w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer"
@@ -298,8 +274,8 @@ const TagsSelectContent = () => {
                     addTag({
                       variables: {
                         name: search,
-                        type: null,
                         colorCode: DEFAULT_COLOR,
+                        type,
                       },
                       onCompleted: (data) => {
                         handleChange(data.tagsAdd);
@@ -308,83 +284,62 @@ const TagsSelectContent = () => {
                   }}
                 >
                   <IconPlus />
-                  Add workspace tag: "{search}"
+                  Add{' '}
+                  {getTagTypeDescription({
+                    tagTypes: types,
+                    type,
+                  })}{' '}
+                  tag: "{search}"
                 </Button>
-                {type && (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer"
-                    onClick={() => {
-                      addTag({
-                        variables: {
-                          name: search,
-                          colorCode: DEFAULT_COLOR,
-                          type,
-                        },
-                        onCompleted: (data) => {
-                          handleChange(data.tagsAdd);
-                        },
-                      });
-                    }}
-                  >
-                    <IconPlus />
-                    Add{' '}
-                    {getTagTypeDescription({
-                      tagTypes: types,
-                      type,
-                    })}{' '}
-                    tag: "{search}"
-                  </Button>
-                )}
-              </div>
-            </Command.Empty>
-          )}
-          {rootTags?.map(
-            (tag) =>
-              !tag.isGroup && (
-                <Command.Item
-                  key={tag._id}
-                  value={tag.name}
-                  onSelect={() => handleChange(tag)}
-                  className="justify-between"
-                >
-                  <TagInline tag={tag} />
-                  <IconCheck
-                    className={cn(
-                      'h-4 w-4 text-primary',
-                      selectedTags.some((t) => t._id === tag._id)
-                        ? 'opacity-100'
-                        : 'opacity-0',
-                    )}
-                  />
-                </Command.Item>
-              ),
-          )}
-          {tagGroups.map((tag) => (
-            <Command.Group key={tag._id} heading={tag.name}>
-              {tagsByParentId[tag._id]?.map((childTag) => (
-                <Command.Item
-                  key={childTag._id}
-                  value={childTag.name}
-                  onSelect={() => handleChange(childTag)}
-                  className="flex justify-between"
-                >
-                  <TagInline tag={childTag} />
-                  <IconCheck
-                    className={cn(
-                      'h-4 w-4 text-primary',
-                      selectedTags.some((t) => t._id === childTag._id)
-                        ? 'opacity-100'
-                        : 'opacity-0',
-                    )}
-                  />
-                </Command.Item>
-              ))}
-            </Command.Group>
-          ))}
-        </Command.List>
-      </Command>
-    </Combobox.Content>
+              )}
+            </div>
+          </Command.Empty>
+        )}
+        {rootTags?.map(
+          (tag) =>
+            !tag.isGroup && (
+              <Command.Item
+                key={tag._id}
+                value={tag.name}
+                onSelect={() => handleChange(tag)}
+                className="justify-between"
+              >
+                <TagInline tag={tag} />
+                <IconCheck
+                  className={cn(
+                    'h-4 w-4 text-primary',
+                    selectedTags.some((t) => t._id === tag._id)
+                      ? 'opacity-100'
+                      : 'opacity-0',
+                  )}
+                />
+              </Command.Item>
+            ),
+        )}
+        {tagGroups.map((tag) => (
+          <Command.Group key={tag._id} heading={tag.name}>
+            {tagsByParentId[tag._id]?.map((childTag) => (
+              <Command.Item
+                key={childTag._id}
+                value={childTag.name}
+                onSelect={() => handleChange(childTag)}
+                className="flex justify-between"
+              >
+                <TagInline tag={childTag} />
+                <IconCheck
+                  className={cn(
+                    'h-4 w-4 text-primary',
+                    selectedTags.some((t) => t._id === childTag._id)
+                      ? 'opacity-100'
+                      : 'opacity-0',
+                  )}
+                />
+              </Command.Item>
+            ))}
+          </Command.Group>
+        ))}
+      </Command.List>
+    </Command>
   );
 };
 
@@ -476,15 +431,37 @@ const TagsSelectRoot = forwardRef<
     > & {
       scope?: string;
       targetIds?: string[];
+      variant?: ButtonProps['variant'];
+      size?: ButtonProps['size'];
+      className?: string;
     }
->(({ scope, targetIds, ...props }, ref) => {
-  return (
-    <TagsSelectProvider {...props} scope={scope} targetIds={targetIds}>
-      <TagsSelectTrigger ref={ref} />
-      <TagsSelectContent />
-    </TagsSelectProvider>
-  );
-});
+>(
+  (
+    {
+      scope,
+      className,
+      targetIds,
+      variant = 'ghost',
+      size = 'default',
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <TagsSelectProvider {...props} scope={scope} targetIds={targetIds}>
+        <TagsSelectTrigger
+          ref={ref}
+          variant={variant}
+          size={size}
+          className={className}
+        />
+        <Combobox.Content className="p-0 w-[200px]" align="start">
+          <TagsSelectContent />
+        </Combobox.Content>
+      </TagsSelectProvider>
+    );
+  },
+);
 
 TagsSelectRoot.displayName = 'TagsSelectRoot';
 
@@ -506,10 +483,59 @@ const TagsSelectInlineCell = forwardRef<
           <TagsSelectedList />
         </div>
       </RecordTableInlineCell.Trigger>
-      <TagsSelectContent />
+      <RecordTableInlineCell.Content>
+        <TagsSelectContent />
+      </RecordTableInlineCell.Content>
     </TagsSelectProvider>
   );
 });
+
+TagsSelectInlineCell.displayName = 'TagsSelectInlineCell';
+
+const TagsSelectFormItem = forwardRef<
+  React.ElementRef<typeof Combobox.Trigger>,
+  React.ComponentProps<typeof TagsSelectProvider> &
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children' | 'type'
+    > & {
+      scope?: string;
+      targetIds?: string[];
+      variant?: ButtonProps['variant'];
+      size?: ButtonProps['size'];
+      className?: string;
+    }
+>(
+  (
+    {
+      scope,
+      className,
+      targetIds,
+      variant = 'ghost',
+      size = 'default',
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <TagsSelectProvider {...props} scope={scope} targetIds={targetIds}>
+        <Form.Control>
+          <TagsSelectTrigger
+            ref={ref}
+            variant={variant}
+            size={size}
+            className={className}
+          />
+        </Form.Control>
+        <Combobox.Content className="p-0 w-[200px]" align="start">
+          <TagsSelectContent />
+        </Combobox.Content>
+      </TagsSelectProvider>
+    );
+  },
+);
+
+TagsSelectFormItem.displayName = 'TagsSelectFormItem';
 
 export const TagsSelect = Object.assign(TagsSelectRoot, {
   Provider: TagsSelectProvider,
@@ -518,4 +544,5 @@ export const TagsSelect = Object.assign(TagsSelectRoot, {
   Trigger: TagsSelectTrigger,
   SelectedList: TagsSelectedList,
   InlineCell: TagsSelectInlineCell,
+  FormItem: TagsSelectFormItem,
 });

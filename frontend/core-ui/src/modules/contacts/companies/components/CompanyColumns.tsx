@@ -23,7 +23,7 @@ import {
   CompanyName,
   CompanyPhones,
   SelectMember,
-  SelectTags,
+  TagsSelect,
   useCompaniesEdit,
 } from 'ui-modules';
 import { useSetAtom } from 'jotai';
@@ -174,8 +174,8 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => <RecordTable.InlineHead label={t('tags')} />,
       cell: ({ cell }) => {
         return (
-          <SelectTags.InlineCell
-            tagType="core:company"
+          <TagsSelect.InlineCell
+            type="core:company"
             mode="multiple"
             value={cell.row.original.tagIds}
             targetIds={[cell.row.original._id]}

@@ -45,7 +45,7 @@ export const TagsListRowForm = () => {
           'first:rounded-t-lg last:rounded-b-lg',
       )}
     >
-      <div className="absolute w-px bg-muted-foreground h-(--svg-height) top-0 left-[calc(3.5rem+24px/2)]">
+      <div className="absolute w-px bg-muted-foreground h-(--svg-height) top-0 left-[calc(3.5rem+26px/2)]">
         <svg
           className="absolute top-[calc(2.5rem/2-10px)] text-muted-foreground hidden"
           width="14"
