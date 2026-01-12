@@ -7,9 +7,9 @@ export const translationSchema = new Schema<ITranslationDocument>({
   _id: mongooseStringRandomId,
   postId: { type: String, required: true },
   language: { type: String, required: true },
-  title: { type: String, required: true },
-  content: { type: String, required: true },
-  excerpt: { type: String, required: true },
+  title: { type: String, default: '' },
+  content: { type: String, default: '' },
+  excerpt: { type: String, default: '' },
   customFieldsData: { type: [customFieldSchema], optional: true },
   type: {
     type: String,

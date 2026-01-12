@@ -47,7 +47,6 @@ import {
   types as pageTypes,
 } from '@/cms/graphql/schemas/page';
 
-
 export const types = `
 
   enum CacheControlScope {
@@ -104,6 +103,6 @@ export const mutations = `
     ${tagMutations}
     ${menuMutations}
     ${pageMutations}
-`; 
+`;
 
 export default { types, queries, mutations };
