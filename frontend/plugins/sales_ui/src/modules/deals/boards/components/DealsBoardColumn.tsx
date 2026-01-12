@@ -5,11 +5,13 @@ import {
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
 
+import { useEffect, useMemo } from 'react';
+
 import { BoardDealColumn } from '@/deals/types/boards';
 import { DealsBoardColumnHeader } from './DealsBoardColumnHeader';
 import { useAtomValue } from 'jotai';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
-import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 interface DealsBoardColumnProps {
   column: BoardDealColumn;
@@ -28,7 +30,6 @@ export function DealsBoardColumn({
   const [, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
   const [, setDealCountByColumn] = useDealCountByColumn();
-
   const { deals, totalCount, loading } = useDeals({
     variables: {
       stageId: column._id,
@@ -37,11 +38,22 @@ export function DealsBoardColumn({
     },
   });
 
+  const [searchParams] = useSearchParams();
+  const archivedOnly = searchParams.get('archivedOnly') === 'true';
+
+  const filteredDeals = useMemo(() => {
+    return (deals || []).filter((deal) => {
+      return archivedOnly
+        ? deal.status === 'archived'
+        : deal.status !== 'archived';
+    });
+  }, [deals, archivedOnly]);
+
   useEffect(() => {
     if (isDragging) return;
-    if (!deals || deals.length === 0) return;
+    if (!filteredDeals || filteredDeals.length === 0) return;
 
-    const dealItems: any[] = deals.map((deal) => ({
+    const dealItems: any[] = filteredDeals.map((deal) => ({
       id: deal._id,
       columnId: deal.stageId,
       ...deal,
@@ -78,16 +90,14 @@ export function DealsBoardColumn({
       });
       return newMap;
     });
-  }, [deals, isDragging, column._id, setBoardState, setAllDealsMap]);
+  }, [filteredDeals, isDragging, column._id, setBoardState, setAllDealsMap]);
 
   useEffect(() => {
-    if (totalCount !== undefined) {
-      setDealCountByColumn((prev) => ({
-        ...prev,
-        [column._id]: totalCount,
-      }));
-    }
-  }, [totalCount, column._id, setDealCountByColumn]);
+    setDealCountByColumn((prev) => ({
+      ...prev,
+      [column._id]: filteredDeals.length,
+    }));
+  }, [filteredDeals.length, column._id, setDealCountByColumn]);
 
   return (
     <DealsBoardColumnHeader
