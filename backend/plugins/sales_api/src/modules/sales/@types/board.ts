@@ -5,6 +5,7 @@ export interface IBoard {
   name?: string;
   userId?: string;
   order?: number;
+  type?: string;
 }
 
 export interface IBoardDocument extends IBoard, Document {

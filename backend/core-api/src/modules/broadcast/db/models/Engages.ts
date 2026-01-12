@@ -33,7 +33,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
 
   engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
   engageMessageSetPause(_id: string): Promise<IEngageMessageDocument>;
-  removeEngageMessage(_id: string): void;
+  removeEngageMessage(_ids: string[]): void;
   setCustomersCount(
     _id: string,
     type: string,
@@ -126,16 +126,10 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     /**
      * Remove engage message
      */
-    public static async removeEngageMessage(_id: string) {
-      const message = await models.EngageMessages.findOneAndDelete({ _id });
-
-      if (!message) {
-        throw new Error(`Campaign not found with id ${_id}`);
-      }
-
-      // await removeEngageConversations(_id);
-
-      return message;
+    public static async removeEngageMessage(_ids: string[]) {
+      return await models.EngageMessages.deleteMany({
+        _id: { $in: _ids },
+      });
     }
 
     /**
@@ -236,28 +230,12 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
         const messenger = JSON.parse(jsonString);
 
-        const {
-          customerIds = [],
-          segmentIds,
-          customerTagIds,
-          brandIds,
-          fromUserId,
-        } = message;
-
-        if (
-          message.kind === CAMPAIGN_KINDS.VISITOR_AUTO &&
-          (customerIds || []).length > 0 &&
-          !customerIds.includes(customerObj._id)
-        ) {
-          continue;
-        }
+        const { _id, targetType, targetIds, fromUserId } = message;
 
         const customerExists = await checkCustomerExists(subdomain, models, {
-          id: customerObj._id,
-          customerIds,
-          segmentIds,
-          tagIds: customerTagIds,
-          brandIds,
+          id: _id,
+          targetType,
+          targetIds,
         });
 
         if (message.kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !customerExists) {
