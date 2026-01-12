@@ -17,16 +17,18 @@ import {
   Input,
   Select,
   Textarea,
+  toast,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
+import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 
 export const FormPreview = () => {
   const formContent = useAtomValue(formSetupContentAtom);
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   const formConfirmation = useAtomValue(formSetupConfirmationAtom);
-  const [activeStep, setActiveStep] = useState<string | null>(null);
+  const [activeStep, setActiveStep] = useState<number>(1);
   const activeFormStep = useAtomValue(formSetupStepAtom);
 
   if (!formContent || !formContent.steps) {
@@ -120,10 +122,15 @@ export const FormPreview = () => {
         .map(([stepId, step], index) => (
           <FormPreviewContent
             key={stepId}
-            visible={activeStep === stepId || (!activeStep && index === 0)}
+            visible={activeStep === index + 1}
             schema={formSchemas[stepId]}
             defaultValues={defaultValues[stepId]}
             fields={step.fields}
+            step={index + 1}
+            title={step.name || ''}
+            description={step.description || ''}
+            stepsLength={Object.keys(formContent.steps).length}
+            setActiveStep={setActiveStep}
           />
         ))}
     </div>
@@ -135,11 +142,21 @@ export const FormPreviewContent = ({
   schema,
   defaultValues,
   fields,
+  step,
+  title,
+  description,
+  stepsLength,
+  setActiveStep,
 }: {
   visible: boolean;
   schema: z.ZodType;
   defaultValues: Record<string, any>;
   fields: z.infer<typeof FORM_CONTENT_SCHEMA>['steps'][number]['fields'];
+  step: number;
+  title: string;
+  description: string;
+  stepsLength: number;
+  setActiveStep: (step: number) => void;
 }) => {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -148,8 +165,31 @@ export const FormPreviewContent = ({
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   return (
     <Form {...form}>
-      <form aria-hidden={!visible} className={cn('hidden', visible && 'block')}>
+      <form
+        aria-hidden={!visible}
+        className={cn('hidden', visible && 'block')}
+        onSubmit={form.handleSubmit((values) => {
+          if (stepsLength === step) {
+            toast({
+              title: 'Form submitted',
+              description: 'Form submitted successfully',
+              variant: 'success',
+            });
+            return;
+          }
+          setActiveStep(step + 1);
+        })}
+      >
         <InfoCard title={formGeneral.title} className="p-2">
+          {stepsLength > 1 && (
+            <IntegrationSteps
+              step={step}
+              title={title}
+              stepsLength={stepsLength}
+              description={description}
+              className="p-0 m-2 mb-0"
+            />
+          )}
           <InfoCard.Content className="mt-2">
             <div className="grid grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {
@@ -256,10 +296,24 @@ export const FormPreviewContent = ({
               })}
             </div>
           </InfoCard.Content>
-          <div className="flex justify-end mt-2 gap-2">
-            <Button variant="secondary">Previous</Button>
-            <Button type="submit">Next</Button>
-          </div>
+          {stepsLength > 1 ? (
+            <div className="flex justify-end mt-2 gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setActiveStep(step - 1)}
+                disabled={step === 1}
+              >
+                Previous
+              </Button>
+              <Button type="submit">
+                {stepsLength > step ? 'Next' : formGeneral.buttonText || 'Send'}
+              </Button>
+            </div>
+          ) : (
+            <div className="flex justify-end mt-2 gap-2">
+              <Button type="submit">{formGeneral.buttonText || 'Send'}</Button>
+            </div>
+          )}
         </InfoCard>
       </form>
     </Form>

@@ -42,3 +42,34 @@ export const GET_FORMS_LIST = gql`
     }
   }
 `;
+
+export const GET_FORM_DETAIL = gql`
+  query FormDetail($id: String!) {
+    formDetail(_id: $id) {
+      _id
+      buttonText
+      channelId
+      code
+      description
+      fields {
+        _id
+        contentType
+        contentTypeId
+        description
+        field
+        groupId
+        isRequired
+        name
+        options
+        order
+        validation
+        text
+        type
+      }
+      name
+      numberOfPages
+      leadData
+      title
+    }
+  }
+`;

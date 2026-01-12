@@ -150,6 +150,10 @@ const ChannelsSettings = () => {
             path={FrontlinePaths.ChannelForms}
             element={<ChannelFormsPage />}
           />
+          <Route
+            path={FrontlinePaths.FormDetail}
+            element={<ChannelFormsPage />}
+          />
         </Route>
       </Routes>
     </Suspense>

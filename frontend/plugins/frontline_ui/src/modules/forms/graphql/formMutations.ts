@@ -57,3 +57,25 @@ export const FORMS_FIELD_ADD = gql`
     }
   }
 `;
+
+export const FORM_BULK_ADD = gql`
+  mutation FrontlineFieldsBulkAction(
+    $contentType: String!
+    $contentTypeId: String
+    $newFields: [FrontlineFieldItem]
+  ) {
+    frontlineFieldsBulkAction(
+      contentType: $contentType
+      contentTypeId: $contentTypeId
+      newFields: $newFields
+    ) {
+      _id
+    }
+  }
+`;
+
+export const FORM_REMOVE = gql`
+  mutation FormsRemove($id: String!) {
+    formsRemove(_id: $id)
+  }
+`;

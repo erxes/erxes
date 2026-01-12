@@ -9,6 +9,7 @@ import {
   FORM_CONFIRMATION_SCHEMA,
 } from '../constants/formSchema';
 import { z } from 'zod';
+import { atom } from 'jotai';
 
 export const formSetupStepAtom = atomWithStorage<number>(
   FORM_STORAGE_KEYS.STEP,
@@ -37,3 +38,49 @@ export const formSetupConfirmationAtom = atomWithStorage<
     getOnInit: true,
   },
 );
+
+export const settedFormDetailAtom = atomWithStorage('settedFormDetail', false);
+
+export const formSetupValuesAtom = atom((get) => {
+  const general = get(formSetupGeneralAtom);
+  const content = get(formSetupContentAtom);
+
+  return (confirmation: z.infer<typeof FORM_CONFIRMATION_SCHEMA>) => ({
+    addFormVariables: {
+      title: general.title,
+      name: general.title,
+      type: 'lead',
+      description: confirmation.description,
+      buttonText: general.buttonText,
+      numberOfPages: content.steps.length,
+      leadData: {
+        appearance: general.appearance,
+        thankTitle: confirmation.title,
+        thankContent: confirmation.description,
+        thankImage: confirmation.image,
+        primaryColor: general.primaryColor,
+        successImage: confirmation.image,
+        steps: Object.fromEntries(
+          Object.entries(content.steps).map(([key, step]) => [
+            key,
+            {
+              name: step.name,
+              description: step.description,
+              order: step.order,
+            },
+          ]),
+        ),
+      },
+    },
+    formFields: Object.entries(content.steps)
+      .map(([key, step]) => {
+        return step.fields.map((field) => {
+          return {
+            ...field,
+            stepId: key,
+          };
+        });
+      })
+      .flat(),
+  });
+});

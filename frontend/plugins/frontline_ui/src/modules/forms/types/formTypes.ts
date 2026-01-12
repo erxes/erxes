@@ -8,3 +8,7 @@ export interface IForm {
   numberOfPages: number;
   status: string;
 }
+
+export interface IFormSetupPayload {
+  title: string;
+}

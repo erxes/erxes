@@ -19,6 +19,6 @@ export enum FrontlinePaths {
   ResponseDetail = '/:id/response/:responseId',
   FormsCatchAll = '/forms/*',
   ChannelForms = '/:channelId',
-  FormDetail = '/:formId',
+  FormDetail = '/:channelId/:formId',
   FormPreview = '/form-preview',
 }

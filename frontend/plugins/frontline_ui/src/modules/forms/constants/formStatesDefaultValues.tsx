@@ -17,7 +17,7 @@ export const FORM_STATES_DEFAULT_VALUES = {
     steps: {
       initial: {
         name: 'Initial step',
-        description: 'Initial step description',
+        description: '',
         order: 1,
         fields: [],
       },

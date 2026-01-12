@@ -34,6 +34,16 @@ export const FormDndContext = createContext<{
     fieldId: UniqueIdentifier,
     newField: IFieldData,
   ) => void;
+  handleChangeStepValue: (
+    stepId: UniqueIdentifier,
+    fieldKey: string,
+    value: string | number | string[],
+  ) => void;
+  getStepValue: (stepId: UniqueIdentifier) => {
+    name?: string;
+    description?: string;
+    order: number;
+  };
 } | null>(null);
 
 export const useFormDnd = () => {
@@ -88,6 +98,11 @@ export function FormDndProvider({
     return value[stepId].fields.find((field) => field.id === fieldId);
   };
 
+  const getStepValue = (stepId: UniqueIdentifier) => {
+    const { fields, ...step } = value[stepId];
+    return step;
+  };
+
   const fields = useMemo(() => {
     return Object.fromEntries(
       Object.entries(value).map(([key, value]) => [
@@ -103,15 +118,19 @@ export function FormDndProvider({
         step,
         {
           order: index + 1,
+          name: `Step ${step}`,
+          description: '',
         },
       ],
     );
 
-    const stepsObject = stepsWithOrder.map(([key, value]) => [
+    const stepsObject = stepsWithOrder.map(([key, stepValue]) => [
       key,
       {
+        ...stepValue,
+        ...value[key],
         fields: (fields[key] || []).map((field) => fieldsDatasObject[field]),
-        order: value.order,
+        order: stepValue.order,
       },
     ]);
 
@@ -131,18 +150,20 @@ export function FormDndProvider({
   };
 
   const setFields = (fields: Record<string, UniqueIdentifier[]>) => {
-    const fieldsObject = Object.entries(fields).map(([key, value], order) => {
-      return [
-        key,
-        {
-          fields: value.map((field, index) => ({
-            ...fieldsDatasObject[field],
-            order: index + 1,
-          })),
-          order: order + 1,
-        },
-      ];
-    });
+    const fieldsObject = Object.entries(fields).map(
+      ([key, stepFields], order) => {
+        return [
+          key,
+          {
+            ...value[key],
+            fields: stepFields.map((field, index) => ({
+              ...fieldsDatasObject[field],
+              order: index + 1,
+            })),
+          },
+        ];
+      },
+    );
 
     onValueChange(Object.fromEntries(fieldsObject));
   };
@@ -190,6 +211,26 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(fieldsObject));
   };
 
+  const handleChangeStepValue = (
+    stepId: UniqueIdentifier,
+    fieldKey: string,
+    fieldValue: string | number | string[],
+  ) => {
+    const fieldsObject = Object.entries(value || {}).map(([key, stepValue]) => {
+      if (key === stepId) {
+        return [
+          key,
+          {
+            ...stepValue,
+            [fieldKey]: fieldValue,
+          },
+        ];
+      }
+      return [key, stepValue];
+    });
+    onValueChange(Object.fromEntries(fieldsObject));
+  };
+
   return (
     <FormDndContext.Provider
       value={{
@@ -201,6 +242,8 @@ export function FormDndProvider({
         handleAddField,
         removeStep,
         handleChangeField,
+        handleChangeStepValue,
+        getStepValue,
       }}
     >
       {children}

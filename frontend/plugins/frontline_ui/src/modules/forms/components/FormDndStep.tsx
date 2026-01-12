@@ -6,13 +6,13 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
-import { Button, InfoCard, Input } from 'erxes-ui';
+import { Button, InfoCard, Input, Label, Textarea } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconPlus, IconTrash } from '@tabler/icons-react';
 import { AddField, FormDndField } from './FormDndField';
 
 export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
-  const { fields, steps } = useFormDnd();
+  const { fields, steps, handleChangeStepValue, getStepValue } = useFormDnd();
   const stepFields = fields[step];
   const { attributes, listeners, setNodeRef, transition, transform } =
     useSortable({
@@ -32,7 +32,15 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
       className="p-0 relative gap-0"
     >
       <div className="flex items-center p-4 pb-0 gap-2">
-        {isMultipleSteps && <Input value={`Step ${step}`} className="w-1/3" />}
+        {isMultipleSteps && (
+          <Input
+            value={getStepValue(step).name}
+            className="w-1/3"
+            onChange={(e) =>
+              handleChangeStepValue(step, 'name', e.target.value)
+            }
+          />
+        )}
         <AddField step={step} />
         {isMultipleSteps && (
           <>
@@ -50,6 +58,18 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
           </>
         )}
       </div>
+      {isMultipleSteps && (
+        <div className="mx-4 mt-4 w-auto space-y-2">
+          <Label>Description</Label>
+          <Textarea
+            value={getStepValue(step).description}
+            onChange={(e) =>
+              handleChangeStepValue(step, 'description', e.target.value)
+            }
+            className="w-full"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 p-4 gap-2">
         <SortableContext items={stepFields} strategy={rectSortingStrategy}>
@@ -67,10 +87,8 @@ export const AddStep = () => {
   const { steps, setSteps, fields } = useFormDnd();
 
   function getNextStepId() {
-    const stepIds = Object.keys(fields);
-    const lastStepId = stepIds[stepIds.length - 1];
-
-    return Number(lastStepId) + 1 + '';
+    const stepIds = Object.keys(fields).length;
+    return (stepIds + 1).toString();
   }
   const handleAddStep = () => {
     const newStepId = getNextStepId();

@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { GET_FORMS_LIST } from '../graphql/queries';
+import { GET_FORMS_LIST } from '../graphql/formQueries';
 import {
   EnumCursorDirection,
   mergeCursorData,

@@ -4,23 +4,23 @@ import { Badge, Button, Dialog, toast } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 
 type Props = {
-  integrationId: string;
+  formId: string;
 };
 
-export function EMInstallScript({ integrationId }: Props) {
+export function FormInstallScript({ formId }: Props) {
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
   const script = `<script>
   window.erxesSettings = {
-    messenger: {
-      integrationId: ${JSON.stringify(integrationId)},
+    form: {
+      formId: ${JSON.stringify(formId)},
     },
   };
 
   (function () {
     var script = document.createElement("script");
-    script.src = "${API}/messengerBundle.js";
+    script.src = "${API}/formBundle.js";
     script.async = true;
     var entry = document.getElementsByTagName("script")[0];
     entry.parentNode.insertBefore(script, entry);
@@ -97,7 +97,7 @@ export function EMInstallScript({ integrationId }: Props) {
                 <li>Copy the script above</li>
                 <li>Paste it into your website's HTML</li>
                 <li>Place it just before the closing {'</body>'} tag</li>
-                <li>The messenger widget will appear on your site</li>
+                <li>The form widget will appear on your site</li>
               </ol>
             </Badge>
           </div>
