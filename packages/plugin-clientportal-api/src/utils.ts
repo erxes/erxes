@@ -2,7 +2,7 @@ import * as moment from "moment";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import { generateFieldsFromSchema } from "@erxes/api-utils/src/fieldUtils";
 import redis from "@erxes/api-utils/src/redis";
-import { getNextMonth, getToday } from "@erxes/api-utils/src";
+import { getEnv, getNextMonth, getToday } from "@erxes/api-utils/src";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { generateModels, IContext, IModels } from "./connectionResolver";
@@ -778,8 +778,8 @@ export const fetchUserFromToki = async (
     throw new Error("Toki api key is not set");
   }
 
-  const testApiUrl = "qams-api.toki.mn";
-  const prodApiUrl = "ms-api.toki.mn";
+  const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
+  const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
 
   const apiKey = clientPortal.tokiConfig.apiKey;
   const apiUrl = clientPortal.tokiConfig.production ? prodApiUrl : testApiUrl;
