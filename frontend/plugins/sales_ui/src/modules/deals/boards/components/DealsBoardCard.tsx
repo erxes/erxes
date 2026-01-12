@@ -105,10 +105,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             variant="card"
           />
           <SelectLabels.FilterBar
-            filterKey="labelIds"
+            filterKey=""
             mode="multiple"
             label="By Label"
             variant="card"
+            targetId={_id}
+            initialValue={labels?.map((label) => label._id || '') || []}
           />
         </div>
       </div>
