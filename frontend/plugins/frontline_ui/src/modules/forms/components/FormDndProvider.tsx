@@ -50,7 +50,15 @@ export function FormDndProvider({
   onValueChange,
 }: {
   children: React.ReactNode;
-  value: z.infer<typeof FORM_CONTENT_SCHEMA>['steps'];
+  value: Record<
+    string,
+    {
+      name?: string;
+      description?: string;
+      order: number;
+      fields: IFieldData[];
+    }
+  >;
   onValueChange: (values: z.infer<typeof FORM_CONTENT_SCHEMA>['steps']) => void;
 }) {
   const steps = Object.entries(value)
@@ -63,7 +71,7 @@ export function FormDndProvider({
 
   const fieldsDatasObject = useMemo(() => {
     const fieldsDatas = Object.entries(value)
-      .map(([key, value]) => sortFields(value.fields))
+      .map(([, value]) => sortFields(value.fields))
       .flat();
     return Object.fromEntries(
       fieldsDatas.map((field, index) => [
@@ -114,7 +122,10 @@ export function FormDndProvider({
     const newSteps = steps.filter((step) => step !== stepId);
     const newStepsObject = newSteps.map((step, index) => [
       step,
-      { fields: fields[step] || [], order: index + 1 },
+      {
+        fields: (fields[step] || []).map((field) => fieldsDatasObject[field]),
+        order: index + 1,
+      },
     ]);
     onValueChange(Object.fromEntries(newStepsObject));
   };
@@ -145,6 +156,7 @@ export function FormDndProvider({
       description: '',
       placeholder: '',
       required: false,
+      stepId,
       options: [],
     };
     const fieldsObject = Object.entries(value || {}).map(([key, value]) => {

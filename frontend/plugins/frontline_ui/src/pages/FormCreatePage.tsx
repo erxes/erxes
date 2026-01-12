@@ -4,9 +4,10 @@ import { SettingsHeader } from 'ui-modules';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { formSetupStepAtom } from '@/forms/states/formSetupStates';
 import { useAtomValue } from 'jotai';
-import { FormAppearence } from '@/forms/components/FormAppearence';
+import { FormGeneral } from '@/forms/components/FormGeneral';
 import { FormContent } from '@/forms/components/FormContent';
 import { FormMutateLayoutPreviousStepButton } from '@/forms/components/FormMutateLayout';
+import { FormConfirmation } from '@/forms/components/FormConfirmation';
 
 export const FormCreatePage = () => {
   const step = useAtomValue(formSetupStepAtom);
@@ -25,8 +26,9 @@ export const FormCreatePage = () => {
       </SettingsHeader>
       <Resizable.PanelGroup direction="horizontal" className="flex-auto">
         <Resizable.Panel defaultSize={50}>
-          {step === 1 && <FormAppearence />}
+          {step === 1 && <FormGeneral />}
           {step === 2 && <FormContent />}
+          {step === 3 && <FormConfirmation />}
           {step === 3 && <FormMutateLayoutPreviousStepButton />}
         </Resizable.Panel>
         <Resizable.Handle />

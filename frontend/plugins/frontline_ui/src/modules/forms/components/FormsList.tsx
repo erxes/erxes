@@ -6,8 +6,9 @@ import { IForm } from '../types/formTypes';
 
 export const FormsList = () => {
   const { id } = useParams();
-  const { forms, loading, handleFetchMore, totalCount, pageInfo } =
-    useFormsList({ channelId: id || '' });
+  const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
+    channelId: id || '',
+  });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (

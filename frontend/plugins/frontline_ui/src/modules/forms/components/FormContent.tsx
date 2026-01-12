@@ -1,4 +1,7 @@
-import { formSetupContentAtom } from '../states/formSetupStates';
+import {
+  formSetupContentAtom,
+  formSetupStepAtom,
+} from '../states/formSetupStates';
 import { FormMutateLayout } from './FormMutateLayout';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { useForm } from 'react-hook-form';
@@ -13,34 +16,23 @@ export const FormContent = () => {
   const form = useForm<z.infer<typeof FORM_CONTENT_SCHEMA>>({
     resolver: zodResolver(FORM_CONTENT_SCHEMA),
     defaultValues: {
-      title: '',
-      description: '',
-      buttonText: '',
       steps: {
-        '1': {
+        initial: {
           order: 1,
+          name: 'Initial',
           fields: [],
         },
       },
     },
   });
 
-  const onSubmit = (values: z.infer<typeof FORM_CONTENT_SCHEMA>) => {
-    console.log(values);
-  };
-
   return (
-    <FormMutateLayout
-      title="Content"
-      description="Content"
-      form={form}
-      onSubmit={onSubmit}
-    >
+    <FormMutateLayout title="Content" description="Content" form={form}>
       <FormValueEffectComponent form={form} atom={formSetupContentAtom} />
       <InfoCard title="Fields">
         <Form.Field
-          control={form.control}
           name="steps"
+          control={form.control}
           render={({ field }) => (
             <FormDndProvider value={field.value} onValueChange={field.onChange}>
               <FormDnd />

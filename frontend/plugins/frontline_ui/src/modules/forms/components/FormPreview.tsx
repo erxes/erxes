@@ -1,6 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { z } from 'zod';
-import { formSetupContentAtom } from '../states/formSetupStates';
+import {
+  formSetupConfirmationAtom,
+  formSetupContentAtom,
+  formSetupGeneralAtom,
+  formSetupStepAtom,
+} from '../states/formSetupStates';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import {
   Button,
@@ -19,14 +24,39 @@ import React, { useState } from 'react';
 
 export const FormPreview = () => {
   const formContent = useAtomValue(formSetupContentAtom);
+  const formGeneral = useAtomValue(formSetupGeneralAtom);
+  const formConfirmation = useAtomValue(formSetupConfirmationAtom);
   const [activeStep, setActiveStep] = useState<string | null>(null);
+  const activeFormStep = useAtomValue(formSetupStepAtom);
 
   if (!formContent || !formContent.steps) {
     return (
       <div className="p-5">
-        <InfoCard title="Preview">
+        <InfoCard title={formGeneral.title}>
           <InfoCard.Content>
             <p className="text-muted-foreground">No fields to preview</p>
+          </InfoCard.Content>
+        </InfoCard>
+      </div>
+    );
+  }
+
+  if (activeFormStep === 3) {
+    return (
+      <div className="p-5">
+        <InfoCard title={formConfirmation.title}>
+          <InfoCard.Content>
+            <p className="text-muted-foreground">
+              {formConfirmation.description}
+            </p>
+            {formConfirmation.image && (
+              <img
+                src={formConfirmation.image.url}
+                alt="confirmation"
+                className="w-full h-full object-cover"
+              />
+            )}
+            <Button>{formGeneral.buttonText || 'Send'}</Button>
           </InfoCard.Content>
         </InfoCard>
       </div>
@@ -115,11 +145,11 @@ export const FormPreviewContent = ({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
   });
-  console.log(form.formState.errors);
+  const formGeneral = useAtomValue(formSetupGeneralAtom);
   return (
     <Form {...form}>
       <form aria-hidden={!visible} className={cn('hidden', visible && 'block')}>
-        <InfoCard title="Preview" className="p-2">
+        <InfoCard title={formGeneral.title} className="p-2">
           <InfoCard.Content className="mt-2">
             <div className="grid grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {

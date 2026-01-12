@@ -16,24 +16,29 @@ export const FormMutateLayout = ({
   title: string;
   description: string;
   form: UseFormReturn<z.infer<any>>;
-  onSubmit: (values: z.infer<any>) => void;
+  onSubmit?: (values: z.infer<any>) => void;
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((values) => {
-          onSubmit(values);
-          setStep((prev) => prev + 1);
-        })}
+        onSubmit={form.handleSubmit(
+          (values) => {
+            onSubmit?.(values);
+            setStep((prev) => (prev === 3 ? prev : prev + 1));
+          },
+          (errors) => {
+            console.log(errors);
+          },
+        )}
         className="flex-auto flex flex-col h-full overflow-hidden bg-sidebar"
       >
         <Sheet.Content className="grow overflow-hidden flex flex-col">
           <ScrollArea className="h-full">
             <IntegrationSteps
-              step={1}
+              step={step}
               title={title}
-              stepsLength={7}
+              stepsLength={3}
               description={description}
             />
             <div className="px-5">{children}</div>

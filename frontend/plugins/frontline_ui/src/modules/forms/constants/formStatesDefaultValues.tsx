@@ -1,5 +1,6 @@
 export const FORM_STORAGE_KEYS = {
   STEP: 'formStep',
-  APPEARANCE: 'formAppearance',
+  GENERAL: 'formGeneral',
   CONTENT: 'formContent',
+  CONFIRMATION: 'formConfirmation',
 } as const;
