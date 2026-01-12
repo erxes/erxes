@@ -17,11 +17,13 @@ import { useInView } from 'react-intersection-observer';
 import { AddProduct } from './AddProduct';
 import { useDebounce } from 'use-debounce';
 import { GET_PRODUCTS } from '../graphql/queries/productsQueries';
+import { usePipelineDetail } from '../hooks/usePipeline';
 
 interface SelectProductsProps {
   onSelect: (productIds: string[], products?: IProduct[]) => void;
   children: React.ReactNode;
   productIds?: string[];
+  pipelineId?: string;
 }
 
 interface ProductsListProps {
@@ -29,12 +31,19 @@ interface ProductsListProps {
   setSelectedProducts: React.Dispatch<React.SetStateAction<IProduct[]>>;
   selectedProductIds: string[];
   setSelectedProductIds: React.Dispatch<React.SetStateAction<string[]>>;
+  categoryIds?: string[];
+  excludeCategoryIds?: string[];
+  excludeProductIds?: string[];
+  erxesAppToken?: string;
+  paymentIds?: string[];
+  paymentTypes?: string[];
 }
 
 export const SelectProductsBulk = ({
   onSelect,
   children,
   productIds,
+  pipelineId,
 }: SelectProductsProps) => {
   const [open, setOpen] = useState(false);
 
@@ -52,6 +61,7 @@ export const SelectProductsBulk = ({
           setOpen={setOpen}
           onSelect={onSelect}
           productIds={productIds}
+          pipelineId={pipelineId}
         />
       </Sheet.View>
     </Sheet>
@@ -62,10 +72,12 @@ const SelectProductsBulkContent = ({
   setOpen,
   onSelect,
   productIds,
+  pipelineId,
 }: {
   setOpen: (open: boolean) => void;
   onSelect: (productIds: string[], products?: IProduct[]) => void;
   productIds?: string[];
+  pipelineId?: string;
 }) => {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<IProduct[]>([]);
@@ -88,6 +100,15 @@ const SelectProductsBulkContent = ({
     setOpen(false);
   };
 
+  const { pipelineDetail } = usePipelineDetail({
+    variables: { _id: pipelineId },
+    skip: !pipelineId,
+  });
+
+  const initialCategoryIds = pipelineDetail?.initialCategoryIds || undefined;
+  const excludeCategoryIds = pipelineDetail?.excludeCategoryIds || [];
+  const excludeProductIds = pipelineDetail?.excludeProductIds || [];
+
   return (
     <>
       <Sheet.Content className="grid grid-cols-2 overflow-hidden">
@@ -96,6 +117,9 @@ const SelectProductsBulkContent = ({
           selectedProductIds={selectedProductIds}
           setSelectedProductIds={setSelectedProductIds}
           setSelectedProducts={setSelectedProducts}
+          categoryIds={initialCategoryIds}
+          excludeCategoryIds={excludeCategoryIds}
+          excludeProductIds={excludeProductIds}
         />
         <SelectedProductsList
           selectedProducts={selectedProducts}
@@ -128,14 +152,34 @@ const ProductsList = ({
   setSelectedProducts,
   selectedProductIds,
   setSelectedProductIds,
+  categoryIds,
+  excludeCategoryIds,
+  excludeProductIds,
+  erxesAppToken,
+  paymentIds,
+  paymentTypes,
 }: ProductsListProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
 
+  const variables: any = {
+    searchValue: debouncedSearch,
+  };
+
+  if (categoryIds && categoryIds.length > 0) {
+    variables.categoryIds = categoryIds;
+  }
+
   const { products, handleFetchMore, totalCount } = useProducts({
-    variables: {
-      searchValue: debouncedSearch,
-    },
+    variables,
+  });
+
+  const filteredProducts = products.filter((product) => {
+    if (excludeProductIds?.includes(product._id)) return false;
+    if (excludeCategoryIds?.includes(product.categoryId)) return false;
+    // if (paymentIds?.includes(product.paymentId)) return false;
+    // if (paymentTypes?.includes(product.paymentType)) return false;
+    return true;
   });
 
   const { ref: bottomRef } = useInView({
@@ -165,7 +209,7 @@ const ProductsList = ({
       <ScrollArea>
         <div className="p-4 flex flex-col gap-1">
           <Tooltip.Provider>
-            {products.map((product) => {
+            {filteredProducts.map((product) => {
               const isSelected = selectedProductIds.includes(product._id);
               return (
                 <Tooltip key={product._id}>

@@ -38,6 +38,7 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
           dealId={deal._id}
           refetch={refetch}
           tickUsed={deal.stage?.defaultTick === false ? false : true}
+          pipelineId={deal.pipeline?._id}
         />
       )}
 
