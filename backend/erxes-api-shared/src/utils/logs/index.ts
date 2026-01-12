@@ -116,7 +116,7 @@ export interface AfterProcessConfigs {
   afterMutation?: (
     context: IContext,
     args: { mutationName: string; args: { [key: string]: any }; result: any, userId?: string },
-  ) => void;
+  ) => void | Promise<void>;
   afterAuth?: (
     context: IContext,
     args: { userId: string; email: string; result: string },
