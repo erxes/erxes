@@ -1,3 +1,4 @@
+import React from 'react';
 import { Sidebar, Tabs, useQueryState } from 'erxes-ui';
 
 export const SalesDetailLeftSidebar = ({
@@ -14,33 +15,45 @@ export const SalesDetailLeftSidebar = ({
       className="flex-auto flex h-full"
       orientation="vertical"
     >
+      {/* LEFT SIDEBAR */}
       <Tabs.List className="w-64" asChild>
         <Sidebar
           collapsible="none"
           className="flex-none w-64 border-r justify-start"
         >
+          {/* GENERAL */}
           <Sidebar.Group>
             <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="overview" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
+                    <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
                       Overview
+                    </Sidebar.MenuButton>
+                  </Tabs.Trigger>
+                </Sidebar.MenuItem>
+                <Sidebar.MenuItem>
+                  <Tabs.Trigger value="activity" asChild>
+                    <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+                      Activity
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>
               </Sidebar.Menu>
             </Sidebar.GroupContent>
           </Sidebar.Group>
+
           <Sidebar.Separator />
+
+          {/* PLUGINS */}
           <Sidebar.Group>
             <Sidebar.GroupLabel>Plugins</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="products" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
+                    <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
                       Products
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
@@ -50,6 +63,8 @@ export const SalesDetailLeftSidebar = ({
           </Sidebar.Group>
         </Sidebar>
       </Tabs.List>
+
+      {/* TAB CONTENT */}
       {children}
     </Tabs>
   );
@@ -63,7 +78,10 @@ export const SalesDetailTabContent = ({
   value: string;
 }) => {
   return (
-    <Tabs.Content value={value} className="flex-auto overflow-auto relative">
+    <Tabs.Content
+      value={value}
+      className="flex-auto overflow-auto relative"
+    >
       {children}
     </Tabs.Content>
   );

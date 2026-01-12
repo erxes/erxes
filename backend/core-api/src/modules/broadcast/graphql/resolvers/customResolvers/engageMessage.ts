@@ -1,6 +1,7 @@
 import { IEngageMessageDocument } from '@/broadcast/@types';
-import { prepareNotificationStats, prepareSmsStats } from '@/broadcast/utils';
+import { prepareNotificationStats } from '@/broadcast/utils';
 import { IContext } from '~/connectionResolvers';
+import { CAMPAIGN_METHODS } from '~/modules/broadcast/constants';
 
 export default {
   async __resolveReference(
@@ -11,22 +12,34 @@ export default {
     return models.EngageMessages.findOne({ _id });
   },
 
-  segments({ segmentIds = [] }: IEngageMessageDocument) {
-    return segmentIds.map((segmentId) => ({
+  segments({ targetType, targetIds = [] }: IEngageMessageDocument) {
+    if (targetType !== 'segment') {
+      return [];
+    }
+
+    return targetIds.map((segmentId) => ({
       __typename: 'Segment',
       _id: segmentId,
     }));
   },
 
-  brands({ brandIds = [] }: IEngageMessageDocument) {
-    return brandIds.map((brandId) => ({
+  brands({ targetType, targetIds = [] }: IEngageMessageDocument) {
+    if (targetType !== 'brand') {
+      return [];
+    }
+
+    return targetIds.map((brandId) => ({
       __typename: 'Brand',
       _id: brandId,
     }));
   },
 
-  customerTags({ customerTagIds = [] }: IEngageMessageDocument) {
-    return customerTagIds.map((customerTagId) => ({
+  customerTags({ targetType, targetIds = [] }: IEngageMessageDocument) {
+    if (targetType !== 'tag') {
+      return [];
+    }
+
+    return targetIds.map((customerTagId) => ({
       __typename: 'Tag',
       _id: customerTagId,
     }));
@@ -38,71 +51,35 @@ export default {
 
   // common tags
   getTags(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.tagIds || []).map((tagId) => ({
+    const { targetType, targetIds = [] } = engageMessage;
+
+    if (targetType !== 'tag') {
+      return [];
+    }
+
+    return targetIds.map((tagId) => ({
       __typename: 'Tag',
       _id: tagId,
     }));
   },
 
-  brand(engageMessage: IEngageMessageDocument) {
-    const { messenger } = engageMessage;
-
-    if (messenger && messenger.brandId) {
-      return { __typename: 'Brand', _id: messenger.brandId };
-    }
-
-    return null;
+  brandId({ messenger }: IEngageMessageDocument) {
+    return messenger?.brandId;
   },
 
   async stats(
-    { _id }: IEngageMessageDocument,
+    { _id, method }: IEngageMessageDocument,
     _args: undefined,
     { models }: IContext,
   ) {
-    return models.Stats.findOne({ engageMessageId: _id });
-  },
-
-  smsStats(
-    { _id }: IEngageMessageDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    return prepareSmsStats(models, _id);
-  },
-
-  async notificationStats(
-    { _id }: IEngageMessageDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    return prepareNotificationStats(models, _id);
-  },
-
-  fromIntegration(engageMessage: IEngageMessageDocument) {
-    if (
-      engageMessage.shortMessage &&
-      engageMessage.shortMessage.fromIntegrationId
-    ) {
-      return {
-        __typename: 'Integration',
-        _id: engageMessage.shortMessage.fromIntegrationId,
-      };
+    if (method === CAMPAIGN_METHODS.EMAIL) {
+      return models.Stats.findOne({ engageMessageId: _id });
     }
 
-    return null;
-  },
-
-  async createdUserName(
-    { createdBy = '' }: IEngageMessageDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    const user = await models.Users.findOne({ _id: createdBy }).lean();
-
-    if (!user) {
-      return '';
+    if (method === CAMPAIGN_METHODS.NOTIFICATION) {
+      return prepareNotificationStats(models, _id);
     }
 
-    return user.username || user.email || user._id;
+    return 'Invalid method';
   },
 };
