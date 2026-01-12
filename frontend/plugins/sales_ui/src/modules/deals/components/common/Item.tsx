@@ -19,6 +19,7 @@ export interface SortableItemProps {
   style?: React.CSSProperties;
   transition?: string | null;
   wrapperStyle?: React.CSSProperties;
+  attributes?: any;
   value: React.ReactNode;
   onRemove?(): void;
   renderItem?(args: {
@@ -35,6 +36,7 @@ export interface SortableItemProps {
     handle: SortableItemProps['handle'];
     wrapperStyle?: React.CSSProperties;
     color?: string;
+    attributes?: any;
   }): React.ReactElement;
 }
 
@@ -60,6 +62,7 @@ export const Item = React.memo(
         transform,
         value,
         wrapperStyle,
+        attributes,
         ...props
       },
       ref,
@@ -88,6 +91,7 @@ export const Item = React.memo(
             handle,
             wrapperStyle,
             color,
+            attributes,
           })}
         </li>
       ) : (

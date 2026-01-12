@@ -4,5 +4,6 @@ export * from './hooks/useGetFieldsProperties';
 export * from './types';
 export * from './components/form/SegmentForm';
 export * from './components/FieldWithError';
+export * from './components/SelectSegment';
 export * from './utils/segmentFormUtils';
 export * from './hooks/useSegmentDetail';

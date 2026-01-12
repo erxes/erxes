@@ -15,19 +15,12 @@ const PosMain = lazy(() =>
   })),
 );
 
-const PosEditPage = lazy(() =>
-  import('~/pages/PosEditPage').then((module) => ({
-    default: module.PosEditPage,
-  })),
-);
-
 const SalesMain = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/deals" element={<DealsMain />} />
         <Route path="/pos" element={<PosMain />} />
-        <Route path="/pos/:id" element={<PosEditPage />} />
       </Routes>
     </Suspense>
   );

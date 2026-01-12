@@ -1,6 +1,6 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { getRecMore, getRecords } from '~/modules/accounting/utils/journalReports';
+import { getFirstGroupRule, getRecMore, getRecords, IGroupRule } from '~/modules/accounting/utils/journalReports';
 
 export interface IReportFilterParams {
   status?: string;
@@ -40,7 +40,7 @@ export interface IReportFilterParams {
 
 interface IReportParams extends IReportFilterParams {
   report: string;
-  groupRule: any;
+  groupRule: IGroupRule;
 }
 
 const journalReportQueries = {
@@ -50,7 +50,8 @@ const journalReportQueries = {
     { models, user, subdomain }: IContext,
   ) {
     const { groupRule, report, ...filters } = params;
-    const records = await getRecords(subdomain, models, report, filters, user);
+    const firstGroupRules = getFirstGroupRule([], groupRule);
+    const records = await getRecords(subdomain, models, report, firstGroupRules, filters, user);
     return { records }
   },
 

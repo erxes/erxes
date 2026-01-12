@@ -1,21 +1,25 @@
-import { BoardCardProps, Separator, useQueryState } from 'erxes-ui';
-import { atom, useAtomValue } from 'jotai';
+import { Separator, useQueryState } from 'erxes-ui';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import DealCardDetails from './DealsBoardCardDetails';
+import { IDeal } from '@/deals/types/deals';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
-// import { SelectCompany } from 'ui-modules';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { allDealsMapState } from '@/deals/boards/components/DealsBoard';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { memo } from 'react';
 import { useSetAtom } from 'jotai';
 
-export const dealBoardItemAtom = atom(
-  (get) => (id: string) => get(allDealsMapState)[id],
-);
+interface DealsBoardCardProps {
+  deal: IDeal;
+}
 
-export const DealsBoardCard = ({ id }: BoardCardProps) => {
+export const DealsBoardCard = memo(function DealsBoardCard({
+  deal,
+}: DealsBoardCardProps) {
+  if (!deal) return null;
+
   const {
     startDate,
     name,
@@ -26,7 +30,11 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
     closeDate,
     labels,
     status,
-  } = useAtomValue(dealBoardItemAtom)(id);
+    companies,
+    customers,
+    tags,
+    customProperties,
+  } = deal;
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
   const [searchParams] = useQueryState<string>('archivedOnly');
@@ -38,6 +46,28 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
   const archivedOnly = searchParams === 'true';
   const isArchived = status === 'archived';
   const showArchivedBadge = archivedOnly || isArchived;
+  const productMap = new Map(deal.products?.map((p) => [p._id, p]));
+
+  const filterProducts = (tickUsed: boolean) =>
+    deal.productsData
+      ?.filter((p) => p.tickUsed === tickUsed)
+      .map((p) => {
+        const product = productMap.get(p.productId || '');
+        if (!product) return null;
+
+        return {
+          _id: product._id,
+          product: product.product,
+          name: product.name,
+          quantity: p.quantity,
+          uom: p.uom,
+          unitPrice: p.unitPrice,
+        };
+      })
+      .filter((p): p is NonNullable<typeof p> => p !== null) || [];
+
+  const dealProducts = filterProducts(true);
+  const excludedProducts = filterProducts(false);
 
   return (
     <div
@@ -82,11 +112,15 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
           />
-          {/* <SelectCompany
-                  value={field.value}
-                  onValueChange={field.onChange}
-                /> */}
         </div>
+      </div>
+      <div className="p-3 pt-0">
+        <DealCardDetails items={companies} color="#EA475D" />
+        <DealCardDetails items={customers} color="#F7CE53" />
+        <DealCardDetails items={dealProducts} color="#63D2D6" />
+        <DealCardDetails items={excludedProducts} color="#b49cf1" />
+        <DealCardDetails color="#FF6600" items={tags || []} />
+        <DealCardDetails color="#FF9900" items={customProperties || []} />
       </div>
       <Separator />
       <ItemFooter
@@ -103,4 +137,4 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
       )}
     </div>
   );
-};
+});

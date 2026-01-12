@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Button,
   Collapsible,
@@ -14,7 +14,6 @@ import {
   useToast,
 } from 'erxes-ui';
 import {
-  IconRestore,
   IconCaretRightFilled,
   IconChecklist,
   IconClipboard,
@@ -56,13 +55,13 @@ function PosItem({ pos }: posItemProps) {
               >
                 <IconComponent
                   name={pos.icon}
-                  className="text-accent-foreground flex-shrink-0"
+                  className="text-accent-foreground"
                 />
                 <TextOverflowTooltip
                   className="font-sans font-semibold normal-case flex-1 min-w-0"
                   value={pos.name}
                 />
-                <span className="ml-auto flex-shrink-0">
+                <span className="ml-auto">
                   <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
                 </span>
               </Button>
@@ -78,17 +77,17 @@ function PosItem({ pos }: posItemProps) {
                 name="Orders"
                 className="pl-6 font-medium"
                 icon={IconClipboard}
-                path={`pos/${pos._id}/orders`}
+                path={`sales/pos/${pos._id}/orders`}
               />
               <NavigationMenuLinkItem
                 name="Pos Covers"
-                path={`pos/${pos._id}/covers`}
+                path={`sales/pos/${pos._id}/covers`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos By Items"
-                path={`pos/${pos._id}/by-items`}
+                path={`sales/pos/${pos._id}/by-items`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
@@ -96,23 +95,23 @@ function PosItem({ pos }: posItemProps) {
                 name="Pos Items"
                 className="pl-6 font-medium"
                 icon={IconClipboard}
-                path={`pos/${pos._id}/items`}
+                path={`sales/pos/${pos._id}/items`}
               />
               <NavigationMenuLinkItem
                 name="Pos Summary"
-                path={`pos/${pos._id}/summary`}
+                path={`sales/pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos Orders By Customer"
-                path={`pos/${pos._id}/orders-by-customer`}
+                path={`sales/pos/${pos._id}/orders-by-customer`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos Orders By Subscription"
-                path={`pos/${pos._id}/orders-by-subscription`}
+                path={`sales/pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
@@ -125,11 +124,14 @@ function PosItem({ pos }: posItemProps) {
 }
 
 export function PosOrderNavigation() {
+  const location = useLocation();
   const currentUser = useAtomValue(currentUserState);
   const { pos, loading } = useGetPos({
     variables: { userId: currentUser?._id },
   });
+  const isPos = location.pathname.startsWith('/sales/pos');
 
+  if (!isPos) return null;
   return (
     <NavigationMenuGroup name="POS order">
       {loading ? (

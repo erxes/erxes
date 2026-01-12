@@ -1,6 +1,7 @@
 import {
   IconAddressBook,
   IconAffiliate,
+  IconBroadcast,
   IconBuilding,
   IconCategory,
   IconChartPie,
@@ -13,7 +14,10 @@ import {
 import { IUIConfig } from 'erxes-ui';
 import { TFunction } from 'i18next';
 
-export const GET_CORE_MODULES = (t: TFunction, version?: boolean): IUIConfig['modules'] => {
+export const GET_CORE_MODULES = (
+  t: TFunction,
+  version?: boolean,
+): IUIConfig['modules'] => {
   const MODULES: IUIConfig['modules'] = [
     {
       name: t('contacts'),
@@ -81,12 +85,20 @@ export const GET_CORE_MODULES = (t: TFunction, version?: boolean): IUIConfig['mo
   ];
 
   if (version) {
-    MODULES.push({
-      name: t('documents'),
-      icon: IconFile,
-      path: 'documents',
-      hasSettings: false,
-    });
+    MODULES.push(
+      {
+        name: t('documents'),
+        icon: IconFile,
+        path: 'documents',
+        hasSettings: false,
+      },
+      {
+        name: t('broadcasts'),
+        icon: IconBroadcast,
+        path: 'broadcasts',
+        hasSettings: false,
+      },
+    );
   }
 
   return MODULES;

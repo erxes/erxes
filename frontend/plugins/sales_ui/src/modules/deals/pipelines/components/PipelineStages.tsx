@@ -5,7 +5,7 @@ import {
   Props as SortableProps,
 } from '@/deals/components/common/Sortable';
 import { arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 
 import { IconPlus } from '@tabler/icons-react';
 import PipelineStageItem from './PipelineStageItem';
@@ -31,15 +31,7 @@ const PipelineStages = ({ form, stagesLoading }: Props) => {
     name: 'stages',
   });
 
-  const [sortableItems, setSortableItems] = useState<UniqueIdentifier[]>(
-    fields.map((f) => f.id),
-  );
-
-  useEffect(() => {
-    if (fields.length !== sortableItems.length) {
-      setSortableItems(fields.map((f) => f.id));
-    }
-  }, [fields, sortableItems]);
+  const itemIds = useMemo(() => fields.map((f) => f.id), [fields]);
 
   if (stagesLoading) return <Spinner />;
 
@@ -59,17 +51,11 @@ const PipelineStages = ({ form, stagesLoading }: Props) => {
     <div>
       <Sortable
         {...props}
-        items={sortableItems || []}
+        items={itemIds}
         reorderItems={(items, oldIndex, newIndex) => {
-          const newOrder = arrayMove(items, oldIndex, newIndex);
-          setSortableItems(newOrder);
+          move(oldIndex, newIndex);
 
-          newOrder.forEach((id, index) => {
-            const oldIndex = fields.findIndex((f) => f.id === id);
-            if (oldIndex !== index) move(oldIndex, index);
-          });
-
-          return newOrder;
+          return arrayMove(items, oldIndex, newIndex);
         }}
         renderItem={({ value, index, ...sortableProps }: any) => {
           return (

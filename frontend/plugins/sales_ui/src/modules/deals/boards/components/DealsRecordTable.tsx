@@ -1,10 +1,11 @@
-import { DealsColumn } from '@/deals/boards/components/DealsColumn';
 import { RecordTable, useQueryState } from 'erxes-ui';
-import { useDeals } from '@/deals/cards/hooks/useDeals';
+
+import { DealsColumn } from '@/deals/boards/components/DealsColumn';
 import { DealsCommandBar } from '@/deals/actionBar/components/DealsListCommandBar';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
+import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useSearchParams } from 'react-router-dom';
 import { useStages } from '@/deals/stage/hooks/useStages';
-import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 
 export const DealsRecordTable = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');

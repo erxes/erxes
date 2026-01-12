@@ -17,42 +17,47 @@ import { IReportConfig, ReportRules } from '../types/reportsMap';
 import { useEffect, useMemo, useState } from 'react';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 
-const getQueryParam = (key: string, value: string | string[] | Date | boolean): string => {
+const getQueryParam = (
+  key: string,
+  value: string | string[] | Date | boolean,
+): string => {
   if (key === 'fromDate' || key === 'toDate') {
     return format(value as Date, 'yyyy-MM-dd hh:mm:ss'); // date.isoString // new Date().toISOString();
   }
 
   if (key === 'isMore') {
-    return 'true'
+    return 'true';
   }
 
   return value as string;
-}
+};
 
 export const ReportForm = () => {
   const [activeReport] = useAtom(activeReportState);
   const activeReportConf = useMemo(() => {
-    return ReportRules[activeReport] || ({} as IReportConfig)
+    return ReportRules[activeReport] || ({} as IReportConfig);
   }, [activeReport]);
 
   const form = useForm<any>({
     defaultValues: {},
   });
 
-  const [groupKeyChoices, setGroupKeyChoices] = useState(activeReportConf.choices || []);
+  const [groupKeyChoices, setGroupKeyChoices] = useState(
+    activeReportConf.choices || [],
+  );
 
   useEffect(() => {
     setGroupKeyChoices(activeReportConf?.choices || []);
     form.setValue(`groupKey`, 'default');
-  }, [activeReport])
+  }, [activeReport]);
 
   const onSubmit = (data: any) => {
     const params: any = { ...data, ...activeReportConf.initParams };
-    let result = ''
+    let result = '';
 
     for (const key of Object.keys(params)) {
       if (params[key]) {
-        const converted = getQueryParam(key, params[key])
+        const converted = getQueryParam(key, params[key]);
         result = `${result}&${key}=${converted}`;
       }
     }
@@ -75,7 +80,7 @@ export const ReportForm = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="py-4 pt-4 mx-auto grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-5 max-h-96 overflow-auto"
+          className="py-4 pt-4 px-1 mx-auto grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-5 overflow-auto"
         >
           <Form.Field
             control={form.control}
@@ -106,7 +111,7 @@ export const ReportForm = () => {
                   <SelectAccount
                     value={field.value}
                     onValueChange={field.onChange}
-                    mode='multiple'
+                    mode="multiple"
                   />
                 </Form.Control>
                 <Form.Message />
@@ -194,14 +199,13 @@ export const ReportForm = () => {
                       <Select.Value placeholder="Select a property type" />
                     </Select.Trigger>
                     <Select.Content>
-                      {groupKeyChoices.map((choice: { code: string, title: string }) => (
-                        <Select.Item
-                          key={choice.code}
-                          value={choice.code}
-                        >
-                          {choice.title}
-                        </Select.Item>
-                      ))}
+                      {groupKeyChoices.map(
+                        (choice: { code: string; title: string }) => (
+                          <Select.Item key={choice.code} value={choice.code}>
+                            {choice.title}
+                          </Select.Item>
+                        ),
+                      )}
                     </Select.Content>
                   </Select>
                 </Form.Control>
@@ -219,7 +223,7 @@ export const ReportForm = () => {
                   <DatePicker
                     value={field.value}
                     onChange={field.onChange}
-                    format='YYYY-MM-DD'
+                    format="YYYY-MM-DD"
                     className="h-8 flex w-full"
                   />
                 </Form.Control>
@@ -243,7 +247,7 @@ export const ReportForm = () => {
             )}
           />
           <Dialog.Footer className="col-span-2 mt-4">
-            <Button type="submit" size="lg" >
+            <Button type="submit" size="lg">
               Generate Report
             </Button>
           </Dialog.Footer>

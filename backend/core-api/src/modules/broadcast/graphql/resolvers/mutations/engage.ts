@@ -1,11 +1,10 @@
 import { IEngageMessage } from '@/broadcast/@types';
-import { CAMPAIGN_KINDS } from '@/broadcast/constants';
 import { awsRequests } from '@/broadcast/trackers';
 import {
   checkCampaignDoc,
   createTransporter,
   getEditorAttributeUtil,
-  send,
+  sendBroadcast,
   sendEngageEmail,
   updateConfigs,
 } from '@/broadcast/utils';
@@ -20,19 +19,22 @@ export const engageMutations = {
     doc: IEngageMessage,
     { user, models, subdomain }: IContext,
   ) {
-    await checkCampaignDoc(models, doc);
+    const { isLive, isDraft, fromUserId } = doc || {};
 
-    // fromUserId is not required in sms engage, so set it here
-    if (!doc.fromUserId) {
+    if (!fromUserId) {
       doc.fromUserId = user._id;
     }
+
+    await checkCampaignDoc(models, doc);
 
     const engageMessage = await models.EngageMessages.createEngageMessage({
       ...doc,
       createdBy: user._id,
     });
 
-    await send(models, subdomain, engageMessage, doc.forceCreateConversation);
+    if (isLive && !isDraft) {
+      sendBroadcast({ models, subdomain, engageMessage });
+    }
 
     return engageMessage;
   },
@@ -51,12 +53,8 @@ export const engageMutations = {
     const updated = await models.EngageMessages.updateEngageMessage(_id, doc);
 
     // run manually when it was draft & live afterwards
-    if (
-      !engageMessage.isLive &&
-      doc.isLive &&
-      doc.kind === CAMPAIGN_KINDS.MANUAL
-    ) {
-      await send(models, subdomain, updated);
+    if (!engageMessage.isLive && doc.isLive) {
+      sendBroadcast({ models, subdomain, engageMessage: updated });
     }
 
     return models.EngageMessages.findOne({ _id });
@@ -67,10 +65,10 @@ export const engageMutations = {
    */
   async engageMessageRemove(
     _root: undefined,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    return models.EngageMessages.removeEngageMessage(_id);
+    return models.EngageMessages.removeEngageMessage(_ids);
   },
 
   /**
@@ -79,7 +77,7 @@ export const engageMutations = {
   async engageMessageSetLive(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -89,7 +87,11 @@ export const engageMutations = {
 
     await checkCampaignDoc(models, campaign);
 
-    return models.EngageMessages.engageMessageSetLive(_id);
+    const live = await models.EngageMessages.engageMessageSetLive(_id);
+
+    sendBroadcast({ models, subdomain, engageMessage: live });
+
+    return live;
   },
 
   /**
@@ -117,7 +119,7 @@ export const engageMutations = {
 
     const live = await models.EngageMessages.engageMessageSetLive(_id);
 
-    await send(models, subdomain, live);
+    sendBroadcast({ models, subdomain, engageMessage: live });
 
     return live;
   },

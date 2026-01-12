@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 
 import { getSubdomain } from 'erxes-api-shared/utils';
+import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { ISESConfig } from '~/modules/organization/settings/db/definitions/configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
@@ -36,6 +37,8 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
   const { eventType, mail } = parsedMessage;
 
+  console.log('parsedMessage', parsedMessage);
+
   if (!mail) {
     return;
   }
@@ -49,10 +52,6 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const mailId = headers.find((header) => header.name === 'Mailmessageid');
 
   const customerId = headers.find((header) => header.name === 'Customerid');
-
-  const emailDeliveryId = headers.find(
-    (header) => header.name === 'Emaildeliveryid',
-  );
 
   const to = headers.find((header) => header.name === 'To');
 
@@ -94,17 +93,23 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
 // AWS service middleware
 
-export const engageTracker = async (req, res) => {
+export const engageTracker = async (req: Request, res: Response) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
+
+    console.log('handleMessage');
 
     // Handle case where req.body is populated (typically for SaaS SES events)
     if (req.body && Object.keys(req.body).length) {
       const { message: messageString } = req.body;
 
+      console.log('req.body', req.body);
+
       if (messageString) {
         const message = JSON.parse(messageString);
+
+        console.log('message', message);
 
         await handleMessage(models, subdomain, message);
 
@@ -124,6 +129,8 @@ export const engageTracker = async (req, res) => {
     });
 
     req.on('end', async () => {
+      console.log('chunks', chunks);
+
       try {
         const message = JSON.parse(chunks.join(''));
 
