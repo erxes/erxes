@@ -1,17 +1,18 @@
 import {
   Button,
   Dialog,
+  Form,
   Input,
   Label,
-  Table,
-  Select,
-  Form,
   REACT_APP_API_URL,
+  Select,
+  Table,
   toast,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
+
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 type Props = {
   open: boolean;
@@ -43,19 +44,10 @@ export const PrintDialog = ({ open, onClose, deals, stageId }: Props) => {
   const print = () => {
     const { copies, width, brandId, documentType } = form.getValues();
 
-    if (!documentType) {
+    if (!documentType || !selectedDealIds.length) {
       toast({
         title: 'Error',
-        description: 'Please select document !!!',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!selectedDealIds.length) {
-      toast({
-        title: 'Error',
-        description: 'Please select item !!!',
+        description: 'Please select document!!!',
         variant: 'destructive',
       });
       return;
