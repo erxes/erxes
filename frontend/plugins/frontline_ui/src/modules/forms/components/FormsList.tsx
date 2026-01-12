@@ -5,9 +5,9 @@ import { ColumnDef } from '@tanstack/react-table';
 import { IForm } from '../types/formTypes';
 
 export const FormsList = () => {
-  const { id } = useParams();
+  const { channelId } = useParams();
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
-    channelId: id || '',
+    channelId: channelId || '',
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
