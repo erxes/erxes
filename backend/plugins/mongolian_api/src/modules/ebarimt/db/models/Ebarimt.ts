@@ -16,12 +16,12 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IDoc,
     config: IEbarimtConfig,
-    user?: IUserDocument,
+    userId?: string,
   ): Promise<{ putData?: IEbarimtDocument; innerData?: IEbarimtFull }>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
     config: IEbarimtConfig,
-    user?: IUserDocument,
+    userId?: string,
   ): Promise<IEbarimtDocument[]>;
   putHistory({
     contentType,
@@ -46,7 +46,7 @@ export const loadPutResponseClass = (models: IModels) => {
     public static async putData(
       doc: IDoc,
       config: IEbarimtConfig,
-      user?: IUserDocument,
+      userId?: string,
     ) {
       // check previously post
       const { contentId, contentType } = doc;
@@ -94,7 +94,7 @@ export const loadPutResponseClass = (models: IModels) => {
             prePutResponse.receipts &&
             prePutResponse.receipts.length === data.receipts?.length &&
             (prePutResponse.type || 'B2C_RECEIPT') ===
-              (data.type || 'B2C_RECEIPT')
+            (data.type || 'B2C_RECEIPT')
           ) {
             return {
               putData: await models.PutResponses.findOne({
@@ -113,7 +113,7 @@ export const loadPutResponseClass = (models: IModels) => {
           contentType,
           number: doc.number,
           customerName: data.customerName,
-          userId: user?._id,
+          userId,
         });
 
         const response = await fetch(`${config.ebarimtUrl}/rest/receipt?`, {
@@ -151,7 +151,7 @@ export const loadPutResponseClass = (models: IModels) => {
       return result;
     }
 
-    public static async returnBill(doc, config, user?) {
+    public static async returnBill(doc, config, userId?) {
       const url = config.ebarimtUrl || '';
       const { contentType, contentId } = doc;
 
@@ -185,7 +185,7 @@ export const loadPutResponseClass = (models: IModels) => {
           contentType,
           number: doc.number,
           inactiveId: prePutResponse.id,
-          userId: user?._id,
+          userId,
         });
 
         const delResponse = await returnResponse(url, data);
