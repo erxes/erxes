@@ -10,39 +10,70 @@ import {
   countsByTag,
   prepareAvgStats,
 } from '@/broadcast/utils';
-import { getCustomerName } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
+import { cursorPaginate, getCustomerName } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 const generateFilter = async (
   models: IModels,
-  { kind, status, tag, ids }: IEngageQueryParams,
+  params: IEngageQueryParams,
   user,
 ) => {
-  const filter: FilterQuery<IEngageQueryParams> = {};
+  const { kind, status, tag, method, brandId, fromUserId, searchValue } =
+    params;
 
-  if (ids) {
-    filter._id = { $in: ids.split(',') };
-  }
+  const filter: FilterQuery<IEngageQueryParams> = {};
 
   if (kind) {
     filter.kind = kind;
   }
 
-  if (status) {
-    filter.isLive = false;
+  if (method) {
+    filter.method = method;
   }
 
-  if (status === 'live') {
-    filter.isLive = true;
+  if (fromUserId) {
+    filter.fromUserId = fromUserId;
+  }
+
+  if (brandId) {
+    filter.$or = [
+      { brandIds: { $in: [brandId] } },
+      { 'messenger.brandId': brandId },
+    ];
+  }
+
+  if (searchValue) {
+    filter.title = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (status === 'sent') {
+    filter.$and = [{ runCount: { $gt: 0 } }, { kind: 'manual' }];
+  }
+
+  if (status === 'notSent') {
+    filter.$and = [
+      { isDraft: { $in: [null, false] } },
+      { runCount: { $lte: 0 } },
+      { kind: 'manual' },
+    ];
   }
 
   if (status === 'draft') {
     filter.isDraft = true;
   }
 
-  if (status === 'yours' && user) {
-    filter.fromUserId = user._id;
+  if (status === 'paused') {
+    filter.$and = [
+      { isLive: false },
+      { kind: 'auto' },
+      { isDraft: { $in: [null, false] } },
+    ];
+  }
+
+  if (status === 'sending') {
+    filter.$and = [{ kind: 'auto' }, { isLive: true }, { isDraft: false }];
   }
 
   if (tag) {
@@ -93,13 +124,15 @@ export const engageQueries = {
    */
   async engageMessages(
     _root: undefined,
-    args: IEngageQueryParams,
+    params: IEngageQueryParams,
     { user, models }: IContext,
   ) {
-    const query = await generateFilter(models, args, user);
+    const query = await generateFilter(models, params, user);
 
-    return models.EngageMessages.find(query).sort({
-      createdAt: -1,
+    return cursorPaginate({
+      model: models.EngageMessages,
+      params: { ...params, orderBy: { createdAt: -1 } },
+      query,
     });
   },
 
@@ -195,26 +228,37 @@ export const engageQueries = {
   },
 
   /**
-   * Get all verified emails
+   * Get all verified members
    */
-  async engageVerifiedEmails(
+  async engageMembers(
     _root: undefined,
-    _args: undefined,
+    params: {
+      searchValue: string;
+      isVerified: boolean;
+    } & ICursorPaginateParams,
     { models }: IContext,
   ) {
-    const users = await models.Users.find({
+    const { isVerified, searchValue } = params;
+
+    const query: FilterQuery<IUser> = {
       isActive: true,
-    });
+    };
 
-    const userEmails = users.map((u) => u.email);
-    const allVerifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    if (isVerified) {
+      const verifiedEmails: any = await awsRequests.getVerifiedEmails(models);
 
-    if (!allVerifiedEmails) {
-      return [];
+      query.email = { $in: verifiedEmails || [] };
     }
 
-    return allVerifiedEmails.filter((email) => userEmails.includes(email));
+    if (searchValue) {
+      query.email = { $regex: searchValue, $options: '$i' };
+    }
+
+    return await cursorPaginate({
+      model: models.Users,
+      params,
+      query,
+    });
   },
 
   async engageEmailPercentages(

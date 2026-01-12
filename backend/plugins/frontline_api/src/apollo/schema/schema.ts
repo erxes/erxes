@@ -91,6 +91,11 @@ import {
   fieldsTypes as FieldTypes,
 } from '~/modules/form/graphql/schema/field';
 
+import {
+  queries as ReportQueries,
+  types as ReportTypes,
+} from '@/reports/graphql/schema';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -106,6 +111,7 @@ export const types = `
     ${NoteTypes}
     ${TicketConfigTypes}
     ${ResponseTemplateTypes}
+    ${ReportTypes}
     ${FormTypes}
     ${FieldTypes}
   `;
@@ -124,6 +130,7 @@ export const queries = `
     ${NoteQueries}
     ${TicketConfigQueries}
     ${ResponseTemplateQueries}
+    ${ReportQueries}
     ${FormQueries}
     ${FieldQueries}
   `;

@@ -15,7 +15,7 @@ export function ClientPortalDetailFacebook({ clientPortal }: Props) {
   >({
     resolver: zodResolver(CLIENTPORTAL_FACEBOOK_SCHEMA),
     defaultValues: {
-      facebookAppId: clientPortal.facebookAppId || '',
+      facebookAppId: clientPortal?.auth?.facebookOAuth?.appId || '',
     },
   });
 
@@ -28,7 +28,11 @@ export function ClientPortalDetailFacebook({ clientPortal }: Props) {
       variables: {
         id: clientPortal?._id,
         clientPortal: {
-          facebookAppId: values.facebookAppId,
+          auth: {
+            facebookOAuth: {
+              appId: values.facebookAppId,
+            },
+          },
         },
       },
     });

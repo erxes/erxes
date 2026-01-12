@@ -1,13 +1,14 @@
 import { useSegments } from '@/segments/hooks/useSegments';
+import { RecordTable, Spinner, PageSubHeader, RecordTableTree } from 'erxes-ui';
 import { IconChartPie } from '@tabler/icons-react';
-import { RecordTable, RecordTableTree, Spinner } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
 import { SegmentCommandBar } from './SegmentCommandBar';
 import { SegmentDetail } from './SegmentDetail';
 import columns from './SegmentsColumns';
+import { useTranslation } from 'react-i18next';
 
 export function SegmentsRecordTable() {
   const { orderedSegments, handleRefresh, loading } = useSegments();
+  const { t } = useTranslation('segment');
 
   if (loading) {
     return <Spinner />;
@@ -15,17 +16,17 @@ export function SegmentsRecordTable() {
 
   return (
     <div className="flex flex-col h-full p-3 pt-0">
-      <PageHeader className="p-3 mx-0" separatorClassName="mb-0">
-        <PageHeader.Start>
-          <IconChartPie className="size-4" />
-          <span className="font-medium">Segments</span>
-        </PageHeader.Start>
-        <PageHeader.End>
+      <PageSubHeader className="p-3 mx-0">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            <IconChartPie className="size-4" />
+            <span className="font-medium">{t('segment')}</span>
+          </div>
           <SegmentDetail onRefresh={handleRefresh} />
-        </PageHeader.End>
-      </PageHeader>
+        </div>
+      </PageSubHeader>
       <RecordTable.Provider
-        columns={columns}
+        columns={columns(t)}
         data={orderedSegments}
         stickyColumns={['checkbox', 'name']}
         className="mt-1.5"

@@ -223,6 +223,7 @@ export const queries = `
 export const mutations = `
   conversationMessageAdd(
     conversationId: String,
+    responseTemplateId: String,
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,

@@ -14,6 +14,7 @@ import { ticketConfigQueries } from '~/modules/ticket/graphql/resolvers/queries/
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
+import { reportQueries } from '@/reports/graphql/reportQueries';
 
 export const queries = {
   ...channelQueries,
@@ -32,4 +33,5 @@ export const queries = {
   ...responseTemplateQueries,
   ...formQueries,
   ...fieldQueries,
+  ...reportQueries,
 };

@@ -1,0 +1,153 @@
+import { IContext } from '~/connectionResolvers';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+import { getChildCategories, getChildTags } from '../../../utils/product';
+
+const PricingPlan = {
+  createdBy(pricingPlan: IPricingPlanDocument) {
+    return pricingPlan.createdBy ?? null;
+  },
+
+  updatedBy(pricingPlan: IPricingPlanDocument) {
+    return pricingPlan.updatedBy ?? null;
+  },
+
+  createdUser(pricingPlan: IPricingPlanDocument) {
+    if (!pricingPlan.createdBy) return null;
+
+    return {
+      __typename: 'User',
+      _id: pricingPlan.createdBy,
+    };
+  },
+
+  updatedUser(pricingPlan: IPricingPlanDocument) {
+    if (!pricingPlan.updatedBy) return null;
+
+    return {
+      __typename: 'User',
+      _id: pricingPlan.updatedBy,
+    };
+  },
+
+  async productIds(
+    plan: IPricingPlanDocument,
+    _args,
+    { subdomain }: IContext,
+  ): Promise<string[]> {
+    let productIds: string[] = [];
+
+    switch (plan.applyType) {
+      case 'product': {
+        productIds = plan.products || [];
+        break;
+      }
+
+      case 'segment': {
+        let productIdsInSegments: string[] = [];
+
+        for (const segment of plan.segments || []) {
+          const ids = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            module: 'segments',
+            action: 'fetch',
+            input: { segmentId: segment },
+            defaultValue: [],
+          });
+
+          productIdsInSegments = productIdsInSegments.concat(ids);
+        }
+
+        productIds = productIdsInSegments;
+        break;
+      }
+
+      case 'vendor': {
+        const products = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'find',
+          input: {
+            query: {
+              vendorId: { $in: plan.vendors || [] },
+            },
+            field: { _id: 1 },
+          },
+          defaultValue: [],
+        });
+
+        productIds = products.map((p) => p._id);
+        break;
+      }
+
+      case 'category': {
+        const includeCatIds = await getChildCategories(
+          subdomain,
+          plan.categories ?? [],
+        );
+        const excludeCatIds = await getChildCategories(
+          subdomain,
+          plan.categoriesExcluded || [],
+        );
+
+        const plansCategoryIds = includeCatIds.filter(
+          (c) => !excludeCatIds.includes(c),
+        );
+
+        const products = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'find',
+          input: {
+            query: {
+              categoryId: { $in: plansCategoryIds },
+              _id: { $nin: plan.productsExcluded },
+            },
+            field: { _id: 1 },
+          },
+          defaultValue: [],
+        });
+
+        productIds = products.map((p) => p._id);
+        break;
+      }
+
+      case 'tag': {
+        const includeTagIds = await getChildTags(subdomain, plan.tags ?? []);
+        const excludeTagIds = await getChildTags(
+          subdomain,
+          plan.tagsExcluded || [],
+        );
+
+        const plansTagIds = includeTagIds.filter(
+          (t) => !excludeTagIds.includes(t),
+        );
+
+        const products = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'find',
+          input: {
+            query: {
+              tagIds: { $in: plansTagIds },
+              _id: { $nin: plan.productsExcluded },
+            },
+            field: { _id: 1 },
+          },
+          defaultValue: [],
+        });
+
+        productIds = products.map((p) => p._id);
+        break;
+      }
+    }
+
+    return productIds;
+  },
+};
+
+export { PricingPlan };

@@ -11,15 +11,12 @@ export const defaultI18nOptions: InitOptions = {
     escapeValue: false,
   },
   supportedLngs,
-  detection: {
-    caches: ['cookie', 'localStorage', 'header'],
-    lookupCookie: 'lng',
-    lookupLocalStorage: 'lng',
-    order: ['cookie', 'localStorage', 'header'],
-  },
   backend: {
-    loadPath: `${REACT_APP_API_URL}/locales/{{lng}}.json`,
+    loadPath: `${REACT_APP_API_URL}/locales/{{lng}}/{{ns}}.json`,
   },
+  ns: ['common', 'contact', 'product', 'documents', 'organization', 'segment', 'automations', 'settings', 'broadcasts'],
+  defaultNS: 'common',
+  fallbackNS: ['common'],
   react: {
     useSuspense: true,
   },
@@ -35,12 +32,12 @@ const savedLanguage = localStorage.getItem('lng');
 const lng =
   savedLanguage && supportedLngs.includes(savedLanguage)
     ? savedLanguage
-    : String(defaultI18nOptions.fallbackLng); // Ensure fallback is a string
+    : 'en';
 
 i18nInstance
   .use(HttpBackend)
   .use(initReactI18next)
   .init({
     ...defaultI18nOptions,
-    lng: lng as string | undefined,
+    lng,
   });

@@ -10,16 +10,19 @@ import { pluginsConfigState } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { SETTINGS_PATH_DATA } from '../constants/data';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { usePageTrackerStore } from 'react-page-tracker';
 import { useVersion } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export function SettingsSidebar() {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
 
   const version = useVersion();
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
-  const CORE_MODULES = GET_CORE_MODULES(version);
+  const CORE_MODULES = GET_CORE_MODULES(t, version);
+  const sidebar = useMemo(() => SETTINGS_PATH_DATA(t), [t]);
 
   const pluginsWithSettingsNavigations = Object.values(pluginsMetaData)
     .filter((plugin) => plugin.settingsNavigation)
@@ -32,8 +35,8 @@ export function SettingsSidebar() {
     <>
       <Sidebar.Content className="styled-scroll gap-2">
         <SettingsExitButton />
-        <SettingsNavigationGroup name="Account">
-          {SETTINGS_PATH_DATA.account.map((item) => (
+        <SettingsNavigationGroup name={t('account')}>
+          {sidebar.account.map((item) => (
             <NavigationMenuLinkItem
               key={item.name}
               pathPrefix={AppPath.Settings}
@@ -42,19 +45,8 @@ export function SettingsSidebar() {
             />
           ))}
         </SettingsNavigationGroup>
-        <SettingsNavigationGroup name="Workspace">
-          {SETTINGS_PATH_DATA.nav.map((item) => (
-            <NavigationMenuLinkItem
-              pathPrefix={AppPath.Settings}
-              path={item.path}
-              name={item.name}
-              key={item.name}
-            />
-          ))}
-        </SettingsNavigationGroup>
-
-        <SettingsNavigationGroup name="Developer">
-          {SETTINGS_PATH_DATA.developer.map((item) => (
+        <SettingsNavigationGroup name={t('workspace')}>
+          {sidebar.nav.map((item) => (
             <NavigationMenuLinkItem
               pathPrefix={AppPath.Settings}
               path={item.path}
@@ -64,7 +56,18 @@ export function SettingsSidebar() {
           ))}
         </SettingsNavigationGroup>
 
-        <SettingsNavigationGroup name="Core modules">
+        <SettingsNavigationGroup name={t('developer')}>
+          {sidebar.developer.map((item) => (
+            <NavigationMenuLinkItem
+              pathPrefix={AppPath.Settings}
+              path={item.path}
+              name={item.name}
+              key={item.name}
+            />
+          ))}
+        </SettingsNavigationGroup>
+
+        <SettingsNavigationGroup name={t('core-modules')}>
           {CORE_MODULES.filter((item) => item.hasSettings).map((item) => (
             <NavigationMenuLinkItem
               key={item.name}
@@ -111,13 +114,17 @@ export const SettingsExitButton = () => {
       pageHistory.reverse().find((page) => !page.includes('settings')) || '/',
     );
 
+  const { t } = useTranslation('common', {
+    keyPrefix: 'sidebar',
+  });
+
   return (
     <Sidebar.Header className="pb-0 px-4">
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onClick={handleExitSettings}>
             <IconChevronLeft />
-            <span>Exit Settings</span>
+            <span>{t('exit-settings')}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
       </Sidebar.Menu>

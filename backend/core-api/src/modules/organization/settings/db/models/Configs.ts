@@ -8,6 +8,7 @@ import {
   IConfigDocument,
   ISESConfig,
 } from '~/modules/organization/settings/db/definitions/configs';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
@@ -42,7 +43,11 @@ export const getValueAsString = async (
   return entry.value;
 };
 
-export const loadConfigClass = (models: IModels) => {
+export const loadConfigClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Config {
     /*
      * Get a Config
@@ -96,11 +101,25 @@ export const loadConfigClass = (models: IModels) => {
 
       if (obj) {
         await models.Configs.updateOne({ _id: obj._id }, { $set: { value } });
-
-        return models.Configs.findOne({ _id: obj._id });
+        const updated = await models.Configs.findOne({ _id: obj._id });
+        if (updated) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updated._id,
+            currentDocument: updated.toObject(),
+            prevDocument: obj.toObject(),
+          });
+        }
+        return updated;
       }
 
-      return models.Configs.create({ code, value });
+      const newConfig = await models.Configs.create({ code, value });
+      sendDbEventLog({
+        action: 'create',
+        docId: newConfig._id,
+        currentDocument: newConfig.toObject(),
+      });
+      return newConfig;
     }
 
     /**
@@ -182,21 +201,21 @@ export const loadConfigClass = (models: IModels) => {
     public static async getSESConfigs() {
       const accessKeyId = await getValueAsString(
         models,
-        'accessKeyId',
+        'AWS_SES_ACCESS_KEY_ID',
         'AWS_SES_ACCESS_KEY_ID',
       );
 
       const secretAccessKey = await getValueAsString(
         models,
-        'secretAccessKey',
+        'AWS_SES_SECRET_ACCESS_KEY',
         'AWS_SES_SECRET_ACCESS_KEY',
       );
 
-      const region = await getValueAsString(models, 'region', 'AWS_REGION');
+      const region = await getValueAsString(models, 'AWS_REGION', 'AWS_REGION');
 
       const unverifiedEmailsLimit = await getValueAsString(
         models,
-        'unverifiedEmailsLimit',
+        'EMAILS_LIMIT',
         'EMAILS_LIMIT',
         '100',
       );
