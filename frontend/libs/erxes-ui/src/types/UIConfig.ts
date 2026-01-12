@@ -25,3 +25,15 @@ export type IUIConfig = {
     path: string;
   }[];
 };
+
+export type ICoreModule = {
+  name: string;
+  icon?: React.ElementType;
+  path: string;
+  hasSettings?: boolean;
+  submenus?: {
+    name: string;
+    path: string;
+    icon?: React.ElementType;
+  }[];
+};
