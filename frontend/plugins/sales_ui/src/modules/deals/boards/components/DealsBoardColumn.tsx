@@ -31,6 +31,7 @@ export function DealsBoardColumn({
   const prevTriggerRef = useRef(fetchMoreTrigger);
   const prevDealsCountRef = useRef(0);
   const isFetchingRef = useRef(false);
+  const initialLoadRef = useRef(true);
 
   const queryVariablesKey = useMemo(
     () => JSON.stringify(queryVariables),
@@ -44,6 +45,7 @@ export function DealsBoardColumn({
       prevDealsCountRef.current = 0;
       prevTriggerRef.current = 0;
       isFetchingRef.current = false;
+      initialLoadRef.current = true;
     }
   }, [queryVariablesKey]);
 
@@ -115,19 +117,16 @@ export function DealsBoardColumn({
     }
 
     if (
-      isFetchingRef.current &&
-      dealItems.length !== prevDealsCountRef.current
+      initialLoadRef.current ||
+      (isFetchingRef.current && dealItems.length !== prevDealsCountRef.current)
     ) {
-      const newlyFetched = Math.max(
-        0,
-        dealItems.length - prevDealsCountRef.current,
-      );
       onFetchComplete?.(column._id, {
-        fetchedCount: newlyFetched,
+        fetchedCount: dealItems.length,
         hasMore: pageInfo?.hasNextPage ?? false,
         cursor: pageInfo?.endCursor,
         totalCount,
       });
+      initialLoadRef.current = false;
       isFetchingRef.current = false;
     }
 
