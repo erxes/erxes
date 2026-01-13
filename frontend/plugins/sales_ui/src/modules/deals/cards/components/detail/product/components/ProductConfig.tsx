@@ -46,11 +46,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
               <SelectCategory
                 selected={field.value?.[0] || ''}
                 onSelect={(id) => {
-                  const current = field.value || [];
-                  const updated = current.includes(id as string)
-                    ? current.filter((i: string) => i !== id)
-                    : [...current, id];
-                  field.onChange(updated);
+                  field.onChange([id]);
                 }}
               />
             );
@@ -79,11 +75,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
                 <SelectCategory
                   selected={field.value?.[0] || ''}
                   onSelect={(id) => {
-                    const current = field.value || [];
-                    const updated = current.includes(id as string)
-                      ? current.filter((i: string) => i !== id)
-                      : [...current, id];
-                    field.onChange(updated);
+                    field.onChange([id]);
                   }}
                 />
               </Form.Item>
