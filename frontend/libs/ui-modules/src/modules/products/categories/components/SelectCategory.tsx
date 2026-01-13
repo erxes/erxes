@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, createContext, useContext, useEffect } from 'react';
 import {
   Combobox,
   Command,
@@ -225,8 +225,25 @@ const SelectCategoryRoot = React.forwardRef<
   }
 >(({ open, setOpen, id, ...props }, ref) => {
   const [_open, _setOpen] = useState(false);
-  const { categoryIds, categories } = useSelectCategoryContext();
+  const { categoryIds, categories, setCategories } = useSelectCategoryContext();
   const { productCategories, error, loading } = useProductCategories();
+
+  useEffect(() => {
+    if (
+      !loading &&
+      productCategories &&
+      categoryIds.length > 0 &&
+      categories.length === 0
+    ) {
+      const initialCategories = categoryIds
+        .map((id) => productCategories.find((cat) => cat._id === id))
+        .filter((cat): cat is IProductCategory => cat !== undefined);
+
+      if (initialCategories.length > 0) {
+        setCategories(initialCategories);
+      }
+    }
+  }, [productCategories, categoryIds, categories, loading, setCategories]);
 
   return (
     <SelectTree

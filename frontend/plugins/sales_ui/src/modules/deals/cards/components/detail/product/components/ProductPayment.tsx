@@ -190,7 +190,7 @@ const ProductsPayment = ({
         </div>
         {deal.pipeline?.paymentTypes?.map((paymentType, index) => (
           <div
-            key={index}
+            key={paymentType._id || index}
             className="flex items-center gap-2 py-2 w-full justify-center"
           >
             <p className="w-28 font-medium text-sm text-muted-foreground uppercase">
