@@ -85,6 +85,12 @@ import {
   types as ReportTypes,
 } from '@/reports/graphql/schema';
 
+import {
+  queries as KnowledgeBaseQueries,
+  mutations as KnowledgeBaseMutations,
+  types as KnowledgeBaseTypes,
+} from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs'
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -101,7 +107,7 @@ export const types = `
     ${TicketConfigTypes}
     ${ResponseTemplateTypes}
     ${ReportTypes}
-
+    ${KnowledgeBaseTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -119,6 +125,7 @@ export const queries = `
     ${TicketConfigQueries}
     ${ResponseTemplateQueries}
     ${ReportQueries}
+    ${KnowledgeBaseQueries}
   `;
 
 export const mutations = `
@@ -135,5 +142,6 @@ export const mutations = `
    ${NoteMutations}
    ${TicketConfigMutations}
    ${ResponseTemplateMutations}
+   ${KnowledgeBaseMutations}
 `;
 export default { types, queries, mutations };
