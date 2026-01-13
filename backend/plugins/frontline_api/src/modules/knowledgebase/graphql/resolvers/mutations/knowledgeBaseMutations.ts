@@ -167,4 +167,5 @@ markResolvers(knowledgeBaseMutations, {
     skipPermission: true,
   },
 });
+
 export default knowledgeBaseMutations;

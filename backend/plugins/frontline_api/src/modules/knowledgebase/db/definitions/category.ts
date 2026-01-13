@@ -1,19 +1,24 @@
 import { Schema } from 'mongoose';
-import { field } from '~/modules/integrations/call/db/utils';
-import { commonFields } from './constant';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
-export const categorySchema = new Schema({
-    _id: field({ pkey: true }),
-    description: field({ type: String, optional: true, label: 'Description' }),
-    articleIds: field({ type: [String], label: 'Articles' }),
-    icon: field({ type: String, optional: true, label: 'Icon' }),
-    parentCategoryId: field({
-      type: String,
-      optional: true,
-      label: 'Parent category',
-    }),
-    topicId: field({ type: String, optional: true, label: 'Topic' }),
-    ...commonFields,
-  });
+export const categorySchema = new Schema(
+  {
+    _id: mongooseStringRandomId,
+    description: { type: String }, 
+    articleIds: { type: [String], required: true },
+    icon: { type: String }, 
+    parentCategoryId: { type: String }, 
+    topicId: { type: String }, 
 
-categorySchema.index({ code: 1}, { unique: true, sparse: true });
+    createdBy: { type: String }, 
+    modifiedBy: { type: String }, 
+    modifiedDate: { type: Date }, 
+    title: { type: String, required: true },
+    code: { type: String }, 
+  },
+  {
+    timestamps: true,
+  },
+);
+
+categorySchema.index({ code: 1 }, { unique: true, sparse: true });

@@ -1,41 +1,27 @@
 import { Schema } from 'mongoose';
-import { field, schemaWrapper } from '~/modules/integrations/call/db/utils';
-import { commonFields } from './constant';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
-export const topicSchema = schemaWrapper(
-    new Schema({
-      _id: field({ pkey: true }),
-      description: field({ type: String, optional: true, label: 'Description' }),
-      brandId: field({ type: String, optional: true, label: 'Brand' }),
-  
-      categoryIds: field({
-        type: [String],
-        required: false,
-        label: 'Categories',
-      }),
-  
-      color: field({ type: String, optional: true, label: 'Color' }),
-      backgroundImage: field({
-        type: String,
-        optional: true,
-        label: 'Background image',
-      }),
-  
-      languageCode: field({
-        type: String,
-        optional: true,
-        label: 'Language codes',
-      }),
-  
-      notificationSegmentId: field({
-        type: String,
-        required: false,
-      }),
-  
-      
-  
-      ...commonFields,
-    }),
-  );
+export const topicSchema = new Schema(
+  {
+    _id: mongooseStringRandomId,
+    description: { type: String }, 
+    brandId: { type: String }, 
+    categoryIds: { type: [String] }, 
+    color: { type: String }, 
+    backgroundImage: { type: String }, 
+    languageCode: { type: String }, 
+    notificationSegmentId: { type: String }, 
+    
+    // Common fields
+    createdBy: { type: String }, 
+    modifiedBy: { type: String }, 
+    modifiedDate: { type: Date }, 
+    title: { type: String, required: true },
+    code: { type: String }, 
+  },
+  {
+    timestamps: true,
+  },
+);
 
-topicSchema.index({ code: 1}, { unique: true, sparse: true });
+topicSchema.index({ code: 1 }, { unique: true, sparse: true });
