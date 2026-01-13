@@ -3,11 +3,9 @@ import { UOMS_ADD } from '../graphql/mutations/cudUoms';
 import { IUom } from 'ui-modules';
 
 export const useUomsAdd = () => {
-  const [uomsAdd, { loading }] = useMutation<{ _id: string }, IUom>(UOMS_ADD);
+  const [uomsAdd, { loading }] = useMutation(UOMS_ADD);
 
-  const handleUomsAdd = (
-    options: MutationFunctionOptions<{ _id: string }, IUom>,
-  ) => {
+  const handleUomsAdd = (options?: MutationFunctionOptions) => {
     uomsAdd(options);
   };
 
