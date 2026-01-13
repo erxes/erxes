@@ -6,6 +6,7 @@ import {
 } from '@/project/@types/project';
 import { projectSchema } from '@/project/db/definitions/project';
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { getEnv, updateSaasOrganization } from 'erxes-api-shared/utils';
 import { Document } from 'mongodb';
 import { FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -89,6 +90,8 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
     }) {
       const { _id, ...rest } = doc;
 
+      const VERSION = getEnv({ name: 'VERSION' });
+
       const project = await models.Project.findOne({ _id });
 
       if (!project) {
@@ -104,11 +107,19 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
         contentId: project._id,
       });
 
-      return await models.Project.findOneAndUpdate(
+      const updatedProject = await models.Project.findOneAndUpdate(
         { _id },
         { $set: { ...rest } },
         { new: true },
       );
+
+      if (VERSION === 'saas') {
+        await updateSaasOrganization(subdomain, {
+          cycleEnabled: true,
+        });
+      }
+
+      return updatedProject;
     }
 
     public static async removeProject(projectId: string) {

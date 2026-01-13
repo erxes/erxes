@@ -66,6 +66,8 @@ export const saasOrganizationsSchema = new mongoose.Schema({
 
   hostNameStatus: { type: String },
   sslStatus: { type: String },
+
+  cycleEnabled: { type: Boolean },
 });
 
 export const saasInstallationSchema = new mongoose.Schema({

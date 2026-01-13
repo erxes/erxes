@@ -1,15 +1,8 @@
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-  useQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import {
   IconCalendarBolt,
   IconCalendarPlus,
   IconCalendarX,
-  IconCashRegister,
   IconSearch,
 } from '@tabler/icons-react';
 import {
