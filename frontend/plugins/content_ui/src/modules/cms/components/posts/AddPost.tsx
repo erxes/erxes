@@ -1,97 +1,3 @@
-// Editor helpers: convert initial HTML -> blocks JSON, and onChange blocks -> HTML
-const convertHTMLToBlocks = (htmlContent: string): Block[] => {
-  if (!htmlContent || htmlContent.trim() === '') {
-    return [
-      {
-        id: crypto.randomUUID(),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        },
-        content: [],
-        children: [],
-      } as any,
-    ];
-  }
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
-  const container = doc.body;
-  const blocks: Block[] = [] as any;
-  const children = Array.from(container.children);
-  if (children.length === 0) {
-    const textContent = container.textContent || container.innerText || '';
-    if (textContent.trim()) {
-      blocks.push({
-        id: crypto.randomUUID(),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        } as any,
-        content: [{ type: 'text', text: textContent, styles: {} } as any],
-        children: [],
-      } as any);
-    }
-  } else {
-    children.forEach((el) => {
-      const tag = el.tagName.toLowerCase();
-      const textContent = el.textContent || '';
-      if (!textContent.trim()) return;
-      let blockType: any = 'paragraph';
-      const props: any = {
-        textColor: 'default',
-        backgroundColor: 'default',
-        textAlignment: 'left',
-      };
-      if (tag.match(/^h[1-6]$/)) {
-        blockType = 'heading';
-        props.level = parseInt(tag.charAt(1));
-      }
-      blocks.push({
-        id: crypto.randomUUID(),
-        type: blockType,
-        props,
-        content: [{ type: 'text', text: textContent, styles: {} }],
-        children: [],
-      } as any);
-    });
-  }
-  return blocks.length > 0
-    ? (blocks as any)
-    : ([
-        {
-          id: crypto.randomUUID(),
-          type: 'paragraph',
-          props: {
-            textColor: 'default',
-            backgroundColor: 'default',
-            textAlignment: 'left',
-          },
-          content: [],
-          children: [],
-        },
-      ] as any);
-};
-
-const formatInitialContent = (content?: string): string | undefined => {
-  if (!content || content.trim() === '') return undefined;
-  if (content.startsWith('[')) {
-    try {
-      const parsed = JSON.parse(content);
-      if (Array.isArray(parsed)) return content;
-    } catch {}
-  }
-  if (content.includes('<') && content.includes('>')) {
-    const blocks = convertHTMLToBlocks(content);
-    return JSON.stringify(blocks);
-  }
-  const blocks = convertHTMLToBlocks(`<p>${content}</p>`);
-  return JSON.stringify(blocks);
-};
-
 import {
   Button,
   Form,
@@ -131,6 +37,15 @@ import {
   CMS_EDIT_TRANSLATION,
 } from '../../graphql/queries';
 import { usePostMutations } from '../../hooks/usePostMutations';
+import { CustomFieldInput } from './CustomFieldInput';
+import { GalleryUploader } from './GalleryUploader';
+import { PostPreview } from './PostPreview';
+import {
+  formatInitialContent,
+  makeAttachmentFromUrl,
+  normalizeAttachment,
+  makeAttachmentArrayFromUrls,
+} from './formHelpers';
 
 interface PostFormData {
   title: string;
@@ -156,271 +71,6 @@ interface PostFormData {
   enableAutoArchive?: boolean;
   customFieldsData?: { field: string; value: any }[];
 }
-
-// Helper to create AttachmentInput from URL
-const makeAttachmentFromUrl = (url?: string | null) => {
-  if (!url) return undefined;
-  const name = url.split('/').pop() || 'file';
-  return { url, name };
-};
-
-// Helper to normalize attachment value to AttachmentInput format
-const normalizeAttachment = (value: any) => {
-  if (!value) return undefined;
-  if (typeof value === 'string') {
-    return makeAttachmentFromUrl(value);
-  }
-
-  const url = value.url as string | undefined;
-  if (!url) return undefined;
-
-  const name =
-    (value.name as string | undefined) || url.split('/').pop() || 'file';
-
-  return {
-    url,
-    name,
-    type: value.type,
-    size: value.size,
-    duration: value.duration,
-  };
-};
-
-// Helper to convert array of URLs to AttachmentInput array
-const makeAttachmentArrayFromUrls = (urls?: (string | null)[]) => {
-  return (urls || [])
-    .filter(Boolean)
-    .map((u) => makeAttachmentFromUrl(u as string))
-    .filter(Boolean);
-};
-
-interface GalleryUploaderProps {
-  value?: string[];
-  onChange: (urls: string[]) => void;
-}
-
-// Custom Field Input Component following erxes UI standards
-const CustomFieldInput = ({
-  field,
-  value,
-  onChange,
-}: {
-  field: any;
-  value: any;
-  onChange: (value: any) => void;
-}) => {
-  const renderInput = () => {
-    switch (field.type) {
-      case 'text':
-      case 'email':
-      case 'url':
-        return (
-          <Input
-            type={field.type === 'text' ? 'text' : field.type}
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full"
-          />
-        );
-
-      case 'textarea':
-        return (
-          <Textarea
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            rows={3}
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full resize-none"
-          />
-        );
-
-      case 'number':
-        return (
-          <Input
-            type="number"
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full"
-          />
-        );
-
-      case 'date':
-        return (
-          <DatePicker
-            value={value ? new Date(value) : undefined}
-            onChange={(date) =>
-              onChange(date ? (date as Date).toISOString() : '')
-            }
-            placeholder={field.placeholder || 'Select date'}
-          />
-        );
-
-      case 'checkbox':
-      case 'boolean':
-        return (
-          <Switch
-            checked={!!value}
-            onCheckedChange={(checked) => onChange(checked)}
-          />
-        );
-
-      case 'select':
-        if (!field.options?.length) return null;
-        return (
-          <Select value={value || ''} onValueChange={onChange}>
-            <Select.Trigger className="w-full">
-              <Select.Value
-                placeholder={
-                  field.placeholder || `Select ${field.label.toLowerCase()}`
-                }
-              />
-            </Select.Trigger>
-            <Select.Content>
-              {field.options.map((option: string, idx: number) => (
-                <Select.Item key={idx} value={option}>
-                  {option}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-        );
-
-      case 'radio':
-        if (!field.options?.length) return null;
-        return (
-          <div className="flex flex-col gap-2">
-            {field.options.map((option: string, idx: number) => (
-              <label
-                key={idx}
-                className="flex items-center gap-2 cursor-pointer text-sm"
-              >
-                <input
-                  type="radio"
-                  name={field._id}
-                  value={option}
-                  checked={value === option}
-                  onChange={(e) => onChange(e.target.value)}
-                  className="h-4 w-4 text-primary border-input focus:ring-primary"
-                />
-                <span>{option}</span>
-              </label>
-            ))}
-          </div>
-        );
-
-      case 'multiSelect':
-        if (!field.options?.length) return null;
-        const selectedValues = Array.isArray(value) ? value : [];
-        const multiOptions = field.options.map((opt: string) => ({
-          label: opt,
-          value: opt,
-        }));
-        return (
-          <MultipleSelector
-            value={multiOptions.filter((o: any) =>
-              selectedValues.includes(o.value),
-            )}
-            options={multiOptions}
-            placeholder={
-              field.placeholder || `Select ${field.label.toLowerCase()}`
-            }
-            hidePlaceholderWhenSelected
-            emptyIndicator="No options"
-            onChange={(opts: any[]) => onChange(opts.map((o) => o.value))}
-          />
-        );
-
-      default:
-        return (
-          <Input
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full"
-          />
-        );
-    }
-  };
-
-  return renderInput();
-};
-
-const GalleryUploader = ({ value, onChange }: GalleryUploaderProps) => {
-  const urls = value || [];
-
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 10,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (addedFiles) => {
-      const existing = urls || [];
-      const addedUrls = (addedFiles || [])
-        .map((file: any) => file.url)
-        .filter(Boolean);
-      const next = [...existing, ...addedUrls].slice(0, 10);
-      onChange(next);
-    },
-  });
-
-  const handleRemove = (url: string) => {
-    const next = (urls || []).filter((u) => u !== url);
-    onChange(next);
-  };
-
-  return (
-    <div className="space-y-2">
-      {urls.length > 0 && (
-        <div className="relative">
-          <div className="flex flex-wrap gap-4">
-            {urls.map((url) => (
-              <div
-                key={url}
-                className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
-              >
-                <img
-                  src={readImage(url)}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-0 right-0"
-                  type="button"
-                  onClick={() => handleRemove(url)}
-                >
-                  <IconX size={12} />
-                </Button>
-              </div>
-            ))}
-          </div>
-          {uploadProps.loading && (
-            <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-md">
-              <div className="flex flex-col items-center gap-2">
-                <Spinner size="sm" />
-                <span className="text-sm text-gray-600">Uploading...</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      <Dropzone {...uploadProps}>
-        <DropzoneEmptyState />
-        <DropzoneContent />
-      </Dropzone>
-    </div>
-  );
-};
 
 export function AddPost() {
   const { websiteId } = useParams();
@@ -453,9 +103,6 @@ export function AddPost() {
     description: string;
     customFieldsData: any[];
   } | null>(null);
-  const [previewDevice, setPreviewDevice] = useState<
-    'desktop' | 'tablet' | 'mobile'
-  >('desktop');
   const previousTypeRef = useRef<string | undefined>();
 
   const form = useForm<PostFormData>({
@@ -806,51 +453,6 @@ export function AddPost() {
         variant: 'destructive',
       });
     }
-  };
-
-  const Preview = () => {
-    const deviceDims =
-      previewDevice === 'desktop'
-        ? { width: 1024, height: 768 }
-        : previewDevice === 'tablet'
-        ? { width: 768, height: 1024 }
-        : { width: 320, height: 620 };
-
-    return (
-      <div className="flex-1 flex flex-col  items-center justify-start gap-4">
-        <Tabs
-          value={previewDevice}
-          onValueChange={(v) =>
-            setPreviewDevice(v as 'desktop' | 'tablet' | 'mobile')
-          }
-        >
-          <Tabs.List>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Tabs.Trigger value="desktop">Desktop</Tabs.Trigger>
-              <Tabs.Trigger value="tablet">Tablet</Tabs.Trigger>
-              <Tabs.Trigger value="mobile">Mobile</Tabs.Trigger>
-            </div>
-          </Tabs.List>
-        </Tabs>
-        <div
-          className="rounded-[36px] bg-primary relative shadow-inner"
-          style={{
-            width: '100%',
-            maxWidth: deviceDims.width,
-            aspectRatio: `${deviceDims.width} / ${deviceDims.height}`,
-          }}
-        >
-          <div className="absolute inset-4 bg-white rounded-[28px] p-4 overflow-hidden">
-            <div
-              className="prose prose-sm max-w-none mt-2 h-44 overflow-auto"
-              dangerouslySetInnerHTML={{
-                __html: form.watch('content') || '',
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const { data: catData } = useQuery(CMS_CATEGORIES, {
@@ -2102,7 +1704,7 @@ export function AddPost() {
           </Form>
         </div>
 
-        <Preview />
+        <PostPreview content={form.watch('content') || ''} />
       </div>
     </CmsLayout>
   );

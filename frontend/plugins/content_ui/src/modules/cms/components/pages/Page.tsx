@@ -16,7 +16,6 @@ import {
   IconSettings,
   IconEdit,
   IconTrash,
-  IconEye,
   IconUser,
   IconArticle,
   IconCalendar,
@@ -30,6 +29,28 @@ import { PAGE_LIST, PAGES_EDIT, PAGES_REMOVE } from '../../graphql/queries';
 import { PageDrawer } from './PageDrawer';
 import { ColumnDef } from '@tanstack/react-table';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+
+// Helper components to reduce duplication
+const BadgeCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+    <span className="text-sm text-gray-500">{children}</span>
+  </div>
+);
+
+const AuthorBadgeCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+    <span className="text-sm text-gray-700">{children}</span>
+  </div>
+);
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 
 export function Page() {
   const { websiteId } = useParams();
@@ -147,11 +168,7 @@ export function Page() {
       header: () => <RecordTable.InlineHead icon={IconArticle} label="Slug" />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-500">
-            {(cell.getValue() as string) || ''}
-          </span>
-        </div>
+        <BadgeCell>{(cell.getValue() as string) || ''}</BadgeCell>
       ),
       size: 260,
     },
@@ -163,11 +180,7 @@ export function Page() {
         const createdUser = cell.getValue() as any;
         const name =
           createdUser?.details?.fullName || createdUser?.email || '—';
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-700">{name}</span>
-          </div>
-        );
+        return <AuthorBadgeCell>{name}</AuthorBadgeCell>;
       },
       size: 240,
     },
@@ -177,22 +190,9 @@ export function Page() {
         <RecordTable.InlineHead icon={IconCalendar} label="Created" />
       ),
       accessorKey: 'createdAt',
-      cell: ({ cell }) => {
-        const createdAt = cell.getValue() as string;
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
-              {createdAt
-                ? new Date(createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : ''}
-            </span>
-          </div>
-        );
-      },
+      cell: ({ cell }) => (
+        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+      ),
       size: 180,
     },
     {
@@ -201,22 +201,9 @@ export function Page() {
         <RecordTable.InlineHead icon={IconCalendar} label="Updated" />
       ),
       accessorKey: 'updatedAt',
-      cell: ({ cell }) => {
-        const updatedAt = cell.getValue() as string;
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
-              {updatedAt
-                ? new Date(updatedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : ''}
-            </span>
-          </div>
-        );
-      },
+      cell: ({ cell }) => (
+        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+      ),
       size: 180,
     },
   ];
