@@ -179,12 +179,8 @@ export default async function userMiddleware(
       req.clientPortal = clientPortal;
 
       setClientPortalHeader(req.headers, req.clientPortal);
-
-      return next();
     } catch (e) {
       console.error(e);
-
-      return next();
     }
   }
 
