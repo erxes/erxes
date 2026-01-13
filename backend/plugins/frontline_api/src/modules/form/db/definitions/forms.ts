@@ -71,6 +71,10 @@ export interface ILeadData {
   successImage?: string;
   successImageSize?: string;
   verifyEmail?: boolean;
+  appearance?: string;
+  thanksImage?: string;
+  primaryColor?: string;
+
 }
 
 export interface ILeadDataDocument extends ILeadData, Document {
@@ -257,6 +261,21 @@ export const leadDataSchema = new Schema(
       type: Boolean,
       optional: true,
       label: 'Clear cache after save',
+    }),
+    appearance: field({
+      type: String,
+      optional: true,
+      label: 'Appearance',
+    }),
+    thanksImage: field({
+      type: String,
+      optional: true,
+      label: 'Thanks image',
+    }),
+    primaryColor: field({
+      type: String,
+      optional: true,
+      label: 'Primary color',
     }),
   },
   { _id: false },

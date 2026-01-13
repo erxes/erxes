@@ -233,6 +233,21 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Verify email',
     },
+    appearance: {
+      type: String,
+      optional: true,
+      label: 'Appearance',
+    },
+    thanksImage: {
+      type: String,
+      optional: true,
+      label: 'Thanks image',
+    },
+    primaryColor: {
+      type: String,
+      optional: true,
+      label: 'Primary color',
+    },
   },
   { _id: false },
 );
