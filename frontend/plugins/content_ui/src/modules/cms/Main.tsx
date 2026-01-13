@@ -49,6 +49,12 @@ const CustomTypes = lazy(() =>
   })),
 );
 
+const CustomFields = lazy(() =>
+  import('~/modules/cms/components/shared/CustomFields').then((module) => ({
+    default: module.CustomFields,
+  })),
+);
+
 const CmsMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -61,6 +67,7 @@ const CmsMain = () => {
         <Route path="/:websiteId/pages" element={<Pages />} />
         <Route path="/:websiteId/menus" element={<Menus />} />
         <Route path="/:websiteId/custom-types" element={<CustomTypes />} />
+        <Route path="/:websiteId/custom-fields" element={<CustomFields />} />
       </Routes>
     </Suspense>
   );

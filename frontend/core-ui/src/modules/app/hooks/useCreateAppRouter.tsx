@@ -13,6 +13,8 @@ import { AppPath } from '@/types/paths/AppPath';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 
+import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
+import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
 import { ProductsRoutes } from '@/app/components/ProductsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
@@ -26,7 +28,6 @@ import { currentUserState, useVersion } from 'ui-modules';
 import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
-import { DocumentsRoutes } from '../components/DocumentsRoutes';
 import { ImportExportRoutes } from '../components/ImportExportRoutes';
 
 const UserConfirmInvitationPage = lazy(
@@ -112,6 +113,13 @@ export const useCreateAppRouter = () => {
                 <Route
                   path={AppPath.DocumentsCatchAll}
                   element={<DocumentsRoutes />}
+                />
+              )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.BroadcastsCatchAll}
+                  element={<BroadcastRoutes />}
                 />
               )}
 

@@ -35,6 +35,8 @@ function GenericBoardInner<
   renderColumnHeader,
   columnClassName,
   cardClassName,
+  columnPagination,
+  onLoadMore,
 }: GenericBoardProps<TItem, TColumn>) {
   const [state, setState] = useState(initialState);
   const [activeItem, setActiveItem] = useState<TItem | null>(null);
@@ -68,7 +70,7 @@ function GenericBoardInner<
       } else if (activeData?.type === 'card') {
         const item = activeData.item as TItem;
         setActiveItem(item);
-        onDragStartProp?.(item.id);
+        onDragStartProp?.(item._id);
       }
     },
     [onDragStartProp],
@@ -131,24 +133,24 @@ function GenericBoardInner<
       const activeItems = [...(prev.columnItems[activeColumnId] || [])];
       const overItems = [...(prev.columnItems[overColumnId] || [])];
 
-      const activeIndex = activeItems.indexOf(activeItem.id);
+      const activeIndex = activeItems.indexOf(activeItem._id);
       if (activeIndex === -1) return prev;
       activeItems.splice(activeIndex, 1);
 
       let insertIndex = overItems.length;
       if (overData?.type === 'card') {
         const overItem = overData.item as TItem;
-        const overIndex = overItems.indexOf(overItem.id);
+        const overIndex = overItems.indexOf(overItem._id);
         if (overIndex !== -1) insertIndex = overIndex;
       }
 
-      overItems.splice(insertIndex, 0, activeItem.id);
+      overItems.splice(insertIndex, 0, activeItem._id);
 
       const updatedItem = { ...activeItem, columnId: overColumnId };
 
       return {
         ...prev,
-        items: { ...prev.items, [activeItem.id]: updatedItem },
+        items: { ...prev.items, [activeItem._id]: updatedItem },
         columnItems: {
           ...prev.columnItems,
           [activeColumnId]: activeItems,
@@ -191,8 +193,8 @@ function GenericBoardInner<
           setState((prev) => {
             const columnId = activeItem.columnId;
             const columnItems = [...(prev.columnItems[columnId] || [])];
-            const oldIndex = columnItems.indexOf(activeItem.id);
-            const newIndex = columnItems.indexOf(overItem.id);
+            const oldIndex = columnItems.indexOf(activeItem._id);
+            const newIndex = columnItems.indexOf(overItem._id);
 
             if (oldIndex !== -1 && newIndex !== -1) {
               const newColumnItems = arrayMove(columnItems, oldIndex, newIndex);
@@ -234,6 +236,8 @@ function GenericBoardInner<
               .map((id) => state.items[id])
               .filter(Boolean);
 
+            const pagination = columnPagination?.[column._id];
+
             return (
               <GenericBoardColumn
                 key={column._id}
@@ -243,6 +247,12 @@ function GenericBoardInner<
                 renderColumnHeader={renderColumnHeader}
                 className={columnClassName}
                 cardClassName={cardClassName}
+                hasMore={pagination?.hasMore}
+                isLoadingMore={pagination?.isLoading}
+                totalCount={pagination?.totalCount}
+                onLoadMore={
+                  onLoadMore ? () => onLoadMore(column._id) : undefined
+                }
               />
             );
           })}
