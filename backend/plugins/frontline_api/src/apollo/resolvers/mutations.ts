@@ -11,6 +11,7 @@ import { ticketMutations } from '@/ticket/graphql/resolvers/mutations/ticket';
 import { widgetMutations } from '@/inbox/graphql/resolvers/mutations/widget';
 import { ticketConfigMutations } from '~/modules/ticket/graphql/resolvers/mutations/ticketConfig';
 import { responseTemplateMutations } from '~/modules/response/graphql/responseTemplateMutations';
+import { knowledgeBaseMutations } from '@/knowledgebase/graphql/resolvers/mutations/knowledgeBaseMutations';
 
 export const mutations = {
   ...channelMutations,
@@ -26,4 +27,5 @@ export const mutations = {
   ...noteMutations,
   ...ticketConfigMutations,
   ...responseTemplateMutations,
+  ...knowledgeBaseMutations,
 };

@@ -156,8 +156,8 @@ export default async function userMiddleware(
     }
   }
 
-  let clientPortal;
   const clientPortalToken = req.headers['x-app-token'];
+  const clientAuthToken = req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
@@ -168,7 +168,7 @@ export default async function userMiddleware(
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
-      clientPortal = await models.ClientPortals.findOne({
+      const clientPortal = await models.ClientPortals.findOne({
         _id: clientPortalTokenDecoded.clientPortalId,
       });
 
@@ -180,42 +180,38 @@ export default async function userMiddleware(
 
       setClientPortalHeader(req.headers, req.clientPortal);
 
+      if (clientAuthToken) {
+        try {
+          const clientAuthTokenString = String(clientAuthToken);
+
+          const clientAuthTokenDecoded: any = jwt.verify(
+            clientAuthTokenString,
+            process.env.JWT_TOKEN_SECRET || 'SECRET',
+          );
+
+          const clientPortalUser = await models.CPUsers.findOne({
+            _id: clientAuthTokenDecoded.userId,
+            clientPortalId: clientPortal._id,
+          });
+
+          if (clientPortalUser) {
+            req.cpUser = clientPortalUser;
+            setCPUserHeader(req.headers, req.cpUser);
+          }
+        } catch (e) {
+          if (e instanceof jwt.TokenExpiredError) {
+            return next();
+          } else {
+            console.error(e);
+          }
+        }
+      }
+
       return next();
     } catch (e) {
       console.error(e);
 
       return next();
-    }
-  }
-
-  const clientAuthToken =
-    req.cookies['client-auth-token'] || req.headers['client-auth-token'];
-
-  if (clientPortal && clientAuthToken) {
-    const clientAuthTokenString = String(clientAuthToken);
-
-    try {
-      const clientAuthTokenDecoded: any = jwt.verify(
-        clientAuthTokenString,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
-
-      const clientPortalUser = await models.CPUsers.findOne({
-        _id: clientAuthTokenDecoded.userId,
-        clientPortalId: clientPortal?._id,
-      });
-
-      if (clientPortalUser) {
-        req.cpUser = clientPortalUser;
-        setCPUserHeader(req.headers, req.cpUser);
-      }
-    } catch (e) {
-      if (e instanceof jwt.TokenExpiredError) {
-        return next();
-      } else {
-        console.error(e);
-        return next();
-      }
     }
   }
 
