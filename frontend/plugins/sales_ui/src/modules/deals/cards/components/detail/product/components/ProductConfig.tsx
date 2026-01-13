@@ -44,10 +44,9 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
           render={({ field }) => {
             return (
               <SelectCategory
-                selected={field.value?.[0] || ''}
-                onSelect={(id) => {
-                  field.onChange([id]);
-                }}
+                value={field.value || []}
+                onValueChange={field.onChange}
+                mode="multiple"
               />
             );
           }}
@@ -73,10 +72,9 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
                   Exclude Categories
                 </Form.Label>
                 <SelectCategory
-                  selected={field.value?.[0] || ''}
-                  onSelect={(id) => {
-                    field.onChange([id]);
-                  }}
+                  value={field.value || []}
+                  onValueChange={field.onChange}
+                  mode="multiple"
                 />
               </Form.Item>
             )}
