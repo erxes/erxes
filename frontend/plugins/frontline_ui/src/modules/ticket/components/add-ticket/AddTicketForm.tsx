@@ -23,7 +23,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { TAddTicket } from '@/ticket/types';
-import { currentUserState } from 'ui-modules';
+import { currentUserState, SelectTags } from 'ui-modules';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 
 export const AddTicketForm = ({
@@ -140,7 +140,11 @@ export const AddTicketForm = ({
                   <Form.Label className="sr-only">Channel</Form.Label>
                   <SelectChannel.FormItem
                     value={field.value || ''}
-                    onValueChange={(value) => field.onChange(value)}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      form.setValue('pipelineId', '');
+                      form.setValue('statusId', '');
+                    }}
                   />
                   {fieldState.error && (
                     <p className="text-destructive text-sm mt-1">
@@ -158,7 +162,10 @@ export const AddTicketForm = ({
                   <Form.Label className="sr-only">Pipeline</Form.Label>
                   <SelectPipeline.FormItem
                     value={field.value || ''}
-                    onValueChange={(value) => field.onChange(value)}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      form.setValue('statusId', '');
+                    }}
                     form={form}
                   />
                   {fieldState.error && (
@@ -241,6 +248,21 @@ export const AddTicketForm = ({
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
                     placeholder="Target Date"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="frontline:ticket"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
               )}

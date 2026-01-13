@@ -1,8 +1,10 @@
 import { IContext } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
+// import { IContext } from '~/connectionResolvers';
 
-const configQueries = {
+const configQueries: Record<string, Resolver> = {
   async currentConfig(_root, _args, { models, config }: IContext) {
     if (!config) {
       const confCount = await models.Configs.find({
@@ -49,5 +51,10 @@ const configQueries = {
     });
   },
 };
+markResolvers(configQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 
 export default configQueries;

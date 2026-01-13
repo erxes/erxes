@@ -157,6 +157,18 @@ import { IActivityDocument } from '@/ticket/@types/activity';
 
 import { INoteModel, loadNoteClass } from '@/ticket/db/models/Note';
 import { INoteDocument } from '@/ticket/@types/note';
+import { ITicketConfigDocument } from './modules/ticket/@types/ticketConfig';
+import {
+  ITicketConfigModel,
+  loadTicketConfigClass,
+} from './modules/ticket/db/models/TicketConfig';
+
+import {
+  IResponseTemplateModel,
+  loadClass as loadResponseTemplateClass,
+} from '@/response/db/models/responseTemplates';
+import { IResponseTemplateDocument } from '@/response/@types/responseTemplates';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -199,9 +211,13 @@ export interface IModels {
   Ticket: ITicketModel;
   Activity: IActivityModel;
   Note: INoteModel;
+  TicketConfig: ITicketConfigModel;
 
   MessengerApps: IMessengerAppModel;
   Configs: IConfigModel;
+
+  //response templates
+  ResponseTemplates: IResponseTemplateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -215,6 +231,12 @@ export const loadClasses = (
   subdomain: string,
 ): IModels => {
   const models = {} as IModels;
+
+  //response templates
+  models.ResponseTemplates = db.model<
+    IResponseTemplateDocument,
+    IResponseTemplateModel
+  >('response_templates', loadResponseTemplateClass(models));
 
   //ticket
   models.Pipeline = db.model<ITicketPipelineDocument, ITicketPipelineModel>(
@@ -237,6 +259,10 @@ export const loadClasses = (
   models.Note = db.model<INoteDocument, INoteModel>(
     'frontline_tickets_notes',
     loadNoteClass(models),
+  );
+  models.TicketConfig = db.model<ITicketConfigDocument, ITicketConfigModel>(
+    'frontline_ticket_configs',
+    loadTicketConfigClass(models),
   );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(

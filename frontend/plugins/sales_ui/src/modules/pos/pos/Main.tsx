@@ -1,17 +1,20 @@
-import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
+import { Suspense, lazy } from 'react';
 
-const Pos = lazy(() =>
-  import('~/pages/PosIndexPage').then((module) => ({
-    default: module.PosIndexPage,
+const Settings = lazy(() => import('./Settings'));
+
+const PosEditPage = lazy(() =>
+  import('~/pages/PosEditPage').then((module) => ({
+    default: module.PosEditPage,
   })),
 );
 
 const PluginPos = () => {
   return (
-    <Suspense fallback={<></>}>
+    <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<Pos />} />
+        <Route path="/" element={<Settings />} />
+        <Route path="/:id" element={<PosEditPage />} />
       </Routes>
     </Suspense>
   );

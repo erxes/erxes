@@ -1,4 +1,3 @@
-
 import { PAYMENTS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
 import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api';
@@ -19,7 +18,7 @@ const generateFilterQuery = (params: IParam) => {
   }
 
   if (status) {
-    query.isActive = status === 'active' ? true : false;
+    query.status = status;
   }
 
   if (searchValue) {
@@ -52,12 +51,12 @@ const queries = {
       status: string;
       searchValue: string;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const counts = {
       total: 0,
       byKind: {},
-      byStatus: { active: 0, archived: 0 },
+      byStatus: { active: 0, inactive: 0 },
     };
 
     const qry = {
@@ -73,16 +72,16 @@ const queries = {
       counts.byKind[kind] = !args.kind
         ? countQueryResult
         : args.kind === kind
-          ? countQueryResult
-          : 0;
+        ? countQueryResult
+        : 0;
     }
 
-    counts.byStatus.active = await count({ isActive: true, ...qry });
-    counts.byStatus.archived = await count({ isActive: false, ...qry });
+    counts.byStatus.active = await count({ status: 'active', ...qry });
+    counts.byStatus.inactive = await count({ status: 'inactive', ...qry });
 
     if (args.status) {
       if (args.status === 'active') {
-        counts.byStatus.archived = 0;
+        counts.byStatus.inactive = 0;
       } else {
         counts.byStatus.active = 0;
       }

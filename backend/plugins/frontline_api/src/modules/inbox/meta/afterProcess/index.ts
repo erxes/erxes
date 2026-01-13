@@ -4,7 +4,7 @@ import { conversationAfterProcessWorkers } from '@/inbox/meta/afterProcess/conve
 export const inboxAfterProcessWorkers = {
   rules: [...conversationAfterProcessWorkers.rules] as IAfterProcessRule[],
   updatedDocument: {
-    conversation: conversationAfterProcessWorkers.onDocumentUpdated,
+    conversation: conversationAfterProcessWorkers.afterDocumentUpdated,
   },
   createdDocument: {},
 };

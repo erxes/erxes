@@ -1,22 +1,34 @@
 import { Document } from 'mongoose';
 
-export interface IOTPConfig {
-  emailSubject?: any;
-  content: string;
+export interface IOTPEmailConfig {
+  emailSubject?: string;
+  messageTemplate: string;
   codeLength: number;
-  smsTransporterType: string;
-  loginWithOTP: boolean;
-  expireAfter: number;
+  duration: number;
+  enableEmailVerification: boolean;
+  enablePasswordlessLogin: boolean;
 }
-export interface TwoFactorConfig {
-  emailSubject?: any;
-  content: string;
+
+export interface IOTPSMSConfig {
+  messageTemplate: string;
   codeLength: number;
-  smsTransporterType: string;
-  enableTwoFactor: boolean;
-  expireAfter: number;
+  smsProvider: string;
+  duration: number;
+  enablePhoneVerification: boolean;
+  enablePasswordlessLogin: boolean;
+}
+
+export interface IOTPConfig {
+  email?: IOTPEmailConfig;
+  sms?: IOTPSMSConfig;
+}
+export interface MultiFactorConfig {
+  isEnabled: boolean;
+  email?: IOTPEmailConfig;
+  sms?: IOTPSMSConfig;
 }
 export interface ISocialpayConfig {
+  enableSocialpay?: boolean;
   publicKey: string;
   certId: string;
 }
@@ -33,18 +45,16 @@ export interface IManualVerificationConfig {
   verifyCompany: boolean;
 }
 
-export interface IPasswordVerificationConfig {
-  verifyByOTP: boolean;
+export interface IResetPasswordConfig {
+  mode: 'link' | 'code';
 
   // email
   emailSubject: string;
   emailContent: string;
-
-  // sms
-  smsContent: string;
 }
 
 export interface ITokiConfig {
+  enableToki?: boolean;
   merchantId: string;
   apiKey: string;
   username: string;
@@ -57,44 +67,76 @@ export type EnvironmentVariable = {
   value: string;
 };
 
+export interface ITestUser {
+  enableTestUser?: boolean;
+  email?: string;
+  phone?: string;
+  password?: string;
+  otp?: number;
+}
+
+export interface IAuthConfig {
+  accessTokenExpirationInDays?: number;
+  refreshTokenExpirationInDays?: number;
+  deliveryMethod?: 'cookie' | 'header';
+}
+
+export interface IGoogleOAuthConfig {
+  credentials?: string;
+  clientId?: string;
+  clientSecret?: string;
+  redirectUri?: string;
+}
+
+export interface IFacebookOAuthConfig {
+  appId?: string;
+  appSecret?: string;
+  redirectUri?: string;
+}
+
+export interface IOTPResendConfig {
+  cooldownPeriodInSeconds?: number; // Default: 300 (5 minutes)
+  maxAttemptsPerHour?: number; // Default: 5
+}
+
 export interface IClientPortal {
   name?: string;
   description?: string;
   url?: string;
   domain?: string;
   token?: string;
-  // auth
-  tokenExpiration?: number;
-  refreshTokenExpiration?: number;
-  tokenPassMethod?: 'cookie' | 'header';
-  erxesAppToken?: string;
-  otpConfig?: IOTPConfig;
-  twoFactorConfig?: TwoFactorConfig;
+  erxesIntegrationToken?: string;
+  auth: {
+    authConfig?: IAuthConfig;
+    googleOAuth?: IGoogleOAuthConfig;
+    facebookOAuth?: IFacebookOAuthConfig;
+    socialpayConfig?: ISocialpayConfig;
+    tokiConfig?: ITokiConfig;
+  };
+  securityAuthConfig?: {
+    otpConfig?: IOTPConfig;
+    multiFactorConfig?: MultiFactorConfig;
+    otpResendConfig?: IOTPResendConfig;
+    resetPasswordConfig?: IResetPasswordConfig;
+  };
 
-  enableOTP?: boolean;
-  enableTwoFactor?: boolean;
-  enableSocialpay?: boolean;
-  enableToki?: boolean;
-  enableManualVerification?: boolean;
-  enablePasswordVerification?: boolean;
-  enableMail?: boolean;
-  enableTestUser?: boolean;
+  smsProvidersConfig?: {
+    callPro: {
+      phone?: string;
+      token?: string;
+    };
+    twilio: {
+      apiKey?: string;
+      apiSecret?: string;
+      apiUrl?: string;
+    };
+  };
 
-  mailConfig?: IMailConfig;
+  // verificationMailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
-  passwordVerificationConfig?: IPasswordVerificationConfig;
-  socialpayConfig?: ISocialpayConfig;
-  tokiConfig?: ITokiConfig;
+  enableManualVerification?: boolean;
 
-  googleCredentials?: string;
-  googleClientId?: string;
-  googleClientSecret?: string;
-  googleRedirectUri?: string;
-
-  testUserEmail?: string;
-  testUserPhone?: string;
-  testUserPassword?: string;
-  testUserOTP?: number;
+  testUser?: ITestUser;
 }
 
 export interface IClientPortalDocument extends IClientPortal, Document {

@@ -164,10 +164,32 @@ import {
 } from '@/properties/graphql/schemas';
 
 import {
+  mutations as ClientPortalMutations,
   queries as ClientPortalQueries,
   types as ClientPortalTypes,
-  mutations as ClientPortalMutations,
 } from '@/clientportal/graphql/schemas/clientPortal';
+
+import {
+  mutations as ImportMutations,
+  queries as ImportQueries,
+  types as ImportTypes,
+} from '~/modules/import-export/graphql/schema/import';
+import {
+  mutations as ExportMutations,
+  queries as ExportQueries,
+  types as ExportTypes,
+} from '~/modules/import-export/graphql/schema/export';
+import {
+  mutations as CPUserMutations,
+  queries as CPUserQueries,
+  types as CPUserTypes,
+} from '@/clientportal/graphql/schemas/cpUser';
+
+import {
+  mutations as BroadcastMutations,
+  queries as BroadcastQueries,
+  types as BroadcastTypes,
+} from '@/broadcast/graphql/schemas';
 
 export const types = `
     enum CacheControlScope {
@@ -212,6 +234,10 @@ export const types = `
     ${RoleTypes}
     ${PropertiesTypes}
     ${ClientPortalTypes}
+    ${ImportTypes}
+    ${ExportTypes}
+    ${CPUserTypes}
+    ${BroadcastTypes}
   `;
 
 export const queries = `
@@ -244,6 +270,10 @@ export const queries = `
     ${RoleQueries}
     ${PropertiesQueries}
     ${ClientPortalQueries}
+    ${ImportQueries}
+    ${ExportQueries}
+    ${CPUserQueries}
+    ${BroadcastQueries}
   `;
 
 export const mutations = `
@@ -275,6 +305,10 @@ export const mutations = `
     ${RoleMutations}
     ${PropertiesMutations}
     ${ClientPortalMutations}
+    ${ImportMutations}
+    ${ExportMutations}
+    ${CPUserMutations}
+    ${BroadcastMutations}
   `;
 
 export default { types, queries, mutations };

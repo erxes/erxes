@@ -1,10 +1,6 @@
-import {
-  IconBriefcase,
-  IconCashRegister,
-  IconSandbox,
-} from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui/types';
-import { Suspense, lazy } from 'react';
+import { IconBriefcase, IconSandbox } from '@tabler/icons-react';
+import { IUIConfig } from 'erxes-ui';
+import { lazy, Suspense } from 'react';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -12,9 +8,9 @@ const MainNavigation = lazy(() =>
   })),
 );
 
-const SalesNavigation = lazy(() =>
-  import('./modules/SalesNavigation').then((module) => ({
-    default: module.SalesNavigation,
+const SalesSubNavigation = lazy(() =>
+  import('./modules/SalesSubNavigation').then((module) => ({
+    default: module.SalesSubNavigation,
   })),
 );
 
@@ -24,11 +20,9 @@ const PosOrderNavigation = lazy(() =>
   })),
 );
 
-export const CONFIG = {
+export const CONFIG: IUIConfig = {
   name: 'sales',
   icon: IconBriefcase,
-  hasRelationWidget: true,
-  widgetsIcon: IconBriefcase,
   navigationGroup: {
     name: 'sales',
     icon: IconBriefcase,
@@ -39,26 +33,39 @@ export const CONFIG = {
     ),
     subGroups: () => (
       <Suspense fallback={<div />}>
-        <SalesNavigation />
+        <SalesSubNavigation />
         <PosOrderNavigation />
       </Suspense>
     ),
   },
   modules: [
     {
+      name: 'sales',
+      icon: IconBriefcase,
+      path: 'sales',
+      hasSettings: false,
+      hasRelationWidget: true,
+      hasFloatingWidget: false,
+    },
+    {
       name: 'deals',
-      icon: IconSandbox,
-      path: 'deals',
-      hasSettings: true,
-      hasAutomation: true,
-      hasSegmentConfigWidget: true,
+      path: 'sales/deals',
+      settingsOnly: true,
     },
     {
       name: 'pos',
-      icon: IconCashRegister,
-      path: 'pos',
+      icon: IconBriefcase,
+      path: 'sales/pos',
       hasSettings: true,
-      hasRelationWidget: true,
+      hasAutomation: false,
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'deals',
+        icon: IconSandbox,
+      },
+    ],
+  },
 };

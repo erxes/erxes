@@ -24,7 +24,4 @@ export const accountSchema = schemaWrapper(
     name: { type: String },
     uid: { type: String },
   }),
-  {
-    contentType: 'frontline:facebook.account',
-  },
 );

@@ -1,13 +1,13 @@
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import * as dotenv from 'dotenv';
 import { isDev } from 'erxes-api-shared/utils';
 import express from 'express';
 import * as http from 'http';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
 import { router } from './routes';
-import * as dotenv from 'dotenv';
 
 import {
   closeMongooose,
@@ -22,10 +22,13 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initSegmentCoreProducers } from './meta/segments';
+import initImportExport from './meta/import-export/import';
+import { initBroadcast } from './meta/broadcast';
 
 dotenv.config();
 
-const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
+const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
+  process.env;
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
@@ -45,10 +48,11 @@ app.use(cookieParser());
 const corsOptions = {
   credentials: true,
   origin: [
-    DOMAIN || 'http://localhost:3001',
+    DOMAIN || 'http://localhost:3000',
+    WIDGETS_DOMAIN || 'http://localhost:3200',
     ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
-    ...(ALLOWED_DOMAINS || '').split(',').map((c) => c && RegExp(c)),
-    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    ...(ALLOWED_DOMAINS || '').split(','),
+    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
   ],
 };
 
@@ -82,7 +86,7 @@ app.use(
   trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext: createTRPCContext(async (subdomain, context) => {
-      const models = await generateModels(subdomain);
+      const models = await generateModels(subdomain, context);
 
       context.models = models;
 
@@ -109,6 +113,8 @@ httpServer.listen(port, async () => {
   });
   await initAutomation(app);
   await initSegmentCoreProducers(app);
+  await initImportExport(app);
+  await initBroadcast(app)
 });
 
 // GRACEFULL SHUTDOWN

@@ -1,7 +1,7 @@
 import { RecordTable } from 'erxes-ui';
 import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
 import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
-import { PosByItemsCommandBar } from '@/pos/pos-by-items/components/pos-by-items-command-bar/PosByItemsCommandBar';
+import { IconShoppingCartX } from '@tabler/icons-react';
 
 export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
   const { posByItemsList, handleFetchMore, loading, pageInfo } =
@@ -33,8 +33,22 @@ export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
             />
           </RecordTable.Body>
         </RecordTable>
+        {!loading && posByItemsList?.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="mb-6">
+                <IconShoppingCartX size={48} className="text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                No pos by items yet
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating your first pos by items.
+              </p>
+            </div>
+          </div>
+        )}
       </RecordTable.CursorProvider>
-      <PosByItemsCommandBar />
     </RecordTable.Provider>
   );
 };

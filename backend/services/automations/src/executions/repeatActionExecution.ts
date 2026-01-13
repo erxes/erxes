@@ -9,9 +9,13 @@ import {
 export const repeatActionExecution = async (
   subdomain: string,
   models: IModels,
-  repeatOptions: { executionId: string; actionId: string },
+  repeatOptions: {
+    executionId: string;
+    actionId: string;
+    optionalConnectId?: string;
+  },
 ) => {
-  const { executionId, actionId } = repeatOptions;
+  const { executionId, actionId, optionalConnectId } = repeatOptions;
   const execution = await models.Executions.findOne({ _id: executionId });
   if (!execution) {
     throw new Error('Execution not found');
@@ -36,6 +40,19 @@ export const repeatActionExecution = async (
   }
   const nextExecutedAction = actions[actionIndex + 1];
 
+  let nextExecutedActionId = nextExecutedAction?.id;
+
+  if (optionalConnectId) {
+    const action = actionsMap[actionId];
+    const { optionalConnects = [] } = action?.config || {};
+    const optionalConnect = optionalConnects.find(
+      (connect) => connect.optionalConnectId === optionalConnectId,
+    );
+    if (optionalConnect) {
+      nextExecutedActionId = optionalConnect.actionId;
+    }
+  }
+
   if (nextExecutedAction) {
     execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
     await execution.save();
@@ -44,7 +61,7 @@ export const repeatActionExecution = async (
       execution.triggerType,
       execution,
       actionsMap,
-      nextExecutedAction.id,
+      nextExecutedActionId,
     );
   }
 };

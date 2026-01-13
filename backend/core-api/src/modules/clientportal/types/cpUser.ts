@@ -3,48 +3,60 @@ import { IAttachment } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 
 export interface ICPNotificationConfig {
-  notifType: string;
+  notificationType: string;
   label: string;
   isAllowed: boolean;
 }
 
-export interface ICPNotifcationSettings {
+export interface ICPNotificationSettings {
   receiveByEmail: boolean;
   receiveBySms: boolean;
   configs: ICPNotificationConfig[];
 }
 
-export interface ICPUser {
+export interface ICPUserRegisterParams {
   email?: string;
   phone?: string;
   username?: string;
   firstName?: string;
   lastName?: string;
-  companyName?: string;
-  companyRegistrationNumber?: string;
+  password?: string;
+  type?: string | 'customer' | 'company';
+}
+
+export interface IRefreshToken {
+  token: string;
+  deviceId?: string;
+  userAgent?: string;
+  ipAddress?: string;
+  createdAt: Date;
+  expiresAt: Date;
+}
+
+export interface ISocialAuthProvider {
+  provider: 'GOOGLE' | 'FACEBOOK' | 'APPLE';
+  providerId: string;
+  email?: string;
+  linkedAt: Date;
+}
+
+export interface ICPUser {
+  type?: string;
+  email?: string;
+  phone?: string;
+  username?: string;
   code?: string;
   password?: string;
-  secondaryPassword?: string;
-  type?: string;
-  deviceTokens?: string[];
-  twoFactorDevices?: ICPTwoFactorDevice[];
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+
+  companyName?: string;
+  companyRegistrationNumber?: string;
   clientPortalId: string;
   erxesCustomerId?: string;
   erxesCompanyId?: string;
-  createdAt?: Date;
-  modifiedAt?: Date;
-  resetPasswordToken?: string;
-  resetPasswordExpires?: Date;
-  registrationToken?: string;
-  registrationTokenExpires?: Date;
-  isOnline?: boolean;
-  lastSeenAt?: Date;
-  sessionCount?: number;
-  notificationSettings: ICPNotifcationSettings;
-  avatar?: string;
   customFieldsData?: any;
-  facebookId?: string;
-  googleId?: string;
 
   // verification for company
   verificationRequest?: {
@@ -53,39 +65,41 @@ export interface ICPUser {
     description?: string;
     verifiedBy?: string;
   };
-}
+  isVerified: boolean;
 
-export interface ICPInvitiation extends ICPUser {
-  disableVerificationMail?: boolean;
+  isPhoneVerified: boolean;
+  isEmailVerified: boolean;
+  // firebase cloud messaging tokens for push notifications and web push notifications
+  fcmTokens: string[];
+  // Verification codes - unified structure
+  actionCode?: {
+    code: string;
+    expires: Date;
+    type:
+      | 'EMAIL_VERIFICATION'
+      | 'PHONE_VERIFICATION'
+      | 'PASSWORD_RESET'
+      | 'TWO_FACTOR_VERIFICATION';
+  };
+
+  // Refresh tokens for token management
+  refreshTokens?: IRefreshToken[];
+
+  // Social auth providers for account linking
+  socialAuthProviders?: ISocialAuthProvider[];
+
+  // Security and tracking fields
+  failedLoginAttempts?: number;
+  accountLockedUntil?: Date;
+  lastLoginAt?: Date;
+  primaryAuthMethod?: 'email' | 'phone' | 'social';
+  otpResendAttempts?: number;
+  otpResendLastAttempt?: Date;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ICPUserDocument extends ICPUser, Document {
   _id: string;
-  phoneVerificationCode: string;
-  phoneVerificationCodeExpires: Date;
-  emailVerificationCode: string;
-  emailVerificationCodeExpires: Date;
-  isPhoneVerified: boolean;
-  isEmailVerified: boolean;
-}
-
-export interface ICPTwoFactorDevice {
-  device: string;
-  key: string;
-  date: Date;
-}
-
-export interface ICPVerificationParams {
-  userId: string;
-  emailOtp?: string;
-  phoneOtp?: string;
-  password?: string;
-  twoFactor?: ICPTwoFactorDevice;
-}
-
-export interface ICPContactsParams {
-  models: IModels;
-  clientPortalId: string;
-  document: any;
-  password?: string;
 }

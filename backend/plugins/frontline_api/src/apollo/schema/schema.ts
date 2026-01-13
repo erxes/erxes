@@ -68,6 +68,22 @@ import {
   queries as NoteQueries,
   types as NoteTypes,
 } from '@/ticket/graphql/schemas/note';
+import {
+  mutations as TicketConfigMutations,
+  queries as TicketConfigQueries,
+  types as TicketConfigTypes,
+} from '@/ticket/graphql/schemas/ticketConfig';
+
+import {
+  mutations as ResponseTemplateMutations,
+  queries as ResponseTemplateQueries,
+  types as ResponseTemplateTypes,
+} from '~/modules/response/graphql/schema';
+
+import {
+  queries as ReportQueries,
+  types as ReportTypes,
+} from '@/reports/graphql/schema';
 
 export const types = `
     ${ChannelsTypes}
@@ -82,6 +98,10 @@ export const types = `
     ${WidgetTypes}
     ${ActivityTypes}
     ${NoteTypes}
+    ${TicketConfigTypes}
+    ${ResponseTemplateTypes}
+    ${ReportTypes}
+
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -96,6 +116,9 @@ export const queries = `
     ${WidgetQueries}
     ${ActivityQueries}
     ${NoteQueries}
+    ${TicketConfigQueries}
+    ${ResponseTemplateQueries}
+    ${ReportQueries}
   `;
 
 export const mutations = `
@@ -110,5 +133,7 @@ export const mutations = `
    ${TicketMutations}
    ${WidgetMutations}
    ${NoteMutations}
+   ${TicketConfigMutations}
+   ${ResponseTemplateMutations}
 `;
 export default { types, queries, mutations };

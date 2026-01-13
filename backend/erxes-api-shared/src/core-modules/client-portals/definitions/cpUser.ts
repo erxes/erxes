@@ -1,11 +1,11 @@
 import { Schema } from 'mongoose';
 
 import { mongooseStringRandomId } from '../../../utils';
-
 export const cpNotificationConfigSchema = new Schema(
   {
-    notifType: {
+    notificationType: {
       type: String,
+      required: true,
     },
     isAllowed: {
       type: Boolean,
@@ -13,6 +13,7 @@ export const cpNotificationConfigSchema = new Schema(
     },
     label: {
       type: String,
+      required: true,
     },
   },
   { _id: false },
@@ -39,144 +40,171 @@ export const cpNotificationSettingsSchema = new Schema(
   {
     receiveByEmail: {
       type: Boolean,
-      default: false,
+      required: true,
     },
     receiveBySms: {
       type: Boolean,
-      default: false,
+      required: true,
     },
-
-    // notification configs
     configs: {
       type: [cpNotificationConfigSchema],
-      default: [],
+      required: true,
     },
   },
   { _id: false },
 );
 
-export const cpUserSchema = new Schema({
-  _id: mongooseStringRandomId,
-  type: {
-    type: String,
-    enum: ['customer', 'admin'],
-    default: 'customer',
-  },
-  email: {
-    type: String,
-    match: [
-      /^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,10})+$/,
-      'Please fill a valid email address',
-    ],
-    label: 'Email',
-    optional: true,
-    sparse: true,
-  },
-  phone: { type: String, optional: true, sparse: true },
-  username: {
-    type: String,
-    optional: true,
-    unique: true,
-    sparse: true,
-  },
-  code: { type: String, optional: true },
-  password: { type: String },
-  firstName: {
-    type: String,
-    optional: true,
-    label: 'First name',
-  },
-  secondaryPassword: { type: String, optional: true },
-  lastName: { type: String, optional: true, label: 'Last name' },
-  companyName: {
-    type: String,
-    optional: true,
-    label: 'Company name',
-  },
-  companyRegistrationNumber: {
-    type: String,
-    optional: true,
-    label: 'Company registration number',
-  },
-  clientPortalId: { type: String, required: true },
-  erxesCompanyId: { type: String, optional: true },
-  erxesCustomerId: { type: String, optional: true },
-  phoneVerificationCode: { type: String, optional: true },
-  phoneVerificationCodeExpires: { type: Date, optional: true },
-  emailVerificationCode: { type: String, optional: true },
-  emailVerificationCodeExpires: { type: Date, optional: true },
-  isPhoneVerified: {
-    type: Boolean,
-    optional: true,
-    default: false,
-  },
-  isEmailVerified: {
-    type: Boolean,
-    optional: true,
-    default: false,
-  },
-  deviceTokens: {
-    type: [String],
-    default: [],
-    label: 'Device tokens',
-  },
-  twoFactorDevices: { type: [cpTwoFactor], default: [] },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    label: 'Registered at',
-  },
-  modifiedAt: { type: Date },
-
-  resetPasswordToken: { type: String, optional: true },
-  resetPasswordExpires: { type: Date, optional: true },
-
-  registrationToken: { type: String },
-  registrationTokenExpires: { type: Date },
-  isOnline: {
-    type: Boolean,
-    label: 'Is online',
-    optional: true,
-  },
-  lastSeenAt: {
-    type: Date,
-    label: 'Last seen at',
-    optional: true,
-  },
-  sessionCount: {
-    type: Number,
-    label: 'Session count',
-    optional: true,
-  },
-
-  // notification settings
-  notificationSettings: {
-    type: cpNotificationSettingsSchema,
-    default: {},
-  },
-  avatar: { type: String, label: 'Avatar' },
-
-  // manual verification
-  verificationRequest: {
-    type: {
-      status: { type: String, default: 'notVerified' },
-      attachments: { type: Object, optional: false },
-      description: { type: String, optional: true },
-      verifiedBy: { type: String, optional: true },
-    },
-    optional: true,
-  },
-
-  facebookId: { type: String },
-  googleId: { type: String },
-});
-
-cpUserSchema.index(
-  { createdAt: 1 },
+export const refreshTokenSchema = new Schema(
   {
-    expireAfterSeconds: 24 * 60 * 60,
-    partialFilterExpression: {
-      $and: [{ isPhoneVerified: false }, { isEmailVerified: false }],
+    token: { type: String, required: true },
+    deviceId: { type: String },
+    userAgent: { type: String },
+    ipAddress: { type: String },
+    createdAt: { type: Date, default: Date.now },
+    expiresAt: { type: Date, required: true },
+  },
+  { _id: false },
+);
+
+export const socialAuthProviderSchema = new Schema(
+  {
+    provider: {
+      type: String,
+      enum: ['GOOGLE', 'FACEBOOK', 'APPLE'],
+      required: true,
+    },
+    providerId: { type: String, required: true },
+    email: { type: String },
+    linkedAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
+const actionCodeSchema = new Schema(
+  {
+    code: { type: String, required: true },
+    expires: { type: Date, required: true },
+    type: {
+      type: String,
+      required: true,
+      enum: [
+        'EMAIL_VERIFICATION',
+        'PHONE_VERIFICATION',
+        'PASSWORD_RESET',
+        'TWO_FACTOR_VERIFICATION',
+      ],
     },
   },
+  { _id: false },
 );
+
+const verificationRequestSchema = new Schema(
+  {
+    status: { type: String, required: true },
+    attachments: { type: [Object], required: true },
+    description: { type: String },
+    verifiedBy: { type: String },
+  },
+  { _id: false },
+);
+
+export const cpUserSchema = new Schema(
+  {
+    _id: mongooseStringRandomId,
+    type: {
+      type: String,
+      enum: ['customer', 'company'],
+      default: 'customer',
+    },
+    email: {
+      type: String,
+      match: [
+        /^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,10})+$/,
+        'Please fill a valid email address',
+      ],
+      label: 'Email',
+      sparse: true,
+    },
+    phone: { type: String, sparse: true },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    code: { type: String },
+    password: { type: String },
+    firstName: {
+      type: String,
+      label: 'First name',
+    },
+    lastName: { type: String, label: 'Last name' },
+    avatar: { type: String, label: 'Avatar' },
+
+    companyName: {
+      type: String,
+      label: 'Company name',
+    },
+    companyRegistrationNumber: {
+      type: String,
+      label: 'Company registration number',
+    },
+    isVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    clientPortalId: { type: String, required: true },
+    erxesCompanyId: { type: String },
+    erxesCustomerId: { type: String },
+    isPhoneVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    fcmTokens: {
+      type: [String],
+      default: [],
+    },
+    actionCode: {
+      type: actionCodeSchema,
+    },
+    customFieldsData: { type: Object },
+
+    // manual verification
+    verificationRequest: {
+      type: verificationRequestSchema,
+    },
+
+    // Refresh tokens for token management
+    refreshTokens: {
+      type: [refreshTokenSchema],
+      default: [],
+    },
+
+    // Social auth providers for account linking
+    socialAuthProviders: {
+      type: [socialAuthProviderSchema],
+      default: [],
+    },
+
+    // Security and tracking fields
+    failedLoginAttempts: { type: Number },
+    accountLockedUntil: { type: Date },
+    lastLoginAt: { type: Date },
+    primaryAuthMethod: {
+      type: String,
+      enum: ['email', 'phone', 'social'],
+    },
+    otpResendAttempts: { type: Number },
+    otpResendLastAttempt: { type: Date },
+  },
+  { timestamps: true },
+);
+cpUserSchema.index({ clientPortalId: 1 });
+cpUserSchema.index({ email: 1 });
+cpUserSchema.index({ phone: 1 });

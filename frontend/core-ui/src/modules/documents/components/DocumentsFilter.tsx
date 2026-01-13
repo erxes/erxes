@@ -1,14 +1,23 @@
+import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
 import {
-  IconCalendarPlus,
-  IconSearch,
-} from '@tabler/icons-react';
-import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+  Combobox,
+  Command,
+  Filter,
+  PageSubHeader,
+  useMultiQueryState,
+} from 'erxes-ui';
+import { useSearchParams } from 'react-router';
 import { SelectMember } from 'ui-modules';
 import { DocumentFilterState } from '../types';
+import { useTranslation } from 'react-i18next';
 
 // TODO: Change assignedTo to createdBy
 
 export const DocumentsFilter = () => {
+  const [searchParams] = useSearchParams();
+
+  const documentId = searchParams.get('documentId');
+
   const [queries] = useMultiQueryState<DocumentFilterState>([
     'createdAt',
     'assignedTo',
@@ -19,41 +28,49 @@ export const DocumentsFilter = () => {
     (value) => value !== null,
   );
 
+  if (documentId !== null) {
+    return null;
+  }
+
   return (
-    <Filter id="documents-filter">
-      <Filter.Bar className="overflow-auto styled-scroll">
-        <DocumentFilterBar queries={queries} />
-        <div className="flex flex-wrap items-center gap-2 flex-1">
-          <Filter.Popover scope={'documents-page'}>
-            <Filter.Trigger isFiltered={hasFilters} />
-            <Combobox.Content>
-              <DocumentFilterView />
-            </Combobox.Content>
-          </Filter.Popover>
-          <Filter.Dialog>
-            <Filter.View filterKey="searchValue" inDialog>
-              <Filter.DialogStringView filterKey="searchValue" />
-            </Filter.View>
-            <Filter.View filterKey="createdAt" inDialog>
-              <Filter.DialogDateView filterKey="createdAt" />
-            </Filter.View>
-          </Filter.Dialog>
-        </div>
-      </Filter.Bar>
-    </Filter>
+    <PageSubHeader>
+      <Filter id="documents-filter">
+        <Filter.Bar className="overflow-auto styled-scroll">
+          <DocumentFilterBar queries={queries} />
+          <div className="flex flex-wrap items-center gap-2 flex-1">
+            <Filter.Popover scope={'documents-page'}>
+              <Filter.Trigger isFiltered={hasFilters} />
+              <Combobox.Content>
+                <DocumentFilterView />
+              </Combobox.Content>
+            </Filter.Popover>
+            <Filter.Dialog>
+              <Filter.View filterKey="searchValue" inDialog>
+                <Filter.DialogStringView filterKey="searchValue" />
+              </Filter.View>
+              <Filter.View filterKey="createdAt" inDialog>
+                <Filter.DialogDateView filterKey="createdAt" />
+              </Filter.View>
+            </Filter.Dialog>
+          </div>
+        </Filter.Bar>
+      </Filter>
+    </PageSubHeader>
   );
 };
 
 const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
   const { searchValue, assignedTo } = queries || {};
+  const { t } = useTranslation('documents', {
+    keyPrefix: 'filter',
+  });
 
   return (
     <>
-
       <Filter.BarItem queryKey="searchValue">
         <Filter.BarName>
           <IconSearch />
-          Search
+          {t('search')}
         </Filter.BarName>
         <Filter.BarButton filterKey="searchValue" inDialog>
           {searchValue}
@@ -63,7 +80,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          Created At
+          {t('created-at')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
@@ -73,6 +90,9 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
 };
 
 const DocumentFilterView = () => {
+  const { t } = useTranslation('documents', {
+    keyPrefix: 'filter',
+  });
   return (
     <>
       <Filter.View>
@@ -85,14 +105,14 @@ const DocumentFilterView = () => {
           <Command.List className="p-1">
             <Filter.Item value="searchValue" inDialog>
               <IconSearch />
-              Search
+              {t('search')}
             </Filter.Item>
 
             <SelectMember.FilterItem />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdAt">
               <IconCalendarPlus />
-              Created At
+              {t('created-at')}
             </Filter.Item>
           </Command.List>
         </Command>

@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Input,
   Separator,
@@ -17,6 +18,8 @@ import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectSta
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectTags } from 'ui-modules';
+import { Button } from 'erxes-ui';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
@@ -28,15 +31,65 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     pipelineId,
     statusId,
     channelId,
+    tagIds,
+    isSubscribed: _isSubscribed,
   } = ticket || {};
-
+  console.log(ticket, 'ticketticketticketticketticket');
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
-  const parsedDescription = description ? JSON.parse(description) : undefined;
-  const initialDescriptionContent =
-    Array.isArray(parsedDescription) && parsedDescription.length > 0
-      ? parsedDescription
-      : undefined;
+  const isFirstRun = React.useRef(true);
+
+  const parseDescription = (desc: string | undefined): Block[] | undefined => {
+    if (!desc) return undefined;
+    try {
+      const parsed = JSON.parse(desc);
+      if (
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        parsed.every(
+          (block) =>
+            typeof block === 'object' &&
+            block !== null &&
+            'id' in block &&
+            'type' in block &&
+            'content' in block,
+        )
+      ) {
+        return parsed as Block[];
+      }
+    } catch (error) {
+      console.debug(
+        'Failed to parse description as JSON, treating as plain text:',
+        error,
+      );
+      const lines = desc.split('\n');
+      if (lines.length === 0) return undefined;
+
+      return lines.map((line) => ({
+        id: crypto.randomUUID(),
+        type: 'paragraph',
+        props: {
+          textColor: 'default',
+          backgroundColor: 'default',
+          textAlignment: 'left',
+        },
+        content: line
+          ? [
+              {
+                type: 'text',
+                text: line,
+                styles: {},
+              },
+            ]
+          : [],
+        children: [],
+      })) as Block[];
+    }
+    return undefined;
+  };
+
+  const parsedDescription = parseDescription(description);
+  const initialDescriptionContent = parsedDescription;
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
@@ -48,6 +101,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   });
   const { updateTicket } = useUpdateTicket();
   const [name, setName] = useState(_name);
+  const [isSubscribed, setSubscribe] = useState<boolean>(
+    _isSubscribed || false,
+  );
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
@@ -55,6 +111,25 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       content.pop();
       setDescriptionContent(content as Block[]);
     }
+  };
+
+  const FieldSubscribeSwitch = ({
+    isSubscribed,
+  }: {
+    isSubscribed: boolean;
+  }) => {
+    return (
+      <div
+        className="space-x-2 flex items-center gap-2"
+        onClick={() => {
+          setSubscribe(!isSubscribed);
+        }}
+      >
+        <Button variant="ghost">
+          <legend>{isSubscribed ? 'UnSubscribe' : 'Subscribe'}</legend>
+        </Button>
+      </div>
+    );
   };
 
   const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
@@ -72,9 +147,10 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   }, [debouncedName]);
   useEffect(() => {
     if (!debouncedDescriptionContent) return;
+    const currentParsed = parseDescription(description);
     if (
       JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(description ? JSON.parse(description) : undefined)
+      JSON.stringify(currentParsed)
     ) {
       return;
     }
@@ -86,6 +162,23 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
+
+  useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    if (isSubscribed === _isSubscribed) return;
+    if (isSubscribed !== undefined) {
+      updateTicket({
+        variables: {
+          _id: ticketId,
+          isSubscribed: isSubscribed,
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubscribed, _isSubscribed, ticketId]);
   return (
     <div className="flex flex-col gap-3 h-full">
       <Input
@@ -138,6 +231,19 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           type="targetDate"
           variant="detail"
         />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="frontline:ticket"
+          onValueChange={(newTagIds: string[] | string) => {
+            updateTicket({
+              variables: {
+                _id: ticketId,
+                tagIds: newTagIds,
+              },
+            });
+          }}
+        />
+        <FieldSubscribeSwitch isSubscribed={isSubscribed} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">

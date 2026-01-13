@@ -9,7 +9,9 @@ import { TAutomationProducersInput } from '../../core-modules/automations/zodTyp
 import { TSegmentProducers } from '../../core-modules/segments/types';
 import { TAfterProcessProducers } from '../../core-modules/logs/types';
 import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
-
+import { TImportExportProducersInput } from '../../core-modules/import-export/zodSchemas';
+import { TImportExportProducers } from '../../core-modules/import-export/types';
+import { encodeTRPCContextHeader, TRPCContext, trpcContextHeaderName } from '.';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -19,6 +21,9 @@ type TModuleProducerInputMap = {
   };
   afterProcess: {
     [K in TAfterProcessProducers]: any;
+  };
+  importExport: {
+    [K in TImportExportProducers]: TImportExportProducersInput[K];
   };
 };
 
@@ -34,6 +39,7 @@ type TCoreModuleProducer<
   input: TModuleProducerInputMap[TModuleName][TProducerName];
   defaultValue?: any;
   options?: TRPCRequestOptions;
+  context?: TRPCContext;
 };
 
 export const sendCoreModuleProducer = async <
@@ -48,6 +54,7 @@ export const sendCoreModuleProducer = async <
   input,
   defaultValue,
   options,
+  context,
 }: TCoreModuleProducer<TModuleName, TProducerName>): Promise<any> => {
   if (pluginName && !(await isEnabled(pluginName))) {
     return defaultValue;
@@ -62,16 +69,46 @@ export const sendCoreModuleProducer = async <
     );
     return defaultValue;
   }
+  const contextHeader = encodeTRPCContextHeader(subdomain, method, context);
 
-  const client = createTRPCUntypedClient({
-    links: [httpBatchLink({ url: `${pluginInfo.address}/${moduleName}` })],
-  });
+  const baseUrl = `${pluginInfo.address}/${moduleName}`;
 
-  const result = await client[method](
-    String(producerName),
-    { subdomain, data: input ?? {} },
-    options,
-  );
+  try {
+    const client = createTRPCUntypedClient({
+      links: [
+        httpBatchLink({
+          url: baseUrl,
+          headers: () => ({
+            [trpcContextHeaderName]: contextHeader,
+          }),
+        }),
+      ],
+    });
 
-  return result || defaultValue;
+    const result = await client[method](
+      String(producerName),
+      { subdomain, data: input ?? {} },
+      options,
+    );
+
+    return result || defaultValue;
+  } catch (error: any) {
+    const errorMessage = error?.message || 'Unknown error';
+    const errorCode = error?.cause?.code || error?.code;
+
+    if (errorCode === 'ECONNREFUSED') {
+      console.warn(
+        `[TRPC] Connection refused to plugin "${pluginName}" at ${baseUrl}. ` +
+          `The plugin service may not be running or is not accessible. ` +
+          `Returning defaultValue.`,
+      );
+    } else {
+      console.warn(
+        `[TRPC] Error calling plugin "${pluginName}" at ${baseUrl}: ${errorMessage}. ` +
+          `Returning defaultValue.`,
+      );
+    }
+
+    throw error;
+  }
 };

@@ -7,6 +7,7 @@ import {
   Checkbox,
   cn,
   CurrencyField,
+  fixNum,
   Form,
   InputNumber,
   PopoverScoped,
@@ -43,6 +44,18 @@ export const InventoryRow = ({
   });
 
   const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+
+  const { unitPrice, count, _id } = detail;
+
+  const initProductId = useRef(detail.productId);
+  const initOutAccountId = useRef(trDoc.followInfos?.saleOutAccountId);
+  const initBranchId = useRef(trDoc.branchId);
+  const initDepartmentId = useRef(trDoc.departmentId);
+  const [unitCost, setUnitCost] = useState(followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.originType === 'invSaleOut')?.details.find(fd => fd.originId === detail._id)?.unitPrice ?? 0)
+
+  const getFieldName = (name: string) => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
+  };
 
   useEffect(() => {
     const currOut = followTrDocs.find(
@@ -81,7 +94,9 @@ export const InventoryRow = ({
             account: trDoc.followExtras?.saleOutAccount,
             accountId: trDoc.followInfos?.saleOutAccountId,
             side: TR_SIDES.CREDIT,
-            amount: 0,
+            unitPrice: unitCost,
+            count: detail.count,
+            amount: fixNum(unitCost * (detail.count ?? 0)),
           } as ITrDetail
         }
         return curOutDetail;
@@ -105,7 +120,9 @@ export const InventoryRow = ({
             account: trDoc.followExtras?.saleCostAccount,
             accountId: trDoc.followInfos?.saleCostAccountId,
             side: TR_SIDES.DEBIT,
-            amount: 0,
+            unitPrice: unitCost,
+            count: detail.count,
+            amount: fixNum(unitCost * (detail.count ?? 0)),
           } as ITrDetail
         }
         return curCostDetail;
@@ -125,7 +142,7 @@ export const InventoryRow = ({
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [detail, unitCost]);
 
   const [taxPercents] = useAtom(taxPercentsState);
 
@@ -151,20 +168,9 @@ export const InventoryRow = ({
     amountWithTax: ((detail.amount ?? 0) / 100) * (100 + rowPercent),
   });
 
-  const { unitPrice, count, _id } = detail;
-
-  const initProductId = useRef(detail.productId);
-  const initAccountId = useRef(detail.accountId);
-  const initBranchId = useRef(trDoc.branchId);
-  const initDepartmentId = useRef(trDoc.departmentId);
-
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
-  };
-
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
-      accountId: detail.accountId,
+      accountId: trDoc.followInfos?.saleOutAccountId,
       branchId: trDoc.branchId,
       departmentId: trDoc.departmentId,
       productIds: [detail.productId],
@@ -173,25 +179,25 @@ export const InventoryRow = ({
       !detail.productId ||
       !trDoc.branchId ||
       !trDoc.departmentId ||
-      !detail.accountId ||
+      !trDoc.followInfos?.saleOutAccountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
         initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
         initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
-        initAccountId.current &&
-        detail.accountId === initAccountId.current),
+        initOutAccountId.current &&
+        trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
   });
 
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
     if (loading || !currentCostInfo) return;
 
-    const cost = currentCostInfo[detail.productId || ''];
-    if (cost === undefined) return;
+    const costInfo = currentCostInfo[detail.productId || ''];
+    if (costInfo === undefined) return;
 
-    form.setValue(getFieldName('unitPrice'), cost);
+    setUnitCost(fixNum(costInfo.unitCost ?? 0));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.productId, loading]);

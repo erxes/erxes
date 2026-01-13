@@ -17,28 +17,28 @@ export const Login = () => {
           Please sign in to your account to continue
         </div>
       </div>
-      {isOS && (
-        <ToggleGroup
-          type="single"
-          value={value}
-          onValueChange={(value) => setValue(value as string)}
-          className="w-full grid grid-cols-2 p-1 rounded-lg bg-sidebar gap-1"
-          variant="outline"
+
+      <ToggleGroup
+        type="single"
+        value={value}
+        onValueChange={(value) => setValue(value as string)}
+        className="w-full grid grid-cols-2 p-1 rounded-lg gap-1"
+        variant="outline"
+      >
+        <ToggleGroup.Item
+          value="magic-link"
+          className="data-[state=on]:text-primary"
         >
-          <ToggleGroup.Item
-            value="magic-link"
-            className="data-[state=on]:text-primary"
-          >
-            Magic link
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="credential"
-            className="data-[state=on]:text-primary"
-          >
-            Email & password
-          </ToggleGroup.Item>
-        </ToggleGroup>
-      )}
+          Magic link
+        </ToggleGroup.Item>
+        <ToggleGroup.Item
+          value="credential"
+          className="data-[state=on]:text-primary"
+        >
+          Email & password
+        </ToggleGroup.Item>
+      </ToggleGroup>
+
       <Tabs
         defaultValue="credential"
         value={value}

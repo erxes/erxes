@@ -1,14 +1,27 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+
+    type FieldOption {
+        label: String
+        value: String
+    }
+
+    input FieldOptionInput {
+        label: String
+        value: String
+    }
+
     type Field {
         _id: String!
         name: String
         code: String
         type: String
         order: Float
+        options: [FieldOption]
         validations: JSON
         logics: JSON
+        icon: String
         createdAt: Date
         updatedAt: Date
     }
@@ -20,25 +33,11 @@ export const types = `
     }
 
     input FieldsParams {
-        contentType: String!
-        contentTypeId: String
-        groupIds: [String]
-
-        ${GQL_CURSOR_PARAM_DEFS}
-    }
-
-    input FieldInput {  
-        name: String
-        code: String
-        groupId: String
         contentType: String
         contentTypeId: String
-        
-        type: String
-        order: Float
+        groupId: String
 
-        validations: JSON
-        logics: JSON
+        ${GQL_CURSOR_PARAM_DEFS}
     }
 `;
 
@@ -47,8 +46,22 @@ export const queries = `
     fieldDetail(_id: String!): Field
 `;
 
+const mutationParams = `
+    name: String
+    code: String
+    groupId: String
+    contentType: String
+    contentTypeId: String
+    
+    type: String
+    options: [FieldOptionInput]
+    validations: JSON
+    logics: JSON
+    icon: String
+`;
+
 export const mutations = `
-    fieldAdd(doc: FieldInput!): Field
-    fieldEdit(_id: String!, doc: FieldInput!): Field
+    fieldAdd(${mutationParams}): Field
+    fieldEdit(_id: String!, order: Float, ${mutationParams}): Field
     fieldRemove(_id: String!): Field
 `;

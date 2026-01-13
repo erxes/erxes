@@ -6,7 +6,7 @@ import React from 'react';
 import { cn } from '../lib/utils';
 import dayjs from 'dayjs';
 
-type DatePickerProps = {
+export type DatePickerProps = {
   value: Date | Date[] | undefined;
   onChange: (date: Date | Date[] | undefined) => void;
   placeholder?: string;
@@ -63,7 +63,7 @@ export const DatePicker = ({
           variant={variant}
           disabled={Boolean(disabled)}
           className={cn(
-            !value && 'text-muted-foreground',
+            !value && 'text-accent-foreground',
             Boolean(disabled) && 'cursor-not-allowed opacity-50',
             className,
           )}

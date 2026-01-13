@@ -111,6 +111,7 @@ export const commonListFields = `
   stage {
     _id
     name
+    defaultTick
   }
   stageId
   isComplete
@@ -158,6 +159,7 @@ export const GET_DEALS = gql`
             _id
             name
           }
+          productsData
           unUsedAmount
           amount
           ${commonListFields}
@@ -170,6 +172,11 @@ export const GET_DEALS = gql`
             title
           }
           relations
+          pipeline {
+            _id
+            name
+          }
+          boardId
         }
         pageInfo {
           endCursor
@@ -177,6 +184,7 @@ export const GET_DEALS = gql`
           hasNextPage
           hasPreviousPage
         }
+       
         totalCount
       }
   }
@@ -217,8 +225,25 @@ export const GET_DEAL_DETAIL = gql`
       products {
         _id
         name
+        code
+        unitPrice
+        category {
+          _id
+          name
+        }
+        vendor {
+          _id
+          primaryName
+        }
+        categoryId
       }
+      productsData
       relations
+      pipeline {
+        _id
+        name
+      }
+      boardId
     }
   }
 `;

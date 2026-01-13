@@ -1,3 +1,4 @@
+import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
 
 const userQueries = {
@@ -18,5 +19,9 @@ const userQueries = {
     return models.PosUsers.find(query).lean();
   },
 };
-
+markResolvers(userQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 export default userQueries;

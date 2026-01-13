@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-
 import { getPluginsSettingsRoutes } from '@/app/hooks/usePluginsRouter';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
 import {
@@ -9,9 +8,8 @@ import {
 } from '@/types/paths/SettingsPath';
 import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
-import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
-
+import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
     default: module.SettingsProfilePage,
@@ -49,17 +47,10 @@ const PermissionsSettings = lazy(() =>
     default: module.PermissionPage,
   })),
 );
-// const StructureSettings = lazy(() =>
-//   import('~/pages/settings/workspace/structure/StructureSettingsPage').then(
-//     (module) => ({
-//       default: module.StructureSettingsPage,
-//     }),
-//   ),
-// );
 
-const TagsSettings = lazy(() =>
-  import('~/pages/settings/workspace/tags/TagsSettingPage').then((module) => ({
-    default: module.TagsSettingPage,
+const TagsPage = lazy(() =>
+  import('~/pages/settings/workspace/tags/TagsPage').then((module) => ({
+    default: module.TagsPage,
   })),
 );
 
@@ -90,12 +81,10 @@ const AutomationSettingsRoutes = lazy(() =>
   })),
 );
 
-const PropertiesSettins = lazy(() =>
-  import('~/pages/settings/workspace/PropertiesSettingsPage').then(
-    (module) => ({
-      default: module.PropertiesSettingsPage,
-    }),
-  ),
+const PropertiesSettingsRoutes = lazy(() =>
+  import('@/properties/components/PropertiesRoutes').then((module) => ({
+    default: module.PropertiesSettingsRoutes,
+  })),
 );
 
 export function SettingsRoutes() {
@@ -153,28 +142,24 @@ export function SettingsRoutes() {
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
         /> */}
-        <Route path={SettingsWorkspacePath.Tags} element={<TagsSettings />} />
+        <Route path={SettingsWorkspacePath.Tags} element={<TagsPage />} />
         <Route
           path={SettingsWorkspacePath.Brands}
           element={<BrandsSettingsRoutes />}
         />
-        {isOs && (
-          <Route
-            path={SettingsWorkspacePath.ProductsCatchAll}
-            element={<ProductsSettingsRoutes />}
-          />
-        )}
-        {isOs && (
-          <Route
-            path={SettingsWorkspacePath.AutomationsCatchAll}
-            element={<AutomationSettingsRoutes />}
-          />
-        )}
+        <Route
+          path={SettingsWorkspacePath.ProductsCatchAll}
+          element={<ProductsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.AutomationsCatchAll}
+          element={<AutomationSettingsRoutes />}
+        />
 
         <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
         <Route
-          path={SettingsWorkspacePath.Properties}
-          element={<PropertiesSettins />}
+          path={SettingsWorkspacePath.PropertiesCatchAll}
+          element={<PropertiesSettingsRoutes />}
         />
         {getPluginsSettingsRoutes()}
       </Routes>

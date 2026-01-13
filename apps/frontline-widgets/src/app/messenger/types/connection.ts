@@ -5,12 +5,13 @@ export interface IConnectionInfo {
 
 export interface IWidgetData {
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
+  ticketConfig?: ITicketConfig;
   languageCode?: string;
   uiOptions?: IWidgetUiOptions;
   customerId?: string;
   visitorId?: string;
   integrationId?: string;
+  customer?: ICustomerData;
 }
 
 export interface IMessengerData {
@@ -57,8 +58,10 @@ export interface IMessageDataMessages {
 }
 
 export interface IWidgetUiOptions {
-  color?: string;
-  textColor?: string;
+  primary?: {
+    DEFAULT?: string;
+    foreground?: string;
+  };
   logo?: string;
 }
 
@@ -85,4 +88,63 @@ export interface RequestBrowserInfoParams {
   source: string;
   postData?: any;
   callback: (browserInfo: IBrowserInfo) => void;
+}
+
+export interface ITicketFormField {
+  isShow?: boolean;
+  label?: string;
+  placeholder?: string;
+  order?: number;
+}
+export interface ITicketFormFields {
+  name?: ITicketFormField;
+  description?: ITicketFormField;
+  attachment?: ITicketFormField;
+  tags?: ITicketFormField;
+}
+
+export interface ITicketConfig {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  pipelineId: string;
+  channelId: string;
+  selectedStatusId: string;
+  formFields: ITicketFormFields;
+  parentId?: string;
+}
+
+export interface IMessengerData {
+  integrationId: string;
+  email?: string;
+  phone?: string;
+  code?: string;
+  data?: any;
+  companyData?: any;
+}
+
+export interface ICustomerData {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  phones?: string[];
+  emails?: string[];
+}
+
+export interface IMessengerData {
+  integrationId: string;
+  email?: string;
+  phone?: string;
+  code?: string;
+  data?: any;
+  companyData?: any;
+}
+
+export interface ICustomerData {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  phones?: string[];
+  emails?: string[];
 }

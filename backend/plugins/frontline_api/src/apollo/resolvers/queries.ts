@@ -10,6 +10,9 @@ import { statusQueries } from '@/ticket/graphql/resolvers/queries/status';
 import { ticketQueries } from '@/ticket/graphql/resolvers/queries/ticket';
 import { activityQueries } from '~/modules/ticket/graphql/resolvers/queries/activity';
 import { noteQueries } from '@/ticket/graphql/resolvers/queries/note';
+import { ticketConfigQueries } from '~/modules/ticket/graphql/resolvers/queries/ticketConfig';
+import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
+import { reportQueries } from '@/reports/graphql/reportQueries';
 
 export const queries = {
   ...channelQueries,
@@ -24,4 +27,7 @@ export const queries = {
   ...widgetQueries,
   ...activityQueries,
   ...noteQueries,
+  ...ticketConfigQueries,
+  ...responseTemplateQueries,
+  ...reportQueries,
 };

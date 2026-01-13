@@ -16,14 +16,15 @@ import { renderingBrandDetailAtom } from '../state';
 import { IBrand } from '../types';
 import { useState } from 'react';
 import { useBrandsEdit } from '@/settings/brands/hooks/useBrandsEdit';
+import { TFunction } from 'i18next';
 
-export const brandsColumns: ColumnDef<IBrand>[] = [
+export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
   RecordTable.checkboxColumn as ColumnDef<IBrand>,
   {
     id: 'name',
     accessorKey: 'name',
     header: () => (
-      <RecordTable.InlineHead label="brand name" icon={IconAlignLeft} />
+      <RecordTable.InlineHead label={t('brand-name')} icon={IconAlignLeft} />
     ),
     cell: ({ cell }) => {
       const [, setBrandDetail] = useQueryState('brand_id');
@@ -84,7 +85,7 @@ export const brandsColumns: ColumnDef<IBrand>[] = [
     id: 'description',
     accessorKey: 'description',
     header: () => (
-      <RecordTable.InlineHead label="description" icon={IconHash} />
+      <RecordTable.InlineHead label={t('description')} icon={IconHash} />
     ),
     cell: ({ cell }) => {
       const { _id, description, name } = cell.row.original;
@@ -136,7 +137,7 @@ export const brandsColumns: ColumnDef<IBrand>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="code" icon={IconHash} />,
+    header: () => <RecordTable.InlineHead label={t('code')} icon={IconHash} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -149,7 +150,7 @@ export const brandsColumns: ColumnDef<IBrand>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label="date created" icon={IconCalendarPlus} />
+      <RecordTable.InlineHead label={t('date-created')} icon={IconCalendarPlus} />
     ),
     cell: ({ cell }) => {
       return (

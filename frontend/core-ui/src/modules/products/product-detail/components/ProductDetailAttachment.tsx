@@ -11,6 +11,7 @@ import {
   useRemoveFile,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ProductDetailAttachment = ({
   attachment,
@@ -23,6 +24,9 @@ export const ProductDetailAttachment = ({
     [attachment, ...attachmentMore].filter(Boolean),
   );
   const { removeFile, isLoading } = useRemoveFile();
+  const { t } = useTranslation('product', {
+    keyPrefix: 'detail',
+  });
 
   const props = useErxesUpload({
     allowedMimeTypes: ['image/*'],
@@ -43,7 +47,7 @@ export const ProductDetailAttachment = ({
     },
   });
   return (
-    <InfoCard title="Attachments">
+    <InfoCard title={t('attachment')}>
       <InfoCard.Content>
         <div className="flex flex-wrap gap-4">
           {files.map((attachment) => (

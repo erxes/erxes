@@ -6,51 +6,83 @@ export interface IClientPortal {
   createdAt?: string;
   updatedAt?: string;
   token?: string;
-  tokenPassMethod?: 'cookie' | 'header';
-  refreshTokenExpiration?: number;
-  tokenExpiration?: number;
-  enableMail?: boolean;
+  url?: string;
+  erxesIntegrationToken?: string;
   enableManualVerification?: boolean;
-  enableOTP?: boolean;
-  enablePasswordVerification?: boolean;
-  enableSocialpay?: boolean;
-  enableTestUser?: boolean;
-  enableToki?: boolean;
-  enableTwoFactor?: boolean;
-  otpConfig?: IOTPConfig;
-  twoFactorConfig?: ITwoFactorConfig;
-  mailConfig?: IMailConfig;
-  passwordVerificationConfig?: IPasswordVerificationConfig;
+  auth?: {
+    authConfig?: {
+      deliveryMethod?: 'cookie' | 'header';
+      accessTokenExpirationInDays?: number;
+      refreshTokenExpirationInDays?: number;
+    };
+    googleOAuth?: {
+      clientId?: string;
+      clientSecret?: string;
+      credentials?: string;
+      redirectUri?: string;
+    };
+    facebookOAuth?: {
+      appId?: string;
+      appSecret?: string;
+      redirectUri?: string;
+    };
+    socialpayConfig?: ISocialpayConfig;
+    tokiConfig?: ITokiConfig;
+  };
+  securityAuthConfig?: {
+    otpConfig?: IOTPConfig;
+    multiFactorConfig?: MultiFactorConfig;
+    otpResendConfig?: {
+      cooldownPeriodInSeconds?: number;
+      maxAttemptsPerHour?: number;
+    };
+    resetPasswordConfig?: {
+      mode?: 'link' | 'code';
+      emailSubject?: string;
+      emailContent?: string;
+    };
+  };
+  smsProvidersConfig?: {
+    callPro?: any;
+    twilio?: any;
+  };
   manualVerificationConfig?: IManualVerificationConfig;
-  googleClientId?: string;
-  googleClientSecret?: string;
-  googleCredentials?: string;
-  googleRedirectUri?: string;
-  facebookAppId?: string;
-  socialpayConfig?: ISocialpayConfig;
-  tokiConfig?: ITokiConfig;
-  testUserEmail?: string;
-  testUserOTP?: string;
-  testUserPassword?: string;
-  testUserPhone?: string;
+  testUser?: {
+    enableTestUser?: boolean;
+    email?: string;
+    phone?: string;
+    password?: string;
+    otp?: number;
+  };
+}
+
+export interface IOTPEmailConfig {
+  emailSubject?: string;
+  messageTemplate?: string;
+  codeLength?: number;
+  duration?: number;
+  enableEmailVerification?: boolean;
+  enablePasswordlessLogin?: boolean;
+}
+
+export interface IOTPSMSConfig {
+  messageTemplate?: string;
+  codeLength?: number;
+  smsProvider?: string;
+  duration?: number;
+  enablePhoneVerification?: boolean;
+  enablePasswordlessLogin?: boolean;
 }
 
 export interface IOTPConfig {
-  smsConfig?: string;
-  emailSubject?: string;
-  content?: string;
-  codeLength?: number;
-  expireAfter?: number;
-  loginWithOTP?: boolean;
+  email?: IOTPEmailConfig;
+  sms?: IOTPSMSConfig;
 }
 
-export interface ITwoFactorConfig {
-  codeLength?: number;
-  content?: string;
-  emailSubject?: string;
-  enableTwoFactor?: boolean;
-  expireAfter?: number;
-  smsTransporterType?: string;
+export interface MultiFactorConfig {
+  isEnabled?: boolean;
+  email?: IOTPEmailConfig;
+  sms?: IOTPSMSConfig;
 }
 
 export interface IMailConfig {
@@ -73,15 +105,18 @@ export interface IManualVerificationConfig {
 }
 
 export interface ISocialpayConfig {
+  enableSocialpay?: boolean;
   publicKey: string;
   certId: string;
 }
 
 export interface ITokiConfig {
+  enableToki?: boolean;
   merchantId: string;
   apiKey: string;
   username: string;
   password: string;
+  production?: boolean;
 }
 
 export enum ClientPortalHotKeyScope {

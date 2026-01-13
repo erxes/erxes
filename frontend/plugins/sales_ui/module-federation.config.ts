@@ -16,11 +16,12 @@ const config: ModuleFederationConfig = {
   name: 'sales_ui',
   exposes: {
     './config': './src/config.tsx',
-    './deals': './src/modules/deals/Main.tsx',
+    './sales': './src/modules/Main.tsx',
     './dealsSettings': './src/pages/SettingsPage.tsx',
     './Widgets': './src/widgets/Widgets.tsx',
+    './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
     './pos': './src/modules/pos/Main.tsx',
-    './posSettings': './src/modules/pos/pos/Settings.tsx',
+    './posSettings': './src/modules/pos/pos/Main.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
   },

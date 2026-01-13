@@ -1,0 +1,57 @@
+{
+  "my-inbox" : "My Inbox",
+  "core-modules": {
+    "_": "Core modules",
+    "contacts": "Contacts",
+    "products": "Products",
+    "segments": "Segments",
+    "automations": "Automations",
+    "documents": "Documents",
+    "broadcasts": "Broadcasts",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "settings": "Settings"
+  },
+  "filter": {
+    "_": "Filter",
+    "search": "Search",
+    "brand": "Brand",
+    "assigned-to": "Assigned To",
+    "created-at": "Created At",
+    "updated-at": "Updated At",
+    "last-seen-at": "Last Seen At",
+    "birthday": "Birthday"
+  },
+  "records-found": "Records Found",
+  "organization": {
+    "settings" : "Settings",
+    "change-theme" : "Change Theme",
+    "change-language" : "Change Language",
+    "logout" : "Logout",
+    "dark" : "Dark",
+    "light" : "Light",
+    "system" : "System",
+    "version" : "Version"
+},
+  "sidebar" : {
+    "profile" : "Profile",
+    "change-password" : "Change Password",
+    "general" : "General",
+    "team-member" : "Team member",
+    "tags" : "Tags",
+    "brands" : "Brands",
+    "file-upload" : "File upload",
+    "mail-config" : "Mail config",
+    "client-portal" : "Client Portal",
+    "products" : "Products",
+    "automations" : "Automations",
+    "account" : "Account",
+    "developer" : "Developer",
+    "workspace" : "Workspace",
+    "core-modules" : "Core modules",
+    "exit-settings": "Exit Settings",
+    "favorites": "Favorites",
+    "my-inbox": "My inbox"
+  }
+}
