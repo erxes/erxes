@@ -13,6 +13,9 @@ export const GET_PIPELINE_DETAIL = gql`
   query SalesPipelineDetail($_id: String!) {
     salesPipelineDetail(_id: $_id) {
       _id
+      nameConfig
+      numberConfig
+      numberSize
       name
       bgColor
       isWatched

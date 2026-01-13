@@ -36,11 +36,11 @@ export const BOARD_NAMES_CONFIGS = [
   },
   {
     label: "Customer's email",
-    value: 'customer.email',
+    value: 'customer.primaryEmail',
   },
   {
     label: "Customer's phone",
-    value: 'customer.phone',
+    value: 'customer.primaryPhone',
   },
   {
     label: "Company's name",
