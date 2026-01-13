@@ -239,6 +239,11 @@ export const GET_DEAL_DETAIL = gql`
       }
       productsData
       relations
+      pipeline {
+        _id
+        name
+      }
+      boardId
     }
   }
 `;

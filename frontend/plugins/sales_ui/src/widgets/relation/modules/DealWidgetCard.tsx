@@ -62,7 +62,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
               variant="card"
             />
             <SelectLabels.FilterBar
-              filterKey="labelIds"
+              filterKey=""
               mode="multiple"
               label="By Label"
               variant="card"

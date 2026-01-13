@@ -132,9 +132,8 @@ export const CAMPAIGN_KINDS = {
 export const CAMPAIGN_METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
-  SMS: 'sms',
   NOTIFICATION: 'notification',
-  ALL: ['messenger', 'email', 'sms', 'notification'],
+  ALL: ['messenger', 'email', 'notification'],
 };
 
 export const MESSENGER_KINDS = {

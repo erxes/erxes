@@ -15,7 +15,6 @@ startPlugin({
     resolvers,
   }),
   expressRouter: router,
-
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
