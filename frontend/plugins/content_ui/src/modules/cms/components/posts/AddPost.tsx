@@ -113,7 +113,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
-import { IconUpload, IconChevronDown, IconX } from '@tabler/icons-react';
+import { IconUpload, IconX } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
@@ -199,7 +199,7 @@ interface GalleryUploaderProps {
   onChange: (urls: string[]) => void;
 }
 
-// Custom Field Input Component with proper state management
+// Custom Field Input Component following erxes UI standards
 const CustomFieldInput = ({
   field,
   value,
@@ -209,119 +209,150 @@ const CustomFieldInput = ({
   value: any;
   onChange: (value: any) => void;
 }) => {
-  if (field.type === 'text') {
-    return (
-      <Input
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
+  const renderInput = () => {
+    switch (field.type) {
+      case 'text':
+      case 'email':
+      case 'url':
+        return (
+          <Input
+            type={field.type === 'text' ? 'text' : field.type}
+            placeholder={
+              field.placeholder || `Enter ${field.label.toLowerCase()}`
+            }
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full"
+          />
+        );
 
-  if (field.type === 'textarea') {
-    return (
-      <Textarea
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        rows={3}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
+      case 'textarea':
+        return (
+          <Textarea
+            placeholder={
+              field.placeholder || `Enter ${field.label.toLowerCase()}`
+            }
+            rows={3}
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full resize-none"
+          />
+        );
 
-  if (field.type === 'number') {
-    return (
-      <Input
-        type="number"
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
+      case 'number':
+        return (
+          <Input
+            type="number"
+            placeholder={
+              field.placeholder || `Enter ${field.label.toLowerCase()}`
+            }
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full"
+          />
+        );
 
-  if (field.type === 'email') {
-    return (
-      <Input
-        type="email"
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
+      case 'date':
+        return (
+          <DatePicker
+            value={value ? new Date(value) : undefined}
+            onChange={(date) =>
+              onChange(date ? (date as Date).toISOString() : '')
+            }
+            placeholder={field.placeholder || 'Select date'}
+          />
+        );
 
-  if (field.type === 'url') {
-    return (
-      <Input
-        type="url"
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
+      case 'checkbox':
+      case 'boolean':
+        return (
+          <Switch
+            checked={!!value}
+            onCheckedChange={(checked) => onChange(checked)}
+          />
+        );
 
-  if (field.type === 'date') {
-    return (
-      <Input
-        type="date"
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
+      case 'select':
+        if (!field.options?.length) return null;
+        return (
+          <Select value={value || ''} onValueChange={onChange}>
+            <Select.Trigger className="w-full">
+              <Select.Value
+                placeholder={
+                  field.placeholder || `Select ${field.label.toLowerCase()}`
+                }
+              />
+            </Select.Trigger>
+            <Select.Content>
+              {field.options.map((option: string, idx: number) => (
+                <Select.Item key={idx} value={option}>
+                  {option}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        );
 
-  if (field.type === 'checkbox') {
-    return (
-      <div className="flex items-center gap-2">
-        <Switch
-          checked={!!value}
-          onCheckedChange={(checked) => onChange(checked)}
-        />
-        <span className="text-sm text-gray-600">{field.label}</span>
-      </div>
-    );
-  }
-
-  if (field.type === 'select' && field.options) {
-    return (
-      <Select value={value || ''} onValueChange={(val) => onChange(val)}>
-        <Select.Trigger>
-          <Select.Value placeholder={`Select ${field.label.toLowerCase()}`} />
-        </Select.Trigger>
-        <Select.Content>
-          {field.options.map((option: string, idx: number) => (
-            <Select.Item key={idx} value={option}>
-              {option}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-    );
-  }
-
-  if (field.type === 'radio' && field.options) {
-    return (
-      <div className="space-y-2">
-        {field.options.map((option: string, idx: number) => (
-          <div key={idx} className="flex items-center gap-2">
-            <input
-              type="radio"
-              name={field._id}
-              value={option}
-              checked={value === option}
-              onChange={(e) => onChange(e.target.value)}
-            />
-            <label className="text-sm">{option}</label>
+      case 'radio':
+        if (!field.options?.length) return null;
+        return (
+          <div className="flex flex-col gap-2">
+            {field.options.map((option: string, idx: number) => (
+              <label
+                key={idx}
+                className="flex items-center gap-2 cursor-pointer text-sm"
+              >
+                <input
+                  type="radio"
+                  name={field._id}
+                  value={option}
+                  checked={value === option}
+                  onChange={(e) => onChange(e.target.value)}
+                  className="h-4 w-4 text-primary border-input focus:ring-primary"
+                />
+                <span>{option}</span>
+              </label>
+            ))}
           </div>
-        ))}
-      </div>
-    );
-  }
+        );
 
-  return null;
+      case 'multiSelect':
+        if (!field.options?.length) return null;
+        const selectedValues = Array.isArray(value) ? value : [];
+        const multiOptions = field.options.map((opt: string) => ({
+          label: opt,
+          value: opt,
+        }));
+        return (
+          <MultipleSelector
+            value={multiOptions.filter((o: any) =>
+              selectedValues.includes(o.value),
+            )}
+            options={multiOptions}
+            placeholder={
+              field.placeholder || `Select ${field.label.toLowerCase()}`
+            }
+            hidePlaceholderWhenSelected
+            emptyIndicator="No options"
+            onChange={(opts: any[]) => onChange(opts.map((o) => o.value))}
+          />
+        );
+
+      default:
+        return (
+          <Input
+            placeholder={
+              field.placeholder || `Enter ${field.label.toLowerCase()}`
+            }
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full"
+          />
+        );
+    }
+  };
+
+  return renderInput();
 };
 
 const GalleryUploader = ({ value, onChange }: GalleryUploaderProps) => {
@@ -416,6 +447,12 @@ export function AddPost() {
   );
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [translations, setTranslations] = useState<Record<string, any>>({});
+  const [defaultLangData, setDefaultLangData] = useState<{
+    title: string;
+    content: string;
+    description: string;
+    customFieldsData: any[];
+  } | null>(null);
   const [previewDevice, setPreviewDevice] = useState<
     'desktop' | 'tablet' | 'mobile'
   >('desktop');
@@ -688,46 +725,67 @@ export function AddPost() {
 
     try {
       if (editingPost?._id) {
-        // If editing a non-default language, save as translation
-        if (selectedLanguage && selectedLanguage !== defaultLanguage) {
-          await saveTranslation({
-            variables: {
-              input: {
-                postId: editingPost._id,
-                language: selectedLanguage,
-                title: data.title || '',
-                content: data.content || '',
-                excerpt: data.description || '',
-                customFieldsData: data.customFieldsData || [],
-                type: 'post',
-              },
-            },
-          });
+        // Save current language content to local state first
+        const currentTranslations = { ...translations };
+        let postInput = { ...input };
 
-          // Update translations state
-          setTranslations((prev) => ({
-            ...prev,
-            [selectedLanguage]: {
-              title: data.title,
-              content: data.content,
-              excerpt: data.description,
-              customFieldsData: data.customFieldsData,
-            },
-          }));
-
-          console.log('✅ Translation saved successfully');
-          toast({
-            title: 'Saved',
-            description: `${selectedLanguage.toUpperCase()} translation saved`,
-          });
-          navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+        if (selectedLanguage === defaultLanguage) {
+          // Currently editing default language - use form data for post
+          // postInput is already correct from form data
         } else {
-          // Default language - update the post itself
-          const result = await editPost(editingPost._id, input);
-          console.log('✅ Post updated successfully:', result);
-          toast({ title: 'Saved', description: 'Post updated' });
-          navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+          // Currently editing translation - save it and use stored default data for post
+          currentTranslations[selectedLanguage] = {
+            title: data.title,
+            content: data.content,
+            excerpt: data.description,
+            customFieldsData: data.customFieldsData,
+          };
+
+          // Use stored default language data if available
+          if (defaultLangData) {
+            postInput = {
+              ...input,
+              title: defaultLangData.title || input.title,
+              content: defaultLangData.content || input.content,
+              excerpt: defaultLangData.description || input.excerpt,
+              customFieldsData:
+                defaultLangData.customFieldsData || input.customFieldsData,
+            };
+          }
         }
+
+        // Update the post with default language content
+        await editPost(editingPost._id, postInput);
+
+        // Save all translations that have content
+        const translationPromises = Object.entries(currentTranslations)
+          .filter(
+            ([lang, trans]: [string, any]) =>
+              lang !== defaultLanguage && (trans?.title || trans?.content),
+          )
+          .map(([lang, trans]: [string, any]) =>
+            saveTranslation({
+              variables: {
+                input: {
+                  postId: editingPost._id,
+                  language: lang,
+                  title: trans?.title || '',
+                  content: trans?.content || '',
+                  excerpt: trans?.excerpt || '',
+                  customFieldsData: trans?.customFieldsData || [],
+                  type: 'post',
+                },
+              },
+            }),
+          );
+
+        if (translationPromises.length > 0) {
+          await Promise.all(translationPromises);
+        }
+
+        console.log('✅ Post and translations saved successfully');
+        toast({ title: 'Saved', description: 'Post and translations saved' });
+        navigate(`/content/cms/${websiteId}/posts`, { replace: true });
       } else {
         const result = await createPost(input);
         console.log('✅ Post created successfully:', result);
@@ -775,7 +833,7 @@ export function AddPost() {
           </Tabs.List>
         </Tabs>
         <div
-          className="rounded-[36px] bg-indigo-200/80 relative shadow-inner"
+          className="rounded-[36px] bg-primary relative shadow-inner"
           style={{
             width: '100%',
             maxWidth: deviceDims.width,
@@ -925,7 +983,7 @@ export function AddPost() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="rounded-lg border overflow-hidden">
           <div className="px-4 pt-4 border-b">
             <Tabs
               value={activeTab}
@@ -966,77 +1024,53 @@ export function AddPost() {
                           </span>
                           <Select
                             value={selectedLanguage}
-                            onValueChange={async (lang) => {
-                              // Save current translation before switching
-                              if (
-                                selectedLanguage !== defaultLanguage &&
-                                editingPost?._id
-                              ) {
-                                try {
-                                  await saveTranslation({
-                                    variables: {
-                                      input: {
-                                        postId: editingPost._id,
-                                        language: selectedLanguage,
-                                        title: form.getValues('title') || '',
-                                        content:
-                                          form.getValues('content') || '',
-                                        excerpt:
-                                          form.getValues('description') || '',
-                                        customFieldsData:
-                                          form.getValues('customFieldsData') ||
-                                          [],
-                                        type: 'post',
-                                      },
-                                    },
-                                  });
+                            onValueChange={(lang) => {
+                              if (lang === selectedLanguage) return;
 
-                                  // Update translations state with saved data
-                                  setTranslations((prev) => ({
-                                    ...prev,
-                                    [selectedLanguage]: {
-                                      title: form.getValues('title'),
-                                      content: form.getValues('content'),
-                                      excerpt: form.getValues('description'),
-                                      customFieldsData:
-                                        form.getValues('customFieldsData'),
-                                    },
-                                  }));
-
-                                  toast({
-                                    title: 'Translation saved',
-                                    description: `${selectedLanguage.toUpperCase()} translation has been saved`,
-                                  });
-                                } catch (error) {
-                                  console.error(
-                                    'Error saving translation:',
-                                    error,
-                                  );
-                                  toast({
-                                    title: 'Error',
-                                    description: 'Failed to save translation',
-                                    variant: 'destructive',
-                                  });
-                                  return; // Don't switch language if save failed
-                                }
+                              // Save current content to local state (fast, no server call)
+                              if (selectedLanguage === defaultLanguage) {
+                                // Save default language content
+                                setDefaultLangData({
+                                  title: form.getValues('title') || '',
+                                  content: form.getValues('content') || '',
+                                  description:
+                                    form.getValues('description') || '',
+                                  customFieldsData:
+                                    form.getValues('customFieldsData') || [],
+                                });
+                              } else {
+                                // Save translation content
+                                setTranslations((prev) => ({
+                                  ...prev,
+                                  [selectedLanguage]: {
+                                    title: form.getValues('title'),
+                                    content: form.getValues('content'),
+                                    excerpt: form.getValues('description'),
+                                    customFieldsData:
+                                      form.getValues('customFieldsData'),
+                                  },
+                                }));
                               }
 
-                              // Load translation for new language
+                              // Load content for new language
                               if (lang === defaultLanguage) {
-                                form.setValue('title', fullPost?.title || '');
-                                form.setValue(
-                                  'content',
-                                  fullPost?.content || '',
-                                );
-                                form.setValue(
-                                  'description',
-                                  fullPost?.excerpt ||
+                                // Load default language (from local state if edited, otherwise from server)
+                                const data = defaultLangData || {
+                                  title: fullPost?.title || '',
+                                  content: fullPost?.content || '',
+                                  description:
+                                    fullPost?.excerpt ||
                                     fullPost?.description ||
                                     '',
-                                );
+                                  customFieldsData:
+                                    fullPost?.customFieldsData || [],
+                                };
+                                form.setValue('title', data.title);
+                                form.setValue('content', data.content);
+                                form.setValue('description', data.description);
                                 form.setValue(
                                   'customFieldsData',
-                                  fullPost?.customFieldsData || [],
+                                  data.customFieldsData,
                                 );
                               } else {
                                 const translation = translations[lang];
@@ -1059,15 +1093,6 @@ export function AddPost() {
                               }
 
                               setSelectedLanguage(lang);
-
-                              toast({
-                                title: 'Language switched',
-                                description: `Now editing ${
-                                  lang === defaultLanguage
-                                    ? 'default'
-                                    : lang.toUpperCase()
-                                } version`,
-                              });
                             }}
                           >
                             <Select.Trigger className="w-[180px]">
@@ -1093,62 +1118,6 @@ export function AddPost() {
                             </Select.Content>
                           </Select>
                         </div>
-                        {selectedLanguage !== defaultLanguage && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            onClick={async () => {
-                              try {
-                                await saveTranslation({
-                                  variables: {
-                                    input: {
-                                      postId: editingPost._id,
-                                      language: selectedLanguage,
-                                      title: form.getValues('title') || '',
-                                      content: form.getValues('content') || '',
-                                      excerpt:
-                                        form.getValues('description') || '',
-                                      customFieldsData:
-                                        form.getValues('customFieldsData') ||
-                                        [],
-                                      type: 'post',
-                                    },
-                                  },
-                                });
-
-                                // Update translations state
-                                setTranslations((prev) => ({
-                                  ...prev,
-                                  [selectedLanguage]: {
-                                    title: form.getValues('title'),
-                                    content: form.getValues('content'),
-                                    excerpt: form.getValues('description'),
-                                    customFieldsData:
-                                      form.getValues('customFieldsData'),
-                                  },
-                                }));
-
-                                toast({
-                                  title: 'Translation saved',
-                                  description: `${selectedLanguage.toUpperCase()} translation has been saved`,
-                                });
-                              } catch (error) {
-                                console.error(
-                                  'Error saving translation:',
-                                  error,
-                                );
-                                toast({
-                                  title: 'Error',
-                                  description: 'Failed to save translation',
-                                  variant: 'destructive',
-                                });
-                              }
-                            }}
-                          >
-                            Save Translation
-                          </Button>
-                        )}
                       </div>
                     </div>
                   )}
@@ -1534,41 +1503,60 @@ export function AddPost() {
                     )}
                   />
 
-                  {/* Custom Fields */}
+                  {/* Custom Fields - erxes standard UI */}
                   {selectedType && fieldGroups.length > 0 && (
-                    <div className="space-y-4 mt-6 pt-6 border-t">
-                      <div className="text-sm font-semibold">Custom Fields</div>
+                    <div className="space-y-3 mt-6 pt-6 border-t">
+                      <div className="text-sm font-semibold text-foreground">
+                        Custom Fields
+                      </div>
                       {fieldGroups.map((group: any) => (
-                        <Collapsible key={group._id} defaultOpen={true}>
-                          <Collapsible.Trigger className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-md hover:bg-gray-100">
-                            <span className="font-medium text-sm">
+                        <Collapsible
+                          key={group._id}
+                          defaultOpen
+                          className="group"
+                        >
+                          <Collapsible.Trigger asChild>
+                            <Button
+                              variant="secondary"
+                              className="w-full justify-start"
+                            >
+                              <Collapsible.TriggerIcon />
                               {group.label}
-                            </span>
-                            <IconChevronDown className="h-4 w-4 transition-transform" />
+                            </Button>
                           </Collapsible.Trigger>
-                          <Collapsible.Content className="mt-2 space-y-3 pl-3">
-                            {(group.fields || []).map((field: any) => (
-                              <div key={field._id} className="space-y-1">
-                                <label className="block text-sm font-medium">
-                                  {field.label}
-                                  {field.isRequired && (
-                                    <span className="text-red-500 ml-1">*</span>
+                          <Collapsible.Content className="pt-4">
+                            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                              {(group.fields || []).map((field: any) => (
+                                <div
+                                  key={field._id}
+                                  className="flex flex-col gap-2"
+                                >
+                                  <Form.Label
+                                    className="text-sm font-medium"
+                                    htmlFor={`custom-field-${field._id}`}
+                                  >
+                                    {field.label}
+                                    {field.isRequired && (
+                                      <span className="text-destructive ml-1">
+                                        *
+                                      </span>
+                                    )}
+                                  </Form.Label>
+                                  {field.description && (
+                                    <p className="text-xs text-muted-foreground -mt-1">
+                                      {field.description}
+                                    </p>
                                   )}
-                                </label>
-                                {field.description && (
-                                  <p className="text-xs text-gray-500">
-                                    {field.description}
-                                  </p>
-                                )}
-                                <CustomFieldInput
-                                  field={field}
-                                  value={getCustomFieldValue(field._id)}
-                                  onChange={(value) =>
-                                    updateCustomFieldValue(field._id, value)
-                                  }
-                                />
-                              </div>
-                            ))}
+                                  <CustomFieldInput
+                                    field={field}
+                                    value={getCustomFieldValue(field._id)}
+                                    onChange={(value) =>
+                                      updateCustomFieldValue(field._id, value)
+                                    }
+                                  />
+                                </div>
+                              ))}
+                            </div>
                           </Collapsible.Content>
                         </Collapsible>
                       ))}

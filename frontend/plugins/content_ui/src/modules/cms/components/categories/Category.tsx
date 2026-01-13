@@ -255,7 +255,7 @@ export function Category() {
               />
             </div>
           ) : (
-            <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+            <div className="h-full rounded-lg shadow-sm border overflow-hidden">
               <RecordTable.Provider
                 columns={columns}
                 data={categories}

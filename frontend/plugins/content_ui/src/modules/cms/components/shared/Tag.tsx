@@ -268,7 +268,7 @@ export function Tag() {
             />
           </div>
         ) : (
-          <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+          <div className="h-full rounded-lg shadow-sm border overflow-hidden">
             <RecordTable.Provider
               columns={columns}
               data={tags || []}
