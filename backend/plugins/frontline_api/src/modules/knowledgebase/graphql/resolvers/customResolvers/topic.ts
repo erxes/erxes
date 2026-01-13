@@ -17,13 +17,13 @@ export default {
   },
 
   async categories(topic: ITopicDocument, _args, { models }: IContext) {
-    return models.Topic.find({ topicId: topic._id }).sort({
+    return models.Category.find({ topicId: topic._id }).sort({
       title: 1,
     });
   },
 
   async parentCategories(topic: ITopicDocument, _args, { models }: IContext) {
-    return models.Topic.find({
+    return models.Category.find({
       topicId: topic._id,
       $or: [
         { parentCategoryId: null },

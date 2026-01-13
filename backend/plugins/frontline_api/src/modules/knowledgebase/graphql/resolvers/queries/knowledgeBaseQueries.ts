@@ -75,7 +75,7 @@ export const knowledgeBaseQueries = {
 
       selector.categoryId = { $in: categoryIds };
 
-      delete selector.topicIds;
+      delete selector.topicId;
     }
 
     if (args.sortField) {

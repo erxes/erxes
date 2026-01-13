@@ -15,13 +15,13 @@ export const KnowledgeBaseCategory = {
       query.status = status;
     }
 
-    return models.Category.find(query).sort({
+    return models.Article.find(query).sort({
       createdDate: -1,
     });
   },
 
   async authors(category: ICategoryDocument, _args, { models }: IContext) {
-    const articles = await models.Category.find(
+    const articles = await models.Article.find(
       {
         categoryId: category._id,
         status: { $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT] },
@@ -38,7 +38,7 @@ export const KnowledgeBaseCategory = {
   },
 
   async firstTopic(category: ICategoryDocument, _args, { models }: IContext) {
-    return models.Category.findOne({ _id: category.topicId });
+    return models.Topic.findOne({ _id: category.topicId });
   },
 
   async numOfArticles(
@@ -58,7 +58,7 @@ export const KnowledgeBaseCategory = {
       query.status = status;
     }
 
-    return models.Category.find(query).countDocuments();
+    return models.Article.countDocuments(query);
   },
 };
 
