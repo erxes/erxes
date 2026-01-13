@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { Button } from 'erxes-ui';  // Removed Select import
 import { nanoid } from 'nanoid';
-import { IConfigsMap, PerSplitConfig } from '../types';
+import { PerSplitConfig } from '../types';
 import PerSplit from './PerSplit';
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 };
 
 const PerSettings = (props: Props) => {
-  const { config, currentConfigKey, save, delete: deleteHandler, productCategories, tags, products, segments } = props;
+  const { config, currentConfigKey, save, delete: deleteHandler, productCategories } = props;
 
   const [localConfig, setLocalConfig] = useState<PerSplitConfig>(config);
   const [splits, setSplits] = useState<any[]>([]);

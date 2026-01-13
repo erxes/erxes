@@ -33,7 +33,7 @@ const PrintSettings = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataPrint: {
-        ...(configsMap.dealsProductsDataPrint || {}),
+        ...configsMap.dealsProductsDataPrint,
         [configKey]: newPrintConfig,
       },
     };
@@ -48,7 +48,7 @@ const PrintSettings = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataPrint: {
-        ...(configsMap.dealsProductsDataPrint || {}),
+        ...configsMap.dealsProductsDataPrint,
       },
     };
 
@@ -64,7 +64,7 @@ const PrintSettings = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataPrint: {
-        ...(configsMap.dealsProductsDataPrint || {}),
+        ...configsMap.dealsProductsDataPrint,
         [key]: config,
       },
     };

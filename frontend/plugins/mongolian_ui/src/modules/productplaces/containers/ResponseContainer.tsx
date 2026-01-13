@@ -1,7 +1,5 @@
-import { gql } from '@apollo/client';
+import { gql, useSubscription } from '@apollo/client';
 import React from 'react';
-import { useSubscription } from '@apollo/client';
-
 import ResponseComponent from '../components/Response';
 import PerResponse from '../components/PerResponse';
 import { subscriptions } from '../graphql';

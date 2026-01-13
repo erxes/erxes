@@ -1,6 +1,4 @@
-import { isEnabled } from 'erxes-api-shared/utils';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub, isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { setPlace } from "./utils/setPlace";
 import { splitData } from "./utils/splitData";
 import { getConfig, getCustomer } from "./utils/utils";
@@ -22,7 +20,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
-      if (!(deal.productsData && deal.productsData.length)) {
+      if (!deal.productsData?.length) {
         return;
       }
 
