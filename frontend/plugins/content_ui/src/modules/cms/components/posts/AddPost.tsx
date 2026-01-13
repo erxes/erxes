@@ -269,15 +269,8 @@ export function AddPost() {
   });
 
   const onSubmit = async (data: PostFormData) => {
-    console.log('🔍 Form data on submit:', {
-      type: data.type,
-      title: data.title,
-      customFieldsData: data.customFieldsData,
-    });
-
     // Validate that a custom post type is selected
     if (!data.type) {
-      console.error('❌ Validation failed: No post type selected');
       toast({
         title: 'Validation Error',
         description: 'Please select a post type',
@@ -362,14 +355,6 @@ export function AddPost() {
       })(),
     };
 
-    console.log('📝 Submitting post with data:', {
-      title: input.title,
-      type: input.type,
-      status: input.status,
-      customFieldsData: input.customFieldsData,
-      fullInput: input,
-    });
-
     try {
       if (editingPost?._id) {
         // Save current language content to local state first
@@ -430,23 +415,14 @@ export function AddPost() {
           await Promise.all(translationPromises);
         }
 
-        console.log('✅ Post and translations saved successfully');
         toast({ title: 'Saved', description: 'Post and translations saved' });
         navigate(`/content/cms/${websiteId}/posts`, { replace: true });
       } else {
-        const result = await createPost(input);
-        console.log('✅ Post created successfully:', result);
+        await createPost(input);
         toast({ title: 'Saved', description: 'Post created' });
         navigate(`/content/cms/${websiteId}/posts`, { replace: true });
       }
     } catch (error: any) {
-      console.error('❌ Error saving post:', error);
-      console.error('❌ Error details:', {
-        message: error?.message,
-        graphQLErrors: error?.graphQLErrors,
-        networkError: error?.networkError,
-        extraInfo: error?.extraInfo,
-      });
       toast({
         title: 'Error',
         description: error?.message || 'Failed to save post',
@@ -519,13 +495,6 @@ export function AddPost() {
       previousTypeRef.current &&
       previousTypeRef.current !== selectedType
     ) {
-      console.log(
-        '🔄 Post type changed from',
-        previousTypeRef.current,
-        'to',
-        selectedType,
-        '- clearing custom fields data',
-      );
       form.setValue('customFieldsData', []);
     }
     previousTypeRef.current = selectedType;
@@ -546,7 +515,6 @@ export function AddPost() {
       updated = [...currentData, { field: fieldId, value }];
     }
 
-    console.log('🔧 Updating custom field:', { fieldId, value, updated });
     form.setValue('customFieldsData', updated, {
       shouldDirty: true,
       shouldTouch: true,

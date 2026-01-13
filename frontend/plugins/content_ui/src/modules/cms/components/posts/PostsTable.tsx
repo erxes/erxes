@@ -155,7 +155,7 @@ export function PostsTable({
   }
 
   return (
-    <div className="bg-red-500 h-full rounded-lg shadow-sm border overflow-hidden">
+    <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
       <RecordTable.Provider
         columns={columns}
         data={posts}
