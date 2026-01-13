@@ -1,3 +1,11 @@
+import { PageContainer } from 'erxes-ui';
+import { VoucherRecordTable } from '~/modules/loyalties/settings/voucher/components/VoucherRecordTable';
+
+
 export const LoyaltyVoucherPage = () => {
-  return <div>Loyalty Voucher Page</div>;
+  return (
+    <PageContainer>
+      <VoucherRecordTable />
+    </PageContainer>
+  );
 };

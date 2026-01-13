@@ -6,9 +6,9 @@ export const contentCmsQueries = {
   },
   contentCMS: async (
     _parent: any,
-    { _id }: { _id: string },
+    { id }: { id: string },
     { models }: IContext,
   ) => {
-    return models.CMS.getContentCMS(_id);
+    return models.CMS.getContentCMS(id);
   },
 };

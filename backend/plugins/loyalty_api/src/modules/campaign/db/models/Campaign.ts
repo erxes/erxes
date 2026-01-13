@@ -62,7 +62,11 @@ export const loadCampaignClass = (models: IModels) => {
     }
 
     public static async validateCampaign(doc: ICampaign) {
-      const { startDate, endDate } = doc;
+      const { startDate, endDate, kind } = doc;
+
+      if (kind === 'score') {
+        return;
+      }
 
       const NOW = new Date();
 

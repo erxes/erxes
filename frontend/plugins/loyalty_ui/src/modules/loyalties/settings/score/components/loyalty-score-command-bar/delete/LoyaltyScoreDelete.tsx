@@ -3,56 +3,48 @@ import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useLoyaltyScoreRowsRemove } from '../../../hooks/useLoyaltyScoreRowsRemove';
 
-interface LoyaltyScoreDeleteProps {
-  loyaltyScoreIds: string;
-  onDeleteSuccess?: () => void;
-}
-
 export const LoyaltyScoreDelete = ({
-  loyaltyScoreIds,
-  onDeleteSuccess,
-}: LoyaltyScoreDeleteProps) => {
+  productIds,
+}: {
+  productIds: string[];
+}) => {
   const { confirm } = useConfirm();
   const { removeLoyaltyScoreRows } = useLoyaltyScoreRowsRemove();
   const { toast } = useToast();
-
-  const scoreCount = loyaltyScoreIds.includes(',')
-    ? loyaltyScoreIds.split(',').length
-    : 1;
-
   return (
     <Button
       variant="secondary"
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${scoreCount} selected loyalty score campaigns?`,
+          message: `Are you sure you want to delete the ${
+            productIds.length
+          } selected loyalty score campaign${
+            productIds.length === 1 ? '' : 's'
+          }?`,
         }).then(() => {
-          removeLoyaltyScoreRows({
-            variables: { _ids: loyaltyScoreIds.split(',') },
-            onError: (e: ApolloError) => {
+          const deletePromises = productIds.map((id) =>
+            removeLoyaltyScoreRows({
+              variables: { _id: id },
+            }),
+          );
+
+          Promise.all(deletePromises)
+            .then(() => {
+              toast({
+                title: `${productIds.length} loyalty score campaign${
+                  productIds.length === 1 ? '' : 's'
+                } deleted successfully`,
+                variant: 'success',
+              });
+            })
+            .catch((e: ApolloError) => {
               toast({
                 title: 'Error',
                 description: e.message,
                 variant: 'destructive',
               });
-            },
-            onCompleted: () => {
-              toast({
-                title: 'Success',
-                description: `${scoreCount} ${
-                  scoreCount === 1
-                    ? 'loyalty score campaign'
-                    : 'loyalty score campaigns'
-                } deleted successfully.`,
-                variant: 'success',
-              });
-
-              if (onDeleteSuccess) {
-                onDeleteSuccess();
-              }
-            },
-          });
+            });
         })
       }
     >

@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, ScrollArea, Sheet, Form, useToast } from 'erxes-ui';
-import { ApolloError } from '@apollo/client';
+import { Button, ScrollArea, Sheet, Form } from 'erxes-ui';
 import {
   loyaltyScoreFormSchema,
   LoyaltyScoreFormValues,
@@ -24,6 +23,8 @@ export function AddLoyaltyScoreForm({
     defaultValues: {
       title: '',
       description: '',
+      startDate: '',
+      endDate: '',
       productCategory: [],
       product: [],
       tags: [],
@@ -32,10 +33,13 @@ export function AddLoyaltyScoreForm({
       orExcludeTag: [],
     },
   });
-  const { toast } = useToast();
+
   async function onSubmit(data: LoyaltyScoreFormValues) {
     const variables: AddLoyaltyScoreVariables = {
-      title: data.title,
+      name: data.title,
+      kind: 'score',
+      startDate: data.startDate,
+      endDate: data.endDate,
     };
 
     Object.entries(data).forEach(([key, value]) => {
@@ -45,19 +49,22 @@ export function AddLoyaltyScoreForm({
         value !== '' &&
         (!Array.isArray(value) || value.length > 0)
       ) {
-        (variables as any)[key] = value;
+        if (key === 'title') return;
+
+        if (key === 'startDate' || key === 'endDate') {
+          if (value instanceof Date) {
+            (variables as any)[key] = value.toISOString();
+          } else if (typeof value === 'string') {
+            (variables as any)[key] = new Date(value).toISOString();
+          }
+        } else {
+          (variables as any)[key] = value;
+        }
       }
     });
 
     loyaltyScoreAdd({
       variables,
-      onError: (e: ApolloError) => {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
-      },
       onCompleted: () => {
         form.reset();
         onOpenChange(false);

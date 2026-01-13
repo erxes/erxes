@@ -12,7 +12,12 @@ export const campaignSchema = schemaWrapper(
       startDate: { type: Date, label: 'Start Date' },
       endDate: { type: Date, label: 'End Date' },
 
-      status: { type: String, label: 'Status', enum: CAMPAIGN_STATUS.ALL },
+      status: {
+        type: String,
+        label: 'Status',
+        enum: CAMPAIGN_STATUS.ALL,
+        default: CAMPAIGN_STATUS.INACTIVE,
+      },
 
       type: { type: String, label: 'Type' },
       amount: { type: Number, label: 'Amount' },

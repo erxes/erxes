@@ -1,13 +1,12 @@
+import { toast, useQueryState } from 'erxes-ui';
+
 import { CONFORMITY_EDIT } from '@/deals/graphql/mutations/Conformity';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import { MutationHookOptions } from '@apollo/client';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { toast } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useMutation } from '@apollo/client';
 
 export function useConformityEdit(options?: MutationHookOptions<any, any>) {
-  const [_id] = useAtom(dealDetailSheetState);
+  const [salesItemId] = useQueryState('salesItemId');
 
   const [editConformity, { loading, error }] = useMutation(CONFORMITY_EDIT, {
     ...options,
@@ -19,7 +18,7 @@ export function useConformityEdit(options?: MutationHookOptions<any, any>) {
         query: GET_DEAL_DETAIL,
         variables: {
           ...options?.variables,
-          _id,
+          _id: salesItemId,
         },
       },
     ],

@@ -5,6 +5,8 @@ export const loyaltyScoreFormSchema = z.object({
   description: z.string().optional(),
   productCategory: z.array(z.string()).optional(),
   product: z.array(z.string()).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
   tags: z.array(z.string()).optional(),
   orExcludeProductCategory: z.array(z.string()).optional(),
   orExcludeProduct: z.array(z.string()).optional(),

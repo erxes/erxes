@@ -1,5 +1,4 @@
 import { OperationVariables, useQuery } from '@apollo/client';
-import { LOYALTY_SCORE_ROW_DEFAULT_VARIABLES } from '../constants/loyaltyScoreDefaultVariables';
 import { LOYALTY_SCORE_CAMPAIGN_QUERY } from '../graphql/queries/loyaltyScoreCampaignQuery';
 
 export const useLoyaltyScoreRows = (options?: OperationVariables) => {
@@ -8,32 +7,32 @@ export const useLoyaltyScoreRows = (options?: OperationVariables) => {
     {
       ...options,
       variables: {
-        ...LOYALTY_SCORE_ROW_DEFAULT_VARIABLES,
+        kind: 'loyalty_score',
         ...options?.variables,
       },
     },
   );
 
-  const loyaltyScoreRows = data?.scoreCampaignAdd || [];
-  const loyaltyScoreRowsCount = data?.scoreCampaignsTotalCount || 0;
+  const loyaltyScoreRows = data?.getCampaigns?.list || [];
+  const loyaltyScoreRowsCount = data?.getCampaigns?.totalCount || 0;
 
   const handleFetchMore = () => {
     if (!loyaltyScoreRows.length) return;
 
     fetchMore({
       variables: {
-        page:
-          Math.ceil(
-            loyaltyScoreRows.length /
-              LOYALTY_SCORE_ROW_DEFAULT_VARIABLES.perPage,
-          ) + 1,
+        cursor: data?.getCampaigns?.pageInfo?.endCursor,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.scoreCampaignAdd) return prev;
+        if (!fetchMoreResult?.getCampaigns?.list?.length) return prev;
         return {
-          scoreCampaignAdd: {
-            ...prev.scoreCampaignAdd,
-            list: [...prev.scoreCampaignAdd, ...fetchMoreResult.scoreCampaignAdd],
+          getCampaigns: {
+            ...prev.getCampaigns,
+            list: [
+              ...prev.getCampaigns.list,
+              ...fetchMoreResult.getCampaigns.list,
+            ],
+            pageInfo: fetchMoreResult.getCampaigns.pageInfo,
           },
         };
       },

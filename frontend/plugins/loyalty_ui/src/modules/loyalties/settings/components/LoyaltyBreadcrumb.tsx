@@ -2,7 +2,6 @@ import { IconCashBanknote } from '@tabler/icons-react';
 import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { SETTINGS_ROUTES } from '../constants/settingRoutes';
-import { LoyaltyScoreAddHeader } from '../score/components/LoyaltyScoreAddHeader';
 
 export const LoyaltyBreadcrumb = () => {
   const { pathname } = useLocation();
@@ -21,7 +20,6 @@ export const LoyaltyBreadcrumb = () => {
           {label}
         </Button>
       </div>
-      <LoyaltyScoreAddHeader />
     </div>
   );
 };

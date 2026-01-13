@@ -1,38 +1,62 @@
 import { gql } from '@apollo/client';
 
 export const LOYALTY_SCORE_ADD_MUTATION = gql`
-  mutation ScoreCampaignAdd(
-    $title: String!
+  mutation CreateCampaign(
+    $name: String!
+    $kind: String!
     $description: String
-    $productCategory: [String]
-    $product: [String]
-    $tags: [String]
-    $orExcludeProductCategory: [String]
-    $orExcludeProduct: [String]
-    $orExcludeTag: [String]
+    $status: String
+    $type: String
+    $startDate: String
+    $endDate: String
+    $amount: Float
+    $conditions: JSON
   ) {
-    scoreCampaignAdd(
-      title: $title
+    createCampaign(
+      name: $name
+      kind: $kind
       description: $description
-      productCategory: $productCategory
-      product: $product
-      tags: $tags
-      orExcludeProductCategory: $orExcludeProductCategory
-      orExcludeProduct: $orExcludeProduct
-      orExcludeTag: $orExcludeTag
+      status: $status
+      type: $type
+      startDate: $startDate
+      endDate: $endDate
+      amount: $amount
+      conditions: $conditions
     ) {
       _id
-      title
+      name
       description
-      productCategory
-      product
-      tags
-      orExcludeProductCategory
-      orExcludeProduct
-      orExcludeTag
-      createdAt
-      createdUserId
-      __typename
+      status
+      type
+      startDate
+      endDate
+      amount
+      createdBy {
+        email
+        details {
+          avatar
+
+          fullName
+          shortName
+          birthDate
+          firstName
+          middleName
+          lastName
+        }
+      }
+      updatedBy {
+        email
+        details {
+          avatar
+          firstName
+          fullName
+          lastName
+          shortName
+          middleName
+        }
+      }
+      conditions
+      kind
     }
   }
 `;

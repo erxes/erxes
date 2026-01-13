@@ -1,64 +1,71 @@
 import { useMutation } from '@apollo/client';
-import { ApolloCache, MutationHookOptions } from '@apollo/client';
-import { LOYALTY_SCORE_CAMPAIGN_QUERY } from '../../graphql/queries/loyaltyScoreCampaignQuery';
+import { MutationHookOptions } from '@apollo/client';
 import { LOYALTY_SCORE_ADD_MUTATION } from '../graphql/mutations/loyaltyScoreAddMutation';
+import { useToast } from 'erxes-ui';
 
 export interface AddLoyaltyScoreResult {
-  scoreCampaignAdd: any;
+  createCampaign: any;
 }
 
 export interface AddLoyaltyScoreVariables {
-  title: string;
+  name: string;
+  kind: string;
   description?: string;
   productCategory?: string[];
   product?: string[];
   tags?: string[];
+  startDate?: string;
+  endDate?: string;
   orExcludeProductCategory?: string[];
   orExcludeProduct?: string[];
   orExcludeTag?: string[];
 }
 
-export interface LoyaltyScoreData {
-  scoreCampaignAdd: {
-    list: any[];
-    totalCount: number;
-  };
-}
+export function useAddLoyaltyScore() {
+  const { toast } = useToast();
 
-export function useAddLoyaltyScore(
-  options?: MutationHookOptions<
-    AddLoyaltyScoreResult,
-    AddLoyaltyScoreVariables
-  >,
-) {
-  const [loyaltyScoreAdd, { loading, error }] = useMutation<
+  const [addLoyaltyScore, { loading, error }] = useMutation<
     AddLoyaltyScoreResult,
     AddLoyaltyScoreVariables
   >(LOYALTY_SCORE_ADD_MUTATION, {
-    ...options,
-    update: (cache: ApolloCache<AddLoyaltyScoreVariables>, { data }) => {
+    update: (cache, { data }) => {
       try {
-        const existingData = cache.readQuery<LoyaltyScoreData>({
-          query: LOYALTY_SCORE_CAMPAIGN_QUERY,
-        });
+        const newCampaign = data?.createCampaign;
 
-        if (
-          !existingData ||
-          !existingData.scoreCampaignAdd ||
-          !data?.scoreCampaignAdd
-        )
+        if (!newCampaign) {
           return;
+        }
 
-        cache.writeQuery<LoyaltyScoreData>({
-          query: LOYALTY_SCORE_CAMPAIGN_QUERY,
-          data: {
-            scoreCampaignAdd: {
-              ...existingData.scoreCampaignAdd,
-              list: [
-                ...existingData.scoreCampaignAdd.list,
-                data.scoreCampaignAdd,
-              ],
-              totalCount: existingData.scoreCampaignAdd.totalCount + 1,
+        cache.modify({
+          fields: {
+            getCampaigns: (existing = {}, details: any) => {
+              const { args, readField, toReference } = details;
+              if (args?.kind !== 'score') {
+                return existing;
+              }
+
+              const existingList = (existing as any)?.list || [];
+              const totalCount = (existing as any)?.totalCount;
+
+              const newRef = toReference(newCampaign);
+              if (!newRef) {
+                return existing;
+              }
+
+              const alreadyExists = existingList.some(
+                (ref: any) => readField('_id', ref) === newCampaign._id,
+              );
+
+              if (alreadyExists) {
+                return existing;
+              }
+
+              return {
+                ...(existing as any),
+                list: [newRef, ...existingList],
+                totalCount:
+                  typeof totalCount === 'number' ? totalCount + 1 : totalCount,
+              };
             },
           },
         });
@@ -67,6 +74,33 @@ export function useAddLoyaltyScore(
       }
     },
   });
+
+  const loyaltyScoreAdd = async (
+    options: MutationHookOptions<
+      AddLoyaltyScoreResult,
+      AddLoyaltyScoreVariables
+    >,
+  ) => {
+    return addLoyaltyScore({
+      ...options,
+      onCompleted: (data) => {
+        toast({
+          title: 'Success',
+          description: 'Score campaign created successfully',
+          variant: 'default',
+        });
+        options?.onCompleted?.(data);
+      },
+      onError: (err) => {
+        toast({
+          title: 'Error',
+          description: err.message,
+          variant: 'destructive',
+        });
+        options?.onError?.(err);
+      },
+    });
+  };
 
   return { loyaltyScoreAdd, loading, error };
 }

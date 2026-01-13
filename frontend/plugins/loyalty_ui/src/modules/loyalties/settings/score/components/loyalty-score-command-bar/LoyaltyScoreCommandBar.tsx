@@ -1,39 +1,22 @@
-import { IconPlus } from '@tabler/icons-react';
-import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { LoyaltyScoreDelete } from './delete/LoyaltyScoreDelete';
-import { useState } from 'react';
 
 export const LoyaltyScoreCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const resetSelection = () => {
-    table.resetRowSelection(true);
-    setRefreshKey((prev) => prev + 1);
-  };
 
   return (
-    <CommandBar
-      key={refreshKey}
-      open={table.getFilteredSelectedRowModel().rows.length > 0}
-    >
+    <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
         <LoyaltyScoreDelete
-          loyaltyScoreIds={table
+          productIds={table
             .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)
-            .join(',')}
-          onDeleteSuccess={resetSelection}
+            .rows.map((row) => row.original._id)}
         />
         <Separator.Inline />
-        <Button variant="secondary">
-          <IconPlus />
-          Create
-        </Button>
       </CommandBar.Bar>
     </CommandBar>
   );

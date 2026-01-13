@@ -59,7 +59,12 @@ export const campaignQueries = {
 
     return await cursorPaginate({
       model: models.Campaign,
-      params,
+      params: {
+        ...params,
+        orderBy: {
+          createdAt: -1,
+        },
+      },
       query: filter,
     });
   },

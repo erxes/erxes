@@ -1,29 +1,29 @@
 import { ColumnDef } from '@tanstack/react-table';
 import {
-  Avatar,
-  Input,
-  Popover,
   RecordTable,
   RecordTableInlineCell,
   RecordTableTree,
+  Switch,
 } from 'erxes-ui';
 import { useLoyaltyScore } from '../hooks/useLoyaltyScore';
 import {
+  IconCheck,
   IconImageInPicture,
   IconLabelFilled,
-  IconPackage,
 } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { loyaltyScoreMoreColumn } from './LoyaltyScoreMoreColumn';
 import { LoyaltyScoreCommandBar } from './loyalty-score-command-bar/LoyaltyScoreCommandBar';
 import { LOYALTY_SCORE_PER_PAGE } from '../hooks/useLoyaltyScore';
+import { useLoyaltyScoreEdit } from '../hooks/useLoyaltyScoreEdit';
 
 export const LoyaltyScoreRecordTable = () => {
-  const { scoreCampaigns, loading } = useLoyaltyScore();
+  const { campaigns, loading } = useLoyaltyScore();
+  const { editStatus } = useLoyaltyScoreEdit();
 
-  const categories = scoreCampaigns?.map((category: any) => ({
+  const categories = campaigns?.map((category: any) => ({
     ...category,
-    hasChildren: scoreCampaigns?.some((c: any) => c.parentId === category._id),
+    hasChildren: campaigns?.some((c: any) => c.parentId === category._id),
   }));
 
   const categoryObject = useMemo(() => {
@@ -35,7 +35,7 @@ export const LoyaltyScoreRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={loyaltyScoreColumns(categoryObject || {})}
+      columns={loyaltyScoreColumns(categoryObject || {}, editStatus)}
       data={categories || []}
       className="m-3"
     >
@@ -59,24 +59,23 @@ export const LoyaltyScoreRecordTable = () => {
 
 export const loyaltyScoreColumns: (
   categoryObject: Record<string, any>,
-) => ColumnDef<any & { hasChildren: boolean }>[] = (categoryObject) => [
+  editStatus: (options: any) => void,
+) => ColumnDef<any & { hasChildren: boolean }>[] = (
+  categoryObject,
+  editStatus,
+) => [
   loyaltyScoreMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<any & { hasChildren: boolean }>,
   {
-    id: 'title',
+    id: 'name',
     header: () => (
-      <RecordTable.InlineHead icon={IconImageInPicture} label="Title" />
+      <RecordTable.InlineHead icon={IconImageInPicture} label="Name" />
     ),
-    accessorKey: 'title',
+    accessorKey: 'name',
     cell: ({ cell }) => {
       return (
-        <RecordTableInlineCell className="px-1 justify-center">
-          <Avatar>
-            <Avatar.Image src={(cell.getValue() as any)?.url || ''} />
-            <Avatar.Fallback>
-              {cell.row.original.title.charAt(0)}
-            </Avatar.Fallback>
-          </Avatar>
+        <RecordTableInlineCell className="px-1">
+          {cell.getValue() as string}
         </RecordTableInlineCell>
       );
     },
@@ -85,50 +84,41 @@ export const loyaltyScoreColumns: (
   {
     id: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label="Name" />
+      <RecordTable.InlineHead icon={IconLabelFilled} label="Owner Type" />
     ),
     accessorKey: 'ownerType',
     cell: ({ cell }) => {
       return (
-        <Popover>
-          <RecordTableInlineCell.Trigger>
-            <RecordTableTree.Trigger
-              order={cell.row.original.order}
-              name={cell.getValue() as string}
-              hasChildren={cell.row.original.hasChildren}
-            >
-              {cell.getValue() as string}
-            </RecordTableTree.Trigger>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input value={cell.getValue() as string} />
-          </RecordTableInlineCell.Content>
-        </Popover>
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
       );
     },
     size: 300,
   },
-
   {
     id: 'status',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label="status" />,
     accessorKey: 'status',
+    header: () => <RecordTable.InlineHead icon={IconCheck} label="Status" />,
     cell: ({ cell }) => {
+      const { _id } = cell.row.original || {};
+      const currentStatus = cell.getValue() as string;
+      const isActive = currentStatus === 'published';
+
       return (
         <RecordTableInlineCell>
-          {cell.getValue() as number}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'action',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label="Action" />,
-    accessorKey: 'action',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
+          <Switch
+            className="mx-auto"
+            checked={isActive}
+            onCheckedChange={() => {
+              editStatus({
+                variables: {
+                  _id,
+                  status: isActive ? 'unpublished' : 'published',
+                },
+              });
+            }}
+          />
         </RecordTableInlineCell>
       );
     },

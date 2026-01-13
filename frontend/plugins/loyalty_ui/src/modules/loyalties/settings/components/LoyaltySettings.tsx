@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 import { LoyaltyBreadcrumb } from './LoyaltyBreadcrumb';
 import { LoyaltySidebar } from './LoyaltySidebar';
+import { LoyaltyTopBar } from './LoyaltyTopBar';
 export const LoyaltyGeneralConfigPage = lazy(() =>
   import('~/pages/loyalties-config/LoyaltyGeneralConfigPage').then(
     (module) => ({
@@ -56,7 +57,11 @@ const LoyaltySettings = () => {
   return (
     <Filter id="loyalty-settings">
       <div className="flex flex-col flex-auto overflow-hidden">
-        <SettingsHeader breadcrumbs={<LoyaltyBreadcrumb />} />
+        <SettingsHeader breadcrumbs={<LoyaltyBreadcrumb />}>
+          <div className="flex ml-auto">
+            <LoyaltyTopBar />
+          </div>
+        </SettingsHeader>
 
         <div className="flex flex-auto overflow-hidden">
           <LoyaltySidebar />
