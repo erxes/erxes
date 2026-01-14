@@ -8,6 +8,8 @@ import {
 import { createContext, useContext, useState, useEffect } from 'react';
 import { format, parse } from 'date-fns';
 
+type DateRange = { from: Date | undefined; to?: Date | undefined };
+
 export type DateSelectorValue =
   | 'today'
   | 'yesterday'
@@ -95,11 +97,19 @@ export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
   ) {
     if (typeof value === 'string' && value.startsWith('custom:')) {
       const dateString = value.replace('custom:', '');
+      const [startStr, endStr] = dateString.split(',');
       try {
-        const date = parse(dateString, 'yyyy-MM-dd', new Date());
+        const start = parse(startStr, 'yyyy-MM-dd', new Date());
+        let display = format(start, 'MMM DD, YYYY');
+
+        if (endStr) {
+          const end = parse(endStr, 'yyyy-MM-dd', new Date());
+          display += ` - ${format(end, 'MMM DD, YYYY')}`;
+        }
+
         return (
           <div className="flex items-center gap-2">
-            <span className="text-sm">{format(date, 'MMM DD, YYYY')}</span>
+            <span className="text-sm">{display}</span>
           </div>
         );
       } catch {
@@ -134,7 +144,7 @@ export const DateSelectorCommandItem = ({
   const isChecked =
     option.value === 'custom'
       ? value === 'custom' ||
-        (typeof value === 'string' && value.startsWith('custom:'))
+      (typeof value === 'string' && value.startsWith('custom:'))
       : value === option.value;
 
   return (
@@ -150,14 +160,22 @@ export const DateSelectorCommandItem = ({
   );
 };
 
+
+
 export const DateSelectorCustomDate = () => {
   const { value, onValueChange } = useDateSelectorContext();
 
-  const getCustomDate = (): Date | undefined => {
+  const getCustomDate = (): DateRange | undefined => {
     if (typeof value === 'string' && value.startsWith('custom:')) {
       const dateString = value.replace('custom:', '');
+      const [startStr, endStr] = dateString.split(',');
       try {
-        return parse(dateString, 'yyyy-MM-dd', new Date());
+        const start = parse(startStr, 'yyyy-MM-dd', new Date());
+        if (endStr) {
+          const end = parse(endStr, 'yyyy-MM-dd', new Date());
+          return { from: start, to: end };
+        }
+        return { from: start, to: undefined };
       } catch {
         return undefined;
       }
@@ -165,7 +183,7 @@ export const DateSelectorCustomDate = () => {
     return undefined;
   };
 
-  const [customDate, setCustomDate] = useState<Date | undefined>(
+  const [customDate, setCustomDate] = useState<DateRange | undefined>(
     getCustomDate(),
   );
 
@@ -173,12 +191,15 @@ export const DateSelectorCustomDate = () => {
     setCustomDate(getCustomDate());
   }, [value]);
 
-  const handleDateChange = (date: Date | Date[] | undefined) => {
-    const singleDate = Array.isArray(date) ? date[0] : date;
-    setCustomDate(singleDate);
-    if (singleDate) {
-      const dateString = format(singleDate, 'yyyy-MM-dd');
-      onValueChange(`custom:${dateString}`);
+  const handleDateChange = (date: any) => {
+    const range = date as DateRange | undefined;
+
+    setCustomDate(range);
+
+    if (range?.from && range.to) {
+      const startString = format(range.from, 'yyyy-MM-dd');
+      const endString = format(range.to, 'yyyy-MM-dd');
+      onValueChange(`custom:${startString},${endString}`);
     }
   };
 
@@ -187,10 +208,11 @@ export const DateSelectorCustomDate = () => {
       <DatePicker
         value={customDate}
         onChange={handleDateChange}
-        placeholder="Select custom date"
+        placeholder="Select custom date range"
         format="MMM DD, YYYY"
         variant="outline"
         className="w-full"
+        mode="range"
       />
     </div>
   );

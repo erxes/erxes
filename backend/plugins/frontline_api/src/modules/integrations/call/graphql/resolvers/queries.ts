@@ -12,6 +12,7 @@ import {
   calculateAverageHandlingTime,
   calculateAverageSpeedOfAnswer,
   calculateFirstCallResolution,
+  calculateOccupancyRate,
   calculateServiceLevel,
 } from '@/integrations/call/statistics';
 import { INotesParams } from '@/integrations/call/@types/conversationNotes';
@@ -291,7 +292,7 @@ const callQueries = {
     { queue }: { queue: string },
     { models }: IContext,
   ) {
-    const DEFAULT_VALUE = '0';
+    const DEFAULT_VALUE = 0;
 
     try {
       const now = new Date();
@@ -309,8 +310,8 @@ const callQueries = {
       const todayCdrs = await models.CallCdrs.find({
         actionType: { $regex: queue },
         start: {
-          $gte: dateFrom,
-          $lt: dateTo,
+          $gte: new Date('2025-10-12:00:00:00'),
+          $lt: new Date('2025-10-12:23:59:59'),
         },
       });
 
@@ -327,10 +328,11 @@ const callQueries = {
       ]);
 
       return {
-        serviceLevel: serviceLevel?.toString() || DEFAULT_VALUE,
-        firstCallResolution: firstCallResolution?.toString() || DEFAULT_VALUE,
-        averageSpeed: averageSpeed?.toString() || DEFAULT_VALUE,
-        averageAnsweredTime: averageAnsweredTime?.toString() || DEFAULT_VALUE,
+        serviceLevel: serviceLevel || DEFAULT_VALUE,
+        firstCallResolution: firstCallResolution || DEFAULT_VALUE,
+        averageSpeed: averageSpeed || DEFAULT_VALUE,
+        averageAnsweredTime: averageAnsweredTime || DEFAULT_VALUE,
+        callstotal: todayCdrs.length || DEFAULT_VALUE,
       };
     } catch (error) {
       console.error('Error in callTodayStatistics:', error);
@@ -340,108 +342,127 @@ const callQueries = {
         firstCallResolution: DEFAULT_VALUE,
         averageSpeed: DEFAULT_VALUE,
         averageAnsweredTime: DEFAULT_VALUE,
+        callstotal: DEFAULT_VALUE,
       };
     }
   },
 
-  async callCalculateServiceLevel(_root, { queue }, { models }: IContext) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 10, 18);
-    const dateTo = new Date(now.getFullYear(), 10, 19);
-
+  async callCalculateServiceLevel(
+    _root,
+    {
+      queue,
+      startDate,
+      endDate,
+    }: { queue: string; startDate: string; endDate: string },
+    { models }: IContext,
+  ) {
     const todyCdrs = await models.CallCdrs.find({
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
     });
 
-    const serviceLevel = await calculateServiceLevel(todyCdrs);
-    console.log(serviceLevel, 'serviceLevel');
-    return 'serviceLevel';
+    return calculateServiceLevel(todyCdrs);
   },
   async callCalculateFirstCallResolution(
     _root,
-    { queue },
+    {
+      queue,
+      startDate,
+      endDate,
+    }: { queue: string; startDate: string; endDate: string },
     { models }: IContext,
   ) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
     const todyCdrs = await models.CallCdrs.find({
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
     });
 
-    const firstCallResolution = await calculateFirstCallResolution(todyCdrs);
-
-    return firstCallResolution;
+    return calculateFirstCallResolution(todyCdrs);
   },
-  async callCalculateAbandonmentRate(_root, { queue }, { models }: IContext) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
+  async callCalculateAbandonmentRate(
+    _root,
+    {
+      queue,
+      startDate,
+      endDate,
+    }: { queue: string; startDate: string; endDate: string },
+    { models }: IContext,
+  ) {
     const todyCdrs = await models.CallCdrs.find({
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
     });
 
-    const abandonedRate = await calculateAbandonmentRate(todyCdrs);
-
-    return abandonedRate;
+    return calculateAbandonmentRate(todyCdrs);
   },
 
   async callCalculateAverageSpeedOfAnswer(
     _root,
-    { queue },
+    {
+      queue,
+      startDate,
+      endDate,
+    }: { queue: string; startDate: string; endDate: string },
     { models }: IContext,
   ) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
     const todyCdrs = await models.CallCdrs.find({
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
     });
 
-    const averageSpeed = await calculateAverageSpeedOfAnswer(todyCdrs);
-
-    return averageSpeed;
+    return calculateAverageSpeedOfAnswer(todyCdrs);
   },
 
   async callCalculateAverageHandlingTime(
     _root,
-    { queue },
+    {
+      queue,
+      startDate,
+      endDate,
+    }: { queue: string; startDate: string; endDate: string },
     { models }: IContext,
   ) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
     const todyCdrs = await models.CallCdrs.find({
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
     });
 
-    const averageAnsweredTime = await calculateAverageHandlingTime(todyCdrs);
+    return calculateAverageHandlingTime(todyCdrs);
+  },
 
-    return averageAnsweredTime;
+  async callCalculateOccupancyRate(
+    _root,
+    {
+      queue,
+      startDate,
+      endDate,
+    }: { queue: string; startDate: string; endDate: string },
+    { models }: IContext,
+  ) {
+    const todyCdrs = await models.CallCdrs.find({
+      actionType: { $regex: queue },
+      start: {
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
+      },
+    });
+
+    return calculateOccupancyRate(todyCdrs);
   },
 
   async callConversationNotes(_root, args: INotesParams, { models }: IContext) {
@@ -540,17 +561,18 @@ const callQueries = {
     { models, user }: IContext,
   ) {
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
-      'LNGh1e3rYuxAwuicu6byS',
+      user._id,
     );
-
-    const isContainsQueue = queueId && queues.includes(queueId);
-    if (!isContainsQueue && queueId) {
-      return [];
-    }
+    // console.log(queueId, 'queueId', queues)
+    // const isContainsQueue = queueId && queues.includes(queueId);
+    // if (!isContainsQueue && queueId) {
+    //   return [];
+    // }
+    const isContainsQueue = true
     const matchStage = {
       userfield: 'Inbound',
-      start: { $gte: new Date(startDate) },
-      end: { $lte: new Date(endDate) },
+      start: { $gte: new Date('2025-10-12:00:00:00') },
+      end: { $lte: new Date('2025-10-12:23:59:59') },
     };
 
     return await models.CallCdrs.aggregate([

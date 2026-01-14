@@ -169,6 +169,14 @@ export const types = `
     averageTalkTime: Float!
   }
 
+  type CallKeyStatistics {
+    serviceLevel: Float
+    firstCallResolution: Float
+    averageSpeed: Float
+    averageAnsweredTime: Float
+    callstotal: Int
+  }
+
   type CallCdr {
     conversationId: String
   AcctId: String
@@ -296,7 +304,13 @@ export const queries = `
   callQueueList(integrationId: String!): JSON
   callQueueInitialList(queue: String!): String
   callQueueMemberList(integrationId: String!, queue: String!): JSON
-  callTodayStatistics(queue: String!): JSON
+  callTodayStatistics(queue: String!): CallKeyStatistics
+  callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!): Float
+  callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!): Float
+  callCalculateAbandonmentRate(queue: String!, startDate: String!, endDate: String!): Float
+  callCalculateAverageSpeedOfAnswer(queue: String!, startDate: String!, endDate: String!): Float
+  callCalculateAverageHandlingTime(queue: String!, startDate: String!, endDate: String!): Float
+  callCalculateOccupancyRate(queue: String!, startDate: String!, endDate: String!): Float
 
   callConversationNotes(conversationId: String! getFirst: Boolean, ${pageParams}): [CallConversationNotes]
   callHistoryDetail(_id: String, conversationId: String): CallHistory

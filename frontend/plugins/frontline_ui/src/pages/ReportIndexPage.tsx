@@ -4,6 +4,8 @@ import { PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
 import { ReportsView } from '@/report/components/ReportsView';
 import { ReportsBreadcrumbs } from '@/report/components/report-navigations/ReportsBreadcrumbs';
+import { CallReportsView } from '@/report/components/CallReportsView';
+import { TicketReportsView } from '@/report/components/TicketReportsView';
 
 export default function ReportIndexPage() {
   const location = useLocation();
@@ -56,7 +58,13 @@ export default function ReportIndexPage() {
           <></>
         </PageHeader.End>
       </PageHeader>
-      <ReportsView />
+      {location.pathname.includes('/ticket') ? (
+        <TicketReportsView />
+      ) : location.pathname.includes('/call') ? (
+        <CallReportsView />
+      ) : (
+        <ReportsView />
+      )}
     </PageContainer>
   );
 }
