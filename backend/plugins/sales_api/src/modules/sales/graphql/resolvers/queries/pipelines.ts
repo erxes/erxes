@@ -219,11 +219,10 @@ export const pipelineQueries = {
         module: 'products',
         action: 'find',
         input,
-        defaultValue: [],
+        defaultValue: {}
       });
     } catch (error) {
-      console.log('error sda',  error);
-      throw new Error(error);
+      throw new Error(`Failed to fetch products: ${error.message}`);
     }
   },
 };
