@@ -4,6 +4,7 @@ import { typeDefs } from '~/apollo/typeDefs';
 import { initMQWorkers } from '~/worker';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
+import * as trpc from './trpc/init-trpc';
 
 export const router: Router = Router();
 
@@ -28,6 +29,14 @@ startPlugin({
     context.models = models;
 
     return context;
+  },
+  trpcAppRouter: {
+    router: trpc.appRouter,
+    createContext: async (subdomain, context) => {
+      const models = await generateModels(subdomain);
+      context.models = models;
+      return context;
+    },
   },
   onServerInit: async () => {
     await initMQWorkers(redis);
