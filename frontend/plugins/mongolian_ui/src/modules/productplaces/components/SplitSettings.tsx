@@ -60,7 +60,7 @@ const SplitSettings = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...(configsMap.dealsProductsDataSplit),
         [configKey]: newSplitConfig,
       },
     };
@@ -75,7 +75,7 @@ const SplitSettings = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...(configsMap.dealsProductsDataSplit),
       },
     };
 
@@ -91,7 +91,7 @@ const SplitSettings = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...(configsMap.dealsProductsDataSplit),
         [key]: config,
       },
     };

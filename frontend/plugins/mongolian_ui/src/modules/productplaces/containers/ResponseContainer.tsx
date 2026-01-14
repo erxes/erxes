@@ -1,10 +1,9 @@
 import { gql, useSubscription } from '@apollo/client';
-import React from 'react';
+import { useEffect } from 'react';
 import ResponseComponent from '../components/Response';
 import PerResponse from '../components/PerResponse';
 import { subscriptions } from '../graphql';
 
-// Define types
 interface ContentData {
   date: string;
   number?: string;
@@ -27,76 +26,61 @@ interface ProductPlacesResponded {
 }
 
 interface SubscriptionResponse {
-  productPlacesResponded: ProductPlacesResponded;
+  productPlacesResponded?: ProductPlacesResponded;
 }
 
 interface User {
   _id: string;
-  // Add other user properties as needed
 }
 
 type Props = {
   currentUser: User;
 };
 
-// Mock HOC - you'll need to import the real one
+// Mock HOC for currentUser
 const withCurrentUser = (Component: React.ComponentType<Props>) => {
   return (props: Omit<Props, 'currentUser'>) => {
-    // In reality, this would get the current user from context/store
     const currentUser = { _id: 'mock-user-id' } as User;
     return <Component {...props} currentUser={currentUser} />;
   };
 };
 
 const ReturnResponseBody = ({ currentUser }: Props) => {
-  let contents: ContentData[] = [];
-  let responseId: string = '';
-
   const { data: response, loading } = useSubscription<SubscriptionResponse>(
     gql(subscriptions.productPlacesSubscription),
     {
       variables: {
         userId: currentUser._id,
-        sessionCode: sessionStorage.getItem('sessioncode') || ''
+        sessionCode: sessionStorage.getItem('sessioncode') || '',
       },
-      shouldResubscribe: false
+      shouldResubscribe: false,
     }
   );
 
-  if (!response || loading) {
-    return <></>;
-  }
+  useEffect(() => {
+    const contents = response?.productPlacesResponded?.content;
+    const responseId = response?.productPlacesResponded?.responseId;
 
-  contents = response.productPlacesResponded.content;
-  responseId = response.productPlacesResponded.responseId;
+    if (!contents?.length || !responseId) return;
 
-  if (!contents || !contents.length) {
-    return <></>;
-  }
+    const printContents = contents.map((content, index) =>
+      PerResponse(content, index)
+    );
 
-  const printContents: string[] = [];
-  let counter = 0;
+    const printMainContent = ResponseComponent(printContents.join(''));
+    const myWindow = window.open('', '_blank', 'width=800,height=800');
 
-  for (const content of contents) {
-    printContents.push(PerResponse(content, counter));
-    counter += 1;
-  }
-
-  const printMainContent = ResponseComponent(printContents.join(''));
-
-  const myWindow = window.open('', '_blank', 'width=800, height=800');
-
-  if (myWindow) {
-    localStorage.setItem('productPlacesResponseId', responseId);
-    
-    if (myWindow.document) {
-      myWindow.document.write(printMainContent);
-    } else {
-      alert('please allow Pop-ups and redirects on site settings!!!');
+    if (!myWindow) {
+      alert('Please allow Pop-ups and redirects in site settings!');
+      return;
     }
-  }
 
-  return <></>;
+    localStorage.setItem('productPlacesResponseId', responseId);
+    myWindow.document.write(printMainContent);
+  }, [response]);
+
+  if (loading) return null;
+  return null;
 };
 
 export default withCurrentUser(ReturnResponseBody);

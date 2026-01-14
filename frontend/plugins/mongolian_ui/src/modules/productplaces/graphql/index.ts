@@ -1,5 +1,3 @@
-import mutations from './mutations';
-import queries from './queries';
-import subscriptions from './subscriptions';
-
-export { queries, mutations, subscriptions };
+export { default as mutations } from './mutations';
+export { default as queries } from './queries';
+export { default as subscriptions } from './subscriptions';

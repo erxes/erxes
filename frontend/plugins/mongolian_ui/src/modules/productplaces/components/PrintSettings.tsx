@@ -21,7 +21,6 @@ const PrintSettings = (props: Props) => {
     e.preventDefault();
 
     const configKey = `config_${Date.now()}`;
-
     const newPrintConfig: PerPrintConfig = {
       title: 'New Print Config',
       boardId: '',
@@ -53,7 +52,6 @@ const PrintSettings = (props: Props) => {
     };
 
     delete updatedConfigsMap.dealsProductsDataPrint![currentConfigKey];
-
     save(updatedConfigsMap);
   };
 
@@ -81,7 +79,7 @@ const PrintSettings = (props: Props) => {
     return Object.keys(configs).map((key) => (
       <PerPrint
         key={key}
-        config={configs[key] as PerPrintConfig}
+        config={configs[key]}
         currentConfigKey={key}
         save={saveHandler}
         delete={deleteHandler}
@@ -131,7 +129,6 @@ const PrintSettings = (props: Props) => {
         <div className="w-64 border-r">
           <Sidebar />
         </div>
-
         <div className="flex-1 p-4 overflow-auto">
           <ContentBox id="PrintSettingsMenu">
             {renderConfigs()}

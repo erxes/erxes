@@ -19,7 +19,6 @@ const SettingsStage = (props: Props) => {
     e.preventDefault();
 
     const configKey = `config_${Date.now()}`;
-
     const newPlacesConfig: PerPrintConfig = {
       title: 'New Places Config',
       boardId: '',
@@ -31,7 +30,7 @@ const SettingsStage = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataPlaces: {
-        ...(configsMap.dealsProductsDataPlaces || {}),
+        ...(configsMap.dealsProductsDataPlaces),
         [configKey]: newPlacesConfig,
       },
     };
@@ -51,7 +50,6 @@ const SettingsStage = (props: Props) => {
     };
 
     delete updatedConfigsMap.dealsProductsDataPlaces![currentConfigKey];
-
     save(updatedConfigsMap);
   };
 
@@ -62,7 +60,7 @@ const SettingsStage = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataPlaces: {
-        ...(configsMap.dealsProductsDataPlaces || {}),
+        ...(configsMap.dealsProductsDataPlaces),
         [key]: config,
       },
     };
@@ -79,7 +77,7 @@ const SettingsStage = (props: Props) => {
     return Object.keys(configs).map((key) => (
       <PerPrint
         key={key}
-        config={configs[key] as PerPrintConfig}
+        config={configs[key]}
         currentConfigKey={key}
         save={saveHandler}
         delete={deleteHandler}
