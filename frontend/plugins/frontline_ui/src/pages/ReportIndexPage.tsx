@@ -4,6 +4,7 @@ import { PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
 import { ReportsView } from '@/report/components/ReportsView';
 import { ReportsBreadcrumbs } from '@/report/components/report-navigations/ReportsBreadcrumbs';
+import { ReportsSheetTrigger } from '@/report/components/ReportsSheet';
 
 export default function ReportIndexPage() {
   return (
@@ -25,7 +26,7 @@ export default function ReportIndexPage() {
           </Breadcrumb>
         </PageHeader.Start>
         <PageHeader.End>
-          <></>
+          <ReportsSheetTrigger />
         </PageHeader.End>
       </PageHeader>
       <ReportsView />

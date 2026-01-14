@@ -1,7 +1,9 @@
 import { atom, WritableAtom } from 'jotai';
 import { ResponsesChartType } from './types';
 
-export const reportChartTypeState = atom<Record<string, ResponsesChartType>>({});
+export const reportChartTypeState = atom<Record<string, ResponsesChartType>>(
+  {},
+);
 
 export const reportDateFilterState = atom<Record<string, string>>({});
 
@@ -12,9 +14,19 @@ const chartTypeAtomCache = new Map<
   WritableAtom<ResponsesChartType, [ResponsesChartType], void>
 >();
 
-const dateFilterAtomCache = new Map<string, WritableAtom<string, [string], void>>();
+const dateFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
 
-const sourceFilterAtomCache = new Map<string, WritableAtom<string, [string], void>>();
+const sourceFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+
+export const reportSheetOpenState = atom<boolean>(false);
+
+export const reportWidgetStepState = atom<number>(0);
 
 export const getReportChartTypeAtom = (cardId: string) => {
   if (!chartTypeAtomCache.has(cardId)) {
@@ -69,4 +81,3 @@ export const getReportSourceFilterAtom = (cardId: string) => {
   }
   return sourceFilterAtomCache.get(cardId)!;
 };
-

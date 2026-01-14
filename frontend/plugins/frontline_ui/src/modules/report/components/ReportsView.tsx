@@ -1,11 +1,15 @@
 import { Suspense } from 'react';
 import { FrontlineReportsList } from './FrontlineReportsList';
 import { Skeleton } from 'erxes-ui';
+import { ReportsSheet } from './ReportsSheet';
 
 export const ReportsView = () => {
   return (
     <Suspense fallback={<ReportsViewSkeleton />}>
-      <FrontlineReportsList />
+      <div className="relative size-full overflow-hidden flex">
+        <FrontlineReportsList />
+        <ReportsSheet />
+      </div>
     </Suspense>
   );
 };

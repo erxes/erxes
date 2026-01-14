@@ -1,5 +1,6 @@
 import { Icon } from '@tabler/icons-react';
 import { IUser } from 'ui-modules';
+import { ReportWidgetType } from './types/report-widget';
 
 export interface ReportMetric {
   count: number;
@@ -87,5 +88,10 @@ export enum ResponsesChartType {
 export interface ResponsesChartTypeOption {
   IconComponent: Icon;
   value: ResponsesChartType;
+  label: string;
+}
+
+export interface ReportWidgetTypeOption {
+  value: ReportWidgetType;
   label: string;
 }

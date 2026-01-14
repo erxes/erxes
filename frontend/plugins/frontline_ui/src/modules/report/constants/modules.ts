@@ -1,4 +1,8 @@
-import { ResponsesChartType, ResponsesChartTypeOption } from '../types';
+import {
+  ReportWidgetTypeOption,
+  ResponsesChartType,
+  ResponsesChartTypeOption,
+} from '../types';
 import {
   IconChartBar,
   IconChartRadar,
@@ -6,6 +10,7 @@ import {
   IconChartLine,
   IconTable,
 } from '@tabler/icons-react';
+import { ReportWidgetType } from '../types/report-widget';
 
 export const REPORT_MODULES = [
   {
@@ -50,5 +55,28 @@ export const RESPONSES_CHART_TYPE_OPTIONS: ResponsesChartTypeOption[] = [
     IconComponent: IconChartRadar,
     value: ResponsesChartType.Radar,
     label: 'Radar',
+  },
+];
+
+export const REPORT_WIDGET_OPTIONS: ReportWidgetTypeOption[] = [
+  {
+    value: ReportWidgetType.ConversationOpen,
+    label: 'Conversation Open',
+  },
+  {
+    value: ReportWidgetType.ConversationResolved,
+    label: 'Conversation Resolved',
+  },
+  {
+    value: ReportWidgetType.ConversationTags,
+    label: 'Conversation Tags',
+  },
+  {
+    value: ReportWidgetType.ConversationSources,
+    label: 'Conversation Sources',
+  },
+  {
+    value: ReportWidgetType.ConversationResponses,
+    label: 'Conversation Responses',
   },
 ];
