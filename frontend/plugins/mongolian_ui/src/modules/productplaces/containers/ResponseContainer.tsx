@@ -79,8 +79,9 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
     myWindow.document.write(printMainContent);
   }, [response]);
 
-  if (loading) return null;
-  return null;
+  // Render minimal feedback instead of always null
+  return loading ? <div>Loading...</div> : <></>;
 };
+
 
 export default withCurrentUser(ReturnResponseBody);

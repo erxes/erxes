@@ -45,7 +45,7 @@ const SettingsStage = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataPlaces: {
-        ...(configsMap.dealsProductsDataPlaces || {}),
+        ...configsMap.dealsProductsDataPlaces,
       },
     };
 

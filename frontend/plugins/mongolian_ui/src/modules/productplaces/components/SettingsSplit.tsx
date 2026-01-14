@@ -55,7 +55,7 @@ const SettingsSplit = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...configsMap.dealsProductsDataSplit,
         [key]: config,
       },
     };
