@@ -10,40 +10,36 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-const SplitSettings = (props: Props) => {
-  const { configsMap, save } = props;
-
+const SplitSettings = ({ configsMap, save }: Props) => {
   /* =========================
    * MOCK DATA (replace later)
    * ========================= */
-  const productCategories = [
+  type Item = { _id: string; name: string };
+  const productCategories: Item[] = [
     { _id: '1', name: 'Category 1' },
     { _id: '2', name: 'Category 2' },
   ];
-
-  const tags = [
-    { _id: '1', name: 'Tag 1', type: 'product' },
-    { _id: '2', name: 'Tag 2', type: 'product' },
+  const tags: Item[] = [
+    { _id: '1', name: 'Tag 1' },
+    { _id: '2', name: 'Tag 2' },
   ];
-
-  const products = [
+  const products: Item[] = [
     { _id: '1', name: 'Product 1' },
     { _id: '2', name: 'Product 2' },
   ];
-
-  const segments = [
+  const segments: Item[] = [
     { _id: '1', name: 'Segment 1' },
     { _id: '2', name: 'Segment 2' },
   ];
 
+  const configs = configsMap.dealsProductsDataSplit ?? {};
+
   /* =========================
    * ADD NEW CONFIG
    * ========================= */
-  const add = (e: React.MouseEvent) => {
+  const addConfig = (e: React.MouseEvent) => {
     e.preventDefault();
-
     const configKey = `config_${Date.now()}`;
-
     const newSplitConfig: PerSplitConfig = {
       title: 'New Split Config',
       boardId: '',
@@ -57,71 +53,60 @@ const SplitSettings = (props: Props) => {
       segments: [],
     };
 
-    const updatedConfigsMap: IConfigsMap = {
+    save({
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...configs,
         [configKey]: newSplitConfig,
       },
-    };
-
-    save(updatedConfigsMap);
+    });
   };
 
   /* =========================
    * DELETE CONFIG
    * ========================= */
-  const deleteHandler = (currentConfigKey: string) => {
-    const updatedConfigsMap: IConfigsMap = {
-      ...configsMap,
-      dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
-      },
-    };
-
-    delete updatedConfigsMap.dealsProductsDataSplit![currentConfigKey];
-
-    save(updatedConfigsMap);
+  const deleteConfig = (configKey: string) => {
+    const updatedConfigs = { ...configs };
+    delete updatedConfigs[configKey];
+    save({ ...configsMap, dealsProductsDataSplit: updatedConfigs });
   };
 
   /* =========================
    * UPDATE CONFIG
    * ========================= */
-  const updateConfig = (key: string, config: PerSplitConfig) => {
-    const updatedConfigsMap: IConfigsMap = {
+  const updateConfig = (configKey: string, updatedConfig: PerSplitConfig) => {
+    save({
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
-        [key]: config,
+        ...configs,
+        [configKey]: updatedConfig,
       },
-    };
-
-    save(updatedConfigsMap);
+    });
   };
 
   /* =========================
    * RENDER CONFIGS
    * ========================= */
-  const renderConfigs = () => {
-    const configs = configsMap.dealsProductsDataSplit || {};
-
-    return Object.keys(configs).map((key) => (
+  const renderConfigs = () =>
+    Object.keys(configs).map((key) => (
       <PerSettings
         key={key}
-        // REMOVED: configsMap={configsMap} - PerSettings doesn't accept this!
-        config={configs[key] as PerSplitConfig}
+        config={configs[key]}
         currentConfigKey={key}
-        // Fixed: Changed from (newConfigsMap) => ... to (updatedConfig) => ...
-        save={(updatedConfig: PerSplitConfig) => updateConfig(key, updatedConfig)}
-        delete={deleteHandler}
+        save={(updatedConfig) => updateConfig(key, updatedConfig)}
+        delete={deleteConfig}
         productCategories={productCategories}
         tags={tags}
         products={products}
         segments={segments}
       />
     ));
-  };
 
+  const isEmpty = Object.keys(configs).length === 0;
+
+  /* =========================
+   * RENDER COMPONENT
+   * ========================= */
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -151,7 +136,7 @@ const SplitSettings = (props: Props) => {
           <div className="text-lg font-medium">Split configs</div>
           <Button
             variant="default"
-            onClick={add}
+            onClick={addConfig}
             className="flex items-center gap-2"
           >
             New config
@@ -164,15 +149,14 @@ const SplitSettings = (props: Props) => {
         <div className="w-64 border-r">
           <Sidebar />
         </div>
-
         <div className="flex-1 p-4 overflow-auto">
           <div
             id="SplitSettingsMenu"
             className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm space-y-4"
           >
             {renderConfigs()}
-            
-            {Object.keys(configsMap.dealsProductsDataSplit || {}).length === 0 && (
+
+            {isEmpty && (
               <div className="text-sm text-gray-400 text-center py-10">
                 No split configs yet. Click "New config" to add one.
               </div>

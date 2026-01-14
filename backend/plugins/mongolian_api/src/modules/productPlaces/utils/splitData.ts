@@ -1,7 +1,7 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getChildCategories, getChildTags } from "./utils";
-import crypto from 'crypto';
+import { getChildCategories, getChildTags } from './utils';
+import crypto from 'node:crypto';
 
 const checkSplit = async (
   subdomain,
@@ -13,11 +13,11 @@ const checkSplit = async (
 ) => {
   const product = productById[pdata.productId];
 
-  if (!product.subUoms || !product.subUoms.length) {
+  if (!product?.subUoms?.length) {
     return;
   }
 
-  const ratio = product.subUoms[0].ratio || 0;
+  const ratio = product.subUoms[0]?.ratio ?? 0;
 
   if (!ratio) {
     return;
@@ -25,11 +25,7 @@ const checkSplit = async (
 
   const checkCount = Math.round((1 / ratio) * 100) / 100;
 
-  if (checkCount < 1) {
-    return;
-  }
-
-  if (pdata.quantity < checkCount) {
+  if (checkCount < 1 || pdata.quantity < checkCount) {
     return;
   }
 
@@ -37,45 +33,48 @@ const checkSplit = async (
   let segmentRes = true;
   let tagRes = true;
 
-  if (categoryIds && categoryIds.length) {
+  if (categoryIds?.length) {
     catRes = false;
+
     if (
-      !(config.excludeProductIds || []).includes(product._id) &&
+      !config.excludeProductIds?.includes(product._id) &&
       categoryIds.includes(product.categoryId)
     ) {
       catRes = true;
     }
   }
 
-  if (tagIds && tagIds.length) {
+  if (tagIds?.length) {
     tagRes = false;
+
     if (
-      !(config.excludeProductIds || []).includes(product._id) &&
-      _.intersection(tagIds, product.tagIds).length
+      !config.excludeProductIds?.includes(product._id) &&
+      _.intersection(tagIds, product.tagIds ?? []).length
     ) {
       tagRes = true;
     }
   }
 
-  if (config.segmentIds && config.segmentIds.length) {
+  if (config.segmentIds?.length) {
     segmentRes = false;
+
     for (const segmentId of config.segmentIds) {
-      if (
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'segments',
-          action: 'isInSegment',
-          method: 'query',
-          input: {
-            segmentId,
-            idToCheck: pdata.productId,
-          },
-          defaultValue: false,
-        })
-      ) {
+      const isInSegment = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'segments',
+        action: 'isInSegment',
+        method: 'query',
+        input: {
+          segmentId,
+          idToCheck: pdata.productId,
+        },
+        defaultValue: false,
+      });
+
+      if (isInSegment) {
         segmentRes = true;
-        continue;
+        break;
       }
     }
   }
@@ -100,39 +99,40 @@ export const splitData = async (
   let calcedCatIds: string[] = [];
   let calcedTagIds: string[] = [];
 
-  if (config.productCategoryIds && config.productCategoryIds.length) {
+  if (config.productCategoryIds?.length) {
     const includeCatIds = (await getChildCategories(
       subdomain,
-      config.productCategoryIds,
+      config.productCategoryIds
     )) as string[];
 
     const excludeCatIds = (await getChildCategories(
       subdomain,
-      config.excludeCategoryIds || [],
+      config.excludeCategoryIds ?? []
     )) as string[];
-  
 
-    calcedCatIds = includeCatIds.filter(c => !excludeCatIds.includes(c));
+    calcedCatIds = includeCatIds.filter(
+      c => !excludeCatIds.includes(c)
+    );
   }
 
-  if (config.productTagIds && config.productTagIds.length) {
+  if (config.productTagIds?.length) {
     const includeTagIds = (await getChildTags(
       subdomain,
-      config.productTagIds,
+      config.productTagIds
     )) as string[];
 
     const excludeTagIds = (await getChildTags(
       subdomain,
-      config.excludeTagIds || [],
+      config.excludeTagIds ?? []
     )) as string[];
 
-    calcedTagIds = includeTagIds.filter((id) => !excludeTagIds.includes(id));
+    calcedTagIds = includeTagIds.filter(
+      id => !excludeTagIds.includes(id)
+    );
   }
 
-
-
   for (const pdata of productsData) {
-    const newCount: number | undefined = await checkSplit(
+    const newCount = await checkSplit(
       subdomain,
       pdata,
       config,
@@ -154,7 +154,7 @@ export const splitData = async (
               quantity: updateCount,
               amount: pdata.amount - amount,
               tax: pdata.tax - tax,
-              discount: pdata.discount - discount
+              discount: pdata.discount - discount,
             }
           : pd
       );
@@ -165,7 +165,7 @@ export const splitData = async (
         quantity: newCount,
         amount,
         tax,
-        discount
+        discount,
       });
     }
   }

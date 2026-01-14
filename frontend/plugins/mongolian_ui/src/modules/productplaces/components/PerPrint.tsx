@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button, Select } from 'erxes-ui';
+import { Button, Select, Label } from 'erxes-ui';
 import { PerPrintConfig } from '../types';
 
 type Props = {
@@ -9,10 +8,13 @@ type Props = {
   delete: (key: string) => void;
 };
 
-const PerPrint = ({ config, currentConfigKey, save, delete: deleteHandler }: Props) => {
-  if (!config) {
-    return null;
-  }
+const PerPrint = ({
+  config,
+  currentConfigKey,
+  save,
+  delete: deleteHandler,
+}: Props) => {
+  if (!config) return null;
 
   const onChangeConfig = (key: keyof PerPrintConfig, value: any) => {
     save(currentConfigKey, {
@@ -27,13 +29,14 @@ const PerPrint = ({ config, currentConfigKey, save, delete: deleteHandler }: Pro
       <div className="grid grid-cols-2 gap-6">
         {/* LEFT */}
         <div className="space-y-4">
+          {/* Print type */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Print type</label>
+            <Label htmlFor={`print-type-${currentConfigKey}`}>Print type</Label>
             <Select
               value={config.type || ''}
               onValueChange={(v) => onChangeConfig('type', v)}
             >
-              <Select.Trigger>
+              <Select.Trigger id={`print-type-${currentConfigKey}`}>
                 <Select.Value placeholder="Choose print type" />
               </Select.Trigger>
               <Select.Content>
@@ -44,13 +47,14 @@ const PerPrint = ({ config, currentConfigKey, save, delete: deleteHandler }: Pro
             </Select>
           </div>
 
+          {/* Paper size */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Paper size</label>
+            <Label htmlFor={`paper-size-${currentConfigKey}`}>Paper size</Label>
             <Select
               value={config.paperSize || ''}
               onValueChange={(v) => onChangeConfig('paperSize', v)}
             >
-              <Select.Trigger>
+              <Select.Trigger id={`paper-size-${currentConfigKey}`}>
                 <Select.Value placeholder="Choose paper size" />
               </Select.Trigger>
               <Select.Content>
@@ -64,26 +68,27 @@ const PerPrint = ({ config, currentConfigKey, save, delete: deleteHandler }: Pro
 
         {/* RIGHT */}
         <div className="space-y-4">
+          {/* Copies */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Copies</label>
+            <Label htmlFor={`copies-${currentConfigKey}`}>Copies</Label>
             <input
+              id={`copies-${currentConfigKey}`}
               type="number"
               className="w-full p-2 border rounded"
               value={config.copies ?? ''}
               min={1}
-              onChange={(e) =>
-                onChangeConfig('copies', Number(e.target.value))
-              }
+              onChange={(e) => onChangeConfig('copies', Number(e.target.value))}
             />
           </div>
 
+          {/* Printer */}
           <div className="space-y-1">
-            <label className="text-sm font-medium">Printer</label>
+            <Label htmlFor={`printer-${currentConfigKey}`}>Printer</Label>
             <Select
               value={config.printerId || ''}
               onValueChange={(v) => onChangeConfig('printerId', v)}
             >
-              <Select.Trigger>
+              <Select.Trigger id={`printer-${currentConfigKey}`}>
                 <Select.Value placeholder="Choose printer" />
               </Select.Trigger>
               <Select.Content />

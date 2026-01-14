@@ -8,27 +8,26 @@ export const setPlace = async (
   config,
   productById
 ) => {
-  if (!(config.conditions && config.conditions.length)) {
+  if (!config.conditions?.length) {
     return productsData;
   }
 
-  // split productsData
   const pdatas = productsData;
 
   const conditions = config.conditions.filter(
     c => c.branchId || c.departmentId
   );
 
-  // const categoryIds =
   for (const condition of conditions) {
-    if (condition.productCategoryIds && condition.productCategoryIds.length) {
+    if (condition.productCategoryIds?.length) {
       const includeCatIds = await getChildCategories(
         subdomain,
         condition.productCategoryIds
       );
+
       const excludeCatIds = await getChildCategories(
         subdomain,
-        condition.excludeCategoryIds || []
+        condition.excludeCategoryIds ?? []
       );
 
       condition.calcedCatIds = includeCatIds.filter(
@@ -38,14 +37,15 @@ export const setPlace = async (
       condition.calcedCatIds = [];
     }
 
-    if (condition.productTagIds && condition.productTagIds.length) {
+    if (condition.productTagIds?.length) {
       const includeTagIds = await getChildTags(
         subdomain,
         condition.productTagIds
       );
+
       const excludeTagIds = await getChildTags(
         subdomain,
-        condition.excludeTagIds || []
+        condition.excludeTagIds ?? []
       );
 
       condition.calcedTagIds = includeTagIds.filter(
@@ -77,7 +77,6 @@ export const setPlace = async (
       modifier: { $set: { productsData: pdatas } },
     },
   });
-
 
   return pdatas;
 };

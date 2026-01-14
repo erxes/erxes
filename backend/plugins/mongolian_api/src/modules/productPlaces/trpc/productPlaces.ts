@@ -13,7 +13,7 @@ export const productPlacesTrpcRouter = t.router({
   afterMutation: t.procedure
     .input(z.any())
     .mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
+      const { subdomain } = ctx;
       return await afterMutationHandlers(subdomain, input);
     }),
 

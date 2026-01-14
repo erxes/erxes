@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IDoc } from './@types/common';
 import { getConfig, getEbarimtData, getPostData } from './utils';
-import { configs } from '~/modules/configs/db/definitions/configs';
+
 
 export const afterMutationHandlers = async (
   models: IModels,
@@ -26,7 +26,6 @@ export const afterMutationHandlers = async (
   }
 
   const configs = await getConfig(subdomain, 'stageInEbarimt', {});
-  // return *********
   const returnConfigs = await getConfig(
     subdomain,
     'returnStageInEbarimt',

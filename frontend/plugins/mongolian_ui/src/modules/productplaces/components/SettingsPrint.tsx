@@ -29,7 +29,7 @@ const SettingsPrint = (props: Props) => {
     setConfigsMap(prev => ({
       ...prev,
       dealsProductsDataPrint: {
-        ...(prev.dealsProductsDataPrint || {}),
+        ...(prev.dealsProductsDataPrint),
         [configKey]: newPrintConfig
       }
     }));

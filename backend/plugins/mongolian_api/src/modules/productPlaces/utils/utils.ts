@@ -1,8 +1,8 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
-   return sendTRPCMessage({
+  return sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     module: 'configs',
@@ -15,7 +15,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 
 export const getChildCategories = async (
   subdomain: string,
-  categoryIds: string[],
+  categoryIds: string[]
 ) => {
   const childs =
     (await sendTRPCMessage({
@@ -34,7 +34,7 @@ export const getChildCategories = async (
 
 export const getChildTags = async (
   subdomain: string,
-  tagIds: string[],
+  tagIds: string[]
 ) => {
   const childs =
     (await sendTRPCMessage({
@@ -66,7 +66,7 @@ export const checkCondition = async (
   let numberRes = true;
   let checkUomRes = true;
 
-    if (condition.gtCount !== undefined && pdata.quantity <= condition.gtCount) {
+  if (condition.gtCount !== undefined && pdata.quantity <= condition.gtCount) {
     return false;
   }
 
@@ -91,13 +91,16 @@ export const checkCondition = async (
   if (condition.subUomType) {
     checkUomRes = false;
     const product = productById[pdata.productId];
-    if (product.subUoms && product.subUoms.length) {
+
+    if (product?.subUoms?.length) {
       const ratio = product.subUoms[0].ratio || 0;
+
       if (ratio) {
         const checkCount = Math.round((1 / ratio) * 100) / 100;
+
         if (
-          (condition.subUomType === "lt" && pdata.quantity < checkCount) ||
-          (condition.subUomType === "gte" && pdata.quantity >= checkCount)
+          (condition.subUomType === 'lt' && pdata.quantity < checkCount) ||
+          (condition.subUomType === 'gte' && pdata.quantity >= checkCount)
         ) {
           checkUomRes = true;
         }
@@ -111,7 +114,7 @@ export const checkCondition = async (
     return false;
   }
 
-  if (condition.productCategoryIds && condition.productCategoryIds.length) {
+  if (condition.productCategoryIds?.length) {
     categoryRes = false;
     const product = productById[pdata.productId];
 
@@ -127,7 +130,7 @@ export const checkCondition = async (
     return false;
   }
 
-  if (condition.productTagIds && condition.productTagIds.length) {
+  if (condition.productTagIds?.length) {
     tagRes = false;
     const product = productById[pdata.productId];
 
@@ -176,7 +179,7 @@ export const checkCondition = async (
 
 const getCustomerName = customer => {
   if (!customer) {
-    return "";
+    return '';
   }
 
   if (customer.firstName && customer.lastName) {
@@ -199,7 +202,7 @@ const getCustomerName = customer => {
     return customer.primaryPhone;
   }
 
-  return "";
+  return '';
 };
 
 export const getCustomer = async (subdomain, deal) => {
@@ -218,7 +221,7 @@ export const getCustomer = async (subdomain, deal) => {
       defaultValue: [],
     })) || [];
 
-  if (companyIds.length) {
+  if (companyIds?.length) {
     const companies =
       (await sendTRPCMessage({
         subdomain,
@@ -233,12 +236,11 @@ export const getCustomer = async (subdomain, deal) => {
         defaultValue: [],
       })) || [];
 
-    if (companies.length) {
+    if (companies?.length) {
       const company = companies[0];
-
       return {
         customerCode: company.code,
-        customerName: company.primaryName
+        customerName: company.primaryName,
       };
     }
   }
@@ -258,7 +260,7 @@ export const getCustomer = async (subdomain, deal) => {
       defaultValue: [],
     })) || [];
 
-  if (customerIds.length > 0) {
+  if (customerIds?.length) {
     const customers =
       (await sendTRPCMessage({
         subdomain,
@@ -278,24 +280,25 @@ export const getCustomer = async (subdomain, deal) => {
           },
         },
         defaultValue: [],
-      })) || []
+      })) || [];
 
-    let customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
+    let customer = customers.find(c => c.code?.match(/^\d{8}$/g));
 
     if (customer) {
       return {
-        customerCode: customer.code || "",
-        customerName: getCustomerName(customer)
+        customerCode: customer.code || '',
+        customerName: getCustomerName(customer),
       };
-    } else {
-      if (customers.length) {
-        customer = customers[0];
-        return {
-          customerCode: customer.code || "",
-          customerName: getCustomerName(customer)
-        };
-      }
+    }
+
+    if (customers.length) {
+      customer = customers[0];
+      return {
+        customerCode: customer.code || '',
+        customerName: getCustomerName(customer),
+      };
     }
   }
+
   return {};
 };

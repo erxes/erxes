@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from 'erxes-ui'; 
+import { Button } from 'erxes-ui';
+import { Label } from 'erxes-ui/components/label';
 import { IConfigsMap, PerSplitConfig } from '../types';
 
 type Props = {
@@ -14,7 +15,6 @@ const SettingsSplit = (props: Props) => {
     e.preventDefault();
 
     const configKey = `config_${Date.now()}`;
-
     const newSplitConfig: PerSplitConfig = {
       title: 'New Split Config',
       boardId: '',
@@ -31,7 +31,7 @@ const SettingsSplit = (props: Props) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...(configsMap.dealsProductsDataSplit),
         [configKey]: newSplitConfig,
       },
     };
@@ -39,30 +39,23 @@ const SettingsSplit = (props: Props) => {
     save(updatedConfigsMap);
   };
 
-  /* =========================
-   * DELETE CONFIG
-   * ========================= */
   const deleteHandler = (currentConfigKey: string) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...(configsMap.dealsProductsDataSplit),
       },
     };
 
     delete updatedConfigsMap.dealsProductsDataSplit![currentConfigKey];
-
     save(updatedConfigsMap);
   };
 
-  /* =========================
-   * UPDATE / SAVE CONFIG
-   * ========================= */
   const updateConfig = (key: string, config: PerSplitConfig) => {
     const updatedConfigsMap: IConfigsMap = {
       ...configsMap,
       dealsProductsDataSplit: {
-        ...(configsMap.dealsProductsDataSplit || {}),
+        ...configsMap.dealsProductsDataSplit,
         [key]: config,
       },
     };
@@ -70,20 +63,17 @@ const SettingsSplit = (props: Props) => {
     save(updatedConfigsMap);
   };
 
-  /* =========================
-   * RENDER CONFIGS
-   * ========================= */
   const renderConfigs = () => {
     const configs = configsMap.dealsProductsDataSplit || {};
 
     return Object.keys(configs).map((key) => {
-      const config = configs[key] as PerSplitConfig;
+      const config = configs[key];
 
       return (
         <div key={key} className="border rounded p-4 mb-4 bg-white">
           {/* Title Field */}
           <div className="space-y-1 mb-4">
-            <label className="text-sm font-medium">Title</label>
+            <Label>Title</Label>
             <input
               className="w-full p-2 border rounded"
               value={config.title || ''}
@@ -96,7 +86,7 @@ const SettingsSplit = (props: Props) => {
           <div className="grid grid-cols-3 gap-4 mt-4">
             {/* Board Field */}
             <div className="space-y-1">
-              <label className="text-sm font-medium">Board</label>
+              <Label>Board</Label>
               <select
                 className="w-full p-2 border rounded"
                 value={config.boardId || ''}
@@ -112,12 +102,15 @@ const SettingsSplit = (props: Props) => {
 
             {/* Pipeline Field */}
             <div className="space-y-1">
-              <label className="text-sm font-medium">Pipeline</label>
+              <Label>Pipeline</Label>
               <select
                 className="w-full p-2 border rounded"
                 value={config.pipelineId || ''}
                 onChange={(e) =>
-                  updateConfig(key, { ...config, pipelineId: e.target.value })
+                  updateConfig(key, {
+                    ...config,
+                    pipelineId: e.target.value,
+                  })
                 }
               >
                 <option value="">Select pipeline</option>
@@ -128,7 +121,7 @@ const SettingsSplit = (props: Props) => {
 
             {/* Stage Field */}
             <div className="space-y-1">
-              <label className="text-sm font-medium">Stage</label>
+              <Label>Stage</Label>
               <select
                 className="w-full p-2 border rounded"
                 value={config.stageId || ''}
@@ -184,7 +177,7 @@ const SettingsSplit = (props: Props) => {
 
       <div className="space-y-4">
         {renderConfigs()}
-        
+
         {Object.keys(configsMap.dealsProductsDataSplit || {}).length === 0 && (
           <div className="text-sm text-gray-400 text-center py-10">
             No split configs yet. Click "New Config" to add one.

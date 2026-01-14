@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button } from 'erxes-ui'; // Removed Select import
+import { Button, Label } from 'erxes-ui';
 
 type Props = {
   split: any;
@@ -14,12 +13,12 @@ const PerSplit = ({ split, onChange, onRemove }: Props) => {
 
   return (
     <div className="rounded border p-4 space-y-6 bg-white">
-      {/* SPLIT RULE */}
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Split by</label>
+            <Label htmlFor={`split-by-${split.id}`}>Split by</Label>
             <select
+              id={`split-by-${split.id}`}
               className="w-full p-2 border rounded"
               value={split.by || ''}
               onChange={(e) => onChangeConfig('by', e.target.value)}
@@ -32,8 +31,9 @@ const PerSplit = ({ split, onChange, onRemove }: Props) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Operator</label>
+            <Label htmlFor={`split-operator-${split.id}`}>Operator</Label>
             <select
+              id={`split-operator-${split.id}`}
               className="w-full p-2 border rounded"
               value={split.operator || ''}
               onChange={(e) => onChangeConfig('operator', e.target.value)}
@@ -48,23 +48,19 @@ const PerSplit = ({ split, onChange, onRemove }: Props) => {
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Value</label>
+            <Label htmlFor={`split-value-${split.id}`}>Value</Label>
             <input
+              id={`split-value-${split.id}`}
               className="w-full p-2 border rounded"
-              value={split.value || ''}
+              value={split.value?.toString() || ''}
               onChange={(e) => onChangeConfig('value', e.target.value)}
             />
           </div>
         </div>
       </div>
 
-      {/* FOOTER */}
       <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onRemove(split.id)}
-        >
+        <Button variant="ghost" size="sm" onClick={() => onRemove(split.id)}>
           Delete
         </Button>
       </div>

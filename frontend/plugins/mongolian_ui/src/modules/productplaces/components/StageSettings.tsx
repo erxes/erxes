@@ -11,9 +11,10 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-const StageSettings = (props: Props) => {
-  const { configsMap, save } = props;
-
+const StageSettings = ({ configsMap, save }: Props) => {
+  /* =========================
+   * ADD NEW CONFIG
+   * ========================= */
   const add = (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -27,67 +28,60 @@ const StageSettings = (props: Props) => {
       conditions: [],
     };
 
-    const updatedConfigsMap: IConfigsMap = {
+    save({
       ...configsMap,
       dealsProductsDataPlaces: {
-        ...(configsMap.dealsProductsDataPlaces || {}),
+        ...(configsMap.dealsProductsDataPlaces),
         [configKey]: newPlacesConfig,
       },
-    };
-
-    save(updatedConfigsMap);
+    });
   };
 
   /* =========================
    * DELETE CONFIG
    * ========================= */
   const deleteHandler = (currentConfigKey: string) => {
-    const updatedConfigsMap: IConfigsMap = {
-      ...configsMap,
-      dealsProductsDataPlaces: {
-        ...(configsMap.dealsProductsDataPlaces || {}),
-      },
+    const updatedPlacesConfigs = {
+      ...(configsMap.dealsProductsDataPlaces),
     };
 
-    delete updatedConfigsMap.dealsProductsDataPlaces![currentConfigKey];
+    delete updatedPlacesConfigs[currentConfigKey];
 
-    save(updatedConfigsMap);
+    save({
+      ...configsMap,
+      dealsProductsDataPlaces: updatedPlacesConfigs,
+    });
   };
 
   /* =========================
    * SAVE SINGLE CONFIG
    * ========================= */
   const saveHandler = (key: string, config: PerPrintConfig) => {
-    const updatedConfigsMap: IConfigsMap = {
+    save({
       ...configsMap,
       dealsProductsDataPlaces: {
-        ...(configsMap.dealsProductsDataPlaces || {}),
+        ...(configsMap.dealsProductsDataPlaces),
         [key]: config,
       },
-    };
-
-    save(updatedConfigsMap);
+    });
   };
 
+  /* =========================
+   * RENDER CONFIGS
+   * ========================= */
   const renderConfigs = () => {
     const configs = configsMap.dealsProductsDataPlaces || {};
 
-    return Object.keys(configs).map((key) => (
+    return Object.entries(configs).map(([key, config]) => (
       <PerPrint
         key={key}
-        config={configs[key] as PerPrintConfig}
+        config={config}
         currentConfigKey={key}
         save={saveHandler}
         delete={deleteHandler}
       />
     ));
   };
-
-  const renderContent = () => (
-    <div id="StageSettingsMenu" className={contentBoxClass}>
-      {renderConfigs()}
-    </div>
-  );
 
   return (
     <div className="flex flex-col h-full">
@@ -131,9 +125,10 @@ const StageSettings = (props: Props) => {
         <div className="w-64 border-r">
           <Sidebar />
         </div>
-
         <div className="flex-1 p-4 overflow-auto">
-          {renderContent()}
+          <div id="StageSettingsMenu" className={contentBoxClass}>
+            {renderConfigs()}
+          </div>
         </div>
       </div>
     </div>

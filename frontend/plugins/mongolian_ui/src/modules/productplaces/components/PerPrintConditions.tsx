@@ -1,5 +1,3 @@
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
 import { Button, Form, Select } from 'erxes-ui';
 
 type Props = {

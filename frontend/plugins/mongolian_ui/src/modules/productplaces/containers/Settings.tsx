@@ -1,8 +1,6 @@
-import { gql } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import { useEffect, useState } from 'react';
 import { Spinner } from 'erxes-ui';
-import { useQuery, useMutation } from '@apollo/client';
-
 import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
 
@@ -24,11 +22,11 @@ const SettingsContainer = (props: Props) => {
 
   const [updateConfigs] = useMutation(gql(mutations.updateConfigs));
 
-  /** 🟢 DRAFT STATE */
+  /** DRAFT STATE */
   const [draftConfigsMap, setDraftConfigsMap] =
     useState<IConfigsMap>({});
 
-  /** 🔁 Sync server → draft */
+  /** Sync server → draft */
   useEffect(() => {
     if (configsQuery.data?.configsGetValue?.value) {
       setDraftConfigsMap(configsQuery.data.configsGetValue.value);
