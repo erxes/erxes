@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { formSetupStepAtom } from '../states/formSetupStates';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
+import { useParams } from 'react-router';
 
 export const FormMutateLayout = ({
   children,
@@ -21,6 +22,8 @@ export const FormMutateLayout = ({
   isLoading?: boolean;
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
+  const { formId } = useParams();
+
   return (
     <Form {...form}>
       <form
@@ -57,9 +60,13 @@ export const FormMutateLayout = ({
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
-              ? 'Creating form...'
+              ? formId
+                ? 'Updating form...'
+                : 'Creating form...'
               : step === 3
-              ? 'Create form'
+              ? formId
+                ? 'Update form'
+                : 'Create form'
               : 'Next step'}
           </Button>
         </Sheet.Footer>

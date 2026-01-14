@@ -44,6 +44,10 @@ export const FormDndContext = createContext<{
     description?: string;
     order: number;
   };
+  handleDeleteField: (
+    stepId: UniqueIdentifier,
+    fieldId: UniqueIdentifier,
+  ) => void;
 } | null>(null);
 
 export const useFormDnd = () => {
@@ -211,6 +215,25 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(fieldsObject));
   };
 
+  const handleDeleteField = (
+    stepId: UniqueIdentifier,
+    fieldId: UniqueIdentifier,
+  ) => {
+    const fieldsObject = Object.entries(value || {}).map(([key, value]) => {
+      if (key === stepId) {
+        return [
+          key,
+          {
+            ...value,
+            fields: value.fields.filter((field) => field.id !== fieldId),
+          },
+        ];
+      }
+      return [key, value];
+    });
+    onValueChange(Object.fromEntries(fieldsObject));
+  };
+
   const handleChangeStepValue = (
     stepId: UniqueIdentifier,
     fieldKey: string,
@@ -244,6 +267,7 @@ export function FormDndProvider({
         handleChangeField,
         handleChangeStepValue,
         getStepValue,
+        handleDeleteField,
       }}
     >
       {children}

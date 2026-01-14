@@ -62,6 +62,8 @@ export const GET_FORM_DETAIL = gql`
         name
         options
         order
+        content
+        column
         validation
         text
         type

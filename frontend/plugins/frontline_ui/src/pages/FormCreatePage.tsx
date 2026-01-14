@@ -1,5 +1,5 @@
 import { FormCreate } from '@/forms/components/FormCreate';
-import { IconForms } from '@tabler/icons-react';
+import { FormsBreadCrumb } from '@/forms/components/FormsBreadCrumb';
 import { Button, Separator } from 'erxes-ui';
 import { SettingsHeader } from 'ui-modules';
 
@@ -7,12 +7,9 @@ export const FormCreatePage = () => {
   return (
     <>
       <SettingsHeader>
-        <Button variant="ghost" className="font-semibold">
-          <IconForms />
-          Forms
-        </Button>
+        <FormsBreadCrumb />
         <Separator.Inline />
-        <Button variant="ghost" className="font-semibold">
+        <Button variant="ghost" className="font-semibold hover:bg-transparent">
           Create form
         </Button>
       </SettingsHeader>

@@ -15,6 +15,7 @@ import {
   Form,
   InfoCard,
   Input,
+  readImage,
   Select,
   Textarea,
   toast,
@@ -52,11 +53,13 @@ export const FormPreview = () => {
               {formConfirmation.description}
             </p>
             {formConfirmation.image && (
-              <img
-                src={formConfirmation.image.url}
-                alt="confirmation"
-                className="w-full h-full object-cover"
-              />
+              <div className="relative rounded-md aspect-video">
+                <img
+                  src={readImage(formConfirmation.image.url)}
+                  alt="confirmation"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
             )}
             <Button>{formGeneral.buttonText || 'Send'}</Button>
           </InfoCard.Content>
@@ -181,6 +184,11 @@ export const FormPreviewContent = ({
         })}
       >
         <InfoCard title={formGeneral.title} className="p-2">
+          {formGeneral.description && (
+            <div className="text-xs text-muted-foreground px-2">
+              {formGeneral.description}
+            </div>
+          )}
           {stepsLength > 1 && (
             <IntegrationSteps
               step={step}
@@ -193,7 +201,6 @@ export const FormPreviewContent = ({
           <InfoCard.Content className="mt-2">
             <div className="grid grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {
-                console.log(erxesField);
                 return (
                   <Form.Field
                     key={erxesField.id}
@@ -209,6 +216,12 @@ export const FormPreviewContent = ({
                               onChange={(value) => field.onChange(value)}
                               placeholder={erxesField.placeholder}
                             />
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
                           </ErxesFormItem>
                         );
                       }
@@ -238,6 +251,12 @@ export const FormPreviewContent = ({
                               {...field}
                               placeholder={erxesField.placeholder}
                             />
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
                           </ErxesFormItem>
                         );
                       }
@@ -265,6 +284,12 @@ export const FormPreviewContent = ({
                                 ))}
                               </Select.Content>
                             </Select>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
                           </ErxesFormItem>
                         );
                       }
@@ -277,6 +302,12 @@ export const FormPreviewContent = ({
                               {...field}
                               placeholder={erxesField.placeholder}
                             />
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
                           </ErxesFormItem>
                         );
                       }
@@ -288,6 +319,12 @@ export const FormPreviewContent = ({
                             {...field}
                             placeholder={erxesField.placeholder}
                           />
+                          {erxesField.description && (
+                            <Form.Description>
+                              {erxesField.description}
+                            </Form.Description>
+                          )}
+                          <Form.Message />
                         </ErxesFormItem>
                       );
                     }}

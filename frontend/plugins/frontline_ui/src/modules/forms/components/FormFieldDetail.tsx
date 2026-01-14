@@ -10,6 +10,7 @@ import {
 import { IFieldData, useFormDnd } from './FormDndProvider';
 import { useState } from 'react';
 import { UniqueIdentifier } from '@dnd-kit/core';
+import { IconTrash } from '@tabler/icons-react';
 
 // export interface IFieldData {
 //     id: string;
@@ -35,7 +36,7 @@ export const FormFieldDetail = ({
   stepId: UniqueIdentifier;
   handleClose: () => void;
 }) => {
-  const { handleChangeField } = useFormDnd();
+  const { handleChangeField, handleDeleteField } = useFormDnd();
 
   if (!fieldData) {
     return null;
@@ -49,6 +50,11 @@ export const FormFieldDetail = ({
       ...fieldData,
       [key]: value,
     });
+  };
+
+  const handleDelete = () => {
+    handleDeleteField(stepId, fieldId);
+    handleClose();
   };
 
   return (
@@ -98,21 +104,31 @@ export const FormFieldDetail = ({
               onChange={(e) => handleValueChange('placeholder', e.target.value)}
             />
           </div>
-          <div className="space-y-2 col-span-2">
-            <Label>Options</Label>
-            <StringArrayInput
-              styleClasses={{
-                inlineTagsContainer: 'shadow-xs',
-              }}
-              value={fieldData?.options ?? []}
-              onValueChange={(value) =>
-                handleValueChange('options', value as string[])
-              }
-            />
-          </div>
+          {fieldData?.type === 'select' && (
+            <div className="space-y-2 col-span-2">
+              <Label>Options</Label>
+              <StringArrayInput
+                styleClasses={{
+                  inlineTagsContainer: 'shadow-xs',
+                }}
+                value={fieldData?.options ?? []}
+                onValueChange={(value) =>
+                  handleValueChange('options', value as string[])
+                }
+              />
+            </div>
+          )}
         </div>
       </Sheet.Content>
       <Sheet.Footer>
+        <Button
+          variant="secondary"
+          className="text-destructive bg-destructive/10 hover:bg-destructive/20"
+          onClick={handleDelete}
+        >
+          <IconTrash />
+          Delete
+        </Button>
         <Button variant="outline" onClick={handleClose}>
           Close
         </Button>

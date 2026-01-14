@@ -4,7 +4,6 @@ import { formSetupStepAtom } from '@/forms/states/formSetupStates';
 import { useAtomValue } from 'jotai';
 import { FormGeneral } from '@/forms/components/FormGeneral';
 import { FormContent } from '@/forms/components/FormContent';
-import { FormMutateLayoutPreviousStepButton } from '@/forms/components/FormMutateLayout';
 import { FormConfirmation } from '@/forms/components/FormConfirmation';
 
 export const FormSetupSteps = () => {
@@ -15,7 +14,6 @@ export const FormSetupSteps = () => {
         {step === 1 && <FormGeneral />}
         {step === 2 && <FormContent />}
         {step === 3 && <FormConfirmation />}
-        {step === 3 && <FormMutateLayoutPreviousStepButton />}
       </Resizable.Panel>
       <Resizable.Handle />
       <Resizable.Panel
