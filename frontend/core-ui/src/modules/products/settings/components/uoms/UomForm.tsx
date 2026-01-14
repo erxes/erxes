@@ -50,11 +50,6 @@ export const UomForm = ({
       uomsEdit({
         variables: { id: uom._id, ...data },
         onCompleted: () => {
-          toast({
-            title: 'Success',
-            description: 'Uom updated successfully',
-            variant: 'default',
-          });
           handleOpenChange(false);
         },
       });
