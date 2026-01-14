@@ -110,13 +110,13 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
         },
       },
       {
         $group: {
-          _id: { assigneeId: '$assignedUserId', status: '$status' },
+          _id: { assigneeId: '$memberIds', status: '$status' },
           count: { $sum: 1 },
         },
       },
@@ -207,7 +207,7 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
         },
       },
@@ -263,7 +263,7 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
           tagIds: { $exists: true, $not: { $size: 0 } },
         },

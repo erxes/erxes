@@ -18,6 +18,8 @@ import {
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
+  getReportChannelFilterAtom,
+  getReportMemberFilterAtom,
 } from '../states';
 import {
   Bar,
@@ -42,6 +44,8 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '../utils/dateFilters';
 import { CustomLegendContent } from './chart/legend';
+import { ChannelSelect } from '@/report/components/frontline-card/ChannelSelect';
+import { MemberSelect } from '@/report/components/frontline-card/MemberSelect';
 
 interface FrontlineReportByResolvedProps {
   title: string;
@@ -376,6 +380,12 @@ export const FrontlineReportByResolved = ({
   const [sourceFilter, setSourceFilter] = useAtom(
     getReportSourceFilterAtom(id),
   );
+  const [channelFilter, setChannelFilter] = useAtom(
+    getReportChannelFilterAtom(id),
+  );
+  const [memberFilter, setMemberFilter] = useAtom(
+    getReportMemberFilterAtom(id),
+  );
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -387,6 +397,8 @@ export const FrontlineReportByResolved = ({
     variables: {
       filters: {
         ...filters,
+        channelIds: channelFilter.length ? channelFilter : undefined,
+        memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
@@ -396,7 +408,6 @@ export const FrontlineReportByResolved = ({
   const handleDateValueChange = (value: string) => {
     setDateValue(value);
   };
-
 
   const chartData = useMemo(() => {
     return reports?.reportConversationResolvedDate || [];
@@ -417,6 +428,15 @@ export const FrontlineReportByResolved = ({
               <GroupSelect
                 value={sourceFilter}
                 onValueChange={setSourceFilter}
+              />
+              <ChannelSelect
+                value={channelFilter}
+                onValueChange={setChannelFilter}
+              />
+              <MemberSelect
+                channelIds={channelFilter}
+                value={memberFilter}
+                onValueChange={setMemberFilter}
               />
               <DateSelector
                 value={dateValue}
@@ -467,9 +487,15 @@ export const FrontlineReportByResolved = ({
       <FrontlineCard.Header
         filter={
           <>
-            <GroupSelect
-              value={sourceFilter}
-              onValueChange={setSourceFilter}
+            <GroupSelect value={sourceFilter} onValueChange={setSourceFilter} />
+            <ChannelSelect
+              value={channelFilter}
+              onValueChange={setChannelFilter}
+            />
+            <MemberSelect
+              channelIds={channelFilter}
+              value={memberFilter}
+              onValueChange={setMemberFilter}
             />
             <DateSelector
               value={dateValue}

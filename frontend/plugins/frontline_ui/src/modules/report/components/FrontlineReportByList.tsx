@@ -2,6 +2,7 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '../hooks/useConversationList';
 import { FrontlineCard } from './frontline-card/FrontlineCard';
 import { GroupSelect } from './frontline-card/GroupSelect';
+import { ChannelSelect } from '@/report/components/frontline-card/ChannelSelect';
 import { DateSelector } from './date-selector/DateSelector';
 import { getFilters } from '../utils/dateFilters';
 import {
@@ -19,6 +20,7 @@ import { CustomersInline, MembersInline } from 'ui-modules';
 import { memo, useState } from 'react';
 import { IconMessageShare } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { MemberSelect } from '@/report/components/frontline-card/MemberSelect';
 
 interface FrontlineReportByListProps {
   title: string;
@@ -34,12 +36,16 @@ export const FrontlineReportByList = ({
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue, setDateValue] = useState<string>('');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [channelFilter, setChannelFilter] = useState<string[]>([]);
+  const [memberFilter, setMemberFilter] = useState<string[]>([]);
   const [filters, setFilters] = useState(() => getFilters());
 
   const { conversationList, loading, error } = useConversationList({
     variables: {
       filters: {
         ...filters,
+        channelIds: channelFilter.length ? channelFilter : undefined,
+        memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
@@ -108,6 +114,15 @@ export const FrontlineReportByList = ({
                 value={sourceFilter}
                 onValueChange={handleSourceFilterChange}
               />
+              <ChannelSelect
+                value={channelFilter}
+                onValueChange={setChannelFilter}
+              />
+              <MemberSelect
+                channelIds={channelFilter}
+                value={memberFilter}
+                onValueChange={setMemberFilter}
+              />
               <DateSelector
                 value={dateValue}
                 onValueChange={handleDateValueChange}
@@ -136,6 +151,15 @@ export const FrontlineReportByList = ({
             <GroupSelect
               value={sourceFilter}
               onValueChange={handleSourceFilterChange}
+            />
+            <ChannelSelect
+              value={channelFilter}
+              onValueChange={setChannelFilter}
+            />
+            <MemberSelect
+              channelIds={channelFilter}
+              value={memberFilter}
+              onValueChange={setMemberFilter}
             />
             <DateSelector
               value={dateValue}

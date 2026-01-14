@@ -7,7 +7,8 @@ export const types = `
     source: String
     limit: Int
     page: Int
-    channelId: [String]
+    channelIds: [String]
+    memberIds: [String]
   }
 
  type ConversationTemplateType{
@@ -29,7 +30,7 @@ export const types = `
     count: Int
     percentage: Int
   }
-    
+
   type ConversationDateStat {
     date: String
     count: Int

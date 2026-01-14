@@ -35,6 +35,8 @@ import {
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
+  getReportChannelFilterAtom,
+  getReportMemberFilterAtom,
 } from '../states';
 import { SelectChartType } from './select-chart-type/SelectChartType';
 import { ColumnDef } from '@tanstack/table-core';
@@ -43,6 +45,8 @@ import { DateSelector } from './date-selector/DateSelector';
 import { getFilters } from '../utils/dateFilters';
 import { CustomLegendContent } from './chart/legend';
 import { type LegendPayload } from 'recharts';
+import { ChannelSelect } from '@/report/components/frontline-card/ChannelSelect';
+import { MemberSelect } from '@/report/components/frontline-card/MemberSelect';
 
 interface FrontlineReportBySourceProps {
   title: string;
@@ -56,6 +60,10 @@ interface SourceCardHeaderProps {
   sourceFilter: string;
   dateValue: string;
   onSourceFilterChange: (value: string) => void;
+  channelFilter: string[];
+  onChannelFilterChange: (value: string[]) => void;
+  memberFilter: string[];
+  onMemberFilterChange: (value: string[]) => void;
 }
 
 interface SourceChartProps {
@@ -73,6 +81,12 @@ export const FrontlineReportBySource = ({
   const [sourceFilter, setSourceFilter] = useAtom(
     getReportSourceFilterAtom(id),
   );
+  const [channelFilter, setChannelFilter] = useAtom(
+    getReportChannelFilterAtom(id),
+  );
+  const [memberFilter, setMemberFilter] = useAtom(
+    getReportMemberFilterAtom(id),
+  );
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -84,6 +98,8 @@ export const FrontlineReportBySource = ({
     variables: {
       filters: {
         ...filters,
+        channelIds: channelFilter.length ? channelFilter : undefined,
+        memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
@@ -107,6 +123,15 @@ export const FrontlineReportBySource = ({
               <GroupSelect
                 value={sourceFilter}
                 onValueChange={setSourceFilter}
+              />
+              <ChannelSelect
+                value={channelFilter}
+                onValueChange={setChannelFilter}
+              />
+              <MemberSelect
+                channelIds={channelFilter}
+                value={memberFilter}
+                onValueChange={setMemberFilter}
               />
               <DateSelector
                 value={dateValue}
@@ -160,6 +185,15 @@ export const FrontlineReportBySource = ({
                 value={sourceFilter}
                 onValueChange={setSourceFilter}
               />
+              <ChannelSelect
+                value={channelFilter}
+                onValueChange={setChannelFilter}
+              />
+              <MemberSelect
+                channelIds={channelFilter}
+                value={memberFilter}
+                onValueChange={setMemberFilter}
+              />
               <DateSelector
                 value={dateValue}
                 onValueChange={handleDateValueChange}
@@ -185,9 +219,15 @@ export const FrontlineReportBySource = ({
       <FrontlineCard.Header
         filter={
           <>
-            <GroupSelect
-              value={sourceFilter}
-              onValueChange={setSourceFilter}
+            <GroupSelect value={sourceFilter} onValueChange={setSourceFilter} />
+            <ChannelSelect
+              value={channelFilter}
+              onValueChange={setChannelFilter}
+            />
+            <MemberSelect
+              channelIds={channelFilter}
+              value={memberFilter}
+              onValueChange={setMemberFilter}
             />
             <DateSelector
               value={dateValue}
@@ -232,10 +272,23 @@ export const SourceCardHeader = ({
   setChartType,
   sourceFilter,
   onSourceFilterChange,
+  channelFilter,
+  onChannelFilterChange,
+  memberFilter,
+  onMemberFilterChange,
 }: SourceCardHeaderProps) => {
   return (
     <>
       <GroupSelect value={sourceFilter} onValueChange={onSourceFilterChange} />
+      <ChannelSelect
+        value={channelFilter}
+        onValueChange={onChannelFilterChange}
+      />
+      <MemberSelect
+        channelIds={channelFilter}
+        value={memberFilter}
+        onValueChange={onMemberFilterChange}
+      />
       <SelectChartType value={chartType} onValueChange={setChartType} />
     </>
   );
@@ -290,11 +343,7 @@ export const SourceBarChart = memo(function SourceBarChart({
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Bar dataKey="count" fill="var(--primary)" name="Count" />
-        <Legend
-          content={(props: any) => (
-            <CustomLegendContent {...props} />
-          )}
-        />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </BarChart>
     </ChartContainer>
@@ -517,7 +566,6 @@ export const SourcePieChart = memo(function SourcePieChart({
   );
 });
 
-
 export const SourceRadarChart = memo(function SourceRadarChart({
   conversationSources,
 }: SourceChartProps) {
@@ -599,11 +647,7 @@ export const SourceRadarChart = memo(function SourceRadarChart({
           fill="var(--success)"
           fillOpacity={0.3}
         />
-        <Legend
-          content={(props: any) => (
-            <CustomLegendContent {...props} />
-          )}
-        />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {

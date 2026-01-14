@@ -45,7 +45,11 @@ import {
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
+  getReportChannelFilterAtom,
+  getReportMemberFilterAtom,
 } from '../states';
+import { ChannelSelect } from '@/report/components/frontline-card/ChannelSelect';
+import { MemberSelect } from '@/report/components/frontline-card/MemberSelect';
 
 interface FrontlineReportByResponsesProps {
   title: string;
@@ -60,6 +64,10 @@ interface ResponsesCardHeaderProps {
   onSourceFilterChange: (value: string) => void;
   dateValue: string;
   onDateValueChange: (value: string) => void;
+  channelFilter: string[];
+  onChannelFilterChange: (value: string[]) => void;
+  memberFilter: string[];
+  onMemberFilterChange: (value: string[]) => void;
 }
 
 interface ResponseChartProps {
@@ -77,6 +85,12 @@ export const FrontlineReportByResponses = ({
   const [sourceFilter, setSourceFilter] = useAtom(
     getReportSourceFilterAtom(id),
   );
+  const [channelFilter, setChannelFilter] = useAtom(
+    getReportChannelFilterAtom(id),
+  );
+  const [memberFilter, setMemberFilter] = useAtom(
+    getReportMemberFilterAtom(id),
+  );
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -88,6 +102,8 @@ export const FrontlineReportByResponses = ({
     variables: {
       filters: {
         ...filters,
+        channelIds: channelFilter.length ? channelFilter : undefined,
+        memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
@@ -96,7 +112,6 @@ export const FrontlineReportByResponses = ({
   const handleDateValueChange = (value: string) => {
     setDateValue(value);
   };
-
 
   if (loading) {
     return (
@@ -116,6 +131,10 @@ export const FrontlineReportByResponses = ({
               onSourceFilterChange={setSourceFilter}
               dateValue={dateValue}
               onDateValueChange={handleDateValueChange}
+              channelFilter={channelFilter}
+              onChannelFilterChange={setChannelFilter}
+              memberFilter={memberFilter}
+              onMemberFilterChange={setMemberFilter}
             />
           }
         />
@@ -146,7 +165,6 @@ export const FrontlineReportByResponses = ({
       </FrontlineCard>
     );
   }
-
   if (!conversationResponses || conversationResponses.length === 0) {
     return (
       <FrontlineCard
@@ -162,6 +180,15 @@ export const FrontlineReportByResponses = ({
               <GroupSelect
                 value={sourceFilter}
                 onValueChange={setSourceFilter}
+              />
+              <ChannelSelect
+                value={channelFilter}
+                onValueChange={setChannelFilter}
+              />
+              <MemberSelect
+                channelIds={channelFilter}
+                value={memberFilter}
+                onValueChange={setMemberFilter}
               />
               <DateSelector
                 value={dateValue}
@@ -194,6 +221,10 @@ export const FrontlineReportByResponses = ({
             onSourceFilterChange={setSourceFilter}
             dateValue={dateValue}
             onDateValueChange={handleDateValueChange}
+            channelFilter={channelFilter}
+            onChannelFilterChange={setChannelFilter}
+            memberFilter={memberFilter}
+            onMemberFilterChange={setMemberFilter}
           />
         }
       />
@@ -236,10 +267,23 @@ export const ResponsesCardHeader = ({
   onSourceFilterChange,
   dateValue,
   onDateValueChange,
+  channelFilter,
+  onChannelFilterChange,
+  memberFilter,
+  onMemberFilterChange,
 }: ResponsesCardHeaderProps) => {
   return (
     <>
       <GroupSelect value={sourceFilter} onValueChange={onSourceFilterChange} />
+      <ChannelSelect
+        value={channelFilter}
+        onValueChange={onChannelFilterChange}
+      />
+      <MemberSelect
+        channelIds={channelFilter}
+        value={memberFilter}
+        onValueChange={onMemberFilterChange}
+      />
       <DateSelector value={dateValue} onValueChange={onDateValueChange} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
     </>

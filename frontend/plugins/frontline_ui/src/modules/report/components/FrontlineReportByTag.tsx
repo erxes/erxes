@@ -43,7 +43,11 @@ import {
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
+  getReportChannelFilterAtom,
+  getReportMemberFilterAtom,
 } from '../states';
+import { ChannelSelect } from '@/report/components/frontline-card/ChannelSelect';
+import { MemberSelect } from '@/report/components/frontline-card/MemberSelect';
 
 interface FrontlineReportByTagProps {
   title: string;
@@ -58,6 +62,10 @@ interface TagCardHeaderProps {
   onSourceFilterChange: (value: string) => void;
   dateValue: string;
   onDateValueChange: (value: string) => void;
+  channelFilter: string[];
+  onChannelFilterChange: (value: string[]) => void;
+  memberFilter: string[];
+  onMemberFilterChange: (value: string[]) => void;
 }
 
 interface TagChartProps {
@@ -75,6 +83,12 @@ export const FrontlineReportByTag = ({
   const [sourceFilter, setSourceFilter] = useAtom(
     getReportSourceFilterAtom(id),
   );
+  const [channelFilter, setChannelFilter] = useAtom(
+    getReportChannelFilterAtom(id),
+  );
+  const [memberFilter, setMemberFilter] = useAtom(
+    getReportMemberFilterAtom(id),
+  );
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -86,6 +100,8 @@ export const FrontlineReportByTag = ({
     variables: {
       filters: {
         ...filters,
+        channelIds: channelFilter.length ? channelFilter : undefined,
+        memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
       },
     },
@@ -94,7 +110,6 @@ export const FrontlineReportByTag = ({
   const handleDateValueChange = (value: string) => {
     setDateValue(value);
   };
-
 
   if (loading) {
     return (
@@ -114,6 +129,10 @@ export const FrontlineReportByTag = ({
               onSourceFilterChange={setSourceFilter}
               dateValue={dateValue}
               onDateValueChange={handleDateValueChange}
+              channelFilter={channelFilter}
+              onChannelFilterChange={setChannelFilter}
+              memberFilter={memberFilter}
+              onMemberFilterChange={setMemberFilter}
             />
           }
         />
@@ -161,6 +180,15 @@ export const FrontlineReportByTag = ({
                 value={sourceFilter}
                 onValueChange={setSourceFilter}
               />
+              <ChannelSelect
+                value={channelFilter}
+                onValueChange={setChannelFilter}
+              />
+              <MemberSelect
+                channelIds={channelFilter}
+                value={memberFilter}
+                onValueChange={setMemberFilter}
+              />
               <DateSelector
                 value={dateValue}
                 onValueChange={handleDateValueChange}
@@ -192,6 +220,10 @@ export const FrontlineReportByTag = ({
             onSourceFilterChange={setSourceFilter}
             dateValue={dateValue}
             onDateValueChange={handleDateValueChange}
+            channelFilter={channelFilter}
+            onChannelFilterChange={setChannelFilter}
+            memberFilter={memberFilter}
+            onMemberFilterChange={setMemberFilter}
           />
         }
       />
@@ -232,10 +264,23 @@ export const TagCardHeader = ({
   onSourceFilterChange,
   dateValue,
   onDateValueChange,
+  channelFilter,
+  onChannelFilterChange,
+  memberFilter,
+  onMemberFilterChange,
 }: TagCardHeaderProps) => {
   return (
     <>
       <GroupSelect value={sourceFilter} onValueChange={onSourceFilterChange} />
+      <ChannelSelect
+        value={channelFilter}
+        onValueChange={onChannelFilterChange}
+      />
+      <MemberSelect
+        channelIds={channelFilter}
+        value={memberFilter}
+        onValueChange={onMemberFilterChange}
+      />
       <DateSelector value={dateValue} onValueChange={onDateValueChange} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
     </>
@@ -337,11 +382,7 @@ export const TagBarChart = memo(function TagBarChart({
           stackId="stack-tag"
           name="Percentage"
         />
-        <Legend
-          content={(props: any) => (
-            <CustomLegendContent {...props} />
-          )}
-        />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
@@ -448,11 +489,7 @@ export const TagLineChart = memo(function TagLineChart({
           strokeWidth={2}
           strokeLinecap="round"
         />
-        <Legend
-          content={(props: any) => (
-            <CustomLegendContent {...props} />
-          )}
-        />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </AreaChart>
     </ChartContainer>
@@ -544,7 +581,6 @@ export const TagPieChart = memo(function TagPieChart({
   );
 });
 
-
 export const TagRadarChart = memo(function TagRadarChart({
   conversationTags,
 }: TagChartProps) {
@@ -624,11 +660,7 @@ export const TagRadarChart = memo(function TagRadarChart({
           fill="var(--success)"
           fillOpacity={0.3}
         />
-        <Legend
-          content={(props: any) => (
-            <CustomLegendContent {...props} />
-          )}
-        />
+        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
