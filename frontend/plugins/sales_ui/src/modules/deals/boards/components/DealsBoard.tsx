@@ -11,6 +11,7 @@ import { ColumnPaginationState } from '../../types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
@@ -203,9 +204,9 @@ export const DealsBoard = () => {
     return result;
   }, [pagination]);
 
-  if (!boardState || columnsLoading) {
-    return <StagesLoading />;
-  }
+  if (!boardState) return <NoStagesWarning />;
+  if (columnsLoading) return <StagesLoading />;
+  console.log('cccc', columns, boardState);
   return (
     <GenericBoard<any, any>
       initialState={boardState}
