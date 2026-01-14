@@ -20,12 +20,14 @@ const ProductsList = ({
   dealId,
   refetch,
   tickUsed,
+  pipelineId,
 }: {
   products: IProduct[];
   productsData: IProductData[];
   dealId: string;
   refetch: () => void;
   tickUsed: boolean;
+  pipelineId?: string;
 }) => {
   const { createDealsProductData } = useDealsCreateProductsData();
   const [localProductsData, setLocalProductsData] =
@@ -62,16 +64,14 @@ const ProductsList = ({
     }))
     .filter((record) => {
       if (!record.product) return false;
+      // We check if the product in the record is present in the filtered products list
       return filteredProducts.some((p) => p._id === record.product?._id);
     });
 
   const updateLocalProduct = (id: string, patch: Partial<IProductData>) => {
-    setLocalProductsData((prev) => {
-      const updated = prev.map((p) => (p._id === id ? { ...p, ...patch } : p));
-
-      updateTotal(updated);
-      return updated;
-    });
+    setLocalProductsData((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, ...patch } : p)),
+    );
   };
 
   useEffect(() => {
@@ -81,7 +81,6 @@ const ProductsList = ({
   useEffect(() => {
     setOnLocalChange(() => updateLocalProduct);
     return () => setOnLocalChange(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setOnLocalChange]);
 
   const applyVat = () => {
@@ -236,6 +235,7 @@ const ProductsList = ({
         updateTotal={updateTotal}
         onAddProducts={onPoductBulkSave}
         onSave={handleSave}
+        pipelineId={pipelineId}
       />
     </div>
   );

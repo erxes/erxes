@@ -22,6 +22,7 @@ interface SelectProductsProps {
   onSelect: (productIds: string[], products?: IProduct[]) => void;
   children: React.ReactNode;
   productIds?: string[];
+  pipelineId?: string;
 }
 
 interface ProductsListProps {
@@ -35,6 +36,7 @@ export const SelectProductsBulk = ({
   onSelect,
   children,
   productIds,
+  pipelineId,
 }: SelectProductsProps) => {
   const [open, setOpen] = useState(false);
 
@@ -52,6 +54,7 @@ export const SelectProductsBulk = ({
           setOpen={setOpen}
           onSelect={onSelect}
           productIds={productIds}
+          pipelineId={pipelineId}
         />
       </Sheet.View>
     </Sheet>
@@ -62,10 +65,12 @@ const SelectProductsBulkContent = ({
   setOpen,
   onSelect,
   productIds,
+  pipelineId,
 }: {
   setOpen: (open: boolean) => void;
   onSelect: (productIds: string[], products?: IProduct[]) => void;
   productIds?: string[];
+  pipelineId?: string;
 }) => {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<IProduct[]>([]);
