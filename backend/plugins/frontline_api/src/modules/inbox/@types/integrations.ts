@@ -12,6 +12,16 @@ export interface ILink {
   youtube?: string;
 }
 
+export interface IStep {
+  name: string;
+  description: string;
+  order: number;
+}
+
+export interface ILeadDataSteps {
+  [key: string]: IStep;
+}
+
 export interface ITicketData {
   configId: string;
 }
@@ -131,6 +141,7 @@ export interface ILeadData {
   appearance?: string;
   thanksImage?: string;
   primaryColor?: string;
+  steps?: ILeadDataSteps;
 }
 
 export interface IWebhookData {

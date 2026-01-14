@@ -74,6 +74,7 @@ export interface ILeadData {
   appearance?: string;
   thanksImage?: string;
   primaryColor?: string;
+  steps?: { [key: string]: any };
 
 }
 
@@ -276,6 +277,11 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Primary color',
+    }),
+    steps: field({
+      type: Object,
+      optional: true,
+      label: 'Steps',
     }),
   },
   { _id: false },

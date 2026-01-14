@@ -248,6 +248,11 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Primary color',
     },
+    steps: {
+      type: Object,
+      optional: true,
+      label: 'Steps',
+    },
   },
   { _id: false },
 );
