@@ -133,115 +133,123 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
         </Button>
       </div>
 
-      {fields.map((field, index) => (
-        <div key={field.id} className="rounded-lg border bg-card p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Form.Field
-                control={control}
-                name={`otherPayments.${index}.type`}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label className="text-xs font-medium">
-                      TYPE
-                    </Form.Label>
-                    <Form.Control>
-                      <Input placeholder="e.g., golomtCard" {...field} />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={control}
-                name={`otherPayments.${index}.title`}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label className="text-xs font-medium">
-                      TITLE
-                    </Form.Label>
-                    <Form.Control>
-                      <Input placeholder="Payment title" {...field} />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={control}
-                name={`otherPayments.${index}.icon`}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label className="text-xs font-medium">
-                      ICON
-                    </Form.Label>
-                    <Select
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                    >
+      <div className="space-y-4">
+        {fields.map((field, index) => (
+          <div
+            key={field.id}
+            className="rounded-lg border bg-card p-4 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Form.Field
+                  control={control}
+                  name={`otherPayments.${index}.type`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label className="text-xs font-medium">
+                        TYPE
+                      </Form.Label>
                       <Form.Control>
-                        <Select.Trigger>
-                          <Select.Value placeholder="Select">
-                            {field.value && (
-                              <div className="flex gap-2 items-center">
-                                <PaymentIcon iconType={field.value} size={16} />
-                                <span className="text-sm truncate">
-                                  {
-                                    paymentIconOptions.find(
-                                      (icon) => icon.value === field.value,
-                                    )?.label
-                                  }
-                                </span>
-                              </div>
-                            )}
-                          </Select.Value>
-                        </Select.Trigger>
+                        <Input placeholder="e.g., golomtCard" {...field} />
                       </Form.Control>
-                      <Select.Content>
-                        {paymentIconOptions.map((icon) => (
-                          <Select.Item key={icon.value} value={icon.value}>
-                            <div className="flex gap-2 items-center">
-                              <PaymentIcon iconType={icon.value} size={16} />
-                              {icon.label}
-                            </div>
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Item>
-                )}
-              />
+                    </Form.Item>
+                  )}
+                />
 
-              <Form.Field
-                control={control}
-                name={`otherPayments.${index}.config`}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label className="text-xs font-medium">
-                      CONFIG
-                    </Form.Label>
-                    <Form.Control>
-                      <Input
-                        placeholder='e.g., "skipEbarimt: true"'
-                        {...field}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
+                <Form.Field
+                  control={control}
+                  name={`otherPayments.${index}.title`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label className="text-xs font-medium">
+                        TITLE
+                      </Form.Label>
+                      <Form.Control>
+                        <Input placeholder="Payment title" {...field} />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={control}
+                  name={`otherPayments.${index}.icon`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label className="text-xs font-medium">
+                        ICON
+                      </Form.Label>
+                      <Select
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                      >
+                        <Form.Control>
+                          <Select.Trigger>
+                            <Select.Value placeholder="Select">
+                              {field.value && (
+                                <div className="flex gap-2 items-center">
+                                  <PaymentIcon
+                                    iconType={field.value}
+                                    size={16}
+                                  />
+                                  <span className="text-sm truncate">
+                                    {
+                                      paymentIconOptions.find(
+                                        (icon) => icon.value === field.value,
+                                      )?.label
+                                    }
+                                  </span>
+                                </div>
+                              )}
+                            </Select.Value>
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content>
+                          {paymentIconOptions.map((icon) => (
+                            <Select.Item key={icon.value} value={icon.value}>
+                              <div className="flex gap-2 items-center">
+                                <PaymentIcon iconType={icon.value} size={16} />
+                                {icon.label}
+                              </div>
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={control}
+                  name={`otherPayments.${index}.config`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label className="text-xs font-medium">
+                        CONFIG
+                      </Form.Label>
+                      <Form.Control>
+                        <Input
+                          placeholder='e.g., "skipEbarimt: true"'
+                          {...field}
+                        />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 ml-2 text-destructive hover:text-destructive"
+                type="button"
+                onClick={() => remove(index)}
+              >
+                <IconTrash size={16} />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 ml-2 text-destructive hover:text-destructive"
-              type="button"
-              onClick={() => remove(index)}
-            >
-              <IconTrash size={16} />
-            </Button>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
