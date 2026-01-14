@@ -10,19 +10,22 @@ export const useUomsRemove = (options?: MutationHookOptions) => {
   const [_removeUoms, { loading, error }] = useMutation(UOMS_REMOVE, options);
   const removeUoms = (options?: MutationFunctionOptions) => {
     _removeUoms({
+      ...options,
       onError: (e) => {
         toast({
           title: 'Error',
           description: e?.message,
           variant: 'destructive',
         });
+        options?.onError?.(e);
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
           title: 'Success',
           description: 'Uom removed successfully',
           variant: 'default',
         });
+        options?.onCompleted?.(data);
       },
       refetchQueries: ['Uoms'],
     });

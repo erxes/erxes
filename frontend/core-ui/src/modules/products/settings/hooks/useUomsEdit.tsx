@@ -25,6 +25,7 @@ export const useUomsEdit = () => {
       onCompleted: (data) => {
         if (data?.uomsEdit) {
           toast({ title: 'Uom updated successfully!', variant: 'success' });
+          options?.onCompleted?.(data);
         }
       },
       onError: (error) => {
@@ -32,6 +33,7 @@ export const useUomsEdit = () => {
           title: error.message,
           variant: 'destructive',
         });
+        options?.onError?.(error);
       },
     });
   };
