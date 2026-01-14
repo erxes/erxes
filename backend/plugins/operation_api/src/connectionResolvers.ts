@@ -64,7 +64,7 @@ export const loadClasses = (
 
   models.Team = db.model<ITeamDocument, ITeamModel>(
     'operation_teams',
-    loadTeamClass(models),
+    loadTeamClass(models, subdomain),
   );
 
   models.TeamMember = db.model<ITeamMemberDocument, ITeamMemberModel>(
