@@ -138,9 +138,9 @@ export const loadTeamClass = (models: IModels, subdomain: string) => {
         { new: true },
       );
 
-      if (updatedTeam && updatedTeam.cycleEnabled && VERSION === 'saas') {
+      if (updatedTeam && updatedTeam.cycleEnabled !== doc.cycleEnabled && VERSION === 'saas') {
         await updateSaasOrganization(subdomain, {
-          cycleEnabled: true,
+          cycleEnabled: updatedTeam.cycleEnabled,
         });
       }
 
