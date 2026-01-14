@@ -14,8 +14,6 @@ export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const dealTrpcRouter = t.router({
-  // t.procedure.input(z.any()).mutation(async ({ctx, input}) => {}),
-  // t.procedure.input(z.any()).query(async ({ctx, input}) => {}),
   deal: {
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
