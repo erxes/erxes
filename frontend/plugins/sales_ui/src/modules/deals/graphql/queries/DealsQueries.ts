@@ -242,6 +242,8 @@ export const GET_DEAL_DETAIL = gql`
       pipeline {
         _id
         name
+        paymentTypes
+        paymentIds
       }
       boardId
     }
