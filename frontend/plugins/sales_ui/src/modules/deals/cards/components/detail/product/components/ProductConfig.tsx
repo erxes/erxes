@@ -121,9 +121,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
         </div>
         <div className="space-y-6">
           <Payments control={form.control} />
-          <Separator />
           <Token control={form.control} />
-          <Separator />
           <OtherPayments control={form.control} />
         </div>
       </div>
