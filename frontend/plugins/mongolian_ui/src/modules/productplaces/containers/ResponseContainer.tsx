@@ -41,7 +41,7 @@ type Props = {
 const withCurrentUser = (Component: React.ComponentType<Props>) => {
   return (props: Omit<Props, 'currentUser'>) => {
     const currentUser = { _id: 'mock-user-id' } as User;
-    return <Component {...props} currentUser={currentUser} />;
+    return <Component {...(props as any)} currentUser={currentUser} />;
   };
 };
 
@@ -60,28 +60,30 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
   useEffect(() => {
     const contents = response?.productPlacesResponded?.content;
     const responseId = response?.productPlacesResponded?.responseId;
-
     if (!contents?.length || !responseId) return;
 
+    // Generate HTML for each content
     const printContents = contents.map((content, index) =>
       PerResponse(content, index)
     );
 
+    // Wrap all content
     const printMainContent = ResponseComponent(printContents.join(''));
-    const myWindow = window.open('', '_blank', 'width=800,height=800');
 
+    const myWindow = window.open('', '_blank', 'width=800,height=800');
     if (!myWindow) {
       alert('Please allow Pop-ups and redirects in site settings!');
       return;
     }
 
     localStorage.setItem('productPlacesResponseId', responseId);
-    myWindow.document.write(printMainContent);
+
+    // Use spread to avoid deprecated signature warning
+    myWindow.document.write(...[printMainContent]);
+    myWindow.document.close(); // Ensure the document is properly closed
   }, [response]);
 
-  // Render minimal feedback instead of always null
   return loading ? <div>Loading...</div> : <></>;
 };
-
 
 export default withCurrentUser(ReturnResponseBody);
