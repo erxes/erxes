@@ -8,7 +8,6 @@ import {
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
 import { convertNestedDate, generateAmounts, generateProducts } from '~/modules/sales/utils';
-import stage from '../graphql/resolvers/customResolvers/stage';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
