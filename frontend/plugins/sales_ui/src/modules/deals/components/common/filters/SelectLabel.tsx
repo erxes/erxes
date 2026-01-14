@@ -59,6 +59,7 @@ export const SelectLabelsProvider = ({
     if (!label) return;
 
     const isSingleMode = mode === 'single';
+
     const multipleValue = (value as string[]) || [];
     const isSelected = !isSingleMode && multipleValue.includes(label._id || '');
 
@@ -198,7 +199,7 @@ export const SelectLabelsCommand = ({
   }
   return (
     <>
-      <Command>
+      <Command className="mt-2">
         <Command.Input placeholder="Search label" />
         <Command.List className="px-1 ">
           {filteredLabels.map((label) => (
