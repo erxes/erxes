@@ -8,6 +8,7 @@ import {
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
 import { convertNestedDate, generateAmounts, generateProducts } from '~/modules/sales/utils';
+import stage from '../graphql/resolvers/customResolvers/stage';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -273,6 +274,26 @@ export const dealTrpcRouter = t.router({
       };
     }),
   },
+  pipeline: {
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, stageId, ...rest } = input;
+
+      let pipeline = await models.Pipelines.findOne(rest);
+
+      if (!pipeline && stageId) {
+        const stage = await models.Stages.findOne({ _id: stageId }).lean();
+        if (stage) {
+          pipeline = await models.Pipelines.findOne({ _id: stage.pipelineId });
+        }
+      }
+
+      return {
+        status: "success",
+        data: pipeline,
+      };
+    })
+  }
 });
 
 export const fetchSegment = async (

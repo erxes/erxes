@@ -82,7 +82,7 @@ export const afterMutationHandlers = async (
     subdomain,
     pluginName: 'sales',
     method: 'query',
-    module: 'pipelines',
+    module: 'pipeline',
     action: 'findOne',
     input: { stageId: destinationStageId },
     defaultValue: {},

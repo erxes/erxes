@@ -415,7 +415,7 @@ export const widgetMutations: Record<string, Resolver> = {
           subdomain,
           pluginName: 'core',
           method: 'mutation',
-          module: 'conformities',
+          module: 'conformity',
           action: 'create',
           input: {
             mainType: 'customer',

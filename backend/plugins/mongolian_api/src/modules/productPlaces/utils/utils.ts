@@ -207,7 +207,7 @@ export const getCustomer = async (subdomain, deal) => {
     (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       method: 'query',
       input: {
@@ -247,7 +247,7 @@ export const getCustomer = async (subdomain, deal) => {
     (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       method: 'query',
       input: {

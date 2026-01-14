@@ -14,7 +14,7 @@ const allRules: IAfterProcessRule[] = [
 export const afterProcess: AfterProcessConfigs = {
   rules: allRules,
   afterMutation: async (ctx, input) => {
-    const { mutationName, args, result, userId } = input;
+    const { mutationName, args, result, userId } = input?.data;
     if (ebarimtMutationNames.includes(mutationName)) {
       const { itemId, destinationStageId, sourceStageId } = args;
       const { stageId } = result;
