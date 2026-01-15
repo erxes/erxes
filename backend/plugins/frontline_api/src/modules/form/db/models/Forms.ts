@@ -34,7 +34,7 @@ export interface IFormModel extends Model<IForm> {
   ): Promise<IFormDocument>;
 
   updateForm(
-    _id,
+    _id: string,
     { title, description, buttonText }: Omit<IForm, '_id'>,
   ): Promise<IFormDocument>;
 

@@ -8,7 +8,7 @@ import {
 } from '~/modules/inbox/db/definitions/constants';
 import { ruleSchema } from 'erxes-api-shared/core-modules';
 
-export interface IForm extends Document {
+export interface IForm {
   _id: string;
   createdUserId: string;
   createdDate: Date;

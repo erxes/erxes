@@ -30,7 +30,7 @@ export const formMutations = {
    */
   formsEdit: async (
     _root,
-    { _id, ...doc }: IFormsEdit,
+    { _id, ...doc }: IForm,
     { models }: IContext,
   ) => {
     return await models.Forms.updateForm(_id, doc);
