@@ -1,33 +1,28 @@
-export type ConfigCode =
-  | 'ebarimt'
-  | 'tax'
-  | 'productRules'
-  | 'general';
+export const MnConfigCodes = [
+  'EBARIMT',
+  'remainderConfig',
+  'stageInEbarimt',
+  'returnEbarimtConfig',
+  'ebarimtConfig',
+  'returnStageInEbarimt',
+  'ERKHET',
+  'stageInMoveConfig',
+  'dealsProductsDataPrint',
+  'dealsProductsDataSplit',
+  'dealsProductsDataPlaces',
+  'stageInIncomeConfig',
+  'dealsProductsDefaultFilter',
+]
 
-export interface IConfigInput<T = any> {
-  code: ConfigCode;
-  value: T;
+export interface IConfig {
+  code: string;
+  subId?: string;
+  value: any;
 }
 
-export interface IConfig<T = any> {
+export interface IConfigDocument {
   _id: string;
   code: string;
-  value: T;
-}
-
-export interface IEbarimtConfig {
-  ebarimtUrl: string;
-  posNo: string;
-  districtCode: string;
-  branchNo: string;
-  merchantTin: string;
-
-  // auth
-  username?: string;
-  password?: string;
-  token?: string;
-
-  // behavior flags
-  retrySeconds?: number;
-  allowRePut?: boolean;
+  subId?: string;
+  value: any;
 }
