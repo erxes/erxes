@@ -81,9 +81,14 @@ import {
 } from '~/modules/response/graphql/schema';
 
 import {
-  queries as ReportQueries,
-  types as ReportTypes,
-} from '@/reports/graphql/schema';
+  queries as ReportInboxQueries,
+  types as ReportInboxTypes,
+} from '@/reports/graphql/schema/inbox';
+
+import {
+  queries as ReportTicketQueries,
+  types as ReportTicketTypes,
+} from '@/reports/graphql/schema/ticket';
 
 export const types = `
     ${ChannelsTypes}
@@ -100,8 +105,8 @@ export const types = `
     ${NoteTypes}
     ${TicketConfigTypes}
     ${ResponseTemplateTypes}
-    ${ReportTypes}
-
+    ${ReportInboxTypes}
+    ${ReportTicketTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -118,7 +123,8 @@ export const queries = `
     ${NoteQueries}
     ${TicketConfigQueries}
     ${ResponseTemplateQueries}
-    ${ReportQueries}
+    ${ReportInboxQueries}
+    ${ReportTicketQueries}
   `;
 
 export const mutations = `

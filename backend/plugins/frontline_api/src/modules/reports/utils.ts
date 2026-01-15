@@ -146,3 +146,59 @@ export function buildDateGroupPipeline(field: string) {
     { $sort: { _id: 1 } },
   ];
 }
+
+export function buildTicketMatch(filters: IReportFilters) {
+  const match: any = { type: 'ticket' };
+
+  if (filters.status) {
+    match.statusId = filters.status;
+  }
+
+  if (filters.channelIds?.length) {
+    match.channelId = { $in: filters.channelIds };
+  }
+
+  if (filters.memberIds?.length) {
+    match.assigneeId = { $in: filters.memberIds };
+  }
+
+  Object.assign(match, buildDateMatch(filters, 'createdAt'));
+
+  return match;
+}
+
+export const buildTicketPipeline = async (filters: IReportFilters) => {
+  const pipeline: any[] = [];
+  const match = buildTicketMatch(filters);
+
+  if (Object.keys(match).length > 1) {
+    pipeline.push({ $match: match });
+  }
+
+  if (filters.limit) {
+    pipeline.push({ $skip: filters.limit }, { $limit: filters.limit });
+  }
+
+  return pipeline;
+};
+
+export function buildTicketTagMatch(filters: IReportFilters) {
+  const match: any = {
+    type: 'ticket',
+    tagIds: { $exists: true, $ne: [] },
+  };
+
+  if (filters.status) {
+    match.statusId = filters.status;
+  }
+
+  if (filters.channelIds?.length) {
+    match.channelId = { $in: filters.channelIds };
+  }
+
+  if (filters.memberIds?.length) {
+    match.assigneeId = { $in: filters.memberIds };
+  }
+
+  return match;
+}

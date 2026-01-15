@@ -30,6 +30,13 @@ export const types = `
     count: Int
     percentage: Int
   }
+  type ReportTag {
+    _id: String
+    name: String
+    count: Int
+    percentage: Int
+    colorCode: String
+  }
 
   type ConversationDateStat {
     date: String
@@ -66,6 +73,6 @@ export const queries = `
   reportConversationOpen(filters: ConversationReportFilter): ReportMetric
   reportConversationClosed(filters: ConversationReportFilter): ReportMetric
   reportConversationResolved(filters: ConversationReportFilter): ReportMetric
-  reportConversationTags(filters: ConversationReportFilter): [ReportSource]
+  reportConversationTags(filters: ConversationReportFilter): [ReportTag]
   reportConversationSources(filters: ConversationReportFilter): [ReportSource]
 `;

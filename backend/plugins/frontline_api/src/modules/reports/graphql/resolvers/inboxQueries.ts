@@ -11,7 +11,7 @@ import {
   normalizeStatus,
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
-export const reportQueries = {
+export const reportInboxQueries = {
   async conversationProgressChart(
     _parent: undefined,
     { customerId }: { customerId: string },
@@ -518,8 +518,7 @@ export const reportQueries = {
       defaultValue: [],
     });
 
-    const tagMap = new Map(tags.map((t) => [t._id.toString(), t.name]));
-
+    const tagMap = new Map(tags.map((t: any) => [t._id.toString(), t.name]));
     return tagCounts.map((tag) => ({
       _id: tag._id,
       name: tagMap.get(tag._id.toString()) || 'Unknown Tag',
