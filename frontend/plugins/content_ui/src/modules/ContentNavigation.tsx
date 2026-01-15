@@ -1,4 +1,8 @@
-import { IconLibraryPhoto, IconFileText, IconWorld } from '@tabler/icons-react';
+import {
+  IconLibraryPhoto,
+  IconFileText,
+  IconWorldPlus,
+} from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 
 export const ContentNavigation = () => {
@@ -14,15 +18,21 @@ export const ContentNavigation = () => {
         path="/content/cms"
         icon={IconFileText}
       />
-      <a
-        href="https://webbuilder.erxes.io"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+      <div
+        onClick={() =>
+          window.open(
+            'https://example.webbuilder.app.erxes.io',
+            '_blank',
+            'noopener,noreferrer',
+          )
+        }
       >
-        <IconWorld className="h-4 w-4 text-gray-500" />
-        Web Builder
-      </a>
+        <NavigationMenuLinkItem
+          name="Web Builder"
+          path="#"
+          icon={IconWorldPlus}
+        />
+      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 
 const CmsIndex = lazy(() =>
   import('~/pages/cms/IndexPage').then((module) => ({
@@ -59,15 +59,16 @@ const CmsMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<CmsIndex />} />
-        <Route path="/:websiteId/posts" element={<Posts />} />
-        <Route path="/:websiteId/posts/add" element={<AddPost />} />
-        <Route path="/:websiteId/categories" element={<Categories />} />
-        <Route path="/:websiteId/tags" element={<Tags />} />
-        <Route path="/:websiteId/pages" element={<Pages />} />
-        <Route path="/:websiteId/menus" element={<Menus />} />
-        <Route path="/:websiteId/custom-types" element={<CustomTypes />} />
-        <Route path="/:websiteId/custom-fields" element={<CustomFields />} />
+        <Route index path="/" element={<Navigate to="cms" replace />} />
+        <Route path="cms" element={<CmsIndex />} />
+        <Route path="cms/:websiteId/posts" element={<Posts />} />
+        <Route path="cms/:websiteId/posts/add" element={<AddPost />} />
+        <Route path="cms/:websiteId/categories" element={<Categories />} />
+        <Route path="cms/:websiteId/tags" element={<Tags />} />
+        {/* <Route path="/:websiteId/pages" element={<Pages />} /> */}
+        {/* <Route path="/:websiteId/menus" element={<Menus />} /> */}
+        <Route path="cms/:websiteId/custom-types" element={<CustomTypes />} />
+        <Route path="cms/:websiteId/custom-fields" element={<CustomFields />} />
       </Routes>
     </Suspense>
   );
