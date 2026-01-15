@@ -51,11 +51,11 @@ export const afterMutationHandlers = async (
 
     if (returnResponses.length) {
       try {
-        await graphqlPubsub.publish(`automationResponded:${userId}`, {
-          automationResponded: {
+        await graphqlPubsub.publish(`ebarimtResponded:${userId}`, {
+          ebarimtResponded: {
             userId,
             responseId: returnResponses.map((er) => er._id).join('-'),
-            // sessionCode: user.sessionCode || '',
+            processId,
             content: returnResponses,
           },
         });
@@ -153,8 +153,8 @@ export const afterMutationHandlers = async (
 
   try {
     if (ebarimtResponses.length) {
-      await graphqlPubsub.publish(`automationResponded:${userId}`, {
-        automationResponded: {
+      await graphqlPubsub.publish(`ebarimtResponded:${userId}`, {
+        ebarimtResponded: {
           userId,
           responseId: ebarimtResponses.map((er) => er._id).join('-'),
           // sessionCode: user.sessionCode || '',
