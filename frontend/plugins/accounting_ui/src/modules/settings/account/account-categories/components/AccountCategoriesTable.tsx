@@ -89,6 +89,7 @@ const AccountTextField = ({
           variables: { ...accountCategory, [field]: value },
         });
       }}
+      className={'shadow-none rounded-none px-2'}
     >
       {children}
     </TextField>

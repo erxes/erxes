@@ -9,7 +9,7 @@ import {
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { generateFilter } from '~/modules/contacts/utils';
+import { customersCount, generateFilter } from '~/modules/contacts/utils';
 
 export const customerQueries = {
   /**
@@ -76,6 +76,24 @@ export const customerQueries = {
     }
 
     return result;
+  },
+
+  async customersCount(
+    _parent: undefined,
+    params: { types: string[] },
+    { models, subdomain }: IContext,
+  ) {
+    const { types } = params;
+
+    const counts = {};
+
+    for (const type of types) {
+      const contentType = type.toLowerCase();
+
+      counts[contentType] = await customersCount({ models, subdomain, type: contentType });
+    }
+
+    return counts;
   },
 };
 
