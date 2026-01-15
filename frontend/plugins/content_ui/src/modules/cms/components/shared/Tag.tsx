@@ -149,27 +149,8 @@ export function Tag() {
           }
         };
 
-        const handleCopyId = (e: React.MouseEvent) => {
-          e.stopPropagation();
-          navigator.clipboard.writeText(original._id);
-          toast({
-            title: 'Copied',
-            description: 'Tag ID copied to clipboard',
-            variant: 'default',
-          });
-        };
-
         return (
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={handleCopyId}
-              title="Copy ID"
-            >
-              <IconCopy className="h-3 w-3" />
-            </Button>
             <Popover
               open={open}
               onOpenChange={(v) => {
@@ -226,6 +207,36 @@ export function Tag() {
         );
       },
       size: 180,
+    },
+    {
+      id: 'copyId',
+      header: () => <span className="sr-only">Copy ID</span>,
+      cell: ({ row }) => {
+        const tagId = row.original._id;
+
+        const handleCopyId = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(tagId);
+          toast({
+            title: 'Copied',
+            description: 'Tag ID copied to clipboard',
+            variant: 'default',
+          });
+        };
+
+        return (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleCopyId}
+            title={`Copy ID: ${tagId}`}
+          >
+            <IconCopy className="h-4 w-4" />
+          </Button>
+        );
+      },
+      size: 50,
     },
   ];
 

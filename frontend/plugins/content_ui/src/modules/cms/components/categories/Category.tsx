@@ -150,38 +150,15 @@ export function Category() {
       id: 'name',
       header: () => <RecordTable.InlineHead label="Name" icon={IconEdit} />,
       accessorKey: 'name',
-      cell: ({ row }) => {
-        const name = row.original.name;
-        const categoryId = row.original._id;
-
-        const handleCopyId = (e: React.MouseEvent) => {
-          e.stopPropagation();
-          navigator.clipboard.writeText(categoryId);
-          toast({
-            title: 'Copied',
-            description: 'Category ID copied to clipboard',
-            variant: 'default',
-          });
-        };
-
+      cell: ({ cell }) => {
+        const name = cell.getValue() as string;
         return (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={handleCopyId}
-              title="Copy ID"
-            >
-              <IconCopy className="h-3 w-3" />
-            </Button>
-            <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-              <span className="text-sm">{name}</span>
-            </div>
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+            <span className="text-sm">{name}</span>
           </div>
         );
       },
-      size: 320,
+      size: 280,
     },
     {
       id: 'description',
@@ -237,6 +214,36 @@ export function Category() {
         );
       },
       size: 180,
+    },
+    {
+      id: 'copyId',
+      header: () => <span className="sr-only">Copy ID</span>,
+      cell: ({ row }) => {
+        const categoryId = row.original._id;
+
+        const handleCopyId = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(categoryId);
+          toast({
+            title: 'Copied',
+            description: 'Category ID copied to clipboard',
+            variant: 'default',
+          });
+        };
+
+        return (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleCopyId}
+            title={`Copy ID: ${categoryId}`}
+          >
+            <IconCopy className="h-4 w-4" />
+          </Button>
+        );
+      },
+      size: 50,
     },
   ];
 
