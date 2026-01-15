@@ -18,7 +18,7 @@ export const useCreateEbarimtReturnConfig = () => {
           description: 'Ebarimt return config created successfully',
           variant: 'default',
         });
-        setCursor(null);
+        setCursor('');
       },
       onError: (e) => {
         toast({
