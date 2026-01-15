@@ -113,7 +113,7 @@ export const loadConfigClass = (
      * Remove configs
      */
     public static async removeConfig(_id: string) {
-      const oldConf = await models.Configs.getConfig(_id);
+      const oldConf = await models.Configs.getConfigDetail(_id);
       await models.Configs.deleteOne({ _id });
 
       sendDbEventLog({
