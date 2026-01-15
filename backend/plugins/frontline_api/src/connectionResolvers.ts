@@ -168,12 +168,10 @@ import {
   loadClass as loadResponseTemplateClass,
 } from '@/response/db/models/responseTemplates';
 import { IResponseTemplateDocument } from '@/response/@types/responseTemplates';
-import { IFieldDocument } from './modules/form/db/definitions/fields';
+import { IFieldDocument } from '@/form/db/definitions/fields';
+import { IFormDocument } from '@/form/db/definitions/forms';
 import { IFieldModel, loadFieldClass } from './modules/form/db/models/Fields';
-import {
-  IForm,
-  IFormSubmissionDocument,
-} from './modules/form/db/definitions/forms';
+import { IFormSubmissionDocument } from './modules/form/db/definitions/forms';
 import {
   IFormModel,
   IFormSubmissionModel,
@@ -434,7 +432,7 @@ export const loadClasses = (
     'frontline_form_fields',
     loadFieldClass(models, subdomain),
   );
-  models.Forms = db.model<IForm, IFormModel>(
+  models.Forms = db.model<IFormDocument, IFormModel>(
     'frontline_forms',
     loadFormClass(models),
   );

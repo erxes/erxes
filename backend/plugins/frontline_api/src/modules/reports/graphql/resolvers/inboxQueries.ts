@@ -11,7 +11,7 @@ import {
   normalizeStatus,
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
-export const reportQueries = {
+export const reportInboxQueries = {
   async conversationProgressChart(
     _parent: undefined,
     { customerId }: { customerId: string },
@@ -110,13 +110,13 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
         },
       },
       {
         $group: {
-          _id: { assigneeId: '$assignedUserId', status: '$status' },
+          _id: { assigneeId: '$memberIds', status: '$status' },
           count: { $sum: 1 },
         },
       },
@@ -207,7 +207,7 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
         },
       },
@@ -263,7 +263,7 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
           tagIds: { $exists: true, $not: { $size: 0 } },
         },
@@ -280,6 +280,10 @@ export const reportQueries = {
     const pipeline = await buildConversationPipeline(filters, models);
 
     pipeline.push(...buildDateGroupPipeline('createdAt'));
+
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
 
     const result = await models.Conversations.aggregate(pipeline);
 
@@ -327,6 +331,10 @@ export const reportQueries = {
     });
 
     pipeline.push(...buildDateGroupPipeline('closedAt'));
+
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
 
     const result = await models.Conversations.aggregate(pipeline);
 
@@ -510,12 +518,12 @@ export const reportQueries = {
       defaultValue: [],
     });
 
-    const tagMap = new Map(tags.map((t) => [t._id.toString(), t.name]));
-
+    const tagMap = new Map(tags.map((t: any) => [t._id.toString(), t.name]));
     return tagCounts.map((tag) => ({
       _id: tag._id,
       name: tagMap.get(tag._id.toString()) || 'Unknown Tag',
       count: tag.count,
+      colorCode: tag.colorCode || '#000',
       percentage: calculatePercentage(tag.count, total),
     }));
   },

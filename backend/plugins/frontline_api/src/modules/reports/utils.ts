@@ -41,10 +41,6 @@ export function buildConversationMatch(filters: IReportFilters) {
   const status = normalizeStatus(filters.status);
   if (status) match.status = status;
 
-  if (filters.channelId?.length) {
-    match.channelId = { $in: filters.channelId };
-  }
-
   Object.assign(match, buildDateMatch(filters, 'createdAt'));
 
   return match;
@@ -62,9 +58,9 @@ export const buildConversationPipeline = async (
     pipeline.push({ $match: match });
   }
 
-  if (filters.channelId?.length) {
+  if (filters.channelIds?.length) {
     const integrations = await models.Integrations.find({
-      channelId: { $in: filters.channelId },
+      channelId: { $in: filters.channelIds },
     }).lean();
 
     if (!integrations.length) {
@@ -74,6 +70,21 @@ export const buildConversationPipeline = async (
 
     const integrationIds = integrations.map((i) => i._id);
 
+    pipeline.push({
+      $match: {
+        integrationId: { $in: integrationIds },
+      },
+    });
+  }
+  if (filters.memberIds?.length) {
+    pipeline.push({
+      $match: {
+        assignedUserId: { $in: filters.memberIds },
+      },
+    });
+  }
+
+  if (filters.source && sourceMap[filters.source]) {
     pipeline.push(
       {
         $lookup: {
@@ -84,28 +95,10 @@ export const buildConversationPipeline = async (
         },
       },
       { $unwind: '$integration' },
-      { $match: { 'integration._id': { $in: integrationIds } } },
+      {
+        $match: { 'integration.kind': sourceMap[filters.source] },
+      },
     );
-  }
-
-  if (filters.source && sourceMap[filters.source]) {
-    if (!filters.channelId?.length) {
-      pipeline.push(
-        {
-          $lookup: {
-            from: 'integrations',
-            localField: 'integrationId',
-            foreignField: '_id',
-            as: 'integration',
-          },
-        },
-        { $unwind: '$integration' },
-      );
-    }
-
-    pipeline.push({
-      $match: { 'integration.kind': sourceMap[filters.source] },
-    });
   }
 
   if (options.withPagination) {
@@ -152,4 +145,60 @@ export function buildDateGroupPipeline(field: string) {
     },
     { $sort: { _id: 1 } },
   ];
+}
+
+export function buildTicketMatch(filters: IReportFilters) {
+  const match: any = { type: 'ticket' };
+
+  if (filters.status) {
+    match.statusId = filters.status;
+  }
+
+  if (filters.channelIds?.length) {
+    match.channelId = { $in: filters.channelIds };
+  }
+
+  if (filters.memberIds?.length) {
+    match.assigneeId = { $in: filters.memberIds };
+  }
+
+  Object.assign(match, buildDateMatch(filters, 'createdAt'));
+
+  return match;
+}
+
+export const buildTicketPipeline = async (filters: IReportFilters) => {
+  const pipeline: any[] = [];
+  const match = buildTicketMatch(filters);
+
+  if (Object.keys(match).length > 1) {
+    pipeline.push({ $match: match });
+  }
+
+  if (filters.limit) {
+    pipeline.push({ $skip: filters.limit }, { $limit: filters.limit });
+  }
+
+  return pipeline;
+};
+
+export function buildTicketTagMatch(filters: IReportFilters) {
+  const match: any = {
+    type: 'ticket',
+    tagIds: { $exists: true, $ne: [] },
+  };
+
+  if (filters.status) {
+    match.statusId = filters.status;
+  }
+
+  if (filters.channelIds?.length) {
+    match.channelId = { $in: filters.channelIds };
+  }
+
+  if (filters.memberIds?.length) {
+    match.assigneeId = { $in: filters.memberIds };
+  }
+
+  return match;
 }

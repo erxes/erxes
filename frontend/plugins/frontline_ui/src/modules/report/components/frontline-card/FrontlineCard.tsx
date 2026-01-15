@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, cn, Empty } from 'erxes-ui';
+import { Card, cn, Empty, Skeleton } from 'erxes-ui';
 import {
   IconChartHistogram,
   IconGripVertical,
@@ -13,8 +13,8 @@ type FrontlineCardContextValue = {
   title?: string;
   description?: string;
   className?: string;
-  colSpan: 1 | 2;
-  onColSpanChange?: (span: 1 | 2) => void;
+  colSpan: 6 | 12;
+  onColSpanChange?: (span: 6 | 12) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 };
 
@@ -38,8 +38,8 @@ type FrontlineCardRootProps = {
   description: string;
   children: React.ReactNode;
   className?: string;
-  colSpan?: 1 | 2;
-  onColSpanChange?: (span: 1 | 2) => void;
+  colSpan?: 6 | 12;
+  onColSpanChange?: (span: 6 | 12) => void;
 };
 
 export function FrontlineCardRoot({
@@ -48,7 +48,7 @@ export function FrontlineCardRoot({
   description,
   children,
   className,
-  colSpan = 2,
+  colSpan = 6,
   onColSpanChange,
 }: FrontlineCardRootProps) {
   const {
@@ -83,8 +83,8 @@ export function FrontlineCardRoot({
         ref={setNodeRef}
         style={style}
         className={cn(
-          'w-full border-none h-full bg-sidebar p-3',
-          colSpan === 2 ? 'col-span-2' : 'col-span-1',
+          'w-full border-none h-full bg-sidebar p-3 flex flex-col',
+          colSpan === 6 ? 'col-span-6' : 'col-span-12',
           isDragging && 'opacity-50 shadow-lg',
           className,
         )}
@@ -100,11 +100,11 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
     useFrontlineCardContext();
 
   const toggleColSpan = () => {
-    onColSpanChange?.(colSpan === 2 ? 1 : 2);
+    onColSpanChange?.(colSpan === 6 ? 12 : 6);
   };
 
   return (
-    <Card.Header className="flex items-center justify-between flex-row overflow-x-hidden p-0 pb-2">
+    <Card.Header className="flex items-center justify-between flex-row overflow-x-hidden p-0 pb-2 flex-none">
       <div className="flex items-center gap-2 flex-1">
         <button
           type="button"
@@ -124,10 +124,10 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
           onClick={toggleColSpan}
           className="p-1 hover:bg-accent rounded"
           title={
-            colSpan === 2 ? 'Switch to half width' : 'Switch to full width'
+            colSpan === 6 ? 'Switch to half width' : 'Switch to full width'
           }
         >
-          {colSpan === 2 ? (
+          {colSpan === 6 ? (
             <IconLayoutColumns className="h-4 w-4 text-muted-foreground" />
           ) : (
             <IconLayoutList className="h-4 w-4 text-muted-foreground" />
@@ -158,8 +158,16 @@ type FrontlineCardContentProps = {
 
 export function FrontlineCardContent({ children }: FrontlineCardContentProps) {
   return (
-    <Card.Content className="bg-background rounded-md p-0">
+    <Card.Content className="rounded-md p-0 flex-1">
       {children}
+    </Card.Content>
+  );
+}
+
+export function FrontlineCardSkeleton() {
+  return (
+    <Card.Content className="bg-background rounded-md p-0 flex-1">
+      <Skeleton className="w-full h-48" />
     </Card.Content>
   );
 }
@@ -168,4 +176,5 @@ export const FrontlineCard = Object.assign(FrontlineCardRoot, {
   Header: FrontlineCardHeader,
   Content: FrontlineCardContent,
   Empty: FrontlineCardEmpty,
+  Skeleton: FrontlineCardSkeleton,
 });

@@ -19,12 +19,11 @@ interface ISubmission {
   validation?: string;
 }
 
-interface IError {
+export interface IError {
   fieldId: string;
   code: string;
   text: string;
 }
-
 export interface IFormModel extends Model<IForm> {
   getForm(_id: string): Promise<IFormDocument>;
   generateCode(): string;
@@ -35,7 +34,11 @@ export interface IFormModel extends Model<IForm> {
 
   updateForm(
     _id: string,
-    { title, description, buttonText }: Omit<IForm, '_id'>,
+    {
+      title,
+      description,
+      buttonText,
+    }: { title?: string; description?: string; buttonText?: string },
   ): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
@@ -93,10 +96,22 @@ export const loadFormClass = (models: IModels) => {
     /**
      * Updates a form document
      */
-    public static async updateForm(_id: string, doc: Omit<IForm, '_id'>) {
+    public static async updateForm(
+      _id: string,
+      {
+        title,
+        description,
+        buttonText,
+      }: { title?: string; description?: string; buttonText?: string },
+    ) {
+      const updateData: any = {};
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (buttonText !== undefined) updateData.buttonText = buttonText;
+
       await models.Forms.updateOne(
         { _id },
-        { $set: doc },
+        { $set: updateData },
         { runValidators: true },
       );
 
@@ -221,7 +236,7 @@ export const loadFormClass = (models: IModels) => {
           // phone
           if (
             (type === 'phone' || validation === 'phone') &&
-            !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ''))
+            !/^\d{8,}$/.test(value.replace(/[\s()+-.]|ext/gi, ''))
           ) {
             errors.push({
               fieldId: field._id,
@@ -277,7 +292,6 @@ export const loadFormClass = (models: IModels) => {
         cursor,
         direction = 'forward',
       } = args;
-      console.log('asdas:', query);
       return await cursorPaginateAggregation({
         model: models.Forms,
         params: {
@@ -340,7 +354,7 @@ export const loadFormClass = (models: IModels) => {
   return formSchema;
 };
 
-export interface IFormSubmissionModel extends Model<IFormSubmissionDocument> {
+export interface IFormSubmissionModel extends Model<IFormSubmission> {
   createFormSubmission(doc: IFormSubmission): Promise<IFormSubmissionDocument>;
 }
 
