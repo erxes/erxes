@@ -1,4 +1,3 @@
-
 // Define types for the data structures
 interface Product {
   code?: string;
@@ -60,16 +59,21 @@ const PerResponse = (response: ResponseData, counter?: number): string => {
   const showCustomer =
     Boolean(response.customerNo) || Boolean(response.customerName);
 
+  // ✅ Extracted statements (Sonar fix)
+  const customerNoBlock = response.customerNo
+    ? `<p>ТТД: ${response.customerNo}</p>`
+    : '';
+
+  const customerNameBlock = response.customerName
+    ? `<p>Нэр: ${response.customerName}</p>`
+    : '';
+
   const customerBlock = showCustomer
     ? `
       <div>
         <p><strong>Худалдан авагч:</strong></p>
-        ${response.customerNo ? `<p>ТТД: ${response.customerNo}</p>` : ''}
-        ${
-          response.customerName
-            ? `<p>Нэр: ${response.customerName}</p>`
-            : ''
-        }
+        ${customerNoBlock}
+        ${customerNameBlock}
       </div>
     `
     : '';
@@ -77,7 +81,6 @@ const PerResponse = (response: ResponseData, counter?: number): string => {
   return `
     <div class="receipt">
       ${showSplitter ? '<div class="splitter"></div>' : ''}
-
       <div>
         <p>Огноо: ${response.date}</p>
         ${showNumber ? `<p>№: ${response.number}</p>` : ''}
@@ -92,9 +95,7 @@ const PerResponse = (response: ResponseData, counter?: number): string => {
           }
         </p>
       </div>
-
       ${customerBlock}
-
       <table class="tb" cellpadding="0" cellspacing="0">
         <thead>
           <tr class="text-center">
@@ -105,15 +106,13 @@ const PerResponse = (response: ResponseData, counter?: number): string => {
           </tr>
         </thead>
         <tbody>
-          ${getRows(response.pDatas || [])}
+          ${getRows(response.pDatas ?? [])}
         </tbody>
       </table>
-
       <div class="total">
         <p><label>Бүгд үнэ:</label> ${response.amount}</p>
       </div>
     </div>
-
     <script>
       window.onbeforeunload = function () {
         return 'Уг цонхыг хаавал энэ баримтыг ахиж хэвлэх боломжгүй болохыг анхаарна уу';

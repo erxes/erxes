@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Label, MultipleSelector, MultiSelectOption } from 'erxes-ui';
 import { PerSplitConfig } from '../types';
 
@@ -15,6 +14,32 @@ type Props = {
   segments: Item[];
 };
 
+/**
+ * Builds data for MultipleSelector
+ * - options: full list
+ * - value: selected list with safe label fallback
+ */
+const buildMultiSelect = (
+  items: Item[] = [],
+  selectedIds: string[] = []
+): {
+  options: MultiSelectOption[];
+  value: MultiSelectOption[];
+} => {
+  const map = new Map(items.map((i) => [i._id, i.name]));
+
+  return {
+    options: items.map((i) => ({
+      value: i._id,
+      label: i.name,
+    })),
+    value: selectedIds.map((id) => ({
+      value: id,
+      label: map.get(id) ?? id,
+    })),
+  };
+};
+
 const PerSettings = ({
   config,
   currentConfigKey,
@@ -28,14 +53,6 @@ const PerSettings = ({
   const onChangeConfig = (key: keyof PerSplitConfig, value: any) => {
     save({ ...config, [key]: value });
   };
-
-  // Helper to convert string[] to MultiSelectOption[]
-  const toOptions = (items: Item[], selectedIds?: string[]): MultiSelectOption[] =>
-    items.map((item) => ({
-      value: item._id,
-      label: item.name,
-      fixed: false,
-    })).filter((opt) => !selectedIds || selectedIds.includes(opt.value));
 
   return (
     <div className="rounded border p-4 space-y-6 bg-white">
@@ -76,15 +93,14 @@ const PerSettings = ({
         />
       </div>
 
-      {/* Multi-selects using MultipleSelector */}
+      {/* Multi-selects */}
       <div className="space-y-2">
         <Label>Product Categories</Label>
         <MultipleSelector
-          value={(config.productCategoryIds ?? []).map((id) => ({
-            value: id,
-            label: productCategories.find((p) => p._id === id)?.name || id,
-          }))}
-          options={productCategories.map((p) => ({ value: p._id, label: p.name }))}
+          {...buildMultiSelect(
+            productCategories,
+            config.productCategoryIds ?? []
+          )}
           onChange={(opts) =>
             onChangeConfig(
               'productCategoryIds',
@@ -97,11 +113,10 @@ const PerSettings = ({
       <div className="space-y-2">
         <Label>Product Tags</Label>
         <MultipleSelector
-          value={(config.productTagIds ?? []).map((id) => ({
-            value: id,
-            label: tags.find((t) => t._id === id)?.name || id,
-          }))}
-          options={tags.map((t) => ({ value: t._id, label: t.name }))}
+          {...buildMultiSelect(
+            tags,
+            config.productTagIds ?? []
+          )}
           onChange={(opts) =>
             onChangeConfig(
               'productTagIds',
@@ -114,11 +129,10 @@ const PerSettings = ({
       <div className="space-y-2">
         <Label>Products</Label>
         <MultipleSelector
-          value={(config.excludeProductIds ?? []).map((id) => ({
-            value: id,
-            label: products.find((p) => p._id === id)?.name || id,
-          }))}
-          options={products.map((p) => ({ value: p._id, label: p.name }))}
+          {...buildMultiSelect(
+            products,
+            config.excludeProductIds ?? []
+          )}
           onChange={(opts) =>
             onChangeConfig(
               'excludeProductIds',
@@ -131,11 +145,10 @@ const PerSettings = ({
       <div className="space-y-2">
         <Label>Segments</Label>
         <MultipleSelector
-          value={(config.segments ?? []).map((id) => ({
-            value: id,
-            label: segments.find((s) => s._id === id)?.name || id,
-          }))}
-          options={segments.map((s) => ({ value: s._id, label: s.name }))}
+          {...buildMultiSelect(
+            segments,
+            config.segments ?? []
+          )}
           onChange={(opts) =>
             onChangeConfig(
               'segments',
@@ -145,7 +158,7 @@ const PerSettings = ({
         />
       </div>
 
-      {/* Footer: Delete Button */}
+      {/* Footer */}
       <div className="flex justify-end">
         <Button
           variant="ghost"

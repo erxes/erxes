@@ -60,14 +60,13 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
   useEffect(() => {
     const contents = response?.productPlacesResponded?.content;
     const responseId = response?.productPlacesResponded?.responseId;
+
     if (!contents?.length || !responseId) return;
 
-    // Generate HTML for each content
     const printContents = contents.map((content, index) =>
-      PerResponse(content, index)
+      PerResponse(content, index),
     );
 
-    // Wrap all content
     const printMainContent = ResponseComponent(printContents.join(''));
 
     const myWindow = window.open('', '_blank', 'width=800,height=800');
@@ -78,9 +77,9 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
 
     localStorage.setItem('productPlacesResponseId', responseId);
 
-    // Use spread to avoid deprecated signature warning
-    myWindow.document.write(...[printMainContent]);
-    myWindow.document.close(); // Ensure the document is properly closed
+    myWindow.document.open();
+    myWindow.document.documentElement.innerHTML = printMainContent;
+    myWindow.document.close();
   }, [response]);
 
   return loading ? <div>Loading...</div> : <></>;
