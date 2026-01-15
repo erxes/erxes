@@ -195,12 +195,8 @@ const FilterPopoverView = ({
 };
 
 const RootView = () => {
-  const {
-    sourceFilter,
-    channelFilter,
-    dateValue,
-    memberFilter,
-  } = useFilterPopoverContext();
+  const { sourceFilter, channelFilter, dateValue, memberFilter } =
+    useFilterPopoverContext();
   const { channels } = useGetChannels();
 
   const getSourceLabel = () => {
@@ -288,9 +284,7 @@ const SourceView = () => {
           onSelect={() => handleSourceChange(option.value)}
         >
           <div className="flex items-center gap-2">
-            {sourceFilter === option.value && (
-              <IconCheck className="size-4" />
-            )}
+            {sourceFilter === option.value && <IconCheck className="size-4" />}
             <span>{option.label}</span>
           </div>
           <Combobox.Check checked={sourceFilter === option.value} />
@@ -539,11 +533,6 @@ const FilterPopoverRoot = ({
         <Popover.Trigger asChild>
           <div className="relative inline-block">
             <FilterPopoverTrigger isFiltered={isFiltered} />
-            {isFiltered && (
-              <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-5 h-5 px-1.5 text-[10px] font-medium bg-primary text-primary-foreground rounded-full">
-                {activeFiltersCount}
-              </span>
-            )}
           </div>
         </Popover.Trigger>
         <FilterPopoverContent />
