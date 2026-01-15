@@ -20,9 +20,9 @@ export const campaignMutations = {
 
   removeCampaign: async (
     _parent: undefined,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) => {
-    return models.Campaign.removeCampaign(_id);
+    return models.Campaign.removeCampaign(_ids);
   },
 };

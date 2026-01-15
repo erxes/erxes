@@ -1,10 +1,11 @@
 import {
-  IconHash,
-  IconLabel,
-  IconTicket,
-  IconCurrencyDollar,
-  IconCheck,
   IconDots,
+  IconCalendar,
+  IconCalendarEvent,
+  IconTag,
+  IconToggleLeft,
+  IconSettings,
+  IconTicket,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -16,7 +17,7 @@ import {
   Switch,
 } from 'erxes-ui';
 import { IVoucher } from '../types/voucherTypes';
-import { voucherMoreColumn } from './VoucherMoreColumn';
+import { VoucherNameCell } from '../voucher-detail/components/VoucherNameCell';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -42,18 +43,18 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
 export const voucherColumns: (
   editStatus: (options: any) => void,
 ) => ColumnDef<IVoucher>[] = (editStatus) => [
-  voucherMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IVoucher>,
 
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
     cell: ({ cell }: { cell: any }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <VoucherNameCell
+          voucher={cell.row.original}
+          name={cell.getValue() as string}
+        />
       );
     },
     size: 150,
@@ -61,7 +62,9 @@ export const voucherColumns: (
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Start Date" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
+    ),
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -75,7 +78,7 @@ export const voucherColumns: (
     id: 'endDate',
     accessorKey: 'endDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="End Date" />
+      <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
@@ -102,7 +105,9 @@ export const voucherColumns: (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconCheck} label="Status" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label="Status" />
+    ),
     cell: ({ cell }) => {
       const { _id } = cell.row.original || {};
       const currentStatus = cell.getValue() as string;
@@ -129,8 +134,10 @@ export const voucherColumns: (
   },
   {
     id: 'action',
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconCheck} label="Actions" />,
+    accessorKey: 'action',
+    header: () => (
+      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
+    ),
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>

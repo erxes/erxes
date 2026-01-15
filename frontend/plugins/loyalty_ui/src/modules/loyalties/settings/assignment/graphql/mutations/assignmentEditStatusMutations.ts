@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client';
 
-export const editVoucherMutation = gql`
+export const editAssignmentStatusMutation = gql`
   mutation UpdateCampaign(
     $id: String!
-    $name: String!
+    $name: String
     $kind: String!
     $description: String
     $startDate: Date
@@ -52,6 +52,7 @@ export const editVoucherMutation = gql`
           fullName
           lastName
           position
+          middleName
         }
       }
       conditions

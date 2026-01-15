@@ -15,13 +15,9 @@ export const DeleteVoucher = ({ voucherIds }: { voucherIds: string[] }) => {
         confirm({
           message: `Are you sure you want to delete the ${voucherIds.length} selected voucher(s)?`,
         }).then(() => {
-          const deletePromises = voucherIds.map((id) =>
-            removeVoucher({
-              variables: { _id: id },
-            }),
-          );
-
-          Promise.all(deletePromises)
+          removeVoucher({
+            variables: { _ids: voucherIds },
+          })
             .then(() => {
               toast({
                 title: `${voucherIds.length} voucher(s) deleted successfully`,

@@ -3,7 +3,7 @@ import { RecordTable } from 'erxes-ui';
 import { voucherColumns } from './VoucherColumns';
 import { VoucherCommandBar } from './voucher-command-bar/VoucherCommandBar';
 import { useVouchers } from '../hooks/useVouchers';
-import { useVoucherEdit } from '../hooks/useVoucherEdit';
+import { useVoucherStatusEdit } from '../hooks/useVoucherStatusEdit';
 import { VOUCHERS_CURSOR_SESSION_KEY } from '../constants/vouchersCursorSessionKey';
 
 import { IconTicket } from '@tabler/icons-react';
@@ -11,7 +11,7 @@ import { LoyaltyVoucherAddSheet } from './VoucherAddSheet';
 
 export const VoucherRecordTable = () => {
   const { vouchers, handleFetchMore, loading, pageInfo } = useVouchers();
-  const { editStatus } = useVoucherEdit();
+  const { editStatus } = useVoucherStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (

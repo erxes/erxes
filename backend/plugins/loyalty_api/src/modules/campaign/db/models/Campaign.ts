@@ -16,7 +16,7 @@ export interface ICampaignModel extends Model<ICampaignDocument> {
     doc: ICampaign,
     user: IUserDocument,
   ): Promise<ICampaignDocument>;
-  removeCampaign(campaignId: string): Promise<{ ok: number }>;
+  removeCampaign(campaignIds: string[]): Promise<{ ok: number }>;
 }
 
 export const loadCampaignClass = (models: IModels) => {
@@ -46,8 +46,6 @@ export const loadCampaignClass = (models: IModels) => {
       doc: ICampaign,
       user: IUserDocument,
     ) {
-      await this.validateCampaign(doc);
-
       return await models.Campaign.findOneAndUpdate(
         { _id },
         { $set: { ...doc, updatedBy: user._id } },
@@ -55,10 +53,8 @@ export const loadCampaignClass = (models: IModels) => {
       );
     }
 
-    public static async removeCampaign(campaignId: string) {
-      const campaign = await models.Campaign.getCampaign(campaignId);
-
-      return models.Campaign.findOneAndDelete({ _id: campaign._id });
+    public static async removeCampaign(campaignIds: string[]) {
+      return models.Campaign.deleteMany({ _id: { $in: campaignIds } });
     }
 
     public static async validateCampaign(doc: ICampaign) {

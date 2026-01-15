@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const removeVoucherMutation = gql`
-  mutation RemoveCampaign($_id: String!) {
-    removeCampaign(_id: $_id) {
+  mutation RemoveCampaign($_ids: [String]!) {
+    removeCampaign(_ids: $_ids) {
       _id
       name
       description

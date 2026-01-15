@@ -23,9 +23,9 @@ export const useDeleteVoucher = () => {
     ],
     update: (cache, { data }) => {
       try {
-        const deletedCampaignId = data?.removeCampaign?._id;
+        const deletedCampaignIds = data?.removeCampaign?._id || [];
 
-        if (!deletedCampaignId) {
+        if (!deletedCampaignIds.length) {
           return;
         }
 
@@ -45,10 +45,11 @@ export const useDeleteVoucher = () => {
             getCampaigns: {
               ...existingData.getCampaigns,
               list: existingData.getCampaigns.list.filter(
-                (campaign: any) => campaign._id !== deletedCampaignId,
+                (campaign: any) => !deletedCampaignIds.includes(campaign._id),
               ),
               totalCount: Math.max(
-                (existingData.getCampaigns.totalCount || 0) - 1,
+                (existingData.getCampaigns.totalCount || 0) -
+                  deletedCampaignIds.length,
                 0,
               ),
             },

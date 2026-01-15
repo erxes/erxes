@@ -1,5 +1,5 @@
 import { Cell } from '@tanstack/react-table';
-import { renderingVoucherDetailAtom } from '../states/voucherDetailStates';
+import { renderingVoucherDetailAtom } from '../voucher-detail/states/voucherDetailStates';
 import { IVoucher } from '../types/voucherTypes';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';

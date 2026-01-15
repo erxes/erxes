@@ -41,13 +41,12 @@ export const queries = `
 `;
 
 const mutationParams = `
-  name: String!
+  name: String
   kind: String!
   description: String
   startDate: Date
   endDate: Date
   status: String
-
   type: String
   amount: Float
   conditions: JSON
@@ -56,5 +55,5 @@ const mutationParams = `
 export const mutations = `
   createCampaign(${mutationParams}): Campaign
   updateCampaign(_id: String!, ${mutationParams}): Campaign
-  removeCampaign(_id: String!): Campaign
+  removeCampaign(_ids: [String]): Campaign
 `;
