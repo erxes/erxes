@@ -1,5 +1,5 @@
 import { IconMessage2 } from '@tabler/icons-react';
-import { Button, Popover, hexToHsl } from 'erxes-ui';
+import { Button, Popover, hexToOklch } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { erxesMessengerSetupAppearanceAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMPreviewMessages } from '@/integrations/erxes-messenger/components/EMPreviewMessages';
@@ -12,10 +12,13 @@ export const ErxesMessengerPreview = () => {
   const erxesMessengerSetupStep = useAtomValue(erxesMessengerSetupStepAtom);
 
   useLayoutEffect(() => {
-    if (hexToHsl(appearance?.color)) {
+    if (
+      appearance?.primary?.DEFAULT &&
+      hexToOklch(appearance?.primary?.DEFAULT)
+    ) {
       document.documentElement.style.setProperty(
         '--primary',
-        hexToHsl(appearance?.color) || '',
+        hexToOklch(appearance?.primary?.DEFAULT) || '',
       );
     }
   }, [appearance]);

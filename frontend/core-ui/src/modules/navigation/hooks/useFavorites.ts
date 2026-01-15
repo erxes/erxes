@@ -25,14 +25,14 @@ export function useFavorites(): FavoriteModule[] {
   const currentUser = useAtomValue(currentUserState);
 
   const { data } = useQuery<GetFavoritesResponse>(GET_FAVORITES, {
-    skip: !currentUser || !currentUser?._id,
+    skip: !currentUser?._id,
   });
 
   const favorites = data?.getFavoritesByCurrentUser ?? [];
 
   return favorites.reduce<FavoriteModule[]>((acc, favorite) => {
     if (favorite.type === 'module') {
-      const module = modules.find(
+      const module = modules?.find(
         (m) => m.path === favorite.path.replace('/', ''),
       );
 
@@ -42,24 +42,6 @@ export function useFavorites(): FavoriteModule[] {
           icon: module.icon,
           path: module.path,
         });
-      } else {
-        const moduleWithSubmenu = modules.find(
-          (m) => m.path === favorite.path.split('/')[1],
-        );
-
-        if (moduleWithSubmenu?.submenus) {
-          const matchingSubmenu = moduleWithSubmenu.submenus.find(
-            (sub) => sub.path === favorite.path.replace('/', ''),
-          );
-
-          if (matchingSubmenu) {
-            acc.push({
-              name: matchingSubmenu.name,
-              icon: matchingSubmenu.icon || moduleWithSubmenu.icon,
-              path: matchingSubmenu.path,
-            });
-          }
-        }
       }
     }
 
