@@ -2,10 +2,10 @@ import {
   ADD_DEALS,
   DEALS_ARCHIVE,
   DEALS_CHANGE,
-  EDIT_DEALS,
-  REMOVE_DEALS,
   DEALS_COPY,
   DEALS_WATCH,
+  EDIT_DEALS,
+  REMOVE_DEALS,
 } from '@/deals/graphql/mutations/DealsMutations';
 import {
   EnumCursorDirection,
@@ -88,6 +88,7 @@ export const useDeals = (
       },
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
+        if (!prev.deals?.list) return prev;
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;

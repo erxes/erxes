@@ -1,16 +1,16 @@
-import { Model } from 'mongoose';
 import {
   ITeam,
   ITeamDocument,
+  ITeamFilter,
   ITeamMember,
   TeamEstimateTypes,
   TeamMemberRoles,
 } from '@/team/@types/team';
-import { ITeamFilter } from '@/team/@types/team';
 import { teamSchema } from '@/team/db/definitions/team';
-import { IModels } from '~/connectionResolvers';
-import { FilterQuery, FlattenMaps } from 'mongoose';
+import { getEnv, updateSaasOrganization } from 'erxes-api-shared/utils';
 import { Document } from 'mongodb';
+import { FilterQuery, FlattenMaps, Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 
 export interface ITeamModel extends Model<ITeamDocument> {
   getTeam(_id: string): Promise<ITeamDocument>;
@@ -34,7 +34,7 @@ export interface ITeamModel extends Model<ITeamDocument> {
   removeTeam(teamId: string): Promise<{ ok: number }>;
 }
 
-export const loadTeamClass = (models: IModels) => {
+export const loadTeamClass = (models: IModels, subdomain: string) => {
   class Team {
     public static async getTeam(_id: string) {
       const team = await models.Team.findOne({ _id }).lean();
@@ -110,6 +110,8 @@ export const loadTeamClass = (models: IModels) => {
     }
 
     public static async updateTeam(_id: string, doc: ITeam) {
+      const VERSION = getEnv({ name: 'VERSION' });
+
       const team = await models.Team.findOne({ _id });
 
       if (!team) {
@@ -130,7 +132,19 @@ export const loadTeamClass = (models: IModels) => {
         }
       }
 
-      return await models.Team.findOneAndUpdate({ _id }, { $set: { ...doc } });
+      const updatedTeam = await models.Team.findOneAndUpdate(
+        { _id },
+        { $set: { ...doc } },
+        { new: true },
+      );
+
+      if (updatedTeam && updatedTeam.cycleEnabled !== team.cycleEnabled && VERSION === 'saas') {
+        await updateSaasOrganization(subdomain, {
+          cycleEnabled: updatedTeam.cycleEnabled,
+        });
+      }
+
+      return updatedTeam;
     }
 
     public static async removeTeam(teamId: string) {
