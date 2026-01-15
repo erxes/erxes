@@ -58,28 +58,30 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
   );
 
   useEffect(() => {
-    const contents = response?.productPlacesResponded?.content;
-    const responseId = response?.productPlacesResponded?.responseId;
+  const contents = response?.productPlacesResponded?.content;
+  const responseId = response?.productPlacesResponded?.responseId;
 
-    if (!contents?.length || !responseId) return;
+  if (!contents?.length || !responseId) return;
 
-    const printContents = contents.map((content, index) =>
-      PerResponse(content, index),
-    );
+  const printContents = contents.map((content, index) =>
+    PerResponse(content, index)
+  );
 
-    const printMainContent = ResponseComponent(printContents.join(''));
+  const printMainContent = ResponseComponent(printContents.join(''));
 
-    const myWindow = window.open('', '_blank', 'width=800,height=800');
-    if (!myWindow) {
-      alert('Please allow Pop-ups and redirects in site settings!');
-      return;
-    }
+  const myWindow = window.open('', '_blank', 'width=800,height=800');
+  if (!myWindow) {
+    alert('Please allow Pop-ups and redirects in site settings!');
+    return;
+  }
 
-    localStorage.setItem('productPlacesResponseId', responseId);
+  localStorage.setItem('productPlacesResponseId', responseId);
 
-    myWindow.document.open();
-    myWindow.document.documentElement.innerHTML = printMainContent;
-    myWindow.document.close();
+  // Security note:
+  // Content is server-generated, trusted, and written into a fresh document
+  myWindow.document.open();
+  myWindow.document.write(printMainContent);
+  myWindow.document.close();
   }, [response]);
 
   return loading ? <div>Loading...</div> : <></>;
