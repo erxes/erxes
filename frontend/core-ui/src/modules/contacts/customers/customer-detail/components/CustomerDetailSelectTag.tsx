@@ -21,7 +21,7 @@ export const CustomerDetailSelectTag = ({
       </Label>{' '}
       <TagsSelect.Provider
         mode="multiple"
-        type="core:company"
+        type="core:customer"
         value={tagIdsValue}
         targetIds={[customerId]}
         onValueChange={(value) => {

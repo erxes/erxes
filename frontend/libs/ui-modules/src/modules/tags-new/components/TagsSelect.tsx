@@ -375,10 +375,10 @@ const TagsSelectedList = ({
           variant="secondary"
           onCompleted={(tag) => {
             if (!tag) return;
-            if (selectedTags.some((t) => t._id === tag._id)) {
+            const exists = selectedTags.some((t) => t._id === tag._id);
+            if (exists) {
               setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
-            }
-            if (!selectedTags.includes(tag)) {
+            } else {
               setSelectedTags([...selectedTags, tag]);
             }
           }}

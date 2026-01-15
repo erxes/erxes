@@ -13,7 +13,7 @@ import { useEffect } from 'react';
 export const SettingsPageEffect = () => {
   const isMatchingLocation = useIsMatchingLocation(SettingsPath.Index);
   const setHotkeyScope = useSetHotkeyScope();
-  const tagType = useQueryState('tagType');
+  const [tagType] = useQueryState('tagType');
   useEffect(() => {
     switch (true) {
       case isMatchingLocation(SettingsWorkspacePath.Tags):
