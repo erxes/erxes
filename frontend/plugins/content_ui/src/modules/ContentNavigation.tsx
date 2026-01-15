@@ -18,7 +18,7 @@ export const ContentNavigation = () => {
         path="/content/cms"
         icon={IconFileText}
       />
-      <div
+      {/* <div
         onClick={() =>
           window.open('https://example.webbuilder.app.erxes.io', '_blank')
         }
@@ -28,7 +28,7 @@ export const ContentNavigation = () => {
           path="#"
           icon={IconWorldPlus}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
