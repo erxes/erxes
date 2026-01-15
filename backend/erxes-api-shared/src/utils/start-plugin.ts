@@ -45,6 +45,7 @@ type IMeta = {
   afterProcess?: AfterProcessConfigs;
   payments?: any;
   notificationModules?: any[];
+  tags?: any;
 };
 
 type ApiHandler = {

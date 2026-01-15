@@ -4,7 +4,7 @@ import {
   CompanyEmails,
   CompanyOwner,
   CompanyPhones,
-  SelectTags,
+  TagsSelect,
   useCompaniesEdit,
 } from 'ui-modules';
 import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
@@ -121,14 +121,15 @@ const CompanyDetailSelectTag = ({
     <fieldset className="space-y-2 px-8">
       <Label asChild>
         <legend>{t('tags')}</legend>
-      </Label>
-      <SelectTags.Detail
-        tagType="core:company"
+      </Label>{' '}
+      <TagsSelect.Provider
+        type="core:company"
         targetIds={[companyId]}
         value={tagIdsValue}
         onValueChange={(value) => {
           setTagIdsValue(value as string[]);
         }}
+        mode="multiple"
         options={(newSelectedTagIds) => ({
           update: (cache) => {
             cache.modify({
@@ -144,7 +145,15 @@ const CompanyDetailSelectTag = ({
             setTagIdsValue(tagIds);
           },
         })}
-      />
+      >
+        <div className="gap-2 flex flex-wrap w-full items-center">
+          <TagsSelect.SelectedList />
+          <TagsSelect.Trigger variant="ICON" />
+          <Combobox.Content>
+            <TagsSelect.Content />
+          </Combobox.Content>
+        </div>
+      </TagsSelect.Provider>
     </fieldset>
   );
 };
