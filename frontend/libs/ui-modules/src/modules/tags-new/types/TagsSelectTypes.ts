@@ -1,5 +1,5 @@
 import { MutationHookOptions } from "@apollo/client";
-import { GiveTagsMutationResponse, GiveTagsMutationVariables } from "ui-modules/modules/tags-new/types/TagMutations";
+import { GiveTagsMutationResponse, GiveTagsMutationVariables } from "ui-modules/modules/tags-new/types/TagMutationTypes";
 import { ITag } from "ui-modules/modules/tags-new/types/Tag";
 
 type SingleTagsSelectProps = {

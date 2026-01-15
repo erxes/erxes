@@ -1,2 +1,2 @@
 export * from './Tag'
-export * from './TagMutations'
+export * from './TagMutationTypes'

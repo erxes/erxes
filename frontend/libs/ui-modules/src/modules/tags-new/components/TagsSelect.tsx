@@ -22,7 +22,7 @@ import { TagBadge } from 'ui-modules/modules/tags-new/components/TagBadge';
 import { useTagAdd } from 'ui-modules/modules/tags-new/hooks/useTagAdd';
 import { TAG_DEFAULT_COLORS } from 'ui-modules/modules/tags-new/constants';
 import { useGiveTags } from 'ui-modules/modules/tags-new/hooks/useGiveTags';
-import { TagsSelectProps } from 'ui-modules/modules/tags-new/types/TagsSelect';
+import { TagsSelectProps } from 'ui-modules/modules/tags-new/types/TagsSelectTypes';
 import {
   TagsSelectContext,
   useTagsSelectContext,

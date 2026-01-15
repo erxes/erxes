@@ -6,7 +6,7 @@ import {
 import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
 import { ADD_TAG } from 'ui-modules/modules/tags-new/graphql/tagMutations';
 import { useToast } from 'erxes-ui';
-import { AddTagMutationResponse } from 'ui-modules/modules/tags-new/types/TagMutations';
+import { AddTagMutationResponse } from 'ui-modules/modules/tags-new/types/TagMutationTypes';
 
 export const useTagAdd = () => {
   const { toast } = useToast();

@@ -1,4 +1,4 @@
-import { TagsSelectContextType } from 'ui-modules/modules/tags-new/types/TagsSelect';
+import { TagsSelectContextType } from 'ui-modules/modules/tags-new/types/TagsSelectTypes';
 import { createContext, useContext } from 'react';
 
 export const TagsSelectContext = createContext<TagsSelectContextType>(

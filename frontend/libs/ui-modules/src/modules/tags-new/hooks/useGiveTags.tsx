@@ -4,7 +4,7 @@ import { toast } from 'erxes-ui';
 import {
   GiveTagsMutationResponse,
   GiveTagsMutationVariables,
-} from 'ui-modules/modules/tags-new/types/TagMutations';
+} from 'ui-modules/modules/tags-new/types/TagMutationTypes';
 
 export const useGiveTags = (
   options?: MutationHookOptions<

@@ -18,7 +18,6 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './operation': './src/modules/main/Main.tsx',
     './teamSettings': './src/modules/team/Settings.tsx',
-    './tasksSettings': './src/modules/tasks/Settings.tsx',
     './projectsSettings': './src/modules/projects/Settings.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
     './notificationWidget':
