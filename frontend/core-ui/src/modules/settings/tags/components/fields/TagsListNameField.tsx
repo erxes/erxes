@@ -166,7 +166,6 @@ export const TagsListNameField = ({
               )();
             }
           }}
-          autoFocus
           {...restRegister}
           ref={(e) => {
             registerRef(e);
