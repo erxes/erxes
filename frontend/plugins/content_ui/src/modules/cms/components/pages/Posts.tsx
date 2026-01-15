@@ -200,7 +200,7 @@ export function Posts() {
       accessorKey: 'title',
       cell: ({ cell, row }) => (
         <div
-          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all hover:bg-blue-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent"
+          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent"
           onClick={() =>
             navigate(`/content/cms/${websiteId}/posts/add`, {
               state: { post: row.original },
@@ -224,11 +224,8 @@ export function Posts() {
       cell: ({ row }) => {
         const excerpt = row.original.excerpt || t('No Description');
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span
-              className="text-sm font-medium text-gray-600 line-clamp-1"
-              title={excerpt}
-            >
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+            <span className="text-sm font-medium line-clamp-1" title={excerpt}>
               {excerpt}
             </span>
           </div>
@@ -275,7 +272,7 @@ export function Posts() {
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-green-50 border-green-200 text-green-700">
+        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 ">
           <IconCalendarPlus className="h-3 w-3" />
           {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -293,7 +290,7 @@ export function Posts() {
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-blue-50 border-blue-200 text-blue-700">
+        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1">
           <IconCalendarUp className="h-3 w-3" />
           {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -308,7 +305,7 @@ export function Posts() {
 
   return (
     <CmsLayout>
-      <div className="bg-white border rounded-lg mb-4">
+      <div className="border rounded-lg mb-4">
         <div className="p-2 flex items-center gap-3 flex-wrap">
           {/* Custom Type Filter */}
           <CustomTypeFilterButton
@@ -356,7 +353,7 @@ export function Posts() {
           </div>
         </div>
       ) : (
-        <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+        <div className="h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
           <RecordTable.Provider
             columns={columns}
             data={posts}
