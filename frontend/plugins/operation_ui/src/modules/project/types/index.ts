@@ -13,6 +13,7 @@ export interface IProject {
   targetDate: Date;
   startDate: Date;
   leadId: string;
+  memberIds?: string[];
   teamIds: string[];
   description: string;
 }
