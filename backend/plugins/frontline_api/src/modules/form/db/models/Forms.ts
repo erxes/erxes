@@ -19,7 +19,7 @@ interface ISubmission {
   validation?: string;
 }
 
-interface IError {
+export interface IError {
   fieldId: string;
   code: string;
   text: string;
@@ -34,8 +34,12 @@ export interface IFormModel extends Model<IForm> {
   ): Promise<IFormDocument>;
 
   updateForm(
-    _id,
-    { title, description, buttonText }: Omit<IForm, '_id'>,
+    _id: string,
+    {
+      title,
+      description,
+      buttonText,
+    }: { title?: string; description?: string; buttonText?: string },
   ): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
@@ -93,10 +97,22 @@ export const loadFormClass = (models: IModels) => {
     /**
      * Updates a form document
      */
-    public static async updateForm(_id: string, doc: Omit<IForm, '_id'>) {
+    public static async updateForm(
+      _id: string,
+      {
+        title,
+        description,
+        buttonText,
+      }: { title?: string; description?: string; buttonText?: string },
+    ) {
+      const updateData: any = {};
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (buttonText !== undefined) updateData.buttonText = buttonText;
+
       await models.Forms.updateOne(
         { _id },
-        { $set: doc },
+        { $set: updateData },
         { runValidators: true },
       );
 

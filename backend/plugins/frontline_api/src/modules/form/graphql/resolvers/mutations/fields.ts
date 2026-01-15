@@ -3,17 +3,17 @@ import { IContext } from '~/connectionResolvers';
 import { IField, IFieldDocument } from '~/modules/form/db/definitions/fields';
 import { markResolvers } from 'erxes-api-shared/utils';
 
-interface IFieldsEdit extends IField {
+export interface IFieldsEdit extends IField {
   _id: string;
 }
 
-interface IUpdateVisibleParams {
+export interface IUpdateVisibleParams {
   _id: string;
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
 }
 
-interface IFieldsBulkAddAndEditParams {
+export interface IFieldsBulkAddAndEditParams {
   contentType: string;
   contentTypeId: string;
   newFields: IField[];

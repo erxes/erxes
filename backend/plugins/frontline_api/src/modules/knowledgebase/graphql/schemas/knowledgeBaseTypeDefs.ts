@@ -1,16 +1,17 @@
-
 export const types = `
-
+  extend type Brand @key(fields: "_id") {
+    _id: String @external
+  }
     type FormCode {
       brandId: String
       formId: String
     }
-  
+
     input FormCodeInput {
       brandId: String
       formId: String
     }
-  
+
     type KnowledgeBaseArticle @key(fields: "_id") {
       _id: String!
       code: String
@@ -36,10 +37,10 @@ export const types = `
       publishedUser:User
       publishedAt: Date
       scheduledDate: Date
-  
+
       forms: [FormCode]
     }
-  
+
     input KnowledgeBaseArticleDoc {
       code: String
       title: String!
@@ -57,7 +58,7 @@ export const types = `
       scheduledDate: Date
       forms: [FormCodeInput]
     }
-  
+
     type KnowledgeBaseCategory {
       _id: String
       code: String
@@ -70,13 +71,13 @@ export const types = `
       modifiedBy: String
       modifiedDate: Date
       parentCategoryId: String
-  
+
       firstTopic: KnowledgeBaseTopic
       authors: [User]
       numOfArticles(status: String): Float
       countArticles:Int
     }
-  
+
     type KnowledgeBaseParentCategory {
       _id: String
       code: String
@@ -89,14 +90,14 @@ export const types = `
       modifiedBy: String
       modifiedDate: Date
       parentCategoryId: String
-  
+
       firstTopic: KnowledgeBaseTopic
       authors: [User]
       numOfArticles(status: String): Float
-  
+
       childrens: [KnowledgeBaseCategory]
     }
-  
+
     input KnowledgeBaseCategoryDoc {
       code: String
       title: String!
@@ -107,7 +108,7 @@ export const types = `
       topicId: String,
       parentCategoryId: String
     }
-  
+
     type KnowledgeBaseTopic @key(fields: "_id") {
       _id: String!
       code: String
@@ -125,7 +126,7 @@ export const types = `
       parentCategories: [KnowledgeBaseParentCategory]
       notificationSegmentId: String
     }
-  
+
     input KnowledgeBaseTopicDoc {
       code: String
       title: String!
@@ -137,29 +138,29 @@ export const types = `
       languageCode: String
       notificationSegmentId: String
     }
-  
+
     type KnowledgeBaseLoader {
       loadType: String
     }
   `;
-  
-  export const queries = `
+
+export const queries = `
     knowledgeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String]): [KnowledgeBaseTopic]
     knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     knowledgeBaseTopicsTotalCount: Int
-  
+
     knowledgeBaseCategories(page: Int, perPage: Int, ids:[String], topicIds: [String], codes: [String],icon:String): [KnowledgeBaseCategory]
     knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
     knowledgeBaseCategoriesTotalCount(topicIds: [String], codes: [String]): Int
     knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
-  
+
     knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int, status: String): [KnowledgeBaseArticle]
     knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
     knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
     knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String): Int
   `;
-  
-  export const mutations = `
+
+export const mutations = `
     knowledgeBaseTopicsAdd(doc: KnowledgeBaseTopicDoc!): KnowledgeBaseTopic
     knowledgeBaseTopicsEdit(_id: String!, doc: KnowledgeBaseTopicDoc!): KnowledgeBaseTopic
     knowledgeBaseTopicsRemove(_id: String!): JSON
@@ -167,10 +168,9 @@ export const types = `
     knowledgeBaseCategoriesAdd(doc: KnowledgeBaseCategoryDoc!): KnowledgeBaseCategory
     knowledgeBaseCategoriesEdit(_id: String!, doc: KnowledgeBaseCategoryDoc!): KnowledgeBaseCategory
     knowledgeBaseCategoriesRemove(_id: String!): JSON
-  
+
     knowledgeBaseArticlesAdd(doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
     knowledgeBaseArticlesEdit(_id: String!, doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
     knowledgeBaseArticlesRemove(_id: String!): JSON
     knowledgeBaseArticlesIncrementViewCount(_id: String!): JSON
   `;
-  

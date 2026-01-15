@@ -33,7 +33,11 @@ export const formMutations = {
     { _id, ...doc }: IFormsEdit,
     { models }: IContext,
   ) => {
-    return await models.Forms.updateForm(_id, doc);
+    return models.Forms.updateForm(_id, {
+      title: doc.title,
+      description: doc.description,
+      buttonText: doc.buttonText,
+    });
   },
 
   /**
