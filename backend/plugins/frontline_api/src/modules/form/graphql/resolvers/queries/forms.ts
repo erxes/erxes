@@ -21,10 +21,8 @@ const generateFilterQuery = async (
   }
 
   if (channelId) {
-
     query.channelId = channelId;
     return query;
-
   }
   if (!channelId) {
     const channelMemberships = await models.ChannelMembers.find({
@@ -89,7 +87,7 @@ const formQueries = {
     }
 
     return cursorPaginate({
-      model: models.Forms,
+      model: models.Forms as any,
       params: { ...args, orderBy: { createdAt: 1 } },
       query: { ...qry },
     });

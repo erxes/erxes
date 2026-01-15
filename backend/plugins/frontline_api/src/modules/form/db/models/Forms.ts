@@ -24,8 +24,7 @@ export interface IError {
   code: string;
   text: string;
 }
-
-export interface IFormModel extends Model<IFormDocument> {
+export interface IFormModel extends Model<IForm> {
   getForm(_id: string): Promise<IFormDocument>;
   generateCode(): string;
   createForm(
@@ -293,7 +292,6 @@ export const loadFormClass = (models: IModels) => {
         cursor,
         direction = 'forward',
       } = args;
-      console.log('asdas:', query);
       return await cursorPaginateAggregation({
         model: models.Forms,
         params: {
@@ -356,7 +354,7 @@ export const loadFormClass = (models: IModels) => {
   return formSchema;
 };
 
-export interface IFormSubmissionModel extends Model<IFormSubmissionDocument> {
+export interface IFormSubmissionModel extends Model<IFormSubmission> {
   createFormSubmission(doc: IFormSubmission): Promise<IFormSubmissionDocument>;
 }
 
