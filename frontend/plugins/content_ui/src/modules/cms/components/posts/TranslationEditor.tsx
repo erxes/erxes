@@ -11,12 +11,13 @@ import {
   Form,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
-import { Block } from '@blocknote/core';
 import {
   CMS_TRANSLATIONS,
   CMS_ADD_TRANSLATION,
   CMS_EDIT_TRANSLATION,
 } from '../../graphql/queries';
+import { formatInitialContent } from './formHelpers';
+import { Block } from '@blocknote/core';
 
 interface Translation {
   _id?: string;
@@ -33,99 +34,6 @@ interface TranslationEditorProps {
   languages: string[];
   defaultLanguage?: string;
 }
-
-const convertHTMLToBlocks = (htmlContent: string): Block[] => {
-  if (!htmlContent || htmlContent.trim() === '') {
-    return [
-      {
-        id: crypto.randomUUID(),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        },
-        content: [],
-        children: [],
-      } as any,
-    ];
-  }
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
-  const container = doc.body;
-  const blocks: Block[] = [] as any;
-  const children = Array.from(container.children);
-  if (children.length === 0) {
-    const textContent = container.textContent || container.innerText || '';
-    if (textContent.trim()) {
-      blocks.push({
-        id: crypto.randomUUID(),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        } as any,
-        content: [{ type: 'text', text: textContent, styles: {} } as any],
-        children: [],
-      } as any);
-    }
-  } else {
-    children.forEach((el) => {
-      const tag = el.tagName.toLowerCase();
-      const textContent = el.textContent || '';
-      if (!textContent.trim()) return;
-      let blockType: any = 'paragraph';
-      const props: any = {
-        textColor: 'default',
-        backgroundColor: 'default',
-        textAlignment: 'left',
-      };
-      if (tag.match(/^h[1-6]$/)) {
-        blockType = 'heading';
-        props.level = parseInt(tag.charAt(1));
-      }
-      blocks.push({
-        id: crypto.randomUUID(),
-        type: blockType,
-        props,
-        content: [{ type: 'text', text: textContent, styles: {} }],
-        children: [],
-      } as any);
-    });
-  }
-  return blocks.length > 0
-    ? (blocks as any)
-    : ([
-        {
-          id: crypto.randomUUID(),
-          type: 'paragraph',
-          props: {
-            textColor: 'default',
-            backgroundColor: 'default',
-            textAlignment: 'left',
-          },
-          content: [],
-          children: [],
-        },
-      ] as any);
-};
-
-const formatInitialContent = (content?: string): string | undefined => {
-  if (!content || content.trim() === '') return undefined;
-  if (content.startsWith('[')) {
-    try {
-      const parsed = JSON.parse(content);
-      if (Array.isArray(parsed)) return content;
-    } catch {}
-  }
-  if (content.includes('<') && content.includes('>')) {
-    const blocks = convertHTMLToBlocks(content);
-    return JSON.stringify(blocks);
-  }
-  const blocks = convertHTMLToBlocks(`<p>${content}</p>`);
-  return JSON.stringify(blocks);
-};
 
 export function TranslationEditor({
   postId,

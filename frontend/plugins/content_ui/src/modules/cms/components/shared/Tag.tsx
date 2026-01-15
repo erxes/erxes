@@ -22,6 +22,7 @@ import {
   IconTag,
   IconArticle,
   IconCalendar,
+  IconCopy,
 } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -148,27 +149,48 @@ export function Tag() {
           }
         };
 
+        const handleCopyId = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(original._id);
+          toast({
+            title: 'Copied',
+            description: 'Tag ID copied to clipboard',
+            variant: 'default',
+          });
+        };
+
         return (
-          <Popover
-            open={open}
-            onOpenChange={(v) => {
-              setOpen(v);
-              if (!v) onSave();
-            }}
-          >
-            <RecordTableInlineCell.Trigger>
-              <span>{cell.getValue() as string}</span>
-            </RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Content>
-              <Input
-                value={_name}
-                onChange={(e) => setName(e.currentTarget.value)}
-              />
-            </RecordTableInlineCell.Content>
-          </Popover>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={handleCopyId}
+              title="Copy ID"
+            >
+              <IconCopy className="h-3 w-3" />
+            </Button>
+            <Popover
+              open={open}
+              onOpenChange={(v) => {
+                setOpen(v);
+                if (!v) onSave();
+              }}
+            >
+              <RecordTableInlineCell.Trigger>
+                <span>{cell.getValue() as string}</span>
+              </RecordTableInlineCell.Trigger>
+              <RecordTableInlineCell.Content>
+                <Input
+                  value={_name}
+                  onChange={(e) => setName(e.currentTarget.value)}
+                />
+              </RecordTableInlineCell.Content>
+            </Popover>
+          </div>
         );
       },
-      size: 280,
+      size: 320,
     },
     {
       id: 'slug',
@@ -268,7 +290,7 @@ export function Tag() {
             />
           </div>
         ) : (
-          <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+          <div className="h-full rounded-lg shadow-sm border overflow-hidden">
             <RecordTable.Provider
               columns={columns}
               data={tags || []}

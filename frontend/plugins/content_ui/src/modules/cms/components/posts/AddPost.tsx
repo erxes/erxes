@@ -1,97 +1,3 @@
-// Editor helpers: convert initial HTML -> blocks JSON, and onChange blocks -> HTML
-const convertHTMLToBlocks = (htmlContent: string): Block[] => {
-  if (!htmlContent || htmlContent.trim() === '') {
-    return [
-      {
-        id: crypto.randomUUID(),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        },
-        content: [],
-        children: [],
-      } as any,
-    ];
-  }
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
-  const container = doc.body;
-  const blocks: Block[] = [] as any;
-  const children = Array.from(container.children);
-  if (children.length === 0) {
-    const textContent = container.textContent || container.innerText || '';
-    if (textContent.trim()) {
-      blocks.push({
-        id: crypto.randomUUID(),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        } as any,
-        content: [{ type: 'text', text: textContent, styles: {} } as any],
-        children: [],
-      } as any);
-    }
-  } else {
-    children.forEach((el) => {
-      const tag = el.tagName.toLowerCase();
-      const textContent = el.textContent || '';
-      if (!textContent.trim()) return;
-      let blockType: any = 'paragraph';
-      const props: any = {
-        textColor: 'default',
-        backgroundColor: 'default',
-        textAlignment: 'left',
-      };
-      if (tag.match(/^h[1-6]$/)) {
-        blockType = 'heading';
-        props.level = parseInt(tag.charAt(1));
-      }
-      blocks.push({
-        id: crypto.randomUUID(),
-        type: blockType,
-        props,
-        content: [{ type: 'text', text: textContent, styles: {} }],
-        children: [],
-      } as any);
-    });
-  }
-  return blocks.length > 0
-    ? (blocks as any)
-    : ([
-        {
-          id: crypto.randomUUID(),
-          type: 'paragraph',
-          props: {
-            textColor: 'default',
-            backgroundColor: 'default',
-            textAlignment: 'left',
-          },
-          content: [],
-          children: [],
-        },
-      ] as any);
-};
-
-const formatInitialContent = (content?: string): string | undefined => {
-  if (!content || content.trim() === '') return undefined;
-  if (content.startsWith('[')) {
-    try {
-      const parsed = JSON.parse(content);
-      if (Array.isArray(parsed)) return content;
-    } catch {}
-  }
-  if (content.includes('<') && content.includes('>')) {
-    const blocks = convertHTMLToBlocks(content);
-    return JSON.stringify(blocks);
-  }
-  const blocks = convertHTMLToBlocks(`<p>${content}</p>`);
-  return JSON.stringify(blocks);
-};
-
 import {
   Button,
   Form,
@@ -113,7 +19,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
-import { IconUpload, IconChevronDown, IconX } from '@tabler/icons-react';
+import { IconUpload, IconX } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
@@ -131,6 +37,15 @@ import {
   CMS_EDIT_TRANSLATION,
 } from '../../graphql/queries';
 import { usePostMutations } from '../../hooks/usePostMutations';
+import { CustomFieldInput } from './CustomFieldInput';
+import { GalleryUploader } from './GalleryUploader';
+import { PostPreview } from './PostPreview';
+import {
+  formatInitialContent,
+  makeAttachmentFromUrl,
+  normalizeAttachment,
+  makeAttachmentArrayFromUrls,
+} from './formHelpers';
 
 interface PostFormData {
   title: string;
@@ -157,240 +72,6 @@ interface PostFormData {
   customFieldsData?: { field: string; value: any }[];
 }
 
-// Helper to create AttachmentInput from URL
-const makeAttachmentFromUrl = (url?: string | null) => {
-  if (!url) return undefined;
-  const name = url.split('/').pop() || 'file';
-  return { url, name };
-};
-
-// Helper to normalize attachment value to AttachmentInput format
-const normalizeAttachment = (value: any) => {
-  if (!value) return undefined;
-  if (typeof value === 'string') {
-    return makeAttachmentFromUrl(value);
-  }
-
-  const url = value.url as string | undefined;
-  if (!url) return undefined;
-
-  const name =
-    (value.name as string | undefined) || url.split('/').pop() || 'file';
-
-  return {
-    url,
-    name,
-    type: value.type,
-    size: value.size,
-    duration: value.duration,
-  };
-};
-
-// Helper to convert array of URLs to AttachmentInput array
-const makeAttachmentArrayFromUrls = (urls?: (string | null)[]) => {
-  return (urls || [])
-    .filter(Boolean)
-    .map((u) => makeAttachmentFromUrl(u as string))
-    .filter(Boolean);
-};
-
-interface GalleryUploaderProps {
-  value?: string[];
-  onChange: (urls: string[]) => void;
-}
-
-// Custom Field Input Component with proper state management
-const CustomFieldInput = ({
-  field,
-  value,
-  onChange,
-}: {
-  field: any;
-  value: any;
-  onChange: (value: any) => void;
-}) => {
-  if (field.type === 'text') {
-    return (
-      <Input
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
-
-  if (field.type === 'textarea') {
-    return (
-      <Textarea
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        rows={3}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
-
-  if (field.type === 'number') {
-    return (
-      <Input
-        type="number"
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
-
-  if (field.type === 'email') {
-    return (
-      <Input
-        type="email"
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
-
-  if (field.type === 'url') {
-    return (
-      <Input
-        type="url"
-        placeholder={`Enter ${field.label.toLowerCase()}`}
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
-
-  if (field.type === 'date') {
-    return (
-      <Input
-        type="date"
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
-
-  if (field.type === 'checkbox') {
-    return (
-      <div className="flex items-center gap-2">
-        <Switch
-          checked={!!value}
-          onCheckedChange={(checked) => onChange(checked)}
-        />
-        <span className="text-sm text-gray-600">{field.label}</span>
-      </div>
-    );
-  }
-
-  if (field.type === 'select' && field.options) {
-    return (
-      <Select value={value || ''} onValueChange={(val) => onChange(val)}>
-        <Select.Trigger>
-          <Select.Value placeholder={`Select ${field.label.toLowerCase()}`} />
-        </Select.Trigger>
-        <Select.Content>
-          {field.options.map((option: string, idx: number) => (
-            <Select.Item key={idx} value={option}>
-              {option}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-    );
-  }
-
-  if (field.type === 'radio' && field.options) {
-    return (
-      <div className="space-y-2">
-        {field.options.map((option: string, idx: number) => (
-          <div key={idx} className="flex items-center gap-2">
-            <input
-              type="radio"
-              name={field._id}
-              value={option}
-              checked={value === option}
-              onChange={(e) => onChange(e.target.value)}
-            />
-            <label className="text-sm">{option}</label>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return null;
-};
-
-const GalleryUploader = ({ value, onChange }: GalleryUploaderProps) => {
-  const urls = value || [];
-
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 10,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (addedFiles) => {
-      const existing = urls || [];
-      const addedUrls = (addedFiles || [])
-        .map((file: any) => file.url)
-        .filter(Boolean);
-      const next = [...existing, ...addedUrls].slice(0, 10);
-      onChange(next);
-    },
-  });
-
-  const handleRemove = (url: string) => {
-    const next = (urls || []).filter((u) => u !== url);
-    onChange(next);
-  };
-
-  return (
-    <div className="space-y-2">
-      {urls.length > 0 && (
-        <div className="relative">
-          <div className="flex flex-wrap gap-4">
-            {urls.map((url) => (
-              <div
-                key={url}
-                className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
-              >
-                <img
-                  src={readImage(url)}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-0 right-0"
-                  type="button"
-                  onClick={() => handleRemove(url)}
-                >
-                  <IconX size={12} />
-                </Button>
-              </div>
-            ))}
-          </div>
-          {uploadProps.loading && (
-            <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-md">
-              <div className="flex flex-col items-center gap-2">
-                <Spinner size="sm" />
-                <span className="text-sm text-gray-600">Uploading...</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      <Dropzone {...uploadProps}>
-        <DropzoneEmptyState />
-        <DropzoneContent />
-      </Dropzone>
-    </div>
-  );
-};
-
 export function AddPost() {
   const { websiteId } = useParams();
   const navigate = useNavigate();
@@ -416,9 +97,12 @@ export function AddPost() {
   );
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [translations, setTranslations] = useState<Record<string, any>>({});
-  const [previewDevice, setPreviewDevice] = useState<
-    'desktop' | 'tablet' | 'mobile'
-  >('desktop');
+  const [defaultLangData, setDefaultLangData] = useState<{
+    title: string;
+    content: string;
+    description: string;
+    customFieldsData: any[];
+  } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
 
   const form = useForm<PostFormData>({
@@ -585,15 +269,8 @@ export function AddPost() {
   });
 
   const onSubmit = async (data: PostFormData) => {
-    console.log('🔍 Form data on submit:', {
-      type: data.type,
-      title: data.title,
-      customFieldsData: data.customFieldsData,
-    });
-
     // Validate that a custom post type is selected
     if (!data.type) {
-      console.error('❌ Validation failed: No post type selected');
       toast({
         title: 'Validation Error',
         description: 'Please select a post type',
@@ -678,121 +355,80 @@ export function AddPost() {
       })(),
     };
 
-    console.log('📝 Submitting post with data:', {
-      title: input.title,
-      type: input.type,
-      status: input.status,
-      customFieldsData: input.customFieldsData,
-      fullInput: input,
-    });
-
     try {
       if (editingPost?._id) {
-        // If editing a non-default language, save as translation
-        if (selectedLanguage && selectedLanguage !== defaultLanguage) {
-          await saveTranslation({
-            variables: {
-              input: {
-                postId: editingPost._id,
-                language: selectedLanguage,
-                title: data.title || '',
-                content: data.content || '',
-                excerpt: data.description || '',
-                customFieldsData: data.customFieldsData || [],
-                type: 'post',
-              },
-            },
-          });
+        // Save current language content to local state first
+        const currentTranslations = { ...translations };
+        let postInput = { ...input };
 
-          // Update translations state
-          setTranslations((prev) => ({
-            ...prev,
-            [selectedLanguage]: {
-              title: data.title,
-              content: data.content,
-              excerpt: data.description,
-              customFieldsData: data.customFieldsData,
-            },
-          }));
-
-          console.log('✅ Translation saved successfully');
-          toast({
-            title: 'Saved',
-            description: `${selectedLanguage.toUpperCase()} translation saved`,
-          });
-          navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+        if (selectedLanguage === defaultLanguage) {
+          // Currently editing default language - use form data for post
+          // postInput is already correct from form data
         } else {
-          // Default language - update the post itself
-          const result = await editPost(editingPost._id, input);
-          console.log('✅ Post updated successfully:', result);
-          toast({ title: 'Saved', description: 'Post updated' });
-          navigate(`/content/cms/${websiteId}/posts`, { replace: true });
+          // Currently editing translation - save it and use stored default data for post
+          currentTranslations[selectedLanguage] = {
+            title: data.title,
+            content: data.content,
+            excerpt: data.description,
+            customFieldsData: data.customFieldsData,
+          };
+
+          // Use stored default language data if available
+          if (defaultLangData) {
+            postInput = {
+              ...input,
+              title: defaultLangData.title || input.title,
+              content: defaultLangData.content || input.content,
+              excerpt: defaultLangData.description || input.excerpt,
+              customFieldsData:
+                defaultLangData.customFieldsData || input.customFieldsData,
+            };
+          }
         }
+
+        // Update the post with default language content
+        await editPost(editingPost._id, postInput);
+
+        // Save all translations that have content
+        const translationPromises = Object.entries(currentTranslations)
+          .filter(
+            ([lang, trans]: [string, any]) =>
+              lang !== defaultLanguage && (trans?.title || trans?.content),
+          )
+          .map(([lang, trans]: [string, any]) =>
+            saveTranslation({
+              variables: {
+                input: {
+                  postId: editingPost._id,
+                  language: lang,
+                  title: trans?.title || '',
+                  content: trans?.content || '',
+                  excerpt: trans?.excerpt || '',
+                  customFieldsData: trans?.customFieldsData || [],
+                  type: 'post',
+                },
+              },
+            }),
+          );
+
+        if (translationPromises.length > 0) {
+          await Promise.all(translationPromises);
+        }
+
+        toast({ title: 'Saved', description: 'Post and translations saved' });
+        navigate(`/content/cms/${websiteId}/posts`, { replace: true });
       } else {
-        const result = await createPost(input);
-        console.log('✅ Post created successfully:', result);
+        await createPost(input);
         toast({ title: 'Saved', description: 'Post created' });
         navigate(`/content/cms/${websiteId}/posts`, { replace: true });
       }
     } catch (error: any) {
-      console.error('❌ Error saving post:', error);
-      console.error('❌ Error details:', {
-        message: error?.message,
-        graphQLErrors: error?.graphQLErrors,
-        networkError: error?.networkError,
-        extraInfo: error?.extraInfo,
-      });
       toast({
         title: 'Error',
         description: error?.message || 'Failed to save post',
         variant: 'destructive',
       });
     }
-  };
-
-  const Preview = () => {
-    const deviceDims =
-      previewDevice === 'desktop'
-        ? { width: 1024, height: 768 }
-        : previewDevice === 'tablet'
-        ? { width: 768, height: 1024 }
-        : { width: 320, height: 620 };
-
-    return (
-      <div className="flex-1 flex flex-col  items-center justify-start gap-4">
-        <Tabs
-          value={previewDevice}
-          onValueChange={(v) =>
-            setPreviewDevice(v as 'desktop' | 'tablet' | 'mobile')
-          }
-        >
-          <Tabs.List>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Tabs.Trigger value="desktop">Desktop</Tabs.Trigger>
-              <Tabs.Trigger value="tablet">Tablet</Tabs.Trigger>
-              <Tabs.Trigger value="mobile">Mobile</Tabs.Trigger>
-            </div>
-          </Tabs.List>
-        </Tabs>
-        <div
-          className="rounded-[36px] bg-indigo-200/80 relative shadow-inner"
-          style={{
-            width: '100%',
-            maxWidth: deviceDims.width,
-            aspectRatio: `${deviceDims.width} / ${deviceDims.height}`,
-          }}
-        >
-          <div className="absolute inset-4 bg-white rounded-[28px] p-4 overflow-hidden">
-            <div
-              className="prose prose-sm max-w-none mt-2 h-44 overflow-auto"
-              dangerouslySetInnerHTML={{
-                __html: form.watch('content') || '',
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const { data: catData } = useQuery(CMS_CATEGORIES, {
@@ -859,13 +495,6 @@ export function AddPost() {
       previousTypeRef.current &&
       previousTypeRef.current !== selectedType
     ) {
-      console.log(
-        '🔄 Post type changed from',
-        previousTypeRef.current,
-        'to',
-        selectedType,
-        '- clearing custom fields data',
-      );
       form.setValue('customFieldsData', []);
     }
     previousTypeRef.current = selectedType;
@@ -886,7 +515,6 @@ export function AddPost() {
       updated = [...currentData, { field: fieldId, value }];
     }
 
-    console.log('🔧 Updating custom field:', { fieldId, value, updated });
     form.setValue('customFieldsData', updated, {
       shouldDirty: true,
       shouldTouch: true,
@@ -925,7 +553,7 @@ export function AddPost() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="rounded-lg border overflow-hidden">
           <div className="px-4 pt-4 border-b">
             <Tabs
               value={activeTab}
@@ -966,77 +594,53 @@ export function AddPost() {
                           </span>
                           <Select
                             value={selectedLanguage}
-                            onValueChange={async (lang) => {
-                              // Save current translation before switching
-                              if (
-                                selectedLanguage !== defaultLanguage &&
-                                editingPost?._id
-                              ) {
-                                try {
-                                  await saveTranslation({
-                                    variables: {
-                                      input: {
-                                        postId: editingPost._id,
-                                        language: selectedLanguage,
-                                        title: form.getValues('title') || '',
-                                        content:
-                                          form.getValues('content') || '',
-                                        excerpt:
-                                          form.getValues('description') || '',
-                                        customFieldsData:
-                                          form.getValues('customFieldsData') ||
-                                          [],
-                                        type: 'post',
-                                      },
-                                    },
-                                  });
+                            onValueChange={(lang) => {
+                              if (lang === selectedLanguage) return;
 
-                                  // Update translations state with saved data
-                                  setTranslations((prev) => ({
-                                    ...prev,
-                                    [selectedLanguage]: {
-                                      title: form.getValues('title'),
-                                      content: form.getValues('content'),
-                                      excerpt: form.getValues('description'),
-                                      customFieldsData:
-                                        form.getValues('customFieldsData'),
-                                    },
-                                  }));
-
-                                  toast({
-                                    title: 'Translation saved',
-                                    description: `${selectedLanguage.toUpperCase()} translation has been saved`,
-                                  });
-                                } catch (error) {
-                                  console.error(
-                                    'Error saving translation:',
-                                    error,
-                                  );
-                                  toast({
-                                    title: 'Error',
-                                    description: 'Failed to save translation',
-                                    variant: 'destructive',
-                                  });
-                                  return; // Don't switch language if save failed
-                                }
+                              // Save current content to local state (fast, no server call)
+                              if (selectedLanguage === defaultLanguage) {
+                                // Save default language content
+                                setDefaultLangData({
+                                  title: form.getValues('title') || '',
+                                  content: form.getValues('content') || '',
+                                  description:
+                                    form.getValues('description') || '',
+                                  customFieldsData:
+                                    form.getValues('customFieldsData') || [],
+                                });
+                              } else {
+                                // Save translation content
+                                setTranslations((prev) => ({
+                                  ...prev,
+                                  [selectedLanguage]: {
+                                    title: form.getValues('title'),
+                                    content: form.getValues('content'),
+                                    excerpt: form.getValues('description'),
+                                    customFieldsData:
+                                      form.getValues('customFieldsData'),
+                                  },
+                                }));
                               }
 
-                              // Load translation for new language
+                              // Load content for new language
                               if (lang === defaultLanguage) {
-                                form.setValue('title', fullPost?.title || '');
-                                form.setValue(
-                                  'content',
-                                  fullPost?.content || '',
-                                );
-                                form.setValue(
-                                  'description',
-                                  fullPost?.excerpt ||
+                                // Load default language (from local state if edited, otherwise from server)
+                                const data = defaultLangData || {
+                                  title: fullPost?.title || '',
+                                  content: fullPost?.content || '',
+                                  description:
+                                    fullPost?.excerpt ||
                                     fullPost?.description ||
                                     '',
-                                );
+                                  customFieldsData:
+                                    fullPost?.customFieldsData || [],
+                                };
+                                form.setValue('title', data.title);
+                                form.setValue('content', data.content);
+                                form.setValue('description', data.description);
                                 form.setValue(
                                   'customFieldsData',
-                                  fullPost?.customFieldsData || [],
+                                  data.customFieldsData,
                                 );
                               } else {
                                 const translation = translations[lang];
@@ -1059,15 +663,6 @@ export function AddPost() {
                               }
 
                               setSelectedLanguage(lang);
-
-                              toast({
-                                title: 'Language switched',
-                                description: `Now editing ${
-                                  lang === defaultLanguage
-                                    ? 'default'
-                                    : lang.toUpperCase()
-                                } version`,
-                              });
                             }}
                           >
                             <Select.Trigger className="w-[180px]">
@@ -1093,62 +688,6 @@ export function AddPost() {
                             </Select.Content>
                           </Select>
                         </div>
-                        {selectedLanguage !== defaultLanguage && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            onClick={async () => {
-                              try {
-                                await saveTranslation({
-                                  variables: {
-                                    input: {
-                                      postId: editingPost._id,
-                                      language: selectedLanguage,
-                                      title: form.getValues('title') || '',
-                                      content: form.getValues('content') || '',
-                                      excerpt:
-                                        form.getValues('description') || '',
-                                      customFieldsData:
-                                        form.getValues('customFieldsData') ||
-                                        [],
-                                      type: 'post',
-                                    },
-                                  },
-                                });
-
-                                // Update translations state
-                                setTranslations((prev) => ({
-                                  ...prev,
-                                  [selectedLanguage]: {
-                                    title: form.getValues('title'),
-                                    content: form.getValues('content'),
-                                    excerpt: form.getValues('description'),
-                                    customFieldsData:
-                                      form.getValues('customFieldsData'),
-                                  },
-                                }));
-
-                                toast({
-                                  title: 'Translation saved',
-                                  description: `${selectedLanguage.toUpperCase()} translation has been saved`,
-                                });
-                              } catch (error) {
-                                console.error(
-                                  'Error saving translation:',
-                                  error,
-                                );
-                                toast({
-                                  title: 'Error',
-                                  description: 'Failed to save translation',
-                                  variant: 'destructive',
-                                });
-                              }
-                            }}
-                          >
-                            Save Translation
-                          </Button>
-                        )}
                       </div>
                     </div>
                   )}
@@ -1534,41 +1073,60 @@ export function AddPost() {
                     )}
                   />
 
-                  {/* Custom Fields */}
+                  {/* Custom Fields - erxes standard UI */}
                   {selectedType && fieldGroups.length > 0 && (
-                    <div className="space-y-4 mt-6 pt-6 border-t">
-                      <div className="text-sm font-semibold">Custom Fields</div>
+                    <div className="space-y-3 mt-6 pt-6 border-t">
+                      <div className="text-sm font-semibold text-foreground">
+                        Custom Fields
+                      </div>
                       {fieldGroups.map((group: any) => (
-                        <Collapsible key={group._id} defaultOpen={true}>
-                          <Collapsible.Trigger className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-md hover:bg-gray-100">
-                            <span className="font-medium text-sm">
+                        <Collapsible
+                          key={group._id}
+                          defaultOpen
+                          className="group"
+                        >
+                          <Collapsible.Trigger asChild>
+                            <Button
+                              variant="secondary"
+                              className="w-full justify-start"
+                            >
+                              <Collapsible.TriggerIcon />
                               {group.label}
-                            </span>
-                            <IconChevronDown className="h-4 w-4 transition-transform" />
+                            </Button>
                           </Collapsible.Trigger>
-                          <Collapsible.Content className="mt-2 space-y-3 pl-3">
-                            {(group.fields || []).map((field: any) => (
-                              <div key={field._id} className="space-y-1">
-                                <label className="block text-sm font-medium">
-                                  {field.label}
-                                  {field.isRequired && (
-                                    <span className="text-red-500 ml-1">*</span>
+                          <Collapsible.Content className="pt-4">
+                            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                              {(group.fields || []).map((field: any) => (
+                                <div
+                                  key={field._id}
+                                  className="flex flex-col gap-2"
+                                >
+                                  <Form.Label
+                                    className="text-sm font-medium"
+                                    htmlFor={`custom-field-${field._id}`}
+                                  >
+                                    {field.label}
+                                    {field.isRequired && (
+                                      <span className="text-destructive ml-1">
+                                        *
+                                      </span>
+                                    )}
+                                  </Form.Label>
+                                  {field.description && (
+                                    <p className="text-xs text-muted-foreground -mt-1">
+                                      {field.description}
+                                    </p>
                                   )}
-                                </label>
-                                {field.description && (
-                                  <p className="text-xs text-gray-500">
-                                    {field.description}
-                                  </p>
-                                )}
-                                <CustomFieldInput
-                                  field={field}
-                                  value={getCustomFieldValue(field._id)}
-                                  onChange={(value) =>
-                                    updateCustomFieldValue(field._id, value)
-                                  }
-                                />
-                              </div>
-                            ))}
+                                  <CustomFieldInput
+                                    field={field}
+                                    value={getCustomFieldValue(field._id)}
+                                    onChange={(value) =>
+                                      updateCustomFieldValue(field._id, value)
+                                    }
+                                  />
+                                </div>
+                              ))}
+                            </div>
                           </Collapsible.Content>
                         </Collapsible>
                       ))}
@@ -2114,7 +1672,7 @@ export function AddPost() {
           </Form>
         </div>
 
-        <Preview />
+        <PostPreview content={form.watch('content') || ''} />
       </div>
     </CmsLayout>
   );
