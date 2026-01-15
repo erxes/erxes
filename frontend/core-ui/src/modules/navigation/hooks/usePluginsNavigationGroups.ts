@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { useAtom } from 'jotai';
-import { IUIConfig } from 'erxes-ui';
-import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { pluginsConfigState } from 'ui-modules';
 import { useVersion } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
+import { IUIConfig } from 'erxes-ui';
 
 export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
@@ -18,7 +18,7 @@ export const usePluginsModules = () => {
     if (pluginsMetaData) {
       const pluginsModules = Object.values(pluginsMetaData || {}).flatMap(
         (plugin) =>
-          plugin.modules.map((module) => ({
+          (plugin.modules || []).map((module) => ({
             ...module,
             pluginName: plugin.name,
           })),
@@ -41,7 +41,7 @@ interface NavigationGroupResult {
 
 type NavigationGroups = Record<string, NavigationGroupResult>;
 
-export const usePluginsNavigationGroups = (): NavigationGroups => {
+export const usePluginsNavigationGroups = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
 
   const navigationGroups = useMemo(() => {
@@ -63,7 +63,7 @@ export const usePluginsNavigationGroups = (): NavigationGroups => {
           ? [...existingGroup.contents, newContent]
           : existingGroup.contents;
 
-        const newSubGroup = plugin.navigationGroup?.subGroups;
+        const newSubGroup = plugin.navigationGroup?.subGroup;
         const updatedSubGroups = newSubGroup
           ? [...existingGroup.subGroups, newSubGroup]
           : existingGroup.subGroups;

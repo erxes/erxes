@@ -8,12 +8,10 @@ interface RemoteComponentProps {
 export function RenderPluginsComponent({
   pluginName,
   remoteModuleName,
-  moduleName,
   props,
 }: {
   pluginName: string;
   remoteModuleName: string;
-  moduleName: string;
   props?: any;
 }) {
   const [Plugin, setPlugin] =
@@ -80,11 +78,7 @@ export function RenderPluginsComponent({
         </div>
       }
     >
-      <Plugin
-        key={`${pluginName}-${remoteModuleName}`}
-        {...props}
-        moduleName={moduleName}
-      />
+      <Plugin key={`${pluginName}-${remoteModuleName}`} {...props} />
     </Suspense>
   );
 }

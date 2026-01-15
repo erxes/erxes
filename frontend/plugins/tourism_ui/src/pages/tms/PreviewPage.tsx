@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { hexToHsl, Input, Select, readImage } from 'erxes-ui';
+import { hexToOklch, Input, Select, readImage } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { tmsFormAtom } from '~/modules/tms/atoms/formAtoms';
 
@@ -8,7 +8,7 @@ export const PreviewPage = () => {
   const [logoUrl, setLogoUrl] = useState('');
 
   useLayoutEffect(() => {
-    const hsl = formData.color ? hexToHsl(formData.color) : undefined;
+    const hsl = formData.color ? hexToOklch(formData.color) : undefined;
     if (hsl) {
       const hslMatch = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
       if (hslMatch) {
