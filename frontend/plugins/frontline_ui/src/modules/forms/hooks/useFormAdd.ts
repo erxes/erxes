@@ -8,7 +8,7 @@ interface FormAddResponse {
 }
 
 export function useFormAdd() {
-  const [mutate, { data, loading, error }] =
+  const [mutate, { data, loading, error, client }] =
     useMutation<FormAddResponse>(FORMS_ADD);
 
   return {
@@ -16,5 +16,6 @@ export function useFormAdd() {
     formAddData: data,
     isAddingForm: loading,
     addFormError: error,
+    client,
   };
 }

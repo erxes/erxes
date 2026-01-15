@@ -67,6 +67,7 @@ export const GET_FORM_DETAIL = gql`
         validation
         text
         type
+        pageNumber
       }
       name
       numberOfPages

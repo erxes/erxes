@@ -19,10 +19,18 @@ export const useFormMutate = () => {
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const { formDetail } = useFormDetail({ formId: formId as string });
-  const { addForm, isAddingForm } = useFormAdd();
+  const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [fieldsBulkAction, { loading: isFieldsBulkActionLoading }] =
-    useMutation(FORM_BULK_ACTION);
+    useMutation(FORM_BULK_ACTION, {
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
 
   const handleMutateForm = async (
     confirmation: z.infer<typeof FORM_CONFIRMATION_SCHEMA>,
@@ -40,9 +48,14 @@ export const useFormMutate = () => {
             variables: {
               contentType: 'form',
               contentTypeId: formId,
-              updatedFields: formFields.filter((field) =>
-                formDetail?.fields.some((f) => f._id === field.tempFieldId),
-              ),
+              updatedFields: formFields
+                .filter((field) =>
+                  formDetail?.fields.some((f) => f._id === field.tempFieldId),
+                )
+                .map(({ tempFieldId, ...field }) => ({
+                  ...field,
+                  _id: tempFieldId,
+                })),
               newFields: formFields.filter(
                 (field) =>
                   !formDetail?.fields.some((f) => f._id === field.tempFieldId),
@@ -69,6 +82,7 @@ export const useFormMutate = () => {
               newFields: formFields,
             },
           });
+          addFormClient?.cache.evict({ fieldName: 'Forms' });
         },
         onError: (error) => {
           toast({

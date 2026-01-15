@@ -34,7 +34,7 @@ export const FORM_CONTENT_SCHEMA = z.object({
           required: z.boolean().optional().default(false),
           order: z.number().optional().default(0),
           stepId: z.string(),
-          validation: z.string().optional().default(''),
+          validation: z.string().optional().default('').nullable(),
         }),
       ),
     }),

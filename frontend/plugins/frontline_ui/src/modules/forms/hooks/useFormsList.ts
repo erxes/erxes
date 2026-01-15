@@ -14,6 +14,7 @@ export const useFormsList = ({ channelId }: { channelId: string }) => {
       limit: FORMS_PER_PAGE,
       channelId,
     },
+    fetchPolicy: 'cache-and-network',
   });
 
   const { list: forms, totalCount, pageInfo } = data?.forms || {};

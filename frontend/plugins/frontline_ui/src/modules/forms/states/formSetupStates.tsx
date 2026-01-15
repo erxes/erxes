@@ -115,31 +115,29 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
 
   const content = {
     steps: Object.fromEntries(
-      Object.entries(payload.leadData.steps || {}).map(
-        ([key, step], stepIndex) => [
-          key,
-          {
-            name: step.name,
-            description: step.description,
-            order: step.order,
-            fields: payload.fields
-              .filter((field) => field.pageNumber === stepIndex + 1)
-              .map((field) => ({
-                id: field._id,
-                type: field.type,
-                label: field.text,
-                description: field.description,
-                placeholder: field.content,
-                options: field.options,
-                span: field.column ?? 1,
-                required: field.isRequired,
-                order: field.order,
-                validation: field.validation,
-                stepId: key,
-              })),
-          },
-        ],
-      ),
+      Object.entries(payload.leadData.steps || {}).map(([key, step]) => [
+        key,
+        {
+          name: step.name,
+          description: step.description,
+          order: step.order,
+          fields: payload.fields
+            .filter((field) => field.pageNumber === step.order)
+            .map((field) => ({
+              id: field._id,
+              type: field.type,
+              label: field.text,
+              description: field.description,
+              placeholder: field.content,
+              options: field.options,
+              span: field.column ?? 1,
+              required: field.isRequired,
+              order: field.order,
+              validation: field.validation,
+              stepId: key,
+            })),
+        },
+      ]),
     ),
   };
 
