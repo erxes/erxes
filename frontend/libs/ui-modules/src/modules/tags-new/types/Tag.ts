@@ -1,7 +1,7 @@
 export interface ITag {
   _id: string;
   name: string;
-  type?: string;
+  type: string | null;
   colorCode?: string;
   createdAt?: string;
   objectCount?: number;
@@ -10,4 +10,5 @@ export interface ITag {
   relatedIds?: string[];
   description?: string;
   totalObjectCount?: number;
+  __typename?: 'Tag';
 }

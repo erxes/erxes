@@ -238,6 +238,36 @@ export function Category() {
       },
       size: 180,
     },
+    {
+      id: 'copyId',
+      header: () => <span className="sr-only">Copy ID</span>,
+      cell: ({ row }) => {
+        const categoryId = row.original._id;
+
+        const handleCopyId = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(categoryId);
+          toast({
+            title: 'Copied',
+            description: 'Category ID copied to clipboard',
+            variant: 'default',
+          });
+        };
+
+        return (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleCopyId}
+            title={`Copy ID: ${categoryId}`}
+          >
+            <IconCopy className="h-4 w-4" />
+          </Button>
+        );
+      },
+      size: 50,
+    },
   ];
 
   return (

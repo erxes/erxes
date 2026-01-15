@@ -41,7 +41,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  tagsGetTypes: [JSON]
+  tagsGetTypes: JSON
   tags(${queryParams}): TagsListResponse
   tagsMain(type: String): [Tag]
   tagDetail(_id: String!): Tag

@@ -18,3 +18,12 @@ query TagsMain($type: String) {
   }
 }
 `;
+
+export const TAG_QUERY = gql`
+  query TagBadge($id: String!) {
+    tagDetail(_id: $id) {
+      _id
+      name
+    }
+  }
+`;
