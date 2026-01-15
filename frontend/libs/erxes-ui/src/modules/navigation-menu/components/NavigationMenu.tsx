@@ -29,8 +29,12 @@ export const NavigationMenuLinkItem = forwardRef<
     ref,
   ) => {
     const { pathname } = useLocation();
-    const fullPath = pathPrefix ? `${pathPrefix}/${path}` : path;
-    const isActive = pathname.startsWith(`/${fullPath}`);
+    const normalizedPathPrefix = pathPrefix
+      ? `${pathPrefix.replace(/\/$/, '')}/`
+      : '';
+    const normalizedPath = path.replace(/^\//, '');
+    const fullPath = `/${normalizedPathPrefix}${normalizedPath}`;
+    const isActive = pathname.startsWith(fullPath);
 
     return (
       <Sidebar.MenuItem>
@@ -60,6 +64,22 @@ export const NavigationMenuLinkItem = forwardRef<
 );
 
 NavigationMenuLinkItem.displayName = 'NavigationMenuLinkItem';
+
+export const SettingsNavigationMenuLinkItem = forwardRef<
+  React.ElementRef<typeof Sidebar.MenuButton>,
+  React.ComponentProps<typeof NavigationMenuLinkItem>
+>(({ pathPrefix, ...props }, ref) => {
+  const settingsPathPrefix = `settings/${pathPrefix}`;
+  return (
+    <NavigationMenuLinkItem
+      {...props}
+      pathPrefix={settingsPathPrefix}
+      ref={ref}
+    />
+  );
+});
+
+SettingsNavigationMenuLinkItem.displayName = 'SettingsNavigationMenuLinkItem';
 
 export const NavigationMenuItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,

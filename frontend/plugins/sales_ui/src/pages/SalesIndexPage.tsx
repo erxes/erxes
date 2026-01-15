@@ -8,13 +8,12 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
+import { DealsView } from '@/deals/actionBar/components/DealViewControl';
 import { IconSandbox } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
-
-import { DealsView } from '@/deals/actionBar/components/DealViewControl';
 
 export const SalesIndexPage = () => {
   const [searchParams] = useSearchParams();

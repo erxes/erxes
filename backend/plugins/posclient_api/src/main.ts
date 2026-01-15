@@ -18,14 +18,14 @@ startPlugin({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
   }),
-  // hasSubscriptions: true,
-  // subscriptionPluginPath: require('path').resolve(
-  //   __dirname,
-  //   'apollo',
-  //   process.env.NODE_ENV === 'production'
-  //     ? 'subscription.js'
-  //     : 'subscription.ts',
-  // ),
+  hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'apollo',
+    process.env.NODE_ENV === 'production'
+      ? 'subscription.js'
+      : 'subscription.ts',
+  ),
   expressRouter: router,
   onServerInit: async () => {
     await initMQWorkers(redis);
