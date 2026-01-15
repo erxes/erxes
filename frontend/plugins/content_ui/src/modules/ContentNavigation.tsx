@@ -20,7 +20,11 @@ export const ContentNavigation = () => {
       />
       <div
         onClick={() =>
-          window.open('https://example.webbuilder.app.erxes.io', '_blank')
+          window.open(
+            'https://example.webbuilder.app.erxes.io',
+            '_blank',
+            'noopener,noreferrer',
+          )
         }
       >
         <NavigationMenuLinkItem
