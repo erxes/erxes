@@ -1,4 +1,7 @@
-import { ResponsesChartType, ResponsesChartTypeOption } from '../types';
+import {
+  ResponsesChartType,
+  ResponsesChartTypeOption,
+} from '../types';
 import {
   IconChartBar,
   IconChartRadar,
@@ -52,3 +55,4 @@ export const RESPONSES_CHART_TYPE_OPTIONS: ResponsesChartTypeOption[] = [
     label: 'Radar',
   },
 ];
+

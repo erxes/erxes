@@ -27,6 +27,10 @@ const sourceFilterAtomCache = new Map<
   string,
   WritableAtom<string, [string], void>
 >();
+
+export const reportSheetOpenState = atom<boolean>(false);
+
+export const reportWidgetStepState = atom<number>(0);
 const channelFilterAtomCache = new Map<
   string,
   WritableAtom<string[], [string[]], void>

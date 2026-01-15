@@ -281,6 +281,10 @@ export const reportInboxQueries = {
 
     pipeline.push(...buildDateGroupPipeline('createdAt'));
 
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
+
     const result = await models.Conversations.aggregate(pipeline);
 
     return result.map((r) => ({ date: r._id, count: r.count }));
@@ -327,6 +331,10 @@ export const reportInboxQueries = {
     });
 
     pipeline.push(...buildDateGroupPipeline('closedAt'));
+
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
 
     const result = await models.Conversations.aggregate(pipeline);
 
