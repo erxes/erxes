@@ -1,22 +1,22 @@
-import { AddAdjustFundRate } from './AdjustFundRateForm';
-import { AdjustFundRateTable } from './AdjustFundRateTable';
+import { AddAdjustDebtRate } from './AdjustDebtRateForm';
+import { AdjustDebtRateTable } from './AdjustDebtRateTable';
 import { AccountingLayout } from '@/layout/components/Layout';
 import { AdjustmentHeader } from '../../components/Header';
 import { TransactionsFilter } from '@/transactions/components/TrFilters';
 import { PageSubHeader } from 'erxes-ui';
 
-export const AdjustFundRatePage = () => {
+export const AdjustDebtRatePage = () => {
   return (
     <AccountingLayout>
-      <AdjustmentHeader defaultKind="fundRate">
+      <AdjustmentHeader defaultKind="debRate">
         <div className="px-3">
-          <AddAdjustFundRate />
+          <AddAdjustDebtRate />
         </div>
       </AdjustmentHeader>
       <PageSubHeader>
         <TransactionsFilter />
       </PageSubHeader>
-      <AdjustFundRateTable />
+      <AdjustDebtRateTable />
     </AccountingLayout>
   );
 };

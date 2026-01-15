@@ -51,6 +51,18 @@ const AdjustFundRateDetail = lazy(() =>
   })),
 );
 
+const AdjustDebtRateList = lazy(() =>
+  import('~/pages/AdjustDebtRateListPage').then((module) => ({
+    default: module.AdjustDebtRateListPage,
+  })),
+);
+
+const AdjustDebtRateDetail = lazy(() =>
+  import('~/pages/AdjustDebtRateDetailPage').then((module) => ({
+    default: module.AdjustDebtRateDetailPage,
+  })),
+);
+
 const AccountingJournalReports = lazy(() =>
   import('~/pages/JournalReports').then((module) => ({
     default: module.JournalReports,
@@ -88,6 +100,11 @@ const PluginAccounting = () => {
         <Route
           path="/adjustment/fundRate/detail"
           element={<AdjustFundRateDetail />}
+        />
+        <Route path="/adjustment/debRate" element={<AdjustDebtRateList />} />
+        <Route
+          path="/adjustment/debRate/detail"
+          element={<AdjustDebtRateDetail />}
         />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
         <Route
