@@ -26,6 +26,7 @@ import {
   IconEdit,
   IconTrash,
   IconEye,
+  IconCopy,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { CmsCategoryDrawer } from './CmsCategoryDrawer';
@@ -149,15 +150,38 @@ export function Category() {
       id: 'name',
       header: () => <RecordTable.InlineHead label="Name" icon={IconEdit} />,
       accessorKey: 'name',
-      cell: ({ cell }) => {
-        const name = cell.getValue() as string;
+      cell: ({ row }) => {
+        const name = row.original.name;
+        const categoryId = row.original._id;
+
+        const handleCopyId = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(categoryId);
+          toast({
+            title: 'Copied',
+            description: 'Category ID copied to clipboard',
+            variant: 'default',
+          });
+        };
+
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm">{name}</span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={handleCopyId}
+              title="Copy ID"
+            >
+              <IconCopy className="h-3 w-3" />
+            </Button>
+            <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+              <span className="text-sm">{name}</span>
+            </div>
           </div>
         );
       },
-      size: 280,
+      size: 320,
     },
     {
       id: 'description',
@@ -214,6 +238,36 @@ export function Category() {
       },
       size: 180,
     },
+    {
+      id: 'copyId',
+      header: () => <span className="sr-only">Copy ID</span>,
+      cell: ({ row }) => {
+        const categoryId = row.original._id;
+
+        const handleCopyId = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(categoryId);
+          toast({
+            title: 'Copied',
+            description: 'Category ID copied to clipboard',
+            variant: 'default',
+          });
+        };
+
+        return (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleCopyId}
+            title={`Copy ID: ${categoryId}`}
+          >
+            <IconCopy className="h-4 w-4" />
+          </Button>
+        );
+      },
+      size: 50,
+    },
   ];
 
   return (
@@ -255,7 +309,7 @@ export function Category() {
               />
             </div>
           ) : (
-            <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+            <div className="h-full rounded-lg shadow-sm border overflow-hidden">
               <RecordTable.Provider
                 columns={columns}
                 data={categories}

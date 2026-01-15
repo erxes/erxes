@@ -1,15 +1,7 @@
-import {
-  IconAlignLeft,
-  IconBuilding,
-  IconLabelFilled,
-  IconUser,
-} from '@tabler/icons-react';
+import { IconBuilding, IconLabelFilled, IconUser } from '@tabler/icons-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
-  Badge,
-  Input,
-  Popover,
   readImage,
   RecordTable,
   RecordTableInlineCell,

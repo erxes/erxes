@@ -2,6 +2,7 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib';
 import { Button } from './button';
 import { Tooltip } from './tooltip';
+import React from 'react';
 
 const InfoCardRoot = ({
   title,
@@ -45,24 +46,24 @@ const InfoCardRoot = ({
   );
 };
 
-const InfoCardContent = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
+const InfoCardContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<'div'>
+>(({ children, className, ...props }, ref) => {
   return (
     <div
+      ref={ref}
       className={cn(
         'flex flex-col gap-3 bg-background rounded-lg p-3 shadow-sm flex-auto',
         className,
       )}
+      {...props}
     >
       {children}
     </div>
   );
-};
+});
+InfoCardContent.displayName = 'InfoCardContent';
 
 export const InfoCard = Object.assign(InfoCardRoot, {
   Content: InfoCardContent,

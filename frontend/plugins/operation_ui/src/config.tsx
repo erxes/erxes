@@ -15,9 +15,20 @@ const TeamsNavigation = lazy(() =>
   })),
 );
 
+const OperationSettingsNavigation = lazy(() =>
+  import('@/OperationSettingsNavigation').then((mod) => ({
+    default: mod.OperationSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'operation',
-  icon: IconListCheck,
+  path: 'operation',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <OperationSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'operation',
     icon: IconListCheck,
@@ -26,7 +37,7 @@ export const CONFIG: IUIConfig = {
         <MainNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <TeamsNavigation />
       </Suspense>
@@ -37,14 +48,10 @@ export const CONFIG: IUIConfig = {
       name: 'operation',
       icon: IconListCheck,
       path: 'operation',
-      hasSettings: false,
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'team',
       path: 'operation/team',
-      settingsOnly: true,
     },
     {
       name: 'projects',
