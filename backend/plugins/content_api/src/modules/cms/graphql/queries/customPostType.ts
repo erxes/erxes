@@ -156,7 +156,7 @@ const queries: Record<string, Resolver> = {
       createdAt: -1,
     });
 
-    return [...defaultTypes, ...customTypes];
+    return [...defaultTypes, ...(customTypes || [])];
   },
 
   cmsPostType: async (
