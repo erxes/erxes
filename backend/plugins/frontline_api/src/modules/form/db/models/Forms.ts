@@ -25,7 +25,7 @@ export interface IError {
   text: string;
 }
 
-export interface IFormModel extends Model<IForm> {
+export interface IFormModel extends Model<IFormDocument> {
   getForm(_id: string): Promise<IFormDocument>;
   generateCode(): string;
   createForm(
@@ -237,7 +237,7 @@ export const loadFormClass = (models: IModels) => {
           // phone
           if (
             (type === 'phone' || validation === 'phone') &&
-            !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ''))
+            !/^\d{8,}$/.test(value.replace(/[\s()+-.]|ext/gi, ''))
           ) {
             errors.push({
               fieldId: field._id,
