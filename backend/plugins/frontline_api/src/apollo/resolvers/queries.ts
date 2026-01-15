@@ -15,6 +15,7 @@ import { responseTemplateQueries } from '~/modules/response/graphql/responseTemp
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
 import { reportQueries } from '@/reports/graphql/reportQueries';
+import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries'
 
 export const queries = {
   ...channelQueries,
@@ -34,4 +35,5 @@ export const queries = {
   ...formQueries,
   ...fieldQueries,
   ...reportQueries,
+  ...knowledgeBaseQueries,
 };

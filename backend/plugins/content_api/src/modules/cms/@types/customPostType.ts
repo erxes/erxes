@@ -16,9 +16,6 @@ export interface ICustomPostTypeDocument extends ICustomPostType, Document {
   _id: string;
 }
 
-
-
-
 export interface ICustomFieldGroup {
   _id: string;
   clientPortalId: string;
@@ -30,10 +27,9 @@ export interface ICustomFieldGroup {
   enabledPageIds?: string[];
   enabledCategoryIds?: string[];
   type?: string;
+  fields?: any[];
 }
 
 export interface ICustomFieldGroupDocument extends ICustomFieldGroup, Document {
   _id: string;
 }
-
-

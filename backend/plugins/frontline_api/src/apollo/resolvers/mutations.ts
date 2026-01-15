@@ -14,6 +14,7 @@ import { responseTemplateMutations } from '~/modules/response/graphql/responseTe
 import { formMutations } from '~/modules/form/graphql/resolvers/mutations/forms';
 import { widgetFormMutation } from '~/modules/form/graphql/resolvers/mutations/widget';
 import { fieldMutations } from '~/modules/form/graphql/resolvers/mutations/fields';
+import { knowledgeBaseMutations } from '@/knowledgebase/graphql/resolvers/mutations/knowledgeBaseMutations';
 
 export const mutations = {
   ...channelMutations,
@@ -32,4 +33,5 @@ export const mutations = {
   ...formMutations,
   ...widgetFormMutation,
   ...fieldMutations,
+  ...knowledgeBaseMutations,
 };

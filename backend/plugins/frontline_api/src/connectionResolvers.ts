@@ -181,6 +181,20 @@ import {
   loadFormSubmissionClass,
 } from './modules/form/db/models/Forms';
 
+import { IArticleDocument } from '@/knowledgebase/@types/article';
+import { ICategoryDocument } from '@/knowledgebase/@types/category';
+import { ITopicDocument } from '@/knowledgebase/@types/topic';
+
+import {
+  IArticleModel,
+  loadArticleClass,
+} from '@/knowledgebase/db/models/Article';
+import {
+  ICategoryModel,
+  loadCategoryClass,
+} from '@/knowledgebase/db/models/Category';
+import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -234,6 +248,11 @@ export interface IModels {
   Fields: IFieldModel;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
+
+  //knowledgebase
+  Article: IArticleModel;
+  Category: ICategoryModel;
+  Topic: ITopicModel;
 }
 
 export interface IContext extends IMainContext {
@@ -423,6 +442,22 @@ export const loadClasses = (
     IFormSubmissionDocument,
     IFormSubmissionModel
   >('frontline_form_submissions', loadFormSubmissionClass(models));
+
+  models.Article = db.model<IArticleDocument, IArticleModel>(
+    'knowledgebase_articles',
+    loadArticleClass(models),
+  );
+
+  models.Category = db.model<ICategoryDocument, ICategoryModel>(
+    'knowledgebase_categories',
+    loadCategoryClass(models),
+  );
+
+  models.Topic = db.model<ITopicDocument, ITopicModel>(
+    'knowledgebase_topics',
+    loadTopicClass(models),
+  );
+
   return models;
 };
 

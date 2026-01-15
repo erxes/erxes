@@ -1,35 +1,55 @@
 import {
   isDraggingAtom,
   useAllDealsMap,
+  useColumnLoading,
   useDealCountByColumn,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
+import { useEffect, useMemo, useRef } from 'react';
 
-import { BoardDealColumn } from '@/deals/types/boards';
 import { DealsBoardColumnHeader } from './DealsBoardColumnHeader';
+import { DealsBoardColumnProps } from '@/deals/types/boards';
+import { EnumCursorDirection } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
-import { useEffect } from 'react';
-
-interface DealsBoardColumnProps {
-  column: BoardDealColumn;
-  count: number;
-  pipelineId: string;
-  queryVariables?: Record<string, unknown>;
-}
+import { useSearchParams } from 'react-router-dom';
 
 export function DealsBoardColumn({
   column,
   count,
   pipelineId,
   queryVariables = {},
+  fetchMoreTrigger,
+  onFetchComplete,
 }: DealsBoardColumnProps) {
   const isDragging = useAtomValue(isDraggingAtom);
   const [, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
   const [, setDealCountByColumn] = useDealCountByColumn();
+  const [, setColumnLoading] = useColumnLoading();
 
-  const { deals, totalCount, loading } = useDeals({
+  const prevTriggerRef = useRef(fetchMoreTrigger);
+  const prevDealsCountRef = useRef(0);
+  const isFetchingRef = useRef(false);
+  const initialLoadRef = useRef(true);
+
+  const queryVariablesKey = useMemo(
+    () => JSON.stringify(queryVariables),
+    [queryVariables],
+  );
+  const prevQueryVariablesKeyRef = useRef(queryVariablesKey);
+
+  useEffect(() => {
+    if (queryVariablesKey !== prevQueryVariablesKeyRef.current) {
+      prevQueryVariablesKeyRef.current = queryVariablesKey;
+      prevDealsCountRef.current = 0;
+      prevTriggerRef.current = 0;
+      isFetchingRef.current = false;
+      initialLoadRef.current = true;
+    }
+  }, [queryVariablesKey]);
+
+  const { deals, totalCount, loading, pageInfo, handleFetchMore } = useDeals({
     variables: {
       stageId: column._id,
       pipelineId,
@@ -38,10 +58,25 @@ export function DealsBoardColumn({
   });
 
   useEffect(() => {
-    if (isDragging) return;
-    if (!deals || deals.length === 0) return;
+    setColumnLoading((prev) => ({ ...prev, [column._id]: loading }));
+  }, [loading, column._id, setColumnLoading]);
 
-    const dealItems: any[] = deals.map((deal) => ({
+  const [searchParams] = useSearchParams();
+  const archivedOnly = searchParams.get('archivedOnly') === 'true';
+
+  const filteredDeals = useMemo(() => {
+    return (deals || []).filter((deal) => {
+      return archivedOnly
+        ? deal.status === 'archived'
+        : deal.status !== 'archived';
+    });
+  }, [deals, archivedOnly]);
+
+  useEffect(() => {
+    if (isDragging) return;
+    if (loading) return;
+
+    const dealItems: any[] = filteredDeals.map((deal) => ({
       id: deal._id,
       columnId: deal.stageId,
       ...deal,
@@ -71,23 +106,75 @@ export function DealsBoardColumn({
       return { ...prev, items: newItems, columnItems: newColumnItems };
     });
 
-    setAllDealsMap((prev) => {
-      const newMap = { ...prev };
-      dealItems.forEach((item) => {
-        newMap[item._id] = item;
+    if (dealItems.length > 0) {
+      setAllDealsMap((prev) => {
+        const newMap = { ...prev };
+        dealItems.forEach((item) => {
+          newMap[item._id] = item;
+        });
+        return newMap;
       });
-      return newMap;
-    });
-  }, [deals, isDragging, column._id, setBoardState, setAllDealsMap]);
+    }
+
+    if (
+      initialLoadRef.current ||
+      (isFetchingRef.current && dealItems.length !== prevDealsCountRef.current)
+    ) {
+      onFetchComplete?.(column._id, {
+        fetchedCount: dealItems.length,
+        hasMore: pageInfo?.hasNextPage ?? false,
+        cursor: pageInfo?.endCursor,
+        totalCount,
+      });
+      initialLoadRef.current = false;
+      isFetchingRef.current = false;
+    }
+
+    prevDealsCountRef.current = dealItems.length;
+  }, [
+    filteredDeals,
+    isDragging,
+    column._id,
+    setBoardState,
+    setAllDealsMap,
+    onFetchComplete,
+    pageInfo,
+    totalCount,
+    loading,
+  ]);
 
   useEffect(() => {
-    if (totalCount !== undefined) {
-      setDealCountByColumn((prev) => ({
-        ...prev,
-        [column._id]: totalCount,
-      }));
+    setDealCountByColumn((prev) => ({
+      ...prev,
+      [column._id]: filteredDeals.length,
+    }));
+  }, [filteredDeals.length, column._id, setDealCountByColumn]);
+
+  useEffect(() => {
+    if (fetchMoreTrigger && fetchMoreTrigger > (prevTriggerRef.current || 0)) {
+      prevTriggerRef.current = fetchMoreTrigger;
+
+      // Check if there's more to fetch
+      if (!pageInfo?.hasNextPage) {
+        onFetchComplete?.(column._id, {
+          fetchedCount: 0,
+          hasMore: false,
+          totalCount,
+        });
+        return;
+      }
+
+      isFetchingRef.current = true;
+      handleFetchMore({ direction: EnumCursorDirection.FORWARD });
     }
-  }, [totalCount, column._id, setDealCountByColumn]);
+  }, [
+    fetchMoreTrigger,
+    handleFetchMore,
+    pageInfo,
+    column._id,
+    onFetchComplete,
+    totalCount,
+  ]);
 
   return (
     <DealsBoardColumnHeader
