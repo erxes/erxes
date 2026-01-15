@@ -14,7 +14,7 @@ export const PosEditPage = () => {
   const currentPos = posList.find((pos: IPos) => pos._id === id);
 
   const handlePosChange = (posId: string) => {
-    navigate(`/settings/pos/${posId}`);
+    navigate(`/settings/sales/pos/${posId}`);
   };
 
   return (
@@ -25,7 +25,7 @@ export const PosEditPage = () => {
             <Breadcrumb.List className="gap-2">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/settings/pos">
+                  <Link to="/settings/sales/pos">
                     <IconCashRegister />
                     POS
                   </Link>

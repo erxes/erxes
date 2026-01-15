@@ -1,10 +1,21 @@
-import { Button, RecordTable, CommandBar, Separator, toast, Popover, Combobox, Command, Input, RecordTableInlineCell, Spinner } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  CommandBar,
+  Separator,
+  toast,
+  Popover,
+  Combobox,
+  Command,
+  Input,
+  RecordTableInlineCell,
+  Spinner,
+} from 'erxes-ui';
 import {
   IconPlus,
   IconSettings,
   IconEdit,
   IconTrash,
-  IconEye,
   IconUser,
   IconArticle,
   IconCalendar,
@@ -18,6 +29,28 @@ import { PAGE_LIST, PAGES_EDIT, PAGES_REMOVE } from '../../graphql/queries';
 import { PageDrawer } from './PageDrawer';
 import { ColumnDef } from '@tanstack/react-table';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+
+// Helper components to reduce duplication
+const BadgeCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+    <span className="text-sm text-gray-500">{children}</span>
+  </div>
+);
+
+const AuthorBadgeCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+    <span className="text-sm text-gray-700">{children}</span>
+  </div>
+);
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 
 export function Page() {
   const { websiteId } = useParams();
@@ -62,7 +95,9 @@ export function Page() {
           setIsDrawerOpen(true);
         };
         const onRemove = () => {
-          confirm({ message: 'Are you sure you want to delete this page?' }).then(async () => {
+          confirm({
+            message: 'Are you sure you want to delete this page?',
+          }).then(async () => {
             await removePage({ variables: { id: row.original._id } });
           });
         };
@@ -100,7 +135,9 @@ export function Page() {
 
         const onSave = async () => {
           if ((_name || '') !== (original.name || '')) {
-            await editPage({ variables: { _id: original._id, input: { name: _name } } });
+            await editPage({
+              variables: { _id: original._id, input: { name: _name } },
+            });
           }
         };
 
@@ -116,7 +153,10 @@ export function Page() {
               <span>{cell.getValue() as string}</span>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
-              <Input value={_name} onChange={(e) => setName(e.currentTarget.value)} />
+              <Input
+                value={_name}
+                onChange={(e) => setName(e.currentTarget.value)}
+              />
             </RecordTableInlineCell.Content>
           </Popover>
         );
@@ -128,9 +168,7 @@ export function Page() {
       header: () => <RecordTable.InlineHead icon={IconArticle} label="Slug" />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-500">{(cell.getValue() as string) || ''}</span>
-        </div>
+        <BadgeCell>{(cell.getValue() as string) || ''}</BadgeCell>
       ),
       size: 260,
     },
@@ -140,57 +178,32 @@ export function Page() {
       accessorKey: 'createdUser',
       cell: ({ cell }) => {
         const createdUser = cell.getValue() as any;
-        const name = createdUser?.details?.fullName || createdUser?.email || '—';
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-700">{name}</span>
-          </div>
-        );
+        const name =
+          createdUser?.details?.fullName || createdUser?.email || '—';
+        return <AuthorBadgeCell>{name}</AuthorBadgeCell>;
       },
       size: 240,
     },
     {
       id: 'createdAt',
-      header: () => <RecordTable.InlineHead icon={IconCalendar} label="Created" />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+      ),
       accessorKey: 'createdAt',
-      cell: ({ cell }) => {
-        const createdAt = cell.getValue() as string;
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
-              {createdAt
-                ? new Date(createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : ''}
-            </span>
-          </div>
-        );
-      },
+      cell: ({ cell }) => (
+        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+      ),
       size: 180,
     },
     {
       id: 'updatedAt',
-      header: () => <RecordTable.InlineHead icon={IconCalendar} label="Updated" />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendar} label="Updated" />
+      ),
       accessorKey: 'updatedAt',
-      cell: ({ cell }) => {
-        const updatedAt = cell.getValue() as string;
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
-              {updatedAt
-                ? new Date(updatedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : ''}
-            </span>
-          </div>
-        );
-      },
+      cell: ({ cell }) => (
+        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+      ),
       size: 180,
     },
   ];
@@ -214,7 +227,9 @@ export function Page() {
     return (
       <CmsLayout headerActions={headerActions}>
         <div className="flex w-full h-screen justify-center items-centerß">
-          <div className="text-gray-500"><Spinner/></div>
+          <div className="text-gray-500">
+            <Spinner />
+          </div>
         </div>
       </CmsLayout>
     );
@@ -226,8 +241,8 @@ export function Page() {
         <div className="flex justify-between items-center mb-6">
           <div className="text-sm text-gray-600">Found {totalCount} pages</div>
         </div>
-        {(!pages || pages.length === 0) ? (
-          <div className="bg-white rounded-lg overflow-hidden">
+        {!pages || pages.length === 0 ? (
+          <div className="rounded-lg overflow-hidden">
             <EmptyState
               icon={IconArticle}
               title="No pages yet"
@@ -237,12 +252,12 @@ export function Page() {
             />
           </div>
         ) : (
-          <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+          <div className="h-full rounded-lg shadow-sm border overflow-hidden">
             <RecordTable.Provider
               columns={columns}
               data={pages || []}
               className="h-full m-0"
-              stickyColumns={[ 'more', 'checkbox', 'name' ]}
+              stickyColumns={['more', 'checkbox', 'name']}
             >
               <RecordTable>
                 <RecordTable.Header />
@@ -276,11 +291,17 @@ export function Page() {
   );
 }
 
-const PagesCommandBar = ({ onBulkDelete }: { onBulkDelete: (ids: string[]) => Promise<void> | void }) => {
+const PagesCommandBar = ({
+  onBulkDelete,
+}: {
+  onBulkDelete: (ids: string[]) => Promise<void> | void;
+}) => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((row: any) => row.original._id as string);
+  const selectedIds = selectedRows.map(
+    (row: any) => row.original._id as string,
+  );
 
   return (
     <CommandBar open={selectedRows.length > 0}>
@@ -300,7 +321,11 @@ const PagesCommandBar = ({ onBulkDelete }: { onBulkDelete: (ids: string[]) => Pr
                 selectedRows.forEach((row: any) => row.toggleSelected(false));
                 toast({ title: 'Success', variant: 'default' });
               } catch (e: any) {
-                toast({ title: 'Error', description: e?.message || 'Failed to delete pages', variant: 'destructive' });
+                toast({
+                  title: 'Error',
+                  description: e?.message || 'Failed to delete pages',
+                  variant: 'destructive',
+                });
               }
             })
           }

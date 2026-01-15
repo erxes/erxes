@@ -1,6 +1,7 @@
 import {
   IconAddressBook,
   IconAffiliate,
+  IconBroadcast,
   IconBuilding,
   IconCategory,
   IconChartPie,
@@ -10,16 +11,18 @@ import {
   IconSpiral,
   IconUser,
 } from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui';
+import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
 
-export const GET_CORE_MODULES = (t: TFunction, version?: boolean): IUIConfig['modules'] => {
-  const MODULES: IUIConfig['modules'] = [
+export const GET_CORE_MODULES = (
+  t: TFunction,
+  version?: boolean,
+): ICoreModule[] => {
+  const MODULES: ICoreModule[] = [
     {
       name: t('contacts'),
       icon: IconAddressBook,
       path: 'contacts',
-      hasSettings: false,
       submenus: [
         {
           name: t('customers'),
@@ -52,7 +55,6 @@ export const GET_CORE_MODULES = (t: TFunction, version?: boolean): IUIConfig['mo
       name: t('products'),
       icon: IconShoppingCart,
       path: 'products',
-      hasSettings: true,
       submenus: [
         {
           name: 'categories',
@@ -65,28 +67,31 @@ export const GET_CORE_MODULES = (t: TFunction, version?: boolean): IUIConfig['mo
       name: t('segments'),
       icon: IconChartPie,
       path: 'segments',
-      hasSettings: false,
     },
     {
       name: t('automations'),
       icon: IconAffiliate,
       path: 'automations',
-      hasSettings: true,
     },
     {
       name: t('logs'),
       path: 'logs',
-      settingsOnly: true,
     },
   ];
 
   if (version) {
-    MODULES.push({
-      name: t('documents'),
-      icon: IconFile,
-      path: 'documents',
-      hasSettings: false,
-    });
+    MODULES?.push(
+      {
+        name: t('documents'),
+        icon: IconFile,
+        path: 'documents',
+      },
+      {
+        name: t('broadcasts'),
+        icon: IconBroadcast,
+        path: 'broadcasts',
+      },
+    );
   }
 
   return MODULES;

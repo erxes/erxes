@@ -158,63 +158,16 @@ export const postQueries: Record<string, Resolver> = {
     );
   },
 
-  async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
-    const { models, clientPortal } = context;
-    const clientPortalId = clientPortal._id;
-
-    const queryBuilder = getQueryBuilder('post', models);
-    const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
-
-    const { list } = await this.getListWithTranslations(
-      models.Posts,
-      query,
-      { ...args, clientPortalId, language },
-      FIELD_MAPPINGS.POST,
-    );
-
-    return list;
+  cpPosts: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cpPosts(_parent, args, context);
   },
 
-  async cpPostList(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
-    const { models, clientPortal } = context;
-    const clientPortalId = clientPortal._id;
-
-    const queryBuilder = getQueryBuilder('post', models);
-    const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
-
-    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
-      models.Posts,
-      query,
-      { ...args, clientPortalId, language },
-      FIELD_MAPPINGS.POST,
-    );
-
-    return { posts: list, totalCount, pageInfo };
+  cpPostList: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cpPostList(_parent, args, context);
   },
 
-  async cpPost(_parent: any, args: any, context: IContext): Promise<any> {
-    const { clientPortal, models } = context;
-    const { _id, slug, language } = args;
-
-    if (!_id && !slug) {
-      return null;
-    }
-
-    let query: any = {};
-    if (slug) {
-      query = { slug, clientPortalId: clientPortal._id };
-    } else if (_id) {
-      query = { _id };
-    }
-
-    return this.getItemWithTranslation(
-      models.Posts,
-      query,
-      language,
-      FIELD_MAPPINGS.POST,
-    );
+  cpPost: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cpPost(_parent, args, context);
   },
 };
 

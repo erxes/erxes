@@ -28,7 +28,6 @@ export const emailSchema = new Schema(
     sender: { type: String, label: 'Sender' },
     replyTo: { type: String, label: 'Reply to' },
     content: { type: String, label: 'Content', required: true },
-    templateId: { type: String, label: 'Template' },
   },
   {
     _id: false,
@@ -37,7 +36,7 @@ export const emailSchema = new Schema(
 
 export const messengerSchema = new Schema(
   {
-    brandId: { type: String, label: 'Brand', required: true },
+    integrationId: { type: String, label: 'Brand', required: true },
     kind: {
       type: String,
       enum: MESSENGER_KINDS.ALL,
@@ -77,6 +76,7 @@ export const notificationSchema = new Schema(
   {
     title: { type: String, label: 'Title', required: true },
     content: { type: String, label: 'Notification content', required: true },
+    inApp: { type: Boolean, label: 'In app', required: true },
     isMobile: { type: Boolean, label: 'Is mobile', required: true },
   },
   {

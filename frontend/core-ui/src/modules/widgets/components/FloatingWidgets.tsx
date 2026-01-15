@@ -1,16 +1,15 @@
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { useFloatingWidgetsModules } from '../hooks/useFloatingWidgetsModules';
+import { useFloatingWidgets } from '../hooks/useFloatingWidgets';
 
 export const FloatingWidgets = () => {
-  const modules = useFloatingWidgetsModules();
+  const floatingWidgets = useFloatingWidgets();
 
-  return modules.map((module) => (
+  return floatingWidgets.map((plugin) => (
     <RenderPluginsComponent
-      key={module.name}
-      pluginName={`${module.pluginName}_ui`}
+      key={plugin.name}
+      pluginName={`${plugin.name}_ui`}
       remoteModuleName="floatingWidget"
-      moduleName={module.name}
-      props={{ module }}
+      props={{ module: plugin.modules?.[0] }}
     />
   ));
 };

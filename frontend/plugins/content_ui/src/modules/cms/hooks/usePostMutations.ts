@@ -3,8 +3,7 @@ import {
   POSTS_ADD,
   CMS_POSTS_EDIT,
   CMS_POSTS_REMOVE,
-  POST_LIST,
-} from '../graphql/posts';
+} from '../graphql/queries';
 
 interface PostInput {
   [key: string]: any;
