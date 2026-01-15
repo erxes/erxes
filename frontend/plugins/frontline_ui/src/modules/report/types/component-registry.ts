@@ -22,38 +22,38 @@ export const reportComponents: Record<
   'conversation-open': lazy(
     () =>
       import(
-        '@/report/components/FrontlineReportOpen'
-      ).then((module) => ({ default: module.FrontlineReportOpen })),
+        '@/report/components/FrontlineReportWidgetWrappers'
+      ).then((module) => ({ default: module.FrontlineReportOpenWidget })),
   ),
   'conversation-resolved': lazy(
     () =>
       import(
-        '@/report/components/FrontlineReportByResolved'
-      ).then((module) => ({ default: module.FrontlineReportByResolved })),
+        '@/report/components/FrontlineReportWidgetWrappers'
+      ).then((module) => ({ default: module.FrontlineReportResolvedWidget })),
   ),
   'conversation-source': lazy(
     () =>
       import(
-        '@/report/components/FrontlineReportBySource'
-      ).then((module) => ({ default: module.FrontlineReportBySource })),
+        '@/report/components/FrontlineReportWidgetWrappers'
+      ).then((module) => ({ default: module.FrontlineReportSourceWidget })),
   ),
   'conversation-tag': lazy(
     () =>
       import(
-        '@/report/components/FrontlineReportByTag'
-      ).then((module) => ({ default: module.FrontlineReportByTag })),
+        '@/report/components/FrontlineReportWidgetWrappers'
+      ).then((module) => ({ default: module.FrontlineReportTagWidget })),
   ),
   'conversation-responses': lazy(
     () =>
       import(
-        '@/report/components/FrontlineReportByResponses'
-      ).then((module) => ({ default: module.FrontlineReportByResponses })),
+        '@/report/components/FrontlineReportWidgetWrappers'
+      ).then((module) => ({ default: module.FrontlineReportResponsesWidget })),
   ),
   'conversation-list': lazy(
     () =>
       import(
-        '@/report/components/FrontlineReportByList'
-      ).then((module) => ({ default: module.FrontlineReportByList })),
+        '@/report/components/FrontlineReportWidgetWrappers'
+      ).then((module) => ({ default: module.FrontlineReportListWidget })),
   ),
 };
 

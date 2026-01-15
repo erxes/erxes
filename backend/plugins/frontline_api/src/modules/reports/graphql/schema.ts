@@ -7,6 +7,8 @@ export const types = `
     source: String
     limit: Int
     page: Int
+    channelIds: [String]
+    memberIds: [String]
   }
 
  type ConversationTemplateType{
@@ -28,7 +30,7 @@ export const types = `
     count: Int
     percentage: Int
   }
-    
+
   type ConversationDateStat {
     date: String
     count: Int
@@ -57,7 +59,6 @@ export const queries = `
   conversationMemberProgress(customerId:String!):JSON
   conversationSourceProgress(customerId:String!):JSON
   conversationTagProgress(customerId:String!):JSON
-  reportConversationResponseTemplate(filters: ConversationReportFilter): [ConversationTemplateStat]
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationList(filters: ConversationReportFilter): ConversationListResult

@@ -40,17 +40,16 @@ const prepareContentAndSubject = (
   return { replacedContent, replacedSubject };
 };
 
-const prepareEmailHeader = (
+export const prepareEmailHeader = (
   subdomain: string,
-  configSet: string,
   customerId: string,
   engageMessageId?: string,
+  configSet?: string,
 ) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' })
     ? `${getEnv({ name: 'DOMAIN' })}/gateway`
     : 'http://localhost:4000';
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-  const callbackUrl = `${domain}/pl:engages`;
+  const callbackUrl = DOMAIN.replace('<subdomain>', subdomain);
 
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
@@ -69,10 +68,11 @@ const prepareEmailHeader = (
 export const prepareEmailParams = (
   subdomain: string,
   customer: ICustomer,
-  data: any,
-  configSet: string,
+  engageMessage: any,
+  fromEmail: string,
+  configSet?: string,
 ) => {
-  const { fromEmail, email, engageMessageId } = data;
+  const { email, _id } = engageMessage;
   const { content, subject, attachments, sender, replyTo } = email;
   const { replacedContent, replacedSubject } = prepareContentAndSubject(
     subject,
@@ -81,17 +81,12 @@ export const prepareEmailParams = (
   );
 
   return {
-    from: `${sender} <${fromEmail}>`,
+    from: sender?.trim() ? `${sender} <${fromEmail}>` : fromEmail,
     to: (customer?.primaryEmail || '').toLocaleLowerCase().trim(),
     replyTo,
     subject: replacedSubject,
     attachments: prepareAttachments(attachments),
     html: replacedContent,
-    headers: prepareEmailHeader(
-      subdomain,
-      configSet,
-      customer._id,
-      engageMessageId,
-    ),
+    headers: prepareEmailHeader(subdomain, customer._id, _id, configSet),
   };
 };

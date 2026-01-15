@@ -1,7 +1,6 @@
 import { IconBriefcase, IconSandbox } from '@tabler/icons-react';
-import { Suspense, lazy } from 'react';
-
 import { IUIConfig } from 'erxes-ui';
+import { lazy, Suspense } from 'react';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -56,7 +55,7 @@ export const CONFIG: IUIConfig = {
     {
       name: 'pos',
       icon: IconBriefcase,
-      path: 'pos',
+      path: 'sales/pos',
       hasSettings: true,
       hasAutomation: false,
     },

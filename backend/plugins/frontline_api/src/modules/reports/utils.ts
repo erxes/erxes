@@ -1,104 +1,5 @@
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import {
-  IReportFilters,
-  IReportTagsFilters,
-} from '@/reports/@types/reportFilters';
-import {
-  startOfDay,
-  endOfDay,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-  subDays,
-  subWeeks,
-  subMonths,
-  subYears,
-} from 'date-fns';
-
-export const calculatePercentage = (count: number, total: number): number =>
-  total > 0 ? Math.round((count / total) * 100) : 0;
-
-export const normalizeStatus = (status?: string) => {
-  if (!status) return undefined;
-  const upper = status.toUpperCase();
-  return Object.values(CONVERSATION_STATUSES).includes(upper as any)
-    ? upper
-    : undefined;
-};
-
-export const getDateRange = (dateRange: {
-  type: string;
-  fromDate?: Date | string;
-  toDate?: Date | string;
-}): { startDate: Date; endDate: Date } | null => {
-  const now = new Date();
-  let startDate: Date;
-  let endDate: Date;
-
-  switch (dateRange.type) {
-    case 'TODAY': {
-      startDate = startOfDay(now);
-      endDate = endOfDay(now);
-      break;
-    }
-    case 'YESTERDAY': {
-      const yesterday = subDays(now, 1);
-      startDate = startOfDay(yesterday);
-      endDate = endOfDay(yesterday);
-      break;
-    }
-    case 'THIS_WEEK': {
-      startDate = startOfWeek(now, { weekStartsOn: 1 });
-      endDate = endOfWeek(now, { weekStartsOn: 1 });
-      break;
-    }
-    case 'LAST_WEEK': {
-      const lastWeek = subWeeks(now, 1);
-      startDate = startOfWeek(lastWeek, { weekStartsOn: 1 });
-      endDate = endOfWeek(lastWeek, { weekStartsOn: 1 });
-      break;
-    }
-    case 'THIS_MONTH': {
-      startDate = startOfMonth(now);
-      endDate = endOfMonth(now);
-      break;
-    }
-    case 'LAST_MONTH': {
-      const lastMonth = subMonths(now, 1);
-      startDate = startOfMonth(lastMonth);
-      endDate = endOfMonth(lastMonth);
-      break;
-    }
-    case 'THIS_YEAR': {
-      startDate = startOfYear(now);
-      endDate = endOfYear(now);
-      break;
-    }
-    case 'LAST_YEAR': {
-      const lastYear = subYears(now, 1);
-      startDate = startOfYear(lastYear);
-      endDate = endOfYear(lastYear);
-      break;
-    }
-    case 'CUSTOM': {
-      if (!dateRange.fromDate || !dateRange.toDate) {
-        throw new Error(
-          'Both fromDate and toDate are required for CUSTOM date range',
-        );
-      }
-      startDate = new Date(dateRange.fromDate);
-      endDate = new Date(dateRange.toDate);
-      break;
-    }
-    default:
-      return null;
-  }
-
-  return { startDate, endDate };
-};
+import { IReportFilters } from '@/reports/@types/reportFilters';
+import { IModels } from '~/connectionResolvers';
 
 export const sourceMap: Record<string, string> = {
   'facebook-messenger': 'facebook-messenger',
@@ -110,227 +11,138 @@ export const sourceMap: Record<string, string> = {
   form: 'form',
 };
 
+export const calculatePercentage = (value: number, total: number) => {
+  if (total === 0) return 0;
+
+  return Math.round((value / total) * 100);
+};
+
 export function buildDateMatch(
   filters: IReportFilters,
-  field: 'createdAt' | 'closedAt' = 'createdAt',
+  field: 'createdAt' | 'closedAt',
 ) {
+  if (!filters.fromDate && !filters.toDate) return {};
+
+  const range: any = {};
+  if (filters.fromDate) range.$gte = new Date(filters.fromDate);
+  if (filters.toDate) range.$lte = new Date(filters.toDate);
+
+  return { [field]: range };
+}
+
+export const normalizeStatus = (status?: string) => {
+  if (!status) return null;
+  return status.toLowerCase();
+};
+
+export function buildConversationMatch(filters: IReportFilters) {
   const match: any = {};
 
-  if (filters.date) {
-    const range = getDateRange({ type: filters.date });
-    if (range) {
-      match[field] = {
-        $gte: range.startDate,
-        $lte: range.endDate,
-      };
-    }
-  } else if (filters.fromDate || filters.toDate) {
-    match[field] = {};
-    if (filters.fromDate) match[field].$gte = new Date(filters.fromDate);
-    if (filters.toDate) match[field].$lte = new Date(filters.toDate);
-  }
-
-  return match;
-}
-
-export function buildClosedAtMatch(filters: IReportFilters) {
-  const match: any = { closedAt: { $exists: true } };
-
-  if (filters.date) {
-    const range = getDateRange({ type: filters.date });
-    if (range) {
-      match.closedAt = {
-        $gte: range.startDate,
-        $lte: range.endDate,
-      };
-    }
-  } else if (filters.fromDate || filters.toDate) {
-    match.closedAt = {};
-    if (filters.fromDate) match.closedAt.$gte = new Date(filters.fromDate);
-    if (filters.toDate) match.closedAt.$lte = new Date(filters.toDate);
-  }
-
-  return match;
-}
-
-export function buildStatusMatch(filters: IReportFilters) {
-  const query: any = {};
   const status = normalizeStatus(filters.status);
+  if (status) match.status = status;
 
-  if (status) {
-    query.status = status;
-  }
-
-  return query;
-}
-
-export function applyLimitAndPage(pipeline: any[], filters: IReportFilters) {
-  if (!filters.limit) return;
-
-  const page = filters.page ?? 1;
-  const skip = (page - 1) * filters.limit;
-
-  pipeline.push({ $skip: skip }, { $limit: filters.limit });
-}
-
-export function buildCreatedAtMatch(filters: IReportFilters) {
-  const match: any = {};
-
-  if (filters.date) {
-    const range = getDateRange({ type: filters.date });
-
-    if (range) {
-      match.createdAt = {
-        $gte: range.startDate,
-        $lte: range.endDate,
-      };
-    }
-  } else if (filters.fromDate || filters.toDate) {
-    match.createdAt = {};
-
-    if (filters.fromDate) {
-      match.createdAt.$gte = new Date(filters.fromDate);
-    }
-
-    if (filters.toDate) {
-      match.createdAt.$lte = new Date(filters.toDate);
-    }
-  }
+  Object.assign(match, buildDateMatch(filters, 'createdAt'));
 
   return match;
 }
 
-export function buildPagination(filters: IReportFilters) {
-  const limit = filters.limit ?? 20;
-  const page = filters.page ?? 1;
-  const skip = (page - 1) * limit;
+export const buildConversationPipeline = async (
+  filters: IReportFilters,
+  models: IModels,
+  options: { withPagination?: boolean } = {},
+) => {
+  const pipeline: any[] = [];
+  const match = buildConversationMatch(filters);
 
-  return { limit, page, skip };
-}
-
-function buildConversationTagsMatch(filters: IReportTagsFilters) {
-  const status =
-    normalizeStatus(filters.status) ?? CONVERSATION_STATUSES.CLOSED;
-
-  const match: any = {
-    status,
-    tagIds: { $exists: true, $not: { $size: 0 } },
-  };
-
-  if (filters.date) {
-    const range = getDateRange({ type: filters.date });
-    if (range) {
-      match.createdAt = {
-        $gte: range.startDate,
-        $lte: range.endDate,
-      };
-    }
-  } else if (filters.fromDate || filters.toDate) {
-    match.createdAt = {};
-    if (filters.fromDate) match.createdAt.$gte = new Date(filters.fromDate);
-    if (filters.toDate) match.createdAt.$lte = new Date(filters.toDate);
+  if (Object.keys(match).length) {
+    pipeline.push({ $match: match });
   }
 
-  return match;
-}
+  if (filters.channelIds?.length) {
+    const integrations = await models.Integrations.find({
+      channelId: { $in: filters.channelIds },
+    }).lean();
 
-export function buildConversationTagsPipeline(filters: IReportTagsFilters) {
-  const match = buildConversationTagsMatch(filters);
+    if (!integrations.length) {
+      pipeline.push({ $match: { _id: null } });
+      return pipeline;
+    }
 
-  const pipeline: any[] = [{ $match: match }];
+    const integrationIds = integrations.map((i) => i._id);
 
-  if (filters.source && filters.source !== 'all') {
-    const integrationKind = sourceMap[filters.source];
-    if (integrationKind) {
-      pipeline.push(
-        {
-          $lookup: {
-            from: 'integrations',
-            localField: 'integrationId',
-            foreignField: '_id',
-            as: 'integration',
-          },
+    pipeline.push({
+      $match: {
+        integrationId: { $in: integrationIds },
+      },
+    });
+  }
+  if (filters.memberIds?.length) {
+    pipeline.push({
+      $match: {
+        assignedUserId: { $in: filters.memberIds },
+      },
+    });
+  }
+
+  if (filters.source && sourceMap[filters.source]) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'integrations',
+          localField: 'integrationId',
+          foreignField: '_id',
+          as: 'integration',
         },
-        { $unwind: '$integration' },
-        { $match: { 'integration.kind': integrationKind } },
-        { $project: { tagIds: 1, status: 1 } },
-      );
-    }
+      },
+      { $unwind: '$integration' },
+      {
+        $match: { 'integration.kind': sourceMap[filters.source] },
+      },
+    );
   }
 
-  pipeline.push(
-    { $unwind: '$tagIds' },
-    { $group: { _id: '$tagIds', count: { $sum: 1 } } },
-    { $sort: { count: -1 } },
-    { $limit: filters.limit ?? 10 },
-  );
+  if (options.withPagination) {
+    if (filters.page && filters.limit) {
+      pipeline.push(
+        { $skip: (filters.page - 1) * filters.limit },
+        { $limit: filters.limit },
+      );
+    } else if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
+  }
 
   return pipeline;
+};
+
+export function normalizeDateField(field: string) {
+  return {
+    $cond: {
+      if: { $eq: [{ $type: `$${field}` }, 'string'] },
+      then: { $dateFromString: { dateString: `$${field}` } },
+      else: `$${field}`,
+    },
+  };
 }
 
-export function buildConversationSourcesPipeline(filters: IReportTagsFilters) {
-  const match = buildStatusMatch(filters);
-
-  const pipeline: any[] = [
-    { $match: match },
+export function buildDateGroupPipeline(field: string) {
+  return [
     {
-      $lookup: {
-        from: 'integrations',
-        localField: 'integrationId',
-        foreignField: '_id',
-        as: 'integration',
+      $addFields: {
+        __date: normalizeDateField(field),
       },
     },
-    { $unwind: '$integration' },
-  ];
-
-  if (filters.source && filters.source !== 'all') {
-    const integrationKind = sourceMap[filters.source];
-    if (integrationKind) {
-      pipeline.push({ $match: { 'integration.kind': integrationKind } });
-    }
-  }
-
-  pipeline.push(
     {
       $group: {
-        _id: '$integration.kind',
-        name: { $first: '$integration.name' },
+        _id: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$__date',
+          },
+        },
         count: { $sum: 1 },
       },
     },
-    { $sort: { count: -1 } },
-    { $limit: filters.limit ?? 10 },
-  );
-
-  return pipeline;
-}
-
-export function buildSourceFilterPipeline(
-  pipeline: any[],
-  filters: IReportFilters,
-  projectFields?: any,
-) {
-  if (filters.source && filters.source !== 'all') {
-    const integrationKind = sourceMap[filters.source];
-
-    if (integrationKind) {
-      pipeline.push(
-        {
-          $lookup: {
-            from: 'integrations',
-            localField: 'integrationId',
-            foreignField: '_id',
-            as: 'integration',
-          },
-        },
-        { $unwind: '$integration' },
-        { $match: { 'integration.kind': integrationKind } },
-      );
-
-      if (projectFields) {
-        pipeline.push({ $project: projectFields });
-      }
-    }
-  }
+    { $sort: { _id: 1 } },
+  ];
 }
