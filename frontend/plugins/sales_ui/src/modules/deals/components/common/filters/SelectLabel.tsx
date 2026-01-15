@@ -15,25 +15,31 @@ import {
   cn,
   useFilterContext,
   useQueryState,
-  Spinner,
-  Input,
 } from 'erxes-ui';
 import {
   IPipelineLabel,
   ISelectLabelContext,
   ISelectLabelProviderProps,
 } from '@/deals/types/pipelines';
-import { IconLabel, IconPlus, IconCheck } from '@tabler/icons-react';
-import { useContext, useState, useMemo, useEffect } from 'react';
+import {
+  IconCheck,
+  IconLabel,
+  IconPlus,
+  IconTagMinus,
+  IconPencil,
+  IconLoader,
+} from '@tabler/icons-react';
+import { useContext, useEffect, useState } from 'react';
+import {
+  usePipelineLabelLabel,
+  usePipelineLabels,
+} from '@/deals/pipelines/hooks/usePipelineDetails';
+
+import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
+import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
+import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
 import React from 'react';
 import { createContext } from 'react';
-import { ADD_PIPELINE_LABEL } from '~/modules/deals/graphql/mutations/PipelinesMutations';
-import { usePipelineLabelLabel } from '~/modules/deals/pipelines/hooks/usePipelineDetails';
-import { useMutation, useQuery } from '@apollo/client';
-import { GET_PIPELINE_LABELS } from '~/modules/deals/graphql/queries/PipelinesQueries';
-import { GET_DEALS } from '~/modules/deals/graphql/queries/DealsQueries';
-import { usePipelineLabels } from '@/deals/pipelines/hooks/usePipelineDetails';
-import LabelForm from '~/modules/deals/cards/components/detail/overview/label/LabelForm';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -59,7 +65,6 @@ export const SelectLabelsProvider = ({
     if (!label) return;
 
     const isSingleMode = mode === 'single';
-
     const multipleValue = (value as string[]) || [];
     const isSelected = !isSingleMode && multipleValue.includes(label._id || '');
 
@@ -97,28 +102,19 @@ export const SelectLabelsProvider = ({
   );
 };
 
-export const SelectLabelsCommand = ({
-  disableCreateOption,
-  targetId,
-}: {
-  disableCreateOption?: boolean;
-  targetId?: string;
-}) => {
-  const [search, setSearch] = useState<string>('');
+export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
+  const [search, setSearch] = useState('');
 
   const [pipelineId] = useQueryState('pipelineId');
 
-  const { pipelineLabels = [], loading: labelsLoading } = usePipelineLabels({
+  const {
+    pipelineLabels = [],
+    loading,
+    error,
+  } = usePipelineLabels({
     variables: { pipelineId },
-  });
-
-  const [addPipelineLabel] = useMutation(ADD_PIPELINE_LABEL, {
-    refetchQueries: [{ query: GET_PIPELINE_LABELS, variables: { pipelineId } }],
-
-    onCompleted: () => {},
-    onError: (error) => {},
   });
 
   const toggleLabel = (label: IPipelineLabel) => {
@@ -134,10 +130,7 @@ export const SelectLabelsCommand = ({
       newLabelIds.push(label._id);
     }
 
-    // Only update context for non-card usage (filters)
-    // For cards, the mutation will update the backend and the UI will refresh from the deal data
     if (targetId) {
-      // Card variant - just update the backend and refetch deals
       labelPipelineLabel({
         variables: {
           targetId: targetId,
@@ -153,24 +146,15 @@ export const SelectLabelsCommand = ({
             variables: { pipelineId },
           },
         ],
-        onCompleted: () => {},
-        onError: (error) => {},
       });
     } else {
-      // Filter variant - update context
       onSelect(label);
     }
   };
 
-  const filteredLabels = useMemo(() => {
-    const filtered = pipelineLabels.filter((label: IPipelineLabel) =>
-      label.name.toLowerCase().includes(search.toLowerCase()),
-    );
-    return filtered;
-  }, [pipelineLabels, search]);
-
   const [editLabelId, setEditLabelId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [loadingLabelId, setLoadingLabelId] = useState<string | null>(null);
 
   if (showForm) {
     return (
@@ -197,35 +181,83 @@ export const SelectLabelsCommand = ({
       </>
     );
   }
-  return (
-    <>
-      <Command className="mt-2">
-        <Command.Input placeholder="Search label" />
-        <Command.List className="px-1 ">
-          {filteredLabels.map((label) => (
-            <li
-              key={label._id}
-              className={cn(
-                'flex items-center justify-between p-2 cursor-pointer my-1',
-                labelIds?.includes(label._id || '')
-                  ? 'bg-blue-50 border-blue-300 rounded-md'
-                  : '',
-              )}
-              onClick={() => toggleLabel(label)}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="inline-block w-4 h-4 rounded-full"
-                  style={{ backgroundColor: label.colorCode }}
-                />
-                <span className="text-sm">{label.name}</span>
-              </div>
+  if (pipelineLabels.length === 0) {
+    return (
+      <Command>
+        <div className="flex relative items-center justify-center -mb-5">
+          <IconTagMinus className="mb-10 absolute" />
+          <Combobox.Empty loading={loading} error={error} />
+        </div>
 
-              {labelIds?.includes(label._id || '') && (
-                <IconCheck className="w-4 h-4 text-green-600" />
-              )}
-            </li>
-          ))}
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
+    );
+  }
+  if (loading) {
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <div className="flex items-center gap-2">
+          <IconLoader className="animate-spin" />
+        </div>
+      </Command>
+    );
+  } else
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <Command.List className="px-1">
+          {pipelineLabels.map((label) => {
+            return (
+              <Command.Item
+                key={label._id}
+                className={cn(
+                  'flex items-center justify-between p-2 cursor-pointer my-1  ',
+                  labelIds?.includes(label._id || '')
+                    ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
+                    : '',
+                )}
+                onSelect={() => toggleLabel(label)}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-3 h-3 rounded-full"
+                    style={{ backgroundColor: label.colorCode }}
+                  />
+                  <span className="text-sm">{label.name}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {loadingLabelId === label._id ? (
+                    <IconLoader className="w-4 h-4 animate-spin text-gray-400" />
+                  ) : (
+                    labelIds?.includes(label._id || '') && (
+                      <IconCheck className="w-4 h-4 text-green-600" />
+                    )
+                  )}
+
+                  <IconPencil
+                    className="w-5 h-5 cursor-pointer text-gray-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditLabelId(label._id || '');
+                      setShowForm(true);
+                    }}
+                  />
+                </div>
+              </Command.Item>
+            );
+          })}
         </Command.List>
         <Button
           type="button"
@@ -239,8 +271,7 @@ export const SelectLabelsCommand = ({
           Create a new label
         </Button>
       </Command>
-    </>
-  );
+    );
 };
 
 export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
@@ -266,16 +297,17 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
 };
 
 export const SelectLabelsValue = () => {
-  const { selectedLabels, mode } = useSelectLabelsContext();
+  const { labelIds } = useSelectLabelsContext();
 
-  if (selectedLabels?.length > 1)
+  if ((labelIds || [])?.length !== 0) {
     return (
-      <span className="text-muted-foreground">
-        {selectedLabels.length} labels selected
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+        {(labelIds || []).length}
       </span>
     );
-
-  return <Combobox.Value placeholder="Select labels" />;
+  }
+  return <Combobox.Value placeholder="Select label" />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
