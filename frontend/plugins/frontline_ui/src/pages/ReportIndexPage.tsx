@@ -24,9 +24,6 @@ export default function ReportIndexPage() {
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <PageHeader.End>
-          <></>
-        </PageHeader.End>
       </PageHeader>
       <ReportsView />
     </PageContainer>

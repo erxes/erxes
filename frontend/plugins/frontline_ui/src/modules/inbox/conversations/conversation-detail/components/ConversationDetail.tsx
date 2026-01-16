@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Separator, Skeleton, useQueryState } from 'erxes-ui';
 
-import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationHeader } from './ConversationHeader';
 import { useConversationDetail } from '../hooks/useConversationDetail';
 
@@ -95,7 +95,7 @@ export const ConversationDetail = () => {
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex flex-col h-full overflow-hidden flex-auto">
-        <ConversationContext.Provider value={conversationAllDetails}>
+        <ConversationProvider conversation={conversationAllDetails}>
           <ConversationHeader />
           <Separator />
           <ConversationDetailLayout
@@ -106,13 +106,13 @@ export const ConversationDetail = () => {
             }
           >
             {integration?.kind &&
-              ['messenger', 'lead'].includes(integration?.kind) && (
+              ['messenger', 'lead'].includes(integration.kind) && (
                 <ConversationMessages conversationId={conversationId || ''} />
               )}
             <ConversationIntegrationDetail />
           </ConversationDetailLayout>
           <ConversationMarkAsReadEffect />
-        </ConversationContext.Provider>
+        </ConversationProvider>
       </div>
       <ConversationSideWidget
         customerId={conversationAllDetails?.customerId || ''}

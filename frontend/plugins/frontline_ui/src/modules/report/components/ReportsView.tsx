@@ -5,14 +5,16 @@ import { Skeleton } from 'erxes-ui';
 export const ReportsView = () => {
   return (
     <Suspense fallback={<ReportsViewSkeleton />}>
-      <FrontlineReportsList />
+      <div className="relative size-full overflow-hidden flex">
+        <FrontlineReportsList />
+      </div>
     </Suspense>
   );
 };
 
 export const ReportsViewSkeleton = () => {
   return (
-    <div className="flex flex-col gap-4 m-3">
+    <div className="relative size-full overflow-hidden flex flex-col gap-4">
       <div className="grid grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <Skeleton key={index} className="h-20 w-full" />
