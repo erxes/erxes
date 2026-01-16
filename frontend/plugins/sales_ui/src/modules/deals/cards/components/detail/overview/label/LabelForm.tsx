@@ -117,7 +117,7 @@ const LabelForm = ({
             <Spinner />
           </div>
         ) : (
-          <div className="flex-auto flex flex-col ">
+          <div className="flex-auto flex flex-col">
             <Form.Field
               control={form.control}
               name="name"
@@ -158,6 +158,7 @@ const LabelForm = ({
               variant="destructive"
               onClick={handleDelete}
               disabled={deleteLoading}
+              className="mt-2"
             >
               Delete
             </Button>

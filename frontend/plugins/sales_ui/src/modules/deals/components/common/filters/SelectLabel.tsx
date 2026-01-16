@@ -21,7 +21,14 @@ import {
   ISelectLabelContext,
   ISelectLabelProviderProps,
 } from '@/deals/types/pipelines';
-import { IconCheck, IconLabel, IconPlus } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconLabel,
+  IconLoader,
+  IconPencil,
+  IconPlus,
+  IconTagMinus,
+} from '@tabler/icons-react';
 import { useContext, useEffect, useState } from 'react';
 import {
   usePipelineLabelLabel,
@@ -107,6 +114,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     error,
   } = usePipelineLabels({
     variables: { pipelineId },
+    skip: !pipelineId,
   });
 
   const toggleLabel = (label: IPipelineLabel) => {
@@ -172,50 +180,92 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
       </>
     );
   }
+  if (pipelineLabels.length === 0) {
+    return (
+      <Command>
+        <div className="flex relative items-center justify-center -mb-5">
+          <IconTagMinus className="mb-10 absolute" />
+          <Combobox.Empty loading={loading} error={error} />
+        </div>
 
-  return (
-    <Command>
-      <Command.Input placeholder="Search label" />
-      <Command.List className="px-1 ">
-        <Combobox.Empty loading={loading} error={error} />
-        {pipelineLabels.map((label) => (
-          <li
-            key={label._id}
-            className={cn(
-              'flex items-center justify-between p-2 cursor-pointer my-1',
-              labelIds?.includes(label._id || '')
-                ? 'bg-blue-50 border-blue-300 rounded-md'
-                : '',
-            )}
-            onClick={() => toggleLabel(label)}
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-block w-4 h-4 rounded-full"
-                style={{ backgroundColor: label.colorCode }}
-              />
-              <span className="text-sm">{label.name}</span>
-            </div>
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
+    );
+  }
+  if (loading) {
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <div className="flex items-center gap-2">
+          <IconLoader className="animate-spin" />
+        </div>
+      </Command>
+    );
+  } else
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <Command.List className="px-1">
+          {pipelineLabels.map((label) => {
+            return (
+              <Command.Item
+                key={label._id}
+                className={cn(
+                  'flex items-center justify-between p-2 cursor-pointer my-1  ',
+                  labelIds?.includes(label._id || '')
+                    ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
+                    : '',
+                )}
+                onSelect={() => toggleLabel(label)}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-3 h-3 rounded-full"
+                    style={{ backgroundColor: label.colorCode }}
+                  />
+                  <span className="text-sm">{label.name}</span>
+                </div>
 
-            {labelIds?.includes(label._id || '') && (
-              <IconCheck className="w-4 h-4 text-green-600" />
-            )}
-          </li>
-        ))}
-      </Command.List>
-      <Button
-        type="button"
-        className="w-[90%] mx-auto mb-2"
-        onClick={() => {
-          setEditLabelId(null);
-          setShowForm(true);
-        }}
-      >
-        <IconPlus size={16} />
-        Create a new label
-      </Button>
-    </Command>
-  );
+                <div className="flex items-center gap-2">
+                  {labelIds?.includes(label._id || '') && (
+                    <IconCheck className="w-4 h-4 text-green-600" />
+                  )}
+                  <IconPencil
+                    className="w-5 h-5 cursor-pointer text-gray-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditLabelId(label._id || '');
+                      setShowForm(true);
+                    }}
+                  />
+                </div>
+              </Command.Item>
+            );
+          })}
+        </Command.List>
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
+    );
 };
 
 export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
@@ -241,16 +291,17 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
 };
 
 export const SelectLabelsValue = () => {
-  const { selectedLabels } = useSelectLabelsContext();
+  const { labelIds } = useSelectLabelsContext();
 
-  if (selectedLabels?.length > 1)
+  if ((labelIds || [])?.length !== 0) {
     return (
-      <span className="text-muted-foreground">
-        {selectedLabels.length} labels selected
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+        {(labelIds || []).length}
       </span>
     );
-
-  return <Combobox.Value placeholder="Select labels" />;
+  }
+  return <Combobox.Value placeholder="Select label" />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
