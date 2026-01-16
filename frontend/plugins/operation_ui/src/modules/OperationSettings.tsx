@@ -11,7 +11,7 @@ const OperationSettings = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/team" element={<TeamsSettings />} />
+        <Route path="/team/*" element={<TeamsSettings />} />
       </Routes>
     </Suspense>
   );
