@@ -1,7 +1,7 @@
 export enum OperationPaths {
   Operation = 'operation',
   TeamList = 'team',
-  TeamDetail = '/details/:id',
+  TeamDetail = 'details/:id',
   TeamMembers = 'members/:id',
   TeamStatus = 'status/:id',
 }
