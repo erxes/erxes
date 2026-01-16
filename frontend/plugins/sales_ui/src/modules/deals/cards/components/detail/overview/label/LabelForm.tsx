@@ -117,7 +117,7 @@ const LabelForm = ({
             <Spinner />
           </div>
         ) : (
-          <div className="flex-auto flex flex-col ">
+          <div className="flex-auto flex flex-col">
             <Form.Field
               control={form.control}
               name="name"

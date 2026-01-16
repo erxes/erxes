@@ -114,6 +114,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     error,
   } = usePipelineLabels({
     variables: { pipelineId },
+    skip: !pipelineId,
   });
 
   const toggleLabel = (label: IPipelineLabel) => {

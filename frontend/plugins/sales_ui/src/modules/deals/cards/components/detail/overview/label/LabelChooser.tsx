@@ -1,7 +1,7 @@
 import { IPipelineLabel } from '@/deals/types/pipelines';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { Popover } from 'erxes-ui';
-import { SelectLabels } from '~/modules/deals/components/common/filters/SelectLabel';
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 
 const LabelChooser = ({
   labels,
