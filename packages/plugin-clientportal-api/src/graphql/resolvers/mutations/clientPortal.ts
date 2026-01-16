@@ -1,6 +1,6 @@
 import { sendCommonMessage, sendCoreMessage } from "../../../messageBroker";
 
-import { checkPermission } from "@erxes/api-utils/src";
+import { checkPermission, getEnv } from "@erxes/api-utils/src";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IContext } from "../../../connectionResolver";
 import { sendTicketsMessage } from "../../../messageBroker";
@@ -249,10 +249,15 @@ const clientPortalMutations = {
 
   async clientPortalCheckTokiInvoice(
     _root,
-    { clientPortalId, transactionId }: { clientPortalId: string; transactionId: string },
+    {
+      clientPortalId,
+      transactionId,
+    }: { clientPortalId: string; transactionId: string },
     { models }: IContext
   ) {
-    const clientPortal = await models.ClientPortals.findOne({ _id: clientPortalId });
+    const clientPortal = await models.ClientPortals.findOne({
+      _id: clientPortalId,
+    });
     if (!clientPortal) {
       throw new Error("Client portal not found");
     }
@@ -261,19 +266,22 @@ const clientPortalMutations = {
       throw new Error("Toki config not found");
     }
 
-    const baseApiUrl = tokiConfig.production ? "ms-api.toki.mn" : "qams-api.toki.mn";
-   
-    const apiUrl = tokiConfig.production ? baseApiUrl : "qams-api.toki.mn";
-    const {username, password, apiKey} = tokiConfig;
+    const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
+    const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
 
-    const authString = Buffer.from(`${username}:${password}`).toString("base64");
+    const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
+    const { username, password, apiKey } = tokiConfig;
+
+    const authString = Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    );
 
     const response = await fetch(
       `https://${apiUrl}/third-party-service/v1/auth/token`,
       {
         method: "GET",
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: `Basic ${authString}`,
         },
@@ -281,15 +289,15 @@ const clientPortalMutations = {
     );
 
     const contentType = response.headers.get("content-type");
-  
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Toki API Error (${response.status}): ${errorText}`);
     }
-    
+
     if (contentType && contentType.includes("application/json")) {
       const data: any = await response.json();
-      const {accessToken} = data.data;
+      const { accessToken } = data.data;
       const invoiceResponse = await fetch(
         `https://${apiUrl}/third-party-service/v1/payment-request/status?requestId=${transactionId}`,
         {
