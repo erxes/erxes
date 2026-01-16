@@ -36,7 +36,17 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    const matchingTags = await models.Tags.find({
+      ...commonQuerySelector,
+      name: new RegExp(`.*${searchValue}.*`, 'i'),
+    }).lean();
+
+    const matchingTagIds = matchingTags.map((tag) => tag._id);
+    const parentIds = matchingTags
+      .map((tag) => tag.parentId)
+      .filter((id) => !!id);
+
+    filter._id = { $in: [...matchingTagIds, ...parentIds] };
   }
 
   if (ids?.length) {
@@ -77,8 +87,11 @@ export const tagQueries = {
    */
   async tagsGetTypes() {
     const services = await getPlugins();
-    const fieldTypes: Array<{ description: string; contentType: string }> = [];
+    const types = {};
+
     for (const serviceName of services) {
+      const fieldTypes: Array<{ description: string; contentType: string }> = [];
+
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.tags) {
@@ -91,9 +104,13 @@ export const tagQueries = {
           });
         }
       }
+
+      if (fieldTypes.length > 0) {
+        types[serviceName] = fieldTypes;
+      }
     }
 
-    return fieldTypes;
+    return types;
   },
   /**
    * Get tags

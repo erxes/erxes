@@ -5,7 +5,7 @@ import {
   IconTags,
 } from '@tabler/icons-react';
 import { Command, Filter, Popover, useMultiQueryState } from 'erxes-ui';
-import { SelectMember, SelectTags } from 'ui-modules';
+import { SelectMember, SelectTags, TagsSelect } from 'ui-modules';
 import { AutomationStatusFilter } from './AutomationStatusFilter';
 import { AutomationRecordTableNodeTypeFilter } from './AutomationRecordTableNodeTypeFilter';
 import { AutomationNodeType } from '@/automations/types';
@@ -130,8 +130,8 @@ export const AutomationRecordTableFilterBar = () => {
           <IconTags />
           Tags
         </Filter.BarName>
-        <SelectTags.Provider
-          tagType="core:automation"
+        <TagsSelect.Provider
+          type="core:automation"
           value={tagIds || []}
           mode="multiple"
           onValueChange={(tagIds) => setQueries({ tagIds: tagIds as string[] })}
@@ -139,14 +139,14 @@ export const AutomationRecordTableFilterBar = () => {
           <Popover>
             <Popover.Trigger>
               <Filter.BarButton filterKey="tagIds">
-                <SelectTags.List />
+                <TagsSelect.SelectedList />
               </Filter.BarButton>
             </Popover.Trigger>
             <Popover.Content className="p-0">
-              <SelectTags.Content />
+              <TagsSelect.Content />
             </Popover.Content>
           </Popover>
-        </SelectTags.Provider>
+        </TagsSelect.Provider>
       </Filter.BarItem>
     </Filter.Bar>
   );

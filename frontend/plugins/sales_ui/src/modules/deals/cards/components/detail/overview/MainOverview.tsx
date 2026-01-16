@@ -1,23 +1,13 @@
 import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
 
 import { IDeal } from '@/deals/types/deals';
-import LabelChooser from './label/LabelChooser';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import SelectTags from './tags/SelectTags';
 import { useDealsContext } from '@/deals/context/DealContext';
-import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 
 const MainOverview = ({ deal }: { deal: IDeal }) => {
   const { editDeals, editConformity } = useDealsContext();
-  const [showText, setShowText] = useState(false);
-
-  const handleToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowText((prev) => !prev);
-  };
 
   const handleDealFieldChange = (
     key: string,

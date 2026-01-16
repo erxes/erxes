@@ -34,6 +34,7 @@ export const types = `
         featured: Boolean
         featuredDate: Date
         scheduledDate: Date
+        publishedDate: Date
         autoArchiveDate: Date
         reactions: [String]
         reactionCounts: JSON
@@ -86,6 +87,7 @@ export const inputs = `
         tagIds: [String]
         authorId: String
         scheduledDate: Date
+        publishedDate: Date
         autoArchiveDate: Date
         reactions: [String]
         reactionCounts: JSON

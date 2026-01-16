@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { LeftSidebarLoading } from '@/deals/components/loading/LeftSidebarLoading';
 import { PipelineList } from '@/deals/pipelines/components/PipelineList';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 import { useEffect } from 'react';
 import { useLastBoard } from '@/deals/boards/hooks/useLastBoard';
 

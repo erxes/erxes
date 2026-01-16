@@ -1,28 +1,14 @@
 export type IUIConfig = {
   name: string;
-  icon?: React.ElementType;
+  path: string;
+  hasFloatingWidget?: boolean;
+  settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
     name: string;
     icon: React.ElementType;
     content: () => React.ReactNode;
-    subGroups?: () => React.ReactNode;
+    subGroup?: () => React.ReactNode;
   };
-  modules: {
-    name: string;
-    icon?: React.ElementType;
-    path: string;
-    hasSettings?: boolean;
-    hasRelationWidget?: boolean;
-    hasFloatingWidget?: boolean;
-    settingsOnly?: boolean;
-    hasAutomation?: boolean;
-    hasSegmentConfigWidget?: boolean;
-    submenus?: {
-      name: string;
-      path: string;
-      icon: React.ElementType;
-    }[];
-  }[];
 
   widgets?: {
     relationWidgets?: {
@@ -33,4 +19,22 @@ export type IUIConfig = {
       name: string;
     }[];
   };
+  modules?: {
+    name: string;
+    icon?: React.ElementType;
+    path: string;
+  }[];
+};
+
+export type ICoreModule = {
+  name: string;
+  icon?: React.ElementType;
+  path: string;
+  hasSettings?: boolean;
+  settingsOnly?: boolean;
+  submenus?: {
+    name: string;
+    path: string;
+    icon?: React.ElementType;
+  }[];
 };

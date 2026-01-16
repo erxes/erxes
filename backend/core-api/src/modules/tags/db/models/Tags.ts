@@ -5,7 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { ITag, ITagDocument } from 'erxes-api-shared/core-types';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
@@ -111,6 +111,17 @@ export const loadTagClass = (
 
       const tag = await models.Tags.getTag(_id);
 
+      if (tag.isGroup && !doc.isGroup) {
+        const childTags = await models.Tags.find({ parentId: _id }).lean();
+
+        if (childTags.length) {
+          await models.Tags.updateMany(
+            { _id: { $in: childTags.map((tag) => tag._id) } },
+            { $unset: { parentId: 1 } },
+          );
+        }
+      }
+
       const order = await this.generateOrder(doc);
 
       const childTags = await models.Tags.find({
@@ -195,11 +206,13 @@ export const loadTagClass = (
         );
       }
 
-      const tags = await models.Tags.find({
-        type,
+      const query: FilterQuery<ITagDocument> = {
         _id: { $in: tagIds },
         isGroup: { $ne: true },
-      });
+      }
+
+
+      const tags = await models.Tags.find(query);
 
       if (tags.length !== tagIds.length) {
         throw new Error('Tag not found.');

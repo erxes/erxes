@@ -236,7 +236,6 @@ export const generateFormFields = async ({ subdomain, data }) => {
 
 export const generateContactsFields = async ({ subdomain, data }) => {
   const { collectionType, usageType } = data;
-
   const models = await generateModels(subdomain);
 
   const { Customers, Companies } = models;
@@ -255,20 +254,17 @@ export const generateContactsFields = async ({ subdomain, data }) => {
 
   switch (collectionType) {
     case 'lead':
-      schema = Customers.schema;
-
     case 'customer':
       schema = Customers.schema;
       break;
-
     case 'company':
       schema = Companies.schema;
       break;
   }
+
   if (schema) {
     // generate list using customer or company schema
     fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
-
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
 

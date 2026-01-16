@@ -159,6 +159,7 @@ export const GET_DEALS = gql`
             _id
             name
           }
+          productsData
           unUsedAmount
           amount
           ${commonListFields}
@@ -238,6 +239,11 @@ export const GET_DEAL_DETAIL = gql`
       }
       productsData
       relations
+      pipeline {
+        _id
+        name
+      }
+      boardId
     }
   }
 `;

@@ -55,7 +55,7 @@ const corsOptions = {
 };
 
 const myQueue = new Queue('gateway-service-discovery', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     removeOnComplete: false,
   },

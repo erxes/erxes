@@ -1,329 +1,228 @@
+'use client';
+
 import {
-  Board,
-  BoardColumnProps,
-  BoardItemProps,
-  EnumCursorDirection,
-  Skeleton,
-  SkeletonArray,
-  useQueryState,
-} from 'erxes-ui';
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useDeals, useDealsChange } from '@/deals/cards/hooks/useDeals';
+  DealsBoardState,
+  useAllDealsMap,
+  useDealsBoard,
+} from '@/deals/states/dealsBoardState';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { DealsBoardCard } from '@/deals/boards/components/DealsBoardCard';
-import { DealsBoardColumnHeader } from '@/deals/boards/components/DealsBoardColumnHeader';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { IDeal } from '@/deals/types/deals';
-import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
+import { ColumnPaginationState } from '../../types/boards';
+import { DealsBoardCard } from './DealsBoardCard';
+import { DealsBoardColumn } from './DealsBoardColumn';
+import { GenericBoard } from './common/GenericBoard';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
-import clsx from 'clsx';
-import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
-import { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
-import { useSearchParams } from 'react-router';
-import { useStages } from '@/deals/stage/hooks/useStages';
+import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
+import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
+import { useDealsChange } from '@/deals/cards/hooks/useDeals';
+import { useQueryState } from 'erxes-ui';
+import { useSearchParams } from 'react-router-dom';
+import { useStagesOrder } from '@/deals/stage/hooks/useStages';
 
-const fetchedDealsState = atom<BoardItemProps[]>([]);
-export const allDealsMapState = atom<Record<string, IDeal>>({});
+const PAGE_SIZE = 20;
 
 export const DealsBoard = () => {
-  const allDealsMap = useAtomValue(allDealsMapState);
-  const setAllDealsMap = useSetAtom(allDealsMapState);
-
-  const { changeDeals } = useDealsChange();
+  const [boardState, setBoardState] = useDealsBoard();
+  const [, setAllDealsMap] = useAllDealsMap();
+  const { columns, columnsLoading } = useDealsBoardData();
   const [pipelineId] = useQueryState<string>('pipelineId');
+  const { changeDeals } = useDealsChange();
+  const { updateStagesOrder } = useStagesOrder();
   const [searchParams] = useSearchParams();
-  const { stages, loading: stagesLoading } = useStages({
-    variables: {
-      pipelineId,
-    },
-    skip: !pipelineId,
-  });
+  const [fetchMoreTriggers, setFetchMoreTriggers] = useState<
+    Record<string, number>
+  >({});
 
-  const columns = stages?.map((stage) => ({
-    id: stage._id,
-    name: stage.name,
-    type: stage.type,
-    probability: stage.probability,
-    itemsTotalCount: stage.itemsTotalCount,
-  }));
+  const { pagination, initColumn, setLoading, updateAfterFetch } =
+    useColumnPagination(PAGE_SIZE);
 
-  const [deals, setDeals] = useAtom(fetchedDealsState);
-  const setDealCountByBoard = useSetAtom(dealCountByBoardAtom);
+  const queryVariables = useMemo(() => {
+    const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
+    const vars: Record<string, any> = {};
+
+    for (const [key, value] of searchParams.entries()) {
+      if (ignoredKeys.includes(key)) continue;
+
+      try {
+        const parsed = JSON.parse(value);
+        vars[key] = parsed;
+      } catch {
+        vars[key] = value;
+      }
+    }
+
+    if (searchParams.get('archivedOnly') === 'true') {
+      vars.noSkipArchive = true;
+    }
+
+    return vars;
+  }, [searchParams]);
+
+  const archivedOnly = searchParams.get('archivedOnly') === 'true';
+  const queryVariablesKey = useMemo(
+    () => JSON.stringify(queryVariables),
+    [queryVariables],
+  );
 
   useEffect(() => {
-    setDealCountByBoard({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pipelineId, searchParams.toString()]);
+    setBoardState(null);
+  }, [archivedOnly, setBoardState]);
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+  useEffect(() => {
+    if (columns.length === 0) return;
 
-    const activeItem = allDealsMap[active.id as string];
-    const overItem = allDealsMap[over.id as string];
+    const resetState: DealsBoardState = {
+      columns,
+      items: {},
+      columnItems: Object.fromEntries(columns.map((col) => [col.id, []])),
+    };
+    setBoardState(resetState);
+    setAllDealsMap({});
 
-    if (!activeItem) return;
-
-    const overColumnId =
-      overItem?.stageId ||
-      columns.find((col) => col.id === over.id)?.id ||
-      columns[0]?.id;
-
-    setDeals((prev) => {
-      let updated = [...prev];
-      const activeIndex = updated.findIndex((d) => d.id === activeItem._id);
-      if (activeItem.stageId !== overColumnId) {
-        updated[activeIndex] = {
-          ...updated[activeIndex],
-          column: overColumnId,
-          stageId: overColumnId,
-        };
-      } else {
-        const columnItems = updated.filter((d) => d.column === overColumnId);
-
-        const overIndex = columnItems.findIndex((d) => d.id === overItem?._id);
-
-        const activeIndexInColumn = columnItems.findIndex(
-          (d) => d.id === activeItem._id,
-        );
-
-        if (activeIndexInColumn > -1)
-          columnItems.splice(activeIndexInColumn, 1);
-
-        columnItems.splice(
-          overIndex === -1 ? columnItems.length : overIndex,
-          0,
-          {
-            ...activeItem,
-            column: overColumnId,
-            stageId: overColumnId,
-            id: activeItem._id,
-          },
-        );
-
-        updated = [
-          ...updated.filter((d) => d.column !== overColumnId),
-          ...columnItems,
-        ];
-      }
-
-      setAllDealsMap((prev) => ({
-        ...prev,
-        [activeItem._id]: {
-          ...activeItem,
-          stageId: overColumnId,
-          column: overColumnId,
-        },
-      }));
-
-      const columnItemsAfter = updated.filter((d) => d.column === overColumnId);
-
-      const activeNewIndex = columnItemsAfter.findIndex(
-        (d) => d.id === activeItem._id,
-      );
-      const aboveItemId =
-        activeNewIndex > 0
-          ? columnItemsAfter[activeNewIndex - 1].id
-          : undefined;
-
-      changeDeals({
-        variables: {
-          itemId: activeItem._id,
-          destinationStageId: overColumnId,
-          sourceStageId: activeItem.stageId,
-          aboveItemId,
-        },
-      });
-
-      return updated;
+    columns.forEach((col) => {
+      initColumn(col.id, col.itemsTotalCount);
     });
 
-    if (activeItem.stageId !== overColumnId) {
-      setDealCountByBoard((prev) => ({
-        ...prev,
-        [activeItem?.stageId]: prev[activeItem?.stageId] - 1 || 0,
-        [overColumnId]: (prev[overColumnId] || 0) + 1,
-      }));
-    }
-  };
+    setFetchMoreTriggers({});
+  }, [columns, queryVariablesKey, setBoardState, setAllDealsMap, initColumn]);
 
-  if (stagesLoading) {
+  useEffect(() => {
+    setBoardState((prev) => {
+      if (!prev || columns.length === 0) return prev;
+      return { ...prev, columns };
+    });
+  }, [columns, setBoardState]);
+
+  const handleLoadMore = useCallback(
+    (columnId: string) => {
+      setLoading(columnId, true);
+      setFetchMoreTriggers((prev) => ({
+        ...prev,
+        [columnId]: (prev[columnId] || 0) + 1,
+      }));
+    },
+    [setLoading],
+  );
+
+  const handleFetchComplete = useCallback(
+    (
+      columnId: string,
+      result: {
+        fetchedCount: number;
+        hasMore: boolean;
+        cursor?: string | null;
+        totalCount?: number;
+      },
+    ) => {
+      updateAfterFetch(
+        columnId,
+        result.fetchedCount,
+        result.hasMore,
+        result.cursor,
+        result.totalCount,
+      );
+    },
+    [updateAfterFetch],
+  );
+
+  const handleStateChange = useCallback(
+    (
+      newState: DealsBoardState,
+      oldState: DealsBoardState,
+      draggedItemId?: string,
+    ) => {
+      setBoardState(newState);
+
+      Object.values(newState.items).forEach((item) => {
+        setAllDealsMap((prev) => ({
+          ...prev,
+          [item._id]: item,
+        }));
+      });
+
+      // Detect column reorder
+      const oldColumnOrder = oldState?.columns.map((c) => c._id).join(',');
+      const newColumnOrder = newState.columns.map((c) => c._id).join(',');
+      if (oldColumnOrder && oldColumnOrder !== newColumnOrder) {
+        updateStagesOrder({
+          variables: {
+            orders: newState.columns.map((stage, index) => ({
+              _id: stage._id,
+              order: index,
+            })),
+          },
+        });
+        return;
+      }
+
+      if (!draggedItemId) return;
+
+      const newItem = newState.items[draggedItemId];
+      const oldItem = oldState?.items[draggedItemId];
+      if (!newItem || !oldItem) return;
+
+      const newColumnItems = newState.columnItems[newItem.columnId || ''] || [];
+      const oldColumnItems =
+        oldState?.columnItems[oldItem.columnId || ''] || [];
+      const newIndex = newColumnItems.indexOf(draggedItemId);
+      const oldIndex = oldColumnItems.indexOf(draggedItemId);
+
+      const columnChanged = newItem.columnId !== oldItem.columnId;
+      const orderChanged = !columnChanged && newIndex !== oldIndex;
+
+      if (columnChanged || orderChanged) {
+        const aboveItemId =
+          newIndex > 0 ? newColumnItems[newIndex - 1] : undefined;
+
+        changeDeals({
+          variables: {
+            itemId: draggedItemId,
+            destinationStageId: newItem.columnId,
+            sourceStageId: oldItem.columnId,
+            aboveItemId,
+          },
+        });
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [setBoardState, setAllDealsMap],
+  );
+
+  const columnPaginationState = useMemo((): Record<
+    string,
+    ColumnPaginationState
+  > => {
+    const result: Record<string, ColumnPaginationState> = {};
+    for (const [columnId, info] of Object.entries(pagination)) {
+      result[columnId] = {
+        hasMore: info.hasMore,
+        isLoading: info.isLoading,
+        totalCount: info.totalCount,
+      };
+    }
+    return result;
+  }, [pagination]);
+
+  if (!boardState || columnsLoading) {
     return <StagesLoading />;
   }
-
   return (
-    <Board.Provider
-      columns={columns}
-      data={deals}
-      onDragEnd={handleDragEnd}
-      boardId={clsx('deals-board', pipelineId)}
-      emptyUrl={'/settings/deals'}
-      fallbackComponent={<NoStagesWarning />}
-    >
-      {(column) => (
-        <Board id={column.id} key={column.id} sortBy="updated" isSorted>
-          <DealsBoardCards column={column} />
-        </Board>
-      )}
-    </Board.Provider>
-  );
-};
-
-export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
-  const [pipelineId] = useQueryState('pipelineId');
-
-  const [dealCards, setDealCards] = useAtom(fetchedDealsState);
-  const [dealCountByBoard, setDealCountByBoard] = useAtom(dealCountByBoardAtom);
-  const [searchParams] = useSearchParams();
-
-  const isArchivedMode = searchParams.get('archivedOnly') === 'true';
-
-  const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId'];
-
-  const queryVariables: Record<string, any> = {};
-
-  for (const [key, value] of searchParams.entries()) {
-    if (ignoredKeys.includes(key)) continue;
-
-    try {
-      const parsed = JSON.parse(value);
-      queryVariables[key] = parsed;
-    } catch {
-      queryVariables[key] = value;
-    }
-  }
-
-  if (isArchivedMode) {
-    queryVariables.noSkipArchive = true;
-  }
-
-  const { deals, totalCount, loading, handleFetchMore } = useDeals({
-    variables: {
-      stageId: column.id,
-      pipelineId,
-      ...queryVariables,
-    },
-  });
-
-  const boardCards = dealCards.filter((deal) => deal.column === column.id);
-  const allDealsMap = useAtomValue(allDealsMapState);
-
-  const filteredBoardCards = boardCards.filter((deal) => {
-    const status = allDealsMap[deal.id]?.status;
-
-    return isArchivedMode ? status === 'archived' : status !== 'archived';
-  });
-
-  const setAllDealsMap = useSetAtom(allDealsMapState);
-
-  useEffect(() => {
-    if (deals && deals.length !== 0) {
-      setDealCards((prev) => {
-        const otherColumnDeals = prev.filter((d) => d.column !== column.id);
-        // Add the new deals for this column
-        const newColumnDeals = deals.map((deal) => ({
-          id: deal._id,
-          column: deal.stageId,
-        }));
-
-        return [...otherColumnDeals, ...newColumnDeals];
-      });
-      setAllDealsMap((prev) => {
-        const filtered = Object.fromEntries(
-          Object.entries(prev).filter(
-            ([_, deal]) => deal.stageId !== column.id,
-          ),
-        );
-
-        const newDeals = deals.reduce((acc, deal) => {
-          acc[deal._id] = deal;
-          return acc;
-        }, {} as Record<string, IDeal>);
-        return { ...filtered, ...newDeals };
-      });
-    } else {
-      setDealCards((prev) => prev.filter((d) => d.column !== column.id));
-      setAllDealsMap((prev) =>
-        Object.fromEntries(
-          Object.entries(prev).filter(
-            ([_, deal]) => deal.stageId !== column.id,
-          ),
-        ),
-      );
-    }
-  }, [deals, setDealCards, setAllDealsMap, column.id]);
-
-  useEffect(() => {
-    if (totalCount) {
-      setDealCountByBoard((prev) => ({
-        ...prev,
-        [column.id]: totalCount,
-      }));
-    }
-  }, [totalCount, setDealCountByBoard, column.id]);
-
-  return (
-    <>
-      <DealsBoardColumnHeader
-        column={column}
-        loading={loading}
-        totalCount={dealCountByBoard[column.id] || 0}
-      />
-      <Board.Cards
-        id={column.id}
-        items={filteredBoardCards.map((deal) => deal.id)}
-      >
-        {loading ? (
-          <SkeletonArray
-            className="p-24 w-full rounded shadow-xs opacity-80"
-            count={10}
-          />
-        ) : (
-          filteredBoardCards.map((deal) => (
-            <Board.Card
-              key={deal.id}
-              id={deal.id}
-              name={deal.name}
-              column={column.id}
-              data={{ column: column.id }}
-            >
-              <DealsBoardCard id={deal.id} column={column.id} />
-            </Board.Card>
-          ))
-        )}
-        <DealCardsFetchMore
-          totalCount={dealCountByBoard[column.id] || 0}
-          currentLength={filteredBoardCards.length}
-          handleFetchMore={() =>
-            handleFetchMore({ direction: EnumCursorDirection.FORWARD })
-          }
+    <GenericBoard<any, any>
+      initialState={boardState}
+      onStateChange={handleStateChange}
+      renderCard={(deal) => <DealsBoardCard deal={deal} />}
+      renderColumnHeader={(column, count) => (
+        <DealsBoardColumn
+          column={column}
+          count={count}
+          pipelineId={pipelineId || ''}
+          queryVariables={queryVariables}
+          fetchMoreTrigger={fetchMoreTriggers[column._id] || 0}
+          onFetchComplete={handleFetchComplete}
         />
-      </Board.Cards>
-    </>
-  );
-};
-
-export const DealCardsFetchMore = ({
-  totalCount,
-  handleFetchMore,
-  currentLength,
-}: {
-  totalCount: number;
-  handleFetchMore: () => void;
-  currentLength: number;
-}) => {
-  const { ref: bottomRef } = useInView({
-    onChange: (inView) => inView && handleFetchMore(),
-  });
-
-  if (!totalCount || currentLength >= totalCount || currentLength === 0) {
-    return null;
-  }
-
-  return (
-    <div ref={bottomRef}>
-      <Skeleton className="p-12 w-full rounded shadow-xs opacity-80" />
-    </div>
+      )}
+      columnPagination={columnPaginationState}
+      onLoadMore={handleLoadMore}
+    />
   );
 };

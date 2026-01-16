@@ -1,12 +1,13 @@
 import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
+import { afterProcess } from '~/meta/afterProcess';
 import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 
 startPlugin({
   name: 'mongolian',
-  port: 33011,
+  port: 3307,
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
@@ -36,4 +37,7 @@ startPlugin({
       return context;
     },
   },
+  meta: {
+    afterProcess,
+  }
 });

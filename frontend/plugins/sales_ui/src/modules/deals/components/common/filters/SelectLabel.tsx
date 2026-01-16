@@ -24,10 +24,10 @@ import {
 import {
   IconCheck,
   IconLabel,
+  IconLoader,
+  IconPencil,
   IconPlus,
   IconTagMinus,
-  IconPencil,
-  IconLoader,
 } from '@tabler/icons-react';
 import { useContext, useEffect, useState } from 'react';
 import {
@@ -105,7 +105,6 @@ export const SelectLabelsProvider = ({
 export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
-  const [search, setSearch] = useState('');
 
   const [pipelineId] = useQueryState('pipelineId');
 
@@ -154,7 +153,6 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
 
   const [editLabelId, setEditLabelId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [loadingLabelId, setLoadingLabelId] = useState<string | null>(null);
 
   if (showForm) {
     return (
@@ -238,14 +236,9 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {loadingLabelId === label._id ? (
-                    <IconLoader className="w-4 h-4 animate-spin text-gray-400" />
-                  ) : (
-                    labelIds?.includes(label._id || '') && (
-                      <IconCheck className="w-4 h-4 text-green-600" />
-                    )
+                  {labelIds?.includes(label._id || '') && (
+                    <IconCheck className="w-4 h-4 text-green-600" />
                   )}
-
                   <IconPencil
                     className="w-5 h-5 cursor-pointer text-gray-400"
                     onClick={(e) => {

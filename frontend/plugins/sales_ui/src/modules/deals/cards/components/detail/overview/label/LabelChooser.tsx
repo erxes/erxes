@@ -1,5 +1,4 @@
 import { IPipelineLabel } from '@/deals/types/pipelines';
-import { IconPlus } from '@tabler/icons-react';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { Popover } from 'erxes-ui';
 import { SelectLabels } from '~/modules/deals/components/common/filters/SelectLabel';

@@ -25,7 +25,6 @@ export const EMPreviewMessages = () => {
         <Button size="icon" variant="ghost" className="[&>svg]:size-5">
           <IconChevronLeft />
         </Button>
-        <BrandsInline brandIds={[config?.brandId || '']} placeholder="" />
         <div className="ml-auto flex items-center gap-1">
           <Tooltip.Provider>
             {settings?.showVideoCallRequest && (

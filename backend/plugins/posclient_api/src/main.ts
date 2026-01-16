@@ -13,19 +13,19 @@ import { initMQWorkers } from './worker';
 
 startPlugin({
   name: 'posclient',
-  port: 3321,
+  port: 3312,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
   }),
-  // hasSubscriptions: true,
-  // subscriptionPluginPath: require('path').resolve(
-  //   __dirname,
-  //   'apollo',
-  //   process.env.NODE_ENV === 'production'
-  //     ? 'subscription.js'
-  //     : 'subscription.ts',
-  // ),
+  hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'apollo',
+    process.env.NODE_ENV === 'production'
+      ? 'subscription.js'
+      : 'subscription.ts',
+  ),
   expressRouter: router,
   onServerInit: async () => {
     await initMQWorkers(redis);

@@ -81,7 +81,6 @@ export enum ResponsesChartType {
   Bar = 'bar',
   Line = 'line',
   Pie = 'pie',
-  Donut = 'donut',
   Radar = 'radar',
 }
 
@@ -90,3 +89,4 @@ export interface ResponsesChartTypeOption {
   value: ResponsesChartType;
   label: string;
 }
+
