@@ -34,20 +34,6 @@ export const conversationTrpcRouter = t.router({
         response = await models.Conversations.find({
           _id: { $in: targetIds },
         }).lean();
-
-        //   if (type !== 'integration') {
-        //     sendCommonMessage({
-        //       serviceName: 'automations',
-        //       subdomain,
-        //       action: 'trigger',
-        //       data: {
-        //         type: 'inbox:conversation',
-        //         targets: [response]
-        //       },
-        //       isRPC: true,
-        //       defaultValue: null
-        //     });
-        //   }
       }
 
       return response;
