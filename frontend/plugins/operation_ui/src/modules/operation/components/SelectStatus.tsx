@@ -233,4 +233,6 @@ export const SelectStatus = Object.assign(SelectStatusRoot, {
   FilterView: SelectStatusFilterView,
   FilterBar: SelectStatusFilterBar,
   FormItem: SelectStatusFormItem,
+  Content: SelectStatusContent,
+  Provider: SelectStatusProvider,
 });
