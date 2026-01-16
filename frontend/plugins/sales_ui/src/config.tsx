@@ -21,9 +21,20 @@ const PosOrderNavigation = lazy(() =>
   })),
 );
 
+const SalesSettingsNavigation = lazy(() =>
+  import('./modules/SalesSettingsNavigation').then((module) => ({
+    default: module.SalesSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'sales',
   path: 'sales',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SalesSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'sales',
     icon: IconBriefcase,
