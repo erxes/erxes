@@ -9,5 +9,5 @@ export const adjustClosingSchema = z.object({
   integrateAccountId: z.string().nullish(),
   periodGLAccountId: z.string().nullish(),
   earningAccountId: z.string().nullish(),
-  taxPayableaccountId: z.string().nullish(),
+  taxPayableAccountId: z.string().nullish(),
 });

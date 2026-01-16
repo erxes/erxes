@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { adjustClosingSchema } from '../types/adjustClosingSchema';
 import { AccountingDialog } from '~/modules/layout/components/Dialog';
 import { useAdjustClosingAdd } from '../hooks/useAdjustClosingAdd';
+import { SelectAccountFormItem } from '~/modules/settings/account/components/SelectAccount';
 
 export const AddAdjustClosing = () => {
   const [open, setOpen] = useState(false);
@@ -111,13 +112,11 @@ const AddAdjustClosingForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Integrate account</Form.Label>
-                <Form.Control>
-                  <Input
-                    placeholder="Integrate account ID"
-                    {...field}
-                    value={field.value ?? ''}
-                  />
-                </Form.Control>
+                <SelectAccountFormItem
+                  value={field.value ?? undefined}
+                  onValueChange={field.onChange}
+                  placeholder="Integrate account ID"
+                />
                 <Form.Message />
               </Form.Item>
             )}
@@ -130,10 +129,10 @@ const AddAdjustClosingForm = ({
               <Form.Item>
                 <Form.Label>Period GL account</Form.Label>
                 <Form.Control>
-                  <Input
+                  <SelectAccountFormItem
+                    value={field.value ?? undefined}
+                    onValueChange={field.onChange}
                     placeholder="Period GL account ID"
-                    {...field}
-                    value={field.value ?? ''}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -148,10 +147,10 @@ const AddAdjustClosingForm = ({
               <Form.Item>
                 <Form.Label>Earning account</Form.Label>
                 <Form.Control>
-                  <Input
+                  <SelectAccountFormItem
+                    value={field.value ?? undefined}
+                    onValueChange={field.onChange}
                     placeholder="Earning account ID"
-                    {...field}
-                    value={field.value ?? ''}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -161,15 +160,15 @@ const AddAdjustClosingForm = ({
 
           <Form.Field
             control={form.control}
-            name="taxPayableaccountId"
+            name="taxPayableAccountId"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Tax payable account</Form.Label>
                 <Form.Control>
-                  <Input
-                    placeholder="Tax payable account ID"
-                    {...field}
-                    value={field.value ?? ''}
+                  <SelectAccountFormItem
+                    value={field.value ?? undefined}
+                    onValueChange={field.onChange}
+                    placeholder="Tax Payable account ID"
                   />
                 </Form.Control>
                 <Form.Message />

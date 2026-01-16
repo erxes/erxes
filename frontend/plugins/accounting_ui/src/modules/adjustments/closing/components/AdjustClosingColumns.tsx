@@ -1,11 +1,12 @@
-import { Cell, ColumnDef } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/table-core';
 import { IAdjustClosing } from '../types/AdjustClosing';
-import { Link } from 'react-router';
 import {
   Input,
+  Popover,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
+  useQueryState,
 } from 'erxes-ui';
 import {
   IconBuildingBank,
@@ -15,6 +16,42 @@ import {
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { renderingAdjustClosingDetailAtom } from '../types/adjustClosingDetailStates';
+import { useSetAtom } from 'jotai';
+import { AdjustClosingEntryDetail } from './AdjustClosingDetail';
+import { AdjustClosingDetailSheet } from './AdjustClosingDetailSheet';
+import { useTranslation } from 'react-i18next';
+
+const StatusCell = ({ row }: { row: any }) => {
+  const [, setDetailOpen] = useQueryState('_id');
+  const setRenderingDetail = useSetAtom(renderingAdjustClosingDetailAtom);
+
+  const { t } = useTranslation('adjust', {
+    keyPrefix: 'Adjust Closing',
+  });
+
+  const { _id, status } = row.original;
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTableInlineCell.Anchor
+          onClick={() => {
+            setDetailOpen(_id);
+            setRenderingDetail(false);
+          }}
+        >
+          {status}
+        </RecordTableInlineCell.Anchor>
+      </Popover.Trigger>
+      <Popover.Content>
+        <AdjustClosingDetailSheet queryKey="_id" title={t('Entry detail')}>
+          <AdjustClosingEntryDetail />
+        </AdjustClosingDetailSheet>
+      </Popover.Content>
+    </Popover>
+  );
+};
 
 const DescriptionCell = ({ getValue, row }: any) => {
   const [description, setDescription] = useState(getValue() as string);
@@ -44,38 +81,20 @@ const DateCell = ({ getValue }: any) => {
   );
 };
 
-const TransactionMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IAdjustClosing, unknown>;
-}) => {
-  const { _id } = cell.row.original;
-
-  return (
-    <Link to={`/accounting/adjustment/closing/detail?id=${_id}`}>
-      <RecordTable.MoreButton className="w-full h-full" />
-    </Link>
-  );
-};
-
 const TextCell = ({ getValue }: any) => {
   const value = getValue();
   return <RecordTableInlineCell>{value || '-'}</RecordTableInlineCell>;
 };
 
-const transactionMoreColumn = {
-  id: 'more',
-  cell: TransactionMoreColumnCell,
-  size: 33,
-};
+const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IAdjustClosing>;
 
 export const adjustClosingTableColumns: ColumnDef<IAdjustClosing>[] = [
-  transactionMoreColumn,
+  checkBoxColumn,
   {
     id: 'status',
-    header: () => <RecordTable.InlineHead icon={IconFlag} label="Status" />,
     accessorKey: 'status',
-    cell: ({ getValue }) => <DescriptionCell getValue={getValue} />,
+    header: () => <RecordTable.InlineHead icon={IconFlag} label="Status" />,
+    cell: ({ cell }) => <StatusCell row={cell.row} />,
     size: 100,
   },
   {

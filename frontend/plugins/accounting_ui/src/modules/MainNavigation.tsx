@@ -3,11 +3,14 @@ import {
   IconCrane,
   IconListCheck,
   IconListDetails,
-  IconSquareLetterJ
+  IconSquareLetterJ,
 } from '@tabler/icons-react';
 import { cn, NavigationMenuLinkItem, Sidebar, useQueryState } from 'erxes-ui';
-import { useLocation } from 'react-router';
-import { TR_JOURNAL_LABELS, TrJournalEnum } from './transactions/types/constants';
+import { useLocation } from 'react-router-dom';
+import {
+  TR_JOURNAL_LABELS,
+  TrJournalEnum,
+} from './transactions/types/constants';
 
 function RenderJournals() {
   const path = 'accounting/records';
@@ -26,15 +29,19 @@ function RenderJournals() {
             <Sidebar.MenuButton
               asChild
               isActive={journal === trJournal}
-              className='pl-6 font-medium'
+              className="pl-6 font-medium"
               onClick={() => setJournal(trJournal)}
             >
               <div>
-                <IconSquareLetterJ className={cn(
-                  'text-accent-foreground',
-                  journal === trJournal && 'text-primary',
-                )} />
-                <span className="capitalize">{TR_JOURNAL_LABELS[trJournal]}</span>
+                <IconSquareLetterJ
+                  className={cn(
+                    'text-accent-foreground',
+                    journal === trJournal && 'text-primary',
+                  )}
+                />
+                <span className="capitalize">
+                  {TR_JOURNAL_LABELS[trJournal]}
+                </span>
               </div>
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
@@ -47,11 +54,31 @@ function RenderJournals() {
 export const MainNavigation = () => {
   return (
     <>
-      <NavigationMenuLinkItem name='Баримтууд' icon={IconListDetails} path="main" pathPrefix="accounting" />
-      <NavigationMenuLinkItem name='Журнал бичилт' icon={IconListCheck} path="records" pathPrefix="accounting" />
+      <NavigationMenuLinkItem
+        name="Баримтууд"
+        icon={IconListDetails}
+        path="main"
+        pathPrefix="accounting"
+      />
+      <NavigationMenuLinkItem
+        name="Журнал бичилт"
+        icon={IconListCheck}
+        path="records"
+        pathPrefix="accounting"
+      />
       <RenderJournals />
-      <NavigationMenuLinkItem name='Бүрэн бус баримтууд' icon={IconCrane} path="odd-transactions" pathPrefix="accounting" />
-      <NavigationMenuLinkItem name='Тайлан' icon={IconClipboardTextFilled} path="journal-reports" pathPrefix="accounting" />
+      <NavigationMenuLinkItem
+        name="Бүрэн бус баримтууд"
+        icon={IconCrane}
+        path="odd-transactions"
+        pathPrefix="accounting"
+      />
+      <NavigationMenuLinkItem
+        name="Тайлан"
+        icon={IconClipboardTextFilled}
+        path="journal-reports"
+        pathPrefix="accounting"
+      />
     </>
   );
 };

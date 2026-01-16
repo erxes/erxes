@@ -16,16 +16,24 @@ export interface IAdjustClosing {
   taxPayableaccountId?: string;
 }
 
-export interface AdjustClosingDetail {
+export interface IAdjustClosingDetail extends IAdjustClosing {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
 
   branchId?: string;
-  departmentid?: string;
+  departmentId?: string;
 
   entries?: any[];
 
   closeIntegrateTrId?: string;
   periodGLTrId?: string;
+}
+
+export interface AdjustClosingDetailQueryData {
+  adjustClosingDetail: IAdjustClosingDetail;
+}
+
+export interface AdjustClosingDetailQueryVariables {
+  _id: string;
 }

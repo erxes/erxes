@@ -9,7 +9,7 @@ export const ADJUST_CLOSING_ADD = gql`
     $integrateAccountId: String
     $periodGLAccountId: String
     $earningAccountId: String
-    $taxPayableaccountId: String
+    $taxPayableAccountId: String
   ) {
     adjustClosingEntriesAdd(
       status: $status
@@ -19,7 +19,7 @@ export const ADJUST_CLOSING_ADD = gql`
       integrateAccountId: $integrateAccountId
       periodGLAccountId: $periodGLAccountId
       earningAccountId: $earningAccountId
-      taxPayableaccountId: $taxPayableaccountId
+      taxPayableAccountId: $taxPayableAccountId
     ) {
       _id
       createdAt
@@ -34,7 +34,7 @@ export const ADJUST_CLOSING_ADD = gql`
       integrateAccountId
       periodGLAccountId
       earningAccountId
-      taxPayableaccountId
+      taxPayableAccountId
     }
   }
 `;
