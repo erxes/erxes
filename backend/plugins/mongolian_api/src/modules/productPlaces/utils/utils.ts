@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
+// OLD function - keep for backward compatibility if needed elsewhere
+// But productPlaces should NOT use this anymore
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return sendTRPCMessage({
     subdomain,
@@ -13,6 +15,65 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
+// NEW function for mnConfigs system
+export const getMnConfig = async (subdomain, code, subId = '', defaultValue = null) => {
+  try {
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'mongolian',
+      module: 'configs',
+      action: 'mnConfig',
+      method: 'query',
+      input: { code, subId },
+    });
+    
+    // Normalize array value to object
+    if (result?.value && Array.isArray(result.value)) {
+      return result.value.reduce((acc: any, item: any) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+    }
+    return defaultValue;
+  } catch (error) {
+    // Config not found for this stage
+    return defaultValue;
+  }
+};
+
+// For multiple configs at once (optimized)
+export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
+  try {
+    const promises = codes.map(code => 
+      sendTRPCMessage({
+        subdomain,
+        pluginName: 'mongolian',
+        module: 'configs',
+        action: 'mnConfig',
+        method: 'query',
+        input: { code, subId },
+      }).catch(() => null) // Handle individual failures
+    );
+    
+    const results = await Promise.all(promises);
+    
+    return results.map((result, index) => {
+      if (!result) return null;
+      
+      if (result?.value && Array.isArray(result.value)) {
+        return result.value.reduce((acc: any, item: any) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {});
+      }
+      return null;
+    });
+  } catch (error) {
+    return codes.map(() => null);
+  }
+};
+
+// Keep the rest of your existing functions unchanged...
 export const getChildCategories = async (
   subdomain: string,
   categoryIds: string[]

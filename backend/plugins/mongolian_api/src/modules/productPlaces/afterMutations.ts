@@ -5,8 +5,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { setPlace } from './utils/setPlace';
 import { splitData } from './utils/splitData';
-import { getConfig, getCustomer } from './utils/utils';
-
+import { getCustomer, getMnConfigs } from './utils/utils';
 
 export default {
   'sales:deal': ['update'],
@@ -17,46 +16,34 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   if (type === 'sales:deal') {
     if (action === 'update') {
-     const deal = params.updatedDocument;
-     const oldDeal = params.object;
-     const destinationStageId = deal.stageId;
+      const deal = params.updatedDocument;
+      const oldDeal = params.object;
+      const destinationStageId = deal.stageId;
 
       if (!destinationStageId || destinationStageId === oldDeal.stageId) {
-  return;
+        return;
       }
 
       if (!deal.productsData?.length) {
         return;
       }
 
-      const splitConfigs = await getConfig(
+      let pDatas = deal.productsData;
+
+      // Fetch all three configs at once using the new mnConfigs system
+      const [splitConfig, placeConfig, printConfig] = await getMnConfigs(
         subdomain,
-        'dealsProductsDataSplit',
-        {}
-      );
-      const placeConfigs = await getConfig(
-        subdomain,
-        'dealsProductsDataPlaces',
-        {}
-      );
-      const printConfigs = await getConfig(
-        subdomain,
-        'dealsProductsDataPrint',
-        {}
+        ['dealsProductsDataSplit', 'dealsProductsDataPlaces', 'dealsProductsDataPrint'],
+        destinationStageId
       );
 
-      if (
-        !(
-          Object.keys(splitConfigs).includes(destinationStageId) ||
-          Object.keys(placeConfigs).includes(destinationStageId) ||
-          Object.keys(printConfigs).includes(destinationStageId)
-        )
-      ) {
+      // Check if any config exists for this stage
+      const hasConfig = splitConfig || placeConfig || printConfig;
+      if (!hasConfig) {
         return;
       }
 
-      let pDatas = deal.productsData;
-
+      // Get products for productById mapping
       const products = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -75,27 +62,28 @@ export const afterMutationHandlers = async (subdomain, params) => {
         productById[product._id] = product;
       }
 
-      if (Object.keys(splitConfigs).includes(destinationStageId)) {
+      // Process split config if exists
+      if (splitConfig && Object.keys(splitConfig).length > 0) {
         pDatas = await splitData(
           subdomain,
           deal._id,
           pDatas,
-          splitConfigs[destinationStageId],
-          productById
+          splitConfig,
+          productById,
         );
       }
 
-      if (Object.keys(placeConfigs).includes(destinationStageId)) {
-        const placeConfig = placeConfigs[destinationStageId];
-
+      // Process place config if exists
+      if (placeConfig && Object.keys(placeConfig).length > 0) {
         pDatas = await setPlace(
           subdomain,
           deal._id,
           pDatas,
           placeConfig,
-          productById
+          productById,
         );
 
+        // Pricing logic (keep as is)
         if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
           const groupedData: Record<string, Record<string, any[]>> = {};
 
@@ -193,93 +181,90 @@ export const afterMutationHandlers = async (subdomain, params) => {
         }
       }
 
-      if (Object.keys(printConfigs).includes(destinationStageId)) {
-        const printConfig = printConfigs[destinationStageId];
+      // Process print config if exists
+      if (printConfig && printConfig.conditions?.length) {
+        const { customerCode, customerName } = await getCustomer(
+          subdomain,
+          deal
+        );
 
-        if (printConfig.conditions.length) {
-          const { customerCode, customerName } = await getCustomer(
-            subdomain,
-            deal
+        const branchIds = pDatas.map(pd => pd.branchId);
+        const branches = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'branches',
+          action: 'find',
+          method: 'query',
+          input: {
+            query: { _id: { $in: branchIds } },
+          },
+        });
+
+        const branchById: Record<string, any> = {};
+        for (const branch of branches) {
+          branchById[branch._id] = branch;
+        }
+
+        const departmentIds = pDatas.map(pd => pd.departmentId);
+        const departments = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'departments',
+          action: 'find',
+          method: 'query',
+          input: {
+            _id: { $in: departmentIds },
+          },
+        });
+
+        const departmentById: Record<string, any> = {};
+        for (const department of departments) {
+          departmentById[department._id] = department;
+        }
+
+        const content: any[] = [];
+
+        for (const condition of printConfig.conditions) {
+          const filteredData = pDatas.filter(
+            pd =>
+              pd.branchId === condition.branchId &&
+              pd.departmentId === condition.departmentId
           );
 
-          const branchIds = pDatas.map(pd => pd.branchId);
-          const branches = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            module: 'branches',
-            action: 'find',
-            method: 'query',
-            input: {
-              query: { _id: { $in: branchIds } },
-            },
-          });
-
-          const branchById: Record<string, any> = {};
-          for (const branch of branches) {
-            branchById[branch._id] = branch;
+          if (!filteredData.length) {
+            continue;
           }
 
-          const departmentIds = pDatas.map(pd => pd.departmentId);
-          const departments = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            module: 'departments',
-            action: 'find',
-            method: 'query',
-            input: {
-              _id: { $in: departmentIds },
-            },
+          content.push({
+            branchId: condition.branchId,
+            branch: branchById[condition.branchId],
+            departmentId: condition.departmentId,
+            department: departmentById[condition.departmentId],
+            date: new Date(),
+            name: deal.name,
+            number: deal.number,
+            customerCode,
+            customerName,
+            pDatas: filteredData.map(fd => ({
+              ...fd,
+              product: productById[fd.productId],
+            })),
+            amount: filteredData.reduce((sum, i) => sum + i.amount, 0),
           });
+        }
 
-          const departmentById: Record<string, any> = {};
-          for (const department of departments) {
-            departmentById[department._id] = department;
-          }
-
-          const content: any[] = [];
-
-          for (const condition of printConfig.conditions) {
-            const filteredData = pDatas.filter(
-              pd =>
-                pd.branchId === condition.branchId &&
-                pd.departmentId === condition.departmentId
-            );
-
-            if (!filteredData.length) {
-              continue;
+        if (content.length) {
+          await graphqlPubsub.publish(
+            `productPlacesResponded:${user._id}`,
+            {
+              productPlacesResponded: {
+                userId: user._id,
+                responseId: deal._id,
+                sessionCode: user.sessionCode || '',
+                content,
+              },
             }
-
-            content.push({
-              branchId: condition.branchId,
-              branch: branchById[condition.branchId],
-              departmentId: condition.departmentId,
-              department: departmentById[condition.departmentId],
-              date: new Date(),
-              name: deal.name,
-              number: deal.number,
-              customerCode,
-              customerName,
-              pDatas: filteredData.map(fd => ({
-                ...fd,
-                product: productById[fd.productId],
-              })),
-              amount: filteredData.reduce((sum, i) => sum + i.amount, 0),
-            });
-          }
-
-          if (content.length) {
-            await graphqlPubsub.publish(
-              `productPlacesResponded:${user._id}`,
-              {
-                productPlacesResponded: {
-                  userId: user._id,
-                  responseId: deal._id,
-                  sessionCode: user.sessionCode || '',
-                  content,
-                },
-              }
-            );
-          }
+          );
         }
       }
     }
