@@ -365,7 +365,13 @@ const getPerValue = async <TModels>({
   )?.config;
 
   if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
-    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+    try {
+      const sanitizedExpr = updatedValue.replace(/{{.*}}/, '0');
+      const safeEval = Function('"use strict"; return (' + sanitizedExpr + ')');
+      updatedValue = safeEval();
+    } catch {
+      updatedValue = 0;
+    }
   }
 
   if (field.includes('Ids')) {

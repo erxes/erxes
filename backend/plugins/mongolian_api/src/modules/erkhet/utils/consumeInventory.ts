@@ -87,7 +87,10 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     }
 
     if (config.consumeDescription) {
-      doc.description = eval('`' + config.consumeDescription + '`');
+      doc.description = config.consumeDescription.replace(
+        /\$\{doc\.(\w+)\}/g,
+        (_, key) => (doc[key] !== undefined ? String(doc[key]) : ''),
+      );
     }
 
     if (product) {

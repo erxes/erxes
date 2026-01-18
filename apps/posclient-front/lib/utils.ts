@@ -260,10 +260,10 @@ export const getPaymentType = (paymentTypes: IPaymentType[], type: string) =>
 
 export function strToObj(str?: string | { [key: string]: string }) {
   if (!str) return {}
+  if (typeof str === 'object') return str
   try {
-    const obj = eval("(" + str + ")")
-    return obj
-  } catch (error) {
+    return JSON.parse(str)
+  } catch {
     return {}
   }
 }
