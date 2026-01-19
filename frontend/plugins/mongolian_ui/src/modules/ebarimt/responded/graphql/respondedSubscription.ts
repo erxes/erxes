@@ -1,4 +1,6 @@
-const ebarimtSubscription = `
+import { gql } from '@apollo/client';
+
+export const EBARIMT_RESPONDED = gql`
 	subscription ebarimtResponded($userId: String, $processId: String) {
 		ebarimtResponded(userId: $userId, processId: $processId) {
 			content
@@ -9,4 +11,4 @@ const ebarimtSubscription = `
 	}
 `;
 
-export default { ebarimtSubscription };
+export default { EBARIMT_RESPONDED };

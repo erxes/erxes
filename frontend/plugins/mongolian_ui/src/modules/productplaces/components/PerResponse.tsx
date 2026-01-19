@@ -53,7 +53,7 @@ const getRows = (stocks: Stock[]): string => {
   return res;
 };
 
-const PerResponse = (response: ResponseData, counter?: number): string => {
+export const PerResponse = (response: ResponseData, counter?: number): string => {
   const showSplitter = Boolean(counter && counter > 0);
   const showNumber = Boolean(response.number);
   const showCustomer =
@@ -90,9 +90,8 @@ const PerResponse = (response: ResponseData, counter?: number): string => {
         </p>
         <p>
           Department:
-          ${response.department?.code || ''} - ${
-            response.department?.title || ''
-          }
+          ${response.department?.code || ''} - ${response.department?.title || ''
+    }
         </p>
       </div>
       ${customerBlock}
@@ -120,5 +119,3 @@ const PerResponse = (response: ResponseData, counter?: number): string => {
     </script>
   `;
 };
-
-export default PerResponse;

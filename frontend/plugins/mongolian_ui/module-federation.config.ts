@@ -33,14 +33,15 @@ const config: ModuleFederationConfig = {
     './put-responses-duplicated':
       './src/modules/put-response/put-responses-duplicated/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
-     './productplaces': './src/modules/productplaces/Main.tsx',
-     './productplacesSettings':
+    './floatingWidget': './src/widgets/FloatingWidget.tsx',
+    './productplaces': './src/modules/productplaces/Main.tsx',
+    './productplacesSettings':
       './src/pages/productplaces/ProductPlacesSettings.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
     if (coreLibraries.has(libraryName)) {
-       return {
+      return {
         ...defaultConfig,
         // Ensure singleton for React Router
         singleton: true,

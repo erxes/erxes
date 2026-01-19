@@ -3,7 +3,7 @@ import { withFilter } from 'graphql-subscriptions';
 export default {
   name: 'mongolian',
   typeDefs: `
-    ebarimtResponded(userId: String, processId: String): AutomationResponse
+    ebarimtResponded(userId: String, processId: String): EbarimtResponse
   `,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -12,12 +12,13 @@ export default {
           (_, { userId }) =>
             graphqlPubsub.asyncIterator(`ebarimtResponded:${userId}`),
           (payload, variables) => {
+
             return (
-              payload.ebarimtResponded.processId === variables.processId
+              payload.userId === variables.userId
             );
           },
         ),
       },
-    };
+    }
   },
 };

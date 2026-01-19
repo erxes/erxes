@@ -157,7 +157,7 @@ export const afterMutationHandlers = async (
         ebarimtResponded: {
           userId,
           responseId: ebarimtResponses.map((er) => er._id).join('-'),
-          // sessionCode: user.sessionCode || '',
+          processId,
           content: ebarimtResponses.map((er) => ({
             ...config,
             ...er,

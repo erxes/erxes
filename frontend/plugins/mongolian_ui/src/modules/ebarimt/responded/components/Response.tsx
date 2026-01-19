@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Response = (content: any): string => {
+export const Response = (content: any) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -9,6 +9,8 @@ export const Response = (content: any): string => {
       <meta charset="utf-8">
       <link rel="stylesheet" href="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/print.css" media="print">
       <script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jquery.js"></script>
+      <script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/qrcodegen.js"></script>
+      <script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jsbarcode.js"></script>
     </head>
 
     <body>
@@ -47,7 +49,10 @@ export const Response = (content: any): string => {
 
         table tr:last-child td {
           border-bottom: 1px dashed #444;
+        }
 
+        .right {
+          text-align: right
         }
 
         table thead th {
@@ -66,6 +71,20 @@ export const Response = (content: any): string => {
           text-align: center;
         }
 
+        .lottery {
+          font-weight: bold;
+          margin-top: 20px;
+        }
+
+        .barcode img {
+          margin: 10px auto;
+        }
+
+        .barcode p {
+          font-weight: bold;
+          font-size: 12px;
+        }
+
         p {
           margin-bottom: 10px;
           margin-top: 5px;
@@ -77,20 +96,26 @@ export const Response = (content: any): string => {
 
         .inventory-info {
           font-weight: bold;
+          text-align: left;
         }
 
         .total {
-          margin-top: 10px;
+          margin-top: 30px;
+          text-align: right;
         }
 
         .total label {
           font-weight: bold;
         }
+
+        canvas {
+          display: none;
+        }
       </style>
       <script>
         setTimeout(() => {
           window.print();
-        }, 150);
+        }, "150");
       </script>
     </body>
 
