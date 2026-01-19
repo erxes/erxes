@@ -285,10 +285,7 @@ export const dealTrpcRouter = t.router({
         }
       }
 
-      return {
-        status: "success",
-        data: pipeline,
-      };
+      return pipeline
     })
   }
 });

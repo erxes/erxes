@@ -504,6 +504,11 @@ export const getItemList = async (
   user: IUserDocument,
   getExtraFields?: (item: any) => { [key: string]: any },
 ) => {
+  const { orderBy } = args;
+  if (!orderBy || !Object.keys(orderBy)) {
+    args.orderBy = { order: 1 }
+  }
+
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
     model: models.Deals,
     params: args,
