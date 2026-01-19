@@ -14,7 +14,7 @@ export default {
           (payload, variables) => {
 
             return (
-              payload.userId === variables.userId
+              payload?.ebarimtResponded?.userId === variables.userId
             );
           },
         ),

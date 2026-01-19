@@ -1,10 +1,9 @@
 import { useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
-import { useState } from 'react';
 import { currentUserState } from 'ui-modules';
 import { EBARIMT_RESPONDED } from '~/modules/ebarimt/responded/graphql/respondedSubscription';
-import { PerResponse } from '~/modules/productplaces/components/PerResponse';
-import { Response } from '~/modules/productplaces/components/Response';
+import { PerResponse } from '~/modules/ebarimt/responded/components/PerResponse';
+import { Response } from '~/modules/ebarimt/responded/components/Response';
 
 export const EbarimtRespondedPage = () => {
 
