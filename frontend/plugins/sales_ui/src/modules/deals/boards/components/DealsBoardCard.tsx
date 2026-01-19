@@ -9,7 +9,9 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { memo } from 'react';
+import { DealsCount } from '../../cards/components/item/DealsCount';
 import { useSetAtom } from 'jotai';
+import { usePipelineDetail } from '../hooks/usePipelines';
 
 interface DealsBoardCardProps {
   deal: IDeal;
@@ -68,6 +70,45 @@ export const DealsBoardCard = memo(function DealsBoardCard({
 
   const dealProducts = filterProducts(true);
   const excludedProducts = filterProducts(false);
+  const { pipelineDetail } = usePipelineDetail({
+    variables: { _id: deal.pipeline._id },
+    skip: !deal.pipeline._id,
+  });
+
+  const nameConfig = pipelineDetail?.nameConfig;
+
+  const parseName = (template: string, deal: IDeal) => {
+    if (!template) return name;
+
+    let parsed = template.replace(/^["']|["']$/g, '');
+
+    const customer = deal.customers?.[0];
+    if (customer) {
+      parsed = parsed.replace(
+        /\{customer\.firstName\}/g,
+        customer.firstName || '',
+      );
+      parsed = parsed.replace(
+        /\{customer\.lastName\}/g,
+        customer.lastName || '',
+      );
+      parsed = parsed.replace(
+        /\{customer\.primaryEmail\}/g,
+        customer?.primaryEmail || '',
+      );
+      parsed = parsed.replace(
+        /\{customer\.primaryPhone\}/g,
+        customer?.primaryPhone || '',
+      );
+    }
+
+    const company = deal.companies?.[0];
+    if (company) {
+      parsed = parsed.replace(/\{company\.name\}/g, company.primaryName || '');
+    }
+
+    return parsed || name;
+  };
 
   return (
     <div
@@ -96,7 +137,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           </div>
         )}
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold">{name}</h5>
+          <h5 className="font-semibold">{nameConfig ? parseName(nameConfig || '', deal) : name}</h5>
+          <DealsCount item={deal} />
         </div>
         <div className="flex flex-wrap gap-1">
           <SelectDealPriority

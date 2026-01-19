@@ -10,6 +10,8 @@ export interface ICustomerInline {
   middleName?: string;
   primaryEmail?: string;
   primaryPhone?: string;
+  email?: string;
+  phone?: string;
   avatar?: string;
 }
 export interface ICustomer extends ICustomerInline {

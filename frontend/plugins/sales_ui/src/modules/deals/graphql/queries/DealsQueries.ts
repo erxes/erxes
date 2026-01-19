@@ -93,7 +93,8 @@ export const commonListFields = `
     _id
     firstName
     lastName
-    email
+    primaryEmail
+    primaryPhone
   }
   assignedUsers {
     _id
@@ -220,7 +221,8 @@ export const GET_DEAL_DETAIL = gql`
         _id
         firstName
         lastName
-        email
+        primaryEmail
+        primaryPhone
       }
       products {
         _id
