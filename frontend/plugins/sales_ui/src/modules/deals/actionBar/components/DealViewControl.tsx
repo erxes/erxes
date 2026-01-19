@@ -18,9 +18,11 @@ const DealsBoard = lazy(() =>
 );
 
 const DealsRecordTable = lazy(() =>
-  import('@/deals/boards/components/DealsRecordTable').then((mod) => ({
-    default: mod.DealsRecordTable,
-  })),
+  import('~/modules/deals/boards/components/list/DealsRecordTable').then(
+    (mod) => ({
+      default: mod.DealsRecordTable,
+    }),
+  ),
 );
 
 export const DealsViewControl = () => {

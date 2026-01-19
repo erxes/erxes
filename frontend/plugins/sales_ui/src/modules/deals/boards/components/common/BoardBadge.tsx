@@ -2,7 +2,7 @@ import { Badge, Skeleton, TextOverflowTooltip, toast } from 'erxes-ui';
 
 import { IBoard } from '@/deals/types/boards';
 import React from 'react';
-import { useBoardDetail } from '../hooks/useBoards';
+import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 
 export const BoardBadge = React.forwardRef<
   React.ElementRef<typeof Badge>,

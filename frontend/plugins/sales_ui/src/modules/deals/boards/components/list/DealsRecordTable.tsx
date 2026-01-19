@@ -1,7 +1,7 @@
 import { RecordTable, useQueryState } from 'erxes-ui';
 
-import { DealsColumn } from '@/deals/boards/components/DealsColumn';
-import { DealsCommandBar } from '@/deals/actionBar/components/DealsListCommandBar';
+import { DealsColumn } from '~/modules/deals/boards/components/list/DealsColumn';
+import { DealsCommandBar } from '~/modules/deals/boards/components/list/DealsListCommandBar';
 import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useSearchParams } from 'react-router-dom';

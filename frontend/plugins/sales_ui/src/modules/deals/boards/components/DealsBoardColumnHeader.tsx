@@ -1,7 +1,5 @@
 import { Button, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
 import { IconArrowLeft, IconDots, IconPlus } from '@tabler/icons-react';
-import { PrintDialog } from './Print';
-
 import {
   dealCreateDefaultValuesState,
   dealCreateSheetState,
@@ -14,10 +12,11 @@ import {
 
 import { BoardDealColumn } from '@/deals/types/boards';
 import ItemProductProbabilities from './ItemProductProbabilities';
+import { PrintDialog } from './common/Print';
+import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
-import { useDeals } from '@/deals/cards/hooks/useDeals';
 
 type Props = {
   column: BoardDealColumn;
