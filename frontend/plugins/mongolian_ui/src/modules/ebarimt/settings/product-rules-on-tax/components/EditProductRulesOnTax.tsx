@@ -27,12 +27,12 @@ export const EditProductRulesOnTax = () => {
       taxCode: '',
       kind: '',
       percent: 0,
-      productCategories: '',
-      excludeCategories: '',
-      products: '',
-      excludeProducts: '',
-      tags: '',
-      excludeTags: '',
+      productCategoryIds: '',
+      excludeCategoryIds: '',
+      productIds: '',
+      excludeProductIds: '',
+      tagIds: '',
+      excludeTagIds: '',
       status: '',
     },
   });
@@ -57,12 +57,12 @@ export const EditProductRulesOnTax = () => {
         taxCode: productRulesOnTaxDetail.taxCode || '',
         kind: productRulesOnTaxDetail.kind || '',
         percent: productRulesOnTaxDetail.taxPercent || 0,
-        productCategories,
-        excludeCategories,
-        products,
-        excludeProducts,
-        tags,
-        excludeTags,
+        productCategoryIds: productCategories,
+        excludeCategoryIds: excludeCategories,
+        productIds: products,
+        excludeProductIds: excludeProducts,
+        tagIds: tags,
+        excludeTagIds: excludeTags,
         status: productRulesOnTaxDetail.status || '',
       });
     }
@@ -71,22 +71,41 @@ export const EditProductRulesOnTax = () => {
   const handleSubmit = (data: TProductRulesOnTaxForm) => {
     if (!productRulesOnTaxDetail) return;
 
-    const productCategoryIds = data.productCategories
-      ? data.productCategories.split(',').map((s) => s.trim())
+    const productCategoryIds = data.productCategoryIds
+      ? data.productCategoryIds.split(',').map((s) => s.trim())
       : [];
-    const excludeCategoryIds = data.excludeCategories
-      ? data.excludeCategories.split(',').map((s) => s.trim())
+    const excludeCategoryIds = data.excludeCategoryIds
+      ? data.excludeCategoryIds.split(',').map((s) => s.trim())
       : [];
-    const productIds = data.products
-      ? data.products.split(',').map((s) => s.trim())
+    const productIds = data.productIds
+      ? data.productIds.split(',').map((s) => s.trim())
       : [];
-    const excludeProductIds = data.excludeProducts
-      ? data.excludeProducts.split(',').map((s) => s.trim())
+    const excludeProductIds = data.excludeProductIds
+      ? data.excludeProductIds.split(',').map((s) => s.trim())
       : [];
-    const tagIds = data.tags ? data.tags.split(',').map((s) => s.trim()) : [];
-    const excludeTagIds = data.excludeTags
-      ? data.excludeTags.split(',').map((s) => s.trim())
+    const tagIds = data.tagIds
+      ? data.tagIds.split(',').map((s) => s.trim())
       : [];
+    const excludeTagIds = data.excludeTagIds
+      ? data.excludeTagIds.split(',').map((s) => s.trim())
+      : [];
+
+    const newData: any = {
+      title: data.title,
+      taxType: data.taxType,
+      taxCode: data.taxCode,
+      kind: data.kind,
+      productCategoryIds,
+      excludeCategoryIds,
+      productIds,
+      excludeProductIds,
+      tagIds,
+      excludeTagIds,
+    };
+
+    if (data.kind !== 'ctax') {
+      newData.taxPercent = data.percent;
+    }
 
     const initialData = {
       title: productRulesOnTaxDetail.title || '',
@@ -102,21 +121,15 @@ export const EditProductRulesOnTax = () => {
       excludeTagIds: productRulesOnTaxDetail.excludeTagIds || [],
     };
 
-    const newData = {
-      title: data.title,
-      taxType: data.taxType,
-      taxCode: data.taxCode,
-      kind: data.kind,
-      taxPercent: data.percent,
-      productCategoryIds,
-      excludeCategoryIds,
-      productIds,
-      excludeProductIds,
-      tagIds,
-      excludeTagIds,
-    };
+    const comparisonData = { ...newData };
+    const comparisonInitial = { ...initialData };
 
-    if (isDeeplyEqual(newData, initialData)) {
+    if (data.kind === 'ctax') {
+      delete comparisonData.taxPercent;
+      delete comparisonInitial.taxPercent;
+    }
+
+    if (isDeeplyEqual(comparisonData, comparisonInitial)) {
       toast({
         title: 'Success',
         description: 'No changes made',
@@ -129,8 +142,8 @@ export const EditProductRulesOnTax = () => {
       variables: {
         id: productRulesOnTaxDetail._id,
         ...newData,
-        tags: data.tags,
-        excludeTags: data.excludeTags,
+        tags: data.tagIds,
+        excludeTags: data.excludeTagIds,
         status: data.status,
       },
       onCompleted: () => {
