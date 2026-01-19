@@ -1,6 +1,6 @@
 import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { IFormsEdit, IFormSubmission } from '~/modules/form/@types/form';
+import { IFormSubmission } from '~/modules/form/@types/form';
 import { IForm } from '~/modules/form/db/definitions/forms';
 
 export const formMutations = {
@@ -28,12 +28,12 @@ export const formMutations = {
   /**
    * Update a form data
    */
-  formsEdit: async (
-    _root,
-    { _id, ...doc }: IForm,
-    { models }: IContext,
-  ) => {
-    return await models.Forms.updateForm(_id, doc);
+  formsEdit: async (_root, { _id, ...doc }: IForm, { models }: IContext) => {
+    return models.Forms.updateForm(_id, {
+      title: doc.title,
+      description: doc.description,
+      buttonText: doc.buttonText,
+    });
   },
 
   /**

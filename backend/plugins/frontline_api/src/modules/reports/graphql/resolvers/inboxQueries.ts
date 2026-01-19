@@ -11,7 +11,7 @@ import {
   normalizeStatus,
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
-export const reportQueries = {
+export const reportInboxQueries = {
   async conversationProgressChart(
     _parent: undefined,
     { customerId }: { customerId: string },
@@ -110,13 +110,13 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
         },
       },
       {
         $group: {
-          _id: { assigneeId: '$assignedUserId', status: '$status' },
+          _id: { assigneeId: '$memberIds', status: '$status' },
           count: { $sum: 1 },
         },
       },
@@ -207,7 +207,7 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
         },
       },
@@ -263,7 +263,7 @@ export const reportQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $ne: null },
+          memberIds: { $ne: null },
           status: { $in: statuses },
           tagIds: { $exists: true, $not: { $size: 0 } },
         },
@@ -280,6 +280,10 @@ export const reportQueries = {
     const pipeline = await buildConversationPipeline(filters, models);
 
     pipeline.push(...buildDateGroupPipeline('createdAt'));
+
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
 
     const result = await models.Conversations.aggregate(pipeline);
 
@@ -327,6 +331,10 @@ export const reportQueries = {
     });
 
     pipeline.push(...buildDateGroupPipeline('closedAt'));
+
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
+    }
 
     const result = await models.Conversations.aggregate(pipeline);
 
@@ -486,6 +494,11 @@ export const reportQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
+    interface ITagInfo {
+      name: string;
+      colorCode?: string;
+    }
+
     const pipeline = await buildConversationPipeline(filters, models);
 
     pipeline.push(
@@ -495,29 +508,51 @@ export const reportQueries = {
       { $limit: filters.limit ?? 10 },
     );
 
-    const tagCounts = await models.Conversations.aggregate(pipeline);
+    const tagCounts: Array<{ _id: any; count: number }> =
+      await models.Conversations.aggregate(pipeline);
 
-    const total = tagCounts.reduce((s, t) => s + t.count, 0);
+    if (!tagCounts.length) {
+      return [];
+    }
+
+    const total = tagCounts.reduce((sum, t) => sum + t.count, 0);
     const tagIds = tagCounts.map((t) => t._id);
 
-    const tags = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'tags',
-      action: 'find',
-      input: { query: { _id: { $in: tagIds } }, fields: { _id: 1, name: 1 } },
-      defaultValue: [],
+    const tags: Array<{ _id: any; name: string; colorCode?: string }> =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          query: { _id: { $in: tagIds } },
+          fields: { _id: 1, name: 1, colorCode: 1 },
+        },
+        defaultValue: [],
+      });
+
+    const tagMap = new Map<string, ITagInfo>(
+      tags.map((t) => [
+        t._id.toString(),
+        {
+          name: t.name,
+          colorCode: t.colorCode,
+        },
+      ]),
+    );
+
+    return tagCounts.map((tag) => {
+      const info = tagMap.get(tag._id.toString());
+
+      return {
+        _id: tag._id,
+        name: info?.name ?? 'Unknown Tag',
+        colorCode: info?.colorCode ?? '#000',
+        count: tag.count,
+        percentage: total ? calculatePercentage(tag.count, total) : 0,
+      };
     });
-
-    const tagMap = new Map(tags.map((t) => [t._id.toString(), t.name]));
-
-    return tagCounts.map((tag) => ({
-      _id: tag._id,
-      name: tagMap.get(tag._id.toString()) || 'Unknown Tag',
-      count: tag.count,
-      percentage: calculatePercentage(tag.count, total),
-    }));
   },
 
   async reportConversationSources(

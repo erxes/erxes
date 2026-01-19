@@ -7,6 +7,7 @@ import {
   LEAD_SUCCESS_ACTIONS,
 } from '~/modules/inbox/db/definitions/constants';
 import { ruleSchema } from 'erxes-api-shared/core-modules';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export interface IForm {
   _id: string;
@@ -75,7 +76,6 @@ export interface ILeadData {
   thanksImage?: string;
   primaryColor?: string;
   steps?: { [key: string]: any };
-
 }
 
 export interface ILeadDataDocument extends ILeadData, Document {
@@ -86,6 +86,7 @@ export interface ILeadDataDocument extends ILeadData, Document {
 export type IFormDocument = HydratedDocument<IForm>;
 
 export interface IFormSubmission {
+  _id?: string;
   customerId?: string;
   userId?: string;
   contentType?: string;
@@ -103,8 +104,8 @@ export interface IFormSubmissionDocument extends IFormSubmission, Document {
 
 // schema for form submission document
 export const formSubmissionSchema = schemaWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
+  new Schema<IFormSubmission>({
+    _id: mongooseStringRandomId,
     customerId: field({ type: String, optional: true }),
     userId: field({ type: String, optional: true }),
     contentType: field({ type: String, optional: true }),
@@ -289,8 +290,8 @@ export const leadDataSchema = new Schema(
 
 // schema for form document
 export const formSchema = schemaWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
+  new Schema<IForm>({
+    _id: mongooseStringRandomId,
     name: field({ type: String, required: true }),
     title: field({ type: String, optional: true }),
     type: field({ type: String, required: true }),
