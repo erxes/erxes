@@ -31,11 +31,11 @@ const NotificationContentWrapper = ({
 }: {
   notification: INotification;
 }) => {
-  const [pluginName, moduleName, collectionType] = (
-    notification?.contentType || ''
+  const [pluginName = 'core', collectionType = ''] = (
+    notification?.contentType ?? ''
   )
     .replace(':', '.')
-    .split('.');
+    .split('.', 2);
 
   if (pluginName === 'core') {
     const CoreNotificationComponent =
@@ -49,7 +49,6 @@ const NotificationContentWrapper = ({
     <RenderPluginsComponent
       pluginName={`${pluginName}_ui`}
       remoteModuleName="notificationWidget"
-      moduleName={moduleName}
       props={notification}
     />
   );

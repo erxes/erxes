@@ -1,6 +1,7 @@
 import { IconCheck, IconChevronDown } from '@tabler/icons-react';
 import { Combobox, Popover, inputVariants } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
+import { PopoverScoped } from 'erxes-ui/modules';
 import React, { createContext, useContext, useState } from 'react';
 import { IMaskInput } from 'react-imask';
 
@@ -48,6 +49,7 @@ export const ColorPickerProvider = ({
   colors = DEFAULT_COLORS,
   open,
   onOpenChange,
+  scope,
 }: {
   children: React.ReactNode;
   value?: string;
@@ -55,6 +57,7 @@ export const ColorPickerProvider = ({
   colors?: Record<string, string>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  scope?: string;
 }) => {
   return (
     <ColorPickerContext.Provider
@@ -64,9 +67,9 @@ export const ColorPickerProvider = ({
         colors,
       }}
     >
-      <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverScoped scope={scope} open={open} onOpenChange={onOpenChange}>
         {children}
-      </Popover>
+      </PopoverScoped>
     </ColorPickerContext.Provider>
   );
 };
@@ -150,13 +153,15 @@ const ColorPickerRoot = React.forwardRef<
     value?: string;
     onValueChange?: (value: string) => void;
     colors?: Record<string, string>;
+    scope?: string;
   }
->(({ value, onValueChange, colors, className, ...props }, ref) => {
+>(({ value, onValueChange, colors, scope, className, ...props }, ref) => {
   const [open, setOpen] = useState(false);
 
   return (
     <ColorPickerProvider
       value={value}
+      scope={scope}
       onValueChange={(newValue) => {
         onValueChange?.(newValue);
       }}

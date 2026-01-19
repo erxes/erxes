@@ -100,7 +100,6 @@ export const SelectChartContent = () => {
     ? RESPONSES_CHART_TYPE_OPTIONS.filter(
         (option) =>
           option.value !== ResponsesChartType.Pie &&
-          option.value !== ResponsesChartType.Donut &&
           option.value !== ResponsesChartType.Radar &&
           option.value !== ResponsesChartType.Table,
       )

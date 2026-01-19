@@ -45,6 +45,7 @@ type IMeta = {
   afterProcess?: AfterProcessConfigs;
   payments?: any;
   notificationModules?: any[];
+  tags?: any;
 };
 
 type ApiHandler = {
@@ -245,7 +246,7 @@ export async function startPlugin(
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers: wrapApolloResolvers(resolvers as any),
+          resolvers,
         },
       ]),
 

@@ -9,23 +9,6 @@ export const useTagEdit = () => {
   const mutate = (options: MutationHookOptions) => {
     editTag({
       ...options,
-      // optimisticResponse: {
-      //   tagsEdit: {
-      //     __typename: 'Tag',
-      //     _id: 'new',
-      //     name: variables?.name || '',
-      //     colorCode: variables?.colorCode || '',
-      //     isGroup: variables?.isGroup || false,
-      //     parentId: variables?.parentId || null,
-      //     description: variables?.description || null,
-      //     type: variables?.type,
-      //     createdAt: new Date().toISOString(),
-      //     relatedIds: variables?.relatedIds || null,
-      //     order: variables?.order || null,
-      //     objectCount: variables?.objectCount || null,
-      //     totalObjectCount: variables?.totalObjectCount || null,
-      //   },
-      // },
       update: (cache, { data: { tagsEdit } }) => {
         cache.modify({
           id: cache.identify(tagsEdit),

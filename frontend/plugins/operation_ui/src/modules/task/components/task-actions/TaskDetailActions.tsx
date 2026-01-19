@@ -1,10 +1,10 @@
-import { Button, Command, Popover } from 'erxes-ui';
+import { Button, Command, Popover, toast } from 'erxes-ui';
 import { useState } from 'react';
 import {
   TasksSetDueDateCommandBarItem,
   TasksSetDueDateTrigger,
 } from './SetDueDate';
-import { IconDotsVertical } from '@tabler/icons-react';
+import { IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
@@ -12,13 +12,20 @@ import {
 import { MakeACopyTrigger } from './MakeACopy';
 import { CopyTaskTrigger, CopyTaskCommandBarItem } from './CopyTask';
 import { useGetTask } from '@/task/hooks/useGetTask';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useRemoveTask } from '@/task/hooks/useRemoveTask';
+import { useSetAtom } from 'jotai';
+import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
 
 export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('main');
   const { task } = useGetTask({ variables: { _id: taskId } });
   const { teamId } = useParams();
+  const { removeTask } = useRemoveTask();
+  const navigate = useNavigate();
+  const setActiveTask = useSetAtom(taskDetailSheetState);
+
   return (
     <Popover
       open={open}
@@ -49,6 +56,42 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                 <TasksMoveToTeamTrigger setCurrentContent={setCurrentContent} />
                 <MakeACopyTrigger taskId={taskId} setOpen={setOpen} />
                 <CopyTaskTrigger setCurrentContent={setCurrentContent} />
+              </Command.Group>
+              <Command.Separator />
+              <Command.Group>
+                <Command.Item
+                  className="text-destructive"
+                  onSelect={async () => {
+                    await removeTask(taskId, {
+                      onCompleted: () => {
+                        setOpen(false);
+                        setActiveTask(null);
+                        if (teamId) {
+                          navigate(`/operation/team/${teamId}/tasks`);
+                        } else {
+                          navigate(`/operation/tasks`);
+                        }
+                        toast({
+                          title: 'Success',
+                          description: `Deleted ${task?.name}`,
+                          variant: 'success',
+                        });
+                      },
+                      onError: () => {
+                        toast({
+                          title: 'Error',
+                          description: `Failed to delete ${task?.name}`,
+                          variant: 'destructive',
+                        });
+                      },
+                    });
+                  }}
+                >
+                  <div className="flex gap-2 items-center">
+                    <IconTrash className="size-4" />
+                    Delete
+                  </div>
+                </Command.Item>
               </Command.Group>
             </Command.List>
           </Command>

@@ -308,11 +308,11 @@ export function Posts() {
       <div className="border rounded-lg mb-4">
         <div className="p-2 flex items-center gap-3 flex-wrap">
           {/* Custom Type Filter */}
-          <CustomTypeFilterButton
+          {/* <CustomTypeFilterButton
             typeFilter={typeFilter}
             onTypeChange={setTypeFilter}
             customTypes={customTypes}
-          />
+          /> */}
           {/* Categories */}
           <CategoriesFilterButton
             categoryFilters={categoryFilters}
