@@ -24,6 +24,14 @@ const safeArithmeticEval = (expr: string): number => {
       pos++;
       return result;
     }
+    if (tokens[pos] === '-') {
+      pos++;
+      return -parseNumber();
+    }
+    if (tokens[pos] === '+') {
+      pos++;
+      return parseNumber();
+    }
     return parseFloat(tokens[pos++]) || 0;
   };
 
