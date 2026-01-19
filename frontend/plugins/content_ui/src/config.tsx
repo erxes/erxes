@@ -11,7 +11,7 @@ const ContentNavigation = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'content',
-  icon: IconLibraryPhoto,
+  path: 'content',
   navigationGroup: {
     name: 'content',
     icon: IconLibraryPhoto,
@@ -26,15 +26,11 @@ export const CONFIG: IUIConfig = {
       name: 'knowledgebase',
       icon: IconBooks,
       path: 'content/knowledgebase',
-      hasSettings: false,
-      hasRelationWidget: false,
     },
     {
       name: 'cms',
       icon: IconBooks,
       path: 'content/cms',
-      hasSettings: false,
-      hasRelationWidget: false,
     },
   ],
 };

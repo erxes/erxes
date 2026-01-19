@@ -1,4 +1,5 @@
 import { ICustomField } from 'erxes-api-shared/core-types';
+import { Document } from 'mongoose';
 
 export interface ITranslation {
   postId: string;

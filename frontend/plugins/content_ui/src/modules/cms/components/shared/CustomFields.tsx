@@ -3,18 +3,16 @@ import {
   Sheet,
   Input,
   toast,
-  Dialog,
   Select,
   Checkbox,
   MultipleSelector,
+  Collapsible,
+  Table,
+  DropdownMenu,
+  Spinner,
+  useConfirm,
 } from 'erxes-ui';
-import {
-  IconPlus,
-  IconEdit,
-  IconTrash,
-  IconSettings,
-  IconChevronRight,
-} from '@tabler/icons-react';
+import { IconPlus, IconEdit, IconTrash, IconDots } from '@tabler/icons-react';
 import { useState } from 'react';
 import { CmsLayout } from './CmsLayout';
 import { useParams } from 'react-router-dom';
@@ -62,10 +60,7 @@ export function CustomFields() {
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
   const [editingGroup, setEditingGroup] = useState<any>(null);
   const [editingField, setEditingField] = useState<any>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{
-    type: 'group' | 'field';
-    id: string;
-  } | null>(null);
+  const { confirm } = useConfirm();
 
   const { data, loading, refetch } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
     variables: { clientPortalId: websiteId },
@@ -118,10 +113,7 @@ export function CustomFields() {
     onCompleted: () => {
       toast({ title: 'Success', description: 'Field group deleted!' });
       refetch();
-      setDeleteConfirm(null);
-      if (selectedGroup?._id === deleteConfirm?.id) {
-        setSelectedGroup(null);
-      }
+      setSelectedGroup(null);
     },
     onError: (error) => {
       toast({
@@ -223,9 +215,7 @@ export function CustomFields() {
         fieldForm.reset();
         setIsFieldDrawerOpen(false);
         setEditingField(null);
-
-        const updatedGroup = { ...selectedGroup, fields: updatedFields };
-        setSelectedGroup(updatedGroup);
+        refetch();
       },
     });
   };
@@ -253,20 +243,24 @@ export function CustomFields() {
     setIsFieldDrawerOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    if (!deleteConfirm) return;
+  const handleDeleteGroup = (groupId: string) => {
+    confirm({
+      message:
+        'Are you sure you want to delete this field group? All fields in this group will also be deleted.',
+    }).then(() => {
+      removeGroup({ variables: { _id: groupId } });
+    });
+  };
 
-    if (deleteConfirm.type === 'group') {
-      removeGroup({ variables: { _id: deleteConfirm.id } });
-    } else {
-      if (!selectedGroup) return;
-
+  const handleDeleteField = (fieldId: string) => {
+    if (!selectedGroup) return;
+    confirm({
+      message: 'Are you sure you want to delete this field?',
+    }).then(() => {
       const currentFields = Array.isArray(selectedGroup.fields)
         ? selectedGroup.fields
         : [];
-      const updatedFields = currentFields.filter(
-        (f: any) => f._id !== deleteConfirm.id,
-      );
+      const updatedFields = currentFields.filter((f: any) => f._id !== fieldId);
 
       editGroup({
         variables: {
@@ -281,34 +275,68 @@ export function CustomFields() {
         },
         onCompleted: () => {
           toast({ title: 'Success', description: 'Field deleted!' });
-          setDeleteConfirm(null);
-
           const updatedGroup = { ...selectedGroup, fields: updatedFields };
           setSelectedGroup(updatedGroup);
         },
       });
-    }
+    });
   };
 
   const groups = data?.cmsCustomFieldGroupList?.list || [];
   const customTypes = customTypesData?.cmsCustomPostTypes || [];
-  const fields = Array.isArray(selectedGroup?.fields)
-    ? selectedGroup.fields
-    : [];
 
   const selectedFieldType = fieldForm.watch('type');
   const needsOptions = ['select', 'radio'].includes(selectedFieldType);
 
   return (
     <CmsLayout>
-      <div className="flex h-full">
-        {/* Left Sidebar - Groups List */}
-        <div className="w-80 border-r flex flex-col">
-          <div className="p-4 border-b bg-white">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-semibold">Field Groups</h2>
+      <div className="p-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-xl font-semibold">Custom Fields</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Manage custom field groups and fields
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setEditingGroup(null);
+                groupForm.reset({
+                  label: '',
+                  code: '',
+                  customPostTypeIds: [],
+                });
+                setIsGroupDrawerOpen(true);
+              }}
+            >
+              <IconPlus className="w-4 h-4 mr-2" />
+              Add Group
+            </Button>
+          </div>
+
+          {/* Table Header */}
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>Name</Table.Head>
+                <Table.Head>Type</Table.Head>
+                <Table.Head className="w-12"></Table.Head>
+              </Table.Row>
+            </Table.Header>
+          </Table>
+
+          {/* Groups List */}
+          {loading ? (
+            <div className="py-12 text-center">
+              <Spinner />
+            </div>
+          ) : groups.length === 0 ? (
+            <div className="py-12 text-center border rounded-lg mt-2">
+              <p className="text-muted-foreground mb-4">No field groups yet</p>
               <Button
-                size="sm"
+                variant="secondary"
                 onClick={() => {
                   setEditingGroup(null);
                   groupForm.reset({
@@ -319,264 +347,170 @@ export function CustomFields() {
                   setIsGroupDrawerOpen(true);
                 }}
               >
-                <IconPlus className="w-4 h-4" />
+                <IconPlus className="w-4 h-4 mr-2" />
+                Create First Group
               </Button>
             </div>
-            <p className="text-xs text-gray-500">Manage custom field groups</p>
-          </div>
-
-          <div className="flex-1 overflow-y-auto">
-            {loading ? (
-              <div className="p-4 text-center text-sm text-gray-500">
-                Loading...
-              </div>
-            ) : groups.length === 0 ? (
-              <div className="p-4 text-center">
-                <IconSettings className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-                <p className="text-sm text-gray-500 mb-3">No groups yet</p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setEditingGroup(null);
-                    groupForm.reset({
-                      label: '',
-                      code: '',
-                      customPostTypeIds: [],
-                    });
-                    setIsGroupDrawerOpen(true);
-                  }}
-                >
-                  <IconPlus className="w-3 h-3 mr-1" />
-                  Create Group
-                </Button>
-              </div>
-            ) : (
-              <div className="p-2">
-                {groups.map((group: any) => (
-                  <div
-                    key={group._id}
-                    className={`group flex items-center justify-between p-3 mb-1 rounded-lg cursor-pointer transition-colors ${
-                      selectedGroup?._id === group._id
-                        ? 'border border-primary'
-                        : 'hover:bg-white border border-transparent'
-                    }`}
-                    onClick={() => setSelectedGroup(group)}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm truncate">
-                        {group.label}
-                      </h3>
-                      {group.code && (
-                        <p className="text-xs text-gray-500 truncate">
-                          {group.code}
-                        </p>
-                      )}
-                      {group.customPostTypes &&
-                        group.customPostTypes.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {group.customPostTypes.map((type: any) => (
-                              <span
-                                key={type._id}
-                                className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded"
-                              >
-                                {type.label}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-1 ml-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="opacity-0 group-hover:opacity-100"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditGroup(group);
-                        }}
-                      >
-                        <IconEdit className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="opacity-0 group-hover:opacity-100 text-red-600"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteConfirm({ type: 'group', id: group._id });
-                        }}
-                      >
-                        <IconTrash className="w-3 h-3" />
-                      </Button>
-                      <IconChevronRight className="w-4 h-4 text-gray-400" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Content - Fields List */}
-        <div className="flex-1 flex flex-col">
-          {selectedGroup ? (
-            <>
-              <div className="p-6 border-b bg-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-2xl font-semibold">
-                      {selectedGroup.label}
-                    </h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Manage fields in this group
-                    </p>
-                    {selectedGroup.customPostTypes &&
-                      selectedGroup.customPostTypes.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <span className="text-xs text-gray-500">
-                            Applied to:
-                          </span>
-                          {selectedGroup.customPostTypes.map((type: any) => (
-                            <span
-                              key={type._id}
-                              className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded"
-                            >
-                              {type.label}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                  </div>
-                  <Button
-                    onClick={() => {
-                      setEditingField(null);
-                      fieldForm.reset({
-                        label: '',
-                        code: '',
-                        type: 'text',
-                        description: '',
-                        isRequired: false,
-                        options: '',
-                      });
-                      setIsFieldDrawerOpen(true);
-                    }}
-                  >
-                    <IconPlus className="w-4 h-4 mr-2" />
-                    Add Field
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6">
-                {fields.length === 0 ? (
-                  <div className="bg-white rounded-lg border p-8 text-center">
-                    <IconPlus className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No fields yet</h3>
-                    <p className="text-gray-500 mb-4">
-                      Add custom fields to collect additional data
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setEditingField(null);
-                        fieldForm.reset({
-                          label: '',
-                          code: '',
-                          type: 'text',
-                          description: '',
-                          isRequired: false,
-                          options: '',
-                        });
-                        setIsFieldDrawerOpen(true);
-                      }}
-                    >
-                      <IconPlus className="w-4 h-4 mr-2" />
-                      Add First Field
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {fields.map((field: any) => (
-                      <div
-                        key={field._id}
-                        className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold">{field.label}</h3>
-                              <span className="text-xs px-2 py-0.5 bg-gray-100 rounded">
-                                {field.type}
-                              </span>
-                              {field.isRequired && (
-                                <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded">
-                                  Required
-                                </span>
-                              )}
-                            </div>
-                            {field.code && (
-                              <p className="text-sm text-gray-500 mb-1">
-                                Code:{' '}
-                                <code className="bg-gray-100 px-1 rounded">
-                                  {field.code}
-                                </code>
-                              </p>
-                            )}
-                            {field.description && (
-                              <p className="text-sm text-gray-600 mb-2">
-                                {field.description}
-                              </p>
-                            )}
-                            {field.options && field.options.length > 0 && (
-                              <div className="text-sm">
-                                <span className="text-gray-500">Options: </span>
-                                <span className="text-gray-700">
-                                  {field.options.join(', ')}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-2 ml-4">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditField(field)}
-                            >
-                              <IconEdit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 hover:bg-red-50"
-                              onClick={() =>
-                                setDeleteConfirm({
-                                  type: 'field',
-                                  id: field._id,
-                                })
-                              }
-                            >
-                              <IconTrash className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
           ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center max-w-md">
-                <IconSettings className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium mb-2">
-                  Select a field group
-                </h3>
-                <p className="text-gray-500">
-                  Choose a field group from the left sidebar to view and manage
-                  its fields
-                </p>
-              </div>
+            <div className="flex flex-col gap-2 mt-2">
+              {groups.map((group: any) => (
+                <Collapsible
+                  key={group._id}
+                  className="group"
+                  defaultOpen={selectedGroup?._id === group._id}
+                  onOpenChange={(open) => open && setSelectedGroup(group)}
+                >
+                  <div className="relative">
+                    <Collapsible.Trigger asChild>
+                      <Button
+                        variant="secondary"
+                        className="w-full justify-start"
+                      >
+                        <Collapsible.TriggerIcon />
+                        <span className="flex-1 text-left">{group.label}</span>
+                        {group.code && (
+                          <span className="text-xs text-muted-foreground mr-2">
+                            {group.code}
+                          </span>
+                        )}
+                      </Button>
+                    </Collapsible.Trigger>
+                    <DropdownMenu>
+                      <DropdownMenu.Trigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="absolute right-0.5 top-0.5 size-7"
+                        >
+                          <IconDots className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenu.Trigger>
+                      <DropdownMenu.Content className="min-w-48">
+                        <DropdownMenu.Item
+                          onClick={() => handleEditGroup(group)}
+                        >
+                          <IconEdit className="w-4 h-4" />
+                          Edit
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          className="text-destructive"
+                          onClick={() => handleDeleteGroup(group._id)}
+                        >
+                          <IconTrash className="w-4 h-4" />
+                          Delete
+                        </DropdownMenu.Item>
+                      </DropdownMenu.Content>
+                    </DropdownMenu>
+                  </div>
+
+                  <Collapsible.Content className="pt-2">
+                    <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
+                      <Table.Body>
+                        {(group.fields || []).length === 0 ? (
+                          <Table.Row className="hover:bg-background">
+                            <Table.Cell
+                              colSpan={3}
+                              className="h-auto py-8 text-center text-muted-foreground"
+                            >
+                              No fields in this group
+                            </Table.Cell>
+                          </Table.Row>
+                        ) : (
+                          (group.fields || []).map((field: any) => (
+                            <Table.Row
+                              key={field._id}
+                              className="hover:bg-sidebar"
+                            >
+                              <Table.Cell>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">
+                                    {field.label}
+                                  </span>
+                                  {field.isRequired && (
+                                    <span className="text-xs px-1.5 py-0.5 bg-destructive/10 text-destructive rounded">
+                                      Required
+                                    </span>
+                                  )}
+                                </div>
+                                {field.code && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Code: {field.code}
+                                  </p>
+                                )}
+                                {field.description && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {field.description}
+                                  </p>
+                                )}
+                              </Table.Cell>
+                              <Table.Cell>
+                                <span className="text-sm text-muted-foreground">
+                                  {field.type}
+                                </span>
+                              </Table.Cell>
+                              <Table.Cell className="w-8 p-0.5">
+                                <DropdownMenu>
+                                  <DropdownMenu.Trigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="size-7 text-muted-foreground"
+                                    >
+                                      <IconDots className="w-4 h-4" />
+                                    </Button>
+                                  </DropdownMenu.Trigger>
+                                  <DropdownMenu.Content className="min-w-48">
+                                    <DropdownMenu.Item
+                                      onClick={() => {
+                                        setSelectedGroup(group);
+                                        handleEditField(field);
+                                      }}
+                                    >
+                                      <IconEdit className="w-4 h-4" />
+                                      Edit
+                                    </DropdownMenu.Item>
+                                    <DropdownMenu.Item
+                                      className="text-destructive"
+                                      onClick={() => {
+                                        setSelectedGroup(group);
+                                        handleDeleteField(field._id);
+                                      }}
+                                    >
+                                      <IconTrash className="w-4 h-4" />
+                                      Delete
+                                    </DropdownMenu.Item>
+                                  </DropdownMenu.Content>
+                                </DropdownMenu>
+                              </Table.Cell>
+                            </Table.Row>
+                          ))
+                        )}
+                      </Table.Body>
+                    </Table>
+                    <div className="flex items-center justify-end mt-2">
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setSelectedGroup(group);
+                          setEditingField(null);
+                          fieldForm.reset({
+                            label: '',
+                            code: '',
+                            type: 'text',
+                            description: '',
+                            isRequired: false,
+                            options: '',
+                          });
+                          setIsFieldDrawerOpen(true);
+                        }}
+                      >
+                        <IconPlus className="w-4 h-4" />
+                        Add field
+                      </Button>
+                    </div>
+                  </Collapsible.Content>
+                </Collapsible>
+              ))}
             </div>
           )}
         </div>
@@ -846,36 +780,6 @@ export function CustomFields() {
           </Sheet.Content>
         </Sheet.View>
       </Sheet>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={!!deleteConfirm}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
-      >
-        <Dialog.Content>
-          <Dialog.Header>
-            <Dialog.Title>Confirm Delete</Dialog.Title>
-          </Dialog.Header>
-          <div className="py-4">
-            <p>
-              Are you sure you want to delete this {deleteConfirm?.type}?
-              {deleteConfirm?.type === 'group' && (
-                <span className="block mt-2 text-sm text-red-600">
-                  Warning: All fields in this group will also be deleted.
-                </span>
-              )}
-            </p>
-          </div>
-          <Dialog.Footer>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
-            </Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
     </CmsLayout>
   );
 }
