@@ -25,7 +25,7 @@ export const CustomerDetail = () => {
       <CustomerDetailGeneral />
       <Separator />
       <CustomerDetailFields />
-      {customerDetail && <ActivityLogs targetId={customerDetail?._id} />}
+
       <Separator />
       <FieldsInDetail
         fieldContentType="core:customer"
@@ -33,6 +33,8 @@ export const CustomerDetail = () => {
         mutateHook={useCustomerCustomFieldEdit}
         id={customerDetail?._id || ''}
       />
+      <Separator />
+      {customerDetail && <ActivityLogs targetId={customerDetail?._id} />}
     </ContactsDetailLayout>
   );
 };
