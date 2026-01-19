@@ -47,6 +47,66 @@ import {
   makeAttachmentArrayFromUrls,
 } from './formHelpers';
 
+const DateTimeInput = ({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: Date | undefined;
+  onChange: (date: Date | undefined) => void;
+  placeholder: string;
+}) => {
+  const handleDateChange = (d: Date | Date[] | undefined) => {
+    const picked = Array.isArray(d) ? d[0] : d;
+    if (!picked) {
+      onChange(undefined);
+      return;
+    }
+    const current = value || new Date();
+    const merged = new Date(picked);
+    merged.setHours(current.getHours());
+    merged.setMinutes(current.getMinutes());
+    merged.setSeconds(0);
+    merged.setMilliseconds(0);
+    onChange(merged);
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const timeValue = e.target.value;
+    if (!timeValue) return;
+    const [hh, mm] = timeValue.split(':').map((v) => parseInt(v, 10));
+    const base = value || new Date();
+    const merged = new Date(base);
+    merged.setHours(hh || 0);
+    merged.setMinutes(mm || 0);
+    merged.setSeconds(0);
+    merged.setMilliseconds(0);
+    onChange(merged);
+  };
+
+  const timeValue = value
+    ? `${String(new Date(value).getHours()).padStart(2, '0')}:${String(
+        new Date(value).getMinutes(),
+      ).padStart(2, '0')}`
+    : '';
+
+  return (
+    <div className="flex items-center gap-1">
+      <DatePicker
+        value={value}
+        onChange={handleDateChange}
+        placeholder={placeholder}
+      />
+      <input
+        type="time"
+        className="border rounded px-2 py-1 h-9 text-sm w-[100px]"
+        value={timeValue}
+        onChange={handleTimeChange}
+      />
+    </div>
+  );
+};
+
 interface PostFormData {
   title: string;
   slug: string;
@@ -539,55 +599,11 @@ export function AddPost() {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Control>
-                    <div className="flex items-center gap-1">
-                      <DatePicker
-                        value={field.value || undefined}
-                        onChange={(d) => {
-                          const picked = d as Date | undefined;
-                          if (!picked) {
-                            field.onChange(undefined);
-                            return;
-                          }
-                          const current = field.value || new Date();
-                          const merged = new Date(picked);
-                          merged.setHours(current.getHours());
-                          merged.setMinutes(current.getMinutes());
-                          merged.setSeconds(0);
-                          merged.setMilliseconds(0);
-                          field.onChange(merged);
-                        }}
-                        placeholder="Schedule date"
-                      />
-                      <input
-                        type="time"
-                        className="border rounded px-2 py-1 h-9 text-sm w-[100px]"
-                        value={
-                          field.value
-                            ? `${String(
-                                new Date(field.value).getHours(),
-                              ).padStart(2, '0')}:${String(
-                                new Date(field.value).getMinutes(),
-                              ).padStart(2, '0')}`
-                            : ''
-                        }
-                        onChange={(e) => {
-                          const timeValue = e.target.value;
-                          if (!timeValue) {
-                            return;
-                          }
-                          const [hh, mm] = timeValue
-                            .split(':')
-                            .map((v) => parseInt(v, 10));
-                          const base = field.value || new Date();
-                          const merged = new Date(base);
-                          merged.setHours(hh || 0);
-                          merged.setMinutes(mm || 0);
-                          merged.setSeconds(0);
-                          merged.setMilliseconds(0);
-                          field.onChange(merged);
-                        }}
-                      />
-                    </div>
+                    <DateTimeInput
+                      value={field.value || undefined}
+                      onChange={field.onChange}
+                      placeholder="Schedule date"
+                    />
                   </Form.Control>
                 </Form.Item>
               )}
@@ -626,55 +642,11 @@ export function AddPost() {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Control>
-                      <div className="flex items-center gap-1">
-                        <DatePicker
-                          value={field.value || undefined}
-                          onChange={(d) => {
-                            const picked = d as Date | undefined;
-                            if (!picked) {
-                              field.onChange(undefined);
-                              return;
-                            }
-                            const current = field.value || new Date();
-                            const merged = new Date(picked);
-                            merged.setHours(current.getHours());
-                            merged.setMinutes(current.getMinutes());
-                            merged.setSeconds(0);
-                            merged.setMilliseconds(0);
-                            field.onChange(merged);
-                          }}
-                          placeholder="Archive date"
-                        />
-                        <input
-                          type="time"
-                          className="border rounded px-2 py-1 h-9 text-sm w-[100px]"
-                          value={
-                            field.value
-                              ? `${String(
-                                  new Date(field.value).getHours(),
-                                ).padStart(2, '0')}:${String(
-                                  new Date(field.value).getMinutes(),
-                                ).padStart(2, '0')}`
-                              : ''
-                          }
-                          onChange={(e) => {
-                            const timeValue = e.target.value;
-                            if (!timeValue) {
-                              return;
-                            }
-                            const [hh, mm] = timeValue
-                              .split(':')
-                              .map((v) => parseInt(v, 10));
-                            const base = field.value || new Date();
-                            const merged = new Date(base);
-                            merged.setHours(hh || 0);
-                            merged.setMinutes(mm || 0);
-                            merged.setSeconds(0);
-                            merged.setMilliseconds(0);
-                            field.onChange(merged);
-                          }}
-                        />
-                      </div>
+                      <DateTimeInput
+                        value={field.value || undefined}
+                        onChange={field.onChange}
+                        placeholder="Archive date"
+                      />
                     </Form.Control>
                   </Form.Item>
                 )}
