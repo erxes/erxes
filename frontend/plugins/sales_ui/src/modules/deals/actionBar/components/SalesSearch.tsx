@@ -31,10 +31,14 @@ export const SalesSearch = () => {
         onKeyDown={handleKeyDown}
         className="flex items-center w-30 focus:w-60 transition-all duration-300 ease-in-out rounded-xl"
       />
-      <IconSearch
+      <button
+        type="button"
         onClick={handleSearch}
-        className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-      />
+        aria-label="Search"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+      >
+        <IconSearch className="w-4 h-4" />
+      </button>
     </div>
   );
 };
