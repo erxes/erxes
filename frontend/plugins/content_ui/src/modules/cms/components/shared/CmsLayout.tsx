@@ -114,7 +114,7 @@ export function CmsLayout({
     },
     {
       id: 'custom-types',
-      label: 'Custom Types',
+      label: 'Custom Post Types',
       icon: <IconLayout className="w-4 h-4" />,
       href: websiteId
         ? `/content/cms/${websiteId}/custom-types`

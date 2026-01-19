@@ -111,7 +111,7 @@ export function AddPost() {
       slug: '',
       description: '',
       content: '',
-      type: undefined,
+      type: 'Post',
       status: 'draft',
       categoryIds: [],
       tagIds: [],
@@ -695,6 +695,34 @@ export function AddPost() {
                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <Form.Field
                       control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Post Type</Form.Label>
+                          <Form.Control>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <Select.Trigger>
+                                <Select.Value placeholder="Choose type" />
+                              </Select.Trigger>
+                              <Select.Content>
+                                <Select.Item value="Post">Post</Select.Item>
+                                {customTypes.map((type: any) => (
+                                  <Select.Item key={type._id} value={type._id}>
+                                    {type.label}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select>
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
                       name="title"
                       render={({ field }) => (
                         <Form.Item>
@@ -726,33 +754,6 @@ export function AddPost() {
                         </Form.Item>
                       )}
                     />
-                    <Form.Field
-                      control={form.control}
-                      name="type"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Type</Form.Label>
-                          <Form.Control>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Select.Trigger>
-                                <Select.Value placeholder="Choose type" />
-                              </Select.Trigger>
-                              <Select.Content>
-                                {customTypes.map((type: any) => (
-                                  <Select.Item key={type._id} value={type._id}>
-                                    {type.label}
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select>
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
                   </div>
 
                   <Form.Field
@@ -761,7 +762,7 @@ export function AddPost() {
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Description
+                          Short Description
                           {selectedLanguage !== defaultLanguage && (
                             <span className="ml-2 text-xs text-blue-600">
                               ({selectedLanguage})
@@ -772,37 +773,13 @@ export function AddPost() {
                           <Textarea
                             {...field}
                             placeholder="Description here"
-                            rows={4}
+                            rows={8}
+                            maxLength={500}
                           />
                         </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="content"
-                    render={() => (
-                      <Form.Item>
-                        <Form.Label>
-                          Content
-                          {selectedLanguage !== defaultLanguage && (
-                            <span className="ml-2 text-xs text-blue-600">
-                              ({selectedLanguage})
-                            </span>
-                          )}
-                        </Form.Label>
-                        <Form.Control>
-                          <Editor
-                            key={`editor-${selectedLanguage}-${
-                              fullPost?._id || 'new'
-                            }`}
-                            initialContent={formatInitialContent(
-                              form.getValues('content') || '',
-                            )}
-                            onChange={handleEditorChange}
-                          />
-                        </Form.Control>
+                        <div className="text-xs text-muted-foreground text-right">
+                          {field.value?.length || 0}/500 characters
+                        </div>
                         <Form.Message />
                       </Form.Item>
                     )}
@@ -1672,8 +1649,18 @@ export function AddPost() {
           </Form>
         </div>
 
-        <PostPreview content={form.watch('content') || ''} />
+        <PostPreview
+          content={form.watch('content') || ''}
+          form={form}
+          selectedLanguage={selectedLanguage}
+          defaultLanguage={defaultLanguage}
+          fullPost={fullPost}
+          formatInitialContent={formatInitialContent}
+          handleEditorChange={handleEditorChange}
+        />
       </div>
+
+      {/* Content Editor - Full Width Section */}
     </CmsLayout>
   );
 }
