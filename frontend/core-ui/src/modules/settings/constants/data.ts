@@ -157,6 +157,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconBuilding,
       path: SettingsWorkspacePath.ClientPortals,
     },
+    {
+      name: 'System Logs',
+      icon: IconFile,
+      path: SettingsWorkspacePath.Logs,
+    },
   ],
 });
 
