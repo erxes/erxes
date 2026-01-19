@@ -267,8 +267,8 @@ export function PipelineFormBar() {
               Confirm {pipelineId ? 'Update' : 'Create'}
             </Dialog.Title>
             <Dialog.Description>
-              This will permanently update the pipeline. Are you absolutely
-              sure?
+              This will permanently {pipelineId ? 'update' : 'create'} the
+              pipeline. Are you absolutely sure?
             </Dialog.Description>
           </Dialog.Header>
           <div className="py-4">

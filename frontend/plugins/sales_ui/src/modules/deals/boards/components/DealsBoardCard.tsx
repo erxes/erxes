@@ -99,12 +99,13 @@ export const DealsBoardCard = memo(function DealsBoardCard({
         )}
         <div className="flex flex-col gap-1">
           <h5 className="font-semibold">{name}</h5>
-          {stage?.age && stage?.age < 0 && (
+          {stage?.age !== undefined && stage.age < 0 && (
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />
               <h5 className="text-sm py-2">
-                Ready to move this card to the next column? ({stage?.age}{' '}
-                {stage?.age === 1 ? 'day' : 'days'} elapsed)
+                Ready to move this card to the next column? (
+                {Math.abs(stage.age)}{' '}
+                {Math.abs(stage.age) === 1 ? 'day' : 'days'} elapsed)
               </h5>
             </span>
           )}
