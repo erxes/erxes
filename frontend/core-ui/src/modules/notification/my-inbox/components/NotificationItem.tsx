@@ -1,11 +1,9 @@
 import { INotification } from '@/notification/my-inbox/types/notifications';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { pluginsConfigState } from 'ui-modules';
 import { OrgLogoIcon } from '@/auth/components/Logo';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { useState } from 'react';
 
 export const NotificationItem = ({
   _id,
@@ -14,23 +12,9 @@ export const NotificationItem = ({
   isRead,
   contentType = '',
   priority,
-  nextNotifcationId
 }: INotification) => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const isActive = id === _id;
-  const [focused, setFocused] = useState(false);
-
-  useHotkeys('backspace', () => {
-    if (!focused) return;
-    const searchParams = window.location.search;
-    if (nextNotifcationId) {
-      navigate(`/my-inbox/${nextNotifcationId}${searchParams}`);
-    } else {
-      navigate(`/my-inbox${searchParams}`);
-    }
-  });
-
   return (
     <Button
       asChild
@@ -39,8 +23,6 @@ export const NotificationItem = ({
         'justify-start h-auto rounded-lg p-2 items-start overflow-hidden',
         isActive && 'bg-primary/10 hover:bg-primary/10',
       )}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
     >
       <Link to={`/my-inbox/${_id}${window.location.search}`}>
         <div
