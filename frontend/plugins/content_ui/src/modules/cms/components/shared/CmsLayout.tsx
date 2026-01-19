@@ -81,6 +81,12 @@ export function CmsLayout({
       href: websiteId ? `/content/cms/${websiteId}/posts` : '/content/cms',
     },
     {
+      id: 'pages',
+      label: 'Pages',
+      icon: <IconFile className="w-4 h-4" />,
+      href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
+    },
+    {
       id: 'categories',
       label: 'Categories',
       icon: <IconFolder className="w-4 h-4" />,
@@ -92,12 +98,7 @@ export function CmsLayout({
       icon: <IconTag className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/tags` : '/content/cms',
     },
-    // {
-    //   id: 'pages',
-    //   label: 'Pages',
-    //   icon: <IconFile className="w-4 h-4" />,
-    //   href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
-    // },
+
     // {
     //   id: 'menus',
     //   label: 'Menus',
@@ -134,7 +135,7 @@ export function CmsLayout({
 
   return (
     <div className="flex h-full">
-      <div className="flex flex-col flex-1 ">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <PageHeader>
           <PageHeader.Start>
             <Breadcrumb>
@@ -200,12 +201,6 @@ export function CmsLayout({
           <PageHeader.End>
             {headerActions || (
               <>
-                <Button variant="outline" asChild>
-                  <Link to="/settings/content">
-                    <IconSettings />
-                    Go to settings
-                  </Link>
-                </Button>
                 <Button asChild>
                   <Link to={`/content/cms/${websiteId || ''}/posts/add`}>
                     <IconPlus className="mr-2 h-4 w-4" />
@@ -217,7 +212,7 @@ export function CmsLayout({
           </PageHeader.End>
         </PageHeader>
 
-        <div className="flex flex-1">
+        <div className="flex flex-1 min-w-0 overflow-hidden">
           {showSidebar && (
             <Sidebar collapsible="none" className="border-r flex-none">
               <Sidebar.Group>
@@ -242,7 +237,7 @@ export function CmsLayout({
             </Sidebar>
           )}
 
-          <div className="flex-1 p-6 overflow-y-auto h-[calc(100vh-3rem)] ">
+          <div className="flex-1 p-6 overflow-auto min-w-0 h-[calc(100vh-3rem)]">
             {children}
           </div>
         </div>

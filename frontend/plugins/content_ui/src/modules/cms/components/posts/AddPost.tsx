@@ -530,6 +530,202 @@ export function AddPost() {
 
   const headerActions = (
     <>
+      <Form {...form}>
+        <div className="flex items-center gap-2">
+          {form.watch('status') === 'scheduled' && (
+            <Form.Field
+              control={form.control}
+              name="scheduledDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <div className="flex items-center gap-1">
+                      <DatePicker
+                        value={field.value || undefined}
+                        onChange={(d) => {
+                          const picked = d as Date | undefined;
+                          if (!picked) {
+                            field.onChange(undefined);
+                            return;
+                          }
+                          const current = field.value || new Date();
+                          const merged = new Date(picked);
+                          merged.setHours(current.getHours());
+                          merged.setMinutes(current.getMinutes());
+                          merged.setSeconds(0);
+                          merged.setMilliseconds(0);
+                          field.onChange(merged);
+                        }}
+                        placeholder="Schedule date"
+                      />
+                      <input
+                        type="time"
+                        className="border rounded px-2 py-1 h-9 text-sm w-[100px]"
+                        value={
+                          field.value
+                            ? `${String(
+                                new Date(field.value).getHours(),
+                              ).padStart(2, '0')}:${String(
+                                new Date(field.value).getMinutes(),
+                              ).padStart(2, '0')}`
+                            : ''
+                        }
+                        onChange={(e) => {
+                          const timeValue = e.target.value;
+                          if (!timeValue) {
+                            return;
+                          }
+                          const [hh, mm] = timeValue
+                            .split(':')
+                            .map((v) => parseInt(v, 10));
+                          const base = field.value || new Date();
+                          const merged = new Date(base);
+                          merged.setHours(hh || 0);
+                          merged.setMinutes(mm || 0);
+                          merged.setSeconds(0);
+                          merged.setMilliseconds(0);
+                          field.onChange(merged);
+                        }}
+                      />
+                    </div>
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          )}
+
+          {(form.watch('status') === 'published' ||
+            form.watch('status') === 'scheduled') && (
+            <Form.Field
+              control={form.control}
+              name="enableAutoArchive"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        Auto archive
+                      </span>
+                      <Switch
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </div>
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          )}
+
+          {form.watch('enableAutoArchive') &&
+            (form.watch('status') === 'published' ||
+              form.watch('status') === 'scheduled') && (
+              <Form.Field
+                control={form.control}
+                name="autoArchiveDate"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <div className="flex items-center gap-1">
+                        <DatePicker
+                          value={field.value || undefined}
+                          onChange={(d) => {
+                            const picked = d as Date | undefined;
+                            if (!picked) {
+                              field.onChange(undefined);
+                              return;
+                            }
+                            const current = field.value || new Date();
+                            const merged = new Date(picked);
+                            merged.setHours(current.getHours());
+                            merged.setMinutes(current.getMinutes());
+                            merged.setSeconds(0);
+                            merged.setMilliseconds(0);
+                            field.onChange(merged);
+                          }}
+                          placeholder="Archive date"
+                        />
+                        <input
+                          type="time"
+                          className="border rounded px-2 py-1 h-9 text-sm w-[100px]"
+                          value={
+                            field.value
+                              ? `${String(
+                                  new Date(field.value).getHours(),
+                                ).padStart(2, '0')}:${String(
+                                  new Date(field.value).getMinutes(),
+                                ).padStart(2, '0')}`
+                              : ''
+                          }
+                          onChange={(e) => {
+                            const timeValue = e.target.value;
+                            if (!timeValue) {
+                              return;
+                            }
+                            const [hh, mm] = timeValue
+                              .split(':')
+                              .map((v) => parseInt(v, 10));
+                            const base = field.value || new Date();
+                            const merged = new Date(base);
+                            merged.setHours(hh || 0);
+                            merged.setMinutes(mm || 0);
+                            merged.setSeconds(0);
+                            merged.setMilliseconds(0);
+                            field.onChange(merged);
+                          }}
+                        />
+                      </div>
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+            )}
+
+          <Form.Field
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Control>
+                  <div className="inline-flex items-center rounded-md border bg-background p-1 gap-1">
+                    <Button
+                      type="button"
+                      variant={
+                        field.value === 'published' ? 'default' : 'ghost'
+                      }
+                      size="sm"
+                      onClick={() => field.onChange('published')}
+                      className="h-8"
+                    >
+                      Publish
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={field.value === 'draft' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => field.onChange('draft')}
+                      className="h-8"
+                    >
+                      Draft
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={
+                        field.value === 'scheduled' ? 'default' : 'ghost'
+                      }
+                      size="sm"
+                      onClick={() => field.onChange('scheduled')}
+                      className="h-8"
+                    >
+                      Scheduled
+                    </Button>
+                  </div>
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        </div>
+      </Form>
       <Button
         onClick={() => form.handleSubmit(onSubmit)()}
         disabled={creating || saving}
@@ -537,10 +733,24 @@ export function AddPost() {
         {creating || saving ? (
           <>
             <Spinner size="sm" className="mr-2" />
-            {editingPost ? 'Saving...' : 'Creating...'}
+            {form.watch('status') === 'published'
+              ? 'Publishing...'
+              : form.watch('status') === 'draft'
+              ? 'Saving...'
+              : form.watch('status') === 'scheduled'
+              ? 'Scheduling...'
+              : 'Saving...'}
           </>
         ) : (
-          <>{editingPost ? 'Save' : 'Create'}</>
+          <>
+            {form.watch('status') === 'published'
+              ? 'Publish'
+              : form.watch('status') === 'draft'
+              ? 'Save Draft'
+              : form.watch('status') === 'scheduled'
+              ? 'Schedule'
+              : 'Save'}
+          </>
         )}
       </Button>
     </>
@@ -784,198 +994,6 @@ export function AddPost() {
                       </Form.Item>
                     )}
                   />
-                  {/* Status */}
-                  <Form.Field
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Status</Form.Label>
-                        <Form.Control>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger>
-                              <Select.Value placeholder="Select" />
-                            </Select.Trigger>
-                            <Select.Content>
-                              <Select.Item value="draft">Draft</Select.Item>
-                              <Select.Item value="published">
-                                Published
-                              </Select.Item>
-                              <Select.Item value="scheduled">
-                                Scheduled
-                              </Select.Item>
-                            </Select.Content>
-                          </Select>
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-
-                  {(form.watch('status') === 'published' ||
-                    form.watch('status') === 'scheduled') && (
-                    <Form.Field
-                      control={form.control}
-                      name="scheduledDate"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>
-                            {form.watch('status') === 'published'
-                              ? 'Publish date & time'
-                              : 'Scheduled date & time'}
-                          </Form.Label>
-                          <Form.Control>
-                            <div className="flex items-center gap-2">
-                              <DatePicker
-                                value={field.value || undefined}
-                                onChange={(d) => {
-                                  const picked = d as Date | undefined;
-                                  if (!picked) {
-                                    field.onChange(undefined);
-                                    return;
-                                  }
-                                  const current = field.value || new Date();
-                                  const merged = new Date(picked);
-                                  merged.setHours(current.getHours());
-                                  merged.setMinutes(current.getMinutes());
-                                  merged.setSeconds(0);
-                                  merged.setMilliseconds(0);
-                                  field.onChange(merged);
-                                }}
-                                placeholder={
-                                  form.watch('status') === 'published'
-                                    ? 'Pick publish date'
-                                    : 'Pick schedule date'
-                                }
-                              />
-                              <input
-                                type="time"
-                                className="border rounded px-2 py-1 h-8 text-sm"
-                                value={
-                                  field.value
-                                    ? `${String(
-                                        new Date(field.value).getHours(),
-                                      ).padStart(2, '0')}:${String(
-                                        new Date(field.value).getMinutes(),
-                                      ).padStart(2, '0')}`
-                                    : ''
-                                }
-                                onChange={(e) => {
-                                  const timeValue = e.target.value;
-                                  if (!timeValue) {
-                                    return;
-                                  }
-                                  const [hh, mm] = timeValue
-                                    .split(':')
-                                    .map((v) => parseInt(v, 10));
-                                  const base = field.value || new Date();
-                                  const merged = new Date(base);
-                                  merged.setHours(hh || 0);
-                                  merged.setMinutes(mm || 0);
-                                  merged.setSeconds(0);
-                                  merged.setMilliseconds(0);
-                                  field.onChange(merged);
-                                }}
-                              />
-                            </div>
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                  )}
-
-                  {(form.watch('status') === 'published' ||
-                    form.watch('status') === 'scheduled') && (
-                    <>
-                      {/* Enable auto archive toggle */}
-                      <Form.Field
-                        control={form.control}
-                        name="enableAutoArchive"
-                        render={({ field }) => (
-                          <Form.Item>
-                            <div className="flex items-center gap-2">
-                              <Form.Label>Enable auto archive</Form.Label>
-                              <Form.Control>
-                                <Switch
-                                  checked={!!field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </Form.Control>
-                            </div>
-                            <Form.Message />
-                          </Form.Item>
-                        )}
-                      />
-
-                      {form.watch('enableAutoArchive') && (
-                        <Form.Field
-                          control={form.control}
-                          name="autoArchiveDate"
-                          render={({ field }) => (
-                            <Form.Item>
-                              <Form.Label>Auto archive date & time</Form.Label>
-                              <Form.Control>
-                                <div className="flex items-center gap-2">
-                                  <DatePicker
-                                    value={field.value || undefined}
-                                    onChange={(d) => {
-                                      const picked = d as Date | undefined;
-                                      if (!picked) {
-                                        field.onChange(undefined);
-                                        return;
-                                      }
-                                      const current = field.value || new Date();
-                                      const merged = new Date(picked);
-                                      merged.setHours(current.getHours());
-                                      merged.setMinutes(current.getMinutes());
-                                      merged.setSeconds(0);
-                                      merged.setMilliseconds(0);
-                                      field.onChange(merged);
-                                    }}
-                                    placeholder="Pick auto archive date"
-                                  />
-                                  <input
-                                    type="time"
-                                    className="border rounded px-2 py-1 h-8 text-sm"
-                                    value={
-                                      field.value
-                                        ? `${String(
-                                            new Date(field.value).getHours(),
-                                          ).padStart(2, '0')}:${String(
-                                            new Date(field.value).getMinutes(),
-                                          ).padStart(2, '0')}`
-                                        : ''
-                                    }
-                                    onChange={(e) => {
-                                      const timeValue = e.target.value;
-                                      if (!timeValue) {
-                                        return;
-                                      }
-                                      const [hh, mm] = timeValue
-                                        .split(':')
-                                        .map((v) => parseInt(v, 10));
-                                      const base = field.value || new Date();
-                                      const merged = new Date(base);
-                                      merged.setHours(hh || 0);
-                                      merged.setMinutes(mm || 0);
-                                      merged.setSeconds(0);
-                                      merged.setMilliseconds(0);
-                                      field.onChange(merged);
-                                    }}
-                                  />
-                                </div>
-                              </Form.Control>
-                              <Form.Message />
-                            </Form.Item>
-                          )}
-                        />
-                      )}
-                    </>
-                  )}
 
                   {/* Category */}
                   <Form.Field
@@ -1089,11 +1107,6 @@ export function AddPost() {
                                       </span>
                                     )}
                                   </Form.Label>
-                                  {field.description && (
-                                    <p className="text-xs text-muted-foreground -mt-1">
-                                      {field.description}
-                                    </p>
-                                  )}
                                   <CustomFieldInput
                                     field={field}
                                     value={getCustomFieldValue(field._id)}
@@ -1633,18 +1646,18 @@ export function AddPost() {
                 </>
               )} */}
 
-              <div className="flex justify-between pt-2">
+              {/* <div className="flex justify-between pt-2">
                 <Button type="submit" disabled={creating || saving}>
                   {creating || saving ? (
                     <>
                       <Spinner size="sm" className="mr-2" />
-                      {editingPost ? 'Saving...' : 'Creating...'}
+                      {editingPost ? 'Updating...' : 'Publishing...'}
                     </>
                   ) : (
-                    <>{editingPost ? 'Save' : 'Create'}</>
+                    <>{editingPost ? 'Update' : 'Publish'}</>
                   )}
                 </Button>
-              </div>
+              </div> */}
             </form>
           </Form>
         </div>

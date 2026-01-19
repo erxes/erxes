@@ -6,9 +6,11 @@ import {
   IconEdit,
   IconTrash,
   IconEye,
+  IconDots,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { CmsLayout } from './CmsLayout';
+import { EmptyState } from './EmptyState';
 import {
   RecordTable,
   CommandBar,
@@ -75,43 +77,6 @@ export function CustomTypes() {
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<any>;
 
   const columns: ColumnDef<any>[] = [
-    {
-      id: 'more',
-      header: () => <span className="sr-only">More</span>,
-      cell: ({ row }) => {
-        const onRemove = () => {
-          confirm({
-            message: 'Are you sure you want to delete this type?',
-          }).then(async () => {
-            removeType({ variables: { _id: row.original._id } });
-          });
-        };
-        const onEdit = () => {
-          setEditingType(row.original);
-          setIsDrawerOpen(true);
-        };
-        return (
-          <Popover>
-            <Popover.Trigger asChild>
-              <RecordTable.MoreButton className="w-full h-full" />
-            </Popover.Trigger>
-            <Combobox.Content>
-              <Command shouldFilter={false}>
-                <Command.List>
-                  <Command.Item value="edit" onSelect={onEdit}>
-                    <IconEdit /> Edit
-                  </Command.Item>
-                  <Command.Item value="remove" onSelect={onRemove}>
-                    <IconTrash /> Delete
-                  </Command.Item>
-                </Command.List>
-              </Command>
-            </Combobox.Content>
-          </Popover>
-        );
-      },
-      size: 40,
-    },
     checkboxColumn,
     {
       id: 'name',
@@ -170,7 +135,7 @@ export function CustomTypes() {
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 pl-2">
           {(cell.getValue() as string) || ''}
         </div>
       ),
@@ -201,16 +166,48 @@ export function CustomTypes() {
       },
       size: 200,
     },
+    {
+      id: 'actions',
+      header: () => <RecordTable.InlineHead label="Actions" icon={IconDots} />,
+      cell: ({ row }) => {
+        const onRemove = () => {
+          confirm({
+            message: 'Are you sure you want to delete this type?',
+          }).then(async () => {
+            removeType({ variables: { _id: row.original._id } });
+          });
+        };
+        const onEdit = () => {
+          setEditingType(row.original);
+          setIsDrawerOpen(true);
+        };
+        return (
+          <div className="flex px-2 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+              onClick={onEdit}
+            >
+              <IconEdit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+              onClick={onRemove}
+            >
+              <IconTrash className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+      size: 120,
+    },
   ];
 
   const headerActions = (
     <>
-      <Button variant="outline" asChild>
-        <a href="/settings/content">
-          <IconSettings />
-          Go to settings
-        </a>
-      </Button>
       <Button
         onClick={() => {
           setIsDrawerOpen(true);
@@ -231,29 +228,43 @@ export function CustomTypes() {
           </div>
         </div>
 
-        <div className="h-full rounded-lg shadow-sm border overflow-hidden">
-          <RecordTable.Provider
-            columns={columns}
-            data={types || []}
-            className="h-full m-0"
-            stickyColumns={['more', 'checkbox', 'name']}
-          >
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList />
-              </RecordTable.Body>
-            </RecordTable>
+        {!loading && types.length === 0 ? (
+          <div className="bg-white rounded-lg  overflow-hidden">
+            <div className="p-12">
+              <EmptyState
+                icon={IconLayout}
+                title="No custom types yet"
+                description="Create custom post types to organize your content. Custom types help you structure different kinds of content like products, events, or portfolios."
+                actionLabel="Add Custom Type"
+                onAction={() => setIsDrawerOpen(true)}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="h-full rounded-lg shadow-sm border overflow-hidden">
+            <RecordTable.Provider
+              columns={columns}
+              data={types || []}
+              className="h-full m-0"
+              stickyColumns={['checkbox', 'name']}
+            >
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                </RecordTable.Body>
+              </RecordTable>
 
-            <TypesCommandBar
-              onBulkDelete={async (ids: string[]) => {
-                for (const id of ids) {
-                  await removeType({ variables: { _id: id } });
-                }
-              }}
-            />
-          </RecordTable.Provider>
-        </div>
+              <TypesCommandBar
+                onBulkDelete={async (ids: string[]) => {
+                  for (const id of ids) {
+                    await removeType({ variables: { _id: id } });
+                  }
+                }}
+              />
+            </RecordTable.Provider>
+          </div>
+        )}
       </CmsLayout>
 
       <CustomTypeDrawer
