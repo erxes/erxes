@@ -1,8 +1,8 @@
 import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 
 import { IDeal } from '@/deals/types/deals';
-import LabelChooser from './label/LabelChooser';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import SelectTags from './tags/SelectTags';
 import { useDealsContext } from '@/deals/context/DealContext';
 
@@ -51,7 +51,23 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Label</h4>
-          <LabelChooser labels={deal.labels || []} targetId={deal._id}/>
+          <SelectLabels.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Label"
+            variant="card"
+            targetId={deal._id}
+            initialValue={deal.labels?.map((label) => label._id || '') || []}
+          />
+          {deal.labels?.map((label) => (
+            <div
+              key={label._id}
+              className="ml-1 pl-2 pr-2 py-1 rounded text-white text-sm font-medium inline-block"
+              style={{ backgroundColor: label.colorCode }}
+            >
+              {label.name}
+            </div>
+          ))}
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Priority</h4>

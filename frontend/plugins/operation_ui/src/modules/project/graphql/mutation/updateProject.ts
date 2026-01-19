@@ -30,6 +30,12 @@ export const UPDATE_PROJECT_MUTATION = gql`
       tagIds: $tagIds
     ) {
       _id
+      status
+      priority
+      teamIds
+      startDate
+      targetDate
+      leadId
       memberIds
       tagIds
     }
