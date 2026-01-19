@@ -28,7 +28,7 @@ export const useNotificationFilters = () => {
   const orderByValue = orderByFilter();
 
   return {
-    status: status?.toUpperCase(),
+    status: status?.toUpperCase() || 'UNREAD',
     priority: priority?.toUpperCase(),
     type: type?.toUpperCase(),
     fromDate: parseDateRangeFromString(createdAt)?.from,
