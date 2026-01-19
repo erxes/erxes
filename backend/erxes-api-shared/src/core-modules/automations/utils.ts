@@ -366,8 +366,7 @@ const getPerValue = async <TModels>({
 
   if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
     try {
-      const sanitizedExpr = updatedValue.replace(/{{[^}]*}}/g, '0');
-      const safeEval = Function('"use strict"; return (' + sanitizedExpr + ')');
+      const safeEval = Function('"use strict"; return (' + updatedValue + ')');
       updatedValue = safeEval();
     } catch {
       updatedValue = 0;
