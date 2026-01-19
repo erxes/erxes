@@ -65,7 +65,7 @@ const CmsMain = () => {
         <Route path="cms/:websiteId/posts/add" element={<AddPost />} />
         <Route path="cms/:websiteId/categories" element={<Categories />} />
         <Route path="cms/:websiteId/tags" element={<Tags />} />
-        {/* <Route path="/:websiteId/pages" element={<Pages />} /> */}
+        <Route path="cms/:websiteId/pages" element={<Pages />} />
         {/* <Route path="/:websiteId/menus" element={<Menus />} /> */}
         <Route path="cms/:websiteId/custom-types" element={<CustomTypes />} />
         <Route path="cms/:websiteId/custom-fields" element={<CustomFields />} />

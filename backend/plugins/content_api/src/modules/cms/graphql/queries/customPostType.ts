@@ -122,41 +122,11 @@ const queries: Record<string, Resolver> = {
       ];
     }
 
-    const defaultTypes: any = [
-      {
-        _id: 'post',
-        clientPortalId,
-        label: 'Post',
-        pluralLabel: 'Posts',
-        code: 'post',
-        description: 'Blog posts and articles',
-        createdAt: new Date(),
-      },
-      {
-        _id: 'page',
-        clientPortalId,
-        label: 'Page',
-        pluralLabel: 'Pages',
-        code: 'page',
-        description: 'Static pages',
-        createdAt: new Date(),
-      },
-      {
-        _id: 'category',
-        clientPortalId,
-        label: 'Category',
-        pluralLabel: 'Categories',
-        code: 'category',
-        description: 'Content categories',
-        createdAt: new Date(),
-      },
-    ];
-
     const customTypes = await models.CustomPostTypes.find(query).sort({
       createdAt: -1,
     });
 
-    return [...defaultTypes, ...(customTypes || [])];
+    return customTypes || [];
   },
 
   cmsPostType: async (

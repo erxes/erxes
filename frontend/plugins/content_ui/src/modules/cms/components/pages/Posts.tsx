@@ -22,6 +22,7 @@ import {
   IconCalendarPlus,
   IconCalendarUp,
   IconFilter,
+  IconDots,
 } from '@tabler/icons-react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -136,61 +137,6 @@ export function Posts() {
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<any>;
 
   const columns: ColumnDef<any>[] = [
-    {
-      id: 'more',
-      header: () => <span className="sr-only">More</span>,
-      cell: ({ row }) => (
-        <Popover>
-          <Popover.Trigger asChild>
-            <RecordTable.MoreButton className="w-full h-full" />
-          </Popover.Trigger>
-          <Combobox.Content>
-            <Command shouldFilter={false}>
-              <Command.List>
-                <Command.Item
-                  value="edit"
-                  onSelect={() =>
-                    navigate(`/content/cms/${websiteId}/posts/add`, {
-                      state: { post: row.original },
-                    })
-                  }
-                >
-                  <IconEdit /> Edit
-                </Command.Item>
-                <Command.Item
-                  value="remove"
-                  onSelect={() =>
-                    confirm({ message: 'Delete this post?' })
-                      .then(async () => {
-                        try {
-                          await removePost(row.original._id);
-                          await refetchPosts();
-                          toast({
-                            title: 'Success',
-                            description: 'Post deleted successfully',
-                            variant: 'success',
-                          });
-                        } catch (error: any) {
-                          toast({
-                            title: 'Error',
-                            description:
-                              error?.message || 'Error deleting post',
-                            variant: 'destructive',
-                          });
-                        }
-                      })
-                      .catch(() => {})
-                  }
-                >
-                  <IconTrash /> Delete
-                </Command.Item>
-              </Command.List>
-            </Command>
-          </Combobox.Content>
-        </Popover>
-      ),
-      size: 40,
-    },
     checkboxColumn,
     {
       id: 'title',
@@ -300,6 +246,57 @@ export function Posts() {
         </div>
       ),
       size: 180,
+    },
+    {
+      id: 'actions',
+      header: () => (
+        <RecordTable.InlineHead label={t('Actions')} icon={IconDots} />
+      ),
+      cell: ({ row }) => (
+        <div className="flex px-2 items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+            onClick={() =>
+              navigate(`/content/cms/${websiteId}/posts/add`, {
+                state: { post: row.original },
+              })
+            }
+          >
+            <IconEdit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+            onClick={() =>
+              confirm({ message: 'Delete this post?' })
+                .then(async () => {
+                  try {
+                    await removePost(row.original._id);
+                    await refetchPosts();
+                    toast({
+                      title: 'Success',
+                      description: 'Post deleted successfully',
+                      variant: 'success',
+                    });
+                  } catch (error: any) {
+                    toast({
+                      title: 'Error',
+                      description: error?.message || 'Error deleting post',
+                      variant: 'destructive',
+                    });
+                  }
+                })
+                .catch(() => {})
+            }
+          >
+            <IconTrash className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+      size: 120,
     },
   ];
 
