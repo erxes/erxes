@@ -3,7 +3,6 @@ import {
   IconCalendarBolt,
   IconCalendarPlus,
   IconCalendarX,
-  IconSearch,
 } from '@tabler/icons-react';
 import {
   SelectBranches,
@@ -21,7 +20,6 @@ import { SelectPriority } from '@/deals/components/common/filters/SelectPriority
 
 export const SalesFilter = () => {
   const [queries] = useMultiQueryState<SalesFilterState>([
-    'search',
     'companyIds',
     'userIds',
     'branchIds',
@@ -112,10 +110,6 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
   return (
     <>
       <Filter.BarItem queryKey="search">
-        <Filter.BarName>
-          <IconSearch />
-          Search
-        </Filter.BarName>
         <Filter.BarButton filterKey="search" inDialog>
           {search}
         </Filter.BarButton>
@@ -202,10 +196,6 @@ const SalesFilterView = () => {
       <Filter.View>
         <Command>
           <Command.List className="p-1">
-            <Filter.Item value="search" inDialog>
-              <IconSearch />
-              Search
-            </Filter.Item>
             <SelectCompany.FilterItem value="companyIds" label="By Company" />
             <SelectCustomer.FilterItem
               value="customerIds"
