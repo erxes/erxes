@@ -53,9 +53,6 @@ export const SalesFilter = () => {
             </Combobox.Content>
           </Filter.Popover>
           <Filter.Dialog>
-            <Filter.View filterKey="search" inDialog>
-              <Filter.DialogStringView filterKey="search" />
-            </Filter.View>
             <Filter.View filterKey="createdStartDate" inDialog>
               <Filter.DialogDateView filterKey="createdStartDate" />
             </Filter.View>
@@ -109,12 +106,6 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
 
   return (
     <>
-      <Filter.BarItem queryKey="search">
-        <Filter.BarButton filterKey="search" inDialog>
-          {search}
-        </Filter.BarButton>
-      </Filter.BarItem>
-
       <Filter.BarItem queryKey="createdStartDate">
         <Filter.BarName>
           <IconCalendarPlus />
