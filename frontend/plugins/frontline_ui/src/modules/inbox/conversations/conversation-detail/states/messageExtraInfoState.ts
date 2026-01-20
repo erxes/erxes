@@ -1,6 +1,11 @@
-import { EnumFacebookTag } from '@/integrations/facebook/types/FacebookTypes';
 import { atom } from 'jotai';
+import { EnumFacebookTag } from '@/integrations/facebook/types/FacebookTypes';
+import { EnumInstagramTag } from '@/integrations/instagram/types/InstagramTypes';
 
-export const messageExtraInfoState = atom<
-  { tag?: EnumFacebookTag } | undefined
->(undefined);
+type MessageExtraInfo = {
+  tag?: EnumFacebookTag | EnumInstagramTag;
+};
+
+export const messageExtraInfoState = atom<MessageExtraInfo | undefined>(
+  undefined
+);

@@ -13,7 +13,8 @@ import { noteQueries } from '@/ticket/graphql/resolvers/queries/note';
 import { ticketConfigQueries } from '~/modules/ticket/graphql/resolvers/queries/ticketConfig';
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 import { reportQueries } from '@/reports/graphql/reportQueries';
-import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries'
+import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
+import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
 
 export const queries = {
   ...channelQueries,
@@ -32,4 +33,5 @@ export const queries = {
   ...responseTemplateQueries,
   ...reportQueries,
   ...knowledgeBaseQueries,
+  ...instagramQueries,
 };

@@ -24,6 +24,12 @@ import {
 } from '@/integrations/facebook/graphql/schema/facebook';
 
 import {
+  mutations as InstagramMutations,
+  queries as InstagramQueries,
+  types as InstagramTypes,
+} from '@/integrations/instagram/graphql/schema/instagram';
+
+import {
   mutations as CallMutations,
   queries as CallQueries,
   types as CallTypes,
@@ -108,6 +114,7 @@ export const types = `
     ${ResponseTemplateTypes}
     ${ReportTypes}
     ${KnowledgeBaseTypes}
+    ${InstagramTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -126,6 +133,7 @@ export const queries = `
     ${ResponseTemplateQueries}
     ${ReportQueries}
     ${KnowledgeBaseQueries}
+    ${InstagramQueries}
   `;
 
 export const mutations = `
@@ -143,5 +151,6 @@ export const mutations = `
    ${TicketConfigMutations}
    ${ResponseTemplateMutations}
    ${KnowledgeBaseMutations}
+   ${InstagramMutations}
 `;
 export default { types, queries, mutations };

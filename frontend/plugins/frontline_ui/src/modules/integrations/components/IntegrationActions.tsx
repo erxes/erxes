@@ -9,6 +9,12 @@ const FacebookPostTrigger = lazy(() =>
   ),
 );
 
+const InstagramPostTrigger = lazy(()=>
+  import('@/integrations/instagram/components/InstagramPostTrigger').then(
+    (module) => ({default:module.InstagramPostTrigger}),
+  ),
+);
+
 export const IntegrationActions = () => {
   const { integration, _id } = useConversationContext();
 
@@ -16,6 +22,9 @@ export const IntegrationActions = () => {
     <Suspense fallback={<div />}>
       {integration?.kind === IntegrationType.FACEBOOK_POST && (
         <FacebookPostTrigger erxesApiId={_id} />
+      )}
+      {integration?.kind === IntegrationType.INSTAGRAM_POST && (
+        <InstagramPostTrigger erxesApiId={_id} />
       )}
     </Suspense>
   );

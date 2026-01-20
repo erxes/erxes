@@ -12,6 +12,7 @@ import { widgetMutations } from '@/inbox/graphql/resolvers/mutations/widget';
 import { ticketConfigMutations } from '~/modules/ticket/graphql/resolvers/mutations/ticketConfig';
 import { responseTemplateMutations } from '~/modules/response/graphql/responseTemplateMutations';
 import { knowledgeBaseMutations } from '@/knowledgebase/graphql/resolvers/mutations/knowledgeBaseMutations';
+import { instagramMutations } from '@/integrations/instagram/graphql/resolvers/mutations'
 
 export const mutations = {
   ...channelMutations,
@@ -28,4 +29,5 @@ export const mutations = {
   ...ticketConfigMutations,
   ...responseTemplateMutations,
   ...knowledgeBaseMutations,
+  ...instagramMutations,
 };

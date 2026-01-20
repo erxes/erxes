@@ -10,10 +10,12 @@ import {
   KnowledgeBaseParentCategory,
 } from '@/knowledgebase/graphql/resolvers/customResolvers/category';
 import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
+import integrationInstagramResolvers from '@/integrations/instagram/graphql/resolvers/customResolvers';
 
 export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,
+  ...integrationInstagramResolvers,
   Channel,
   ChannelMember,
   Pipeline,

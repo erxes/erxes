@@ -39,6 +39,22 @@ const FacebookIntegrationActions = lazy(() =>
   ),
 );
 
+const InstagramIntegrationDetail = lazy(() =>
+  import('@/integrations/instagram/components/InstagramIntegrationDetail').then(
+    (module) => ({
+      default:module.InstagramIntegrationDetail,
+    })
+  )
+)
+
+const InstagramIntegrationActions = lazy(() =>
+  import('@/integrations/instagram/components/InstagramIntegrationDetail').then(
+    (module) => ({
+      default:module.InstagramIntegrationActons,
+    })
+  )
+)
+
 const CallIntegrationDetail = lazy(() =>
   import('@/integrations/call/components/CallIntegrationDetail').then(
     (module) => ({
@@ -54,6 +70,8 @@ const CallIntegrationActions = lazy(() =>
     }),
   ),
 );
+
+
 
 export const IntegrationDetailPage = () => {
   const { integrationType, id } = useParams<{
@@ -106,6 +124,13 @@ export const IntegrationDetailPage = () => {
           <FacebookIntegrationDetail isPost />
         )}
         {integrationType === IntegrationType.CALL && <CallIntegrationDetail />}
+        {integrationType === IntegrationType.INSTAGRAM_POST &&(
+          <InstagramIntegrationDetail isPost />
+        )}
+        {integrationType === IntegrationType.INSTAGRAM_MESSENGER && (
+          <InstagramIntegrationDetail />
+        )}
+
       </Suspense>
       <IntegrationsRecordTable
         Actions={({ cell }) => (
@@ -119,6 +144,10 @@ export const IntegrationDetailPage = () => {
             )}
             {integrationType === IntegrationType.CALL && (
               <CallIntegrationActions cell={cell} />
+            )}
+            {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
+              integrationType === IntegrationType.INSTAGRAM_POST) && (
+              <InstagramIntegrationActions cell={cell} />
             )}
           </>
         )}

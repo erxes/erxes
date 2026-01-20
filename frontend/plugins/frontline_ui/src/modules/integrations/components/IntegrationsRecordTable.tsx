@@ -17,6 +17,7 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
+import { InstagramIntegrationRepair } from '../instagram/components/InstagramIntegrationRepair';
 
 export const IntegrationsRecordTable = ({
   Actions,
@@ -172,6 +173,10 @@ export const integrationTypeColumns = ({
           {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
           IntegrationType.FACEBOOK_POST === integrationType ? (
             <FacebookIntegrationRepair cell={cell} />
+          ) : null}
+          {IntegrationType.INSTAGRAM_MESSENGER === integrationType ||
+          IntegrationType.INSTAGRAM_POST === integrationType ? (
+            <InstagramIntegrationRepair cell={cell} />
           ) : null}
           <Actions cell={cell} />
           <ArchiveIntegration _id={_id} name={name} isActive={isActive} />

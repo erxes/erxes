@@ -23,4 +23,17 @@ export const INTEGRATIONS = {
     description: 'Connect and manage calls right from your Team Inbox',
     img: 'grandstream.webp',
   },
+  [IntegrationType.INSTAGRAM_MESSENGER]: {
+    name: 'Instagram Messenger',
+    description:
+      'Connect and manage Instagram Messages right from your Team Inbox',
+    img: 'ig.svg'
+  },
+  [IntegrationType.INSTAGRAM_POST]: {
+    name: 'Instagram Post',
+    description:
+      'Connect and manage Instagram Posts right from your Team Inbox',
+    img: 'ig.svg'
+  }
+
 };

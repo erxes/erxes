@@ -1,0 +1,1 @@
+export const INSTAGRAM_MESSAGE_WINDOW_HOURS =24;
