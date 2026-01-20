@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
-import { useBoardDetail } from '~/modules/deals/boards/hooks/useBoards';
+import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 
 const BoardsInlineRoot = (props: BoardsInlineProps) => {
   return (
@@ -77,6 +77,7 @@ const BoardsInlineEffectComponent = ({ boardId }: { boardId: string }) => {
     if (boardDetail) {
       updateBoards?.([...newBoards, boardDetail]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardDetail]);
 
   return null;
