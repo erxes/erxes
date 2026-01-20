@@ -10,6 +10,10 @@ import {
 } from '../../utils';
 import { dealSchema } from '../definitions/deals';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  generateDealActivityLogs,
+  generateDealCreatedActivityLog,
+} from '~/utils/activityLogs';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
@@ -59,6 +63,8 @@ export const loadDealClass = (
         currentDocument: deal.toObject(),
       });
 
+      dispatcher.createActivityLog(generateDealCreatedActivityLog(deal));
+
       return deal;
     }
 
@@ -90,6 +96,17 @@ export const loadDealClass = (
         currentDocument: updatedDeal.toObject(),
         prevDocument: prevDeal.toObject(),
       });
+      console.log('[DEAL] before activity log', {
+  prev: !!prevDeal,
+  current: !!updatedDeal,
+});
+
+      await generateDealActivityLogs(
+        prevDeal.toObject(),
+        updatedDeal.toObject(),
+        models,
+        dispatcher.createActivityLog,
+      );
 
       return updatedDeal;
     }
