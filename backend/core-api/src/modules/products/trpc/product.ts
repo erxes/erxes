@@ -1,7 +1,8 @@
 import { initTRPC } from '@trpc/server';
-import { escapeRegExp } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { PRODUCT_STATUSES } from '@/products/constants';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -15,12 +16,17 @@ export const productsTrpcRouter = t.router({
         limit,
         categoryId,
         categoryIds,
+        excludeCategoryIds,
+        excludeProductIds,
         fields,
+        cursorParams
       } = input;
 
       const { models } = ctx;
 
       const query = rawQuery || {};
+
+      query.status = { $ne: PRODUCT_STATUSES.DELETED }
 
       if (categoryIds?.length) {
         const categories = await models.ProductCategories.find({
@@ -31,10 +37,31 @@ export const productsTrpcRouter = t.router({
           order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
         }));
 
-        const categoriesWithChildren = await models.ProductCategories.find({
+        let categoriesWithChildren = await models.ProductCategories.find({
           status: { $nin: ['disabled', 'archived'] },
           $or: orderQry,
         }).lean();
+
+        if (excludeCategoryIds?.length) {
+          const excludeCategories = await models.ProductCategories.find({
+            _id: { $in: excludeCategoryIds },
+          }).lean();
+
+          const excludeOrderQry: any[] = excludeCategories.map((category: any) => ({
+            order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
+          }));
+
+          const excludeCategoriesWithChildren = await models.ProductCategories.find({
+            status: { $nin: ['disabled', 'archived'] },
+            $or: excludeOrderQry,
+          }).lean();
+          
+          const excludeCategoriesWithChildrenIds = excludeCategoriesWithChildren.map((category: any) => category._id);
+
+          categoriesWithChildren = categoriesWithChildren.filter((category: any) => 
+            !excludeCategoriesWithChildrenIds.includes(category._id)
+          );
+        }
 
         query.categoryId = {
           $in: categoriesWithChildren.map((category: any) => category._id),
@@ -55,6 +82,18 @@ export const productsTrpcRouter = t.router({
         }).lean();
 
         query.categoryId = { $in: categories.map((c) => c._id) };
+      }
+
+      if (excludeProductIds?.length) {
+        query._id = { $nin: excludeProductIds };
+      }
+
+      if (cursorParams) {
+        return cursorPaginate({
+          model: models.Products,
+          params: cursorParams,
+          query
+        })
       }
 
       return models.Products.find(query, fields || {})

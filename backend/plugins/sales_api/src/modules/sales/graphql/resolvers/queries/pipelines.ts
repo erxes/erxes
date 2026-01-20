@@ -168,6 +168,63 @@ export const pipelineQueries = {
       _id: userId || '',
     }));
   },
+
+  async salesPipelineProducts(
+    _root: undefined,
+    params: {
+      pipelineId: string;
+      categoryId?: string;
+      categoryIds?: string[];
+      searchValue?: string;
+    } & ICursorPaginateParams,
+    { models, subdomain }: IContext,
+  ) {
+    const { pipelineId, categoryId, categoryIds, searchValue } = params || {};
+
+    const pipeline = await models.Pipelines.getPipeline(pipelineId);
+
+    const { initialCategoryIds, excludeCategoryIds, excludeProductIds } = pipeline || {};
+
+    const input = { query: {}, cursorParams: { ...params } };
+
+    if (searchValue) {
+      input.query['searchValue'] = searchValue;
+    }
+
+    if (categoryId) {
+      input['categoryId'] = categoryId
+    }
+
+    if (categoryIds?.length) {
+      input['categoryIds'] = categoryIds
+    }
+
+    if (initialCategoryIds?.length) {
+      input['categoryIds'] = [...new Set([...(input['categoryIds'] || []), ...initialCategoryIds])]
+    }
+    
+    if (excludeCategoryIds?.length) {
+      input['excludeCategoryIds'] = excludeCategoryIds
+    }
+    
+    if (excludeProductIds?.length) {
+      input['excludeProductIds'] = excludeProductIds
+    }
+
+    try {
+      return await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'products',
+        action: 'find',
+        input,
+        defaultValue: {}
+      });
+    } catch (error) {
+      throw new Error(`Failed to fetch products: ${error.message}`);
+    }
+  },
 };
 
 // moduleRequireLogin(pipelineQueries);

@@ -13,6 +13,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   IconArchive,
@@ -42,7 +43,8 @@ export const PipelineMoreColumnCell = ({
 }) => {
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
-  const [, setOpen] = useQueryState('pipelineId');
+  const location = useLocation();
+  const navigate = useNavigate();
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
@@ -112,7 +114,12 @@ export const PipelineMoreColumnCell = ({
             <Command.Item
               value="edit"
               onSelect={() => {
-                setOpen(_id);
+                const searchParams = new URLSearchParams(location.search);
+                searchParams.set('pipelineId', _id);
+                searchParams.delete('tab');
+                navigate(`${location.pathname}?${searchParams.toString()}`, {
+                  replace: true,
+                });
               }}
             >
               <IconEdit /> Edit
@@ -131,7 +138,17 @@ export const PipelineMoreColumnCell = ({
                 </>
               )}
             </Command.Item>
-            <Command.Item value="productConfig">
+            <Command.Item
+              value="productConfig"
+              onSelect={() => {
+                const searchParams = new URLSearchParams(location.search);
+                searchParams.set('pipelineId', _id);
+                searchParams.set('tab', 'productConfig');
+                navigate(`${location.pathname}?${searchParams.toString()}`, {
+                  replace: true,
+                });
+              }}
+            >
               <IconSettings /> Product config
             </Command.Item>
             <Command.Item

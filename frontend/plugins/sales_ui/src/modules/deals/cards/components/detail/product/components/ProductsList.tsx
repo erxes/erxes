@@ -20,12 +20,14 @@ const ProductsList = ({
   dealId,
   refetch,
   tickUsed,
+  pipelineId,
 }: {
   products: IProduct[];
   productsData: IProductData[];
   dealId: string;
   refetch: () => void;
   tickUsed: boolean;
+  pipelineId?: string;
 }) => {
   const { createDealsProductData } = useDealsCreateProductsData();
   const [localProductsData, setLocalProductsData] =
@@ -236,6 +238,7 @@ const ProductsList = ({
         updateTotal={updateTotal}
         onAddProducts={onPoductBulkSave}
         onSave={handleSave}
+        pipelineId={pipelineId}
       />
     </div>
   );

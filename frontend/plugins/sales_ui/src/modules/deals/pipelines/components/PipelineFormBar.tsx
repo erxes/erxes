@@ -93,6 +93,7 @@ export function PipelineFormBar() {
 
     const searchParams = new URLSearchParams(location.search);
     searchParams.delete('pipelineId');
+    searchParams.delete('tab');
     navigate(`${location.pathname}?${searchParams.toString()}`, {
       replace: true,
     });
@@ -184,7 +185,7 @@ export function PipelineFormBar() {
         excludeProductIds: pipelineDetail?.excludeProductIds || [],
         erxesAppToken: pipelineDetail?.erxesAppToken || '',
         paymentIds: pipelineDetail?.paymentIds || [],
-        paymentTypes: pipelineDetail?.paymentTypes || [],
+        otherPayments: pipelineDetail?.paymentTypes || [],
       });
     } else {
       reset({
@@ -207,7 +208,7 @@ export function PipelineFormBar() {
         excludeProductIds: [],
         erxesAppToken: '',
         paymentIds: [],
-        paymentTypes: [],
+        otherPayments: [],
       });
     }
   }, [pipelineId, pipelineDetail, reset, boardId, methods]);

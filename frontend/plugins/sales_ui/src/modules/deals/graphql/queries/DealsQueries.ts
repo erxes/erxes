@@ -240,6 +240,12 @@ export const GET_DEAL_DETAIL = gql`
         categoryId
       }
       productsData
+      pipeline {
+        _id
+        paymentTypes
+        paymentIds
+        name
+      }
       relations
       pipeline {
         _id

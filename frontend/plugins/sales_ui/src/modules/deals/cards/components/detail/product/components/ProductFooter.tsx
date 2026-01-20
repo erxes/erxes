@@ -25,6 +25,7 @@ type ProductFooterProps = {
   updateTotal: (data: IProductData[]) => void;
   onAddProducts: (products: IProduct[]) => void;
   onSave: () => void;
+  pipelineId?: string;
 };
 
 const formatTotal = (total: TotalByCurrency) => {
@@ -56,6 +57,7 @@ const ProductFooter = ({
   updateTotal,
   onAddProducts,
   onSave,
+  pipelineId,
 }: ProductFooterProps) => {
   const handlePercentChange = (
     currency: string,
@@ -216,6 +218,7 @@ const ProductFooter = ({
         <div className="flex items-center gap-2">
           <SelectProductsBulk
             productIds={[]}
+            pipelineId={pipelineId}
             onSelect={(_, selectedProducts) =>
               onAddProducts(selectedProducts || [])
             }
