@@ -4,14 +4,14 @@ import { ReactNode, useEffect, useState } from "react"
 import { refetchUserAtom } from "@/store"
 import { configAtom, configsAtom, currentUserAtom } from "@/store/config.store"
 import { orderTypeAtom } from "@/store/order.store"
-import { useQuery } from "@apollo/client"
+import { useMutation, useQuery } from "@apollo/client"
 import { useAtom, useSetAtom } from "jotai"
 
 import { hexToHsl } from "@/lib/utils"
 import Loader from "@/components/ui/loader"
 import { onError } from "@/components/ui/use-toast"
 
-import { queries } from "./graphql"
+import { mutations, queries } from "./graphql"
 
 const Configs = ({ children }: { children: ReactNode }) => {
   const setConfigs = useSetAtom(configsAtom)
@@ -20,11 +20,23 @@ const Configs = ({ children }: { children: ReactNode }) => {
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const [fetchUser, setFetchUser] = useAtom(refetchUserAtom)
   const setOrderType = useSetAtom(orderTypeAtom)
+  const [configs] = useAtom(configsAtom)
+  const [autoSelectAttempted, setAutoSelectAttempted] = useState(false)
 
   const { loading, data, refetch } = useQuery(queries.posCurrentUser)
 
   const { data: config, loading: loadingConfig } = useQuery(
     queries.currentConfig
+  )
+
+  const [chooseConfig, { loading: choosingConfig }] = useMutation(
+    mutations.chooseConfig,
+    {
+      refetchQueries: ["CurrentConfig"],
+      onError({ message }) {
+        onError(message)
+      },
+    }
   )
 
   useQuery(queries.configs, {
@@ -57,11 +69,36 @@ const Configs = ({ children }: { children: ReactNode }) => {
       setConfig(currentConfig)
       document.title = currentConfig.name
       setOrderType((allowTypes || [])[0])
+      setAutoSelectAttempted(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config])
 
-  if (loading || loadingConfig || loadingConfigs)
+  // Auto-select first POS if no currentConfig exists
+  useEffect(() => {
+    if (
+      !loadingConfig &&
+      !loadingConfigs &&
+      !_id &&
+      configs &&
+      configs.length > 0 &&
+      !autoSelectAttempted &&
+      !choosingConfig
+    ) {
+      setAutoSelectAttempted(true)
+      chooseConfig({ variables: { token: configs[0].token } })
+    }
+  }, [
+    loadingConfig,
+    loadingConfigs,
+    _id,
+    configs,
+    autoSelectAttempted,
+    choosingConfig,
+    chooseConfig,
+  ])
+
+  if (loading || loadingConfig || loadingConfigs || choosingConfig)
     return <Loader className="h-screen" />
 
   const { primary } = uiOptions?.colors || {}

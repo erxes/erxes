@@ -1,4 +1,4 @@
-import { Button, Dialog } from 'erxes-ui/components';
+import { Button, Dialog, Spinner } from 'erxes-ui/components';
 import { IconTrash, IconUpload, IconUserCircle } from '@tabler/icons-react';
 import React, {
   MutableRefObject,
@@ -190,13 +190,7 @@ const UploadPreview = React.forwardRef<
             aria-label={url ? 'Change image' : 'Upload image'}
           >
             {isLoading ? (
-              <div
-                className="animate-spin inline-block size-6 border-[3px] border-current border-t-transparent text-gray-600 rounded-full dark:text-gray-500"
-                role="status"
-                aria-label="loading"
-              >
-                <span className="sr-only">Loading...</span>
-              </div>
+              <Spinner />
             ) : url ? (
               <img
                 className="h-full w-full object-cover absolute"

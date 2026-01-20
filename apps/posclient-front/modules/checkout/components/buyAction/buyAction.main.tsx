@@ -1,9 +1,9 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useRouter } from "next/navigation"
 import SettingsTrigger from "@/modules/orders/components/DeliveryInputs/trigger"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
+import { checkoutDialogOpenAtom, currentPaymentTypeAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
 import {
   activeOrderIdAtom,
@@ -29,23 +29,27 @@ const BuyAction = () => {
   const setActiveOrder = useSetAtom(activeOrderIdAtom)
   const setShowRecieptId = useSetAtom(showRecieptAtom)
   const type = useAtomValue(orderTypeAtom)
-  const router = useRouter()
+  const setCheckoutDialogOpen = useSetAtom(checkoutDialogOpenAtom)
+  const setPaymentType = useSetAtom(currentPaymentTypeAtom)
 
   const config = useAtomValue(configAtom)
   const { isActive, isPrint } = config?.kitchenScreen || {}
 
   const onCompleted = (_id: string, isPre?: boolean) => {
     if (buttonType === "pay") {
-      router.push("/checkout?orderId=" + _id)
+      setActiveOrder(_id)
+      setPaymentType("")
+      setCheckoutDialogOpen(true)
     } else if (
       buttonType === "kitchen" ||
       buttonType === "customer" ||
       (buttonType === "order" && !isActive && isPrint && !isPre)
     ) {
       setShowRecieptId(_id + (buttonType === "customer" ? "?customer" : ""))
+      setActiveOrder(_id)
+    } else {
+      setActiveOrder(_id)
     }
-
-    return setActiveOrder(_id)
   }
 
   const { loading, orderCU, variables } = useOrderCU(onCompleted)
@@ -89,12 +93,12 @@ const BuyAction = () => {
       >
         Захиалах
       </SplitButton>
-      <div className="flex items-center col-span-2 gap-2">
+      <div className="flex col-span-2 gap-2 items-center">
         <SettingsTrigger />
         {ORDER_TYPES.SALES.includes(type) ? (
           <Button
             size="lg"
-            className="bg-green-500 hover:bg-green-500/90 flex-auto"
+            className="flex-auto bg-green-500 hover:bg-green-500/90"
             loading={loading && buttonType === "pay"}
             disabled={disabled}
             onClick={() => {

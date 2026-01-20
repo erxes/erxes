@@ -168,12 +168,6 @@ export function Menus() {
 
   const headerActions = (
     <>
-      <Button variant="outline" asChild>
-        <a href="/settings/content">
-          <IconSettings />
-          Go to settings
-        </a>
-      </Button>
       <Button onClick={() => setIsDrawerOpen(true)}>
         <IconPlus className="mr-2 h-4 w-4" />
         Add Menu
