@@ -77,7 +77,6 @@ export function DealsBoardColumn({
     if (loading) return;
 
     const dealItems: any[] = filteredDeals.map((deal) => ({
-      id: deal._id,
       columnId: deal.stageId,
       ...deal,
     }));
@@ -90,18 +89,33 @@ export function DealsBoardColumn({
 
       const newIds: string[] = [];
       dealItems.forEach((item) => {
-        newItems[item.id] = item;
-        newIds.push(item.id);
+        newItems[item._id] = {
+          ...prev.items[item._id],
+          ...item,
+          products: item.products ?? prev.items[item._id]?.products,
+          productsData: item.productsData ?? prev.items[item._id]?.productsData,
+          labels: item.labels ?? prev.items[item._id]?.labels,
+          tags: item.tags ?? prev.items[item._id]?.tags,
+          companies: item.companies ?? prev.items[item._id]?.companies,
+          customers: item.customers ?? prev.items[item._id]?.customers,
+          startDate: item.startDate ?? prev.items[item._id]?.startDate,
+          closeDate: item.closeDate ?? prev.items[item._id]?.closeDate,
+          departments: item.departments ?? prev.items[item._id]?.departments,
+          customProperties:
+            item.customProperties ?? prev.items[item._id]?.customProperties,
+        };
+        newIds.push(item._id);
       });
 
-      const existingIds = newColumnItems[column._id] || [];
-      const draggedHere = existingIds.filter(
-        (id: string) =>
-          newItems[id] &&
-          !newIds.includes(id) &&
-          newItems[id].columnId === column._id,
-      );
-      newColumnItems[column._id] = [...new Set([...draggedHere, ...newIds])];
+      const existingIds = prev.columnItems[column._id] ?? [];
+      const incomingIds = dealItems.map((d) => d._id);
+
+      const mergedIds = [
+        ...existingIds.filter((id) => incomingIds.includes(id)),
+        ...incomingIds.filter((id) => !existingIds.includes(id)),
+      ];
+
+      newColumnItems[column._id] = mergedIds;
 
       return { ...prev, items: newItems, columnItems: newColumnItems };
     });
@@ -110,7 +124,21 @@ export function DealsBoardColumn({
       setAllDealsMap((prev) => {
         const newMap = { ...prev };
         dealItems.forEach((item) => {
-          newMap[item._id] = item;
+          newMap[item._id] = {
+            ...prev[item._id],
+            ...item,
+            products: item.products ?? prev[item._id]?.products,
+            productsData: item.productsData ?? prev[item._id]?.productsData,
+            labels: item.labels ?? prev[item._id]?.labels,
+            tags: item.tags ?? prev[item._id]?.tags,
+            companies: item.companies ?? prev[item._id]?.companies,
+            customers: item.customers ?? prev[item._id]?.customers,
+            startDate: item.startDate ?? prev[item._id]?.startDate,
+            closeDate: item.closeDate ?? prev[item._id]?.closeDate,
+            departments: item.departments ?? prev[item._id]?.departments,
+            customProperties:
+              item.customProperties ?? prev[item._id]?.customProperties,
+          };
         });
         return newMap;
       });

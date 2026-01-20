@@ -1,11 +1,8 @@
-import { Button, Separator } from 'erxes-ui';
+import { Button, Combobox, Form, Input, Separator } from 'erxes-ui';
 import { IconChevronLeft, IconLoader2 } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
 
-import { Combobox } from 'erxes-ui';
-import { Form } from 'erxes-ui';
-import { Input } from 'erxes-ui';
-import { useBoardAdd } from '~/modules/deals/boards/hooks/useBoards';
+import { useBoardAdd } from '@/deals/boards/hooks/useBoards';
 import { useForm } from 'react-hook-form';
 import { useSelectBoardsContext } from '@/deals/context/DealContext';
 import { z } from 'zod';

@@ -112,8 +112,10 @@ export const commonListFields = `
     _id
     name
     defaultTick
+    age
   }
   stageId
+  order
   isComplete
   isWatched
   relations
