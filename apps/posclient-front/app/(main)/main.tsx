@@ -4,18 +4,21 @@ import ProductsContainer from "@/modules/products/productsContainer"
 import BarcodeListener from "@/components/barcodeListener"
 import Header from "@/components/header/header.main"
 
+import CheckoutDialog from "./(orders)/components/CheckoutDialog"
+
 const MainIndexPage = () => {
   return (
     <BarcodeListener>
       <Header />
-      <section className="flex flex-auto items-stretch overflow-hidden">
-        <div className="flex h-full w-2/3 flex-col p-4 pr-0">
+      <section className="flex overflow-hidden flex-auto items-stretch">
+        <div className="flex flex-col p-4 pr-0 w-2/3 h-full">
           <ProductsContainer />
         </div>
-        <div className="flex w-1/3 flex-col border-l">
+        <div className="flex flex-col w-1/3 border-l">
           <CheckoutMain />
         </div>
       </section>
+      <CheckoutDialog />
     </BarcodeListener>
   )
 }

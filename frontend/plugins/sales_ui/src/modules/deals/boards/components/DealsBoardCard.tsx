@@ -18,6 +18,10 @@ interface DealsBoardCardProps {
 export const DealsBoardCard = memo(function DealsBoardCard({
   deal,
 }: DealsBoardCardProps) {
+  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
+  const [searchParams] = useQueryState<string>('archivedOnly');
+
   if (!deal) return null;
 
   const {
@@ -35,9 +39,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     tags,
     customProperties,
   } = deal;
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
-  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
-  const [searchParams] = useQueryState<string>('archivedOnly');
 
   const onCardClick = () => {
     setSalesItemId(_id);

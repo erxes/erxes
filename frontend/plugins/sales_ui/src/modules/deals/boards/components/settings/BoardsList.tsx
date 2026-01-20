@@ -1,10 +1,7 @@
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
-import {
-  useBoardRemove,
-  useBoards,
-} from '~/modules/deals/boards/hooks/useBoards';
+import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
 import { useEffect, useMemo } from 'react';
 
 import { BoardForm } from './BoardForm';

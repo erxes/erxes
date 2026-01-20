@@ -197,19 +197,6 @@ export const editDeal = async ({
   if (doc.status && oldDeal.status && oldDeal.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    // putActivityLog(subdomain, {
-    //   action: "createArchiveLog",
-    //   data: {
-    //     item: updatedItem,
-    //     contentType: type,
-    //     action: "archive",
-    //     userId: user._id,
-    //     createdBy: user._id,
-    //     contentId: updatedItem._id,
-    //     content: activityAction,
-    //   },
-    // });
-
     // order notification
     await changeItemStatus(models, user, {
       item: updatedItem,
@@ -225,20 +212,6 @@ export const editDeal = async ({
       doc.assignedUserIds,
     );
 
-    // const activityContent = { addedUserIds, removedUserIds };
-
-    // putActivityLog(subdomain, {
-    //   action: "createAssigneLog",
-    //   data: {
-    //     contentId: _id,
-    //     userId: user._id,
-    //     contentType: type,
-    //     content: activityContent,
-    //     action: "assignee",
-    //     createdBy: user._id,
-    //   },
-    // });
-
     notificationDoc.invitedUsers = addedUserIds;
     notificationDoc.removedUsers = removedUserIds;
   }
@@ -250,7 +223,6 @@ export const editDeal = async ({
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
-  const updatedStage = await models.Stages.getStage(updatedItem.stageId);
   await subscriptionWrapper(models, {
     action: 'update',
     deal: updatedItem,
