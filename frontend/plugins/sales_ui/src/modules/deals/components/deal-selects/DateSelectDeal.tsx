@@ -23,6 +23,7 @@ export enum DateSelectVariant {
   DETAIL = 'detail',
   CARD = 'card',
   FORM = 'form',
+  BUTTON = 'button',
 }
 
 interface DateSelectContextType {
@@ -170,6 +171,7 @@ export const DateSelectDealRoot = ({
         (now.getTime() - closeDateValue.getTime()) / (1000 * 60 * 60 * 24),
       )
     : 0;
+
   const handleValueChange = (value?: Date) => {
     if (id) {
       editDeals({
@@ -184,32 +186,32 @@ export const DateSelectDealRoot = ({
 
   const Content =
     variant === 'table' ? RecordTableInlineCell.Content : Combobox.Content;
+
   if (isEnded) {
     return (
-      <>
-        <DateSelectProvider
-          value={dateValue}
-          onValueChange={handleValueChange}
-          variant={variant as DateSelectVariant}
-          loading={loading}
-          error={error}
-        >
-          <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-            <DateSelectTrigger>
-              <div className="text-sm bg-yellow-50 text-yellow-400 px-2 py-1 rounded flex items-center gap-1">
-                <IconAlertCircleFilled className="size-4" />
-                Ended {endedDiff} {endedDiff === 1 ? 'day' : 'days'} ago{' '}
-                {formatted && `(${formatted})`}
-              </div>
-            </DateSelectTrigger>
-            <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
-              <DateSelectContent />
-            </Content>
-          </PopoverScoped>
-        </DateSelectProvider>
-      </>
+      <DateSelectProvider
+        value={dateValue}
+        onValueChange={handleValueChange}
+        variant={variant as DateSelectVariant}
+        loading={loading}
+        error={error}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <DateSelectTrigger>
+            <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
+              <IconAlertCircleFilled className="size-4" />
+              Ended {endedDiff} {endedDiff === 1 ? 'day' : 'days'} ago{' '}
+              {formatted && `(${formatted})`}
+            </div>
+          </DateSelectTrigger>
+          <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
+            <DateSelectContent />
+          </Content>
+        </PopoverScoped>
+      </DateSelectProvider>
     );
   }
+
   return (
     <DateSelectProvider
       value={dateValue}
