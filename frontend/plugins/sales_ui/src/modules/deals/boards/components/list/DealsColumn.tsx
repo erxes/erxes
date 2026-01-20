@@ -114,6 +114,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
             type="startDate"
             value={startDate || ''}
             id={row.original._id}
+            placeholder="Start Date"
           />
         );
       },
@@ -132,6 +133,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
             type="closeDate"
             value={closeDate || ''}
             id={row.original._id}
+            placeholder="Close Date"
           />
         );
       },

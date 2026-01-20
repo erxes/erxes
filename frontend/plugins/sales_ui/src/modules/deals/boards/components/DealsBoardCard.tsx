@@ -77,12 +77,14 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     >
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
+          placeholder="Start Date"
           value={startDate}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectDeal
+          placeholder="Close Date"
           value={closeDate}
           id={_id}
           type="closeDate"
