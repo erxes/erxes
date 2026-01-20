@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
-import { CREATE_EBARIMT_RETURN_CONFIG } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/mutations/createEbarimtReturnConfig';
 import { useToast, useRecordTableCursor } from 'erxes-ui';
 import { EBARIMT_RETURN_CONFIG_CURSOR_SESSION_KEY } from '@/ebarimt/settings/stage-in-return-ebarimt-config/constants';
+import { CREATE_MN_CONFIG } from '../graphql/queries/mnConfigs';
 
 export const useCreateEbarimtReturnConfig = () => {
   const { toast } = useToast();
@@ -10,7 +10,7 @@ export const useCreateEbarimtReturnConfig = () => {
   });
 
   const [createEbarimtReturnConfigMutation, { loading, error }] = useMutation(
-    CREATE_EBARIMT_RETURN_CONFIG,
+    CREATE_MN_CONFIG,
     {
       onCompleted: () => {
         toast({

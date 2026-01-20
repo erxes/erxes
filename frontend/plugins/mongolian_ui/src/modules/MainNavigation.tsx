@@ -12,7 +12,7 @@ export const MainNavigation = () => {
       />
       <NavigationMenuLinkItem
         name="Erkhet Sync"
-        path="mongolian/sync-erkhet-history"
+        path="mongolian/sync-erkhet"
         icon={IconSandbox}
       />
       <NavigationMenuLinkItem

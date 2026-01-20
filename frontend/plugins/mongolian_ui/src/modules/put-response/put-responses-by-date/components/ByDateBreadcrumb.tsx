@@ -12,25 +12,25 @@ export const ByDateBreadcrumb = () => {
       <Breadcrumb.List className="gap-1">
         <ToggleGroup type="single" value={pathname}>
           <ToggleGroup.Item
-            value="/mongolian/put-response"
+            value="/mongolian/put-response/put-response"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/put-response">Put Response</Link>
+            <Link to="/mongolian/put-response/put-response">Put Response</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item
-            value="/mongolian/put-responses-by-date"
+            value="/mongolian/put-response/by-date"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/put-responses-by-date">By Date</Link>
+            <Link to="/mongolian/put-response/by-date">By Date</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item
-            value="/mongolian/put-responses-duplicated"
+            value="/mongolian/put-response/duplicated"
             asChild
             onClick={() => setCursor('')}
           >
-            <Link to="/mongolian/put-responses-duplicated">Duplicated</Link>
+            <Link to="/mongolian/put-response/duplicated">Duplicated</Link>
           </ToggleGroup.Item>
         </ToggleGroup>
       </Breadcrumb.List>
