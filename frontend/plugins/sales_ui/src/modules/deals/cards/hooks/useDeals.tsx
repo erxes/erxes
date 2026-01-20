@@ -117,17 +117,6 @@ export const useDeals = (
             .map((item: IDeal) =>
               item._id === deal._id ? { ...item, ...deal } : item,
             )
-            .slice()
-            .sort((a, b) => {
-              const ao = Number(a.order);
-              const bo = Number(b.order);
-
-              if (Number.isNaN(ao) && Number.isNaN(bo)) return 0;
-              if (Number.isNaN(ao)) return 1;
-              if (Number.isNaN(bo)) return -1;
-
-              return ao - bo;
-            });
         }
 
         if (action === 'remove') {
@@ -135,6 +124,8 @@ export const useDeals = (
             (item: IDeal) => item._id !== deal?._id,
           );
         }
+
+        updatedList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
         return {
           ...prev,
@@ -146,8 +137,8 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                ? prev.deals.totalCount - 1
-                : prev.deals.totalCount,
+                  ? prev.deals.totalCount - 1
+                  : prev.deals.totalCount,
           },
         };
       },
@@ -260,11 +251,11 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     refetchQueries:
       salesItemId || _id
         ? [
-            {
-              query: GET_DEAL_DETAIL,
-              variables: { ...options?.variables, _id: salesItemId || _id },
-            },
-          ]
+          {
+            query: GET_DEAL_DETAIL,
+            variables: { ...options?.variables, _id: salesItemId || _id },
+          },
+        ]
         : [],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
