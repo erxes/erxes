@@ -1,5 +1,6 @@
 import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 
+import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
@@ -36,13 +37,74 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
     });
   };
 
+  const {
+    startDate,
+    closeDate,
+    _id,
+    assignedUserIds,
+    labels,
+    priority,
+    tags,
+    companies,
+    customers,
+    tagIds,
+  } = deal;
+
   return (
     <div className="border-b py-4 px-8">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Due date</h4>
+          <div className="flex items-center">
+            <DateSelectDeal
+              value={startDate}
+              id={_id}
+              type="startDate"
+              variant="card"
+            />
+            <span className="mx-2">to</span>
+            <DateSelectDeal
+              value={closeDate}
+              id={_id}
+              type="closeDate"
+              variant="card"
+            />
+          </div>
+        </div>
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Label</h4>
+          <div className="flex flex-wrap items-center gap-1">
+            <SelectLabels.FilterBar
+              filterKey=""
+              mode="multiple"
+              label="By Label"
+              variant="card"
+              targetId={_id}
+              initialValue={labels?.map((label) => label._id || '') || []}
+            />
+            {labels?.map((label) => (
+              <div
+                key={label._id}
+                className="ml-1 pl-2 pr-2 py-1 rounded text-white text-sm font-medium inline-block"
+                style={{ backgroundColor: label.colorCode }}
+              >
+                {label.name}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Priority</h4>
+          <SelectDealPriority
+            dealId={_id}
+            value={priority || ''}
+            variant="card"
+          />
+        </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Assigned to</h4>
           <SelectMember
-            value={deal.assignedUserIds}
+            value={assignedUserIds}
             onValueChange={(value) =>
               handleDealFieldChange('assignedUserIds', value)
             }
@@ -50,45 +112,14 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
           />
         </div>
         <div>
-          <h4 className="uppercase text-sm text-gray-500 pb-2">Label</h4>
-          <SelectLabels.FilterBar
-            filterKey=""
-            mode="multiple"
-            label="By Label"
-            variant="card"
-            targetId={deal._id}
-            initialValue={deal.labels?.map((label) => label._id || '') || []}
-          />
-          {deal.labels?.map((label) => (
-            <div
-              key={label._id}
-              className="ml-1 pl-2 pr-2 py-1 rounded text-white text-sm font-medium inline-block"
-              style={{ backgroundColor: label.colorCode }}
-            >
-              {label.name}
-            </div>
-          ))}
-        </div>
-        <div>
-          <h4 className="uppercase text-sm text-gray-500 pb-2">Priority</h4>
-          <SelectDealPriority
-            dealId={deal._id}
-            value={deal.priority || ''}
-            variant="card"
-          />
-        </div>
-        <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Tags</h4>
-          <SelectTags dealTags={deal.tags || []} tagIds={deal.tagIds || []} />
+          <SelectTags dealTags={tags || []} tagIds={tagIds || []} />
         </div>
-
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Customers</h4>
           <SelectCustomer
             mode="multiple"
-            value={(deal.customers || []).map(
-              (customer) => customer?._id || '',
-            )}
+            value={(customers || []).map((customer) => customer?._id || '')}
             onValueChange={(value) =>
               handleConformityChange('customerIds', value)
             }
@@ -98,7 +129,7 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
           <h4 className="uppercase text-sm text-gray-500 pb-2">Companies</h4>
           <SelectCompany
             mode="multiple"
-            value={(deal.companies || []).map((company) => company?._id || '')}
+            value={(companies || []).map((company) => company?._id || '')}
             onValueChange={(value) =>
               handleConformityChange('companyIds', value)
             }

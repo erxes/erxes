@@ -79,7 +79,6 @@
   --color-chart-800: var(--chart-800);
   --color-chart-900: var(--chart-900);
   --color-chart-950: var(--chart-950);
-  
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -348,6 +347,10 @@
   padding-inline: 36px;
   min-height: 100%;
   height: 100%;
+}
+
+.sales-description .bn-editor {
+  padding: 0;
 }
 
 .bn-shadcn .bn-editor {

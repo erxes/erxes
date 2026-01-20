@@ -1,9 +1,11 @@
 import { Button, Input, Sheet } from 'erxes-ui';
-import { IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
+
+import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { IDeal } from '@/deals/types/deals';
+import { IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
+import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useState } from 'react';
-import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 
 export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
@@ -47,6 +49,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
           </span>
         )}
         <DealsActions deals={[deal]} />
+        <MoveDealDropdown deal={deal} />
       </div>
       <Sheet.Close />
     </Sheet.Header>
