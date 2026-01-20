@@ -114,6 +114,7 @@ export const commonListFields = `
     defaultTick
   }
   stageId
+  order
   isComplete
   isWatched
   relations

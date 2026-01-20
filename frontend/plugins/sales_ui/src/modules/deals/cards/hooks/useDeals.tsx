@@ -84,10 +84,13 @@ export const useDeals = (
       userId: currentUser?._id,
       filter: options?.variables,
     }),
-    [lastPipelineId, currentUser?._id, options?.variables],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lastPipelineId, currentUser?._id, JSON.stringify(options?.variables)],
   );
 
   useEffect(() => {
+    if (!currentUser?._id) return;
+
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
       variables: subscriptionVars,
@@ -110,9 +113,21 @@ export const useDeals = (
         }
 
         if (action === 'edit') {
-          updatedList = currentList.map((item: IDeal) =>
-            item._id === deal._id ? { ...item, ...deal } : item,
-          );
+          updatedList = currentList
+            .map((item: IDeal) =>
+              item._id === deal._id ? { ...item, ...deal } : item,
+            )
+            .slice()
+            .sort((a, b) => {
+              const ao = Number(a.order);
+              const bo = Number(b.order);
+
+              if (Number.isNaN(ao) && Number.isNaN(bo)) return 0;
+              if (Number.isNaN(ao)) return 1;
+              if (Number.isNaN(bo)) return -1;
+
+              return ao - bo;
+            });
         }
 
         if (action === 'remove') {
@@ -139,6 +154,7 @@ export const useDeals = (
     });
 
     return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
