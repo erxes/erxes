@@ -60,14 +60,14 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
               value={startDate}
               id={_id}
               type="startDate"
-              variant="card"
+              variant="button"
             />
             <span className="mx-2">to</span>
             <DateSelectDeal
               value={closeDate}
               id={_id}
               type="closeDate"
-              variant="card"
+              variant="button"
             />
           </div>
         </div>
@@ -109,6 +109,7 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
               handleDealFieldChange('assignedUserIds', value)
             }
             className="text-foreground"
+            mode="multiple"
           />
         </div>
         <div>

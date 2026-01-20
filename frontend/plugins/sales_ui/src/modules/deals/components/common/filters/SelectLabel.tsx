@@ -301,7 +301,7 @@ export const SelectLabelsValue = () => {
       </span>
     );
   }
-  return <Combobox.Value placeholder="Select label" />;
+  return <Combobox.Value placeholder="Select Label" />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
