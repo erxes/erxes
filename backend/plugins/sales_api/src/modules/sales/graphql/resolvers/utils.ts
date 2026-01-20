@@ -123,7 +123,7 @@ export const copyPipelineLabels = async (
     updatedLabelIds.push(newLabel._id);
   }
 
-  await models.PipelineLabels.labelsLabel(item._id, updatedLabelIds);
+  await models.PipelineLabels.labelObject({ dealId: item._id, labelIds: updatedLabelIds });
 };
 
 export const itemMover = async (

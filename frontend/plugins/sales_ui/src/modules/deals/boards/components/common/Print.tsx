@@ -11,17 +11,24 @@ import {
 } from 'erxes-ui';
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 
+import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  deals: any[];
   stageId: string;
 };
 
-export const PrintDialog = ({ open, onClose, deals, stageId }: Props) => {
+export const PrintDialog = ({ open, onClose, stageId }: Props) => {
+  const { deals = [] } = useDeals({
+    variables: {
+      stageId,
+    },
+    skip: !open,
+  });
+
   const form = useForm({
     defaultValues: {
       copies: 1,
@@ -209,7 +216,7 @@ export const PrintDialog = ({ open, onClose, deals, stageId }: Props) => {
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {deals?.length > 0 ? (
+                  {deals && deals?.length > 0 ? (
                     deals.map((deal: any, index: number) => (
                       <Table.Row key={deal._id || index}>
                         <Table.Cell className="text-center">

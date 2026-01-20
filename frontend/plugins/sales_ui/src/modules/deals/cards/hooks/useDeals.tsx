@@ -26,6 +26,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useMemo } from 'react';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { IDeal } from '@/deals/types/deals';
@@ -33,7 +34,6 @@ import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSub
 import { currentUserState } from 'ui-modules';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useEffect } from 'react';
 
 interface IDealChanged {
   salesDealListChanged: {
@@ -78,14 +78,22 @@ export const useDeals = (
 
   const { list: deals, pageInfo, totalCount } = data?.deals || {};
 
+  const subscriptionVars = useMemo(
+    () => ({
+      pipelineId: lastPipelineId,
+      userId: currentUser?._id,
+      filter: options?.variables,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lastPipelineId, currentUser?._id, JSON.stringify(options?.variables)],
+  );
+
   useEffect(() => {
+    if (!currentUser?._id) return;
+
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
-      variables: {
-        pipelineId: lastPipelineId,
-        userId: currentUser?._id,
-        filter: options?.variables,
-      },
+      variables: subscriptionVars,
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
         if (!prev.deals?.list) return prev;
@@ -105,9 +113,21 @@ export const useDeals = (
         }
 
         if (action === 'edit') {
-          updatedList = currentList.map((item: IDeal) =>
-            item._id === deal._id ? { ...item, ...deal } : item,
-          );
+          updatedList = currentList
+            .map((item: IDeal) =>
+              item._id === deal._id ? { ...item, ...deal } : item,
+            )
+            .slice()
+            .sort((a, b) => {
+              const ao = Number(a.order);
+              const bo = Number(b.order);
+
+              if (Number.isNaN(ao) && Number.isNaN(bo)) return 0;
+              if (Number.isNaN(ao)) return 1;
+              if (Number.isNaN(bo)) return -1;
+
+              return ao - bo;
+            });
         }
 
         if (action === 'remove') {
@@ -135,7 +155,7 @@ export const useDeals = (
 
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options?.variables]);
+  }, [subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
     direction,
@@ -279,6 +299,7 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
     variables: {
       ...options?.variables,
       _id,
+      aboveItemId: '',
       stageId: defaultValues?.stageId,
     },
     awaitRefetchQueries: true,

@@ -78,39 +78,25 @@ const MemberDetailTabs = ({ children }: { children: React.ReactNode }) => {
       className="flex-auto flex h-full"
       orientation="vertical"
     >
-      <Tabs.List className="w-64" asChild>
-        <Sidebar collapsible="none" className="flex-none w-64 border-r">
+
+      <Sidebar collapsible="none" className="flex-none w-64 border-r">
+        <Sidebar.Content>
           <Sidebar.Group>
             <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
-            <Sidebar.GroupContent>
+            <Sidebar.GroupContent className="mt-2">
               <Sidebar.Menu>
-                <Sidebar.MenuItem>
-                  <TabsPrimitive.Trigger value="overview" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                      Overview
+                {['overview', 'links', 'properties', 'activity'].map((tab) => (
+                  <Sidebar.MenuItem key={tab}>
+                    <Sidebar.MenuButton isActive={selectedTab === tab} onClick={() => setSelectedTab(tab)}>
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
                     </Sidebar.MenuButton>
-                  </TabsPrimitive.Trigger>
-                </Sidebar.MenuItem>
-                <Sidebar.MenuItem>
-                  <TabsPrimitive.Trigger value="links" asChild>
-                    <Sidebar.MenuButton>Links</Sidebar.MenuButton>
-                  </TabsPrimitive.Trigger>
-                </Sidebar.MenuItem>
-                <Sidebar.MenuItem>
-                  <TabsPrimitive.Trigger value="properties" asChild>
-                    <Sidebar.MenuButton>Properties</Sidebar.MenuButton>
-                  </TabsPrimitive.Trigger>
-                </Sidebar.MenuItem>
-                <Sidebar.MenuItem>
-                  <TabsPrimitive.Trigger value="activity" asChild>
-                    <Sidebar.MenuButton>Activity</Sidebar.MenuButton>
-                  </TabsPrimitive.Trigger>
-                </Sidebar.MenuItem>
+                  </Sidebar.MenuItem>
+                ))}
               </Sidebar.Menu>
             </Sidebar.GroupContent>
           </Sidebar.Group>
-        </Sidebar>
-      </Tabs.List>
+        </Sidebar.Content>
+      </Sidebar>
       {children}
     </Tabs>
   );

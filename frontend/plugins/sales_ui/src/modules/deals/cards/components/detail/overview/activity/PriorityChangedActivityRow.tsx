@@ -1,6 +1,6 @@
 import { ActivityLogs, TActivityLog } from 'ui-modules/modules';
-import { PriorityBadge } from '~/modules/deals/components/deal-selects/PriorityInline';
-import { IDeal } from '~/modules/deals/types/deals';
+import { PriorityBadge } from '@/deals/components/deal-selects/PriorityInline';
+import { IDeal } from '@/deals/types/deals';
 
 const PRIORITY_OPTIONS_MAP = [
   {

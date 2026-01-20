@@ -19,6 +19,10 @@ interface DealsBoardCardProps {
 export const DealsBoardCard = memo(function DealsBoardCard({
   deal,
 }: DealsBoardCardProps) {
+  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
+  const [searchParams] = useQueryState<string>('archivedOnly');
+
   if (!deal) return null;
 
   const {
@@ -37,9 +41,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     customProperties,
     stage,
   } = deal;
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
-  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
-  const [searchParams] = useQueryState<string>('archivedOnly');
 
   const onCardClick = () => {
     setSalesItemId(_id);
@@ -78,12 +79,14 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     >
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
+          placeholder="Start Date"
           value={startDate}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectDeal
+          placeholder="Close Date"
           value={closeDate}
           id={_id}
           type="closeDate"

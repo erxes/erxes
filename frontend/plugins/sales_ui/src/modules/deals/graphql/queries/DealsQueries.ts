@@ -115,6 +115,7 @@ export const commonListFields = `
     age
   }
   stageId
+  order
   isComplete
   isWatched
   relations
