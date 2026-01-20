@@ -11,3 +11,4 @@ export * from './CustomersInline';
 export * from './CustomerWidget';
 export * from './SelectCompany';
 export * from './SelectCustomer';
+export * from './SelectCustomersBulk';
