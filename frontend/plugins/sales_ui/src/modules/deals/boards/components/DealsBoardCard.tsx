@@ -10,6 +10,7 @@ import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { memo } from 'react';
 import { useSetAtom } from 'jotai';
+import { IconAlertCircleFilled } from '@tabler/icons-react';
 
 interface DealsBoardCardProps {
   deal: IDeal;
@@ -38,6 +39,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     customers,
     tags,
     customProperties,
+    stage,
   } = deal;
 
   const onCardClick = () => {
@@ -77,12 +79,14 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     >
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
+          placeholder="Start Date"
           value={startDate}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectDeal
+          placeholder="Close Date"
           value={closeDate}
           id={_id}
           type="closeDate"
@@ -98,6 +102,16 @@ export const DealsBoardCard = memo(function DealsBoardCard({
         )}
         <div className="flex flex-col gap-1">
           <h5 className="font-semibold">{name}</h5>
+          {stage?.age !== undefined && stage.age < 0 && (
+            <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
+              <IconAlertCircleFilled className="size-6 pt-2" />
+              <h5 className="text-sm py-2">
+                Ready to move this card to the next column? (
+                {Math.abs(stage.age)}{' '}
+                {Math.abs(stage.age) === 1 ? 'day' : 'days'} elapsed)
+              </h5>
+            </span>
+          )}
         </div>
         <div className="flex flex-wrap gap-1">
           <SelectDealPriority
