@@ -1,7 +1,6 @@
 import { useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
-import { ebarimtMainDialogOpenAtom } from "@/store"
+import { checkoutDialogOpenAtom, ebarimtMainDialogOpenAtom } from "@/store"
 import {
   activeOrderIdAtom,
   orderTotalAmountAtom,
@@ -30,9 +29,8 @@ const EbarimtMain = () => {
   const setInitial = useSetAtom(setInitialAtom)
   const activeOrder = useAtomValue(activeOrderIdAtom)
   const openEbarimt = useAtomValue(ebarimtSheetAtom)
-  const router = useRouter()
   const [openDialog, setOpenDialog] = useAtom(ebarimtMainDialogOpenAtom)
-  const mainOrder = useSearchParams().get("mainOrder")
+  const setCheckoutDialogOpen = useSetAtom(checkoutDialogOpenAtom)
   const { changeVisiblity, loading, disabled, printBill } = usePrintBill()
 
   const { iframeRef } = useReciept({
@@ -40,9 +38,7 @@ const EbarimtMain = () => {
       changeVisiblity(false)
       setInitial()
       setOpenDialog(false)
-      mainOrder
-        ? router.push(`/checkout?orderId=${mainOrder}`)
-        : router.push("/")
+      setCheckoutDialogOpen(false)
     },
   })
 
@@ -86,7 +82,7 @@ const EbarimtMain = () => {
         <iframe
           ref={iframeRef}
           src={"/reciept/ebarimt?id=" + activeOrder}
-          className="absolute h-1 w-1"
+          className="absolute w-1 h-1"
           style={{ top: 10000, left: 10000 }}
         />
       )}
