@@ -1,9 +1,11 @@
 import { INotification } from '@/notification/types/notifications';
-import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
+import { Badge, Button, cn, RelativeDateDisplay, Tooltip } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { Link, useParams } from 'react-router-dom';
 import { pluginsConfigState } from 'ui-modules';
 import { OrgLogoIcon } from '@/auth/components/Logo';
+import { IconBackspace, IconCommand } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 
 export const NotificationItem = ({
   _id,
@@ -15,13 +17,23 @@ export const NotificationItem = ({
 }: INotification) => {
   const { id } = useParams();
   const isActive = id === _id;
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  useEffect(() => {
+    if (isActive) {
+      setShowTooltip(true);
+      setTimeout(() => {
+        setShowTooltip(false);
+      }, 3000);
+    }
+  }, [isActive]);
 
   return (
     <Button
       asChild
       variant="ghost"
       className={cn(
-        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden',
+        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden relative',
         isActive && 'bg-primary/10 hover:bg-primary/10',
       )}
     >
@@ -63,6 +75,19 @@ export const NotificationItem = ({
             </div>
           </div>
         </div>
+        <Tooltip open={showTooltip} onOpenChange={setShowTooltip}>
+          <Tooltip.Trigger asChild>
+            <div className="absolute top-1/2 right-0"></div>
+          </Tooltip.Trigger>
+          <Tooltip.Content side="right" align="center">
+            <div className="inline-flex flex-none items-center">
+              <IconCommand className="size-4" />
+              +
+              <IconBackspace className="size-4 mr-1" />
+              mark as read
+            </div>
+          </Tooltip.Content>
+        </Tooltip>
       </Link>
     </Button>
   );

@@ -24,21 +24,6 @@ export const MyInboxHeader = () => {
             </Link>
           </Button>
           <div className="flex gap-2 items-center ml-auto">
-            <Tooltip defaultOpen>
-              <Tooltip.Trigger asChild>
-                <Button variant="ghost" size="icon">
-                  <IconMailOpened />
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content>
-                <div className="inline-flex flex-none items-center">
-                  <IconCommand className="size-4" />
-                  +
-                  <IconBackspace className="size-4 mr-1" />
-                  mark as read
-                </div>
-              </Tooltip.Content>
-            </Tooltip>
             <NotificationsFilters />
             <NotificationSort />
           </div>
