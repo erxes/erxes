@@ -97,9 +97,9 @@ export const loadDealClass = (
         prevDocument: prevDeal.toObject(),
       });
       console.log('[DEAL] before activity log', {
-  prev: !!prevDeal,
-  current: !!updatedDeal,
-});
+        prev: !!prevDeal,
+        current: !!updatedDeal,
+      });
 
       await generateDealActivityLogs(
         prevDeal.toObject(),
@@ -111,7 +111,6 @@ export const loadDealClass = (
       return updatedDeal;
     }
 
-    /** Watch / unwatch deal */
     public static watchDeal(_id: string, isAdd: boolean, userId: string) {
       return watchItem(models.Deals, _id, isAdd, userId);
     }
