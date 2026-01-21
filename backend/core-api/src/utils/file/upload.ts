@@ -303,16 +303,16 @@ export const uploadFileCloudflare = async (
     : await getConfig('FILE_SYSTEM_PUBLIC', 'false');
 
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
-  console.log(file.filepath, 'file.filepath')
+
   if (!isValidPath(file.filepath)) {
     throw new Error('Unsafe file path');
   }
 
   const { CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_USE_CDN } =
     await getFileUploadConfigs(models);
-  console.log(CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_USE_CDN, 'CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_USE_CDN')
+
   const detectedType = await fileTypeFromBuffer(fs.readFileSync(file.filepath));
-  console.log(detectedType, 'detectedType')
+
   if (path.extname(file.originalFilename).toLowerCase() === `.jfif`) {
     file.originalFilename = file.originalFilename.replace('.jfif', '.jpeg');
   }
@@ -350,11 +350,7 @@ export const uploadFileCloudflare = async (
   const r2 = await createCFR2(models);
 
   // upload to r2
-  console.log({
-    ContentType: file.mimetype,
-    Bucket: CLOUDFLARE_BUCKET_NAME,
-    Key: fileName
-  })
+
   const response: any = await new Promise((resolve, reject) => {
     r2.upload(
       {
@@ -366,10 +362,8 @@ export const uploadFileCloudflare = async (
       },
       (err, res) => {
         if (err) {
-          console.log(err, 'rejected...')
           return reject(err);
         }
-        console.log('resolved...')
         return resolve(res);
       },
     );

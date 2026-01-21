@@ -59,7 +59,6 @@ export const checkFile = async (
   }
 
   const { size, originalFilename } = file;
-  console.log(file.mimetype, 'file.mimetype')
   // // 20mb
   // if (size > 20 * 1024 * 1024) {
   //   return 'Too large file';
@@ -70,7 +69,6 @@ export const checkFile = async (
 
   // determine file type using magic numbers
   const ft = await fileTypeFromBuffer(buffer);
-  console.log(ft, 'ft')
   const unsupportedMimeTypes = [
     'text/csv',
     'image/svg+xml',

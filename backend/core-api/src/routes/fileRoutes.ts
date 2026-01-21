@@ -137,7 +137,6 @@ router.post('/upload-file', async (req: Request, res: Response) => {
     }
 
     const status = await checkFile(models, processedFile, req.headers.source);
-    console.log(status, 'status')
     if (status !== 'ok') {
       return res.status(400).send(status);
     }
