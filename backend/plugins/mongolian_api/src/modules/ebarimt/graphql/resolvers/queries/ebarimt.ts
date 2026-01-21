@@ -11,7 +11,6 @@ import { IContext } from '~/connectionResolvers';
 import { IDoc } from '~/modules/ebarimt/@types';
 import {
   getCompanyInfo,
-  getConfig,
   getEbarimtData,
   getPostData,
 } from '~/modules/ebarimt/utils';
@@ -177,7 +176,7 @@ const genDuplicatedFilter = async (params) => {
   const ced = new Date(endDate);
   if (
     ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-      (1000 * 60 * 60 * 24) >
+    (1000 * 60 * 60 * 24) >
     32
   ) {
     throw new Error('The date range exceeds one month');
@@ -267,15 +266,15 @@ export const putResponseQueries = {
         throw new Error('Deal not found');
       }
 
-      const configs = await getConfig(subdomain, 'stageInEbarimt', {});
+      const configVal = await models.Configs.getConfigValue('stageInEbarimt', stageId);
 
-      if (!Object.keys(configs).includes(stageId)) {
+      if (!configVal) {
         throw new Error('Ebarimt config not found');
       }
 
       const config = {
-        ...(await getConfig(subdomain, 'EBARIMT', {})),
-        ...configs[stageId],
+        ...(await models.Configs.getConfigValue('EBARIMT', '', {})),
+        ...configVal,
       };
 
       const pipeline = await sendTRPCMessage({
@@ -364,7 +363,7 @@ export const putResponseQueries = {
     const ced = new Date(createdEndDate);
     if (
       ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-        (1000 * 60 * 60 * 24) >
+      (1000 * 60 * 60 * 24) >
       32
     ) {
       throw new Error('The date range exceeds one month');
@@ -414,9 +413,9 @@ export const putResponseQueries = {
   ebarimtGetCompany: async (
     _root: undefined,
     { companyRD }: { companyRD: string },
-    { subdomain }: IContext,
+    { models }: IContext,
   ) => {
-    const config = await getConfig(subdomain, 'EBARIMT');
+    const config = await models.Configs.getConfigValue('EBARIMT');
     return getCompanyInfo({
       checkTaxpayerUrl: config.checkTaxpayerUrl,
       no: companyRD,

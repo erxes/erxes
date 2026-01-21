@@ -349,17 +349,6 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   return { status: 'ok', data: mainData, innerData };
 };
 
-export const getConfig = async (subdomain, code, defaultValue?) => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'configs',
-    action: 'getConfig',
-    input: { code, defaultValue },
-  });
-};
-
 export const validCompanyCode = async (config, companyCode) => {
   const resp = await getCompanyInfo({
     checkTaxpayerUrl: config.checkTaxpayerUrl,
@@ -371,17 +360,15 @@ export const validCompanyCode = async (config, companyCode) => {
   return resp.result?.data?.name;
 };
 
-export const companyCheckCode = async (params, subdomain) => {
+export const companyCheckCode = async (params, models: IModels) => {
   if (!params.code) {
     return params;
   }
 
-  const config = await getConfig(subdomain, 'EBARIMT', {});
+  const config = await models.Configs.getConfigValue('EBARIMT');
 
   if (
-    !config ||
-    !config.checkTaxpayerUrl ||
-    !config.checkTaxpayerUrl.includes('http')
+    !(config?.checkTaxpayerUrl || '').includes('http')
   ) {
     return params;
   }
@@ -832,7 +819,7 @@ const calcGrouped = async (models: IModels, activeProductsData: any[]) => {
         amount: fixNum(mainData.amount * mainRatio + subData.amount * subRatio),
         discount: fixNum(
           (mainData.discount ?? 0) * mainRatio +
-            (subData.discount ?? 0) * subRatio,
+          (subData.discount ?? 0) * subRatio,
         ),
         unitPrice: fixNum(mainData.unitPrice + subData.unitPrice),
       });

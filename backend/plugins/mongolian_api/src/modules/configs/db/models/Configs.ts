@@ -9,10 +9,11 @@ export const Config = model('configs', configSchema);
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfigDetail(_id: string): Promise<IConfigDocument>;
-  getConfig(code: string, subId?: string): Promise<IConfigDocument>;
+  getConfig(code: string, subId?: string, defaultValue?: any): Promise<IConfigDocument>;
   getConfigs(code: string): Promise<IConfigDocument[]>;
-  getConfigValue(_id: string, defaultValue: any): Promise<any>;
+  getConfigValue(code: string, subId?: string, defaultValue?: any): Promise<any>;
   getConfigValues(code: string, defaultValue: any): Promise<any[]>;
+
   createConfig({ code, value, subId }: IConfig): Promise<IConfigDocument>;
   updateConfig(_id: string, value: any, subId?: string): Promise<IConfigDocument>;
   removeConfig(_id: string): Promise<string>;
@@ -37,10 +38,14 @@ export const loadConfigClass = (
       return config;
     }
 
-    public static async getConfig(code: string, subId?: string) {
+    public static async getConfig(code: string, subId?: string, defaultValue?: any) {
       const config = await models.Configs.findOne({ code, subId: subId ?? '' }).lean();
 
       if (!config) {
+        if (defaultValue) {
+          return defaultValue;
+        }
+
         throw new Error('Config not found');
       }
 
@@ -52,8 +57,8 @@ export const loadConfigClass = (
       return configs;
     }
 
-    public static async getConfigValue(_id: string, defaultValue: any) {
-      const config = await models.Configs.findOne({ _id }).lean();
+    public static async getConfigValue(code: string, subId?: string, defaultValue?: any) {
+      const config = await models.Configs.findOne({ code, subId: subId ?? '' }).lean();
       if (!config) {
         return defaultValue;
       }

@@ -3,7 +3,7 @@ import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IDoc } from './@types/common';
-import { getConfig, getEbarimtData, getPostData } from './utils';
+import { getEbarimtData, getPostData } from './utils';
 
 
 export const afterMutationHandlers = async (
@@ -13,28 +13,26 @@ export const afterMutationHandlers = async (
   params: any,
 ) => {
   const {
-    sourceStageId,
     destinationStageId,
     deal,
     userId
   } = params;
 
-  const mainConfig = await getConfig(subdomain, 'EBARIMT', {});
+  const mainConfig = await models.Configs.getConfigValue('EBARIMT')
 
   if (!mainConfig) {
     return;
   }
 
-  const configs = await getConfig(subdomain, 'stageInEbarimt', {});
-  const returnConfigs = await getConfig(
-    subdomain,
+  // return PutResponse
+  const returnConfigVal = await models.Configs.getConfigValue(
     'returnStageInEbarimt',
-    {},
+    destinationStageId
   );
 
-  if (Object.keys(returnConfigs).includes(destinationStageId)) {
+  if (returnConfigVal) {
     const returnConfig = {
-      ...returnConfigs[destinationStageId],
+      ...returnConfigVal,
       ...mainConfig,
     };
 
@@ -68,13 +66,14 @@ export const afterMutationHandlers = async (
   }
 
   // put *******
-  if (!Object.keys(configs).includes(destinationStageId)) {
+  const configVal = await models.Configs.getConfigValue('stageInEbarimt', destinationStageId);
+  if (!configVal) {
     return;
   }
 
   const config = {
     ...mainConfig,
-    ...configs[destinationStageId],
+    ...configVal,
   };
 
   const pipeline = await sendTRPCMessage({
