@@ -1,5 +1,9 @@
 import { Button, Separator, SideMenu, Spinner } from 'erxes-ui';
-import { IconCaretDownFilled, IconPlus, IconUser } from '@tabler/icons-react';
+import {
+  IconBuilding,
+  IconCaretDownFilled,
+  IconPlus,
+} from '@tabler/icons-react';
 
 import { CompaniesInline } from './CompaniesInline';
 import { SelectCompaniesBulk } from './SelectCompaniesBulk';
@@ -159,9 +163,9 @@ const CompanyWidgetHeader = ({
   onManageCompanies?: (companyIds: string[]) => void;
 }) => {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between bg-background border-b">
       <div>
-        <SideMenu.Header label="Companies" Icon={IconUser} hideSeparator />
+        <SideMenu.Header label="Companies" Icon={IconBuilding} hideSeparator />
       </div>
       {onManageCompanies && (
         <SelectCompaniesBulk
@@ -194,5 +198,5 @@ export const CompanyWidget = ({
 };
 
 export const CompanyWidgetTrigger = () => (
-  <SideMenu.Trigger value="company" label="Companies" Icon={IconUser} />
+  <SideMenu.Trigger value="company" label="Companies" Icon={IconBuilding} />
 );

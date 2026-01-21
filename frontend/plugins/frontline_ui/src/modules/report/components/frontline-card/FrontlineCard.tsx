@@ -158,9 +158,7 @@ type FrontlineCardContentProps = {
 
 export function FrontlineCardContent({ children }: FrontlineCardContentProps) {
   return (
-    <Card.Content className="rounded-md p-0 flex-1">
-      {children}
-    </Card.Content>
+    <Card.Content className="rounded-md p-0 flex-1">{children}</Card.Content>
   );
 }
 
