@@ -30,6 +30,9 @@ export const UPDATE_PROJECT_MUTATION = gql`
       tagIds: $tagIds
     ) {
       _id
+      name
+      icon
+      description
       status
       priority
       teamIds
@@ -38,6 +41,10 @@ export const UPDATE_PROJECT_MUTATION = gql`
       leadId
       memberIds
       tagIds
+      createdBy
+      createdAt
+      updatedAt
+      convertedFromId
     }
   }
 `;
