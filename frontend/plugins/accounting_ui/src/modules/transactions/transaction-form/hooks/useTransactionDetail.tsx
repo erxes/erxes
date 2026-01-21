@@ -1,22 +1,19 @@
 import { useQuery, OperationVariables } from '@apollo/client';
-import { TRANSACTION_DETAIL_QUERY } from '../graphql/queries/accTransactionDetail';
 import { ITransaction } from '../../types/Transaction';
+import { TRANSACTION_DETAIL_QUERY } from '../graphql/queries/accTransactionDetail';
 
 export const useTransactionDetail = (options?: OperationVariables) => {
-  const { data, loading, error } = useQuery<
-    { accTransactionDetail: ITransaction[] },
-    OperationVariables
-  >(TRANSACTION_DETAIL_QUERY, {
-    ...options,
-  });
-
-  const transactions = data?.accTransactionDetail;
-
+  const { data, loading, error, refetch } = useQuery<OperationVariables>(
+    TRANSACTION_DETAIL_QUERY,
+    {
+      ...options,
+    },
+  );
+  const transaction: ITransaction = data?.accTransactionDetail[0];
   return {
-    transactions,
-    activeTrs: transactions?.filter(tr => !tr.originId),
-    followTrs: transactions?.filter(tr => tr.originId) || [],
+    transaction,
     loading,
     error,
+    refetch,
   };
 };

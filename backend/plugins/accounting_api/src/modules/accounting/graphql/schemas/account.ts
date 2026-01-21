@@ -1,4 +1,4 @@
-import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = () => `
   type AccountCategory @key(fields: "_id") @cacheControl(maxAge: 3){
@@ -14,7 +14,6 @@ export const types = () => `
     accountCount: Int
     maskType: String
     mask: JSON
-
     parent: AccountCategory
   }
 
@@ -35,7 +34,7 @@ export const types = () => `
     parentId: String
     createdAt: Date
     scopeBrandIds: [String]
-    
+    extra:JSON,
     category: AccountCategory
   }
 
@@ -59,7 +58,8 @@ const accountParams = `
   departmentId: String,
   isTemp: Boolean,
   isOutBalance: Boolean,
-  scopeBrandIds: [String]
+  scopeBrandIds: [String],
+  extra:JSON
 `;
 
 const accountCategoryParams = `
@@ -90,6 +90,7 @@ const accountsQueryParams = `
   kind: String
   code: String
   name: String
+  extra:JSON
 `;
 
 export const queries = `

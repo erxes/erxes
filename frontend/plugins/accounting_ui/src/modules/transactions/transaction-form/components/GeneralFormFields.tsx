@@ -4,6 +4,7 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { IAccount } from '@/settings/account/types/Account';
 import { useWatch } from 'react-hook-form';
+import { BankEnum } from '@/settings/account/types/Account';
 
 export const AccountField = ({
   form,
@@ -15,7 +16,7 @@ export const AccountField = ({
 }: ICommonFieldProps & {
   filter?: any;
   allDetails?: boolean;
-  labelTxt?: string
+  labelTxt?: string;
 }) => {
   const details = useWatch({
     control: form.control,
@@ -133,7 +134,7 @@ export const AssignToField = ({ form, index }: ICommonFieldProps) => (
           <SelectMember.FormItem
             onValueChange={(users) => field.onChange(users || [])}
             value={field.value}
-            mode='multiple'
+            mode="multiple"
           />
         </Form.Control>
         <Form.Message />
@@ -197,3 +198,60 @@ export const DescriptionField = ({ form, index }: ICommonFieldProps) => (
     )}
   />
 );
+
+export const BankField = ({ form, index }: ICommonFieldProps) => {
+  const BANK_OPTIONS = [
+    { label: 'Xac Bank', value: BankEnum.XAC },
+    { label: 'Golomt Bank', value: BankEnum.GOLOMT },
+    { label: 'Khan Bank', value: BankEnum.KHAN },
+    { label: 'TDB', value: BankEnum.TDB },
+  ];
+  return (
+    <>
+      {/* Bank */}
+      <Form.Field
+        control={form.control}
+        name={`trDocs.${index}.extraData.bank`}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Bank</Form.Label>
+            <Form.Control>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <Select.Trigger>
+                  <Select.Value placeholder="Select bank" />
+                </Select.Trigger>
+                <Select.Content>
+                  {BANK_OPTIONS.map((bank) => (
+                    <Select.Item key={bank.value} value={bank.value}>
+                      {bank.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      {/* Bank Account */}
+      <Form.Field
+        control={form.control}
+        name={`trDocs.${index}.extraData.bankAccount`}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Bank Account</Form.Label>
+            <Form.Control>
+              <Input
+                placeholder="Enter bank account number"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </>
+  );
+};

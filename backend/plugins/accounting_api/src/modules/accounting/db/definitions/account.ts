@@ -1,5 +1,9 @@
 import { Schema } from 'mongoose';
-import { ACCOUNT_JOURNALS, ACCOUNT_KINDS, ACCOUNT_STATUSES } from '../../@types/constants';
+import {
+  ACCOUNT_JOURNALS,
+  ACCOUNT_KINDS,
+  ACCOUNT_STATUSES,
+} from '../../@types/constants';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 
 export const accountSchema = schemaWrapper(
@@ -41,5 +45,9 @@ export const accountSchema = schemaWrapper(
     isTemp: { type: Boolean, default: false, label: 'Is Temp' },
     isOutBalance: { type: Boolean, default: false, label: 'Is Out balance' },
     mergedIds: { type: [String], optional: true },
-  })
+    extra: {
+      type: Object,
+      default: {},
+    },
+  }),
 );

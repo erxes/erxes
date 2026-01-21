@@ -13,7 +13,12 @@ import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
-import { AccountKind, AccountStatus, JournalEnum } from '../types/Account';
+import {
+  AccountKind,
+  AccountStatus,
+  JournalEnum,
+  BankEnum,
+} from '../types/Account';
 import { TAccountForm } from '../types/accountForm';
 
 export const AccountForm = ({
@@ -27,8 +32,18 @@ export const AccountForm = ({
 }) => {
   const status = useWatch({
     control: form.control,
-    name: 'status'
+    name: 'status',
   });
+  const journal = useWatch({
+    control: form.control,
+    name: 'journal',
+  });
+  const BANK_OPTIONS = [
+    { label: 'Xac Bank', value: BankEnum.XAC },
+    { label: 'Golomt Bank', value: BankEnum.GOLOMT },
+    { label: 'Khan Bank', value: BankEnum.KHAN },
+    { label: 'TDB', value: BankEnum.TDB },
+  ];
 
   return (
     <Form {...form}>
@@ -125,7 +140,10 @@ export const AccountForm = ({
             <Form.Item>
               <Form.Label>Kind</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <Select.Trigger>
                     <Select.Value placeholder="Select kind" />
                   </Select.Trigger>
@@ -150,7 +168,10 @@ export const AccountForm = ({
             <Form.Item>
               <Form.Label>Journal</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <Select.Trigger>
                     <Select.Value placeholder="Select journal" />
                   </Select.Trigger>
@@ -167,6 +188,48 @@ export const AccountForm = ({
             </Form.Item>
           )}
         />
+        {journal === JournalEnum.BANK && (
+          <>
+            <Form.Field
+              control={form.control}
+              name="extra.bank"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Bank</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder="Select bank" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {BANK_OPTIONS.map((bank) => (
+                          <Select.Item key={bank.value} value={bank.value}>
+                            {bank.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="extra.bankAccount"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Bank Account</Form.Label>
+                  <Form.Control>
+                    <Input placeholder="Enter bank account number" {...field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </>
+        )}
 
         <Form.Field
           control={form.control}
@@ -244,7 +307,10 @@ export const AccountForm = ({
               <Form.Item>
                 <Form.Label>Status</Form.Label>
                 <Form.Control>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <Select.Trigger>
                       <Select.Value placeholder="Select status" />
                     </Select.Trigger>

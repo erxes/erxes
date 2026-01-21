@@ -17,6 +17,7 @@ export const ACCOUNT_MINI_FIELDS = `
   departmentId
   isTemp
   isOutBalance
+  extra 
 `;
 
 export const ACCOUNT_FIELDS = `
@@ -67,7 +68,7 @@ const ACCOUNT_PARAMS = `
   code: $code
   name: $name
   ${GQL_CURSOR_PARAMS}
-`
+`;
 
 export const GET_ACCOUNTS_MAIN = gql`
   query AccountsMain(

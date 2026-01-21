@@ -53,9 +53,9 @@ export default class CurrencyTr {
       defaultValue: {},
     });
 
-    if (!this.spotRate?.rate) {
-      throw new Error('not found spot rate');
-    }
+    // if (!this.spotRate?.rate) {
+    //   throw new Error('not found spot rate');
+    // }
     const spotRate = this.spotRate.rate;
 
     if (
@@ -112,25 +112,31 @@ export default class CurrencyTr {
     }
 
     const detail = this.doc.details[0];
-    const amount = fixNum((detail.currencyAmount ?? 0) * (this.spotRate?.rate ?? 0)) || detail.amount || 0;
+    const amount =
+      fixNum((detail.currencyAmount ?? 0) * (this.spotRate?.rate ?? 0)) ||
+      detail.amount ||
+      0;
 
     if (amount !== detail.amount) {
       detail.amount = amount;
     }
 
     return this.doc;
-  }
+  };
 
   public doCurrencyTr = async (transaction: ITransactionDocument) => {
     let currencyTr;
 
-
-
-    const oldFollowTrs = await this.models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.EXCHANGE_DIFF }).lean();
+    const oldFollowTrs = await this.models.Transactions.find({
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.EXCHANGE_DIFF,
+    }).lean();
 
     if (!this.currencyDiffTrDoc) {
       if (oldFollowTrs.length) {
-        await this.models.Transactions.deleteMany({ _id: { $in: oldFollowTrs.map(tr => tr._id) } });
+        await this.models.Transactions.deleteMany({
+          _id: { $in: oldFollowTrs.map((tr) => tr._id) },
+        });
       }
 
       return;
@@ -138,16 +144,22 @@ export default class CurrencyTr {
 
     const oldCurrencyTr = oldFollowTrs[0];
     if (oldFollowTrs.length > 1) {
-      await this.models.Transactions.deleteMany({ _id: { $in: oldFollowTrs.slice(1).map(tr => tr._id) } });
+      await this.models.Transactions.deleteMany({
+        _id: { $in: oldFollowTrs.slice(1).map((tr) => tr._id) },
+      });
     }
 
-    currencyTr = await createOrUpdateTr(this.models, {
-      ...this.currencyDiffTrDoc,
-      originId: transaction._id,
-      originType: TR_FOLLOW_TYPES.EXCHANGE_DIFF,
-      parentId: transaction.parentId,
-      ptrId: transaction.ptrId,
-    }, oldCurrencyTr);
+    currencyTr = await createOrUpdateTr(
+      this.models,
+      {
+        ...this.currencyDiffTrDoc,
+        originId: transaction._id,
+        originType: TR_FOLLOW_TYPES.EXCHANGE_DIFF,
+        parentId: transaction.parentId,
+        ptrId: transaction.ptrId,
+      },
+      oldCurrencyTr,
+    );
 
     return currencyTr;
   };
