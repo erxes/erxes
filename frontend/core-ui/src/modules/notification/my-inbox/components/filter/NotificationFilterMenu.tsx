@@ -20,23 +20,23 @@ export const NotificationFilterMenu = () => {
         <div className="p-1">
           <ToggleGroup
             type="single"
-            value={status || 'read'}
+            value={status || 'unread'}
             onValueChange={(value) => setStatus(value)}
             variant="outline"
           >
+             <ToggleGroup.Item
+              aria-label="Toggle unread"
+              value="unread"
+              className="flex-1"
+            >
+              Unread
+            </ToggleGroup.Item>
             <ToggleGroup.Item
               aria-label="Toggle all"
               value="all"
               className="flex-1"
             >
               All
-            </ToggleGroup.Item>
-            <ToggleGroup.Item
-              aria-label="Toggle unread"
-              value="unread"
-              className="flex-1"
-            >
-              Unread
             </ToggleGroup.Item>
             <ToggleGroup.Item
               aria-label="Toggle Read"

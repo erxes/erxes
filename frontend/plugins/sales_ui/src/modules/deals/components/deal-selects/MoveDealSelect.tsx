@@ -6,9 +6,7 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { IDeal } from '@/deals/types/deals';
-
-import { SelectBoard } from '@/deals/boards/components/SelectBoards';
-
+import { SelectBoard } from '@/deals/boards/components/common/SelectBoards';
 import { SelectPipeline } from '@/deals/pipelines/components/SelectPipelines';
 import { SelectStage } from '@/deals/stage/components/SelectStages';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';

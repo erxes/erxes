@@ -24,7 +24,7 @@ export const NotificationItem = ({
         isActive && 'bg-primary/10 hover:bg-primary/10',
       )}
     >
-      <Link to={`/my-inbox/${_id}`}>
+      <Link to={`/my-inbox/${_id}${window.location.search}`}>
         <div
           className={cn(
             'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative',

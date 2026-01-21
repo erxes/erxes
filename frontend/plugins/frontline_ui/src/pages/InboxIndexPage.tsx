@@ -1,4 +1,4 @@
-import { IconMail, IconSettings } from '@tabler/icons-react';
+import { IconMail } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
