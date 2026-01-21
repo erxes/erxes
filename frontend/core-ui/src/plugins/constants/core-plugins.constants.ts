@@ -76,6 +76,7 @@ export const GET_CORE_MODULES = (
     {
       name: t('logs'),
       path: 'logs',
+      settingsOnly: true,
     },
   ];
 

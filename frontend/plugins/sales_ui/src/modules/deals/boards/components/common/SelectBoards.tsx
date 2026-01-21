@@ -18,7 +18,7 @@ import {
 import { BoardsInline } from './BoardsInline';
 import { IBoard } from '@/deals/types/boards';
 import { IconLabel } from '@tabler/icons-react';
-import { useBoards } from '../hooks/useBoards';
+import { useBoards } from '../../hooks/useBoards';
 import { useDebounce } from 'use-debounce';
 
 export const SelectBoardProvider = ({

@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
+  IDealDocument,
   ILabelObjectParams,
   IPipelineLabel,
   IPipelineLabelDocument,
@@ -25,9 +26,8 @@ export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
     userId?: string,
   ): Promise<IPipelineLabelDocument>;
   removePipelineLabel(_id: string): Promise<IPipelineLabelDocument>;
-  labelsLabel(targetId: string, labelIds: string[]): void;
   validateUniqueness(filter: IFilter, _id?: string): Promise<boolean>;
-  labelObject(params: ILabelObjectParams): void;
+  labelObject(params: ILabelObjectParams): Promise<{oldDeal: IDealDocument, deal: IDealDocument}>;
 }
 
 export const loadPipelineLabelClass = (
@@ -49,7 +49,8 @@ export const loadPipelineLabelClass = (
       return !(await models.PipelineLabels.findOne(filter));
     }
 
-    public static async labelObject({ labelIds, targetId, collection }: ILabelObjectParams) {
+    public static async labelObject({ labelIds, dealId }: ILabelObjectParams) {
+      const oldDeal = await models.Deals.getDeal(dealId);
       const existingCount = await models.PipelineLabels.countDocuments({
         _id: { $in: labelIds },
       });
@@ -58,10 +59,9 @@ export const loadPipelineLabelClass = (
         throw new Error('Label not found');
       }
 
-      await collection.updateOne(
-        { _id: targetId },
-        { $set: { labelIds } },
-      );
+      const deal = await models.Deals.updateDeal(dealId, { labelIds, stageId: oldDeal.stageId });
+
+      return { oldDeal, deal }
     }
 
     public static async createPipelineLabel(doc: IPipelineLabel, userId?: string) {
@@ -140,14 +140,6 @@ export const loadPipelineLabelClass = (
 
       await pipelineLabel.deleteOne();
       return pipelineLabel;
-    }
-
-    public static async labelsLabel(targetId: string, labelIds: string[]) {
-      await models.PipelineLabels.labelObject({
-        labelIds,
-        targetId,
-        collection: models.Deals,
-      });
     }
   }
 

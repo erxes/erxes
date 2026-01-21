@@ -1,18 +1,18 @@
+import { TagsListHead } from '@/settings/tags/components/TagsListCell';
 import {
   TagsListRow,
   TagsListRowSkeleton,
 } from '@/settings/tags/components/TagsListRow';
-import { useGetTags } from 'ui-modules';
-import { ScrollArea, useQueryState } from 'erxes-ui';
-import { TagsListHead } from '@/settings/tags/components/TagsListCell';
 import { TagsListRowForm } from '@/settings/tags/components/TagsListRowForm';
-import { useAtomValue, useSetAtom } from 'jotai';
 import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { childTagsMapAtomFamily } from '@/settings/tags/states/childTagsMap';
-import { useEffect, useRef } from 'react';
 import { tagGroupsAtomFamily } from '@/settings/tags/states/tagGroupsAtom';
 import { IconTagOff } from '@tabler/icons-react';
+import { ScrollArea, useQueryState } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useGetTags } from 'ui-modules';
 
 export const TagsList = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -23,6 +23,7 @@ export const TagsList = () => {
   const setParentTags = useSetAtom(tagGroupsAtomFamily(type));
   const { rootTags, tagsByParentId, tagGroups, loading } = useGetTags({
     variables: {
+      excludeWorkspaceTags: true,
       type: type,
     },
   });

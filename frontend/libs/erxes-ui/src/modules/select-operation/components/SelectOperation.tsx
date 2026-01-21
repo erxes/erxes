@@ -10,6 +10,7 @@ export enum SelectTriggerVariant {
   FORM = 'form',
   FILTER = 'filter',
   ICON = 'icon',
+  DEFAULT = 'default',
 }
 
 export const SelectTriggerOperation = ({
@@ -75,7 +76,7 @@ export const SelectTriggerOperation = ({
   }
 
   return (
-    <Combobox.TriggerBase className="w-fit h-7">
+    <Combobox.TriggerBase className="w-fit h-7 shadow-none py-0 pr-0">
       {children}
     </Combobox.TriggerBase>
   );
