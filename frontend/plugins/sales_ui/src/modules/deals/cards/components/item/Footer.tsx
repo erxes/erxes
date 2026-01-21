@@ -18,6 +18,7 @@ export const ItemFooter = ({ createdAt, assignedUsers = [], id }: Props) => {
       </div>
       <SelectAssigneeDeal
         variant="card"
+        mode="multiple"
         value={assignedUsers.map((user) => user?._id) || ['']}
         id={id}
         teamIds={

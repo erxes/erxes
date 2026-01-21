@@ -8,7 +8,7 @@ import {
 import { useRef, useState } from 'react';
 
 import PipelineConfig from '@/deals/pipelines/components/PipelineConfig';
-import { SelectBoard } from '../SelectBoards';
+import { SelectBoard } from '../common/SelectBoards';
 
 const VISIBILITY_TYPES = [
   { value: 'public', label: 'Public' },

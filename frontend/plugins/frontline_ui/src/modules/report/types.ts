@@ -90,3 +90,6 @@ export interface ResponsesChartTypeOption {
   label: string;
 }
 
+export enum ReportHotKeyScope {
+  ReportPage = 'report-page',
+}

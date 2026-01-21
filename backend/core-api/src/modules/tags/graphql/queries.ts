@@ -90,7 +90,8 @@ export const tagQueries = {
     const types = {};
 
     for (const serviceName of services) {
-      const fieldTypes: Array<{ description: string; contentType: string }> = [];
+      const fieldTypes: Array<{ description: string; contentType: string }> =
+        [];
 
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
@@ -140,7 +141,10 @@ export const tagQueries = {
 
   async tagsMain(
     _parent: undefined,
-    { type }: { type: string },
+    {
+      type,
+      excludeWorkspaceTags,
+    }: { type: string; excludeWorkspaceTags?: boolean },
     { models }: IContext,
   ) {
     const filter: FilterQuery<ITagFilterQueryParams> = {
@@ -149,6 +153,10 @@ export const tagQueries = {
 
     if (type) {
       filter.type = { $in: [null, '', type] };
+    }
+
+    if (type && excludeWorkspaceTags) {
+      filter.type = { $eq: type };
     }
 
     return await models.Tags.find(filter).sort({ name: 1 });

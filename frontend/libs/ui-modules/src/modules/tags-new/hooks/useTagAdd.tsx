@@ -3,9 +3,9 @@ import {
   OperationVariables,
   useMutation,
 } from '@apollo/client';
-import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
-import { ADD_TAG } from 'ui-modules/modules/tags-new/graphql/tagMutations';
 import { useToast } from 'erxes-ui';
+import { ADD_TAG } from 'ui-modules/modules/tags-new/graphql/tagMutations';
+import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
 import { AddTagMutationResponse } from 'ui-modules/modules/tags-new/types/TagMutationTypes';
 
 export const useTagAdd = () => {
@@ -60,6 +60,7 @@ export const useTagAdd = () => {
             {
               query: TAGS_QUERY,
               variables: {
+                excludeWorkspaceTags: true,
                 type: variables?.type,
               },
             },

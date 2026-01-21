@@ -8,8 +8,7 @@ import { IDeal } from '@/deals/types/deals';
 import MainOverview from './MainOverview';
 import SalesDescription from './SalesDescription';
 import SalesNoteAndComment from './NoteAndComment';
-import ActivityList from './activity/AcitivityList';
-import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
+
 const Overview = ({ deal }: { deal: IDeal }) => {
   return (
     <AttachmentProvider
@@ -25,15 +24,10 @@ const Overview = ({ deal }: { deal: IDeal }) => {
             <ChecklistOverview />
             <AttachmentUploader />
           </div>
-          <div className="flex py-2 px-4">
-            <MoveDealDropdown deal={deal} />
-          </div>
         </div>
       </div>
-      <div className="border-b">
-        <Attachments />
-      </div>
-      <div className="overview">
+      <Attachments />
+      <div className="overview mb-4">
         <MainOverview deal={deal} />
         <Checklists />
       </div>
