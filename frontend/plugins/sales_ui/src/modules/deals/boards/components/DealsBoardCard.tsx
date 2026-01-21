@@ -8,8 +8,10 @@ import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { SelectTags } from 'ui-modules';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { memo } from 'react';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
 
 interface DealsBoardCardProps {
@@ -71,6 +73,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
   const [searchParams] = useQueryState<string>('archivedOnly');
+  const { editDeals } = useDealsEdit();
 
   if (!deal) return null;
 
@@ -85,6 +88,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     labels,
     status,
     stage,
+    tagIds,
   } = deal;
 
   const onCardClick = () => {
@@ -149,6 +153,23 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             variant="card"
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
+          />
+          <SelectTags.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Tag"
+            variant="card"
+            targetId={_id}
+            initialValue={tagIds || []}
+            onValueChange={(value) => {
+              if (!value) return;
+              editDeals({
+                variables: {
+                  _id: deal._id,
+                  tagIds: Array.isArray(value) ? value : [value],
+                },
+              });
+            }}
           />
         </div>
       </div>

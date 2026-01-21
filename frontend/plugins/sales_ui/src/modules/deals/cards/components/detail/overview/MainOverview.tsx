@@ -1,9 +1,9 @@
+import { SelectMember, SelectTags } from 'ui-modules';
+
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { SelectMember } from 'ui-modules';
-import SelectTags from './tags/SelectTags';
 import { useDealsContext } from '@/deals/context/DealContext';
 
 const MainOverview = ({ deal }: { deal: IDeal }) => {
@@ -29,7 +29,6 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
     assignedUserIds,
     labels,
     priority,
-    tags,
     tagIds,
   } = deal;
 
@@ -97,7 +96,14 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Tags</h4>
-          <SelectTags dealTags={tags || []} tagIds={tagIds || []} />
+          <SelectTags
+            tagType="sales:deal"
+            mode="multiple"
+            value={tagIds}
+            onValueChange={(value) => {
+              handleDealFieldChange('tagIds', value);
+            }}
+          />
         </div>
       </div>
     </div>

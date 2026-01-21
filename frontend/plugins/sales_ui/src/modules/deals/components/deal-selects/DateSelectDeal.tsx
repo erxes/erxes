@@ -156,7 +156,9 @@ export const DateSelectDealRoot = ({
   const { editDeals, loading, error } = useDealsEdit();
   const closeDate = type === 'closeDate';
   const now = new Date();
-  const dateValue = value ? new Date(value) : undefined;
+  const dateValue = value
+    ? new Date(typeof value === 'string' ? value.slice(0, 10) : value)
+    : undefined;
   const closeDateValue = closeDate && dateValue;
   const isEnded = closeDateValue && closeDateValue < now;
   const formatted =
