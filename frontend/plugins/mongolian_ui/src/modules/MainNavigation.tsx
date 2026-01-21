@@ -1,6 +1,5 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import React from 'react';
 
 export const MainNavigation = () => {
   return (

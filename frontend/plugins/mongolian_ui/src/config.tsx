@@ -1,7 +1,6 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
-import { SettingsNavigation } from './modules/SettginsNavigation';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -9,17 +8,9 @@ const MainNavigation = lazy(() =>
   })),
 );
 
-// Import the ProductPlacesMain component
-const ProductPlacesMain = lazy(() =>
-  import('./modules/productplaces/Main').then((module) => ({
-    default: module.default,
-  })),
-);
-
-// Import the ProductPlacesSettings component  
-const ProductPlacesSettings = lazy(() =>
-  import('./pages/productplaces/ProductPlacesSettings').then((module) => ({
-    default: module.default,
+const SettingsNavigation = lazy(() =>
+  import('./modules/SettingsNavigation').then((module) => ({
+    default: module.SettingsNavigation,
   })),
 );
 
@@ -41,17 +32,17 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
-
+  widgets: {},
   modules: [
     {
       name: 'ebarimt',
       icon: IconSandbox,
-      path: 'ebarimt',
+      path: 'mongolian/ebarimt',
     },
     {
       name: 'sync-erkhet',
       icon: IconSandbox,
-      path: 'sync-erkhet',
+      path: 'mongolian/sync-erkhet',
     },
     {
       name: 'sync-erkhet-history',

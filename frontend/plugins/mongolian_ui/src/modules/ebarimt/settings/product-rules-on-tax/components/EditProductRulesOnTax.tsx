@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { ProductRulesOnTaxForm } from './ProductRulesOnTaxForm';
 
-import { EBarimtDialog } from '~/modules/put-response/layout/components/Dialog';
+import { EBarimtDialog } from '~/modules/ebarimt/put-response/layout/components/Dialog';
 import {
   productRulesOnTaxSchema,
   TProductRulesOnTaxForm,
