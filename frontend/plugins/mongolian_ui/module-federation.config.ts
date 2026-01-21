@@ -17,8 +17,8 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './ebarimt': './src/modules/ebarimt/Main.tsx',
-    './ebarimtSettings':
-      './src/modules/ebarimt/settings/components/EBarimtSettings.tsx',
+    './mongolianSettings':
+      './src/modules/MongolianSettings.tsx',
     './sync-erkhetSettings': './src/modules/erkhet-sync/Settings.tsx',
     './sync-erkhet-history':
       './src/modules/erkhet-sync/sync-erkhet-history/Main.tsx',
@@ -37,6 +37,7 @@ const config: ModuleFederationConfig = {
     './productplaces': './src/modules/productplaces/Main.tsx',
     './productplacesSettings':
       './src/pages/productplaces/ProductPlacesSettings.tsx',
+      './mongolian': "./src/modules/MongolianMain.tsx"
   },
 
   shared: (libraryName, defaultConfig) => {

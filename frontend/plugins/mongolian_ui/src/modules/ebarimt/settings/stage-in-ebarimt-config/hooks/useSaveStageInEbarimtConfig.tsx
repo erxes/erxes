@@ -2,15 +2,15 @@ import { useMutation } from '@apollo/client';
 import {
   CREATE_MN_CONFIG,
   UPDATE_MN_CONFIG,
-} from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
+} from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 import { useToast } from 'erxes-ui';
 
-export const useEbarimtReturnConfigSave = () => {
+export const useSaveStageInEbarimtConfig = () => {
   const [createConfig] = useMutation(CREATE_MN_CONFIG);
   const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
   const { toast } = useToast();
 
-  const saveConfigsToServer = async (
+  const saveStageInEbarimtConfig = async (
     configs: any,
     operation: 'create' | 'update',
     configId?: string,
@@ -21,7 +21,7 @@ export const useEbarimtReturnConfigSave = () => {
       if (operation === 'create' || !configId) {
         result = await createConfig({
           variables: {
-            code: 'returnStageInEbarimt',
+            code: 'stageInEbarimt',
             subId: `config_${Date.now()}`,
             value: configs,
           },
@@ -56,5 +56,5 @@ export const useEbarimtReturnConfigSave = () => {
     }
   };
 
-  return { saveConfigsToServer };
+  return { saveStageInEbarimtConfig };
 };

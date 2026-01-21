@@ -82,14 +82,14 @@ export const AddProductRulesOnTaxForm = ({
       productIds,
       excludeProductIds,
       kind: data.kind,
-      taxType: data.taxType,
-      taxCode: data.taxCode,
       tagIds,
       excludeTagIds,
       status: data.status,
     };
 
     if (data.kind !== 'ctax') {
+      variables.taxType = data.taxType;
+      variables.taxCode = data.taxCode;
       variables.taxPercent = data.percent;
     }
 

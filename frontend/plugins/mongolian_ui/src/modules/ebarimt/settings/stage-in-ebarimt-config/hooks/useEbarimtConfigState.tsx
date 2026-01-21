@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
-import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
+import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
+import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 
-export const useEbarimtReturnConfigState = () => {
+export const useEbarimtConfigState = () => {
   const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {
-    variables: { code: 'returnStageInEbarimt' },
+    variables: { code: 'stageInEbarimt' },
     fetchPolicy: 'network-only',
   });
 
@@ -28,14 +28,32 @@ export const useEbarimtReturnConfigState = () => {
 
   const addNewConfig = () => {
     const configKey = `config_${Date.now()}`;
-    const newConfig: ReturnEbarimtConfig = {
-      title: 'New Return Ebarimt Config',
+    const newConfig: TStageInEbarimtConfig = {
+      title: 'New Stage In Ebarimt Config',
       destinationStageBoard: '',
       pipelineId: '',
       stageId: '',
-      userEmail: '',
+      posNo: '',
+      companyRD: '',
+      merchantTin: '',
+      branchOfProvince: '',
+      subProvince: '',
+      districtCode: '',
+      companyName: '',
+      defaultUnitedCode: '',
+      headerText: '',
+      branchNo: '',
       hasVat: false,
-      hasCitytax: false,
+      citytaxPercent: '',
+      vatPercent: '',
+      anotherRulesOfProductsOnVat: '',
+      vatPayableAccount: '',
+      hasAllCitytax: false,
+      allCitytaxPayableAccount: '',
+      footerText: '',
+      anotherRulesOfProductsOnCitytax: '',
+      withDescription: false,
+      skipEbarimt: false,
     };
 
     const updatedConfigsMap = {
@@ -55,7 +73,7 @@ export const useEbarimtReturnConfigState = () => {
     return updatedConfigsMap;
   };
 
-  const saveConfig = (configKey: string, configData: ReturnEbarimtConfig) => {
+  const saveConfig = (configKey: string, configData: TStageInEbarimtConfig) => {
     const updatedConfigsMap = {
       ...localConfigsMap,
       [configKey]: configData,

@@ -1,15 +1,15 @@
-import { Button, Form, Input, Card, AlertDialog } from 'erxes-ui';
+import { useState, useCallback, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Card, AlertDialog, Accordion, Form, Input } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { useEbarimtReturnConfigSave } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigSave';
+import { useEbarimtReturnConfigState } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigState';
 import { SelectSalesBoard } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectPipeline';
 import { SelectStage } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectStage';
-import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { addEBarimtReturnConfigSchema } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types/addEBarimtReturnConfigSchema';
-import { IconPlus } from '@tabler/icons-react';
-import { useEbarimtReturnConfigState } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigState';
-import { useEbarimtReturnConfigSave } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigSave';
+import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
 
 const ReturnEbarimtConfigCard = ({
   config,
@@ -43,6 +43,23 @@ const ReturnEbarimtConfigCard = ({
     onSave(configKey, data);
   };
 
+  const handleBoardChange = useCallback(
+    (value: string) => {
+      form.setValue('destinationStageBoard', value);
+      form.setValue('pipelineId', '');
+      form.setValue('stageId', '');
+    },
+    [form],
+  );
+
+  const handlePipelineChange = useCallback(
+    (value: string) => {
+      form.setValue('pipelineId', value);
+      form.setValue('stageId', '');
+    },
+    [form],
+  );
+
   return (
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -75,11 +92,7 @@ const ReturnEbarimtConfigCard = ({
                   <Form.Label>Destination Stage Board</Form.Label>
                   <SelectSalesBoard
                     value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('pipelineId', '');
-                      form.setValue('stageId', '');
-                    }}
+                    onValueChange={handleBoardChange}
                   />
                   <Form.Message />
                 </Form.Item>
@@ -94,10 +107,7 @@ const ReturnEbarimtConfigCard = ({
                   <Form.Label>Pipeline</Form.Label>
                   <SelectPipeline
                     value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('stageId', '');
-                    }}
+                    onValueChange={handlePipelineChange}
                     boardId={selectedBoardId}
                     disabled={!selectedBoardId}
                   />
@@ -126,14 +136,14 @@ const ReturnEbarimtConfigCard = ({
             />
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
             <AlertDialog
               open={isDeleteDialogOpen}
               onOpenChange={setIsDeleteDialogOpen}
             >
               <AlertDialog.Trigger asChild>
-                <Button variant="ghost" size="sm" className="">
-                  <p className="text-black"> Delete</p>
+                <Button variant="ghost" size="sm">
+                  <p className="text-black">Delete</p>
                 </Button>
               </AlertDialog.Trigger>
               <AlertDialog.Content>
@@ -152,7 +162,6 @@ const ReturnEbarimtConfigCard = ({
                       onDelete(configKey);
                       setIsDeleteDialogOpen(false);
                     }}
-                    className=""
                   >
                     Delete
                   </AlertDialog.Action>
@@ -169,36 +178,55 @@ const ReturnEbarimtConfigCard = ({
   );
 };
 
-export const ReturnEbarimtConfigForm = () => {
+export const ReturnEBarimtConfigForm = () => {
+  const [openItems, setOpenItems] = useState<string[]>([]);
+  const [currentConfigId, setCurrentConfigId] = useState<string | null>(null);
+
   const {
     localConfigsMap,
-    loading,
-    refetch,
-    addNewConfig: addConfig,
-    deleteConfig: deleteConfigHandler,
-    saveConfig: saveConfigHandler,
+    configId: initialConfigId,
+    addNewConfig: addConfigToState,
+    deleteConfig: deleteConfigFromState,
+    saveConfig: saveConfigToState,
   } = useEbarimtReturnConfigState();
+
+  useEffect(() => {
+    if (initialConfigId) {
+      setCurrentConfigId(initialConfigId);
+    }
+  }, [initialConfigId]);
 
   const { saveConfigsToServer } = useEbarimtReturnConfigSave();
 
   const addNewConfig = () => {
-    const updatedConfigsMap = addConfig();
-    saveConfigsToServer(updatedConfigsMap, refetch, 'create');
+    const updatedConfigsMap = addConfigToState();
+    const keys = Object.keys(updatedConfigsMap);
+    setOpenItems([keys[keys.length - 1]]);
   };
 
-  const deleteConfig = (configKey: string) => {
-    const updatedConfigsMap = deleteConfigHandler(configKey);
-    saveConfigsToServer(updatedConfigsMap, refetch, 'delete');
+  const deleteConfig = async (configKey: string) => {
+    const updatedConfigsMap = deleteConfigFromState(configKey);
+
+    if (!currentConfigId) return;
+
+    if (Object.keys(updatedConfigsMap).length === 0) {
+      // Handle delete all configs - would need remove function
+      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
+    } else {
+      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
+    }
   };
 
-  const saveConfig = (configKey: string, configData: ReturnEbarimtConfig) => {
-    const updatedConfigsMap = saveConfigHandler(configKey, configData);
-    saveConfigsToServer(updatedConfigsMap, refetch, 'update');
-  };
+  const saveConfig = async (configKey: string, configData: any) => {
+    const updatedConfigsMap = saveConfigToState(configKey, configData);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    if (!currentConfigId) {
+      const newId = await saveConfigsToServer(updatedConfigsMap, 'create');
+      setCurrentConfigId(newId);
+    } else {
+      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
+    }
+  };
 
   return (
     <div className="h-full w-full p-6 overflow-y-auto">
@@ -208,7 +236,11 @@ export const ReturnEbarimtConfigForm = () => {
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={addNewConfig} className="flex items-center gap-2">
+          <Button
+            type="button"
+            onClick={addNewConfig}
+            className="flex items-center gap-2"
+          >
             <IconPlus className="h-4 w-4" />
             New Config
           </Button>
@@ -220,15 +252,34 @@ export const ReturnEbarimtConfigForm = () => {
               No configurations found. Click "New Config" to create one.
             </div>
           ) : (
-            Object.keys(localConfigsMap).map((configKey) => (
-              <ReturnEbarimtConfigCard
-                key={configKey}
-                config={localConfigsMap[configKey]}
-                configKey={configKey}
-                onSave={saveConfig}
-                onDelete={deleteConfig}
-              />
-            ))
+            <Accordion
+              type="multiple"
+              value={openItems}
+              onValueChange={setOpenItems}
+              className="w-full"
+            >
+              {Object.keys(localConfigsMap).map((configKey) => (
+                <Accordion.Item key={configKey} value={configKey}>
+                  <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
+                    <div className="flex justify-between items-center w-full">
+                      <span>
+                        {localConfigsMap[configKey].title || 'Untitled Config'}
+                      </span>
+                    </div>
+                  </Accordion.Trigger>
+                  <Accordion.Content className="pt-4">
+                    <div className="p-4">
+                      <ReturnEbarimtConfigCard
+                        config={localConfigsMap[configKey]}
+                        configKey={configKey}
+                        onSave={saveConfig}
+                        onDelete={deleteConfig}
+                      />
+                    </div>
+                  </Accordion.Content>
+                </Accordion.Item>
+              ))}
+            </Accordion>
           )}
         </div>
       </div>

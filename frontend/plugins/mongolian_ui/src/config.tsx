@@ -1,6 +1,7 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
+import { SettingsNavigation } from './modules/SettginsNavigation';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -26,6 +27,11 @@ export const CONFIG: IUIConfig = {
   name: 'mongolian',
   path: 'mongolian',
   hasFloatingWidget: true,
+   settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'mongolian',
     icon: IconSandbox,
