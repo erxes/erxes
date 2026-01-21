@@ -96,11 +96,7 @@ export const loadDealClass = (
         currentDocument: updatedDeal.toObject(),
         prevDocument: prevDeal.toObject(),
       });
-      console.log('[DEAL] before activity log', {
-        prev: !!prevDeal,
-        current: !!updatedDeal,
-      });
-
+      
       await generateDealActivityLogs(
         prevDeal.toObject(),
         updatedDeal.toObject(),
