@@ -56,7 +56,6 @@ export const CONFIG: IUIConfig = {
     {
       name: 'projects',
       path: 'operation/projects',
-      settingsOnly: true,
     },
   ],
   widgets: {

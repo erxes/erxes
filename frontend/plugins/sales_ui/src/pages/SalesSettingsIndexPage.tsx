@@ -2,7 +2,7 @@ import { Button, PageContainer } from 'erxes-ui';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 
-import { BoardsList } from '@/deals/boards/components/BoardsList';
+import { BoardsList } from '~/modules/deals/boards/components/settings/BoardsList';
 import { IconSandbox } from '@tabler/icons-react';
 import { PipelineFormBar } from '@/deals/pipelines/components/PipelineFormBar';
 import PipelineRecordTable from '@/deals/pipelines/components/PipelineRecordTable';

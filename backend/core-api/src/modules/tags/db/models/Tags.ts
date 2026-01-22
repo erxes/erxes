@@ -26,10 +26,11 @@ export const loadTagClass = (
 ) => {
   class Tag {
     public static async validate(_id: string | null, doc: ITag) {
-      const { name, parentId, isGroup } = doc;
+      const { name, type, parentId, isGroup } = doc;
 
       const existingTag = await models.Tags.findOne({
         name,
+        type,
         _id: { $ne: _id },
       }).lean();
 

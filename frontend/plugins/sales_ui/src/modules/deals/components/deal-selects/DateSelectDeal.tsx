@@ -9,7 +9,11 @@ import {
   Button,
   Form,
 } from 'erxes-ui';
-import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
+import {
+  IconCalendarPlus,
+  IconCalendarTime,
+  IconAlertCircleFilled,
+} from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
@@ -19,6 +23,7 @@ export enum DateSelectVariant {
   DETAIL = 'detail',
   CARD = 'card',
   FORM = 'form',
+  BUTTON = 'button',
 }
 
 interface DateSelectContextType {
@@ -138,15 +143,36 @@ export const DateSelectDealRoot = ({
   type,
   scope,
   variant = DateSelectVariant.TABLE,
+  placeholder,
 }: {
   value?: Date | string;
   id?: string;
   type: 'startDate' | 'closeDate';
   scope?: string;
   variant?: `${DateSelectVariant}`;
+  placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const { editDeals, loading, error } = useDealsEdit();
+  const closeDate = type === 'closeDate';
+  const now = new Date();
+  const dateValue = value
+    ? new Date(typeof value === 'string' ? value.slice(0, 10) : value)
+    : undefined;
+  const closeDateValue = closeDate && dateValue;
+  const isEnded = closeDateValue && closeDateValue < now;
+  const formatted =
+    dateValue &&
+    dateValue.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+
+  const endedDiff = closeDateValue
+    ? Math.floor(
+        (now.getTime() - closeDateValue.getTime()) / (1000 * 60 * 60 * 24),
+      )
+    : 0;
 
   const handleValueChange = (value?: Date) => {
     if (id) {
@@ -163,9 +189,34 @@ export const DateSelectDealRoot = ({
   const Content =
     variant === 'table' ? RecordTableInlineCell.Content : Combobox.Content;
 
+  if (isEnded) {
+    return (
+      <DateSelectProvider
+        value={dateValue}
+        onValueChange={handleValueChange}
+        variant={variant as DateSelectVariant}
+        loading={loading}
+        error={error}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <DateSelectTrigger>
+            <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
+              <IconAlertCircleFilled className="size-4" />
+              Ended {endedDiff} {endedDiff === 1 ? 'day' : 'days'} ago{' '}
+              {formatted && `(${formatted})`}
+            </div>
+          </DateSelectTrigger>
+          <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
+            <DateSelectContent />
+          </Content>
+        </PopoverScoped>
+      </DateSelectProvider>
+    );
+  }
+
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
+      value={dateValue}
       onValueChange={handleValueChange}
       variant={variant as DateSelectVariant}
       loading={loading}
@@ -173,7 +224,7 @@ export const DateSelectDealRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
-          <DateSelectValue placeholder="Not specified" />
+          <DateSelectValue placeholder={placeholder} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />
