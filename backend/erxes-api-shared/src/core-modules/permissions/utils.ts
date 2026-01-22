@@ -1,9 +1,4 @@
-import {
-  IPermissionContext,
-  IResolverSymbol,
-  IUserDocument,
-  Resolver,
-} from '../../core-types';
+import { IPermissionContext, IUserDocument, Resolver } from '../../core-types';
 import { getEnv } from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
@@ -194,13 +189,12 @@ export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
     const { cpUserRequired, forClientPortal } = wrapperConfig || {};
 
     if (forClientPortal) {
-      if (cpUserRequired) {
-        if (!context.cpUser) {
-          throw new Error('Client portal user required');
-        }
-      }
       if (!context.clientPortal) {
         throw new Error('Client portal required');
+      }
+
+      if (cpUserRequired && !context.cpUser) {
+        throw new Error('Client portal user required');
       }
     }
 

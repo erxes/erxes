@@ -82,5 +82,13 @@ startPlugin({
         ],
       },
     ],
+    tags: {
+      types: [
+        {
+          description: 'Inbox',
+          type: 'conversation',
+        },
+      ],
+    },
   },
 });

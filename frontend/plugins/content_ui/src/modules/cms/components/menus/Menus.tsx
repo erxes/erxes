@@ -168,12 +168,6 @@ export function Menus() {
 
   const headerActions = (
     <>
-      <Button variant="outline" asChild>
-        <a href="/settings/content">
-          <IconSettings />
-          Go to settings
-        </a>
-      </Button>
       <Button onClick={() => setIsDrawerOpen(true)}>
         <IconPlus className="mr-2 h-4 w-4" />
         Add Menu
@@ -220,7 +214,7 @@ export function Menus() {
           />
         </div>
       ) : (
-        <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+        <div className="h-full rounded-lg shadow-sm border overflow-hidden">
           <RecordTable.Provider
             columns={columns}
             data={menus || []}

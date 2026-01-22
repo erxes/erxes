@@ -25,6 +25,7 @@ export const FieldSelectMultiple = (props: SpecificFieldProps) => {
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
+          console.log('currentValue', currentValue);
           !isDeeplyEqual(currentValue, value) && handleChange(currentValue);
         }
       }}

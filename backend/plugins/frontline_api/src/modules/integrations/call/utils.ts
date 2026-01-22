@@ -650,13 +650,13 @@ export const findIntegration = async (
     if (!integration && args.inboxIntegrationId) {
       integration = await models.CallIntegrations.findOne({
         inboxId: args.inboxIntegrationId,
-      }).lean();
+      });
     }
   } else if (args.inboxIntegrationId) {
     // If queueName is not provided, directly search by inboxId
     integration = await models.CallIntegrations.findOne({
       inboxId: args.inboxIntegrationId,
-    }).lean();
+    });
   }
 
   if (!integration) {
@@ -675,8 +675,8 @@ export const checkForExistingIntegrations = async (
     typeof details?.queues === 'string'
       ? details.queues.split(',').flatMap((q) => q.trim().split(/\s+/))
       : (details?.queues || []).flatMap((q) =>
-          typeof q === 'string' ? q.trim().split(/\s+/) : q,
-        );
+        typeof q === 'string' ? q.trim().split(/\s+/) : q,
+      );
 
   const models = await generateModels(subdomain);
   // Check for existing integrations with the same wsServer and overlapping queues

@@ -1,9 +1,11 @@
-import { ResponsesChartType, ResponsesChartTypeOption } from '../types';
+import {
+  ResponsesChartType,
+  ResponsesChartTypeOption,
+} from '../types';
 import {
   IconChartBar,
   IconChartRadar,
   IconChartPie,
-  IconChartDonut,
   IconChartLine,
   IconTable,
 } from '@tabler/icons-react';
@@ -48,13 +50,9 @@ export const RESPONSES_CHART_TYPE_OPTIONS: ResponsesChartTypeOption[] = [
     label: 'Pie',
   },
   {
-    IconComponent: IconChartDonut,
-    value: ResponsesChartType.Donut,
-    label: 'Donut',
-  },
-  {
     IconComponent: IconChartRadar,
     value: ResponsesChartType.Radar,
     label: 'Radar',
   },
 ];
+

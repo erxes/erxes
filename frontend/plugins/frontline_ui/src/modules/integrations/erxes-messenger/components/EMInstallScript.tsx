@@ -1,6 +1,6 @@
 import { IconCopy, IconCheck, IconCode } from '@tabler/icons-react';
 import { useState } from 'react';
-import { Badge, Button, Dialog } from 'erxes-ui';
+import { Badge, Button, Dialog, toast } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 
 type Props = {
@@ -36,8 +36,12 @@ export function EMInstallScript({ integrationId }: Props) {
           setCopied(false);
         }, 3000);
       })
-      .catch((err) => {
-        console.error('Failed to copy script:', err);
+      .catch(() => {
+        toast({
+          title: 'Failed to copy script',
+          description: 'Please try again',
+          variant: 'destructive',
+        });
       });
   };
 

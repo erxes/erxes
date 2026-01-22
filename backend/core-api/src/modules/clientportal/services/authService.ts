@@ -101,13 +101,13 @@ export class AuthService {
     res: any,
     user: ICPUserDocument,
     clientPortal: IClientPortalDocument,
-  ): string | void {
-    const { token } = this.generateTokenPair(user, clientPortal);
+  ): { token: string; refreshToken: string } | void {
+    const { token, refreshToken } = this.generateTokenPair(user, clientPortal);
     const deliveryMethod =
       clientPortal.auth?.authConfig?.deliveryMethod || 'cookie';
 
     if (deliveryMethod === 'header') {
-      return token;
+      return { token, refreshToken };
     }
 
     if (!res) {

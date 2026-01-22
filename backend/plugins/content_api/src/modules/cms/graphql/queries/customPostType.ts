@@ -3,7 +3,7 @@ import { IContext } from '~/connectionResolvers';
 
 import { Resolver } from 'erxes-api-shared/core-types';
 
- const queries: Record<string, Resolver> = {
+const queries: Record<string, Resolver> = {
   cmsCustomFieldGroupList: async (
     _parent: any,
     args: any,
@@ -109,9 +109,11 @@ import { Resolver } from 'erxes-api-shared/core-types';
     const { models } = context;
     const { searchValue, clientPortalId } = args;
 
-    const query: any = {
-      clientPortalId,
-    };
+    const query: any = {};
+
+    if (clientPortalId) {
+      query.clientPortalId = clientPortalId;
+    }
 
     if (searchValue) {
       query.$or = [
@@ -120,41 +122,11 @@ import { Resolver } from 'erxes-api-shared/core-types';
       ];
     }
 
-    const defaultTypes: any = [
-      {
-        _id: 'post',
-        clientPortalId,
-        label: 'Post',
-        pluralLabel: 'Posts',
-        code: 'post',
-      },
-      {
-        _id: 'page',
-        clientPortalId,
-        label: 'Page',
-        pluralLabel: 'Pages',
-        code: 'page',
-      },
-      {
-        _id: 'category',
-        clientPortalId,
-        label: 'Category',
-        pluralLabel: 'Categories',
-        code: 'category',
-      },
-    ];
-
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.CustomPostTypes,
-      params: args,
-      query,
+    const customTypes = await models.CustomPostTypes.find(query).sort({
+      createdAt: -1,
     });
 
-    defaultTypes.forEach((type) => {
-      list.unshift(type);
-    });
-
-    return { list, totalCount, pageInfo };
+    return customTypes || [];
   },
 
   cmsPostType: async (

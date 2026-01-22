@@ -27,7 +27,7 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
 export const loadInternalNoteClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class InternalNote {
     public static async getInternalNote(_id: string) {
@@ -57,6 +57,17 @@ export const loadInternalNoteClass = (
         action: 'create',
         docId: note._id,
         currentDocument: note.toObject(),
+      });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: note._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Note created',
+        },
+        changes: {},
       });
       return note;
     }

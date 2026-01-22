@@ -5,7 +5,7 @@ import { Routes } from 'react-router';
 import { LogsPath } from '@/types/paths/LogPath';
 
 const LogsIndexPage = lazy(() =>
-  import('~/pages/logs/LogsIndexPage').then((module) => ({
+  import('~/pages/settings/logs/LogsIndexPage').then((module) => ({
     default: module.LogsIndexPage,
   })),
 );

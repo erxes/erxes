@@ -1,0 +1,87 @@
+import { z } from 'zod';
+import { useAtomValue, useSetAtom, WritableAtom } from 'jotai';
+import { useCallback, useEffect, useState } from 'react';
+import { UseFormReturn, useWatch } from 'react-hook-form';
+
+export const FormValueEffectComponent = ({
+  form,
+  atom,
+}: {
+  atom: WritableAtom<any, [value: any], void>;
+  form: UseFormReturn<z.infer<any>>;
+}) => {
+  const [persistValueTaken, setPersistValueTaken] = useState(false);
+
+  return (
+    <>
+      <FormResetEffectComponent
+        form={form}
+        atom={atom}
+        persistValueTaken={persistValueTaken}
+        setPersistValueTaken={setPersistValueTaken}
+      />
+      <FormValueSetterEffectComponent
+        form={form}
+        atom={atom}
+        persistValueTaken={persistValueTaken}
+      />
+    </>
+  );
+};
+
+export const FormResetEffectComponent = ({
+  form,
+  atom,
+  persistValueTaken,
+  setPersistValueTaken,
+}: {
+  form: UseFormReturn<z.infer<any>>;
+  atom: WritableAtom<any, [value: any], void>;
+  persistValueTaken: boolean;
+  setPersistValueTaken: (value: boolean) => void;
+}) => {
+  const { reset } = form;
+  const atomValue = useAtomValue(atom);
+
+  const resetForm = useCallback(async () => {
+    setTimeout(() => {
+      reset(atomValue);
+    });
+  }, [reset, atomValue]);
+
+  useEffect(() => {
+    if (persistValueTaken) {
+      return;
+    }
+    setPersistValueTaken(true);
+    if (!atomValue) {
+      return;
+    }
+    resetForm();
+  }, [resetForm, persistValueTaken, atomValue, setPersistValueTaken]);
+
+  return null;
+};
+
+export const FormValueSetterEffectComponent = ({
+  form,
+  atom,
+  persistValueTaken,
+}: {
+  form: UseFormReturn<z.infer<any>>;
+  atom: WritableAtom<any, [value: any], void>;
+  persistValueTaken: boolean;
+}) => {
+  const formValues = useWatch({
+    control: form.control,
+  });
+  const setAtomValue = useSetAtom(atom);
+
+  useEffect(() => {
+    if (persistValueTaken) {
+      setAtomValue(formValues);
+    }
+  }, [formValues, persistValueTaken, setAtomValue]);
+
+  return null;
+};

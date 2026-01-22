@@ -1,5 +1,5 @@
 import { Button, ScrollArea, Separator, Skeleton, toast } from 'erxes-ui';
-import { CustomersInline, SelectMember } from 'ui-modules';
+import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
 import { ConversationActions } from './ConversationActions';
@@ -8,7 +8,6 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
-
 export const ConversationHeader = () => {
   const { customerId, loading, customer } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
@@ -40,6 +39,7 @@ export const ConversationHeader = () => {
         <Separator.Inline />
         <AssignConversation />
         <div className="flex items-center gap-3 ml-auto">
+          <ConversationTags />
           <IntegrationActions />
           <ConversationActions />
         </div>
@@ -81,16 +81,39 @@ const AssignConversation = () => {
   );
 };
 
-// const Tags = () => {
-//   const { _id, tagIds } = useConversationContext();
+export const ConversationTags = () => {
+  const { _id, tagIds, setTagIds } = useConversationContext();
 
-//   return (
-//     <SelectTags.Detail
-//       tagType="inbox:conversation"
-//       className="flex-none w-auto"
-//       variant="ghost"
-//       value={tagIds}
-//       targetIds={[_id]}
-//     />
-//   );
-// };
+  if (!_id) return null;
+
+  const handleTagChange = (newTagIds: string[] | string) => {
+    const ids = Array.isArray(newTagIds) ? newTagIds : [newTagIds];
+
+    setTagIds(ids);
+  };
+
+  return (
+    <SelectTags.Detail
+      tagType="frontline:conversation"
+      mode="multiple"
+      value={tagIds}
+      targetIds={[_id]}
+      onValueChange={handleTagChange}
+      options={(newTagIds: string[]) => ({
+        onCompleted: () => {
+          toast({
+            title: 'Tag updated',
+            variant: 'default',
+          });
+        },
+        onError: (error: Error) => {
+          toast({
+            title: 'Failed to update tags',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
+      })}
+    />
+  );
+};

@@ -52,12 +52,12 @@ export const ProductDetail = () => {
         </Sheet.Description>
       </Sheet.Header>
       <Sheet.Content className="bg-transparent border-b-0 overflow-hidden">
-        <Tabs defaultValue="overview" className="h-full">
+        <Tabs defaultValue="overview" className="h-full flex flex-col">
           <Tabs.List className="bg-background flex justify-center">
             <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
             <Tabs.Trigger value="activities">Activities</Tabs.Trigger>
           </Tabs.List>
-          <Tabs.Content value="overview">
+          <Tabs.Content value="overview" className="flex-1 min-h-0">
             <ScrollArea className="h-full" viewportClassName="p-6">
               <div className="grid lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2 grid gap-4">
@@ -83,7 +83,10 @@ export const ProductDetail = () => {
               </div>
             </ScrollArea>
           </Tabs.Content>
-          <Tabs.Content value="activities" className="bg-background h-full">
+          <Tabs.Content
+            value="activities"
+            className="bg-background flex-1 min-h-0"
+          >
             <ActivityLogs targetId={productDetail._id} />
           </Tabs.Content>
         </Tabs>

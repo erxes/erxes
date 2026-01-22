@@ -34,12 +34,14 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
 
     const envs = (window as any).env
 
-    Object.keys(envs).forEach((envKey) =>
-      localStorage.setItem(
-        `pos_env_${envKey}`,
-        envs[envKey as keyof typeof envs]
+    if(envs && typeof envs === 'object') {
+      Object.keys(envs).forEach((envKey) =>
+        localStorage.setItem(
+          `pos_env_${envKey}`,
+          envs[envKey as keyof typeof envs]
+        )
       )
-    )
+    }
     setLoading(false)
   }, [])
 

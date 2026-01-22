@@ -1,10 +1,11 @@
+import UomsList from '@/products/settings/components/uoms/UomsList';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, InfoCard, Input, Label, Switch } from 'erxes-ui';
 
 export function ProductsSettingGeneralPage() {
   return (
     <div className="flex flex-col gap-6">
-      <InfoCard
+      {/* <InfoCard
         title="Product & Service settings"
         description="Manage the general settings for your product & service"
       >
@@ -16,25 +17,8 @@ export function ProductsSettingGeneralPage() {
             </div>
           </div>
         </InfoCard.Content>
-      </InfoCard>
-      <InfoCard
-        title="Uoms"
-        description="Manage the uoms for your product & service"
-      >
-        <InfoCard.Content>
-          <div className="flex gap-2 items-center">
-            <Label className="min-w-24">Code</Label>
-            <Label className="flex-auto">Name</Label>
-            <Label>Action</Label>
-          </div>
-          <div>
-            <Button variant="secondary">
-              <IconPlus />
-              Add Uom
-            </Button>
-          </div>
-        </InfoCard.Content>
-      </InfoCard>
+      </InfoCard> */}
+      <UomsList />
     </div>
   );
 }

@@ -504,6 +504,11 @@ export const getItemList = async (
   user: IUserDocument,
   getExtraFields?: (item: any) => { [key: string]: any },
 ) => {
+  const { orderBy } = args;
+  if (!orderBy || !Object.keys(orderBy)) {
+    args.orderBy = { order: 1 }
+  }
+
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
     model: models.Deals,
     params: args,
@@ -651,21 +656,6 @@ export const getItemList = async (
 
   const updatedList: any[] = [];
 
-  // const notifications = await sendNotificationsMessage({
-  //   subdomain,
-  //   action: 'find',
-  //   data: {
-  //     selector: {
-  //       contentTypeId: { $in: ids },
-  //       isRead: false,
-  //       receiver: user._id
-  //     },
-  //     fields: { contentTypeId: 1 }
-  //   },
-  //   isRPC: true,
-  //   defaultValue: []
-  // });
-
   const fields = await sendTRPCMessage({
     subdomain,
 
@@ -682,8 +672,6 @@ export const getItemList = async (
     defaultValue: [],
   });
 
-  // add just incremented order to each item in list, not from db
-  let order = 0;
   for (const item of list) {
     if (item.customFieldsData?.length && fields?.length) {
       item.customProperties = [];
@@ -701,11 +689,8 @@ export const getItemList = async (
       });
     }
 
-    // const notification = notifications.find(n => n.contentTypeId === item._id);
-
     updatedList.push({
       ...item,
-      order: order++,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       // hasNotified: notification ? false : true,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),

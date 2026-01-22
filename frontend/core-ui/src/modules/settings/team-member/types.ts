@@ -7,10 +7,10 @@ import { CountryCode } from 'libphonenumber-js';
 
 export interface IUserInline {
   _id: string;
-  details: IDetailsType;
+  details: IUserDetailsType;
 }
 
-export interface IDetailsType {
+export interface IUserDetailsType {
   avatar: string;
   fullName: string;
   firstName: string;
@@ -42,6 +42,7 @@ export interface IUser extends IUserInline {
   isSubscribed?: string;
   score?: number;
   username?: string;
+  customFieldsData?: Record<string, unknown>;
 }
 
 export interface IUserDetail extends IUser {

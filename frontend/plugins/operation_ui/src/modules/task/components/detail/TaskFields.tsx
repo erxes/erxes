@@ -12,10 +12,17 @@ import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { ITask } from '@/task/types';
 import { Block } from '@blocknote/core';
-import { BlockEditor, Separator, Textarea, useBlockEditor } from 'erxes-ui';
+import {
+  BlockEditor,
+  Separator,
+  Textarea,
+  useBlockEditor,
+  Combobox,
+} from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
-import { SelectTags } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
+import { TagsSelect } from 'ui-modules';
+import { IconTags } from '@tabler/icons-react';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
@@ -46,7 +53,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
   >(initialDescriptionContent);
 
   const editor = useBlockEditor({
-    initialContent: descriptionContent,
+    initialContent: descriptionContent?.length ? descriptionContent : undefined,
     placeholder: 'Description...',
   });
   const { updateTask } = useUpdateTask();
@@ -97,7 +104,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     textareaRef.current.style.height = 'auto';
     textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   }, [name]);
-  
+
   return (
     <div className="flex flex-col gap-3">
       <Textarea
@@ -108,73 +115,82 @@ export const TaskFields = ({ task }: { task: ITask }) => {
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-      <div className="gap-2 flex flex-wrap w-full">
-        <SelectStatusTask
-          variant="detail"
-          value={status}
-          id={taskId}
-          teamId={teamId}
-        />
-        <SelectTaskPriority taskId={taskId} value={priority} variant="detail" />
-        <SelectAssigneeTask
-          variant="detail"
-          value={assigneeId}
-          id={taskId}
-          teamIds={teamId ? [teamId] : undefined}
-        />
-        <DateSelectTask
-          value={startDate ? new Date(startDate) : undefined}
-          id={taskId}
-          type="startDate"
-          variant="detail"
-        />
-        <DateSelectTask
-          value={targetDate ? new Date(targetDate) : undefined}
-          id={taskId}
-          type="targetDate"
-          variant="detail"
-        />
-        <SelectTeamTask taskId={taskId} value={teamId || ''} variant="detail" />
-        <SelectCycle
-          value={cycleId || ''}
-          taskId={taskId}
-          variant="detail"
-          teamId={teamId}
-        />
+      <TagsSelect.Provider
+        mode="multiple"
+        value={tagIds}
+        type="operation:task"
+        targetIds={[taskId]}
+      >
+        <div className="gap-2 flex flex-wrap w-full items-center">
+          <SelectStatusTask
+            variant="detail"
+            value={status}
+            id={taskId}
+            teamId={teamId}
+          />
+          <SelectTaskPriority
+            taskId={taskId}
+            value={priority}
+            variant="detail"
+          />
+          <SelectAssigneeTask
+            variant="detail"
+            value={assigneeId}
+            id={taskId}
+            teamIds={teamId ? [teamId] : undefined}
+          />
+          <DateSelectTask
+            value={startDate ? new Date(startDate) : undefined}
+            id={taskId}
+            type="startDate"
+            variant="detail"
+          />
+          <DateSelectTask
+            value={targetDate ? new Date(targetDate) : undefined}
+            id={taskId}
+            type="targetDate"
+            variant="detail"
+          />
+          <SelectTeamTask
+            taskId={taskId}
+            value={teamId || ''}
+            variant="detail"
+          />
+          <SelectCycle
+            value={cycleId || ''}
+            taskId={taskId}
+            variant="detail"
+            teamId={teamId}
+          />
 
-        <SelectProject
-          value={projectId}
-          taskId={taskId}
-          variant="detail"
-          teamId={teamId}
-        />
-        <SelectEstimatedPoint
-          value={estimatePoint}
-          taskId={taskId}
-          teamId={teamId}
-          variant="detail"
-        />
-        <SelectMilestone
-          value={milestoneId || ''}
-          taskId={taskId}
-          projectId={projectId}
-          variant="detail"
-        />
-        <ConvertToProject task={task} />
-        <SelectTags.Detail
-          value={tagIds || []}
-          tagType="operation:task"
-          onValueChange={(newTagIds: string[]) => {
-            updateTask({
-              variables: {
-                _id: taskId,
-                tagIds: newTagIds
-              },
-            });
-          }}
-        />
-      </div>
-      <Separator className="my-4" />
+          <SelectProject
+            value={projectId}
+            taskId={taskId}
+            variant="detail"
+            teamId={teamId}
+          />
+          <SelectEstimatedPoint
+            value={estimatePoint}
+            taskId={taskId}
+            teamId={teamId}
+            variant="detail"
+          />
+          <SelectMilestone
+            value={milestoneId || ''}
+            taskId={taskId}
+            projectId={projectId}
+            variant="detail"
+          />
+          <ConvertToProject task={task} />
+          <IconTags className="size-5 ml-2"></IconTags>
+          <TagsSelect.SelectedList />
+          <TagsSelect.Trigger variant="ICON" />
+          <Combobox.Content>
+            <TagsSelect.Content />
+          </Combobox.Content>
+        </div>
+      </TagsSelect.Provider>
+      <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">
         <BlockEditor
           editor={editor}

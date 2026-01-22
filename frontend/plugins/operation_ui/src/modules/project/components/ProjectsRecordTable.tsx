@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionKey';
+import { ProjectsCommandBar } from './projects-command-bar/ProjectsCommandBar';
 
 export const ProjectsRecordTable = () => {
   const { teamId } = useParams();
@@ -14,7 +15,7 @@ export const ProjectsRecordTable = () => {
 
   const variables = {
     teamIds: teamId ? [teamId] : undefined,
-    userId: currentUser?._id,
+    memberId: !teamId ? currentUser?._id : undefined,
   };
 
   const { projects, handleFetchMore, pageInfo, loading } = useProjects({
@@ -54,6 +55,7 @@ export const ProjectsRecordTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <ProjectsCommandBar />
       </RecordTable.Provider>
     </div>
   );

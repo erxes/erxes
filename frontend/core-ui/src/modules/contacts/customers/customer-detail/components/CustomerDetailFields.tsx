@@ -9,7 +9,7 @@ import {
 } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 import { DataListItem } from '@/contacts/components/ContactsDetail';
-import { Translation, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();

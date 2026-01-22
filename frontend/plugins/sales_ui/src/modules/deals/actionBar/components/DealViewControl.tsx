@@ -18,7 +18,7 @@ const DealsBoard = lazy(() =>
 );
 
 const DealsRecordTable = lazy(() =>
-  import('@/deals/boards/components/DealsRecordTable').then((mod) => ({
+  import('@/deals/boards/components/list/DealsRecordTable').then((mod) => ({
     default: mod.DealsRecordTable,
   })),
 );

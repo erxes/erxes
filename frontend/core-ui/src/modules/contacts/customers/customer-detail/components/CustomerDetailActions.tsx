@@ -5,7 +5,6 @@ import { customerDetailActiveActionTabAtom } from '@/contacts/states/customerDet
 
 import { useSetAtom } from 'jotai';
 import { useRelationWidget } from 'ui-modules';
-
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 
 export const CustomerDetailActions = () => {

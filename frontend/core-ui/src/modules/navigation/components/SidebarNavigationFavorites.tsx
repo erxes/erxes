@@ -1,6 +1,6 @@
 import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
 import { useFavorites } from '../hooks/useFavorites';
-import { MyInboxNavigationItem } from '@/notification/my-inbox/components/MyInboxNavigationItem';
+import { MyInboxNavigationItem } from '@/notification/components/MyInboxNavigationItem';
 import { useTranslation } from 'react-i18next';
 
 export function SidebarNavigationFavorites() {

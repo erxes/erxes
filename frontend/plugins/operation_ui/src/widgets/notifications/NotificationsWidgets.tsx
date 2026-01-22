@@ -21,10 +21,10 @@ const NotificationsWidgets = (props: any) => {
   }
 
   return (
-    <div>
+    <>
       <TaskDetailSheet />
       <TaskDetails taskId={contentTypeId} checkTriage={true} />
-    </div>
+    </>
   );
 };
 

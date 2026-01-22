@@ -14,7 +14,7 @@ import {
   Switch,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { SelectTags, TAutomationAction, TAutomationTrigger } from 'ui-modules';
+import { TagsSelect, TAutomationAction, TAutomationTrigger } from 'ui-modules';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 
@@ -125,8 +125,8 @@ export const getAutomationColumns: (
       const tagIds = cell.getValue() as string[];
 
       return (
-        <SelectTags.InlineCell
-          tagType="core:automation"
+        <TagsSelect.InlineCell
+          type="core:automation"
           mode="multiple"
           value={tagIds}
           targetIds={[cell.row.original._id]}

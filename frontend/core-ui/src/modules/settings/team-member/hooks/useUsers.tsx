@@ -8,13 +8,13 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { IUser, IDetailsType } from '../types';
+import { IUser, IUserDetailsType } from '../types';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../constants/teamMemberCursorSessionKey';
 
 export const USERS_PER_PAGE = 30;
 
 type IUsersQuery = ICursorListResponse<
-  IUser & { details?: IDetailsType & { __typename?: string } }
+  IUser & { details?: IUserDetailsType & { __typename?: string } }
 >;
 
 const useUsers = (options?: QueryHookOptions<IUsersQuery>) => {

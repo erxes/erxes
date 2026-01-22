@@ -10,6 +10,7 @@ import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
+
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
     default: module.SettingsProfilePage,
@@ -87,6 +88,12 @@ const PropertiesSettingsRoutes = lazy(() =>
   })),
 );
 
+const LogsRoutes = lazy(() =>
+  import('~/pages/settings/logs/LogsIndexPage').then((module) => ({
+    default: module.LogsIndexPage,
+  })),
+);
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -137,6 +144,10 @@ export function SettingsRoutes() {
         <Route
           path={`${SettingsWorkspacePath.ClientPortals}/:clientPortalId`}
           element={<ClientPortalDetailPage />}
+        />
+          <Route
+          path={SettingsWorkspacePath.Logs}
+          element={<LogsRoutes />}
         />
         {/* <Route
           path={SettingsWorkspacePath.StructureCatchAll}

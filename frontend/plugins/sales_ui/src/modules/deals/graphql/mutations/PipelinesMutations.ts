@@ -91,6 +91,7 @@ export const ADD_PIPELINE = gql`
   mutation salesPipelinesAdd(${commonPipelineParamsDef}) {
     salesPipelinesAdd(${commonPipelineParams}) {
       _id
+      name
     }
   }
 `;
@@ -99,6 +100,7 @@ export const EDIT_PIPELINE = gql`
   mutation salesPipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
     salesPipelinesEdit(_id: $_id, ${commonPipelineParams}) {
       _id
+      name
     }
   }
 `;

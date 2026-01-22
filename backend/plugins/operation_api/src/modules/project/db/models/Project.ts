@@ -104,11 +104,13 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
         contentId: project._id,
       });
 
-      return await models.Project.findOneAndUpdate(
+      const updatedProject = await models.Project.findOneAndUpdate(
         { _id },
         { $set: { ...rest } },
         { new: true },
       );
+
+      return updatedProject;
     }
 
     public static async removeProject(projectId: string) {

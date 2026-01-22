@@ -64,6 +64,7 @@ export const inputs = `
     customPostTypeIds: [String]
     enabledPageIds: [String]
     enabledCategoryIds: [String]
+    fields: JSON
   }
 `;
 

@@ -19,6 +19,7 @@ export const isDraggingAtom = atom<boolean>(false);
 export const isActiveItem = atom<ActiveDragItem | null>(null);
 export const dealsBoardAtom = atom<DealsBoardState | null>(null);
 export const dealCountByColumnAtom = atom<Record<string, number>>({});
+export const columnLoadingAtom = atom<Record<string, boolean>>({});
 
 export function useDealsBoard(): [
   DealsBoardState | null,
@@ -51,4 +52,12 @@ export function useDealCountByColumn(): [
 ] {
   const [counts, setCounts] = useAtom(dealCountByColumnAtom);
   return [counts, setCounts];
+}
+
+export function useColumnLoading(): [
+  Record<string, boolean>,
+  (value: SetStateAction<Record<string, boolean>>) => void,
+] {
+  const [loading, setLoading] = useAtom(columnLoadingAtom);
+  return [loading, setLoading];
 }

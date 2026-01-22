@@ -112,8 +112,10 @@ export const commonListFields = `
     _id
     name
     defaultTick
+    age
   }
   stageId
+  order
   isComplete
   isWatched
   relations
@@ -239,6 +241,11 @@ export const GET_DEAL_DETAIL = gql`
       }
       productsData
       relations
+      pipeline {
+        _id
+        name
+      }
+      boardId
     }
   }
 `;

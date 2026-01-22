@@ -1,9 +1,10 @@
 import { ActivityLogRow } from './ActivityLogRow';
 import { ActivityLogLoading } from './ActivityLogLoading';
 import { useActivityLog } from '../context/ActivityLogProvider';
-import { EnumCursorDirection } from 'erxes-ui';
+import { Empty, EnumCursorDirection, SkeletonArray } from 'erxes-ui';
 import { useInView } from 'react-intersection-observer';
 import { Skeleton } from 'erxes-ui';
+import { IconActivity } from '@tabler/icons-react';
 
 interface ActivityLogListProps {
   emptyMessage?: string;
@@ -30,9 +31,17 @@ export const ActivityLogList = ({
 
   if (!activityLogs || activityLogs.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[200px]">
-        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
-      </div>
+      <Empty>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconActivity />
+          </Empty.Media>
+          <Empty.Title>No activity logs found</Empty.Title>
+          <Empty.Description>
+            There seems to be no activity logs for this item.
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
     );
   }
 
@@ -47,7 +56,7 @@ export const ActivityLogList = ({
       ))}
       {hasNextPage && !loading && (
         <div ref={fetchMoreRef} className="w-full py-2">
-          <Skeleton className="h-16 w-full" />
+          <SkeletonArray count={4} className="h-4 w-full" />
         </div>
       )}
     </div>

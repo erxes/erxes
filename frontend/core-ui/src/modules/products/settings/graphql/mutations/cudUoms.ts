@@ -16,6 +16,12 @@ export const UOMS_ADD = gql`
       timely: $timely
     ) {
       _id
+      code
+      name
+      isForSubscription
+      subscriptionConfig
+      timely
+      createdAt
     }
   }
 `;

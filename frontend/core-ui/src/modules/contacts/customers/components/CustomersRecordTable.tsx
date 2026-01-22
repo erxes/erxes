@@ -45,7 +45,7 @@ export const CustomersRecordTable = () => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading || fieldsLoading ? (
+            {loading ? (
               <RecordTable.RowSkeleton rows={32} />
             ) : (
               <RecordTable.RowList />

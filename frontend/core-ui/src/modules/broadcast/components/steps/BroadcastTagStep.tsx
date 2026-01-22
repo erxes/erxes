@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import { useTags } from 'ui-modules/modules/tags-new/hooks/useTags';
+import { useGetTags } from 'ui-modules/modules/tags-new/hooks/useTags';
 import { BroadcastTagChooser } from '../chooser/BroadcastTagChooser';
 
 export const BroadcastTagStep = ({
   value,
-  onChange
+  onChange,
 }: {
   value: string[];
   onChange: (value: string[]) => void;
@@ -13,7 +13,7 @@ export const BroadcastTagStep = ({
     tags: allTags,
     tagGroups,
     tagsByParentId,
-  } = useTags({
+  } = useGetTags({
     variables: {
       type: 'core:customer',
     },

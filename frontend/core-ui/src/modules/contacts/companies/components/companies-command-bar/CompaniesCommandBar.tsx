@@ -1,6 +1,6 @@
 import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { SelectTags } from 'ui-modules';
+import { TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
 
 export const CompaniesCommandBar = () => {
@@ -18,10 +18,18 @@ export const CompaniesCommandBar = () => {
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Separator.Inline />
-        <SelectTags.CommandbarItem
+        <TagsSelect
           mode="multiple"
-          tagType="core:company"
-          value={intersection(selectedRows.map((row) => row.original.tagIds))}
+          variant="secondary"
+          className="shadow-none"
+          value={
+            intersection(
+              table
+                .getFilteredSelectedRowModel()
+                .rows.map((row) => row.original.tagIds),
+            ) || []
+          }
+          type="core:company"
           targetIds={companyIds}
           options={(newSelectedTagIds) => ({
             update: (cache) => {
@@ -46,6 +54,7 @@ export const CompaniesCommandBar = () => {
             },
           })}
         />
+
         {/* <Separator.Inline />
         <CompaniesMerge
           companies={selectedRows.map((row) => row.original)}

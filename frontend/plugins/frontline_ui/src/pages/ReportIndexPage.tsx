@@ -54,9 +54,6 @@ export default function ReportIndexPage() {
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <PageHeader.End>
-          <></>
-        </PageHeader.End>
       </PageHeader>
       {location.pathname.includes('/ticket') ? (
         <TicketReportsView />
@@ -67,4 +64,5 @@ export default function ReportIndexPage() {
       )}
     </PageContainer>
   );
-}
+};
+

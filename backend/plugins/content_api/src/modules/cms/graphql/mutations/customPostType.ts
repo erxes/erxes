@@ -56,6 +56,9 @@ const mutations = {
   },
 };
 
+requireLogin(mutations, 'cmsCustomFieldGroupsAdd');
+requireLogin(mutations, 'cmsCustomFieldGroupsEdit');
+requireLogin(mutations, 'cmsCustomFieldGroupsRemove');
 requireLogin(mutations, 'cmsCustomPostTypesAdd');
 requireLogin(mutations, 'cmsCustomPostTypesEdit');
 requireLogin(mutations, 'cmsCustomPostTypesRemove');

@@ -17,7 +17,6 @@ import { IconUser } from '@tabler/icons-react';
 import { SelectCustomerContext } from '../contexts/SelectCustomerContext';
 import { useCustomers } from '../hooks';
 import { useDebounce } from 'use-debounce';
-import { useSearchParams } from 'react-router-dom';
 import { useSelectCustomerContext } from '../hooks/useSelectCustomerContext';
 import { useState } from 'react';
 
@@ -163,7 +162,9 @@ const SelectCustomerInlineCell = ({
     <SelectCustomerProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (props.mode === 'single') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
@@ -175,46 +176,6 @@ const SelectCustomerInlineCell = ({
           <SelectCustomer.Content />
         </RecordTableInlineCell.Content>
       </PopoverScoped>
-    </SelectCustomerProvider>
-  );
-};
-
-const SelectCustomerFilter = ({
-  queryKey = 'customerIds',
-  className,
-}: {
-  queryKey?: string;
-  className?: string;
-}) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [open, setOpen] = useState(false);
-
-  const customerIds = searchParams.getAll(queryKey);
-
-  const handleValueChange = (value: string[] | string) => {
-    searchParams.delete(queryKey);
-    const values = Array.isArray(value) ? value : [value];
-    values.forEach((v) => searchParams.append(queryKey, v));
-    setSearchParams(searchParams, { replace: true });
-  };
-
-  return (
-    <SelectCustomerProvider
-      value={customerIds}
-      onValueChange={handleValueChange}
-      mode="multiple"
-    >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Combobox.Trigger
-          className={cn('w-full inline-flex', className)}
-          variant="outline"
-        >
-          <SelectCustomer.Value />
-        </Combobox.Trigger>
-        <Combobox.Content>
-          <SelectCustomer.Content />
-        </Combobox.Content>
-      </Popover>
     </SelectCustomerProvider>
   );
 };
@@ -279,7 +240,9 @@ const SelectCustomerFormItem = ({
     <SelectCustomerProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (props.mode === 'single') {
+          setOpen(false);
+        }
       }}
       {...props}
     >
@@ -373,7 +336,9 @@ export const SelectCustomerFilterBar = ({
           } else {
             setQuery(null);
           }
-          setOpen(false);
+          if (mode === 'single') {
+            setOpen(false);
+          }
         }}
       >
         <Popover open={open} onOpenChange={setOpen}>

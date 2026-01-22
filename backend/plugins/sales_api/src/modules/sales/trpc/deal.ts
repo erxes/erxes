@@ -14,8 +14,6 @@ export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const dealTrpcRouter = t.router({
-  // t.procedure.input(z.any()).mutation(async ({ctx, input}) => {}),
-  // t.procedure.input(z.any()).query(async ({ctx, input}) => {}),
   deal: {
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -273,6 +271,23 @@ export const dealTrpcRouter = t.router({
       };
     }),
   },
+  pipeline: {
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, stageId, ...rest } = input;
+
+      let pipeline = await models.Pipelines.findOne(rest);
+
+      if (!pipeline && stageId) {
+        const stage = await models.Stages.findOne({ _id: stageId }).lean();
+        if (stage) {
+          pipeline = await models.Pipelines.findOne({ _id: stage.pipelineId });
+        }
+      }
+
+      return pipeline
+    })
+  }
 });
 
 export const fetchSegment = async (

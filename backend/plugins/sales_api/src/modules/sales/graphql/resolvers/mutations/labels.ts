@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IPipelineLabel, IPipelineLabelDocument } from '~/modules/sales/@types';
+import { subscriptionWrapper } from '../utils';
 
 export const pipelineLabelMutations = {
   /**
@@ -46,6 +47,14 @@ export const pipelineLabelMutations = {
     { targetId, labelIds }: { targetId: string; labelIds: string[] },
     { models }: IContext,
   ) {
-    return models.PipelineLabels.labelsLabel(targetId, labelIds);
+    const { oldDeal, deal } = await models.PipelineLabels.labelObject({ dealId: targetId, labelIds });
+    const stage = await models.Stages.getStage(deal.stageId);
+
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
   },
 };

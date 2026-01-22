@@ -1,6 +1,10 @@
-import { useRouter } from "next/navigation"
-import { currentPaymentTypeAtom, paymentAmountTypeAtom } from "@/store"
 import {
+  checkoutDialogOpenAtom,
+  currentPaymentTypeAtom,
+  paymentAmountTypeAtom,
+} from "@/store"
+import {
+  activeOrderIdAtom,
   orderValuesAtom,
   resetPayByProductAtom,
   splitOrderItemsAtom,
@@ -18,9 +22,11 @@ const useSplitOrder = () => {
   const totalAmount = getCartTotal(mainItems)
   const variables = useAtomValue(orderValuesAtom)
   const paymentType = useAtomValue(currentPaymentTypeAtom)
-  const router = useRouter()
   const setAmountType = useSetAtom(paymentAmountTypeAtom)
   const reset = useSetAtom(resetPayByProductAtom)
+  const setCheckoutDialogOpen = useSetAtom(checkoutDialogOpenAtom)
+  const setActiveOrder = useSetAtom(activeOrderIdAtom)
+  const setPaymentType = useSetAtom(currentPaymentTypeAtom)
 
   const [ordersAdd, { loading }] = useMutation(mutations.ordersAdd, {
     variables: {
@@ -31,9 +37,9 @@ const useSplitOrder = () => {
     onCompleted(data) {
       const { _id } = data?.ordersAdd || {}
       reset()
-      router.push(
-        `/checkout?orderId=${_id}&paymentType=${paymentType}&mainOrder=${variables._id}`
-      )
+      setActiveOrder(_id)
+      setPaymentType(paymentType || "")
+      setCheckoutDialogOpen(true)
       setAmountType("amount")
     },
   })

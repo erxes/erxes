@@ -6,10 +6,7 @@ import { IModels } from '~/connectionResolvers';
 
 export interface ITranslationModel extends Model<ITranslationDocument> {
   createTranslation: (doc: ITranslation) => Promise<ITranslationDocument>;
-  updateTranslation: (
-    _id: string,
-    doc: ITranslation,
-  ) => Promise<ITranslationDocument>;
+  updateTranslation: (doc: ITranslation) => Promise<ITranslationDocument>;
   deleteTranslation: (_id: string) => Promise<ITranslationDocument>;
 }
 
@@ -19,10 +16,21 @@ export const loadTranslationClass = (models: IModels) => {
       return await models.Translations.create(doc);
     }
 
-    public static async updateTranslation(_id: string, doc: ITranslation) {
-      return await models.Translations.findByIdAndUpdate(_id, doc, {
-        new: true,
-      });
+    public static async updateTranslation(doc: ITranslation) {
+      const { postId, language } = doc;
+
+      // Find existing translation by postId and language
+      const existing = await models.Translations.findOne({ postId, language });
+
+      if (existing) {
+        // Update existing translation
+        return await models.Translations.findByIdAndUpdate(existing._id, doc, {
+          new: true,
+        });
+      }
+
+      // Create new translation if not found
+      return await models.Translations.create(doc);
     }
 
     public static async deleteTranslation(_id: string) {

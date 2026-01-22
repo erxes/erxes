@@ -1,11 +1,11 @@
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { IDetailsType } from '@/settings/team-member/types';
+import { IUserDetailsType } from '@/settings/team-member/types';
 import { PhoneInput } from 'erxes-ui';
 import { useRef, useState } from 'react';
 
 interface PhoneFieldUserProps {
   _id: string;
-  details: IDetailsType & { __typename?: string };
+  details: IUserDetailsType & { __typename?: string };
 }
 
 export const PhoneFieldUser = ({ _id, details }: PhoneFieldUserProps) => {

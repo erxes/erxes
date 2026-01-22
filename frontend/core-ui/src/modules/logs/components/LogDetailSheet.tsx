@@ -11,7 +11,7 @@ export function LogDetailSheet() {
           <Sheet.Title>Log Summary</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="flex-1 min-h-0  overflow-hidden">
+        <Sheet.Content className="flex-1 min-h-0 overflow-hidden">
           {logId && <LogDetailView logId={logId} />}
         </Sheet.Content>
       </Sheet.View>

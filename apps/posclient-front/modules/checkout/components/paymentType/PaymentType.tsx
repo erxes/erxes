@@ -24,14 +24,14 @@ const PaymentType = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center p-1 border-b border-white/20 pb-2 mb-4">
+      <div className="flex justify-between items-center p-1 pb-2 mb-4 border-b border-white/20">
         <div className="flex-auto">
           <PaymentTypeInput />
         </div>
-        <div className="flex-auto flex items-center">
+        <div className="flex flex-auto items-center space-x-2">
           {!disabled && !paymentType && <SplitOrder />}
           <Button
-            className="bg-green-500 hover:bg-green-500/90 whitespace-nowrap font-bold"
+            className="font-bold whitespace-nowrap bg-green-500 hover:bg-green-500/90"
             loading={loading}
             onClick={() => {
               handlePay()
@@ -41,13 +41,14 @@ const PaymentType = () => {
           >
             Гүйлгээ хийх
           </Button>
+
           <Button
             size="sm"
             variant="ghost"
             className="px-2 h-8 hover:bg-slate-900 hover:text-white"
             onClick={() => setPaymentTerm("")}
           >
-            <XIcon className="h-4 w-4" />
+            <XIcon className="w-4 h-4" />
           </Button>
         </div>
       </div>

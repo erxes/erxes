@@ -123,7 +123,7 @@ export const copyPipelineLabels = async (
     updatedLabelIds.push(newLabel._id);
   }
 
-  await models.PipelineLabels.labelsLabel(item._id, updatedLabelIds);
+  await models.PipelineLabels.labelObject({ dealId: item._id, labelIds: updatedLabelIds });
 };
 
 export const itemMover = async (
@@ -150,38 +150,6 @@ export const itemMover = async (
     action = `moved '${item.name}' from ${oldBoard.name}-${oldPipeline.name}-${oldStage.name} to `;
 
     content = `${board.name}-${pipeline.name}-${stage.name}`;
-
-    // const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
-
-    // const activityLogContent = {
-    //   oldStageId,
-    //   destinationStageId,
-    //   text: `${oldStage.name} to ${stage.name}`,
-    // };
-
-    // await putActivityLog(subdomain, {
-    //   action: "createBoardItemMovementLog",
-    //   data: {
-    //     item,
-    //     contentType,
-    //     userId,
-    //     activityLogContent,
-    //     link,
-    //     action: "moved",
-    //     contentId: item._id,
-    //     createdBy: userId,
-    //     content: activityLogContent,
-    //   },
-    // });
-
-    // sendNotificationsMessage({
-    //   subdomain,
-    //   action: "batchUpdate",
-    //   data: {
-    //     selector: { contentType, contentTypeId: item._id },
-    //     modifier: { $set: { link } },
-    //   },
-    // });
   }
 
   return { content, action };

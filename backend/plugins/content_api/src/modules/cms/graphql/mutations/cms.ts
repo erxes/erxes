@@ -11,16 +11,16 @@ export const contentCmsMutations = {
   },
   contentUpdateCMS: async (
     _parent: any,
-    { _id, input }: { _id: string; input: IContentCMSInput },
+    { id, input }: { id: string; input: IContentCMSInput },
     { models }: IContext,
   ) => {
-    return models.CMS.updateContentCMS(_id, input);
+    return models.CMS.updateContentCMS(id, input);
   },
   contentDeleteCMS: async (
     _parent: any,
-    { _id }: { _id: string },
+    { id }: { id: string },
     { models }: IContext,
   ) => {
-    return models.CMS.deleteContentCMS(_id);
+    return models.CMS.deleteContentCMS(id);
   },
 };

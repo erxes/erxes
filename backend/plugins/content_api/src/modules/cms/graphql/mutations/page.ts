@@ -1,8 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import {
-  checkPermission,
-  requireLogin,
-} from 'erxes-api-shared/core-modules';
+import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 
 const mutations = {
   async cmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {

@@ -4,7 +4,9 @@ import { useToast } from 'erxes-ui';
 
 export const useRemoveTask = () => {
   const { toast } = useToast();
-  const [_removeTask, { loading, error }] = useMutation(REMOVE_TASK_MUTATION);
+  const [_removeTask, { loading, error }] = useMutation(REMOVE_TASK_MUTATION, {
+    refetchQueries: ['GetTasks'],
+  });
   const removeTask = (id: string, options?: MutationFunctionOptions) => {
     return _removeTask({
       ...options,

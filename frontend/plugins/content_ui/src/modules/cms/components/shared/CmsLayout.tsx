@@ -9,12 +9,13 @@ import {
   IconFolder,
   IconFile,
   IconLayout,
+  IconMenu2,
+  IconAlignJustified,
 } from '@tabler/icons-react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { useState, ReactNode } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_WEBSITES, CONTENT_CMS_LIST } from '../../graphql/queries';
-import { PostDrawer } from '../posts/PostDrawer';
 
 interface CmsLayoutProps {
   children: ReactNode;
@@ -80,6 +81,12 @@ export function CmsLayout({
       href: websiteId ? `/content/cms/${websiteId}/posts` : '/content/cms',
     },
     {
+      id: 'pages',
+      label: 'Pages',
+      icon: <IconFile className="w-4 h-4" />,
+      href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
+    },
+    {
       id: 'categories',
       label: 'Categories',
       icon: <IconFolder className="w-4 h-4" />,
@@ -91,34 +98,29 @@ export function CmsLayout({
       icon: <IconTag className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/tags` : '/content/cms',
     },
-    // {
-    //   id: 'pages',
-    //   label: 'Pages',
-    //   icon: <IconFile className="w-4 h-4" />,
-    //   href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
-    // },
+
     // {
     //   id: 'menus',
     //   label: 'Menus',
-    //   icon: <IconLayoutGrid className="w-4 h-4" />,
+    //   icon: <IconMenu2 className="w-4 h-4" />,
     //   href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
     // },
-    // {
-    //   id: 'custom-fields',
-    //   label: 'Custom Fields',
-    //   icon: <IconLayoutGrid className="w-4 h-4" />,
-    //   href: websiteId
-    //     ? `/content/cms/${websiteId}/custom-fields`
-    //     : '/content/cms',
-    // },
-    // {
-    //   id: 'custom-types',
-    //   label: 'Custom Types',
-    //   icon: <IconLayout className="w-4 h-4" />,
-    //   href: websiteId
-    //     ? `/content/cms/${websiteId}/custom-types`
-    //     : '/content/cms',
-    // },
+    {
+      id: 'custom-fields',
+      label: 'Custom Fields',
+      icon: <IconAlignJustified className="w-4 h-4" />,
+      href: websiteId
+        ? `/content/cms/${websiteId}/custom-fields`
+        : '/content/cms',
+    },
+    {
+      id: 'custom-types',
+      label: 'Custom Post Types',
+      icon: <IconLayout className="w-4 h-4" />,
+      href: websiteId
+        ? `/content/cms/${websiteId}/custom-types`
+        : '/content/cms',
+    },
   ];
 
   // Determine current active navigation based on URL
@@ -133,7 +135,7 @@ export function CmsLayout({
 
   return (
     <div className="flex h-full">
-      <div className="flex flex-col flex-1 ">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <PageHeader>
           <PageHeader.Start>
             <Breadcrumb>
@@ -199,12 +201,6 @@ export function CmsLayout({
           <PageHeader.End>
             {headerActions || (
               <>
-                <Button variant="outline" asChild>
-                  <Link to="/settings/content">
-                    <IconSettings />
-                    Go to settings
-                  </Link>
-                </Button>
                 <Button asChild>
                   <Link to={`/content/cms/${websiteId || ''}/posts/add`}>
                     <IconPlus className="mr-2 h-4 w-4" />
@@ -216,7 +212,7 @@ export function CmsLayout({
           </PageHeader.End>
         </PageHeader>
 
-        <div className="flex flex-1">
+        <div className="flex flex-1 min-w-0 overflow-hidden">
           {showSidebar && (
             <Sidebar collapsible="none" className="border-r flex-none">
               <Sidebar.Group>
@@ -241,7 +237,7 @@ export function CmsLayout({
             </Sidebar>
           )}
 
-          <div className="flex-1 p-6 overflow-y-auto h-[calc(100vh-3rem)] ">
+          <div className="flex-1 p-6 overflow-auto min-w-0 h-[calc(100vh-3rem)]">
             {children}
           </div>
         </div>

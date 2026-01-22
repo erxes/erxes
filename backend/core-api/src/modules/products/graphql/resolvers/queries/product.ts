@@ -1,5 +1,5 @@
 import { IProductDocument } from 'erxes-api-shared/core-types';
-import { cursorPaginate, defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { cursorPaginate, defaultPaginate, escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -12,6 +12,7 @@ import {
 
 const generateFilter = async (
   models: IModels,
+  subdomain: string,
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
@@ -27,6 +28,7 @@ const generateFilter = async (
     ids,
     excludeIds,
     image,
+    pipelineId
   } = params;
 
   const filter: FilterQuery<IProductParams> = { ...commonQuerySelector };
@@ -116,6 +118,38 @@ const generateFilter = async (
     ];
   }
 
+  if (pipelineId) {
+    const pipeline = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      method: 'query',
+      module: 'pipeline',
+      action: 'findOne',
+      input: { _id: pipelineId },
+      defaultValue: {},
+    });
+
+    if (pipeline.initialCategoryIds?.length) {
+      let incCategories = await models.ProductCategories.getChildCategories(
+        pipeline.initialCategoryIds
+      );
+
+      if (pipeline.excludeCategoryIds?.length) {
+        const excCategories = await models.ProductCategories.getChildCategories(
+          pipeline.excludeCategoryIds
+        );
+        const excCatIds = excCategories.map(c => c._id);
+        incCategories = incCategories.filter(c => !excCatIds.includes(c._id));
+      }
+
+      andFilters.push({ categoryId: { $in: incCategories.map(c => c._id) } });
+
+      if (pipeline.excludeProductIds?.length) {
+        andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
+      }
+    }
+  }
+
   if (vendorId) {
     filter.vendorId = vendorId;
   }
@@ -139,9 +173,9 @@ export const productQueries = {
   async productsMain(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, commonQuerySelector, params);
+    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
 
     if (!params.orderBy) {
       params.orderBy = { code: 1 }
@@ -157,9 +191,9 @@ export const productQueries = {
   async products(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, commonQuerySelector, params);
+    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
 
     const { sortField, sortDirection } = params;
 
@@ -193,9 +227,9 @@ export const productQueries = {
   async productsTotalCount(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, commonQuerySelector, params);
+    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
 
     if (params.groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {

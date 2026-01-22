@@ -189,7 +189,7 @@ const ProductAddCoreFields = ({
           <Form.Item className="flex flex-col">
             <Form.Label>{t('unit-of-measure')}</Form.Label>
             <SelectUOM
-              value={field.value}
+              value={field.value || ''}
               onValueChange={field.onChange}
               inForm
             />

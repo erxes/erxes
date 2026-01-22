@@ -14,9 +14,21 @@ const FrontlineSubGroups = lazy(() =>
   })),
 );
 
+const FrontlineSettingsNavigation = lazy(() =>
+  import('./modules/FrontlineSettingsNavigation').then((module) => ({
+    default: module.FrontlineSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'frontline',
-  icon: IconStackFront,
+  path: 'frontline',
+  hasFloatingWidget: true,
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <FrontlineSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'frontline',
     icon: IconStackFront,
@@ -25,38 +37,12 @@ export const CONFIG: IUIConfig = {
         <FrontlineNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <FrontlineSubGroups />
       </Suspense>
     ),
   },
-  modules: [
-    {
-      name: 'channels',
-      path: 'frontline/channels',
-      settingsOnly: true,
-      hasFloatingWidget: true,
-    },
-    {
-      name: 'configs',
-      path: 'frontline/config',
-      settingsOnly: true,
-    },
-    {
-      name: 'frontline',
-      icon: IconMail,
-      path: 'frontline',
-      hasSettings: false,
-      hasAutomation: true,
-    },
-    {
-      name: 'ticket',
-      path: 'frontline/ticket',
-      settingsOnly: true,
-    },
-  ],
-
   widgets: {
     relationWidgets: [
       {
@@ -69,4 +55,23 @@ export const CONFIG: IUIConfig = {
       },
     ],
   },
+  modules: [
+    {
+      name: 'channels',
+      path: 'frontline/channels',
+    },
+    {
+      name: 'configs',
+      path: 'frontline/config',
+    },
+    {
+      name: 'frontline',
+      icon: IconMail,
+      path: 'frontline',
+    },
+    {
+      name: 'ticket',
+      path: 'frontline/ticket',
+    },
+  ],
 };

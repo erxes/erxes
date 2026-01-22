@@ -185,6 +185,7 @@ const SelectAssigneeDealRoot = ({
   id,
   teamIds,
   onValueChange,
+  mode,
 }: {
   value: string[];
   scope?: string;
@@ -192,6 +193,7 @@ const SelectAssigneeDealRoot = ({
   teamIds?: string[] | string;
   id?: string;
   onValueChange?: (value: string | string[] | null) => void;
+  mode?: 'single' | 'multiple';
 }) => {
   const { editDeals } = useDealsEdit();
   const [open, setOpen] = useState(false);
@@ -219,11 +221,13 @@ const SelectAssigneeDealRoot = ({
     <SelectAssigneeProvider
       value={value}
       onValueChange={onValueChange ? onChange : handleValueChange}
-      mode="single"
+      mode={mode || 'single'}
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
+        <SelectTriggerOperation
+          variant={variant === 'card' ? 'default' : variant}
+        >
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
@@ -239,11 +243,13 @@ export const SelectAssigneeDealFormItem = ({
   onValueChange,
   scope,
   teamIds,
+  mode,
 }: {
   value: string[];
   onValueChange: (value: string[] | null) => void;
   scope?: string;
   teamIds?: string[] | string;
+  mode?: 'single' | 'multiple';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -253,7 +259,7 @@ export const SelectAssigneeDealFormItem = ({
         onValueChange(value as string[]);
         setOpen(false);
       }}
-      mode="single"
+      mode={mode || 'single'}
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>

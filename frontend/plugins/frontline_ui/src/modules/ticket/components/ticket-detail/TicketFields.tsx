@@ -5,6 +5,7 @@ import {
   useBlockEditor,
   BlockEditor,
   Tooltip,
+  Combobox,
 } from 'erxes-ui';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useDebounce } from 'use-debounce';
@@ -18,8 +19,9 @@ import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectSta
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { SelectTags } from 'ui-modules';
+import { TagsSelect } from 'ui-modules';
 import { Button } from 'erxes-ui';
+import { IconTags } from '@tabler/icons-react';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
@@ -186,65 +188,77 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         placeholder="Ticket Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-      />
-      <div className="gap-2 flex flex-wrap w-full">
-        <Tooltip>
-          <div className="relative">
-            <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-            <SelectChannel value={channelId} variant="detail" disabled />
-          </div>
-          <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
-        </Tooltip>
-        <Tooltip>
-          <div className="relative">
-            <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-            <SelectPipeline
-              value={pipelineId}
-              variant="detail"
-              channelId={channelId}
-              disabled
-            />
-          </div>
-          <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
-        </Tooltip>
-        <SelectStatusTicket
-          variant="detail"
-          value={statusId}
-          id={ticketId}
-          pipelineId={pipelineId}
-        />
-        <SelectPriorityTicket id={ticketId} value={priority} variant="detail" />
-        <SelectAssigneeTicket
-          variant="detail"
-          value={assigneeId}
-          id={ticketId}
-        />
-        <SelectDateTicket
-          value={startDate ? new Date(startDate) : undefined}
-          id={ticketId}
-          type="startDate"
-          variant="detail"
-        />
-        <SelectDateTicket
-          value={targetDate ? new Date(targetDate) : undefined}
-          id={ticketId}
-          type="targetDate"
-          variant="detail"
-        />
-        <SelectTags.Detail
-          value={tagIds || []}
-          tagType="frontline:ticket"
-          onValueChange={(newTagIds: string[] | string) => {
-            updateTicket({
-              variables: {
-                _id: ticketId,
-                tagIds: newTagIds,
-              },
-            });
-          }}
-        />
-        <FieldSubscribeSwitch isSubscribed={isSubscribed} />
-      </div>
+      />{' '}
+      <TagsSelect.Provider
+        value={tagIds || []}
+        mode="multiple"
+        type="frontline:ticket"
+        onValueChange={(newTagIds: string[] | string) => {
+          updateTicket({
+            variables: {
+              _id: ticketId,
+              tagIds: newTagIds,
+            },
+          });
+        }}
+      >
+        <div className="gap-2 flex flex-wrap w-full items-center">
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <SelectChannel value={channelId} variant="detail" disabled />
+            </div>
+            <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <SelectPipeline
+                value={pipelineId}
+                variant="detail"
+                channelId={channelId}
+                disabled
+              />
+            </div>
+            <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
+          </Tooltip>
+          <SelectStatusTicket
+            variant="detail"
+            value={statusId}
+            id={ticketId}
+            pipelineId={pipelineId}
+          />
+          <SelectPriorityTicket
+            id={ticketId}
+            value={priority}
+            variant="detail"
+          />
+          <SelectAssigneeTicket
+            variant="detail"
+            value={assigneeId}
+            id={ticketId}
+          />
+          <SelectDateTicket
+            value={startDate ? new Date(startDate) : undefined}
+            id={ticketId}
+            type="startDate"
+            variant="detail"
+          />
+          <SelectDateTicket
+            value={targetDate ? new Date(targetDate) : undefined}
+            id={ticketId}
+            type="targetDate"
+            variant="detail"
+          />
+          <FieldSubscribeSwitch isSubscribed={isSubscribed} />
+          <IconTags className="size-5 ml-2"></IconTags>
+          <TagsSelect.SelectedList />
+          <TagsSelect.Trigger variant="ICON" />
+          <Combobox.Content>
+            <TagsSelect.Content />
+          </Combobox.Content>
+        </div>
+      </TagsSelect.Provider>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
         <BlockEditor

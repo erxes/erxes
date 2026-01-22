@@ -1,11 +1,10 @@
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useMemo } from 'react';
-import { useQuery, QueryHookOptions } from '@apollo/client';
-import { TAGS_QUERY } from '../graphql/tagQueries';
+import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
 import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 
-export const useTags = (options?: QueryHookOptions) => {
+export const useGetTags = (options?: QueryHookOptions) => {
   const { data, loading, error } = useQuery(TAGS_QUERY, options);
-
   const { allTags, rootTags, tagsByParentId, tagGroups } = useMemo(() => {
     const allTags = (data?.tagsMain || []) as ITag[];
     const rootTags: ITag[] = [];

@@ -1,4 +1,5 @@
 import { generateModels, IModels } from '../connectionResolvers';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const modelChanger = (type: string, models: IModels) => {
   if (type === 'customer') {
@@ -33,27 +34,46 @@ export const tags = {
   ],
   tag: async ({ subdomain, data }) => {
     const { type, action, _ids, tagIds, targetIds } = data;
+    const [pluginName, moduleName] = type.split(':');
 
-    const models = await generateModels(subdomain);
+    if (!moduleName || pluginName === 'core') {
+      const models = await generateModels(subdomain);
+      const model: any = modelChanger(type, models);
 
-    let response = {};
-    const model: any = modelChanger(type, models);
+      if (action === 'count') {
+        return model.countDocuments({ tagIds: { $in: _ids } });
+      }
 
-    if (action === 'count') {
-      response = await model.countDocuments({ tagIds: { $in: _ids } });
+      if (action === 'tagObject') {
+        await model.updateMany(
+          { _id: { $in: targetIds } },
+          { $set: { tagIds } },
+          { multi: true },
+        );
+
+        return model.find({ _id: { $in: targetIds } }).lean();
+      }
+      return {};
     }
 
     if (action === 'tagObject') {
-      await model.updateMany(
-        { _id: { $in: targetIds } },
-        { $set: { tagIds } },
-        { multi: true },
-      );
-
-      response = await model.find({ _id: { $in: targetIds } }).lean();
+      return await sendTRPCMessage({
+        subdomain,
+        pluginName,
+        method: 'mutation',
+        module: moduleName,
+        action: 'tag',
+        input: {
+          tagIds,
+          targetIds,
+          type: moduleName,
+          action: 'tagObject',
+        },
+        defaultValue: [],
+      });
     }
 
-    return response;
+    return {};
   },
   fixRelatedItems: async ({
     subdomain,

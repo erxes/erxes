@@ -1,5 +1,5 @@
 import { ActivityLogs, IUser, MembersInline, TActivityLog } from 'ui-modules';
-import { IDeal } from '~/modules/deals/types/deals';
+import { IDeal } from '@/deals/types/deals';
 
 export const AssigneeActivityRow = (activity: TActivityLog<IDeal, IUser[]>) => {
   const { context, action } = activity;

@@ -1,6 +1,6 @@
 import { MutationHookOptions, OperationVariables } from '@apollo/client';
 
-export interface ITag {
+export interface TTag {
   _id: string;
   name: string;
   type?: string;
@@ -17,7 +17,7 @@ export interface ITag {
   totalObjectCount?: number;
 }
 
-export interface ITagQueryResponse {
+export interface TTagQueryResponse {
   name: string;
   type?: string;
   isGroup: boolean;
@@ -35,7 +35,7 @@ export type ISelectTagsProviderProps = {
     {
       tags: {
         totalCount: number;
-        list: ITag[];
+        list: TTag[];
       };
     },
     OperationVariables
@@ -45,10 +45,10 @@ export type ISelectTagsProviderProps = {
 export interface ISelectTagsContext {
   tagType: string;
   targetIds: string[];
-  selectedTags: ITag[];
+  selectedTags: TTag[];
   value?: string[] | string;
-  setSelectedTags: (tags: ITag[]) => void;
-  onSelect: (tags: ITag) => void;
+  setSelectedTags: (tags: TTag[]) => void;
+  onSelect: (tags: TTag) => void;
   newTagName: string;
   setNewTagName: (tagName: string) => void;
   mode: 'single' | 'multiple';
@@ -75,7 +75,7 @@ export interface SelectTagsProps {
 
 export interface TagBadgesProps {
   tagIds?: string[];
-  tags?: ITag[];
+  tags?: TTag[];
 }
 
 export interface ITagType {

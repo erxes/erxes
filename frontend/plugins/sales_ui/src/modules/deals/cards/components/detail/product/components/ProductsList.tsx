@@ -62,14 +62,16 @@ const ProductsList = ({
     }))
     .filter((record) => {
       if (!record.product) return false;
-      // We check if the product in the record is present in the filtered products list
       return filteredProducts.some((p) => p._id === record.product?._id);
     });
 
   const updateLocalProduct = (id: string, patch: Partial<IProductData>) => {
-    setLocalProductsData((prev) =>
-      prev.map((p) => (p._id === id ? { ...p, ...patch } : p)),
-    );
+    setLocalProductsData((prev) => {
+      const updated = prev.map((p) => (p._id === id ? { ...p, ...patch } : p));
+
+      updateTotal(updated);
+      return updated;
+    });
   };
 
   useEffect(() => {
@@ -79,6 +81,7 @@ const ProductsList = ({
   useEffect(() => {
     setOnLocalChange(() => updateLocalProduct);
     return () => setOnLocalChange(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setOnLocalChange]);
 
   const applyVat = () => {

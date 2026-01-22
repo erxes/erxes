@@ -128,6 +128,9 @@ export const postMutations: Record<string, Resolver> = {
       return models.Translations.createTranslation(input);
     }
 
-    return models.Translations.updateTranslation(translation._id, input);
+    return models.Translations.updateTranslation({
+      ...translation.toObject(),
+      ...input,
+    });
   },
 };

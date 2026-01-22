@@ -2,10 +2,10 @@ import {
   ADD_DEALS,
   DEALS_ARCHIVE,
   DEALS_CHANGE,
-  EDIT_DEALS,
-  REMOVE_DEALS,
   DEALS_COPY,
   DEALS_WATCH,
+  EDIT_DEALS,
+  REMOVE_DEALS,
 } from '@/deals/graphql/mutations/DealsMutations';
 import {
   EnumCursorDirection,
@@ -26,6 +26,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useMemo } from 'react';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { IDeal } from '@/deals/types/deals';
@@ -33,7 +34,6 @@ import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSub
 import { currentUserState } from 'ui-modules';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useEffect } from 'react';
 
 interface IDealChanged {
   salesDealListChanged: {
@@ -78,16 +78,25 @@ export const useDeals = (
 
   const { list: deals, pageInfo, totalCount } = data?.deals || {};
 
+  const subscriptionVars = useMemo(
+    () => ({
+      pipelineId: lastPipelineId,
+      userId: currentUser?._id,
+      filter: options?.variables,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lastPipelineId, currentUser?._id, JSON.stringify(options?.variables)],
+  );
+
   useEffect(() => {
+    if (!currentUser?._id) return;
+
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
-      variables: {
-        pipelineId: lastPipelineId,
-        userId: currentUser?._id,
-        filter: options?.variables,
-      },
+      variables: subscriptionVars,
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
+        if (!prev.deals?.list) return prev;
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;
@@ -104,9 +113,10 @@ export const useDeals = (
         }
 
         if (action === 'edit') {
-          updatedList = currentList.map((item: IDeal) =>
-            item._id === deal._id ? { ...item, ...deal } : item,
-          );
+          updatedList = currentList
+            .map((item: IDeal) =>
+              item._id === deal._id ? { ...item, ...deal } : item,
+            )
         }
 
         if (action === 'remove') {
@@ -114,6 +124,8 @@ export const useDeals = (
             (item: IDeal) => item._id !== deal?._id,
           );
         }
+
+        updatedList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
         return {
           ...prev,
@@ -125,8 +137,8 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                ? prev.deals.totalCount - 1
-                : prev.deals.totalCount,
+                  ? prev.deals.totalCount - 1
+                  : prev.deals.totalCount,
           },
         };
       },
@@ -134,7 +146,7 @@ export const useDeals = (
 
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options?.variables]);
+  }, [subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
     direction,
@@ -239,11 +251,11 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     refetchQueries:
       salesItemId || _id
         ? [
-            {
-              query: GET_DEAL_DETAIL,
-              variables: { ...options?.variables, _id: salesItemId || _id },
-            },
-          ]
+          {
+            query: GET_DEAL_DETAIL,
+            variables: { ...options?.variables, _id: salesItemId || _id },
+          },
+        ]
         : [],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
@@ -278,6 +290,7 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
     variables: {
       ...options?.variables,
       _id,
+      aboveItemId: '',
       stageId: defaultValues?.stageId,
     },
     awaitRefetchQueries: true,

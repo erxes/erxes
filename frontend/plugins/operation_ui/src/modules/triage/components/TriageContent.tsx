@@ -45,7 +45,7 @@ const TriageContentWrapper = ({ triage }: { triage: ITriage }) => {
 
       <div className="h-full w-full flex overflow-auto">
         <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">
-          <TriageFields triage={triage} />
+          <TriageFields key={triage._id} triage={triage} />
         </div>
       </div>
     </Suspense>

@@ -2,13 +2,18 @@ import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { CMS_CUSTOM_POST_TYPES_ADD } from '../../graphql/mutations';
+import {
+  CMS_CUSTOM_POST_TYPE_ADD,
+  CMS_CUSTOM_POST_TYPE_EDIT,
+} from '../../graphql/queries';
 
 interface CustomTypeDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   clientPortalId?: string;
+  customType?: any;
   onCreate?: (data: CustomTypeFormData) => Promise<void> | void;
+  onUpdate?: () => Promise<void> | void;
 }
 
 interface CustomTypeFormData {
@@ -23,10 +28,18 @@ export function CustomTypeDrawer({
   isOpen,
   onClose,
   clientPortalId,
+  customType,
   onCreate,
+  onUpdate,
 }: CustomTypeDrawerProps) {
-  const [addCustomPostType, { loading }] = useMutation(
-    CMS_CUSTOM_POST_TYPES_ADD,
+  const isEditing = !!customType;
+
+  const [addCustomPostType, { loading: creating }] = useMutation(
+    CMS_CUSTOM_POST_TYPE_ADD,
+  );
+
+  const [editCustomPostType, { loading: updating }] = useMutation(
+    CMS_CUSTOM_POST_TYPE_EDIT,
   );
   const form = useForm<CustomTypeFormData>({
     defaultValues: {
@@ -39,14 +52,26 @@ export function CustomTypeDrawer({
   });
 
   useEffect(() => {
-    form.reset({
-      label: '',
-      pluralLabel: '',
-      description: '',
-      code: '',
-      clientPortalId,
-    });
-  }, [form, isOpen, clientPortalId]);
+    if (isOpen) {
+      if (customType) {
+        form.reset({
+          label: customType.label || '',
+          pluralLabel: customType.pluralLabel || '',
+          description: customType.description || '',
+          code: customType.code || '',
+          clientPortalId,
+        });
+      } else {
+        form.reset({
+          label: '',
+          pluralLabel: '',
+          description: '',
+          code: '',
+          clientPortalId,
+        });
+      }
+    }
+  }, [form, isOpen, clientPortalId, customType]);
 
   const generateCode = (label: string) =>
     label
@@ -63,20 +88,36 @@ export function CustomTypeDrawer({
 
   const onSubmit = async (data: CustomTypeFormData) => {
     try {
-      await addCustomPostType({
-        variables: {
-          input: {
-            clientPortalId: data.clientPortalId,
-            code: data.code,
-            label: data.label,
-            pluralLabel: data.pluralLabel,
-            description: data.description,
+      if (isEditing && customType?._id) {
+        await editCustomPostType({
+          variables: {
+            _id: customType._id,
+            input: {
+              clientPortalId: data.clientPortalId,
+              code: data.code,
+              label: data.label,
+              pluralLabel: data.pluralLabel,
+              description: data.description,
+            },
           },
-        },
-      });
-
-      if (onCreate) await onCreate(data);
-      toast({ title: 'Custom type created' });
+        });
+        if (onUpdate) await onUpdate();
+        toast({ title: 'Custom type updated' });
+      } else {
+        await addCustomPostType({
+          variables: {
+            input: {
+              clientPortalId: data.clientPortalId,
+              code: data.code,
+              label: data.label,
+              pluralLabel: data.pluralLabel,
+              description: data.description,
+            },
+          },
+        });
+        if (onCreate) await onCreate(data);
+        toast({ title: 'Custom type created' });
+      }
       onClose();
     } catch (e: any) {
       const msg: string = e?.message || '';
@@ -85,7 +126,8 @@ export function CustomTypeDrawer({
         pretty = 'Custom type code already exists for this site';
       }
       if (/invalid characters/i.test(msg)) {
-        pretty = 'Code has invalid characters. Use only letters, numbers, and underscores';
+        pretty =
+          'Code has invalid characters. Use only letters, numbers, and underscores';
       }
       if (/system post type/i.test(msg)) {
         pretty = 'Cannot use reserved system type codes (page, post, category)';
@@ -98,7 +140,9 @@ export function CustomTypeDrawer({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0">
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>New Custom Type</Sheet.Title>
+          <Sheet.Title>
+            {isEditing ? 'Edit Custom Type' : 'New Custom Type'}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -179,8 +223,14 @@ export function CustomTypeDrawer({
               <Button onClick={onClose} variant="outline">
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Creating…' : 'Create'}
+              <Button type="submit" disabled={creating || updating}>
+                {creating || updating
+                  ? isEditing
+                    ? 'Saving…'
+                    : 'Creating…'
+                  : isEditing
+                  ? 'Save Changes'
+                  : 'Create'}
               </Button>
             </div>
           </form>

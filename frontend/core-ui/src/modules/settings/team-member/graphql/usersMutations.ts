@@ -53,6 +53,7 @@ const USERS_INLINE_EDIT = gql`
     $departmentIds: [String]
     $password: String
     $isOnboarded: Boolean
+    $customFieldsData: JSON
   ) {
     usersEdit(
       _id: $_id
@@ -66,6 +67,7 @@ const USERS_INLINE_EDIT = gql`
       departmentIds: $departmentIds
       password: $password
       isOnboarded: $isOnboarded
+      customFieldsData: $customFieldsData
     ) {
       _id
       username
@@ -81,6 +83,7 @@ const USERS_INLINE_EDIT = gql`
         middleName
         lastName
       }
+      customFieldsData
       links
       employeeId
       branchIds

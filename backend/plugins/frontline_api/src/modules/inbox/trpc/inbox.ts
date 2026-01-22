@@ -33,7 +33,7 @@ const EngageDataSchema = z.object({
   sentAs: z.string(),
 });
 
-const createConversationAndMessage = async (
+export const createConversationAndMessage = async (
   models: IModels,
   params: CreateConversationAndMessageParams,
 ) => {

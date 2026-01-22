@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { buildCustomFieldsMap } from '@/cms/utils/common';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -38,5 +39,23 @@ export default {
       };
     }
     return await models.CustomPostTypes.findOne({ _id: post.type });
+  },
+
+  async customFieldsMap(post: any, _params, { models, subdomain }: IContext) {
+    // Get field groups for this post type and categories
+    const query: any = {
+      $or: [
+        { customPostTypeIds: post.type },
+        { enabledCategoryIds: { $in: post.categoryIds || [] } },
+      ],
+    };
+
+    const fieldGroups = await models.CustomFieldGroups.find(query).lean();
+
+    return await buildCustomFieldsMap(
+      subdomain,
+      fieldGroups,
+      post.customFieldsData,
+    );
   },
 };

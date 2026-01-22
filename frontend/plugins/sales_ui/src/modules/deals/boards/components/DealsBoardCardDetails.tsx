@@ -50,7 +50,7 @@ export const DealCardDetails = ({
         </div>
       ))}
       {remainingCount > 0 && (
-        <Badge variant="secondary">+{remainingCount} more</Badge>
+        <Badge variant="ghost">+{remainingCount} more</Badge>
       )}
     </div>
   );

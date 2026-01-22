@@ -18,7 +18,7 @@ export const CONTENT_CREATE_CMS = gql`
 
 export const CONTENT_UPDATE_CMS = gql`
   mutation ContentUpdateCMS($id: String!, $input: ContentCMSInput) {
-    contentUpdateCMS(_id: $id, input: $input) {
+    contentUpdateCMS(id: $id, input: $input) {
       _id
       clientPortalId
       createdAt
@@ -34,7 +34,7 @@ export const CONTENT_UPDATE_CMS = gql`
 
 export const CONTENT_DELETE_CMS = gql`
   mutation ContentDeleteCMS($id: String!) {
-    contentDeleteCMS(_id: $id)
+    contentDeleteCMS(id: $id)
   }
 `;
 

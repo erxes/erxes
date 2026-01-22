@@ -11,19 +11,18 @@ import {
   IconSpiral,
   IconUser,
 } from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui';
+import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
 
 export const GET_CORE_MODULES = (
   t: TFunction,
   version?: boolean,
-): IUIConfig['modules'] => {
-  const MODULES: IUIConfig['modules'] = [
+): ICoreModule[] => {
+  const MODULES: ICoreModule[] = [
     {
       name: t('contacts'),
       icon: IconAddressBook,
       path: 'contacts',
-      hasSettings: false,
       submenus: [
         {
           name: t('customers'),
@@ -56,7 +55,6 @@ export const GET_CORE_MODULES = (
       name: t('products'),
       icon: IconShoppingCart,
       path: 'products',
-      hasSettings: true,
       submenus: [
         {
           name: 'categories',
@@ -69,13 +67,11 @@ export const GET_CORE_MODULES = (
       name: t('segments'),
       icon: IconChartPie,
       path: 'segments',
-      hasSettings: false,
     },
     {
       name: t('automations'),
       icon: IconAffiliate,
       path: 'automations',
-      hasSettings: true,
     },
     {
       name: t('logs'),
@@ -85,18 +81,16 @@ export const GET_CORE_MODULES = (
   ];
 
   if (version) {
-    MODULES.push(
+    MODULES?.push(
       {
         name: t('documents'),
         icon: IconFile,
         path: 'documents',
-        hasSettings: false,
       },
       {
         name: t('broadcasts'),
         icon: IconBroadcast,
         path: 'broadcasts',
-        hasSettings: false,
       },
     );
   }

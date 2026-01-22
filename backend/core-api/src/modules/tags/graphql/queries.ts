@@ -87,8 +87,12 @@ export const tagQueries = {
    */
   async tagsGetTypes() {
     const services = await getPlugins();
-    const fieldTypes: Array<{ description: string; contentType: string }> = [];
+    const types = {};
+
     for (const serviceName of services) {
+      const fieldTypes: Array<{ description: string; contentType: string }> =
+        [];
+
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
       if (meta && meta.tags) {
@@ -101,9 +105,13 @@ export const tagQueries = {
           });
         }
       }
+
+      if (fieldTypes.length > 0) {
+        types[serviceName] = fieldTypes;
+      }
     }
 
-    return fieldTypes;
+    return types;
   },
   /**
    * Get tags
@@ -133,7 +141,10 @@ export const tagQueries = {
 
   async tagsMain(
     _parent: undefined,
-    { type }: { type: string },
+    {
+      type,
+      excludeWorkspaceTags,
+    }: { type: string; excludeWorkspaceTags?: boolean },
     { models }: IContext,
   ) {
     const filter: FilterQuery<ITagFilterQueryParams> = {
@@ -142,6 +153,10 @@ export const tagQueries = {
 
     if (type) {
       filter.type = { $in: [null, '', type] };
+    }
+
+    if (type && excludeWorkspaceTags) {
+      filter.type = { $eq: type };
     }
 
     return await models.Tags.find(filter).sort({ name: 1 });

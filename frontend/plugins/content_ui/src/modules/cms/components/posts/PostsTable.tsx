@@ -64,6 +64,7 @@ export function PostsTable({
         ),
         size: 40,
       },
+
       RecordTable.checkboxColumn as ColumnDef<any>,
       {
         id: 'title',

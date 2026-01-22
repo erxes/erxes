@@ -28,7 +28,7 @@ const ActivityLogActorAvatar = ({ activity }: ActivityLogRowProps) => {
 
   if (isSystem) {
     return (
-      <div className="size-8 rounded-full bg-muted flex items-center justify-center border-2 border-background">
+      <div className="size-8 rounded-full bg-muted flex items-center justify-center border border-background">
         <IconQuestionMark className="size-4 text-muted-foreground" />
       </div>
     );
@@ -88,11 +88,11 @@ export function ActivityLogRow({
     <div className="relative flex flex-row gap-4 pb-6">
       {/* Timeline vertical line */}
       {!isLast && (
-        <div className="absolute left-[15px] top-[32px] bottom-0 w-[2px] bg-border" />
+        <div className="absolute left-1/2 top-8 bottom-0 w-px bg-border" />
       )}
 
       {/* Avatar/Icon container */}
-      <div className="relative z-10 flex-shrink-0">
+      <div className="relative z-10 shrink-0">
         <ActivityLogActorAvatar activity={activity} />
       </div>
 

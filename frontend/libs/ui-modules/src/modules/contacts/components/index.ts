@@ -9,5 +9,8 @@ export * from './CustomerOwner';
 export * from './CustomerPhones';
 export * from './CustomersInline';
 export * from './CustomerWidget';
+export * from './CompanyWidget';
 export * from './SelectCompany';
 export * from './SelectCustomer';
+export * from './SelectCustomersBulk';
+export * from './SelectCompaniesBulk';

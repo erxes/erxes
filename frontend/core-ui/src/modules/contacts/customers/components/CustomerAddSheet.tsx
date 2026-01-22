@@ -64,7 +64,7 @@ export const CustomerAddSheetHeader = () => {
     <Sheet.Header className="p-5">
       <Sheet.Title>{t('_')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        Add a new contact to your organization.
+        "Manage the uoms for your product & service"
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

@@ -1,7 +1,9 @@
-import { ICMSMenuDocument, ICMSPageDocument, IContentCMSDocument } from '@/cms/@types/cms';
 import {
-  customFieldSchema
-} from 'erxes-api-shared/core-modules';
+  ICMSMenuDocument,
+  ICMSPageDocument,
+  IContentCMSDocument,
+} from '@/cms/@types/cms';
+import { customFieldSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import mongoose, { Schema } from 'mongoose';
 
@@ -9,7 +11,7 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    clientPortalId: { type: String, required: true, unique: true },
+    clientPortalId: { type: String, required: true },
     content: { type: String, required: true },
     language: { type: String, optional: true },
     languages: { type: [String], optional: true },

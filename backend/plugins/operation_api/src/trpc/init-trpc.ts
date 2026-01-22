@@ -1,15 +1,24 @@
 import { initTRPC } from '@trpc/server';
 
 import { ITRPCContext } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { taskTrpcRouter } from '~/modules/task/trpc/task';
 
-const t = initTRPC.context<ITRPCContext>().create();
+export type OperationTRPCContext = ITRPCContext<{ models: IModels }>;
 
-export const appRouter = t.router({
-  operation: {
-    hello: t.procedure.query(() => {
-      return 'Hello operation';
-    }),
-  },
-});
+const t = initTRPC.context<OperationTRPCContext>().create();
+
+
+
+export const appRouter = t.mergeRouters(
+  t.router({
+    operation: {
+      hello: t.procedure.query(() => {
+        return 'Hello operation';
+      }),
+    },
+  }),
+  taskTrpcRouter,
+);
 
 export type AppRouter = typeof appRouter;

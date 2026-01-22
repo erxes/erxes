@@ -1,16 +1,8 @@
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-  useQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import {
   IconCalendarBolt,
   IconCalendarPlus,
   IconCalendarX,
-  IconCashRegister,
-  IconSearch,
 } from '@tabler/icons-react';
 import {
   SelectBranches,
@@ -28,7 +20,6 @@ import { SelectPriority } from '@/deals/components/common/filters/SelectPriority
 
 export const SalesFilter = () => {
   const [queries] = useMultiQueryState<SalesFilterState>([
-    'search',
     'companyIds',
     'userIds',
     'branchIds',
@@ -62,9 +53,6 @@ export const SalesFilter = () => {
             </Combobox.Content>
           </Filter.Popover>
           <Filter.Dialog>
-            <Filter.View filterKey="search" inDialog>
-              <Filter.DialogStringView filterKey="search" />
-            </Filter.View>
             <Filter.View filterKey="createdStartDate" inDialog>
               <Filter.DialogDateView filterKey="createdStartDate" />
             </Filter.View>
@@ -118,16 +106,6 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
 
   return (
     <>
-      <Filter.BarItem queryKey="search">
-        <Filter.BarName>
-          <IconSearch />
-          Search
-        </Filter.BarName>
-        <Filter.BarButton filterKey="search" inDialog>
-          {search}
-        </Filter.BarButton>
-      </Filter.BarItem>
-
       <Filter.BarItem queryKey="createdStartDate">
         <Filter.BarName>
           <IconCalendarPlus />
@@ -209,10 +187,6 @@ const SalesFilterView = () => {
       <Filter.View>
         <Command>
           <Command.List className="p-1">
-            <Filter.Item value="search" inDialog>
-              <IconSearch />
-              Search
-            </Filter.Item>
             <SelectCompany.FilterItem value="companyIds" label="By Company" />
             <SelectCustomer.FilterItem
               value="customerIds"

@@ -94,6 +94,8 @@ const queries: Record<string, Resolver> = {
     new PageQueryResolver(context).cmsPageList(_parent, args, context),
   cmsPage: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPage(_parent, args, context),
+  cpPages: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cpPages(_parent, args, context),
 };
 
 queries.cmsPages.wrapperConfig = {

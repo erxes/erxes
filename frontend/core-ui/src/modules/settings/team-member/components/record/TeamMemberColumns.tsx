@@ -115,7 +115,6 @@ const teamMemberPasswordResetColumn = {
 
 export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
   return [
-    RecordTable.checkboxColumn as ColumnDef<IUser>,
     {
       id: 'avatar',
       accessorKey: 'avatar',

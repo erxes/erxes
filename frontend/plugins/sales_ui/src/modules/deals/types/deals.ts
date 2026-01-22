@@ -1,4 +1,4 @@
-import { IBranch, ICompany, ICustomer, IDepartment, IProduct, IProductData, ITag, IUser } from "ui-modules";
+import { IBranch, ICompany, ICustomer, IDepartment, IProductData, ITag, IUser } from "ui-modules";
 import { IPipeline, IPipelineLabel } from "./pipelines";
 
 import { IAttachment } from "./attachments";
@@ -8,7 +8,6 @@ export interface IItem {
     _id: string;
     name: string;
     order: number;
-    stageId: string;
     boardId?: string;
     startDate: Date;
     closeDate: Date;
