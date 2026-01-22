@@ -33,7 +33,9 @@ export function MemberDetail() {
         error?.message.includes('not found') ? 'not-found' : undefined
       }
     >
-      {loading ? <Spinner /> : (
+      {loading ? (
+        <Spinner />
+      ) : (
         <div className="flex flex-auto flex-col">
           <MemberDetailGeneral />
           <Separator />
@@ -47,7 +49,7 @@ export function MemberDetail() {
             <MemberDetailTabContent value="activity" className="h-full">
               {userDetail ? <ActivityLogs targetId={userDetail._id} /> : <></>}
             </MemberDetailTabContent>
-            <MemberDetailTabContent value="properties" className="h-full">
+            <MemberDetailTabContent value="properties" className="h-full p-6">
               <FieldsInDetail
                 fieldContentType="core:user"
                 customFieldsData={userDetail?.customFieldsData || {}}
@@ -56,7 +58,8 @@ export function MemberDetail() {
               />
             </MemberDetailTabContent>
           </Sheet.Content>
-        </div>)}
+        </div>
+      )}
     </MemberDetailLayout>
   );
 }
