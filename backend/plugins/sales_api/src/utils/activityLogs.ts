@@ -289,7 +289,6 @@ export async function generateDealActivityLogs(
     currentDocument,
     activityRegistry,
   );
-  console.log('activities:', activities);
   if (activities.length > 0) {
     createActivityLog(
       activities.map((activity) => ({
