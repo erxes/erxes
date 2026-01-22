@@ -244,13 +244,13 @@ export async function generateDealActivityLogs(
       ) || [];
     }),
   ];
-
+  console.log('activityRegistry', activityRegistry)
   const activities = await buildActivities(
     prevDocument,
     currentDocument,
     activityRegistry,
   );
-
+  console.log('activities:', activities);
   if (activities.length > 0) {
     createActivityLog(
       activities.map((activity) => ({

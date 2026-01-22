@@ -28,7 +28,7 @@ export const loadDealClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog } = dispatcher;
+  const { sendDbEventLog, getContext } = dispatcher;
 
   class Deal {
     /** Get single deal */
@@ -70,7 +70,10 @@ export const loadDealClass = (
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
-
+      const logDoc = {
+        prevDeal:prevDeal.toObject()
+      }
+      console.log(prevDeal.toObject())
       // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
@@ -81,7 +84,7 @@ export const loadDealClass = (
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
-
+      console.log('doc', doc)
       await models.Deals.updateOne(
         { _id },
         { $set: { ...doc, searchText } },
@@ -96,9 +99,10 @@ export const loadDealClass = (
         currentDocument: updatedDeal.toObject(),
         prevDocument: prevDeal.toObject(),
       });
-      
+
+      const context = getContext();
       await generateDealActivityLogs(
-        prevDeal.toObject(),
+        logDoc.prevDeal,
         updatedDeal.toObject(),
         models,
         dispatcher.createActivityLog,

@@ -9,7 +9,7 @@ import segments from './meta/segments';
 
 startPlugin({
   name: 'sales',
-  port: 3305,
+  port: 3309,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,

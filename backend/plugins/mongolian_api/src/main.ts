@@ -7,7 +7,7 @@ import { generateModels } from './connectionResolvers';
 
 startPlugin({
   name: 'mongolian',
-  port: 3307,
+  port: 3308,
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
