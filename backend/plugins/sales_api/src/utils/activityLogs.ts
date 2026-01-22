@@ -5,6 +5,7 @@ import {
   buildActivities,
   fieldChangeRule,
 } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 // Board activity fields
@@ -114,13 +115,56 @@ export async function generateBoardActivityLogs(
 }
 
 /**
+ * Helper function to fetch users via tRPC and format their names
+ */
+async function fetchUsersByIds(
+  subdomain: string,
+  ids: string[],
+): Promise<string[]> {
+  if (!ids || ids.length === 0) {
+    return [];
+  }
+
+  try {
+    const users = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'find',
+      input: {
+        query: { _id: { $in: ids } },
+        fields: { details: 1, email: 1, username: 1 },
+      },
+      defaultValue: [],
+    });
+    console.log('users', users);
+    return users.map((user: any) => {
+      if (user.details?.fullName) {
+        return user.details.fullName;
+      }
+      if (user.email) {
+        return user.email;
+      }
+      if (user.username) {
+        return user.username;
+      }
+      return user._id;
+    });
+  } catch (error) {
+    return ids.map(id => id.toString());
+  }
+}
+
+/**
  * Generate activity logs for Pipeline changes
  */
 export async function generatePipelineActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void ,
+  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  subdomain: string,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -132,13 +176,10 @@ export async function generatePipelineActivityLogs(
       current === 'archived' ? 'Archived' : 'Active'
     ),
     assignmentRule('memberIds', async (ids: string[]) => {
-      // In sales plugin, we don't have Users model directly accessible
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
     assignmentRule('watchedUserIds', async (ids: string[]) => {
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
   ];
 
@@ -171,6 +212,7 @@ export async function generateStageActivityLogs(
   currentDocument: any,
   models: IModels,
   createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  subdomain: string,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -179,8 +221,7 @@ export async function generateStageActivityLogs(
       (field) => getFieldLabel(field, STAGE_ACTIVITY_FIELDS),
     ),
     assignmentRule('memberIds', async (ids: string[]) => {
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
   ];
 
@@ -213,6 +254,7 @@ export async function generateDealActivityLogs(
   currentDocument: any,
   models: IModels,
   createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  subdomain: string,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -228,8 +270,7 @@ export async function generateDealActivityLogs(
       return `From "${prevStage?.name || prev}" to "${currentStage?.name || current}"`;
     }),
     assignmentRule('assignedUserIds', async (ids: string[]) => {
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
     assignmentRule('labelIds', async (ids: string[]) => {
       const labels = await models.PipelineLabels.find(
@@ -464,6 +505,37 @@ export function generateDealConvertedActivityLog(deal: any, conversationId: stri
     metadata: {
       conversationId,
       dealId: deal._id,
+    },
+  };
+}
+
+/**
+ * Generate activity log for deal comment from client portal
+ */
+export function generateDealCommentActivityLog(
+  dealId: string,
+  commentId: string,
+  createdBy: string,
+): ActivityLogInput {
+  return {
+    activityType: 'comment',
+    target: {
+      _id: dealId,
+      moduleName: 'sales',
+      collectionName: 'deals',
+    },
+    action: {
+      type: 'comment',
+      description: 'Comment added from client portal',
+    },
+    changes: {
+      commentId,
+      commentedAt: new Date(),
+    },
+    metadata: {
+      dealId,
+      commentId,
+      createdBy,
     },
   };
 }

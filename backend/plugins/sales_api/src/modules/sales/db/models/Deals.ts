@@ -106,6 +106,7 @@ export const loadDealClass = (
         updatedDeal.toObject(),
         models,
         dispatcher.createActivityLog,
+        subdomain,
       );
 
       return updatedDeal;
