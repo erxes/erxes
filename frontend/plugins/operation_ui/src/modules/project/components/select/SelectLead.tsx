@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import {
   Button,
@@ -335,23 +335,34 @@ export const SelectLeadDetail = React.forwardRef<
     teamIds?: string[] | string;
     id?: string;
   }
->(({ onValueChange, className, teamIds, id, ...props }, ref) => {
+>(({ onValueChange, className, teamIds, id, value, ...props }, ref) => {
   const [open, setOpen] = useState(false);
+  const [internalValue, setInternalValue] = useState(value);
+
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
   const { updateProject } = useUpdateProject();
-  const handleValueChange = (value: string | string[] | null) => {
+  const handleValueChange = (lead: string | string[] | null) => {
+    setInternalValue(lead ?? undefined);
     if (id) {
       updateProject({
         variables: {
           _id: id,
-          leadId: value,
+          leadId: lead,
         },
       });
     }
-    value && onValueChange?.(value);
+    lead && onValueChange?.(lead);
     setOpen(false);
   };
   return (
-    <SelectLeadProvider onValueChange={handleValueChange} {...props}>
+    <SelectLeadProvider
+      onValueChange={handleValueChange}
+      value={internalValue}
+      {...props}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase
           ref={ref}
