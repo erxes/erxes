@@ -1,7 +1,8 @@
 import { Model } from 'mongoose';
 import { ICPComment, ICPCommentDocument } from '../../types/comment';
 import { IModels } from '~/connectionResolvers';
-import { commentSchema } from 'erxes-api-shared/core-modules';
+import { commentSchema, EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 
 export interface ICPCommentsModel extends Model<ICPCommentDocument> {
@@ -11,7 +12,10 @@ export interface ICPCommentsModel extends Model<ICPCommentDocument> {
   deleteComment(_id: string): void;
 }
 
-export const loadCommentClass = (models: IModels) => {
+export const loadCommentClass = (models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Comment {
     /**
      * Retreives comment
@@ -27,10 +31,37 @@ export const loadCommentClass = (models: IModels) => {
     }
 
     public static async createComment(doc: ICPCommentDocument) {
-      return models.CPComments.create({
+      const comment = await models.CPComments.create({
         ...doc,
         createdAt: new Date()
       });
+     
+
+      // Create activity log via tRPC for sales deal comments
+      if (doc.type === 'sales:deal') {
+        try {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'sales',
+            method: 'mutation',
+            module: 'deal',
+            action: 'createCommentActivityLog',
+            input: {
+              dealId: doc.typeId,
+              commentId: comment._id,
+              createdBy: comment.userId,
+              processId: '',
+              userId: comment.userId,
+            },
+            defaultValue: null,
+          });
+        } catch (error) {
+          // Activity log creation should not block comment creation
+          // Error is silently caught to prevent blocking the mutation
+        }
+      } 
+
+      return comment;
     }
 
     public static async updateComment(_id: string, doc: Partial<ICPComment>) {
@@ -43,7 +74,7 @@ export const loadCommentClass = (models: IModels) => {
       if (!comment) {
         throw new Error('Comment not found');
       }
-
+      
       return comment;
     }
 
