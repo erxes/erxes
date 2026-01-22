@@ -224,6 +224,8 @@ import {
   loadOrgWhiteLabelClass,
 } from './modules/organization/whitelabel/db/models/OrgWhiteLabel';
 import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
+import { ICPCommentsModel,loadCommentClass } from './modules/clientportal/db/models/Comment';
+import { ICPCommentDocument } from './modules/clientportal/types/comment';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -266,6 +268,8 @@ export interface IModels {
   EmailDeliveries: IEmailDeliveryModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
+  CPComments: ICPCommentsModel;
+
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
   ActivityLogs: Model<IActivityLogDocument>;
@@ -593,7 +597,10 @@ export const loadClasses = (
     'client_portal_users',
     loadCPUserClass(models),
   );
-
+  models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
+    'client_portal_comments',
+    loadCommentClass(models),
+  );
   const db_name = db.name;
 
   const logDb = db.useDb(`${db_name}_logs`);
