@@ -42,7 +42,7 @@ export const SelectTagsProvider = ({
   const [newTagName, setNewTagName] = useState('');
   const { giveTags } = useGiveTags();
   const [selectedTags, setSelectedTags] = useState<ITag[]>([]);
-  const handleSelectCallback = (tag: TTag) => {
+  const handleSelectCallback = (tag: ITag) => {
     if (!tag) return;
 
     const isSingleMode = mode === 'single';
