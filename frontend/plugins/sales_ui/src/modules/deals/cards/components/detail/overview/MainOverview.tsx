@@ -1,4 +1,9 @@
-import { SelectMember, SelectTags } from 'ui-modules';
+import {
+  SelectBranches,
+  SelectDepartments,
+  SelectMember,
+  SelectTags,
+} from 'ui-modules';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
@@ -30,6 +35,8 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
     labels,
     priority,
     tagIds,
+    branchIds,
+    departmentIds,
   } = deal;
 
   return (
@@ -104,6 +111,30 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
               handleDealFieldChange('tagIds', value);
             }}
           />
+        </div>
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Branches</h4>
+          <div className="shadow-xs rounded">
+            <SelectBranches.InlineCell
+              mode="multiple"
+              value={branchIds}
+              onValueChange={(value) => {
+                handleDealFieldChange('branchIds', value);
+              }}
+            />
+          </div>
+        </div>
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Departments</h4>
+          <div className="shadow-xs rounded">
+            <SelectDepartments.InlineCell
+              mode="multiple"
+              value={departmentIds}
+              onValueChange={(value) => {
+                handleDealFieldChange('departmentIds', value);
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
