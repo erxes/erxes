@@ -73,7 +73,7 @@ export const loadDealClass = (
       const logDoc = {
         prevDeal:prevDeal.toObject()
       }
-      console.log(prevDeal.toObject())
+     
       // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
@@ -84,7 +84,6 @@ export const loadDealClass = (
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
-      console.log('doc', doc)
       await models.Deals.updateOne(
         { _id },
         { $set: { ...doc, searchText } },

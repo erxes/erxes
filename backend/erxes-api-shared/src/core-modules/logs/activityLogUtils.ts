@@ -416,12 +416,10 @@ export async function buildActivities(
       : currentDoc;
 
   const changes = normalizeDiffs(prevPlain, currentPlain);
-  console.log('changes', changes)
   const activities: ActivityLogPayload[] = [];
 
   for (const change of changes) {
     for (const rule of activityRegistry) {
-      console.log('rule.match(change)', rule.match(change))
       if (rule.match(change)) {
         activities.push(...(await rule.build(change)));
       }

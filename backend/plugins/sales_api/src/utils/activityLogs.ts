@@ -138,7 +138,6 @@ async function fetchUsersByIds(
       },
       defaultValue: [],
     });
-    console.log('users', users);
     return users.map((user: any) => {
       if (user.details?.fullName) {
         return user.details.fullName;
@@ -285,7 +284,6 @@ export async function generateDealActivityLogs(
       ) || [];
     }),
   ];
-  console.log('activityRegistry', activityRegistry)
   const activities = await buildActivities(
     prevDocument,
     currentDocument,
@@ -505,37 +503,6 @@ export function generateDealConvertedActivityLog(deal: any, conversationId: stri
     metadata: {
       conversationId,
       dealId: deal._id,
-    },
-  };
-}
-
-/**
- * Generate activity log for deal comment from client portal
- */
-export function generateDealCommentActivityLog(
-  dealId: string,
-  commentId: string,
-  createdBy: string,
-): ActivityLogInput {
-  return {
-    activityType: 'comment',
-    target: {
-      _id: dealId,
-      moduleName: 'sales',
-      collectionName: 'deals',
-    },
-    action: {
-      type: 'comment',
-      description: 'Comment added from client portal',
-    },
-    changes: {
-      commentId,
-      commentedAt: new Date(),
-    },
-    metadata: {
-      dealId,
-      commentId,
-      createdBy,
     },
   };
 }
