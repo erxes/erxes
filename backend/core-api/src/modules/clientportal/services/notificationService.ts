@@ -2,6 +2,13 @@ import { sendEmail } from '~/utils/email';
 import { IModels } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { ICPNotificationDocument } from '@/clientportal/types/cpNotification';
+import { ICPNotificationConfigDocument } from '@/clientportal/types/cpNotificationConfig';
+import { firebaseService } from './firebaseService';
+import {
+  CP_NOTIFICATION_PRIORITY_ORDER,
+  CP_NOTIFICATION_KIND,
+} from '../../constants';
 
 export interface SendEmailOptions {
   toEmails: string[];
@@ -208,6 +215,202 @@ export class NotificationService {
       clientPortal,
       models,
     );
+  }
+
+  async createNotification(
+    subdomain: string,
+    models: IModels,
+    notificationData: {
+      cpUserId: string;
+      clientPortalId: string;
+      title: string;
+      message: string;
+      type?: 'info' | 'success' | 'warning' | 'error';
+      contentType?: string;
+      contentTypeId?: string;
+      priority?: 'low' | 'medium' | 'high' | 'urgent';
+      metadata?: any;
+      action?: string;
+      kind?: 'system' | 'user';
+      allowMultiple?: boolean;
+    },
+  ): Promise<ICPNotificationDocument> {
+    const {
+      cpUserId,
+      clientPortalId,
+      title,
+      message,
+      type = 'info',
+      contentType,
+      contentTypeId,
+      priority = 'medium',
+      metadata,
+      action,
+      kind = 'user',
+      allowMultiple = false,
+    } = notificationData;
+
+    const notificationDoc: any = {
+      cpUserId,
+      clientPortalId,
+      title,
+      message,
+      type,
+      contentType,
+      contentTypeId,
+      priority,
+      priorityLevel: CP_NOTIFICATION_PRIORITY_ORDER[priority],
+      metadata,
+      action,
+      kind,
+      isRead: false,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    };
+
+    let notification: ICPNotificationDocument | null = null;
+
+    if (kind === 'user' && !allowMultiple && contentType && contentTypeId) {
+      notification = await models.CPNotifications.findOneAndUpdate(
+        { contentTypeId, contentType, cpUserId },
+        notificationDoc,
+        { new: true, upsert: true },
+      );
+    }
+
+    if (!notification) {
+      notification = await models.CPNotifications.create(notificationDoc);
+    }
+
+    return notification;
+  }
+
+  async sendFirebaseNotification(
+    clientPortal: IClientPortalDocument,
+    cpUser: ICPUserDocument,
+    notification: {
+      title: string;
+      body: string;
+    },
+    data?: Record<string, string>,
+  ): Promise<void> {
+    const firebaseConfig = clientPortal.firebaseConfig;
+
+    if (!firebaseConfig?.enabled || !firebaseConfig?.serviceAccountKey) {
+      return;
+    }
+
+    if (!cpUser.fcmTokens || cpUser.fcmTokens.length === 0) {
+      return;
+    }
+
+    try {
+      await firebaseService.initializeFromClientPortal(clientPortal);
+      await firebaseService.sendNotification(
+        clientPortal._id,
+        cpUser.fcmTokens,
+        notification,
+        data,
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to send Firebase notification: ${errorMessage}`);
+    }
+  }
+
+  async sendNotification(
+    subdomain: string,
+    models: IModels,
+    clientPortal: IClientPortalDocument,
+    cpUser: ICPUserDocument,
+    notificationData: {
+      title: string;
+      message: string;
+      type?: 'info' | 'success' | 'warning' | 'error';
+      contentType?: string;
+      contentTypeId?: string;
+      priority?: 'low' | 'medium' | 'high' | 'urgent';
+      metadata?: any;
+      action?: string;
+      kind?: 'system' | 'user';
+      allowMultiple?: boolean;
+    },
+  ): Promise<ICPNotificationDocument> {
+    const notification = await this.createNotification(
+      subdomain,
+      models,
+      {
+        ...notificationData,
+        cpUserId: cpUser._id,
+        clientPortalId: clientPortal._id,
+      },
+    );
+
+    const firebaseConfig = clientPortal.firebaseConfig;
+    if (firebaseConfig?.enabled && cpUser.fcmTokens?.length > 0) {
+      try {
+        await this.sendFirebaseNotification(
+          clientPortal,
+          cpUser,
+          {
+            title: notificationData.title,
+            body: notificationData.message,
+          },
+          {
+            notificationId: notification._id,
+            type: notificationData.type || 'info',
+            action: notificationData.action || '',
+          },
+        );
+      } catch (error) {
+        // Log error but don't fail the notification creation
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+        console.error('Firebase notification error:', errorMessage);
+      }
+    }
+
+    return notification;
+  }
+
+  async getNotificationConfig(
+    models: IModels,
+    clientPortalId: string,
+    eventType: string,
+  ): Promise<ICPNotificationConfigDocument | null> {
+    return models.CPNotificationConfigs.findOne({
+      clientPortalId,
+      eventType,
+    });
+  }
+
+  async checkNotificationEnabled(
+    models: IModels,
+    clientPortalId: string,
+    eventType: string,
+  ): Promise<{
+    inAppEnabled: boolean;
+    firebaseEnabled: boolean;
+    template?: { title?: string; message?: string };
+  }> {
+    const config = await this.getNotificationConfig(
+      models,
+      clientPortalId,
+      eventType,
+    );
+
+    if (!config) {
+      return {
+        inAppEnabled: true,
+        firebaseEnabled: false,
+      };
+    }
+
+    return {
+      inAppEnabled: config.inAppEnabled,
+      firebaseEnabled: config.firebaseEnabled,
+      template: config.template,
+    };
   }
 }
 
