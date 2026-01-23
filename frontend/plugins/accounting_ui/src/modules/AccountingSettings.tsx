@@ -2,9 +2,9 @@ import { Filter, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
-import { AccountSettingsBreadcrumb } from './AccountSettingsBreadcrumb';
-import { AccountingTopbar } from './AccountingTopbar';
-import { AccountingSidebar } from './Sidebar';
+import { AccountSettingsBreadcrumb } from './settings/components/AccountSettingsBreadcrumb';
+import { AccountingTopbar } from './settings/components/AccountingTopbar';
+import { AccountingSidebar } from './settings/components/Sidebar';
 
 export const AccountingMainConfig = lazy(() =>
   import('~/pages/SettingsPage').then((module) => ({
