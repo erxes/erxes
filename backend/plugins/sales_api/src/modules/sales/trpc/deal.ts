@@ -257,7 +257,7 @@ export const dealTrpcRouter = t.router({
     createCommentActivityLog: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { subdomain } = ctx;
         const { dealId, commentId, createdBy, processId, userId } = input;
 
         if (!dealId || !commentId || !createdBy) {

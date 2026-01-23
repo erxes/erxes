@@ -9,7 +9,7 @@ import { typeDefs } from './apollo/typeDefs';
 
 startPlugin({
   name: 'sales',
-  port: 3309,
+  port: 3305,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
