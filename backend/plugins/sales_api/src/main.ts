@@ -11,7 +11,7 @@ import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
 
 startPlugin({
   name: 'sales',
-  port: 3309,
+  port: 3305,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
