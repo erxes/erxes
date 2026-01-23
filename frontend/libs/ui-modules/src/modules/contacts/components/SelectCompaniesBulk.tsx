@@ -104,7 +104,7 @@ const SelectCompaniesBulkContent = ({
               Cancel
             </Button>
           </Sheet.Close>
-          <Button onClick={handleSelect}>Add Many Companies</Button>
+          <Button onClick={handleSelect}>{`Set ${selectedCompanyIds.length} customer(s)`}</Button>
         </div>
       </Sheet.Footer>
     </>
@@ -143,8 +143,7 @@ const CompaniesList = ({
     const { primaryName, primaryEmail, primaryPhone } = company;
     return (
       (primaryName || primaryEmail || primaryPhone
-        ? `${primaryName || ''} ${primaryEmail || ''} ${
-            primaryPhone || ''
+        ? `${primaryName || ''} ${primaryEmail || ''} ${primaryPhone || ''
           }`.trim()
         : primaryEmail || primaryPhone) || 'anonymous company'
     );

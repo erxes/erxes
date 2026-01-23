@@ -25,7 +25,7 @@ export const CreateDealActionConfigForm = ({
   type,
 }: AutomationActionFormProps<TSalesActionConfigForm>) => {
   const [, , collectionType] = splitAutomationNodeType(type);
-  console.log({ collectionType });
+
   const form = useForm<TSalesActionConfigForm>({
     resolver: zodResolver(salesActionConfigFormSchema),
     defaultValues: {
