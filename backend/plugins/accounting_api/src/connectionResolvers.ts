@@ -3,7 +3,10 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
 import { IAccountDocument } from './modules/accounting/@types/account';
 import { IAccountCategoryDocument } from './modules/accounting/@types/accountCategory';
-import { IAdjustInvDetailDocument, IAdjustInventoryDocument } from './modules/accounting/@types/adjustInventory';
+import {
+  IAdjustInvDetailDocument,
+  IAdjustInventoryDocument,
+} from './modules/accounting/@types/adjustInventory';
 import { IAccountingConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
@@ -17,19 +20,42 @@ import {
   IAccountModel,
   loadAccountClass,
 } from './modules/accounting/db/models/Accounts';
-import { IAdjustInvDetailsModel, IAdjustInventoriesModel, loadAdjustInvDetailsClass, loadAdjustInventoriesClass } from './modules/accounting/db/models/AdjustInventories';
+import {
+  IAdjustInvDetailsModel,
+  IAdjustInventoriesModel,
+  loadAdjustInvDetailsClass,
+  loadAdjustInventoriesClass,
+} from './modules/accounting/db/models/AdjustInventories';
 import {
   IAccountingConfigModel,
   loadAccountingConfigClass,
 } from './modules/accounting/db/models/Configs';
-import { ICtaxRowModel, loadCtaxRowClass } from './modules/accounting/db/models/CtaxRows';
-import { IPermissionModel, loadPermissionClass } from './modules/accounting/db/models/Permissions';
+import {
+  ICtaxRowModel,
+  loadCtaxRowClass,
+} from './modules/accounting/db/models/CtaxRows';
+import {
+  IPermissionModel,
+  loadPermissionClass,
+} from './modules/accounting/db/models/Permissions';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
-import { IVatRowModel, loadVatRowClass } from './modules/accounting/db/models/VatRows';
-
+import {
+  IVatRowModel,
+  loadVatRowClass,
+} from './modules/accounting/db/models/VatRows';
+import {
+  IAdjustFundRatesModels,
+  loadAdjustRatesClass,
+} from './modules/accounting/db/models/AdjustFundRate';
+import { IAdjustDebtRateDocument } from './modules/accounting/@types/adjustDebtRate';
+import { IAdjustFundRateDocument } from './modules/accounting/@types/adjustRateFundDetails';
+import {
+  IAdjustDebtRatesModels,
+  loadAdjustDebtRatesClass,
+} from './modules/accounting/db/models/AdjustDebtRate';
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
@@ -38,6 +64,9 @@ export interface IModels {
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
   Permissions: IPermissionModel;
+
+  AdjustDebtRates: IAdjustDebtRatesModels;
+  AdjustFundRates: IAdjustFundRatesModels;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
 }
@@ -66,6 +95,16 @@ export const loadClasses = (
     IAccountCategoryDocument,
     IAccountCategoryModel
   >('account_categories', loadAccountCategoryClass(models));
+
+  models.AdjustDebtRates = db.model<
+    IAdjustDebtRateDocument,
+    IAdjustDebtRatesModels
+  >('adjust_debt_rates', loadAdjustDebtRatesClass(models));
+
+  models.AdjustFundRates = db.model<
+    IAdjustFundRateDocument,
+    IAdjustFundRatesModels
+  >('adjust_fund_rates', loadAdjustRatesClass(models));
 
   models.AdjustInventories = db.model<
     IAdjustInventoryDocument,

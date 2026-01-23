@@ -7,6 +7,8 @@ import Transactions from './transactionsCommon';
 import Inventories from './inventories';
 import AdjustInventories from './adjustInventories';
 import JournalReport from './journalReport';
+import AdjustFundRates from './adjustFundRates';
+import AdjustDebtRates from './adjustDebtRates';
 
 export {
   Accounts,
@@ -17,5 +19,7 @@ export {
   Transactions,
   Inventories,
   AdjustInventories,
-  JournalReport
+  JournalReport,
+  AdjustFundRates,
+  AdjustDebtRates,
 };

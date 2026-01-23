@@ -103,7 +103,7 @@ export const ReportRules: Record<string, IReportConfig> = {
             groupRule: null,
           },
         }
-      }
+      },
     }
   },
   tb: {

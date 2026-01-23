@@ -39,6 +39,30 @@ const AdjustInventoryDetail = lazy(() =>
   })),
 );
 
+const AdjustFundRateList = lazy(() =>
+  import('~/pages/AdjustFundRateListPage').then((module) => ({
+    default: module.AdjustFundRateListPage,
+  })),
+);
+
+const AdjustFundRateDetail = lazy(() =>
+  import('~/pages/AdjustFundRateDetailPage').then((module) => ({
+    default: module.AdjustFundRateDetailPage,
+  })),
+);
+
+const AdjustDebtRateList = lazy(() =>
+  import('~/pages/AdjustDebtRateListPage').then((module) => ({
+    default: module.AdjustDebtRateListPage,
+  })),
+);
+
+const AdjustDebtRateDetail = lazy(() =>
+  import('~/pages/AdjustDebtRateDetailPage').then((module) => ({
+    default: module.AdjustDebtRateDetailPage,
+  })),
+);
+
 const AccountingJournalReports = lazy(() =>
   import('~/pages/JournalReports').then((module) => ({
     default: module.JournalReports,
@@ -72,9 +96,21 @@ const PluginAccounting = () => {
           path="/adjustment/inventory/detail"
           element={<AdjustInventoryDetail />}
         />
+        <Route path="/adjustment/fundRate" element={<AdjustFundRateList />} />
+        <Route
+          path="/adjustment/fundRate/detail"
+          element={<AdjustFundRateDetail />}
+        />
+        <Route path="/adjustment/debRate" element={<AdjustDebtRateList />} />
+        <Route
+          path="/adjustment/debRate/detail"
+          element={<AdjustDebtRateDetail />}
+        />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
-        <Route path="/gen-journal-report" element={<AccountingGenJournalReport />} />
-
+        <Route
+          path="/gen-journal-report"
+          element={<AccountingGenJournalReport />}
+        />
       </Routes>
       <PageChangeEffect />
     </Suspense>
