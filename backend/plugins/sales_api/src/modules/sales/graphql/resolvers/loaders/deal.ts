@@ -26,7 +26,10 @@ export const dealLoader = (subdomain: string, models: IModels) => ({
       const dealId = entities.find(e => e.contentType === 'sales:deal')?.contentId ?? '';
       const companyId = entities.find(e => e.contentType === 'core:company')?.contentId ?? '';
 
-      (companyIdsByItemId[dealId] = companyIdsByItemId[dealId] || []).push(companyId);
+      if (!companyIdsByItemId[dealId]) {
+        companyIdsByItemId[dealId] = [];
+      }
+      companyIdsByItemId[dealId].push(companyId);
     }
 
     return dealIds.map((id) =>
@@ -58,7 +61,10 @@ export const dealLoader = (subdomain: string, models: IModels) => ({
       const dealId = entities.find(e => e.contentType === 'sales:deal')?.contentId ?? '';
       const customerId = entities.find(e => e.contentType === 'core:customer')?.contentId ?? '';
 
-      (customerIdsByItemId[dealId] = customerIdsByItemId[dealId] || []).push(customerId);
+      if (!customerIdsByItemId[dealId]) {
+        customerIdsByItemId[dealId] = [];
+      }
+      customerIdsByItemId[dealId].push(customerId);
     }
 
     return dealIds.map((id) =>
