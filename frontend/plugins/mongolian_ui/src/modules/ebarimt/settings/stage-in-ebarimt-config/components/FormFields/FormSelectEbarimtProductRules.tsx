@@ -38,6 +38,7 @@ export const FormSelectEbarimtProductRules = <T extends FieldValues>({
               scope={scope}
               onValueChange={field.onChange}
               disabled={disabled}
+              placeholder={placeholder}
             />
           </Form.Control>
           <Form.Message />
