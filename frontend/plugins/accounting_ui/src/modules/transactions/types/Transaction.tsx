@@ -86,6 +86,11 @@ interface ICommontTr {
 export interface ITransaction extends ICommontTr {
   details: ITrDetail[];
   shortDetail?: ITrDetail;
+  customer?: {
+    _id: string;
+    primaryName?: string;
+    code?: string;
+  };
 }
 
 export interface ITrRecord extends ICommontTr {
@@ -131,4 +136,4 @@ export const trsQueryParamTypes: { [key: string]: string } = {
   endUpdatedDate: 'Date',
   startCreatedDate: 'Date',
   endCreatedDate: 'Date',
-}
+};

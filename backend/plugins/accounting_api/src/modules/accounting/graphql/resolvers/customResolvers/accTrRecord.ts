@@ -51,11 +51,7 @@ export default {
     };
   },
 
-  async customer(
-    transaction: ITrRecord,
-    _params,
-    { subdomain }: IContext,
-  ) {
+  async customer(transaction: ITrRecord, _params, { subdomain }: IContext) {
     if (!transaction.customerId) {
       return null;
     }
@@ -121,7 +117,7 @@ export default {
 
       method: 'query',
       pluginName: 'core',
-      module: 'customer',
+      module: 'customers',
       action: 'findOne',
       input: { query: { _id: transaction.customerId } },
       defaultValue: {},
