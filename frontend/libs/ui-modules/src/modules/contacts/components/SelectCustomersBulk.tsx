@@ -108,7 +108,7 @@ const SelectCustomersBulkContent = ({
               Cancel
             </Button>
           </Sheet.Close>
-          <Button onClick={handleSelect}>Add Many Customers</Button>
+          <Button onClick={handleSelect}>{`Set ${selectedCustomerIds.length} customer(s)`}</Button>
         </div>
       </Sheet.Footer>
     </>

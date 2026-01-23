@@ -40,7 +40,7 @@ export const useNotification = () => {
   useHotkeys('mod+backspace', () => {
     if (!notificationDetail) return;
     setHiddenNotificationIds((prev) => [...prev, notificationDetail._id]);
-    if (notificationDetail.isRead) {
+    if (!notificationDetail.isRead) {
       handleMarkAsRead(notificationDetail._id);
     }
     if (nextNotification) {
