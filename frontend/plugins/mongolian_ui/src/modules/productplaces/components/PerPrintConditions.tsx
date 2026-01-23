@@ -1,4 +1,8 @@
-import { Button, Form, Select } from 'erxes-ui';
+import React from 'react';
+import { Button } from 'erxes-ui';
+
+import SelectBranches from '../selects/SelectBranches';
+import SelectDepartments from '../selects/SelectDepartments';
 
 type Props = {
   condition: any;
@@ -6,43 +10,34 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
-type FormValues = {
-  branchId?: string;
-  departmentId?: string;
-};
-
 const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
+  const onChangeConfig = (key: string, value: any) => {
+    onChange(condition.id, { ...condition, [key]: value });
+  };
+
   return (
-    <div className="flex items-center gap-2">
-      <Form.Field
-        name={`conditions.${condition.id}.branchId`}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Branch</Form.Label>
+    <div className="flex items-end gap-3">
+      {/* Branch */}
+      <div className="space-y-1">
+        <SelectBranches
+          value={condition.branchId || ''}
+          onChange={(branchId) => onChangeConfig('branchId', branchId)}
+        />
+      </div>
 
-            <Form.Control>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value placeholder="Choose branch" />
-                </Select.Trigger>
+      {/* Department */}
+      <div className="space-y-1">
+        <SelectDepartments
+          value={condition.departmentId || ''}
+          onChange={(departmentId) => onChangeConfig('departmentId', departmentId)}
+        />
+      </div>
 
-                <Select.Content>
-                  <Select.Item value="">Clean branch</Select.Item>
-                  <Select.Item value="1">Branch 1</Select.Item>
-                  <Select.Item value="2">Branch 2</Select.Item>
-                </Select.Content>
-              </Select>
-            </Form.Control>
-
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
+      {/* Remove */}
       <Button
         type="button"
         variant="ghost"
-        size="icon"
+        size="sm"
         onClick={() => onRemove(condition.id)}
       >
         ✕
@@ -50,7 +45,5 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
     </div>
   );
 };
-
-
 
 export default PerPrintConditions;

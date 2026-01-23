@@ -1,11 +1,10 @@
-import React from 'react';
 import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import DefaultFilterSettings from '../../modules/productplaces/components/DefaultFilterSettings';
+import DefaultFilterConfig from '../../modules/productplaces/components/DefaultFilterConfig';
 
 const ProductFilterPage = () => {
   return (
     <SettingsContainer
-      component={DefaultFilterSettings}
+      component={DefaultFilterConfig}
       configCode="dealsProductsDefaultFilter"
     />
   );

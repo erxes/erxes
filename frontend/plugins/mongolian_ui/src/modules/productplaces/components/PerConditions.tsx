@@ -1,5 +1,10 @@
-import { Button, Select } from 'erxes-ui';
-import { Label } from 'erxes-ui/components/label';
+import { Button, Label, Select } from 'erxes-ui';
+import SelectBranches from '../selects/SelectBranches';
+import SelectDepartments from '../selects/SelectDepartments';
+import SelectProductCategories from '../selects/SelectProductCategories';
+import SelectProductTags from '../selects/SelectTags';
+import SelectProducts from '../selects/SelectProducts';
+import SelectSegments from '../selects/SelectSegments';
 
 type Props = {
   condition: any;
@@ -7,127 +12,85 @@ type Props = {
   onRemove: (id: string) => void;
 };
 
+const CLEAR_VALUE = '__clear__';
+
 const PerConditions = ({ condition, onChange, onRemove }: Props) => {
   const onChangeConfig = (key: string, value: any) => {
     onChange(condition.id, { ...condition, [key]: value });
   };
 
+  const onNumberChange = (key: string, value: string) => {
+    onChangeConfig(key, value === '' ? undefined : Number(value));
+  };
+
   return (
     <div className="rounded border p-4 space-y-6 bg-white">
-      {/* MAIN FORM */}
       <div className="grid grid-cols-2 gap-6">
-        {/* LEFT COLUMN */}
+        {/* LEFT */}
         <div className="space-y-4">
-          {/* Product Category */}
           <div className="space-y-1">
-            <Label htmlFor={`product-category-${condition.id}`}>
-              Product Category
-            </Label>
-            <Select
-              value={condition.productCategoryIds}
-              onValueChange={(v) =>
-                onChangeConfig('productCategoryIds', v)
+            <Label>Product Category</Label>
+            <SelectProductCategories
+              value={condition.productCategoryIds ?? []}
+              onChange={(ids) =>
+                onChangeConfig('productCategoryIds', ids)
               }
-            >
-              <Select.Trigger id={`product-category-${condition.id}`}>
-                <Select.Value placeholder="Choose product category" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+            />
           </div>
 
-          {/* Exclude Categories */}
           <div className="space-y-1">
-            <Label htmlFor={`exclude-category-${condition.id}`}>
-              Exclude categories
-            </Label>
-            <Select
-              value={condition.excludeCategoryIds}
-              onValueChange={(v) =>
-                onChangeConfig('excludeCategoryIds', v)
+            <Label>Exclude categories</Label>
+            <SelectProductCategories
+              value={condition.excludeCategoryIds ?? []}
+              onChange={(ids) =>
+                onChangeConfig('excludeCategoryIds', ids)
               }
-            >
-              <Select.Trigger id={`exclude-category-${condition.id}`}>
-                <Select.Value placeholder="Choose categories to exclude" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+            />
           </div>
 
-          {/* Product Tags */}
           <div className="space-y-1">
-            <Label htmlFor={`product-tags-${condition.id}`}>
-              Product Tags
-            </Label>
-            <Select
-              value={condition.productTagIds}
-              onValueChange={(v) =>
-                onChangeConfig('productTagIds', v)
+            <Label>Product Tags</Label>
+            <SelectProductTags
+              value={condition.productTagIds ?? []}
+              onChange={(ids) =>
+                onChangeConfig('productTagIds', ids)
               }
-            >
-              <Select.Trigger id={`product-tags-${condition.id}`}>
-                <Select.Value placeholder="Choose product tags" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+            />
           </div>
 
-          {/* Exclude Tags */}
           <div className="space-y-1">
-            <Label htmlFor={`exclude-tags-${condition.id}`}>
-              Exclude tags
-            </Label>
-            <Select
-              value={condition.excludeTagIds}
-              onValueChange={(v) =>
-                onChangeConfig('excludeTagIds', v)
+            <Label>Exclude tags</Label>
+            <SelectProductTags
+              value={condition.excludeTagIds ?? []}
+              onChange={(ids) =>
+                onChangeConfig('excludeTagIds', ids)
               }
-            >
-              <Select.Trigger id={`exclude-tags-${condition.id}`}>
-                <Select.Value placeholder="Choose tags to exclude" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+            />
           </div>
 
-          {/* Exclude Products */}
           <div className="space-y-1">
-            <Label htmlFor={`exclude-products-${condition.id}`}>
-              Exclude products
-            </Label>
-            <Select
-              value={condition.excludeProductIds}
-              onValueChange={(v) =>
-                onChangeConfig('excludeProductIds', v)
+            <Label>Exclude products</Label>
+            <SelectProducts
+              value={condition.excludeProductIds ?? []}
+              onChange={(ids) =>
+                onChangeConfig('excludeProductIds', ids)
               }
-            >
-              <Select.Trigger id={`exclude-products-${condition.id}`}>
-                <Select.Value placeholder="Choose products to exclude" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+            />
           </div>
 
-          {/* Segment */}
           <div className="space-y-1">
-            <Label htmlFor={`segments-${condition.id}`}>
-              Segment
-            </Label>
-            <Select
-              value={condition.segments}
-              onValueChange={(v) =>
-                onChangeConfig('segments', v)
+            <Label>Segment</Label>
+            <SelectSegments
+              contentTypes={['core:product']}
+              value={condition.segmentIds ?? []}
+              onChange={(ids) =>
+                onChangeConfig('segmentIds', ids)
               }
-            >
-              <Select.Trigger id={`segments-${condition.id}`}>
-                <Select.Value placeholder="Choose segments" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+            />
           </div>
         </div>
 
-        {/* RIGHT COLUMN */}
+        {/* RIGHT */}
         <div className="space-y-4">
           <div className="space-y-1">
             <Label>Low Count</Label>
@@ -135,9 +98,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               type="number"
               className="w-full p-2 border rounded"
               value={condition.ltCount ?? ''}
-              onChange={(e) =>
-                onChangeConfig('ltCount', e.target.value)
-              }
+              onChange={(e) => onNumberChange('ltCount', e.target.value)}
             />
           </div>
 
@@ -147,9 +108,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               type="number"
               className="w-full p-2 border rounded"
               value={condition.gtCount ?? ''}
-              onChange={(e) =>
-                onChangeConfig('gtCount', e.target.value)
-              }
+              onChange={(e) => onNumberChange('gtCount', e.target.value)}
             />
           </div>
 
@@ -159,9 +118,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               type="number"
               className="w-full p-2 border rounded"
               value={condition.ltUnitPrice ?? ''}
-              onChange={(e) =>
-                onChangeConfig('ltUnitPrice', e.target.value)
-              }
+              onChange={(e) => onNumberChange('ltUnitPrice', e.target.value)}
             />
           </div>
 
@@ -171,26 +128,27 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
               type="number"
               className="w-full p-2 border rounded"
               value={condition.gtUnitPrice ?? ''}
-              onChange={(e) =>
-                onChangeConfig('gtUnitPrice', e.target.value)
-              }
+              onChange={(e) => onNumberChange('gtUnitPrice', e.target.value)}
             />
           </div>
 
-          {/* Sub UOM Type */}
           <div className="space-y-1">
-            <Label htmlFor={`sub-uom-${condition.id}`}>Sub uom type</Label>
+            <Label>Sub uom type</Label>
             <Select
-              value={condition.subUomType || ''}
+              value={condition.subUomType ?? ''}
               onValueChange={(v) =>
-                onChangeConfig('subUomType', v)
+                onChangeConfig(
+                  'subUomType',
+                  v === CLEAR_VALUE ? undefined : v,
+                )
               }
             >
-              <Select.Trigger id={`sub-uom-${condition.id}`}>
-                <Select.Value placeholder="Select option" />
+              <Select.Trigger>
+                <Select.Value placeholder="Not use" />
               </Select.Trigger>
+
               <Select.Content>
-                <Select.Item value="">Not use</Select.Item>
+                <Select.Item value={CLEAR_VALUE}>Not use</Select.Item>
                 <Select.Item value="lt">Low than count</Select.Item>
                 <Select.Item value="gte">Greater, equal than count</Select.Item>
               </Select.Content>
@@ -199,42 +157,33 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
         </div>
       </div>
 
-      {/* BRANCH & DEPARTMENT */}
+      {/* Branch / Department */}
       <div className="rounded border p-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <Label htmlFor={`branch-${condition.id}`}>Set branch</Label>
-            <Select
+            <Label>Set branch</Label>
+            <SelectBranches
               value={condition.branchId || ''}
-              onValueChange={(v) =>
-                onChangeConfig('branchId', v)
+              onChange={(branchId) =>
+                onChangeConfig('branchId', branchId)
               }
-            >
-              <Select.Trigger id={`branch-${condition.id}`}>
-                <Select.Value placeholder="Choose branch" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+              ids={[]}
+            />
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor={`department-${condition.id}`}>Set department</Label>
-            <Select
+            <Label>Set department</Label>
+            <SelectDepartments
               value={condition.departmentId || ''}
-              onValueChange={(v) =>
-                onChangeConfig('departmentId', v)
+              onChange={(departmentId) =>
+                onChangeConfig('departmentId', departmentId)
               }
-            >
-              <Select.Trigger id={`department-${condition.id}`}>
-                <Select.Value placeholder="Choose department" />
-              </Select.Trigger>
-              <Select.Content />
-            </Select>
+              ids={[]}
+            />
           </div>
         </div>
       </div>
 
-      {/* DELETE */}
       <div className="flex justify-end">
         <Button
           variant="ghost"

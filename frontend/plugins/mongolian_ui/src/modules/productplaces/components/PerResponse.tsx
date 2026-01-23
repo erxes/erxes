@@ -59,7 +59,7 @@ export const PerResponse = (response: ResponseData, counter?: number): string =>
   const showCustomer =
     Boolean(response.customerNo) || Boolean(response.customerName);
 
-  // ✅ Extracted statements (Sonar fix)
+  //  Extracted statements (Sonar fix)
   const customerNoBlock = response.customerNo
     ? `<p>ТТД: ${response.customerNo}</p>`
     : '';

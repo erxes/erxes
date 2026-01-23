@@ -1,11 +1,11 @@
 import React from 'react';
 import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import SplitSettings from '../../modules/productplaces/components/SplitSettings';
+import SplitConfig from '../../modules/productplaces/components/SplitConfig';
 
 const SplitPage = () => {
   return (
     <SettingsContainer
-      component={SplitSettings}
+      component={SplitConfig}
       configCode="dealsProductsDataSplit"
     />
   );
