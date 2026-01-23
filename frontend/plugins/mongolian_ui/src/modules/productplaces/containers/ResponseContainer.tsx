@@ -1,7 +1,7 @@
 import { gql, useSubscription } from '@apollo/client';
 import { useEffect } from 'react';
-import ResponseComponent from '../components/Response';
-import PerResponse from '../components/PerResponse';
+import { Response as ResponseComponent } from '../components/Response';
+import { PerResponse } from '../components/PerResponse';
 import { subscriptions } from '../graphql';
 
 interface ContentData {

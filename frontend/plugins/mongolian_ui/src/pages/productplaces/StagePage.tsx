@@ -1,11 +1,10 @@
-import React from 'react';
 import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import StageSettings from '../../modules/productplaces/components/StageSettings';
+import PlaceConfig from '../../modules/productplaces/components/PlaceConfig';
 
 const StagePage = () => {
   return (
     <SettingsContainer
-      component={StageSettings}
+      component={PlaceConfig}
       configCode="dealsProductsDataPlaces"
     />
   );

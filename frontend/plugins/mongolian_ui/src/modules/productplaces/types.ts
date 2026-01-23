@@ -1,4 +1,30 @@
-// SETTINGS
+
+export type MNConfig<T = any> = {
+  _id: string;
+  code: string;
+  subId?: string;
+  value: T;
+};
+
+export interface MNConfigQueryResponse {
+  mnConfig: MNConfig | null;
+}
+
+
+export interface MNConfigsCreateMutationResponse {
+  mnConfigsCreate: MNConfig;
+}
+
+export interface MNConfigsUpdateMutationResponse {
+  mnConfigsUpdate: MNConfig;
+}
+
+export interface MNConfigsRemoveMutationResponse {
+  mnConfigsRemove: {
+    _id: string;
+  };
+}
+
 
 export type Condition = {
   id: string;
@@ -113,4 +139,27 @@ export type PerSettingsProps = {
   tags: Tag[];
   products: Product[];
   segments: Segment[];
+};
+
+export type PlaceConditionUI = {
+  id: string;
+
+  productCategoryIds?: string[];
+  excludeCategoryIds?: string[];
+
+  productTagIds?: string[];
+  excludeTagIds?: string[];
+
+  excludeProductIds?: string[];
+
+  ltCount?: number;
+  gtCount?: number;
+
+  ltUnitPrice?: number;
+  gtUnitPrice?: number;
+
+  subUomType?: string;
+
+  branchId?: string;
+  departmentId?: string;
 };

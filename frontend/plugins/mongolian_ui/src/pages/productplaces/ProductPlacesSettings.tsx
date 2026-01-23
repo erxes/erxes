@@ -1,94 +1,83 @@
-// frontend/plugins/mongolian_ui/src/pages/productplaces/ProductPlacesSettings.tsx
 import React, { useState } from 'react';
 import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import SettingsStage from '../../modules/productplaces/components/SettingsStage';
-import SettingsPrint from '../../modules/productplaces/components/SettingsPrint';
-import SettingsSplit from '../../modules/productplaces/components/SettingsSplit';
-import SettingsFilter from '../../modules/productplaces/components/SettingsFilter';
+import PlaceConfig from '../../modules/productplaces/components/PlaceConfig';
+import SplitConfig from '../../modules/productplaces/components/SplitConfig';
+import PrintConfig from '../../modules/productplaces/components/PrintConfig';
+import DefaultFilterConfig from '../../modules/productplaces/components/DefaultFilterConfig';
+
+type TabKey = 'place' | 'split' | 'print' | 'filter';
 
 const ProductPlacesSettings = () => {
-  const [activeTab, setActiveTab] = useState<'stage' | 'split' | 'print' | 'filter'>('stage');
+  const [activeTab, setActiveTab] = useState<TabKey>('place');
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'stage':
+      case 'place':
         return (
           <SettingsContainer
-            component={SettingsStage}
+            component={PlaceConfig}
             configCode="dealsProductsDataPlaces"
           />
         );
+
       case 'split':
         return (
           <SettingsContainer
-            component={SettingsSplit}
+            component={SplitConfig}
             configCode="dealsProductsDataSplit"
           />
         );
+
       case 'print':
         return (
           <SettingsContainer
-            component={SettingsPrint}
+            component={PrintConfig}
             configCode="dealsProductsDataPrint"
           />
         );
       case 'filter':
-        return (
-          <SettingsContainer
-            component={SettingsFilter}
-            configCode="dealsProductsDefaultFilter"
-          />
-        );
+  return (
+    <SettingsContainer
+      component={DefaultFilterConfig}
+      configCode="dealsProductsDefaultFilter"
+    />
+  );
+
+
       default:
-        return null;
+      return null;
     }
   };
 
   return (
     <div className="flex h-full">
-      {/* LEFT SIDEBAR - STATE-BASED NAVIGATION */}
+      {/* LEFT SIDEBAR */}
       <div className="w-64 border-r bg-gray-50 p-4">
         <div className="space-y-1">
           <button
-            onClick={() => setActiveTab('stage')}
-            className={`block w-full rounded px-3 py-2 text-sm text-left transition-colors ${
-              activeTab === 'stage'
-                ? 'bg-blue-100 text-blue-700 font-medium'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            onClick={() => setActiveTab('place')}
+            className={tabClass(activeTab === 'place')}
           >
             Stage in products places config
           </button>
-          
+
           <button
             onClick={() => setActiveTab('split')}
-            className={`block w-full rounded px-3 py-2 text-sm text-left transition-colors ${
-              activeTab === 'split'
-                ? 'bg-blue-100 text-blue-700 font-medium'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={tabClass(activeTab === 'split')}
           >
             Stage in products splits config
           </button>
-          
+
           <button
             onClick={() => setActiveTab('print')}
-            className={`block w-full rounded px-3 py-2 text-sm text-left transition-colors ${
-              activeTab === 'print'
-                ? 'bg-blue-100 text-blue-700 font-medium'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={tabClass(activeTab === 'print')}
           >
             Stage in products prints config
           </button>
-          
+
           <button
             onClick={() => setActiveTab('filter')}
-            className={`block w-full rounded px-3 py-2 text-sm text-left transition-colors ${
-              activeTab === 'filter'
-                ? 'bg-blue-100 text-blue-700 font-medium'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={tabClass(activeTab === 'filter')}
           >
             Products default filter by Segment
           </button>
@@ -102,5 +91,13 @@ const ProductPlacesSettings = () => {
     </div>
   );
 };
+
+
+const tabClass = (active: boolean) =>
+  `block w-full rounded px-3 py-2 text-sm text-left transition-colors ${
+    active
+      ? 'bg-blue-100 text-blue-700 font-medium'
+      : 'text-gray-600 hover:bg-gray-100'
+  }`;
 
 export default ProductPlacesSettings;

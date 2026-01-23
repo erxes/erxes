@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
@@ -9,22 +9,33 @@ export const useEbarimtConfigState = () => {
     fetchPolicy: 'network-only',
   });
 
-  const configData = data?.mnConfigs?.[0];
-  const configValue = configData?.value;
-  const configId = configData?._id;
+  const configsList = useMemo(() => data?.mnConfigs || [], [data?.mnConfigs]);
 
   const parseConfigValue = (value: any) => {
     if (!value) return {};
     return typeof value === 'string' ? JSON.parse(value) : value;
   };
 
-  const [localConfigsMap, setLocalConfigsMap] = useState(() =>
-    parseConfigValue(configValue),
-  );
+  // Convert array of configs to a map for backward compatibility
+  const [localConfigsMap, setLocalConfigsMap] = useState(() => {
+    const map: Record<string, any> = {};
+    configsList.forEach((config: any) => {
+      if (config.subId) {
+        map[config.subId] = parseConfigValue(config.value);
+      }
+    });
+    return map;
+  });
 
   useEffect(() => {
-    setLocalConfigsMap(parseConfigValue(configValue));
-  }, [configValue]);
+    const map: Record<string, any> = {};
+    configsList.forEach((config: any) => {
+      if (config.subId) {
+        map[config.subId] = parseConfigValue(config.value);
+      }
+    });
+    setLocalConfigsMap(map);
+  }, [configsList]);
 
   const addNewConfig = () => {
     const configKey = `config_${Date.now()}`;
@@ -83,13 +94,24 @@ export const useEbarimtConfigState = () => {
     return updatedConfigsMap;
   };
 
+  // Helper functions for the new structure
+  const getConfigById = (configId: string) => {
+    return configsList.find((config: any) => config._id === configId);
+  };
+
+  const getConfigByStageId = (stageId: string) => {
+    return configsList.find((config: any) => config.subId === stageId);
+  };
+
   return {
     localConfigsMap,
+    configsList,
     loading,
     refetch,
-    configId,
     addNewConfig,
     deleteConfig,
     saveConfig,
+    getConfigById,
+    getConfigByStageId,
   };
 };

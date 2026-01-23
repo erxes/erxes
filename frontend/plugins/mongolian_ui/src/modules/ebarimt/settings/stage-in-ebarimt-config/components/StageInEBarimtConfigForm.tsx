@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, AlertDialog, Accordion } from 'erxes-ui';
@@ -365,21 +365,14 @@ const StageInEbarimtConfigCard = ({
 
 export const StageInEBarimtConfigForm = () => {
   const [openItems, setOpenItems] = useState<string[]>([]);
-  const [currentConfigId, setCurrentConfigId] = useState<string | null>(null);
 
   const {
     localConfigsMap,
-    configId: initialConfigId,
     addNewConfig: addConfigToState,
     deleteConfig: deleteConfigFromState,
     saveConfig: saveConfigToState,
+    getConfigByStageId,
   } = useEbarimtConfigState();
-
-  useEffect(() => {
-    if (initialConfigId) {
-      setCurrentConfigId(initialConfigId);
-    }
-  }, [initialConfigId]);
 
   const { saveStageInEbarimtConfig } = useSaveStageInEbarimtConfig();
   const { removeStageInEbarimtConfig } = useRemoveStageInEbarimtConfig();
@@ -389,35 +382,27 @@ export const StageInEBarimtConfigForm = () => {
     const keys = Object.keys(updatedConfigsMap);
     setOpenItems([keys[keys.length - 1]]);
   };
+
   const deleteConfig = async (configKey: string) => {
-    const updatedConfigsMap = deleteConfigFromState(configKey);
+    const config = localConfigsMap[configKey];
+    const existingConfig = getConfigByStageId(config.stageId);
 
-    if (!currentConfigId) return;
-
-    if (Object.keys(updatedConfigsMap).length === 0) {
-      await removeStageInEbarimtConfig(currentConfigId);
-      setCurrentConfigId(null);
-    } else {
-      await saveStageInEbarimtConfig(
-        updatedConfigsMap,
-        'update',
-        currentConfigId,
-      );
+    if (existingConfig) {
+      await removeStageInEbarimtConfig(existingConfig._id);
     }
+
+    deleteConfigFromState(configKey);
   };
 
   const saveConfig = async (configKey: string, configData: any) => {
-    const updatedConfigsMap = saveConfigToState(configKey, configData);
+    saveConfigToState(configKey, configData);
 
-    if (!currentConfigId) {
-      const newId = await saveStageInEbarimtConfig(updatedConfigsMap, 'create');
-      setCurrentConfigId(newId);
-    } else {
-      await saveStageInEbarimtConfig(
-        updatedConfigsMap,
-        'update',
-        currentConfigId,
-      );
+    const existingConfig = getConfigByStageId(configData.stageId);
+
+    if (existingConfig) {
+      await saveStageInEbarimtConfig(configData, 'update', existingConfig._id);
+    } else if (configData.stageId) {
+      await saveStageInEbarimtConfig(configData, 'create');
     }
   };
 

@@ -8,10 +8,10 @@ import { useToast } from 'erxes-ui';
 export const useSaveStageInEbarimtConfig = () => {
   const [createConfig] = useMutation(CREATE_MN_CONFIG);
   const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
-  const { toast } = useToast();
+  const toast = useToast();
 
   const saveStageInEbarimtConfig = async (
-    configs: any,
+    config: any,
     operation: 'create' | 'update',
     configId?: string,
   ) => {
@@ -22,15 +22,16 @@ export const useSaveStageInEbarimtConfig = () => {
         result = await createConfig({
           variables: {
             code: 'stageInEbarimt',
-            subId: `config_${Date.now()}`,
-            value: configs,
+            subId: config.stageId, // Use stageId as subId for uniqueness
+            value: config,
           },
         });
       } else {
         result = await updateConfig({
           variables: {
             id: configId,
-            value: configs,
+            subId: config.stageId, // Update subId to match stageId
+            value: config,
           },
         });
       }
