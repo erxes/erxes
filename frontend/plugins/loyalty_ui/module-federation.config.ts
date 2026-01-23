@@ -16,10 +16,9 @@ const config: ModuleFederationConfig = {
   name: 'loyalty_ui',
   exposes: {
     './config': './src/config.tsx',
-    './pricing': './src/modules/pricing/Main.tsx',
-    './pricingSettings': './src/modules/pricing/Settings.tsx',
     './loyalty': './src/modules/loyalties/Settings.tsx',
-    './loyaltySettings': './src/modules/loyalties/Settings.tsx',
+    './loyaltySettings': './src/LoyaltySettings.tsx',
+    './loyaltySettingsNavigation': './src/LoyaltySettingsNavigation.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 

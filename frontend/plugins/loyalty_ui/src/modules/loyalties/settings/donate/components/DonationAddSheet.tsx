@@ -28,11 +28,11 @@ export const LoyaltyDonationAddSheet = () => {
     defaultValues: {
       title: '',
       status: 'active',
-      maxScore: 0,
       conditions: [
         {
           voucherCampaignId: '',
           minScore: 0,
+          maxScore: 0,
         },
       ],
     },
@@ -71,7 +71,7 @@ export const LoyaltyDonationAddSheet = () => {
         </Button>
       </Sheet.Trigger>
       <Sheet.View
-        className="sm:max-w-4xl p-0"
+        className="sm:max-w-2xl p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}

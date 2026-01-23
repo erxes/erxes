@@ -16,10 +16,10 @@ export interface AddDonationVariables {
   startDate?: string;
   endDate?: string;
   title?: string;
-  maxScore?: string;
   conditions?: {
     voucherCampaignId?: string;
-    minScore?: string;
+    minScore?: number;
+    maxScore?: number;
   };
 }
 

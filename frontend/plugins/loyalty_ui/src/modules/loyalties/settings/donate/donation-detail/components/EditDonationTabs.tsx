@@ -38,10 +38,10 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-      maxScore: data.maxScore,
       conditions: data.conditions?.map((condition) => ({
         voucherCampaignId: condition.voucherCampaignId,
         minScore: condition.minScore,
+        maxScore: condition.maxScore,
       })),
     };
 

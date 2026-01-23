@@ -37,11 +37,11 @@ export const LoyaltyDonationEditSheet = ({ donationId }: Props) => {
     defaultValues: {
       title: '',
       status: 'active',
-      maxScore: 0,
       conditions: [
         {
           voucherCampaignId: '',
           minScore: 0,
+          maxScore: 0,
         },
       ],
     },
@@ -59,12 +59,15 @@ export const LoyaltyDonationEditSheet = ({ donationId }: Props) => {
           ? new Date(donationDetail.endDate)
           : undefined,
         kind: donationDetail.kind || '',
-        maxScore: donationDetail.maxScore || 0,
-        conditions: [
+        conditions: donationDetail.conditions?.map((condition: any) => ({
+          voucherCampaignId: condition.voucherCampaignId || '',
+          minScore: condition.minScore || 0,
+          maxScore: condition.maxScore || 0,
+        })) || [
           {
-            voucherCampaignId:
-              donationDetail.conditions?.voucherCampaignId || '',
-            minScore: donationDetail.conditions?.minScore || 0,
+            voucherCampaignId: '',
+            minScore: 0,
+            maxScore: 0,
           },
         ],
       });

@@ -11,11 +11,10 @@ export interface EditDonationVariables {
   endDate?: string;
   status?: string;
   type?: string;
-  amount?: number;
-  maxScore?: number;
   conditions?: {
     voucherCampaignId?: string;
     minScore?: number;
+    maxScore?: number;
   };
 }
 

@@ -1,10 +1,10 @@
 export const SETTINGS_ROUTES = {
-  '/settings/loyalty': 'Loyalty config',
-  '/settings/loyalty/score': 'Score ',
-  '/settings/loyalty/voucher': 'Voucher ',
-  '/settings/loyalty/lottery': 'Lottery ',
-  '/settings/loyalty/spin': 'Spin ',
-  '/settings/loyalty/donate': 'Donate ',
-  '/settings/loyalty/assignment': 'Assignment ',
-  '/settings/loyalty/coupon': 'Coupon ',
+  '/settings/loyalty/config/': 'Loyalty config',
+  '/settings/loyalty/config/score': 'Score ',
+  '/settings/loyalty/config/voucher': 'Voucher ',
+  '/settings/loyalty/config/lottery': 'Lottery ',
+  '/settings/loyalty/config/spin': 'Spin ',
+  '/settings/loyalty/config/donate': 'Donate ',
+  '/settings/loyalty/config/assignment': 'Assignment ',
+  '/settings/loyalty/config/coupon': 'Coupon ',
 };

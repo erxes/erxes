@@ -19,8 +19,8 @@ export const DonationAddCampaignCoreFields: React.FC<
   });
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="flex flex-col gap-4">
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
         <Form.Field
           control={form.control}
           name="title"
@@ -34,11 +34,9 @@ export const DonationAddCampaignCoreFields: React.FC<
             </Form.Item>
           )}
         />
-      </div>
-      <div className="flex flex-col gap-4">
         <Form.Field
           control={form.control}
-          name="maxScore"
+          name="conditions.0.maxScore"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Max Score</Form.Label>
@@ -55,61 +53,74 @@ export const DonationAddCampaignCoreFields: React.FC<
           )}
         />
       </div>
-      <div className="space-y-3">
-        {fields.map((field, index) => (
-          <div className="flex gap-2 items-end" key={field.id}>
-            <Form.Field
-              control={form.control}
-              name={`conditions.${index}.minScore`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Min score</Form.Label>
-                  <Form.Control>
-                    <Input
-                      type="number"
-                      placeholder="Enter score"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name={`conditions.${index}.voucherCampaignId`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>VOUCHER CAMPAIGN</Form.Label>
-                  <Form.Control>
-                    <SelectVoucherCampaign
-                      value={field.value || undefined}
-                      onValueChange={(id) => field.onChange(id)}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Button
-              onClick={() => remove(index)}
-              variant="secondary"
-              size="icon"
-              className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
-            >
-              <IconTrash />
-            </Button>
-          </div>
-        ))}
+
+      <div className="space-y-4">
+        <div className="space-y-3">
+          {fields.map((field, index) => (
+            <div className="flex gap-4 items-end w-full" key={field.id}>
+              <div className="flex-1 min-w-0">
+                <Form.Field
+                  control={form.control}
+                  name={`conditions.${index}.voucherCampaignId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Voucher Campaign</Form.Label>
+                      <Form.Control>
+                        <SelectVoucherCampaign
+                          value={field.value || undefined}
+                          onValueChange={(id) => field.onChange(id)}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+              <div className="w-full sm:w-60">
+                <Form.Field
+                  control={form.control}
+                  name={`conditions.${index}.minScore`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Min Score</Form.Label>
+                      <Form.Control>
+                        <Input
+                          type="number"
+                          placeholder="Score"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+              <Button
+                onClick={() => remove(index)}
+                variant="secondary"
+                size="icon"
+                className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
+              >
+                <IconTrash />
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        <Button
+          onClick={() =>
+            append({ minScore: 0, voucherCampaignId: '', maxScore: 0 })
+          }
+          className="flex w-full mt-5!"
+          variant="secondary"
+        >
+          <IconPlus />
+          Add level
+        </Button>
       </div>
-      <Button
-        onClick={() => append({ minScore: 0, voucherCampaignId: '' })}
-        className="flex w-full mt-5!"
-        variant="secondary"
-      >
-        <IconPlus />
-        Add level
-      </Button>
     </div>
   );
 };
