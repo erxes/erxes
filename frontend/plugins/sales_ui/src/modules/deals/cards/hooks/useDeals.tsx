@@ -113,10 +113,9 @@ export const useDeals = (
         }
 
         if (action === 'edit') {
-          updatedList = currentList
-            .map((item: IDeal) =>
-              item._id === deal._id ? { ...item, ...deal } : item,
-            )
+          updatedList = currentList.map((item: IDeal) =>
+            item._id === deal._id ? { ...item, ...deal } : item,
+          );
         }
 
         if (action === 'remove') {
@@ -124,9 +123,6 @@ export const useDeals = (
             (item: IDeal) => item._id !== deal?._id,
           );
         }
-
-        updatedList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-
         return {
           ...prev,
           deals: {
@@ -137,8 +133,8 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                  ? prev.deals.totalCount - 1
-                  : prev.deals.totalCount,
+                ? prev.deals.totalCount - 1
+                : prev.deals.totalCount,
           },
         };
       },
@@ -251,11 +247,11 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     refetchQueries:
       salesItemId || _id
         ? [
-          {
-            query: GET_DEAL_DETAIL,
-            variables: { ...options?.variables, _id: salesItemId || _id },
-          },
-        ]
+            {
+              query: GET_DEAL_DETAIL,
+              variables: { ...options?.variables, _id: salesItemId || _id },
+            },
+          ]
         : [],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {

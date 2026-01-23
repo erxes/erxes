@@ -404,7 +404,7 @@ export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-export const SelectTagsContent = ({ targetId }: { targetId?: string }) => {
+export const SelectTagsContent = () => {
   const { newTagName } = useSelectTagsContext();
 
   if (newTagName) {
@@ -735,7 +735,7 @@ export const SelectTagsFilterBar = ({
           <SelectTagsValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant || 'filter'}>
-          <SelectTagsContent targetId={targetId} />
+          <SelectTagsContent />
         </SelectOperationContent>
       </PopoverScoped>
     </SelectTagsProvider>
