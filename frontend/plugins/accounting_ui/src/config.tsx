@@ -1,7 +1,6 @@
 import { IconCashBanknote } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-// import { SettingsPage } from './pages/SettingsPage';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
