@@ -1,5 +1,5 @@
 import { Command, Filter, useMultiQueryState } from 'erxes-ui';
-import { SelectMember, SelectTags } from 'ui-modules';
+import { SelectMember, SelectTags, TagsSelect } from 'ui-modules';
 import { AutomationStatusFilter } from './AutomationStatusFilter';
 import { AutomationRecordTableNodeTypeFilter } from './AutomationRecordTableNodeTypeFilter';
 import { AutomationNodeType } from '@/automations/types';
@@ -82,14 +82,14 @@ export const AutomationRecordTableFilterViews = () => {
         />
       </Filter.View>
       <Filter.View filterKey="tagIds">
-        <SelectTags.Provider
-          tagType="core:automation"
+        <TagsSelect.Provider
+          type="core:automation"
           value={tagIds || []}
           mode="multiple"
           onValueChange={(tagIds) => setQueries({ tagIds: tagIds as string[] })}
         >
-          <SelectTags.Content />
-        </SelectTags.Provider>
+          <TagsSelect.Content />
+        </TagsSelect.Provider>
       </Filter.View>
     </>
   );

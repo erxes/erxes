@@ -27,6 +27,7 @@ import {
   IconTrash,
   IconEye,
   IconCopy,
+  IconDots,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { CmsCategoryDrawer } from './CmsCategoryDrawer';
@@ -45,12 +46,6 @@ export function Category() {
 
   const headerActions = (
     <>
-      <Button variant="outline" asChild>
-        <a href="/settings/content">
-          <IconSettings />
-          Go to settings
-        </a>
-      </Button>
       <Button
         onClick={() => {
           setSelectedCategory(undefined);
@@ -71,10 +66,6 @@ export function Category() {
       direction: undefined,
     },
     fetchPolicy: 'cache-and-network',
-  });
-
-  const [editCategory] = useMutation(CMS_CATEGORIES_EDIT, {
-    onCompleted: () => refetch(),
   });
 
   const [removeCategory] = useMutation(CMS_CATEGORIES_REMOVE, {
@@ -111,40 +102,6 @@ export function Category() {
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<any>;
 
   const columns: ColumnDef<any>[] = [
-    {
-      id: 'more',
-      header: () => <span className="sr-only">More</span>,
-      cell: ({ row }) => {
-        const onEdit = () => {
-          setSelectedCategory(row.original);
-          setDrawerOpen(true);
-        };
-        const onRemove = async () => {
-          await confirm({ message: 'Delete this category?' });
-          await removeCategory({ variables: { id: row.original._id } });
-        };
-        return (
-          <Popover>
-            <Popover.Trigger asChild>
-              <RecordTable.MoreButton className="w-full h-full" />
-            </Popover.Trigger>
-            <Combobox.Content>
-              <Command shouldFilter={false}>
-                <Command.List>
-                  <Command.Item value="edit" onSelect={onEdit}>
-                    <IconEdit /> Edit
-                  </Command.Item>
-                  <Command.Item value="remove" onSelect={onRemove}>
-                    <IconTrash /> Delete
-                  </Command.Item>
-                </Command.List>
-              </Command>
-            </Combobox.Content>
-          </Popover>
-        );
-      },
-      size: 40,
-    },
     checkboxColumn,
     {
       id: 'name',
@@ -154,27 +111,8 @@ export function Category() {
         const name = row.original.name;
         const categoryId = row.original._id;
 
-        const handleCopyId = (e: React.MouseEvent) => {
-          e.stopPropagation();
-          navigator.clipboard.writeText(categoryId);
-          toast({
-            title: 'Copied',
-            description: 'Category ID copied to clipboard',
-            variant: 'default',
-          });
-        };
-
         return (
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={handleCopyId}
-              title="Copy ID"
-            >
-              <IconCopy className="h-3 w-3" />
-            </Button>
             <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
               <span className="text-sm">{name}</span>
             </div>
@@ -238,6 +176,70 @@ export function Category() {
       },
       size: 180,
     },
+    {
+      id: 'copyId',
+      header: () => <span className="sr-only">Copy ID</span>,
+      cell: ({ row }) => {
+        const categoryId = row.original._id;
+
+        const handleCopyId = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(categoryId);
+          toast({
+            title: 'Copied',
+            description: 'Category ID copied to clipboard',
+            variant: 'default',
+          });
+        };
+
+        return (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleCopyId}
+            title={`Copy ID: ${categoryId}`}
+          >
+            <IconCopy className="h-4 w-4" />
+          </Button>
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: () => <RecordTable.InlineHead label="Actions" icon={IconDots} />,
+      cell: ({ row }) => {
+        const onEdit = () => {
+          setSelectedCategory(row.original);
+          setDrawerOpen(true);
+        };
+        const onRemove = async () => {
+          await confirm({ message: 'Delete this category?' });
+          await removeCategory({ variables: { id: row.original._id } });
+        };
+        return (
+          <div className="flex px-2 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+              onClick={onEdit}
+            >
+              <IconEdit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+              onClick={onRemove}
+            >
+              <IconTrash className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+      size: 120,
+    },
   ];
 
   return (
@@ -284,7 +286,7 @@ export function Category() {
                 columns={columns}
                 data={categories}
                 className="h-full"
-                stickyColumns={['more', 'checkbox', 'name']}
+                stickyColumns={['checkbox', 'name']}
               >
                 <RecordTable>
                   <RecordTable.Header />

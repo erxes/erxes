@@ -42,12 +42,14 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
             id={_id}
             type="startDate"
             variant="card"
+            placeholder="Start Date"
           />
           <DateSelectDeal
             value={closeDate}
             id={_id}
             type="closeDate"
             variant="card"
+            placeholder="Close Date"
           />
         </div>
         <Separator />

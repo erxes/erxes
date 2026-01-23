@@ -54,14 +54,8 @@ export const CONFIG: IUIConfig = {
       path: 'operation/team',
     },
     {
-      name: 'tasks',
-      path: 'operation/tasks',
-      settingsOnly: true,
-    },
-    {
       name: 'projects',
       path: 'operation/projects',
-      settingsOnly: true,
     },
   ],
   widgets: {

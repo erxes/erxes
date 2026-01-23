@@ -21,6 +21,30 @@ export const relationTrpcRouter = t.router({
         return models.Relations.getRelationsByEntity(input);
       }),
 
+    filterRelations: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return models.Relations.filterRelations(input);
+      }),
+
+    getRelationIds: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return models.Relations.getRelationIds(input);
+      }),
+
+    filterRelationIds: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return models.Relations.filterRelationIds(input);
+      }),
+
     createRelation: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -43,6 +67,13 @@ export const relationTrpcRouter = t.router({
         const { models } = ctx;
 
         return models.Relations.deleteRelation(input);
+      }),
+    manageRelations: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return models.Relations.manageRelations(input);
       }),
   }),
 });

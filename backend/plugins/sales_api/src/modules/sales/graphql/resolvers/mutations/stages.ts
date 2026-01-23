@@ -96,19 +96,6 @@ export const stageMutations = {
       }
     }
 
-    // const stage = await models.Stages.getStage(stageId);
-
-    // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-    //   salesPipelinesChanged: {
-    //     _id: stage.pipelineId,
-    //     processId,
-    //     action: "reOrdered",
-    //     data: {
-    //       destinationStageId: stageId
-    //     }
-    //   }
-    // });
-
     return 'ok';
   },
 };

@@ -3,6 +3,8 @@ import { CompanyDetailGeneral } from '@/contacts/companies/company-detail/Compan
 import { ContactsDetailLayout } from '@/contacts/components/ContactsDetail';
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { CompanyDetailFields } from '@/contacts/companies/company-detail/CompanyDetailFields';
+import { FieldsInDetail } from 'ui-modules';
+import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
 
 export const CompanyDetail = () => {
   const { companyDetail, loading } = useCompanyDetailWithQuery();
@@ -17,6 +19,15 @@ export const CompanyDetail = () => {
         <CompanyDetailGeneral />
         <Separator />
         <CompanyDetailFields />
+        <Separator />
+        <div className="p-8">
+          <FieldsInDetail
+            fieldContentType="core:company"
+            customFieldsData={companyDetail?.customFieldsData || {}}
+            mutateHook={useCompanyCustomFieldEdit}
+            id={companyDetail?._id || ''}
+          />
+        </div>
       </div>
     </ContactsDetailLayout>
   );

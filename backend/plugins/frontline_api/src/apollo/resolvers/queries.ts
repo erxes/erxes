@@ -14,8 +14,9 @@ import { ticketConfigQueries } from '~/modules/ticket/graphql/resolvers/queries/
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
-import { reportQueries } from '@/reports/graphql/reportQueries';
-import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries'
+import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
+import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
+import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
 
 export const queries = {
   ...channelQueries,
@@ -34,6 +35,7 @@ export const queries = {
   ...responseTemplateQueries,
   ...formQueries,
   ...fieldQueries,
-  ...reportQueries,
+  ...reportInboxQueries,
+  ...reportTicketQueries,
   ...knowledgeBaseQueries,
 };

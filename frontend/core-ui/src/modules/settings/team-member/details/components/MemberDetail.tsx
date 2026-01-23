@@ -1,4 +1,4 @@
-import { Separator, Sheet, useToast } from 'erxes-ui';
+import { Separator, Sheet, Spinner, useToast } from 'erxes-ui';
 import {
   MemberDetailLayout,
   MemberDetailTabContent,
@@ -9,11 +9,12 @@ import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { ApolloError } from '@apollo/client';
 import { MemberGeneral } from '@/settings/team-member/details/components/MemberGeneral';
 import { UserDetailActions } from '@/settings/team-member/details/components/UserDetailActions';
-import { ActivityLogs } from 'ui-modules';
+import { ActivityLogs, FieldsInDetail } from 'ui-modules';
+import { useUserCustomFieldEdit } from '../../hooks/useUserEdit';
 
 export function MemberDetail() {
   const { toast } = useToast();
-  const { error, userDetail } = useUserDetail({
+  const { error, userDetail, loading } = useUserDetail({
     onError: (e: ApolloError) => {
       if (!e.message.includes('not found')) {
         toast({
@@ -24,6 +25,7 @@ export function MemberDetail() {
       }
     },
   });
+
   return (
     <MemberDetailLayout
       actions={<UserDetailActions />}
@@ -31,21 +33,33 @@ export function MemberDetail() {
         error?.message.includes('not found') ? 'not-found' : undefined
       }
     >
-      <div className="flex flex-auto flex-col">
-        <MemberDetailGeneral />
-        <Separator />
-        <Sheet.Content className="border-b-0 rounded-b-none">
-          <MemberDetailTabContent value="overview">
-            <MemberGeneral />
-          </MemberDetailTabContent>
-          <MemberDetailTabContent value="links" className="h-full">
-            <MemberLinks />
-          </MemberDetailTabContent>
-          <MemberDetailTabContent value="activity" className="h-full">
-            {userDetail ? <ActivityLogs targetId={userDetail._id} /> : <></>}
-          </MemberDetailTabContent>
-        </Sheet.Content>
-      </div>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div className="flex flex-auto flex-col">
+          <MemberDetailGeneral />
+          <Separator />
+          <Sheet.Content className="border-b-0 rounded-b-none">
+            <MemberDetailTabContent value="overview">
+              <MemberGeneral />
+            </MemberDetailTabContent>
+            <MemberDetailTabContent value="links" className="h-full">
+              <MemberLinks />
+            </MemberDetailTabContent>
+            <MemberDetailTabContent value="activity" className="h-full">
+              {userDetail ? <ActivityLogs targetId={userDetail._id} /> : <></>}
+            </MemberDetailTabContent>
+            <MemberDetailTabContent value="properties" className="h-full p-6">
+              <FieldsInDetail
+                fieldContentType="core:user"
+                customFieldsData={userDetail?.customFieldsData || {}}
+                mutateHook={useUserCustomFieldEdit}
+                id={userDetail?._id || ''}
+              />
+            </MemberDetailTabContent>
+          </Sheet.Content>
+        </div>
+      )}
     </MemberDetailLayout>
   );
 }
