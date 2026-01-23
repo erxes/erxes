@@ -1,5 +1,5 @@
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useMemo } from 'react';
-import { useQuery, QueryHookOptions } from '@apollo/client';
 import { TAGS_QUERY } from 'ui-modules/modules/tags-new/graphql/tagQueries';
 import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 

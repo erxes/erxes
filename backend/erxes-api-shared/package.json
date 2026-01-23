@@ -33,6 +33,7 @@
     "bullmq": "^5.40.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dataloader": "^2.2.3",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

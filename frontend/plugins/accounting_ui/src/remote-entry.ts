@@ -1,1 +1,1 @@
-export { default } from './modules/app/components/app';
+export { default } from './modules/AccountingMain';

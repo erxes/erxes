@@ -1,11 +1,12 @@
-import { startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from './trpc/init-trpc';
-import resolvers from './apollo/resolvers';
-import { typeDefs } from './apollo/typeDefs';
-import { generateModels } from './connectionResolvers';
-import { router } from './routes';
 import automations from './meta/automations';
+import { generateModels } from './connectionResolvers';
+import resolvers from './apollo/resolvers';
+import { router } from './routes';
 import segments from './meta/segments';
+import { startPlugin } from 'erxes-api-shared/utils';
+import { typeDefs } from './apollo/typeDefs';
+import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
 
 startPlugin({
   name: 'sales',
@@ -27,6 +28,7 @@ startPlugin({
     const models = await generateModels(subdomain, context);
 
     context.models = models;
+    context.loaders = createLoaders(subdomain, models);
 
     return context;
   },
@@ -46,6 +48,7 @@ startPlugin({
   meta: {
     automations,
     segments,
+    tags: { types: [{ type: 'deal', description: 'Sales' }] },
     notificationModules: [
       {
         name: 'deals',

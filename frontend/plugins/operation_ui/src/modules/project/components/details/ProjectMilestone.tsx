@@ -110,26 +110,26 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
           {activeMilestone !== milestone._id && (
             <HoverCard.Content side="left" className="w-32 p-3">
               <div className="flex flex-col gap-1 text-muted-foreground">
-                <p className="text-sm flex items-center gap-1">
+                <p className="text-sm flex gap-1">
                   <ProgressDot status="total" />
-                  total:
-                  <span className="text-foreground ml-auto">
+                  <span className="text-foreground ml-1">
                     {milestone.totalScope || 0}
                   </span>
-                </p>
-                <p className="text-sm flex items-center gap-1">
-                  <ProgressDot status="completed" />
-                  completed:
-                  <span className="text-foreground ml-auto">
-                    {milestone.totalCompletedScope || 0}
-                  </span>
+                  scoped
                 </p>
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="started" />
-                  started:
-                  <span className="text-foreground ml-auto">
+                  <span className="text-foreground ml-1">
                     {milestone.totalStartedScope || 0}
                   </span>
+                  started
+                </p>
+                <p className="text-sm flex items-center gap-1">
+                  <ProgressDot status="completed" />
+                  <span className="text-foreground ml-1">
+                    {milestone.totalCompletedScope || 0}
+                  </span>
+                  completed
                 </p>
               </div>
             </HoverCard.Content>

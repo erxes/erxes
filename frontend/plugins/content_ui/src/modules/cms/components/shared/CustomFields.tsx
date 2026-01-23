@@ -419,34 +419,45 @@ export function CustomFields() {
                           (group.fields || []).map((field: any) => (
                             <Table.Row
                               key={field._id}
-                              className="hover:bg-sidebar"
+                              className="hover:bg-accent/50"
                             >
-                              <Table.Cell>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">
-                                    {field.label}
-                                  </span>
-                                  {field.isRequired && (
-                                    <span className="text-xs px-1.5 py-0.5 bg-destructive/10 text-destructive rounded">
-                                      Required
-                                    </span>
-                                  )}
+                              <Table.Cell className="py-3">
+                                <div className="flex items-start gap-3">
+                                  <div className="flex-1 space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-semibold text-base">
+                                        {field.label}
+                                      </span>
+                                      {field.isRequired && (
+                                        <span className="text-xs px-2 py-0.5 bg-destructive/10 text-destructive rounded-full font-medium">
+                                          Required
+                                        </span>
+                                      )}
+                                    </div>
+                                    {field.code && (
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-medium text-muted-foreground">
+                                          Code:
+                                        </span>
+                                        <code className="text-xs px-1.5 py-0.5 bg-muted rounded font-mono">
+                                          {field.code}
+                                        </code>
+                                      </div>
+                                    )}
+                                    {field.description && (
+                                      <p className="text-sm text-muted-foreground leading-relaxed">
+                                        {field.description}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
-                                {field.code && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Code: {field.code}
-                                  </p>
-                                )}
-                                {field.description && (
-                                  <p className="text-xs text-muted-foreground">
-                                    {field.description}
-                                  </p>
-                                )}
                               </Table.Cell>
-                              <Table.Cell>
-                                <span className="text-sm text-muted-foreground">
-                                  {field.type}
-                                </span>
+                              <Table.Cell className="py-3">
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-md">
+                                  <span className="text-sm font-medium capitalize">
+                                    {field.type}
+                                  </span>
+                                </div>
                               </Table.Cell>
                               <Table.Cell className="w-8 p-0.5">
                                 <DropdownMenu>
@@ -454,7 +465,7 @@ export function CustomFields() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="size-7 text-muted-foreground"
+                                      className="size-8 text-muted-foreground hover:text-foreground"
                                     >
                                       <IconDots className="w-4 h-4" />
                                     </Button>
@@ -467,7 +478,7 @@ export function CustomFields() {
                                       }}
                                     >
                                       <IconEdit className="w-4 h-4" />
-                                      Edit
+                                      Edit field
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item
                                       className="text-destructive"
@@ -477,7 +488,7 @@ export function CustomFields() {
                                       }}
                                     >
                                       <IconTrash className="w-4 h-4" />
-                                      Delete
+                                      Delete field
                                     </DropdownMenu.Item>
                                   </DropdownMenu.Content>
                                 </DropdownMenu>
