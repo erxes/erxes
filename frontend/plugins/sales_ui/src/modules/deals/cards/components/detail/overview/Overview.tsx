@@ -22,7 +22,7 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         <div className="flex justify-between ">
           <div className="flex gap-4 py-2 px-4">
             <ChecklistOverview />
-            <AttachmentUploader />
+            <AttachmentUploader type="deal" />
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         <MainOverview deal={deal} />
         <Checklists />
       </div>
-      <SalesNoteAndComment />
+      <SalesNoteAndComment deal={deal} />
     </AttachmentProvider>
   );
 };

@@ -6,23 +6,47 @@ import {
   getMentionedUserIds,
   useBlockEditor,
   usePreviousHotkeyScope,
+  REACT_APP_API_URL,
 } from 'erxes-ui';
-import { IconMessageDots, IconNote, IconPaperclip } from '@tabler/icons-react';
+import {
+  IconMessageDots,
+  IconNote,
+  IconPaperclip,
+  IconX,
+} from '@tabler/icons-react';
 
 import { AssignMemberInEditor } from 'ui-modules';
 import { Block } from '@blocknote/core';
 import { useState } from 'react';
+import { useAddInternalNote } from '../../../hooks/useAddInternalNote';
+import AttachmentUploader from './attachments/AttachmentUploader';
 
-const SalesNoteAndComment = () => {
+const SalesNoteAndComment = (deal: any) => {
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
 
   const editor = useBlockEditor();
 
+  const { addInternalNote, loading, error } = useAddInternalNote();
+  const [file, setFile] = useState<any>(null);
+  const [fileUrl, setFileUrl] = useState<string>('');
+
   const {
     // setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
+
+  const handleFileUpload = (file: any) => {
+    if (!editor) return;
+    let url = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
+      file.url,
+    )}`;
+    console.log('file', file);
+    console.log('URL', url);
+
+    setFile(file);
+    setFileUrl(url);
+  };
 
   const handleChange = async () => {
     const content = await editor?.document;
@@ -33,34 +57,39 @@ const SalesNoteAndComment = () => {
   };
 
   const handleNoteSubmit = async () => {
-    if (content?.length === 0) {
+    if (!content || content?.length === 0) {
       return;
     }
 
-    const sendContent = JSON.stringify(content);
+    const html = await editor?.blocksToHTMLLossy(content);
 
-    // addConversationMessage({
-    //   variables: {
-    //     conversationId,
-    //     content: sendContent,
-    //     mentionedUserIds,
-    //     internal: isInternalNote,
-    //     extraInfo: messageExtraInfo,
-    //   },
-    //   onCompleted: () => {
-    //     setContent(undefined);
-    //     editor?.removeBlocks(content as Block[]);
-    //     setMentionedUserIds([]);
-    //     setIsInternalNote(false);
-    //   },
-    // });
+    const textContent = html?.replace(/<[^>]+>/g, '')?.trim() || '';
+
+    const sendContent = fileUrl
+      ? `${textContent} <img src="${fileUrl}" alt="${file.name}" />`
+      : textContent;
+
+    addInternalNote({
+      variables: {
+        contentType: 'sales:deal',
+        contentTypeId: deal.deal._id,
+        content: sendContent,
+        mentionedUserIds,
+      },
+      refetchQueries: ['activityLogs'],
+      onCompleted: () => {
+        setFile(null);
+        setContent([]);
+        console.log('sendContent', sendContent);
+      },
+    });
   };
 
-  const handleCommentSubmit = async () => {
-    if (content?.length === 0) {
-      return;
-    }
-  };
+  // const handleCommentSubmit = async () => {
+  //   if (content?.length === 0) {
+  //     return;
+  //   }
+  // };
 
   return (
     <div className="flex flex-col pb-4 px-4 max-w-3xl">
@@ -77,14 +106,14 @@ const SalesNoteAndComment = () => {
               <IconNote size={16} /> New note
             </Button>
           </Tabs.Trigger>
-          <Tabs.Trigger asChild value="comment">
+          {/* <Tabs.Trigger asChild value="comment">
             <Button
               variant={'outline'}
               className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
             >
               <IconMessageDots size={16} /> New comment
             </Button>
-          </Tabs.Trigger>
+          </Tabs.Trigger> */}
         </Tabs.List>
         <Tabs.Content value="note" className="h-full">
           <div
@@ -95,7 +124,7 @@ const SalesNoteAndComment = () => {
             <BlockEditor
               editor={editor}
               onChange={handleChange}
-              // disabled={loading}
+              disabled={loading}
               className={cn('h-full w-full overflow-y-auto', 'internal-note')}
               // onFocus={() =>
               //   setHotkeyScopeAndMemorizePreviousScope(
@@ -107,13 +136,11 @@ const SalesNoteAndComment = () => {
               {<AssignMemberInEditor editor={editor} />}
             </BlockEditor>
             <div className="flex px-6 gap-4">
-              <Button variant="outline">
-                <IconPaperclip /> Add attachment
-              </Button>
+              <AttachmentUploader type="note" onFileUpload={handleFileUpload} />
               <Button
                 size="lg"
                 className="ml-auto"
-                // disabled={loading || content?.length === 0}
+                disabled={loading || content?.length === 0}
                 onClick={handleNoteSubmit}
               >
                 Add note
@@ -121,7 +148,7 @@ const SalesNoteAndComment = () => {
             </div>
           </div>
         </Tabs.Content>
-        <Tabs.Content
+        {/* <Tabs.Content
           value="comment"
           className="h-full shadow-none border-none rounded-none"
         >
@@ -154,12 +181,12 @@ const SalesNoteAndComment = () => {
                 // disabled={loading || content?.length === 0}
                 onClick={handleCommentSubmit}
               >
-                {/* {loading ? <Spinner size="small" /> : <IconArrowUp />} */}
+                // {loading ? <Spinner size="small" /> : <IconArrowUp />}
                 Add comment
               </Button>
             </div>
           </div>
-        </Tabs.Content>
+        </Tabs.Content> */}
       </Tabs>
     </div>
   );
