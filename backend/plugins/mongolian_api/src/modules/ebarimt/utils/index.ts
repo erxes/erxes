@@ -472,10 +472,9 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    method: 'query',
-    module: 'conformity',
-    action: 'savedConformity',
-    input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    module: 'relation',
+    action: 'getRelationIds',
+    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
     defaultValue: [],
   });
 
@@ -483,11 +482,10 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
     const companies = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
       module: 'companies',
       action: 'findActiveCompanies',
       input: {
-        selector: { _id: { $in: companyIds } },
+        query: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1, primaryName: 1 },
       },
       defaultValue: [],
@@ -544,10 +542,9 @@ const checkBillType = async (subdomain, config, deal) => {
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
-      module: 'conformity',
-      action: 'savedConformity',
-      input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+      module: 'relation',
+      action: 'getRelationIds',
+      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
       defaultValue: [],
     });
 
@@ -559,7 +556,7 @@ const checkBillType = async (subdomain, config, deal) => {
         module: 'customers',
         action: 'findActiveCustomers',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: {
             _id: 1,
             code: 1,
@@ -593,8 +590,7 @@ const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    method: 'query',
-    module: 'categories',
+    module: 'productCategories',
     action: 'withChilds',
     input: { ids: categoryIds },
     defaultValue: [],
@@ -608,9 +604,8 @@ const getChildTags = async (subdomain: string, tagIds) => {
   const childs = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    method: 'query',
     module: 'tags',
-    action: 'tagWithChilds',
+    action: 'findWithChild',
     input: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
     defaultValue: [],
   });
