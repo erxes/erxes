@@ -156,17 +156,15 @@ export const generateFilter = async (
   if (customerIds) {
     const relIds = await sendTRPCMessage({
       subdomain,
-
-      method: 'query',
       pluginName: 'core',
-      module: 'conformity',
-      action: 'filterConformity',
+      module: 'relation',
+      action: 'filterRelationIds',
       input: {
-        mainType: 'customer',
-        mainTypeIds: customerIds,
-        relType: 'deal',
+        contentType: 'core:customer',
+        contentIds: customerIds,
+        relatedContentType: 'sales:deal'
       },
-      defaultValue: [],
+      defaultValue: []
     });
 
     filterIds = relIds;
@@ -175,16 +173,15 @@ export const generateFilter = async (
   if (companyIds) {
     const relIds = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
-      module: 'conformity',
-      action: 'filterConformity',
+      module: 'relation',
+      action: 'filterRelationIds',
       input: {
-        mainType: 'company',
-        mainTypeIds: companyIds,
-        relType: 'deal',
+        contentType: 'core:company',
+        contentIds: customerIds,
+        relatedContentType: 'sales:deal'
       },
-      defaultValue: [],
+      defaultValue: []
     });
 
     filterIds = filterIds.length

@@ -51,6 +51,7 @@ import {
   loadPosSlotClass,
   loadProductGroupClass,
 } from './modules/pos/db/models/Pos';
+import { ILoaders } from './modules/sales/graphql/resolvers/loaders';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -72,6 +73,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   models: IModels;
   subdomain: string;
+  loaders: ILoaders
 }
 
 export const loadClasses = (
