@@ -51,11 +51,6 @@ const AccountingGenJournalReport = lazy(() =>
   })),
 );
 
-const TransactionPrint = lazy(() =>
-  import('~/pages/TransactionPrintPage').then((module) => ({
-    default: module.TransactionPrintPage,
-  })),
-);
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -78,11 +73,8 @@ const PluginAccounting = () => {
           element={<AdjustInventoryDetail />}
         />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
-        <Route
-          path="/gen-journal-report"
-          element={<AccountingGenJournalReport />}
-        />
-        <Route path="transaction/print" element={<TransactionPrint />} />
+        <Route path="/gen-journal-report" element={<AccountingGenJournalReport />} />
+
       </Routes>
       <PageChangeEffect />
     </Suspense>
