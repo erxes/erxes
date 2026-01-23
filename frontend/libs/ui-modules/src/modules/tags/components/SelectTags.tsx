@@ -77,7 +77,7 @@ export const SelectTagsProvider = ({
   return (
     <SelectTagsContext.Provider
       value={{
-        tagType,
+        tagType: tagType || '',
         onSelect: handleSelectCallback,
         value,
         selectedTags,
@@ -680,16 +680,14 @@ export const SelectTagsFilterBar = ({
   scope?: string;
   targetId?: string;
   initialValue?: string[];
-  onValueChange?: (value: string[]) => void;
+  onValueChange?: (value: string[] | string) => void;
 }) => {
   const isCardVariant = variant === 'card';
 
-  // Use local state for card variant, URL state for filter variant
   const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
   const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
-  // Sync local state with initialValue when it changes (for card variant)
   useEffect(() => {
     if (isCardVariant && initialValue) {
       setLocalQuery(initialValue);
@@ -702,12 +700,11 @@ export const SelectTagsFilterBar = ({
     return null;
   }
 
-  const handleValueChange = (value: string[]) => {
+  const handleValueChange = (value: string[] | string) => {
     if (onValueChange) {
       onValueChange(value);
     }
 
-    // Also update internal state if no onValueChange provided
     if (value && value.length > 0) {
       if (isCardVariant) {
         setLocalQuery(value as string[]);

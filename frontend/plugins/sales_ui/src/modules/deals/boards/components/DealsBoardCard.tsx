@@ -1,3 +1,9 @@
+import {
+  SelectCompany,
+  SelectCustomer,
+  SelectTags,
+  useManageRelations,
+} from 'ui-modules';
 import { Separator, useQueryState } from 'erxes-ui';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
@@ -8,7 +14,6 @@ import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { SelectTags } from 'ui-modules';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { memo } from 'react';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
@@ -74,6 +79,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
   const [searchParams] = useQueryState<string>('archivedOnly');
   const { editDeals } = useDealsEdit();
+  const { manageRelations } = useManageRelations();
 
   if (!deal) return null;
 
@@ -89,6 +95,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     status,
     stage,
     tagIds,
+    customers,
+    companies,
   } = deal;
 
   const onCardClick = () => {
@@ -168,6 +176,42 @@ export const DealsBoardCard = memo(function DealsBoardCard({
                   _id: deal._id,
                   tagIds: Array.isArray(value) ? value : [value],
                 },
+              });
+            }}
+          />
+          <SelectCustomer.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Customer"
+            variant="card"
+            targetId={_id}
+            initialValue={
+              customers?.map((customer) => customer._id || '') || []
+            }
+            onValueChange={(value: any) => {
+              if (!value) return;
+              manageRelations({
+                contentType: 'sales:deal',
+                contentId: _id,
+                relatedContentType: 'core:customer',
+                relatedContentIds: value || [],
+              });
+            }}
+          />
+          <SelectCompany.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Company"
+            variant="card"
+            targetId={_id}
+            initialValue={companies?.map((company) => company._id || '') || []}
+            onValueChange={(value: any) => {
+              if (!value) return;
+              manageRelations({
+                contentType: 'sales:deal',
+                contentId: _id,
+                relatedContentType: 'core:company',
+                relatedContentIds: value || [],
               });
             }}
           />

@@ -493,12 +493,10 @@ export const SelectLabelsFilterBar = ({
 }) => {
   const isCardVariant = variant === 'card';
 
-  // Use local state for card variant, URL state for filter variant
   const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
   const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
-  // Sync local state with initialValue when it changes (for card variant)
   useEffect(() => {
     if (isCardVariant && initialValue) {
       setLocalQuery(initialValue);

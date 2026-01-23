@@ -6,10 +6,14 @@ import {
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
+  SelectOperationContent,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
   cn,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useEffect, useState } from 'react';
 
 import { CustomersInline } from './CustomersInline';
 import { ICustomer } from '../types';
@@ -18,7 +22,6 @@ import { SelectCustomerContext } from '../contexts/SelectCustomerContext';
 import { useCustomers } from '../hooks';
 import { useDebounce } from 'use-debounce';
 import { useSelectCustomerContext } from '../hooks/useSelectCustomerContext';
-import { useState } from 'react';
 
 interface SelectCustomerProviderProps {
   children: React.ReactNode;
@@ -308,51 +311,74 @@ export const SelectCustomerFilterBar = ({
   mode = 'multiple',
   filterKey,
   label,
+  variant,
+  scope,
+  targetId,
+  initialValue,
+  onValueChange,
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
   label: string;
+  variant?: `${SelectTriggerVariant}`;
+  scope?: string;
+  targetId?: string;
+  initialValue?: string[];
+  onValueChange?: (value: string[] | string) => void;
 }) => {
-  const [query, setQuery] = useQueryState<string[]>(filterKey);
+  const isCardVariant = variant === 'card';
+
+  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
+  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
-  if (!query || query.length === 0) {
+  useEffect(() => {
+    if (isCardVariant && initialValue) {
+      setLocalQuery(initialValue);
+    }
+  }, [initialValue, isCardVariant]);
+
+  const query = isCardVariant ? localQuery : urlQuery;
+
+  if (!query && variant !== 'card') {
     return null;
   }
 
+  const handleValueChange = (value: string[] | string) => {
+    if (onValueChange) {
+      onValueChange(value);
+    }
+
+    if (value && value.length > 0) {
+      if (isCardVariant) {
+        setLocalQuery(value as string[]);
+      } else {
+        setUrlQuery(value as string[]);
+      }
+    } else {
+      if (isCardVariant) {
+        setLocalQuery([]);
+      } else {
+        setUrlQuery(null);
+      }
+    }
+  };
+
   return (
-    <Filter.BarItem queryKey={filterKey}>
-      <Filter.BarName>
-        <IconUser />
-        {label}
-      </Filter.BarName>
-      <SelectCustomerProvider
-        mode={mode}
-        value={query}
-        onValueChange={(value) => {
-          const values = value as string[];
-          if (values.length > 0) {
-            setQuery(values);
-          } else {
-            setQuery(null);
-          }
-          if (mode === 'single') {
-            setOpen(false);
-          }
-        }}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={filterKey}>
-              <SelectCustomerValue />
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectCustomer.Content />
-          </Combobox.Content>
-        </Popover>
-      </SelectCustomerProvider>
-    </Filter.BarItem>
+    <SelectCustomerProvider
+      mode={mode}
+      value={query || []}
+      onValueChange={handleValueChange}
+    >
+      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant={variant || 'filter'}>
+          <SelectCustomerValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant={variant || 'filter'}>
+          <SelectCustomer.Content />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectCustomerProvider>
   );
 };
 
