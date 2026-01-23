@@ -71,6 +71,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.13",
+    "dataloader": "^2.2.3",
     "deep-equal": "^2.2.3",
     "dompurify": "^3.2.4",
     "dotenv": "^16.4.7",
