@@ -23,6 +23,7 @@ import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initSegmentCoreProducers } from './meta/segments';
 import initImportExport from './meta/import-export/import';
+import { initBroadcast } from './meta/broadcast';
 
 dotenv.config();
 
@@ -113,6 +114,7 @@ httpServer.listen(port, async () => {
   await initAutomation(app);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
+  await initBroadcast(app)
 });
 
 // GRACEFULL SHUTDOWN

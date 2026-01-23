@@ -1,13 +1,25 @@
-import { Button, RecordTable, CommandBar, Separator, toast, Popover, Combobox, Command, Input, RecordTableInlineCell, Spinner } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  CommandBar,
+  Separator,
+  toast,
+  Popover,
+  Combobox,
+  Command,
+  Input,
+  RecordTableInlineCell,
+  Spinner,
+} from 'erxes-ui';
 import {
   IconPlus,
   IconSettings,
   IconEdit,
   IconTrash,
-  IconEye,
   IconUser,
   IconArticle,
   IconCalendar,
+  IconDots,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { CmsLayout } from '../shared/CmsLayout';
@@ -18,6 +30,28 @@ import { PAGE_LIST, PAGES_EDIT, PAGES_REMOVE } from '../../graphql/queries';
 import { PageDrawer } from './PageDrawer';
 import { ColumnDef } from '@tanstack/react-table';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+
+// Helper components to reduce duplication
+const BadgeCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+    <span className="text-sm text-gray-500">{children}</span>
+  </div>
+);
+
+const AuthorBadgeCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+    <span className="text-sm text-gray-700">{children}</span>
+  </div>
+);
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 
 export function Page() {
   const { websiteId } = useParams();
@@ -52,42 +86,6 @@ export function Page() {
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<any>;
 
   const columns: ColumnDef<any>[] = [
-    {
-      id: 'more',
-      header: () => <span className="sr-only">More</span>,
-      cell: ({ row }) => {
-        const { confirm } = useConfirm();
-        const onEdit = () => {
-          setSelectedPage(row.original);
-          setIsDrawerOpen(true);
-        };
-        const onRemove = () => {
-          confirm({ message: 'Are you sure you want to delete this page?' }).then(async () => {
-            await removePage({ variables: { id: row.original._id } });
-          });
-        };
-        return (
-          <Popover>
-            <Popover.Trigger asChild>
-              <RecordTable.MoreButton className="w-full h-full" />
-            </Popover.Trigger>
-            <Combobox.Content>
-              <Command shouldFilter={false}>
-                <Command.List>
-                  <Command.Item value="edit" onSelect={onEdit}>
-                    <IconEdit /> Edit
-                  </Command.Item>
-                  <Command.Item value="remove" onSelect={onRemove}>
-                    <IconTrash /> Delete
-                  </Command.Item>
-                </Command.List>
-              </Command>
-            </Combobox.Content>
-          </Popover>
-        );
-      },
-      size: 40,
-    },
     checkboxColumn,
     {
       id: 'name',
@@ -100,7 +98,9 @@ export function Page() {
 
         const onSave = async () => {
           if ((_name || '') !== (original.name || '')) {
-            await editPage({ variables: { _id: original._id, input: { name: _name } } });
+            await editPage({
+              variables: { _id: original._id, input: { name: _name } },
+            });
           }
         };
 
@@ -116,7 +116,10 @@ export function Page() {
               <span>{cell.getValue() as string}</span>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
-              <Input value={_name} onChange={(e) => setName(e.currentTarget.value)} />
+              <Input
+                value={_name}
+                onChange={(e) => setName(e.currentTarget.value)}
+              />
             </RecordTableInlineCell.Content>
           </Popover>
         );
@@ -128,81 +131,75 @@ export function Page() {
       header: () => <RecordTable.InlineHead icon={IconArticle} label="Slug" />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-500">{(cell.getValue() as string) || ''}</span>
-        </div>
+        <BadgeCell>{(cell.getValue() as string) || ''}</BadgeCell>
       ),
       size: 260,
     },
-    {
-      id: 'author',
-      header: () => <RecordTable.InlineHead icon={IconUser} label="Author" />,
-      accessorKey: 'createdUser',
-      cell: ({ cell }) => {
-        const createdUser = cell.getValue() as any;
-        const name = createdUser?.details?.fullName || createdUser?.email || '—';
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-700">{name}</span>
-          </div>
-        );
-      },
-      size: 240,
-    },
+
     {
       id: 'createdAt',
-      header: () => <RecordTable.InlineHead icon={IconCalendar} label="Created" />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+      ),
       accessorKey: 'createdAt',
-      cell: ({ cell }) => {
-        const createdAt = cell.getValue() as string;
-        return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
-              {createdAt
-                ? new Date(createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : ''}
-            </span>
-          </div>
-        );
-      },
+      cell: ({ cell }) => (
+        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+      ),
       size: 180,
     },
     {
       id: 'updatedAt',
-      header: () => <RecordTable.InlineHead icon={IconCalendar} label="Updated" />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendar} label="Updated" />
+      ),
       accessorKey: 'updatedAt',
-      cell: ({ cell }) => {
-        const updatedAt = cell.getValue() as string;
+      cell: ({ cell }) => (
+        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+      ),
+      size: 180,
+    },
+    {
+      id: 'actions',
+      header: () => <RecordTable.InlineHead label="Actions" icon={IconDots} />,
+      cell: ({ row }) => {
+        const { confirm } = useConfirm();
+        const onEdit = () => {
+          setSelectedPage(row.original);
+          setIsDrawerOpen(true);
+        };
+        const onRemove = () => {
+          confirm({
+            message: 'Are you sure you want to delete this page?',
+          }).then(async () => {
+            await removePage({ variables: { id: row.original._id } });
+          });
+        };
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm text-gray-500">
-              {updatedAt
-                ? new Date(updatedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : ''}
-            </span>
+          <div className="flex px-2 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+              onClick={onEdit}
+            >
+              <IconEdit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+              onClick={onRemove}
+            >
+              <IconTrash className="h-4 w-4" />
+            </Button>
           </div>
         );
       },
-      size: 180,
     },
   ];
 
   const headerActions = (
     <>
-      <Button variant="outline" asChild>
-        <a href="/settings/content">
-          <IconSettings />
-          Go to settings
-        </a>
-      </Button>
       <Button onClick={() => setIsDrawerOpen(true)}>
         <IconPlus className="mr-2 h-4 w-4" />
         Add Page
@@ -214,7 +211,9 @@ export function Page() {
     return (
       <CmsLayout headerActions={headerActions}>
         <div className="flex w-full h-screen justify-center items-centerß">
-          <div className="text-gray-500"><Spinner/></div>
+          <div className="text-gray-500">
+            <Spinner />
+          </div>
         </div>
       </CmsLayout>
     );
@@ -226,8 +225,8 @@ export function Page() {
         <div className="flex justify-between items-center mb-6">
           <div className="text-sm text-gray-600">Found {totalCount} pages</div>
         </div>
-        {(!pages || pages.length === 0) ? (
-          <div className="bg-white rounded-lg overflow-hidden">
+        {!pages || pages.length === 0 ? (
+          <div className="rounded-lg overflow-hidden">
             <EmptyState
               icon={IconArticle}
               title="No pages yet"
@@ -237,12 +236,12 @@ export function Page() {
             />
           </div>
         ) : (
-          <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
+          <div className="h-full rounded-lg shadow-sm border overflow-hidden">
             <RecordTable.Provider
               columns={columns}
               data={pages || []}
               className="h-full m-0"
-              stickyColumns={[ 'more', 'checkbox', 'name' ]}
+              stickyColumns={['checkbox', 'name']}
             >
               <RecordTable>
                 <RecordTable.Header />
@@ -276,11 +275,17 @@ export function Page() {
   );
 }
 
-const PagesCommandBar = ({ onBulkDelete }: { onBulkDelete: (ids: string[]) => Promise<void> | void }) => {
+const PagesCommandBar = ({
+  onBulkDelete,
+}: {
+  onBulkDelete: (ids: string[]) => Promise<void> | void;
+}) => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((row: any) => row.original._id as string);
+  const selectedIds = selectedRows.map(
+    (row: any) => row.original._id as string,
+  );
 
   return (
     <CommandBar open={selectedRows.length > 0}>
@@ -300,7 +305,11 @@ const PagesCommandBar = ({ onBulkDelete }: { onBulkDelete: (ids: string[]) => Pr
                 selectedRows.forEach((row: any) => row.toggleSelected(false));
                 toast({ title: 'Success', variant: 'default' });
               } catch (e: any) {
-                toast({ title: 'Error', description: e?.message || 'Failed to delete pages', variant: 'destructive' });
+                toast({
+                  title: 'Error',
+                  description: e?.message || 'Failed to delete pages',
+                  variant: 'destructive',
+                });
               }
             })
           }

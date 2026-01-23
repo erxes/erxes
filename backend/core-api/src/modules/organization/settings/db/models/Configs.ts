@@ -201,21 +201,21 @@ export const loadConfigClass = (
     public static async getSESConfigs() {
       const accessKeyId = await getValueAsString(
         models,
-        'accessKeyId',
+        'AWS_SES_ACCESS_KEY_ID',
         'AWS_SES_ACCESS_KEY_ID',
       );
 
       const secretAccessKey = await getValueAsString(
         models,
-        'secretAccessKey',
+        'AWS_SES_SECRET_ACCESS_KEY',
         'AWS_SES_SECRET_ACCESS_KEY',
       );
 
-      const region = await getValueAsString(models, 'region', 'AWS_REGION');
+      const region = await getValueAsString(models, 'AWS_REGION', 'AWS_REGION');
 
       const unverifiedEmailsLimit = await getValueAsString(
         models,
-        'unverifiedEmailsLimit',
+        'EMAILS_LIMIT',
         'EMAILS_LIMIT',
         '100',
       );

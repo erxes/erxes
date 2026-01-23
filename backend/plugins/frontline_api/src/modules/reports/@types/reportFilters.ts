@@ -1,6 +1,8 @@
 export type IReportFilters = {
   date?: string;
   fromDate?: string;
+  channelIds?: string[];
+  memberIds?: string[];
   toDate?: string;
   limit?: number;
   status?: string;

@@ -1,7 +1,6 @@
 import { RecordTable } from 'erxes-ui';
 import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
 import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
-import { PosByItemsCommandBar } from '@/pos/pos-by-items/components/pos-by-items-command-bar/PosByItemsCommandBar';
 import { IconShoppingCartX } from '@tabler/icons-react';
 
 export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
@@ -50,7 +49,6 @@ export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
           </div>
         )}
       </RecordTable.CursorProvider>
-      <PosByItemsCommandBar />
     </RecordTable.Provider>
   );
 };

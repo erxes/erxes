@@ -88,12 +88,18 @@ export const commonListFields = `
   companies {
     _id
     primaryName
+    primaryPhone
+    primaryEmail
   }
   customers {
     _id
     firstName
+    middleName
     lastName
-    email
+    primaryPhone
+    primaryEmail
+    phones
+    emails
   }
   assignedUsers {
     _id
@@ -112,8 +118,10 @@ export const commonListFields = `
     _id
     name
     defaultTick
+    age
   }
   stageId
+  order
   isComplete
   isWatched
   relations
@@ -239,6 +247,11 @@ export const GET_DEAL_DETAIL = gql`
       }
       productsData
       relations
+      pipeline {
+        _id
+        name
+      }
+      boardId
     }
   }
 `;

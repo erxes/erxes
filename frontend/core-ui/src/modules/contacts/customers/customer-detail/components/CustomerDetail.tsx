@@ -25,14 +25,18 @@ export const CustomerDetail = () => {
       <CustomerDetailGeneral />
       <Separator />
       <CustomerDetailFields />
-      {customerDetail && <ActivityLogs targetId={customerDetail?._id} />}
+
       <Separator />
-      <FieldsInDetail
-        fieldContentType="core:customer"
-        customFieldsData={customerDetail?.customFieldsData || {}}
-        mutateHook={useCustomerCustomFieldEdit}
-        id={customerDetail?._id || ''}
-      />
+      <div className="p-8">
+        <FieldsInDetail
+          fieldContentType="core:customer"
+          customFieldsData={customerDetail?.customFieldsData || {}}
+          mutateHook={useCustomerCustomFieldEdit}
+          id={customerDetail?._id || ''}
+        />
+      </div>
+      <Separator />
+      {customerDetail && <ActivityLogs targetId={customerDetail?._id} />}
     </ContactsDetailLayout>
   );
 };

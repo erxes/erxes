@@ -5,16 +5,22 @@ import {
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { ColumnPaginationState } from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
+import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
 import { useQueryState } from 'erxes-ui';
+import { useSearchParams } from 'react-router-dom';
 import { useStagesOrder } from '@/deals/stage/hooks/useStages';
+
+const PAGE_SIZE = 20;
 
 export const DealsBoard = () => {
   const [boardState, setBoardState] = useDealsBoard();
@@ -23,17 +29,63 @@ export const DealsBoard = () => {
   const [pipelineId] = useQueryState<string>('pipelineId');
   const { changeDeals } = useDealsChange();
   const { updateStagesOrder } = useStagesOrder();
+  const [searchParams] = useSearchParams();
+  const [fetchMoreTriggers, setFetchMoreTriggers] = useState<
+    Record<string, number>
+  >({});
+
+  const { pagination, initColumn, setLoading, updateAfterFetch } =
+    useColumnPagination(PAGE_SIZE);
+
+  const queryVariables = useMemo(() => {
+    const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
+    const vars: Record<string, any> = {};
+
+    for (const [key, value] of searchParams.entries()) {
+      if (ignoredKeys.includes(key)) continue;
+
+      try {
+        const parsed = JSON.parse(value);
+        vars[key] = parsed;
+      } catch {
+        vars[key] = value;
+      }
+    }
+
+    if (searchParams.get('archivedOnly') === 'true') {
+      vars.noSkipArchive = true;
+    }
+
+    return vars;
+  }, [searchParams]);
+
+  const archivedOnly = searchParams.get('archivedOnly') === 'true';
+  const queryVariablesKey = useMemo(
+    () => JSON.stringify(queryVariables),
+    [queryVariables],
+  );
 
   useEffect(() => {
-    if (columns.length > 0 && !boardState) {
-      const initialState: DealsBoardState = {
-        columns,
-        items: {},
-        columnItems: Object.fromEntries(columns.map((col) => [col.id, []])),
-      };
-      setBoardState(initialState);
-    }
-  }, [columns, setBoardState]);
+    setBoardState(null);
+  }, [archivedOnly, setBoardState]);
+
+  useEffect(() => {
+    if (columns.length === 0) return;
+
+    const resetState: DealsBoardState = {
+      columns,
+      items: {},
+      columnItems: Object.fromEntries(columns.map((col) => [col.id, []])),
+    };
+    setBoardState(resetState);
+    setAllDealsMap({});
+
+    columns.forEach((col) => {
+      initColumn(col.id, col.itemsTotalCount);
+    });
+
+    setFetchMoreTriggers({});
+  }, [columns, queryVariablesKey, setBoardState, setAllDealsMap, initColumn]);
 
   useEffect(() => {
     setBoardState((prev) => {
@@ -41,6 +93,38 @@ export const DealsBoard = () => {
       return { ...prev, columns };
     });
   }, [columns, setBoardState]);
+
+  const handleLoadMore = useCallback(
+    (columnId: string) => {
+      setLoading(columnId, true);
+      setFetchMoreTriggers((prev) => ({
+        ...prev,
+        [columnId]: (prev[columnId] || 0) + 1,
+      }));
+    },
+    [setLoading],
+  );
+
+  const handleFetchComplete = useCallback(
+    (
+      columnId: string,
+      result: {
+        fetchedCount: number;
+        hasMore: boolean;
+        cursor?: string | null;
+        totalCount?: number;
+      },
+    ) => {
+      updateAfterFetch(
+        columnId,
+        result.fetchedCount,
+        result.hasMore,
+        result.cursor,
+        result.totalCount,
+      );
+    },
+    [updateAfterFetch],
+  );
 
   const handleStateChange = useCallback(
     (
@@ -57,7 +141,6 @@ export const DealsBoard = () => {
         }));
       });
 
-      // Detect column reorder
       const oldColumnOrder = oldState?.columns.map((c) => c._id).join(',');
       const newColumnOrder = newState.columns.map((c) => c._id).join(',');
       if (oldColumnOrder && oldColumnOrder !== newColumnOrder) {
@@ -101,12 +184,34 @@ export const DealsBoard = () => {
         });
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setBoardState, setAllDealsMap],
   );
 
-  if (!boardState || columnsLoading) {
+  const columnPaginationState = useMemo((): Record<
+    string,
+    ColumnPaginationState
+  > => {
+    const result: Record<string, ColumnPaginationState> = {};
+    for (const [columnId, info] of Object.entries(pagination)) {
+      result[columnId] = {
+        hasMore: info.hasMore,
+        isLoading: info.isLoading,
+        totalCount: info.totalCount,
+      };
+    }
+    return result;
+  }, [pagination]);
+
+  if (columnsLoading || !boardState) {
     return <StagesLoading />;
   }
+
+  if (columns.length === 0) {
+    return <NoStagesWarning />;
+  }
+
+  if (!boardState) return null;
 
   return (
     <GenericBoard<any, any>
@@ -118,8 +223,13 @@ export const DealsBoard = () => {
           column={column}
           count={count}
           pipelineId={pipelineId || ''}
+          queryVariables={queryVariables}
+          fetchMoreTrigger={fetchMoreTriggers[column._id] || 0}
+          onFetchComplete={handleFetchComplete}
         />
       )}
+      columnPagination={columnPaginationState}
+      onLoadMore={handleLoadMore}
     />
   );
 };

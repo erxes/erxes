@@ -6,9 +6,11 @@ import {
   IconEdit,
   IconTrash,
   IconEye,
+  IconDots,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { CmsLayout } from './CmsLayout';
+import { EmptyState } from './EmptyState';
 import {
   RecordTable,
   CommandBar,
@@ -24,134 +26,83 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useParams } from 'react-router-dom';
 import { CustomTypeDrawer } from '../customTypes/CustomTypeDrawer';
-
-const fakeCustomTypes = [
-  {
-    _id: '1',
-    name: 'Product',
-    description: 'Product information and details',
-    fields: 8,
-    postsCount: 45,
-    createdAt: '2024-01-15T10:30:00Z',
-    status: 'active',
-  },
-  {
-    _id: '2',
-    name: 'Event',
-    description: 'Event information and scheduling',
-    fields: 12,
-    postsCount: 23,
-    createdAt: '2024-01-14T14:20:00Z',
-    status: 'active',
-  },
-  {
-    _id: '3',
-    name: 'Portfolio',
-    description: 'Portfolio and project showcase',
-    fields: 6,
-    postsCount: 18,
-    createdAt: '2024-01-13T09:15:00Z',
-    status: 'active',
-  },
-  {
-    _id: '4',
-    name: 'Testimonial',
-    description: 'Customer testimonials and reviews',
-    fields: 5,
-    postsCount: 32,
-    createdAt: '2024-01-12T11:30:00Z',
-    status: 'active',
-  },
-  {
-    _id: '5',
-    name: 'FAQ',
-    description: 'Frequently asked questions',
-    fields: 3,
-    postsCount: 15,
-    createdAt: '2024-01-11T16:00:00Z',
-    status: 'draft',
-  },
-];
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'active':
-      return 'bg-green-100 text-green-800';
-    case 'draft':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'archived':
-      return 'bg-gray-100 text-gray-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
+import { useQuery, useMutation } from '@apollo/client';
+import {
+  CMS_CUSTOM_POST_TYPES,
+  CMS_CUSTOM_POST_TYPE_EDIT,
+  CMS_CUSTOM_POST_TYPE_REMOVE,
+} from '../../graphql/queries';
 
 export function CustomTypes() {
-  const [types, setTypes] = useState(fakeCustomTypes);
   const { confirm } = useConfirm();
   const { websiteId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editingType, setEditingType] = useState<any>(null);
+
+  const { data, loading, refetch } = useQuery(CMS_CUSTOM_POST_TYPES, {
+    variables: { clientPortalId: websiteId },
+    skip: !websiteId,
+  });
+
+  const [editType] = useMutation(CMS_CUSTOM_POST_TYPE_EDIT, {
+    onCompleted: () => {
+      toast({ title: 'Success', description: 'Custom type updated!' });
+      refetch();
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const [removeType] = useMutation(CMS_CUSTOM_POST_TYPE_REMOVE, {
+    onCompleted: () => {
+      toast({ title: 'Success', description: 'Custom type deleted!' });
+      refetch();
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const types = data?.cmsCustomPostTypes || [];
 
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<any>;
 
   const columns: ColumnDef<any>[] = [
-    {
-      id: 'more',
-      header: () => <span className="sr-only">More</span>,
-      cell: ({ row }) => {
-        const onRemove = () => {
-          confirm({
-            message: 'Are you sure you want to delete this type?',
-          }).then(async () => {
-            setTypes((prev) => prev.filter((t) => t._id !== row.original._id));
-          });
-        };
-        const onView = () => {};
-        const onEdit = () => {};
-        return (
-          <Popover>
-            <Popover.Trigger asChild>
-              <RecordTable.MoreButton className="w-full h-full" />
-            </Popover.Trigger>
-            <Combobox.Content>
-              <Command shouldFilter={false}>
-                <Command.List>
-                  <Command.Item value="view" onSelect={onView}>
-                    <IconEye /> View
-                  </Command.Item>
-                  <Command.Item value="edit" onSelect={onEdit}>
-                    <IconEdit /> Edit
-                  </Command.Item>
-                  <Command.Item value="remove" onSelect={onRemove}>
-                    <IconTrash /> Delete
-                  </Command.Item>
-                </Command.List>
-              </Command>
-            </Combobox.Content>
-          </Popover>
-        );
-      },
-      size: 40,
-    },
     checkboxColumn,
     {
       id: 'name',
       header: () => (
         <RecordTable.InlineHead icon={IconLayout} label="Type Name" />
       ),
-      accessorKey: 'name',
+      accessorKey: 'label',
       cell: ({ cell }) => {
         const original = cell.row.original as any;
         const [open, setOpen] = useState(false);
         const [_name, setName] = useState<string>(cell.getValue() as string);
 
         const onSave = async () => {
-          if ((_name || '') !== (original.name || '')) {
-            setTypes((prev) =>
-              prev.map((t) =>
-                t._id === original._id ? { ...t, name: _name } : t,
-              ),
-            );
+          if ((_name || '') !== (original.label || '')) {
+            editType({
+              variables: {
+                _id: original._id,
+                input: {
+                  label: _name,
+                  pluralLabel: original.pluralLabel,
+                  code: original.code,
+                  description: original.description,
+                  clientPortalId: websiteId,
+                },
+              },
+            });
           }
         };
 
@@ -184,24 +135,11 @@ export function CustomTypes() {
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 pl-2">
           {(cell.getValue() as string) || ''}
         </div>
       ),
       size: 360,
-    },
-    {
-      id: 'fields',
-      header: () => <RecordTable.InlineHead icon={IconLayout} label="Fields" />,
-      accessorKey: 'fields',
-      cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-          <span className="text-sm text-gray-700">
-            {cell.getValue() as number}
-          </span>
-        </div>
-      ),
-      size: 120,
     },
 
     {
@@ -228,16 +166,48 @@ export function CustomTypes() {
       },
       size: 200,
     },
+    {
+      id: 'actions',
+      header: () => <RecordTable.InlineHead label="Actions" icon={IconDots} />,
+      cell: ({ row }) => {
+        const onRemove = () => {
+          confirm({
+            message: 'Are you sure you want to delete this type?',
+          }).then(async () => {
+            removeType({ variables: { _id: row.original._id } });
+          });
+        };
+        const onEdit = () => {
+          setEditingType(row.original);
+          setIsDrawerOpen(true);
+        };
+        return (
+          <div className="flex px-2 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+              onClick={onEdit}
+            >
+              <IconEdit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+              onClick={onRemove}
+            >
+              <IconTrash className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+      size: 120,
+    },
   ];
 
   const headerActions = (
     <>
-      <Button variant="outline" asChild>
-        <a href="/settings/content">
-          <IconSettings />
-          Go to settings
-        </a>
-      </Button>
       <Button
         onClick={() => {
           setIsDrawerOpen(true);
@@ -251,59 +221,68 @@ export function CustomTypes() {
 
   return (
     <>
-    <CmsLayout headerActions={headerActions}>
-      <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-gray-600">
-          Found {types.length} custom types
-          <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-            Sample Data
-          </span>
+      <CmsLayout headerActions={headerActions}>
+        <div className="flex justify-between items-center mb-6">
+          <div className="text-sm text-gray-600">
+            {loading ? 'Loading...' : `Found ${types.length} custom types`}
+          </div>
         </div>
-      </div>
 
-      <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden">
-        <RecordTable.Provider
-          columns={columns}
-          data={types || []}
-          className="h-full m-0"
-          stickyColumns={['more', 'checkbox', 'name']}
-        >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-            </RecordTable.Body>
-          </RecordTable>
+        {!loading && types.length === 0 ? (
+          <div className="bg-white rounded-lg  overflow-hidden">
+            <div className="p-12">
+              <EmptyState
+                icon={IconLayout}
+                title="No custom types yet"
+                description="Create custom post types to organize your content. Custom types help you structure different kinds of content like products, events, or portfolios."
+                actionLabel="Add Custom Type"
+                onAction={() => setIsDrawerOpen(true)}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="h-full rounded-lg shadow-sm border overflow-hidden">
+            <RecordTable.Provider
+              columns={columns}
+              data={types || []}
+              className="h-full m-0"
+              stickyColumns={['checkbox', 'name']}
+            >
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                </RecordTable.Body>
+              </RecordTable>
 
-          <TypesCommandBar
-            onBulkDelete={async (ids: string[]) => {
-              setTypes((prev) => prev.filter((t) => !ids.includes(t._id)));
-            }}
-          />
-        </RecordTable.Provider>
-      </div>
-    </CmsLayout>
+              <TypesCommandBar
+                onBulkDelete={async (ids: string[]) => {
+                  for (const id of ids) {
+                    await removeType({ variables: { _id: id } });
+                  }
+                }}
+              />
+            </RecordTable.Provider>
+          </div>
+        )}
+      </CmsLayout>
 
-    <CustomTypeDrawer
-      isOpen={isDrawerOpen}
-      onClose={() => setIsDrawerOpen(false)}
-      clientPortalId={websiteId || ''}
-      onCreate={(data) => {
-        const now = new Date().toISOString();
-        setTypes((prev) => [
-          {
-            _id: `${Date.now()}`,
-            name: data.label,
-            description: data.description || '',
-            fields: 0,
-            postsCount: 0,
-            createdAt: now,
-            status: 'active',
-          },
-          ...prev,
-        ]);
-      }}
-    />
+      <CustomTypeDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setEditingType(null);
+        }}
+        clientPortalId={websiteId || ''}
+        customType={editingType}
+        onCreate={() => {
+          refetch();
+        }}
+        onUpdate={() => {
+          refetch();
+          setEditingType(null);
+        }}
+      />
     </>
   );
 }

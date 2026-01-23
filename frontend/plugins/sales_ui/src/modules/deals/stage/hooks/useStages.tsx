@@ -141,6 +141,7 @@ export function useStagesEdit(options?: MutationHookOptions<any, any>) {
 }
 
 export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
+  const [pipelineId] = useQueryState<string>('pipelineId');
   const [sortItemsBase, { loading, error }] = useMutation(STAGES_SORT_ITEMS, {
     ...options,
     variables: {
@@ -161,10 +162,12 @@ export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
     },
   });
 
-  const sortItems = (stageId: string, sortType: string) =>
+  const sortItems = (stageId: string, sortType: string, processId: string) =>
     sortItemsBase({
-      variables: { stageId, sortType },
-      refetchQueries: [{ query: GET_DEALS, variables: { stageId } }],
+      variables: { stageId, sortType, processId },
+      refetchQueries: [
+        { query: GET_DEALS, variables: { stageId, pipelineId } },
+      ],
     });
 
   return { sortItems, loading, error };

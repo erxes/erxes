@@ -1,6 +1,3 @@
-import * as AWS from 'aws-sdk';
-import * as nodemailer from 'nodemailer';
-
 import {
   ICampaign,
   IEngageMessageDocument,
@@ -12,7 +9,6 @@ import {
   SES_DELIVERY_STATUSES,
 } from '@/broadcast/constants';
 import { getApi } from '@/broadcast/trackers';
-import { ISESConfig } from '@/organization/settings/db/definitions/configs';
 import { getValueAsString } from '@/organization/settings/db/models/Configs';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
 import {
@@ -20,7 +16,6 @@ import {
   fetchEs,
   getEnv,
   getPlugins,
-  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
@@ -30,21 +25,6 @@ export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
   return ELK_SYNCER === 'false' ? false : true;
-};
-
-export const createTransporter = async (models: IModels) => {
-  const config: ISESConfig = await models.Configs.getSESConfigs();
-
-  try {
-    AWS.config.update(config);
-
-    return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
-    });
-  } catch (error) {
-    console.log(`Error during create transporter: ${error.message}`);
-    throw new Error(error.message);
-  }
 };
 
 export interface IUser {
@@ -484,28 +464,8 @@ export const send = async (
   engageMessage: IEngageMessageDocument,
   forceCreateConversation?: boolean,
 ) => {
-  const {
-    customerIds,
-    segmentIds,
-    customerTagIds,
-    brandIds,
-    fromUserId,
-    scheduleDate,
-    _id,
-    kind,
-    runCount,
-    title,
-  } = engageMessage;
-
-  const notRunNow = await timeCheckScheduledBroadcast(
-    _id,
-    models,
-    scheduleDate,
-  );
-
-  if (notRunNow) {
-    return;
-  }
+  const { targetType, targetIds, fromUserId, _id, kind, runCount, title } =
+    engageMessage;
 
   const user = await models.Users.findOne({ _id: fromUserId });
 
@@ -530,11 +490,9 @@ export const send = async (
   }
 
   const customersSelector = await generateCustomerSelector(subdomain, models, {
-    engageId: engageMessage._id,
-    customerIds,
-    segmentIds,
-    tagIds: customerTagIds,
-    brandIds,
+    engageId: _id,
+    targetType,
+    targetIds,
   });
 
   if (engageMessage.method === CAMPAIGN_METHODS.EMAIL) {
@@ -546,81 +504,81 @@ export const send = async (
     );
   }
 
-  if (engageMessage.method === CAMPAIGN_METHODS.SMS) {
-    return sendEmailOrSms(
-      models,
-      subdomain,
-      { engageMessage, customersSelector, user },
-      'sendEngageSms',
-    );
-  }
+  // if (engageMessage.method === CAMPAIGN_METHODS.SMS) {
+  //   return sendEmailOrSms(
+  //     models,
+  //     subdomain,
+  //     { engageMessage, customersSelector, user },
+  //     'sendEngageSms',
+  //   );
+  // }
 
-  if (
-    engageMessage.method === CAMPAIGN_METHODS.MESSENGER &&
-    forceCreateConversation
-  ) {
-    const brandId =
-      (engageMessage.messenger && engageMessage.messenger.brandId) || '';
+  // if (
+  //   engageMessage.method === CAMPAIGN_METHODS.MESSENGER &&
+  //   forceCreateConversation
+  // ) {
+  //   const brandId =
+  //     (engageMessage.messenger && engageMessage.messenger.brandId) || '';
 
-    const integrations = await sendTRPCMessage({
-      subdomain,
+  //   const integrations = await sendTRPCMessage({
+  //     subdomain,
 
-      pluginName: 'frontline',
-      method: 'query',
-      module: 'integrations',
-      action: 'find',
-      input: {
-        query: { brandId, kind: 'messenger' },
-      },
-    });
+  //     pluginName: 'frontline',
+  //     method: 'query',
+  //     module: 'integrations',
+  //     action: 'find',
+  //     input: {
+  //       query: { brandId, kind: 'messenger' },
+  //     },
+  //   });
 
-    if (integrations?.length === 0) {
-      throw new Error("The Brand doesn't have Messenger Integration ");
-    }
+  //   if (integrations?.length === 0) {
+  //     throw new Error("The Brand doesn't have Messenger Integration ");
+  //   }
 
-    if (integrations?.length > 1) {
-      throw new Error('The Brand has multiple integrations');
-    }
+  //   if (integrations?.length > 1) {
+  //     throw new Error('The Brand has multiple integrations');
+  //   }
 
-    const integration = integrations[0];
+  //   const integration = integrations[0];
 
-    if (!integration || !brandId) {
-      throw new Error('Integration not found or brandId is not provided');
-    }
+  //   if (!integration || !brandId) {
+  //     throw new Error('Integration not found or brandId is not provided');
+  //   }
 
-    const erxesCustomers = await models.Customers.find(customersSelector);
+  //   const erxesCustomers = await models.Customers.find(customersSelector);
 
-    for (const customer of erxesCustomers || []) {
-      await models.EngageMessages.createVisitorOrCustomerMessages({
-        brandId,
-        integrationId: integration._id,
-        customer,
-        visitorId: undefined,
-        browserInfo: {},
-      });
-    }
+  //   for (const customer of erxesCustomers || []) {
+  //     await models.EngageMessages.createVisitorOrCustomerMessages({
+  //       brandId,
+  //       integrationId: integration._id,
+  //       customer,
+  //       visitorId: undefined,
+  //       browserInfo: {},
+  //     });
+  //   }
 
-    const receiversLength = erxesCustomers?.length || 0;
+  //   const receiversLength = erxesCustomers?.length || 0;
 
-    if (receiversLength > 0) {
-      await models.EngageMessages.updateOne(
-        { _id: engageMessage._id },
-        {
-          $set: {
-            totalCustomersCount: receiversLength,
-          },
-        },
-      );
-    }
-  }
+  //   if (receiversLength > 0) {
+  //     await models.EngageMessages.updateOne(
+  //       { _id: engageMessage._id },
+  //       {
+  //         $set: {
+  //           totalCustomersCount: receiversLength,
+  //         },
+  //       },
+  //     );
+  //   }
+  // }
 
-  if (engageMessage.method === CAMPAIGN_METHODS.NOTIFICATION) {
-    return sendNotifications(models, subdomain, {
-      engageMessage,
-      customersSelector,
-      user,
-    });
-  }
+  // if (engageMessage.method === CAMPAIGN_METHODS.NOTIFICATION) {
+  //   return sendNotifications(models, subdomain, {
+  //     engageMessage,
+  //     customersSelector,
+  //     user,
+  //   });
+  // }
 };
 
 export const prepareEngageCustomers = async (
@@ -770,19 +728,6 @@ const sendEmailOrSms = async (
   { engageMessage, customersSelector, user }: IEngageParams,
   action: 'sendEngage' | 'sendEngageSms',
 ) => {
-  const engageMessageId = engageMessage._id;
-
-  const MINUTELY =
-    engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
-
-  if (!(engageMessage.kind === CAMPAIGN_KINDS.AUTO && MINUTELY)) {
-    // await models.Logs.createLog(
-    //   engageMessageId,
-    //   "regular",
-    //   `Run at ${new Date()}`
-    // );
-  }
-
   prepareEngageCustomers(models, subdomain, {
     engageMessage,
     customersSelector,

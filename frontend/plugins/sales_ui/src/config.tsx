@@ -21,9 +21,20 @@ const PosOrderNavigation = lazy(() =>
   })),
 );
 
+const SalesSettingsNavigation = lazy(() =>
+  import('./modules/SalesSettingsNavigation').then((module) => ({
+    default: module.SalesSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'sales',
-  icon: IconBriefcase,
+  path: 'sales',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SalesSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'sales',
     icon: IconBriefcase,
@@ -32,7 +43,7 @@ export const CONFIG: IUIConfig = {
         <MainNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <SalesSubNavigation />
         <PosOrderNavigation />
@@ -44,21 +55,15 @@ export const CONFIG: IUIConfig = {
       name: 'sales',
       icon: IconBriefcase,
       path: 'sales',
-      hasSettings: false,
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'deals',
       path: 'sales/deals',
-      settingsOnly: true,
     },
     {
       name: 'pos',
       icon: IconBriefcase,
-      path: 'pos',
-      hasSettings: true,
-      hasAutomation: false,
+      path: 'sales/pos',
     },
   ],
   widgets: {

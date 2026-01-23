@@ -1,30 +1,26 @@
-import { BaseBoardColumn, BaseBoardItem } from '@/deals/types/boards';
-import React, { memo, useRef } from 'react';
+import {
+  BaseBoardColumn,
+  BaseBoardItem,
+  GenericBoardColumnProps,
+  VirtualizedCardListProps,
+} from '@/deals/types/boards';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import {
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { Spinner, cn } from 'erxes-ui';
 
 import { CSS } from '@dnd-kit/utilities';
+import { CardsLoading } from '@/deals/components/loading/CardsLoading';
 import { IconGripVertical } from '@tabler/icons-react';
-import { cn } from 'erxes-ui';
+import { useColumnLoading } from '@/deals/states/dealsBoardState';
 import { useDroppable } from '@dnd-kit/core';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 const ESTIMATED_CARD_HEIGHT = 100;
-
-interface GenericBoardColumnProps<
-  TItem extends BaseBoardItem,
-  TColumn extends BaseBoardColumn,
-> {
-  column: TColumn;
-  items: TItem[];
-  renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
-  renderColumnHeader?: (column: TColumn, itemCount: number) => React.ReactNode;
-  className?: string;
-  cardClassName?: string;
-}
+const SCROLL_THRESHOLD = 200;
 
 function GenericBoardColumnInner<
   TItem extends BaseBoardItem,
@@ -35,6 +31,10 @@ function GenericBoardColumnInner<
   renderCard,
   renderColumnHeader,
   className,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
+  totalCount,
 }: GenericBoardColumnProps<TItem, TColumn>) {
   const {
     attributes,
@@ -47,6 +47,7 @@ function GenericBoardColumnInner<
     id: column._id,
     data: { type: 'column', column },
   });
+  const [columnLoading] = useColumnLoading();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -82,8 +83,18 @@ function GenericBoardColumnInner<
       <VirtualizedCardList
         columnId={column._id}
         items={items}
+        isLoading={columnLoading[column._id]}
         renderCard={renderCard}
+        hasMore={hasMore}
+        isLoadingMore={isLoadingMore}
+        onLoadMore={onLoadMore}
       />
+
+      {totalCount !== undefined && totalCount > items.length && (
+        <div className="px-3 py-1.5 text-xs text-muted-foreground border-t border-border/50 text-center">
+          Showing {items.length} of {totalCount}
+        </div>
+      )}
     </div>
   );
 }
@@ -100,19 +111,19 @@ const DefaultColumnHeader = memo(
 );
 DefaultColumnHeader.displayName = 'DefaultColumnHeader';
 
-// Virtualized card list for performance
-interface VirtualizedCardListProps<TItem extends BaseBoardItem> {
-  columnId: string;
-  items: TItem[];
-  renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
-}
-
 function VirtualizedCardListInner<TItem extends BaseBoardItem>({
   columnId,
   items,
   renderCard,
+  hasMore: hasMoreProp,
+  isLoadingMore: isLoadingMoreProp,
+  onLoadMore,
+  isLoading = false,
 }: VirtualizedCardListProps<TItem>) {
+  const hasMore = hasMoreProp ?? true;
+  const isLoadingMore = isLoadingMoreProp ?? false;
   const parentRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `${columnId}-droppable`,
@@ -127,7 +138,41 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
     measureElement: (el) => el.getBoundingClientRect().height,
   });
 
-  const itemIds = items.map((item) => item.id);
+  const handleScroll = useCallback(() => {
+    if (
+      !parentRef.current ||
+      !hasMore ||
+      isLoadingMore ||
+      loadingRef.current ||
+      !onLoadMore
+    ) {
+      return;
+    }
+
+    const { scrollTop, scrollHeight, clientHeight } = parentRef.current;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+    if (distanceFromBottom < SCROLL_THRESHOLD) {
+      loadingRef.current = true;
+      onLoadMore();
+    }
+  }, [hasMore, isLoadingMore, onLoadMore]);
+
+  useEffect(() => {
+    if (!isLoadingMore) {
+      loadingRef.current = false;
+    }
+  }, [isLoadingMore]);
+
+  useEffect(() => {
+    const scrollElement = parentRef.current;
+    if (!scrollElement) return;
+
+    scrollElement.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollElement.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  const itemIds = items.map((item) => item._id);
 
   return (
     <div
@@ -147,7 +192,7 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
             const item = items[virtualRow.index];
             return (
               <SortableCard
-                key={item.id}
+                key={item._id}
                 item={item}
                 renderCard={renderCard}
                 virtualStart={virtualRow.start}
@@ -159,7 +204,15 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
         </div>
       </SortableContext>
 
-      {items.length === 0 && (
+      {isLoadingMore && (
+        <div className="flex items-center justify-center py-3 text-muted-foreground">
+          <Spinner />
+        </div>
+      )}
+
+      {isLoading && <CardsLoading />}
+
+      {items.length === 0 && !isLoadingMore && !isLoading && (
         <div
           className={`
             border-2 border-dashed bg-white/80 rounded-lg text-muted-foreground
@@ -198,7 +251,7 @@ function SortableCardInner<TItem extends BaseBoardItem>({
     transition,
     isDragging,
   } = useSortable({
-    id: item.id,
+    id: item._id,
     data: { type: 'card', item },
   });
 
@@ -224,7 +277,7 @@ function SortableCardInner<TItem extends BaseBoardItem>({
         {...attributes}
         {...listeners}
         className={cn(
-          'bg-white rounded-lg border shadow-sm cursor-grab active:cursor-grabbing',
+          'bg-white rounded-lg border shadow-sm cursor-grab overflow-hidden active:cursor-grabbing',
           'hover:shadow-md hover:border-primary/50 transition-all duration-150',
           isDragging && 'opacity-40 shadow-lg',
         )}
