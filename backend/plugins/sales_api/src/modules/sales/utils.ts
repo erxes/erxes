@@ -1,4 +1,4 @@
-import { IRelationDocument, IUserDocument } from 'erxes-api-shared/core-types';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   getNextMonth,

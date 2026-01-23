@@ -1,5 +1,3 @@
-import { GET_RELATIONS_BY_ENTITY } from './getRelations';
-import { CREATE_RELATIONS, CREATE_MULTIPLE_RELATIONS } from './createRelations';
-import { MANAGE_RELATIONS } from './manageRelations';
-
-export { GET_RELATIONS_BY_ENTITY, CREATE_RELATIONS, CREATE_MULTIPLE_RELATIONS, MANAGE_RELATIONS };
+export { GET_RELATIONS_BY_ENTITY } from './getRelations';
+export { CREATE_RELATIONS, CREATE_MULTIPLE_RELATIONS } from './createRelations';
+export { MANAGE_RELATIONS } from './manageRelations';

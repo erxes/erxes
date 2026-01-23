@@ -3,7 +3,6 @@ import { IDealDocument } from '~/modules/sales/@types';
 import { generateAmounts } from '~/modules/sales/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { ICompany, ICustomer } from 'erxes-api-shared/core-types';
-import { pipeline } from 'stream';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {

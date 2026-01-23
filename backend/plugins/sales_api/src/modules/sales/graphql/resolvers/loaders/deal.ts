@@ -3,12 +3,10 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IRef } from '.';
 import { IPipeline } from '~/modules/sales/@types';
 import { IModels } from '~/connectionResolvers';
-import { pipeline } from 'stream';
 
 export const dealLoader = (subdomain: string, models: IModels) => ({
   companiesByDealId: new DataLoader<string, IRef[]>(async (dealIds) => {
-    const companyIds: string[] = [];
-    const companyIdsByItemId = {};
+    const companyIdsByItemId: Record<string, string[]> = {};
 
     const companyRelations = await sendTRPCMessage({
       subdomain,
@@ -27,13 +25,8 @@ export const dealLoader = (subdomain: string, models: IModels) => ({
       const { entities } = relation;
       const dealId = entities.find(e => e.contentType === 'sales:deal')?.contentId ?? '';
       const companyId = entities.find(e => e.contentType === 'core:company')?.contentId ?? '';
-      companyIds.push(companyId);
 
-      if (!Object.keys(companyIdsByItemId).includes(dealId)) {
-        companyIdsByItemId[dealId] = []
-      }
-
-      companyIdsByItemId[dealId].push(companyId)
+      (companyIdsByItemId[dealId] ||= []).push(companyId);
     }
 
     return dealIds.map((id) =>
@@ -45,8 +38,7 @@ export const dealLoader = (subdomain: string, models: IModels) => ({
   }),
 
   customersByDealId: new DataLoader<string, IRef[]>(async (dealIds) => {
-    const customerIds: string[] = [];
-    const customerIdsByItemId = {};
+    const customerIdsByItemId: Record<string, string[]> = {};
 
     const customerRelations = await sendTRPCMessage({
       subdomain,
@@ -65,13 +57,8 @@ export const dealLoader = (subdomain: string, models: IModels) => ({
       const { entities } = relation;
       const dealId = entities.find(e => e.contentType === 'sales:deal')?.contentId ?? '';
       const customerId = entities.find(e => e.contentType === 'core:customer')?.contentId ?? '';
-      customerIds.push(customerId);
 
-      if (!Object.keys(customerIdsByItemId).includes(dealId)) {
-        customerIdsByItemId[dealId] = []
-      }
-
-      customerIdsByItemId[dealId].push(customerId)
+      (customerIdsByItemId[dealId] ||= []).push(customerId);
     }
 
     return dealIds.map((id) =>
