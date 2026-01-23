@@ -43,6 +43,54 @@ const VendorUsersPage = lazy(() =>
   })),
 );
 
+const ContractsPage = lazy(() =>
+  import('~/pages/insurance/ContractsPage').then((module) => ({
+    default: module.ContractsPage,
+  })),
+);
+
+const ContractDetailPage = lazy(() =>
+  import('~/pages/insurance/ContractDetailPage').then((module) => ({
+    default: module.ContractDetailPage,
+  })),
+);
+
+const CustomersPage = lazy(() =>
+  import('~/pages/insurance/CustomersPage').then((module) => ({
+    default: module.CustomersPage,
+  })),
+);
+
+const CarInsurancePage = lazy(() =>
+  import('~/pages/insurance/CarInsurancePage').then((module) => ({
+    default: module.CarInsurancePage,
+  })),
+);
+
+const CitizenInsurancePage = lazy(() =>
+  import('~/pages/insurance/CitizenInsurancePage').then((module) => ({
+    default: module.CitizenInsurancePage,
+  })),
+);
+
+const ContractPdfEditorPage = lazy(() =>
+  import('~/pages/insurance/ContractPdfEditorPage').then((module) => ({
+    default: module.ContractPdfEditorPage,
+  })),
+);
+
+const ContractTemplateEditorPage = lazy(() =>
+  import('~/pages/insurance/ContractTemplateEditorPage').then((module) => ({
+    default: module.ContractTemplateEditorPage,
+  })),
+);
+
+const ContractTemplatesPage = lazy(() =>
+  import('~/pages/insurance/ContractTemplatesPage').then((module) => ({
+    default: module.default,
+  })),
+);
+
 const insuranceMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -54,6 +102,21 @@ const insuranceMain = () => {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/risks" element={<RiskTypesPage />} />
         <Route path="/types" element={<InsuranceTypesPage />} />
+        <Route path="/contracts" element={<ContractsPage />} />
+        <Route path="/contracts/:id" element={<ContractDetailPage />} />
+        <Route path="/contracts/:id/pdf" element={<ContractPdfEditorPage />} />
+        <Route path="/contract-templates" element={<ContractTemplatesPage />} />
+        <Route
+          path="/contract-templates/:id/edit"
+          element={<ContractTemplateEditorPage />}
+        />
+        <Route
+          path="/contract-templates/:id/preview"
+          element={<ContractTemplateEditorPage />}
+        />
+        <Route path="/customers" element={<CustomersPage />} />
+        <Route path="/car-insurance" element={<CarInsurancePage />} />
+        <Route path="/citizen-insurance" element={<CitizenInsurancePage />} />
       </Routes>
     </Suspense>
   );

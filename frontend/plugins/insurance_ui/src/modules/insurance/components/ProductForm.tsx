@@ -5,6 +5,7 @@ import {
   useUpdateInsuranceProduct,
   useInsuranceTypes,
   useRiskTypes,
+  useContractTemplates,
 } from '../hooks';
 import { InsuranceProduct } from '../types';
 
@@ -27,32 +28,58 @@ export const ProductForm = ({
     useUpdateInsuranceProduct();
   const { insuranceTypes, loading: typesLoading } = useInsuranceTypes();
   const { riskTypes, loading: risksLoading } = useRiskTypes();
+  const { contractTemplates } = useContractTemplates();
 
   const [formData, setFormData] = useState({
     name: '',
     insuranceTypeId: '',
+    templateId: '',
     coveredRisks: [] as { riskId: string; coveragePercentage: number }[],
-    pricingConfig: {},
+    pricingConfig: { percentage: 3 } as Record<
+      string,
+      number | Record<string, number>
+    >,
   });
+
+  const [durationFields, setDurationFields] = useState<
+    { duration: string; percentage: number }[]
+  >([]);
 
   useEffect(() => {
     if (product) {
       setFormData({
         name: product.name,
         insuranceTypeId: product.insuranceType.id,
+        templateId: (product as any).templateId || '',
         coveredRisks: product.coveredRisks.map((cr) => ({
           riskId: cr.risk.id,
           coveragePercentage: cr.coveragePercentage,
         })),
-        pricingConfig: product.pricingConfig || {},
+        pricingConfig: product.pricingConfig || { percentage: 3 },
       });
+
+      const percentageByDuration = (product.pricingConfig as any)
+        ?.percentageByDuration;
+      if (percentageByDuration && typeof percentageByDuration === 'object') {
+        const durationEntries = Object.entries(percentageByDuration).map(
+          ([duration, percentage]) => ({
+            duration,
+            percentage: percentage as number,
+          }),
+        );
+        setDurationFields(durationEntries);
+      } else {
+        setDurationFields([]);
+      }
     } else {
       setFormData({
         name: '',
         insuranceTypeId: '',
+        templateId: '',
         coveredRisks: [],
-        pricingConfig: {},
+        pricingConfig: { percentage: 3 },
       });
+      setDurationFields([]);
     }
   }, [product, open]);
 
@@ -94,6 +121,7 @@ export const ProductForm = ({
             name: formData.name,
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
+            templateId: formData.templateId || null,
           },
         });
       } else {
@@ -103,6 +131,7 @@ export const ProductForm = ({
             insuranceTypeId: formData.insuranceTypeId,
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
+            templateId: formData.templateId || null,
           },
         });
       }
@@ -110,8 +139,9 @@ export const ProductForm = ({
       setFormData({
         name: '',
         insuranceTypeId: '',
+        templateId: '',
         coveredRisks: [],
-        pricingConfig: {},
+        pricingConfig: { percentage: 3 },
       });
       onOpenChange(false);
       onSuccess?.();
@@ -122,7 +152,7 @@ export const ProductForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog.Content className="max-w-2xl">
         <Dialog.Header>
           <Dialog.Title>
             {product ? 'Edit Product' : 'Create New Product'}
@@ -171,6 +201,31 @@ export const ProductForm = ({
               </Select>
             </div>
           )}
+
+          <div className="space-y-2">
+            <Label>PDF Загвар (сонголттой)</Label>
+            <Select
+              value={formData.templateId || undefined}
+              onValueChange={(value) =>
+                setFormData({ ...formData, templateId: value })
+              }
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Үндсэн загварыг ашиглана" />
+              </Select.Trigger>
+              <Select.Content>
+                {contractTemplates.map((template) => (
+                  <Select.Item key={template.id} value={template.id}>
+                    {template.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Энэ product-д зориулсан PDF загвар. Хоосон орхивол системийн
+              үндсэн загварыг ашиглана.
+            </p>
+          </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -251,22 +306,157 @@ export const ProductForm = ({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="pricingConfig">Pricing Config (JSON)</Label>
-            <textarea
-              id="pricingConfig"
-              className="w-full min-h-[100px] p-2 border rounded-md font-mono text-sm"
-              value={JSON.stringify(formData.pricingConfig, null, 2)}
-              onChange={(e) => {
-                try {
-                  const parsed = JSON.parse(e.target.value);
-                  setFormData({ ...formData, pricingConfig: parsed });
-                } catch (error) {
-                  // Invalid JSON, keep as is
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="percentage">Үндсэн хувь (%) *</Label>
+              <Input
+                id="percentage"
+                type="number"
+                min="0"
+                step="0.1"
+                value={(formData.pricingConfig.percentage as number) || 3}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    pricingConfig: {
+                      ...formData.pricingConfig,
+                      percentage: parseFloat(e.target.value) || 3,
+                    },
+                  })
                 }
-              }}
-              placeholder='{"basePrice": 1000, "multiplier": 1.5}'
-            />
+                placeholder="3"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Үндсэн хураамж = Үнэлгээний үнэ × Хувь
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">Хугацаагаар хувь (сонголттой)</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setDurationFields([
+                      ...durationFields,
+                      { duration: '', percentage: 0 },
+                    ]);
+                  }}
+                >
+                  Хугацаа нэмэх
+                </Button>
+              </div>
+
+              {durationFields.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Хугацаагаар өөр хувь тохируулах бол "Хугацаа нэмэх" дарна уу
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {durationFields.map((field, index) => (
+                    <div key={index} className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <Label className="text-xs">Хугацаа (сар)</Label>
+                        <Input
+                          value={field.duration}
+                          onChange={(e) => {
+                            const newFields = [...durationFields];
+                            newFields[index] = {
+                              ...newFields[index],
+                              duration: e.target.value,
+                            };
+                            setDurationFields(newFields);
+
+                            const percentageByDuration: Record<string, number> =
+                              {};
+                            newFields.forEach((f) => {
+                              if (f.duration) {
+                                percentageByDuration[f.duration] = f.percentage;
+                              }
+                            });
+                            setFormData({
+                              ...formData,
+                              pricingConfig: {
+                                ...formData.pricingConfig,
+                                percentageByDuration,
+                              },
+                            });
+                          }}
+                          placeholder="12months"
+                        />
+                      </div>
+                      <div className="w-32">
+                        <Label className="text-xs">Хувь (%)</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={field.percentage}
+                          onChange={(e) => {
+                            const newFields = [...durationFields];
+                            newFields[index] = {
+                              ...newFields[index],
+                              percentage: parseFloat(e.target.value) || 0,
+                            };
+                            setDurationFields(newFields);
+
+                            const percentageByDuration: Record<string, number> =
+                              {};
+                            newFields.forEach((f) => {
+                              if (f.duration) {
+                                percentageByDuration[f.duration] = f.percentage;
+                              }
+                            });
+                            setFormData({
+                              ...formData,
+                              pricingConfig: {
+                                ...formData.pricingConfig,
+                                percentageByDuration,
+                              },
+                            });
+                          }}
+                          placeholder="3"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newFields = durationFields.filter(
+                            (_, i) => i !== index,
+                          );
+                          setDurationFields(newFields);
+
+                          const percentageByDuration: Record<string, number> =
+                            {};
+                          newFields.forEach((f) => {
+                            if (f.duration) {
+                              percentageByDuration[f.duration] = f.percentage;
+                            }
+                          });
+                          setFormData({
+                            ...formData,
+                            pricingConfig: {
+                              ...formData.pricingConfig,
+                              percentageByDuration,
+                            },
+                          });
+                        }}
+                      >
+                        Устгах
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Жишээ: "12months", "24months", "36months" гэх мэт
+              </p>
+            </div>
           </div>
 
           <Dialog.Footer>

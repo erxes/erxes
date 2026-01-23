@@ -1,49 +1,26 @@
 import { IContext } from '~/connectionResolvers';
 
-// Helper function to generate unique code from name
-const generateCode = (name: string): string => {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-};
-
-// Generate unique code by checking for duplicates
-const generateUniqueCode = async (
-  models: any,
-  baseName: string,
-): Promise<string> => {
-  let code = generateCode(baseName);
-  let counter = 1;
-
-  // Check if code exists
-  while (await models.Product.findOne({ code })) {
-    code = `${generateCode(baseName)}_${counter}`;
-    counter++;
-  }
-
-  return code;
-};
-
 export const productMutations = {
   createInsuranceProduct: async (
     _parent: undefined,
     args: any,
     { models }: IContext,
   ) => {
-    const { insuranceTypeId, coveredRisks, name, ...rest } = args;
-    const code = await generateUniqueCode(models, name);
+    const { insuranceTypeId, coveredRisks, ...rest } = args;
     const product = await models.Product.create({
       ...rest,
-      name,
-      code,
       insuranceType: insuranceTypeId,
       coveredRisks: coveredRisks.map((cr: any) => ({
         risk: cr.riskId,
         coveragePercentage: cr.coveragePercentage,
       })),
     });
-    return product.populate('insuranceType coveredRisks.risk');
+    const populated = await product.populate('insuranceType coveredRisks.risk');
+
+    return {
+      ...populated.toObject(),
+      coveredRisks: populated.coveredRisks.filter((cr: any) => cr.risk != null),
+    };
   },
 
   updateInsuranceProduct: async (
@@ -53,14 +30,39 @@ export const productMutations = {
       name,
       coveredRisks,
       pricingConfig,
-    }: { id: string; name?: string; coveredRisks?: any[]; pricingConfig?: any },
+      templateId,
+    }: {
+      id: string;
+      name?: string;
+      coveredRisks?: any[];
+      pricingConfig?: any;
+      templateId?: string;
+    },
     { models }: IContext,
   ) => {
-    return models.Product.findByIdAndUpdate(
-      id,
-      { name, coveredRisks, pricingConfig },
-      { new: true },
-    );
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (pricingConfig !== undefined) updateData.pricingConfig = pricingConfig;
+    if (templateId !== undefined) updateData.templateId = templateId;
+    if (coveredRisks !== undefined) {
+      updateData.coveredRisks = coveredRisks.map((cr: any) => ({
+        risk: cr.riskId,
+        coveragePercentage: cr.coveragePercentage,
+      }));
+    }
+
+    const product = await models.Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    if (!product) return null;
+
+    const populated = await product.populate('insuranceType coveredRisks.risk');
+
+    return {
+      ...populated.toObject(),
+      coveredRisks: populated.coveredRisks.filter((cr: any) => cr.risk != null),
+    };
   },
 
   deleteInsuranceProduct: async (

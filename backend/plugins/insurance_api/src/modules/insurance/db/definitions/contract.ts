@@ -68,6 +68,10 @@ export const insuranceContractSchema = new Schema(
       required: true,
       unique: true,
     },
+    pdfContent: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

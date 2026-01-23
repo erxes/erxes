@@ -7,26 +7,7 @@ export const templateSchema = new Schema(
       type: String,
       required: true,
     },
-    insuranceType: {
-      type: String,
-      required: true,
-      unique: true,
-      enum: INSURANCE_TYPES,
-    },
     description: String,
-
-    // 
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'products',
-      optional: true,
-    },
-
-    vendor: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'vendors',
-      optional: true,
-    },
 
     // HTML content with Handlebars placeholders
     htmlContent: {

@@ -2,20 +2,59 @@ import { IContext } from '~/connectionResolvers';
 
 export const vendorQueries = {
   vendors: async (_parent: undefined, _args: any, { models }: IContext) => {
-    return models.Vendor.find({});
-  },
-
-  vendor: async (_parent: undefined, { id }: { id: string }, { models }: IContext) => {
-    return models.Vendor.findById(id).populate({
+    const vendors = await models.Vendor.find({}).populate({
       path: 'offeredProducts.product',
-      populate: { path: 'insuranceType' },
+      populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
     });
+
+    return vendors.map((vendor: any) => ({
+      ...vendor.toObject(),
+      offeredProducts: vendor.offeredProducts.filter(
+        (vp: any) => vp.product != null,
+      ),
+    }));
   },
 
-  myVendor: async (_parent: undefined, _args: any, { models, user }: IContext) => {
+  vendor: async (
+    _parent: undefined,
+    { id }: { id: string },
+    { models }: IContext,
+  ) => {
+    const vendor = await models.Vendor.findById(id).populate({
+      path: 'offeredProducts.product',
+      populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+    });
+
+    if (!vendor) return null;
+
+    return {
+      ...vendor.toObject(),
+      offeredProducts: vendor.offeredProducts.filter(
+        (vp: any) => vp.product != null,
+      ),
+    };
+  },
+
+  myVendor: async (
+    _parent: undefined,
+    _args: any,
+    { models, user }: IContext,
+  ) => {
     if (!user) throw new Error('Must be logged in');
     const vendorUser = await models.VendorUser.findById(user.id);
     if (!vendorUser) throw new Error('Vendor user not found');
-    return models.Vendor.findById(vendorUser.vendor);
+    const vendor = await models.Vendor.findById(vendorUser.vendor).populate({
+      path: 'offeredProducts.product',
+      populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+    });
+
+    if (!vendor) return null;
+
+    return {
+      ...vendor.toObject(),
+      offeredProducts: vendor.offeredProducts.filter(
+        (vp: any) => vp.product != null,
+      ),
+    };
   },
 };

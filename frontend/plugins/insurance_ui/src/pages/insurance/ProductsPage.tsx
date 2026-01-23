@@ -10,12 +10,17 @@ import {
 import { Breadcrumb, Button, Separator, Card, Badge } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { useInsuranceProducts } from '~/modules/insurance/hooks';
+import {
+  useInsuranceProducts,
+  useDeleteInsuranceProduct,
+} from '~/modules/insurance/hooks';
 import { ProductForm } from '~/modules/insurance/components';
 import { InsuranceProduct } from '~/modules/insurance/types';
 
 export const ProductsPage = () => {
   const { insuranceProducts, loading, refetch } = useInsuranceProducts();
+  const { deleteInsuranceProduct, loading: deleting } =
+    useDeleteInsuranceProduct();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<
     InsuranceProduct | undefined
@@ -38,6 +43,20 @@ export const ProductsPage = () => {
 
   const handleSuccess = () => {
     refetch();
+  };
+
+  const handleDelete = async (product: InsuranceProduct) => {
+    if (window.confirm(`Are you sure you want to delete "${product.name}"?`)) {
+      try {
+        await deleteInsuranceProduct({
+          variables: { id: product.id },
+        });
+        refetch();
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product');
+      }
+    }
   };
 
   return (
@@ -160,7 +179,12 @@ export const ProductsPage = () => {
                       <IconEdit size={16} />
                       Edit
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(product)}
+                      disabled={deleting}
+                    >
                       <IconTrash size={16} />
                     </Button>
                   </div>

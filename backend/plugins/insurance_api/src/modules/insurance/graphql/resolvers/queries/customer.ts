@@ -1,19 +1,25 @@
 import { IContext } from '~/connectionResolvers';
 
 export const customerQueries = {
-  insuranceCustomers: async (_parent: undefined, args: any, { models, user }: IContext) => {
-    const {search, page, limit, sort, sortField, filter} = args;
+  insuranceCustomers: async (
+    _parent: undefined,
+    args: any,
+    { models, user }: IContext,
+  ) => {
+    const { search, page = 1, limit = 100, sort, sortField, filter } = args;
     const query: any = {};
 
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
+        { registrationNumber: { $regex: search, $options: 'i' } },
       ];
     }
 
     if (filter) {
-      Object.keys(filter).forEach(key => {
+      Object.keys(filter).forEach((key) => {
         if (filter[key]) {
           query[key] = filter[key];
         }
@@ -27,10 +33,17 @@ export const customerQueries = {
 
     const skip = (page - 1) * limit;
 
-    return models.Customer.find(query).sort(sortOptions).skip(skip).limit(limit);
+    return models.Customer.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
   },
 
-  customer: async (_parent: undefined, { id }: { id: string }, { models }: IContext) => {
+  customer: async (
+    _parent: undefined,
+    { id }: { id: string },
+    { models }: IContext,
+  ) => {
     return models.Customer.findById(id);
   },
 };

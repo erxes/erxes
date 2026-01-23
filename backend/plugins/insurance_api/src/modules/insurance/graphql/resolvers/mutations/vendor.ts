@@ -20,7 +20,7 @@ export const vendorMutations = {
       { new: true },
     ).populate({
       path: 'offeredProducts.product',
-      populate: 'insuranceType',
+      populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
     });
   },
 
@@ -30,17 +30,36 @@ export const vendorMutations = {
       vendorId,
       productId,
       pricingOverride,
-    }: { vendorId: string; productId: string; pricingOverride?: any },
+      templateId,
+    }: {
+      vendorId: string;
+      productId: string;
+      pricingOverride?: any;
+      templateId?: string;
+    },
     { models }: IContext,
   ) => {
-    return models.Vendor.findByIdAndUpdate(
+    const vendor = await models.Vendor.findByIdAndUpdate(
       vendorId,
-      { $push: { offeredProducts: { product: productId, pricingOverride } } },
+      {
+        $push: {
+          offeredProducts: { product: productId, pricingOverride, templateId },
+        },
+      },
       { new: true },
     ).populate({
       path: 'offeredProducts.product',
-      populate: 'insuranceType',
+      populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
     });
+
+    if (!vendor) return null;
+
+    return {
+      ...vendor.toObject(),
+      offeredProducts: vendor.offeredProducts.filter(
+        (vp: any) => vp.product != null,
+      ),
+    };
   },
 
   removeProductFromVendor: async (
@@ -48,13 +67,25 @@ export const vendorMutations = {
     { vendorId, productId }: { vendorId: string; productId: string },
     { models }: IContext,
   ) => {
-    return models.Vendor.findByIdAndUpdate(
+    const vendor = await models.Vendor.findByIdAndUpdate(
       vendorId,
       {
         $pull: { offeredProducts: { product: productId } },
       },
       { new: true },
-    );
+    ).populate({
+      path: 'offeredProducts.product',
+      populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+    });
+
+    if (!vendor) return null;
+
+    return {
+      ...vendor.toObject(),
+      offeredProducts: vendor.offeredProducts.filter(
+        (vp: any) => vp.product != null,
+      ),
+    };
   },
 
   createVendorUser: async (

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import {
-  IconCaretDownFilled,
   IconSandbox,
-  IconSettings,
   IconPlus,
   IconFileText,
   IconShieldCheck,
@@ -55,16 +53,12 @@ export const IndexPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/settings/insurance">
-              <IconSettings />
-              Settings
-            </Link>
-          </Button>
-          <Button onClick={() => setIsContractFormOpen(true)}>
-            <IconPlus size={16} />
-            New Contract
-          </Button>
+          <Link to="/insurance/car-insurance">
+            <Button>
+              <IconPlus size={16} />
+              New Contract
+            </Button>
+          </Link>
         </PageHeader.End>
       </PageHeader>
       <div className="flex h-full overflow-hidden">
@@ -88,36 +82,23 @@ export const IndexPage = () => {
                 </div>
               </Card>
             </Link>
-
-            <Card className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <IconFileText className="text-green-600" size={24} />
+            <Link to="/insurance/contract-templates">
+              <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <IconShieldCheck className="text-blue-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Contract Template
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {contractsLoading ? '...' : contracts.length}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Products</p>
-                  <p className="text-2xl font-bold">
-                    {productsLoading ? '...' : insuranceProducts.length}
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <IconFileText className="text-purple-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Active Contracts
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {contractsLoading ? '...' : contracts.length}
-                  </p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
 
             <Link to="/insurance/vendor-users">
               <Card className="p-6">
@@ -139,7 +120,64 @@ export const IndexPage = () => {
           </div>
 
           {/* Quick Navigation */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* <Link to="/insurance/car-insurance">
+              <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <IconCar className="text-purple-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Автомашины даатгал</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Машины даатгал үүсгэх
+                      </p>
+                    </div>
+                  </div>
+                  <IconArrowRight size={20} className="text-muted-foreground" />
+                </div>
+              </Card>
+            </Link> */}
+
+            {/* <Link to="/insurance/citizen-insurance">
+              <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-pink-100 rounded-lg">
+                      <IconShieldCheck className="text-pink-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Иргэний даатгал</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Иргэний даатгал үүсгэх
+                      </p>
+                    </div>
+                  </div>
+                  <IconArrowRight size={20} className="text-muted-foreground" />
+                </div>
+              </Card>
+            </Link> */}
+
+            <Link to="/insurance/customers">
+              <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-cyan-100 rounded-lg">
+                      <IconUsers className="text-cyan-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Харилцагчид</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Харилцагчдыг удирдах
+                      </p>
+                    </div>
+                  </div>
+                  <IconArrowRight size={20} className="text-muted-foreground" />
+                </div>
+              </Card>
+            </Link>
+
             <Link to="/insurance/vendors">
               <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer">
                 <div className="flex items-center justify-between">
