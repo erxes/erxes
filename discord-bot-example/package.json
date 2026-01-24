@@ -1,0 +1,25 @@
+{
+  "name": "erxes-discord-ticket-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that creates triage tickets in erxes via webhook automation",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [
+    "discord",
+    "erxes",
+    "webhook",
+    "automation",
+    "ticket"
+  ],
+  "author": "erxes Team",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.2"
+  }
+}
