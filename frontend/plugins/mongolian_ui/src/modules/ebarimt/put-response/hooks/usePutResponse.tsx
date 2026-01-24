@@ -2,8 +2,6 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
-  isUndefinedOrNull,
-  mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
@@ -12,9 +10,6 @@ import {
 import { putResponseQueries } from '~/modules/ebarimt/put-response/graphql/queries/PutResopnseQueries';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { usePutResponseLeadSessionKey } from '~/modules/ebarimt/put-response/hooks/usePutResponseLeadSessionKey';
-import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
-import { putResponseTotalCountAtom } from '../states/usePutResponseCounts';
 export const PUT_RESPONSE_PER_PAGE = 30;
 
 export const usePutResponseVariables = (
@@ -108,7 +103,6 @@ export const usePutResponseVariables = (
 
 export const usePutResponse = (options?: QueryHookOptions) => {
   const variables = usePutResponseVariables(options?.variables);
-  console.log(variables, 'ssssssssssssssssssssssssss')
   const { data, loading, fetchMore, error } = useQuery<{
     putResponses: {
       list: IPutResponse[];

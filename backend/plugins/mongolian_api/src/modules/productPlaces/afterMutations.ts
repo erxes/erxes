@@ -182,7 +182,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       // Process print config if exists
-      if (printConfig && printConfig.conditions?.length) {
+      if (printConfig?.conditions?.length) {
         const { customerCode, customerName } = await getCustomer(
           subdomain,
           deal

@@ -11,10 +11,11 @@ let db;
 let CoreConfigs;
 let MNConfigs;
 
-codes = [
+const codes = [
   { code: 'EBARIMT', hasSubId: false },
   { code: 'returnStageInEbarimt', hasSubId: true },
-  { code: 'stageInEbarimt', hasSubId: true }]
+  { code: 'stageInEbarimt', hasSubId: true }
+];
 
 const command = async () => {
   await client.connect();
@@ -35,7 +36,7 @@ const command = async () => {
       continue;
     }
 
-    oldMNConfigs = await MNConfigs.find({ code }).toArray();
+    const oldMNConfigs = await MNConfigs.find({ code }).toArray();
 
     if (oldMNConfigs.length) {
       continue;

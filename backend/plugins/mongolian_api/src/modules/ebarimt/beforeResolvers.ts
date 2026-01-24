@@ -1,4 +1,4 @@
-import { generateModels, IModels } from '~/connectionResolvers';
+import { generateModels } from '~/connectionResolvers';
 import { companyCheckCode, getCompanyInfo } from './utils';
 
 const resolvers = {

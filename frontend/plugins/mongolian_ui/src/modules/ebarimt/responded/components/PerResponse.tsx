@@ -1,5 +1,3 @@
-import React from 'react';
-
 const getNum = (n?: number) => {
   return (n || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -122,7 +120,7 @@ export const PerResponse = (response: any, counter: number) => {
 
         <div class="center barcode">
           <div class="lottery">
-            ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
+            ${response.lottery && `Сугалаа: ${response.lottery}` || ''}
           </div>
           <div>
             ${response.qrData && `<canvas id="qrcode${response._id}"></canvas>` || ''}

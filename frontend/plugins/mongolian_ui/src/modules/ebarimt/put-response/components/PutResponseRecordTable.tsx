@@ -2,7 +2,7 @@ import { RecordTable } from 'erxes-ui';
 import { putResponseColumns } from '~/modules/ebarimt/put-response/components/PutResponseColumn';
 import { PUT_RESPONSE_CURSOR_SESSION_KEY } from '~/modules/ebarimt/put-response/constants/putResponseCursorSessionKey';
 import { usePutResponse } from '~/modules/ebarimt/put-response/hooks/usePutResponse';
-import { IconShoppingCartX } from '@tabler/icons-react';
+
 export const PutResponseRecordTable = () => {
   const { putResponses, handleFetchMore, loading, pageInfo } = usePutResponse();
 

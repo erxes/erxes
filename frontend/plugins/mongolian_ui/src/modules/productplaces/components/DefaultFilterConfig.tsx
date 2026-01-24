@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Label } from 'erxes-ui';
 
 import SelectSegments from '../selects/SelectSegments';

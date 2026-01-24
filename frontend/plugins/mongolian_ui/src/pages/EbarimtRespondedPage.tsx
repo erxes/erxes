@@ -18,7 +18,7 @@ export const EbarimtRespondedPage = () => {
     skip: !currentUser?._id,
     onData: ({ data }) => {
       const { ebarimtResponded } = data?.data;
-      const { content: contents, processId, userId, responseId } = ebarimtResponded;
+      const { content: contents } = ebarimtResponded;
 
       if (!contents?.length) {
         return;

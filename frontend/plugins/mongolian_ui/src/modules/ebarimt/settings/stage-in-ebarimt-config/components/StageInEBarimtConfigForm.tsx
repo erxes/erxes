@@ -1,27 +1,26 @@
-import { useState, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Card, AlertDialog, Accordion } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
-import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
-import { SelectSalesBoard } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
+import { SelectSalesBoard } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectStage } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
-import { addEBarimtStageInConfigSchema } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/constants/addEBarimtReturnConfigSchema';
 import { useEbarimtConfigState } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useEbarimtConfigState';
+import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
+import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
 import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
-import { Form } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconPlus } from '@tabler/icons-react';
+import { Accordion, AlertDialog, Button, Card, Form } from 'erxes-ui';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { addEBarimtStageInConfigSchema } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/constants/addEBarimtReturnConfigSchema';
 import {
-  FormInput,
-  FormCheckbox,
-  VatSection,
   CitytaxSection,
-  FormSelectEbarimtProductRules,
+  FormCheckbox,
   FormDistrictCode,
+  FormInput,
+  FormSelectEbarimtProductRules,
+  VatSection,
 } from './FormFields';
-import { SelectSubBranchDistrict } from './selects/SelectSubBranchDistrict';
 import { SelectBranchDistrict } from './selects/SelectBranchDistrict';
+import { SelectSubBranchDistrict } from './selects/SelectSubBranchDistrict';
 
 const StageInEbarimtConfigCard = ({
   config,

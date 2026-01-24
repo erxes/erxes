@@ -1,17 +1,16 @@
-import { UseFormReturn } from 'react-hook-form';
-import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
-import {
-  TaxType,
-  TAX_CODE_OPTIONS,
-} from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
+import { SelectExcludeProducts } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectExcludeProducts';
+import { SelectExcludeTags } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectExcludeTags';
 import { SelectProductCategories } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectProductCategories';
 import { SelectProducts } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectProducts';
-import { SelectExcludeProducts } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectExcludeProducts';
 import { SelectTags } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectTags';
-import { SelectExcludeTags } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectExcludeTags';
+import {
+  TAX_CODE_OPTIONS,
+  TaxType,
+} from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
 import { TProductRulesOnTaxForm } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxSchema.ts';
+import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
-import { useWatch } from 'react-hook-form';
+import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectCategory } from 'ui-modules';
 
 export const ProductRulesOnTaxForm = ({
@@ -190,18 +189,18 @@ export const ProductRulesOnTaxForm = ({
                 <Select.Content>
                   {taxType && Object.keys(TAX_CODE_OPTIONS).includes(taxType)
                     ? TAX_CODE_OPTIONS[
-                        taxType as keyof typeof TAX_CODE_OPTIONS
-                      ].map((code) => (
-                        <Select.Item
-                          key={code}
-                          value={code}
-                          className="capitalize"
-                        >
-                          <div className="w-full min-w-0">
-                            <span className="truncate">{code}</span>
-                          </div>
-                        </Select.Item>
-                      ))
+                      taxType as keyof typeof TAX_CODE_OPTIONS
+                    ].map((code) => (
+                      <Select.Item
+                        key={code}
+                        value={code}
+                        className="capitalize"
+                      >
+                        <div className="w-full min-w-0">
+                          <span className="truncate">{code}</span>
+                        </div>
+                      </Select.Item>
+                    ))
                     : null}
                 </Select.Content>
               </Select>

@@ -12,7 +12,7 @@ export interface IConfigModel extends Model<IConfigDocument> {
     code: string,
     subId?: string,
     defaultValue?: any
-  ): Promise<IConfigDocument | any | null>;
+  ): Promise<IConfigDocument | null>;
   getConfigs(code: string): Promise<IConfigDocument[]>;
   getConfigValue(code: string, subId?: string, defaultValue?: any): Promise<any>;
   getConfigValues(code: string): Promise<any[]>;
@@ -84,7 +84,7 @@ export const loadConfigClass = (
       }).lean();
 
       if (!config) {
-        return defaultValue !== undefined ? defaultValue : null;
+        return defaultValue ?? null;
       }
 
       return config.value;
