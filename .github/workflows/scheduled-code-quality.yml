@@ -1,0 +1,380 @@
+name: Scheduled - Code Quality Review
+
+on:
+  schedule:
+    # Run every Sunday at 23:00 UTC
+    - cron: '0 23 * * 0'
+  workflow_dispatch:
+    inputs:
+      num_dirs:
+        description: 'Number of random directories to review'
+        required: false
+        default: '3'
+      focus_area:
+        description: 'Focus area (all, backend, frontend, plugins)'
+        required: false
+        default: 'all'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  select-directories:
+    runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.select.outputs.directories }}
+      project_map: ${{ steps.select.outputs.project_map }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select random directories
+        id: select
+        run: |
+          NUM_DIRS="${{ github.event.inputs.num_dirs || '3' }}"
+          FOCUS="${{ github.event.inputs.focus_area || 'all' }}"
+
+          echo "Selecting $NUM_DIRS directories with focus: $FOCUS"
+
+          # Define search paths based on focus area
+          case "$FOCUS" in
+            backend)
+              SEARCH_PATHS="backend/core-api/src backend/plugins/*/src backend/services/*/src"
+              ;;
+            frontend)
+              SEARCH_PATHS="frontend/core-ui/src frontend/plugins/*/src frontend/libs/*/src"
+              ;;
+            plugins)
+              SEARCH_PATHS="backend/plugins/*/src frontend/plugins/*/src"
+              ;;
+            all|*)
+              SEARCH_PATHS="backend/core-api/src backend/plugins/*/src backend/services/*/src frontend/core-ui/src frontend/plugins/*/src frontend/libs/*/src"
+              ;;
+          esac
+
+          # Find directories with TypeScript files (excluding tests, specs, stories)
+          DIRS=""
+          for path_pattern in $SEARCH_PATHS; do
+            for dir in $path_pattern; do
+              if [ -d "$dir" ]; then
+                # Check if directory has non-test TypeScript files
+                if find "$dir" -maxdepth 3 -type f \( -name "*.ts" -o -name "*.tsx" \) ! -name "*.test.*" ! -name "*.spec.*" ! -name "*.stories.*" | head -1 | grep -q .; then
+                  DIRS="$DIRS$dir
+          "
+                fi
+              fi
+            done
+          done
+
+          if [ -z "$DIRS" ]; then
+            echo "No suitable directories found"
+            echo "directories=[]" >> $GITHUB_OUTPUT
+            echo "project_map={}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Select random directories
+          SELECTED_DIRS=$(echo "$DIRS" | sort -u | shuf -n "$NUM_DIRS")
+
+          if [ -z "$SELECTED_DIRS" ]; then
+            echo "No directories selected"
+            echo "directories=[]" >> $GITHUB_OUTPUT
+            echo "project_map={}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Build project map (directory -> Nx project name)
+          PROJECT_MAP="{"
+          FIRST=true
+
+          echo "$SELECTED_DIRS" | while IFS= read -r dir; do
+            if [ -n "$dir" ]; then
+              # Try to find project.json to get project name
+              if [ -f "${dir}/../../project.json" ]; then
+                PROJECT_NAME=$(grep '"name":' "${dir}/../../project.json" | head -1 | sed 's/.*"name": *"\([^"]*\)".*/\1/')
+              elif [ -f "${dir}/../project.json" ]; then
+                PROJECT_NAME=$(grep '"name":' "${dir}/../project.json" | head -1 | sed 's/.*"name": *"\([^"]*\)".*/\1/')
+              else
+                # Derive from path
+                PROJECT_NAME=$(echo "$dir" | sed 's|/src.*||' | sed 's|.*/||')
+              fi
+
+              if [ "$FIRST" = true ]; then
+                PROJECT_MAP="${PROJECT_MAP}\"$dir\": \"$PROJECT_NAME\""
+                FIRST=false
+              else
+                PROJECT_MAP="${PROJECT_MAP}, \"$dir\": \"$PROJECT_NAME\""
+              fi
+            fi
+          done
+
+          PROJECT_MAP="${PROJECT_MAP}}"
+
+          # Convert to JSON array
+          JSON_DIRS=$(echo "$SELECTED_DIRS" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "directories=$JSON_DIRS" >> $GITHUB_OUTPUT
+          echo "project_map=$PROJECT_MAP" >> $GITHUB_OUTPUT
+
+          echo "Selected directories:"
+          echo "$SELECTED_DIRS"
+          echo ""
+          echo "Project map:"
+          echo "$PROJECT_MAP" | jq .
+
+  review-directory:
+    needs: select-directories
+    if: needs.select-directories.outputs.directories != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        directory: ${{ fromJson(needs.select-directories.outputs.directories) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine project and area
+        id: project
+        run: |
+          DIR="${{ matrix.directory }}"
+          PROJECT_MAP='${{ needs.select-directories.outputs.project_map }}'
+
+          # Get project name from map
+          PROJECT_NAME=$(echo "$PROJECT_MAP" | jq -r ".\"$DIR\"")
+
+          # Determine area (backend/frontend)
+          if echo "$DIR" | grep -q "^backend/"; then
+            AREA="backend"
+          elif echo "$DIR" | grep -q "^frontend/"; then
+            AREA="frontend"
+          else
+            AREA="other"
+          fi
+
+          echo "name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+          echo "area=$AREA" >> $GITHUB_OUTPUT
+
+          echo "Directory: $DIR"
+          echo "Project: $PROJECT_NAME"
+          echo "Area: $AREA"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.12.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Claude Code Quality Review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-opus-4-5-20251101
+          timeout_minutes: 45
+          base_branch: main
+          branch_prefix: claude/code-quality-
+          track_progress: true
+          prompt: |
+            # Weekly Code Quality Review for erxes
+
+            You are performing a scheduled code quality review of a specific directory in the erxes monorepo.
+
+            ## Context: erxes Architecture
+
+            erxes is an Nx-powered pnpm monorepo with:
+            - **Backend**: Microservices with GraphQL Federation, tRPC, MongoDB (Mongoose), Redis, BullMQ
+            - **Frontend**: Module Federation (Rspack), React 18, Jotai, TailwindCSS 4
+            - **Plugins**: Backend microservices (Port 3305+) and frontend remotes (Port 3005+)
+            - **Multi-tenancy**: All data scoped by subdomain context
+            - **Package Manager**: pnpm (REQUIRED)
+            - **Build System**: Nx v20 with caching
+
+            ## Target Directory
+            **Review**: `${{ matrix.directory }}`
+            **Project**: `${{ steps.project.outputs.name }}`
+            **Area**: `${{ steps.project.outputs.area }}`
+
+            ## Your Tasks
+
+            ### 1. Discover and Read Code
+            - Use Glob to find all `.ts` and `.tsx` files in `${{ matrix.directory }}`
+              - Exclude: `*.test.*`, `*.spec.*`, `*.stories.*`
+            - Read each file thoroughly
+            - Understand the code structure and purpose
+
+            ### 2. Apply Code Quality Checklist
+
+            #### TypeScript Quality
+            - [ ] No `any` types (use proper types or `unknown`)
+            - [ ] Interfaces use `I` prefix (e.g., `IUser`)
+            - [ ] Proper return types on functions
+            - [ ] No unused variables or imports
+            - [ ] Enums or union types instead of magic strings
+            - [ ] Proper error types (not `any` in catch blocks)
+
+            #### Backend Patterns (if `${{ steps.project.outputs.area }}` == backend)
+            - [ ] GraphQL resolvers include context: `async (_, args, { subdomain, models, user })`
+            - [ ] All data access uses `models` (tenant-scoped)
+            - [ ] No direct MongoDB collection access without subdomain
+            - [ ] tRPC procedures use proper input validation (Zod)
+            - [ ] Mongoose schemas have proper types and indexes
+            - [ ] Error handling in resolvers (throw descriptive errors)
+            - [ ] Permission checks before mutations
+            - [ ] No hardcoded secrets or credentials
+            - [ ] BullMQ jobs have proper error handling
+
+            #### Frontend Patterns (if `${{ steps.project.outputs.area }}` == frontend)
+            - [ ] Functional components with proper TypeScript
+            - [ ] Hooks follow React rules (no conditional hooks)
+            - [ ] useEffect dependencies are correct
+            - [ ] No unnecessary useEffect (prefer derived state)
+            - [ ] Apollo queries use proper TypeScript types
+            - [ ] Loading/error states handled
+            - [ ] Forms use React Hook Form + Zod validation
+            - [ ] Module Federation exposes match config
+            - [ ] Accessibility (aria labels, semantic HTML)
+            - [ ] No inline styles (use Tailwind classes)
+
+            #### Code Style
+            - [ ] No deep nesting (max 3 levels)
+            - [ ] Clear, descriptive variable names
+            - [ ] Functions are focused (single responsibility)
+            - [ ] No commented-out code
+            - [ ] No console.log statements (use proper logging)
+            - [ ] Proper error messages (user-friendly, actionable)
+
+            #### Security
+            - [ ] No eval() or Function constructor
+            - [ ] User input is validated/sanitized
+            - [ ] No SQL/NoSQL injection risks
+            - [ ] XSS prevention (proper escaping)
+            - [ ] Authentication checks before sensitive operations
+            - [ ] No sensitive data in logs
+
+            #### Performance
+            - [ ] Database queries use indexes
+            - [ ] No N+1 query patterns
+            - [ ] Large lists use pagination or virtualization
+            - [ ] Expensive computations memoized
+            - [ ] Images optimized/lazy loaded
+            - [ ] Bundle size considerations (lazy load heavy deps)
+
+            ### 3. Fix Issues (Don't Just Report)
+            When you find issues:
+            1. **Use Edit tool to fix them directly**
+            2. Make surgical changes (don't refactor unnecessarily)
+            3. Ensure fixes follow erxes conventions
+            4. Keep changes focused and reviewable
+
+            Common fixes:
+            - Replace `any` with proper types
+            - Add missing subdomain context usage
+            - Fix useEffect dependencies
+            - Add error handling
+            - Remove console.log
+            - Add missing permission checks
+            - Fix GraphQL resolver signatures
+
+            ### 4. Verify Changes
+            After making fixes, run verification:
+
+            ```bash
+            # Type check the project
+            pnpm nx type-check ${{ steps.project.outputs.name }}
+
+            # Lint the project
+            pnpm nx lint ${{ steps.project.outputs.name }}
+
+            # Try building the project
+            pnpm nx build ${{ steps.project.outputs.name }}
+            ```
+
+            If verification fails:
+            - Read the error messages carefully
+            - Fix the issues or revert problematic changes
+            - Re-run verification until it passes
+
+            ### 5. Create PR (if fixes were made)
+            If you made improvements:
+            - Commit with message: `fix(${{ matrix.directory }}): code quality improvements`
+            - Create PR with:
+              - Title: `fix: code quality improvements in ${{ matrix.directory }}`
+              - Body: List specific fixes applied with checklist items
+
+            Example PR body:
+            ```markdown
+            ## Code Quality Improvements
+
+            **Directory**: `${{ matrix.directory }}`
+            **Project**: `${{ steps.project.outputs.name }}`
+            **Area**: `${{ steps.project.outputs.area }}`
+
+            ### Fixes Applied
+            - Replaced 5 `any` types with proper interfaces
+            - Added missing subdomain context in 3 resolvers
+            - Fixed useEffect dependencies in UserList component
+            - Removed 12 console.log statements
+            - Added error handling in mutation resolvers
+            - Added missing permission checks
+
+            ### Verification
+            - [x] TypeScript type check passes
+            - [x] Lint checks pass
+            - [x] Build succeeds
+            - [x] No breaking changes
+            ```
+
+            ### 6. Report if No Issues
+            If no issues found:
+            - Report: "✅ Code quality review complete. No issues found in `${{ matrix.directory }}`."
+            - Do NOT create a PR
+
+            ## Guidelines
+
+            - Be thorough but pragmatic - fix clear issues
+            - Don't refactor working code unnecessarily
+            - Respect erxes conventions (subdomain, models, startPlugin, Module Federation)
+            - Focus on this directory only (don't wander)
+            - If verification fails repeatedly, revert and report issues
+            - Use pnpm (not npm/yarn)
+            - Use Nx commands for build/test/lint
+
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(pnpm *)"
+
+  report-completion:
+    needs: [select-directories, review-directory]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## Code Quality Review Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Focus**: ${{ github.event.inputs.focus_area || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Reviewed Directories" >> $GITHUB_STEP_SUMMARY
+          echo '${{ needs.select-directories.outputs.directories }}' | jq -r '.[]' | while read dir; do
+            if [ -n "$dir" ]; then
+              echo "- \`$dir\`" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Actions tab for any PRs created by this workflow." >> $GITHUB_STEP_SUMMARY
