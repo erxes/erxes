@@ -92,10 +92,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
     header: () => (
       <RecordTable.InlineHead icon={IconCategory} label="Bill Type" />
     ),
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={row.original.type} />
         </RecordTableInlineCell>
       );
     },

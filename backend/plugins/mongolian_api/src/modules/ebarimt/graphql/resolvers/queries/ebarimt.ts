@@ -203,6 +203,10 @@ const genDuplicatedFilter = async (params) => {
 
 export const putResponseQueries = {
   putResponses: async (_root, params, { models, subdomain }: IContext) => {
+    const { orderBy } = params;
+    if (!orderBy || !Object.keys(orderBy)) {
+      params.orderBy = { createdAt: -2 }
+    }
     const filter = await generateFilter(subdomain, params);
 
     return await cursorPaginate({

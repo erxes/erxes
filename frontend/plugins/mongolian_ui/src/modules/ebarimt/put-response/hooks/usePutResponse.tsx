@@ -107,9 +107,9 @@ export const usePutResponseVariables = (
 };
 
 export const usePutResponse = (options?: QueryHookOptions) => {
-  const setPutResponseTotalCount = useSetAtom(putResponseTotalCountAtom);
   const variables = usePutResponseVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<{
+  console.log(variables, 'ssssssssssssssssssssssssss')
+  const { data, loading, fetchMore, error } = useQuery<{
     putResponses: {
       list: IPutResponse[];
       totalCount: number;
@@ -117,16 +117,14 @@ export const usePutResponse = (options?: QueryHookOptions) => {
     };
   }>(putResponseQueries.putResponses, {
     ...options,
-    skip: options?.skip || isUndefinedOrNull(variables.cursor),
+    // skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables: {
+      ...options?.variables,
       ...variables,
     },
   });
 
-  const { list: putResponses, totalCount, pageInfo } = data?.putResponses || {};
-  useEffect(() => {
-    setPutResponseTotalCount(totalCount ?? 0);
-  }, [totalCount, setPutResponseTotalCount]);
+  const { list: putResponses = [], totalCount = 0, pageInfo } = data?.putResponses || {};
 
   const handleFetchMore = ({
     direction,
@@ -144,26 +142,25 @@ export const usePutResponse = (options?: QueryHookOptions) => {
 
     fetchMore({
       variables: {
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
+        ...variables,
+        cursor: direction === EnumCursorDirection.FORWARD
+          ? pageInfo?.endCursor
+          : pageInfo?.startCursor,
         limit: PUT_RESPONSE_PER_PAGE,
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return {
-          ...prev,
+        return Object.assign({}, prev, {
           putResponses: {
-            ...mergeCursorData({
-              direction,
-              fetchMoreResult: fetchMoreResult.putResponses,
-              prevResult: prev.putResponses,
-            }),
+            list: [
+              ...(prev.putResponses?.list || []),
+              ...fetchMoreResult.putResponses.list,
+            ],
             totalCount: fetchMoreResult.putResponses.totalCount,
+            pageInfo: fetchMoreResult.putResponses.pageInfo,
           },
-        };
+        });
       },
     });
   };
