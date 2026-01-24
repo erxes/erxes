@@ -133,8 +133,6 @@ export const DealsBoard = () => {
       draggedItemId?: string,
     ) => {
       setBoardState(newState);
-      console.log(Object.values(oldState.items).map(z => `${z.name}:"${z.order}"`), 'ooooooooooooooooo')
-      console.log(Object.values(newState.items).map(z => `${z.name}:"${z.order}"`), 'qqqqqqqqqqqqqqqqq')
 
       Object.values(newState.items).forEach((item) => {
         setAllDealsMap((prev) => ({
