@@ -28,16 +28,14 @@ export const subscriptionWrapper = async (
     const stage = await models.Stages.findOne({ _id: deal.stageId }).lean();
     pipelineId = stage?.pipelineId
   }
+  if (pipelineId) {
+    pipelineIds.push(pipelineId)
+  }
 
   if (!oldPipelineId && oldDeal?.stageId) {
     const stage = await models.Stages.findOne({ _id: oldDeal.stageId }).lean();
     oldPipelineId = stage?.pipelineId
   }
-
-  if (pipelineId) {
-    pipelineIds.push(pipelineId)
-  }
-
   if (oldPipelineId) {
     pipelineIds.push(oldPipelineId)
   }

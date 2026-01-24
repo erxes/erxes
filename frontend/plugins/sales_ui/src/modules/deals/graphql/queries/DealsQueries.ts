@@ -141,6 +141,8 @@ export const commonListFields = `
     name
     colorCode
   }
+  branchIds
+  departmentIds
 `;
 
 export const GET_DEALS = gql`
