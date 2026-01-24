@@ -1,0 +1,237 @@
+name: Scheduled - Documentation Sync
+
+on:
+  schedule:
+    # Run on the 1st of every month at 9 AM UTC
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+    inputs:
+      days_back:
+        description: 'Number of days to look back for changes'
+        required: false
+        default: '30'
+      focus_area:
+        description: 'Focus area (all, backend, frontend, plugins)'
+        required: false
+        default: 'all'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  docs-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine focus paths
+        id: focus
+        run: |
+          FOCUS="${{ github.event.inputs.focus_area || 'all' }}"
+
+          case "$FOCUS" in
+            backend)
+              PATHS="backend/"
+              ;;
+            frontend)
+              PATHS="frontend/"
+              ;;
+            plugins)
+              PATHS="backend/plugins/ frontend/plugins/"
+              ;;
+            all|*)
+              PATHS="backend/ frontend/ apps/"
+              ;;
+          esac
+
+          echo "paths=$PATHS" >> $GITHUB_OUTPUT
+          echo "Focusing on: $PATHS"
+
+      - name: Check for code changes in period
+        id: check-changes
+        run: |
+          DAYS_BACK="${{ github.event.inputs.days_back || '30' }}"
+          SINCE_DATE=$(date -d "-${DAYS_BACK} days" +%Y-%m-%d)
+          FOCUS_PATHS="${{ steps.focus.outputs.paths }}"
+
+          echo "Checking for changes since: $SINCE_DATE"
+          echo "Focus paths: $FOCUS_PATHS"
+
+          # Get changed code files (excluding docs themselves)
+          CHANGED_FILES=$(git log --since="$SINCE_DATE" --name-only --pretty=format: -- \
+            $FOCUS_PATHS \
+            '*.ts' '*.tsx' '*.js' '*.jsx' '*.graphql' \
+            ':!*.test.*' ':!*.spec.*' ':!*.stories.*' ':!*.md' \
+            | sort -u | grep -v '^$' | head -100)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No code changes found in the last $DAYS_BACK days in $FOCUS_PATHS"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "Found $(echo "$CHANGED_FILES" | wc -l) changed files"
+          fi
+
+          echo "since_date=$SINCE_DATE" >> $GITHUB_OUTPUT
+
+      - name: Get commit summary
+        if: steps.check-changes.outputs.has_changes == 'true'
+        id: commits
+        run: |
+          DAYS_BACK="${{ github.event.inputs.days_back || '30' }}"
+          SINCE_DATE=$(date -d "-${DAYS_BACK} days" +%Y-%m-%d)
+
+          COMMIT_SUMMARY=$(git log --since="$SINCE_DATE" --oneline --no-merges | head -50)
+
+          echo "commit_summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMIT_SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Claude Documentation Sync
+        if: steps.check-changes.outputs.has_changes == 'true'
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-opus-4-5-20251101
+          timeout_minutes: 60
+          base_branch: main
+          branch_prefix: claude/docs-sync-
+          track_progress: true
+          prompt: |
+            # Monthly Documentation Sync for erxes
+
+            You are running a scheduled documentation sync. Code in the erxes monorepo has changed since ${{ steps.check-changes.outputs.since_date }}.
+
+            ## Context: erxes Architecture
+
+            erxes is an Nx-powered pnpm monorepo with:
+            - **Backend**: Microservices with GraphQL Federation, tRPC, MongoDB, Redis
+            - **Frontend**: Module Federation with React, Rspack, TailwindCSS
+            - **Plugins**: Backend microservices (Port 3305+) and frontend remotes (Port 3005+)
+            - **Multi-tenancy**: All data scoped by subdomain
+            - **Package Manager**: pnpm (REQUIRED)
+            - **Build System**: Nx v20 with caching
+
+            ## Changed Files (Last ${{ github.event.inputs.days_back || '30' }} days)
+            ```
+            ${{ steps.check-changes.outputs.changed_files }}
+            ```
+
+            ## Recent Commits
+            ```
+            ${{ steps.commits.outputs.commit_summary }}
+            ```
+
+            ## Your Tasks
+
+            ### 1. Analyze Changes
+            Review the changed files to understand:
+            - What functionality was added/modified/removed?
+            - Are these backend changes (GraphQL, tRPC, models)?
+            - Are these frontend changes (components, Module Federation)?
+            - Are these plugin-related changes?
+            - Are these architecture/config changes?
+
+            ### 2. Find Related Documentation
+            Search for documentation that might be affected:
+            - `CLAUDE.md` - AI assistant guide (architecture, conventions, workflows)
+            - `README.md` files (root and subdirectories)
+            - `docs/` directory (if exists)
+            - Plugin-specific README files
+            - TSDoc/JSDoc comments in code
+            - GraphQL schema descriptions
+            - Module Federation configs
+
+            ### 3. Identify ACTUAL Problems
+            For each code change, determine if existing docs are now **WRONG**:
+
+            **Check for:**
+            - ❌ Code examples that no longer work
+            - ❌ API signatures/types that are incorrect
+            - ❌ GraphQL schema mismatches
+            - ❌ Module Federation exports not matching config
+            - ❌ Port numbers that changed
+            - ❌ Environment variables that are outdated
+            - ❌ Nx commands that are wrong
+            - ❌ Plugin architecture descriptions that are inaccurate
+            - ❌ Multi-tenancy patterns explained incorrectly
+            - ❌ Removed features still documented
+
+            **DO NOT flag as problems:**
+            - ✅ Docs that are still correct
+            - ✅ Missing docs for minor internal changes
+            - ✅ Changelog-style updates needed
+            - ✅ Stylistic improvements
+
+            ### 4. Fix Only What's Broken
+            If you find documentation that is actually wrong:
+            - Fix incorrect code examples
+            - Update wrong API signatures and types
+            - Correct GraphQL schema documentation
+            - Fix outdated environment variable lists
+            - Update incorrect port numbers
+            - Correct wrong Nx commands
+            - Fix Module Federation configuration examples
+            - Update plugin architecture if changed
+            - Add docs ONLY for significant new features with zero documentation
+
+            ### 5. Update CLAUDE.md Carefully
+            If architecture/patterns changed, update CLAUDE.md sections:
+            - Architecture diagrams (ASCII art)
+            - Technology stack versions
+            - Port allocation
+            - Code conventions if patterns changed
+            - Common tasks if workflows changed
+
+            **Keep CLAUDE.md concise** - don't add redundant information.
+
+            ### 6. Create a PR (if needed)
+            If you made any changes:
+            - Create branch from main: `claude/docs-sync-YYYYMMDD`
+            - Commit with message: `docs: sync documentation with code changes (YYYY-MM)`
+            - Create PR with:
+              - Title: `docs: monthly documentation sync for YYYY-MM`
+              - Body: List what was fixed and why (actual problems, not just changes)
+
+            ## CRITICAL Guidelines
+
+            - Documentation is a **LIVING DOCUMENT** - only fix things that are **ACTUALLY WRONG**
+            - DO NOT add changelog-style entries
+            - DO NOT create redundant documentation
+            - ONLY update docs when they are incorrect, misleading, or missing for major features
+            - If no problems are found, report: "✅ Documentation review complete. No issues found." and DO NOT create a PR
+            - Respect erxes conventions: Nx, pnpm, Module Federation, GraphQL Federation, multi-tenancy
+            - Code examples should use erxes patterns (subdomain context, models, startPlugin, etc.)
+
+            ## erxes-Specific Checks
+
+            - GraphQL resolvers include subdomain context: `async (_, args, { subdomain, models })`
+            - Plugin entry uses `startPlugin()` correctly
+            - Module Federation exposes are documented
+            - Multi-tenancy patterns are explained correctly
+            - Port allocations are accurate
+            - pnpm commands (not npm/yarn) are used
+            - Nx commands match current project structure
+
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*)"
+
+      - name: Report no changes
+        if: steps.check-changes.outputs.has_changes == 'false'
+        run: |
+          echo "No code changes found in the last ${{ github.event.inputs.days_back || '30' }} days."
+          echo "Skipping documentation sync."
+          echo "## No Changes Detected" >> $GITHUB_STEP_SUMMARY
+          echo "No code changes requiring documentation updates were found." >> $GITHUB_STEP_SUMMARY
