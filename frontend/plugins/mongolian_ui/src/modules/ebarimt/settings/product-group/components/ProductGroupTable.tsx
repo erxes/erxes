@@ -1,6 +1,18 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { RecordTable, useQueryState } from 'erxes-ui';
+import {
+  RecordTable,
+  RecordTableInlineCell,
+  TextOverflowTooltip,
+  useQueryState,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import {
+  IconTag,
+  IconPackage,
+  IconSortAscending,
+  IconPercentage,
+  IconToggleLeft,
+} from '@tabler/icons-react';
 import { useProductGroupRows } from '@/ebarimt/settings/product-group/hooks/useProductGroupRows';
 import { productGroupDetailAtom } from '@/ebarimt/settings/product-group/states/productGroupRowStates';
 import { ProductGroupRowsCommandbar } from '@/ebarimt/settings/product-group/components/ProductGroupRowsCommandbar';
@@ -69,57 +81,61 @@ export const productGroupsColumns: ColumnDef<IProductGroup>[] = [
   {
     id: 'mainProduct.name',
     accessorKey: 'mainProduct.name',
-    header: () => <RecordTable.InlineHead label="Main Product" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconPackage} label="Main Product" />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 250,
   },
   {
     id: 'subProduct.name',
     accessorKey: 'subProduct.name',
-    header: () => <RecordTable.InlineHead label="Sub Product" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Sub Product" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 250,
   },
   {
     id: 'sortNum',
     accessorKey: 'sortNum',
-    header: () => <RecordTable.InlineHead label="Sort Number" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconSortAscending} label="Sort Number" />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'ratio',
     accessorKey: 'ratio',
-    header: () => <RecordTable.InlineHead label="Ratio" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconPercentage} label="Ratio" />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'isActive',
     accessorKey: 'isActive',
-    header: () => <RecordTable.InlineHead label="Is Active" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label="Is Active" />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() ? 'Active' : 'Inactive'} />
+      </RecordTableInlineCell>
+    ),
   },
 ];
-
-export const ProductGroupMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IProductGroup, unknown>;
-}) => {
-  return <RecordTable.MoreButton />;
-};
-
-export const productGroupMoreColumn = {
-  id: 'more',
-  cell: ProductGroupMoreColumnCell,
-  size: 33,
-};

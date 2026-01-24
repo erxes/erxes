@@ -1,326 +1,288 @@
-import { Button, Form, Input } from 'erxes-ui';
+import { useState, useCallback, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Card, AlertDialog, Accordion, Form, Input } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { useEbarimtReturnConfigSave } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigSave';
+import { useEbarimtReturnConfigState } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigState';
 import { SelectSalesBoard } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectPipeline';
 import { SelectStage } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectStage';
-import { useCreateEbarimtReturnConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useCreateEbarimtReturnConfig';
-import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { addEBarimtReturnConfigSchema } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types/addEBarimtReturnConfigSchema';
-import { useQuery } from '@apollo/client';
-import { GET_CONFIGS_GET_VALUE } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/useStageInEBarimtConfigQuery';
+import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
 
-const defaultValues = {
-  title: '',
-  destinationStageBoard: '',
-  pipelineId: '',
-  stageId: '',
-  userEmail: '',
-  hasVat: false,
-  hasCitytax: false,
-};
-
-const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
+const ReturnEbarimtConfigCard = ({
+  config,
+  configKey,
+  onSave,
+  onDelete,
+}: {
+  config: ReturnEbarimtConfig;
+  configKey: string;
+  onSave: (key: string, data: ReturnEbarimtConfig) => void;
+  onDelete: (key: string) => void;
+}) => {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(addEBarimtReturnConfigSchema),
     defaultValues: {
-      title: config?.title || '',
-      destinationStageBoard: config?.destinationStageBoard || '',
-      pipelineId: config?.pipelineId || '',
-      stageId: config?.stageId || '',
-      userEmail: config?.userEmail || '',
-      hasVat: config?.hasVat || false,
-      hasCitytax: config?.hasCitytax || false,
+      title: config.title || '',
+      destinationStageBoard: config.destinationStageBoard || '',
+      pipelineId: config.pipelineId || '',
+      stageId: config.stageId || '',
+      userEmail: config.userEmail || '',
+      hasVat: config.hasVat || false,
+      hasCitytax: config.hasCitytax || false,
     },
   });
 
   const selectedBoardId = form.watch('destinationStageBoard');
   const selectedPipelineId = form.watch('pipelineId');
 
-  return (
-    <div className="">
-      <Form {...form}>
-        <form
-          className="h-full w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-6"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <div className="flex justify-between items-center">
-            <h1 className="text-lg font-semibold">Return Ebarimt Config</h1>
-            <Button type="button" onClick={onNewConfig}>
-              New Config
-            </Button>
-          </div>
-
-          <Form.Field
-            name="title"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Title</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="Title" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-4">
-            <Form.Field
-              control={form.control}
-              name="destinationStageBoard"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Destination Stage Board</Form.Label>
-                  <SelectSalesBoard
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('pipelineId', '');
-                      form.setValue('stageId', '');
-                    }}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="pipelineId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Pipeline</Form.Label>
-                  <SelectPipeline
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('stageId', '');
-                    }}
-                    boardId={selectedBoardId}
-                    disabled={!selectedBoardId}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="stageId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Stage</Form.Label>
-                  <SelectStage
-                    id="stageId"
-                    variant="form"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    pipelineId={selectedPipelineId}
-                    disabled={!selectedPipelineId}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
-  );
-};
-
-const NewConfigForm = ({
-  onCancel,
-  onSubmit,
-  loading,
-}: {
-  onCancel: () => void;
-  onSubmit: (data: any) => void;
-  loading: boolean;
-}) => {
-  const form = useForm({
-    resolver: zodResolver(addEBarimtReturnConfigSchema),
-    defaultValues,
-  });
-
-  const selectedBoardId = form.watch('destinationStageBoard');
-  const selectedPipelineId = form.watch('pipelineId');
-
-  return (
-    <div className="">
-      <Form {...form}>
-        <form
-          className="w-full mx-auto max-w-2xl flex flex-col gap-6 px-9 py-5"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <h1 className="text-lg font-semibold">Return Ebarimt Config</h1>
-
-          <Form.Field
-            name="title"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Title</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="Title" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-4">
-            <Form.Field
-              control={form.control}
-              name="destinationStageBoard"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Destination Stage Board</Form.Label>
-                  <SelectSalesBoard
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('pipelineId', '');
-                      form.setValue('stageId', '');
-                    }}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="pipelineId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Pipeline</Form.Label>
-                  <SelectPipeline
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('stageId', '');
-                    }}
-                    boardId={selectedBoardId}
-                    disabled={!selectedBoardId}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="stageId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Stage</Form.Label>
-                  <SelectStage
-                    id="stageId"
-                    variant="form"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    pipelineId={selectedPipelineId}
-                    disabled={!selectedPipelineId}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 mt-6">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
-  );
-};
-
-export const ReturnEbarimtConfigForm = () => {
-  const [showNewConfig, setShowNewConfig] = useState(false);
-  const { createEbarimtReturnConfig, loading: createLoading } =
-    useCreateEbarimtReturnConfig();
-  const { data, refetch, loading } = useQuery(GET_CONFIGS_GET_VALUE, {
-    variables: { code: 'returnStageInEbarimt' },
-    fetchPolicy: 'network-only',
-  });
-
-  const configValue = data?.configsGetValue?.value;
-
-  const parseConfigValue = (value: any) => {
-    if (!value) return null;
-    return typeof value === 'string' ? JSON.parse(value) : value;
+  const handleSubmit = (data: ReturnEbarimtConfig) => {
+    onSave(configKey, data);
   };
 
-  const parsedConfig = parseConfigValue(configValue);
+  const handleBoardChange = useCallback(
+    (value: string) => {
+      form.setValue('destinationStageBoard', value);
+      form.setValue('pipelineId', '');
+      form.setValue('stageId', '');
+    },
+    [form],
+  );
 
-  const handleSubmit = async (formData: ReturnEbarimtConfig) => {
-    try {
-      const configsMapString = {
-        returnStageInEbarimt: {
-          title: formData.title,
-          destinationStageBoard: formData.destinationStageBoard,
-          pipelineId: formData.pipelineId,
-          stageId: formData.stageId,
-          userEmail: formData.userEmail || '',
-          hasVat: formData.hasVat || false,
-          hasCitytax: formData.hasCitytax || false,
-        },
-      };
+  const handlePipelineChange = useCallback(
+    (value: string) => {
+      form.setValue('pipelineId', value);
+      form.setValue('stageId', '');
+    },
+    [form],
+  );
 
-      await createEbarimtReturnConfig({
-        variables: {
-          configsMap: configsMapString,
-        },
-      });
+  return (
+    <Card className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-md font-medium">
+          {config.title || 'Untitled Config'}
+        </h3>
+      </div>
 
-      await refetch();
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Field
+              name="title"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder="Title" />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="destinationStageBoard"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Destination Stage Board</Form.Label>
+                  <SelectSalesBoard
+                    value={field.value}
+                    onValueChange={handleBoardChange}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
 
-      setShowNewConfig(false);
-    } catch (error) {
-      console.error('Error saving config:', error);
+            <Form.Field
+              control={form.control}
+              name="pipelineId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Pipeline</Form.Label>
+                  <SelectPipeline
+                    value={field.value}
+                    onValueChange={handlePipelineChange}
+                    boardId={selectedBoardId}
+                    disabled={!selectedBoardId}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="stageId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Stage</Form.Label>
+                  <SelectStage
+                    id="stageId"
+                    variant="form"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    pipelineId={selectedPipelineId}
+                    disabled={!selectedPipelineId}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <AlertDialog
+              open={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+            >
+              <AlertDialog.Trigger asChild>
+                <Button variant="ghost" size="sm">
+                  <p className="text-black">Delete</p>
+                </Button>
+              </AlertDialog.Trigger>
+              <AlertDialog.Content>
+                <AlertDialog.Header>
+                  <AlertDialog.Title>Delete Configuration</AlertDialog.Title>
+                  <AlertDialog.Description>
+                    Are you sure you want to delete "
+                    {config.title || 'Untitled Config'}"? This action cannot be
+                    undone.
+                  </AlertDialog.Description>
+                </AlertDialog.Header>
+                <AlertDialog.Footer>
+                  <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                  <AlertDialog.Action
+                    onClick={() => {
+                      onDelete(configKey);
+                      setIsDeleteDialogOpen(false);
+                    }}
+                  >
+                    Delete
+                  </AlertDialog.Action>
+                </AlertDialog.Footer>
+              </AlertDialog.Content>
+            </AlertDialog>
+            <Button type="submit" size="sm">
+              Save
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </Card>
+  );
+};
+
+export const ReturnEBarimtConfigForm = () => {
+  const [openItems, setOpenItems] = useState<string[]>([]);
+  const [currentConfigId, setCurrentConfigId] = useState<string | null>(null);
+
+  const {
+    localConfigsMap,
+    configId: initialConfigId,
+    addNewConfig: addConfigToState,
+    deleteConfig: deleteConfigFromState,
+    saveConfig: saveConfigToState,
+  } = useEbarimtReturnConfigState();
+
+  useEffect(() => {
+    if (initialConfigId) {
+      setCurrentConfigId(initialConfigId);
+    }
+  }, [initialConfigId]);
+
+  const { saveConfigsToServer } = useEbarimtReturnConfigSave();
+
+  const addNewConfig = () => {
+    const updatedConfigsMap = addConfigToState();
+    const keys = Object.keys(updatedConfigsMap);
+    setOpenItems([keys[keys.length - 1]]);
+  };
+
+  const deleteConfig = async (configKey: string) => {
+    const updatedConfigsMap = deleteConfigFromState(configKey);
+
+    if (!currentConfigId) return;
+
+    if (Object.keys(updatedConfigsMap).length === 0) {
+      // Handle delete all configs - would need remove function
+      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
+    } else {
+      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const saveConfig = async (configKey: string, configData: any) => {
+    const updatedConfigsMap = saveConfigToState(configKey, configData);
+
+    if (!currentConfigId) {
+      const newId = await saveConfigsToServer(updatedConfigsMap, 'create');
+      setCurrentConfigId(newId);
+    } else {
+      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
+    }
+  };
 
   return (
-    <div className="h-full w-full mx-auto max-w-2xl flex flex-col">
-      {!parsedConfig || showNewConfig ? (
-        <NewConfigForm
-          onCancel={() => {
-            if (parsedConfig) {
-              setShowNewConfig(false);
-            }
-          }}
-          onSubmit={handleSubmit}
-          loading={createLoading}
-        />
-      ) : (
-        <EditConfigForm
-          config={parsedConfig}
-          onNewConfig={() => setShowNewConfig(true)}
-          onSubmit={handleSubmit}
-          loading={createLoading}
-        />
-      )}
+    <div className="h-full w-full p-6 overflow-y-auto">
+      <div className="space-y-6">
+        <div className="border-b pb-4">
+          <h1 className="text-xl font-semibold">Return Ebarimt</h1>
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={addNewConfig}
+            className="flex items-center gap-2"
+          >
+            <IconPlus className="h-4 w-4" />
+            New Config
+          </Button>
+        </div>
+
+        <div className="space-y-4">
+          {Object.keys(localConfigsMap).length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No configurations found. Click "New Config" to create one.
+            </div>
+          ) : (
+            <Accordion
+              type="multiple"
+              value={openItems}
+              onValueChange={setOpenItems}
+              className="w-full"
+            >
+              {Object.keys(localConfigsMap).map((configKey) => (
+                <Accordion.Item key={configKey} value={configKey}>
+                  <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
+                    <div className="flex justify-between items-center w-full">
+                      <span>
+                        {localConfigsMap[configKey].title || 'Untitled Config'}
+                      </span>
+                    </div>
+                  </Accordion.Trigger>
+                  <Accordion.Content className="pt-4">
+                    <div className="p-4">
+                      <ReturnEbarimtConfigCard
+                        config={localConfigsMap[configKey]}
+                        configKey={configKey}
+                        onSave={saveConfig}
+                        onDelete={deleteConfig}
+                      />
+                    </div>
+                  </Accordion.Content>
+                </Accordion.Item>
+              ))}
+            </Accordion>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
