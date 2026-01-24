@@ -246,7 +246,7 @@ export async function startPlugin(
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers,
+          resolvers: wrapApolloResolvers(resolvers as any),
         },
       ]),
 
