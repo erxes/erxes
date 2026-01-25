@@ -14,15 +14,32 @@ import {
   CurrencyCode,
 } from 'erxes-ui';
 import { IProduct } from 'ui-modules';
-import { productMoreColumn } from './ProductMoreColumn';
+import { ProductMoreColumnCell } from './ProductMoreColumn';
 import { useTranslation } from 'react-i18next';
 
 export const productColumns: (
   t: (key: string) => string,
 ) => ColumnDef<IProduct>[] = (t) => [
-  productMoreColumn,
+  {
+    id: 'more',
+    accessorKey: 'more',
+    header: '',
+    cell: ({ cell }: { cell: any }) => ProductMoreColumnCell({ cell }),
+    size: 33,
+  },
   RecordTable.checkboxColumn as ColumnDef<IProduct>,
-
+  {
+    id: 'code',
+    accessorKey: 'code',
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
   {
     id: 'name',
     accessorKey: 'name',
@@ -36,13 +53,30 @@ export const productColumns: (
     },
   },
   {
-    id: 'code',
-    accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    id: 'shortName',
+    accessorKey: 'shortName',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('shortName')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'category',
+    accessorKey: 'category',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('category')} />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={`${cell.row.original?.category?.code || ''} - ${cell.row.original?.category?.name || ''
+              }`}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -70,11 +104,9 @@ export const productColumns: (
     },
   },
   {
-    id: 'vendor',
-    accessorKey: 'vendor',
-    header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('vendor')} />
-    ),
+    id: 'oum',
+    accessorKey: 'oum',
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('oum')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
@@ -84,19 +116,29 @@ export const productColumns: (
     },
   },
   {
-    id: 'category',
-    accessorKey: 'category',
+    id: 'vendor',
+    accessorKey: 'vendor',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label={t('category')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('vendor')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={`${cell.row.original?.category?.code || ''} - ${
-              cell.row.original?.category?.name || ''
-            }`}
-          />
+          <TextOverflowTooltip value={cell.row.original?.vendor?.primaryName} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'hasAttach',
+    accessorKey: 'hasAttach',
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('hasAttach')} />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={Boolean(cell.row.original?.attachment?.url).toString()} />
         </RecordTableInlineCell>
       );
     },
