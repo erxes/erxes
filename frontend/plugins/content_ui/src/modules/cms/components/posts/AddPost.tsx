@@ -39,6 +39,10 @@ import {
 import { usePostMutations } from '../../hooks/usePostMutations';
 import { CustomFieldInput } from './CustomFieldInput';
 import { GalleryUploader } from './GalleryUploader';
+import { VideoUploader } from './VideoUploader';
+import { AudioUploader } from './AudioUploader';
+import { DocumentsUploader } from './DocumentsUploader';
+import { AttachmentsUploader } from './AttachmentsUploader';
 import { PostPreview } from './PostPreview';
 import {
   formatInitialContent,
@@ -1114,40 +1118,46 @@ export function AddPost() {
                             the list view
                           </Form.Description>
                           <Form.Control>
-                            <Upload.Root
-                              value={
-                                typeof field.value === 'string'
-                                  ? field.value
-                                  : (field.value as any)?.url || ''
-                              }
-                              onChange={(v: any) => {
-                                if (v && typeof v === 'object' && 'url' in v) {
-                                  field.onChange({
-                                    url: (v as any).url,
-                                    name: (v as any).fileInfo?.name || '',
-                                  });
-                                } else {
-                                  field.onChange(null);
+                            <div className="flex items-center gap-3">
+                              <Upload.Root
+                                value={
+                                  typeof field.value === 'string'
+                                    ? field.value
+                                    : (field.value as any)?.url || ''
                                 }
-                              }}
-                            >
-                              <Upload.Preview className="hidden" />
-                              <div className="flex flex-col items-stretch gap-2 w-full">
-                                {!field.value && (
+                                onChange={(v: any) => {
+                                  if (
+                                    v &&
+                                    typeof v === 'object' &&
+                                    'url' in v
+                                  ) {
+                                    field.onChange({
+                                      url: (v as any).url,
+                                      name: (v as any).fileInfo?.name || '',
+                                    });
+                                  } else {
+                                    field.onChange(null);
+                                  }
+                                }}
+                              >
+                                <Upload.Preview />
+                                <div className="flex flex-col items-stretch gap-2 flex-1">
                                   <Upload.Button
                                     size="sm"
                                     variant="secondary"
                                     type="button"
-                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
+                                    className="flex items-center justify-center gap-2"
                                   >
-                                    <IconUpload />
+                                    <IconUpload size={16} />
                                     <span className="text-sm font-medium">
-                                      Upload featured image
+                                      {field.value
+                                        ? 'Change image'
+                                        : 'Upload featured image'}
                                     </span>
                                   </Upload.Button>
-                                )}
-                              </div>
-                            </Upload.Root>
+                                </div>
+                              </Upload.Root>
+                            </div>
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -1203,61 +1213,24 @@ export function AddPost() {
                       )}
                     />
 
-                    {/* <Form.Field
+                    <Form.Field
                       control={form.control}
                       name="video"
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>Video</Form.Label>
                           <Form.Control>
-                            <div className="space-y-2">
-                              {!field.value && (
-                                <Upload.Root
-                                  value={field.value || ''}
-                                  onChange={(v: any) =>
-                                    field.onChange(v?.url || null)
-                                  }
-                                >
-                                  <Upload.Preview className="hidden" />
-                                  <Upload.Button
-                                    size="sm"
-                                    variant="secondary"
-                                    type="button"
-                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                                  >
-                                    <IconUpload />
-                                    <span className="text-sm font-medium">
-                                      Upload video
-                                    </span>
-                                  </Upload.Button>
-                                </Upload.Root>
-                              )}
-                              {field.value && (
-                                <div className="relative">
-                                  <video
-                                    src={field.value}
-                                    controls
-                                    className="w-full h-40 rounded border bg-black"
-                                  />
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                                    type="button"
-                                    onClick={() => field.onChange(null)}
-                                  >
-                                    <IconX size={16} />
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
+                            <VideoUploader
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
                       )}
-                    /> */}
+                    />
 
-                    {/* <Form.Field
+                    <Form.Field
                       control={form.control}
                       name="audio"
                       render={({ field }) => (
@@ -1267,189 +1240,49 @@ export function AddPost() {
                             Can be used for audio podcast
                           </Form.Description>
                           <Form.Control>
-                            <div className="space-y-2">
-                              {!field.value && (
-                                <Upload.Root
-                                  value={field.value || ''}
-                                  onChange={(v: any) =>
-                                    field.onChange(v?.url || null)
-                                  }
-                                >
-                                  <Upload.Preview className="hidden" />
-                                  <Upload.Button
-                                    size="sm"
-                                    variant="secondary"
-                                    type="button"
-                                    className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                                  >
-                                    <IconUpload />
-                                    <span className="text-sm font-medium">
-                                      Upload audio
-                                    </span>
-                                  </Upload.Button>
-                                </Upload.Root>
-                              )}
-                              {field.value && (
-                                <div className="relative border rounded p-2">
-                                  <audio
-                                    src={field.value}
-                                    controls
-                                    className="w-full"
-                                  />
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                                    type="button"
-                                    onClick={() => field.onChange(null)}
-                                  >
-                                    <IconX size={16} />
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
+                            <AudioUploader
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
                       )}
-                    /> */}
+                    />
 
-                    {/* <Form.Field
+                    <Form.Field
                       control={form.control}
                       name="documents"
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>Documents</Form.Label>
                           <Form.Control>
-                            <div className="space-y-2">
-                              <Upload.Root
-                                value={''}
-                                onChange={(v: any) =>
-                                  field.onChange(
-                                    [...(field.value || []), v?.url].filter(
-                                      Boolean,
-                                    ),
-                                  )
-                                }
-                              >
-                                <Upload.Preview className="hidden" />
-                                <Upload.Button
-                                  size="sm"
-                                  variant="secondary"
-                                  type="button"
-                                  className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                                >
-                                  <IconUpload />
-                                  <span className="text-sm font-medium">
-                                    Upload documents
-                                  </span>
-                                </Upload.Button>
-                              </Upload.Root>
-                              {(field.value || []).length > 0 && (
-                                <div className="space-y-1 text-sm text-gray-700">
-                                  {(field.value as string[]).map((url, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="flex items-center justify-between border rounded px-2 py-1"
-                                    >
-                                      <a
-                                        href={url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="truncate mr-2 text-blue-600 hover:underline"
-                                      >
-                                        {url}
-                                      </a>
-                                      <Upload.Root
-                                        value={url}
-                                        onChange={() => {
-                                          const next = (
-                                            field.value as string[]
-                                          ).filter((u) => u !== url);
-                                          field.onChange(next);
-                                        }}
-                                      >
-                                        <Upload.RemoveButton
-                                          size="sm"
-                                          variant="secondary"
-                                        />
-                                      </Upload.Root>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                            <DocumentsUploader
+                              value={(field.value as string[]) || []}
+                              onChange={field.onChange}
+                            />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
                       )}
-                    /> */}
+                    />
 
-                    {/* <Form.Field
+                    <Form.Field
                       control={form.control}
                       name="attachments"
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>Attachments</Form.Label>
                           <Form.Control>
-                            <div className="space-y-2">
-                              <Upload.Root
-                                value={''}
-                                onChange={(v: any) =>
-                                  field.onChange(
-                                    [...(field.value || []), v?.url].filter(
-                                      Boolean,
-                                    ),
-                                  )
-                                }
-                              >
-                                <Upload.Preview className="hidden" />
-                                <Upload.Button
-                                  size="sm"
-                                  variant="secondary"
-                                  type="button"
-                                  className="flex flex-col items-center justify-center w-full h-20 border border-dashed text-muted-foreground"
-                                >
-                                  <IconUpload />
-                                  <span className="text-sm font-medium">
-                                    Upload attachments
-                                  </span>
-                                </Upload.Button>
-                              </Upload.Root>
-                              {(field.value || []).length > 0 && (
-                                <div className="space-y-1 text-sm text-gray-700">
-                                  {(field.value as string[]).map((url, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="flex items-center justify-between border rounded px-2 py-1"
-                                    >
-                                      <span className="truncate mr-2">
-                                        {url}
-                                      </span>
-                                      <Upload.Root
-                                        value={url}
-                                        onChange={() => {
-                                          const next = (
-                                            field.value as string[]
-                                          ).filter((u) => u !== url);
-                                          field.onChange(next);
-                                        }}
-                                      >
-                                        <Upload.RemoveButton
-                                          size="sm"
-                                          variant="secondary"
-                                        />
-                                      </Upload.Root>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                            <AttachmentsUploader
+                              value={(field.value as string[]) || []}
+                              onChange={field.onChange}
+                            />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
                       )}
-                    /> */}
+                    />
 
                     {/* <Form.Field
                       control={form.control}
