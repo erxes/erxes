@@ -1,9 +1,7 @@
-import { toast, useQueryState } from 'erxes-ui';
-
 import { CONFORMITY_EDIT } from '@/deals/graphql/mutations/Conformity';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
-import { MutationHookOptions } from '@apollo/client';
-import { useMutation } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
+import { toast, useQueryState } from 'erxes-ui';
 
 export function useConformityEdit(options?: MutationHookOptions<any, any>) {
   const [salesItemId] = useQueryState('salesItemId');
