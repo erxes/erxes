@@ -13,7 +13,7 @@ import {
   CurrencyFormatedDisplay,
   CurrencyCode,
 } from 'erxes-ui';
-import { IProduct } from 'ui-modules';
+import { IProduct, TagsSelect } from 'ui-modules';
 import { ProductMoreColumnCell } from './ProductMoreColumn';
 import { useTranslation } from 'react-i18next';
 
@@ -116,6 +116,20 @@ export const productColumns: (
     },
   },
   {
+    id: 'hasAttach',
+    accessorKey: 'hasAttach',
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('hasAttach')} />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={Boolean(cell.row.original?.attachment?.url).toString()} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
     id: 'vendor',
     accessorKey: 'vendor',
     header: () => (
@@ -130,17 +144,36 @@ export const productColumns: (
     },
   },
   {
-    id: 'hasAttach',
-    accessorKey: 'hasAttach',
+    id: 'tags',
+    accessorKey: 'tags',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('hasAttach')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('Tags')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={Boolean(cell.row.original?.attachment?.url).toString()} />
-        </RecordTableInlineCell>
+        <TagsSelect.InlineCell
+          type="core:product"
+          mode="multiple"
+          value={cell.row.original.tagIds}
+          targetIds={[cell.row.original._id]}
+          options={(newSelectedTagIds) => ({
+            update: (cache) => {
+              cache.modify({
+                id: cache.identify({
+                  __typename: 'Product',
+                  _id: cell.row.original._id,
+                }),
+                fields: {
+                  tagIds: () => newSelectedTagIds,
+                },
+                optimistic: true,
+              });
+            },
+          })}
+        />
       );
     },
+    size: 360,
   },
+
 ];
