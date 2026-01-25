@@ -533,7 +533,7 @@ export const widgetMutations: Record<string, Resolver> = {
           (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS',
         ) || { value: '0' };
 
-        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+        const timeDelayIntValue = Number.parseInt(timeDelay.value || '0', 10);
 
         const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
 

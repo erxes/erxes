@@ -887,7 +887,7 @@ export const loadUserClass = (
         };
       }> = [];
 
-      let code = parseInt((await this.generateUserCode()) || '', 10);
+      let code = Number.parseInt((await this.generateUserCode()) || '', 10);
 
       for (const user of users) {
         code++;
@@ -914,7 +914,7 @@ export const loadUserClass = (
 
       const [user] = users;
 
-      let code = parseInt(user.code || '', 10);
+      let code = Number.parseInt(user.code || '', 10);
 
       code++;
 

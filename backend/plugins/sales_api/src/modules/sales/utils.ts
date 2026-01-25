@@ -35,7 +35,7 @@ export const configReplacer = (config) => {
 // board item number calculator
 const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   if (num && !skip) {
-    num = parseInt(num, 10) + 1;
+    num = Number.parseInt(num, 10) + 1;
   }
 
   if (skip) {

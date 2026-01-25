@@ -91,7 +91,7 @@ const ProductsList = ({
         isVatApplied: true,
         unitPrice: p.isVatApplied
           ? p.unitPrice
-          : parseFloat(
+          : Number.parseFloat(
               ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
             ),
       };
