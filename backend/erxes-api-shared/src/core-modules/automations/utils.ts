@@ -384,7 +384,7 @@ const getPerValue = async <TModels>({
     ].includes(operator)
   ) {
     op1 = op1 || 0;
-    const numberValue = parseInt(value, 10);
+    const numberValue = Number.parseInt(value, 10);
 
     switch (operator) {
       case AUTOMATION_PROPERTY_OPERATORS.ADD:
@@ -420,8 +420,8 @@ const getPerValue = async <TModels>({
 
     updatedValue =
       operator === 'addDay'
-        ? parseFloat(updatedValue)
-        : -1 * parseFloat(updatedValue);
+        ? Number.parseFloat(updatedValue)
+        : -1 * Number.parseFloat(updatedValue);
     updatedValue = new Date(op1.setDate(op1.getDate() + updatedValue));
   }
 

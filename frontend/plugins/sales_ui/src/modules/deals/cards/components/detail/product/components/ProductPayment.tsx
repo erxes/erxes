@@ -147,7 +147,7 @@ const ProductsPayment = ({
               type="number"
               value={paymentsData['cash']?.amount || ''}
               onChange={(e) =>
-                updatePayment('cash', 'amount', parseFloat(e.target.value) || 0)
+                updatePayment('cash', 'amount', Number.parseFloat(e.target.value) || 0)
               }
               onClick={fillRemaining}
               className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
