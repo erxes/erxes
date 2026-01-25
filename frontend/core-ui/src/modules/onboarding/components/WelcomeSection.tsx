@@ -1,9 +1,8 @@
-import { Button } from 'erxes-ui';
+import { OrgLogoIcon } from '@/auth/components/Logo';
+import { Button, useScopedHotkeys } from 'erxes-ui';
 import { motion } from 'framer-motion';
-import { useScopedHotkeys } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { currentOrganizationState } from 'ui-modules';
-import { OrgLogoIcon } from '@/auth/components/Logo';
 
 export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');

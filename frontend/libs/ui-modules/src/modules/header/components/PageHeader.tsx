@@ -1,10 +1,8 @@
 import { IconStar } from '@tabler/icons-react';
-
-import { Button, Separator, Sidebar } from 'erxes-ui';
-import { cn } from 'erxes-ui';
-import { motion, AnimatePresence } from 'motion/react';
-import { useToggleFavorite } from '../hooks/useToggleFavorite';
+import { Button, cn, Separator, Sidebar } from 'erxes-ui';
+import { AnimatePresence, motion } from 'motion/react';
 import React, { useState } from 'react';
+import { useToggleFavorite } from '../hooks/useToggleFavorite';
 
 export const PageHeaderRoot = React.forwardRef<
   HTMLDivElement,

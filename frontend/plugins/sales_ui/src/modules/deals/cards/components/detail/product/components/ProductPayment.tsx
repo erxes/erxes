@@ -1,9 +1,7 @@
-import { Button, CurrencyCode, CurrencyField, Input } from 'erxes-ui';
-import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
-import { Label, Switch } from 'erxes-ui';
-import { useCallback, useMemo, useState } from 'react';
-
 import { IDeal } from '@/deals/types/deals';
+import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
+import { Button, CurrencyCode, CurrencyField, Input, Label, Switch } from 'erxes-ui';
+import { useCallback, useMemo, useState } from 'react';
 
 interface IPaymentsData {
   [key: string]: { amount: number; currency: string };

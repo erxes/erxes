@@ -1,8 +1,6 @@
-import { IconSelector } from '@tabler/icons-react';
-import { currentUserState } from 'ui-modules';
-import { Avatar } from 'erxes-ui';
-import { readImage } from 'erxes-ui';
+import { Avatar, readImage } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
 
 export function User() {
   const currentUser = useAtomValue(currentUserState);
