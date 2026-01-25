@@ -1,18 +1,18 @@
 import {
-  startOfDay,
   endOfDay,
-  subDays,
-  startOfWeek,
-  endOfWeek,
-  subWeeks,
-  startOfMonth,
   endOfMonth,
-  subMonths,
-  startOfYear,
+  endOfWeek,
   endOfYear,
+  parse,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subWeeks,
   subYears,
 } from 'date-fns';
-import { parse } from 'date-fns';
 
 export function getDateRange(value: string) {
   const today = new Date();
