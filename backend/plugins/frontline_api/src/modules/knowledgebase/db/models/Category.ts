@@ -19,7 +19,7 @@ export interface ICategoryCreate extends ICategory {
       docFields: ICategoryCreate,
       userId?: string
     ): Promise<ICategoryDocument>;
-    removeDoc(categoryId: string): void;
+    removeDoc(categoryId: string): Promise<void>;
   }
   
   export const loadCategoryClass = (models: IModels) => {
