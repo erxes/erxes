@@ -11,6 +11,7 @@ export interface IProduct {
   insuranceType: string;
   coveredRisks: IProductCoveredRisk[];
   pricingConfig: any;
+  pdfContent?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {

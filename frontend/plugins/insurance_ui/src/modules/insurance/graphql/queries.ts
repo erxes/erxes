@@ -38,7 +38,7 @@ export const insuranceProductFields = `
     coveragePercentage
   }
   pricingConfig
-  templateId
+  pdfContent
   createdAt
   updatedAt
 `;
@@ -51,7 +51,6 @@ export const insuranceVendorFields = `
       ${insuranceProductFields}
     }
     pricingOverride
-    templateId
   }
   createdAt
   updatedAt
@@ -101,6 +100,7 @@ export const insuranceContractFields = `
   insuranceProduct {
     id
     name
+    pdfContent
   }
   coveredRisks {
     risk {

@@ -30,7 +30,6 @@ import {
   useInsuranceProducts,
   useAddProductToVendor,
   useRemoveProductFromVendor,
-  useContractTemplates,
 } from '~/modules/insurance/hooks';
 import { VendorUser } from '~/modules/insurance/types';
 import { VendorUserForm } from '~/modules/insurance/components';
@@ -43,13 +42,11 @@ export const VendorDetailPage = () => {
   const { insuranceProducts } = useInsuranceProducts();
   const { addProductToVendor } = useAddProductToVendor();
   const { removeProductFromVendor } = useRemoveProductFromVendor();
-  const { contractTemplates } = useContractTemplates();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<VendorUser | undefined>();
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState('');
-  const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [vendorPercentage, setVendorPercentage] = useState<number | undefined>(
     undefined,
   );
@@ -109,13 +106,11 @@ export const VendorDetailPage = () => {
           vendorId: id!,
           productId: selectedProductId,
           pricingOverride,
-          templateId: selectedTemplateId || null,
         },
       });
 
       setIsProductDialogOpen(false);
       setSelectedProductId('');
-      setSelectedTemplateId('');
       setVendorPercentage(undefined);
       setVendorDurationFields([]);
     } catch (error) {
@@ -359,29 +354,6 @@ export const VendorDetailPage = () => {
                   ))}
                 </Select.Content>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="template">PDF Загвар (сонголттой)</Label>
-              <Select
-                value={selectedTemplateId || undefined}
-                onValueChange={setSelectedTemplateId}
-              >
-                <Select.Trigger id="template">
-                  <Select.Value placeholder="Product-ийн загварыг ашиглана" />
-                </Select.Trigger>
-                <Select.Content>
-                  {contractTemplates.map((template) => (
-                    <Select.Item key={template.id} value={template.id}>
-                      {template.name}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Энэ vendor-д зориулсан PDF загвар сонгох. Хоосон орхивол
-                product-ийн загварыг ашиглана.
-              </p>
             </div>
 
             <div className="space-y-2">

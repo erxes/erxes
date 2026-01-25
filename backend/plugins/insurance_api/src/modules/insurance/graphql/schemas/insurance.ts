@@ -62,6 +62,7 @@ export const types = `
     insuranceType: InsuranceType!
     coveredRisks: [CoveredRisk!]!
     pricingConfig: JSON!
+    pdfContent: String
     templateId: ID
     createdAt: Date!
     updatedAt: Date!
@@ -73,7 +74,6 @@ export const types = `
   type InsuranceVendorProduct {
     product: InsuranceProduct!
     pricingOverride: JSON
-    templateId: ID
   }
 
   """
@@ -238,13 +238,13 @@ export const mutations = `
   updateInsuranceType(id: ID!, name: String, attributes: [AttributeInput!]): InsuranceType!
   deleteInsuranceType(id: ID!): Boolean!
 
-  createInsuranceProduct(name: String!, insuranceTypeId: ID!, coveredRisks: [CoveredRiskInput!]!, pricingConfig: JSON!, templateId: ID): InsuranceProduct!
-  updateInsuranceProduct(id: ID!, name: String, coveredRisks: [CoveredRiskInput!], pricingConfig: JSON, templateId: ID): InsuranceProduct!
+  createInsuranceProduct(name: String!, insuranceTypeId: ID!, coveredRisks: [CoveredRiskInput!]!, pricingConfig: JSON!, pdfContent: String, templateId: ID): InsuranceProduct!
+  updateInsuranceProduct(id: ID!, name: String, coveredRisks: [CoveredRiskInput!], pricingConfig: JSON, pdfContent: String, templateId: ID): InsuranceProduct!
   deleteInsuranceProduct(id: ID!): Boolean!
 
   createVendor(name: String!): InsuranceVendor!
   updateVendor(id: ID!, name: String!): InsuranceVendor!
-  addProductToVendor(vendorId: ID!, productId: ID!, pricingOverride: JSON, templateId: ID): InsuranceVendor!
+  addProductToVendor(vendorId: ID!, productId: ID!, pricingOverride: JSON): InsuranceVendor!
   removeProductFromVendor(vendorId: ID!, productId: ID!): InsuranceVendor!
 
   createCustomer(input: InsuranceCustomerInput!): InsuranceCustomer!

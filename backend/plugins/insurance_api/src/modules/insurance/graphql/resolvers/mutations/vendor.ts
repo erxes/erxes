@@ -30,12 +30,10 @@ export const vendorMutations = {
       vendorId,
       productId,
       pricingOverride,
-      templateId,
     }: {
       vendorId: string;
       productId: string;
       pricingOverride?: any;
-      templateId?: string;
     },
     { models }: IContext,
   ) => {
@@ -43,7 +41,7 @@ export const vendorMutations = {
       vendorId,
       {
         $push: {
-          offeredProducts: { product: productId, pricingOverride, templateId },
+          offeredProducts: { product: productId, pricingOverride },
         },
       },
       { new: true },

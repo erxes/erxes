@@ -30,6 +30,10 @@ export const productSchema = new Schema(
       type: mongoose.Schema.Types.Mixed,
       required: true,
     },
+    pdfContent: {
+      type: String,
+      required: false,
+    },
     templateId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'insurance_contract_templates',

@@ -10,12 +10,5 @@ export const loadProductClass = (models: IModels) => {
 
   productSchema.loadClass(Product);
 
-  // Drop old code index if it exists (migration)
-  if (models.Product) {
-    models.Product.collection.dropIndex('code_1').catch(() => {
-      // Index doesn't exist, ignore error
-    });
-  }
-
   return productSchema;
 };

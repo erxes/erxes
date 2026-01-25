@@ -62,14 +62,14 @@ export const CREATE_INSURANCE_PRODUCT = gql`
     $insuranceTypeId: ID!
     $coveredRisks: [CoveredRiskInput!]!
     $pricingConfig: JSON!
-    $templateId: ID
+    $pdfContent: String
   ) {
     createInsuranceProduct(
       name: $name
       insuranceTypeId: $insuranceTypeId
       coveredRisks: $coveredRisks
       pricingConfig: $pricingConfig
-      templateId: $templateId
+      pdfContent: $pdfContent
     ) {
       ${insuranceProductFields}
     }
@@ -82,14 +82,14 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
     $name: String
     $coveredRisks: [CoveredRiskInput!]
     $pricingConfig: JSON
-    $templateId: ID
+    $pdfContent: String
   ) {
     updateInsuranceProduct(
       id: $id
       name: $name
       coveredRisks: $coveredRisks
       pricingConfig: $pricingConfig
-      templateId: $templateId
+      pdfContent: $pdfContent
     ) {
       ${insuranceProductFields}
     }

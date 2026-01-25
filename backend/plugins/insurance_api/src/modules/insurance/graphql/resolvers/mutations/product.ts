@@ -30,12 +30,14 @@ export const productMutations = {
       name,
       coveredRisks,
       pricingConfig,
+      pdfContent,
       templateId,
     }: {
       id: string;
       name?: string;
       coveredRisks?: any[];
       pricingConfig?: any;
+      pdfContent?: string;
       templateId?: string;
     },
     { models }: IContext,
@@ -43,6 +45,7 @@ export const productMutations = {
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (pricingConfig !== undefined) updateData.pricingConfig = pricingConfig;
+    if (pdfContent !== undefined) updateData.pdfContent = pdfContent;
     if (templateId !== undefined) updateData.templateId = templateId;
     if (coveredRisks !== undefined) {
       updateData.coveredRisks = coveredRisks.map((cr: any) => ({

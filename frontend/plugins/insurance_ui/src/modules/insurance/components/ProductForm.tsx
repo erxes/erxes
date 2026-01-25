@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
+import { IconEye } from '@tabler/icons-react';
 import {
   useCreateInsuranceProduct,
   useUpdateInsuranceProduct,
   useInsuranceTypes,
   useRiskTypes,
-  useContractTemplates,
 } from '../hooks';
 import { InsuranceProduct } from '../types';
+import { getDefaultPdfTemplate } from '~/utils/contractPdfGenerator';
 
 interface ProductFormProps {
   open: boolean;
@@ -28,18 +29,18 @@ export const ProductForm = ({
     useUpdateInsuranceProduct();
   const { insuranceTypes, loading: typesLoading } = useInsuranceTypes();
   const { riskTypes, loading: risksLoading } = useRiskTypes();
-  const { contractTemplates } = useContractTemplates();
 
   const [formData, setFormData] = useState({
     name: '',
     insuranceTypeId: '',
-    templateId: '',
+    pdfContent: '',
     coveredRisks: [] as { riskId: string; coveragePercentage: number }[],
     pricingConfig: { percentage: 3 } as Record<
       string,
       number | Record<string, number>
     >,
   });
+  const [showPdfEditor, setShowPdfEditor] = useState(false);
 
   const [durationFields, setDurationFields] = useState<
     { duration: string; percentage: number }[]
@@ -50,7 +51,7 @@ export const ProductForm = ({
       setFormData({
         name: product.name,
         insuranceTypeId: product.insuranceType.id,
-        templateId: (product as any).templateId || '',
+        pdfContent: product.pdfContent || '',
         coveredRisks: product.coveredRisks.map((cr) => ({
           riskId: cr.risk.id,
           coveragePercentage: cr.coveragePercentage,
@@ -75,7 +76,7 @@ export const ProductForm = ({
       setFormData({
         name: '',
         insuranceTypeId: '',
-        templateId: '',
+        pdfContent: '',
         coveredRisks: [],
         pricingConfig: { percentage: 3 },
       });
@@ -121,7 +122,7 @@ export const ProductForm = ({
             name: formData.name,
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
-            templateId: formData.templateId || null,
+            pdfContent: formData.pdfContent || null,
           },
         });
       } else {
@@ -131,7 +132,7 @@ export const ProductForm = ({
             insuranceTypeId: formData.insuranceTypeId,
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
-            templateId: formData.templateId || null,
+            pdfContent: formData.pdfContent || null,
           },
         });
       }
@@ -139,7 +140,7 @@ export const ProductForm = ({
       setFormData({
         name: '',
         insuranceTypeId: '',
-        templateId: '',
+        pdfContent: '',
         coveredRisks: [],
         pricingConfig: { percentage: 3 },
       });
@@ -203,28 +204,88 @@ export const ProductForm = ({
           )}
 
           <div className="space-y-2">
-            <Label>PDF Загвар (сонголттой)</Label>
-            <Select
-              value={formData.templateId || undefined}
-              onValueChange={(value) =>
-                setFormData({ ...formData, templateId: value })
-              }
-            >
-              <Select.Trigger>
-                <Select.Value placeholder="Үндсэн загварыг ашиглана" />
-              </Select.Trigger>
-              <Select.Content>
-                {contractTemplates.map((template) => (
-                  <Select.Item key={template.id} value={template.id}>
-                    {template.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Энэ product-д зориулсан PDF загвар. Хоосон орхивол системийн
-              үндсэн загварыг ашиглана.
-            </p>
+            <div className="flex items-center justify-between">
+              <Label>PDF Гэрээний загвар</Label>
+              <div className="flex gap-2">
+                {!formData.pdfContent && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        pdfContent: getDefaultPdfTemplate(),
+                      });
+                      setShowPdfEditor(true);
+                    }}
+                  >
+                    Үндсэн загвар ашиглах
+                  </Button>
+                )}
+                {formData.pdfContent && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const previewWindow = window.open('', '_blank');
+                      if (previewWindow) {
+                        previewWindow.document.write(formData.pdfContent);
+                        previewWindow.document.close();
+                      }
+                    }}
+                  >
+                    <IconEye size={16} />
+                    Урьдчилан харах
+                  </Button>
+                )}
+              </div>
+            </div>
+            {formData.pdfContent ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-green-600">
+                    ✓ PDF загвар тохируулсан
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPdfEditor(!showPdfEditor)}
+                    >
+                      {showPdfEditor ? 'Хураах' : 'Засах'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setFormData({ ...formData, pdfContent: '' })
+                      }
+                    >
+                      Устгах
+                    </Button>
+                  </div>
+                </div>
+                {showPdfEditor && (
+                  <textarea
+                    value={formData.pdfContent}
+                    onChange={(e) =>
+                      setFormData({ ...formData, pdfContent: e.target.value })
+                    }
+                    className="w-full h-[300px] p-2 font-mono text-xs border rounded-md"
+                    placeholder="HTML загвар оруулна уу..."
+                  />
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Гэрээ хийх үед харагдах PDF загвар. "Үндсэн загвар ашиглах" дарж
+                эхлүүлнэ үү.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

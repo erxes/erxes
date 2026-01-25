@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { calculatePremium } from '@/insurance/utils/pricing';
 
 const generateContractNumber = async (models: any): Promise<string> => {
   const prefix = 'INS';
@@ -41,6 +42,19 @@ export const contractMutations = {
       .populate('coveredRisks.risk');
     if (!product) throw new Error('Product not found');
 
+    // Get vendor to check for pricing override
+    const vendor = await models.Vendor.findById(vendorId);
+    const vendorProduct = vendor?.offeredProducts?.find(
+      (op: any) => op.product.toString() === productId.toString(),
+    );
+
+    // Use vendor pricing override if exists, otherwise use product pricing
+    const pricingConfig =
+      vendorProduct?.pricingOverride || product.pricingConfig;
+
+    // Calculate premium based on pricing config and insured object
+    const calculatedAmount = calculatePremium(pricingConfig, insuredObject);
+
     const coveredRisks = (product.coveredRisks || [])
       .filter((cr: any) => cr.risk != null)
       .map((cr: any) => ({
@@ -57,7 +71,7 @@ export const contractMutations = {
       insuranceType: (product.insuranceType as any)._id,
       insuranceProduct: productId,
       coveredRisks,
-      chargedAmount: chargedAmount || 0,
+      chargedAmount: chargedAmount || calculatedAmount,
       startDate,
       endDate,
       insuredObject,

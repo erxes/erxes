@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
+import { IconEye, IconFileText } from '@tabler/icons-react';
 import {
   useInsuranceProducts,
   useVendors,
@@ -157,6 +158,45 @@ export const ContractForm = ({
               </Select.Content>
             </Select>
           </div>
+
+          {formData.productId &&
+            (() => {
+              const selectedProduct = insuranceProducts.find(
+                (p) => p.id === formData.productId,
+              );
+              if (selectedProduct?.pdfContent) {
+                return (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <IconFileText size={20} className="text-blue-600" />
+                        <span className="text-sm font-medium text-blue-800">
+                          PDF гэрээ байна
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const previewWindow = window.open('', '_blank');
+                          if (previewWindow) {
+                            previewWindow.document.write(
+                              selectedProduct.pdfContent || '',
+                            );
+                            previewWindow.document.close();
+                          }
+                        }}
+                      >
+                        <IconEye size={16} />
+                        Урьдчилан харах
+                      </Button>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
           <div className="space-y-2">
             <Label htmlFor="assessedValue">Assessed Value *</Label>
