@@ -1,8 +1,8 @@
-import { FullNameValue, Label, Popover } from 'erxes-ui';
+import { FullNameValue, Popover } from 'erxes-ui';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
 import { Avatar, Button, readImage } from 'erxes-ui';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { CustomerName, SelectCompany, useCustomerEdit } from 'ui-modules';
+import { CustomerName, useCustomerEdit } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export const CustomerDetailGeneral = () => {
@@ -19,7 +19,7 @@ export const CustomerDetailGeneral = () => {
     primaryPhone,
     avatar,
   } = customerDetail || {};
-  const { customerEdit } = useCustomerEdit();
+  // const { customerEdit } = useCustomerEdit();
   return (
     <div className="py-5 px-8 flex flex-col gap-6">
       <div className="flex gap-2 items-center flex-col lg:flex-row ">
@@ -36,7 +36,7 @@ export const CustomerDetailGeneral = () => {
             lastName={`${middleName || ''}${middleName ? ' ' : ''}${
               lastName || ''
             }`}
-            scope={ContactsHotKeyScope.CustomerDetailPage + '.' + _id + '.Name'}
+            scope={ContactsHotKeyScope.CustomerEditSheet + '.' + _id + '.Name'}
           >
             <Popover.Trigger asChild>
               <Button variant="ghost" className="text-base font-semibold">
@@ -46,7 +46,7 @@ export const CustomerDetailGeneral = () => {
           </CustomerName>
         </div>
       </div>
-      <fieldset className="space-y-2">
+      {/* <fieldset className="space-y-2">
         <Label asChild>
           <legend>{t('works-at')}</legend>
         </Label>
@@ -62,7 +62,7 @@ export const CustomerDetailGeneral = () => {
           }}
           mode="multiple"
         />
-      </fieldset>
+      </fieldset> */}
     </div>
   );
 };
