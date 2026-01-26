@@ -1,10 +1,11 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, AlertDialog, Accordion, Form, Input } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useEbarimtReturnConfigSave } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigSave';
 import { useEbarimtReturnConfigState } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useEbarimtReturnConfigState';
+import { useRemoveEbarimtReturnConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useRemoveEbarimtReturnConfig';
 import { SelectSalesBoard } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectPipeline';
 import { SelectStage } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/selects/SelectStage';
@@ -180,23 +181,16 @@ const ReturnEbarimtConfigCard = ({
 
 export const ReturnEBarimtConfigForm = () => {
   const [openItems, setOpenItems] = useState<string[]>([]);
-  const [currentConfigId, setCurrentConfigId] = useState<string | null>(null);
 
   const {
     localConfigsMap,
-    configId: initialConfigId,
     addNewConfig: addConfigToState,
     deleteConfig: deleteConfigFromState,
     saveConfig: saveConfigToState,
   } = useEbarimtReturnConfigState();
 
-  useEffect(() => {
-    if (initialConfigId) {
-      setCurrentConfigId(initialConfigId);
-    }
-  }, [initialConfigId]);
-
   const { saveConfigsToServer } = useEbarimtReturnConfigSave();
+  const { removeEbarimtReturnConfig } = useRemoveEbarimtReturnConfig();
 
   const addNewConfig = () => {
     const updatedConfigsMap = addConfigToState();
@@ -205,26 +199,20 @@ export const ReturnEBarimtConfigForm = () => {
   };
 
   const deleteConfig = async (configKey: string) => {
-    const updatedConfigsMap = deleteConfigFromState(configKey);
+    const config = localConfigsMap[configKey];
 
-    if (!currentConfigId) return;
-
-    if (Object.keys(updatedConfigsMap).length === 0) {
-      // Handle delete all configs - would need remove function
-      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
-    } else {
-      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
+    if (config?._id) {
+      await removeEbarimtReturnConfig(config._id);
     }
+
+    deleteConfigFromState(configKey);
   };
 
   const saveConfig = async (configKey: string, configData: any) => {
-    const updatedConfigsMap = saveConfigToState(configKey, configData);
+    saveConfigToState(configKey, configData);
 
-    if (!currentConfigId) {
-      const newId = await saveConfigsToServer(updatedConfigsMap, 'create');
-      setCurrentConfigId(newId);
-    } else {
-      await saveConfigsToServer(updatedConfigsMap, 'update', currentConfigId);
+    if (configData.stageId) {
+      await saveConfigsToServer(configData, 'create');
     }
   };
 

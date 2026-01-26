@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
 import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
+
+type ReturnEbarimtConfigWithId = ReturnEbarimtConfig & {
+  _id?: string;
+};
 
 export const useEbarimtReturnConfigState = () => {
   const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {
@@ -9,26 +13,36 @@ export const useEbarimtReturnConfigState = () => {
     fetchPolicy: 'network-only',
   });
 
-  const configData = data?.mnConfigs?.[0];
-  const configValue = configData?.value;
-  const configId = configData?._id;
+  const configsList = useMemo(() => data?.mnConfigs || [], [data?.mnConfigs]);
 
   const parseConfigValue = (value: any) => {
     if (!value) return {};
     return typeof value === 'string' ? JSON.parse(value) : value;
   };
 
-  const [localConfigsMap, setLocalConfigsMap] = useState(() =>
-    parseConfigValue(configValue),
-  );
+  const [localConfigsMap, setLocalConfigsMap] = useState<
+    Record<string, ReturnEbarimtConfigWithId>
+  >({});
 
   useEffect(() => {
-    setLocalConfigsMap(parseConfigValue(configValue));
-  }, [configValue]);
+    const map: Record<string, ReturnEbarimtConfigWithId> = {};
+
+    configsList.forEach((config: any) => {
+      if (config.subId) {
+        map[config.subId] = {
+          ...parseConfigValue(config.value),
+          _id: config._id,
+        };
+      }
+    });
+
+    setLocalConfigsMap(map);
+  }, [configsList]);
 
   const addNewConfig = () => {
     const configKey = `config_${Date.now()}`;
-    const newConfig: ReturnEbarimtConfig = {
+
+    const newConfig: ReturnEbarimtConfigWithId = {
       title: 'New Return Ebarimt Config',
       destinationStageBoard: '',
       pipelineId: '',
@@ -55,7 +69,10 @@ export const useEbarimtReturnConfigState = () => {
     return updatedConfigsMap;
   };
 
-  const saveConfig = (configKey: string, configData: ReturnEbarimtConfig) => {
+  const saveConfig = (
+    configKey: string,
+    configData: ReturnEbarimtConfigWithId,
+  ) => {
     const updatedConfigsMap = {
       ...localConfigsMap,
       [configKey]: configData,
@@ -65,13 +82,23 @@ export const useEbarimtReturnConfigState = () => {
     return updatedConfigsMap;
   };
 
+  const getConfigById = (configId: string) => {
+    return configsList.find((config: any) => config._id === configId);
+  };
+
+  const getConfigByStageId = (stageId: string) => {
+    return configsList.find((config: any) => config.subId === stageId);
+  };
+
   return {
     localConfigsMap,
+    configsList,
     loading,
     refetch,
-    configId,
     addNewConfig,
     deleteConfig,
     saveConfig,
+    getConfigById,
+    getConfigByStageId,
   };
 };
