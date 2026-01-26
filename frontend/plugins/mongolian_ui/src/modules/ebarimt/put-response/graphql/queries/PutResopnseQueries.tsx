@@ -4,7 +4,6 @@ const putResponses = gql`
     $search: String
     $contentType: String
     $contentId: String
-    $success: String
     $billType: String
     $billIdRule: String
     $isLast: String
@@ -14,16 +13,21 @@ const putResponses = gql`
     $dealName: String
     $pipelineId: String
     $stageId: String
-    $createdStartDate: Date
     $createdEndDate: Date
     $paidDate: String
+    $limit: Int
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $orderBy: JSON
     $sortMode: String
+    $aggregationPipeline: [JSON]
+    $createdStartDate: Date
   ) {
     putResponses(
       search: $search
       contentType: $contentType
       contentId: $contentId
-      success: $success
       billType: $billType
       billIdRule: $billIdRule
       isLast: $isLast
@@ -33,10 +37,16 @@ const putResponses = gql`
       dealName: $dealName
       pipelineId: $pipelineId
       stageId: $stageId
-      createdStartDate: $createdStartDate
       createdEndDate: $createdEndDate
       paidDate: $paidDate
+      limit: $limit
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      orderBy: $orderBy
       sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
+      createdStartDate: $createdStartDate
     ) {
       list {
         _id
