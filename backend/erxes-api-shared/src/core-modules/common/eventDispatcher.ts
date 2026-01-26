@@ -63,6 +63,38 @@ export const LogEventSchema = z.union([
 
 export type LogEventInput = z.infer<typeof LogEventSchema>;
 
+const normalizeLogEventInput = (input: any): any => {
+  if (!input || typeof input !== 'object') {
+    return input;
+  }
+
+  const toIdString = (v: any) => {
+    if (v == null) return v;
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number') return String(v);
+    if (typeof v === 'object' && typeof v.toString === 'function') {
+      return String(v.toString());
+    }
+    return String(v);
+  };
+
+  const out: any = { ...input };
+
+  if ('docId' in out) {
+    out.docId = toIdString(out.docId);
+  }
+
+  if ('docIds' in out) {
+    if (Array.isArray(out.docIds)) {
+      out.docIds = out.docIds.map(toIdString);
+    } else {
+      out.docIds = toIdString(out.docIds);
+    }
+  }
+
+  return out;
+};
+
 type EventPayload = {
   docIds?: string | string[];
   docId?: string;
@@ -235,14 +267,15 @@ export function createEventDispatcher(
    *   - bulkWrite: { action: 'bulkWrite', docIds: string | string[], updateDescription: Record<string, any> }
    */
   function sendDbEventLog(input: LogEventInput): void {
-    const parsed = LogEventSchema.parse(input);
+    const normalizedInput = normalizeLogEventInput(input);
+    const parsed = LogEventSchema.parse(normalizedInput);
     const { action } = parsed;
 
     // Get current processId and userId dynamically each time
     const { processId, userId } = getContext();
 
     const queue = sendWorkerQueue('logs', 'put_log');
-    const payload = generateDbEventPayload(input, collectionName);
+    const payload = generateDbEventPayload(parsed, collectionName);
 
     const eventPayload: EventPayload = {
       subdomain,
@@ -270,12 +303,16 @@ export function createEventDispatcher(
       eventPayload.docId = parsed.docId;
     }
 
-    queue.add('put_log', eventPayload, {
-      removeOnComplete: true,
-    });
+    queue
+      .add('put_log', eventPayload, {
+        removeOnComplete: true,
+      })
+      .catch((err) => {
+        console.error('sendDbEventLog queue.add failed', err);
+      });
 
     if (action === DbLogActions.CREATE || action === DbLogActions.UPDATE) {
-      const payload = generateAutomationTriggerPayload(input, contentType);
+      const payload = generateAutomationTriggerPayload(parsed, contentType);
 
       if (payload) {
         sendAutomationTrigger(subdomain, payload);
