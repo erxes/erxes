@@ -7,7 +7,11 @@ import {
   editDeal,
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
-import { convertNestedDate, generateAmounts, generateProducts } from '~/modules/sales/utils';
+import {
+  convertNestedDate,
+  generateAmounts,
+  generateProducts,
+} from '~/modules/sales/utils';
 import { createEventDispatcher } from 'erxes-api-shared/core-modules';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
@@ -241,11 +245,9 @@ export const dealTrpcRouter = t.router({
         return await generateFilter(models, subdomain, userId, filter);
       }),
 
-    generateAmounts: t.procedure
-      .input(z.any())
-      .query(async ({ input }) => {
-        return generateAmounts(input);
-      }),
+    generateAmounts: t.procedure.input(z.any()).query(async ({ input }) => {
+      return generateAmounts(input);
+    }),
 
     generateProducts: t.procedure
       .input(z.any())
@@ -258,12 +260,20 @@ export const dealTrpcRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { subdomain } = ctx;
-        const { dealId, commentId, createdBy, processId, userId } = input;
+        const {
+          dealId,
+          commentId,
+          createdBy,
+          processId,
+          userId,
+          commentContent,
+        } = input;
 
         if (!dealId || !commentId || !createdBy) {
           return {
             status: 'error',
-            errorMessage: 'Missing required parameters: dealId, commentId, createdBy',
+            errorMessage:
+              'Missing required parameters: dealId, commentId, createdBy',
           };
         }
 
@@ -289,7 +299,7 @@ export const dealTrpcRouter = t.router({
             },
             action: {
               type: 'comment',
-              description: 'Comment added from client portal',
+              description: `Comment added from client portal ${commentContent}`,
             },
             changes: {
               commentId,
@@ -346,9 +356,9 @@ export const dealTrpcRouter = t.router({
         }
       }
 
-      return pipeline
-    })
-  }
+      return pipeline;
+    }),
+  },
 });
 
 export const fetchSegment = async (
