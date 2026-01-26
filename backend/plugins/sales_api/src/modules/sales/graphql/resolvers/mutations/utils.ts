@@ -100,7 +100,8 @@ export const editDeal = async ({
   processId: string;
   user: IUserDocument;
 }) => {
-  const oldDeal = await models.Deals.getDeal(_id);
+
+  const oldDeal = await models.Deals.getDeal(_id); 
 
   if (doc.assignedUserIds) {
     const { removedUserIds } = checkUserIds(
