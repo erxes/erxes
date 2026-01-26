@@ -1,4 +1,3 @@
-cat << 'EOF' > migrateConformitiesToRelations.js
 const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
 
@@ -79,8 +78,10 @@ const command = async () => {
         },
       });
     }
-    await Relations.bulkWrite(bulkOps)
-    await Conformities.updateMany({ _id: { $in: conformities.map(c => c._id) } }, { $set: { _synced: true } })
+    if (bulkOps.length) {
+      await Relations.bulkWrite(bulkOps)
+      await Conformities.updateMany({ _id: { $in: conformities.map(c => c._id) } }, { $set: { _synced: true } })
+    }
     step++
   }
 
@@ -90,5 +91,3 @@ const command = async () => {
 };
 
 command();
-
-EOF
