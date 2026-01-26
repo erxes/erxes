@@ -8,7 +8,7 @@ import { usePageTrackerStore } from 'react-page-tracker';
 import { useNavigate } from 'react-router-dom';
 import { pluginsConfigState, useVersion } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { SETTINGS_PATH_DATA } from '../constants/data';
+import { GET_SETTINGS_PATH_DATA } from '../constants/data';
 
 export function SettingsSidebar() {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
@@ -17,7 +17,7 @@ export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   const CORE_MODULES = GET_CORE_MODULES(t, version);
-  const sidebar = useMemo(() => SETTINGS_PATH_DATA(t), [t]);
+  const sidebar = useMemo(() => GET_SETTINGS_PATH_DATA(version, t), [t]);
 
   const pluginsWithSettingsNavigations = Object.values(pluginsMetaData)
     .filter((plugin) => plugin.settingsNavigation)

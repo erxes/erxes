@@ -1,13 +1,43 @@
 import AWS from 'aws-sdk';
 
+import { getValueAsString } from '@/organization/settings/db/models/Configs';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
-import { ISESConfig } from '~/modules/organization/settings/db/definitions/configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
-  const config: ISESConfig = await models.Configs.getSESConfigs();
+  const accessKeyId = await getValueAsString(
+    models,
+    'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+    'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+  );
+
+  const secretAccessKey = await getValueAsString(
+    models,
+    'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+    'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+  );
+
+  const region = await getValueAsString(
+    models,
+    'BROADCAST_AWS_REGION',
+    'BROADCAST_AWS_REGION',
+  );
+
+  const unverifiedEmailsLimit = await getValueAsString(
+    models,
+    'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
+    'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
+    '100',
+  );
+
+  const config = {
+    accessKeyId,
+    secretAccessKey,
+    region,
+    unverifiedEmailsLimit,
+  };
 
   if (!config) {
     return;
