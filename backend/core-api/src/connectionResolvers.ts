@@ -591,9 +591,12 @@ export const loadClasses = (
     'client_portal_users',
     loadCPUserClass(models),
   );
+  
   models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
     'client_portal_comments',
-    loadCommentClass(models),
+    loadCommentClass(models,
+      subdomain,
+      eventDispatcher('core', 'clientportal', 'client_portal_comments'),),
   );
   const db_name = db.name;
 
