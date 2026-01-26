@@ -35,7 +35,7 @@ export const configReplacer = (config) => {
 // board item number calculator
 const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   if (num && !skip) {
-    num = parseInt(num, 10) + 1;
+    num = Number.parseInt(num, 10) + 1;
   }
 
   if (skip) {
@@ -504,171 +504,21 @@ export const getItemList = async (
   user: IUserDocument,
   getExtraFields?: (item: any) => { [key: string]: any },
 ) => {
+  const { orderBy } = args;
+  if (!orderBy || !Object.keys(orderBy)) {
+    args.orderBy = { order: 1 }
+  }
+
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
     model: models.Deals,
     params: args,
     query: filter,
   });
 
-  // const ids = list.map((item) => item._id);
-
-  // const conformities = await sendCoreMessage({
-  //   subdomain,
-  //   action: 'conformities.getConformities',
-  //   data: {
-  //     mainType: type,
-  //     mainTypeIds: ids,
-  //     relTypes: ['company', 'customer'],
-  //   },
-  //   isRPC: true,
-  //   defaultValue: [],
-  // });
-
-  const companyIds: string[] = [];
-  const customerIds: string[] = [];
-  const companyIdsByItemId = {};
-  const customerIdsByItemId = {};
-
-  // const perConformity = (
-  //   conformity,
-  //   cocIdsByItemId,
-  //   cocIds,
-  //   typeId1,
-  //   typeId2,
-  // ) => {
-  //   cocIds.push(conformity[typeId1]);
-
-  //   if (!cocIdsByItemId[conformity[typeId2]]) {
-  //     cocIdsByItemId[conformity[typeId2]] = [];
-  //   }
-
-  //   cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
-  // };
-
-  // for (const conf of conformities) {
-  //   if (conf.mainType === 'company') {
-  //     perConformity(
-  //       conf,
-  //       companyIdsByItemId,
-  //       companyIds,
-  //       'mainTypeId',
-  //       'relTypeId',
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.relType === 'company') {
-  //     perConformity(
-  //       conf,
-  //       companyIdsByItemId,
-  //       companyIds,
-  //       'relTypeId',
-  //       'mainTypeId',
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.mainType === 'customer') {
-  //     perConformity(
-  //       conf,
-  //       customerIdsByItemId,
-  //       customerIds,
-  //       'mainTypeId',
-  //       'relTypeId',
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.relType === 'customer') {
-  //     perConformity(
-  //       conf,
-  //       customerIdsByItemId,
-  //       customerIds,
-  //       'relTypeId',
-  //       'mainTypeId',
-  //     );
-  //     continue;
-  //   }
-  // }
-
-  const companies = await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query',
-    module: 'companies',
-    action: 'findActiveCompanies',
-    input: {
-      query: {
-        _id: { $in: [...new Set(companyIds)] },
-      },
-      fields: {
-        primaryName: 1,
-        primaryEmail: 1,
-        primaryPhone: 1,
-        emails: 1,
-        phones: 1,
-      },
-    },
-    defaultValue: [],
-  });
-
-  const customers = await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query',
-    module: 'customers',
-    action: 'findActiveCustomers',
-    input: {
-      query: {
-        _id: { $in: [...new Set(customerIds)] },
-      },
-      fields: {
-        firstName: 1,
-        lastName: 1,
-        middleName: 1,
-        visitorContactInfo: 1,
-        primaryEmail: 1,
-        primaryPhone: 1,
-        emails: 1,
-        phones: 1,
-      },
-    },
-    defaultValue: [],
-  });
-
-  const getCocsByItemId = (
-    itemId: string,
-    cocIdsByItemId: any,
-    cocs: any[],
-  ) => {
-    const cocIds = cocIdsByItemId[itemId] || [];
-
-    return cocIds.flatMap((cocId: string) => {
-      const found = cocs.find((coc) => cocId === coc._id);
-
-      return found || [];
-    });
-  };
-
   const updatedList: any[] = [];
-
-  // const notifications = await sendNotificationsMessage({
-  //   subdomain,
-  //   action: 'find',
-  //   data: {
-  //     selector: {
-  //       contentTypeId: { $in: ids },
-  //       isRead: false,
-  //       receiver: user._id
-  //     },
-  //     fields: { contentTypeId: 1 }
-  //   },
-  //   isRPC: true,
-  //   defaultValue: []
-  // });
 
   const fields = await sendTRPCMessage({
     subdomain,
-
     pluginName: 'core',
     method: 'query',
     module: 'fields',
@@ -682,8 +532,6 @@ export const getItemList = async (
     defaultValue: [],
   });
 
-  // add just incremented order to each item in list, not from db
-  let order = 0;
   for (const item of list) {
     if (item.customFieldsData?.length && fields?.length) {
       item.customProperties = [];
@@ -701,15 +549,10 @@ export const getItemList = async (
       });
     }
 
-    // const notification = notifications.find(n => n.contentTypeId === item._id);
-
     updatedList.push({
       ...item,
-      order: order++,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       // hasNotified: notification ? false : true,
-      customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
-      companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
       ...(getExtraFields ? getExtraFields(item) : {}),
     });
   }

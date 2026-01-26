@@ -42,6 +42,7 @@
     "tags" : "Tags",
     "brands" : "Brands",
     "file-upload" : "File upload",
+    "broadcast-config": "Broadcast config",
     "mail-config" : "Mail config",
     "client-portal" : "Client Portal",
     "products" : "Products",

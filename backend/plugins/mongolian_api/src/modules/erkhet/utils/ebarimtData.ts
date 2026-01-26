@@ -63,7 +63,7 @@ export const getConfigPostData = async (
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
+    module: 'conformity',
     action: 'savedConformity',
     method: 'query',
     input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
@@ -106,7 +106,7 @@ export const getConfigPostData = async (
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       method: 'query',
       input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
@@ -369,7 +369,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
+    module: 'conformity',
     action: 'savedConformity',
     method: 'query',
     input: {
@@ -406,7 +406,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       method: 'query',
       input: {

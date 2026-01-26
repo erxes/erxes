@@ -1,16 +1,15 @@
+import { IconInfoCircle } from '@tabler/icons-react';
+import { Button, cn, PageContainer, Switch, toast, Tooltip } from 'erxes-ui';
+import { Slot } from 'radix-ui';
+import React, { useState } from 'react';
 import {
+  SelectBrand,
   SelectCompany,
   SelectCustomer,
-  SelectProduct,
   SelectMember,
+  SelectProduct,
   SelectTags,
-  SelectBrand,
 } from 'ui-modules';
-import { Button, cn, PageContainer, Switch, toast, Tooltip } from 'erxes-ui';
-import { useState } from 'react';
-import { IconInfoCircle } from '@tabler/icons-react';
-import React from 'react';
-import { Slot } from 'radix-ui';
 
 interface SelectContainerProps {
   children: React.ReactElement<{ mode?: 'single' | 'multiple' }>;

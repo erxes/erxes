@@ -27,7 +27,7 @@ export const FieldsInDetail = ({
   }
 
   return (
-    <div className="p-8">
+    <div className="flex flex-col gap-4">
       {fieldGroups.map((group) => (
         <Collapsible key={group._id} className="group" defaultOpen>
           <Collapsible.Trigger asChild>

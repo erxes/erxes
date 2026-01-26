@@ -81,7 +81,6 @@ export enum ResponsesChartType {
   Bar = 'bar',
   Line = 'line',
   Pie = 'pie',
-  Donut = 'donut',
   Radar = 'radar',
 }
 
@@ -89,4 +88,8 @@ export interface ResponsesChartTypeOption {
   IconComponent: Icon;
   value: ResponsesChartType;
   label: string;
+}
+
+export enum ReportHotKeyScope {
+  ReportPage = 'report-page',
 }

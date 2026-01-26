@@ -2,28 +2,24 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { isDev } from 'erxes-api-shared/utils';
-import express from 'express';
-import * as http from 'http';
-import { appRouter } from '~/init-trpc';
-import { initApolloServer } from './apollo/apolloServer';
-import { router } from './routes';
-
 import {
   closeMongooose,
-  createTRPCContext,
-  joinErxesGateway,
-  leaveErxesGateway,
+  createTRPCContext, isDev, joinErxesGateway,
+  leaveErxesGateway
 } from 'erxes-api-shared/utils';
-
+import express from 'express';
 import rateLimit from 'express-rate-limit';
+import * as http from 'http';
 import * as path from 'path';
+import { appRouter } from '~/init-trpc';
+import { initApolloServer } from './apollo/apolloServer';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
-import { initSegmentCoreProducers } from './meta/segments';
-import initImportExport from './meta/import-export/import';
 import { initBroadcast } from './meta/broadcast';
+import initImportExport from './meta/import-export/import';
+import { initSegmentCoreProducers } from './meta/segments';
+import { router } from './routes';
 
 dotenv.config();
 

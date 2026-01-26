@@ -8,21 +8,24 @@ import { useAtomValue } from "jotai"
 import { cn } from "@/lib/utils"
 import Header from "@/components/header/header.main"
 
+import CheckoutDialog from "./(orders)/components/CheckoutDialog"
+
 const Restaurant = () => {
   const selectedTab = useAtomValue(selectedTabAtom)
   return (
     <>
       <Header />
-      <section className="flex flex-auto items-stretch overflow-hidden">
-        <div className={cn("flex h-full w-2/3 flex-col p-3 pl-4 relative")}>
+      <section className="flex overflow-hidden flex-auto items-stretch">
+        <div className={cn("flex relative flex-col p-3 pl-4 w-2/3 h-full")}>
           <Slots />
           {selectedTab === "products" && <ProductsContainer />}
           <SelectTab />
         </div>
-        <div className={"flex w-1/3 flex-col border-l"}>
+        <div className={"flex flex-col w-1/3 border-l"}>
           <CheckoutMain />
         </div>
       </section>
+      <CheckoutDialog />
     </>
   )
 }
