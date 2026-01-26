@@ -3,7 +3,7 @@ import { useQueryState } from 'erxes-ui/hooks';
 import { ActivityLogs } from 'ui-modules';
 import { customActivitiesRows } from './CustomActivitiesRows';
 
-const ActivityList = () => {
+const ActivityList = ({ action }: { action?: string }) => {
   const [salesItemId] = useQueryState<string>('salesItemId');
 
   if (!salesItemId) {
@@ -14,6 +14,7 @@ const ActivityList = () => {
     <div className="h-96">
       <ActivityLogs
         targetId={salesItemId}
+        action={action}
         limit={50}
         customActivities={customActivitiesRows}
         emptyMessage="No activity logs found"

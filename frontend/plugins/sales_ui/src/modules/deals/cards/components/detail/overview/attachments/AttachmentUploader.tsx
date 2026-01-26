@@ -6,7 +6,13 @@ import { removeTypename } from '@/deals/utils/common';
 import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
 
-const AttachmentUploader = () => {
+const AttachmentUploader = ({
+  type,
+  onFileUpload,
+}: {
+  type: string;
+  onFileUpload?: (file: any) => void;
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
     uploaded: 0,
@@ -35,7 +41,8 @@ const AttachmentUploader = () => {
   useEffect(() => {
     if (
       uploadProgress.total > 0 &&
-      uploadProgress.uploaded === uploadProgress.total
+      uploadProgress.uploaded === uploadProgress.total &&
+      type === 'deal'
     ) {
       const cleanAttachments = attachments.map(removeTypename);
 
@@ -46,7 +53,7 @@ const AttachmentUploader = () => {
       });
       setIsLoading(false);
     }
-  }, [attachments, uploadProgress, editDeals]);
+  }, [attachments, uploadProgress, editDeals, type]);
 
   return (
     <Upload.Root
@@ -57,7 +64,14 @@ const AttachmentUploader = () => {
       })}
       onChange={(fileInfo) => {
         if ('url' in fileInfo) {
-          addAttachment(fileInfo as any);
+          // DEAL
+          if (type === 'deal') {
+            addAttachment(fileInfo as any);
+          }
+          // NOTE
+          else if (type === 'note' && onFileUpload) {
+            onFileUpload(fileInfo);
+          }
         }
       }}
     >

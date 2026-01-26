@@ -8,6 +8,7 @@ import { IDeal } from '@/deals/types/deals';
 import MainOverview from './MainOverview';
 import SalesDescription from './SalesDescription';
 import SalesNoteAndComment from './NoteAndComment';
+import ActivityList from './activity/AcitivityList';
 
 const Overview = ({ deal }: { deal: IDeal }) => {
   return (
@@ -22,16 +23,17 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         <div className="flex justify-between ">
           <div className="flex gap-4 py-2 px-4">
             <ChecklistOverview />
-            <AttachmentUploader />
+            <AttachmentUploader type="deal" />
           </div>
         </div>
       </div>
       <Attachments />
       <div className="overview mb-4">
         <MainOverview deal={deal} />
-        <Checklists />
+        {/* <Checklists /> */}
       </div>
-      <SalesNoteAndComment />
+      <SalesNoteAndComment deal={deal} />
+      <ActivityList action="comment" />
     </AttachmentProvider>
   );
 };
