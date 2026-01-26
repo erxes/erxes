@@ -8,7 +8,7 @@ import { IDeal } from '@/deals/types/deals';
 import MainOverview from './MainOverview';
 import SalesDescription from './SalesDescription';
 import SalesNoteAndComment from './NoteAndComment';
-import ActivityList from '@/deals/cards/components/detail/overview/activity/AcitivityList';
+import ActivityList from './activity/AcitivityList';
 
 const Overview = ({ deal }: { deal: IDeal }) => {
   return (
@@ -30,10 +30,10 @@ const Overview = ({ deal }: { deal: IDeal }) => {
       <Attachments />
       <div className="overview mb-4">
         <MainOverview deal={deal} />
-        <Checklists />
+        {/* <Checklists /> */}
       </div>
       <SalesNoteAndComment deal={deal} />
-      <ActivityList />
+      <ActivityList action="comment" />
     </AttachmentProvider>
   );
 };
