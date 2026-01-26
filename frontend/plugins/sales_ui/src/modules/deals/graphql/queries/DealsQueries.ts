@@ -88,12 +88,18 @@ export const commonListFields = `
   companies {
     _id
     primaryName
+    primaryPhone
+    primaryEmail
   }
   customers {
     _id
     firstName
+    middleName
     lastName
-    email
+    primaryPhone
+    primaryEmail
+    phones
+    emails
   }
   assignedUsers {
     _id
@@ -135,6 +141,8 @@ export const commonListFields = `
     name
     colorCode
   }
+  branchIds
+  departmentIds
 `;
 
 export const GET_DEALS = gql`

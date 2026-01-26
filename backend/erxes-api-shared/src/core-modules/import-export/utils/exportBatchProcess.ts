@@ -221,7 +221,7 @@ export const createExportBatchProcessor = (
 
         // When ids are provided, use index-based cursor
         if (exportDoc.ids && exportDoc.ids.length > 0) {
-          const currentIndex = cursor ? parseInt(cursor, 10) : 0;
+          const currentIndex = cursor ? Number.parseInt(cursor, 10) : 0;
           const nextIndex = currentIndex + batch.length;
           if (nextIndex >= exportDoc.ids.length) {
             hasMoreData = false;

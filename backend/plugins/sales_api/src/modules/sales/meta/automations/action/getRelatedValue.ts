@@ -121,7 +121,7 @@ export const getRelatedValue = async (
     const contactIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: 'deal',
@@ -299,7 +299,7 @@ const generateCustomersFielValue = async ({
   const customerIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
+    module: 'conformity',
     action: 'savedConformity',
     input: {
       mainType: 'deal',

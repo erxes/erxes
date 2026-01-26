@@ -430,7 +430,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
+        module: 'conformity',
         action: 'addConformity',
         input: {
           mainType: 'deal',
@@ -606,7 +606,7 @@ const createDealPerOrder = async ({
 
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
+        module: 'conformity',
         action: 'addConformity',
         input: {
           mainType: 'deal',

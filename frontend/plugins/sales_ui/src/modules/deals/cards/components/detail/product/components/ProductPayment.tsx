@@ -1,9 +1,7 @@
-import { Button, CurrencyCode, CurrencyField, Input } from 'erxes-ui';
-import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
-import { Label, Switch } from 'erxes-ui';
-import { useCallback, useMemo, useState } from 'react';
-
 import { IDeal } from '@/deals/types/deals';
+import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
+import { Button, CurrencyCode, CurrencyField, Input, Label, Switch } from 'erxes-ui';
+import { useCallback, useMemo, useState } from 'react';
 
 interface IPaymentsData {
   [key: string]: { amount: number; currency: string };
@@ -147,7 +145,7 @@ const ProductsPayment = ({
               type="number"
               value={paymentsData['cash']?.amount || ''}
               onChange={(e) =>
-                updatePayment('cash', 'amount', parseFloat(e.target.value) || 0)
+                updatePayment('cash', 'amount', Number.parseFloat(e.target.value) || 0)
               }
               onClick={fillRemaining}
               className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"

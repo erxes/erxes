@@ -1,9 +1,8 @@
-import { getInstance } from '@module-federation/enhanced/runtime';
+import { getInstance, loadRemote } from '@module-federation/enhanced/runtime';
+import { IUIConfig } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { loadingPluginsConfigState, pluginsConfigState } from 'ui-modules';
-import { loadRemote } from '@module-federation/enhanced/runtime';
-import { useSetAtom } from 'jotai';
-import { IUIConfig } from 'erxes-ui';
 
 type RemoteConfig = {
   CONFIG: IUIConfig;
@@ -15,7 +14,7 @@ export const PluginConfigsProvidersEffect = () => {
   const setPluginsConfig = useSetAtom(pluginsConfigState);
   const setLoadingPluginsConfig = useSetAtom(loadingPluginsConfigState);
 
-  useEffect( () => {
+  useEffect(() => {
     if (remotes && remotes.length > 0) {
       const loadConfig = async () => {
         for (const remote of remotes) {
@@ -29,9 +28,9 @@ export const PluginConfigsProvidersEffect = () => {
               ...prev,
               [remote.name]: pluginConfig,
             }));
-           setTimeout(() => {
-            setLoadingPluginsConfig(false);
-           });
+            setTimeout(() => {
+              setLoadingPluginsConfig(false);
+            });
           } catch (error) {
             console.error(`Failed to load config from ${remote.name}:`, error);
             setLoadingPluginsConfig(false);

@@ -1,17 +1,14 @@
-import * as _ from 'underscore';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { IConversationDocument } from '@/inbox/@types/conversations';
-import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import {
   IConversationMessageAdd,
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
-import { AUTO_BOT_MESSAGES } from '@/inbox/db/definitions/constants';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IConversationDocument } from '@/inbox/@types/conversations';
+import { AUTO_BOT_MESSAGES, CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as _ from 'underscore';
+import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
 
 interface DispatchConversationData {
