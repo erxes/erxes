@@ -13,12 +13,12 @@ import {
 } from '../definitions/checklists';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
+  createChecklistActivityLog,
+  createChecklistItemActivityLog,
+  createDealActivityDispatcher,
   generateChecklistActivityLogs,
-  generateChecklistCreatedActivityLog,
-  generateChecklistRemovedActivityLog,
   generateChecklistItemActivityLogs,
-  generateChecklistItemCreatedActivityLog,
-  generateChecklistItemRemovedActivityLog,
+  getUserId,
 } from '~/utils/activityLogs';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
@@ -54,7 +54,7 @@ export const loadCheckListClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class Checklist {
     public static async getChecklist(_id: string) {
@@ -78,11 +78,19 @@ export const loadCheckListClass = (
           docId: checklist._id,
         });
 
-        createActivityLog(
-          generateChecklistRemovedActivityLog(
-            checklist.toObject(),
-            (checklist as any).userId || (checklist as any).createdUserId,
-          ),
+        const checklistObj = checklist.toObject();
+        const userId = getUserId(checklistObj);
+        const activityDispatcher = createDealActivityDispatcher(
+          subdomain,
+          userId,
+        );
+
+        createChecklistActivityLog(
+          activityDispatcher,
+          checklistObj.contentTypeId,
+          'delete',
+          checklistObj,
+          userId,
         );
       }
 
@@ -111,8 +119,18 @@ export const loadCheckListClass = (
         currentDocument: checklist.toObject(),
       });
 
-      createActivityLog(
-        generateChecklistCreatedActivityLog(checklist.toObject(), user._id),
+      const checklistObj = checklist.toObject();
+      const activityDispatcher = createDealActivityDispatcher(
+        subdomain,
+        user._id,
+      );
+
+      createChecklistActivityLog(
+        activityDispatcher,
+        checklistObj.contentTypeId,
+        'create',
+        checklistObj,
+        user._id,
       );
 
       return checklist;
@@ -132,12 +150,15 @@ export const loadCheckListClass = (
         currentDocument: updated.toObject(),
         prevDocument: prev.toObject(),
       });
-
+      const activityDispatcher = createDealActivityDispatcher(
+        subdomain,
+        getUserId(prev.toObject()),
+      );
       await generateChecklistActivityLogs(
         prev.toObject(),
         updated.toObject(),
         models,
-        createActivityLog,
+        activityDispatcher.createActivityLog,
       );
 
       return updated;
@@ -152,11 +173,19 @@ export const loadCheckListClass = (
         docId: checklist._id,
       });
 
-      createActivityLog(
-        generateChecklistRemovedActivityLog(
-          checklist.toObject(),
-          (checklist as any).userId || (checklist as any).createdUserId,
-        ),
+      const checklistObj = checklist.toObject();
+      const userId = getUserId(checklistObj);
+      const activityDispatcher = createDealActivityDispatcher(
+        subdomain,
+        userId,
+      );
+
+      createChecklistActivityLog(
+        activityDispatcher,
+        checklistObj.contentTypeId,
+        'delete',
+        checklistObj,
+        userId,
       );
 
       await models.ChecklistItems.deleteMany({ checklistId: checklist._id });
@@ -175,7 +204,7 @@ export const loadCheckListItemClass = (
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
-  const { sendDbEventLog, createActivityLog } = dispatcher;
+  const { sendDbEventLog } = dispatcher;
 
   class ChecklistItem {
     public static async getChecklistItem(_id: string) {
@@ -205,9 +234,24 @@ export const loadCheckListItemClass = (
         currentDocument: item.toObject(),
       });
 
-      createActivityLog(
-        generateChecklistItemCreatedActivityLog(item.toObject(), user._id),
-      );
+      // Get checklist to find the deal (contentTypeId)
+      const checklist = await models.Checklists.findOne({ _id: checklistId });
+      if (checklist) {
+        const itemObj = item.toObject();
+        const activityDispatcher = createDealActivityDispatcher(
+          subdomain,
+          user._id,
+        );
+
+        createChecklistItemActivityLog(
+          activityDispatcher,
+          checklist.contentTypeId,
+          'create',
+          itemObj,
+          itemObj.checklistId,
+          user._id,
+        );
+      }
 
       return item;
     }
@@ -226,12 +270,15 @@ export const loadCheckListItemClass = (
         currentDocument: updated.toObject(),
         prevDocument: prev.toObject(),
       });
-
+      const activityDispatcher = createDealActivityDispatcher(
+        subdomain,
+        getUserId(prev.toObject()),
+      );
       await generateChecklistItemActivityLogs(
         prev.toObject(),
         updated.toObject(),
         models,
-        createActivityLog,
+        activityDispatcher.createActivityLog,
       );
 
       return updated;
@@ -247,12 +294,27 @@ export const loadCheckListItemClass = (
       });
 
       const itemObj = item.toObject();
-      createActivityLog(
-        generateChecklistItemRemovedActivityLog(
+      const userId = getUserId(itemObj);
+
+      // Get checklist to find the deal (contentTypeId)
+      const checklist = await models.Checklists.findOne({
+        _id: itemObj.checklistId,
+      });
+      if (checklist) {
+        const activityDispatcher = createDealActivityDispatcher(
+          subdomain,
+          userId,
+        );
+
+        createChecklistItemActivityLog(
+          activityDispatcher,
+          checklist.contentTypeId,
+          'delete',
           itemObj,
-          itemObj.userId || (itemObj as any).createdUserId,
-        ),
-      );
+          itemObj.checklistId,
+          userId,
+        );
+      }
 
       await item.deleteOne();
       return item;
@@ -283,7 +345,7 @@ export const loadCheckListItemClass = (
         prev,
         updated.toObject(),
         models,
-        createActivityLog,
+        dispatcher.createActivityLog,
       );
 
       return updated;

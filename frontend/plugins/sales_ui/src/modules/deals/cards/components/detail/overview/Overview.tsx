@@ -33,7 +33,7 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         {/* <Checklists /> */}
       </div>
       <SalesNoteAndComment deal={deal} />
-      <ActivityList action="comment" />
+      <ActivityList action="checkList" />
     </AttachmentProvider>
   );
 };

@@ -3,6 +3,7 @@ import {
   ActivityRule,
   assignmentRule,
   buildActivities,
+  createEventDispatcher,
   fieldChangeRule,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -591,125 +592,105 @@ export function generateDealConvertedActivityLog(
 }
 
 /**
- * Generate activity log for checklist creation
+ * Helper function to create a deal activity dispatcher
  */
-export function generateChecklistCreatedActivityLog(
-  checklist: any,
-  userId?: string,
-): ActivityLogInput {
-  return {
-    activityType: 'create',
-    target: {
-      _id: checklist._id,
-      moduleName: 'sales',
-      collectionName: 'checklists',
-    },
-    action: {
-      type: 'create',
-      description: `Checklist created ${checklist.title}`,
-    },
-    changes: {
-      title: checklist.title,
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
-      createdAt: new Date(),
-    },
-    metadata: {
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
-      userId: userId || checklist.userId || checklist.createdUserId,
-    },
-  };
+export function createDealActivityDispatcher(
+  subdomain: string,
+  userId: string,
+): ReturnType<typeof createEventDispatcher> {
+  return createEventDispatcher({
+    subdomain,
+    pluginName: 'sales',
+    moduleName: 'sales',
+    collectionName: 'deals',
+    getContext: () => ({
+      subdomain,
+      processId: '',
+      userId,
+    }),
+  });
 }
 
 /**
- * Generate activity log for checklist removal
+ * Helper function to get userId from document
  */
-export function generateChecklistRemovedActivityLog(
-  checklist: any,
-  userId?: string,
-): ActivityLogInput {
-  return {
-    activityType: 'delete',
-    target: {
-      _id: checklist._id,
-      moduleName: 'sales',
-      collectionName: 'checklists',
-    },
-    action: {
-      type: 'delete',
-      description: `Checklist removed ${checklist.title}`,
-    },
-    changes: {
-      title: checklist.title,
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
-      removedAt: new Date(),
-    },
-    metadata: {
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
-      userId: userId || checklist.userId || checklist.createdUserId,
-    },
-  };
+export function getUserId(doc: any): string {
+  return doc.userId || doc.createdUserId || '';
 }
 
 /**
- * Generate activity log for checklist item creation
+ * Helper function to create checklist activity log
  */
-export function generateChecklistItemCreatedActivityLog(
-  checklistItem: any,
-  userId?: string,
-): ActivityLogInput {
-  return {
-    activityType: 'create',
+export function createChecklistActivityLog(
+  activityDispatcher: ReturnType<typeof createEventDispatcher>,
+  contentTypeId: string,
+  activityType: 'create' | 'delete',
+  checklistObj: any,
+  userId: string,
+): void {
+  const isDelete = activityType === 'delete';
+  activityDispatcher.createActivityLog({
+    activityType,
     target: {
-      _id: checklistItem._id,
+      _id: contentTypeId,
       moduleName: 'sales',
-      collectionName: 'checklistItems',
+      collectionName: 'deals',
     },
     action: {
-      type: 'create',
-      description: `Checklist item created ${checklistItem.content}`,
+      type: activityType,
+      description: isDelete
+        ? `Checklist "${checklistObj.title}" removed`
+        : `Checklist "${checklistObj.title}" created`,
     },
     changes: {
-      content: checklistItem.content,
-      checklistId: checklistItem.checklistId,
-      createdAt: new Date(),
+      checklistTitle: checklistObj.title,
+      checklistId: checklistObj._id,
+      ...(isDelete ? { removedAt: new Date() } : { createdAt: new Date() }),
     },
     metadata: {
-      checklistId: checklistItem.checklistId,
-      userId: userId || checklistItem.userId || checklistItem.createdUserId,
+      checklistId: checklistObj._id,
+      category: 'checkList',
+      userId,
     },
-  };
+  });
 }
 
 /**
- * Generate activity log for checklist item removal
+ * Helper function to create checklist item activity log
  */
-export function generateChecklistItemRemovedActivityLog(
-  checklistItem: any,
-  userId?: string,
-): ActivityLogInput {
-  return {
-    activityType: 'delete',
+export function createChecklistItemActivityLog(
+  activityDispatcher: ReturnType<typeof createEventDispatcher>,
+  contentTypeId: string,
+  activityType: 'create' | 'delete',
+  itemObj: any,
+  checklistId: string,
+  userId: string,
+): void {
+  const isDelete = activityType === 'delete';
+  activityDispatcher.createActivityLog({
+    activityType,
     target: {
-      _id: checklistItem._id,
+      _id: contentTypeId,
       moduleName: 'sales',
-      collectionName: 'checklistItems',
+      collectionName: 'deals',
     },
     action: {
-      type: 'delete',
-      description: `Checklist item removed ${checklistItem.content}`,
+      type: activityType,
+      description: isDelete
+        ? `Checklist item "${itemObj.content}" removed`
+        : `Checklist item "${itemObj.content}" created`,
     },
     changes: {
-      content: checklistItem.content,
-      checklistId: checklistItem.checklistId,
-      removedAt: new Date(),
+      checklistItemContent: itemObj.content,
+      checklistItemId: itemObj._id,
+      checklistId,
+      ...(isDelete ? { removedAt: new Date() } : { createdAt: new Date() }),
     },
     metadata: {
-      checklistId: checklistItem.checklistId,
-      userId: userId || checklistItem.userId || checklistItem.createdUserId,
+      checklistItemId: itemObj._id,
+      checklistId,
+      category: 'checkListItem',
+      userId,
     },
-  };
+  });
 }

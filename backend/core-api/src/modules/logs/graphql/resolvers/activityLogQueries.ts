@@ -16,6 +16,26 @@ const generateFilters = (params: any) => {
     filter['action.action'] = params.action;
   }
 
+  if (params.meta && typeof params.meta === 'object') {
+    // Support filtering by any field in metadata using dot notation
+    // Handles both flat keys with dots and nested objects
+    const buildMetaFilter = (obj: any, prefix: string = '') => {
+      for (const [key, value] of Object.entries(obj)) {
+        const fieldPath = prefix ? `${prefix}.${key}` : key;
+        
+        if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+          // Recursively handle nested objects
+          buildMetaFilter(value, fieldPath);
+        } else {
+          // Set the filter for this field
+          filter[`metadata.${fieldPath}`] = value;
+        }
+      }
+    };
+    
+    buildMetaFilter(params.meta);
+  }
+
   return filter;
 };
 
