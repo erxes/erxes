@@ -114,6 +114,7 @@ export const loadDealClass = (
     public static watchDeal(_id: string, isAdd: boolean, userId: string) {
       return watchItem(models.Deals, _id, isAdd, userId);
     }
+
     public static async removeDeals(_ids: string[]) {
       const deals = await models.Deals.find({ _id: { $in: _ids } });
 
@@ -124,9 +125,7 @@ export const loadDealClass = (
         });
       }
 
-      for (const _id of _ids) {
-        await destroyBoardItemRelations(models, _id);
-      }
+      await destroyBoardItemRelations(subdomain, models, _ids);
 
       return models.Deals.deleteMany({ _id: { $in: _ids } });
     }

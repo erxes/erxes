@@ -26,7 +26,7 @@ export const getMnConfig = async (subdomain, code, subId = '', defaultValue = nu
       method: 'query',
       input: { code, subId },
     });
-    
+
     // Normalize array value to object
     if (result?.value && Array.isArray(result.value)) {
       return result.value.reduce((acc: any, item: any) => {
@@ -44,7 +44,7 @@ export const getMnConfig = async (subdomain, code, subId = '', defaultValue = nu
 // For multiple configs at once (optimized)
 export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
   try {
-    const promises = codes.map(code => 
+    const promises = codes.map(code =>
       sendTRPCMessage({
         subdomain,
         pluginName: 'mongolian',
@@ -54,12 +54,12 @@ export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
         input: { code, subId },
       }).catch(() => null) // Handle individual failures
     );
-    
+
     const results = await Promise.all(promises);
-    
+
     return results.map((result, index) => {
       if (!result) return null;
-      
+
       if (result?.value && Array.isArray(result.value)) {
         return result.value.reduce((acc: any, item: any) => {
           acc[item.key] = item.value;
@@ -271,14 +271,9 @@ export const getCustomer = async (subdomain, deal) => {
     (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformity',
-      action: 'savedConformity',
-      method: 'query',
-      input: {
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relTypes: ['company'],
-      },
+      module: 'relation',
+      action: 'getRelationIds',
+      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
       defaultValue: [],
     })) || [];
 
@@ -310,14 +305,9 @@ export const getCustomer = async (subdomain, deal) => {
     (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformity',
-      action: 'savedConformity',
-      method: 'query',
-      input: {
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relTypes: ['customer'],
-      },
+      module: 'relation',
+      action: 'getRelationIds',
+      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
       defaultValue: [],
     })) || [];
 
