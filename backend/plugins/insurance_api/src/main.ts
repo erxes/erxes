@@ -5,6 +5,7 @@ import resolvers from '~/apollo/resolvers';
 import { generateModels, IModels } from '~/connectionResolvers';
 import templateManager from './modules/insurance/services/templateManager';
 import { PdfGenerator } from './modules/insurance/services/pdfGenerator';
+import * as jwt from 'jsonwebtoken';
 
 startPlugin({
   name: 'insurance',
@@ -13,10 +14,33 @@ startPlugin({
     typeDefs: await typeDefs(),
     resolvers,
   }),
-  apolloServerContext: async (subdomain, context) => {
+  apolloServerContext: async (subdomain, context, req) => {
     const models = await generateModels(subdomain);
 
     context.models = models;
+
+    // Try to decode vendor JWT token from Authorization header
+    // This handles the case where vendorUserLogin token is used instead of erxes core token
+    const authHeader = req?.headers?.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      try {
+        const JWT_SECRET = process.env.JWT_TOKEN_SECRET || 'your-secret-key';
+        const decoded = jwt.verify(token, JWT_SECRET) as any;
+        // If token has userId (from vendorUserLogin), merge it into user context
+        if (decoded.userId) {
+          context.user = {
+            ...context.user,
+            userId: decoded.userId,
+            vendorId: decoded.vendorId,
+            email: decoded.email,
+            role: decoded.role,
+          };
+        }
+      } catch (e) {
+        // Token verification failed - might be erxes core token, ignore
+      }
+    }
 
     return context;
   },

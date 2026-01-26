@@ -46,4 +46,12 @@ export const customerQueries = {
   ) => {
     return models.Customer.findById(id);
   },
+
+  customerByRegistration: async (
+    _parent: undefined,
+    { registrationNumber }: { registrationNumber: string },
+    { models }: IContext,
+  ) => {
+    return models.Customer.findOne({ registrationNumber });
+  },
 };

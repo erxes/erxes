@@ -4,6 +4,11 @@ export const types = `
     DESC
   }
 
+  enum SortDirection {
+    ASC
+    DESC
+  }
+
   enum CustomerType {
     individual
     company
@@ -160,6 +165,17 @@ export const types = `
   type DeleteResult {
     success: Boolean!
   }
+
+  type VendorUserLoginResponse {
+    token: String!
+    refreshToken: String!
+    user: InsuranceVendorUser!
+  }
+
+  type InsuranceContractList {
+    list: [InsuranceContract!]!
+    totalCount: Int!
+  }
 `;
 
 export const inputs = `
@@ -219,15 +235,20 @@ export const queries = `
 
   vendorUsers(vendorId: ID): [InsuranceVendorUser!]!
   vendorUser(id: ID!): InsuranceVendorUser
+  currentVendorUser: InsuranceVendorUser
 
   insuranceCustomers(search: String, page: Int, limit: Int, sort: Sort, sortField: String, filter: JSON): [InsuranceCustomer!]!
   insuranceCustomer(id: ID!): InsuranceCustomer
+  customerByRegistration(registrationNumber: String!): InsuranceCustomer
 
   contracts(vendorId: ID, customerId: ID): [InsuranceContract!]!
   contract(id: ID!): InsuranceContract
 
   vendorContracts: [InsuranceContract!]!
   vendorContract(id: ID!): InsuranceContract
+  
+  vendorInsuranceItems(page: Int, perPage: Int, filters: JSON, endDate: Date, startDate: Date, sortDirection: SortDirection, sortField: String, vendorUserId: String, categoryId: ID): InsuranceContractList!
+  vendorInsuranceItem(_id: ID!): InsuranceContract
 
   contractTemplates: [ContractTemplate!]!
   contractTemplate(id: ID!): ContractTemplate
@@ -256,6 +277,7 @@ export const mutations = `
   createVendorUser(name: String, email: String!, phone: String, password: String!, vendorId: ID!, role: String): InsuranceVendorUser!
   updateVendorUser(id: ID!, name: String, email: String, phone: String, password: String, role: String): InsuranceVendorUser!
   deleteVendorUser(id: ID!): Boolean!
+  vendorUserLogin(email: String!, password: String!): VendorUserLoginResponse!
 
   createRiskType(name: String!, description: String): RiskType!
   updateRiskType(id: ID!, name: String, description: String): RiskType!

@@ -64,13 +64,13 @@ const writeSupergraphConfig = async (proxyTargets: ErxesProxyTarget[]) => {
 const supergraphComposeOnce = async () => {
   if (NODE_ENV === 'production') {
     execSync(
-      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`,
+      `rover supergraph compose --config "${supergraphConfigPath}" --output "${supergraphPath}" --elv2-license=accept --log=error`,
     );
   } else {
     const superGraphqlNext = supergraphPath + '.next';
 
     execSync(
-      `pnpm rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept --client-timeout=80000`,
+      `pnpm rover supergraph compose --config "${supergraphConfigPath}" --output "${superGraphqlNext}" --elv2-license=accept --client-timeout=80000`,
       // { stdio: ['ignore', 'ignore', 'ignore'] },
     );
 
