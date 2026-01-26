@@ -1,3 +1,23 @@
+import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
+import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
+import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
+import {
+  usePipelineLabelLabel,
+  usePipelineLabels,
+} from '@/deals/pipelines/hooks/usePipelineDetails';
+import {
+  IPipelineLabel,
+  ISelectLabelContext,
+  ISelectLabelProviderProps,
+} from '@/deals/types/pipelines';
+import {
+  IconCheck,
+  IconLabel,
+  IconLoader,
+  IconPencil,
+  IconPlus,
+  IconTagMinus,
+} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -16,30 +36,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import {
-  IPipelineLabel,
-  ISelectLabelContext,
-  ISelectLabelProviderProps,
-} from '@/deals/types/pipelines';
-import {
-  IconCheck,
-  IconLabel,
-  IconLoader,
-  IconPencil,
-  IconPlus,
-  IconTagMinus,
-} from '@tabler/icons-react';
-import { useContext, useEffect, useState } from 'react';
-import {
-  usePipelineLabelLabel,
-  usePipelineLabels,
-} from '@/deals/pipelines/hooks/usePipelineDetails';
-
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
-import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
-import React from 'react';
-import { createContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -71,14 +68,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== label._id)
-      : [...multipleValue, label._id];
+        ? multipleValue.filter((p) => p !== label._id)
+        : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-      ? selectedLabels.filter((p) => p._id !== label._id)
-      : [...selectedLabels, label];
+        ? selectedLabels.filter((p) => p._id !== label._id)
+        : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -340,12 +337,12 @@ export const SelectLabelsInlineCell = ({
 export const SelectLabelsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
   const [open, setOpen] = useState(false);
   return (

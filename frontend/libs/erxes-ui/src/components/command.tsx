@@ -3,11 +3,9 @@ import * as React from 'react';
 import { IconSearch } from '@tabler/icons-react';
 import { cva } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
-
 import { Dialog, DialogProps } from './dialog';
 import { cn } from '../lib/utils';
-import { useRef } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { mergeRefs } from 'react-merge-refs';
 
 const CommandRoot = React.forwardRef<

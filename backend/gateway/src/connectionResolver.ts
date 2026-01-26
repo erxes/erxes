@@ -1,14 +1,15 @@
-import mongoose from 'mongoose';
-import { createGenerateModels } from 'erxes-api-shared/utils';
 import {
-  cpUserSchema,
+  appSchema,
   clientPortalSchema,
+  cpUserSchema,
+  permissionSchema,
+  roleSchema,
   userSchema,
 } from 'erxes-api-shared/core-modules';
-import { permissionSchema } from 'erxes-api-shared/core-modules';
-import { appSchema } from 'erxes-api-shared/core-modules';
-import { roleSchema } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
+import mongoose from 'mongoose';
+
 export interface IMainContext {
   res: any;
   requestInfo: any;

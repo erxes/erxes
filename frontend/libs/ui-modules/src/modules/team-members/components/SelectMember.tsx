@@ -1,3 +1,4 @@
+import { IconPlus, IconUser } from '@tabler/icons-react';
 import {
   AvatarProps,
   Button,
@@ -12,20 +13,17 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { IconPlus, IconUser } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
+import React, { useState } from 'react';
+import { useUsers } from 'ui-modules/modules';
+import { currentUserState } from 'ui-modules/states';
+import { useDebounce } from 'use-debounce';
 import {
   SelectMemberContext,
   useSelectMemberContext,
 } from '../contexts/SelectMemberContext';
-
 import { IUser } from '../types/TeamMembers';
 import { MembersInline } from './MembersInline';
-import React from 'react';
-import { currentUserState } from 'ui-modules/states';
-import { useAtomValue } from 'jotai';
-import { useDebounce } from 'use-debounce';
-import { useState } from 'react';
-import { useUsers } from 'ui-modules/modules';
 
 const SelectMemberProvider = ({
   children,
@@ -74,7 +72,7 @@ const SelectMemberProvider = ({
     });
     onValueChange?.(newSelectedMemberIds);
   };
-  
+
   const memberIds = !value ? [] : Array.isArray(value) ? value : [value];
   const loading = memberIds.some((id) => !_members.find((m) => m._id === id));
 
@@ -311,11 +309,11 @@ export const SelectMemberFilterBar = ({
 export const SelectMemberInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> &
-    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-      scope?: string;
-      placeholder?: string;
-      size?: AvatarProps['size'];
-    }
+  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+    scope?: string;
+    placeholder?: string;
+    size?: AvatarProps['size'];
+  }
 >(
   (
     {

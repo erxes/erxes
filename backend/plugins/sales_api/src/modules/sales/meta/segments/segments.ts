@@ -9,8 +9,8 @@ import {
   getPluginName,
   TCoreModuleProducerContext,
   TSegmentProducers,
+  TSegmentProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { TSegmentProducersInput } from 'erxes-api-shared/core-modules';
 import {
   fetchByQueryWithScroll,
   getEsIndexByContentType,

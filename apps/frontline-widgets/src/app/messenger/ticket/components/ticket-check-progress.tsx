@@ -363,7 +363,7 @@ export const TicketStatusInlineValue = ({
 }) => {
   const numericType =
     (typeof status.type === 'string'
-      ? parseInt(status.type, 10)
+      ? Number.parseInt(status.type, 10)
       : status.type) - 1;
 
   const StatusIconComponent = [

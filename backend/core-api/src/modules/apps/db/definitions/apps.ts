@@ -1,6 +1,5 @@
-import { mongooseStringRandomId } from 'erxes-api-shared/utils';
+import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
-import { schemaWrapper } from 'erxes-api-shared/utils';
 
 export const appSchema = schemaWrapper(
   new Schema({

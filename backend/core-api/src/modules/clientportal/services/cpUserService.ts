@@ -7,9 +7,8 @@ import {
 import { contactService } from './contactService';
 import { verificationService } from './verificationService';
 import { notificationService } from './notificationService';
-import { validateUserRegistration } from './helpers/validators';
+import { detectIdentifierType, validateUserRegistration } from './helpers/validators';
 import { buildUserQuery, buildDuplicationQuery } from './helpers/queryBuilders';
-import { detectIdentifierType } from './helpers/validators';
 import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import {
   getOTPConfig,
