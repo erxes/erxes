@@ -9,11 +9,11 @@ export const types = `
     _id: String! @external
   }
 
-  type AutomationResponse {
+  type EbarimtResponse {
     content: JSON
     responseId: String
     userId: String
-    sessionCode: String
+    processId: String
   }
 
   type PutResponse {

@@ -16,7 +16,7 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
   const [open, setOpen] = useState<boolean>(false);
   const [nodes, setNodes] = useState<CustomNode[]>([]);
   const slotCount =
-    typeof value === 'string' ? parseInt(value) || 0 : value || 0;
+    typeof value === 'string' ? Number.parseInt(value) || 0 : value || 0;
 
   const handleSave = () => {
     onChange(nodes.length, nodes);

@@ -26,6 +26,7 @@ export enum SettingsWorkspacePath {
   ClientPortals = 'client-portals',
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',
+  Broadcast = 'broadcast',
 }
 
 export type TSettingPath = {

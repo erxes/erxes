@@ -20,7 +20,7 @@ export interface IArticleCreate extends IArticle {
       fields: IArticleCreate,
       userId?: string
     ): Promise<IArticleDocument>;
-    removeDoc(_id: string): void;
+    removeDoc(_id: string): Promise<void>;
     modifyReactionCount(
       articleId: string,
       reactionChoice: string,
@@ -96,7 +96,7 @@ export interface IArticleCreate extends IArticle {
   
       }
 
-      public static removeDoc(_id: string) {
+      public static async removeDoc(_id: string) {
         return models.Article.deleteOne({ _id });
       }
 

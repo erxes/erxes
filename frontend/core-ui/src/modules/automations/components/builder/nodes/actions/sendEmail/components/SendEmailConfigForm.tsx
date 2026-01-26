@@ -1,10 +1,9 @@
 import { useSendEmailSidebarForm } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailSidebarForm';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { useFormValidationErrorHandler } from 'ui-modules';
 import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
-import { PlaceholderInput, TAutomationActionProps } from 'ui-modules';
+import { PlaceholderInput, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
 
 export const SendEmailConfigForm = ({

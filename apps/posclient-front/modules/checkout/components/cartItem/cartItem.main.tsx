@@ -133,7 +133,7 @@ const CartItem = ({
                   changeItem({
                     _id,
                     count: banFractions
-                      ? parseInt(e.target.value)
+                      ? Number.parseInt(e.target.value)
                       : Number(e.target.value),
                     status,
                   })
