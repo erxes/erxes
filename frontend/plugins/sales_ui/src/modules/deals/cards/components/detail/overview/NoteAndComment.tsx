@@ -7,6 +7,7 @@ import {
   useBlockEditor,
   usePreviousHotkeyScope,
   REACT_APP_API_URL,
+  readImage,
 } from 'erxes-ui';
 import {
   IconMessageDots,
@@ -79,7 +80,7 @@ const SalesNoteAndComment = (deal: any) => {
       refetchQueries: ['activityLogs'],
       onCompleted: () => {
         setFile(null);
-        setContent([]);
+        setContent(undefined);
         console.log('sendContent', sendContent);
       },
     });
@@ -135,6 +136,28 @@ const SalesNoteAndComment = (deal: any) => {
             >
               {<AssignMemberInEditor editor={editor} />}
             </BlockEditor>
+
+            {/* Display uploaded file */}
+            {fileUrl && (
+              <div className="px-6 py-2">
+                <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-md relative">
+                  <IconPaperclip size={16} className="text-gray-600" />
+                  <img src={readImage(fileUrl)} width="100" height="100" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setFile(null);
+                      setFileUrl('');
+                    }}
+                    className="ml-auto p-1 h-6 w-6 hover:bg-gray-200"
+                  >
+                    <IconX size={14} />
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="flex px-6 gap-4">
               <AttachmentUploader type="note" onFileUpload={handleFileUpload} />
               <Button
