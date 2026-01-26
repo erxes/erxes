@@ -8,8 +8,10 @@ import {
   usePreviousHotkeyScope,
   REACT_APP_API_URL,
   readImage,
+  Spinner,
 } from 'erxes-ui';
 import {
+  IconArrowUp,
   IconMessageDots,
   IconNote,
   IconPaperclip,
@@ -20,6 +22,7 @@ import { AssignMemberInEditor } from 'ui-modules';
 import { Block } from '@blocknote/core';
 import { useState } from 'react';
 import { useAddInternalNote } from '../../../hooks/useAddInternalNote';
+import { useAddComment } from '../../../hooks/useAddComment';
 import AttachmentUploader from './attachments/AttachmentUploader';
 
 const SalesNoteAndComment = (deal: any) => {
@@ -28,9 +31,19 @@ const SalesNoteAndComment = (deal: any) => {
 
   const editor = useBlockEditor();
 
-  const { addInternalNote, loading, error } = useAddInternalNote();
+  const {
+    addInternalNote,
+    loading: internalNoteLoading,
+    error: internalNoteError,
+  } = useAddInternalNote();
+  const {
+    addComment,
+    loading: commentLoading,
+    error: commentError,
+  } = useAddComment();
   const [file, setFile] = useState<any>(null);
   const [fileUrl, setFileUrl] = useState<string>('');
+  const [sendContent, setSendContent] = useState<string>('');
 
   const {
     // setHotkeyScopeAndMemorizePreviousScope,
@@ -66,10 +79,11 @@ const SalesNoteAndComment = (deal: any) => {
 
     const textContent = html?.replace(/<[^>]+>/g, '')?.trim() || '';
 
-    const sendContent = fileUrl
+    const sendContentA = fileUrl
       ? `${textContent} <img src="${fileUrl}" alt="${file.name}" />`
       : textContent;
 
+    setSendContent(sendContentA);
     addInternalNote({
       variables: {
         contentType: 'sales:deal',
@@ -81,16 +95,43 @@ const SalesNoteAndComment = (deal: any) => {
       onCompleted: () => {
         setFile(null);
         setContent(undefined);
+        setSendContent('');
         console.log('sendContent', sendContent);
       },
     });
   };
 
-  // const handleCommentSubmit = async () => {
-  //   if (content?.length === 0) {
-  //     return;
-  //   }
-  // };
+  const handleCommentSubmit = async () => {
+    if (content?.length === 0) {
+      return;
+    }
+
+    const html = await editor?.blocksToHTMLLossy(content);
+
+    const textContent = html?.replace(/<[^>]+>/g, '')?.trim() || '';
+
+    const sendContentA = fileUrl
+      ? `${textContent} <img src="${fileUrl}" alt="${file.name}" />`
+      : textContent;
+
+    setSendContent(sendContentA);
+
+    addComment({
+      variables: {
+        comment: {
+          content: sendContent,
+          type: 'sales:deal',
+          typeId: deal.deal._id,
+        },
+      },
+      onCompleted: () => {
+        setFile(null);
+        setContent(undefined);
+        setSendContent('');
+        console.log('sendContent', sendContent);
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col pb-4 px-4 max-w-3xl">
@@ -107,14 +148,14 @@ const SalesNoteAndComment = (deal: any) => {
               <IconNote size={16} /> New note
             </Button>
           </Tabs.Trigger>
-          {/* <Tabs.Trigger asChild value="comment">
+          <Tabs.Trigger asChild value="comment">
             <Button
               variant={'outline'}
               className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
             >
               <IconMessageDots size={16} /> New comment
             </Button>
-          </Tabs.Trigger> */}
+          </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="note" className="h-full">
           <div
@@ -125,7 +166,7 @@ const SalesNoteAndComment = (deal: any) => {
             <BlockEditor
               editor={editor}
               onChange={handleChange}
-              disabled={loading}
+              disabled={internalNoteLoading}
               className={cn('h-full w-full overflow-y-auto', 'internal-note')}
               // onFocus={() =>
               //   setHotkeyScopeAndMemorizePreviousScope(
@@ -163,7 +204,7 @@ const SalesNoteAndComment = (deal: any) => {
               <Button
                 size="lg"
                 className="ml-auto"
-                disabled={loading || content?.length === 0}
+                disabled={internalNoteLoading || content?.length === 0}
                 onClick={handleNoteSubmit}
               >
                 Add note
@@ -171,7 +212,7 @@ const SalesNoteAndComment = (deal: any) => {
             </div>
           </div>
         </Tabs.Content>
-        {/* <Tabs.Content
+        <Tabs.Content
           value="comment"
           className="h-full shadow-none border-none rounded-none"
         >
@@ -183,7 +224,7 @@ const SalesNoteAndComment = (deal: any) => {
             <BlockEditor
               editor={editor}
               onChange={handleChange}
-              // disabled={loading}
+              disabled={commentLoading}
               className={cn('h-full w-full overflow-y-auto', 'internal-note')}
               // onFocus={() =>
               //   setHotkeyScopeAndMemorizePreviousScope(
@@ -201,15 +242,15 @@ const SalesNoteAndComment = (deal: any) => {
               <Button
                 size="lg"
                 className="ml-auto"
-                // disabled={loading || content?.length === 0}
+                disabled={commentLoading || content?.length === 0}
                 onClick={handleCommentSubmit}
               >
-                // {loading ? <Spinner size="small" /> : <IconArrowUp />}
+                {commentLoading ? <Spinner size="sm" /> : <IconArrowUp />}
                 Add comment
               </Button>
             </div>
           </div>
-        </Tabs.Content> */}
+        </Tabs.Content>
       </Tabs>
     </div>
   );
