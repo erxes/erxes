@@ -40,6 +40,11 @@ export const GET_CORE_MODULES = (
           icon: IconBuilding,
         },
         {
+          name: 'Client Portal Users',
+          path: 'contacts/client-portal-users',
+          icon: IconUser,
+        },
+        {
           name: t('vendors'),
           path: 'contacts/vendors',
           icon: IconSpiral,

@@ -8,7 +8,7 @@ import { firebaseService } from './firebaseService';
 import {
   CP_NOTIFICATION_PRIORITY_ORDER,
   CP_NOTIFICATION_KIND,
-} from '../../constants';
+} from '../constants';
 
 export interface SendEmailOptions {
   toEmails: string[];
@@ -336,15 +336,11 @@ export class NotificationService {
       allowMultiple?: boolean;
     },
   ): Promise<ICPNotificationDocument> {
-    const notification = await this.createNotification(
-      subdomain,
-      models,
-      {
-        ...notificationData,
-        cpUserId: cpUser._id,
-        clientPortalId: clientPortal._id,
-      },
-    );
+    const notification = await this.createNotification(subdomain, models, {
+      ...notificationData,
+      cpUserId: cpUser._id,
+      clientPortalId: clientPortal._id,
+    });
 
     const firebaseConfig = clientPortal.firebaseConfig;
     if (firebaseConfig?.enabled && cpUser.fcmTokens?.length > 0) {

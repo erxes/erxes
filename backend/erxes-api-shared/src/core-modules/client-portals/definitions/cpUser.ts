@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 
 import { mongooseStringRandomId } from '../../../utils';
-export const cpNotificationConfigSchema = new Schema(
+export const cpNotificationConfigUserSchema = new Schema(
   {
     notificationType: {
       type: String,
@@ -47,7 +47,7 @@ export const cpNotificationSettingsSchema = new Schema(
       required: true,
     },
     configs: {
-      type: [cpNotificationConfigSchema],
+      type: [cpNotificationConfigUserSchema],
       required: true,
     },
   },

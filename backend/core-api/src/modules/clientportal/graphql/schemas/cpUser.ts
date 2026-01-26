@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type CPUser {
     _id: String!
@@ -84,6 +86,20 @@ export const types = `
     email: String
     linkedAt: Date
   }
+
+  type CPUserListResponse {
+    list: [CPUser]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
+
+  input IClientPortalUserFilter {
+    ${GQL_CURSOR_PARAM_DEFS}
+    searchValue: String
+    type: CPUserType
+    isVerified: Boolean
+    clientPortalId: String
+  }
 `;
 
 const userRegisterParams = `
@@ -124,4 +140,6 @@ export const mutations = `
 
 export const queries = `
   clientPortalCurrentUser: CPUser
+  getClientPortalUsers(filter: IClientPortalUserFilter): CPUserListResponse
+  getClientPortalUser(_id: String!): CPUser
 `;

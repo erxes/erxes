@@ -6,7 +6,7 @@ import { notificationService } from '../services/notificationService';
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const clientPortalNotificationTrpcRouter = t.router({
-  notifications: t.router({
+  cpNotifications: t.router({
     create: t.procedure
       .input(
         z.object({
@@ -19,9 +19,7 @@ export const clientPortalNotificationTrpcRouter = t.router({
             type: z.enum(['info', 'success', 'warning', 'error']).optional(),
             contentType: z.string().optional(),
             contentTypeId: z.string().optional(),
-            priority: z
-              .enum(['low', 'medium', 'high', 'urgent'])
-              .optional(),
+            priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
             metadata: z.any().optional(),
             action: z.string().optional(),
             kind: z.enum(['system', 'user']).optional(),
@@ -56,10 +54,8 @@ export const clientPortalNotificationTrpcRouter = t.router({
             continue;
           }
 
-          const title =
-            config.template?.title || data.title;
-          const message =
-            config.template?.message || data.message;
+          const title = config.template?.title || data.title;
+          const message = config.template?.message || data.message;
 
           if (config.inAppEnabled) {
             const notification = await notificationService.createNotification(
