@@ -83,7 +83,7 @@ export const relationTrpcRouter = t.router({
       }))
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        return models.Relations.cleanRelation(input);
+        return await models.Relations.cleanRelation(input);
       }),
     manageRelations: t.procedure
       .input(z.any())

@@ -189,7 +189,7 @@ export const dealMutations = {
     const customerIds = await getCustomerIds(subdomain, _id);
 
     await createRelations(subdomain, {
-      dealId: item._id, companyIds, customerIds
+      dealId: clone._id, companyIds, customerIds
     });
 
     await copyChecklists(models, {

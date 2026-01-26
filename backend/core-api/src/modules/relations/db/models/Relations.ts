@@ -101,7 +101,7 @@ export const loadRelationClass = (models: IModels) => {
     }
 
     public static async cleanRelation({ contentType, contentIds }: { contentType: string, contentIds: string[] }) {
-      return await models.Relations.deleteMany({
+      await models.Relations.deleteMany({
         entities: {
           $elemMatch: {
             contentType: contentType,
@@ -109,6 +109,7 @@ export const loadRelationClass = (models: IModels) => {
           },
         },
       })
+      return 'success';
     }
 
     public static async getRelationsByEntity({

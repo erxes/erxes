@@ -903,7 +903,7 @@ export const getCompanyIds = async (
     input: {
       contentType: 'sales:deal',
       contentId: dealId,
-      relatedContentType: ['core:company'],
+      relatedContentType: 'core:company',
     },
     defaultValue: [],
   });
@@ -921,7 +921,7 @@ export const getCustomerIds = async (
     input: {
       contentType: 'sales:deal',
       contentId: dealId,
-      relatedContentType: ['core:customer'],
+      relatedContentType: 'core:customer',
     },
     defaultValue: [],
   });
@@ -963,11 +963,12 @@ export const createRelations = async (
     pluginName: 'core',
     module: 'relation',
     action: 'createMultipleRelations',
-    input: [
-      ...companyEntities,
-      ...customerEntities
-    ],
-    defaultValue: [],
+    input: {
+      relations: [
+        ...companyEntities,
+        ...customerEntities
+      ]
+    },
   });
 };
 

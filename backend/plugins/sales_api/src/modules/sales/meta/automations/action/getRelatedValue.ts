@@ -305,7 +305,7 @@ const generateCustomersFielValue = async ({
     input: {
       contentType: 'sales:deal',
       contentId: target._id,
-      relatedContentType: 'core:custoemr',
+      relatedContentType: 'core:customer',
     },
     defaultValue: [],
   });
