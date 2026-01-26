@@ -7,14 +7,13 @@ import { ITriage } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { ConvertToTask } from './triage-selects/ConvertToTask';
+import { DeclineTriage } from './triage-selects/DeclineTriage';
+import { SelectStatus } from '@/operation/components/SelectStatus';
+import { useConvertTriage } from '../hooks/useConvertTriage';
+import { STATUS_TYPES } from '@/operation/components/StatusInline';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
-  const {
-    _id: triageId,
-    priority,
-
-    name: _name,
-  } = triage || {};
+  const { _id: triageId, priority, status, name: _name } = triage || {};
 
   const description = (triage as ITriage)?.description;
   const parsedDescription = description ? JSON.parse(description) : undefined;
@@ -32,6 +31,8 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     placeholder: 'Description...',
   });
   const { updateTriage } = useUpdateTriage();
+  const { convertTriageToTask } = useConvertTriage();
+
   const [name, setName] = useState(_name);
 
   const handleDescriptionChange = async () => {
@@ -50,7 +51,9 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     updateTriage({
       variables: {
         _id: triageId,
-        name: debouncedName,
+        input: {
+          name: debouncedName,
+        },
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,7 +70,9 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     updateTriage({
       variables: {
         _id: triageId,
-        description: JSON.stringify(debouncedDescriptionContent),
+        input: {
+          description: JSON.stringify(debouncedDescriptionContent),
+        },
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,12 +92,30 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
           value={priority}
           onValueChange={(value) => {
             updateTriage({
-              variables: { _id: triageId, priority: Number(value) },
+              variables: {
+                _id: triageId,
+                input: {
+                  priority: Number(value),
+                },
+              },
             });
           }}
         />
 
+        <SelectStatus
+          variant="detail"
+          value={status}
+          useExtendedLabels={true}
+          onValueChange={(value) => {
+            if (value !== STATUS_TYPES.TRIAGE) {
+              convertTriageToTask({
+                variables: { id: triageId, status: value },
+              });
+            }
+          }}
+        />
         <ConvertToTask triageId={triageId} />
+        <DeclineTriage triageId={triageId} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">

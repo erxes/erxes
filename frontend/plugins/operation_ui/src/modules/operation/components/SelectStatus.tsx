@@ -17,6 +17,7 @@ import {
 import {
   StatusInlineIcon,
   StatusInlineLabel,
+  STATUS_TYPES,
 } from '@/operation/components/StatusInline';
 import { STATUS_TYPE_LABELS } from '@/operation/constants/statusConstants';
 interface SelectStatusContextType {
@@ -92,7 +93,9 @@ const SelectStatusCommandItem = ({ status }: { status: number }) => {
 
   return (
     <Command.Item
-      value={STATUS_TYPE_LABELS[status - 1] + ' ' + status.toString()}
+      value={
+        STATUS_TYPE_LABELS[(status - 1) as number] + ' ' + status.toString()
+      }
       onSelect={() => {
         onValueChange(status);
       }}
@@ -112,15 +115,33 @@ const SelectStatusCommandItem = ({ status }: { status: number }) => {
   );
 };
 
-const SelectStatusContent = () => {
+const SelectStatusContent = ({
+  useExtendedLabels,
+}: {
+  useExtendedLabels?: boolean;
+}) => {
+  // If useExtendedLabels is true, we show all statuses including Triage (index 5)
+  // If false, we splice out the last one (Triage) or just filter it.
+  // Given STATUS_TYPES.TRIAGE = 6.
+
+  const visibleStatuses = useExtendedLabels
+    ? STATUS_TYPE_LABELS
+    : STATUS_TYPE_LABELS.filter(
+        (_, index) => index !== STATUS_TYPES.TRIAGE - 1,
+      );
+
   return (
     <Command id="status-command-menu">
       <Command.Input placeholder="Search status" />
       <Command.List>
         <Command.Empty>No status found</Command.Empty>
-        {STATUS_TYPE_LABELS.map((status, index) => (
-          <SelectStatusCommandItem key={status} status={index + 1} />
-        ))}
+        {visibleStatuses.map((label, index) => {
+          // We need the ORIGINAL index from STATUS_TYPE_LABELS to be the value
+          const originalIndex = STATUS_TYPE_LABELS.indexOf(label);
+          return (
+            <SelectStatusCommandItem key={label} status={originalIndex + 1} />
+          );
+        })}
       </Command.List>
     </Command>
   );
@@ -176,11 +197,13 @@ const SelectStatusRoot = ({
   variant,
   scope,
   onValueChange,
+  useExtendedLabels,
 }: {
   value?: number;
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   onValueChange?: (value: number) => void;
+  useExtendedLabels?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -200,7 +223,7 @@ const SelectStatusRoot = ({
           <SelectStatusValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
-          <SelectStatusContent />
+          <SelectStatusContent useExtendedLabels={useExtendedLabels} />
         </SelectOperationContent>
       </PopoverScoped>
     </SelectStatusProvider>
@@ -210,9 +233,11 @@ const SelectStatusRoot = ({
 const SelectStatusFormItem = ({
   value,
   onValueChange,
+  useExtendedLabels = false,
 }: {
   value?: number;
   onValueChange: (value: number) => void;
+  useExtendedLabels?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -222,7 +247,7 @@ const SelectStatusFormItem = ({
           <SelectStatusValue />
         </SelectTriggerOperation>
         <Combobox.Content>
-          <SelectStatusContent />
+          <SelectStatusContent useExtendedLabels={useExtendedLabels} />
         </Combobox.Content>
       </PopoverScoped>
     </SelectStatusProvider>
