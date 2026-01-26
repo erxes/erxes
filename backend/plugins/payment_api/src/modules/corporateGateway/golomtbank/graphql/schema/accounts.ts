@@ -103,6 +103,6 @@ export const queries = `
   golomtBankAccounts(configId: String): JSON
   golomtBankAccountDetail(configId: String!, accountId: String!): GolomtBankAccountDetail
   golomtBankAccountBalance(configId: String!, accountId: String!): GolomtBankAccountBalance
-  golomtBankAccountHolder(configId: String!, accountId: String! bankCode: String): GolomtBankAccountHolder
+  golomtBankAccountHolder(configId: String!, accountId: String!, bankCode: String): GolomtBankAccountHolder
   golomtBankStatements(configId: String!, accountId: String!, ${paginationParams} ${dateParams} ): GolomtBankStatement
 `;

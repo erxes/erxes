@@ -1,6 +1,6 @@
 
-import { IContext } from '../../../connectionResolver';
-import { IGolomtBankConfig } from '../../../models/definitions/golomtBankConfigs';
+import { IContext } from '~/connectionResolvers';
+import { IGolomtBankConfig } from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
 
 const mutations = {
   async golomtBankConfigsAdd(_root, args: IGolomtBankConfig, { models }: IContext) {

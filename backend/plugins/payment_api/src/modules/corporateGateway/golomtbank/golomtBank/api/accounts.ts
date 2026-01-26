@@ -57,7 +57,7 @@ export class AccountsApi extends BaseApi {
     try {
       return await this.request({
         method: "POST",
-        path: "/v1/account/balance/inq",
+        path: "v1/account/balance/inq",
         type: "ACCTBALINQ",
         data: {
           registerNo: this.params.registerId,

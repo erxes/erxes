@@ -1,12 +1,23 @@
-const CryptoJS = require("crypto-js");
+const CryptoJS = require('crypto-js');
 
-export function encryptedPassword(data:any, keySession:string, keyiv:string) {
-    // key-үүдийг parse хийж байгаа
-    const sessionKey = CryptoJS.enc.Latin1.parse(keySession.toString());
-    const ivKey = CryptoJS.enc.Latin1.parse(keyiv.toString());
-    const encryptedPass = CryptoJS.AES.encrypt(data.toString(), sessionKey, {
-        mode: CryptoJS.mode.CBC,    
-        iv: ivKey,    
-    });
-    return encryptedPass.toString()
+export function encryptPassword(
+  data: string,
+  keySession: string,
+  keyiv: string
+): string {
+  // key-үүдийг parse хийж байгаа
+  const sessionKey = CryptoJS.enc.Latin1.parse(keySession);
+  const ivKey = CryptoJS.enc.Latin1.parse(keyiv);
+
+  const encryptedPass = CryptoJS.AES.encrypt(
+    data,
+    sessionKey,
+    {
+      mode: CryptoJS.mode.CBC,
+      iv: ivKey,
+      padding: CryptoJS.pad.Pkcs7,
+    }
+  );
+
+  return encryptedPass.toString();
 }

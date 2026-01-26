@@ -1,4 +1,4 @@
-import { IGolomtBankConfigDocument } from "../models/definitions/golomtBankConfigs";
+import { IGolomtBankConfigDocument } from "~/modules/corporateGateway/golomtbank/@types/golomtBank";
 import { AccountsApi } from "./api/accounts";
 import { StatementsApi } from "./api/statements";
 import { TransferApi } from "./api/transfer";
