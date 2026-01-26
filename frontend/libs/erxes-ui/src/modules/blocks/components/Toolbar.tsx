@@ -1,17 +1,16 @@
-import { CreateLinkButton } from '@blocknote/react';
-
 import {
   BasicTextStyleButton,
   BlockTypeSelect,
   ColorStyleButton,
+  CreateLinkButton,
   FileCaptionButton,
   FileReplaceButton,
   FormattingToolbar,
   FormattingToolbarController,
   NestBlockButton,
-  TextAlignButton,
-  UnnestBlockButton,
   TableCellMergeButton,
+  TextAlignButton,
+  UnnestBlockButton
 } from '@blocknote/react';
 
 export const Toolbar = () => {

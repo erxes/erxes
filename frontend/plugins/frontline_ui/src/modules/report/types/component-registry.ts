@@ -19,41 +19,35 @@ export const reportComponents: Record<
   string,
   LazyExoticComponent<ComponentType<ReportComponentProps>>
 > = {
-  'conversation-open': lazy(
-    () =>
-      import(
-        '@/report/components/FrontlineReportWidgetWrappers'
-      ).then((module) => ({ default: module.FrontlineReportOpenWidget })),
+  'conversation-open': lazy(() =>
+    import('@/report/components/conversation-charts/ConversationOpen').then(
+      (module) => ({ default: module.ConversationOpen }),
+    ),
   ),
-  'conversation-resolved': lazy(
-    () =>
-      import(
-        '@/report/components/FrontlineReportWidgetWrappers'
-      ).then((module) => ({ default: module.FrontlineReportResolvedWidget })),
+  'conversation-resolved': lazy(() =>
+    import('@/report/components/conversation-charts/ConversationResolved').then(
+      (module) => ({ default: module.ConversationResolved }),
+    ),
   ),
-  'conversation-source': lazy(
-    () =>
-      import(
-        '@/report/components/FrontlineReportWidgetWrappers'
-      ).then((module) => ({ default: module.FrontlineReportSourceWidget })),
+  'conversation-source': lazy(() =>
+    import('@/report/components/conversation-charts/ConversationSource').then(
+      (module) => ({ default: module.ConversationSource }),
+    ),
   ),
-  'conversation-tag': lazy(
-    () =>
-      import(
-        '@/report/components/FrontlineReportWidgetWrappers'
-      ).then((module) => ({ default: module.FrontlineReportTagWidget })),
+  'conversation-tag': lazy(() =>
+    import('@/report/components/conversation-charts/ConversationTag').then(
+      (module) => ({ default: module.ConversationTag }),
+    ),
   ),
-  'conversation-responses': lazy(
-    () =>
-      import(
-        '@/report/components/FrontlineReportWidgetWrappers'
-      ).then((module) => ({ default: module.FrontlineReportResponsesWidget })),
+  'conversation-responses': lazy(() =>
+    import('@/report/components/conversation-charts/ConversationResponse').then(
+      (module) => ({ default: module.ConversationResponse }),
+    ),
   ),
-  'conversation-list': lazy(
-    () =>
-      import(
-        '@/report/components/FrontlineReportWidgetWrappers'
-      ).then((module) => ({ default: module.FrontlineReportListWidget })),
+  'conversation-list': lazy(() =>
+    import('@/report/components/conversation-charts/ConversationList').then(
+      (module) => ({ default: module.ConversationList }),
+    ),
   ),
 };
 
@@ -78,4 +72,3 @@ export function registerReportComponent(
 ): void {
   reportComponents[id] = component;
 }
-

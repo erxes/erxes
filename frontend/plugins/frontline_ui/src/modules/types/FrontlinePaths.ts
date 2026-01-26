@@ -21,4 +21,5 @@ export enum FrontlinePaths {
   ChannelForms = '/:channelId',
   FormDetail = '/:channelId/:formId',
   FormPreview = '/form-preview',
+  Reports = '/reports',
 }

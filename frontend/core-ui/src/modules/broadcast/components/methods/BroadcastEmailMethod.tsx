@@ -36,7 +36,7 @@ export const BroadcastEmailMethod = () => {
             <Form.Item>
               <Form.Label>Email Subject</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="E.g. Monthly Report" />
+                <Input {...field} placeholder="Subject" />
               </Form.Control>
             </Form.Item>
           )}
@@ -51,10 +51,7 @@ export const BroadcastEmailMethod = () => {
             <Form.Item>
               <Form.Label>Sender</Form.Label>
               <Form.Control>
-                <Input
-                  {...field}
-                  placeholder="E.g. Company <no-reply@company.com>"
-                />
+                <Input {...field} placeholder="Sender" />
               </Form.Control>
             </Form.Item>
           )}
@@ -66,10 +63,7 @@ export const BroadcastEmailMethod = () => {
             <Form.Item>
               <Form.Label>Reply To</Form.Label>
               <Form.Control>
-                <Input
-                  {...field}
-                  placeholder="E.g. john@example.com, jane@example.com"
-                />
+                <Input {...field} placeholder="Reply To" />
               </Form.Control>
             </Form.Item>
           )}
@@ -79,11 +73,11 @@ export const BroadcastEmailMethod = () => {
       <Form.Field
         name="email.attachments"
         control={control}
-        render={() => (
-          <Form.Item>
+        render={({ field }) => (
+          <Form.Item className='h-full overflow-hidden'>
             <Form.Label>Attachments</Form.Label>
             <Form.Control>
-              <BroadcastAttachment />
+              <BroadcastAttachment {...field} />
             </Form.Control>
           </Form.Item>
         )}

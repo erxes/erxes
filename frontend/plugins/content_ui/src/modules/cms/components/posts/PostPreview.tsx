@@ -1,56 +1,59 @@
 import { useState } from 'react';
-import { Tabs, Button } from 'erxes-ui';
+import { Tabs, Button, Form, Editor } from 'erxes-ui';
 
 interface PostPreviewProps {
   content: string;
+  form: any;
+  selectedLanguage: string;
+  defaultLanguage: string;
+  fullPost: any;
+  formatInitialContent: (content: string) => any;
+  handleEditorChange: (value: string, editorInstance?: any) => void;
 }
 
-export const PostPreview = ({ content }: PostPreviewProps) => {
-  const [previewDevice, setPreviewDevice] = useState<
-    'desktop' | 'tablet' | 'mobile'
-  >('desktop');
-
-  const deviceDims =
-    previewDevice === 'desktop'
-      ? { width: 1024, height: 768 }
-      : previewDevice === 'tablet'
-      ? { width: 768, height: 1024 }
-      : { width: 375, height: 667 };
-
+export const PostPreview = ({
+  content,
+  form,
+  selectedLanguage,
+  defaultLanguage,
+  fullPost,
+  formatInitialContent,
+  handleEditorChange,
+}: PostPreviewProps) => {
   return (
-    <div className="mt-6">
-      <div className="mb-4">
-        <Tabs
-          value={previewDevice}
-          onValueChange={(v) =>
-            setPreviewDevice(v as 'desktop' | 'tablet' | 'mobile')
-          }
-        >
-          <Tabs.List>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Tabs.Trigger value="desktop">Desktop</Tabs.Trigger>
-              <Tabs.Trigger value="tablet">Tablet</Tabs.Trigger>
-              <Tabs.Trigger value="mobile">Mobile</Tabs.Trigger>
-            </div>
-          </Tabs.List>
-        </Tabs>
-        <div
-          className="rounded-[36px] bg-primary relative shadow-inner"
-          style={{
-            width: '100%',
-            maxWidth: deviceDims.width,
-            aspectRatio: `${deviceDims.width} / ${deviceDims.height}`,
-          }}
-        >
-          <div className="absolute inset-4 rounded-[28px] p-4 overflow-hidden">
-            <div
-              className="prose prose-sm max-w-none mt-2 h-44 overflow-auto"
-              dangerouslySetInnerHTML={{
-                __html: content || '',
-              }}
-            />
-          </div>
-        </div>
+    <div className="rounded-lg border overflow-hidden bg-white">
+      <div className="px-4 py-3 border-b bg-gray-50">
+        <h3 className="text-sm font-semibold">
+          Content Editor
+          {selectedLanguage !== defaultLanguage && (
+            <span className="ml-2 text-xs text-blue-600">
+              ({selectedLanguage})
+            </span>
+          )}
+        </h3>
+      </div>
+      <div className="p-4">
+        <Form {...form}>
+          <Form.Field
+            control={form.control}
+            name="content"
+            render={() => (
+              <Form.Item>
+                <Form.Control>
+                  <Editor
+                    className="h-[calc(100vh-200px)]"
+                    key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
+                    initialContent={formatInitialContent(
+                      form.getValues('content') || '',
+                    )}
+                    onChange={handleEditorChange}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </Form>
       </div>
     </div>
   );

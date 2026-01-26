@@ -1,3 +1,23 @@
+import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
+import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
+import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
+import {
+  usePipelineLabelLabel,
+  usePipelineLabels,
+} from '@/deals/pipelines/hooks/usePipelineDetails';
+import {
+  IPipelineLabel,
+  ISelectLabelContext,
+  ISelectLabelProviderProps,
+} from '@/deals/types/pipelines';
+import {
+  IconCheck,
+  IconLabel,
+  IconLoader,
+  IconPencil,
+  IconPlus,
+  IconTagMinus,
+} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -16,23 +36,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import {
-  IPipelineLabel,
-  ISelectLabelContext,
-  ISelectLabelProviderProps,
-} from '@/deals/types/pipelines';
-import { IconCheck, IconLabel, IconPlus } from '@tabler/icons-react';
-import { useContext, useEffect, useState } from 'react';
-import {
-  usePipelineLabelLabel,
-  usePipelineLabels,
-} from '@/deals/pipelines/hooks/usePipelineDetails';
-
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
-import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
-import React from 'react';
-import { createContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -64,14 +68,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== label._id)
-      : [...multipleValue, label._id];
+        ? multipleValue.filter((p) => p !== label._id)
+        : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-      ? selectedLabels.filter((p) => p._id !== label._id)
-      : [...selectedLabels, label];
+        ? selectedLabels.filter((p) => p._id !== label._id)
+        : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -107,6 +111,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     error,
   } = usePipelineLabels({
     variables: { pipelineId },
+    skip: !pipelineId,
   });
 
   const toggleLabel = (label: IPipelineLabel) => {
@@ -172,50 +177,92 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
       </>
     );
   }
+  if (pipelineLabels.length === 0) {
+    return (
+      <Command>
+        <div className="flex relative items-center justify-center -mb-5">
+          <IconTagMinus className="mb-10 absolute" />
+          <Combobox.Empty loading={loading} error={error} />
+        </div>
 
-  return (
-    <Command>
-      <Command.Input placeholder="Search label" />
-      <Command.List className="px-1 ">
-        <Combobox.Empty loading={loading} error={error} />
-        {pipelineLabels.map((label) => (
-          <li
-            key={label._id}
-            className={cn(
-              'flex items-center justify-between p-2 cursor-pointer my-1',
-              labelIds?.includes(label._id || '')
-                ? 'bg-blue-50 border-blue-300 rounded-md'
-                : '',
-            )}
-            onClick={() => toggleLabel(label)}
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-block w-4 h-4 rounded-full"
-                style={{ backgroundColor: label.colorCode }}
-              />
-              <span className="text-sm">{label.name}</span>
-            </div>
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
+    );
+  }
+  if (loading) {
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <div className="flex items-center gap-2">
+          <IconLoader className="animate-spin" />
+        </div>
+      </Command>
+    );
+  } else
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <Command.List className="px-1">
+          {pipelineLabels.map((label) => {
+            return (
+              <Command.Item
+                key={label._id}
+                className={cn(
+                  'flex items-center justify-between p-2 cursor-pointer my-1  ',
+                  labelIds?.includes(label._id || '')
+                    ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
+                    : '',
+                )}
+                onSelect={() => toggleLabel(label)}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-3 h-3 rounded-full"
+                    style={{ backgroundColor: label.colorCode }}
+                  />
+                  <span className="text-sm">{label.name}</span>
+                </div>
 
-            {labelIds?.includes(label._id || '') && (
-              <IconCheck className="w-4 h-4 text-green-600" />
-            )}
-          </li>
-        ))}
-      </Command.List>
-      <Button
-        type="button"
-        className="w-[90%] mx-auto mb-2"
-        onClick={() => {
-          setEditLabelId(null);
-          setShowForm(true);
-        }}
-      >
-        <IconPlus size={16} />
-        Create a new label
-      </Button>
-    </Command>
-  );
+                <div className="flex items-center gap-2">
+                  {labelIds?.includes(label._id || '') && (
+                    <IconCheck className="w-4 h-4 text-green-600" />
+                  )}
+                  <IconPencil
+                    className="w-5 h-5 cursor-pointer text-gray-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditLabelId(label._id || '');
+                      setShowForm(true);
+                    }}
+                  />
+                </div>
+              </Command.Item>
+            );
+          })}
+        </Command.List>
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
+    );
 };
 
 export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
@@ -241,16 +288,17 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
 };
 
 export const SelectLabelsValue = () => {
-  const { selectedLabels } = useSelectLabelsContext();
+  const { labelIds } = useSelectLabelsContext();
 
-  if (selectedLabels?.length > 1)
+  if ((labelIds || [])?.length !== 0) {
     return (
-      <span className="text-muted-foreground">
-        {selectedLabels.length} labels selected
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+        {(labelIds || []).length}
       </span>
     );
-
-  return <Combobox.Value placeholder="Select labels" />;
+  }
+  return <Combobox.Value placeholder="Select Label" />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
@@ -289,12 +337,12 @@ export const SelectLabelsInlineCell = ({
 export const SelectLabelsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
   const [open, setOpen] = useState(false);
   return (

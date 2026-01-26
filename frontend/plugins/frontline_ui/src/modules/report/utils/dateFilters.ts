@@ -1,23 +1,39 @@
 import {
-  startOfDay,
   endOfDay,
-  subDays,
-  startOfWeek,
-  endOfWeek,
-  subWeeks,
-  startOfMonth,
   endOfMonth,
-  subMonths,
-  startOfYear,
+  endOfWeek,
   endOfYear,
+  parse,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subWeeks,
   subYears,
 } from 'date-fns';
-import { parse } from 'date-fns';
 
 export function getDateRange(value: string) {
   const today = new Date();
   let fromDate: Date | undefined;
   let toDate: Date | undefined;
+
+  // Constants
+  const MONTHS = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
   switch (value) {
     case 'today':
@@ -34,7 +50,9 @@ export function getDateRange(value: string) {
       toDate = endOfWeek(today, { weekStartsOn: 1 });
       break;
     case 'last-week':
-      const lastWeekStart = startOfWeek(subWeeks(today, 1), { weekStartsOn: 1 });
+      const lastWeekStart = startOfWeek(subWeeks(today, 1), {
+        weekStartsOn: 1,
+      });
       const lastWeekEnd = endOfWeek(subWeeks(today, 1), { weekStartsOn: 1 });
       fromDate = startOfDay(lastWeekStart);
       toDate = endOfDay(lastWeekEnd);
@@ -67,6 +85,38 @@ export function getDateRange(value: string) {
         } catch {
           return { fromDate: undefined, toDate: undefined };
         }
+      } else if (MONTHS.some((month) => value.includes(month))) {
+        // Month format: YYYY-MMM
+        const [year, month] = value.split('-');
+        const monthIndex = MONTHS.indexOf(month);
+        fromDate = startOfDay(new Date(parseInt(year), monthIndex, 1));
+        toDate = endOfDay(new Date(parseInt(year), monthIndex + 1, 0));
+      } else if (value.includes('quarter')) {
+        // Quarter format: YYYY-quarterN
+        const [year] = value.split('-');
+        const quarterNumber = Number.parseInt(value.split('quarter')[1]);
+        fromDate = startOfDay(
+          new Date(parseInt(year), (quarterNumber - 1) * 3, 1),
+        );
+        toDate = endOfDay(new Date(parseInt(year), quarterNumber * 3, 0));
+      } else if (value.includes('half')) {
+        // Half year format: YYYY-halfN
+        const [year] = value.split('-');
+        const halfNumber = Number.parseInt(value.split('half')[1]);
+        fromDate = startOfDay(
+          new Date(parseInt(year), (halfNumber - 1) * 6, 1),
+        );
+        toDate = endOfDay(new Date(parseInt(year), halfNumber * 6, 0));
+      } else if (/^\d{4}-y$/.test(value)) {
+        // Year format: YYYY-y
+        const year = Number.parseInt(value);
+        fromDate = startOfDay(new Date(year, 0, 1));
+        toDate = endOfDay(new Date(year, 11, 31));
+      } else if (value.includes(',')) {
+        // Date range format: fromDate,toDate
+        const [from, to] = value.split(',');
+        fromDate = startOfDay(new Date(from));
+        toDate = endOfDay(new Date(to));
       }
       break;
   }
@@ -95,4 +145,3 @@ export function getFilters(value?: string) {
 
   return filters;
 }
-

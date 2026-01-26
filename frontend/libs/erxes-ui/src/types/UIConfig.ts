@@ -1,6 +1,7 @@
 export type IUIConfig = {
   name: string;
   path: string;
+  icon?: React.ElementType;
   hasFloatingWidget?: boolean;
   settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {

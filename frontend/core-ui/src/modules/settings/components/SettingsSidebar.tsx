@@ -1,19 +1,14 @@
-import { useNavigate } from 'react-router-dom';
-
-import { IconChevronLeft } from '@tabler/icons-react';
-
-import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
-
 import { AppPath } from '@/types/paths/AppPath';
+import { IconChevronLeft } from '@tabler/icons-react';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { pluginsConfigState } from 'ui-modules';
-import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { SETTINGS_PATH_DATA } from '../constants/data';
-
 import React, { useMemo } from 'react';
-import { usePageTrackerStore } from 'react-page-tracker';
-import { useVersion } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import { usePageTrackerStore } from 'react-page-tracker';
+import { useNavigate } from 'react-router-dom';
+import { pluginsConfigState, useVersion } from 'ui-modules';
+import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
+import { GET_SETTINGS_PATH_DATA } from '../constants/data';
 
 export function SettingsSidebar() {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
@@ -22,7 +17,7 @@ export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   const CORE_MODULES = GET_CORE_MODULES(t, version);
-  const sidebar = useMemo(() => SETTINGS_PATH_DATA(t), [t]);
+  const sidebar = useMemo(() => GET_SETTINGS_PATH_DATA(version, t), [t]);
 
   const pluginsWithSettingsNavigations = Object.values(pluginsMetaData)
     .filter((plugin) => plugin.settingsNavigation)
@@ -119,7 +114,7 @@ export const SettingsExitButton = () => {
   });
 
   return (
-    <Sidebar.Header className="pb-0 px-4">
+    <Sidebar.Header className="p-4">
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onClick={handleExitSettings}>

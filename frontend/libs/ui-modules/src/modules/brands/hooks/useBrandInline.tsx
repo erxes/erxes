@@ -1,6 +1,4 @@
-import { QueryHookOptions } from '@apollo/client';
-import { useQuery } from '@apollo/client';
-import { IBrand } from '../types/brand';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { BRAND_INLINE_QUERY } from '../graphql/queries/BrandsQuery';
 
 export interface IBrandInline {

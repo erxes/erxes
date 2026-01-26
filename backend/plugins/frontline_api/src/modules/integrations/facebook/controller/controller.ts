@@ -1,19 +1,18 @@
-import { generateModels, IModels } from '~/connectionResolvers';
-import { getSubdomain, isDev } from 'erxes-api-shared/utils';
-import { debugFacebook, debugError } from '@/integrations/facebook/debuggers';
-import { checkIsAdsOpenThread } from '@/integrations/facebook/utils';
-import { NextFunction, Response } from 'express';
-import {
-  INTEGRATION_KINDS,
-  FACEBOOK_POST_TYPES,
-} from '@/integrations/facebook/constants';
-import { getPageAccessTokenFromMap } from '@/integrations/facebook/utils';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { receiveMessage } from '@/integrations/facebook/controller/receiveMessage';
 import { getConfig } from '@/integrations/facebook/commonUtils';
-import { Activity } from '@/integrations/facebook/@types/utils';
+import {
+  FACEBOOK_POST_TYPES,
+  INTEGRATION_KINDS,
+} from '@/integrations/facebook/constants';
 import { receiveComment } from '@/integrations/facebook/controller/receiveComment';
+import { receiveMessage } from '@/integrations/facebook/controller/receiveMessage';
 import { receivePost } from '@/integrations/facebook/controller/receivePost';
+import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
+import { checkIsAdsOpenThread, getPageAccessTokenFromMap } from '@/integrations/facebook/utils';
+import { getSubdomain, isDev } from 'erxes-api-shared/utils';
+import { NextFunction, Response } from 'express';
+import { generateModels, IModels } from '~/connectionResolvers';
+
 export const facebookGetPost = async (req, res) => {
   debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
 
