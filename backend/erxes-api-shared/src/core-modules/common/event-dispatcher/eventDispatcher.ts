@@ -1,156 +1,26 @@
-import { sendWorkerQueue } from '../../utils/mq-worker';
-// @ts-ignore
-import { Document } from 'mongoose';
-import { z } from 'zod';
-import { getDiffObjects } from '../../utils/utils';
-import { sendAutomationTrigger } from '../automations';
-import { INotificationData, sendNotification } from '../notifications';
-import { sendTRPCMessage } from '../../utils';
-
-enum DbLogActions {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  UPDATE_MANY = 'updateMany',
-  BULK_WRITE = 'bulkWrite',
-  DELETE_MANY = 'deleteMany',
-}
-
-const CreateLogSchema = z.object({
-  action: z.literal('create'),
-  docId: z.string(),
-  currentDocument: z.any(),
-  prevDocument: z.any().optional(),
-});
-
-const UpdateLogSchema = z.object({
-  action: z.literal('update'),
-  docId: z.string(),
-  currentDocument: z.any(),
-  prevDocument: z.any(),
-});
-
-const DeleteLogSchema = z.object({
-  action: z.literal('delete'),
-  docId: z.string(),
-});
-
-const DeleteManyLogSchema = z.object({
-  action: z.literal('deleteMany'),
-  docIds: z.array(z.string()),
-});
-
-const UpdateManyLogSchema = z.object({
-  action: z.literal('updateMany'),
-  docIds: z.union([z.string(), z.array(z.string())]),
-  updateDescription: z.record(z.any()),
-});
-
-const BulkWriteLogSchema = z.object({
-  action: z.literal('bulkWrite'),
-  docIds: z.union([z.string(), z.array(z.string())]),
-  updateDescription: z.record(z.any()),
-});
-
-export const LogEventSchema = z.union([
-  CreateLogSchema,
-  UpdateLogSchema,
-  DeleteLogSchema,
-  DeleteManyLogSchema,
-  UpdateManyLogSchema,
-  BulkWriteLogSchema,
-]);
-
-export type LogEventInput = z.infer<typeof LogEventSchema>;
-
-type EventPayload = {
-  docIds?: string | string[];
-  docId?: string;
-  updateDescription?: Record<string, any>;
-  processId?: string;
-  userId?: string;
-  source: string;
-  action: string;
-  status: string;
-  contentType: string;
-  subdomain: string;
-  payload?: any;
-};
-
-export type ActivityLogInput = {
-  activityType: string;
-  target: any;
-  context?: any;
-  action: any;
-  changes: any;
-  metadata?: any;
-};
-
-const generateDbEventPayload = (
-  input: LogEventInput,
-  collectionName: string,
-) => {
-  if (input.action === 'create') {
-    return {
-      collectionName: collectionName,
-      fullDocument: input.currentDocument,
-    };
-  }
-
-  if (input.action === 'update') {
-    return {
-      collectionName: collectionName,
-      updateDescription: getDiffObjects(
-        input.prevDocument,
-        input.currentDocument,
-      ),
-    };
-  }
-  if (input.action === 'delete') {
-    return {
-      collectionName: collectionName,
-    };
-  }
-  if (input.action === 'updateMany') {
-    return {
-      collectionName: collectionName,
-      updateDescription: input.updateDescription,
-    };
-  }
-  if (input.action === 'bulkWrite') {
-    return {
-      collectionName: collectionName,
-      updateDescription: input.updateDescription,
-    };
-  }
-  if (input.action === 'deleteMany') {
-    return {
-      collectionName: collectionName,
-    };
-  }
-};
-
-const generateAutomationTriggerPayload = (
-  input: LogEventInput,
-  contentType: string,
-):
-  | { type: string; targets: any[]; recordType: 'new' | 'existing' }
-  | undefined => {
-  if (input.action === 'create') {
-    return {
-      type: contentType,
-      targets: [input.currentDocument],
-      recordType: 'new',
-    };
-  }
-  if (input.action === 'update') {
-    return {
-      type: contentType,
-      targets: [input.currentDocument],
-      recordType: 'existing',
-    };
-  }
-};
+import mongoose, { Schema } from 'mongoose';
+import { sendAutomationTrigger } from '../../automations';
+import {
+  logHandler,
+  redis,
+  sendTRPCMessage,
+  getEnv,
+  sendWorkerQueue,
+  getUsageRedisKey,
+  generateTargetType,
+} from '../../../utils';
+import { INotificationData, sendNotification } from '../../notifications';
+import {
+  LogEventInput,
+  ActivityLogInput,
+  LogEventSchema,
+  DbLogActions,
+  EventPayload,
+} from './types';
+import {
+  generateAutomationTriggerPayload,
+  generateDbEventPayload,
+} from './utils';
 
 /**
  * Return type for event dispatcher with methods for logging and automation triggers
@@ -193,6 +63,8 @@ export type EventDispatcherReturn = {
     notificationData: { userIds: string[] } & Partial<INotificationData>,
   ) => any;
 
+  doCounter: (props: { delta?: number }) => Promise<void>;
+
   getContext: () => {
     subdomain: string;
     processId?: string;
@@ -222,7 +94,11 @@ export function createEventDispatcher(
 ): EventDispatcherReturn {
   const { subdomain, pluginName, moduleName, collectionName, getContext } =
     params;
-  const contentType = `${pluginName}:${moduleName}.${collectionName}`;
+  const contentType = generateTargetType(
+    pluginName,
+    moduleName,
+    collectionName,
+  );
 
   /**
    * Send log event for document operations (single or bulk)
@@ -293,7 +169,7 @@ export function createEventDispatcher(
     targets: any[];
     recordType: 'new' | 'existing';
   }) {
-    return sendAutomationTrigger(subdomain, {
+    sendAutomationTrigger(subdomain, {
       type: contentType,
       targets: Array.isArray(params.targets)
         ? params.targets
@@ -307,28 +183,40 @@ export function createEventDispatcher(
     duserId?: string,
   ) {
     const { processId, userId } = getContext();
+    const context = {
+      processId,
+      userId: duserId || userId,
+    };
 
-    sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'activityLog',
-      action: 'createActivityLog',
-      input: Array.isArray(input)
-        ? input.map((activity) => ({
-            ...activity,
-            pluginName,
-            moduleName,
-            collectionName,
-          }))
-        : [{ ...input, pluginName, moduleName, collectionName }],
-      context: {
+    const inputData = Array.isArray(input)
+      ? input.map((activity) => ({
+          ...activity,
+          pluginName,
+          moduleName,
+          collectionName,
+        }))
+      : [{ ...input, pluginName, moduleName, collectionName }];
+
+    logHandler(
+      async () =>
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'activityLog',
+          action: 'createActivityLog',
+          input: inputData,
+          context,
+        }),
+      {
+        subdomain,
+        source: 'mongo',
+        action: 'activity',
+        userId,
         processId,
-        userId: duserId || userId,
+        payload: input,
       },
-    }).catch((err) => {
-      console.error('createActivityLog', err);
-    });
+    );
   }
 
   function sendNotificationMessage(
@@ -337,11 +225,55 @@ export function createEventDispatcher(
     sendNotification(subdomain, notificationData);
   }
 
+  async function doCounter({ delta = 1 }: { delta?: number }) {
+    if (getEnv({ name: 'VERSION' }) !== 'saas') {
+      return;
+    }
+
+    const targetType = generateTargetType(
+      pluginName,
+      moduleName,
+      collectionName,
+    );
+    const redisKey = getUsageRedisKey(subdomain, targetType);
+
+    let raw = await redis.get(redisKey);
+    if (!raw) {
+      raw = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'usage',
+        action: 'resyncRecurringUsage',
+        input: { targetType },
+        defaultValue: null,
+      });
+    }
+
+    const data = JSON.parse(raw || '{}');
+
+    await redis.set(
+      redisKey,
+      JSON.stringify({ ...data, count: (data?.count || 0) + delta }),
+      'KEEPTTL',
+    );
+
+    // Lifetime analytics (async, non-blocking)
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'usage',
+      action: 'addCount',
+      input: { targetType, delta },
+      defaultValue: null,
+    });
+  }
+
   return {
     sendDbEventLog,
     sendAutomationTriggerTarget,
     createActivityLog,
     sendNotificationMessage,
+    doCounter,
     getContext,
   };
 }

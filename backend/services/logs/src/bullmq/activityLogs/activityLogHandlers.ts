@@ -1,4 +1,4 @@
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { generateTargetType, graphqlPubsub } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
 export const activityLogHandler = async (data: any) => {
@@ -20,7 +20,11 @@ export const activityLogHandler = async (data: any) => {
     collectionName,
   } of activities) {
     const targetId = target?._id;
-    const targetType = `${pluginName}:${moduleName}.${collectionName}`;
+    const targetType = generateTargetType(
+      pluginName,
+      moduleName,
+      collectionName,
+    );
     const models = await generateModels(subdomain);
     const user = await models.Users.findOne({ _id: userId });
 

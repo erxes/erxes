@@ -9,7 +9,6 @@ import { IDeal } from '@/deals/types/deals';
 import MainOverview from './MainOverview';
 import SalesDescription from './SalesDescription';
 import SalesNoteAndComment from './NoteAndComment';
-import ActivityList from './activity/AcitivityList';
 
 const Overview = ({ deal }: { deal: IDeal }) => {
   return (
@@ -34,7 +33,6 @@ const Overview = ({ deal }: { deal: IDeal }) => {
         <Checklists />
       </div>
       <SalesNoteAndComment />
-      <ActivityList />
     </AttachmentProvider>
   );
 };

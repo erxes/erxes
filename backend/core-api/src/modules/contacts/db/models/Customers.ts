@@ -96,7 +96,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
 export const loadCustomerClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog, doCounter }: EventDispatcherReturn,
 ) => {
   class Customer {
     public static getCustomerName(customer: ICustomer) {
@@ -191,6 +191,9 @@ export const loadCustomerClass = (
         docId: customer._id,
         currentDocument: customer.toObject(),
       });
+
+      doCounter({ delta: 1 });
+
       createActivityLog({
         activityType: 'create',
         target: {
@@ -268,6 +271,7 @@ export const loadCustomerClass = (
         action: 'deleteMany',
         docIds: customerIds,
       });
+      doCounter({ delta: customerIds.length });
       return response;
     }
 
@@ -360,6 +364,8 @@ export const loadCustomerClass = (
         newTypeId: customer._id,
         oldTypeIds: customerIds,
       });
+
+      doCounter({ delta: -1 });
 
       return customer;
     }

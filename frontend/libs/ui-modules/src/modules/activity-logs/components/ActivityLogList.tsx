@@ -4,6 +4,7 @@ import { useActivityLog } from '../context/ActivityLogProvider';
 import { EnumCursorDirection } from 'erxes-ui';
 import { useInView } from 'react-intersection-observer';
 import { Skeleton } from 'erxes-ui';
+import { IconActivity } from '@tabler/icons-react';
 
 interface ActivityLogListProps {
   emptyMessage?: string;
@@ -30,7 +31,8 @@ export const ActivityLogList = ({
 
   if (!activityLogs || activityLogs.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[200px]">
+      <div className="flex flex-col space-y-2 items-center justify-center h-full min-h-[200px]">
+        <IconActivity size={56} className="text-muted-foreground" />
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );

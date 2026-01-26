@@ -5,7 +5,7 @@ import {
 } from '../saas/saas-mongo-connection';
 import { getEnv, getSubdomain } from '../utils';
 import { connect } from './mongo-connection';
-import { createEventDispatcher } from '../../core-modules/common/eventDispatcher';
+import { createEventDispatcher } from '../../core-modules/common/event-dispatcher/eventDispatcher';
 // Store current context per subdomain so it can be retrieved dynamically
 // This is updated every time generateModels is called, even if models are cached
 const contextStore = new Map<string, Record<string, any>>();

@@ -4,7 +4,12 @@ import {
   IUserDocument,
   Resolver,
 } from '../../core-types';
-import { getEnv } from '../../utils';
+import {
+  generateTargetType,
+  getEnv,
+  getUsageRedisKey,
+  redis,
+} from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
 export const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
@@ -206,4 +211,39 @@ export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
 
     return resolver(parent, args, context, info);
   };
+};
+
+export const checkSaasLimit = async (
+  subdomain: string,
+  collections: {
+    pluginName: string;
+    moduleName: string;
+    collectionName: string;
+  }[],
+  delta?: number,
+) => {
+  const redisKeys = collections.map(
+    ({ pluginName, moduleName, collectionName }) =>
+      getUsageRedisKey(
+        subdomain,
+        generateTargetType(pluginName, moduleName, collectionName),
+      ),
+  );
+  const usages = await redis.mget(redisKeys);
+
+  for (const usage of usages) {
+    const { count, limit } = JSON.parse(usage || '{}');
+
+    if (delta) {
+      const possibleCount = count + delta;
+
+      if (possibleCount > limit) {
+        throw new Error('This operation would exceed your usage limit');
+      }
+    }
+
+    if (count >= limit) {
+      throw new Error('Reached limit');
+    }
+  }
 };

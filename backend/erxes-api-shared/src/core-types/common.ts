@@ -119,6 +119,14 @@ export interface IResolverSymbol {
     skipPermission?: boolean;
     forClientPortal?: boolean;
     cpUserRequired?: boolean;
+    saasLimit?: {
+      checks: {
+        pluginName: string;
+        moduleName: string;
+        collectionName: string;
+      }[];
+      generateDelta?: (args: any) => number;
+    };
   };
 }
 

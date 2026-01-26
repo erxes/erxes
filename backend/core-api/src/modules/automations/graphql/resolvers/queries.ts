@@ -1,5 +1,6 @@
 import {
   cursorPaginate,
+  generateTargetType,
   getEnv,
   getPlugin,
   getPlugins,
@@ -292,7 +293,11 @@ export const automationQueries = {
           relationType,
           ...trigger
         } of triggers) {
-          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
+          const propertyType = generateTargetType(
+            pluginName,
+            moduleName,
+            collectionName,
+          );
           const type = `${propertyType}${
             relationType ? `.${relationType}` : ''
           }`;
@@ -313,7 +318,11 @@ export const automationQueries = {
           method = 'create',
           ...action
         } of actions) {
-          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
+          const propertyType = generateTargetType(
+            pluginName,
+            moduleName,
+            collectionName,
+          );
           const type = `${propertyType}.${method}`;
           constants.actionsConst.push({ ...action, type, pluginName });
         }

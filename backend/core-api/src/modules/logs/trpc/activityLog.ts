@@ -1,5 +1,5 @@
 import { initTRPC, TRPCError } from '@trpc/server';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { generateTargetType, graphqlPubsub } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 
@@ -62,7 +62,11 @@ export const activityLogRouter = t.router({
           collectionName,
         } of activities) {
           const targetId = target?._id;
-          const targetType = `${pluginName}:${moduleName}.${collectionName}`;
+          const targetType = generateTargetType(
+            pluginName,
+            moduleName,
+            collectionName,
+          );
 
           const activityLog = await models.ActivityLogs.create({
             activityType,

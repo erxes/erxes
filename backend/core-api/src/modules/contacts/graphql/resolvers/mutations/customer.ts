@@ -42,17 +42,6 @@ export const customerMutations = {
 
     await models.Customers.removeCustomers(customerIds);
 
-    // await sendTRPCMessage({subdomain,
-
-    //   pluginName: 'frontline',
-    //   method: 'mutation',
-    //   module: 'integraions',
-    //   action: 'notification',
-    //   input: { type: 'removeCustomers', customerIds },
-    // });
-
-    // const services: string[] = await getPlugins();
-
     let relatedIntegrationIds: string[] = [];
     let mergedIds: string[] = [];
 
@@ -69,33 +58,6 @@ export const customerMutations = {
 
     relatedIntegrationIds = [...new Set(relatedIntegrationIds)];
     mergedIds = [...new Set(mergedIds)];
-
-    // const integrations = await sendTRPCMessage({subdomain,
-
-    //   pluginName: 'frontline',
-    //   method: 'mutation',
-    //   module: 'integrations',
-    //   action: 'find',
-    //   input: { query: { _id: { $in: relatedIntegrationIds } } },
-    //   defaultValue: [],
-    // });
-
-    // // find related integration of the customer & delete where it's linked
-    // for (const integration of integrations) {
-    //   const kind: string = (integration.kind || '').split('-')[0];
-
-    //   await sendTRPCMessage({subdomain,
-
-    //     pluginName: 'frontline',
-    //     method: 'mutation',
-    //     module: services.includes(kind) ? kind : 'integrations',
-    //     action: 'notification',
-    //     input: {
-    //       type: 'removeCustomers',
-    //       customerIds: [...customerIds, ...mergedIds],
-    //     },
-    //   });
-    // }
 
     return customerIds;
   },

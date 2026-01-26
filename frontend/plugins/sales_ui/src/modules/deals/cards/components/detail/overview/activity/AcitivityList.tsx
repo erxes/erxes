@@ -9,11 +9,8 @@ const ActivityList = () => {
   }
 
   return (
-    <div className="h-96">
+    <div className="h-full">
       <ActivityLogs
-        pluginName="sales"
-        moduleName="deal"
-        collectionName="deals"
         targetId={salesItemId}
         customActivities={customActivitiesRows}
       />

@@ -619,3 +619,12 @@ export const readFileUrl = (value: string) => {
 
   return `${DOMAIN}/gateway/read-file?key=${value}`;
 };
+
+export const getUsageRedisKey = (subdomain: string, targetType: string) =>
+  `usage:${subdomain}:${targetType}`;
+
+export const generateTargetType = (
+  pluginName: string,
+  moduleName: string,
+  collectionName: string,
+) => `${pluginName}:${moduleName}.${collectionName}`;

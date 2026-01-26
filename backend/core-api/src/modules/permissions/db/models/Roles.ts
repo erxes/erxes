@@ -109,7 +109,7 @@ export const loadRoleClass = (
       const newRole = await models.Roles.create(doc);
       sendDbEventLog({
         action: 'create',
-        docId: newRole._id,
+        docId: String(newRole._id),
         currentDocument: newRole.toObject(),
       });
       return newRole;
@@ -127,7 +127,7 @@ export const loadRoleClass = (
       if (updatedRole && oldRole) {
         sendDbEventLog({
           action: 'update',
-          docId: updatedRole._id,
+          docId: String(updatedRole._id),
           currentDocument: updatedRole.toObject(),
           prevDocument: oldRole.toObject(),
         });

@@ -30,6 +30,13 @@ export const SalesDetailLeftSidebar = ({
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>
+                <Sidebar.MenuItem>
+                  <Tabs.Trigger value="activities" asChild>
+                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
+                      Activities
+                    </Sidebar.MenuButton>
+                  </Tabs.Trigger>
+                </Sidebar.MenuItem>
               </Sidebar.Menu>
             </Sidebar.GroupContent>
           </Sidebar.Group>

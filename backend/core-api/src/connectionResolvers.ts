@@ -224,6 +224,11 @@ import {
   loadOrgWhiteLabelClass,
 } from './modules/organization/whitelabel/db/models/OrgWhiteLabel';
 import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
+import {
+  IUsageModel,
+  loadUsageClass,
+} from './modules/organization/usage/db/models/Usage';
+import { IUsageDocument } from './modules/organization/usage/db/definitions/usage';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -274,6 +279,7 @@ export interface IModels {
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
   OrgWhiteLabel: IOrgWhiteLabelModel;
+  Usage: IUsageModel;
 }
 
 export interface IContext extends IMainContext {
@@ -592,6 +598,11 @@ export const loadClasses = (
   models.CPUser = db.model<ICPUserDocument, ICPUserModel>(
     'client_portal_users',
     loadCPUserClass(models),
+  );
+
+  models.Usage = db.model<IUsageDocument, IUsageModel>(
+    'usage',
+    loadUsageClass(models),
   );
 
   const db_name = db.name;
