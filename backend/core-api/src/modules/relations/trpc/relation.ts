@@ -52,6 +52,14 @@ export const relationTrpcRouter = t.router({
 
         return models.Relations.createRelation(input);
       }),
+    createMultipleRelations: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return models.Relations.createMultipleRelations(input);
+      }),
+
 
     updateRelation: t.procedure
       .input(z.any())
@@ -67,6 +75,15 @@ export const relationTrpcRouter = t.router({
         const { models } = ctx;
 
         return models.Relations.deleteRelation(input);
+      }),
+    cleanRelation: t.procedure
+      .input(z.object({
+        contentType: z.string(),
+        contentIds: z.array(z.string())
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        return models.Relations.cleanRelation(input);
       }),
     manageRelations: t.procedure
       .input(z.any())
