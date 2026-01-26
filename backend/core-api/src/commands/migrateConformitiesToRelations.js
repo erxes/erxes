@@ -1,3 +1,4 @@
+cat << 'EOF' > migrateConformitiesToRelations.js
 const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
 
@@ -26,13 +27,6 @@ const command = async () => {
   Relations = db.collection('relations');
   await Relations.createIndex({ _conformityId: 1 });
   await Conformities.createIndex({ _synced: 1 });
-
-
-  const isSyncedPrev = Boolean(await Relations.findOne({ _conformityId: { $exists: true, $ne: '' } }));
-  if (isSyncedPrev) {
-    console.log('runned')
-    return;
-  }
 
   const now = new Date();
   console.log(`Process start at: ${new Date()}`);
@@ -97,3 +91,4 @@ const command = async () => {
 
 command();
 
+EOF
