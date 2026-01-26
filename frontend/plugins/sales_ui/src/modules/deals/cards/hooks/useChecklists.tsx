@@ -39,7 +39,6 @@ export function useChecklistsAdd(
         },
       },
     ],
-    awaitRefetchQueries: true,
   });
 
   return {
@@ -119,6 +118,9 @@ export function useChecklistItemsRemove(
     CHECKLIST_ITEMS_REMOVE,
     {
       ...options,
+      variables: {
+        ...options?.variables,
+      },
     },
   );
 

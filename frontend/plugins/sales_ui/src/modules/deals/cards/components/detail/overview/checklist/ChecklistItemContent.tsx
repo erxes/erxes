@@ -2,8 +2,11 @@ import { IconDotsVertical, IconRefresh, IconTrash } from '@tabler/icons-react';
 
 import { Checkbox } from 'erxes-ui';
 import { IChecklistItem } from '@/deals/types/checklists';
-import { useChecklistItemsEdit } from '@/deals/cards/hooks/useChecklists';
-import { useState } from 'react';
+import {
+  useChecklistItemsEdit,
+  useChecklistItemsRemove,
+} from '@/deals/cards/hooks/useChecklists';
+import { useState, useEffect, useRef } from 'react';
 
 const ChecklistItemContent = ({
   item,
@@ -16,6 +19,26 @@ const ChecklistItemContent = ({
 }) => {
   const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
   const { salesChecklistItemsEdit } = useChecklistItemsEdit();
+  const { salesChecklistItemsRemove } = useChecklistItemsRemove();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        activeMenuIndex === index &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
+        setActiveMenuIndex(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeMenuIndex, index]);
 
   const toggleChecked = (id: string) => {
     setItems((prev) =>
@@ -25,12 +48,18 @@ const ChecklistItemContent = ({
     );
   };
 
-  const handleRemove = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+  const handleRemove = (id: string) => {
+    setItems((prev) => prev.filter((item) => item._id !== id));
+
+    salesChecklistItemsRemove({
+      variables: {
+        _id: id,
+      },
+    });
   };
 
   const onChangeChecked = (id: string) => {
-    toggleChecked(item._id);
+    toggleChecked(id);
 
     salesChecklistItemsEdit({
       variables: {
@@ -65,7 +94,13 @@ const ChecklistItemContent = ({
         </span>
       </div>
 
-      <div className="relative">
+      <div
+        className="relative"
+        ref={menuRef}
+        onClick={(e) => e.stopPropagation()}
+        onPointerUp={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <button
           onClick={(e) => {
             setActiveMenuIndex(activeMenuIndex === index ? null : index);
@@ -91,7 +126,7 @@ const ChecklistItemContent = ({
             </button>
             <button
               onClick={() => {
-                handleRemove(index);
+                handleRemove(item._id);
                 setActiveMenuIndex(null);
               }}
               className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 w-full text-sm"
