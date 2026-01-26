@@ -16,6 +16,7 @@ import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItem
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
+import ActivityList from '@/deals/cards/components/detail/overview/activity/AcitivityList';
 
 export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
@@ -59,6 +60,9 @@ export const SalesItemDetail = () => {
                     <SalesDetailLeftSidebar>
                       <SalesDetailTabContent value="overview">
                         <Overview deal={deal || ({} as IDeal)} />
+                      </SalesDetailTabContent>
+                      <SalesDetailTabContent value="activity">
+                        <ActivityList />
                       </SalesDetailTabContent>
                       <SalesDetailTabContent value="products">
                         <Products
