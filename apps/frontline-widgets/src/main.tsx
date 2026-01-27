@@ -1,6 +1,7 @@
 import * as ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
+import { BrowserRouter } from 'react-router-dom';
+
 import { Toaster, Tooltip } from 'erxes-ui';
 
 import App from './app/app';
