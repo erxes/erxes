@@ -12,13 +12,13 @@ export const templateSchema = new Schema(
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'products',
-      optional: true,
+      required: false,
     },
 
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'vendors',
-      optional: true,
+      required: false,
     },
 
     // HTML content with Handlebars placeholders
