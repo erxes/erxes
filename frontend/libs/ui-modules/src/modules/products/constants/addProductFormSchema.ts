@@ -39,7 +39,7 @@ export const PRODUCT_FORM_SCHEMA = z.object({
   uom: z
     .string({
       required_error: 'UOM is required',
-    })
-    .min(1, 'UOM is required'),
+    }).optional(),
+    // .min(1, 'UOM is required'),
   subUoms: z.any().optional(),
 });

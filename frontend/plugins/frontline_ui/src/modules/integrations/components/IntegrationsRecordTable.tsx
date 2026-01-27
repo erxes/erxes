@@ -166,9 +166,10 @@ export const integrationTypeColumns = ({
     header: () => <RecordTable.InlineHead label="Actions" />,
     cell: ({ cell }) => {
       const { isActive, _id, name } = cell.row.original;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { integrationType } = useParams();
       return (
-        <div className="flex items-center gap-1.5 px-2 justify-center">
+        <RecordTableInlineCell>
           {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
           IntegrationType.FACEBOOK_POST === integrationType ? (
             <FacebookIntegrationRepair cell={cell} />
@@ -176,7 +177,7 @@ export const integrationTypeColumns = ({
           <Actions cell={cell} />
           <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
           <RemoveIntegration _id={_id} name={name} />
-        </div>
+        </RecordTableInlineCell>
       );
     },
     size: 120,

@@ -32,10 +32,8 @@ const mutations: Record<string, Resolver> = {
 
     try {
       const result = await models.Translations.updateTranslation(input);
-      console.log('✅ cmsEditTranslation result:', result);
       return result;
     } catch (error) {
-      console.error('❌ cmsEditTranslation error:', error);
       throw error;
     }
   },

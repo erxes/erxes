@@ -22,6 +22,7 @@ import {
   IconCalendarPlus,
   IconCalendarUp,
   IconFilter,
+  IconDots,
 } from '@tabler/icons-react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -136,61 +137,6 @@ export function Posts() {
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<any>;
 
   const columns: ColumnDef<any>[] = [
-    {
-      id: 'more',
-      header: () => <span className="sr-only">More</span>,
-      cell: ({ row }) => (
-        <Popover>
-          <Popover.Trigger asChild>
-            <RecordTable.MoreButton className="w-full h-full" />
-          </Popover.Trigger>
-          <Combobox.Content>
-            <Command shouldFilter={false}>
-              <Command.List>
-                <Command.Item
-                  value="edit"
-                  onSelect={() =>
-                    navigate(`/content/cms/${websiteId}/posts/add`, {
-                      state: { post: row.original },
-                    })
-                  }
-                >
-                  <IconEdit /> Edit
-                </Command.Item>
-                <Command.Item
-                  value="remove"
-                  onSelect={() =>
-                    confirm({ message: 'Delete this post?' })
-                      .then(async () => {
-                        try {
-                          await removePost(row.original._id);
-                          await refetchPosts();
-                          toast({
-                            title: 'Success',
-                            description: 'Post deleted successfully',
-                            variant: 'success',
-                          });
-                        } catch (error: any) {
-                          toast({
-                            title: 'Error',
-                            description:
-                              error?.message || 'Error deleting post',
-                            variant: 'destructive',
-                          });
-                        }
-                      })
-                      .catch(() => {})
-                  }
-                >
-                  <IconTrash /> Delete
-                </Command.Item>
-              </Command.List>
-            </Command>
-          </Combobox.Content>
-        </Popover>
-      ),
-      size: 40,
-    },
     checkboxColumn,
     {
       id: 'title',
@@ -200,7 +146,7 @@ export function Posts() {
       accessorKey: 'title',
       cell: ({ cell, row }) => (
         <div
-          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all hover:bg-blue-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent"
+          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent"
           onClick={() =>
             navigate(`/content/cms/${websiteId}/posts/add`, {
               state: { post: row.original },
@@ -224,11 +170,8 @@ export function Posts() {
       cell: ({ row }) => {
         const excerpt = row.original.excerpt || t('No Description');
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span
-              className="text-sm font-medium text-gray-600 line-clamp-1"
-              title={excerpt}
-            >
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+            <span className="text-sm font-medium line-clamp-1" title={excerpt}>
               {excerpt}
             </span>
           </div>
@@ -275,7 +218,7 @@ export function Posts() {
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-green-50 border-green-200 text-green-700">
+        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 ">
           <IconCalendarPlus className="h-3 w-3" />
           {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -293,7 +236,7 @@ export function Posts() {
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (
-        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-blue-50 border-blue-200 text-blue-700">
+        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1">
           <IconCalendarUp className="h-3 w-3" />
           {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -304,18 +247,69 @@ export function Posts() {
       ),
       size: 180,
     },
+    {
+      id: 'actions',
+      header: () => (
+        <RecordTable.InlineHead label={t('Actions')} icon={IconDots} />
+      ),
+      cell: ({ row }) => (
+        <div className="flex px-2 items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+            onClick={() =>
+              navigate(`/content/cms/${websiteId}/posts/add`, {
+                state: { post: row.original },
+              })
+            }
+          >
+            <IconEdit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+            onClick={() =>
+              confirm({ message: 'Delete this post?' })
+                .then(async () => {
+                  try {
+                    await removePost(row.original._id);
+                    await refetchPosts();
+                    toast({
+                      title: 'Success',
+                      description: 'Post deleted successfully',
+                      variant: 'success',
+                    });
+                  } catch (error: any) {
+                    toast({
+                      title: 'Error',
+                      description: error?.message || 'Error deleting post',
+                      variant: 'destructive',
+                    });
+                  }
+                })
+                .catch(() => {})
+            }
+          >
+            <IconTrash className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+      size: 120,
+    },
   ];
 
   return (
     <CmsLayout>
-      <div className="bg-white border rounded-lg mb-4">
+      <div className="border rounded-lg mb-4">
         <div className="p-2 flex items-center gap-3 flex-wrap">
           {/* Custom Type Filter */}
-          <CustomTypeFilterButton
+          {/* <CustomTypeFilterButton
             typeFilter={typeFilter}
             onTypeChange={setTypeFilter}
             customTypes={customTypes}
-          />
+          /> */}
           {/* Categories */}
           <CategoriesFilterButton
             categoryFilters={categoryFilters}
@@ -356,7 +350,7 @@ export function Posts() {
           </div>
         </div>
       ) : (
-        <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+        <div className="h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
           <RecordTable.Provider
             columns={columns}
             data={posts}

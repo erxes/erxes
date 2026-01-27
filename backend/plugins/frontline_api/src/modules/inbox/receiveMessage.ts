@@ -1,8 +1,12 @@
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  graphqlPubsub,
+  RPError,
+  RPResult,
+  RPSuccess,
+  sendTRPCMessage
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
-import { RPError, RPResult, RPSuccess } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 const sendError = (message): RPError => ({
   status: 'error',

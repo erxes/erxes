@@ -4,7 +4,7 @@ import path from 'path';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
-import { generateModels } from './connectionResolvers';
+import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 

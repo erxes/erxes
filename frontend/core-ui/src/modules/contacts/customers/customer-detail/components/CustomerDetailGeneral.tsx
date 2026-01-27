@@ -1,9 +1,8 @@
-import { FullNameValue, Label, Popover } from 'erxes-ui';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
-import { Avatar, Button, readImage } from 'erxes-ui';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { CustomerName, SelectCompany, useCustomerEdit } from 'ui-modules';
+import { Avatar, Button, FullNameValue, Label, Popover, readImage } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { CustomerName, SelectCompany, useCustomerEdit } from 'ui-modules';
 
 export const CustomerDetailGeneral = () => {
   const { t } = useTranslation('contact', {

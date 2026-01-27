@@ -87,7 +87,7 @@ export const useUpload = () => {
 
       // const fileUploadMaxSize = REACT_APP_FILE_UPLOAD_MAX_SIZE || 20 * 1024 * 1024;
       const fileUploadMaxSize: number =
-        parseInt(
+        Number.parseInt(
           localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
             '',
           10,

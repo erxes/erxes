@@ -21,7 +21,6 @@ const LabelChooser = ({
             label="By Label"
             variant="card"
             targetId={targetId}
-            initialValue={labels?.map((label) => label._id || '') || []}
           />
         </Popover.Trigger>
       </Popover>
