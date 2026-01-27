@@ -20,7 +20,7 @@ import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
 
 export const CompanyDetail = () => {
   const [open, setOpen] = useQueryState<string>('companyId');
-  const { companyDetail, loading } = useCompanyDetailWithQuery();
+  const { companyDetail, loading, error } = useCompanyDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
 
   return (
@@ -30,6 +30,7 @@ export const CompanyDetail = () => {
         notFound={!companyDetail}
         notFoundState={<CompanyDetailEmptyState />}
         errorState={<CompanyDetailErrorState />}
+        error={!!error}
       >
         <FocusSheet.Header title="Company Details" />
         <FocusSheet.Content>

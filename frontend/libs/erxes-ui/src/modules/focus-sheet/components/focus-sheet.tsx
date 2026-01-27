@@ -88,7 +88,7 @@ const FocusSheetView = ({
       {...props}
     >
       {loading && <Spinner />}
-      {error && errorState}
+      {!loading && error && errorState}
       {!loading && !error && notFound && notFoundState}
       {!loading && !error && !notFound && children}
     </Sheet.View>
