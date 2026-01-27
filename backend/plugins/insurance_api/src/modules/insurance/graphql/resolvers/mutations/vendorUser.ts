@@ -111,9 +111,15 @@ export const vendorUserMutations = {
         throw new Error('Invalid email or password');
       }
 
+      const secret = process.env.JWT_TOKEN_SECRET;
+      
+      if (!secret) {
+        throw new Error('JWT token secret is not defined');
+      }
+
       const token = jwt.sign(
         { vendorUserId: vendorUser._id, vendorId: vendorUser.vendor },
-        process.env.JWT_TOKEN_SECRET || 'your-secret-key',
+        secret,
         { expiresIn: '1d' },
       );
 
