@@ -10,8 +10,9 @@ import {
   NestBlockButton,
   TableCellMergeButton,
   TextAlignButton,
-  UnnestBlockButton
+  UnnestBlockButton,
 } from '@blocknote/react';
+import { FontFamilyButton } from './FontFamilyButton';
 
 export const Toolbar = () => {
   return (
@@ -19,6 +20,7 @@ export const Toolbar = () => {
       formattingToolbar={() => (
         <FormattingToolbar>
           <BlockTypeSelect key={'blockTypeSelect'} />
+          <FontFamilyButton key={'fontFamilyButton'} />
           <FileCaptionButton key={'fileCaptionButton'} />
           <FileReplaceButton key={'replaceFileButton'} />
           <BasicTextStyleButton
