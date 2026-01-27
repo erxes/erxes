@@ -42,6 +42,7 @@ export const SelectTagsProvider = ({
   const [newTagName, setNewTagName] = useState('');
   const { giveTags } = useGiveTags();
   const [selectedTags, setSelectedTags] = useState<ITag[]>([]);
+
   const handleSelectCallback = (tag: ITag) => {
     if (!tag) return;
 
@@ -672,6 +673,7 @@ export const SelectTagsFilterBar = ({
   targetId,
   initialValue,
   onValueChange,
+  tagType,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
@@ -680,6 +682,7 @@ export const SelectTagsFilterBar = ({
   scope?: string;
   targetId?: string;
   initialValue?: string[];
+  tagType?: string;
   onValueChange?: (value: string[] | string) => void;
 }) => {
   const isCardVariant = variant === 'card';
@@ -725,7 +728,7 @@ export const SelectTagsFilterBar = ({
       mode={mode}
       value={query || []}
       onValueChange={handleValueChange}
-      tagType="sales:deal"
+      tagType={tagType}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>

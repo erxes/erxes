@@ -18,7 +18,7 @@ import {
   SelectCompanyContext,
   useSelectCompanyContext,
 } from 'ui-modules/modules/contacts/contexts/SelectCompanyContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { CompaniesInline } from './CompaniesInline';
 import { ICompany } from '../types';
@@ -31,6 +31,7 @@ interface SelectCompanyProviderProps {
   value?: string[] | string;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  hideAvatar?: boolean;
 }
 
 const SelectCompanyProvider = ({
@@ -38,31 +39,51 @@ const SelectCompanyProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  hideAvatar,
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
-  const companyIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const companyIds = useMemo(() => {
+    return !value ? [] : Array.isArray(value) ? value : [value];
+  }, [value]);
+
+  const { companies: fetchedCompanies } = useCompanies({
+    variables: {
+      ids: companyIds,
+    },
+    skip: companyIds.length === 0,
+  });
+
+  useEffect(() => {
+    if (
+      fetchedCompanies &&
+      fetchedCompanies.length > 0 &&
+      companies.length === 0
+    ) {
+      setCompanies(fetchedCompanies);
+    }
+  }, [fetchedCompanies, companyIds, companies.length]);
 
   const onSelect = (company: ICompany) => {
     if (!company) return;
-    if (mode === 'single') {
-      setCompanies([company]);
-      onValueChange?.(company._id);
-      return;
-    }
-    const arrayValue = Array.isArray(value) ? value : [];
-    const isCompanySelected = arrayValue.includes(company._id);
-    const newSelectedCompanyIds = isCompanySelected
-      ? arrayValue.filter((id) => id !== company._id)
-      : [...arrayValue, company._id];
 
-    setCompanies((prevCompanies) => {
-      const companyMap = new Map(prevCompanies.map((c) => [c._id, c]));
-      companyMap.set(company._id, company);
-      return newSelectedCompanyIds
-        .map((id) => companyMap.get(id))
-        .filter((c): c is ICompany => c !== undefined);
-    });
-    onValueChange?.(newSelectedCompanyIds);
+    const isSingleMode = mode === 'single';
+    const multipleValue = (value as string[]) || [];
+    const isSelected = !isSingleMode && multipleValue.includes(company._id);
+
+    const newSelectedCompanyIds = isSingleMode
+      ? [company._id]
+      : isSelected
+      ? multipleValue.filter((t) => t !== company._id)
+      : [...multipleValue, company._id];
+
+    const newSelectedCompanies = isSingleMode
+      ? [company]
+      : isSelected
+      ? companies.filter((t) => t._id !== company._id)
+      : [...companies, company];
+
+    setCompanies(newSelectedCompanies);
+    onValueChange?.(isSingleMode ? company._id : newSelectedCompanyIds);
   };
 
   return (
@@ -74,6 +95,8 @@ const SelectCompanyProvider = ({
         setCompanies,
         loading: false,
         error: null,
+        hideAvatar,
+        mode,
       }}
     >
       {children}
@@ -96,6 +119,7 @@ const SelectCompanyContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  console.log('cc', companies);
   return (
     <Command shouldFilter={false}>
       <Command.Input
@@ -216,23 +240,29 @@ const SelectCompanyRoot = ({
   );
 };
 
-const SelectCompanyValue = () => {
-  const { companyIds, companies, setCompanies } = useSelectCompanyContext();
+const SelectCompanyValue = ({ placeholder }: { placeholder?: string }) => {
+  const { companyIds, companies, setCompanies, hideAvatar } =
+    useSelectCompanyContext();
+
+  if (hideAvatar) {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconBuilding className="w-4 h-4 text-gray-400" /> Company(s) +
+        {companyIds.length}
+      </span>
+    );
+  }
+
   return (
     <CompaniesInline
       companyIds={companyIds}
       companies={companies}
       updateCompanies={setCompanies}
+      placeholder={placeholder || 'Select Company'}
+      hideAvatar={hideAvatar}
     />
   );
 };
-
-// const SelectCompanyList = () => {
-//   const { companyIds, companies, setCompanies } = useSelectCompanyContext();
-//   return (
-//     <Badge></Badge>
-//   );
-// };
 
 const SelectCompanyBadgesView = () => {
   const { companyIds, companies, setCompanies } = useSelectCompanyContext();
@@ -339,7 +369,9 @@ export const SelectCompanyFilterBar = ({
   scope,
   targetId,
   initialValue,
+  value,
   onValueChange,
+  hideAvatar,
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
@@ -348,19 +380,27 @@ export const SelectCompanyFilterBar = ({
   scope?: string;
   targetId?: string;
   initialValue?: string[];
+  value?: string[];
+  hideAvatar?: boolean;
   onValueChange?: (value: string[] | string) => void;
 }) => {
   const isCardVariant = variant === 'card';
 
-  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
+  const [localQuery, setLocalQuery] = useState<string[]>(
+    value || initialValue || [],
+  );
   const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isCardVariant && initialValue) {
-      setLocalQuery(initialValue);
+    if (isCardVariant) {
+      if (value !== undefined) {
+        setLocalQuery(value);
+      } else if (initialValue) {
+        setLocalQuery(initialValue);
+      }
     }
-  }, [initialValue, isCardVariant]);
+  }, [value, initialValue, isCardVariant]);
 
   const query = isCardVariant ? localQuery : urlQuery;
 
@@ -373,15 +413,11 @@ export const SelectCompanyFilterBar = ({
       onValueChange(value);
     }
 
-    if (value && value.length > 0) {
-      if (isCardVariant) {
-        setLocalQuery(value as string[]);
-      } else {
-        setUrlQuery(value as string[]);
-      }
+    if (isCardVariant) {
+      setLocalQuery((value as string[]) || []);
     } else {
-      if (isCardVariant) {
-        setLocalQuery([]);
+      if (value && value.length > 0) {
+        setUrlQuery(value as string[]);
       } else {
         setUrlQuery(null);
       }
@@ -393,6 +429,7 @@ export const SelectCompanyFilterBar = ({
       mode={mode}
       value={query || []}
       onValueChange={handleValueChange}
+      hideAvatar={hideAvatar}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>

@@ -13,7 +13,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { CustomersInline } from './CustomersInline';
 import { ICustomer } from '../types';
@@ -28,6 +28,7 @@ interface SelectCustomerProviderProps {
   value?: string[] | string;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  hideAvatar?: boolean;
 }
 
 const SelectCustomerProvider = ({
@@ -35,31 +36,53 @@ const SelectCustomerProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  hideAvatar,
 }: SelectCustomerProviderProps) => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
-  const customerIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const customerIds = useMemo(() => {
+    return !value ? [] : Array.isArray(value) ? value : [value];
+  }, [value]);
+
+  const { customers: fetchedCustomers } = useCustomers({
+    variables: {
+      ids: customerIds,
+    },
+    skip: customerIds.length === 0,
+  });
+
+  useEffect(() => {
+    if (
+      fetchedCustomers &&
+      fetchedCustomers.length > 0 &&
+      customers.length === 0
+    ) {
+      setCustomers(fetchedCustomers);
+    }
+  }, [fetchedCustomers, customerIds, customers.length]);
+
   const onSelect = (customer: ICustomer) => {
     if (!customer) return;
-    if (mode === 'single') {
-      setCustomers([customer]);
-      onValueChange?.(customer._id);
-      return;
-    }
-    const arrayValue = Array.isArray(value) ? value : [];
-    const isCustomerSelected = arrayValue.includes(customer._id);
-    const newSelectedCustomerIds = isCustomerSelected
-      ? arrayValue.filter((id) => id !== customer._id)
-      : [...arrayValue, customer._id];
 
-    setCustomers((prevCustomers) => {
-      const customerMap = new Map(prevCustomers.map((c) => [c._id, c]));
-      customerMap.set(customer._id, customer);
-      return newSelectedCustomerIds
-        .map((id) => customerMap.get(id))
-        .filter((c): c is ICustomer => c !== undefined);
-    });
-    onValueChange?.(newSelectedCustomerIds);
+    const isSingleMode = mode === 'single';
+    const multipleValue = (value as string[]) || [];
+    const isSelected = !isSingleMode && multipleValue.includes(customer._id);
+
+    const newSelectedCustomerIds = isSingleMode
+      ? [customer._id]
+      : isSelected
+      ? multipleValue.filter((t) => t !== customer._id)
+      : [...multipleValue, customer._id];
+
+    const newSelectedCustomers = isSingleMode
+      ? [customer]
+      : isSelected
+      ? customers.filter((t) => t._id !== customer._id)
+      : [...customers, customer];
+
+    setCustomers(newSelectedCustomers);
+    onValueChange?.(isSingleMode ? customer._id : newSelectedCustomerIds);
   };
+
   return (
     <SelectCustomerContext.Provider
       value={{
@@ -69,6 +92,8 @@ const SelectCustomerProvider = ({
         setCustomers,
         loading: false,
         error: null,
+        hideAvatar,
+        mode,
       }}
     >
       {children}
@@ -91,6 +116,7 @@ const SelectCustomerContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  console.log('cc', customers);
   return (
     <Command shouldFilter={false}>
       <Command.Input
@@ -218,14 +244,27 @@ const SelectCustomerRoot = ({
     </SelectCustomerProvider>
   );
 };
-const SelectCustomerValue = () => {
-  const { customerIds, customers, setCustomers } = useSelectCustomerContext();
+
+const SelectCustomerValue = ({ placeholder }: { placeholder?: string }) => {
+  const { customers, customerIds, hideAvatar, setCustomers } =
+    useSelectCustomerContext();
+
+  if (hideAvatar) {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconUser className="w-4 h-4 text-gray-400" /> Customers +
+        {customerIds.length}
+      </span>
+    );
+  }
 
   return (
     <CustomersInline
       customerIds={customerIds}
       customers={customers}
       updateCustomers={setCustomers}
+      placeholder={placeholder || 'Select Customers'}
+      hideAvatar={hideAvatar}
     />
   );
 };
@@ -315,7 +354,9 @@ export const SelectCustomerFilterBar = ({
   scope,
   targetId,
   initialValue,
+  value,
   onValueChange,
+  hideAvatar,
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
@@ -324,19 +365,27 @@ export const SelectCustomerFilterBar = ({
   scope?: string;
   targetId?: string;
   initialValue?: string[];
+  value?: string[];
+  hideAvatar?: boolean;
   onValueChange?: (value: string[] | string) => void;
 }) => {
   const isCardVariant = variant === 'card';
 
-  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
+  const [localQuery, setLocalQuery] = useState<string[]>(
+    value || initialValue || [],
+  );
   const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isCardVariant && initialValue) {
-      setLocalQuery(initialValue);
+    if (isCardVariant) {
+      if (value !== undefined) {
+        setLocalQuery(value);
+      } else if (initialValue) {
+        setLocalQuery(initialValue);
+      }
     }
-  }, [initialValue, isCardVariant]);
+  }, [value, initialValue, isCardVariant]);
 
   const query = isCardVariant ? localQuery : urlQuery;
 
@@ -349,15 +398,11 @@ export const SelectCustomerFilterBar = ({
       onValueChange(value);
     }
 
-    if (value && value.length > 0) {
-      if (isCardVariant) {
-        setLocalQuery(value as string[]);
-      } else {
-        setUrlQuery(value as string[]);
-      }
+    if (isCardVariant) {
+      setLocalQuery((value as string[]) || []);
     } else {
-      if (isCardVariant) {
-        setLocalQuery([]);
+      if (value && value.length > 0) {
+        setUrlQuery(value as string[]);
       } else {
         setUrlQuery(null);
       }
@@ -369,6 +414,7 @@ export const SelectCustomerFilterBar = ({
       mode={mode}
       value={query || []}
       onValueChange={handleValueChange}
+      hideAvatar={hideAvatar}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>
