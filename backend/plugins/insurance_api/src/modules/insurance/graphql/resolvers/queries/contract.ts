@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import mongoose from 'mongoose';
 
 export const contractQueries = {
   contracts: async (
@@ -43,18 +42,11 @@ export const contractQueries = {
   vendorContracts: async (
     _parent: undefined,
     _args: any,
-    { models, user }: IContext,
+    { models, insuranceVendorUser }: IContext,
   ) => {
-    if (!user) throw new Error('Must be logged in');
-    const userId = (user as any).userId || user._id || user.id;
+    if (!insuranceVendorUser) throw new Error('Must be logged in');
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new Error(
-        'Invalid vendor user session. Please login with vendor credentials.',
-      );
-    }
-
-    const vendorUser = await models.VendorUser.findById(userId);
+    const vendorUser = await models.VendorUser.findById(insuranceVendorUser._id);
     if (!vendorUser) throw new Error('Vendor user not found');
 
     const contracts = await models.Contract.find({
@@ -74,18 +66,13 @@ export const contractQueries = {
   vendorContract: async (
     _parent: undefined,
     { id }: { id: string },
-    { models, user }: IContext,
+    { models, insuranceVendorUser }: IContext,
   ) => {
-    if (!user) throw new Error('Must be logged in');
-    const userId = (user as any).userId || user._id || user.id;
+    if (!insuranceVendorUser) throw new Error('Must be logged in');
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new Error(
-        'Invalid vendor user session. Please login with vendor credentials.',
-      );
-    }
-
-    const vendorUser = await models.VendorUser.findById(userId);
+    const vendorUser = await models.VendorUser.findById(
+      insuranceVendorUser._id,
+    );
     if (!vendorUser) throw new Error('Vendor user not found');
 
     const contract = await models.Contract.findOne({
@@ -127,21 +114,16 @@ export const contractQueries = {
         vendorUserId?: string;
         categoryId?: string;
       },
-      { models, user }: IContext,
+      { models, insuranceVendorUser }: IContext,
     ) => {
-      if (!user) throw new Error('Must be logged in');
+      if (!insuranceVendorUser) throw new Error('Must be logged in');
       // Handle both user.id and user._id for compatibility with JWT token
       // userId from vendorUserLogin JWT is a valid ObjectId, user.id from erxes core is not
-      const userId = (user as any).userId || user._id || user.id;
 
-      // Validate that userId is a valid ObjectId before querying
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        throw new Error(
-          'Invalid vendor user session. Please login with vendor credentials.',
-        );
-      }
 
-      const vendorUser = await models.VendorUser.findOne({ _id: userId });
+      const vendorUser = await models.VendorUser.findOne({
+        _id: insuranceVendorUser._id,
+      });
       if (!vendorUser) throw new Error('Vendor user not found');
 
       const query: any = { vendor: vendorUser.vendor };
@@ -269,18 +251,14 @@ export const contractQueries = {
     async (
       _parent: undefined,
       { _id }: { _id: string },
-      { models, user }: IContext,
+      { models, insuranceVendorUser }: IContext,
     ) => {
-      if (!user) throw new Error('Must be logged in');
-      const userId = (user as any).userId || user._id || user.id;
+      if (!insuranceVendorUser) throw new Error('Must be logged in');
 
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        throw new Error(
-          'Invalid vendor user session. Please login with vendor credentials.',
-        );
-      }
 
-      const vendorUser = await models.VendorUser.findById(userId);
+      const vendorUser = await models.VendorUser.findById(
+        insuranceVendorUser._id,
+      );
       if (!vendorUser) throw new Error('Vendor user not found');
 
       const contract = await models.Contract.findOne({

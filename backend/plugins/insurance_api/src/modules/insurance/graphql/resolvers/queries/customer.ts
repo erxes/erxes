@@ -4,7 +4,7 @@ export const customerQueries = {
   insuranceCustomers: async (
     _parent: undefined,
     args: any,
-    { models, user }: IContext,
+    { models }: IContext,
   ) => {
     const { search, page = 1, limit = 100, sort, sortField, filter } = args;
     const query: any = {};

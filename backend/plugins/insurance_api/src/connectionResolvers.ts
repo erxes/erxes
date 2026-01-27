@@ -53,6 +53,7 @@ export interface IModels {
 
 export interface IContext extends IMainContext {
   models: IModels;
+  insuranceVendorUser?: IVendorUserDocument;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {

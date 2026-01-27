@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import mongoose from 'mongoose';
 
 export const vendorUserQueries = {
   vendorUsers: async (
@@ -20,16 +19,18 @@ export const vendorUserQueries = {
   },
 
   currentVendorUser: Object.assign(
-    async (_parent: undefined, _args: any, { user, models }: IContext) => {
-      if (!user) {
+    async (
+      _parent: undefined,
+      _args: any,
+      { insuranceVendorUser, models }: IContext,
+    ) => {
+      if (!insuranceVendorUser) {
         return null;
       }
-      // JWT token-аас userId авах (user._id, user.userId, эсвэл user.id байж болно)
-      const userId = (user as any).userId || user._id || user.id;
-      if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-        return null;
-      }
-      return models.VendorUser.findById(userId).populate('vendor');
+
+      return models.VendorUser.findById(insuranceVendorUser._id).populate(
+        'vendor',
+      );
     },
     { wrapperConfig: { skipPermission: true } },
   ),

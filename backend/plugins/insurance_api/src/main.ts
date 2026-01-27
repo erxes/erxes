@@ -23,19 +23,18 @@ startPlugin({
     // This handles the case where vendorUserLogin token is used instead of erxes core token
     const authHeader = req?.headers?.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
+      const token = authHeader.split(' ')[1];
       try {
         const JWT_SECRET = process.env.JWT_TOKEN_SECRET || 'your-secret-key';
         const decoded = jwt.verify(token, JWT_SECRET) as any;
         // If token has userId (from vendorUserLogin), merge it into user context
-        if (decoded.userId) {
-          context.user = {
-            ...context.user,
-            userId: decoded.userId,
-            vendorId: decoded.vendorId,
-            email: decoded.email,
-            role: decoded.role,
-          };
+
+        const vendorUser = await models.VendorUser.findById(
+          decoded.vendorUserId,
+        ).populate('vendor');
+
+        if (vendorUser) {
+          context.insuranceVendorUser = vendorUser;
         }
       } catch (e) {
         // Token verification failed - might be erxes core token, ignore

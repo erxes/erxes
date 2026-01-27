@@ -93,45 +93,39 @@ export const vendorUserMutations = {
       { email, password }: { email: string; password: string },
       { models }: IContext,
     ) => {
-      const user = await models.VendorUser.findOne({ email }).populate(
-        'vendor',
-      );
+      const vendorUser = await models.VendorUser.findOne({
+        $or: [{ email: email.toLowerCase() }, { email }, { phone: email }],
+      }).populate('vendor');
 
-      if (!user) {
+      if (!vendorUser) {
         throw new Error('Invalid email or password');
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const isPasswordValid = await bcrypt.compare(
+        hashedPassword,
+        vendorUser.password,
+      );
 
       if (!isPasswordValid) {
         throw new Error('Invalid email or password');
       }
 
-      const JWT_SECRET = process.env.JWT_TOKEN_SECRET || 'your-secret-key';
       const token = jwt.sign(
-        {
-          userId: user._id,
-          email: user.email,
-          vendorId: user.vendor,
-          role: user.role,
-        },
-        JWT_SECRET,
-        { expiresIn: '7d' },
+        { vendorUserId: vendorUser._id, vendorId: vendorUser.vendor },
+        process.env.JWT_TOKEN_SECRET || 'your-secret-key',
+        { expiresIn: '1d' },
       );
 
       const refreshToken = jwt.sign(
-        {
-          userId: user._id,
-          email: user.email,
-        },
-        JWT_SECRET,
-        { expiresIn: '30d' },
+        { vendorUserId: vendorUser._id, vendorId: vendorUser.vendor },
+        process.env.JWT_REFRESH_TOKEN_SECRET || 'REFRESH_SECRET',
+        { expiresIn: '7d' },
       );
 
       return {
         token,
         refreshToken,
-        user,
       };
     },
     { wrapperConfig: { skipPermission: true } },
