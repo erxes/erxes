@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button, Label, Form } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { nanoid } from 'nanoid';
@@ -17,113 +17,176 @@ type Props = {
   delete: () => void;
 };
 
+const emptyForm: PerPrintConfig = {
+  title: '',
+  boardId: '',
+  pipelineId: '',
+  stageId: '',
+  conditions: [],
+};
+
 const PrintConfig: React.FC<Props> = ({
   config,
   currentStageId,
   save,
   delete: deleteConfig,
 }) => {
-  // provide react-hook-form context (fixes getFieldState error)
   const form = useForm();
 
-  const [localConfig, setLocalConfig] = useState<PerPrintConfig>({
-    title: '',
-    boardId: '',
-    pipelineId: '',
+  /** UI-only saved list */
+  const [savedConfigs, setSavedConfigs] = useState<PerPrintConfig[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  /** active form */
+  const [formData, setFormData] = useState<PerPrintConfig>({
+    ...emptyForm,
     stageId: currentStageId,
-    conditions: [],
   });
 
+  /** sync form */
   useEffect(() => {
-    if (!config) return;
+    if (activeIndex !== null) {
+      const selected = savedConfigs[activeIndex];
+      if (selected) setFormData(selected);
+      return;
+    }
 
-    setLocalConfig({
+    if (!config) {
+      setFormData({ ...emptyForm, stageId: currentStageId });
+      return;
+    }
+
+    setFormData({
       title: config.title ?? '',
       boardId: config.boardId ?? '',
       pipelineId: config.pipelineId ?? '',
       stageId: config.stageId ?? currentStageId,
       conditions: config.conditions ?? [],
     });
-  }, [config, currentStageId]);
+  }, [config, activeIndex, savedConfigs, currentStageId]);
 
-  const updateField = <K extends keyof PerPrintConfig>(
-    field: K,
-    value: PerPrintConfig[K],
-  ) => {
-    setLocalConfig((prev) => ({ ...prev, [field]: value }));
-  };
+  /* ---------- helpers ---------- */
+  const updateField = useCallback(
+    <K extends keyof PerPrintConfig>(key: K, value: PerPrintConfig[K]) => {
+      setFormData((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   const addCondition = () => {
-    const newCondition: Condition = {
+    const condition: Condition = {
       id: nanoid(),
       branchId: '',
       departmentId: '',
     };
 
-    setLocalConfig((prev) => ({
+    setFormData((prev) => ({
       ...prev,
-      conditions: [...(prev.conditions ?? []), newCondition],
+      conditions: [...prev.conditions, condition],
     }));
   };
 
   const updateCondition = (id: string, updated: Condition) => {
-    setLocalConfig((prev) => ({
+    setFormData((prev) => ({
       ...prev,
-      conditions: (prev.conditions ?? []).map((c) =>
-        c.id === id ? updated : c,
-      ),
+      conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),
     }));
   };
 
   const removeCondition = (id: string) => {
-    setLocalConfig((prev) => ({
+    setFormData((prev) => ({
       ...prev,
-      conditions: (prev.conditions ?? []).filter((c) => c.id !== id),
+      conditions: prev.conditions.filter((c) => c.id !== id),
     }));
   };
 
-  const handleSave = () => save(localConfig);
+  /* ---------- actions ---------- */
+  const handleSave = () => {
+    save(formData);
 
-  const handleDelete = () => {
-    if (window.confirm('Delete this print config?')) {
-      deleteConfig();
-    }
+    setSavedConfigs((prev) => {
+      if (activeIndex === null) {
+        return [...prev, formData];
+      }
+
+      const next = [...prev];
+      next[activeIndex] = formData;
+      return next;
+    });
+
+    setActiveIndex(null);
   };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this print config?')) return;
+
+    await deleteConfig();
+    setSavedConfigs([]);
+    setActiveIndex(null);
+    setFormData({ ...emptyForm, stageId: currentStageId });
+  };
+
+  const handleNewConfig = () => {
+    setActiveIndex(null);
+    setFormData({ ...emptyForm, stageId: currentStageId });
+  };
+
+  /* ================= RENDER ================= */
 
   return (
     <Form {...form}>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="border-b pb-4">
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Print Configuration</h2>
-          <p className="text-sm text-gray-500">
-            Configure product print settings
-          </p>
+
+          <Button type="button" variant="outline" onClick={handleNewConfig}>
+            + New Config
+          </Button>
         </div>
 
-        {/* Basic Info */}
+        {/* SAVED LIST */}
+        {savedConfigs.length > 0 && (
+          <div className="rounded border bg-background p-4 space-y-2">
+            <h3 className="font-medium">Saved configs</h3>
+
+            {savedConfigs.map((cfg, index) => (
+              <div
+                key={index}
+                className={`cursor-pointer rounded px-3 py-2 border
+                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
+                onClick={() => setActiveIndex(index)}
+              >
+                <div className="font-medium">
+                  {cfg.title || '(Untitled config)'}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Stage: {cfg.stageId || '—'}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* FORM */}
         <div className="bg-white p-4 rounded border space-y-4">
-          {/* Title */}
           <div className="space-y-2">
             <Label>Title</Label>
             <input
               className="w-full p-2 border rounded"
-              value={localConfig.title ?? ''}
+              value={formData.title}
               onChange={(e) => updateField('title', e.target.value)}
-              placeholder="Print config title"
             />
           </div>
 
-          {/* Board / Pipeline / Stage */}
           <div className="grid grid-cols-3 gap-4">
-            {/* Board */}
             <div className="space-y-2">
               <Label>Board</Label>
               <SelectSalesBoard
                 variant="form"
-                value={localConfig.boardId}
+                value={formData.boardId || ''}
                 onValueChange={(boardId: string) => {
-                  setLocalConfig((prev) => ({
+                  setFormData((prev) => ({
                     ...prev,
                     boardId,
                     pipelineId: '',
@@ -133,16 +196,15 @@ const PrintConfig: React.FC<Props> = ({
               />
             </div>
 
-            {/* Pipeline */}
             <div className="space-y-2">
               <Label>Pipeline</Label>
               <SelectPipeline
                 variant="form"
-                boardId={localConfig.boardId}
-                value={localConfig.pipelineId}
-                disabled={!localConfig.boardId}
+                boardId={formData.boardId || ''}
+                value={formData.pipelineId || ''}
+                disabled={!formData.boardId}
                 onValueChange={(pipelineId: string) => {
-                  setLocalConfig((prev) => ({
+                  setFormData((prev) => ({
                     ...prev,
                     pipelineId,
                     stageId: '',
@@ -151,15 +213,14 @@ const PrintConfig: React.FC<Props> = ({
               />
             </div>
 
-            {/* Stage */}
             <div className="space-y-2">
               <Label>Stage</Label>
               <SelectStage
-                id="product-place-stage"
+                id="print-stage"
                 variant="form"
-                pipelineId={localConfig.pipelineId}
-                value={localConfig.stageId}
-                disabled={!localConfig.pipelineId}
+                pipelineId={formData.pipelineId || ''}
+                value={formData.stageId || ''}
+                disabled={!formData.pipelineId}
                 onValueChange={(stageId: string) =>
                   updateField('stageId', stageId)
                 }
@@ -168,40 +229,33 @@ const PrintConfig: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Conditions */}
+        {/* CONDITIONS */}
         <div className="bg-white p-4 rounded border space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Print Conditions</h3>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addCondition}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={addCondition}>
               + Add condition
             </Button>
           </div>
 
-          {(localConfig.conditions ?? []).length === 0 ? (
+          {formData.conditions.length === 0 ? (
             <div className="text-center py-4 text-gray-400">
               No conditions added
             </div>
           ) : (
-            <div className="space-y-4">
-              {(localConfig.conditions ?? []).map((condition) => (
-                <PerPrintConditions
-                  key={condition.id}
-                  condition={condition}
-                  onChange={updateCondition}
-                  onRemove={removeCondition}
-                />
-              ))}
-            </div>
+            formData.conditions.map((condition) => (
+              <PerPrintConditions
+                key={condition.id}
+                condition={condition}
+                onChange={updateCondition}
+                onRemove={removeCondition}
+              />
+            ))
           )}
         </div>
 
-        {/* Actions */}
+        {/* ACTIONS */}
         <div className="flex justify-end gap-3">
           <Button type="button" variant="destructive" onClick={handleDelete}>
             Delete

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Label, Form, Select } from 'erxes-ui';
+import { Button, Label, Form } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 
 import { PerSplitConfig } from '../types';
@@ -20,31 +20,31 @@ type Props = {
   delete: () => void;
 };
 
-const CLEAR_VALUE = '__clear__';
 
-const emptyConfig = (currentStageId: string): PerSplitConfig => ({
-  title: '',
-  boardId: '',
-  pipelineId: '',
-  stageId: currentStageId,
+const normalize = (
+  config: Partial<PerSplitConfig>,
+  stageId: string,
+): PerSplitConfig => ({
+  title: config.title ?? '',
+  boardId: config.boardId ?? '',
+  pipelineId: config.pipelineId ?? '',
+  stageId: config.stageId ?? stageId,
 
-  productCategoryIds: [],
-  excludeCategoryIds: [],
+  productCategoryIds: config.productCategoryIds ?? [],
+  excludeCategoryIds: config.excludeCategoryIds ?? [],
+  productTagIds: config.productTagIds ?? [],
+  excludeTagIds: config.excludeTagIds ?? [],
+  excludeProductIds: config.excludeProductIds ?? [],
+  segmentIds: config.segmentIds ?? [],
 
-  productTagIds: [],
-  excludeTagIds: [],
-
-  excludeProductIds: [],
-  segmentIds: [],
-
-  subUomType: undefined,
-  gtCount: undefined,
-  ltCount: undefined,
-  gtUnitPrice: undefined,
-  ltUnitPrice: undefined,
+  subUomType: config.subUomType,
+  gtCount: config.gtCount,
+  ltCount: config.ltCount,
+  gtUnitPrice: config.gtUnitPrice,
+  ltUnitPrice: config.ltUnitPrice,
 });
 
-const getSingle = (arr?: string[]) => (arr?.length ? arr[0] : '');
+const getSingle = (arr: string[]) => arr[0] || '';
 const toSingleArray = (id?: string) => (id ? [id] : []);
 
 const SplitConfig: React.FC<Props> = ({
@@ -53,111 +53,154 @@ const SplitConfig: React.FC<Props> = ({
   save,
   delete: deleteConfig,
 }) => {
-  // required for erxes-ui <Form /> (prevents getFieldState crash)
   const form = useForm();
 
+  /** UI-only saved configs */
+  const [savedConfigs, setSavedConfigs] = useState<PerSplitConfig[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  /** Active form */
   const [localConfig, setLocalConfig] = useState<PerSplitConfig>(
-    config ?? emptyConfig(currentStageId),
+    normalize({}, currentStageId),
   );
 
+  /* sync form */
   useEffect(() => {
-    if (!config) {
-      setLocalConfig(emptyConfig(currentStageId));
+    if (activeIndex !== null) {
+      const selected = savedConfigs[activeIndex];
+      if (selected) setLocalConfig(selected);
       return;
     }
 
-    setLocalConfig({
-      ...emptyConfig(currentStageId),
-      ...config,
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? currentStageId,
-    });
-  }, [config, currentStageId]);
+    if (!config) {
+      setLocalConfig(normalize({}, currentStageId));
+      return;
+    }
 
-  const updateField = <K extends keyof PerSplitConfig>(
-    field: K,
+    setLocalConfig(normalize(config, currentStageId));
+  }, [config, activeIndex, savedConfigs, currentStageId]);
+
+  const update = <K extends keyof PerSplitConfig>(
+    key: K,
     value: PerSplitConfig[K],
   ) => {
-    setLocalConfig((prev) => ({ ...prev, [field]: value }));
+    setLocalConfig((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => save(localConfig);
+  /* ---------- actions ---------- */
+  const handleSave = () => {
+    save(localConfig);
+
+    setSavedConfigs((prev) => {
+      if (activeIndex === null) {
+        return [...prev, localConfig];
+      }
+
+      const next = [...prev];
+      next[activeIndex] = localConfig;
+      return next;
+    });
+
+    setActiveIndex(null);
+  };
 
   const handleDelete = () => {
-    if (window.confirm('Delete this split config?')) {
-      deleteConfig();
-    }
+    if (!window.confirm('Delete this split config?')) return;
+
+    deleteConfig();
+    setSavedConfigs([]);
+    setActiveIndex(null);
+    setLocalConfig(normalize({}, currentStageId));
+  };
+
+  const handleNewConfig = () => {
+    setActiveIndex(null);
+    setLocalConfig(normalize({}, currentStageId));
   };
 
   return (
     <Form {...form}>
       <div className="space-y-6">
-    <div className="flex items-center justify-between border-b pb-4">
-      <div>
-        <h2 className="text-lg font-semibold">Split Configuration</h2>
-        <p className="text-sm text-gray-500">
-          Configure product split settings for stage: {currentStageId}
-        </p>
-      </div>
+        {/* HEADER */}
+        <div className="flex items-center justify-between border-b pb-4">
+          <div>
+            <h2 className="text-lg font-semibold">Split Configuration</h2>
+          </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => setLocalConfig(emptyConfig(currentStageId))}
-      >
-        + New Config
-      </Button>
-    </div>
+          <Button type="button" variant="outline" onClick={handleNewConfig}>
+            + New Config
+          </Button>
+        </div>
 
-        {/* Basic Info */}
+        {/* SAVED CONFIG LIST */}
+        {savedConfigs.length > 0 && (
+          <div className="rounded border bg-background p-4 space-y-2">
+            <h3 className="font-medium">Saved configs</h3>
+
+            {savedConfigs.map((cfg, index) => (
+              <div
+                key={index}
+                className={`cursor-pointer rounded px-3 py-2 border
+                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
+                onClick={() => setActiveIndex(index)}
+              >
+                <div className="font-medium">
+                  {cfg.title || '(Untitled config)'}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Stage: {cfg.stageId || '—'}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* BASIC INFO */}
         <div className="bg-white p-4 rounded border space-y-4">
-          <div className="space-y-2">
+          <div>
             <Label>Title</Label>
             <input
               className="w-full p-2 border rounded"
-              value={localConfig.title ?? ''}
-              onChange={(e) => updateField('title', e.target.value)}
-              placeholder="Split config title"
+              value={localConfig.title}
+              onChange={(e) => update('title', e.target.value)}
             />
           </div>
 
-          {/* Board / Pipeline / Stage */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
+            <div>
               <Label>Board</Label>
               <SelectSalesBoard
                 variant="form"
                 value={localConfig.boardId || ''}
-                onValueChange={(boardId: string) => {
-                  setLocalConfig((prev) => ({
-                    ...prev,
+                onValueChange={(boardId: string) =>
+                  setLocalConfig((p) => ({
+                    ...p,
                     boardId,
                     pipelineId: '',
                     stageId: '',
-                  }));
-                }}
+                  }))
+                }
               />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label>Pipeline</Label>
               <SelectPipeline
                 variant="form"
                 boardId={localConfig.boardId || ''}
                 value={localConfig.pipelineId || ''}
                 disabled={!localConfig.boardId}
-                onValueChange={(pipelineId: string) => {
-                  setLocalConfig((prev) => ({
-                    ...prev,
+                onValueChange={(pipelineId: string) =>
+                  setLocalConfig((p) => ({
+                    ...p,
                     pipelineId,
                     stageId: '',
-                  }));
-                }}
+                  }))
+                }
               />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label>Stage</Label>
               <SelectStage
                 id="split-stage"
@@ -166,183 +209,69 @@ const SplitConfig: React.FC<Props> = ({
                 value={localConfig.stageId || ''}
                 disabled={!localConfig.pipelineId}
                 onValueChange={(stageId: string) =>
-                  updateField('stageId', stageId)
+                  update('stageId', stageId)
                 }
               />
             </div>
           </div>
         </div>
 
-        {/* Category Filters */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <h3 className="font-medium">Category Filters</h3>
+        {/* CATEGORIES */}
+        <div className="bg-white p-4 rounded border space-y-3">
+          <Label>Include Categories</Label>
+          <SelectProductCategories
+            value={localConfig.productCategoryIds}
+            onChange={(v) => update('productCategoryIds', v)}
+          />
 
-          <div className="space-y-2">
-            <Label>Include Categories</Label>
-            <SelectProductCategories
-              value={localConfig.productCategoryIds ?? []}
-              onChange={(ids) => updateField('productCategoryIds', ids)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Exclude Categories</Label>
-            <SelectProductCategories
-              value={localConfig.excludeCategoryIds ?? []}
-              onChange={(ids) => updateField('excludeCategoryIds', ids)}
-            />
-          </div>
+          <Label>Exclude Categories</Label>
+          <SelectProductCategories
+            value={localConfig.excludeCategoryIds}
+            onChange={(v) => update('excludeCategoryIds', v)}
+          />
         </div>
 
-        {/* Tag Filters */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <h3 className="font-medium">Tag Filters</h3>
+        {/* TAGS */}
+        <div className="bg-white p-4 rounded border space-y-3">
+          <Label>Include Tags</Label>
+          <SelectProductTags
+            value={localConfig.productTagIds}
+            onChange={(v) => update('productTagIds', v)}
+          />
 
-          <div className="space-y-2">
-            <Label>Include Tags</Label>
-            <SelectProductTags
-              value={localConfig.productTagIds ?? []}
-              onChange={(ids) => updateField('productTagIds', ids)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Exclude Tags</Label>
-            <SelectProductTags
-              value={localConfig.excludeTagIds ?? []}
-              onChange={(ids) => updateField('excludeTagIds', ids)}
-            />
-          </div>
+          <Label>Exclude Tags</Label>
+          <SelectProductTags
+            value={localConfig.excludeTagIds}
+            onChange={(v) => update('excludeTagIds', v)}
+          />
         </div>
 
-        {/* Products */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <h3 className="font-medium">Products</h3>
-
-          <div className="space-y-2">
-            <Label>Exclude Products</Label>
-            <SelectProducts
-              value={localConfig.excludeProductIds ?? []}
-              onChange={(ids) => updateField('excludeProductIds', ids)}
-            />
-          </div>
+        {/* PRODUCTS */}
+        <div className="bg-white p-4 rounded border space-y-3">
+          <Label>Exclude Products</Label>
+          <SelectProducts
+            value={localConfig.excludeProductIds}
+            onChange={(v) => update('excludeProductIds', v)}
+          />
         </div>
 
-        {/* Segments */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <h3 className="font-medium">Segments</h3>
-
-          <div className="space-y-2">
-            <Label>Segment</Label>
-            <SelectSegments
-              contentTypes={['core:product']}
-              value={getSingle(localConfig.segmentIds)}
-              onChange={(id) => updateField('segmentIds', toSingleArray(id))}
-            />
-          </div>
+        {/* SEGMENTS */}
+        <div className="bg-white p-4 rounded border space-y-3">
+          <Label>Segment</Label>
+          <SelectSegments
+            contentTypes={['core:product']}
+            value={getSingle(localConfig.segmentIds)}
+            onChange={(id) => update('segmentIds', toSingleArray(id))}
+          />
         </div>
 
-        {/* Limits */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <h3 className="font-medium">Limits</h3>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label>Low Count</Label>
-              <input
-                type="number"
-                className="w-full p-2 border rounded"
-                value={localConfig.ltCount ?? ''}
-                onChange={(e) =>
-                  updateField(
-                    'ltCount',
-                    e.target.value === '' ? undefined : Number(e.target.value),
-                  )
-                }
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label>Great Count</Label>
-              <input
-                type="number"
-                className="w-full p-2 border rounded"
-                value={localConfig.gtCount ?? ''}
-                onChange={(e) =>
-                  updateField(
-                    'gtCount',
-                    e.target.value === '' ? undefined : Number(e.target.value),
-                  )
-                }
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label>Low Unit Price</Label>
-              <input
-                type="number"
-                className="w-full p-2 border rounded"
-                value={localConfig.ltUnitPrice ?? ''}
-                onChange={(e) =>
-                  updateField(
-                    'ltUnitPrice',
-                    e.target.value === '' ? undefined : Number(e.target.value),
-                  )
-                }
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label>Great Unit Price</Label>
-              <input
-                type="number"
-                className="w-full p-2 border rounded"
-                value={localConfig.gtUnitPrice ?? ''}
-                onChange={(e) =>
-                  updateField(
-                    'gtUnitPrice',
-                    e.target.value === '' ? undefined : Number(e.target.value),
-                  )
-                }
-              />
-            </div>
-
-            {/* Sub UOM Type */}
-            <div className="space-y-1 col-span-2">
-              <Label>Sub uom type</Label>
-
-              <Select
-                value={localConfig.subUomType ?? ''}
-                onValueChange={(v) =>
-                  updateField(
-                    'subUomType',
-                    v === CLEAR_VALUE ? undefined : (v as any),
-                  )
-                }
-              >
-                <Select.Trigger className="w-full">
-                  <Select.Value placeholder="Not use" />
-                </Select.Trigger>
-
-                <Select.Content>
-                  <Select.Item value={CLEAR_VALUE}>Not use</Select.Item>
-                  <Select.Item value="lt">Low than count</Select.Item>
-                  <Select.Item value="gte">
-                    Greater, equal than count
-                  </Select.Item>
-                </Select.Content>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end space-x-3">
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-3">
           <Button type="button" variant="destructive" onClick={handleDelete}>
             Delete Config
           </Button>
 
-          <Button type="button" variant="default" onClick={handleSave}>
+          <Button type="button" onClick={handleSave}>
             Save Config
           </Button>
         </div>

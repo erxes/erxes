@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { Spinner } from 'erxes-ui';
 
@@ -6,15 +6,14 @@ import type {
   MNConfigQueryResponse,
   MNConfigsCreateMutationResponse,
   MNConfigsUpdateMutationResponse,
-  MNConfigsRemoveMutationResponse
+  MNConfigsRemoveMutationResponse,
 } from '../types';
 
 import { MN_CONFIG } from '../graphql/clientQueries';
-
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_UPDATE,
-  MN_CONFIGS_REMOVE
+  MN_CONFIGS_REMOVE,
 } from '../graphql/clientMutations';
 
 import {
@@ -22,7 +21,7 @@ import {
   denormalizeConfig,
   normalizePlaceConfig,
   normalizeSplitConfig,
-  normalizePrintConfig
+  normalizePrintConfig,
 } from '../configUtils';
 
 type Props = {
@@ -31,66 +30,63 @@ type Props = {
   subId?: string;
 };
 
-const SettingsContainer = ({ component: Component, configCode, subId }: Props) => {
+const SettingsContainer = ({
+  component: Component,
+  configCode,
+  subId,
+}: Props) => {
   const { data, loading, error, refetch } = useQuery<MNConfigQueryResponse>(
     MN_CONFIG,
     {
       variables: {
         code: configCode,
-        subId: subId ?? null
+        subId: subId ?? null,
       },
       fetchPolicy: 'network-only',
-      errorPolicy: 'all'
-    }
+      errorPolicy: 'all',
+    },
   );
 
-  const [mnConfigsCreate] =
+  const [createConfig] =
     useMutation<MNConfigsCreateMutationResponse>(MN_CONFIGS_CREATE);
 
-  const [mnConfigsUpdate] =
+  const [updateConfig] =
     useMutation<MNConfigsUpdateMutationResponse>(MN_CONFIGS_UPDATE);
 
-  const [mnConfigsRemove] =
+  const [removeConfig] =
     useMutation<MNConfigsRemoveMutationResponse>(MN_CONFIGS_REMOVE);
 
-  const [normalizedConfig, setNormalizedConfig] = useState<Record<string, any>>(
-    {}
-  );
+  /**
+   * Normalize ALL configs into array
+   */
+  const normalizedConfig = useMemo(() => {
+    const raw = data?.mnConfig;
 
-  const mnConfig = data?.mnConfig ?? null;
-
-  // reset when switching configCode/subId
-  useEffect(() => {
-    setNormalizedConfig({});
-  }, [configCode, subId]);
-
-  // normalize based on configCode
-  useEffect(() => {
-    if (!mnConfig || !mnConfig.value) {
-      setNormalizedConfig({});
-      return;
-    }
+    if (!raw || !raw.value) return null;
 
     try {
-      let normalized: Record<string, any> = {};
+      let normalized: Record<string, any>;
 
       if (configCode === 'dealsProductsDataPlaces') {
-        normalized = normalizePlaceConfig(mnConfig);
+        normalized = normalizePlaceConfig(raw);
       } else if (configCode === 'dealsProductsDataSplit') {
-        normalized = normalizeSplitConfig(mnConfig);
+        normalized = normalizeSplitConfig(raw);
       } else if (configCode === 'dealsProductsDataPrint') {
-        normalized = normalizePrintConfig(mnConfig);
+        normalized = normalizePrintConfig(raw);
       } else {
-        normalized = normalizeConfig(mnConfig);
+        normalized = normalizeConfig(raw);
       }
 
-      // if you want _id in components:
-      setNormalizedConfig({ _id: mnConfig._id, ...normalized });
+      return {
+        _id: raw._id,
+        ...normalized,
+      };
     } catch (err) {
       console.error(`[SettingsContainer:${configCode}] normalize failed`, err);
-      setNormalizedConfig({});
+      return null;
     }
-  }, [mnConfig, configCode]);
+  }, [data, configCode]);
+
 
   if (loading) {
     return (
@@ -100,47 +96,36 @@ const SettingsContainer = ({ component: Component, configCode, subId }: Props) =
     );
   }
 
-  if (!data) {
-    console.warn(`[SettingsContainer:${configCode}] Apollo returned undefined data`);
-    return null;
+  if (error && !data?.mnConfig) {
+    return (
+      <div className="p-4 bg-red-50 text-red-700 rounded">
+        Error loading configuration: {error.message}
+      </div>
+    );
   }
 
-  if (error && !mnConfig) {
-    const msg = error.message?.toLowerCase?.() || '';
-
-    // If config doesn't exist yet, show empty UI instead of error
-    if (msg.includes('config not found')) {
-      // let the component render with empty config
-    } else {
-      return (
-        <div className="p-4 bg-red-50 text-red-700 rounded">
-          Error loading configuration: {error.message}
-        </div>
-      );
-    }
-  }
-
+  /**
+   * SAVE (create or update)
+   */
   const save = async (config: Record<string, any>) => {
-    // remove meta fields before saving
     const { _id, ...rest } = config;
-
     const value = denormalizeConfig(rest);
 
-    if (mnConfig?._id) {
-      await mnConfigsUpdate({
+    if (_id) {
+      await updateConfig({
         variables: {
-          _id: mnConfig._id,
+          _id,
           subId: subId ?? null,
-          value
-        }
+          value,
+        },
       });
     } else {
-      await mnConfigsCreate({
+      await createConfig({
         variables: {
           code: configCode,
           subId: subId ?? null,
-          value
-        }
+          value,
+        },
       });
     }
 
@@ -148,20 +133,22 @@ const SettingsContainer = ({ component: Component, configCode, subId }: Props) =
     return true;
   };
 
-  const remove = async () => {
-    if (!mnConfig?._id) return;
+  /**
+   * DELETE by id
+   */
+  const remove = async (id: string) => {
+    if (!id) return;
 
-    await mnConfigsRemove({
-      variables: { _id: mnConfig._id }
+    await removeConfig({
+      variables: { _id: id },
     });
 
-    setNormalizedConfig({});
     await refetch();
   };
 
   return (
     <Component
-      config={normalizedConfig}
+      configs={normalizedConfig}
       save={save}
       delete={remove}
       loading={loading}

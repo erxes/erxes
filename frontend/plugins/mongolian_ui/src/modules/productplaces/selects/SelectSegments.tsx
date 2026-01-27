@@ -56,34 +56,33 @@ export default function SelectSegments({
       : 'Choose segment';
 
   return (
-    <Select
-      value={value ? value : undefined}
-      onValueChange={(v) => {
-        if (v === CLEAR_VALUE) return onChange('');
-        onChange(v);
-      }}
-      disabled={disabled || loading || !contentTypes?.length}
-    >
-      <Select.Trigger className="w-full">
-        <span
-          className={cn(
-            'text-sm line-clamp-1',
-            !selectedLabel && 'text-accent-foreground/70',
-          )}
-        >
-          {selectedLabel || placeholder}
-        </span>
-      </Select.Trigger>
+  <Select
+    value={value || ''} 
+    onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
+    disabled={disabled || loading || !contentTypes?.length}
+  >
+    <Select.Trigger className="w-full">
+      <Select.Value
+        placeholder={
+          !contentTypes?.length
+            ? 'No contentTypes'
+            : loading
+              ? 'Loading...'
+              : 'Choose segment'
+        }
+      />
+    </Select.Trigger>
 
-      <Select.Content>
-        <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
+    <Select.Content>
+      <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
 
-        {segments.map((s) => (
-          <Select.Item key={s._id} value={s._id}>
-            {s.name}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
-  );
+      {segments.map((s) => (
+        <Select.Item key={s._id} value={s._id}>
+          {s.name}
+        </Select.Item>
+      ))}
+    </Select.Content>
+  </Select>
+);
+
 }
