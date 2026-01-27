@@ -1,10 +1,9 @@
-import React from 'react';
-import { Button } from 'erxes-ui';
-import { useProductsEdit } from '@/products/hooks/useProductsEdit';
-import { useProductDetail } from '../hooks/useProductDetail';
-import { useToast } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import { useProductsEdit } from '@/products/hooks/useProductsEdit';
+import { Button, useToast } from 'erxes-ui';
+import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { useProductDetail } from '../hooks/useProductDetail';
 
 interface ProductDetailFooterProps {
   form: UseFormReturn<ProductFormValues>;

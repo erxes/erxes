@@ -1,6 +1,5 @@
-import { FullNameValue, Popover } from 'erxes-ui';
+import { Avatar, Button, FullNameValue, Popover, readImage } from 'erxes-ui';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
-import { Avatar, Button, readImage } from 'erxes-ui';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { CustomerName, useCustomerEdit } from 'ui-modules';
 import { useTranslation } from 'react-i18next';

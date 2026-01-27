@@ -39,7 +39,7 @@ export const ClientPortalDetailTest = ({
             email: data.testUserEmail,
             phone: data.testUserPhone,
             password: data.testUserPassword,
-            otp: data.testUserOTP ? parseInt(data.testUserOTP) : undefined,
+            otp: data.testUserOTP ? Number.parseInt(data.testUserOTP) : undefined,
           },
         },
       },

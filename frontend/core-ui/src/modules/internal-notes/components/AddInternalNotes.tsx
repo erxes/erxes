@@ -1,9 +1,8 @@
-import { getMentionedUserIds, BlockEditor, useBlockEditor } from 'erxes-ui';
-import { AssignMemberInEditor } from 'ui-modules';
-import { Button, Spinner, toast } from 'erxes-ui';
-import { IconArrowUp } from '@tabler/icons-react';
 import { useAddInternalNote } from '@/internal-notes/hooks/useAddInternalNote';
+import { IconArrowUp } from '@tabler/icons-react';
+import { BlockEditor, Button, getMentionedUserIds, Spinner, toast, useBlockEditor } from 'erxes-ui';
 import { useState } from 'react';
+import { AssignMemberInEditor } from 'ui-modules';
 
 export function AddInternalNotes({
   contentTypeId,

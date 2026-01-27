@@ -76,10 +76,12 @@ export function DealsBoardColumn({
     if (isDragging) return;
     if (loading) return;
 
-    const dealItems: any[] = filteredDeals.map((deal) => ({
-      columnId: deal.stageId,
-      ...deal,
-    }));
+    const dealItems: any[] = [...filteredDeals]
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
+      .map((deal) => ({
+        columnId: deal.stageId,
+        ...deal,
+      }));
 
     setBoardState((prev) => {
       if (!prev) return prev;
@@ -108,15 +110,16 @@ export function DealsBoardColumn({
       });
 
       const existingIds = prev.columnItems[column._id] ?? [];
-      const incomingIds = dealItems.map((d) => d._id);
+      const incomingIds = newIds;
 
-      const mergedIds = [
-        ...existingIds.filter((id) => incomingIds.includes(id)),
-        ...incomingIds.filter((id) => !existingIds.includes(id)),
-      ];
+      // preserve UI order
+      const preserved = existingIds.filter((id) => incomingIds.includes(id));
 
-      newColumnItems[column._id] = mergedIds;
+      // append brand-new items only
+      const appended = incomingIds.filter((id) => !existingIds.includes(id));
 
+      newColumnItems[column._id] = [...preserved, ...appended];
+      console.log('newColumnItems', newColumnItems);
       return { ...prev, items: newItems, columnItems: newColumnItems };
     });
 

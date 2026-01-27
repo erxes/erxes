@@ -167,6 +167,9 @@ importers:
       cors:
         specifier: ^2.8.5
         version: 2.8.5
+      dataloader:
+        specifier: ^2.2.3
+        version: 2.2.3
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -585,6 +588,9 @@ importers:
       '@types/sha256':
         specifier: ^0.2.2
         version: 0.2.2
+      '@types/validator':
+        specifier: ^13.15.10
+        version: 13.15.10
       autoprefixer:
         specifier: 10.4.13
         version: 10.4.13(postcss@8.4.38)
@@ -744,6 +750,9 @@ importers:
       cors:
         specifier: ^2.8.5
         version: 2.8.5
+      dataloader:
+        specifier: ^2.2.3
+        version: 2.2.3
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -901,6 +910,120 @@ importers:
       uuid-by-string:
         specifier: ^4.0.0
         version: 4.0.0
+
+  backend/plugins/insurance_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
 
   backend/plugins/loyalty_api:
     dependencies:
@@ -7655,6 +7778,12 @@ packages:
 
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
+
+  '@types/validator@13.15.10':
+    resolution:
+      {
+        integrity: sha512-T8L6i7wCuyoK8A/ZeLYt1+q0ty3Zb9+qbSSvrIVitzT3YjZqkTZ40IbRsPanlB4h1QB3JVL1SYCdR6ngtFYcuA==,
+      }
 
   '@types/wait-on@5.3.4':
     resolution: {integrity: sha512-EBsPjFMrFlMbbUFf9D1Fp+PAB2TwmUn7a3YtHyD9RLuTIk1jDd8SxXVAoez2Ciy+8Jsceo2MYEYZzJ/DvorOKw==}
@@ -25510,6 +25639,8 @@ snapshots:
   '@types/use-sync-external-store@0.0.6': {}
 
   '@types/uuid@9.0.8': {}
+
+  '@types/validator@13.15.10': {}
 
   '@types/wait-on@5.3.4':
     dependencies:

@@ -1,21 +1,18 @@
-import { AutomationActionFormProps, PlaceholderInput } from 'ui-modules';
-import { Form, toast } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from 'erxes-ui';
+import { useForm, useWatch } from 'react-hook-form';
+import {
+  AutomationActionFormProps, PlaceholderInput, splitAutomationNodeType,
+  useAutomationRemoteFormSubmit, useFormValidationErrorHandler
+} from 'ui-modules';
+import { SelectBoard } from '~/modules/deals/boards/components/common/SelectBoards';
+import { SelectPipeline } from '~/modules/deals/pipelines/components/SelectPipelines';
+import { SelectStage } from '~/modules/deals/stage/components/SelectStages';
 import {
   TSalesActionConfigForm,
   salesActionConfigFormSchema,
 } from '../../states/salesActionConfigFormDefinitions';
-import {
-  splitAutomationNodeType,
-  useAutomationRemoteFormSubmit,
-} from 'ui-modules';
-import { useForm, useWatch } from 'react-hook-form';
-
 import { PipelineLabelsCommandList } from '../PipelineLabelsCommandList';
-import { SelectBoard } from '~/modules/deals/boards/components/common/SelectBoards';
-import { SelectPipeline } from '~/modules/deals/pipelines/components/SelectPipelines';
-import { SelectStage } from '~/modules/deals/stage/components/SelectStages';
-import { useFormValidationErrorHandler } from 'ui-modules';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 export const CreateDealActionConfigForm = ({
   formRef,

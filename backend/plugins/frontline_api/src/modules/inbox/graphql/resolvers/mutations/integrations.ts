@@ -1,28 +1,26 @@
+import { IChannelDocument } from '@/channel/@types/channel';
 import {
+  IArchiveParams,
   IIntegration,
   IMessengerData,
-  IUiOptions,
-  ITicketData,
   IOnboardingParamsEdit,
-  IArchiveParams,
+  IUiOptions,
 } from '@/inbox/@types/integrations';
-import { IContext } from '~/connectionResolvers';
 import { IExternalIntegrationParams } from '@/inbox/db/models/Integrations';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getUniqueValue } from 'erxes-api-shared/utils';
-import {
-  facebookUpdateIntegrations,
-  facebookRemoveIntegrations,
-  facebookRemoveAccount,
-  facebookRepairIntegrations,
-  facebookCreateIntegrations,
-} from '@/integrations/facebook/messageBroker';
 import {
   callCreateIntegration,
   callRemoveIntergration,
   callUpdateIntegration,
 } from '@/integrations/call/messageBroker';
-import { IChannelDocument } from '@/channel/@types/channel';
+import {
+  facebookCreateIntegrations,
+  facebookRemoveAccount,
+  facebookRemoveIntegrations,
+  facebookRepairIntegrations,
+  facebookUpdateIntegrations,
+} from '@/integrations/facebook/messageBroker';
+import { getUniqueValue, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 interface IntegrationParams {
   integrationId: string;

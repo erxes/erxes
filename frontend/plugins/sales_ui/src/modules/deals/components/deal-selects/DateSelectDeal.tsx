@@ -161,12 +161,6 @@ export const DateSelectDealRoot = ({
     : undefined;
   const closeDateValue = closeDate && dateValue;
   const isEnded = closeDateValue && closeDateValue < now;
-  const formatted =
-    dateValue &&
-    dateValue.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
 
   const endedDiff = closeDateValue
     ? Math.floor(
@@ -203,7 +197,6 @@ export const DateSelectDealRoot = ({
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
               Ended {endedDiff} {endedDiff === 1 ? 'day' : 'days'} ago{' '}
-              {formatted && `(${formatted})`}
             </div>
           </DateSelectTrigger>
           <Content className="w-fit" onClick={(e) => e.stopPropagation()}>

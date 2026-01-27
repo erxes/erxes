@@ -1,10 +1,9 @@
-import { ActivityLogRow } from './ActivityLogRow';
-import { ActivityLogLoading } from './ActivityLogLoading';
-import { useActivityLog } from '../context/ActivityLogProvider';
-import { Empty, EnumCursorDirection } from 'erxes-ui';
-import { useInView } from 'react-intersection-observer';
-import { Skeleton } from 'erxes-ui';
 import { IconActivity } from '@tabler/icons-react';
+import { Empty, EnumCursorDirection, Skeleton } from 'erxes-ui';
+import { useInView } from 'react-intersection-observer';
+import { useActivityLog } from '../context/ActivityLogProvider';
+import { ActivityLogLoading } from './ActivityLogLoading';
+import { ActivityLogRow } from './ActivityLogRow';
 
 interface ActivityLogListProps {
   emptyMessage?: string;

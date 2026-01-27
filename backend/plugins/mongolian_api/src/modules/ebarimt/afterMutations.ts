@@ -3,7 +3,8 @@ import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IDoc } from './@types/common';
-import { getConfig, getEbarimtData, getPostData } from './utils';
+import { getEbarimtData, getPostData } from './utils';
+
 
 export const afterMutationHandlers = async (
   models: IModels,
@@ -12,29 +13,26 @@ export const afterMutationHandlers = async (
   params: any,
 ) => {
   const {
-    sourceStageId,
     destinationStageId,
     deal,
     userId
   } = params;
 
-  const mainConfig = await getConfig(subdomain, 'EBARIMT', {});
+  const mainConfig = await models.Configs.getConfigValue('EBARIMT')
 
   if (!mainConfig) {
     return;
   }
 
-  const configs = await getConfig(subdomain, 'stageInEbarimt', {});
-  // return *********
-  const returnConfigs = await getConfig(
-    subdomain,
+  // return PutResponse
+  const returnConfigVal = await models.Configs.getConfigValue(
     'returnStageInEbarimt',
-    {},
+    destinationStageId
   );
 
-  if (Object.keys(returnConfigs).includes(destinationStageId)) {
+  if (returnConfigVal) {
     const returnConfig = {
-      ...returnConfigs[destinationStageId],
+      ...returnConfigVal,
       ...mainConfig,
     };
 
@@ -51,11 +49,11 @@ export const afterMutationHandlers = async (
 
     if (returnResponses.length) {
       try {
-        await graphqlPubsub.publish(`automationResponded:${userId}`, {
-          automationResponded: {
+        await graphqlPubsub.publish(`ebarimtResponded:${userId}`, {
+          ebarimtResponded: {
             userId,
             responseId: returnResponses.map((er) => er._id).join('-'),
-            // sessionCode: user.sessionCode || '',
+            processId,
             content: returnResponses,
           },
         });
@@ -68,20 +66,21 @@ export const afterMutationHandlers = async (
   }
 
   // put *******
-  if (!Object.keys(configs).includes(destinationStageId)) {
+  const configVal = await models.Configs.getConfigValue('stageInEbarimt', destinationStageId);
+  if (!configVal) {
     return;
   }
 
   const config = {
     ...mainConfig,
-    ...configs[destinationStageId],
+    ...configVal,
   };
 
   const pipeline = await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
     method: 'query',
-    module: 'pipelines',
+    module: 'pipeline',
     action: 'findOne',
     input: { stageId: destinationStageId },
     defaultValue: {},
@@ -153,11 +152,11 @@ export const afterMutationHandlers = async (
 
   try {
     if (ebarimtResponses.length) {
-      await graphqlPubsub.publish(`automationResponded:${userId}`, {
-        automationResponded: {
+      await graphqlPubsub.publish(`ebarimtResponded:${userId}`, {
+        ebarimtResponded: {
           userId,
           responseId: ebarimtResponses.map((er) => er._id).join('-'),
-          // sessionCode: user.sessionCode || '',
+          processId,
           content: ebarimtResponses.map((er) => ({
             ...config,
             ...er,
