@@ -5,6 +5,7 @@ import {
   buildActivities,
   fieldChangeRule,
 } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 // Board activity fields
@@ -67,8 +68,11 @@ const LABEL_ACTIVITY_FIELDS = [
   { field: 'pipelineId', label: 'Pipeline' },
 ];
 
-const getFieldLabel = (field: string, fieldConfig: Array<{field: string, label: string}>) => {
-  const match = fieldConfig.find(f => f.field === field);
+const getFieldLabel = (
+  field: string,
+  fieldConfig: Array<{ field: string; label: string }>,
+) => {
+  const match = fieldConfig.find((f) => f.field === field);
   return match?.label || field;
 };
 
@@ -79,7 +83,9 @@ export async function generateBoardActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -87,8 +93,11 @@ export async function generateBoardActivityLogs(
       'updated',
       (field) => getFieldLabel(field, BOARD_ACTIVITY_FIELDS),
     ),
-    fieldChangeRule(['status'], 'set', (field: string, { current }: { current: any; prev: any }) => 
-      current === 'archived' ? 'Archived' : 'Active'
+    fieldChangeRule(
+      ['status'],
+      'set',
+      (field: string, { current }: { current: any; prev: any }) =>
+        current === 'archived' ? 'Archived' : 'Active',
     ),
   ];
 
@@ -114,13 +123,57 @@ export async function generateBoardActivityLogs(
 }
 
 /**
+ * Helper function to fetch users via tRPC and format their names
+ */
+async function fetchUsersByIds(
+  subdomain: string,
+  ids: string[],
+): Promise<string[]> {
+  if (!ids || ids.length === 0) {
+    return [];
+  }
+
+  try {
+    const users = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'find',
+      input: {
+        query: { _id: { $in: ids } },
+        fields: { details: 1, email: 1, username: 1 },
+      },
+      defaultValue: [],
+    });
+    return users.map((user: any) => {
+      if (user.details?.fullName) {
+        return user.details.fullName;
+      }
+      if (user.email) {
+        return user.email;
+      }
+      if (user.username) {
+        return user.username;
+      }
+      return user._id;
+    });
+  } catch (error) {
+    return ids.map((id) => id.toString());
+  }
+}
+
+/**
  * Generate activity logs for Pipeline changes
  */
 export async function generatePipelineActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void ,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
+  subdomain: string,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -128,17 +181,17 @@ export async function generatePipelineActivityLogs(
       'updated',
       (field) => getFieldLabel(field, PIPELINE_ACTIVITY_FIELDS),
     ),
-    fieldChangeRule(['status'], 'set', (field: string, { current }: { current: any; prev: any }) => 
-      current === 'archived' ? 'Archived' : 'Active'
+    fieldChangeRule(
+      ['status'],
+      'set',
+      (field: string, { current }: { current: any; prev: any }) =>
+        current === 'archived' ? 'Archived' : 'Active',
     ),
     assignmentRule('memberIds', async (ids: string[]) => {
-      // In sales plugin, we don't have Users model directly accessible
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
     assignmentRule('watchedUserIds', async (ids: string[]) => {
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
   ];
 
@@ -170,7 +223,10 @@ export async function generateStageActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
+  subdomain: string,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -179,8 +235,7 @@ export async function generateStageActivityLogs(
       (field) => getFieldLabel(field, STAGE_ACTIVITY_FIELDS),
     ),
     assignmentRule('memberIds', async (ids: string[]) => {
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
   ];
 
@@ -212,7 +267,10 @@ export async function generateDealActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
+  subdomain: string,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -220,37 +278,86 @@ export async function generateDealActivityLogs(
       'updated',
       (field) => getFieldLabel(field, DEAL_ACTIVITY_FIELDS),
     ),
-    fieldChangeRule(['stageId'], 'moved', async (field: string, { current, prev }: { current: any; prev: any }) => {
-      const [currentStage, prevStage] = await Promise.all([
-        models.Stages.findOne({ _id: current }, { name: 1 }),
-        models.Stages.findOne({ _id: prev }, { name: 1 }),
-      ]);
-      return `From "${prevStage?.name || prev}" to "${currentStage?.name || current}"`;
-    }),
+    fieldChangeRule(
+      ['stageId'],
+      'moved',
+      async (field: string, { current, prev }: { current: any; prev: any }) => {
+        const [currentStage, prevStage] = await Promise.all([
+          models.Stages.findOne({ _id: current }, { name: 1 }),
+          models.Stages.findOne({ _id: prev }, { name: 1 }),
+        ]);
+        return `From "${prevStage?.name || prev}" to "${
+          currentStage?.name || current
+        }"`;
+      },
+    ),
     assignmentRule('assignedUserIds', async (ids: string[]) => {
-      // Return IDs as strings
-      return ids.map(id => id.toString());
+      return await fetchUsersByIds(subdomain, ids);
     }),
     assignmentRule('labelIds', async (ids: string[]) => {
       const labels = await models.PipelineLabels.find(
         { _id: { $in: ids } },
         { name: 1, colorCode: 1 },
       ).lean();
-      return labels.map(label => `${label.name} (${label.colorCode})`);
+      return labels.map((label) => `${label.name} (${label.colorCode})`);
     }),
     assignmentRule('productsData', async (products: any[]) => {
-      return products?.map((product: any) => 
-        `${product.name || 'Product'} x ${product.quantity}`
-      ) || [];
+      return (
+        products?.map(
+          (product: any) =>
+            `${product.name || 'Product'} x ${product.quantity}`,
+        ) || []
+      );
+    }),
+    assignmentRule('tagIds', async (tagIds: string[]) => {
+      const tags = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          query: { _id: { $in: tagIds } },
+        },
+        defaultValue: [],
+      });
+      return tags.map((tag: any) => tag.name);
+    }),
+    assignmentRule('branchIds', async (branchIds: string[]) => {
+      const branches = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'branches',
+        action: 'find',
+        input: {
+          query: { _id: { $in: branchIds } },
+        },
+        defaultValue: [],
+      });
+      return branches.map((branch: any) => branch.title);
+    }),
+    assignmentRule('departmentIds', async (departmentIds: string[]) => {
+      const departments = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'departments',
+        action: 'find',
+        input: {
+          query: { _id: { $in: departmentIds } },
+        },
+        defaultValue: [],
+      });
+      return departments.map((department: any) => department.title);
     }),
   ];
-
   const activities = await buildActivities(
     prevDocument,
     currentDocument,
     activityRegistry,
   );
-
+  console.log('activities', activities);
   if (activities.length > 0) {
     createActivityLog(
       activities.map((activity) => ({
@@ -273,7 +380,9 @@ export async function generateChecklistActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -311,14 +420,19 @@ export async function generateChecklistItemActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
-    fieldChangeRule(['content', 'order'], 'updated', (field: string) => 
-      field === 'content' ? 'Content' : 'Order'
+    fieldChangeRule(['content', 'order'], 'updated', (field: string) =>
+      field === 'content' ? 'Content' : 'Order',
     ),
-    fieldChangeRule(['isChecked'], 'set', (field: string, { current }: { current: any; prev: any }) =>
-      current ? 'Checked' : 'Unchecked'
+    fieldChangeRule(
+      ['isChecked'],
+      'set',
+      (field: string, { current }: { current: any; prev: any }) =>
+        current ? 'Checked' : 'Unchecked',
     ),
   ];
 
@@ -350,7 +464,9 @@ export async function generatePipelineLabelActivityLogs(
   prevDocument: any,
   currentDocument: any,
   models: IModels,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
 ): Promise<void> {
   const activityRegistry: ActivityRule[] = [
     fieldChangeRule(
@@ -384,7 +500,10 @@ export async function generatePipelineLabelActivityLogs(
 /**
  * Generate activity log for deal creation
  */
-export function generateDealCreatedActivityLog(deal: any, userId?: string): ActivityLogInput {
+export function generateDealCreatedActivityLog(
+  deal: any,
+  userId?: string,
+): ActivityLogInput {
   return {
     activityType: 'create',
     target: {
@@ -445,7 +564,10 @@ export function generateDealMovedActivityLog(
 /**
  * Generate activity log for deal conversion from conversation
  */
-export function generateDealConvertedActivityLog(deal: any, conversationId: string): ActivityLogInput {
+export function generateDealConvertedActivityLog(
+  deal: any,
+  conversationId: string,
+): ActivityLogInput {
   return {
     activityType: 'convert',
     target: {
@@ -464,6 +586,130 @@ export function generateDealConvertedActivityLog(deal: any, conversationId: stri
     metadata: {
       conversationId,
       dealId: deal._id,
+    },
+  };
+}
+
+/**
+ * Generate activity log for checklist creation
+ */
+export function generateChecklistCreatedActivityLog(
+  checklist: any,
+  userId?: string,
+): ActivityLogInput {
+  return {
+    activityType: 'create',
+    target: {
+      _id: checklist._id,
+      moduleName: 'sales',
+      collectionName: 'checklists',
+    },
+    action: {
+      type: 'create',
+      description: `Checklist created ${checklist.title}`,
+    },
+    changes: {
+      title: checklist.title,
+      contentType: checklist.contentType,
+      contentTypeId: checklist.contentTypeId,
+      createdAt: new Date(),
+    },
+    metadata: {
+      contentType: checklist.contentType,
+      contentTypeId: checklist.contentTypeId,
+      userId: userId || checklist.userId || checklist.createdUserId,
+    },
+  };
+}
+
+/**
+ * Generate activity log for checklist removal
+ */
+export function generateChecklistRemovedActivityLog(
+  checklist: any,
+  userId?: string,
+): ActivityLogInput {
+  return {
+    activityType: 'delete',
+    target: {
+      _id: checklist._id,
+      moduleName: 'sales',
+      collectionName: 'checklists',
+    },
+    action: {
+      type: 'delete',
+      description: `Checklist removed ${checklist.title}`,
+    },
+    changes: {
+      title: checklist.title,
+      contentType: checklist.contentType,
+      contentTypeId: checklist.contentTypeId,
+      removedAt: new Date(),
+    },
+    metadata: {
+      contentType: checklist.contentType,
+      contentTypeId: checklist.contentTypeId,
+      userId: userId || checklist.userId || checklist.createdUserId,
+    },
+  };
+}
+
+/**
+ * Generate activity log for checklist item creation
+ */
+export function generateChecklistItemCreatedActivityLog(
+  checklistItem: any,
+  userId?: string,
+): ActivityLogInput {
+  return {
+    activityType: 'create',
+    target: {
+      _id: checklistItem._id,
+      moduleName: 'sales',
+      collectionName: 'checklistItems',
+    },
+    action: {
+      type: 'create',
+      description: `Checklist item created ${checklistItem.content}`,
+    },
+    changes: {
+      content: checklistItem.content,
+      checklistId: checklistItem.checklistId,
+      createdAt: new Date(),
+    },
+    metadata: {
+      checklistId: checklistItem.checklistId,
+      userId: userId || checklistItem.userId || checklistItem.createdUserId,
+    },
+  };
+}
+
+/**
+ * Generate activity log for checklist item removal
+ */
+export function generateChecklistItemRemovedActivityLog(
+  checklistItem: any,
+  userId?: string,
+): ActivityLogInput {
+  return {
+    activityType: 'delete',
+    target: {
+      _id: checklistItem._id,
+      moduleName: 'sales',
+      collectionName: 'checklistItems',
+    },
+    action: {
+      type: 'delete',
+      description: `Checklist item removed ${checklistItem.content}`,
+    },
+    changes: {
+      content: checklistItem.content,
+      checklistId: checklistItem.checklistId,
+      removedAt: new Date(),
+    },
+    metadata: {
+      checklistId: checklistItem.checklistId,
+      userId: userId || checklistItem.userId || checklistItem.createdUserId,
     },
   };
 }

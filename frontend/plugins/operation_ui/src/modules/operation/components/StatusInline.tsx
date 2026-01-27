@@ -26,7 +26,7 @@ export const StatusInlineIcon = ({
   ...props
 }: React.ComponentProps<Icon> & { statusType?: number | string }) => {
   const numericType =
-    (typeof statusType === 'string' ? parseInt(statusType, 10) : statusType) -
+    (typeof statusType === 'string' ? Number.parseInt(statusType, 10) : statusType) -
     1;
   const StatusIconComponent = [
     IconCircleDot,
@@ -65,7 +65,7 @@ export const StatusInlineLabel = ({
   statusType?: number | string;
 }) => {
   const numericType =
-    (typeof statusType === 'string' ? parseInt(statusType, 10) : statusType) -
+    (typeof statusType === 'string' ? Number.parseInt(statusType, 10) : statusType) -
     1;
   return <span className="capitalize">{STATUS_TYPE_LABELS[numericType]}</span>;
 };

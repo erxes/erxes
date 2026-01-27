@@ -3,49 +3,24 @@ import { Separator, useQueryState } from 'erxes-ui';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import DealCardDetails from './DealsBoardCardDetails';
 import { IDeal } from '@/deals/types/deals';
+import { IconAlertCircleFilled } from '@tabler/icons-react';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { SelectTags } from 'ui-modules';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { memo } from 'react';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
 
 interface DealsBoardCardProps {
   deal: IDeal;
 }
 
-export const DealsBoardCard = memo(function DealsBoardCard({
-  deal,
-}: DealsBoardCardProps) {
-  if (!deal) return null;
+const CardDetails = ({ deal }: { deal: IDeal }) => {
+  const { companies, customers, tags, customProperties } = deal;
 
-  const {
-    startDate,
-    name,
-    assignedUsers,
-    _id,
-    priority,
-    createdAt,
-    closeDate,
-    labels,
-    status,
-    companies,
-    customers,
-    tags,
-    customProperties,
-  } = deal;
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
-  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
-  const [searchParams] = useQueryState<string>('archivedOnly');
-
-  const onCardClick = () => {
-    setSalesItemId(_id);
-    setActiveDealAtom(_id);
-  };
-  const archivedOnly = searchParams === 'true';
-  const isArchived = status === 'archived';
-  const showArchivedBadge = archivedOnly || isArchived;
   const productMap = new Map(deal.products?.map((p) => [p._id, p]));
 
   const filterProducts = (tickUsed: boolean) =>
@@ -69,6 +44,61 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const dealProducts = filterProducts(true);
   const excludedProducts = filterProducts(false);
 
+  if (
+    !dealProducts?.length &&
+    !excludedProducts?.length &&
+    !companies?.length &&
+    !customers?.length &&
+    !tags?.length &&
+    !customProperties?.length
+  ) {
+    return null;
+  }
+
+  return (
+    <div className="p-3 pt-0">
+      <DealCardDetails items={companies} color="#EA475D" />
+      <DealCardDetails items={customers} color="#F7CE53" />
+      <DealCardDetails items={dealProducts} color="#63D2D6" />
+      <DealCardDetails items={excludedProducts} color="#b49cf1" />
+      <DealCardDetails color="#FF6600" items={tags || []} />
+      <DealCardDetails color="#FF9900" items={customProperties || []} />
+    </div>
+  );
+};
+
+export const DealsBoardCard = memo(function DealsBoardCard({
+  deal,
+}: DealsBoardCardProps) {
+  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
+  const [searchParams] = useQueryState<string>('archivedOnly');
+  const { editDeals } = useDealsEdit();
+
+  if (!deal) return null;
+
+  const {
+    startDate,
+    name,
+    assignedUsers,
+    _id,
+    priority,
+    createdAt,
+    closeDate,
+    labels,
+    status,
+    stage,
+    tagIds,
+  } = deal;
+
+  const onCardClick = () => {
+    setSalesItemId(_id);
+    setActiveDealAtom(_id);
+  };
+  const archivedOnly = searchParams === 'true';
+  const isArchived = status === 'archived';
+  const showArchivedBadge = archivedOnly || isArchived;
+
   return (
     <div
       className={showArchivedBadge ? 'relative overflow-hidden' : ''}
@@ -76,12 +106,14 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     >
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
+          placeholder="Start Date"
           value={startDate}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectDeal
+          placeholder="Close Date"
           value={closeDate}
           id={_id}
           type="closeDate"
@@ -97,6 +129,16 @@ export const DealsBoardCard = memo(function DealsBoardCard({
         )}
         <div className="flex flex-col gap-1">
           <h5 className="font-semibold">{name}</h5>
+          {stage?.age !== undefined && stage.age < 0 && (
+            <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
+              <IconAlertCircleFilled className="size-6 pt-2" />
+              <h5 className="text-sm py-2">
+                Ready to move this card to the next column? (
+                {Math.abs(stage.age)}{' '}
+                {Math.abs(stage.age) === 1 ? 'day' : 'days'} elapsed)
+              </h5>
+            </span>
+          )}
         </div>
         <div className="flex flex-wrap gap-1">
           <SelectDealPriority
@@ -112,16 +154,26 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
           />
+          <SelectTags.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Tag"
+            variant="card"
+            targetId={_id}
+            initialValue={tagIds || []}
+            onValueChange={(value) => {
+              if (!value) return;
+              editDeals({
+                variables: {
+                  _id: deal._id,
+                  tagIds: Array.isArray(value) ? value : [value],
+                },
+              });
+            }}
+          />
         </div>
       </div>
-      <div className="p-3 pt-0">
-        <DealCardDetails items={companies} color="#EA475D" />
-        <DealCardDetails items={customers} color="#F7CE53" />
-        <DealCardDetails items={dealProducts} color="#63D2D6" />
-        <DealCardDetails items={excludedProducts} color="#b49cf1" />
-        <DealCardDetails color="#FF6600" items={tags || []} />
-        <DealCardDetails color="#FF9900" items={customProperties || []} />
-      </div>
+      <CardDetails deal={deal} />
       <Separator />
       <ItemFooter
         createdAt={createdAt}

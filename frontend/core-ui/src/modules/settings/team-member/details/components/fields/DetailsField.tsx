@@ -1,12 +1,12 @@
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { IDetailsType } from '@/settings/team-member/types';
+import { IUserDetailsType } from '@/settings/team-member/types';
 import { Input } from 'erxes-ui';
 import React from 'react';
 
 interface Props {
-  field: keyof IDetailsType;
+  field: keyof IUserDetailsType;
   _id: string;
-  details: IDetailsType & { __typename?: string };
+  details: IUserDetailsType & { __typename?: string };
 }
 
 export const DetailsField = ({

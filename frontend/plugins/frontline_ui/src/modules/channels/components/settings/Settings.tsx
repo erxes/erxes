@@ -4,15 +4,8 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Outlet } from 'react-router-dom';
 import { SettingsHeader } from 'ui-modules';
-import { ChannelDetailsPage } from '~/pages/ChannelDetailsPage';
-import { ChannelMembersPage } from '~/pages/ChannelMembersPage';
-import { ChannelsSettingsIndexPage } from '~/pages/ChannelsSettingsIndexPage';
-import { PipelineDetailPage } from '~/pages/PipelineDetailPage';
-import { ResponseDetailPage } from '~/pages/ResponseDetailPage';
 import { ChannelSettingsPageEffect } from '@/channels/components/settings/ChannelSettingsPageEffect';
 import { ChannelSettingsBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb';
-import { PipielineConfigListPage } from '~/pages/PipielineConfigListPage';
-import { TicketStatusesPage } from '~/pages/TicketStatusesPage';
 
 export const IntegrationDetailPage = lazy(() =>
   import('~/pages/IntegrationDetailPage').then((module) => ({
@@ -44,6 +37,60 @@ export const ChannelResponsePage = lazy(() =>
   })),
 );
 
+export const ChannelFormsPage = lazy(() =>
+  import('~/pages/FormsPage').then((module) => ({
+    default: module.FormsPage,
+  })),
+);
+
+export const FormDetailPage = lazy(() =>
+  import('~/pages/FormDetailPage').then((module) => ({
+    default: module.FormDetailPage,
+  })),
+);
+
+export const ChannelsSettingsIndexPage = lazy(() =>
+  import('~/pages/ChannelsSettingsIndexPage').then((module) => ({
+    default: module.ChannelsSettingsIndexPage,
+  })),
+);
+
+export const ChannelDetailsPage = lazy(() =>
+  import('~/pages/ChannelDetailsPage').then((module) => ({
+    default: module.ChannelDetailsPage,
+  })),
+);
+
+export const ChannelMembersPage = lazy(() =>
+  import('~/pages/ChannelMembersPage').then((module) => ({
+    default: module.ChannelMembersPage,
+  })),
+);
+
+export const PipelineDetailPage = lazy(() =>
+  import('~/pages/PipelineDetailPage').then((module) => ({
+    default: module.PipelineDetailPage,
+  })),
+);
+
+export const PipielineConfigListPage = lazy(() =>
+  import('~/pages/PipielineConfigListPage').then((module) => ({
+    default: module.PipielineConfigListPage,
+  })),
+);
+
+export const TicketStatusesPage = lazy(() =>
+  import('~/pages/TicketStatusesPage').then((module) => ({
+    default: module.TicketStatusesPage,
+  })),
+);
+
+export const ResponseDetailPage = lazy(() =>
+  import('~/pages/ResponseDetailPage').then((module) => ({
+    default: module.ResponseDetailPage,
+  })),
+);
+
 const ChannelsSettings = () => {
   return (
     <Suspense fallback={<div />}>
@@ -53,6 +100,7 @@ const ChannelsSettings = () => {
           path={FrontlinePaths.ErxesMessengerPreview}
           element={<ErxesMessengerPreview />}
         />
+
         <Route
           element={
             <PageContainer>
@@ -97,6 +145,14 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.ResponseDetail}
             element={<ResponseDetailPage />}
+          />
+          <Route
+            path={FrontlinePaths.ChannelForms}
+            element={<ChannelFormsPage />}
+          />
+          <Route
+            path={FrontlinePaths.FormDetail}
+            element={<ChannelFormsPage />}
           />
         </Route>
       </Routes>

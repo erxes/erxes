@@ -4,7 +4,7 @@ export const INTEGRATIONS = {
   [IntegrationType.ERXES_MESSENGER]: {
     name: 'erxes Messenger',
     description:
-      'Connect and manage Facebook Messages right from your Team Inbox',
+      'Connect and manage erxes Messenger right from your Team Inbox',
     img: 'messenger.webp',
   },
   [IntegrationType.FACEBOOK_MESSENGER]: {

@@ -7,10 +7,11 @@ import {
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ColumnPaginationState } from '../../types/boards';
+import { ColumnPaginationState } from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
@@ -140,7 +141,6 @@ export const DealsBoard = () => {
         }));
       });
 
-      // Detect column reorder
       const oldColumnOrder = oldState?.columns.map((c) => c._id).join(',');
       const newColumnOrder = newState.columns.map((c) => c._id).join(',');
       if (oldColumnOrder && oldColumnOrder !== newColumnOrder) {
@@ -203,9 +203,16 @@ export const DealsBoard = () => {
     return result;
   }, [pagination]);
 
-  if (!boardState || columnsLoading) {
+  if (columnsLoading || !boardState) {
     return <StagesLoading />;
   }
+
+  if (columns.length === 0) {
+    return <NoStagesWarning />;
+  }
+
+  if (!boardState) return null;
+
   return (
     <GenericBoard<any, any>
       initialState={boardState}

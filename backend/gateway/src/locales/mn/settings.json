@@ -122,6 +122,13 @@
     "add-tag": "Таг үүсгэх",
     "name": "Нэр",
     "description": "Тайлбар",
-    "created": "Үүсгэх"
+    "created-at": "Үүсгэсэн огноо",
+    "not-found": "Таг олдсонгүй",
+    "workspace-description": "Workspace tag-ууд нь бүх төрлийн tag-уудаас ашиглах боломжтой, түгээмэл tag-ууд юм."
+  },
+
+  "broadcast": {
+    "_": "Броадкаст",
+    "broadcast": "Броадкаст"
   }
 }

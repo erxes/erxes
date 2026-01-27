@@ -13,8 +13,8 @@ const Keys = () => {
   return (
     <div
       className={cn(
-        "grid grid-cols-4 gap-4 max-w-none py-0",
-        mode === "mobile" && "grid-cols-3 py-4 max-w-xs md:max-w-sm mx-auto"
+        "grid grid-cols-4 gap-2 max-w-md mx-auto py-0",
+        mode === "mobile" && "grid-cols-3 py-4 max-w-xs md:max-w-sm"
       )}
     >
       {Array.from({ length: 9 }).map((_, idx) => (
@@ -47,11 +47,11 @@ const ControlButton = ({ value }: { value: string | number }) => {
   }
 
   return (
-    <AspectRatio ratio={mode === "mobile" ? 1.5 : 1}>
+    <AspectRatio ratio={mode === "mobile" ? 1.5 : 0.9}>
       <Button
         onClick={handleClick}
         className={cn(
-          "h-full w-full rounded-full text-lg font-black hover:bg-secondary/10 hover:text-white",
+          "h-full w-full rounded-full text-base font-black hover:bg-secondary/10 hover:text-white",
           mode === "mobile" && "hover:text-black"
         )}
         variant="outline"

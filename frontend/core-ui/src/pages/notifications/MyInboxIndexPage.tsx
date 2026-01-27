@@ -1,6 +1,6 @@
-import { MyInboxLayout } from '@/notification/my-inbox/components/MyInboxLayout';
-import { NotificationContent } from '@/notification/my-inbox/components/NotificationContent';
-import { Notifications } from '@/notification/my-inbox/components/Notifications';
+import { MyInboxLayout } from '@/notification/components/MyInboxLayout';
+import { NotificationContent } from '@/notification/components/NotificationContent';
+import { Notifications } from '@/notification/components/Notifications';
 import { PageContainer } from 'erxes-ui';
 
 export const MyInboxIndexPage = () => {
