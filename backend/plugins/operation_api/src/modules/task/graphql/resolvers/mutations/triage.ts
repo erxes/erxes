@@ -50,9 +50,10 @@ export const triageMutations = {
         type: status,
       });
 
-      if (statusDoc) {
-        statusId = statusDoc._id;
+      if (!statusDoc) {
+        throw new Error('Status not found');
       }
+      statusId = statusDoc._id;
     }
 
     const task = await models.Task.createTask({

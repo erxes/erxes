@@ -1,4 +1,4 @@
-import { Input, Separator, useBlockEditor, BlockEditor } from 'erxes-ui';
+import { Input, Separator, useBlockEditor, BlockEditor, Dialog, Button } from 'erxes-ui';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
@@ -32,6 +32,9 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
   });
   const { updateTriage } = useUpdateTriage();
   const { convertTriageToTask } = useConvertTriage();
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<number | null>(null);
 
   const [name, setName] = useState(_name);
 
@@ -108,9 +111,8 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
           useExtendedLabels={true}
           onValueChange={(value) => {
             if (value !== STATUS_TYPES.TRIAGE) {
-              convertTriageToTask({
-                variables: { id: triageId, status: value },
-              });
+              setPendingStatus(value);
+              setConfirmOpen(true);
             }
           }}
         />
@@ -126,6 +128,36 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
         />
       </div>
       <ActivityList contentId={triageId} contentDetail={triage} />
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>Convert to Task</Dialog.Title>
+          </Dialog.Header>
+          <div className="py-4">
+            <p>
+              Changing the status will convert the triage to a task. Are you sure you want
+              to proceed?
+            </p>
+          </div>
+          <Dialog.Footer>
+            <Dialog.Close asChild>
+              <Button variant="outline">Cancel</Button>
+            </Dialog.Close>
+            <Button
+              onClick={() => {
+                if (pendingStatus) {
+                  convertTriageToTask({
+                    variables: { id: triageId, status: pendingStatus },
+                  });
+                }
+                setConfirmOpen(false);
+              }}
+            >
+              Confirm
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </div>
   );
 };

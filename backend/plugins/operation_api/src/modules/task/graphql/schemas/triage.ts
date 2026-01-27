@@ -59,5 +59,5 @@ export const mutations = `
   operationAddTriage(input: ITriageAddInput!): Triage
   operationUpdateTriage(_id: String!, input: ITriageUpdateInput!): Triage
   operationCancelTriage(_id: String!): Triage
-  operationConvertTriageToTask(_id: String!, status: Int, reason: String): Triage
+  operationConvertTriageToTask(_id: String!, status: Int, reason: String): Task
 `;

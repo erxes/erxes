@@ -120,10 +120,6 @@ const SelectStatusContent = ({
 }: {
   useExtendedLabels?: boolean;
 }) => {
-  // If useExtendedLabels is true, we show all statuses including Triage (index 5)
-  // If false, we splice out the last one (Triage) or just filter it.
-  // Given STATUS_TYPES.TRIAGE = 6.
-
   const visibleStatuses = useExtendedLabels
     ? STATUS_TYPE_LABELS
     : STATUS_TYPE_LABELS.filter(
@@ -135,8 +131,7 @@ const SelectStatusContent = ({
       <Command.Input placeholder="Search status" />
       <Command.List>
         <Command.Empty>No status found</Command.Empty>
-        {visibleStatuses.map((label, index) => {
-          // We need the ORIGINAL index from STATUS_TYPE_LABELS to be the value
+        {visibleStatuses.map((label) => {
           const originalIndex = STATUS_TYPE_LABELS.indexOf(label);
           return (
             <SelectStatusCommandItem key={label} status={originalIndex + 1} />
