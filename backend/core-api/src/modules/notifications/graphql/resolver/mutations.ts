@@ -3,6 +3,45 @@ import { IContext } from '~/connectionResolvers';
 import { generateNotificationsFilter } from '~/modules/notifications/graphql/resolver/utils';
 
 export const notificationMutations = {
+  async archiveNotification(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) {
+    await models.Notifications.updateOne({ _id }, { isArchived: true });
+
+    graphqlPubsub.publish(`notificationArchived:${user._id}`, {
+      notificationArchived: { userId: user._id, notificationId: _id },
+    });
+
+    return 'removed successfully';
+  },
+  async archiveNotifications(
+    _root: undefined,
+    {
+      ids,
+      archiveAll,
+      filters,
+    }: { ids: string[]; archiveAll: boolean; filters: any },
+    { models, user }: IContext,
+  ) {
+    const selector = archiveAll
+      ? { ...generateNotificationsFilter(filters) }
+      : { _id: { $in: ids } };
+
+    const notificationIds = await models.Notifications.find(selector, {
+      _id: 1,
+    }).distinct('_id');
+
+    await models.Notifications.updateMany(selector, { isArchived: true });
+
+    graphqlPubsub.publish(`notificationArchived:${user._id}`, {
+      notificationArchived: { userId: user._id, notificationIds },
+    });
+
+    return 'removed successfully';
+  },
+
   async markNotificationAsRead(
     _root: undefined,
     { _id }: { _id: string },

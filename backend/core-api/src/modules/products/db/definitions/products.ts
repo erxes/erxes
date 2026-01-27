@@ -42,7 +42,7 @@ export const productSchema = schemaWrapper(
       description: { type: String, optional: true, label: 'Description' },
       unitPrice: { type: Number, optional: true, label: 'Unit price' },
       customFieldsData: {
-        type: [customFieldSchema],
+        type: Schema.Types.Mixed,
         optional: true,
         label: 'Custom fields data',
       },

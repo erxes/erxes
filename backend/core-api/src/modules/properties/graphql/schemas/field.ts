@@ -5,11 +5,13 @@ export const types = `
     type FieldOption {
         label: String
         value: String
+        coordinates: JSON
     }
 
     input FieldOptionInput {
         label: String
         value: String
+        coordinates: JSON
     }
 
     type Field {
@@ -21,6 +23,7 @@ export const types = `
         options: [FieldOption]
         validations: JSON
         logics: JSON
+        configs: JSON
         icon: String
         createdAt: Date
         updatedAt: Date
@@ -57,6 +60,7 @@ const mutationParams = `
     options: [FieldOptionInput]
     validations: JSON
     logics: JSON
+    configs: JSON
     icon: String
 `;
 
