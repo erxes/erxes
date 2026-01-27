@@ -95,7 +95,7 @@ export const DealCardDetailsCustomer = ({ items, color, className }: DealCardDet
   const perItemSpan = (item: any) => {
     return (
       <>
-        {`${item.firstName ?? ''} ${item.lastName ?? ''} ${item.primaryPhone ?? ''}`}
+        {`${item.firstName ?? ''} ${item.lastName ?? ''} ${item.primaryPhone ?? item.primaryEmail ?? ''}`}
       </>
     )
   }
