@@ -14,8 +14,7 @@ export const templateSchema = new Schema(
       enum: INSURANCE_TYPES,
     },
     description: String,
-
-    // 
+    
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'products',
