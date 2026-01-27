@@ -6,9 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "emblor": "^1.4.8"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC"
