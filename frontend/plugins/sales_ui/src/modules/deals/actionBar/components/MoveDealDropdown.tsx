@@ -28,10 +28,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
             <span className=" text-xs text-gray-400">BOARD</span>
           </div>
           <div className="px-2">
-            <BoardCell
-              deal={deal}
-              className="border-none shadow-none h-8 font-normal hover:bg-accent/50 selection:bg-transparent"
-            />
+            <BoardCell className="border-none shadow-none h-8 font-normal hover:bg-accent/50 selection:bg-transparent" />
           </div>
           <Separator className="mt-2 mb-1" />
 
@@ -39,10 +36,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
             <span className=" text-xs  text-gray-400">PIPELINE</span>
           </div>
           <div className="px-2">
-            <PipelineCell
-              deal={deal}
-              className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
-            />
+            <PipelineCell className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between" />
           </div>
           <Separator className="mt-2 mb-1" />
 
@@ -50,10 +44,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
             <span className="text-xs  text-gray-400">STAGE</span>
           </div>
           <div className="px-2">
-            <StageCell
-              deal={deal}
-              className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
-            />
+            <StageCell className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between" />
           </div>
           <Separator className="mt-2" />
         </div>
