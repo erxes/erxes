@@ -3,6 +3,7 @@ import { Button, Tabs } from 'erxes-ui';
 import GeneralForm from '@/deals/boards/components/detail/GeneralForm';
 import PipelineStages from './PipelineStages';
 import ProductConfig from '@/deals/cards/components/detail/product/components/ProductConfig';
+import { useLocation } from 'react-router-dom';
 
 type Props = {
   form: any;
@@ -10,8 +11,15 @@ type Props = {
 };
 
 export const PipelineForm = ({ form, stagesLoading }: Props) => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const defaultTab = searchParams.get('tab') || 'general';
+
   return (
-    <Tabs defaultValue="general" className="flex flex-col h-full shadow-none">
+    <Tabs
+      defaultValue={defaultTab}
+      className="flex flex-col h-full shadow-none"
+    >
       <Tabs.List className="flex justify-center">
         <Tabs.Trigger asChild value="general">
           <Button
