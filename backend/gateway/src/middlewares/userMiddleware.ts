@@ -157,8 +157,7 @@ export default async function userMiddleware(
   }
 
   const clientPortalToken = req.headers['x-app-token'];
-  const clientAuthToken =
-    req.headers['client-auth-token'] || req.cookies['client-auth-token'];
+  const clientAuthToken = req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
@@ -216,13 +215,7 @@ export default async function userMiddleware(
     }
   }
 
-  let token = req.cookies['auth-token'];
-
-  // Also check Authorization header for Bearer token (used by vendor portal)
-  const authHeader = req.headers.authorization;
-  if (!token && authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7);
-  }
+  const token = req.cookies['auth-token'];
 
   if (!token) {
     return next();
@@ -234,20 +227,6 @@ export default async function userMiddleware(
       token,
       process.env.JWT_TOKEN_SECRET || 'SECRET',
     );
-
-    // Handle vendor user tokens (from vendorUserLogin) - they have userId instead of user object
-    if (decoded.userId && !decoded.user) {
-      req.user = {
-        _id: decoded.userId,
-        userId: decoded.userId,
-        email: decoded.email,
-        vendorId: decoded.vendorId,
-        role: decoded.role,
-      };
-      setUserHeader(req.headers, req.user);
-      return next();
-    }
-
     const user = decoded.user;
 
     const userDoc = await models.Users.findOne(
