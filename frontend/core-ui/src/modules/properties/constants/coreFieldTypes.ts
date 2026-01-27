@@ -13,6 +13,6 @@ export const CORE_FIELD_TYPES = [
   },
   {
     contentType: 'core:user',
-    label: 'Users',
+    label: 'Team members',
   },
 ];

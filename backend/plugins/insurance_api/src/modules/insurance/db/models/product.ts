@@ -5,7 +5,7 @@ import { IProductDocument } from '@/insurance/@types/product';
 
 export type IProductModel = Model<IProductDocument>;
 
-export const loadProductClass = (_models: IModels) => {
+export const loadProductClass = (models: IModels) => {
   class Product {}
 
   productSchema.loadClass(Product);

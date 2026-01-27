@@ -41,6 +41,7 @@ function GenericBoardInner<
   const [state, setState] = useState(initialState);
   const [activeItem, setActiveItem] = useState<TItem | null>(null);
   const [activeColumn, setActiveColumn] = useState<TColumn | null>(null);
+  const [snapshot, setSnapshot] = useState<typeof state | null>(null);
 
   useEffect(() => {
     setState(initialState);
@@ -71,9 +72,15 @@ function GenericBoardInner<
         const item = activeData.item as TItem;
         setActiveItem(item);
         onDragStartProp?.(item._id);
+
+        setSnapshot({
+          columns: state.columns,
+          items: { ...state.items },
+          columnItems: { ...state.columnItems },
+        });
       }
     },
-    [onDragStartProp],
+    [onDragStartProp, state],
   );
 
   const handleDragOver = useCallback((event: DragOverEvent) => {
@@ -160,15 +167,41 @@ function GenericBoardInner<
     });
   }, []);
 
+  function getValidColumnId(over: any): string | null {
+    const overData = over.data.current;
+    if (!overData) return null;
+
+    if (overData?.type === 'column')
+      return overData.columnId || overData.column?._id || null;
+    if (overData?.type === 'card')
+      return (overData.item as TItem).columnId || null;
+    if (typeof over.id === 'string' && over.id.endsWith('-droppable'))
+      return over.id.replace('-droppable', '');
+
+    return null;
+  }
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
       setActiveItem(null);
       setActiveColumn(null);
-
-      if (!over) return;
-
       const activeData = active.data.current;
+
+      if (
+        !over ||
+        !activeData?.type ||
+        (activeData?.type === 'card' && !getValidColumnId(over))
+      ) {
+        if (snapshot) {
+          setState(snapshot);
+          setSnapshot(null);
+        }
+        setActiveItem(null);
+        setActiveColumn(null);
+        return;
+      }
+
       const overData = over.data.current;
       const draggedId =
         typeof active.id === 'string' ? active.id : String(active.id);
@@ -215,7 +248,8 @@ function GenericBoardInner<
 
       onStateChange?.(state, initialState, draggedId);
     },
-    [onStateChange, state, initialState],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onStateChange, state, initialState, snapshot],
   );
 
   return (

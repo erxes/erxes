@@ -6,11 +6,6 @@ export const productSchema = new Schema(
       type: String,
       required: true,
     },
-    code: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
     insuranceType: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'insurance_types',
@@ -34,6 +29,15 @@ export const productSchema = new Schema(
     pricingConfig: {
       type: mongoose.Schema.Types.Mixed,
       required: true,
+    },
+    pdfContent: {
+      type: String,
+      required: false,
+    },
+    templateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'insurance_contract_templates',
+      required: false,
     },
   },
   {

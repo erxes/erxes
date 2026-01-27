@@ -10,6 +10,7 @@ const InsuranceNavigation = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'insurance',
+  path: 'insurance',
   icon: IconSandbox,
   navigationGroup: {
     name: 'insurance',
@@ -25,9 +26,6 @@ export const CONFIG: IUIConfig = {
       name: 'insurance',
       icon: IconSandbox,
       path: 'insurance',
-      hasSettings: true,
-      hasRelationWidget: false,
-      hasFloatingWidget: false,
     },
   ],
 };

@@ -97,11 +97,11 @@ export const checkRule = (params: ICheckRuleParams): boolean => {
   }
 
   // greaterThan
-  if (condition === 'greaterThan' && valueToTest < parseInt(ruleValue, 10)) {
+  if (condition === 'greaterThan' && valueToTest < Number.parseInt(ruleValue, 10)) {
     return false;
   }
 
-  if (condition === 'lessThan' && valueToTest > parseInt(ruleValue, 10)) {
+  if (condition === 'lessThan' && valueToTest > Number.parseInt(ruleValue, 10)) {
     return false;
   }
 

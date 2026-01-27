@@ -5,6 +5,7 @@ import { vendorQueries } from './vendor';
 import { vendorUserQueries } from './vendorUser';
 import { customerQueries } from './customer';
 import { contractQueries } from './contract';
+import { templateQueries } from './template';
 
 export const insuranceQueries = {
   ...riskTypeQueries,
@@ -14,4 +15,5 @@ export const insuranceQueries = {
   ...vendorUserQueries,
   ...customerQueries,
   ...contractQueries,
+  ...templateQueries,
 };

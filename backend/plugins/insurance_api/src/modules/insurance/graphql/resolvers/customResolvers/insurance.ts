@@ -6,7 +6,7 @@ export const Insurance = {
 
 export const InsuranceProduct = {
   id(product: any) {
-    return product._id || product.id;
+    return product._id?.toString() || product.id;
   },
 };
 

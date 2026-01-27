@@ -1,7 +1,5 @@
 import { Button, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
 import { IconArrowLeft, IconDots, IconPlus } from '@tabler/icons-react';
-import { PrintDialog } from './Print';
-
 import {
   dealCreateDefaultValuesState,
   dealCreateSheetState,
@@ -14,10 +12,10 @@ import {
 
 import { BoardDealColumn } from '@/deals/types/boards';
 import ItemProductProbabilities from './ItemProductProbabilities';
+import { PrintDialog } from './common/Print';
 import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
-import { useDeals } from '@/deals/cards/hooks/useDeals';
 
 type Props = {
   column: BoardDealColumn;
@@ -37,13 +35,6 @@ export const DealsBoardColumnHeader = ({
   const { sortItems } = useStagesSortItems();
   const { confirm } = useConfirm();
   const [showPrintDialog, setShowPrintDialog] = useState(false);
-
-  const { deals } = useDeals({
-    variables: {
-      stageId: column._id,
-    },
-    skip: !showPrintDialog,
-  });
 
   const { probability, name, _id, amount, unUsedAmount } = column;
 
@@ -211,7 +202,6 @@ export const DealsBoardColumnHeader = ({
         <PrintDialog
           open={showPrintDialog}
           onClose={() => setShowPrintDialog(false)}
-          deals={deals || []}
           stageId={column._id}
         />
       )}

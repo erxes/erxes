@@ -41,5 +41,6 @@ export const accountSchema = schemaWrapper(
     isTemp: { type: Boolean, default: false, label: 'Is Temp' },
     isOutBalance: { type: Boolean, default: false, label: 'Is Out balance' },
     mergedIds: { type: [String], optional: true },
+    extra: { type: Object, default: null, optional: true, label: 'Extra' }
   })
 );

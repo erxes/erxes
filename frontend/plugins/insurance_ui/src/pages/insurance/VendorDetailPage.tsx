@@ -9,13 +9,27 @@ import {
   IconTrash,
   IconMail,
   IconPhone,
+  IconPackage,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator, Card, Badge } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  Separator,
+  Card,
+  Badge,
+  Dialog,
+  Label,
+  Select,
+  Input,
+} from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import {
   useVendor,
   useVendorUsers,
   useDeleteVendorUser,
+  useInsuranceProducts,
+  useAddProductToVendor,
+  useRemoveProductFromVendor,
 } from '~/modules/insurance/hooks';
 import { VendorUser } from '~/modules/insurance/types';
 import { VendorUserForm } from '~/modules/insurance/components';
@@ -25,9 +39,20 @@ export const VendorDetailPage = () => {
   const { vendor, loading: vendorLoading } = useVendor(id!);
   const { vendorUsers, loading: usersLoading, refetch } = useVendorUsers(id);
   const { deleteVendorUser } = useDeleteVendorUser();
+  const { insuranceProducts } = useInsuranceProducts();
+  const { addProductToVendor } = useAddProductToVendor();
+  const { removeProductFromVendor } = useRemoveProductFromVendor();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<VendorUser | undefined>();
+  const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [vendorPercentage, setVendorPercentage] = useState<number | undefined>(
+    undefined,
+  );
+  const [vendorDurationFields, setVendorDurationFields] = useState<
+    { duration: string; percentage: number }[]
+  >([]);
 
   const handleEdit = (user: VendorUser) => {
     setEditingUser(user);
@@ -54,6 +79,64 @@ export const VendorDetailPage = () => {
       refetch();
     }
   };
+
+  const handleAddProduct = async () => {
+    if (!selectedProductId) return;
+
+    try {
+      let pricingOverride = null;
+
+      if (vendorDurationFields.length > 0) {
+        const percentageByDuration: Record<string, number> = {};
+        vendorDurationFields.forEach((f) => {
+          if (f.duration) {
+            percentageByDuration[f.duration] = f.percentage;
+          }
+        });
+        pricingOverride = {
+          percentage: vendorPercentage,
+          percentageByDuration,
+        };
+      } else if (vendorPercentage !== undefined && vendorPercentage !== null) {
+        pricingOverride = { percentage: vendorPercentage };
+      }
+
+      await addProductToVendor({
+        variables: {
+          vendorId: id!,
+          productId: selectedProductId,
+          pricingOverride,
+        },
+      });
+
+      setIsProductDialogOpen(false);
+      setSelectedProductId('');
+      setVendorPercentage(undefined);
+      setVendorDurationFields([]);
+    } catch (error) {
+      console.error('Error adding product:', error);
+    }
+  };
+
+  const handleRemoveProduct = async (productId: string) => {
+    if (confirm('Remove this product?')) {
+      try {
+        await removeProductFromVendor({
+          variables: {
+            vendorId: id!,
+            productId,
+          },
+        });
+      } catch (error) {
+        console.error('Error removing product:', error);
+      }
+    }
+  };
+
+  const availableProducts = insuranceProducts.filter(
+    (product) =>
+      !vendor?.offeredProducts.some((vp) => vp.product.id === product.id),
+  );
 
   if (vendorLoading) {
     return <div className="p-6">Loading vendor...</div>;
@@ -105,7 +188,6 @@ export const VendorDetailPage = () => {
 
       <div className="flex h-full overflow-hidden">
         <div className="flex flex-col h-full overflow-auto flex-auto p-6 space-y-6">
-          {/* Vendor Info */}
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -119,21 +201,41 @@ export const VendorDetailPage = () => {
               </div>
             </div>
 
-            {vendor.offeredProducts.length > 0 && (
-              <div className="mt-4 pt-4 border-t">
-                <h3 className="font-semibold mb-2">Offered Products</h3>
-                <div className="flex flex-wrap gap-2">
-                  {vendor.offeredProducts.map((vp) => (
-                    <Badge key={vp.product.id} variant="secondary">
-                      {vp.product.name}
-                    </Badge>
+            <div className="mt-4 pt-4 border-t">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">Offered Products</h3>
+                <Button size="sm" onClick={() => setIsProductDialogOpen(true)}>
+                  <IconPlus size={16} />
+                  Add Product
+                </Button>
+              </div>
+              {vendor.offeredProducts.length > 0 ? (
+                <div className="space-y-2">
+                  {vendor.offeredProducts.map((vp: any) => (
+                    <div
+                      key={vp.product.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <IconPackage size={20} className="text-blue-600" />
+                        <p className="font-medium">{vp.product.name}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveProduct(vp.product.id)}
+                      >
+                        <IconTrash size={16} />
+                      </Button>
+                    </div>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <p className="text-muted-foreground">No products added yet</p>
+              )}
+            </div>
           </Card>
 
-          {/* Vendor Users */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <IconUsers size={24} />
@@ -227,6 +329,155 @@ export const VendorDetailPage = () => {
         user={editingUser}
         onSuccess={handleSuccess}
       />
+
+      <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
+        <Dialog.Content className="max-w-md">
+          <Dialog.Header>
+            <Dialog.Title>Add Product</Dialog.Title>
+          </Dialog.Header>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="product">Select Product *</Label>
+              <Select
+                value={selectedProductId}
+                onValueChange={setSelectedProductId}
+              >
+                <Select.Trigger id="product">
+                  <Select.Value placeholder="Select a product" />
+                </Select.Trigger>
+                <Select.Content>
+                  {availableProducts.map((product) => (
+                    <Select.Item key={product.id} value={product.id}>
+                      {product.name}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vendorPercentage">
+                Үндсэн хувь (%) - Сонголттой
+              </Label>
+              <Input
+                id="vendorPercentage"
+                type="number"
+                min="0"
+                step="0.1"
+                value={vendorPercentage ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setVendorPercentage(value ? parseFloat(value) : undefined);
+                }}
+                placeholder="Product-ийн хувийг ашиглана"
+              />
+              <p className="text-xs text-muted-foreground">
+                Хоосон орхивол product-ийн үндсэн хувийг ашиглана.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">Хугацаагаар хувь (сонголттой)</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setVendorDurationFields([
+                      ...vendorDurationFields,
+                      { duration: '', percentage: 0 },
+                    ]);
+                  }}
+                >
+                  Хугацаа нэмэх
+                </Button>
+              </div>
+
+              {vendorDurationFields.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Vendor-д хугацаагаар өөр хувь тохируулах бол "Хугацаа нэмэх"
+                  дарна уу
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {vendorDurationFields.map((field, index) => (
+                    <div key={index} className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <Label className="text-xs">Хугацаа</Label>
+                        <Input
+                          value={field.duration}
+                          onChange={(e) => {
+                            const newFields = [...vendorDurationFields];
+                            newFields[index] = {
+                              ...newFields[index],
+                              duration: e.target.value,
+                            };
+                            setVendorDurationFields(newFields);
+                          }}
+                          placeholder="12months"
+                        />
+                      </div>
+                      <div className="w-32">
+                        <Label className="text-xs">Хувь (%)</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={field.percentage}
+                          onChange={(e) => {
+                            const newFields = [...vendorDurationFields];
+                            newFields[index] = {
+                              ...newFields[index],
+                              percentage: parseFloat(e.target.value) || 0,
+                            };
+                            setVendorDurationFields(newFields);
+                          }}
+                          placeholder="2.5"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setVendorDurationFields(
+                            vendorDurationFields.filter((_, i) => i !== index),
+                          );
+                        }}
+                      >
+                        Устгах
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Жишээ: "12months", "24months" гэх мэт. Энэ vendor-д зориулсан
+                хугацаагаар хувь.
+              </p>
+            </div>
+          </div>
+
+          <Dialog.Footer>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsProductDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddProduct}
+              disabled={!selectedProductId}
+            >
+              Add
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </div>
   );
 };

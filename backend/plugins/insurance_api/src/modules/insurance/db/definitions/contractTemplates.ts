@@ -7,12 +7,6 @@ export const templateSchema = new Schema(
       type: String,
       required: true,
     },
-    insuranceType: {
-      type: String,
-      required: true,
-      unique: true,
-      enum: INSURANCE_TYPES,
-    },
     description: String,
     
     product: {

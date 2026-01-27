@@ -1,3 +1,4 @@
+import { IconPlus, IconUser } from '@tabler/icons-react';
 import {
   AvatarProps,
   Button,
@@ -12,20 +13,17 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { IconPlus, IconUser } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
+import React, { useState } from 'react';
+import { useUsers } from 'ui-modules/modules';
+import { currentUserState } from 'ui-modules/states';
+import { useDebounce } from 'use-debounce';
 import {
   SelectMemberContext,
   useSelectMemberContext,
 } from '../contexts/SelectMemberContext';
-
 import { IUser } from '../types/TeamMembers';
 import { MembersInline } from './MembersInline';
-import React from 'react';
-import { currentUserState } from 'ui-modules/states';
-import { useAtomValue } from 'jotai';
-import { useDebounce } from 'use-debounce';
-import { useState } from 'react';
-import { useUsers } from 'ui-modules/modules';
 
 const SelectMemberProvider = ({
   children,
@@ -66,20 +64,26 @@ const SelectMemberProvider = ({
       ? arrayValue.filter((id) => id !== member._id)
       : [...arrayValue, member._id];
 
-    setMembers((prev) =>
-      [...prev, member].filter((m) => newSelectedMemberIds.includes(m._id)),
-    );
+    setMembers((prev) => {
+      const uniqueMembers = [...prev, member].filter(
+        (m, index, self) => index === self.findIndex((t) => t._id === m._id),
+      );
+      return uniqueMembers.filter((m) => newSelectedMemberIds.includes(m._id));
+    });
     onValueChange?.(newSelectedMemberIds);
   };
+
+  const memberIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const loading = memberIds.some((id) => !_members.find((m) => m._id === id));
 
   return (
     <SelectMemberContext.Provider
       value={{
-        memberIds: !value ? [] : Array.isArray(value) ? value : [value],
+        memberIds,
         onSelect,
         members: _members,
         setMembers,
-        loading: _members.length !== value?.length,
+        loading,
         allowUnassigned: allowUnassigned || false,
       }}
     >
@@ -305,11 +309,11 @@ export const SelectMemberFilterBar = ({
 export const SelectMemberInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> &
-    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-      scope?: string;
-      placeholder?: string;
-      size?: AvatarProps['size'];
-    }
+  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+    scope?: string;
+    placeholder?: string;
+    size?: AvatarProps['size'];
+  }
 >(
   (
     {
@@ -465,6 +469,42 @@ export const SelectMemberRoot = ({
   );
 };
 
+export const SelectMemberCustomDetail = ({
+  onValueChange,
+  className,
+  size = 'lg',
+  value,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> & {
+  className?: string;
+  size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
+}) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <SelectMemberProvider
+      value={value}
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.TriggerBase asChild>
+          <Button variant="ghost" className={cn("h-7 w-auto inline-flex", className)}>
+            <SelectMemberValue size={size} />
+          </Button>
+        </Combobox.TriggerBase>
+        <Combobox.Content>
+          <SelectMemberContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectMemberProvider>
+  );
+};
+
 export const SelectMember = Object.assign(SelectMemberRoot, {
   Provider: SelectMemberProvider,
   Value: SelectMemberValue,
@@ -477,4 +517,5 @@ export const SelectMember = Object.assign(SelectMemberRoot, {
   InlineCell: SelectMemberInlineCell,
   FormItem: SelectMemberFormItem,
   Detail: SelectMemberDetail,
+  CustomDetail: SelectMemberCustomDetail,
 });

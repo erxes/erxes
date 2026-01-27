@@ -42,6 +42,7 @@ export interface InsuranceProduct {
   insuranceType: InsuranceType;
   coveredRisks: CoveredRisk[];
   pricingConfig: any;
+  pdfContent?: string;
   createdAt: Date;
   updatedAt: Date;
 }

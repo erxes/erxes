@@ -3,7 +3,6 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 
-
 import { ICustomerDocument } from '@/insurance/@types/customer';
 import { IInsuranceTypeDocument } from '@/insurance/@types/insuranceType';
 import { IProductDocument } from '@/insurance/@types/product';
@@ -11,17 +10,35 @@ import { IRiskTypeDocument } from '@/insurance/@types/riskType';
 import { IVendorDocument } from '@/insurance/@types/vendor';
 import { IVendorUserDocument } from '@/insurance/@types/vendorUser';
 
-import { IContractModel, loadContractClass } from '@/insurance/db/models/contract';
-import { ICustomerModel, loadCustomerClass } from '@/insurance/db/models/customer';
-import { IInsuranceTypeModel, loadInsuranceTypeClass } from '@/insurance/db/models/insuranceType';
+import {
+  IContractModel,
+  loadContractClass,
+} from '@/insurance/db/models/contract';
+import {
+  ICustomerModel,
+  loadCustomerClass,
+} from '@/insurance/db/models/customer';
+import {
+  IInsuranceTypeModel,
+  loadInsuranceTypeClass,
+} from '@/insurance/db/models/insuranceType';
 import { IProductModel, loadProductClass } from '@/insurance/db/models/product';
-import { IRiskTypeModel, loadRiskTypeClass } from '@/insurance/db/models/riskType';
+import {
+  IRiskTypeModel,
+  loadRiskTypeClass,
+} from '@/insurance/db/models/riskType';
 import { IVendorModel, loadVendorClass } from '@/insurance/db/models/vendor';
-import { IVendorUserModel, loadVendorUserClass } from '@/insurance/db/models/vendorUser';
+import {
+  IVendorUserModel,
+  loadVendorUserClass,
+} from '@/insurance/db/models/vendorUser';
 import { IContractDocument } from '@/insurance/@types/contract';
-import { ITemplateModel, loadTemplateClass } from '@/insurance/db/models/template';
+import {
+  ITemplateModel,
+  loadTemplateClass,
+} from '@/insurance/db/models/template';
 import { ITemplateDocument } from '@/insurance/@types/template';
-
+import { dropProductCodeIndex } from '@/insurance/db/migrations/dropCodeIndex';
 
 export interface IModels {
   Contract: IContractModel;
@@ -80,6 +97,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'insurance_contract_templates',
     loadTemplateClass(models),
   );
+
+  // Run migrations after all models are loaded
+  dropProductCodeIndex(models).catch((err) => {
+    console.error('Migration error:', err);
+  });
 
   return models;
 };

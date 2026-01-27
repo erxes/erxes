@@ -77,6 +77,11 @@ export const InsuranceTypeForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Remove __typename from attributes (added by Apollo Client)
+    const cleanAttributes = formData.attributes.map(
+      ({ __typename, ...attr }: any) => attr,
+    );
+
     try {
       if (insuranceType) {
         await updateInsuranceType({
@@ -84,7 +89,7 @@ export const InsuranceTypeForm = ({
             id: insuranceType.id,
             name: formData.name,
             attributes:
-              formData.attributes.length > 0 ? formData.attributes : undefined,
+              cleanAttributes.length > 0 ? cleanAttributes : undefined,
           },
         });
       } else {
@@ -92,7 +97,7 @@ export const InsuranceTypeForm = ({
           variables: {
             name: formData.name,
             attributes:
-              formData.attributes.length > 0 ? formData.attributes : undefined,
+              cleanAttributes.length > 0 ? cleanAttributes : undefined,
           },
         });
       }
@@ -171,7 +176,6 @@ export const InsuranceTypeForm = ({
                       }
                       placeholder="e.g., destination"
                       required
-                      size="sm"
                     />
                   </div>
 
@@ -204,7 +208,6 @@ export const InsuranceTypeForm = ({
                         )
                       }
                       placeholder="Describe this attribute"
-                      size="sm"
                     />
                   </div>
 
@@ -244,7 +247,6 @@ export const InsuranceTypeForm = ({
                             )
                           }
                           placeholder="Min"
-                          size="sm"
                         />
                       </div>
                       <div className="space-y-1">
@@ -262,7 +264,6 @@ export const InsuranceTypeForm = ({
                             )
                           }
                           placeholder="Max"
-                          size="sm"
                         />
                       </div>
                     </>
@@ -286,7 +287,6 @@ export const InsuranceTypeForm = ({
                           )
                         }
                         placeholder="e.g., USA, Europe, Asia"
-                        size="sm"
                       />
                     </div>
                   )}

@@ -31,7 +31,7 @@ import {
   CustomerOwner,
   CustomerPhones,
   ICustomer,
-  SelectTags,
+  TagsSelect,
   useCustomerEdit,
 } from 'ui-modules';
 import { useSetAtom } from 'jotai';
@@ -162,8 +162,8 @@ export const createCustomersColumns = (
     ),
     cell: ({ cell }) => {
       return (
-        <SelectTags.InlineCell
-          tagType="core:customer"
+        <TagsSelect.InlineCell
+          type="core:customer"
           mode="multiple"
           value={cell.row.original.tagIds}
           targetIds={[cell.row.original._id]}

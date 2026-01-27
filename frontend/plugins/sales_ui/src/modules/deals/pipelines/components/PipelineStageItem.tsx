@@ -227,13 +227,16 @@ const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.age`}
                       control={control}
-                      defaultValue={stage?.age || ''}
+                      defaultValue={stage?.age || 0}
                       render={({ field }) => (
                         <Input
                           {...field}
                           placeholder="Enter age"
                           className="input"
                           type="number"
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       )}
                     />

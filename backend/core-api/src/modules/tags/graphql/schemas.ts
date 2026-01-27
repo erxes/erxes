@@ -41,9 +41,9 @@ const queryParams = `
 `;
 
 export const queries = `
-  tagsGetTypes: [JSON]
+  tagsGetTypes: JSON
   tags(${queryParams}): TagsListResponse
-  tagsMain(type: String): [Tag]
+  tagsMain(type: String, excludeWorkspaceTags: Boolean): [Tag]
   tagDetail(_id: String!): Tag
   tagsQueryCount(type: String, searchValue: String): Int
 `;

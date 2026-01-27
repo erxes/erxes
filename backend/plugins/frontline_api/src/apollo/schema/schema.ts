@@ -79,11 +79,33 @@ import {
   queries as ResponseTemplateQueries,
   types as ResponseTemplateTypes,
 } from '~/modules/response/graphql/schema';
+import {
+  mutations as FormMutations,
+  queries as FormQueries,
+  types as FormTypes,
+} from '~/modules/form/graphql/schema/form';
 
 import {
-  queries as ReportQueries,
-  types as ReportTypes,
-} from '@/reports/graphql/schema';
+  fieldsMutations as FieldMutations,
+  fieldsQueries as FieldQueries,
+  fieldsTypes as FieldTypes,
+} from '~/modules/form/graphql/schema/field';
+
+import {
+  queries as ReportInboxQueries,
+  types as ReportInboxTypes,
+} from '@/reports/graphql/schema/inbox';
+
+import {
+  queries as ReportTicketQueries,
+  types as ReportTicketTypes,
+} from '@/reports/graphql/schema/ticket';
+
+import {
+  queries as KnowledgeBaseQueries,
+  mutations as KnowledgeBaseMutations,
+  types as KnowledgeBaseTypes,
+} from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs';
 
 export const types = `
     ${ChannelsTypes}
@@ -100,8 +122,10 @@ export const types = `
     ${NoteTypes}
     ${TicketConfigTypes}
     ${ResponseTemplateTypes}
-    ${ReportTypes}
-
+    ${ReportInboxTypes}
+    ${ReportTicketTypes}
+    ${FormTypes}
+    ${FieldTypes}    ${KnowledgeBaseTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -118,7 +142,11 @@ export const queries = `
     ${NoteQueries}
     ${TicketConfigQueries}
     ${ResponseTemplateQueries}
-    ${ReportQueries}
+    ${ReportInboxQueries}
+    ${ReportTicketQueries}
+    ${FormQueries}
+    ${FieldQueries}
+    ${KnowledgeBaseQueries}
   `;
 
 export const mutations = `
@@ -135,5 +163,8 @@ export const mutations = `
    ${NoteMutations}
    ${TicketConfigMutations}
    ${ResponseTemplateMutations}
+   ${FormMutations}
+   ${FieldMutations}
+   ${KnowledgeBaseMutations}
 `;
 export default { types, queries, mutations };

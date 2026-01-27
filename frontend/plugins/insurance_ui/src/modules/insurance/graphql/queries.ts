@@ -38,6 +38,7 @@ export const insuranceProductFields = `
     coveragePercentage
   }
   pricingConfig
+  pdfContent
   createdAt
   updatedAt
 `;
@@ -99,6 +100,7 @@ export const insuranceContractFields = `
   insuranceProduct {
     id
     name
+    pdfContent
   }
   coveredRisks {
     risk {
@@ -112,6 +114,7 @@ export const insuranceContractFields = `
   insuredObject
   paymentKind
   paymentStatus
+  pdfContent
   createdAt
   updatedAt
 `;

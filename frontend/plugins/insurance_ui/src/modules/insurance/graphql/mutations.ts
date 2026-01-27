@@ -62,12 +62,14 @@ export const CREATE_INSURANCE_PRODUCT = gql`
     $insuranceTypeId: ID!
     $coveredRisks: [CoveredRiskInput!]!
     $pricingConfig: JSON!
+    $pdfContent: String
   ) {
     createInsuranceProduct(
       name: $name
       insuranceTypeId: $insuranceTypeId
       coveredRisks: $coveredRisks
       pricingConfig: $pricingConfig
+      pdfContent: $pdfContent
     ) {
       ${insuranceProductFields}
     }
@@ -80,12 +82,14 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
     $name: String
     $coveredRisks: [CoveredRiskInput!]
     $pricingConfig: JSON
+    $pdfContent: String
   ) {
     updateInsuranceProduct(
       id: $id
       name: $name
       coveredRisks: $coveredRisks
       pricingConfig: $pricingConfig
+      pdfContent: $pdfContent
     ) {
       ${insuranceProductFields}
     }
@@ -179,6 +183,16 @@ export const CREATE_INSURANCE_CONTRACT = gql`
   }
 `;
 
+export const GENERATE_CONTRACT_PDF = gql`
+  mutation GenerateContractPDF($contractId: ID!) {
+    generateContractPDF(contractId: $contractId) {
+      success
+      base64
+      filename
+    }
+  }
+`;
+
 // Vendor User Mutations
 export const CREATE_VENDOR_USER = gql`
   mutation CreateVendorUser($name: String, $email: String!, $phone: String, $password: String!, $vendorId: ID!, $role: String) {
@@ -223,4 +237,5 @@ export default {
   UPDATE_CUSTOMER,
   DELETE_CUSTOMER,
   CREATE_INSURANCE_CONTRACT,
+  GENERATE_CONTRACT_PDF,
 };

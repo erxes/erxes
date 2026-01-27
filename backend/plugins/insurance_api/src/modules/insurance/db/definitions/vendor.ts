@@ -17,6 +17,11 @@ export const vendorSchema = new Schema(
         pricingOverride: {
           type: mongoose.Schema.Types.Mixed,
         },
+        templateId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'insurance_contract_templates',
+          required: false,
+        },
       },
     ],
   },

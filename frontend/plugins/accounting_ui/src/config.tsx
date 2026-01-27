@@ -14,8 +14,20 @@ const AdjustmentNavigation = lazy(() =>
   })),
 );
 
+const SettingsNavigation = lazy(() =>
+  import('./modules/SettingsNavigation').then((module) => ({
+    default: module.SettingsNavigation,
+  }))
+);
+
 export const CONFIG: IUIConfig = {
   name: 'accounting',
+  path: 'accounting',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'accounting',
     icon: IconCashBanknote,
@@ -24,20 +36,17 @@ export const CONFIG: IUIConfig = {
         <MainNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <AdjustmentNavigation />
       </Suspense>
     ),
   },
-  icon: IconCashBanknote,
   modules: [
     {
       name: 'accounting',
       icon: IconCashBanknote,
       path: 'accounting',
-      hasSettings: true,
-      hasRelationWidget: false,
     },
   ],
 };

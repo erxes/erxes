@@ -17,7 +17,7 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './knowledgebase': './src/modules/knowledgebase/Main.tsx',
-    './cms': './src/modules/cms/Main.tsx',
+    './content': './src/modules/cms/Main.tsx',
     // './contentFirstSettings': './src/modules/knowledgebase/Settings.tsx',
   },
 

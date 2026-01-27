@@ -20,7 +20,7 @@ import {
   mutations as CampaignMutations,
   queries as CampaignQueries,
   types as CampaignTypes,
-} from '@/assignment/graphql/schemas/assignment';
+} from '@/campaign/graphql/schemas/campaign';
 
 import {
   mutations as CouponMutations,

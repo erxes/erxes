@@ -7,9 +7,7 @@
   "targets": {
     "build": {
       "executor": "@nx/rspack:rspack",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
@@ -17,9 +15,7 @@
         "main": "frontend/plugins/insurance_ui/src/main.ts",
         "tsConfig": "frontend/plugins/insurance_ui/tsconfig.app.json",
         "rspackConfig": "frontend/plugins/insurance_ui/rspack.config.ts",
-        "assets": [
-          "frontend/plugins/insurance_ui/src/assets"
-        ]
+        "assets": ["frontend/plugins/insurance_ui/src/assets"]
       },
       "configurations": {
         "development": {
@@ -37,7 +33,7 @@
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "insurance_ui:build:development",
-        "port": 3005
+        "port": 3002
       },
       "configurations": {
         "development": {},

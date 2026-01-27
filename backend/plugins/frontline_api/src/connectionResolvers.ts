@@ -168,6 +168,30 @@ import {
   loadClass as loadResponseTemplateClass,
 } from '@/response/db/models/responseTemplates';
 import { IResponseTemplateDocument } from '@/response/@types/responseTemplates';
+import { IFieldDocument } from '@/form/db/definitions/fields';
+import { IFormDocument } from '@/form/db/definitions/forms';
+import { IFieldModel, loadFieldClass } from './modules/form/db/models/Fields';
+import { IFormSubmissionDocument } from './modules/form/db/definitions/forms';
+import {
+  IFormModel,
+  IFormSubmissionModel,
+  loadFormClass,
+  loadFormSubmissionClass,
+} from './modules/form/db/models/Forms';
+
+import { IArticleDocument } from '@/knowledgebase/@types/article';
+import { ICategoryDocument } from '@/knowledgebase/@types/category';
+import { ITopicDocument } from '@/knowledgebase/@types/topic';
+
+import {
+  IArticleModel,
+  loadArticleClass,
+} from '@/knowledgebase/db/models/Article';
+import {
+  ICategoryModel,
+  loadCategoryClass,
+} from '@/knowledgebase/db/models/Category';
+import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
 
 export interface IModels {
   //channel
@@ -218,6 +242,15 @@ export interface IModels {
 
   //response templates
   ResponseTemplates: IResponseTemplateModel;
+
+  Fields: IFieldModel;
+  Forms: IFormModel;
+  FormSubmissions: IFormSubmissionModel;
+
+  //knowledgebase
+  Article: IArticleModel;
+  Category: ICategoryModel;
+  Topic: ITopicModel;
 }
 
 export interface IContext extends IMainContext {
@@ -395,6 +428,34 @@ export const loadClasses = (
     'configs',
     loadConfigClass(models),
   );
+  models.Fields = db.model<IFieldDocument, IFieldModel>(
+    'frontline_form_fields',
+    loadFieldClass(models, subdomain),
+  );
+  models.Forms = db.model<IFormDocument, IFormModel>(
+    'frontline_forms',
+    loadFormClass(models),
+  );
+  models.FormSubmissions = db.model<
+    IFormSubmissionDocument,
+    IFormSubmissionModel
+  >('frontline_form_submissions', loadFormSubmissionClass(models));
+
+  models.Article = db.model<IArticleDocument, IArticleModel>(
+    'knowledgebase_articles',
+    loadArticleClass(models),
+  );
+
+  models.Category = db.model<ICategoryDocument, ICategoryModel>(
+    'knowledgebase_categories',
+    loadCategoryClass(models),
+  );
+
+  models.Topic = db.model<ITopicDocument, ITopicModel>(
+    'knowledgebase_topics',
+    loadTopicClass(models),
+  );
+
   return models;
 };
 

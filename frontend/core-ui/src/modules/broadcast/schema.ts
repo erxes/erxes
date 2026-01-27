@@ -18,7 +18,16 @@ export const broadcastSchema = z.discriminatedUnion('method', [
       subject: z.string().min(1),
       sender: z.string().min(1),
       replyTo: z.string().optional(),
-      attachments: z.array(z.string()).optional(),
+      attachments: z
+        .array(
+          z.object({
+            name: z.string(),
+            url: z.string(),
+            type: z.string(),
+            size: z.number(),
+          }),
+        )
+        .optional(),
       documentId: z.string(),
       content: z.string(),
     }),

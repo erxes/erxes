@@ -27,6 +27,7 @@ import {
   exportMutations,
 } from '~/modules/import-export/graphql/resolvers';
 import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUser';
+import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/comment';
 
 export const mutations = {
   ...contactMutations,
@@ -56,4 +57,5 @@ export const mutations = {
   ...importMutations,
   ...exportMutations,
   ...cpUserMutations,
+  ...commentMutations,
 };

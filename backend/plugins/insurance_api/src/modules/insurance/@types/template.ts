@@ -1,13 +1,10 @@
 export interface ITemplate {
   name: string;
-  insuranceType: string;
-  description: string;
-  product: string;
-  vendor: string;
+  description?: string;
   htmlContent: string;
-  cssContent: string;
+  cssContent?: string;
   version: number;
-  status: 'active' | 'inactive';
+  status: 'draft' | 'active' | 'archived';
 }
 
 export interface ITemplateDocument extends ITemplate, Document {

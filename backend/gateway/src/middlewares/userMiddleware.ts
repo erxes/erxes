@@ -156,8 +156,9 @@ export default async function userMiddleware(
     }
   }
 
-  let clientPortal;
   const clientPortalToken = req.headers['x-app-token'];
+  const clientAuthToken =
+    req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
@@ -168,7 +169,7 @@ export default async function userMiddleware(
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
-      clientPortal = await models.ClientPortals.findOne({
+      const clientPortal = await models.ClientPortals.findOne({
         _id: clientPortalTokenDecoded.clientPortalId,
       });
 
@@ -180,6 +181,33 @@ export default async function userMiddleware(
 
       setClientPortalHeader(req.headers, req.clientPortal);
 
+      if (clientAuthToken) {
+        try {
+          const clientAuthTokenString = String(clientAuthToken);
+
+          const clientAuthTokenDecoded: any = jwt.verify(
+            clientAuthTokenString,
+            process.env.JWT_TOKEN_SECRET || 'SECRET',
+          );
+
+          const clientPortalUser = await models.CPUsers.findOne({
+            _id: clientAuthTokenDecoded.userId,
+            clientPortalId: clientPortal._id,
+          });
+
+          if (clientPortalUser) {
+            req.cpUser = clientPortalUser;
+            setCPUserHeader(req.headers, req.cpUser);
+          }
+        } catch (e) {
+          if (e instanceof jwt.TokenExpiredError) {
+            return next();
+          } else {
+            console.error(e);
+          }
+        }
+      }
+
       return next();
     } catch (e) {
       console.error(e);
@@ -188,38 +216,13 @@ export default async function userMiddleware(
     }
   }
 
-  const clientAuthToken =
-    req.cookies['client-auth-token'] || req.headers['client-auth-token'];
+  let token = req.cookies['auth-token'];
 
-  if (clientPortal && clientAuthToken) {
-    const clientAuthTokenString = String(clientAuthToken);
-
-    try {
-      const clientAuthTokenDecoded: any = jwt.verify(
-        clientAuthTokenString,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
-
-      const clientPortalUser = await models.CPUsers.findOne({
-        _id: clientAuthTokenDecoded.userId,
-        clientPortalId: clientPortal?._id,
-      });
-
-      if (clientPortalUser) {
-        req.cpUser = clientPortalUser;
-        setCPUserHeader(req.headers, req.cpUser);
-      }
-    } catch (e) {
-      if (e instanceof jwt.TokenExpiredError) {
-        return next();
-      } else {
-        console.error(e);
-        return next();
-      }
-    }
+  // Also check Authorization header for Bearer token (used by vendor portal)
+  const authHeader = req.headers.authorization;
+  if (!token && authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
   }
-
-  const token = req.cookies['auth-token'];
 
   if (!token) {
     return next();
@@ -231,6 +234,20 @@ export default async function userMiddleware(
       token,
       process.env.JWT_TOKEN_SECRET || 'SECRET',
     );
+
+    // Handle vendor user tokens (from vendorUserLogin) - they have userId instead of user object
+    if (decoded.userId && !decoded.user) {
+      req.user = {
+        _id: decoded.userId,
+        userId: decoded.userId,
+        email: decoded.email,
+        vendorId: decoded.vendorId,
+        role: decoded.role,
+      };
+      setUserHeader(req.headers, req.user);
+      return next();
+    }
+
     const user = decoded.user;
 
     const userDoc = await models.Users.findOne(

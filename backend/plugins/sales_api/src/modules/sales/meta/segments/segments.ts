@@ -9,8 +9,8 @@ import {
   getPluginName,
   TCoreModuleProducerContext,
   TSegmentProducers,
+  TSegmentProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { TSegmentProducersInput } from 'erxes-api-shared/core-modules';
 import {
   fetchByQueryWithScroll,
   getEsIndexByContentType,
@@ -110,12 +110,12 @@ export const salesSegments = {
       ids = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'conformity',
-        action: 'filterConformity',
+        module: 'relation',
+        action: 'filterRelationIds',
         input: {
-          mainType: getContentType(propertyType),
-          mainTypeIds,
-          relType: getContentType(mainType),
+          contentType: getContentType(propertyType),
+          contentIds: mainTypeIds,
+          relatedContentType: getContentType(mainType),
         },
       });
     } else {
