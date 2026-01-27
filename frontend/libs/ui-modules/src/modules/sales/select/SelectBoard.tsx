@@ -13,7 +13,7 @@ import React, { useState } from 'react';
 import {
   SelectBoardsContext,
   useSelectBoardsContext,
-} from '@/deals/context/DealContext';
+} from '../context/DealContext';
 
 import { BoardsInline } from '../inline/BoardInline';
 import { IBoard } from '../types/boards';

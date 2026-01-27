@@ -28,7 +28,7 @@ import { useEffect, useMemo } from 'react';
 import { DEAL_LIST_CHANGED } from '../graphql/subscriptions/dealListChange';
 import { IDeal } from '../types/deals';
 import { PRODUCTS_DATA_CHANGED } from '../graphql/subscriptions/productsSubscriptions';
-import { currentUserState } from 'ui-modules';
+import { currentUserState } from 'ui-modules/states';
 import { dealCreateDefaultValuesState } from '../states/dealCreateSheetState';
 import { dealDetailSheetState } from '../states/dealDetailSheetState';
 

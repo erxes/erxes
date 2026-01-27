@@ -4,7 +4,7 @@ import { useDealsAdd, useDealsEdit, useDealsRemove } from '../hooks/useDeals';
 import { ISelectBoardsContext } from '../types/boards';
 import { ISelectPipelinesContext } from '../types/pipelines';
 import { ISelectStagesContext } from '../types/stages';
-import { useConformityEdit } from '../cards/hooks/useConformity';
+import { useConformityEdit } from '../hooks/useConformity';
 
 interface DealsContextType {
   addDeals: ReturnType<typeof useDealsAdd>['addDeals'];

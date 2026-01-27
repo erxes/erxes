@@ -1,11 +1,7 @@
 import { Button, DropdownMenu, Separator } from 'erxes-ui';
 import { memo } from 'react';
 
-import {
-  BoardCell,
-  PipelineCell,
-  StageCell,
-} from '@/deals/components/deal-selects/MoveDealSelect';
+import { BoardCell, PipelineCell, StageCell } from 'ui-modules/modules';
 import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
 interface MoveDealDropdownProps {

@@ -1,4 +1,3 @@
-import { RecordTableInlineCell, useQueryState } from 'erxes-ui';
 import {
   dealBoardState,
   dealPipelineState,
@@ -9,8 +8,9 @@ import { IDeal } from '../types/deals';
 import { SelectBoard } from '../select/SelectBoard';
 import { SelectPipeline } from '../select/SelectPipeline';
 import { SelectStage } from '../select/SelectStage';
-import { dealDetailSheetState } from '../states/dealDetailSheetState';
+
 import { useDealsEdit } from '../hooks/useDeals';
+import { Button } from 'erxes-ui';
 
 export const BoardCell = ({
   deal,

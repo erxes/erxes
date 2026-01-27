@@ -13,12 +13,12 @@ import React, { useState } from 'react';
 import {
   SelectPipelinesContext,
   useSelectPipelinesContext,
-} from '@/deals/context/DealContext';
+} from '../context/DealContext';
 
-import { PipelinesInline } from './PipelinesInline';
-import { IPipeline } from '@/deals/types/pipelines';
+import { PipelinesInline } from '../inline/PipelineInline';
+import { IPipeline } from '../types/pipelines';
 import { IconArrowsRight, IconChevronDown } from '@tabler/icons-react';
-import { usePipelines } from '@/deals/boards/hooks/usePipelines';
+import { usePipelines } from '../hooks/usePipelines';
 import { useDebounce } from 'use-debounce';
 
 export const SelectPipelineProvider = ({

@@ -13,9 +13,9 @@ import React, { useState } from 'react';
 import {
   SelectStagesContext,
   useSelectStagesContext,
-} from '@/deals/context/DealContext';
+} from '../context/DealContext';
 
-import { StagesInline } from './StagesInline';
+import { StagesInline } from '../inline/StagesInline';
 import { IStage } from '../types/stages';
 import { IconListCheck, IconChevronDown } from '@tabler/icons-react';
 import { useStages } from '../hooks/useStages';
