@@ -21,7 +21,11 @@ import {
   IGolomtBankConfigModel,
   loadGolomtBankConfigClass,
 } from '~/modules/corporateGateway/golomtbank/db/models/golomtBankConfigs';
-
+import {
+  IKhanbankConfigModel,
+  loadKhanbankConfigClass,
+} from './modules/corporateGateway/khanbank/db/models/KhanbankConfigs';
+import { IKhanbankConfigDocument, loadKhanbankConfigClass, } from './modules/corporateGateway/khanbank/db/definitions/khanbankConfigs';
 
 export interface IModels {
   PaymentMethods: IPaymentModel;
@@ -29,6 +33,7 @@ export interface IModels {
   Transactions: ITransactionModel;
 
   GolomtBankConfigs: IGolomtBankConfigModel;
+  KhanbankConfigs: IKhanbankConfigModel;
 }
 
 export interface IContext extends IMainContext {
