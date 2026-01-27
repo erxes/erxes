@@ -8,11 +8,12 @@ type DealCardDetailsProps = {
 
 const MAX_VISIBLE_ITEMS = 5;
 
-export const DealCardDetails = ({
+const DealCardDetails = ({
   items,
   color,
   className,
-}: DealCardDetailsProps) => {
+  perItemSpan
+}: DealCardDetailsProps & { perItemSpan: (item: any) => JSX.Element }) => {
   if (!items || items.length === 0) return null;
 
   const visibleItems = items.slice(0, MAX_VISIBLE_ITEMS);
@@ -30,22 +31,7 @@ export const DealCardDetails = ({
             style={{ backgroundColor: color }}
           />
           <span>
-            {item.product?.name || item.name || item.primaryName}
-            {item.quantity && (
-              <span className="text-muted-foreground/70">
-                {' '}
-                ({item.quantity} {item.uom || 'PC'})
-              </span>
-            )}
-            {item.unitPrice && (
-              <span className="text-muted-foreground/70">
-                {' '}
-                -{' '}
-                {item.unitPrice.toLocaleString(undefined, {
-                  maximumFractionDigits: 0,
-                })}
-              </span>
-            )}
+            {perItemSpan(item)}
           </span>
         </div>
       ))}
@@ -56,4 +42,90 @@ export const DealCardDetails = ({
   );
 };
 
-export default DealCardDetails;
+export const DealCardDetailsProduct = ({
+  items,
+  color,
+  className,
+}: DealCardDetailsProps) => {
+  const perItemSpan = (item: any) => {
+    return (
+      <>
+        {item.product?.name}
+        {
+          item.quantity && (
+            <span className="text-muted-foreground/70">
+              {' '}
+              ({item.quantity} {item.uom || 'PC'})
+            </span>
+          )
+        }
+        {
+          item.unitPrice && (
+            <span className="text-muted-foreground/70">
+              {' '}
+              -{' '}
+              {item.unitPrice.toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
+            </span>
+          )
+        }
+      </>
+    )
+  }
+  return (
+    <DealCardDetails items={items} color={color} className={className} perItemSpan={perItemSpan} />
+  )
+}
+
+export const DealCardDetailsCompany = ({ items, color, className }: DealCardDetailsProps) => {
+  const perItemSpan = (item: any) => {
+    return (
+      <>
+        {item.primaryName || item.primaryPhone || 'Undefined company'}
+      </>
+    )
+  }
+  return (
+    <DealCardDetails items={items} color={color} className={className} perItemSpan={perItemSpan} />
+  )
+}
+
+export const DealCardDetailsCustomer = ({ items, color, className }: DealCardDetailsProps) => {
+  const perItemSpan = (item: any) => {
+    return (
+      <>
+        {`${item.firstName ?? ''} ${item.lastName ?? ''} ${item.primaryPhone ?? item.primaryEmail ?? ''}`}
+      </>
+    )
+  }
+  return (
+    <DealCardDetails items={items} color={color} className={className} perItemSpan={perItemSpan} />
+  )
+}
+
+export const DealCardDetailsTag = ({ items, color, className }: DealCardDetailsProps) => {
+  const perItemSpan = (item: any) => {
+    return (
+      <>
+        {item.name}
+      </>
+    )
+  }
+  return (
+    <DealCardDetails items={items} color={color} className={className} perItemSpan={perItemSpan} />
+  )
+}
+
+export const DealCardDetailsProperties = ({ items, color, className }: DealCardDetailsProps) => {
+  const perItemSpan = (item: any) => {
+    return (
+      <>
+        {item.name}
+      </>
+    )
+  }
+  return (
+    <DealCardDetails items={items} color={color} className={className} perItemSpan={perItemSpan} />
+  )
+}

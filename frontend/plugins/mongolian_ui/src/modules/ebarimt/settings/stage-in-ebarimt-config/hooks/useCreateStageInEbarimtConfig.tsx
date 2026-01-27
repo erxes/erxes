@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast, useRecordTableCursor } from 'erxes-ui';
 import { STAGE_IN_EBARIMT_CONFIG_CURSOR_SESSION_KEY } from '@/ebarimt/settings/stage-in-ebarimt-config/constants';
-import { CREATE_STAGE_IN_EBARIMT_CONFIG } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/mutations/stageInEbarimtConfigMutations';
+import { CREATE_MN_CONFIG } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 
 export const useCreateStageInEbarimtConfig = () => {
   const { toast } = useToast();
@@ -10,7 +10,7 @@ export const useCreateStageInEbarimtConfig = () => {
   });
 
   const [createStageInEbarimtConfigMutation, { loading, error }] = useMutation(
-    CREATE_STAGE_IN_EBARIMT_CONFIG,
+    CREATE_MN_CONFIG,
     {
       onCompleted: () => {
         toast({
@@ -18,7 +18,7 @@ export const useCreateStageInEbarimtConfig = () => {
           description: 'Stage in ebarimt config created successfully',
           variant: 'default',
         });
-        setCursor(null);
+        setCursor('');
       },
       onError: (e) => {
         toast({

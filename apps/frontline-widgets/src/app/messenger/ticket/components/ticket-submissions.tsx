@@ -1,55 +1,24 @@
 import {
-  type Icon,
   IconPlus,
-  IconReload,
-  IconCircle,
-  IconCircleDot,
-  IconCircleDashed,
-  IconCircleCheck,
-  IconCircleDashedCheck,
-  IconCircleX,
-  IconCopy,
   IconCircleMinus,
-  IconChevronDown,
   IconChevronUp,
   IconCalendarTime,
   IconCalendarPlus,
-  IconUserOff,
   IconUserCancel,
 } from '@tabler/icons-react';
 import {
   Button,
-  Dialog,
-  Form,
-  Input,
-  PhoneInput,
-  Spinner,
   toast,
-  InfoCard,
-  Label,
-  Textarea,
-  cn,
-  Card,
   Collapsible,
   Tooltip,
   Avatar,
   readImage,
   Separator,
 } from 'erxes-ui';
-import { motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
-import { useTicketProgressForms } from '../hooks/useTicketProgressForms';
-import { useForgotTicketNumber } from '../hooks/useForgotTicketNumber';
+import { useState } from 'react';
 import {
   ITicketCheckProgress,
-  ITicketStatus,
-  TTicketCheckProgressForm,
-  TTicketForgotProgressForm,
 } from '../types';
-import { useGetTicketProgress } from '../hooks/useGetTicketProgress';
-import { SubmitHandler } from 'react-hook-form';
-import { useAtom, useAtomValue } from 'jotai';
-import { ticketProgressAtom, userTicketCreatedNumberAtom } from '../../states';
 import { format } from 'date-fns';
 import { useGetTicketsByCustomer } from '../hooks/useGetTicketsByCustomer';
 import { TicketStatusInlineValue } from './ticket-check-progress';
@@ -60,7 +29,7 @@ export const TicketSubmissions = ({
 }: {
   setPage: (page: 'submissions' | 'submit') => void;
 }) => {
-  const { tickets, loading, error } = useGetTicketsByCustomer();
+  const { tickets, error } = useGetTicketsByCustomer();
 
   if (error || tickets?.length === 0) {
     return (

@@ -1,8 +1,13 @@
-import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
+import { applyUiOptionsToTailwind } from '@libs/tw-utils';
+import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
+import { connect } from '../graphql';
 import {
   connectionAtom,
+  customerDataAtom,
+  customerIdAtom,
   hasTicketConfigAtom,
   integrationIdAtom,
   messengerDataAtom,
@@ -15,11 +20,7 @@ import {
   ITicketConfig,
   IWidgetUiOptions,
 } from '../types/connection';
-import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
-import { applyUiOptionsToTailwind } from '@libs/tw-utils';
 import { useSaveBrowserInfo } from './useSaveBrowserInfo';
-import { connect } from '../graphql';
-import { customerDataAtom, customerIdAtom } from '../states';
 
 interface connectionProps {
   integrationId: string;
@@ -107,22 +108,22 @@ export const useConnect = ({ integrationId }: connectionProps) => {
 
       const variables = email
         ? {
-            integrationId,
-            visitorId: visitorId || null,
-            cachedCustomerId: currentCachedCustomerId || undefined,
-            isUser: true,
-            email,
-            phone,
-            code,
-            data: customData,
-            companyData,
-          }
+          integrationId,
+          visitorId: visitorId || null,
+          cachedCustomerId: currentCachedCustomerId || undefined,
+          isUser: true,
+          email,
+          phone,
+          code,
+          data: customData,
+          companyData,
+        }
         : {
-            integrationId,
-            visitorId,
-            cachedCustomerId: currentCachedCustomerId || undefined,
-            isUser: false,
-          };
+          integrationId,
+          visitorId,
+          cachedCustomerId: currentCachedCustomerId || undefined,
+          isUser: false,
+        };
 
       await connectMutation({ variables });
     };

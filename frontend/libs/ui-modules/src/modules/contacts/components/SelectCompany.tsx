@@ -38,6 +38,7 @@ const SelectCompanyProvider = ({
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
   const companyIds = !value ? [] : Array.isArray(value) ? value : [value];
+
   const onSelect = (company: ICompany) => {
     if (!company) return;
     if (mode === 'single') {
@@ -60,6 +61,7 @@ const SelectCompanyProvider = ({
     });
     onValueChange?.(newSelectedCompanyIds);
   };
+
   return (
     <SelectCompanyContext.Provider
       value={{

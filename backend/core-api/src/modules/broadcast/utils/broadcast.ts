@@ -50,8 +50,8 @@ const sendBroadcastEmail = async ({
 
   const configSet = await getValueAsString(
     models,
-    'AWS_SES_CONFIG_SET',
-    'AWS_SES_CONFIG_SET',
+    'BROADCAST_AWS_SES_CONFIG_SET',
+    'BROADCAST_AWS_SES_CONFIG_SET',
     'erxes',
   );
 
@@ -81,7 +81,7 @@ const sendBroadcastEmail = async ({
   })) {
     STATS.totalCustomersCount++;
 
-    if (!customer || !validator.isEmail(customer?.primaryEmail)) {
+    if (!customer || !validator.isEmail(customer?.primaryEmail || '')) {
       continue;
     }
 
