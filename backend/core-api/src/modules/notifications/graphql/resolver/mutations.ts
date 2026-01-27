@@ -8,7 +8,16 @@ export const notificationMutations = {
     { _id }: { _id: string },
     { models, user }: IContext,
   ) {
-    await models.Notifications.updateOne({ _id }, { isArchived: true });
+    const notification = await models.Notifications.findOne({ _id });
+
+    if (!notification) throw new Error('Not found notification');
+
+    if (notification.userId !== user._id) throw new Error('Not found notification');
+
+    await models.Notifications.updateOne(
+      { _id, userId: user._id },
+      { isArchived: true },
+    );
 
     graphqlPubsub.publish(`notificationArchived:${user._id}`, {
       notificationArchived: { userId: user._id, notificationId: _id },
@@ -29,9 +38,12 @@ export const notificationMutations = {
       ? { ...generateNotificationsFilter(filters) }
       : { _id: { $in: ids } };
 
-    const notificationIds = await models.Notifications.find(selector, {
-      _id: 1,
-    }).distinct('_id');
+    const notificationIds = await models.Notifications.find(
+      { userId: user._id, ...selector },
+      {
+        _id: 1,
+      },
+    ).distinct('_id');
 
     await models.Notifications.updateMany(selector, { isArchived: true });
 

@@ -63,8 +63,8 @@ const parseConfigs = (item, type) => {
       item || {};
 
     return {
-      ...config,
-      categoryIds: config.category || [],
+      ...(config || {}),
+      categoryIds: config?.category || [],
       alwaysOpen: alwaysOpen,
       isMultiple: isMultiple,
       isVisible: isVisible,
@@ -125,7 +125,7 @@ const parseOptions = (field) => {
     value: option.value,
   }));
 
-  return [...parsedOptions, ...parsedLocationOptions];
+  return [...(parsedOptions || []), ...(parsedLocationOptions || [])];
 };
 
 const BATCH_SIZE = 1000;

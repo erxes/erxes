@@ -55,6 +55,11 @@ const command = async () => {
       const fields = await db.collection('properties_fields').find({ contentType }).toArray();
 
       for await (const document of documents) {
+
+        if (!document.customFieldsData || typeof document.customFieldsData === 'object') {
+          continue;
+        }
+
         try {
             const customFieldsData = toObject(document.customFieldsData, fields);
 
