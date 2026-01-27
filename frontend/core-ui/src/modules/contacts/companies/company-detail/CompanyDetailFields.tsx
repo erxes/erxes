@@ -8,7 +8,7 @@ import {
   useCompaniesEdit,
 } from 'ui-modules';
 import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
-import { DataListItem } from '@/contacts/components/ContactsDetail';
+import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { CompanyTextField } from '@/contacts/companies/company-detail/CompanyTextField';
 import { useTranslation } from 'react-i18next';
 
