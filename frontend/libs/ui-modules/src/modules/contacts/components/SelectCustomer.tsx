@@ -116,7 +116,7 @@ const SelectCustomerContent = () => {
       searchValue: debouncedSearch,
     },
   });
-  console.log('cc', customers);
+
   return (
     <Command shouldFilter={false}>
       <Command.Input

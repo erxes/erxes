@@ -71,6 +71,60 @@ const CompanyWidgetItem = ({
   );
 };
 
+export const CompanyWidgetDetail = ({
+  companyId,
+  scope,
+}: {
+  companyId: string;
+  scope: string;
+}) => {
+  const { companyDetail, loading } = useCompanyDetail({
+    variables: {
+      _id: companyId,
+    },
+  });
+
+  const { primaryEmail, primaryPhone } = companyDetail || {};
+
+  if (loading) {
+    return (
+      <Spinner containerClassName="py-6 bg-background rounded-lg shadow-xs" />
+    );
+  }
+
+  return (
+    <CompaniesInline.Provider companies={companyDetail ? [companyDetail] : []}>
+      <div className="bg-background rounded-lg shadow-xs">
+        <div className="p-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <CompaniesInline.Avatar size="xl" />
+            <CompaniesInline.Title />
+          </div>
+          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
+            Company phone
+            <span className="text-foreground">{primaryPhone || '-'}</span>
+          </div>
+          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
+            Company email
+            <span className="text-foreground">{primaryEmail || '-'}</span>
+          </div>
+        </div>
+        <Separator />
+        <div className="py-1 px-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-accent-foreground"
+          >
+            View details
+            <IconCaretDownFilled />
+          </Button>
+        </div>
+      </div>
+    </CompaniesInline.Provider>
+  );
+};
+
 const CompanyWidgetContent = ({
   companyIds,
   scope,

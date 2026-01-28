@@ -119,7 +119,7 @@ const SelectCompanyContent = () => {
       searchValue: debouncedSearch,
     },
   });
-  console.log('cc', companies);
+
   return (
     <Command shouldFilter={false}>
       <Command.Input
