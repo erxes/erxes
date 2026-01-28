@@ -8,6 +8,8 @@ import { IDonateDocument } from '@/donate/@types/donate';
 import { IDonateModel, loadDonateClass } from '@/donate/db/models/Donate';
 import { ILotteryDocument } from '@/lottery/@types/lottery';
 import { ILotteryModel, loadLotteryClass } from '@/lottery/db/models/Lottery';
+import { ILotteryCampaignDocument } from './modules/lottery/@types/lotteryCampaign';
+import { ILotteryCampaignModel, loadLotteryCampaignClass } from './modules/lottery/db/models/LotteryCampaign';
 import { IPricingDocument } from '@/pricing/@types/pricing';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { IPricingModel, loadPricingClass } from '@/pricing/db/models/Pricing';
@@ -34,11 +36,11 @@ export interface IModels {
   Score: IScoreModel;
   ScoreLog: IScoreLogModel;
   Lottery: ILotteryModel;
+  LotteryCampaign: ILotteryCampaignModel;
   Spin: ISpinModel;
   Donate: IDonateModel;
   Assignment: IAssignmentModel;
   Agent: IAgentModel;
-
   PricingPlans: IPricingPlanModel;
 }
 

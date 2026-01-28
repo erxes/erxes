@@ -2,13 +2,13 @@ import { IAgentDocument } from '@/agent/@types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-export default {
+export const Agent = {
   async rulesOfProducts(
     agent: IAgentDocument,
     _args: undefined,
     { subdomain }: IContext,
   ) {
-    const rules = await sendTRPCMessage({
+    return sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'query',
@@ -16,7 +16,5 @@ export default {
       action: 'rules.find',
       input: { _ids: agent.productRuleIds },
     });
-
-    return rules;
   },
 };
