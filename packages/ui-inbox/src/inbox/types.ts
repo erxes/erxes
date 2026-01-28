@@ -1,6 +1,6 @@
 import {
   IFacebookComment,
-  IIntegration
+  IIntegration,
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 
 import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
@@ -163,7 +163,7 @@ export interface IBotData {
     {
       title: string;
       payload: string;
-    }
+    },
   ];
   wrapped?: {
     type: string;
@@ -277,6 +277,8 @@ export type ResolveAllMutationVariables = {
   status: string;
   unassigned: string;
   awaitingResponse: string;
+  callAnswered: string;
+  callNotAnswered: string;
   brandId: string;
   tag: string;
   integrationType: string;

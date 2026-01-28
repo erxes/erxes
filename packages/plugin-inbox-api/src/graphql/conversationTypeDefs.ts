@@ -236,6 +236,8 @@ const mutationFilterParams = `
   integrationType: String
   participating: String
   awaitingResponse: String
+  callAnswered: String
+  callNotAnswered: String
   starred: String
   startDate: String
   endDate: String
@@ -288,6 +290,7 @@ export const queries = () => `
   conversationsTotalUnreadCount: Int
   inboxFields: InboxField
   userConversations(_id: String, perPage: Int): UserConversationListResponse
+  userConversationsByCustomerId(customerId: String!): [Conversation]
 `;
 
 export const mutations = `

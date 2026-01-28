@@ -1,30 +1,27 @@
-import { Alert, __, router } from 'coreui/utils';
+import { Alert, __, router } from "coreui/utils";
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
-} from '@erxes/ui/src/layout/styles';
-import { PopoverButton, PopoverHeader } from '@erxes/ui/src/styles/eindex';
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from "@erxes/ui/src/layout/styles";
+import { PopoverButton, PopoverHeader } from "@erxes/ui/src/styles/eindex";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Icon from '@erxes/ui/src/components/Icon';
-import { Popover } from '@headlessui/react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import client from '@erxes/ui/src/apolloClient';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import Icon from "@erxes/ui/src/components/Icon";
+import { Popover } from "@headlessui/react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import client from "@erxes/ui/src/apolloClient";
+import { generateParams } from "@erxes/ui-inbox/src/inbox/utils";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 
 type Props = {
   queryParams: any;
   refetchRequired: string;
 };
 
-const StatusFilterPopover: React.FC<Props> = ({
-  queryParams,
-  refetchRequired,
-}) => {
+const StatusFilterPopover: React.FC<Props> = ({ queryParams }) => {
   const [counts, setCounts] = useState<any>({});
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -32,38 +29,36 @@ const StatusFilterPopover: React.FC<Props> = ({
   const navigate = useNavigate();
 
   const fetchData = (ignoreCache = false) => {
+    setLoading(true);
     client
       .query({
         query: gql(queries.conversationCounts),
         variables: generateParams(queryParams),
-        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first',
+        fetchPolicy: ignoreCache ? "network-only" : "cache-first",
       })
-      .then(({ data, loading }: { data: any; loading: boolean }) => {
+      .then(({ data }: { data: any }) => {
         setCounts(data.conversationCounts);
-        setLoading(loading);
+        setLoading(false);
       })
       .catch((e) => {
         Alert.error(e.message);
+        setLoading(false);
       });
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (refetchRequired) {
-      fetchData(true);
-    }
-  }, [refetchRequired]);
+    fetchData(true);
+  }, [location.search]);
 
   const clearStatusFilter = () => {
     router.setParams(navigate, location, {
-      participating: '',
-      status: '',
-      unassigned: '',
-      starred: '',
-      awaitingResponse: '',
+      participating: "",
+      status: "",
+      unassigned: "",
+      starred: "",
+      awaitingResponse: "",
+      callAnswered: "",
+      callNotAnswered: "",
     });
   };
 
@@ -73,19 +68,20 @@ const StatusFilterPopover: React.FC<Props> = ({
     text: string,
     count: number,
   ) => {
-    const onClick = () => {
+    const onClick = (e: React.MouseEvent) => {
+      e.preventDefault(); // page reload-г зогсооно
       clearStatusFilter();
       router.setParams(navigate, location, { [paramName]: paramValue });
     };
 
     return (
-      <li>
+      <li key={paramName}>
         <a
           href="#link"
           className={
             router.getParam(location, [paramName]) === paramValue
-              ? 'active'
-              : ''
+              ? "active"
+              : ""
           }
           onClick={onClick}
         >
@@ -100,37 +96,47 @@ const StatusFilterPopover: React.FC<Props> = ({
     if (loading) {
       return (
         <div id="filter-popover">
-          <PopoverHeader>{__('Filter by status')}</PopoverHeader>
-          <div>
-            <Spinner objective={true} />
-          </div>
+          <PopoverHeader>{__("Filter by status")}</PopoverHeader>
+          <Spinner objective={true} />
         </div>
       );
     }
 
     return (
       <div id="filter-popover" className="popover-body">
-        <PopoverHeader>{__('Filter by status')}</PopoverHeader>
+        <PopoverHeader>{__("Filter by status")}</PopoverHeader>
         <SidebarList>
           {renderSingleFilter(
-            'unassigned',
-            'true',
-            'Unassigned',
+            "unassigned",
+            "true",
+            "Unassigned",
             counts.unassigned,
           )}
           {renderSingleFilter(
-            'participating',
-            'true',
-            'Participating',
+            "participating",
+            "true",
+            "Participating",
             counts.participating,
           )}
           {renderSingleFilter(
-            'awaitingResponse',
-            'true',
-            'Awaiting Response',
+            "awaitingResponse",
+            "true",
+            "Awaiting Response",
             counts.awaitingResponse,
           )}
-          {renderSingleFilter('status', 'closed', 'Resolved', counts.resolved)}
+          {renderSingleFilter("status", "closed", "Resolved", counts.resolved)}
+          {renderSingleFilter(
+            "callAnswered",
+            "true",
+            "Call Answered",
+            counts.callAnswered,
+          )}
+          {renderSingleFilter(
+            "callNotAnswered",
+            "true",
+            "Call Not Answered",
+            counts.callNotAnswered,
+          )}
         </SidebarList>
       </div>
     );
@@ -141,9 +147,9 @@ const StatusFilterPopover: React.FC<Props> = ({
       {({ open }) => (
         <>
           <Popover.Button>
-            <PopoverButton onClick={() => fetchData()}>
-              {__('Status')}
-              <Icon icon={open ? 'angle-up' : 'angle-down'} />
+            <PopoverButton>
+              {__("Status")}
+              <Icon icon={open ? "angle-up" : "angle-down"} />
             </PopoverButton>
           </Popover.Button>
           <Popover.Panel>{renderPopover()}</Popover.Panel>

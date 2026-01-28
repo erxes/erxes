@@ -75,6 +75,7 @@ export default function ConvertTrigger(props: Props) {
       trigger={trigger}
       content={content}
       addisOpenToQueryParam={true}
+      backDrop="static"
     />
   );
 }

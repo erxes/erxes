@@ -31,6 +31,7 @@ export default (props: Props) => {
       title={options.texts.addText}
       trigger={trigger}
       content={content}
+      backDrop="static"
     />
   );
 };
