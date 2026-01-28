@@ -1,43 +1,44 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   BlockEditor,
   Button,
-  Toggle,
+  Input,
   Kbd,
   Spinner,
+  Toggle,
   cn,
   getMentionedUserIds,
+  toast,
   useBlockEditor,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useUpload,
-  toast,
-  Input,
 } from 'erxes-ui';
 import {
   IconArrowUp,
-  IconPaperclip,
-  IconX,
   IconCommand,
   IconCornerDownLeft,
   IconMessage2,
+  IconPaperclip,
+  IconX,
 } from '@tabler/icons-react';
-import { useAtom, useAtomValue } from 'jotai';
-import { Block } from '@blocknote/core';
-
-import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
-import { AssignMemberInEditor } from 'ui-modules';
-import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { AssignMemberInEditor } from 'ui-modules';
+import { Block } from '@blocknote/core';
+import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
+import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from './ResponseTemplateSelector';
 import { getPreviewText } from '@/inbox/types/inbox';
-import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
+import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+
 export const MessageInput = ({
   conversationId,
 }: {
@@ -124,8 +125,6 @@ export const MessageInput = ({
     templateContent: string,
     templateId?: string,
   ) => {
-    console.log(templateContent, 'templateContent');
-    console.log(templateId, 'templateId');
     if (!editor) {
       return toast({ title: 'Editor not ready', variant: 'destructive' });
     }

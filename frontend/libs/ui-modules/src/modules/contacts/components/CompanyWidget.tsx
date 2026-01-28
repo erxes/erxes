@@ -1,8 +1,8 @@
 import { Button, Separator, SideMenu, Spinner } from 'erxes-ui';
 import {
   IconBuilding,
+  IconBuildingCog,
   IconCaretDownFilled,
-  IconPlus,
 } from '@tabler/icons-react';
 
 import { CompaniesInline } from './CompaniesInline';
@@ -71,7 +71,7 @@ const CompanyWidgetItem = ({
   );
 };
 
-const CompanyWidgetDetail = ({
+export const CompanyWidgetDetail = ({
   companyId,
   scope,
 }: {
@@ -137,9 +137,7 @@ const CompanyWidgetContent = ({
   if (!companyIds || companyIds.length === 0) {
     return <div className="p-4">No companies found</div>;
   }
-  if (companyIds.length === 1) {
-    return <CompanyWidgetDetail companyId={companyIds[0]} scope={scope} />;
-  }
+
   return (
     <div className="p-4 space-y-2">
       {companyIds.map((companyId: string) => {
@@ -173,7 +171,7 @@ const CompanyWidgetHeader = ({
           companyIds={companyIds}
         >
           <Button variant="ghost" size="sm">
-            <IconPlus className="h-4 w-4" />
+            <IconBuildingCog className="h-4 w-4" />
           </Button>
         </SelectCompaniesBulk>
       )}
