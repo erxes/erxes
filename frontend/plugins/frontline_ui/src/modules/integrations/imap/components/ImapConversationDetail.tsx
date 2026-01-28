@@ -1,303 +1,222 @@
-// import React, { useState } from 'react';
-// import { useQuery } from '@apollo/client';
-// import styled from '@emotion/styled';
-// import { Button } from 'erxes-ui';
+import React, { useRef, useState } from 'react';
+import { useQuery } from '@apollo/client';
+import { Avatar, Button, formatDateISOStringToRelativeDate, formatDateISOStringToRelativeDateShort, ScrollArea, Separator } from 'erxes-ui';
 
-// import { IMAP_CONVERSATION_DETAIL_QUERY } from '../graphql/queries/imapQueries';
-// import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { IMAP_CONVERSATION_DETAIL_QUERY } from '../graphql/queries/imapQueries';
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { formatDate } from 'date-fns';
+import { IconArrowBackUp, IconMailForward } from '@tabler/icons-react';
 
-// /* =====================
-//    Types
-// ===================== */
+/* =====================
+   Types
+===================== */
 
-// interface EmailAddress {
-//   name?: string;
-//   email?: string;
-//   avatar?: string;
-// }
+interface EmailAddress {
+  name?: string;
+  email?: string;
+  avatar?: string;
+}
 
-// interface MailData {
-//   from?: EmailAddress[];
-//   to?: EmailAddress[];
-//   cc?: EmailAddress[];
-//   subject?: string;
-//   body?: string;
-// }
+interface MailData {
+  from?: EmailAddress[];
+  to?: EmailAddress[];
+  cc?: EmailAddress[];
+  subject?: string;
+  body?: string;
+}
 
-// interface Conversation {
-//   _id: string;
-//   createdAt: string;
-//   mailData: MailData;
-// }
+interface Conversation {
+  _id: string;
+  createdAt: string;
+  mailData: MailData;
+}
 
-// interface ImapConversationDetailResponse {
-//   imapConversationDetail: Conversation[];
-// }
+interface ImapConversationDetailResponse {
+  imapConversationDetail: Conversation[];
+}
 
-// /* =====================
-//    Styled components
-// ===================== */
+/* =====================
+   Utils
+===================== */
 
-// const EmailContainer = styled.div`
-//   background: #fff;
-//   border: 1px solid #e1e4e8;
-//   border-radius: 8px;
-//   display: flex;
-//   flex-direction: column;
-//   height: 100%;
-// `;
+const formatEmails = (emails?: EmailAddress[]) => {
+  if (!emails || !emails.length) return '';
+  return emails
+    .map((e) => (e.email))
+    .join(', ');
+};
 
-// const EmailHeader = styled.div`
-//   padding: 16px 20px;
-//   border-bottom: 1px solid #e1e4e8;
-// `;
+/* =====================
+   Components
+===================== */
 
-// const EmailSubject = styled.h2`
-//   margin: 12px 0 0;
-//   font-size: 20px;
-//   font-weight: 600;
-//   color: #24292e;
-// `;
+const EmailMetaInfo: React.FC<{ mailData: MailData }> = ({ mailData }) => {
+  const from = mailData.from?.[0];
+  const to = mailData.to?.[0];
+  const cc = mailData.cc?.[0];
+  console.log('MAIL DATA:', mailData);
 
-// const EmailMeta = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   gap: 6px;
-// `;
+  return (
+    <div className="flex flex-col">
+      <span className='px-3 h-11 w-full flex items-center gap-x-3'>
+        <strong className="text-muted-foreground font-medium max-w-12 w-full">From</strong>
+        <Avatar size={'lg'}>
+          <Avatar.Image src={from?.avatar} />
+          <Avatar.Fallback>
+            {from?.name?.[0]}
+          </Avatar.Fallback>
+        </Avatar>
+        <span className='text-foreground font-semibold'>
+          {from?.name}
+        </span>
+        <span className='text-muted-foreground font-medium'>
+          {formatEmails(mailData.from)}
+        </span>
+      </span>
 
-// const MetaItem = styled.div`
-//   display: flex;
-//   align-items: center;
-//   gap: 8px;
-//   font-size: 13px;
-//   color: #57606a;
+      <Separator />
 
-//   strong {
-//     color: #24292e;
-//     font-weight: 600;
-//   }
-// `;
+      <span className='px-3 h-11 w-full flex items-center gap-x-3'>
+        <strong className="text-muted-foreground font-medium max-w-12 w-full">To</strong>
+        <Avatar size={'lg'}>
+          <Avatar.Fallback>
+            {to?.name?.[0] || "C"}
+          </Avatar.Fallback>
+        </Avatar>
+        <span className='text-foreground font-semibold'>
+          {to?.name}
+        </span>
+        <span className='text-muted-foreground font-medium'>
+          {formatEmails(mailData.to)}
+        </span>
+      </span>
 
-// const Avatar = styled.img`
-//   width: 26px;
-//   height: 26px;
-//   border-radius: 50%;
-//   object-fit: cover;
-// `;
+      {mailData.cc && mailData.cc.length > 0 && (
+        <>
+          <Separator />
+          <span className='px-3 h-11 w-full flex items-center gap-x-3'>
+            <strong className="text-muted-foreground font-medium max-w-12 w-full">Cc</strong>
+            <Avatar size={'lg'}>
+              <Avatar.Image src={cc?.avatar} />
+              <Avatar.Fallback>
+                {cc?.name?.[0] || "C"}
+              </Avatar.Fallback>
+            </Avatar>
+            <span className='text-foreground font-semibold'>
+              {cc?.name}
+            </span>
+            <span className='text-muted-foreground font-medium'>
+              {formatEmails(mailData.cc)}
+            </span>
+          </span>
+        </>
+      )}
+    </div>
+  );
+};
 
-// /* 🔥 scroll wrapper */
-// const EmailBodyWrapper = styled.div`
-//   flex: 1;
-//   overflow-y: auto;
-//   border-top: 1px solid #f1f3f5;
-//   border-bottom: 1px solid #f1f3f5;
-// `;
+const EmailActionsPanel = ({ setReply }: { setReply: (reply: boolean) => void }) => (
+  <div className="flex gap-x-2 px-3 pb-2">
+    <Button className='flex-1' variant={'secondary'} onClick={() => setReply(true)}>
+      <IconArrowBackUp />
+      Reply
+    </Button>
+    <Button className='flex-1' variant={'secondary'}>
+      <IconMailForward />
+      Forward
+    </Button>
+  </div>
+);
 
-// const EmailBody = styled.div`
-//   padding: 20px;
-//   font-size: 14px;
-//   line-height: 1.55;
-//   color: #24292e;
+const ReplySection = ({ setReply }: { setReply: (reply: boolean) => void }) => {
+  const [html, setHtml] = useState('');
 
-//   p {
-//     margin: 10px 0;
-//   }
+  const handleSend = () => {
+    if (!html.trim()) return;
+    console.log('SEND HTML:', html);
+    setHtml('');
+    setReply(false);
+  };
 
-//   em,
-//   i {
-//     font-style: italic;
-//   }
+  const handleCancel = () => {
+    setReply(false);
+    setHtml('');
+  };
 
-//   img {
-//     max-width: 100%;
-//     border-radius: 6px;
-//     margin: 12px 0;
-//   }
+  return (
+    <div className="py-2 px-3">
+      <div
+        className="max-h-[140px] overflow-y-auto p-2.5 px-3 rounded border text-sm leading-relaxed focus:outline-none focus:border-primary [&_em]:italic [&_i]:italic"
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e) => setHtml(e.currentTarget.innerHTML)}
+        role="textbox"
+        aria-multiline="true"
+      />
+      <div className="flex justify-end gap-2.5 mt-2.5">
+        <Button onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button onClick={handleSend}>
+          Send
+        </Button>
+      </div>
+    </div>
+  );
+};
 
-//   blockquote {
-//     font-style: italic;
-//     color: #57606a;
-//     border-left: 3px solid #d0d7de;
-//     padding-left: 12px;
-//     margin: 12px 0;
-//   }
-// `;
+/* =====================
+   Main
+===================== */
 
-// const EmailTimestamp = styled.div`
-//   margin-top: 16px;
-//   font-size: 12px;
-//   color: #6a737d;
-// `;
+export const ImapConversationDetail: React.FC = () => {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [reply, setReply] = useState(false);
+  const { _id } = useConversationContext();
 
-// const EmailActions = styled.div`
-//   padding: 10px 16px;
-//   border-bottom: 1px solid #e1e4e8;
-//   background: #fafbfc;
-//   display: flex;
-//   gap: 10px;
-// `;
+  const { data, loading, error } = useQuery<ImapConversationDetailResponse>(
+    IMAP_CONVERSATION_DETAIL_QUERY,
+    {
+      variables: { conversationId: _id },
+      skip: !_id,
+    },
+  );
 
-// const ReplyContainer = styled.div`
-//   padding: 12px 16px;
-//   background: #fafbfc;
-// `;
+  if (loading) return <div className="p-10 text-center">Loading email…</div>;
+  if (error)
+    return <div className="p-10 text-center">Error: {error.message}</div>;
 
-// const ReplyEditor = styled.div`
-//   max-height: 140px;
-//   overflow-y: auto;
-//   padding: 10px 12px;
-//   border: 1px solid #d1d5db;
-//   border-radius: 6px;
-//   font-size: 14px;
-//   line-height: 1.5;
+  const conversation = data?.imapConversationDetail?.[0];
+  if (!conversation) return <div className="p-10 text-center">No email found</div>;
 
-//   em,
-//   i {
-//     font-style: italic;
-//   }
+  const { mailData, createdAt } = conversation;
 
-//   &:focus {
-//     outline: none;
-//     border-color: #6366f1;
-//   }
-// `;
+  return (
+    <ScrollArea className="h-full max-h-[70vh]">
+      <div className='flex flex-col max-w-2xl mx-auto p-6 box-border overflow-y-auto'>
+        <div className="bg-background rounded-lg shadow-sm">
+          <EmailMetaInfo mailData={mailData} />
+          <Separator />
 
-// const ReplyActions = styled.div`
-//   display: flex;
-//   justify-content: flex-end;
-//   gap: 10px;
-//   margin-top: 10px;
-// `;
+          <iframe srcDoc={mailData.body} className='w-full h-full hide-scroll min-h-96' />
+          <Separator />
 
-// const Center = styled.div`
-//   padding: 40px;
-//   text-align: center;
-// `;
+          <div className="text-xs text-muted-foreground px-3 py-2">
+            {
+              formatDateISOStringToRelativeDate(createdAt)
+            }{', '}
+            {
+              formatDate(createdAt, 'HH:mm')
+            }
+          </div>
 
-// /* =====================
-//    Utils
-// ===================== */
+          <EmailActionsPanel setReply={setReply} />
+          {
+            reply && <ReplySection setReply={setReply} />
+          }
+        </div>
+      </div>
+    </ScrollArea>
 
-// const formatEmails = (emails?: EmailAddress[]) => {
-//   if (!emails || !emails.length) return '';
-//   return emails
-//     .map((e) => (e.name ? `${e.name} <${e.email}>` : e.email))
-//     .join(', ');
-// };
-
-// /* =====================
-//    Components
-// ===================== */
-
-// const EmailMetaInfo: React.FC<{ mailData: MailData }> = ({ mailData }) => {
-//   const from = mailData.from?.[0];
-
-//   return (
-//     <EmailMeta>
-//       <MetaItem>
-//         {from?.avatar && <Avatar src={from.avatar} alt={from.name} />}
-//         <span>
-//           <strong>From:</strong> {formatEmails(mailData.from)}
-//         </span>
-//       </MetaItem>
-//       <MetaItem>
-//         <strong>To:</strong> {formatEmails(mailData.to)}
-//       </MetaItem>
-//       {mailData.cc && mailData.cc.length > 0 && (
-//         <MetaItem>
-//           <strong>Cc:</strong> {formatEmails(mailData.cc)}
-//         </MetaItem>
-//       )}
-//     </EmailMeta>
-//   );
-// };
-
-// const EmailActionsPanel = () => (
-//   <EmailActions>
-//     <Button size="small" icon="reply-1">
-//       Reply
-//     </Button>
-//     <Button size="small" icon="forward">
-//       Forward
-//     </Button>
-//   </EmailActions>
-// );
-
-// const ReplySection = () => {
-//   const [html, setHtml] = useState('');
-
-//   const handleSend = () => {
-//     if (!html.trim()) return;
-//     console.log('SEND HTML:', html);
-//     setHtml('');
-//   };
-
-//   return (
-//     <ReplyContainer>
-//       <ReplyEditor
-//         contentEditable
-//         suppressContentEditableWarning
-//         onInput={(e) => setHtml(e.currentTarget.innerHTML)}
-//         placeholder="Type your reply..."
-//       />
-//       <ReplyActions>
-//         <Button size="small" onClick={() => setHtml('')}>
-//           Cancel
-//         </Button>
-//         <Button size="small" btnStyle="primary" onClick={handleSend}>
-//           Send
-//         </Button>
-//       </ReplyActions>
-//     </ReplyContainer>
-//   );
-// };
-
-// /* =====================
-//    Main
-// ===================== */
-
-// export const ImapConversationDetail: React.FC = () => {
-//   const { _id } = useConversationContext();
-
-//   const { data, loading, error } = useQuery<ImapConversationDetailResponse>(
-//     IMAP_CONVERSATION_DETAIL_QUERY,
-//     {
-//       variables: { conversationId: _id },
-//       skip: !_id,
-//     },
-//   );
-
-//   if (loading) return <Center>Loading email…</Center>;
-//   if (error) return <Center>Error: {error.message}</Center>;
-
-//   const conversation = data?.imapConversationDetail?.[0];
-//   if (!conversation) return <Center>No email found</Center>;
-
-//   const { mailData, createdAt } = conversation;
-
-//   return (
-//     <EmailContainer>
-//       <EmailHeader>
-//         <EmailMetaInfo mailData={mailData} />
-//         <EmailSubject>{mailData.subject}</EmailSubject>
-//       </EmailHeader>
-
-//       <EmailBodyWrapper>
-//         <EmailBody>
-//           <div dangerouslySetInnerHTML={{ __html: mailData.body || '' }} />
-//           <EmailTimestamp>
-//             {new Date(createdAt).toLocaleString('en-US', {
-//               month: 'short',
-//               day: '2-digit',
-//               hour: '2-digit',
-//               minute: '2-digit',
-//             })}
-//           </EmailTimestamp>
-//         </EmailBody>
-//       </EmailBodyWrapper>
-
-//       <EmailActionsPanel />
-//       <ReplySection />
-//     </EmailContainer>
-//   );
-// };
+  );
+};
