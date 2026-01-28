@@ -4,6 +4,7 @@ export const STATUS_TYPES = {
   STARTED: 1,
   COMPLETED: 4,
   CANCELLED: 5,
+  TRIAGE: 6,
 };
 
 export const DEFAULT_STATUSES = [
