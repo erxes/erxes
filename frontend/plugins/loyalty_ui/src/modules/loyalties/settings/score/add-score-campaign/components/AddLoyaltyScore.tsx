@@ -7,63 +7,46 @@ import {
 } from '../../constants/formSchema';
 import { LoyaltyScoreAddCoreFields } from './LoyaltyScoreAddCoreFields';
 import { LoyaltyScoreAddMoreFields } from './LoyaltyScoreAddMoreFields';
-import {
-  useAddLoyaltyScore,
-  AddLoyaltyScoreVariables,
-} from '../hooks/useAddLoyaltyScore';
+import { AddScoreVariables, useAddScore } from '../hooks/useAddLoyaltyScore';
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
 }: {
   onOpenChange: (open: boolean) => void;
 }) {
-  const { loyaltyScoreAdd, loading: editLoading } = useAddLoyaltyScore();
+  const { scoreAdd, loading: editLoading } = useAddScore();
   const form = useForm<LoyaltyScoreFormValues>({
     resolver: zodResolver(loyaltyScoreFormSchema),
     defaultValues: {
       title: '',
       description: '',
-      startDate: '',
-      endDate: '',
-      productCategory: [],
-      product: [],
-      tags: [],
-      orExcludeProductCategory: [],
-      orExcludeProduct: [],
-      orExcludeTag: [],
+      conditions: {
+        productCategoryIds: [],
+        productIds: [],
+        tagIds: [],
+        excludeProductCategoryIds: [],
+        excludeProductIds: [],
+        excludeTagIds: [],
+      },
     },
   });
 
   async function onSubmit(data: LoyaltyScoreFormValues) {
-    const variables: AddLoyaltyScoreVariables = {
+    const variables: AddScoreVariables = {
       name: data.title,
       kind: 'score',
-      startDate: data.startDate,
-      endDate: data.endDate,
+      conditions: {
+        productCategoryIds: data.conditions.productCategoryIds?.join(','),
+        productIds: data.conditions.productIds?.join(','),
+        tagIds: data.conditions.tagIds?.join(','),
+        excludeProductCategoryIds:
+          data.conditions.excludeProductCategoryIds?.join(','),
+        excludeProductIds: data.conditions.excludeProductIds?.join(','),
+        excludeTagIds: data.conditions.excludeTagIds?.join(','),
+      },
     };
 
-    Object.entries(data).forEach(([key, value]) => {
-      if (
-        value !== undefined &&
-        value !== null &&
-        value !== '' &&
-        (!Array.isArray(value) || value.length > 0)
-      ) {
-        if (key === 'title') return;
-
-        if (key === 'startDate' || key === 'endDate') {
-          if (value instanceof Date) {
-            (variables as any)[key] = value.toISOString();
-          } else if (typeof value === 'string') {
-            (variables as any)[key] = new Date(value).toISOString();
-          }
-        } else {
-          (variables as any)[key] = value;
-        }
-      }
-    });
-
-    loyaltyScoreAdd({
+    scoreAdd({
       variables,
       onCompleted: () => {
         form.reset();

@@ -12,11 +12,10 @@ export const LoyaltyScoreCommandBar = () => {
         </CommandBar.Value>
         <Separator.Inline />
         <LoyaltyScoreDelete
-          productIds={table
+          scoreIds={table
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original._id)}
         />
-        <Separator.Inline />
       </CommandBar.Bar>
     </CommandBar>
   );

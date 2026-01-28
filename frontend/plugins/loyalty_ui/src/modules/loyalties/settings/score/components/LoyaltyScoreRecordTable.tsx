@@ -1,126 +1,69 @@
-import { ColumnDef } from '@tanstack/react-table';
-import {
-  RecordTable,
-  RecordTableInlineCell,
-  RecordTableTree,
-  Switch,
-} from 'erxes-ui';
-import { useLoyaltyScore } from '../hooks/useLoyaltyScore';
-import {
-  IconCheck,
-  IconImageInPicture,
-  IconLabelFilled,
-} from '@tabler/icons-react';
-import { useMemo } from 'react';
-import { loyaltyScoreMoreColumn } from './LoyaltyScoreMoreColumn';
-import { LoyaltyScoreCommandBar } from './loyalty-score-command-bar/LoyaltyScoreCommandBar';
-import { LOYALTY_SCORE_PER_PAGE } from '../hooks/useLoyaltyScore';
-import { useLoyaltyScoreEdit } from '../hooks/useLoyaltyScoreEdit';
+import { RecordTable } from 'erxes-ui';
 
-export const LoyaltyScoreRecordTable = () => {
-  const { campaigns, loading } = useLoyaltyScore();
+import { scoreColumns } from './ScoreColumns';
+
+import { useLoyaltyScore } from '../hooks/useLoyaltyScore';
+import { useLoyaltyScoreEdit } from '../hooks/useLoyaltyScoreEdit';
+import { LOYALTY_SCORE_CURSOR_SESSION_KEY } from '../constants/loyaltyScoreCursorSessionKey';
+
+import { IconTicket } from '@tabler/icons-react';
+import { LoyaltyScoreCommandBar } from './loyalty-score-command-bar/LoyaltyScoreCommandBar';
+import { LoyaltyScoreAddSheet } from './LoyaltyScoreAddSheet';
+
+export const ScoreRecordTable = () => {
+  const { campaigns, handleFetchMore, loading, pageInfo } = useLoyaltyScore();
   const { editStatus } = useLoyaltyScoreEdit();
 
-  const categories = campaigns?.map((category: any) => ({
-    ...category,
-    hasChildren: campaigns?.some((c: any) => c.parentId === category._id),
-  }));
-
-  const categoryObject = useMemo(() => {
-    return categories?.reduce((acc: Record<string, any>, category: any) => {
-      acc[category._id] = category;
-      return acc;
-    }, {});
-  }, [categories]);
-
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={loyaltyScoreColumns(categoryObject || {}, editStatus)}
-      data={categories || []}
+      columns={scoreColumns(editStatus)}
+      data={campaigns || []}
       className="m-3"
+      stickyColumns={['more', 'checkbox', 'name']}
     >
-      <RecordTableTree id="product-categories" ordered>
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList Row={RecordTableTree.Row} />
-              {loading && (
-                <RecordTable.RowSkeleton rows={LOYALTY_SCORE_PER_PAGE} />
-              )}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTableTree>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={campaigns?.length}
+        sessionKey={LOYALTY_SCORE_CURSOR_SESSION_KEY}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+        {!loading && campaigns?.length === 0 && (
+          <div>
+            <div className=" h-full w-full px-8 flex justify-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                <div className="mb-6">
+                  <IconTicket
+                    size={64}
+                    className="text-muted-foreground mx-auto mb-4"
+                  />
+                  <h3 className="text-xl font-semibold mb-2">
+                    No score campaign yet
+                  </h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Get started by creating your first score campaign.
+                  </p>
+                </div>
+                <LoyaltyScoreAddSheet />
+              </div>
+            </div>
+          </div>
+        )}
+      </RecordTable.CursorProvider>
       <LoyaltyScoreCommandBar />
     </RecordTable.Provider>
   );
 };
-
-export const loyaltyScoreColumns: (
-  categoryObject: Record<string, any>,
-  editStatus: (options: any) => void,
-) => ColumnDef<any & { hasChildren: boolean }>[] = (
-  categoryObject,
-  editStatus,
-) => [
-  loyaltyScoreMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<any & { hasChildren: boolean }>,
-  {
-    id: 'name',
-    header: () => (
-      <RecordTable.InlineHead icon={IconImageInPicture} label="Name" />
-    ),
-    accessorKey: 'name',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="px-1">
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 200,
-  },
-  {
-    id: 'ownerType',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label="Owner Type" />
-    ),
-    accessorKey: 'ownerType',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 300,
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconCheck} label="Status" />,
-    cell: ({ cell }) => {
-      const { _id } = cell.row.original || {};
-      const currentStatus = cell.getValue() as string;
-      const isActive = currentStatus === 'published';
-
-      return (
-        <RecordTableInlineCell>
-          <Switch
-            className="mx-auto"
-            checked={isActive}
-            onCheckedChange={() => {
-              editStatus({
-                variables: {
-                  _id,
-                  status: isActive ? 'unpublished' : 'published',
-                },
-              });
-            }}
-          />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-];

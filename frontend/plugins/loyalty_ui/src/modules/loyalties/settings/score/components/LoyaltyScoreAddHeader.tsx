@@ -1,11 +1,11 @@
 import { PageHeader } from 'ui-modules';
-import { LoyaltySCoreAddSheet } from './AddLoyaltyScoreForm';
+import { LoyaltyScoreAddSheet } from './LoyaltyScoreAddSheet';
 
 export const LoyaltyScoreAddHeader = () => {
   return (
     <PageHeader>
       <PageHeader.End>
-        <LoyaltySCoreAddSheet />
+        <LoyaltyScoreAddSheet />
       </PageHeader.End>
     </PageHeader>
   );

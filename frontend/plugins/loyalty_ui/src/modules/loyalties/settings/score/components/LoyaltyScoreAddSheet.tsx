@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { AddLoyaltyScoreForm } from '../add-score-campaign/components/AddLoyaltyScore';
 import { LoyaltyHotKeyScope } from '../types/LoyaltyHotKeyScope';
 
-export const LoyaltySCoreAddSheet = () => {
+export const LoyaltyScoreAddSheet = () => {
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -55,7 +55,7 @@ export const LoyaltySCoreAddSheet = () => {
   );
 };
 
-export const LoyaltySCoreAddSheetHeader = () => {
+export const LoyaltyScoreAddSheetHeader = () => {
   return (
     <Sheet.Header className="border-b gap-3">
       <Sheet.Title>Create Loyalty Score</Sheet.Title> <Sheet.Close />

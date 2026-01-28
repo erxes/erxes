@@ -23,12 +23,12 @@ export const EditAssignmentTabs = ({ onOpenChange, form }: Props) => {
 
     const data = form.getValues();
 
-    const formatDate = (date: string | Date | undefined): string => {
-      if (!date) return '';
+    const formatDate = (date: string | Date | undefined): Date | undefined => {
+      if (!date) return undefined;
       if (date instanceof Date) {
-        return date.toISOString();
+        return date;
       }
-      return date;
+      return new Date(date);
     };
 
     const variables: any = {

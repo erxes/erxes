@@ -1,33 +1,42 @@
-import { useMutation } from '@apollo/client';
-import { MutationHookOptions } from '@apollo/client';
+import { useMutation, MutationHookOptions } from '@apollo/client';
+import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { LOYALTY_SCORE_CURSOR_SESSION_KEY } from '../../constants/loyaltyScoreCursorSessionKey';
+import { LOYALTY_SCORE_CAMPAIGN_QUERY } from '../../graphql/queries/loyaltyScoreCampaignQuery';
 import { LOYALTY_SCORE_ADD_MUTATION } from '../graphql/mutations/loyaltyScoreAddMutation';
-import { useToast } from 'erxes-ui';
 
-export interface AddLoyaltyScoreResult {
+export interface AddScoreResult {
   createCampaign: any;
 }
 
-export interface AddLoyaltyScoreVariables {
+export interface AddScoreVariables {
   name: string;
   kind: string;
-  description?: string;
-  productCategory?: string[];
-  product?: string[];
-  tags?: string[];
-  startDate?: string;
-  endDate?: string;
-  orExcludeProductCategory?: string[];
-  orExcludeProduct?: string[];
-  orExcludeTag?: string[];
+  conditions: {
+    productCategoryIds?: string;
+    excludeProductCategoryIds?: string;
+    productIds?: string;
+    excludeProductIds?: string;
+    tagIds?: string;
+    excludeTagIds?: string;
+  };
 }
+export const SCORE_PER_PAGE = 30;
 
-export function useAddLoyaltyScore() {
+export const useAddScore = () => {
   const { toast } = useToast();
-
-  const [addLoyaltyScore, { loading, error }] = useMutation<
-    AddLoyaltyScoreResult,
-    AddLoyaltyScoreVariables
+  const { cursor } = useRecordTableCursor({
+    sessionKey: LOYALTY_SCORE_CURSOR_SESSION_KEY,
+  });
+  const [addScore, { loading, error }] = useMutation<
+    AddScoreResult,
+    AddScoreVariables
   >(LOYALTY_SCORE_ADD_MUTATION, {
+    refetchQueries: [
+      {
+        query: LOYALTY_SCORE_CAMPAIGN_QUERY,
+        variables: { kind: 'score', limit: SCORE_PER_PAGE, cursor },
+      },
+    ],
     update: (cache, { data }) => {
       try {
         const newCampaign = data?.createCampaign;
@@ -36,36 +45,23 @@ export function useAddLoyaltyScore() {
           return;
         }
 
-        cache.modify({
-          fields: {
-            getCampaigns: (existing = {}, details: any) => {
-              const { args, readField, toReference } = details;
-              if (args?.kind !== 'score') {
-                return existing;
-              }
+        const existingData: any = cache.readQuery({
+          query: LOYALTY_SCORE_CAMPAIGN_QUERY,
+          variables: { kind: 'score', limit: SCORE_PER_PAGE, cursor },
+        });
 
-              const existingList = (existing as any)?.list || [];
-              const totalCount = (existing as any)?.totalCount;
+        if (!existingData?.getCampaigns) {
+          return;
+        }
 
-              const newRef = toReference(newCampaign);
-              if (!newRef) {
-                return existing;
-              }
-
-              const alreadyExists = existingList.some(
-                (ref: any) => readField('_id', ref) === newCampaign._id,
-              );
-
-              if (alreadyExists) {
-                return existing;
-              }
-
-              return {
-                ...(existing as any),
-                list: [newRef, ...existingList],
-                totalCount:
-                  typeof totalCount === 'number' ? totalCount + 1 : totalCount,
-              };
+        cache.writeQuery({
+          query: LOYALTY_SCORE_CAMPAIGN_QUERY,
+          variables: { kind: 'score', limit: SCORE_PER_PAGE, cursor },
+          data: {
+            getCampaigns: {
+              ...existingData.getCampaigns,
+              list: [newCampaign, ...existingData.getCampaigns.list],
+              totalCount: (existingData.getCampaigns.totalCount || 0) + 1,
             },
           },
         });
@@ -75,13 +71,10 @@ export function useAddLoyaltyScore() {
     },
   });
 
-  const loyaltyScoreAdd = async (
-    options: MutationHookOptions<
-      AddLoyaltyScoreResult,
-      AddLoyaltyScoreVariables
-    >,
+  const scoreAdd = async (
+    options: MutationHookOptions<AddScoreResult, AddScoreVariables>,
   ) => {
-    return addLoyaltyScore({
+    return addScore({
       ...options,
       onCompleted: (data) => {
         toast({
@@ -91,16 +84,20 @@ export function useAddLoyaltyScore() {
         });
         options?.onCompleted?.(data);
       },
-      onError: (err) => {
+      onError: (error) => {
         toast({
           title: 'Error',
-          description: err.message,
+          description: error.message,
           variant: 'destructive',
         });
-        options?.onError?.(err);
+        options?.onError?.(error);
       },
     });
   };
 
-  return { loyaltyScoreAdd, loading, error };
-}
+  return {
+    scoreAdd,
+    loading,
+    error,
+  };
+};

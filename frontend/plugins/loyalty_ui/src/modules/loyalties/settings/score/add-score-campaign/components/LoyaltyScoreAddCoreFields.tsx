@@ -48,7 +48,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
         <div className="flex flex-col gap-4">
           <Form.Field
             control={form.control}
-            name="productCategory"
+            name="conditions.productCategoryIds"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Product Category</Form.Label>
@@ -68,7 +68,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
 
           <Form.Field
             control={form.control}
-            name="product"
+            name="conditions.productIds"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Product</Form.Label>
@@ -87,7 +87,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
           />
           <Form.Field
             control={form.control}
-            name="tags"
+            name="conditions.tagIds"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Tag</Form.Label>
@@ -95,7 +95,9 @@ export const LoyaltyScoreAddCoreFields: React.FC<
                   <SelectTags
                     mode="multiple"
                     value={field.value || []}
-                    onValueChange={(value) => field.onChange(value)}
+                    onValueChange={(value) =>
+                      field.onChange(Array.isArray(value) ? value : [])
+                    }
                     tagType="tags"
                   />
                 </Form.Control>
@@ -107,7 +109,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
         <div className="flex flex-col gap-4">
           <Form.Field
             control={form.control}
-            name="orExcludeProductCategory"
+            name="conditions.excludeProductCategoryIds"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Or Exclude Product Category</Form.Label>
@@ -127,7 +129,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
 
           <Form.Field
             control={form.control}
-            name="orExcludeProduct"
+            name="conditions.excludeProductIds"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Or Exclude Product</Form.Label>
@@ -146,7 +148,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
           />
           <Form.Field
             control={form.control}
-            name="orExcludeTag"
+            name="conditions.excludeTagIds"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Or Exclude Tag</Form.Label>
@@ -154,7 +156,9 @@ export const LoyaltyScoreAddCoreFields: React.FC<
                   <SelectTags
                     mode="multiple"
                     value={field.value || []}
-                    onValueChange={(value) => field.onChange(value)}
+                    onValueChange={(value) =>
+                      field.onChange(Array.isArray(value) ? value : [])
+                    }
                     tagType="tags"
                   />
                 </Form.Control>

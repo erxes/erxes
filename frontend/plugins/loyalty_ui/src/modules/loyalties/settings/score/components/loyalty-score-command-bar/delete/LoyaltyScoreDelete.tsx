@@ -1,15 +1,11 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
-import { useLoyaltyScoreRowsRemove } from '../../../hooks/useLoyaltyScoreRowsRemove';
+import { useDeleteScore } from '../../../hooks/useLoyaltyScoreRowsRemove';
 
-export const LoyaltyScoreDelete = ({
-  productIds,
-}: {
-  productIds: string[];
-}) => {
+export const LoyaltyScoreDelete = ({ scoreIds }: { scoreIds: string[] }) => {
   const { confirm } = useConfirm();
-  const { removeLoyaltyScoreRows } = useLoyaltyScoreRowsRemove();
+  const { removeScore } = useDeleteScore();
   const { toast } = useToast();
   return (
     <Button
@@ -18,22 +14,18 @@ export const LoyaltyScoreDelete = ({
       onClick={() =>
         confirm({
           message: `Are you sure you want to delete the ${
-            productIds.length
+            scoreIds.length
           } selected loyalty score campaign${
-            productIds.length === 1 ? '' : 's'
+            scoreIds.length === 1 ? '' : 's'
           }?`,
         }).then(() => {
-          const deletePromises = productIds.map((id) =>
-            removeLoyaltyScoreRows({
-              variables: { _id: id },
-            }),
-          );
-
-          Promise.all(deletePromises)
+          removeScore({
+            variables: { _ids: scoreIds },
+          })
             .then(() => {
               toast({
-                title: `${productIds.length} loyalty score campaign${
-                  productIds.length === 1 ? '' : 's'
+                title: `${scoreIds.length} loyalty score campaign${
+                  scoreIds.length === 1 ? '' : 's'
                 } deleted successfully`,
                 variant: 'success',
               });

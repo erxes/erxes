@@ -7,8 +7,8 @@ export const LOYALTY_SCORE_ADD_MUTATION = gql`
     $description: String
     $status: String
     $type: String
-    $startDate: String
-    $endDate: String
+    $startDate: Date
+    $endDate: Date
     $amount: Float
     $conditions: JSON
   ) {

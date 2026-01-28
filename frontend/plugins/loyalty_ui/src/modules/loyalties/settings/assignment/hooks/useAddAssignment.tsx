@@ -13,8 +13,8 @@ export interface AddAssignmentVariables {
   name: string;
   kind: string;
   status?: string;
-  startDate?: string;
-  endDate?: string;
+  startDate?: Date;
+  endDate?: Date;
   title?: string;
   conditions?: {
     voucherCampaignId?: string;

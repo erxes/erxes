@@ -7,8 +7,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { useLoyaltyScoreRowsRemove } from '../hooks/useLoyaltyScoreRowsRemove';
-
+import { useDeleteScore } from '../hooks/useLoyaltyScoreRowsRemove';
 export const LoyaltyScoreRowsCommandbar = () => {
   const { table } = RecordTable.useRecordTable();
   return (
@@ -27,7 +26,7 @@ export const LoyaltyScoreRowsCommandbar = () => {
 export const LoyaltyScoreRowsDelete = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
-  const { removeLoyaltyScoreRows, loading } = useLoyaltyScoreRowsRemove();
+  const { removeScore, loading } = useDeleteScore();
 
   const handleDelete = () => {
     confirm({
@@ -41,8 +40,8 @@ export const LoyaltyScoreRowsDelete = () => {
         .getFilteredSelectedRowModel()
         .rows.map((row) => row.original._id);
 
-      removeLoyaltyScoreRows({
-        variables: { ids: loyaltyScoreRowIds },
+      removeScore({
+        variables: { _ids: loyaltyScoreRowIds },
         onError: (error: Error) => {
           toast({
             title: 'Error',
