@@ -1,9 +1,14 @@
+import { logicSchema } from '@/properties/db/definitions/common';
 import { Schema } from 'mongoose';
 
 const fieldOptionSchema = new Schema(
   {
     label: { type: String, required: true },
     value: { type: String, required: true },
+    coordinates: {
+      lat: Number,
+      lng: Number,
+    },
   },
   { _id: false },
 );
@@ -29,8 +34,9 @@ export const fieldSchema = new Schema(
     type: { type: String, label: 'Type', required: true },
     order: { type: Number, label: 'Order', index: true },
 
-    logics: { type: Schema.Types.Mixed, label: 'Logic' },
+    logics: { type: [logicSchema], label: 'Logic' },
     validations: { type: Schema.Types.Mixed, label: 'Validation' },
+    configs: { type: Schema.Types.Mixed, label: 'Configs' },
 
     options: { type: [fieldOptionSchema], label: 'Options' },
     icon: { type: String, label: 'Icon' },

@@ -1,3 +1,4 @@
+import { logicSchema } from '@/properties/db/definitions/common';
 import { Schema } from 'mongoose';
 
 export const fieldGroupSchema = new Schema(
@@ -6,11 +7,11 @@ export const fieldGroupSchema = new Schema(
     code: { type: String, label: 'Code', required: true, index: true },
     description: { type: String, label: 'Description' },
     contentType: { type: String, label: 'Content type' },
-    contentTypeId: { type: String, label: 'Content type id' },
 
     order: { type: Number, label: 'Order', index: true },
 
-    logics: { type: Schema.Types.Mixed, label: 'Logic' },
+    logics: { type: [logicSchema], label: 'Logic' },
+    configs: { type: Schema.Types.Mixed, label: 'Configs' },
 
     createdBy: { type: String, label: 'Created By' },
     updatedBy: { type: String, label: 'Updated By' },

@@ -9,6 +9,7 @@ export const types = `
         contentType: String!
         order: Float
         logics: JSON
+        configs: JSON
         createdAt: Date!
         updatedAt: Date!
     }
@@ -21,7 +22,6 @@ export const types = `
 
     input FieldGroupParams {
         contentType: String!
-        contentTypeId: String
         codes: [String]
 
         ${GQL_CURSOR_PARAM_DEFS}
@@ -38,6 +38,7 @@ const mutationParams = `
     description: String
     contentType: String
     logics: JSON
+    configs: JSON
 `;
 
 export const mutations = `

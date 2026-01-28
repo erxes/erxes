@@ -15,7 +15,13 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
+const CONTENT_TYPE_REGEX = /^[a-z]+:[a-z]+$/;
+
 const switchContentType = (contentType: string) => {
+  if (!contentType || !CONTENT_TYPE_REGEX.test(contentType)) {
+    return '';
+  }
+
   const [pluginName, moduleName] = contentType.split(':');
 
   switch (pluginName) {
@@ -43,10 +49,15 @@ const command = async () => {
     for (const model of models) {
       const collection = COLLECTIONS[model];
 
-      const documents = await collection.find({}).toArray();
+      const documents = collection.find({});
 
-      for (const document of documents) {
-        const contentType = switchContentType(document.type);
+      for await (const document of documents) {
+        const contentType = switchContentType(document?.type || document?.contentType);
+        
+        if (!contentType) {
+          console.log(`Invalid contentType: ${document?.type || document?.contentType} for ${document._id}`);
+          continue;
+        }
 
         await collection.updateOne(
           { _id: document._id },
