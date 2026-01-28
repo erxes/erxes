@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { STATUS_TYPES } from '@/status/constants/types';
 
 export const triageSchema = new Schema(
   {
@@ -9,6 +10,7 @@ export const triageSchema = new Schema(
     type: { type: String, label: 'Type' },
     number: { type: Number, label: 'Number', default: 0 },
     priority: { type: Number, label: 'Priority', default: 0 },
+    status: { type: Number, label: 'Status', default: STATUS_TYPES.TRIAGE },
   },
   {
     timestamps: true,

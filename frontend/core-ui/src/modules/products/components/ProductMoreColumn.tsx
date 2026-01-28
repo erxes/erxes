@@ -30,9 +30,3 @@ export const ProductMoreColumnCell = ({
     />
   );
 };
-
-export const productMoreColumn = {
-  id: 'more',
-  cell: ProductMoreColumnCell,
-  size: 33,
-};

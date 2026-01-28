@@ -1,27 +1,28 @@
-import React from 'react';
 import {
+  BlockEditor,
+  Combobox,
   Input,
   Separator,
-  useBlockEditor,
-  BlockEditor,
   Tooltip,
-  Combobox,
+  useBlockEditor,
 } from 'erxes-ui';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
-import { Block } from '@blocknote/core';
-import { ITicket } from '@/ticket/types';
+
 import { ActivityList } from '@/activity/components/ActivityList';
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
-import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { TagsSelect } from 'ui-modules';
+import { Block } from '@blocknote/core';
 import { Button } from 'erxes-ui';
+import { ITicket } from '@/ticket/types';
 import { IconTags } from '@tabler/icons-react';
+import React from 'react';
+import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { TagsSelect } from 'ui-modules';
+import { useDebounce } from 'use-debounce';
+import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
@@ -36,7 +37,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     tagIds,
     isSubscribed: _isSubscribed,
   } = ticket || {};
-  console.log(ticket, 'ticketticketticketticketticket');
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
   const isFirstRun = React.useRef(true);

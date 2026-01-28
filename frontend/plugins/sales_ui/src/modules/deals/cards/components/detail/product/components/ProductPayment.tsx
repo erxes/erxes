@@ -2,7 +2,6 @@ import { Button, CurrencyCode, CurrencyField, Input } from 'erxes-ui';
 import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
 import { Label, Switch } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
-
 import { IDeal } from '@/deals/types/deals';
 
 interface IPaymentsData {
@@ -81,17 +80,30 @@ const ProductsPayment = ({
     [defaultCurrency, onChangePaymentsData],
   );
 
-  const fillRemaining = useCallback(() => {
-    const currency = paymentsData['cash']?.currency || defaultCurrency;
-    const totalForCurrency = total[currency] || 0;
-    const currentPaid = paidAmounts[currency] || 0;
-    const currentCashAmount = paymentsData['cash']?.amount || 0;
-    const remaining = totalForCurrency - (currentPaid - currentCashAmount);
+  const fillRemaining = useCallback(
+    (paymentType: string) => {
+      const currency = paymentsData[paymentType]?.currency || defaultCurrency;
+      const totalForCurrency = total[currency] || 0;
+      const currentPaid = paidAmounts[currency] || 0;
+      const currentAmount = paymentsData[paymentType]?.amount || 0;
+      const remaining = totalForCurrency - (currentPaid - currentAmount);
 
-    if (remaining > 0) {
-      updatePayment('cash', 'amount', remaining);
-    }
-  }, [paymentsData, defaultCurrency, total, paidAmounts, updatePayment]);
+      if (remaining > 0) {
+        updatePayment(paymentType, 'amount', remaining);
+      }
+    },
+    [paymentsData, defaultCurrency, total, paidAmounts, updatePayment],
+  );
+  const formatNumber = (value: number | string) => {
+    if (value === '' || value === null || value === undefined) return '';
+    const num =
+      typeof value === 'number' ? value : Number(value.replace(/,/g, ''));
+
+    if (isNaN(num)) return '';
+    return num.toLocaleString();
+  };
+
+  const parseNumber = (value: string) => Number(value.replace(/,/g, '')) || 0;
 
   const renderAmount = (amount: number, currency: string) => {
     if (amount < 0) {
@@ -131,44 +143,111 @@ const ProductsPayment = ({
           <span className="text-xs font-medium text-muted-foreground uppercase">
             Change
           </span>
-          <div className="font-semibold text-lg">
+          <div
+            className={`font-semibold text-lg flex ${
+              Object.values(changeAmounts).some((amount) => amount > 0)
+                ? 'text-green-500'
+                : Object.values(changeAmounts).some((amount) => amount < 0)
+                ? 'text-red-500'
+                : ''
+            }`}
+          >
+            {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
             {renderTotals(changeAmounts)}
           </div>
         </div>
       </div>
-
-      <div className="flex items-center gap-2 py-2">
-        <p className="w-28 font-medium text-sm text-muted-foreground uppercase">
-          CASH
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="flex-1 w-[300px]">
-            <Input
-              type="number"
-              value={paymentsData['cash']?.amount || ''}
-              onChange={(e) =>
-                updatePayment('cash', 'amount', parseFloat(e.target.value) || 0)
-              }
-              onClick={fillRemaining}
-              className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-              placeholder="Type amount"
-            />
-          </div>
-          <div className="w-[300px]">
-            <CurrencyField.SelectCurrency
-              value={
-                (paymentsData['cash']?.currency as CurrencyCode) ||
-                (defaultCurrency as CurrencyCode)
-              }
-              onChange={(val) => updatePayment('cash', 'currency', val)}
+      <div className="w-full items-center justify-center">
+        <div className="flex items-center gap-2 py-2 w-full justify-center">
+          <p className="w-28 font-medium text-sm text-muted-foreground uppercase">
+            CASH
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 w-[300px]">
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={formatNumber(paymentsData['cash']?.amount ?? '')}
+                onChange={(e) =>
+                  updatePayment('cash', 'amount', parseNumber(e.target.value))
+                }
+                onClick={() => fillRemaining('cash')}
+                className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+                placeholder="Type amount"
+              />
+            </div>
+            <div className="w-[300px]">
+              <CurrencyField.SelectCurrency
+                value={
+                  (paymentsData['cash']?.currency as CurrencyCode) ||
+                  (defaultCurrency as CurrencyCode)
+                }
+                onChange={(val) => updatePayment('cash', 'currency', val)}
+                variant="ghost"
+                className="w-full justify-end"
+              />
+            </div>
+            <Button
               variant="ghost"
-              className="w-full justify-end"
-            />
+              size="icon"
+              onClick={() => fillRemaining('cash')}
+            >
+              <IconCircleCheck className="w-5 h-5" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon" onClick={fillRemaining}>
-            <IconCircleCheck className="w-5 h-5" />
-          </Button>
         </div>
+        {deal.pipeline?.paymentTypes?.map((paymentType, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-2 py-2 w-full justify-center"
+          >
+            <p className="w-28 font-medium text-sm text-muted-foreground uppercase">
+              {paymentType.type}
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 w-[300px]">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={formatNumber(
+                    paymentsData[paymentType.type]?.amount ?? '',
+                  )}
+                  onChange={(e) =>
+                    updatePayment(
+                      paymentType.type,
+                      'amount',
+                      parseNumber(e.target.value),
+                    )
+                  }
+                  onClick={() => fillRemaining(paymentType.type)}
+                  className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+                  placeholder="Type amount"
+                />
+              </div>
+              <div className="w-[300px]">
+                <CurrencyField.SelectCurrency
+                  value={
+                    (paymentsData[paymentType.type]
+                      ?.currency as CurrencyCode) ||
+                    (defaultCurrency as CurrencyCode)
+                  }
+                  onChange={(val) =>
+                    updatePayment(paymentType.type, 'currency', val)
+                  }
+                  variant="ghost"
+                  className="w-full justify-end"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => fillRemaining(paymentType.type)}
+              >
+                <IconCircleCheck className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="flex items-center justify-between pt-2">

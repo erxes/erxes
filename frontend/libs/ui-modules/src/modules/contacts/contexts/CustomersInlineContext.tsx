@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+
 import { ICustomer } from '../types';
 
 export interface ICustomersInlineContext {
@@ -8,6 +9,7 @@ export interface ICustomersInlineContext {
   placeholder: string;
   updateCustomers?: (customers: ICustomer[]) => void;
   getCustomerTitle: (customer?: ICustomer) => string;
+  hideAvatar?: boolean;
 }
 
 export const CustomersInlineContext =

@@ -1,10 +1,10 @@
 import {
   NotificationOrderByT,
   NotificationPriorityT,
+  NotificationStatusT,
   NotificationTypeT,
 } from '@/notification/types/notifications';
 import { parseDateRangeFromString, useNonNullMultiQueryState } from 'erxes-ui';
-import { NotificationStatusT } from '@/notification/types/notifications';
 
 export const useNotificationFilters = () => {
   const { notificationStatus: status, notificationPriority: priority, notificationType: type, notificationCreatedAt: createdAt, notificationOrderBy: orderBy, notificationFromUserId: fromUserId } =

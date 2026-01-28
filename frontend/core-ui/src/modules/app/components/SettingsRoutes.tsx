@@ -94,6 +94,12 @@ const LogsRoutes = lazy(() =>
   })),
 );
 
+const BroadcastSettings = lazy(() =>
+  import('~/pages/settings/workspace/BroadcastSettingsPage').then((module) => ({
+    default: module.BroadcastSettingsPage,
+  })),
+);
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -171,6 +177,11 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
           element={<PropertiesSettingsRoutes />}
+        />
+
+        <Route
+          path={SettingsWorkspacePath.Broadcast}
+          element={<BroadcastSettings />}
         />
         {getPluginsSettingsRoutes()}
       </Routes>

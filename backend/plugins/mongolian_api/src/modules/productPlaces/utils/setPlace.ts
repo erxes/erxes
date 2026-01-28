@@ -1,0 +1,82 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { checkCondition, getChildCategories, getChildTags } from './utils';
+
+export const setPlace = async (
+  subdomain,
+  dealId,
+  productsData,
+  config,
+  productById
+) => {
+  if (!config.conditions?.length) {
+    return productsData;
+  }
+
+  const pdatas = productsData;
+
+  const conditions = config.conditions.filter(
+    c => c.branchId || c.departmentId
+  );
+
+  for (const condition of conditions) {
+    if (condition.productCategoryIds?.length) {
+      const includeCatIds = await getChildCategories(
+        subdomain,
+        condition.productCategoryIds
+      );
+
+      const excludeCatIds = await getChildCategories(
+        subdomain,
+        condition.excludeCategoryIds ?? []
+      );
+
+      condition.calcedCatIds = includeCatIds.filter(
+        c => !excludeCatIds.includes(c)
+      );
+    } else {
+      condition.calcedCatIds = [];
+    }
+
+    if (condition.productTagIds?.length) {
+      const includeTagIds = await getChildTags(
+        subdomain,
+        condition.productTagIds
+      );
+
+      const excludeTagIds = await getChildTags(
+        subdomain,
+        condition.excludeTagIds ?? []
+      );
+
+      condition.calcedTagIds = includeTagIds.filter(
+        c => !excludeTagIds.includes(c)
+      );
+    } else {
+      condition.calcedTagIds = [];
+    }
+  }
+
+  for (const pdata of pdatas) {
+    for (const condition of conditions) {
+      if (await checkCondition(subdomain, pdata, condition, productById)) {
+        pdata.branchId = condition.branchId;
+        pdata.departmentId = condition.departmentId;
+        break;
+      }
+    }
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'sales',
+    module: 'deals',
+    action: 'updateOne',
+    method: 'mutation',
+    input: {
+      selector: { _id: dealId },
+      modifier: { $set: { productsData: pdatas } },
+    },
+  });
+
+  return pdatas;
+};
