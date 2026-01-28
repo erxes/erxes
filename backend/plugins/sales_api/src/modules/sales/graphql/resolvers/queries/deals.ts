@@ -176,7 +176,7 @@ export const generateFilter = async (
       action: 'filterRelationIds',
       input: {
         contentType: 'core:company',
-        contentIds: customerIds,
+        contentIds: companyIds,
         relatedContentType: 'sales:deal'
       },
       defaultValue: []

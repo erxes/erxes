@@ -35,7 +35,8 @@ class TaxTrs {
 
   private initTaxValues = async () => {
     let taxPercent = 0;
-    const { HasVat: hasVat, HasCtax: hasCtax } = await this.models.AccountingConfigs.getConfigs(['HasVat', 'HasCtax']);
+    const hasVat = await this.models.Configs.getConfigValue('HasVat');
+    const hasCtax = await this.models.Configs.getConfigValue('HasCtax');
     if (hasVat && this.doc.hasVat) {
       let configKey = '';
       if (this.doc.afterVat) {
@@ -52,7 +53,7 @@ class TaxTrs {
         }
       }
 
-      const vatAccs = await this.models.AccountingConfigs.getConfigs([configKey]);
+      const vatAccs = await this.models.Configs.getConfigValue(configKey);
       this.vatAccountId = vatAccs[configKey]
 
       if (!this.vatAccountId) {
@@ -64,9 +65,7 @@ class TaxTrs {
     }
 
     if (hasCtax && this.doc.hasCtax) {
-      const ctaxAccs = await this.models.AccountingConfigs.getConfigs([
-        'CtaxPayableAccount'
-      ]);
+      const ctaxAccs = await this.models.Configs.getConfigValue('CtaxPayableAccount');
 
       this.ctaxAccountId = ctaxAccs.CtaxPayableAccount;
 
@@ -183,8 +182,6 @@ class TaxTrs {
   }
 
   private doVatTr = async (transaction: ITransactionDocument) => {
-    let vatTr;
-
     const oldFollowVatTrs = await this.models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.VAT }).lean();
 
     if (!this.vatTrDoc) {
@@ -200,7 +197,7 @@ class TaxTrs {
       await this.models.Transactions.deleteMany({ _id: { $in: oldFollowVatTrs.slice(1).map(tr => tr._id) } });
     }
 
-    vatTr = await createOrUpdateTr(this.models, {
+    const vatTr = await createOrUpdateTr(this.models, {
       ...this.vatTrDoc,
       originId: transaction._id,
       originType: TR_FOLLOW_TYPES.VAT,
@@ -218,8 +215,6 @@ class TaxTrs {
   }
 
   private doCtaxTr = async (transaction: ITransactionDocument) => {
-    let ctaxTr;
-
     const oldFollowCtaxTrs = await this.models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.CTAX }).lean();
 
     if (!this.ctaxTrDoc) {
@@ -235,7 +230,7 @@ class TaxTrs {
       await this.models.Transactions.deleteMany({ _id: { $in: oldFollowCtaxTrs.slice(1).map(tr => tr._id) } });
     }
 
-    ctaxTr = await createOrUpdateTr(this.models, {
+    const ctaxTr = await createOrUpdateTr(this.models, {
       ...this.ctaxTrDoc,
       originId: transaction._id,
       originType: TR_FOLLOW_TYPES.CTAX,

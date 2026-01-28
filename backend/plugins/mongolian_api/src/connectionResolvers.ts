@@ -52,7 +52,7 @@ export const loadClasses = (
     loadConfigClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'pipelines'),),
+      eventDispatcher('mongolian', 'configs', 'mongolian_configs'),),
   );
 
   models.PutResponses = db.model<IEbarimtDocument, IPutResponseModel>(

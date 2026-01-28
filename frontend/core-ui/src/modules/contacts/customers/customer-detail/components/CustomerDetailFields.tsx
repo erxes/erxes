@@ -8,7 +8,7 @@ import {
   CustomerPhones,
 } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
-import { DataListItem } from '@/contacts/components/ContactsDetail';
+import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { useTranslation } from 'react-i18next';
 
 export const CustomerDetailFields = () => {
