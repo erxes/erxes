@@ -22,6 +22,11 @@ import {
   callRemoveIntergration,
   callUpdateIntegration,
 } from '@/integrations/call/messageBroker';
+import {
+  imapCreateIntegration,
+  imapUpdateIntegration,
+  imapRemoveIntegrations,
+} from '~/modules/integrations/imap/messageBroker';
 import { IChannelDocument } from '@/channel/@types/channel';
 
 interface IntegrationParams {
@@ -53,12 +58,15 @@ export const sendCreateIntegration = async (
   serviceName: string,
   data: CreateIntegrationParams,
 ) => {
+  console.log(serviceName, 'serviceName');
   try {
     switch (serviceName) {
       case 'facebook':
         return await facebookCreateIntegrations({ subdomain, data });
       case 'calls':
         return await callCreateIntegration({ subdomain, data });
+      case 'imap':
+        return await imapCreateIntegration({ subdomain, data });
 
       case 'instagram':
         // TODO: Implement Instagram integration
@@ -91,6 +99,8 @@ export const sendUpdateIntegration = async (
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
         break;
+      case 'imap':
+        return await imapUpdateIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -118,6 +128,8 @@ export const sendRemoveIntegration = async (
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
         break;
+      case 'imap':
+        return await imapRemoveIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;
