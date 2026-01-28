@@ -84,8 +84,6 @@ const createRouterConfig = async () => {
     traffic_shaping: {
       all: {
         timeout: '300s',
-        pool_idle_timeout: '60s',
-        pool_max_idle_per_host: 20,
       },
       router: {
         timeout: '300s',
