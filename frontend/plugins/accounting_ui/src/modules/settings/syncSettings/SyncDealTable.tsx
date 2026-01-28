@@ -72,10 +72,10 @@ const AccountCategoryMoreColumnCell = ({
 //   size: 33,
 // };
 
-export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
+export const columns: ColumnDef<IConfig>[] = [
   // accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
-    IConfig & { hasChildren: boolean }
+    IConfig
   >,
   {
     id: 'code',
@@ -93,14 +93,59 @@ export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
     size: 250,
   },
   {
-    id: 'description',
-    accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead label="Title" />,
+    cell: ({ cell }) => {
+      return (
+        <AccountTextField
+          value={cell.row.original.value?.title ?? ''}
+          field="title"
+          _id={cell.row.original._id}
+        />
+      );
+    },
+    size: 250,
+  },
+  {
+    id: 'board',
+    accessorKey: 'board',
+    header: () => <RecordTable.InlineHead label="Board" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
           value={cell.getValue() as string}
-          field="description"
+          field="boardId"
+          _id={cell.row.original._id}
+        />
+      );
+    },
+    size: 300,
+  },
+  {
+    id: 'pipeline',
+    accessorKey: 'pipeline',
+    header: () => <RecordTable.InlineHead label="Pipeline" />,
+    cell: ({ cell }) => {
+      return (
+        <AccountTextField
+          value={cell.getValue() as string}
+          field="pipelineId"
+          _id={cell.row.original._id}
+        />
+      );
+    },
+    size: 300,
+  },
+  {
+    id: 'stage',
+    accessorKey: 'stage',
+    header: () => <RecordTable.InlineHead label="Stage" />,
+    cell: ({ cell }) => {
+      return (
+        <AccountTextField
+          value={cell.row.original.subId ?? ''}
+          field="stageId"
           _id={cell.row.original._id}
         />
       );

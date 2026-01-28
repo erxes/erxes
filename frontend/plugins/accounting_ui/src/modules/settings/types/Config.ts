@@ -7,5 +7,5 @@ export interface IConfig {
   _id: string;
   code: keyof TMainConfig;
   subId?: string;
-  value: string;
+  value: any;
 }

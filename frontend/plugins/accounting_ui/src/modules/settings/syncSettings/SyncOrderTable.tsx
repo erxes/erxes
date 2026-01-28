@@ -93,6 +93,21 @@ export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
     size: 250,
   },
   {
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead label="Title" />,
+    cell: ({ cell }) => {
+      return (
+        <AccountTextField
+          value={cell.row.original.value?.title ?? ''}
+          field="title"
+          _id={cell.row.original._id}
+        />
+      );
+    },
+    size: 250,
+  },
+  {
     id: 'description',
     accessorKey: 'description',
     header: () => <RecordTable.InlineHead label="Description" />,
