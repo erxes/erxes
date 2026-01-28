@@ -93,6 +93,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const {
     startDate,
     name,
+    number,
     assignedUsers,
     _id,
     priority,
@@ -248,6 +249,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
       <CardDetails deal={deal} />
       <Separator />
       <ItemFooter
+        number={number}
         createdAt={createdAt}
         assignedUsers={assignedUsers || []}
         id={_id}

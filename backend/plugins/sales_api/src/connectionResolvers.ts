@@ -87,12 +87,6 @@ export const loadClasses = (
 ): IModels => {
   const models = {} as IModels;
 
-  // Get the getContext function from the models when it's available
-  const getContext = () => ({
-    subdomain,
-    processId: '',
-    userId: '',
-  });
 
   // Board model with event dispatcher
   models.Boards = db.model<IBoardDocument, IBoardModel>(
@@ -190,32 +184,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>((
-  db: mongoose.Connection,
-  subdomain: string,
-  context?: any,
-) => {
-  // Create an event dispatcher function that follows the pattern in core API
-  const eventDispatcher = (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ): EventDispatcherReturn => {
-    // Create a getContext function that extracts processId and userId from context
-    const getContext = () => ({
-      subdomain,
-      processId: context?.processId || '',
-      userId: context?.userId || '',
-    });
-
-    return createEventDispatcher({
-      subdomain,
-      pluginName,
-      moduleName,
-      collectionName,
-      getContext,
-    });
-  };
-
-  return loadClasses(db, subdomain, eventDispatcher);
-});
+export const generateModels = createGenerateModels<IModels>(loadClasses);

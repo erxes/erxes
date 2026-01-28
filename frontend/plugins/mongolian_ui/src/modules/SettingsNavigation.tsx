@@ -12,6 +12,11 @@ export const SettingsNavigation = () => {
             path={MongolianPaths.MongolianSettings}
             name="Ebarimt"
           />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix='mongolian'
+            path='/sync-erkhet'
+            name="Erkhet"
+          />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
