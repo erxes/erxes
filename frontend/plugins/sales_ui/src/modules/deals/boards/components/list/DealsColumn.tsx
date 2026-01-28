@@ -15,12 +15,10 @@ import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssign
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 
 import {
-  BoardCell,
-  PipelineCell,
-  StageCell,
   NameCell,
   ProductsCell,
 } from '@/deals/components/deal-selects/MoveDealSelect';
+import { BoardCell, PipelineCell, StageCell } from 'ui-modules/modules';
 
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;

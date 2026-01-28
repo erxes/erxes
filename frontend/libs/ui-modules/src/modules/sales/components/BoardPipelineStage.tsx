@@ -3,73 +3,97 @@ import {
   dealPipelineState,
   dealStageState,
 } from '../states/dealContainerStates';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { IDeal } from '../types/deals';
 import { SelectBoard } from '../select/SelectBoard';
 import { SelectPipeline } from '../select/SelectPipeline';
 import { SelectStage } from '../select/SelectStage';
 
-import { useDealDetail, useDealsEdit } from '../hooks/useDeals';
+import { useDealDetail } from '../hooks/useDeals';
 import { Button } from 'erxes-ui';
+import { useBoards } from '../hooks/useBoards';
 
-export const BoardCell = ({ className }: { className?: string }) => {
-  const { deal } = useDealDetail();
-  const setBoardId = useSetAtom(dealBoardState);
+export const BoardCell = ({
+  deal,
+  className,
+}: {
+  deal?: IDeal;
+  className?: string;
+}) => {
+  const { boards } = useBoards();
 
-  if (!deal) return null;
+  const [board, setBoardId] = useAtom(dealBoardState);
+  const setPipelineId = useSetAtom(dealPipelineState);
+  const setStageId = useSetAtom(dealStageState);
+
+  if (!boards) return null;
+
+  const value = board.boardId || deal?.boardId;
 
   return (
-    <SelectBoard
-      value={deal.boardId}
+    <SelectBoard.InlineCell
+      value={value}
       className={className}
       onValueChange={(boardId) => {
         setBoardId({
           boardId: boardId as string,
         });
+
+        setPipelineId({ pipelineId: '' });
+        setStageId({ stageId: '' });
       }}
     />
   );
 };
 
-export const PipelineCell = ({ className }: { className?: string }) => {
-  const { deal } = useDealDetail();
-  const setPipelineId = useSetAtom(dealPipelineState);
+export const PipelineCell = ({
+  deal,
+  className,
+}: {
+  deal?: IDeal;
+  className?: string;
+}) => {
   const board = useAtomValue(dealBoardState);
+  const [pipeline, setPipelineId] = useAtom(dealPipelineState);
+  const setStageId = useSetAtom(dealStageState);
 
-  if (!deal) return null;
-
-  const boardId = board.boardId || deal.boardId;
+  const boardId = board.boardId || deal?.boardId;
+  const value = pipeline.pipelineId || deal?.pipeline?._id;
 
   return (
     <SelectPipeline.InlineCell
-      value={deal.pipeline?._id}
+      value={value}
       boardId={boardId}
       className={className}
       onValueChange={(pipelineId) => {
         setPipelineId({
           pipelineId: pipelineId as string,
         });
+
+        setStageId({ stageId: '' });
       }}
     />
   );
 };
 
-export const StageCell = ({ className }: { className?: string }) => {
-  const { deal } = useDealDetail();
-  const setStageId = useSetAtom(dealStageState);
-
-  const board = useAtomValue(dealBoardState);
+export const StageCell = ({
+  deal,
+  className,
+}: {
+  className?: string;
+  deal?: IDeal;
+}) => {
   const pipeline = useAtomValue(dealPipelineState);
+  const [stage, setStageId] = useAtom(dealStageState);
 
-  if (!deal) return null;
-
-  const pipelineId = pipeline.pipelineId || deal.pipeline?._id;
+  const pipelineId = pipeline.pipelineId || deal?.pipeline?._id;
+  const value = stage.stageId || deal?.stage?._id;
 
   return (
     <SelectStage.InlineCell
       mode="single"
-      value={deal.stage?._id}
+      value={value}
       pipelineId={pipelineId}
       className={className}
       onValueChange={(stageId) => {
@@ -80,43 +104,57 @@ export const StageCell = ({ className }: { className?: string }) => {
     />
   );
 };
-
+interface ISaveSelectsButton {
+  mutation: (variables: any) => void;
+  className?: string;
+  name?: string;
+  itemId?: string;
+  idParamName?: string;
+}
 export const SaveSelectsButton = ({
   mutation,
   className,
-  children,
+  name,
   itemId,
   idParamName = '_id',
-}: {
-  mutation: (variables: any) => void;
-  className?: string;
-  children?: React.ReactNode;
-  itemId?: string;
-  idParamName?: string;
-}) => {
-  const { deal } = useDealDetail();
+}: ISaveSelectsButton) => {
   const board = useAtomValue(dealBoardState);
   const pipeline = useAtomValue(dealPipelineState);
   const stage = useAtomValue(dealStageState);
 
   const onClick = () => {
-    const id = itemId || deal?._id;
+    const id = itemId;
 
     if (!id) return;
 
+    const variables: any = {
+      [idParamName]: id,
+    };
+
+    const boardId = board.boardId;
+    const pipelineId = pipeline.pipelineId;
+    const stageId = stage.stageId;
+
+    if (boardId) {
+      variables.boardId = boardId;
+    }
+
+    if (pipelineId) {
+      variables.pipelineId = pipelineId;
+    }
+
+    if (stageId) {
+      variables.stageId = stageId;
+    }
+
     mutation({
-      variables: {
-        [idParamName]: id,
-        boardId: board.boardId || deal?.boardId,
-        pipelineId: pipeline.pipelineId || deal?.pipeline?._id,
-        stageId: stage.stageId || deal?.stage?._id,
-      },
+      variables,
     });
   };
 
   return (
     <Button onClick={onClick} className={className}>
-      {children || 'Move'}
+      {name || 'Move'}
     </Button>
   );
 };
