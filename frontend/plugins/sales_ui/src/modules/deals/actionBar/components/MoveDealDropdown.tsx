@@ -5,15 +5,19 @@ import {
   BoardCell,
   PipelineCell,
   StageCell,
-} from '@/deals/components/deal-selects/MoveDealSelect';
+  SaveSelectsButton,
+} from 'ui-modules/modules';
 import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
+import { useDealsEdit } from '../../cards/hooks/useDeals';
 interface MoveDealDropdownProps {
   deal: IDeal;
 }
 export const MoveDealDropdown = memo(function MoveDealDropdown({
   deal,
 }: MoveDealDropdownProps) {
+  const { editDeals } = useDealsEdit();
+
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -38,7 +42,6 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
             />
           </div>
           <Separator className="mt-2 mb-1" />
-
           <div className="px-4 py-1 mt-1">
             <span className=" text-xs  text-gray-400">PIPELINE</span>
           </div>
@@ -49,7 +52,6 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
             />
           </div>
           <Separator className="mt-2 mb-1" />
-
           <div className="px-4 py-1 mt-1">
             <span className="text-xs  text-gray-400">STAGE</span>
           </div>
@@ -59,6 +61,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
               className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
             />
           </div>
+          <SaveSelectsButton mutation={editDeals} itemId={deal?._id} />
           <Separator className="mt-2" />
         </div>
       </DropdownMenu.Content>
