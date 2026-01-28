@@ -38,12 +38,9 @@ export const EMHoursAvailability = () => {
     },
   });
 
-  console.log('values', form.watch(), form.formState.validatingFields, form.formState.errors);
-
   const setStep = useSetAtom(erxesMessengerSetupStepAtom);
 
   const onSubmit = () => {
-    console.log('values clicked')
     setStep((prev) => prev + 1);
   };
 
