@@ -27,7 +27,7 @@ const OnboardingSteps: TOnboardingStepItem[] = [
       'Manage and showcase all your products or services in one place.',
     action: {
       label: 'Try it out now',
-      to: '/products',
+      to: 'settings/products',
     },
   },
   {

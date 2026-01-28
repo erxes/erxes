@@ -6,16 +6,54 @@ import {
   IconCircleDashed,
   IconCircleDot,
   IconCircleX,
+  IconClipboardList,
 } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import React from 'react';
 
 export const STATUS_TYPES = {
-  BACKLOG: 3,
-  UNSTARTED: 2,
   STARTED: 1,
+  UNSTARTED: 2,
+  BACKLOG: 3,
   COMPLETED: 4,
   CANCELLED: 5,
+  TRIAGE: 6,
+};
+
+const STATUS_CONFIG: Record<
+  number,
+  { icon: Icon; color: string; label: string }
+> = {
+  [STATUS_TYPES.STARTED]: {
+    icon: IconCircleDot,
+    color: 'text-warning',
+    label: STATUS_TYPE_LABELS[0],
+  },
+  [STATUS_TYPES.UNSTARTED]: {
+    icon: IconCircle,
+    color: 'text-info',
+    label: STATUS_TYPE_LABELS[1],
+  },
+  [STATUS_TYPES.BACKLOG]: {
+    icon: IconCircleDashed,
+    color: 'text-muted-foreground',
+    label: STATUS_TYPE_LABELS[2],
+  },
+  [STATUS_TYPES.COMPLETED]: {
+    icon: IconCircleCheck,
+    color: 'text-success',
+    label: STATUS_TYPE_LABELS[3],
+  },
+  [STATUS_TYPES.CANCELLED]: {
+    icon: IconCircleX,
+    color: 'text-destructive',
+    label: STATUS_TYPE_LABELS[4],
+  },
+  [STATUS_TYPES.TRIAGE]: {
+    icon: IconClipboardList,
+    color: 'text-purple-500',
+    label: STATUS_TYPE_LABELS[5],
+  },
 };
 
 export const StatusInlineIcon = ({
@@ -26,33 +64,21 @@ export const StatusInlineIcon = ({
   ...props
 }: React.ComponentProps<Icon> & { statusType?: number | string }) => {
   const numericType =
-    (typeof statusType === 'string' ? Number.parseInt(statusType, 10) : statusType) -
-    1;
-  const StatusIconComponent = [
-    IconCircleDot,
-    IconCircle,
-    IconCircleDashed,
-    IconCircleCheck,
-    IconCircleX,
-  ][numericType];
+    typeof statusType === 'string' ? parseInt(statusType, 10) : statusType;
 
-  const colorClassName = [
-    'text-warning',
-    'text-info',
-    'text-muted-foreground',
-    'text-success',
-    'text-destructive',
-  ][numericType];
+  const config = STATUS_CONFIG[numericType];
 
-  if (!StatusIconComponent) {
+  if (!config) {
     return null;
   }
+
+  const { icon: StatusIconComponent, color: defaultColor } = config;
 
   return (
     <StatusIconComponent
       {...props}
       color={color ? color : undefined}
-      className={cn('size-4 flex-none', colorClassName, className)}
+      className={cn('size-4 flex-none', defaultColor, className)}
     />
   );
 };
@@ -65,7 +91,9 @@ export const StatusInlineLabel = ({
   statusType?: number | string;
 }) => {
   const numericType =
-    (typeof statusType === 'string' ? Number.parseInt(statusType, 10) : statusType) -
-    1;
-  return <span className="capitalize">{STATUS_TYPE_LABELS[numericType]}</span>;
+    typeof statusType === 'string' ? parseInt(statusType, 10) : statusType;
+
+  const config = STATUS_CONFIG[numericType];
+
+  return <span className="capitalize">{config?.label || ''}</span>;
 };
