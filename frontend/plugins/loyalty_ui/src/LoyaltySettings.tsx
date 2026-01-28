@@ -71,9 +71,9 @@ const LoyaltySettings = () => {
         <Route path="coupon" element={<LoyaltyCouponPage />} />
       </Route>
       <Route
-        path={LoyaltySettingsPaths.Pricing}
+        path={`${LoyaltySettingsPaths.Pricing}/*`}
         element={<PricingSettings />}
-      ></Route>
+      />
     </Routes>
   );
 };
