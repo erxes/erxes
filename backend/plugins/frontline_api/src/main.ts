@@ -7,6 +7,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
 import initCallApp from '@/integrations/call/initApp';
+import onServerInitImap from '@/integrations/imap/initApp';
 import { initWebsocketService } from '@/integrations/call/webSocket';
 
 startPlugin({
@@ -29,6 +30,7 @@ startPlugin({
   expressRouter: router,
   onServerInit: async (app) => {
     await initCallApp(app);
+    await onServerInitImap(app);
     const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
     if (CALL_WS_SERVER) {
       await initWebsocketService();
