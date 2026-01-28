@@ -28,7 +28,7 @@ export const hexToOklch = (hex: string): string => {
       .join('');
   }
 
-  if (!/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+  if (!/^[0-9A-Fa-f]{0,6}$/.test(cleanHex)) {
     throw new Error(`Invalid hex color format: ${hex}`);
   }
 
