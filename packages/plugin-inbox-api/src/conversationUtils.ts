@@ -22,7 +22,7 @@ interface IUserArgs {
 const countByChannels = async (
   models: IModels,
   qb: any,
-  counts: ICountBy
+  counts: ICountBy,
 ): Promise<ICountBy> => {
   const channels = await models.Channels.find({});
 
@@ -40,16 +40,16 @@ const countByChannels = async (
 const countByBrands = async (
   subdomain: string,
   qb: any,
-  counts: ICountBy
+  counts: ICountBy,
 ): Promise<ICountBy> => {
   const brands = await sendCoreMessage({
     subdomain,
     action: "brands.find",
     data: {
-      query: {}
+      query: {},
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const brand of brands) {
@@ -66,15 +66,15 @@ const countByBrands = async (
 const countByTags = async (
   subdomain: string,
   qb: any,
-  counts: ICountBy
+  counts: ICountBy,
 ): Promise<ICountBy> => {
   const tags = await sendCoreMessage({
     subdomain,
     action: "tagFind",
     data: {
-      type: "inbox:conversation"
+      type: "inbox:conversation",
     },
-    isRPC: true
+    isRPC: true,
   });
 
   for (const tag of tags) {
@@ -90,7 +90,7 @@ const countByTags = async (
 // Count conversation by integration
 const countByIntegrationTypes = async (
   qb: any,
-  counts: ICountBy
+  counts: ICountBy,
 ): Promise<ICountBy> => {
   const kindsMap = await getIntegrationsKinds();
 
@@ -107,7 +107,7 @@ const countByIntegrationTypes = async (
 export const countBySegment = async (
   subdomain: string,
   qb: any,
-  counts: ICountBy
+  counts: ICountBy,
 ): Promise<ICountBy> => {
   // Count cocs by segments
   let segments: any[] = [];
@@ -116,9 +116,9 @@ export const countBySegment = async (
     subdomain,
     action: "segmentFind",
     data: {
-      contentType: "inbox:conversation"
+      contentType: "inbox:conversation",
     },
-    isRPC: true
+    isRPC: true,
   });
 
   // Count cocs by segment
@@ -142,7 +142,7 @@ export const countByConversations = async (
   params: IListArgs,
   integrationIds: string[],
   user: IUserArgs,
-  only: string
+  only: string,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -188,7 +188,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
     subdomain: string,
     params: IArgs,
     integrationIds: string[],
-    user: IUserArgs
+    user: IUserArgs,
   ) {
     this.models = models;
     this.subdomain = subdomain;
@@ -211,10 +211,10 @@ export class CommonBuilder<IArgs extends IListArgs> {
       data: {
         segmentId,
         options: {
-          returnSelector: true
-        }
+          returnSelector: true,
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     this.positiveList = [...this.positiveList, selector];
@@ -224,20 +224,20 @@ export class CommonBuilder<IArgs extends IListArgs> {
     const userRelevanceQuery = [
       {
         regexp: {
-          userRelevance: `${this.user.code}..`
-        }
+          userRelevance: `${this.user.code}..`,
+        },
       },
       {
         bool: {
           must_not: [
             {
               exists: {
-                field: "userRelevance"
-              }
-            }
-          ]
-        }
-      }
+                field: "userRelevance",
+              },
+            },
+          ],
+        },
+      },
     ];
 
     this.positiveList = [{ bool: { should: userRelevanceQuery } }];
@@ -247,9 +247,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
     this.filterList = [
       {
         terms: {
-          "integrationId.keyword": this.integrationIds
-        }
-      }
+          "integrationId.keyword": this.integrationIds,
+        },
+      },
     ];
 
     // filter by status
@@ -258,7 +258,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
     } else {
       this.statusFilter([
         CONVERSATION_STATUSES.NEW,
-        CONVERSATION_STATUSES.OPEN
+        CONVERSATION_STATUSES.OPEN,
       ]);
     }
 
@@ -268,10 +268,10 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     const activeIntegrations = await this.models.Integrations.findIntegrations(
       {},
-      { _id: 1 }
+      { _id: 1 },
     );
 
-    this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
+    this.activeIntegrationIds = activeIntegrations.map((integ) => integ._id);
   }
 
   // filter by channel
@@ -285,25 +285,25 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        "integrationId.keyword": (channel.integrationIds || []).filter(id =>
-          this.activeIntegrationIds.includes(id)
-        )
-      }
+        "integrationId.keyword": (channel.integrationIds || []).filter((id) =>
+          this.activeIntegrationIds.includes(id),
+        ),
+      },
     });
   }
 
   public integrationNotFound() {
     this.filterList.push({
       match: {
-        integrationId: "integrationNotFound"
-      }
+        integrationId: "integrationNotFound",
+      },
     });
   }
 
   // filter by brand
   public async brandFilter(brandId: string) {
     const integrations = await this.models.Integrations.findIntegrations({
-      brandId
+      brandId,
     }).select("_id");
 
     if (integrations.length === 0) {
@@ -313,7 +313,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     const integrationIds: string[] = _.intersection(
       this.integrationIds,
-      _.pluck(integrations, "_id")
+      _.pluck(integrations, "_id"),
     );
 
     if (integrationIds.length === 0) {
@@ -323,8 +323,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        "integrationId.keyword": integrationIds
-      }
+        "integrationId.keyword": integrationIds,
+      },
     });
   }
 
@@ -335,11 +335,11 @@ export class CommonBuilder<IArgs extends IListArgs> {
         must_not: [
           {
             exists: {
-              field: "assignedUserId"
-            }
-          }
-        ]
-      }
+              field: "assignedUserId",
+            },
+          },
+        ],
+      },
     });
   }
 
@@ -350,16 +350,16 @@ export class CommonBuilder<IArgs extends IListArgs> {
         should: [
           {
             match: {
-              participatedUserIds: this.user._id
-            }
+              participatedUserIds: this.user._id,
+            },
           },
           {
             match: {
-              assignedUserId: this.user._id
-            }
-          }
-        ]
-      }
+              assignedUserId: this.user._id,
+            },
+          },
+        ],
+      },
     });
   }
 
@@ -367,8 +367,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public starredFilter() {
     this.filterList.push({
       terms: {
-        _id: this.user.starredConversationIds || []
-      }
+        _id: this.user.starredConversationIds || [],
+      },
     });
   }
 
@@ -376,8 +376,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public statusFilter(statusChoices: string[]) {
     this.filterList.push({
       terms: {
-        status: statusChoices
-      }
+        status: statusChoices,
+      },
     });
   }
 
@@ -385,17 +385,48 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public awaitingResponse() {
     this.filterList.push({
       match: {
-        isCustomerRespondedLast: true
-      }
+        isCustomerRespondedLast: true,
+      },
     });
+  }
+
+  // Content filtering methods
+  private contentFilter(content: string, include: boolean = true) {
+    if (include) {
+      this.filterList.push({
+        match: {
+          content,
+        },
+      });
+    } else {
+      this.filterList.push({
+        bool: {
+          must_not: {
+            match: {
+              content,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  // filter by callAnswered conversations
+  public callAnswered() {
+    this.contentFilter("ANSWERED", true);
+  }
+
+  // filter by not callAnswered conversations
+  public callNotAnswered() {
+    this.contentFilter("NO ANSWER", true);
   }
 
   // filter by tagId
   public tagFilter(tagId: string) {
     this.filterList.push({
       match: {
-        tagIds: tagId
-      }
+        tagIds: tagId,
+      },
     });
   }
 
@@ -405,31 +436,31 @@ export class CommonBuilder<IArgs extends IListArgs> {
         range: {
           createdAt: {
             gte: fixDate(startDate),
-            lte: fixDate(endDate)
-          }
-        }
+            lte: fixDate(endDate),
+          },
+        },
       },
       {
         range: {
           updatedAt: {
             gte: fixDate(startDate),
-            lte: fixDate(endDate)
-          }
-        }
-      }
+            lte: fixDate(endDate),
+          },
+        },
+      },
     );
   }
 
   // filter by integration type
   public async integrationTypeFilter(integrationType: string) {
     const integrations = await this.models.Integrations.findIntegrations({
-      kind: integrationType
+      kind: integrationType,
     });
 
     this.filterList.push({
       terms: {
-        "integrationId.keyword": _.pluck(integrations, "_id")
-      }
+        "integrationId.keyword": _.pluck(integrations, "_id"),
+      },
     });
   }
 
@@ -476,14 +507,24 @@ export class CommonBuilder<IArgs extends IListArgs> {
       this.awaitingResponse();
     }
 
+    // answer response
+    if (this.params.callAnswered) {
+      this.callAnswered();
+    }
+
+    // not answer response
+    if (this.params.callNotAnswered) {
+      this.callNotAnswered();
+    }
+
     // filter by tag
     if (this.params.tag) {
       const tagIds = this.params.tag.split(",");
 
       this.filterList.push({
         terms: {
-          "tagIds.keyword": tagIds
-        }
+          "tagIds.keyword": tagIds,
+        },
       });
     }
 
@@ -500,9 +541,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
       query: {
         bool: {
           must: this.positiveList,
-          filter: this.filterList
-        }
-      }
+          filter: this.filterList,
+        },
+      },
     };
 
     const response = await fetchEs({
@@ -510,7 +551,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       action: "count",
       index: "conversations",
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     return response.count;
