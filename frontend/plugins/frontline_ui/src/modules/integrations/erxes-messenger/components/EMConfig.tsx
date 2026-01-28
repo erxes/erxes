@@ -50,7 +50,7 @@ export const EMConfig = () => {
   const loading = createLoading || editLoading;
   const isEditMode = !!idToEdit;
 
-  console.log(form.watch(), '\nwatch');
+  console.log(form.formState.errors, '\nwatch');
 
   return (
     <Form {...form}>
