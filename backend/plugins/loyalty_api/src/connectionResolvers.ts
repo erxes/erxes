@@ -2,6 +2,8 @@ import { IAssignmentDocument } from '@/assignment/@types/assignment';
 import { IAssignmentModel, loadAssignmentClass, } from '@/assignment/db/models/Assignment';
 import { ICampaignDocument } from '@/campaign/@types';
 import { ICampaignModel, loadCampaignClass, } from '@/campaign/db/models/Campaign';
+import { ICouponCampaignDocument } from './modules/coupon/@types/couponCampaign';
+import { ICouponCampaignModel, loadCouponCampaignClass } from './modules/coupon/db/models/CouponCampaign';
 import { ICouponDocument } from '@/coupon/@types/coupon';
 import { ICouponModel, loadCouponClass } from '@/coupon/db/models/Coupon';
 import { IDonateDocument } from '@/donate/@types/donate';
@@ -27,12 +29,15 @@ import { IAgentDocument } from './modules/agent/@types';
 import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
 import { IScoreLogDocument } from './modules/score/@types/scoreLog';
 import { IScoreLogModel, loadScoreLogClass, } from './modules/score/db/models/ScoreLog';
+import { ILoyaltyConfigDocument } from './modules/config/@types/config';
+import { ILoyaltyConfigModel, loadLoyaltyConfigClass } from './modules/config/db/models/Config';
 
 export interface IModels {
   Pricing: IPricingModel;
   Campaign: ICampaignModel;
   Voucher: IVoucherModel;
   Coupon: ICouponModel;
+  CouponCampaign: ICouponCampaignModel;
   Score: IScoreModel;
   ScoreLog: IScoreLogModel;
   Lottery: ILotteryModel;
@@ -42,6 +47,7 @@ export interface IModels {
   Assignment: IAssignmentModel;
   Agent: IAgentModel;
   PricingPlans: IPricingPlanModel;
+  LoyaltyConfig: ILoyaltyConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -51,6 +57,11 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
+
+  models.LoyaltyConfig = db.model<ILoyaltyConfigDocument, ILoyaltyConfigModel>(
+    'loyalty_configs',
+    loadLoyaltyConfigClass(models),
+  );
 
   models.Pricing = db.model<IPricingDocument, IPricingModel>(
     'loyalty_pricing',
@@ -72,6 +83,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadCouponClass(models),
   );
 
+  models.CouponCampaign = db.model<ICouponCampaignDocument,ICouponCampaignModel>(
+    'coupon_campaigns', 
+    loadCouponCampaignClass(models)
+  );
+
   models.Score = db.model<IScoreDocument, IScoreModel>(
     'loyalty_score',
     loadScoreClass(models),
@@ -85,6 +101,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Lottery = db.model<ILotteryDocument, ILotteryModel>(
     'loyalty_lottery',
     loadLotteryClass(models),
+  );
+
+  models.LotteryCampaign = db.model<ILotteryCampaignDocument,ILotteryCampaignModel>(
+    'lottery_campaigns', 
+    loadLotteryCampaignClass(models)
   );
 
   models.Spin = db.model<ISpinDocument, ISpinModel>(

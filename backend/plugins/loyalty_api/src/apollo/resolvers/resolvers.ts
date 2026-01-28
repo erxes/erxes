@@ -15,5 +15,5 @@ export const customResolvers = {
   Coupon,
   Donate,
   Lottery,
-  LotteryCampaign
+  LotteryCampaign,
 };

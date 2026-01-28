@@ -2,6 +2,7 @@ import { agentMutations } from '@/agent/graphql/resolvers/mutations/agent';
 import { assignmentMutations } from '@/assignment/graphql/resolvers/mutations/assignment';
 import { campaignMutations } from '@/campaign/graphql/resolvers/mutations/campaign';
 import { couponMutations } from '@/coupon/graphql/resolvers/mutations/coupon';
+import { couponCampaignMutations } from '~/modules/coupon/graphql/resolvers/mutations/couponCampaign';
 import { donateMutations } from '@/donate/graphql/resolvers/mutations/donate';
 import { lotteryMutations } from '@/lottery/graphql/resolvers/mutations/lottery';
 import { pricingMutations } from '@/pricing/graphql/resolvers/mutations/pricing';
@@ -16,6 +17,7 @@ export const mutations = {
   ...assignmentMutations,
   ...campaignMutations,
   ...couponMutations,
+  ...couponCampaignMutations,
   ...donateMutations,
   ...lotteryMutations,
   ...lotteryCampaignMutations,

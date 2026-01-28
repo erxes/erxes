@@ -2,6 +2,7 @@ import { agentQueries } from '@/agent/graphql/resolvers/queries/agent';
 import { assignmentQueries } from '@/assignment/graphql/resolvers/queries/assignment';
 import { campaignQueries } from '@/campaign/graphql/resolvers/queries/campaign';
 import { couponQueries } from '@/coupon/graphql/resolvers/queries/coupon';
+import { couponCampaignQueries } from '~/modules/coupon/graphql/resolvers/queries/couponCampaign';
 import { donateQueries } from '@/donate/graphql/resolvers/queries/donate';
 import { lotteryQueries } from '@/lottery/graphql/resolvers/queries/lottery';
 import { lotteryCampaignQueries } from '~/modules/lottery/graphql/resolvers/queries/lotteryCampaign';
@@ -16,6 +17,7 @@ export const queries = {
   ...assignmentQueries,
   ...campaignQueries,
   ...couponQueries,
+  ...couponCampaignQueries,
   ...donateQueries,
   ...lotteryQueries,
   ...lotteryCampaignQueries,
