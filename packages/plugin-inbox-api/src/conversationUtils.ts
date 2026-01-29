@@ -418,7 +418,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by not callAnswered conversations
   public callNotAnswered() {
-    this.contentFilter("No Answer", true);
+    this.contentFilter("No Anwer", true);
   }
 
   // filter by tagId
