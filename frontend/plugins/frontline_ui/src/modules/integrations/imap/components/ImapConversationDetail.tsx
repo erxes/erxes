@@ -198,7 +198,12 @@ export const ImapConversationDetail: React.FC = () => {
           <EmailMetaInfo mailData={mailData} />
           <Separator />
 
-          <iframe srcDoc={mailData.body} className='w-full h-full hide-scroll min-h-96' />
+          <iframe
+            srcDoc={mailData.body}
+            className='w-full h-full hide-scroll min-h-96'
+            sandbox=""
+            title="Email content"
+          />
           <Separator />
 
           <div className="text-xs text-muted-foreground px-3 py-2">
