@@ -4,6 +4,7 @@ export const GET_CLIENT_PORTAL_USER = gql`
   query getClientPortalUser($_id: String!) {
     getClientPortalUser(_id: $_id) {
       _id
+      avatar
       type
       email
       phone

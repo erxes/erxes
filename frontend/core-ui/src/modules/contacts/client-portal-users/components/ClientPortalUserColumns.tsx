@@ -6,6 +6,7 @@ import {
   IconPhone,
   IconTrash,
   IconUser,
+  IconWorld,
 } from '@tabler/icons-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
@@ -91,6 +92,21 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
         <TextOverflowTooltip value={cell.getValue() as string} />
       </RecordTableInlineCell>
     ),
+  },
+  {
+    id: 'clientPortal',
+    accessorKey: 'clientPortal',
+    header: () => (
+      <RecordTable.InlineHead icon={IconWorld} label="Client portal" />
+    ),
+    cell: ({ cell }) => {
+      const clientPortal = cell.getValue() as ICPUser['clientPortal'];
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={clientPortal?.name ?? '-'} />
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'isVerified',

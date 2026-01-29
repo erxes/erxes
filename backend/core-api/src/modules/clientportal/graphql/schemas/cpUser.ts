@@ -14,6 +14,7 @@ export const types = `
     companyName: String
     companyRegistrationNumber: String
     clientPortalId: String!
+    clientPortal: ClientPortal
     erxesCustomerId: String
     erxesCompanyId: String
     customFieldsData: JSON

@@ -431,7 +431,18 @@ checkPermission(cpUserMutations, 'cpUsersAdd', 'manageClientPortalUsers');
 checkPermission(cpUserMutations, 'cpUsersEdit', 'manageClientPortalUsers');
 checkPermission(cpUserMutations, 'cpUsersRemove', 'manageClientPortalUsers');
 
-markResolvers(cpUserMutations, {
+const ADMIN_CP_USER_KEYS = new Set([
+  'cpUsersAdd',
+  'cpUsersEdit',
+  'cpUsersRemove',
+]);
+const clientPortalOnlyMutations = Object.fromEntries(
+  Object.entries(cpUserMutations).filter(
+    ([key]) => !ADMIN_CP_USER_KEYS.has(key),
+  ),
+);
+
+markResolvers(clientPortalOnlyMutations, {
   wrapperConfig: {
     forClientPortal: true,
   },

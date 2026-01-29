@@ -11,6 +11,7 @@ export interface ICPUser {
   companyName?: string;
   companyRegistrationNumber?: string;
   clientPortalId: string;
+  clientPortal?: { _id: string; name?: string };
   erxesCustomerId?: string;
   erxesCompanyId?: string;
   customFieldsData?: Record<string, unknown>;

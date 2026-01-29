@@ -15,6 +15,10 @@ export const GET_CLIENT_PORTAL_USERS = gql`
         companyName
         companyRegistrationNumber
         clientPortalId
+        clientPortal {
+          _id
+          name
+        }
         isVerified
         isPhoneVerified
         isEmailVerified
