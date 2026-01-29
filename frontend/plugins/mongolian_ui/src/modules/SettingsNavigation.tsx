@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 export const SettingsNavigation = () => {
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">Ebarimt</Sidebar.GroupLabel>
+      <Sidebar.GroupLabel className="h-4">Mongolian</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
 
