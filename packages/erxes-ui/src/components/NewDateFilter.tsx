@@ -25,20 +25,20 @@ const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
-    ${dimensions.unitSpacing}px;
+  gap: 8px;
+  padding: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px;
 `;
 
-const FlexItem = styled.div`
-  flex: 1;
-  margin-left: 5px;
+const FlexBetween = styled(FlexRow)`
+  justify-content: space-between;
 `;
 
 const DateName = styled.div`
   text-transform: uppercase;
   margin: ${dimensions.unitSpacing}px 0;
   text-align: center;
+  font-size: 12px;
+  color: #888;
 `;
 
 type Props = {
@@ -49,8 +49,11 @@ type Props = {
 
 const format = "YYYY-MM-DD HH:mm";
 
-const NewDateFilter: React.FC<Props> = (props) => {
-  const { queryParams, countQuery, countQueryParam } = props;
+const NewDateFilter: React.FC<Props> = ({
+  queryParams = {},
+  countQuery,
+  countQueryParam,
+}) => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -59,37 +62,21 @@ const NewDateFilter: React.FC<Props> = (props) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { startDate, endDate } = queryParams || {};
-
-    if (startDate) setStartDate(dayjs(startDate).toDate());
-    if (endDate) setEndDate(dayjs(endDate).toDate());
+    if (queryParams.startDate) {
+      setStartDate(dayjs(queryParams.startDate).toDate());
+    }
+    if (queryParams.endDate) {
+      setEndDate(dayjs(queryParams.endDate).toDate());
+    }
   }, [queryParams]);
-
-  useEffect(() => {
-    if (countQuery && queryParams?.startDate && queryParams?.endDate) {
-      refetchCountQuery();
-    }
-  }, [countQuery, queryParams]);
-
-  const onDateChange = (type: "startDate" | "endDate", date: Date) => {
-    if (typeof date !== "string") {
-      type === "startDate" ? setStartDate(date) : setEndDate(date);
-    }
-  };
 
   const refetchCountQuery = () => {
     if (!countQuery || !countQueryParam) return;
 
-    const variables = { ...queryParams };
-
-    if (queryParams?.limit) {
-      variables.limit = parseInt(queryParams.limit, 10);
-    }
-
     client
       .query({
         query: gql(countQuery),
-        variables,
+        variables: queryParams,
       })
       .then(({ data }) => {
         setTotalCount(data[countQueryParam]);
@@ -97,84 +84,94 @@ const NewDateFilter: React.FC<Props> = (props) => {
       .catch((e) => Alert.error(e.message));
   };
 
-  const filterByDate = () => {
-    const formattedStartDate = dayjs(startDate).format(format);
-    const formattedEndDate = dayjs(endDate).format(format);
-
-    if (formattedStartDate > formattedEndDate) {
+  const applyFilter = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
+    if (start.isAfter(end)) {
       return Alert.error("The start date must be earlier than the end date.");
     }
 
+    setStartDate(start.toDate());
+    setEndDate(end.toDate());
+
     setParams(navigate, location, {
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
+      startDate: start.format(format),
+      endDate: end.format(format),
     });
 
-    if (countQuery) refetchCountQuery();
+    if (countQuery) {
+      refetchCountQuery();
+    }
   };
 
-  const renderCount = () => {
-    if (!countQuery) return null;
+  const applyQuickRange = (
+    type:
+      | "today"
+      | "yesterday"
+      | "last7"
+      | "last30"
+      | "month"
+      | "lastMonth"
+      | "year",
+  ) => {
+    let start: dayjs.Dayjs;
+    let end: dayjs.Dayjs;
 
-    return (
-      <FlexItem>
-        <span>
-          {__("Total")}: <b>{totalCount}</b>
-        </span>
-      </FlexItem>
-    );
+    switch (type) {
+      case "today":
+        start = dayjs().startOf("day");
+        end = dayjs().endOf("day");
+        break;
+
+      case "yesterday":
+        start = dayjs().subtract(1, "day").startOf("day");
+        end = dayjs().subtract(1, "day").endOf("day");
+        break;
+
+      case "last7":
+        start = dayjs().subtract(6, "day").startOf("day");
+        end = dayjs().endOf("day");
+        break;
+
+      case "last30":
+        start = dayjs().subtract(29, "day").startOf("day");
+        end = dayjs().endOf("day");
+        break;
+
+      case "month":
+        start = dayjs().startOf("month");
+        end = dayjs().endOf("month");
+        break;
+
+      case "lastMonth":
+        start = dayjs().subtract(1, "month").startOf("month");
+        end = dayjs().subtract(1, "month").endOf("month");
+        break;
+
+      case "year":
+        start = dayjs().startOf("year");
+        end = dayjs().endOf("year");
+        break;
+
+      default:
+        return;
+    }
+
+    applyFilter(start, end);
   };
 
-  const renderPopover = () => {
-    const props = {
-      dateFormat: "YYYY/MM/DD",
-      timeFormat: "HH:mm",
-      closeOnSelect: false,
-      inputProps: {
-        placeholder: "YYYY/MM/DD HH:mm",
-        className: "datetime-input",
-        onInput: (e: any) => {
-          e.target.value = e.target.value.replace(/[^\d:/ ]/g, "");
-        },
-      },
-    };
+  const onDateChange = (type: "start" | "end") => (date: any) => {
+    if (typeof date === "string") return;
 
-    const onChangeStart = (date: any) => {
-      if (typeof date !== "string") onDateChange("startDate", date);
-    };
+    if (type === "start") {
+      setStartDate(date);
+    } else {
+      setEndDate(date);
+    }
+  };
 
-    const onChangeEnd = (date: any) => {
-      if (typeof date !== "string") onDateChange("endDate", date);
-    };
-
-    return (
-      <>
-        <PopoverHeader>{__("Filter by date")}</PopoverHeader>
-        <FlexRow>
-          <div>
-            <DateName>Start Date</DateName>
-            <Datetime {...props} value={startDate} onChange={onChangeStart} />
-          </div>
-
-          <div>
-            <DateName>End Date</DateName>
-            <Datetime {...props} value={endDate} onChange={onChangeEnd} />
-          </div>
-        </FlexRow>
-
-        <FlexRow>
-          {renderCount()}
-          <Button
-            btnStyle="warning"
-            onClick={filterByDate}
-            icon="filter-1"
-            size="small"
-          >
-            Filter
-          </Button>
-        </FlexRow>
-      </>
-    );
+  const dateProps = {
+    dateFormat: "YYYY/MM/DD",
+    timeFormat: "HH:mm",
+    closeOnSelect: false,
   };
 
   return (
@@ -187,8 +184,78 @@ const NewDateFilter: React.FC<Props> = (props) => {
               <Icon icon={open ? "angle-up" : "angle-down"} />
             </PopoverButton>
           </Popover.Button>
+
           <Popover.Panel className="date-popover">
-            {renderPopover()}
+            <PopoverHeader>{__("Filter by date")}</PopoverHeader>
+
+            <FlexRow style={{ flexWrap: "wrap" }}>
+              <Button size="small" onClick={() => applyQuickRange("today")}>
+                Today
+              </Button>
+
+              <Button size="small" onClick={() => applyQuickRange("yesterday")}>
+                Yesterday
+              </Button>
+
+              <Button size="small" onClick={() => applyQuickRange("last7")}>
+                Last 7 days
+              </Button>
+
+              <Button size="small" onClick={() => applyQuickRange("last30")}>
+                Last 30 days
+              </Button>
+
+              <Button size="small" onClick={() => applyQuickRange("month")}>
+                This month
+              </Button>
+
+              <Button size="small" onClick={() => applyQuickRange("lastMonth")}>
+                Last month
+              </Button>
+
+              <Button size="small" onClick={() => applyQuickRange("year")}>
+                This year
+              </Button>
+            </FlexRow>
+
+            <FlexBetween>
+              <div>
+                <DateName>Start date</DateName>
+                <Datetime
+                  {...dateProps}
+                  input={false}
+                  value={startDate}
+                  onChange={onDateChange("start")}
+                />
+              </div>
+
+              <div>
+                <DateName>End date</DateName>
+                <Datetime
+                  {...dateProps}
+                  input={false}
+                  value={endDate}
+                  onChange={onDateChange("end")}
+                />
+              </div>
+            </FlexBetween>
+
+            <FlexBetween>
+              {countQuery && (
+                <span>
+                  {__("Total")}: <b>{totalCount}</b>
+                </span>
+              )}
+
+              <Button
+                btnStyle="warning"
+                size="small"
+                icon="filter-1"
+                onClick={() => applyFilter(dayjs(startDate), dayjs(endDate))}
+              >
+                Filter
+              </Button>
+            </FlexBetween>
           </Popover.Panel>
         </>
       )}
