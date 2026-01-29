@@ -10,7 +10,6 @@ import { SelectBoard } from '../select/SelectBoard';
 import { SelectPipeline } from '../select/SelectPipeline';
 import { SelectStage } from '../select/SelectStage';
 
-import { useDealDetail } from '../hooks/useDeals';
 import { Button } from 'erxes-ui';
 import { useBoards } from '../hooks/useBoards';
 
