@@ -312,7 +312,7 @@ export default class Builder {
   }
 
   public notAnsweredFilter(include: boolean = true) {
-    return this.contentFilter("NO ANSWER", include);
+    return this.contentFilter("No Answer", include);
   }
 
   // filter by integration type
