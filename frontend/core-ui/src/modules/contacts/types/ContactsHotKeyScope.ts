@@ -7,5 +7,6 @@ export enum ContactsHotKeyScope {
   CompanyAddSheet = 'company-add-sheet',
   CompanyEditSheet = 'company-edit-sheet',
   ClientPortalUsersPage = 'client-portal-users-page',
+  ClientPortalUserAddSheet = 'client-portal-user-add-sheet',
   ClientPortalUserEditSheet = 'client-portal-user-edit-sheet',
 }

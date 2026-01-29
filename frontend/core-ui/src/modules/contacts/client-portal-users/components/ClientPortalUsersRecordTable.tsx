@@ -38,7 +38,7 @@ export const ClientPortalUsersRecordTable = () => {
               <RecordTable.RowSkeleton rows={32} />
             ) : !totalCount ? (
               <tr className="h-[40vh]">
-                <td colSpan={7} className="py-10 text-center">
+                <td colSpan={8} className="py-10 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
                     <Label>No client portal users</Label>
                   </div>

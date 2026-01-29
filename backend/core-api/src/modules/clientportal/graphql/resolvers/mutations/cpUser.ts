@@ -1,3 +1,4 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers } from 'erxes-api-shared/utils';
@@ -82,7 +83,65 @@ interface FcmTokenParams {
   fcmToken: string;
 }
 
+interface CpUsersAddParams {
+  clientPortalId: string;
+  email?: string;
+  phone?: string;
+  username?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  userType?: string;
+}
+
+interface CpUsersEditParams {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  username?: string;
+  companyName?: string;
+  companyRegistrationNumber?: string;
+}
+
 export const cpUserMutations: Record<string, Resolver> = {
+  async cpUsersAdd(
+    _root: unknown,
+    params: CpUsersAddParams,
+    { models }: IContext,
+  ) {
+    return cpUserService.createUserAsAdmin(
+      params.clientPortalId,
+      {
+        email: params.email,
+        phone: params.phone,
+        username: params.username,
+        password: params.password,
+        firstName: params.firstName,
+        lastName: params.lastName,
+        type: params.userType as 'customer' | 'company' | undefined,
+      },
+      models,
+    );
+  },
+
+  async cpUsersEdit(
+    _root: unknown,
+    { _id, ...params }: CpUsersEditParams,
+    { models }: IContext,
+  ) {
+    return cpUserService.updateUser(_id, params, models);
+  },
+
+  async cpUsersRemove(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    await cpUserService.removeUser(_id, models);
+    return { _id };
+  },
+
   async clientPortalUserRegister(
     _root: unknown,
     params: RegisterParams,
@@ -367,6 +426,10 @@ export const cpUserMutations: Record<string, Resolver> = {
     return cpUserService.removeFcmToken(cpUser._id, fcmToken, models);
   },
 };
+
+checkPermission(cpUserMutations, 'cpUsersAdd', 'manageClientPortalUsers');
+checkPermission(cpUserMutations, 'cpUsersEdit', 'manageClientPortalUsers');
+checkPermission(cpUserMutations, 'cpUsersRemove', 'manageClientPortalUsers');
 
 markResolvers(cpUserMutations, {
   wrapperConfig: {

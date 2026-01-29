@@ -121,7 +121,31 @@ const userEditParams = `
   companyRegistrationNumber: String,
 `;
 
+const cpUsersAddParams = `
+  clientPortalId: String!,
+  email: String,
+  phone: String,
+  username: String,
+  password: String,
+  firstName: String,
+  lastName: String,
+  userType: CPUserType,
+`;
+
+const cpUsersEditParams = `
+  _id: String!,
+  firstName: String,
+  lastName: String,
+  avatar: String,
+  username: String,
+  companyName: String,
+  companyRegistrationNumber: String,
+`;
+
 export const mutations = `
+  cpUsersAdd(${cpUsersAddParams}): CPUser
+  cpUsersEdit(${cpUsersEditParams}): CPUser
+  cpUsersRemove(_id: String!): JSON
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
   clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser

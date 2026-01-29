@@ -402,6 +402,49 @@ export class CPUserService {
 
     return updatedUser;
   }
+
+  async createUserAsAdmin(
+    clientPortalId: string,
+    params: ICPUserRegisterParams,
+    models: IModels,
+  ): Promise<ICPUserDocument> {
+    if (!params.email && !params.phone) {
+      throw new ValidationError('Email or phone is required');
+    }
+
+    const clientPortal = await models.ClientPortal.findOne({
+      _id: clientPortalId,
+    });
+    if (!clientPortal) {
+      throw new ValidationError('Client portal not found');
+    }
+
+    const document = {
+      ...params,
+      isEmailVerified: false,
+      isPhoneVerified: false,
+    };
+
+    const user = await contactService.handleCPContacts(
+      models,
+      clientPortalId,
+      document,
+      params.password,
+    );
+
+    await this.autoVerifyUser(user, models);
+    const updatedUser = await models.CPUser.findOne({ _id: user._id });
+    return updatedUser || user;
+  }
+
+  async removeUser(userId: string, models: IModels): Promise<void> {
+    const user = await models.CPUser.findOne({ _id: userId });
+    if (!user) {
+      throw new AuthenticationError('User not found');
+    }
+
+    await models.CPUser.findOneAndDelete({ _id: userId });
+  }
 }
 
 export const cpUserService = new CPUserService();

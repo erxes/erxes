@@ -1,3 +1,4 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
@@ -64,8 +65,10 @@ export const cpUserQueries: Record<string, Resolver> = {
       ];
     }
 
-    const orderBy: Record<string, SortOrder> =
-      (filter.orderBy as Record<string, SortOrder>) || { createdAt: -1 };
+    const orderBy: Record<string, SortOrder> = (filter.orderBy as Record<
+      string,
+      SortOrder
+    >) || { createdAt: -1 };
 
     const { list, totalCount, pageInfo } =
       await cursorPaginate<ICPUserDocument>({
@@ -88,6 +91,9 @@ export const cpUserQueries: Record<string, Resolver> = {
     return models.CPUser.findOne({ _id }).lean();
   },
 };
+
+checkPermission(cpUserQueries, 'getClientPortalUsers', 'showClientPortalUsers');
+checkPermission(cpUserQueries, 'getClientPortalUser', 'showClientPortalUsers');
 
 cpUserQueries.clientPortalCurrentUser.wrapperConfig = {
   forClientPortal: true,
