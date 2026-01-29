@@ -162,6 +162,42 @@ const FacebookMessageButton = ({
     handleChangeButton({ ...button, text: value });
   };
 
+  const renderButtonContent = () => {
+    if (button?.isEditing) {
+      return (
+        <Input
+          autoFocus
+          maxLength={20}
+          placeholder="Enter button text"
+          value={button.text || button.link}
+          onBlur={onSave}
+          onChange={onChangeButtonText}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.currentTarget.blur();
+            }
+          }}
+        />
+      );
+    }
+    if (button.link) {
+      return (
+        <a
+          href={button.link}
+          target="__blank"
+          className="text-blue-500 hover:text-blue-500/70 transition ease-in-out"
+        >
+          {button.text || button.link}
+        </a>
+      );
+    }
+    return (
+      <span className="font-mono font-medium text-foreground text-sm">
+        {button.text || 'Type a button label'}
+      </span>
+    );
+  };
+
   return (
     <Card
       ref={setNodeRef}
@@ -193,33 +229,7 @@ const FacebookMessageButton = ({
         />
       ) : null}
       <div className="flex-1 border rounded p-2 flex items-center">
-        {button?.isEditing ? (
-          <Input
-            autoFocus
-            maxLength={20}
-            placeholder="Enter button text"
-            value={button.text || button.link}
-            onBlur={onSave}
-            onChange={onChangeButtonText}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.currentTarget.blur();
-              }
-            }}
-          />
-        ) : button.link ? (
-          <a
-            href={button.link}
-            target="__blank"
-            className="text-blue-500 hover:text-blue-500/70 transition ease-in-out"
-          >
-            {button.text || button.link}
-          </a>
-        ) : (
-          <span className="font-mono font-medium text-foreground text-sm">
-            {button.text || 'Type a button label'}
-          </span>
-        )}
+        {renderButtonContent()}
       </div>
       <Popover>
         <Popover.Trigger asChild>
