@@ -137,6 +137,11 @@ export const types = `
     redirectUri: String
   }
 
+  type FirebaseConfig {
+    serviceAccountKey: String
+    enabled: Boolean
+  }
+
 type ClientPortal {
     _id: String!
     name: String!
@@ -153,6 +158,7 @@ type ClientPortal {
     manualVerificationConfig: ManualVerificationConfig
     enableManualVerification: Boolean
     testUser: TestUser
+    firebaseConfig: FirebaseConfig
 
     createdAt: Date
     updatedAt: Date
@@ -295,6 +301,11 @@ type ClientPortal {
     redirectUri: String
   }
 
+  input FirebaseConfigInput {
+    serviceAccountKey: String
+    enabled: Boolean
+  }
+
   input ClientPortalConfigInput {
     name: String
     description: String
@@ -310,6 +321,7 @@ type ClientPortal {
     manualVerificationConfig: ManualVerificationConfigInput
     enableManualVerification: Boolean
     testUser: TestUserInput
+    firebaseConfig: FirebaseConfigInput
   }
 
   input IClientPortalFilter {

@@ -54,6 +54,10 @@ export interface IClientPortal {
     password?: string;
     otp?: number;
   };
+  firebaseConfig?: {
+    enabled?: boolean;
+    serviceAccountKey?: string;
+  };
 }
 
 export interface IOTPEmailConfig {

@@ -117,12 +117,10 @@ export class VerificationService {
       );
     } else if (identifierType === 'phone' && user.phone) {
       await notificationService.sendOTPSMS(
-        subdomain,
         user,
         code,
         messageTemplate,
         clientPortal,
-        models,
       );
     }
   }

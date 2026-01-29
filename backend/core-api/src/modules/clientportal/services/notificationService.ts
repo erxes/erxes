@@ -2,6 +2,70 @@ import { sendEmail } from '~/utils/email';
 import { IModels } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { ICPNotificationDocument } from '@/clientportal/types/cpNotification';
+import { firebaseService } from './firebaseService';
+import { NetworkError } from './errorHandler';
+import { CP_NOTIFICATION_PRIORITY_ORDER } from '../constants';
+
+type NotificationType = 'info' | 'success' | 'warning' | 'error';
+
+type NotificationPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+type NotificationKind = 'system' | 'user';
+
+interface BaseNotificationData {
+  title: string;
+  message: string;
+  type?: NotificationType;
+  contentType?: string;
+  contentTypeId?: string;
+  priority?: NotificationPriority;
+  metadata?: any;
+  action?: string;
+  kind?: NotificationKind;
+  allowMultiple?: boolean;
+}
+
+interface CreateNotificationInput extends BaseNotificationData {
+  cpUserId: string;
+  clientPortalId: string;
+}
+
+interface SendNotificationInput extends BaseNotificationData {}
+
+interface CallProConfig {
+  phone?: string;
+  token?: string;
+}
+
+interface TwilioConfig {
+  apiKey?: string;
+  apiSecret?: string;
+  apiUrl?: string;
+}
+
+interface FirebaseNotificationPayload {
+  title: string;
+  body: string;
+}
+
+function parseJsonConfig<T>(configLike: unknown): T {
+  if (!configLike) {
+    return {} as T;
+  }
+
+  if (typeof configLike === 'string') {
+    try {
+      return JSON.parse(configLike) as T;
+    } catch {
+      return {} as T;
+    }
+  }
+
+  return configLike as T;
+}
+
+const THIRTY_DAYS_IN_MS = 30 * 24 * 60 * 60 * 1000;
 
 export interface SendEmailOptions {
   toEmails: string[];
@@ -27,21 +91,23 @@ export class NotificationService {
   }
 
   async sendSMS(
-    subdomain: string,
     options: SendSMSOptions,
     clientPortal: IClientPortalDocument,
-    models: IModels,
   ): Promise<void> {
-    const smsProvidersConfig = clientPortal.smsProvidersConfig;
-    const otpConfig = clientPortal.securityAuthConfig?.otpConfig;
-    const smsProvider = otpConfig?.sms?.smsProvider || 'callPro';
+    const { smsProvidersConfig, securityAuthConfig } = clientPortal;
+    const smsProvider = securityAuthConfig?.otpConfig?.sms?.smsProvider;
 
-    if (smsProvider === 'callPro') {
-      await this.sendViaCallPro(options, smsProvidersConfig);
-    } else if (smsProvider === 'twilio') {
-      await this.sendViaTwilio(options, smsProvidersConfig);
-    } else {
-      throw new Error(`Unsupported SMS provider: ${smsProvider}`);
+    switch (smsProvider) {
+      case 'twilio':
+        await this.sendViaTwilio(options, smsProvidersConfig);
+        break;
+      case 'callPro':
+      case undefined:
+        // Default to callPro when provider is not set
+        await this.sendViaCallPro(options, smsProvidersConfig);
+        break;
+      default:
+        throw new Error(`Unsupported SMS provider: ${smsProvider}`);
     }
   }
 
@@ -50,32 +116,20 @@ export class NotificationService {
     smsProvidersConfig?: IClientPortalDocument['smsProvidersConfig'],
   ): Promise<void> {
     const callProConfig = smsProvidersConfig?.callPro;
+    const config = parseJsonConfig<CallProConfig>(callProConfig);
+    const apiKey = config.token;
+    const phoneNumber = config.phone;
 
-    // Parse if it's a JSON string
-    let config: { phone?: string; token?: string } = {};
-    if (typeof callProConfig === 'string') {
-      try {
-        config = JSON.parse(callProConfig);
-      } catch {
-        config = {};
-      }
-    } else if (callProConfig) {
-      config = callProConfig;
-    }
-
-    const MESSAGE_PRO_API_KEY = config.token;
-    const MESSAGE_PRO_PHONE_NUMBER = config.phone;
-
-    if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-      throw new Error('messaging config not set properly');
+    if (!apiKey || !phoneNumber) {
+      throw new Error('Messaging config not set properly');
     }
 
     try {
       const response = await fetch(
         'https://api.messagepro.mn/send?' +
           new URLSearchParams({
-            key: MESSAGE_PRO_API_KEY,
-            from: MESSAGE_PRO_PHONE_NUMBER,
+            key: apiKey,
+            from: phoneNumber,
             to: options.toPhone,
             text: options.message,
           }),
@@ -83,12 +137,9 @@ export class NotificationService {
       if (!response.ok) {
         throw new Error(`MessagePro API error: ${response.statusText}`);
       }
-
-      return;
     } catch (e) {
       const error = e as Error;
-      console.error('SMS sending error:', error.message);
-      throw new Error(error.message);
+      throw new NetworkError(error.message);
     }
   }
 
@@ -97,18 +148,7 @@ export class NotificationService {
     smsProvidersConfig?: IClientPortalDocument['smsProvidersConfig'],
   ): Promise<void> {
     const twilioConfig = smsProvidersConfig?.twilio;
-
-    // Parse if it's a JSON string
-    let config: { apiKey?: string; apiSecret?: string; apiUrl?: string } = {};
-    if (typeof twilioConfig === 'string') {
-      try {
-        config = JSON.parse(twilioConfig);
-      } catch {
-        config = {};
-      }
-    } else if (twilioConfig) {
-      config = twilioConfig;
-    }
+    const config = parseJsonConfig<TwilioConfig>(twilioConfig);
 
     const accountSid = config.apiKey; // Twilio Account SID
     const authToken = config.apiSecret; // Twilio Auth Token
@@ -149,12 +189,9 @@ export class NotificationService {
           )}`,
         );
       }
-
-      return;
     } catch (e) {
       const error = e as Error;
-      console.error('SMS sending error:', error.message);
-      throw new Error(error.message);
+      throw new NetworkError(error.message);
     }
   }
 
@@ -184,12 +221,10 @@ export class NotificationService {
   }
 
   async sendOTPSMS(
-    subdomain: string,
     user: ICPUserDocument,
     code: string,
     template: string,
     clientPortal: IClientPortalDocument,
-    models: IModels,
   ): Promise<void> {
     if (!user.phone) {
       return;
@@ -199,15 +234,152 @@ export class NotificationService {
     const message = template.replace('{code}', code);
 
     await this.sendSMS(
-      subdomain,
       {
         toPhone: user.phone,
         message,
         userId: user._id,
       },
       clientPortal,
-      models,
     );
+  }
+
+  async createNotification(
+    subdomain: string,
+    models: IModels,
+    notificationData: CreateNotificationInput,
+  ): Promise<ICPNotificationDocument> {
+    const {
+      cpUserId,
+      clientPortalId,
+      title,
+      message,
+      type = 'info',
+      contentType,
+      contentTypeId,
+      priority = 'medium',
+      metadata,
+      action,
+      kind = 'user',
+      allowMultiple = false,
+    } = notificationData;
+
+    const notificationDoc: any = {
+      cpUserId,
+      clientPortalId,
+      title,
+      message,
+      type,
+      contentType,
+      contentTypeId,
+      priority,
+      priorityLevel: CP_NOTIFICATION_PRIORITY_ORDER[priority],
+      metadata,
+      action,
+      kind,
+      isRead: false,
+      expiresAt: new Date(Date.now() + THIRTY_DAYS_IN_MS),
+    };
+
+    let notification: ICPNotificationDocument | null = null;
+
+    if (kind === 'user' && !allowMultiple && contentType && contentTypeId) {
+      notification = await models.CPNotifications.findOneAndUpdate(
+        { contentTypeId, contentType, cpUserId },
+        notificationDoc,
+        { new: true, upsert: true },
+      );
+    }
+
+    if (!notification) {
+      notification = await models.CPNotifications.create(notificationDoc);
+    }
+
+    return notification;
+  }
+
+  /**
+   * Sends Firebase notification to the user's FCM tokens. Returns tokens that
+   * failed with revokable errors (invalid/unregistered); caller should remove
+   * those from the user's fcmTokens.
+   */
+  private async sendFirebaseNotification(
+    clientPortal: IClientPortalDocument,
+    cpUser: ICPUserDocument,
+    notification: FirebaseNotificationPayload,
+    data?: Record<string, string>,
+  ): Promise<string[]> {
+    const firebaseConfig = clientPortal.firebaseConfig;
+
+    if (!firebaseConfig?.enabled || !firebaseConfig?.serviceAccountKey) {
+      return [];
+    }
+
+    const tokens = (cpUser.fcmTokens || []).filter(Boolean);
+    if (tokens.length === 0) {
+      return [];
+    }
+
+    try {
+      await firebaseService.initializeFromClientPortal(clientPortal);
+      const response = await firebaseService.sendNotification(
+        clientPortal._id,
+        tokens,
+        notification,
+        data,
+      );
+      const toRevoke = firebaseService.getTokensToRevokeFromResponse(
+        tokens,
+        response,
+      );
+      return toRevoke;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new NetworkError(
+        `Failed to send Firebase notification: ${errorMessage}`,
+      );
+    }
+  }
+
+  async sendNotification(
+    subdomain: string,
+    models: IModels,
+    clientPortal: IClientPortalDocument,
+    cpUser: ICPUserDocument,
+    notificationData: SendNotificationInput,
+  ): Promise<ICPNotificationDocument> {
+    const notification = await this.createNotification(subdomain, models, {
+      ...notificationData,
+      cpUserId: cpUser._id,
+      clientPortalId: clientPortal._id,
+    });
+
+    try {
+      const tokensToRevoke = await this.sendFirebaseNotification(
+        clientPortal,
+        cpUser,
+        {
+          title: notificationData.title,
+          body: notificationData.message,
+        },
+        {
+          notificationId: notification._id,
+          type: notificationData.type || 'info',
+          action: notificationData.action || '',
+        },
+      );
+
+      if (tokensToRevoke.length > 0) {
+        await models.CPUser.updateOne(
+          { _id: cpUser._id },
+          { $pull: { fcmTokens: { $in: tokensToRevoke } } },
+        );
+      }
+    } catch {
+      // Swallow Firebase errors so notification creation still succeeds
+    }
+
+    return notification;
   }
 }
 

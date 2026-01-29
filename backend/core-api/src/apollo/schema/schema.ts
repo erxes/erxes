@@ -192,6 +192,12 @@ import {
 } from '@/clientportal/graphql/schemas/comment';
 
 import {
+  mutations as CPNotificationMutations,
+  queries as CPNotificationQueries,
+  types as CPNotificationTypes,
+} from '@/clientportal/graphql/schemas/cpNotification';
+
+import {
   mutations as BroadcastMutations,
   queries as BroadcastQueries,
   types as BroadcastTypes,
@@ -244,6 +250,7 @@ export const types = `
     ${ExportTypes}
     ${CPUserTypes}
     ${CommentTypes}
+    ${CPNotificationTypes}
     ${BroadcastTypes}
   `;
 
@@ -281,6 +288,7 @@ export const queries = `
     ${ExportQueries}
     ${CPUserQueries}
     ${CommentQueries}
+    ${CPNotificationQueries}
     ${BroadcastQueries}
   `;
 
@@ -317,6 +325,7 @@ export const mutations = `
     ${ExportMutations}
     ${CPUserMutations}
     ${CommentMutations}
+    ${CPNotificationMutations}
     ${BroadcastMutations}
   `;
 

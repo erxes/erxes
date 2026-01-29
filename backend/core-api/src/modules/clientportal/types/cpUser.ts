@@ -70,7 +70,7 @@ export interface ICPUser {
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
   // firebase cloud messaging tokens for push notifications and web push notifications
-  fcmTokens: string[];
+  fcmTokens?: string[];
   // Verification codes - unified structure
   actionCode?: {
     code: string;

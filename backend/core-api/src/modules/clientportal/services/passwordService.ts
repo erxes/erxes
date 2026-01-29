@@ -59,12 +59,10 @@ export class PasswordService {
       );
     } else {
       await notificationService.sendOTPSMS(
-        subdomain,
         user,
         code,
-        emailContent,
+        resetPasswordConfig?.smsContent || '',
         clientPortal,
-        models,
       );
     }
   }

@@ -178,7 +178,10 @@ import {
   IClientPortalModel,
   loadClientPortalClass,
 } from './modules/clientportal/db/models/ClientPortal';
-import { ICPCommentsModel, loadCommentClass } from './modules/clientportal/db/models/Comment';
+import {
+  ICPCommentsModel,
+  loadCommentClass,
+} from './modules/clientportal/db/models/Comment';
 import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
 import { ICPCommentDocument } from './modules/clientportal/types/comment';
 import { ICPUserDocument } from './modules/clientportal/types/cpUser';
@@ -219,7 +222,11 @@ import {
   ISegmentModel,
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
-
+import {
+  ICPNotificationModel,
+  loadCPNotificationClass,
+} from './modules/clientportal/db/models/CPNotification';
+import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -263,6 +270,7 @@ export interface IModels {
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
   CPComments: ICPCommentsModel;
+  CPNotifications: ICPNotificationModel;
 
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
@@ -591,13 +599,20 @@ export const loadClasses = (
     'client_portal_users',
     loadCPUserClass(models),
   );
-  
   models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
     'client_portal_comments',
-    loadCommentClass(models,
+    loadCommentClass(
+      models,
       subdomain,
-      eventDispatcher('core', 'clientportal', 'client_portal_comments'),),
+      eventDispatcher('core', 'clientportal', 'client_portal_comments'),
+    ),
   );
+
+  models.CPNotifications = db.model<
+    ICPNotificationDocument,
+    ICPNotificationModel
+  >('client_portal_notifications', loadCPNotificationClass(models));
+
   const db_name = db.name;
 
   const logDb = db.useDb(`${db_name}_logs`);
