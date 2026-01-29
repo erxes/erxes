@@ -2,24 +2,36 @@ import {
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupHoursAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { IconPlus, IconX } from '@tabler/icons-react';
-import { Avatar, Button, Popover, readImage, Separator } from 'erxes-ui';
+import { IconX } from '@tabler/icons-react';
+import { Avatar, Button, Popover, readImage } from 'erxes-ui';
 import { MembersInline, useMembersInlineContext } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { EMGreetingAvatar } from '@/integrations/erxes-messenger/components/EMGreeting';
+import { EMPreviewChatInput } from './EMPreviewChatInput';
+import { useMemo } from 'react';
+
+const MAX_COUNT = 2;
 
 export const ActiveUsers = () => {
   const { members } = useMembersInlineContext();
+  const extraCount = members.length - MAX_COUNT;
   return (
-    <div className="flex items-center gap-2">
-      {members.map((member) => (
-        <Avatar key={member._id} size="xl">
+    <div className="flex items-center -space-x-2">
+      {members.slice(0, MAX_COUNT).map((member) => (
+        <Avatar key={member._id} size="xl" className='border-2 border-transparent'>
           <Avatar.Image src={readImage(member.details?.avatar || '', 200)} />
           <Avatar.Fallback>
             {member.details?.fullName?.charAt(0) || ''}
           </Avatar.Fallback>
         </Avatar>
       ))}
+      {extraCount > 0 && (
+        <Avatar size="xl" className='border-2 border-transparent'>
+          <Avatar.Fallback>
+            {'+' + extraCount}
+          </Avatar.Fallback>
+        </Avatar>
+      )}
     </div>
   );
 };
@@ -27,10 +39,11 @@ export const ActiveUsers = () => {
 export const EMPreviewIntro = () => {
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
+
   return (
     <>
-      <div className="bg-primary text-primary-foreground p-6 pb-16 pt-4">
-        <Popover.Close asChild>
+      <div className="bg-background text-foreground p-6 pt-4">
+        {/* <Popover.Close asChild>
           <Button
             size="icon"
             variant="ghost"
@@ -38,7 +51,16 @@ export const EMPreviewIntro = () => {
           >
             <IconX />
           </Button>
-        </Popover.Close>
+        </Popover.Close> */}
+        <h1 className="font-semibold text-accent-foreground text-base">
+          Need help?
+        </h1>
+        <p className="text-sm text-foreground/80 mt-3 mb-3">
+          {greeting?.title || 'Welcome to Erxes Messenger'}
+        </p>
+        <p className="text-xs text-accent-foreground mb-5">
+          Contact us for any questions or concerns.
+        </p>
         <div className="flex items-center gap-1 text-accent mb-2">
           {greeting?.links?.map(
             (link) =>
@@ -46,7 +68,7 @@ export const EMPreviewIntro = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-6"
+                  className="size-4"
                   asChild
                   key={link.url}
                 >
@@ -57,17 +79,19 @@ export const EMPreviewIntro = () => {
               ),
           )}
         </div>
-        <h1 className="text-2xl font-semibold">
-          {greeting?.title || 'Welcome'}
-        </h1>
-        <p className="text-sm text-primary-foreground/80 mt-3 mb-5">
-          {greeting?.message || 'Welcome to Erxes Messenger'}
-        </p>
+      </div>
+      <div className="flex items-center gap-2 flex-1 justify-start px-4">
         <MembersInline.Provider memberIds={greeting?.supporterIds || []}>
           <ActiveUsers />
         </MembersInline.Provider>
+        <span className="text-xs text-accent-foreground">
+          Our usual reply time <span className="font-medium text-primary">(A few {hours?.responseRate || 'minutes'})</span>
+        </span>
       </div>
-      <div className="bg-background px-4 py-6 -mt-8 mx-6 rounded-xl shadow-md">
+      <div className="mt-auto">
+        <EMPreviewChatInput />
+      </div>
+      {/* <div className="bg-a px-4 py-6 -mt-8 mx-6 rounded-xl shadow-md">
         <div className="font-medium text-accent-foreground mb-2 text-sm px-3">
           Recent conversations
         </div>
@@ -86,7 +110,7 @@ export const EMPreviewIntro = () => {
           </div>
         </Button>
         <Separator />
-      </div>
+      </div> */}
     </>
   );
 };
