@@ -10,14 +10,19 @@ import { useAtomValue } from 'jotai';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupGreetingAtom,
+  erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { BrandsInline, MembersInline } from 'ui-modules';
+import { EMPreviewChatInput } from './EMPreviewChatInput';
 
 export const EMPreviewMessages = () => {
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
+  const intro = useAtomValue(erxesMessengerSetupIntroAtom);
+
+  console.log('log', intro);
 
   return (
     <>
@@ -47,7 +52,7 @@ export const EMPreviewMessages = () => {
                 </Tooltip>
               </>
             )}
-            <Tooltip delayDuration={100}>
+            {/* <Tooltip delayDuration={100}>
               <Tooltip.Trigger asChild>
                 <Popover.Close asChild>
                   <Button size="icon" variant="ghost">
@@ -56,7 +61,7 @@ export const EMPreviewMessages = () => {
                 </Popover.Close>
               </Tooltip.Trigger>
               <Tooltip.Content>Close</Tooltip.Content>
-            </Tooltip>
+            </Tooltip> */}
           </Tooltip.Provider>
         </div>
       </div>
@@ -73,7 +78,7 @@ export const EMPreviewMessages = () => {
             variant="secondary"
             className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
           >
-            <p>Hi, any questions?</p>
+            <p>{intro?.welcome || "Hi, any questions?"}</p>
             <div className="text-accent-foreground">few minutes ago</div>
           </Button>
         </div>
@@ -90,19 +95,8 @@ export const EMPreviewMessages = () => {
           </Button>
         </div>
       </div>
-      <Separator />
       <div className="relative">
-        <Input
-          placeholder="Send message..."
-          className="focus-visible:shadow-none shadow-none h-12 p-4 pr-12"
-        />
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute right-2 top-2 size-8"
-        >
-          <IconSend />
-        </Button>
+        <EMPreviewChatInput />
       </div>
     </>
   );

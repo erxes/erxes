@@ -11,6 +11,8 @@ import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
 import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { CompanyTextField } from '@/contacts/companies/company-detail/CompanyTextField';
 import { useTranslation } from 'react-i18next';
+import { useDebounce } from 'use-debounce'
+
 
 export const CompanyDetailFields = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
@@ -29,6 +31,21 @@ export const CompanyDetailFields = () => {
     description,
   } = companyDetail;
   const { companiesEdit } = useCompaniesEdit();
+
+  const [localDescription, setLocalDescription] = useState(description || '');
+  const [debouncedDescription] = useDebounce(localDescription, 500);
+
+  useEffect(()=>{
+    companiesEdit({
+      variables:{
+        _id,
+        description:debouncedDescription,
+      },
+    });
+  }, [debouncedDescription, _id]);
+
+
+
   return (
     <div className="space-y-6 py-8">
       <CompanyDetailSelectTag tagIds={tagIds} companyId={_id} />
@@ -84,15 +101,8 @@ export const CompanyDetailFields = () => {
         </DataListItem>
         <DataListItem label="Description">
           <Textarea
-            value={description || ''}
-            onChange={(e) => {
-              companiesEdit({
-                variables: {
-                  _id,
-                  description: e.target.value,
-                },
-              });
-            }}
+            value={localDescription}
+            onChange={(e) => setLocalDescription(e.target.value)}
           />
         </DataListItem>
       </div>
