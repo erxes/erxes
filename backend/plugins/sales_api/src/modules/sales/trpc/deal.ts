@@ -7,7 +7,12 @@ import {
   editDeal,
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
-import { convertNestedDate, generateAmounts, generateProducts } from '~/modules/sales/utils';
+import {
+  convertNestedDate,
+  generateAmounts,
+  generateProducts,
+} from '~/modules/sales/utils';
+import { createEventDispatcher } from 'erxes-api-shared/core-modules';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -240,17 +245,83 @@ export const dealTrpcRouter = t.router({
         return await generateFilter(models, subdomain, userId, filter);
       }),
 
-    generateAmounts: t.procedure
-      .input(z.any())
-      .query(async ({ input }) => {
-        return generateAmounts(input);
-      }),
+    generateAmounts: t.procedure.input(z.any()).query(async ({ input }) => {
+      return generateAmounts(input);
+    }),
 
     generateProducts: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
         return await generateProducts(subdomain, input);
+      }),
+
+    createCommentActivityLog: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { subdomain } = ctx;
+        const {
+          dealId,
+          commentId,
+          createdBy,
+          processId,
+          userId,
+          commentContent,
+        } = input;
+
+        if (!dealId || !commentId || !createdBy) {
+          return {
+            status: 'error',
+            errorMessage:
+              'Missing required parameters: dealId, commentId, createdBy',
+          };
+        }
+
+        try {
+          const dispatcher = createEventDispatcher({
+            subdomain,
+            pluginName: 'sales',
+            moduleName: 'sales',
+            collectionName: 'deals',
+            getContext: () => ({
+              subdomain,
+              processId: processId || '',
+              userId: userId || createdBy || '',
+            }),
+          });
+
+          dispatcher.createActivityLog({
+            activityType: 'comment',
+            target: {
+              _id: dealId,
+              moduleName: 'sales',
+              collectionName: 'deals',
+            },
+            action: {
+              type: 'comment',
+              description: `Comment added from client portal ${commentContent}`,
+            },
+            changes: {
+              commentId,
+              commentedAt: new Date(),
+            },
+            metadata: {
+              dealId,
+              commentId,
+              createdBy,
+            },
+          });
+
+          return {
+            status: 'success',
+            data: { dealId, commentId },
+          };
+        } catch (error: any) {
+          return {
+            status: 'error',
+            errorMessage: error?.message || 'Failed to create activity log',
+          };
+        }
       }),
   },
   stage: {
@@ -285,9 +356,9 @@ export const dealTrpcRouter = t.router({
         }
       }
 
-      return pipeline
-    })
-  }
+      return pipeline;
+    }),
+  },
 });
 
 export const fetchSegment = async (

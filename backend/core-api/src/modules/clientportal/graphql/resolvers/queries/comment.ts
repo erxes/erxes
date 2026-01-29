@@ -1,8 +1,7 @@
-import { Resolver } from 'erxes-api-shared/core-types';
-import { IContext } from '~/connectionResolvers';
-import { cursorPaginate } from 'erxes-api-shared/utils';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { ICPCommentDocument } from '@/clientportal/types/comment';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 interface GetCommentParams {
   _id: string;
@@ -56,14 +55,15 @@ export const commentQueries: Record<string, Resolver> = {
       query.userType = filter.userType;
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<ICPCommentDocument>({
-      model: models.CPComments,
-      params: {
-        ...paginationParams,
-        orderBy: { createdAt: -1 },
-      },
-      query,
-    });
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICPCommentDocument>({
+        model: models.CPComments,
+        params: {
+          ...paginationParams,
+          orderBy: { createdAt: -1 },
+        },
+        query,
+      });
 
     return { list, totalCount, pageInfo };
   },

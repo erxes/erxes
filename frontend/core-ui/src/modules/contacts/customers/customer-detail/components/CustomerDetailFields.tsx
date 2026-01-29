@@ -8,8 +8,10 @@ import {
   CustomerPhones,
 } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
-import { DataListItem } from '@/contacts/components/ContactsDetail';
+import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
@@ -34,6 +36,20 @@ export const CustomerDetailFields = () => {
     phones,
     phoneValidationStatus,
   } = customerDetail;
+
+// debounce
+  const [localDescription, setLocalDescription] = useState(description || '');
+  const [debouncedDescription] = useDebounce(localDescription, 500);
+
+  useEffect(() => {
+    customerEdit({
+      variables: {
+        _id,
+        description: debouncedDescription,
+      },
+    });
+  }, [debouncedDescription, _id]);
+
 
   return (
     <>
@@ -99,15 +115,8 @@ export const CustomerDetailFields = () => {
           </DataListItem>
           <DataListItem label={t('description')}>
             <Textarea
-              value={description || ''}
-              onChange={(e) => {
-                customerEdit({
-                  variables: {
-                    _id,
-                    description: e.target.value,
-                  },
-                });
-              }}
+              value={localDescription}
+              onChange={(e) => setLocalDescription(e.target.value)}
             />
           </DataListItem>
         </div>

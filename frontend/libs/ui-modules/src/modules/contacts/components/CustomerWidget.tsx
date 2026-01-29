@@ -67,7 +67,7 @@ const CustomerWidgetItem = ({
   );
 };
 
-const CustomerWidgetDetail = ({
+export const CustomerWidgetDetail = ({
   customerId,
   scope,
 }: {
@@ -185,9 +185,7 @@ const CustomerWidgetContent = ({
   if (!customerIds || customerIds.length === 0) {
     return <div className="p-4">No customers found</div>;
   }
-  if (customerIds.length === 1) {
-    return <CustomerWidgetDetail customerId={customerIds[0]} scope={scope} />;
-  }
+
   return (
     <div className="p-4 space-y-2 overflow-y-auto">
       {customerIds.map((customerId: string) => {

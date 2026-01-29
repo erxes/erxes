@@ -67,6 +67,8 @@ const queryParams = `
   closeDateStartDate: Date
   closeDateEndDate: Date
   resolvedDayBetween:[Int]
+  relationType: String
+  relationId: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;

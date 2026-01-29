@@ -3,7 +3,7 @@ import {
   CompanyWidget,
   IRelationWidgetProps,
   SelectCompaniesBulk,
-  useCreateMultipleRelations,
+  useManageRelations,
   useRelations,
 } from 'ui-modules';
 import { IconBuildingSkyscraper, IconPlus } from '@tabler/icons-react';
@@ -13,7 +13,7 @@ export const CompanyWidgets = ({
   contentType,
   companyId,
 }: IRelationWidgetProps) => {
-  const { createMultipleRelations } = useCreateMultipleRelations();
+  const { manageRelations } = useManageRelations();
   const { ownEntities, loading } = useRelations({
     variables: {
       contentId,
@@ -24,14 +24,7 @@ export const CompanyWidgets = ({
   });
 
   const handleSelectCompanies = (companyIds: string[]) => {
-    const relations = companyIds.map((companyId) => ({
-      entities: [
-        { contentType, contentId },
-        { contentType: 'core:company', contentId: companyId },
-      ],
-    }));
-
-    createMultipleRelations(relations);
+    manageRelations({ contentType, contentId, relatedContentType: 'core:company', relatedContentIds: companyIds })
   };
 
   if (loading) {

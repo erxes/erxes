@@ -1,14 +1,13 @@
 "use client"
 
-import * as React from "react"
-import { useRef } from "react"
-import type { LinkProps } from "next/link"
+import { cn } from "@/lib/utils"
 import { cva, VariantProps } from "class-variance-authority"
 import { AnimatePresence, motion } from "framer-motion"
 import { Loader2 } from "lucide-react"
+import type { LinkProps } from "next/link"
+import type { ButtonHTMLAttributes, JSXElementConstructor } from "react"
+import { forwardRef, useRef } from "react"
 import { mergeRefs } from "react-merge-refs"
-
-import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
@@ -40,16 +39,16 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  Component?: string | React.JSXElementConstructor<any>
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  VariantProps<typeof buttonVariants> {
+  Component?: string | JSXElementConstructor<any>
   href?: LinkProps["href"]
   loading?: boolean
   target?: string
   iconOnly?: boolean
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (props, buttonRef) => {
     const {
       className,

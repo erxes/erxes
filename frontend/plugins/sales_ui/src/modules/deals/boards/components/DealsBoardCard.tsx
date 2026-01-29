@@ -1,3 +1,9 @@
+import {
+  SelectCompany,
+  SelectCustomer,
+  SelectTags,
+  useManageRelations,
+} from 'ui-modules';
 import { Separator, useQueryState } from 'erxes-ui';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
@@ -10,7 +16,9 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { memo } from 'react';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
+import { useState } from 'react';
 
 interface DealsBoardCardProps {
   deal: IDeal;
@@ -71,12 +79,21 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
   const [searchParams] = useQueryState<string>('archivedOnly');
+  const { editDeals } = useDealsEdit();
+  const { manageRelations } = useManageRelations();
+  const [currentCustomers, setCurrentCustomers] = useState(
+    deal.customers || [],
+  );
+  const [currentCompanies, setCurrentCompanies] = useState(
+    deal.companies || [],
+  );
 
   if (!deal) return null;
 
   const {
     startDate,
     name,
+    number,
     assignedUsers,
     _id,
     priority,
@@ -85,6 +102,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     labels,
     status,
     stage,
+    tagIds,
   } = deal;
 
   const onCardClick = () => {
@@ -150,11 +168,88 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
           />
+          <SelectTags.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Tag"
+            variant="card"
+            targetId={_id}
+            tagType="sales:deal"
+            initialValue={tagIds || []}
+            onValueChange={(value) => {
+              if (!value) return;
+              editDeals({
+                variables: {
+                  _id: deal._id,
+                  tagIds: Array.isArray(value) ? value : [value],
+                },
+              });
+            }}
+          />
+          <SelectCustomer.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Customer"
+            variant="card"
+            targetId={_id}
+            initialValue={
+              currentCustomers?.map((customer) => customer._id || '') || []
+            }
+            value={
+              currentCustomers?.map((customer) => customer._id || '') || []
+            }
+            onValueChange={(value: any) => {
+              if (!value) return;
+
+              const updatedCustomers = (value || []).map(
+                (id: string) =>
+                  currentCustomers?.find((c) => c._id === id) || { _id: id },
+              );
+              setCurrentCustomers(updatedCustomers);
+
+              manageRelations({
+                contentType: 'sales:deal',
+                contentId: _id,
+                relatedContentType: 'core:customer',
+                relatedContentIds: value || [],
+              });
+            }}
+            hideAvatar
+          />
+          <SelectCompany.FilterBar
+            filterKey=""
+            mode="multiple"
+            label="By Company"
+            variant="card"
+            targetId={_id}
+            initialValue={
+              currentCompanies?.map((company) => company._id || '') || []
+            }
+            value={currentCompanies?.map((company) => company._id || '') || []}
+            onValueChange={(value: any) => {
+              if (!value) return;
+
+              const updatedCompanies = (value || []).map(
+                (id: string) =>
+                  currentCompanies?.find((c) => c._id === id) || { _id: id },
+              );
+              setCurrentCompanies(updatedCompanies);
+
+              manageRelations({
+                contentType: 'sales:deal',
+                contentId: _id,
+                relatedContentType: 'core:company',
+                relatedContentIds: value || [],
+              });
+            }}
+            hideAvatar
+          />
         </div>
       </div>
       <CardDetails deal={deal} />
       <Separator />
       <ItemFooter
+        number={number}
         createdAt={createdAt}
         assignedUsers={assignedUsers || []}
         id={_id}

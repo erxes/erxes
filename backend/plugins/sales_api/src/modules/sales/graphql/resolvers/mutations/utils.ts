@@ -4,7 +4,7 @@ import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import {
-  createConformity,
+  createRelations,
   getNewOrder,
   sendNotifications,
 } from '~/modules/sales/utils';
@@ -61,9 +61,8 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createConformity(subdomain, {
-    mainType: 'deal',
-    mainTypeId: deal._id,
+  await createRelations(subdomain, {
+    dealId: deal._id,
     companyIds: doc.companyIds,
     customerIds: doc.customerIds,
   });
@@ -100,6 +99,7 @@ export const editDeal = async ({
   processId: string;
   user: IUserDocument;
 }) => {
+
   const oldDeal = await models.Deals.getDeal(_id);
 
   if (doc.assignedUserIds) {

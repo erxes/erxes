@@ -1,28 +1,33 @@
 import {
+  Button,
   Combobox,
   Command,
-  Button,
+  Filter,
+  Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  Popover,
-  TextOverflowTooltip,
+  SelectOperationContent,
   SelectTree,
   SelectTriggerOperation,
-  SelectOperationContent,
+  SelectTriggerVariant,
+  TextOverflowTooltip,
+  useFilterContext,
+  useQueryState,
 } from 'erxes-ui';
-import { useTags } from '../hooks/useTags';
-import { useDebounce } from 'use-debounce';
-import React, { useState } from 'react';
+import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
 import {
   ISelectTagsProviderProps,
   ITag,
   useGiveTags,
 } from 'ui-modules/modules';
-import { SelectTagsContext } from '../contexts/SelectTagsContext';
-import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
 import { IconPlus, IconTag } from '@tabler/icons-react';
-import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
+import React, { useEffect, useState } from 'react';
+
+import { SelectTagsContext } from '../contexts/SelectTagsContext';
 import { TagBadge } from './TagBadge';
+import { useDebounce } from 'use-debounce';
+import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
+import { useTags } from '../hooks/useTags';
 import { useTranslation } from 'react-i18next';
 
 export const SelectTagsProvider = ({
@@ -37,6 +42,7 @@ export const SelectTagsProvider = ({
   const [newTagName, setNewTagName] = useState('');
   const { giveTags } = useGiveTags();
   const [selectedTags, setSelectedTags] = useState<ITag[]>([]);
+
   const handleSelectCallback = (tag: ITag) => {
     if (!tag) return;
 
@@ -72,7 +78,7 @@ export const SelectTagsProvider = ({
   return (
     <SelectTagsContext.Provider
       value={{
-        tagType,
+        tagType: tagType || '',
         onSelect: handleSelectCallback,
         value,
         selectedTags,
@@ -382,11 +388,18 @@ export const TagList = ({
 export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
   const { selectedTags, mode } = useSelectTagsContext();
 
-  if (selectedTags?.length > 1) return <>{selectedTags.length} tags selected</>;
+  if ((selectedTags || []).length !== 0) {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconTag className="w-4 h-4 text-gray-400" /> Tag +
+        {(selectedTags || []).length}
+      </span>
+    );
+  }
 
   return (
     <TagList
-      placeholder={placeholder === undefined ? 'Select tags' : placeholder}
+      placeholder={placeholder === undefined ? 'Select Tags' : placeholder}
       renderAsPlainText={mode === 'single'}
     />
   );
@@ -608,6 +621,127 @@ export const SelectTagsRoot = React.forwardRef<
 );
 SelectTagsRoot.displayName = 'SelectTagsRoot';
 
+export const SelectTagsFilterItem = ({
+  value,
+  label,
+}: {
+  value: string;
+  label: string;
+}) => {
+  return (
+    <Filter.Item value={value}>
+      <IconTag />
+      {label}
+    </Filter.Item>
+  );
+};
+
+export const SelectTagsFilterView = ({
+  mode,
+  filterKey,
+}: {
+  mode: 'single' | 'multiple';
+  filterKey: string;
+}) => {
+  const [query, setQuery] = useQueryState<string[] | string | undefined>(
+    filterKey,
+  );
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey={filterKey}>
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={(value) => {
+          setQuery(value as any);
+          resetFilterState();
+        }}
+      >
+        <SelectTagsContent />
+      </SelectTagsProvider>
+    </Filter.View>
+  );
+};
+
+export const SelectTagsFilterBar = ({
+  mode = 'multiple',
+  filterKey,
+  label,
+  variant,
+  scope,
+  targetId,
+  initialValue,
+  onValueChange,
+  tagType,
+}: {
+  mode: 'single' | 'multiple';
+  filterKey: string;
+  label: string;
+  variant?: `${SelectTriggerVariant}`;
+  scope?: string;
+  targetId?: string;
+  initialValue?: string[];
+  tagType?: string;
+  onValueChange?: (value: string[] | string) => void;
+}) => {
+  const isCardVariant = variant === 'card';
+
+  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
+  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
+  const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isCardVariant && initialValue) {
+      setLocalQuery(initialValue);
+    }
+  }, [initialValue, isCardVariant]);
+
+  const query = isCardVariant ? localQuery : urlQuery;
+
+  if (!query && variant !== 'card') {
+    return null;
+  }
+
+  const handleValueChange = (value: string[] | string) => {
+    if (onValueChange) {
+      onValueChange(value);
+    }
+
+    if (value && value.length > 0) {
+      if (isCardVariant) {
+        setLocalQuery(value as string[]);
+      } else {
+        setUrlQuery(value as string[]);
+      }
+    } else {
+      if (isCardVariant) {
+        setLocalQuery([]);
+      } else {
+        setUrlQuery(null);
+      }
+    }
+  };
+
+  return (
+    <SelectTagsProvider
+      mode={mode}
+      value={query || []}
+      onValueChange={handleValueChange}
+      tagType={tagType}
+    >
+      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant={variant || 'filter'}>
+          <SelectTagsValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant={variant || 'filter'}>
+          <SelectTagsContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectTagsProvider>
+  );
+};
+
 export const SelectTags = Object.assign(SelectTagsRoot, {
   Provider: SelectTagsProvider,
   CommandbarItem: SelectTagsCommandbarItem,
@@ -620,4 +754,7 @@ export const SelectTags = Object.assign(SelectTagsRoot, {
   InlineCell: SelectTagsInlineCell,
   Detail: SelectTagsDetail,
   FormItem: SelectTagsFormItem,
+  FilterItem: SelectTagsFilterItem,
+  FilterView: SelectTagsFilterView,
+  FilterBar: SelectTagsFilterBar,
 });

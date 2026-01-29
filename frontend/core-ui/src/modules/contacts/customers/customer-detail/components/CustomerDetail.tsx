@@ -1,40 +1,115 @@
-import { Separator } from 'erxes-ui';
-import { CustomerDetailActions } from './CustomerDetailActions';
-import { CustomerDetailGeneral } from './CustomerDetailGeneral';
-import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
-import { ContactsDetailLayout } from '@/contacts/components/ContactsDetail';
-import { CustomerDetailFields } from './CustomerDetailFields';
+import {
+  Empty,
+  FocusSheet,
+  ScrollArea,
+  Separator,
+  Tabs,
+  useQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { ActivityLogs } from 'ui-modules';
-import { FieldsInDetail } from 'ui-modules';
+import {
+  ActivityLogs,
+  FieldsInDetail,
+  RelationWidgetSideTabs,
+} from 'ui-modules';
+import { CustomerDetailGeneral } from './CustomerDetailGeneral';
+import { CustomerDetailFields } from './CustomerDetailFields';
+import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 import { useCustomerCustomFieldEdit } from '../../hooks/useEditCustomerCustomFields';
+import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
+import { ContactSidebar } from '@/contacts/components/ContactSidebar';
 
 export const CustomerDetail = () => {
   const { t } = useTranslation('contact', {
     keyPrefix: 'customer.detail',
   });
-  const { customerDetail, loading } = useCustomerDetailWithQuery();
+  const [open, setOpen] = useQueryState<string>('contactId');
+  const { customerDetail, loading, error } = useCustomerDetailWithQuery();
+  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
 
   return (
-    <ContactsDetailLayout
-      loading={loading}
-      notFound={customerDetail === undefined}
-      title={t('customer-detail')}
-      actions={<CustomerDetailActions />}
-    >
-      <CustomerDetailGeneral />
-      <Separator />
-      <CustomerDetailFields />
+    <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
+      <FocusSheet.View
+        loading={loading}
+        error={!!error}
+        notFound={!customerDetail}
+        notFoundState={<CustomerDetailEmptyState />}
+        errorState={<CustomerDetailErrorState />}
+      >
+        <FocusSheet.Header title={t('customer-detail')} />
+        <FocusSheet.Content>
+          <FocusSheet.SideBar>
+            <ContactSidebar />
+          </FocusSheet.SideBar>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <CustomerDetailGeneral />
+            <Separator />
+            <ScrollArea className="h-full">
+              <Tabs
+                value={selectedTab ?? 'overview'}
+                onValueChange={setSelectedTab}
+              >
+                <Tabs.Content value="overview">
+                  <CustomerDetailFields />
+                </Tabs.Content>
+                <Tabs.Content value="properties" className="p-6">
+                  <FieldsInDetail
+                    fieldContentType="core:customer"
+                    customFieldsData={customerDetail?.customFieldsData || {}}
+                    mutateHook={useCustomerCustomFieldEdit}
+                    id={customerDetail?._id || ''}
+                  />
+                </Tabs.Content>
+                <Tabs.Content value="activity">
+                  <ActivityLogs targetId={customerDetail?._id || ''} />
+                </Tabs.Content>
+              </Tabs>
+            </ScrollArea>
+          </div>
+          <RelationWidgetSideTabs
+            contentId={open || ''}
+            contentType="core:customer"
+            hookOptions={{
+              hiddenModules: ['customer'],
+            }}
+          />
+        </FocusSheet.Content>
+      </FocusSheet.View>
+    </FocusSheet>
+  );
+};
 
-      <Separator />
-      <FieldsInDetail
-        fieldContentType="core:customer"
-        customFieldsData={customerDetail?.customFieldsData || {}}
-        mutateHook={useCustomerCustomFieldEdit}
-        id={customerDetail?._id || ''}
-      />
-      <Separator />
-      {customerDetail && <ActivityLogs targetId={customerDetail?._id} />}
-    </ContactsDetailLayout>
+const CustomerDetailEmptyState = () => {
+  return (
+    <div className="flex items-center justify-center h-full">
+      <Empty>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconCloudExclamation />
+          </Empty.Media>
+          <Empty.Title>Customer not found</Empty.Title>
+          <Empty.Description>
+            There seems to be no customer with this ID.
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    </div>
+  );
+};
+
+const CustomerDetailErrorState = () => {
+  const { error } = useCustomerDetailWithQuery();
+  return (
+    <div className="flex items-center justify-center h-full">
+      <Empty>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconAlertCircle />
+          </Empty.Media>
+          <Empty.Title>Error</Empty.Title>
+          <Empty.Description>{error?.message}</Empty.Description>
+        </Empty.Header>
+      </Empty>
+    </div>
   );
 };

@@ -1,18 +1,14 @@
+import { saveValidatedToken } from '@/auth/utils';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
-import { Model } from 'mongoose';
-
 import {
   EventDispatcherReturn,
   sendNotification,
+  USER_MOVEMENT_STATUSES,
   USER_ROLES,
   userMovemmentSchema,
   userSchema,
 } from 'erxes-api-shared/core-modules';
-import { redis, sendTRPCMessage } from 'erxes-api-shared/utils';
-
-import { saveValidatedToken } from '@/auth/utils';
 import {
   IAppDocument,
   IDetail,
@@ -22,15 +18,16 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
+import { redis, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as jwt from 'jsonwebtoken';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-
-import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 import {
-  generateUserActivityLogs,
   generateLoginActivityLog,
   generateLogoutActivityLog,
+  generateUserActivityLogs,
   generateUserInvitationActivityLog,
 } from '../../utils/activityLogs';
 
@@ -97,7 +94,7 @@ export interface IUserModel extends Model<IUserDocument> {
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): string;
-  resendInvitation({ email }: { email: string }): string;
+  resendInvitation({ email }: { email: string }): Promise<string>;
   comparePassword(password: string, userPassword: string): boolean;
   resetPassword(params: {
     token: string;
@@ -887,7 +884,7 @@ export const loadUserClass = (
         };
       }> = [];
 
-      let code = parseInt((await this.generateUserCode()) || '', 10);
+      let code = Number.parseInt((await this.generateUserCode()) || '', 10);
 
       for (const user of users) {
         code++;
@@ -914,7 +911,7 @@ export const loadUserClass = (
 
       const [user] = users;
 
-      let code = parseInt(user.code || '', 10);
+      let code = Number.parseInt(user.code || '', 10);
 
       code++;
 

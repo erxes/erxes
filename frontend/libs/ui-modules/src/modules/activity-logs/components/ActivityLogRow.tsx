@@ -28,7 +28,7 @@ const ActivityLogActorAvatar = ({ activity }: ActivityLogRowProps) => {
 
   if (isSystem) {
     return (
-      <div className="size-8 rounded-full bg-muted flex items-center justify-center border border-background">
+      <div className="size-6 rounded-full bg-muted flex items-center justify-center border border-background">
         <IconQuestionMark className="size-4 text-muted-foreground" />
       </div>
     );
@@ -38,7 +38,7 @@ const ActivityLogActorAvatar = ({ activity }: ActivityLogRowProps) => {
     <Tooltip>
       <Tooltip.Trigger asChild>
         <Link to={`/settings/team-member?user_id=${activity.actor?._id}`}>
-          <Avatar size="sm" className="size-8">
+          <Avatar size="lg">
             {activity.actor?.details?.avatar ? (
               <Avatar.Image
                 src={activity.actor.details.avatar}
@@ -85,10 +85,10 @@ export function ActivityLogRow({
   );
 
   return (
-    <div className="relative flex flex-row gap-4 pb-6">
+    <div className="relative flex flex-row gap-2 pb-6">
       {/* Timeline vertical line */}
       {!isLast && (
-        <div className="absolute left-1/2 top-8 bottom-0 w-px bg-border" />
+        <div className="absolute left-3 -translate-x-1/2 top-6 bottom-0 w-px bg-border" />
       )}
 
       {/* Avatar/Icon container */}
@@ -101,7 +101,7 @@ export function ActivityLogRow({
         {customRenderer ? customRenderer.render(activity) : defaultBody}
       </div>
       <RelativeDateDisplay value={activity.createdAt as string} asChild>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground leading-6">
           <RelativeDateDisplay.Value value={activity.createdAt as string} />
         </p>
       </RelativeDateDisplay>

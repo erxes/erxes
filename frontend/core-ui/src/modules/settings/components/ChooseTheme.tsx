@@ -1,8 +1,6 @@
 import { IconCheck, IconMinus } from '@tabler/icons-react';
-
-import { RadioGroup } from 'erxes-ui';
+import { RadioGroup, ThemeOption, themeState } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { ThemeOption, themeState } from 'erxes-ui';
 
 const items = [
   {

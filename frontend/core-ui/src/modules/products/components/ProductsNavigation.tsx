@@ -1,5 +1,5 @@
 import { ProductsPath } from '@/types/paths/ProductsPath';
-import { IconCategory, IconCube } from '@tabler/icons-react';
+import { IconCategory, IconCube, IconRulerMeasure } from '@tabler/icons-react';
 import { Breadcrumb, Toggle, Button, Separator } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
@@ -27,16 +27,24 @@ export const ProductsNavigation = () => {
               asChild
               pressed={pathname.includes(ProductsPath.Categories)}
             >
-              <Link to={ProductsPath.Products + ProductsPath.Categories}>
+              <Link to={ProductsPath.Categories}>
                 <IconCategory />
                 {t('categories')}
+              </Link>
+            </Toggle>
+          </Breadcrumb.Page>
+          <Breadcrumb.Separator />
+          <Breadcrumb.Page>
+            <Toggle type="button" asChild pressed={pathname.includes(ProductsPath.Uoms)}>
+              <Link to={ProductsPath.Uoms}>
+                <IconRulerMeasure />
+                UOM
               </Link>
             </Toggle>
           </Breadcrumb.Page>
         </Breadcrumb.List>
       </Breadcrumb>
       <Separator.Inline />
-      <PageHeader.FavoriteToggleButton />
     </PageHeader.Start>
   );
 };

@@ -1,14 +1,13 @@
 import { OrgLogoIcon } from '@/auth/components/Logo';
-import { currentOrganizationState, isCurrentUserLoadedState } from 'ui-modules';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { Button } from 'erxes-ui';
 import { useUserConfirmInvitation } from '@/auth/hooks/useUserConfirmInvitation';
-import { useQueryState } from 'erxes-ui';
-import { useToast } from 'erxes-ui';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { AppPath } from '@/types/paths/AppPath';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { Button, useQueryState, useToast } from 'erxes-ui';
+import { motion } from 'framer-motion';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useNavigate } from 'react-router-dom';
+import { currentOrganizationState, isCurrentUserLoadedState } from 'ui-modules';
+
 export const ConfirmInvitationForm = () => {
   const navigate = useNavigate();
   const [token] = useQueryState<string>('token');

@@ -1,18 +1,17 @@
-import * as crypto from 'crypto';
-import { IModels } from '~/connectionResolvers';
+import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import { detectIdentifierType } from './helpers/validators';
-import { validatePassword } from './helpers/validators';
-import { verificationService } from './verificationService';
-import { notificationService } from './notificationService';
-import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
+import * as crypto from 'crypto';
+import { IModels } from '~/connectionResolvers';
 import {
   AuthenticationError,
-  ValidationError,
   TokenExpiredError,
+  ValidationError,
 } from './errorHandler';
 import { buildUserQuery } from './helpers/queryBuilders';
+import { detectIdentifierType, validatePassword } from './helpers/validators';
+import { notificationService } from './notificationService';
+import { verificationService } from './verificationService';
 
 const RESET_TOKEN_EXPIRY_HOURS = 1;
 
@@ -80,9 +79,8 @@ export class PasswordService {
       return;
     }
 
-    const resetUrl = `${
-      clientPortal.url || ''
-    }/reset-password?token=${resetToken}`;
+    const resetUrl = `${clientPortal.url || ''
+      }/reset-password?token=${resetToken}`;
     const emailSubject = resetPasswordConfig?.emailSubject || 'Password Reset';
     const emailContent = resetPasswordConfig?.emailContent || '';
 
