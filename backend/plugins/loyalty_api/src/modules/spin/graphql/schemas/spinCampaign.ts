@@ -6,7 +6,7 @@ import {
 } from '~/utils/common';
 
 export const types = `
-  type SpinCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type SpinCampaign @key(fields: "_id") {
     _id: String,
     ${commonCampaignTypes}
 

@@ -18,6 +18,12 @@ import {
   refundLoyaltyScore as refundScoreUtil,
 } from '../../utils';
 
+/* -------------------- constants -------------------- */
+
+// ReDoS-safe, linear-time regex
+const PLACEHOLDER_REGEX = /\{\{\s*([^{\}]+?)\s*\}\}/g;
+
+/* -------------------- types -------------------- */
 
 export interface DoCampaignTypes {
   ownerType: string;
@@ -29,6 +35,7 @@ export interface DoCampaignTypes {
   serviceName?: string;
 }
 
+/* -------------------- model interface -------------------- */
 
 export interface IScoreCampaignModel
   extends Model<IScoreCampaignDocument> {
@@ -64,6 +71,7 @@ export interface IScoreCampaignModel
   ): Promise<any>;
 }
 
+/* -------------------- model loader -------------------- */
 
 export const loadScoreCampaignClass = (
   models: IModels,
@@ -158,7 +166,7 @@ export const loadScoreCampaignClass = (
       const campaign = await models.ScoreCampaign.findOne({
         _id: campaignId,
         status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
-      });
+      }).lean();
 
       if (!campaign) {
         throw new Error('Campaign not found');
@@ -171,17 +179,18 @@ export const loadScoreCampaignClass = (
       let { placeholder = '', currencyRatio = 0 } =
         campaign.subtract || {};
 
-      const matches =
-        placeholder.match(/\{\{\s*([^}]+)\s*\}\}/g) || [];
+      // Safe, single-pass placeholder replacement
+      placeholder = placeholder.replace(
+        PLACEHOLDER_REGEX,
+        (_full, key: string) => {
+          const value = resolvePlaceholderValue(target, key.trim());
+          return String(value ?? 0);
+        },
+      );
 
-      for (const match of matches) {
-        const key = match.replace(/[{}]/g, '').trim();
-        const value = resolvePlaceholderValue(target, key);
-        placeholder = placeholder.replace(match, String(value));
-      }
-
+      // NO eval — numeric only
       const changeScore =
-        Number(eval(placeholder)) * Number(currencyRatio) || 0;
+        Number(placeholder) * Number(currencyRatio) || 0;
 
       const oldScore = Number(owner.score ?? 0);
 

@@ -11,7 +11,7 @@ export const types = `
         percent
     }
 
-    type CouponCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
+    type CouponCampaign @key(fields: "_id"){
         _id: String!
 
         ${commonCampaignTypes}

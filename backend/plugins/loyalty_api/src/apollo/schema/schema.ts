@@ -74,11 +74,6 @@ import {
   types as ScoreTypes,
 } from '@/score/graphql/schemas/score';
 
-import {
-  mutations as ScoreCampaignMutations,
-  queries as ScoreCampaignQueries,
-  types as ScoreCampaignTypes,
-} from '@/score/graphql/schemas/scoreLog';
 
 /* -------------------- Spin -------------------- */
 import {
@@ -124,7 +119,6 @@ export const types = `
   ${LotteryCampaignTypes}
 
   ${ScoreTypes}
-  ${ScoreCampaignTypes}
 
   ${SpinTypes}
   ${SpinCampaignTypes}
@@ -149,7 +143,6 @@ export const queries = `
   ${LotteryCampaignQueries}
 
   ${ScoreQueries}
-  ${ScoreCampaignQueries}
 
   ${SpinQueries}
   ${SpinCampaignQueries}
@@ -174,7 +167,6 @@ export const mutations = `
   ${LotteryCampaignMutations}
 
   ${ScoreMutations}
-  ${ScoreCampaignMutations}
 
   ${SpinMutations}
   ${SpinCampaignMutations}
