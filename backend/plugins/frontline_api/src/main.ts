@@ -8,7 +8,7 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
-
+import onServerInitImap from '@/integrations/imap/initApp';
 startPlugin({
   name: 'frontline',
   port: 3304,
@@ -29,6 +29,7 @@ startPlugin({
   expressRouter: router,
   onServerInit: async (app) => {
     await initCallApp(app);
+    await onServerInitImap(app);
     const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
     if (CALL_WS_SERVER) {
       await initWebsocketService();

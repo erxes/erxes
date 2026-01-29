@@ -7,7 +7,6 @@ import {
   useBlockEditor,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-
 import { ActivityList } from '@/activity/components/ActivityList';
 import { Block } from '@blocknote/core';
 import { Button } from 'erxes-ui';
@@ -182,7 +181,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubscribed, _isSubscribed, ticketId]);
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-col gap-3 h-full px-5 py-8">
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
         placeholder="Ticket Name"
