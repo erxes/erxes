@@ -1,13 +1,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery, gql, useLazyQuery } from '@apollo/client';
-import { InfoCard, Table, ScrollArea, Select, Spinner } from 'erxes-ui';
+import { InfoCard, Table, ScrollArea, Select, Spinner, Button, Dialog, IconComponent } from 'erxes-ui';
 import {
-    startOfDay, endOfDay, subDays, startOfWeek, endOfWeek,
-    startOfMonth, endOfMonth, startOfYear, endOfYear, subWeeks, subMonths, subYears,
-    format
+    endOfDay, startOfMonth, format
 } from 'date-fns';
-import { DateSelector } from './date-selector/DateSelector';
+import { getDateRange } from '../utils/dateFilters';
+import { ReportDateFilter } from './filter-popover/ReportDateFilter';
 import {
     callReportsDashboard
 } from '../../integrations/call/graphql/queries/callStatistics';
@@ -18,64 +17,23 @@ const GET_DASHBOARD_STATS = gql(callReportsDashboard);
 export const CallReportsView = () => {
     const [selectedIntegrationId, setSelectedIntegrationId] = useState<string>('');
     const [selectedQueue, setSelectedQueue] = useState<string>('6518');
-    const [dateFilter, setDateFilter] = useState<string>('this-month');
+    const [dateFilter, setDateFilter] = useState<string>(format(new Date(), 'yyyy-MMM'));
+    const [direction, setDirection] = useState<string>('all');
 
     // Calculate dates based on filter
     const { startDate, endDate, dateRangeLabel } = useMemo(() => {
-        const now = new Date();
-        let start = startOfMonth(now);
-        let end = endOfDay(now);
+        const { fromDate, toDate } = getDateRange(dateFilter);
 
-        if (dateFilter === 'today') {
-            start = startOfDay(now);
-            end = endOfDay(now);
-        } else if (dateFilter === 'yesterday') {
-            const yesterday = subDays(now, 1);
-            start = startOfDay(yesterday);
-            end = endOfDay(yesterday);
-        } else if (dateFilter === 'this-week') {
-            start = startOfWeek(now, { weekStartsOn: 1 });
-            end = endOfDay(now);
-        } else if (dateFilter === 'last-week') {
-            const lastWeek = subWeeks(now, 1);
-            start = startOfWeek(lastWeek, { weekStartsOn: 1 });
-            end = endOfWeek(lastWeek, { weekStartsOn: 1 });
-        } else if (dateFilter === 'this-month') {
-            start = startOfMonth(now);
-            end = endOfDay(now);
-        } else if (dateFilter === 'last-month') {
-            const lastMonth = subMonths(now, 1);
-            start = startOfMonth(lastMonth);
-            end = endOfMonth(lastMonth);
-        } else if (dateFilter === 'this-year') {
-            start = startOfYear(now);
-            end = endOfDay(now);
-        } else if (dateFilter === 'last-year') {
-            const lastYear = subYears(now, 1);
-            start = startOfYear(lastYear);
-            end = endOfYear(lastYear);
-        } else if (dateFilter.startsWith('custom:')) {
-            const dateStr = dateFilter.replace('custom:', '');
-            const [startStr, endStr] = dateStr.split(',');
-
-            const startDateObj = new Date(startStr);
-            start = startOfDay(startDateObj);
-
-            if (endStr) {
-                const endDateObj = new Date(endStr);
-                end = endOfDay(endDateObj);
-            } else {
-                end = endOfDay(startDateObj);
-            }
-        }
+        const start = fromDate || startOfMonth(new Date());
+        const end = toDate || endOfDay(new Date());
 
         const startLabel = format(start, 'MMM dd, yyyy');
         const endLabel = format(end, 'MMM dd, yyyy');
         const label = startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
 
         return {
-            startDate: new Date('2025-10-12:00:00:00').toISOString(),
-            endDate: new Date('2025-10-12:23:59:59').toISOString(),
+            startDate: start.toISOString(),
+            endDate: end.toISOString(),
             dateRangeLabel: label
         };
     }, [dateFilter]);
@@ -116,7 +74,8 @@ export const CallReportsView = () => {
             queue: selectedQueue,
             queueId: selectedQueue,
             startDate,
-            endDate
+            endDate,
+            direction: direction && direction !== 'all' ? direction : undefined
         },
         skip: !hasQueue
     });
@@ -134,7 +93,6 @@ export const CallReportsView = () => {
     const asa = data?.callCalculateAverageSpeedOfAnswer;
     const aht = data?.callCalculateAverageHandlingTime;
     const occupancy = data?.callCalculateOccupancyRate;
-    const todayStats = data?.callTodayStatistics;
     const queueStats = data?.callGetQueueStats || [];
     const agentStats = data?.callGetAgentStats || [];
 
@@ -142,7 +100,7 @@ export const CallReportsView = () => {
         <ScrollArea className="h-full">
             <div className="flex flex-col gap-6 p-4">
                 {/* Filters */}
-                <div className="flex gap-4 p-4 bg-gray-50 rounded-lg items-end">
+                <div className="flex gap-4 p-4 bg-gray-50 rounded-lg items-end flex-wrap">
                     <div className="w-64">
                         <label className="block text-sm font-medium mb-1">Integration</label>
                         <Select
@@ -176,9 +134,33 @@ export const CallReportsView = () => {
                             </Select.Content>
                         </Select>
                     </div>
-                    <div className="w-64">
+                    <div className="w-48">
+                        <label className="block text-sm font-medium mb-1">Direction</label>
+                        <Select
+                            value={direction}
+                            onValueChange={setDirection}
+                        >
+                            <Select.Trigger>
+                                <Select.Value placeholder="All Directions" />
+                            </Select.Trigger>
+                            <Select.Content>
+                                <Select.Item value="all">All Directions</Select.Item>
+                                <Select.Item value="Inbound">Inbound</Select.Item>
+                                <Select.Item value="Outbound">Outbound</Select.Item>
+                            </Select.Content>
+                        </Select>
+                    </div>
+                    <div className="w-auto">
                         <label className="block text-sm font-medium mb-1">Date</label>
-                        <DateSelector value={dateFilter} onValueChange={setDateFilter} />
+                        <Dialog>
+                            <Dialog.Trigger asChild>
+                                <Button variant="outline" className="w-64 justify-start text-left font-normal">
+                                    <IconComponent icon="calendar-alt" className="mr-2 h-4 w-4" />
+                                    {dateRangeLabel}
+                                </Button>
+                            </Dialog.Trigger>
+                            <ReportDateFilter value={dateFilter} onChange={setDateFilter} />
+                        </Dialog>
                     </div>
                 </div>
 
@@ -220,11 +202,7 @@ export const CallReportsView = () => {
                                         {occupancy?.toFixed(2) || '0.00'}%
                                     </div>
                                 </InfoCard>
-                                <InfoCard title="Today's Calls (Total)">
-                                    <div className="text-2xl font-bold">
-                                        {todayStats?.callstotal || 0}
-                                    </div>
-                                </InfoCard>
+
                             </div>
                         </div>
 

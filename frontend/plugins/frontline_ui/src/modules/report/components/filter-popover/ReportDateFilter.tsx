@@ -26,7 +26,6 @@ const MONTHS = [
   'Dec',
 ];
 
-const QUARTERS = ['quarter-1', 'quarter-2', 'quarter-3', 'quarter-4'];
 
 const getYearsArray = (startYearOffset: number, endYearOffset: number) => {
   const currentYear = new Date().getFullYear();
@@ -40,12 +39,6 @@ const getYearsArray = (startYearOffset: number, endYearOffset: number) => {
 };
 
 const getActiveTab = (date: string) => {
-  if (date.includes('half')) {
-    return 'halfYear';
-  }
-  if (date.includes('quarter')) {
-    return 'quarter';
-  }
   if (MONTHS.some((month) => date.includes(month))) {
     return 'month';
   }
@@ -62,7 +55,6 @@ const parseDateRangeFromString = (
 
   const today = new Date();
 
-  // Predefined date ranges
   const dateRanges: Record<string, { from: Date; to: Date }> = {
     today: {
       from: startOfDay(today),
@@ -90,12 +82,10 @@ const parseDateRangeFromString = (
     },
   };
 
-  // Check for predefined ranges
   if (dateRanges[date]) {
     return dateRanges[date];
   }
 
-  // Month format: YYYY-MMM
   if (MONTHS.some((month) => date.includes(month))) {
     const [year, month] = date.split('-');
     const monthIndex = MONTHS.indexOf(month);
@@ -105,27 +95,6 @@ const parseDateRangeFromString = (
     };
   }
 
-  // Quarter format: YYYY-quarterN
-  if (date.includes('quarter')) {
-    const [year] = date.split('-');
-    const quarterNumber = parseInt(date.split('quarter')[1]);
-    return {
-      from: startOfDay(new Date(parseInt(year), (quarterNumber - 1) * 3, 1)),
-      to: endOfDay(new Date(parseInt(year), quarterNumber * 3, 0)),
-    };
-  }
-
-  // Half year format: YYYY-halfN
-  if (date.includes('half')) {
-    const [year] = date.split('-');
-    const halfNumber = parseInt(date.split('half')[1]);
-    return {
-      from: startOfDay(new Date(parseInt(year), (halfNumber - 1) * 6, 1)),
-      to: endOfDay(new Date(parseInt(year), halfNumber * 6, 0)),
-    };
-  }
-
-  // Year format: YYYY
   if (/^\d{4}-y$/.test(date)) {
     const year = parseInt(date);
     return {
@@ -134,7 +103,6 @@ const parseDateRangeFromString = (
     };
   }
 
-  // Date range format: fromDate,toDate
   if (date.includes(',')) {
     const [from, to] = date.split(',');
     return {
@@ -183,12 +151,6 @@ export const ReportDateFilter = ({
   const handleApply = () => {
     if (currentValue) {
       onChange(currentValue);
-      // We rely on the parent (Filter.Dialog) to close, but we might need a trigger or similar.
-      // Filter.Dialog usually closes when we click a close button.
-      // To programmatically close, we might need access to the dialog context.
-      // But typically, Apply just updates the value.
-      // If we need to close it, we can trigger a click on a close button or use specific props if available.
-      // For now we just update logic.
       const closeButton = document.querySelector('[data-dialog-close]');
       if (closeButton instanceof HTMLElement) {
         closeButton.click();
@@ -212,8 +174,6 @@ export const ReportDateFilter = ({
             >
               <ToggleGroup.Item value="day">Day</ToggleGroup.Item>
               <ToggleGroup.Item value="month">Month</ToggleGroup.Item>
-              <ToggleGroup.Item value="quarter">Quarter</ToggleGroup.Item>
-              <ToggleGroup.Item value="halfYear">Half Year</ToggleGroup.Item>
               <ToggleGroup.Item value="year">Year</ToggleGroup.Item>
             </ToggleGroup>
           </div>
@@ -239,22 +199,6 @@ export const ReportDateFilter = ({
               onValueChange={handleRadioGroupChange}
               value={currentValue}
               className="grid grid-cols-2"
-            />
-          </Tabs.Content>
-          <Tabs.Content value="quarter" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              items={QUARTERS}
-              className="flex flex-col"
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
-            />
-          </Tabs.Content>
-          <Tabs.Content value="halfYear" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              items={['half-1', 'half-2']}
-              className="flex flex-col"
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
             />
           </Tabs.Content>
           <Tabs.Content value="year" className="w-full outline-hidden">

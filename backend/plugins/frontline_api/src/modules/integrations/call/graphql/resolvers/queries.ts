@@ -310,8 +310,8 @@ const callQueries = {
       const todayCdrs = await models.CallCdrs.find({
         actionType: { $regex: queue },
         start: {
-          $gte: new Date('2025-10-12:00:00:00'),
-          $lt: new Date('2025-10-12:23:59:59'),
+          $gte: dateFrom,
+          $lt: dateTo,
         },
       });
 
@@ -332,7 +332,6 @@ const callQueries = {
         firstCallResolution: firstCallResolution || DEFAULT_VALUE,
         averageSpeed: averageSpeed || DEFAULT_VALUE,
         averageAnsweredTime: averageAnsweredTime || DEFAULT_VALUE,
-        callstotal: todayCdrs.length || DEFAULT_VALUE,
       };
     } catch (error) {
       console.error('Error in callTodayStatistics:', error);
@@ -353,16 +352,23 @@ const callQueries = {
       queue,
       startDate,
       endDate,
-    }: { queue: string; startDate: string; endDate: string },
+      direction,
+    }: { queue: string; startDate: string; endDate: string; direction?: string },
     { models }: IContext,
   ) {
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
       },
-    });
+    };
+
+    if (direction) {
+      filter.userfield = direction;
+    }
+
+    const todyCdrs = await models.CallCdrs.find(filter);
 
     return calculateServiceLevel(todyCdrs);
   },
@@ -372,16 +378,23 @@ const callQueries = {
       queue,
       startDate,
       endDate,
-    }: { queue: string; startDate: string; endDate: string },
+      direction,
+    }: { queue: string; startDate: string; endDate: string; direction?: string },
     { models }: IContext,
   ) {
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
       },
-    });
+    };
+
+    if (direction) {
+      filter.userfield = direction;
+    }
+
+    const todyCdrs = await models.CallCdrs.find(filter);
 
     return calculateFirstCallResolution(todyCdrs);
   },
@@ -391,16 +404,23 @@ const callQueries = {
       queue,
       startDate,
       endDate,
-    }: { queue: string; startDate: string; endDate: string },
+      direction,
+    }: { queue: string; startDate: string; endDate: string; direction?: string },
     { models }: IContext,
   ) {
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
       },
-    });
+    };
+
+    if (direction) {
+      filter.userfield = direction;
+    }
+
+    const todyCdrs = await models.CallCdrs.find(filter);
 
     return calculateAbandonmentRate(todyCdrs);
   },
@@ -411,16 +431,23 @@ const callQueries = {
       queue,
       startDate,
       endDate,
-    }: { queue: string; startDate: string; endDate: string },
+      direction,
+    }: { queue: string; startDate: string; endDate: string; direction?: string },
     { models }: IContext,
   ) {
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
       },
-    });
+    };
+
+    if (direction) {
+      filter.userfield = direction;
+    }
+
+    const todyCdrs = await models.CallCdrs.find(filter);
 
     return calculateAverageSpeedOfAnswer(todyCdrs);
   },
@@ -431,16 +458,23 @@ const callQueries = {
       queue,
       startDate,
       endDate,
-    }: { queue: string; startDate: string; endDate: string },
+      direction,
+    }: { queue: string; startDate: string; endDate: string; direction?: string },
     { models }: IContext,
   ) {
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
       },
-    });
+    };
+
+    if (direction) {
+      filter.userfield = direction;
+    }
+
+    const todyCdrs = await models.CallCdrs.find(filter);
 
     return calculateAverageHandlingTime(todyCdrs);
   },
@@ -451,16 +485,23 @@ const callQueries = {
       queue,
       startDate,
       endDate,
-    }: { queue: string; startDate: string; endDate: string },
+      direction,
+    }: { queue: string; startDate: string; endDate: string; direction?: string },
     { models }: IContext,
   ) {
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
       },
-    });
+    };
+
+    if (direction) {
+      filter.userfield = direction;
+    }
+
+    const todyCdrs = await models.CallCdrs.find(filter);
 
     return calculateOccupancyRate(todyCdrs);
   },
@@ -557,7 +598,7 @@ const callQueries = {
 
   async callGetQueueStats(
     _args,
-    { startDate, endDate, queueId },
+    { startDate, endDate, queueId, direction },
     { models, user }: IContext,
   ) {
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
@@ -569,11 +610,14 @@ const callQueries = {
     //   return [];
     // }
     const isContainsQueue = true
-    const matchStage = {
-      userfield: 'Inbound',
-      start: { $gte: new Date('2025-10-12:00:00:00') },
-      end: { $lte: new Date('2025-10-12:23:59:59') },
+    const matchStage: any = {
+      start: { $gte: new Date(startDate) },
+      end: { $lte: new Date(endDate) },
     };
+
+    if (direction) {
+      matchStage.userfield = direction;
+    }
 
     return await models.CallCdrs.aggregate([
       {
@@ -801,7 +845,7 @@ const callQueries = {
   },
   async callGetAgentStats(
     _args,
-    { startDate, endDate, queueId, agentId = null },
+    { startDate, endDate, queueId, agentId = null, direction },
     { models, user }: IContext,
   ) {
     if (!queueId) {
@@ -816,12 +860,15 @@ const callQueries = {
       return [];
     }
 
-    const matchStage = {
-      userfield: 'Inbound',
+    const matchStage: any = {
       start: { $gte: new Date(startDate) },
       end: { $lte: new Date(endDate) },
       lastapp: 'Queue', // Зөвхөн Queue app-р дамжсан CDR-үүд
     };
+
+    if (direction) {
+      matchStage.userfield = direction;
+    }
 
     const data = await models.CallCdrs.aggregate([
       {

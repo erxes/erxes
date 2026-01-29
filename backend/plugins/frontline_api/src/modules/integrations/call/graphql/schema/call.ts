@@ -305,18 +305,19 @@ export const queries = `
   callQueueInitialList(queue: String!): String
   callQueueMemberList(integrationId: String!, queue: String!): JSON
   callTodayStatistics(queue: String!): CallKeyStatistics
-  callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!): Float
-  callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!): Float
-  callCalculateAbandonmentRate(queue: String!, startDate: String!, endDate: String!): Float
-  callCalculateAverageSpeedOfAnswer(queue: String!, startDate: String!, endDate: String!): Float
-  callCalculateAverageHandlingTime(queue: String!, startDate: String!, endDate: String!): Float
-  callCalculateOccupancyRate(queue: String!, startDate: String!, endDate: String!): Float
+  callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateAbandonmentRate(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateAverageSpeedOfAnswer(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateAverageHandlingTime(queue: String!, startDate: String!, endDate: String!, direction: String): Float
+  callCalculateOccupancyRate(queue: String!, startDate: String!, endDate: String!, direction: String): Float
 
   callConversationNotes(conversationId: String! getFirst: Boolean, ${pageParams}): [CallConversationNotes]
   callHistoryDetail(_id: String, conversationId: String): CallHistory
-  callGetQueueStats(startDate: String!, endDate: String!, queueId: String): [QueueStats!]!
-  callGetAgentStats(startDate: String!,endDate: String!, queueId: String, agentId: String): [AgentStats!]!
+  callGetQueueStats(startDate: String!, endDate: String!, queueId: String, direction: String): [QueueStats!]!
+  callGetAgentStats(startDate: String!,endDate: String!, queueId: String, agentId: String, direction: String): [AgentStats!]!
   getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
+
 `;
 
 export const mutations = `

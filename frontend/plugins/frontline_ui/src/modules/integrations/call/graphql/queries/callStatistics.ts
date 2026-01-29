@@ -5,6 +5,7 @@ export const callReportsDashboard = `
     $startDate: String! 
     $endDate: String!
     $queueId: String
+    $direction: String
   ) {
     callTodayStatistics(queue: $queue) {
       serviceLevel
@@ -13,13 +14,13 @@ export const callReportsDashboard = `
       averageAnsweredTime
       callstotal
     }
-    callCalculateServiceLevel(queue: $queue, startDate: $startDate, endDate: $endDate)
-    callCalculateFirstCallResolution(queue: $queue, startDate: $startDate, endDate: $endDate)
-    callCalculateAbandonmentRate(queue: $queue, startDate: $startDate, endDate: $endDate)
-    callCalculateAverageSpeedOfAnswer(queue: $queue, startDate: $startDate, endDate: $endDate)
-    callCalculateAverageHandlingTime(queue: $queue, startDate: $startDate, endDate: $endDate)
-    callCalculateOccupancyRate(queue: $queue, startDate: $startDate, endDate: $endDate)
-    callGetQueueStats(startDate: $startDate, endDate: $endDate, queueId: $queueId) {
+    callCalculateServiceLevel(queue: $queue, startDate: $startDate, endDate: $endDate, direction: $direction)
+    callCalculateFirstCallResolution(queue: $queue, startDate: $startDate, endDate: $endDate, direction: $direction)
+    callCalculateAbandonmentRate(queue: $queue, startDate: $startDate, endDate: $endDate, direction: $direction)
+    callCalculateAverageSpeedOfAnswer(queue: $queue, startDate: $startDate, endDate: $endDate, direction: $direction)
+    callCalculateAverageHandlingTime(queue: $queue, startDate: $startDate, endDate: $endDate, direction: $direction)
+    callCalculateOccupancyRate(queue: $queue, startDate: $startDate, endDate: $endDate, direction: $direction)
+    callGetQueueStats(startDate: $startDate, endDate: $endDate, queueId: $queueId, direction: $direction) {
       queue
       totalCalls
       answeredCalls
@@ -29,7 +30,7 @@ export const callReportsDashboard = `
       averageWaitTime
       averageTalkTime
     }
-    callGetAgentStats(startDate: $startDate, endDate: $endDate, queueId: $queueId) {
+    callGetAgentStats(startDate: $startDate, endDate: $endDate, queueId: $queueId, direction: $direction) {
       agent
       agentName
       totalCalls
