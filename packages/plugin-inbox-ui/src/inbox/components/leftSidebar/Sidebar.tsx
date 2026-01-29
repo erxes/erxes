@@ -7,7 +7,7 @@ import {
   ScrollContent,
   SidebarActions,
   SidebarContent,
-  ToggleButton
+  ToggleButton,
 } from "./styles";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -34,30 +34,30 @@ import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 const DateFilter = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-DateFilter" */ "@erxes/ui/src/components/DateFilter"
+      /* webpackChunkName:"Inbox-DateFilter" */ "@erxes/ui/src/components/NewDateFilter"
     ),
-  { height: "15px", width: "70px" }
+  { height: "15px", width: "70px" },
 );
 
 const AssignBoxPopover = asyncComponent(
   () =>
     import(
       /* webpackChunkName:"Inbox-AssignBoxPopover" */ "../assignBox/AssignBoxPopover"
-    )
+    ),
 );
 
 const ConversationList = asyncComponent(
   () =>
     import(
       /* webpackChunkName:"Inbox-ConversationList" */ "../../containers/leftSidebar/ConversationList"
-    )
+    ),
 );
 
 const FilterList = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "Inbox-FilterList" */ "../../containers/leftSidebar/FilterList"
-    )
+    ),
 );
 
 type Props = {
@@ -72,7 +72,7 @@ type Props = {
   resolveAll: () => void;
 };
 
-const LeftSidebar: React.FC<Props> = props => {
+const LeftSidebar: React.FC<Props> = (props) => {
   const { currentUser, currentConversationId, queryParams, bulk, toggleBulk } =
     props;
 
@@ -80,7 +80,7 @@ const LeftSidebar: React.FC<Props> = props => {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState<boolean>(
-    props.config?.showAddition || false
+    props.config?.showAddition || false,
   );
   const [counts, setItemCounts] = useState<any>({});
 
@@ -182,7 +182,7 @@ const LeftSidebar: React.FC<Props> = props => {
                 query={{
                   queryName: "channelsByMembers",
                   variables: { memberIds: [currentUser._id] },
-                  dataName: "channelsByMembers"
+                  dataName: "channelsByMembers",
                 }}
                 counts="byChannels"
                 paramKey="channelId"
@@ -203,8 +203,8 @@ const LeftSidebar: React.FC<Props> = props => {
                     queryName: "segmentList",
                     dataName: "segments",
                     variables: {
-                      contentTypes: [TAG_TYPES.CONVERSATION]
-                    }
+                      contentTypes: [TAG_TYPES.CONVERSATION],
+                    },
                   }}
                   queryParams={queryParams}
                   counts="bySegment"
@@ -240,7 +240,7 @@ const LeftSidebar: React.FC<Props> = props => {
               <FilterList
                 query={{
                   queryName: "integrationsGetUsedTypes",
-                  dataName: "integrationsGetUsedTypes"
+                  dataName: "integrationsGetUsedTypes",
                 }}
                 queryParams={queryParams}
                 counts="byIntegrationTypes"
@@ -261,8 +261,8 @@ const LeftSidebar: React.FC<Props> = props => {
                   dataName: "tags",
                   variables: {
                     type: TAG_TYPES.CONVERSATION,
-                    perPage: 100
-                  }
+                    perPage: 100,
+                  },
                 }}
                 queryParams={queryParams}
                 counts="byTags"
