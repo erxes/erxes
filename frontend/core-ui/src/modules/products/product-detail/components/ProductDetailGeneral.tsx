@@ -1,29 +1,20 @@
 import { CurrencyField, Editor, InfoCard, Input, Label } from 'erxes-ui';
 import { IProductDetail, SelectCategory, SelectProductType } from 'ui-modules';
-import { atomWithStorage } from 'jotai/utils';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-const descriptionAtom = atomWithStorage<string | undefined>(
-  'description',
-  undefined,
-  undefined,
-  {
-    getOnInit: true,
-  },
-);
+import { useState } from 'react';
 
 export const ProductDetailGeneral = ({
   name,
   code,
   shortName,
   categoryId,
-  currency,
+  // currency,
   unitPrice,
   type,
+  description: initialDescription,
 }: IProductDetail) => {
-  const [description, setDescription] = useAtom<string | undefined>(
-    descriptionAtom,
+  const [description, setDescription] = useState<string>(
+    initialDescription || '',
   );
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
@@ -52,24 +43,23 @@ export const ProductDetailGeneral = ({
             <Label>{t('category')}</Label>
             <SelectCategory selected={categoryId} onSelect={() => null} />
           </div>
-          <div className="space-y-2 col-start-1">
+          {/* <div className="col-start-1 space-y-2">
             <Label>{t('currency')}</Label>
             <CurrencyField.SelectCurrency
               value={currency}
               onChange={() => null}
             />
-          </div>
+          </div> */}
           <div className="space-y-2">
             <Label>{t('unit-price')}</Label>
             <CurrencyField.ValueInput value={unitPrice} onChange={() => null} />
           </div>
-          <div className="space-y-2 col-span-2">
+          <div className="col-span-2 space-y-2">
             <Label>{t('description')}</Label>
             <Editor
-              isHTML={true}
               initialContent={description}
               className="h-auto"
-              onChange={(value) => setDescription(value)}
+              onChange={setDescription}
             />
           </div>
         </div>

@@ -36,10 +36,7 @@ export const PRODUCT_FORM_SCHEMA = z.object({
     .optional(),
   vendorId: z.string().optional(),
   scopeBrandIds: z.array(z.string()).optional(),
-  uom: z
-    .string({
-      required_error: 'UOM is required',
-    }).optional(),
-    // .min(1, 'UOM is required'),
+  uom: z.string().optional(),
   subUoms: z.any().optional(),
+  currency: z.string().optional(),
 });

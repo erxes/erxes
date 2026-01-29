@@ -7,9 +7,7 @@ export const ProductsHeader = ({ children }: React.PropsWithChildren) => {
   return (
     <PageHeader>
       <ProductsNavigation />
-      <PageHeader.End>
-        {children}
-      </PageHeader.End>
+      <PageHeader.End>{children}</PageHeader.End>
     </PageHeader>
   );
 };

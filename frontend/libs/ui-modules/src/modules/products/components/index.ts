@@ -5,3 +5,4 @@ export * from './SelectProductType';
 export * from './AddProduct';
 export * from './AddProductForm';
 export * from './SelectUOM';
+export * from './SubUomRow';
