@@ -111,14 +111,19 @@ import {
   ISpinModel,
   loadSpinClass,
 } from '@/spin/db/models/Spin';
+import { ISpinCampaignDocument } from './modules/spin/@types/spinCampaign';
+import {
+ ISpinCampaignModel,
+ loadSpinCampaignClass
+} from '@/spin/db/models/SpinCampaign';
 
 import { IVoucherDocument } from '@/voucher/@types/voucher';
 import {
   IVoucherModel,
   loadVoucherClass,
 } from '@/voucher/db/models/Voucher';
-
-
+import { IVoucherCampaignDocument } from './modules/voucher/@types/voucherCampaign';
+import { IVoucherCampaignModel, loadVoucherCampaignClass } from './modules/voucher/db/models/VoucherCampaign';
 
 export interface IModels {
   Agent: IAgentModel;
@@ -138,7 +143,9 @@ export interface IModels {
   ScoreCampaign: IScoreCampaignModel;
   ScoreLog: IScoreLogModel;
   Spin: ISpinModel;
+  SpinCampaign: ISpinCampaignModel;
   Voucher: IVoucherModel;
+  VoucherCampaign: IVoucherCampaignModel;
 }
 
 export interface IContext extends IMainContext {
@@ -259,10 +266,19 @@ export const loadClasses = (
     'loyalty_spin',
     loadSpinClass(models),
   );
+  models.SpinCampaign = db.model<ISpinCampaignDocument, ISpinCampaignModel>(
+    'spin_campaigns',
+    loadSpinCampaignClass(models),
+  );
 
   models.Voucher = db.model<IVoucherDocument, IVoucherModel>(
     'loyalty_voucher',
     loadVoucherClass(models),
+  );
+
+  models.VoucherCampaign = db.model<IVoucherCampaignDocument,IVoucherCampaignModel>(
+      'voucher_campaigns', 
+      loadVoucherCampaignClass(models),
   );
 
   return models;

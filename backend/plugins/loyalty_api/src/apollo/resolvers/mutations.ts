@@ -12,6 +12,8 @@ import { voucherMutations } from '@/voucher/graphql/resolvers/mutations/voucher'
 import { lotteryCampaignMutations } from '~/modules/lottery/graphql/resolvers/mutations/lotteryCampaign';
 import { donateCampaignMutations } from '~/modules/donate/graphql/resolvers/mutations/donateCampaign';
 import { scoreCampaignMutations } from '~/modules/score/graphql/resolvers/mutations/scoreCampaign';
+import { spinCampaignMutations } from '~/modules/spin/graphql/resolvers/mutations/spinCampaign';
+import { voucherCampaignMutations } from '~/modules/voucher/graphql/resolvers/mutations/voucherCampaign';
 
 export const mutations = {
   ...pricingMutations,
@@ -27,5 +29,7 @@ export const mutations = {
   ...scoreMutations,
   ...scoreCampaignMutations,
   ...spinsMutations,
+  ...spinCampaignMutations,
   ...voucherMutations,
+  ...voucherCampaignMutations
 };

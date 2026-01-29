@@ -110,7 +110,7 @@ export const loadSpinClass = (models: IModels) => {
         change: -1 * spinCampaign.conditions?.buyScore * count,
         description: 'buy spin',
         campaignId,
-        action: 'buy',
+        action: 'subtract',
         contentId: campaignId,
         contentType: 'campaign',
         createdBy: user._id,

@@ -1,39 +1,36 @@
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from '~/utils/common';
 export const types = `
-  type DonateCampaign {
-    _id: String
-    name: String
-    description: String
-    status: String
+  type DonateCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
+    _id: String,
+    ${commonCampaignTypes}
 
     maxScore: Float
     awards: JSON
 
-    createdAt: String
-    updatedAt: String
-    createdBy: String
-    updatedBy: String
-
-    donatesCount: Int
+    donatesCount: Int,
   }
 `;
-const queryParams = `
-  status: String
-  searchValue: String
-`;
-export const queries = `
-  getDonateCampaigns(${queryParams}): [DonateCampaign]
-  getDonateCampaignDetail(_id: String!): DonateCampaign
-`;
-const mutationParams = `
-  name: String
-  description: String
-  status: String
 
+export const queries = `
+  donateCampaignDetail(_id: String!): DonateCampaign
+  donateCampaigns(${commonFilterTypes} ${paginateTypes}): [DonateCampaign]
+  cpDonateCampaigns: [DonateCampaign]
+  donateCampaignsCount(${commonFilterTypes}): Int
+`;
+
+const DonateCampaignDoc = `
+  ${commonCampaignInputs}
   maxScore: Float
   awards: JSON
 `;
+
 export const mutations = `
-  createDonateCampaign(${mutationParams}): DonateCampaign
-  updateDonateCampaign(_id: String!, ${mutationParams}): DonateCampaign
-  removeDonateCampaign(_id: String!): DonateCampaign
+  donateCampaignsAdd(${DonateCampaignDoc}): DonateCampaign
+  donateCampaignsEdit(_id: String!, ${DonateCampaignDoc}): DonateCampaign
+  donateCampaignsRemove(_ids: [String]): JSON
 `;

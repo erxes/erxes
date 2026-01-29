@@ -1,47 +1,36 @@
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from '~/utils/common';
 export const types = `
-  type AssignmentCampaign {
-    _id: String
-    name: String
-    description: String
-    status: String
-
+  type AssignmentCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
+    _id: String,
+    ${commonCampaignTypes},
     fieldId: String
     segmentIds: [String]
-    allowMultiWin: Boolean
+    allowMultiWin:Boolean
     voucherCampaignId: String
-
-    createdAt: String
-    updatedAt: String
-    createdBy: String
-    updatedBy: String
-
-    assignmentsCount: Int
   }
-`;
-const queryParams = `
-  status: String
-  searchValue: String
 `;
 
 export const queries = `
-  getAssignmentCampaigns(${queryParams}): [AssignmentCampaign]
-  getAssignmentCampaignDetail(_id: String!): AssignmentCampaign
+  assignmentCampaignDetail(_id: String!): AssignmentCampaign
+  assignmentCampaigns(${commonFilterTypes} ${paginateTypes}): [AssignmentCampaign]
+  assignmentCampaignsCount(${commonFilterTypes}): Int
 `;
 
-
-const mutationParams = `
-  name: String
-  description: String
-  status: String
-
+const AssignmentCampaignDoc = `
+  ${commonCampaignInputs}
   segmentIds: [String]
   fieldId: String
-  allowMultiWin: Boolean
+  allowMultiWin:Boolean
   voucherCampaignId: String
 `;
 
 export const mutations = `
-  createAssignmentCampaign(${mutationParams}): AssignmentCampaign
-  updateAssignmentCampaign(_id: String!, ${mutationParams}): AssignmentCampaign
-  removeAssignmentCampaign(_id: String!): AssignmentCampaign
+  assignmentCampaignsAdd(${AssignmentCampaignDoc}): AssignmentCampaign
+  assignmentCampaignsEdit(_id: String!, ${AssignmentCampaignDoc}): AssignmentCampaign
+  assignmentCampaignsRemove(_ids: [String]): JSON
 `;
