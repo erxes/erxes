@@ -50,8 +50,6 @@ export const EMConfig = () => {
   const loading = createLoading || editLoading;
   const isEditMode = !!idToEdit;
 
-  console.log(form.watch(), '\nwatch');
-
   return (
     <Form {...form}>
       <EMFormValueEffectComponent

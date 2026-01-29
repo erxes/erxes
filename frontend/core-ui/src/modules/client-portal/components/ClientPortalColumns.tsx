@@ -8,6 +8,7 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
   toast,
+  useConfirm,
 } from 'erxes-ui';
 import {
   IconAlignLeft,
@@ -16,14 +17,19 @@ import {
   IconCheck,
   IconCopy,
   IconKey,
+  IconEdit,
+  IconTrash,
 } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   SettingsPath,
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { useState } from 'react';
 import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
+import { useMutation } from '@apollo/client';
+
+import { CLIENT_PORTAL_DELETE } from '@/client-portal/graphql/mutations/clientPortalDelete';
 
 export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   clientPortalMoreColumn,
@@ -53,18 +59,18 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
       );
     },
   },
+
   {
     id: 'domain',
     accessorKey: 'domain',
     header: () => <RecordTable.InlineHead icon={IconBrowser} label="Domain" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.row.original.domain} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.row.original.domain} />
+      </RecordTableInlineCell>
+    ),
   },
+
   {
     id: 'token',
     accessorKey: 'token',
@@ -75,22 +81,15 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
       const handleCopy = () => {
         setIsCopied(true);
         navigator.clipboard.writeText(cell.row.original.token ?? '');
-        toast({
-          title: 'Copied to clipboard',
-        });
-        setTimeout(() => {
-          setIsCopied(false);
-        }, 2000);
+        toast({ title: 'Copied to clipboard' });
+        setTimeout(() => setIsCopied(false), 2000);
       };
 
       return (
         <RecordTableInlineCell className="relative group" onClick={handleCopy}>
           <Badge variant="secondary">
             {cell.row.original.token
-              ? `${cell.row.original.token.slice(
-                  0,
-                  4,
-                )}•••${cell.row.original.token.slice(-3)}`
+              ? `${cell.row.original.token.slice(0, 4)}•••${cell.row.original.token.slice(-3)}`
               : ''}
           </Badge>
           <Button
@@ -104,19 +103,72 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
       );
     },
   },
+
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
       <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
     ),
-    cell: ({ cell }) => {
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
+  },
+
+  // NEW: Actions column (EDIT + DELETE)
+  {
+    id: 'actions',
+    header: () => <RecordTable.InlineHead label="Actions" />,
+    cell: ({ row }) => {
+      const portal = row.original;
+      const navigate = useNavigate();
+      const { confirm } = useConfirm();
+      const [clientPortalDelete] = useMutation(CLIENT_PORTAL_DELETE);
+
+      const handleEdit = () => {
+        navigate(
+          '/' +
+            SettingsPath.Index +
+            SettingsWorkspacePath.ClientPortals +
+            '/' +
+            portal._id
+        );
+      };
+
+      const handleDelete = () => {
+        confirm({
+          message: 'Delete client portal?',
+          options: {
+            description: 'This action cannot be undone.',
+            okLabel: 'Delete',
+            cancelLabel: 'Cancel',
+          },
+        }).then(() => {
+          clientPortalDelete({
+            variables: { _id: portal._id },
+            refetchQueries: ['getClientPortals'],
+          });
+        });
+      };
+
       return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
+        <RecordTableInlineCell className="flex gap-1">
+          <Button variant="ghost" size="icon" onClick={handleEdit}>
+            <IconEdit size={16} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-red-500"
+            onClick={handleDelete}
+          >
+            <IconTrash size={16} />
+          </Button>
+        </RecordTableInlineCell>
       );
     },
   },
