@@ -1,3 +1,5 @@
+import initCallApp from '@/integrations/call/initApp';
+import { initWebsocketService } from '@/integrations/call/webSocket';
 import { getEnv, startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/init-trpc';
@@ -6,9 +8,6 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
-import initCallApp from '@/integrations/call/initApp';
-import onServerInitImap from '@/integrations/imap/initApp';
-import { initWebsocketService } from '@/integrations/call/webSocket';
 
 startPlugin({
   name: 'frontline',
@@ -89,6 +88,10 @@ startPlugin({
         {
           description: 'Inbox',
           type: 'conversation',
+        },
+        {
+          description: 'Ticket',
+          type: 'ticket',
         },
       ],
     },
