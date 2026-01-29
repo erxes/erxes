@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { useAddProductRulesOnTax } from '@/ebarimt/settings/product-rules-on-tax/hooks/useAddProductRulesOnTax';
-import { TaxType } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
 import {
   productRulesOnTaxSchema,
   TProductRulesOnTaxForm,
@@ -41,37 +40,61 @@ export const AddProductRulesOnTaxForm = ({
     resolver: zodResolver(productRulesOnTaxSchema),
     defaultValues: {
       title: '',
-      productCategories: '',
-      excludeCategories: '',
-      products: '',
-      excludeProducts: '',
-      kind: TaxType.FREE,
-      taxType: 'TAX',
-      taxCode: '0',
+      productCategoryIds: '',
+      excludeCategoryIds: '',
+      productIds: '',
+      excludeProductIds: '',
+      kind: '',
+      taxType: '',
+      taxCode: '',
       percent: 0,
-      tags: '',
-      excludeTags: '',
+      tagIds: '',
+      excludeTagIds: '',
       status: '',
     },
   });
   const { addProductRulesOnTax, loading } = useAddProductRulesOnTax();
 
   const onSubmit = (data: TProductRulesOnTaxForm) => {
+    const productCategoryIds = data.productCategoryIds
+      ? data.productCategoryIds.split(',').map((s) => s.trim())
+      : [];
+    const excludeCategoryIds = data.excludeCategoryIds
+      ? data.excludeCategoryIds.split(',').map((s) => s.trim())
+      : [];
+    const productIds = data.productIds
+      ? data.productIds.split(',').map((s) => s.trim())
+      : [];
+    const excludeProductIds = data.excludeProductIds
+      ? data.excludeProductIds.split(',').map((s) => s.trim())
+      : [];
+    const tagIds = data.tagIds
+      ? data.tagIds.split(',').map((s) => s.trim())
+      : [];
+    const excludeTagIds = data.excludeTagIds
+      ? data.excludeTagIds.split(',').map((s) => s.trim())
+      : [];
+
+    const variables: any = {
+      title: data.title,
+      productCategoryIds,
+      excludeCategoryIds,
+      productIds,
+      excludeProductIds,
+      kind: data.kind,
+      tagIds,
+      excludeTagIds,
+      status: data.status,
+    };
+
+    if (data.kind !== 'ctax') {
+      variables.taxType = data.taxType;
+      variables.taxCode = data.taxCode;
+      variables.taxPercent = data.percent;
+    }
+
     addProductRulesOnTax({
-      variables: {
-        title: data.title,
-        productCategories: data.productCategories,
-        excludeCategories: data.excludeCategories,
-        products: data.products,
-        excludeProducts: data.excludeProducts,
-        kind: data.kind,
-        taxType: data.taxType,
-        taxCode: data.taxCode,
-        percent: data.percent,
-        tags: data.tags,
-        excludeTags: data.excludeTags,
-        status: data.status,
-      },
+      variables,
       onCompleted: () => {
         toast({
           title: 'Success',

@@ -1,5 +1,3 @@
-// components/common/SortableList.tsx
-
 import {
   DndContext,
   KeyboardSensor,
@@ -10,13 +8,12 @@ import {
 } from '@dnd-kit/core';
 import {
   SortableContext,
+  arrayMove,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-
 import { CSS } from '@dnd-kit/utilities';
 import React from 'react';
-import { arrayMove } from '@dnd-kit/sortable';
 
 type SortableItemType = {
   [key: string]: any;

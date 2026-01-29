@@ -1,7 +1,6 @@
-import { Form, MultipleSelector, MultiSelectOption } from 'erxes-ui';
-import { ControllerRenderProps, useFormContext, Path } from 'react-hook-form';
 import { TGeneralSettingsProps } from '@/settings/general/types';
-import { CURRENCY_CODES } from 'erxes-ui';
+import { CURRENCY_CODES, Form, MultipleSelector, MultiSelectOption } from 'erxes-ui';
+import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 const Selector = (

@@ -5,7 +5,7 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { transactionSchema } from '~/modules/payment/db/definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
-  getTransaction(doc: any, leanObject?: boolean): ITransactionDocument;
+  getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
     invoiceId,
     paymentId,

@@ -17,6 +17,7 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import {
   NameCell,
   ProductsCell,
+  NumberCell,
 } from '@/deals/components/deal-selects/MoveDealSelect';
 import { BoardCell, PipelineCell, StageCell } from 'ui-modules/modules';
 
@@ -33,6 +34,14 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       ),
       cell: ({ row }) => <NameCell deal={row.original} />,
       size: 240,
+    },
+    {
+      id: 'number',
+      accessorKey: 'number',
+      header: () => (
+        <RecordTable.InlineHead label="Number" icon={IconLabelFilled} />
+      ),
+      cell: ({ row }) => <NumberCell deal={row.original} />,
     },
     {
       id: 'boardId',

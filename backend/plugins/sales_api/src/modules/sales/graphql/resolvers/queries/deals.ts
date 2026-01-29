@@ -57,10 +57,8 @@ export const generateFilter = async (
     customerIds,
     vendorCustomerIds,
     companyIds,
-    conformityMainType,
-    conformityMainTypeId,
-    conformityIsRelated,
-    conformityIsSaved,
+    relationType,
+    relationId,
     initialStageId,
     labelIds,
     priority,
@@ -178,7 +176,7 @@ export const generateFilter = async (
       action: 'filterRelationIds',
       input: {
         contentType: 'core:company',
-        contentIds: customerIds,
+        contentIds: companyIds,
         relatedContentType: 'sales:deal'
       },
       defaultValue: []
@@ -197,42 +195,19 @@ export const generateFilter = async (
     filter._id = { $in: _ids };
   }
 
-  if (conformityMainType && conformityMainTypeId) {
-    if (conformityIsSaved) {
-      const relIds = await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        module: 'conformity',
-        action: 'savedConformity',
-        input: {
-          mainType: conformityMainType,
-          mainTypeId: conformityMainTypeId,
-          relTypes: ['deal'],
-        },
-        defaultValue: [],
-      });
-
-      filter._id = contains(relIds || []);
-    }
-
-    if (conformityIsRelated) {
-      const relIds = await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        module: 'conformity',
-        action: 'conformities.relatedConformity',
-        input: {
-          mainType: conformityMainType,
-          mainTypeId: conformityMainTypeId,
-          relType: 'deal',
-        },
-        defaultValue: [],
-      });
-
-      filter._id = contains(relIds);
-    }
+  if (relationType && relationId) {
+    const relIds = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: relationType,
+        contentId: relationId,
+        relatedContentType: 'sales:deal'
+      }
+    });
+    filter._id = contains(relIds || []);
   }
 
   if (initialStageId) {

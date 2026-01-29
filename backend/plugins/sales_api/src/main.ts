@@ -5,6 +5,7 @@ import resolvers from './apollo/resolvers';
 import { router } from './routes';
 import segments from './meta/segments';
 import { startPlugin } from 'erxes-api-shared/utils';
+import { afterProcess } from '~/meta/afterProcess';
 import { typeDefs } from './apollo/typeDefs';
 import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
 
@@ -66,5 +67,6 @@ startPlugin({
         types: [{ name: 'note', text: 'Mentioned in note' }],
       },
     ],
+    afterProcess,
   },
 });
