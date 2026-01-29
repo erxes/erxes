@@ -8,6 +8,7 @@
   "product-service": "Бүтээгдэхүүн / Үйлчилгээ",
   "add": {
     "create-product": "Бүтээгдэхүүн үүсгэх",
+    "product-information": "Бүтээгдэхүүний мэдээлэл",
     "name": "Нэр",
     "description": "Тайлбар",
     "short-name": "Товч нэр",
@@ -26,10 +27,19 @@
     "fill-in-more-info": "Нэмэлт мэдээлэл оруулах",
     "see-less": "Багасгаж харах",
     "more-info": "Дэлгэрэнгүй",
-    "add-product": "Бүтээгдэхүүн нэмэх"
+    "add-product": "Бүтээгдэхүүн нэмэх",
+    "add-barcode": "Баркод нэмэх",
+    "add-sub": "Дэд нэмэх",
+    "sub-uom": "ДЭД ХЭМЖИХ НЭГЖ",
+    "ratio": "ХАРЬЦАА",
+    "inverse-ratio": "~УРВУУ ХАРЬЦАА",
+    "currency": "Валют"
   },
   "detail": {
     "product-information": "Бүтээгдэхүүний мэдээлэл",
+    "more-info": "Дэлгэрэнгүй",
+    "brand": "Брэнд",
+    "vendor": "Нийлүүлэгч",
     "name": "Нэр",
     "short-name": "Товч нэр",
     "code": "Код",
@@ -42,9 +52,15 @@
     "barcodes": "Баркодууд",
     "add-barcode": "Баркод нэмэх",
     "uom": "Хэмжих нэгж",
+    "unit-of-measurements": "Хэмжих нэгж",
     "sub-uom": "Дэд хэмжих нэгж",
     "add-sub-uom": "Дэд нэгж нэмэх",
+    "add-sub": "Дэд нэмэх",
+    "ratio": "Харьцаа",
+    "inverse-ratio": "Урвуу харьцаа",
     "attachment": "Хавсралт",
+    "featured-image": "Үндсэн зураг",
+    "secondary-images": "Нэмэлт зургууд",
     "product-variants": "Бүтээгдэхүүний хувилбарууд",
     "uom-description": "Бүтээгдэхүүний хэмжих нэгжийг сонгоно уу"
   }

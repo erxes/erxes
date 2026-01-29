@@ -22,7 +22,7 @@ export interface IBundleRuleItem {
   products: IProduct[];
   priceValue: number;
   percent: number;
-  priceType: "thisProductPricePercent" | "price" | "mainPricePercent";
+  priceType: 'thisProductPricePercent' | 'price' | 'mainPricePercent';
   priceAdjustType: string;
   priceAdjustFactor: number;
   allowSkip: boolean;
@@ -94,6 +94,11 @@ export interface IProductDetail extends IProduct {
   barcodeDescription: string;
   barcodes: string[];
   vendorId: string;
+}
+
+export interface IProductType {
+  label: string;
+  value: string;
 }
 
 export type IProductFormValues = z.infer<typeof PRODUCT_FORM_SCHEMA>;
