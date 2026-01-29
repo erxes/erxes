@@ -27,11 +27,13 @@ import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { ticketsMoreColumn } from './TicketsMoreColumn';
 
 export const ticketsColumns = (): ColumnDef<ITicket>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITicket>;
 
   return [
+    ticketsMoreColumn,
     checkBoxColumn,
     {
       id: 'name',

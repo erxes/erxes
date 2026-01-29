@@ -30,12 +30,14 @@ import { SelectProjectPriority } from '@/project/components/select/SelectProject
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
 import { SelectMember } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
+import { projectsMoreColumn } from './ProjectsMoreColumn';
 
 export const projectsColumns = (
   _teams: ITeam[] | undefined,
 ): ColumnDef<IProject>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IProject>;
   return [
+    projectsMoreColumn,
     checkBoxColumn,
     {
       id: 'name',
