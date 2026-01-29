@@ -7,7 +7,10 @@ import {
 import { contactService } from './contactService';
 import { verificationService } from './verificationService';
 import { notificationService } from './notificationService';
-import { detectIdentifierType, validateUserRegistration } from './helpers/validators';
+import {
+  detectIdentifierType,
+  validateUserRegistration,
+} from './helpers/validators';
 import { buildUserQuery, buildDuplicationQuery } from './helpers/queryBuilders';
 import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import {
@@ -352,6 +355,47 @@ export class CPUserService {
     await models.CPUser.updateOne({ _id: userId }, { $set: updateData });
 
     const updatedUser = await models.CPUser.findOne({ _id: userId });
+    if (!updatedUser) {
+      throw new AuthenticationError('User not found');
+    }
+
+    return updatedUser;
+  }
+
+  async addFcmToken(
+    cpUserId: string,
+    fcmToken: string,
+    models: IModels,
+  ): Promise<ICPUserDocument> {
+    const trimmed = (fcmToken || '').trim();
+    if (!trimmed) {
+      throw new ValidationError('FCM token is required');
+    }
+
+    await models.CPUser.updateOne(
+      { _id: cpUserId },
+      { $addToSet: { fcmTokens: trimmed } },
+    );
+
+    const updatedUser = await models.CPUser.findOne({ _id: cpUserId });
+    if (!updatedUser) {
+      throw new AuthenticationError('User not found');
+    }
+
+    return updatedUser;
+  }
+
+  async removeFcmToken(
+    cpUserId: string,
+    fcmToken: string,
+    models: IModels,
+  ): Promise<ICPUserDocument> {
+    await models.CPUser.updateOne(
+      { _id: cpUserId },
+      { $pull: { fcmTokens: (fcmToken || '').trim() } },
+    );
+
+    const updatedUser = await models.CPUser.findOne({ _id: cpUserId });
     if (!updatedUser) {
       throw new AuthenticationError('User not found');
     }

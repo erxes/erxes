@@ -78,6 +78,10 @@ interface RefreshTokenParams {
   refreshToken: string;
 }
 
+interface FcmTokenParams {
+  fcmToken: string;
+}
+
 export const cpUserMutations: Record<string, Resolver> = {
   async clientPortalUserRegister(
     _root: unknown,
@@ -221,7 +225,7 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
     const tokens = authService.setAuthCookie(res, user, clientPortal);
-    
+
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
     }
@@ -241,7 +245,7 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
     const tokens = authService.setAuthCookie(res, user, clientPortal);
-    
+
     if (tokens?.token && tokens?.refreshToken) {
       return { ...user.toObject(), ...tokens };
     }
@@ -260,7 +264,7 @@ export const cpUserMutations: Record<string, Resolver> = {
       models,
     );
     const tokens = authService.setAuthCookie(res, user, clientPortal);
-    
+
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
     }
@@ -337,6 +341,30 @@ export const cpUserMutations: Record<string, Resolver> = {
     res.cookie('client-auth-token', accessToken, cookieOptions);
 
     return accessToken;
+  },
+
+  async clientPortalUserAddFcmToken(
+    _root: unknown,
+    { fcmToken }: FcmTokenParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    return cpUserService.addFcmToken(cpUser._id, fcmToken, models);
+  },
+
+  async clientPortalUserRemoveFcmToken(
+    _root: unknown,
+    { fcmToken }: FcmTokenParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    return cpUserService.removeFcmToken(cpUser._id, fcmToken, models);
   },
 };
 

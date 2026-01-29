@@ -61,7 +61,7 @@ export class PasswordService {
       await notificationService.sendOTPSMS(
         user,
         code,
-        resetPasswordConfig?.smsContent || '',
+        resetPasswordConfig?.messageTemplate || '',
         clientPortal,
       );
     }
@@ -79,8 +79,9 @@ export class PasswordService {
       return;
     }
 
-    const resetUrl = `${clientPortal.url || ''
-      }/reset-password?token=${resetToken}`;
+    const resetUrl = `${
+      clientPortal.url || ''
+    }/reset-password?token=${resetToken}`;
     const emailSubject = resetPasswordConfig?.emailSubject || 'Password Reset';
     const emailContent = resetPasswordConfig?.emailContent || '';
 

@@ -136,6 +136,8 @@ export const mutations = `
   clientPortalUserLinkSocialAccount(provider: SocialAuthProvider!, token: String!): CPUser
   clientPortalUserUnlinkSocialAccount(provider: SocialAuthProvider!): CPUser
   clientPortalUserRefreshToken(refreshToken: String!): String
+  clientPortalUserAddFcmToken(fcmToken: String!): CPUser
+  clientPortalUserRemoveFcmToken(fcmToken: String!): CPUser
 `;
 
 export const queries = `
