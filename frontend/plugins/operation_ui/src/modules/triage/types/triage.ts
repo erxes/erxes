@@ -10,6 +10,7 @@ export interface ITriage {
   createdAt: string;
   updatedAt: string;
   priority: number;
+  status: number;
 }
 
 export interface IAddTriage {
@@ -17,6 +18,7 @@ export interface IAddTriage {
   description: string;
   teamId: string;
   priority: number;
+  status: number;
 }
 
 export const addTriageSchema = z.object({
@@ -24,4 +26,5 @@ export const addTriageSchema = z.object({
   description: z.string().optional(),
   teamId: z.string().min(1),
   priority: z.number().optional(),
+  status: z.number().optional(),
 });

@@ -24,7 +24,7 @@ const FrontlineSettings = () => {
           path={FrontlinePaths.IntegrationConfig}
           element={<ConfigsSettings />}
         />
-        <Route path={FrontlinePaths.Tickets} element={<TicketSettings />} />
+        <Route path={FrontlinePaths.TicketTags} element={<TicketSettings />} />
         <Route
           path={FrontlinePaths.ChannelsCatchAll}
           element={<ChannelsSettings />}

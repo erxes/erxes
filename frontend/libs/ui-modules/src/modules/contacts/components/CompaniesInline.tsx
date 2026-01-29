@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from 'react';
 
 import { ICompany } from '../types';
+import { IconBuilding } from '@tabler/icons-react';
 import { useCompaniesInline } from '../hooks/useCompanies';
 
 interface CompaniesInlineProviderProps {
@@ -21,6 +22,7 @@ interface CompaniesInlineProviderProps {
   companyIds?: string[];
   companies?: ICompany[];
   placeholder?: string;
+  hideAvatar?: boolean;
   updateCompanies?: (companies: ICompany[]) => void;
 }
 
@@ -29,6 +31,7 @@ const CompaniesInlineProvider = ({
   placeholder,
   companyIds,
   companies,
+  hideAvatar,
   updateCompanies,
 }: CompaniesInlineProviderProps) => {
   const [_companies, _setCompanies] = useState<ICompany[]>(companies || []);
@@ -42,6 +45,7 @@ const CompaniesInlineProvider = ({
           ? 'Select Companies'
           : placeholder,
         updateCompanies: updateCompanies || _setCompanies,
+        hideAvatar,
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
@@ -92,7 +96,10 @@ const CompanyInlineEffectComponent = ({
 };
 
 const CompaniesInlineAvatar = ({ className, ...props }: AvatarProps) => {
-  const { companies, loading, companyIds } = useCompaniesInlineContext();
+  const { companies, loading, companyIds, hideAvatar } =
+    useCompaniesInlineContext();
+
+  if (hideAvatar) return null;
 
   if (loading)
     return (
@@ -167,7 +174,8 @@ const CompaniesInlineAvatar = ({ className, ...props }: AvatarProps) => {
 CompaniesInlineAvatar.displayName = 'CompaniesInline.Avatar';
 
 const CompaniesInlineTitle = () => {
-  const { companies, loading, placeholder } = useCompaniesInlineContext();
+  const { companies, loading, placeholder, hideAvatar } =
+    useCompaniesInlineContext();
 
   const getDisplayValue = () => {
     if (companies.length === 0) return undefined;
@@ -181,6 +189,15 @@ const CompaniesInlineTitle = () => {
 
     return `${companies.length} companies`;
   };
+
+  if (hideAvatar) {
+    return (
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconBuilding className="w-4 h-4 text-gray-400" /> Company(s) +
+        {(companies || []).length}
+      </span>
+    );
+  }
 
   return (
     <Combobox.Value
@@ -197,6 +214,7 @@ const CompaniesInlineRoot = ({
   companies,
   placeholder,
   updateCompanies,
+  hideAvatar,
 }: Omit<CompaniesInlineProviderProps, 'children'>) => {
   return (
     <CompaniesInlineProvider
@@ -204,6 +222,7 @@ const CompaniesInlineRoot = ({
       companies={companies}
       placeholder={placeholder}
       updateCompanies={updateCompanies}
+      hideAvatar={hideAvatar}
     >
       <CompaniesInlineAvatar />
       <CompaniesInlineTitle />
