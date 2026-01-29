@@ -1,17 +1,9 @@
-import {
-  ADD_PIPELINE,
-  ARCHIVE_PIPELINE,
-  COPY_PIPELINE,
-  EDIT_PIPELINE,
-  REMOVE_PIPELINE,
-  UPDATE_PIPELINE_ORDER,
-} from '../graphql/mutations/pipelineMutations';
+import { UPDATE_PIPELINE_ORDER } from '../graphql/mutations/pipelineMutations';
 import {
   EnumCursorDirection,
   ICursorListResponse,
   toast,
   useQueryState,
-  useToast,
 } from 'erxes-ui';
 import {
   GET_PIPELINES,

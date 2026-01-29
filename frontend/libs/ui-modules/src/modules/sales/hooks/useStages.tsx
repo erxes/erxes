@@ -1,18 +1,7 @@
-import {
-  MutationHookOptions,
-  QueryHookOptions,
-  useMutation,
-  useQuery,
-} from '@apollo/client';
-import {
-  STAGES_EDIT,
-  STAGES_REMOVE,
-  STAGES_SORT_ITEMS,
-  UPDATE_STAGES_ORDER,
-} from '../graphql/mutations/stagesMutations';
-import { toast, useQueryState } from 'erxes-ui';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 
-import { GET_DEALS } from '../graphql/queries/dealsQueries';
+import { useQueryState } from 'erxes-ui';
+
 import { GET_STAGE_DETAIL, GET_STAGES } from '../graphql/queries/stagesQueries';
 import { IStage } from '../types/stages';
 
