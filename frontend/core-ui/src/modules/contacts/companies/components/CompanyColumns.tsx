@@ -22,9 +22,11 @@ import { useSetAtom } from 'jotai';
 import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailStates';
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
+import { companyMoreColumn } from './CompanyMoreColumn';
 
 export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
   return [
+    companyMoreColumn,
     RecordTable.checkboxColumn as ColumnDef<TCompany>,
     {
       id: 'avatar',
