@@ -5,7 +5,6 @@ import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/cl
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
 import { commentQueries } from '@/clientportal/graphql/resolvers/queries/comment';
 import { cpNotificationQueries } from '@/clientportal/graphql/resolvers/queries/cpNotification';
-import { cpNotificationConfigQueries } from '@/clientportal/graphql/resolvers/queries/cpNotificationConfig';
 import { contactQueries } from '@/contacts/graphql/resolvers/queries';
 import { documentQueries } from '@/documents/graphql/queries';
 import { exchangeRateQueries } from '@/exchangeRates/graphql/resolvers';
@@ -64,6 +63,5 @@ export const queries = {
   ...cpUserQueries,
   ...commentQueries,
   ...cpNotificationQueries,
-  ...cpNotificationConfigQueries,
   ...activityLogQueries,
 };

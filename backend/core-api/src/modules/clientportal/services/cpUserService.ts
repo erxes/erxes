@@ -133,12 +133,10 @@ export class CPUserService {
       );
     } else if (identifierType === 'phone' && user.phone) {
       await notificationService.sendOTPSMS(
-        subdomain,
         user,
         code,
         messageTemplate,
         clientPortal,
-        models,
       );
     }
   }

@@ -224,18 +224,16 @@ import {
   loadOrgWhiteLabelClass,
 } from './modules/organization/whitelabel/db/models/OrgWhiteLabel';
 import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
-import { ICPCommentsModel,loadCommentClass } from './modules/clientportal/db/models/Comment';
+import {
+  ICPCommentsModel,
+  loadCommentClass,
+} from './modules/clientportal/db/models/Comment';
 import { ICPCommentDocument } from './modules/clientportal/types/comment';
 import {
   ICPNotificationModel,
   loadCPNotificationClass,
 } from './modules/clientportal/db/models/CPNotification';
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
-import {
-  ICPNotificationConfigModel,
-  loadCPNotificationConfigClass,
-} from './modules/clientportal/db/models/CPNotificationConfig';
-import { ICPNotificationConfigDocument } from './modules/clientportal/types/cpNotificationConfig';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -280,7 +278,6 @@ export interface IModels {
   CPUser: ICPUserModel;
   CPComments: ICPCommentsModel;
   CPNotifications: ICPNotificationModel;
-  CPNotificationConfigs: ICPNotificationConfigModel;
 
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
@@ -618,14 +615,6 @@ export const loadClasses = (
     ICPNotificationDocument,
     ICPNotificationModel
   >('client_portal_notifications', loadCPNotificationClass(models));
-
-  models.CPNotificationConfigs = db.model<
-    ICPNotificationConfigDocument,
-    ICPNotificationConfigModel
-  >(
-    'client_portal_notification_configs',
-    loadCPNotificationConfigClass(models),
-  );
 
   const db_name = db.name;
 

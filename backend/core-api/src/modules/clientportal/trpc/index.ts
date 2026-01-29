@@ -12,7 +12,7 @@ export const clientPortalNotificationTrpcRouter = t.router({
         z.object({
           cpUserIds: z.array(z.string()),
           clientPortalId: z.string(),
-          eventType: z.string(),
+          eventType: z.string().optional(),
           data: z.object({
             title: z.string(),
             message: z.string(),
@@ -28,7 +28,7 @@ export const clientPortalNotificationTrpcRouter = t.router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const { cpUserIds, clientPortalId, eventType, data } = input;
+        const { cpUserIds, clientPortalId, data } = input;
         const { models, subdomain } = ctx;
 
         const clientPortal = await models.ClientPortal.findOne({
@@ -39,13 +39,7 @@ export const clientPortalNotificationTrpcRouter = t.router({
           throw new Error('Client portal not found');
         }
 
-        const config = await notificationService.checkNotificationEnabled(
-          models,
-          clientPortalId,
-          eventType,
-        );
-
-        const results = [];
+        const results: unknown[] = [];
 
         for (const cpUserId of cpUserIds) {
           const cpUser = await models.CPUser.findOne({ _id: cpUserId });
@@ -54,53 +48,26 @@ export const clientPortalNotificationTrpcRouter = t.router({
             continue;
           }
 
-          const title = config.template?.title || data.title;
-          const message = config.template?.message || data.message;
+          const notification = await notificationService.sendNotification(
+            subdomain,
+            models,
+            clientPortal,
+            cpUser,
+            {
+              title: data.title,
+              message: data.message,
+              type: data.type,
+              contentType: data.contentType,
+              contentTypeId: data.contentTypeId,
+              priority: data.priority,
+              metadata: data.metadata,
+              action: data.action,
+              kind: data.kind,
+              allowMultiple: data.allowMultiple,
+            },
+          );
 
-          if (config.inAppEnabled) {
-            const notification = await notificationService.createNotification(
-              subdomain,
-              models,
-              {
-                cpUserId,
-                clientPortalId,
-                title,
-                message,
-                type: data.type,
-                contentType: data.contentType,
-                contentTypeId: data.contentTypeId,
-                priority: data.priority,
-                metadata: data.metadata,
-                action: data.action,
-                kind: data.kind,
-                allowMultiple: data.allowMultiple,
-              },
-            );
-            results.push(notification);
-          }
-
-          if (config.firebaseEnabled) {
-            try {
-              await notificationService.sendFirebaseNotification(
-                clientPortal,
-                cpUser,
-                {
-                  title,
-                  body: message,
-                },
-                {
-                  notificationId: results[results.length - 1]?._id || '',
-                  type: data.type || 'info',
-                  action: data.action || '',
-                  eventType,
-                },
-              );
-            } catch (error) {
-              const errorMessage =
-                error instanceof Error ? error.message : 'Unknown error';
-              console.error('Firebase notification error:', errorMessage);
-            }
-          }
+          results.push(notification);
         }
 
         return { success: true, count: results.length };

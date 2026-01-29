@@ -67,7 +67,9 @@ class FirebaseService {
       return response;
     } catch (error) {
       throw new Error(
-        `Failed to send Firebase notification: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to send Firebase notification: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
       );
     }
   }
@@ -105,7 +107,9 @@ class FirebaseService {
         results.push(response);
       } catch (error) {
         throw new Error(
-          `Failed to send batch Firebase notification: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to send batch Firebase notification: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
         );
       }
     }
@@ -132,6 +136,30 @@ class FirebaseService {
     if (this.appCache[clientPortalId]) {
       delete this.appCache[clientPortalId];
     }
+  }
+
+  /**
+   * Returns FCM tokens that failed with revokable error codes (e.g.
+   * invalid-registration-token, registration-token-not-registered).
+   * Callers should remove these from the user's stored FCM token(s).
+   */
+  getTokensToRevokeFromResponse(
+    tokens: string[],
+    response: admin.messaging.BatchResponse,
+  ): string[] {
+    const revokable = new Set([
+      'messaging/invalid-registration-token',
+      'messaging/registration-token-not-registered',
+    ]);
+    const toRevoke: string[] = [];
+    response.responses.forEach((sendResponse, index) => {
+      if (sendResponse.success) return;
+      const code = sendResponse.error?.code;
+      if (code && revokable.has(code) && tokens[index]) {
+        toRevoke.push(tokens[index]);
+      }
+    });
+    return toRevoke;
   }
 }
 
