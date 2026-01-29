@@ -20,8 +20,8 @@ export const FrontlineSettingsNavigation = () => {
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix={FrontlinePaths.Frontline}
-            path={FrontlinePaths.Tickets}
-            name="Tickets"
+            path={FrontlinePaths.TicketTags}
+            name="Ticket Tags"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

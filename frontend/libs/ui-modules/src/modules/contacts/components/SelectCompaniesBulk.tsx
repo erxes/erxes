@@ -104,7 +104,9 @@ const SelectCompaniesBulkContent = ({
               Cancel
             </Button>
           </Sheet.Close>
-          <Button onClick={handleSelect}>{`Set ${selectedCompanyIds.length} customer(s)`}</Button>
+          <Button
+            onClick={handleSelect}
+          >{`Set ${selectedCompanyIds.length} company(s)`}</Button>
         </div>
       </Sheet.Footer>
     </>
@@ -153,7 +155,7 @@ const CompaniesList = ({
     <div className="border-r overflow-hidden flex flex-col">
       <div className="p-4">
         <Input
-          placeholder="Search customers"
+          placeholder="Search companies"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

@@ -12,7 +12,7 @@ export const ConversationRelationWidget = ({
     variables: {
       contentId,
       contentType,
-      relatedContentType: 'frontline:conversation',
+      relatedContentType: 'core:customer',
     },
     skip: contentType === 'core:customer',
   });

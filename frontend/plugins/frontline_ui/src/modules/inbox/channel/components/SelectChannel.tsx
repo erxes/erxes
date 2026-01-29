@@ -1,23 +1,24 @@
-import { IChannel } from '@/inbox/types/Channel';
 import {
-  SelectChannelContext,
-  useSelectChannelContext,
-} from '@/inbox/channel/context/SelectChannelContext';
-import { useState } from 'react';
-import { ChannelsInline } from './ChannelsInline';
-import {
-  cn,
   Combobox,
   Command,
   Filter,
   Form,
   Popover,
+  cn,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import {
+  SelectChannelContext,
+  useSelectChannelContext,
+} from '@/inbox/channel/context/SelectChannelContext';
+
+import { ChannelsInline } from './ChannelsInline';
+import { IChannel } from '@/inbox/types/Channel';
 import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useState } from 'react';
 
 const SelectChannelProvider = ({
   children,
@@ -222,7 +223,6 @@ export const SelectChannelFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  console.log('called select channel filter...');
   const [channelId, setChannelId] = useQueryState<string | string[]>(
     queryKey || 'channelId',
   );
