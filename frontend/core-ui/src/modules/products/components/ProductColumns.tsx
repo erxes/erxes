@@ -14,19 +14,12 @@ import {
   CurrencyCode,
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
-import { ProductMoreColumnCell } from './ProductMoreColumn';
+import { ProductNameCell } from './ProductNameCell';
 import { useTranslation } from 'react-i18next';
 
 export const productColumns: (
   t: (key: string) => string,
 ) => ColumnDef<IProduct>[] = (t) => [
-  {
-    id: 'more',
-    accessorKey: 'more',
-    header: '',
-    cell: ({ cell }: { cell: any }) => ProductMoreColumnCell({ cell }),
-    size: 33,
-  },
   RecordTable.checkboxColumn as ColumnDef<IProduct>,
   {
     id: 'code',
@@ -39,23 +32,21 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 120,
   },
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }: { cell: any }) => ProductNameCell({ cell }),
+    size: 250,
   },
   {
     id: 'shortName',
     accessorKey: 'shortName',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('shortName')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('shortName')} />
+    ),
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
@@ -63,6 +54,7 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 180,
   },
   {
     id: 'category',
@@ -74,12 +66,14 @@ export const productColumns: (
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip
-            value={`${cell.row.original?.category?.code || ''} - ${cell.row.original?.category?.name || ''
-              }`}
+            value={`${cell.row.original?.category?.code || ''} - ${
+              cell.row.original?.category?.name || ''
+            }`}
           />
         </RecordTableInlineCell>
       );
     },
+    size: 300,
   },
   {
     id: 'unitPrice',
@@ -102,6 +96,7 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 150,
   },
   {
     id: 'oum',
@@ -114,6 +109,7 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 150,
   },
   {
     id: 'hasAttach',
@@ -124,10 +120,13 @@ export const productColumns: (
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={Boolean(cell.row.original?.attachment?.url).toString()} />
+          <TextOverflowTooltip
+            value={Boolean(cell.row.original?.attachment?.url).toString()}
+          />
         </RecordTableInlineCell>
       );
     },
+    size: 100,
   },
   {
     id: 'vendor',
@@ -142,13 +141,12 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 200,
   },
   {
     id: 'tags',
     accessorKey: 'tags',
-    header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('Tags')} />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('Tags')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <TagsSelect.InlineCell
@@ -173,7 +171,6 @@ export const productColumns: (
         />
       );
     },
-    size: 360,
+    size: 200,
   },
-
 ];
