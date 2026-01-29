@@ -39,7 +39,7 @@ export const ErxesMessengerPreview = () => {
           <Popover.Content
             align="end"
             sideOffset={16}
-            className="sm:max-w-md w-[calc(100vw-(--spacing(8)))] p-0 max-h-128 h-dvh flex flex-col overflow-hidden shadow-xl rounded-lg"
+            className="sm:max-w-md w-[calc(100vw-(--spacing(8)))] p-0 max-h-128 h-dvh flex flex-col overflow-hidden shadow-xl rounded-xl bg-accent"
             onOpenAutoFocus={(e) => {
               e.preventDefault();
             }}
