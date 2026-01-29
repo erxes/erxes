@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface ITrDetail {
-  _id?: string;
+    _id?: string;
   accountId: string;
 
   followInfos?: any;
@@ -29,7 +29,7 @@ export interface ITransaction {
   _id?: string;
   date: Date;
   fullDate?: Date;
-  description: string;
+  description?: string;
   status?: string;
   ptrId?: string;
   parentId?: string;
@@ -67,6 +67,9 @@ export interface ITransaction {
   ctaxAmount?: number;
 
   extraData?: any;
+
+  contentType?: string;
+  contentId?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
