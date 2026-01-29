@@ -12,3 +12,13 @@ export interface ITag {
   totalObjectCount?: number;
   __typename?: 'Tag';
 }
+
+export interface ITagTypes {
+  tagsGetTypes: Record<
+    string,
+    {
+      description: string;
+      contentType: string;
+    }[]
+  >;
+}

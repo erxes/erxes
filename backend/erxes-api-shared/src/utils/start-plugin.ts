@@ -194,6 +194,8 @@ export async function startPlugin(
   // });
 
   const httpServer = http.createServer(app);
+  httpServer.keepAliveTimeout = 120000;
+  httpServer.headersTimeout = 121000;
 
   // GRACEFULL SHUTDOWN
   process.stdin.resume(); // so the program will not close instantly

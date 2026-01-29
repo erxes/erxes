@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const CREATE_TRIAGE_MUTATION = gql`
-  mutation operationAddTriage($input: ITriageInput!) {
+  mutation operationAddTriage($input: ITriageAddInput!) {
     operationAddTriage(input: $input) {
       _id
       name
@@ -12,6 +12,7 @@ export const CREATE_TRIAGE_MUTATION = gql`
       createdAt
       updatedAt
       priority
+      status
     }
   }
 `;

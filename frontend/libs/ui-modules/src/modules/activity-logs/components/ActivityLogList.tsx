@@ -1,5 +1,5 @@
 import { IconActivity } from '@tabler/icons-react';
-import { Empty, EnumCursorDirection, SkeletonArray } from 'erxes-ui';
+import { Empty, EnumCursorDirection, Skeleton } from 'erxes-ui';
 import { useInView } from 'react-intersection-observer';
 import { useActivityLog } from '../context/ActivityLogProvider';
 import { ActivityLogLoading } from './ActivityLogLoading';
@@ -54,8 +54,14 @@ export const ActivityLogList = ({
         />
       ))}
       {hasNextPage && !loading && (
-        <div ref={fetchMoreRef} className="w-full py-2">
-          <SkeletonArray count={4} className="h-4 w-full" />
+        <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <Skeleton className="size-6 rounded-full" />
+              <Skeleton className="w-1/2 h-3" />
+              <Skeleton className="w-20 ml-auto h-3" />
+            </div>
+          ))}
         </div>
       )}
     </div>

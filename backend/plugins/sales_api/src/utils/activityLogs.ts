@@ -286,9 +286,8 @@ export async function generateDealActivityLogs(
           models.Stages.findOne({ _id: current }, { name: 1 }),
           models.Stages.findOne({ _id: prev }, { name: 1 }),
         ]);
-        return `From "${prevStage?.name || prev}" to "${
-          currentStage?.name || current
-        }"`;
+        return `From "${prevStage?.name || prev}" to "${currentStage?.name || current
+          }"`;
       },
     ),
     assignmentRule('assignedUserIds', async (ids: string[]) => {
@@ -357,7 +356,7 @@ export async function generateDealActivityLogs(
     currentDocument,
     activityRegistry,
   );
-  console.log('activities', activities);
+
   if (activities.length > 0) {
     createActivityLog(
       activities.map((activity) => ({

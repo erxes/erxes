@@ -112,14 +112,11 @@ export function DealsBoardColumn({
       const existingIds = prev.columnItems[column._id] ?? [];
       const incomingIds = newIds;
 
-      // preserve UI order
       const preserved = existingIds.filter((id) => incomingIds.includes(id));
-
-      // append brand-new items only
       const appended = incomingIds.filter((id) => !existingIds.includes(id));
 
       newColumnItems[column._id] = [...preserved, ...appended];
-      console.log('newColumnItems', newColumnItems);
+
       return { ...prev, items: newItems, columnItems: newColumnItems };
     });
 

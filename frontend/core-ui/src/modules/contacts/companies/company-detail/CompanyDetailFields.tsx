@@ -1,7 +1,7 @@
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { CompanyAddGeneralInformationFields } from '@/contacts/companies/components/CompanyAddGeneralInformationFields';
 import { companyFormSchema, CompanyFormType } from '@/contacts/companies/constants/formSchema';
-import { DataListItem } from '@/contacts/components/ContactsDetail';
+import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Combobox, Form, Label, Switch, useToast } from 'erxes-ui';
 import { useEffect, useState } from 'react';

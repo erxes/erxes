@@ -1,9 +1,10 @@
-import { useMutation } from '@apollo/client';
-import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, toast } from 'erxes-ui';
+import { CMS_TAGS, CMS_TAGS_ADD, CMS_TAGS_EDIT } from '../../graphql/queries';
 import { useEffect, useState } from 'react';
+
+import { IconAlertCircle } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
-import { CMS_TAGS_ADD, CMS_TAGS_EDIT, CMS_TAGS } from '../../graphql/queries';
+import { useMutation } from '@apollo/client';
 
 interface Tag {
   _id: string;
@@ -35,7 +36,6 @@ export function TagDrawer({
   onClose,
   clientPortalId,
 }: TagDrawerProps) {
-  console.log('TagDrawer rendered with isOpen:', isOpen);
   const isEditing = !!tag;
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
@@ -183,8 +183,6 @@ export function TagDrawer({
     const slug = generateSlug(name);
     form.setValue('slug', slug);
   };
-
-  console.log('TagDrawer return - isOpen:', isOpen);
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
