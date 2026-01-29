@@ -23,8 +23,12 @@ import {
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { useState } from 'react';
+import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
 
 export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
+  clientPortalMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IClientPortal>,
+
   {
     id: 'name',
     accessorKey: 'name',

@@ -17,8 +17,10 @@ import { IBrand } from '../types';
 import { useState } from 'react';
 import { useBrandsEdit } from '@/settings/brands/hooks/useBrandsEdit';
 import { TFunction } from 'i18next';
+import { brandsMoreColumn } from './BrandsMoreColumn';
 
 export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
+  brandsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IBrand>,
   {
     id: 'name',
