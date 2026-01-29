@@ -17,6 +17,12 @@ export const useCustomerEdit = () => {
     mutate({
       ...options,
       variables,
+      optimisticResponse: {
+        customersEdit: {
+          ...variables,
+          __typename:"Customer"
+        },
+      },
       update: (cache, { data: { customersEdit } }) => {
         cache.modify({
           id: cache.identify(customersEdit),
@@ -27,7 +33,6 @@ export const useCustomerEdit = () => {
             },
             {},
           ),
-          optimistic: true,
         });
       },
       onError: (error) => {
