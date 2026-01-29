@@ -10,6 +10,8 @@ import { pricingQueries } from '@/pricing/graphql/resolvers/queries/pricing';
 import { scoreQueries } from '@/score/graphql/resolvers/queries/score';
 import { spinQueries } from '@/spin/graphql/resolvers/queries/spin';
 import { voucherQueries } from '@/voucher/graphql/resolvers/queries/voucher';
+import { donateCampaignQueries } from '~/modules/donate/graphql/resolvers/queries/donateCampaign';
+import { scoreCampaignQueries } from '~/modules/score/graphql/resolvers/queries/scoreCampaign';
 
 export const queries = {
   ...pricingQueries,
@@ -19,9 +21,11 @@ export const queries = {
   ...couponQueries,
   ...couponCampaignQueries,
   ...donateQueries,
+  ...donateCampaignQueries,
   ...lotteryQueries,
   ...lotteryCampaignQueries,
   ...scoreQueries,
+  ...scoreCampaignQueries,
   ...spinQueries,
   ...voucherQueries,
 };

@@ -27,19 +27,32 @@ import {
   queries as CouponQueries,
   types as CouponTypes,
 } from '@/coupon/graphql/schemas/coupon';
+import{
+  mutations as CouponCampaignMutations,
+  queries as CouponCampaignQueries,
+  types as CouponCampaignTypes
+} from '@/coupon/graphql/schemas/couponCampaign';
 
 import {
   mutations as DonateMutations,
   queries as DonateQueries,
   types as DonateTypes,
 } from '@/donate/graphql/schemas/donate';
-
+import {
+  mutations as DonateCampaignMutations,
+  queries as DonateCampaignQueries,
+  types as DonateCampaignTypes,
+} from '@/donate/graphql/schemas/donateCampaign';
 import {
   mutations as LotteryMutations,
   queries as LotteryQueries,
   types as LotteryTypes,
 } from '@/lottery/graphql/schemas/lottery';
-
+import {
+  mutations as LotteryCampaignMutations,
+  queries as LotteryCampaignQueries,
+  types as LotteryCampaignTypes,
+} from '@/lottery/graphql/schemas/lotteryCampaign'
 import {
   mutations as ScoreMutations,
   queries as ScoreQueries,
@@ -59,17 +72,20 @@ import {
 } from '@/voucher/graphql/schemas/voucher';
 
 import { TypeExtensions } from './extensions';
+import { donateCampaignQueries } from '~/modules/donate/graphql/resolvers/queries/donateCampaign';
 
 export const types = `
   ${TypeExtensions}
   ${PricingTypes}
-
   ${AgentTypes}
   ${AssignmentTypes}
   ${CampaignTypes}
   ${CouponTypes}
+  ${CouponCampaignTypes}
   ${DonateTypes}
+  ${DonateCampaignTypes}
   ${LotteryTypes}
+  ${LotteryCampaignTypes}
   ${ScoreTypes}
   ${SpinTypes}
   ${VoucherTypes}
@@ -77,13 +93,15 @@ export const types = `
 
 export const queries = `
   ${PricingQueries}
-
   ${AgentQueries}
   ${AssignmentQueries}
   ${CampaignQueries}
   ${CouponQueries}
+  ${CouponCampaignQueries}
   ${DonateQueries}
+  ${DonateCampaignQueries}
   ${LotteryQueries}
+  ${LotteryCampaignQueries}
   ${ScoreQueries}
   ${spinsQueries}
   ${voucherQueries}
@@ -91,13 +109,15 @@ export const queries = `
 
 export const mutations = `
   ${PricingMutations}
-
   ${AgentMutations}
   ${AssignmentMutations}
   ${CampaignMutations}
   ${CouponMutations}
+  ${CouponCampaignMutations}
   ${DonateMutations}
+  ${DonateCampaignMutations}
   ${LotteryMutations}
+  ${LotteryCampaignMutations}
   ${ScoreMutations}
   ${spinsMutations}
   ${voucherMutations}
