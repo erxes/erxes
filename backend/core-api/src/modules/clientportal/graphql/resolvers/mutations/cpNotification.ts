@@ -52,5 +52,7 @@ export const cpNotificationMutations: Record<string, Resolver> = {
 };
 
 markResolvers(cpNotificationMutations, {
-  forClientPortal: true,
+  wrapperConfig: {
+    forClientPortal: true,
+  },
 });
