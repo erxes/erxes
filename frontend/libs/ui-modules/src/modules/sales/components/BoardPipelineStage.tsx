@@ -139,13 +139,10 @@ export const SaveSelectsButton = ({
   const board = useAtomValue(dealBoardState);
   const pipeline = useAtomValue(dealPipelineState);
   const stage = useAtomValue(dealStageState);
+  const id = itemId;
+  const isDisabled = !itemId;
 
   const onClick = () => {
-    const id = itemId;
-
-    if (!id) return;
-    console.log('clicked');
-
     const variables: any = {
       [idParamName]: id,
     };
@@ -172,7 +169,7 @@ export const SaveSelectsButton = ({
   };
 
   return (
-    <Button onClick={onClick} className={className}>
+    <Button onClick={onClick} className={className} disabled={isDisabled}>
       {name || 'Move'}
     </Button>
   );
