@@ -1,4 +1,4 @@
-import { IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
+import { IconAlignJustified, IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -137,7 +137,7 @@ export const brandsColumns: (t: TFunction) => ColumnDef<IBrand>[] = (t) => [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label={t('code')} icon={IconHash} />,
+    header: () => <RecordTable.InlineHead label={t('code')} icon={IconAlignJustified} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
