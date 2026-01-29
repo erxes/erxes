@@ -4,7 +4,6 @@ import {
   CPUserAddFormType,
 } from '@/contacts/client-portal-users/constants/cpUserFormSchema';
 import { CP_USERS_ADD } from '@/contacts/client-portal-users/graphql/cpUsersAdd';
-import { GET_CLIENT_PORTAL_USERS } from '@/contacts/client-portal-users/graphql/getClientPortalUsers';
 import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
 import { ApolloError, useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,7 +28,7 @@ export function AddCPUserForm({
 }) {
   const { clientPortals, loading: loadingPortals } = useClientPortals();
   const [cpUsersAdd, { loading: submitting }] = useMutation(CP_USERS_ADD, {
-    refetchQueries: [{ query: GET_CLIENT_PORTAL_USERS }],
+    refetchQueries: ['getClientPortalUsers'],
   });
   const form = useForm<CPUserAddFormType>({
     resolver: zodResolver(cpUserAddFormSchema),

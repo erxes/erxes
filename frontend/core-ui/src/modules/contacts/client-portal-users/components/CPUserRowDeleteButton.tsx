@@ -1,7 +1,6 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Button, useConfirm, useQueryState, useToast } from 'erxes-ui';
 import { CP_USERS_REMOVE } from '@/contacts/client-portal-users/graphql/cpUsersRemove';
-import { GET_CLIENT_PORTAL_USERS } from '@/contacts/client-portal-users/graphql/getClientPortalUsers';
 import { ICPUser } from '@/contacts/client-portal-users/types/cpUser';
 import { ApolloError, useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +12,7 @@ export function CPUserRowDeleteButton({ row }: { row: ICPUser }) {
   const [, setCpUserId] = useQueryState<string>('cpUserId');
 
   const [cpUsersRemove, { loading }] = useMutation(CP_USERS_REMOVE, {
-    refetchQueries: [{ query: GET_CLIENT_PORTAL_USERS }],
+    refetchQueries: ['getClientPortalUsers'],
   });
 
   const handleClick = () => {
@@ -33,7 +32,7 @@ export function CPUserRowDeleteButton({ row }: { row: ICPUser }) {
           });
         },
         onCompleted: () => {
-          setCpUserId((current) => (current === row._id ? null : current));
+          // setCpUserId((current) => (current === row._id ? null : current));
           toast({
             title: t('success', { defaultValue: 'Success' }),
             variant: 'success',

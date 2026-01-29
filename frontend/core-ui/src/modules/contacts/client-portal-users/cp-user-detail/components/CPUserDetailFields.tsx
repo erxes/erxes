@@ -12,7 +12,7 @@ export function CPUserDetailFields() {
 
   if (!cpUser) return null;
 
-  const { _id, email, phone, type, lastLoginAt, createdAt } = cpUser;
+  const { _id, type, lastLoginAt, createdAt } = cpUser;
 
   return (
     <div className="py-8 space-y-6 px-8">
@@ -37,10 +37,20 @@ export function CPUserDetailFields() {
             />
           </DataListItem>
           <DataListItem label={t('email', { defaultValue: 'Email' })}>
-            <span className="text-muted-foreground">{email || '-'}</span>
+            <TextFieldCPUser
+              field="email"
+              _id={_id}
+              value={cpUser.email ?? ''}
+              placeholder={t('addEmail', { defaultValue: 'Add email' })}
+            />
           </DataListItem>
           <DataListItem label={t('phone', { defaultValue: 'Phone' })}>
-            <span className="text-muted-foreground">{phone || '-'}</span>
+            <TextFieldCPUser
+              field="phone"
+              _id={_id}
+              value={cpUser.phone ?? ''}
+              placeholder={t('addPhone', { defaultValue: 'Add phone' })}
+            />
           </DataListItem>
           <DataListItem label={t('type', { defaultValue: 'Type' })}>
             {type ? (

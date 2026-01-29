@@ -2,6 +2,8 @@ import { TextField } from 'erxes-ui';
 import { useCPUserEdit } from '@/contacts/client-portal-users/hooks/useCPUserEdit';
 
 type EditableField =
+  | 'email'
+  | 'phone'
   | 'firstName'
   | 'lastName'
   | 'username'

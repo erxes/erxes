@@ -96,6 +96,8 @@ interface CpUsersAddParams {
 
 interface CpUsersEditParams {
   _id: string;
+  email?: string;
+  phone?: string;
   firstName?: string;
   lastName?: string;
   avatar?: string;

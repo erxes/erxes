@@ -3,6 +3,8 @@ import { gql } from '@apollo/client';
 export const CP_USERS_EDIT = gql`
   mutation cpUsersEdit(
     $_id: String!
+    $email: String
+    $phone: String
     $firstName: String
     $lastName: String
     $avatar: String
@@ -12,6 +14,8 @@ export const CP_USERS_EDIT = gql`
   ) {
     cpUsersEdit(
       _id: $_id
+      email: $email
+      phone: $phone
       firstName: $firstName
       lastName: $lastName
       avatar: $avatar
@@ -20,6 +24,8 @@ export const CP_USERS_EDIT = gql`
       companyRegistrationNumber: $companyRegistrationNumber
     ) {
       _id
+      email
+      phone
       firstName
       lastName
       username

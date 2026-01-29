@@ -12,6 +12,7 @@ import {
   validateUserRegistration,
 } from './helpers/validators';
 import { buildUserQuery, buildDuplicationQuery } from './helpers/queryBuilders';
+import { normalizeEmail } from '@/clientportal/utils';
 import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import {
   getOTPConfig,
@@ -331,6 +332,8 @@ export class CPUserService {
   async updateUser(
     userId: string,
     params: {
+      email?: string;
+      phone?: string;
       firstName?: string;
       lastName?: string;
       avatar?: string;
@@ -340,19 +343,71 @@ export class CPUserService {
     },
     models: IModels,
   ): Promise<ICPUserDocument> {
-    const updateData = Object.fromEntries(
-      Object.entries(params).filter(([_, value]) => value !== undefined),
-    );
+    const user = await models.CPUser.findOne({ _id: userId });
+    if (!user) {
+      throw new AuthenticationError('User not found');
+    }
 
-    if (Object.keys(updateData).length === 0) {
-      const user = await models.CPUser.findOne({ _id: userId });
-      if (!user) {
-        throw new AuthenticationError('User not found');
+    const updateData: Record<string, unknown> = { ...params };
+    if (params.email !== undefined) {
+      const normalized = normalizeEmail(params.email);
+      if (normalized) {
+        const existing = await models.CPUser.findOne({
+          clientPortalId: user.clientPortalId,
+          email: normalized,
+          _id: { $ne: userId },
+        });
+        if (existing) {
+          throw new ValidationError(
+            'Email already exists in this client portal',
+          );
+        }
+        updateData.email = normalized;
+      } else {
+        updateData.email = undefined;
       }
+    }
+    if (params.phone !== undefined) {
+      const trimmed = (params.phone || '').trim();
+      if (trimmed) {
+        const existing = await models.CPUser.findOne({
+          clientPortalId: user.clientPortalId,
+          phone: trimmed,
+          _id: { $ne: userId },
+        });
+        if (existing) {
+          throw new ValidationError(
+            'Phone already exists in this client portal',
+          );
+        }
+        updateData.phone = trimmed;
+      } else {
+        updateData.phone = undefined;
+      }
+    }
+
+    const setData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined),
+    );
+    const unsetData: Record<string, string> = {};
+    if (params.email !== undefined && !normalizeEmail(params.email)) {
+      unsetData.email = '';
+    }
+    if (params.phone !== undefined && !(params.phone || '').trim()) {
+      unsetData.phone = '';
+    }
+
+    if (
+      Object.keys(setData).length === 0 &&
+      Object.keys(unsetData).length === 0
+    ) {
       return user;
     }
 
-    await models.CPUser.updateOne({ _id: userId }, { $set: updateData });
+    const update: Record<string, unknown> = {};
+    if (Object.keys(setData).length > 0) update.$set = setData;
+    if (Object.keys(unsetData).length > 0) update.$unset = unsetData;
+    await models.CPUser.updateOne({ _id: userId }, update);
 
     const updatedUser = await models.CPUser.findOne({ _id: userId });
     if (!updatedUser) {

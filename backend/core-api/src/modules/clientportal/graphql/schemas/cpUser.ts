@@ -94,6 +94,10 @@ export const types = `
     pageInfo: PageInfo
   }
 
+  type CPUserRemoveResponse {
+    _id: String!
+  }
+
   input IClientPortalUserFilter {
     ${GQL_CURSOR_PARAM_DEFS}
     searchValue: String
@@ -135,6 +139,8 @@ const cpUsersAddParams = `
 
 const cpUsersEditParams = `
   _id: String!,
+  email: String,
+  phone: String,
   firstName: String,
   lastName: String,
   avatar: String,
@@ -146,7 +152,7 @@ const cpUsersEditParams = `
 export const mutations = `
   cpUsersAdd(${cpUsersAddParams}): CPUser
   cpUsersEdit(${cpUsersEditParams}): CPUser
-  cpUsersRemove(_id: String!): JSON
+  cpUsersRemove(_id: String!): CPUserRemoveResponse
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
   clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser
