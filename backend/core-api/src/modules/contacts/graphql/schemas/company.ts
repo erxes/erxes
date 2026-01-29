@@ -17,7 +17,7 @@ export const types = `
 
     size: Int
     website: String
-    industry: String
+    industry: [String]
     plan: String
     parentCompanyId: String
     ownerId: String
@@ -104,7 +104,8 @@ const mutationParams = `
 
   size: Int,
   website: String,
-  industry: String,
+  industry: [String],
+  plan: String,
 
   parentCompanyId: String,
   email: String,

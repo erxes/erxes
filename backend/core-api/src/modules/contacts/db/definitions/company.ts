@@ -39,8 +39,8 @@ export const companySchema = schemaWrapper(
       },
 
       industry: {
-        type: String,
-        label: 'Industries',
+        type: [String],
+        label: 'Industry',
         optional: true,
         esType: 'keyword',
       },

@@ -51,9 +51,15 @@ export const GET_COMPANIES = gql`
         names
         size
         industry
+        code
+        website
         plan
         location
         parentCompanyId
+        parentCompany {
+          _id
+          primaryName
+        }
         emails
         primaryEmail
         ownerId
