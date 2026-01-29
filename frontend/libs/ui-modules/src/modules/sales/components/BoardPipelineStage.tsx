@@ -11,7 +11,6 @@ import { SelectPipeline } from '../select/SelectPipeline';
 import { SelectStage } from '../select/SelectStage';
 
 import { Button } from 'erxes-ui';
-import { useBoards } from '../hooks/useBoards';
 
 export const BoardCell = ({
   deal,
@@ -20,13 +19,9 @@ export const BoardCell = ({
   deal?: IDeal;
   className?: string;
 }) => {
-  const { boards } = useBoards();
-
   const [board, setBoardId] = useAtom(dealBoardState);
   const setPipelineId = useSetAtom(dealPipelineState);
   const setStageId = useSetAtom(dealStageState);
-
-  if (!boards) return null;
 
   const value = board.boardId || deal?.boardId;
 
