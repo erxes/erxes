@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface ITrDetail {
-    _id?: string;
+  _id?: string;
   accountId: string;
 
   followInfos?: any;
