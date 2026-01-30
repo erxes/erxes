@@ -1,6 +1,9 @@
-import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { CompanyAddGeneralInformationFields } from '@/contacts/companies/components/CompanyAddGeneralInformationFields';
-import { companyFormSchema, CompanyFormType } from '@/contacts/companies/constants/formSchema';
+import {
+  companyFormSchema,
+  CompanyFormType,
+} from '@/contacts/companies/constants/formSchema';
+import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Combobox, Form, Label, Switch, useToast } from 'erxes-ui';
@@ -108,7 +111,6 @@ export const CompanyDetailFields = () => {
     </div>
   );
 };
-
 
 const CompanyDetailSelectTag = ({
   tagIds,
