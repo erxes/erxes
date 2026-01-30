@@ -25,7 +25,6 @@ export const Export = ({
 }) => {
   const [fieldSelectionOpen, setFieldSelectionOpen] = useState(false);
   const entityType = `${pluginName}:${moduleName}.${collectionName}`;
-  console.log('[Export] entityType:', entityType);
   const { loading, onFieldSelectionConfirm } = useExport({
     entityType,
     ids,

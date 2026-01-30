@@ -10,7 +10,6 @@ const getFieldValue = (
 ): string => {
   const isCustomField = key.startsWith('customFieldsData.');
 
-  // Handle custom fields
   if (isCustomField) {
     const fieldId = key.replace('customFieldsData.', '');
     const customFieldsData = customer.customFieldsData || [];
@@ -23,10 +22,8 @@ const getFieldValue = (
     return '';
   }
 
-  // Handle system fields
   const value = (customer as any)[key];
 
-  // Handle tagIds specially to show tag names
   if (key === 'tagIds') {
     if (!!customer.tagIds?.length) {
       const tagNames = customer.tagIds

@@ -36,7 +36,8 @@ const contactImportMap = {
       { label: 'Email', key: 'primaryEmail' },
       { label: 'Phone', key: 'primaryPhone' },
     ],
-    processRows: processCompanyRows,
+    processRows: (models:IModels, rows:any[])=>
+      processCompanyRows(models, rows),
   },
 };
 

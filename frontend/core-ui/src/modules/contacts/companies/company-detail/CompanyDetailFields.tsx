@@ -35,15 +35,20 @@ export const CompanyDetailFields = () => {
   const [localDescription, setLocalDescription] = useState(description || '');
   const [debouncedDescription] = useDebounce(localDescription, 500);
 
-  useEffect(()=>{
-    companiesEdit({
-      variables:{
+  useEffect(() => {
+    if (!_id || debouncedDescription === description) return;
+     companiesEdit({
+      variables: {
         _id,
-        description:debouncedDescription,
+        description: debouncedDescription,
       },
     });
-  }, [debouncedDescription, _id]);
+    }, [debouncedDescription, description, _id, companiesEdit]);
 
+  useEffect(() => {
+  if (!_id) return;
+  setLocalDescription(description || '');
+  }, [_id, description]);
 
 
   return (

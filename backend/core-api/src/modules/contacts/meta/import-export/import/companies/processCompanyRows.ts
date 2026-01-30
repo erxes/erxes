@@ -9,14 +9,13 @@ export async function processCompanyRows(
   const errorRows: any[] = [];
 
   try {
-    // ✅ rows may have "name" instead of "primaryName" (CSV header)
     const emails = rows.map((r) => r.primaryEmail).filter(Boolean);
     const names = rows.map((r) => r.primaryName || r.name).filter(Boolean);
 
     const existingDocs = await models.Companies.find({
       $or: [
-        ...(emails.length > 0 ? [{ primaryEmail: { $in: emails } }] : []),
-        ...(names.length > 0 ? [{ primaryName: { $in: names } }] : []),
+        ...(emails.length ? [{ primaryEmail: { $in: emails } }] : []),
+        ...(names.length ? [{ primaryName: { $in: names } }] : []),
       ],
     }).lean();
 
@@ -29,36 +28,41 @@ export async function processCompanyRows(
     }
 
     const operations: any[] = [];
-    const rowToMetaMap = new Map<
-      any,
-      { index: number; _id?: any; operationIndex?: number }
-    >();
+    const rowToMetaMap = new Map<any, { _id?: any; operationIndex?: number }>();
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
 
       try {
-        // ✅ prepareCompanyDoc is async now (tags -> tagIds, mapping, normalize)
-        const doc = await prepareCompanyDoc(models, row);
+        const normalizedName = row.primaryName || row.name;
+        const normalizedEmail = row.primaryEmail;
 
         const existingDoc =
-          (doc.primaryEmail && existingByEmail.get(doc.primaryEmail)) ||
-          (doc.primaryName && existingByName.get(doc.primaryName));
+          (normalizedEmail && existingByEmail.get(normalizedEmail)) ||
+          (normalizedName && existingByName.get(normalizedName));
+        const doc = await prepareCompanyDoc(models, row, {
+          setCreatedAt: !existingDoc,
+        });
 
         if (existingDoc) {
           operations.push({
             updateOne: {
               filter: { _id: existingDoc._id },
-              update: { $set: { ...doc, updatedAt: new Date() } },
+              update: {
+                $set: {
+                  ...doc,
+                  updatedAt: new Date(),
+                },
+              },
             },
           });
-          rowToMetaMap.set(row, { index: i, _id: existingDoc._id });
+          rowToMetaMap.set(row, { _id: existingDoc._id });
         } else {
           const operationIndex = operations.length;
           operations.push({
             insertOne: { document: doc },
           });
-          rowToMetaMap.set(row, { index: i, operationIndex });
+          rowToMetaMap.set(row, { operationIndex });
         }
       } catch (error: any) {
         errorRows.push({
