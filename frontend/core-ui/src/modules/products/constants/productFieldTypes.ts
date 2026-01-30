@@ -1,7 +1,7 @@
 import { ProductsPath } from '@/types/paths/ProductsPath';
 import { useTranslation } from 'react-i18next';
 
-export const PRODUCT_FIELD_TYPES = () => {
+export function useProductFieldTypes() {
   const { t } = useTranslation('product');
   return [
     {
@@ -17,4 +17,4 @@ export const PRODUCT_FIELD_TYPES = () => {
       label: 'UOM',
     },
   ];
-};
+}

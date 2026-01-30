@@ -1,33 +1,16 @@
-import { Button, InfoCard, Label } from 'erxes-ui';
-import { SelectUOM, SubUomRow, type SubUomItem } from 'ui-modules';
-import { useState, useEffect } from 'react';
+import { Button, InfoCard } from 'erxes-ui';
+import { SubUomRow, type SubUomItem } from 'ui-modules';
 import { IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useFormContext } from 'react-hook-form';
+import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 
-interface ProductDetailUomProps {
-  uom?: string;
-  subUoms?: SubUomItem[];
-}
-
-export const ProductDetailUom = ({
-  uom: initialUom = '',
-  subUoms: initialSubUoms = [],
-}: ProductDetailUomProps) => {
-  const [uom, setUom] = useState<string>(initialUom);
-  const [subUoms, setSubUoms] = useState<SubUomItem[]>(initialSubUoms);
+export const ProductDetailUom = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
-
-  useEffect(() => {
-    setUom(initialUom);
-  }, [initialUom]);
-
-  useEffect(() => {
-    setSubUoms(initialSubUoms);
-  }, [initialSubUoms]);
-
-  const mainUom = uom;
+  const form = useFormContext<ProductFormValues>();
+  const subUoms = form.watch('subUoms') || [];
 
   const handleAddSubUom = () => {
     const newSubUom: SubUomItem = {
@@ -35,12 +18,12 @@ export const ProductDetailUom = ({
       uom: '',
       ratio: 1,
     };
-    setSubUoms([...subUoms, newSubUom]);
+    form.setValue('subUoms', [...subUoms, newSubUom]);
   };
 
   const handleRemoveSubUom = (index: number) => {
     const updated = subUoms.filter((_, i) => i !== index);
-    setSubUoms(updated);
+    form.setValue('subUoms', updated);
   };
 
   const handleUpdateSubUom = (
@@ -54,17 +37,12 @@ export const ProductDetailUom = ({
       }
       return subUom;
     });
-    setSubUoms(updated);
+    form.setValue('subUoms', updated);
   };
   return (
     <InfoCard title={t('unit-of-measurements')}>
       <InfoCard.Content>
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t('unit-of-measurements')}</Label>
-            <SelectUOM value={uom} onValueChange={setUom} />
-          </div>
-
           <div className="flex gap-2 items-center">
             <Button
               type="button"
@@ -84,7 +62,6 @@ export const ProductDetailUom = ({
                   key={subUom._id || index}
                   subUom={subUom}
                   index={index}
-                  mainUom={mainUom || ''}
                   onUpdate={handleUpdateSubUom}
                   onRemove={handleRemoveSubUom}
                   t={t}
