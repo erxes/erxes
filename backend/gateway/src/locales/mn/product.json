@@ -8,6 +8,8 @@
   "product-service": "Бүтээгдэхүүн / Үйлчилгээ",
   "add": {
     "create-product": "Бүтээгдэхүүн үүсгэх",
+    "create": "Үүсгэх",
+    "cancel": "Цуцлах",
     "product-information": "Бүтээгдэхүүний мэдээлэл",
     "name": "Нэр",
     "description": "Тайлбар",
