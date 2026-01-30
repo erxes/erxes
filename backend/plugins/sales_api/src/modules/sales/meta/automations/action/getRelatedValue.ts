@@ -121,13 +121,14 @@ export const getRelatedValue = async (
     const contactIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformity',
-      action: 'savedConformity',
+      module: 'relation',
+      action: 'getRelationIds',
       input: {
-        mainType: 'deal',
-        mainTypeId: target._id,
-        relTypes: [relTypeConst[targetKey]],
+        contentType: 'sales:deal',
+        contentId: target._id,
+        relatedContentType: relTypeConst[targetKey],
       },
+      defaultValue: [],
     });
 
     const upperCasedTargetKey =
@@ -299,12 +300,12 @@ const generateCustomersFielValue = async ({
   const customerIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformity',
-    action: 'savedConformity',
+    module: 'relation',
+    action: 'getRelationIds',
     input: {
-      mainType: 'deal',
-      mainTypeId: target._id,
-      relTypes: ['customer'],
+      contentType: 'sales:deal',
+      contentId: target._id,
+      relatedContentType: 'core:customer',
     },
     defaultValue: [],
   });

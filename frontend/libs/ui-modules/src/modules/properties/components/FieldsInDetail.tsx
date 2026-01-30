@@ -1,4 +1,4 @@
-import { Button, Collapsible, Spinner } from 'erxes-ui';
+import { Button, cn, Collapsible, Spinner } from 'erxes-ui';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
 import { useFields } from '../hooks/useFields';
@@ -9,6 +9,7 @@ export const FieldsInDetail = ({
   customFieldsData,
   mutateHook,
   id,
+  className,
 }: {
   fieldContentType: string;
   customFieldsData: Record<string, unknown>;
@@ -17,6 +18,7 @@ export const FieldsInDetail = ({
     loading: boolean;
   };
   id: string;
+  className?: string;
 }) => {
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
     contentType: fieldContentType,
@@ -27,7 +29,7 @@ export const FieldsInDetail = ({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={cn('flex flex-col gap-4', className)}>
       {fieldGroups.map((group) => (
         <Collapsible key={group._id} className="group" defaultOpen>
           <Collapsible.Trigger asChild>

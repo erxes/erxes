@@ -42,7 +42,10 @@ export const PipelineMoreColumnCell = ({
 }) => {
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
-  const [, setOpen] = useQueryState('pipelineId');
+  const [, setOpen] = useMultiQueryState<{
+    pipelineId: string;
+    tab: string;
+  }>(['pipelineId', 'tab']);
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
@@ -111,9 +114,7 @@ export const PipelineMoreColumnCell = ({
           <Command.List>
             <Command.Item
               value="edit"
-              onSelect={() => {
-                setOpen(_id);
-              }}
+              onSelect={() => setOpen({ pipelineId: _id, tab: null })}
             >
               <IconEdit /> Edit
             </Command.Item>
@@ -131,7 +132,12 @@ export const PipelineMoreColumnCell = ({
                 </>
               )}
             </Command.Item>
-            <Command.Item value="productConfig">
+            <Command.Item
+              value="productConfig"
+              onSelect={() => {
+                setOpen({ pipelineId: _id, tab: 'productConfig' });
+              }}
+            >
               <IconSettings /> Product config
             </Command.Item>
             <Command.Item

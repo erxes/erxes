@@ -105,7 +105,7 @@ export const BroadcastSettingsVerifiedEmail = () => {
       <Combobox.Content className="p-0 min-w-[312px]" align="start">
         <Command>
           <Command.Input
-            placeholder="Search or Add email"
+            placeholder="Search or add email"
             value={search}
             onValueChange={setSearch}
           />
@@ -126,7 +126,7 @@ export const BroadcastSettingsVerifiedEmail = () => {
               <Command.Empty className="p-1">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer"
+                  className={`w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer ${validator.isEmail(search) ? 'text-success' : 'text-destructive'}`}
                   onClick={() => {
                     handleAdd(search);
                   }}

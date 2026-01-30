@@ -1,4 +1,5 @@
 import { Button, Form, Input, Select } from 'erxes-ui';
+
 import { useEBarimtConfig } from '@/ebarimt/settings/ebarimt-config/hooks/useEBarimtConfig';
 import { useEffect } from 'react';
 
@@ -14,7 +15,6 @@ export const EBarimtMainSettingsForm = () => {
   } = useEBarimtConfig();
 
   const onSubmit = async (formData: any) => {
-    console.log(formData);
     await handleUpdate(formData);
   };
 

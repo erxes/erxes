@@ -13,6 +13,51 @@ export const splitType = (type: string) => {
   return type.replace(/\./g, ':').split(':');
 };
 
+const safeArithmeticEval = (expr: string): number => {
+  const tokens = expr.match(/(\d+\.?\d*|[+\-*/()])/g) || [];
+  let pos = 0;
+
+  const parseNumber = (): number => {
+    if (tokens[pos] === '(') {
+      pos++;
+      const result = parseAddSub();
+      pos++;
+      return result;
+    }
+    if (tokens[pos] === '-') {
+      pos++;
+      return -parseNumber();
+    }
+    if (tokens[pos] === '+') {
+      pos++;
+      return parseNumber();
+    }
+    return parseFloat(tokens[pos++]) || 0;
+  };
+
+  const parseMulDiv = (): number => {
+    let result = parseNumber();
+    while (tokens[pos] === '*' || tokens[pos] === '/') {
+      const op = tokens[pos++];
+      const right = parseNumber();
+      result = op === '*' ? result * right : result / right;
+    }
+    return result;
+  };
+
+  const parseAddSub = (): number => {
+    let result = parseMulDiv();
+    while (tokens[pos] === '+' || tokens[pos] === '-') {
+      const op = tokens[pos++];
+      const right = parseMulDiv();
+      result = op === '+' ? result + right : result - right;
+    }
+    return result;
+  };
+
+  return parseAddSub();
+};
+
 const processDatePlaceholders = (value: string): string => {
   // Handle dynamic dates: {{ now+Xd }}
   let processed = value.replace(/{{ now\+(\d+)d }}/g, (_, days) =>
@@ -365,7 +410,11 @@ const getPerValue = async <TModels>({
   )?.config;
 
   if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
-    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+    try {
+      updatedValue = safeArithmeticEval(updatedValue);
+    } catch {
+      updatedValue = 0;
+    }
   }
 
   if (field.includes('Ids')) {

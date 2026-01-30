@@ -93,6 +93,7 @@ export function PipelineFormBar() {
 
     const searchParams = new URLSearchParams(location.search);
     searchParams.delete('pipelineId');
+    searchParams.delete('tab');
     navigate(`${location.pathname}?${searchParams.toString()}`, {
       replace: true,
     });

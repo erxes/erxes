@@ -203,7 +203,7 @@ export const DealsBoard = () => {
     return result;
   }, [pagination]);
 
-  if (columnsLoading || !boardState) {
+  if (columnsLoading) {
     return <StagesLoading />;
   }
 
