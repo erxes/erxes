@@ -23,8 +23,12 @@ import {
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { useState } from 'react';
+import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
 
 export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
+  clientPortalMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IClientPortal>,
+
   {
     id: 'name',
     accessorKey: 'name',
@@ -49,18 +53,18 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
       );
     },
   },
+
   {
     id: 'domain',
     accessorKey: 'domain',
     header: () => <RecordTable.InlineHead icon={IconBrowser} label="Domain" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.row.original.domain} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.row.original.domain} />
+      </RecordTableInlineCell>
+    ),
   },
+
   {
     id: 'token',
     accessorKey: 'token',
@@ -71,12 +75,8 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
       const handleCopy = () => {
         setIsCopied(true);
         navigator.clipboard.writeText(cell.row.original.token ?? '');
-        toast({
-          title: 'Copied to clipboard',
-        });
-        setTimeout(() => {
-          setIsCopied(false);
-        }, 2000);
+        toast({ title: 'Copied to clipboard' });
+        setTimeout(() => setIsCopied(false), 2000);
       };
 
       return (
@@ -100,20 +100,19 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
       );
     },
   },
+
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
       <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
   },
 ];

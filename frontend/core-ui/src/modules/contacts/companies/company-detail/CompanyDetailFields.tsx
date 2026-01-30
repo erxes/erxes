@@ -1,5 +1,9 @@
+import { CompanyTextField } from '@/contacts/companies/company-detail/CompanyTextField';
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
+import { DataListItem } from '@/contacts/components/ContactDataListItem';
+import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   CompanyEmails,
   CompanyOwner,
@@ -7,12 +11,7 @@ import {
   TagsSelect,
   useCompaniesEdit,
 } from 'ui-modules';
-import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
-import { DataListItem } from '@/contacts/components/ContactDataListItem';
-import { CompanyTextField } from '@/contacts/companies/company-detail/CompanyTextField';
-import { useTranslation } from 'react-i18next';
-import { useDebounce } from 'use-debounce'
-
+import { useDebounce } from 'use-debounce';
 
 export const CompanyDetailFields = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
@@ -42,19 +41,17 @@ export const CompanyDetailFields = () => {
   }, [description]);
 
   useEffect(() => {
-      if (isInitialMount.current) {
-        isInitialMount.current = false;
-        return;
-      }
-      companiesEdit({
-        variables: {
-          _id,
-          description: debouncedDescription,
-        },
-      });
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    companiesEdit({
+      variables: {
+        _id,
+        description: debouncedDescription,
+      },
+    });
   }, [debouncedDescription, _id, companiesEdit]);
-
-
 
   return (
     <div className="space-y-6 py-8">
