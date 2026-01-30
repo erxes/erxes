@@ -64,6 +64,51 @@ export const contractMutations = {
 
     const contractNumber = await generateContractNumber(models);
 
+    // Generate PDF content from product template
+    let pdfContent = product.pdfContent || null;
+    if (pdfContent) {
+      // Get customer data
+      const customer = await models.Customer.findById(customerId);
+
+      // Replace template variables with actual data
+      pdfContent = pdfContent
+        .replace(/{{contractNumber}}/g, contractNumber)
+        .replace(
+          /{{customerName}}/g,
+          customer ? `${customer.lastName} ${customer.firstName}` : '',
+        )
+        .replace(/{{registrationNumber}}/g, customer?.registrationNumber || '')
+        .replace(/{{email}}/g, customer?.email || '')
+        .replace(/{{phone}}/g, customer?.phone || '')
+        .replace(
+          /{{chargedAmount}}/g,
+          (chargedAmount || calculatedAmount).toLocaleString(),
+        )
+        .replace(
+          /{{startDate}}/g,
+          new Date(startDate).toLocaleDateString('mn-MN'),
+        )
+        .replace(/{{endDate}}/g, new Date(endDate).toLocaleDateString('mn-MN'))
+        .replace(/{{productName}}/g, product.name || '')
+        .replace(/{{plateNumber}}/g, insuredObject?.['Улсын дугаар'] || '')
+        .replace(/{{chassisNumber}}/g, insuredObject?.['Арлын дугаар'] || '')
+        .replace(
+          /{{vehicleMake}}/g,
+          insuredObject?.['Тээврийн хэрэгслийн марк'] || '',
+        )
+        .replace(/{{manufacturer}}/g, insuredObject?.['Үйлдвэрлэгч'] || '')
+        .replace(/{{color}}/g, insuredObject?.['Өнгө'] || '')
+        .replace(
+          /{{manufactureYear}}/g,
+          insuredObject?.['Үйлдвэрлэсэн он'] || '',
+        )
+        .replace(/{{importYear}}/g, insuredObject?.['Орж ирсэн он'] || '')
+        .replace(
+          /{{assessedValue}}/g,
+          insuredObject?.['Даатгалын үнэлгээ (₮)'] || '',
+        );
+    }
+
     const contract = await models.Contract.create({
       contractNumber,
       vendor: vendorId,
@@ -77,7 +122,91 @@ export const contractMutations = {
       insuredObject,
       paymentKind,
       paymentStatus: 'pending',
+      pdfContent,
     });
+
+    return contract.populate(
+      'vendor customer insuranceType insuranceProduct coveredRisks.risk',
+    );
+  },
+
+  updateContractPaymentStatus: async (
+    _parent: undefined,
+    args: { contractId: string; paymentStatus: string },
+    { models }: IContext,
+  ) => {
+    const { contractId, paymentStatus } = args;
+
+    const contract = await models.Contract.findById(contractId);
+    if (!contract) {
+      throw new Error('Contract not found');
+    }
+
+    // Validate payment status
+    const validStatuses = ['pending', 'paid', 'cancelled'] as const;
+    if (!validStatuses.includes(paymentStatus as any)) {
+      throw new Error(
+        `Invalid payment status. Must be one of: ${validStatuses.join(', ')}`,
+      );
+    }
+
+    contract.paymentStatus = paymentStatus as 'pending' | 'paid' | 'cancelled';
+    await contract.save();
+
+    return contract.populate(
+      'vendor customer insuranceType insuranceProduct coveredRisks.risk',
+    );
+  },
+
+  updateContract: async (
+    _parent: undefined,
+    args: {
+      contractId: string;
+      customerId: string;
+      insuredObject?: any;
+      paymentStatus?: string;
+    },
+    { models }: IContext,
+  ) => {
+    const { contractId, customerId, insuredObject, paymentStatus } = args;
+
+    const contract = await models.Contract.findById(contractId);
+    if (!contract) {
+      throw new Error('Contract not found');
+    }
+
+    // Update customer reference
+    if (customerId) {
+      const customer = await models.Customer.findById(customerId);
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+      contract.customer = customerId;
+    }
+
+    // Update insured object (vehicle info)
+    if (insuredObject) {
+      contract.insuredObject = {
+        ...contract.insuredObject,
+        ...insuredObject,
+      };
+    }
+
+    // Update payment status if provided
+    if (paymentStatus) {
+      const validStatuses = ['pending', 'paid', 'cancelled'] as const;
+      if (!validStatuses.includes(paymentStatus as any)) {
+        throw new Error(
+          `Invalid payment status. Must be one of: ${validStatuses.join(', ')}`,
+        );
+      }
+      contract.paymentStatus = paymentStatus as
+        | 'pending'
+        | 'paid'
+        | 'cancelled';
+    }
+
+    await contract.save();
 
     return contract.populate(
       'vendor customer insuranceType insuranceProduct coveredRisks.risk',

@@ -41,11 +41,6 @@ export const InsuranceNavigation = () => {
         path="/insurance/contracts"
         icon={IconPackage}
       />
-      <NavigationMenuLinkItem
-        name="PDF"
-        path="/insurance/contract-templates"
-        icon={IconFileText}
-      />
     </div>
   );
 };

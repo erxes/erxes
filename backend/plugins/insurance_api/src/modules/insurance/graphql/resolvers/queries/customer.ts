@@ -54,4 +54,12 @@ export const customerQueries = {
   ) => {
     return models.Customer.findOne({ registrationNumber });
   },
+
+  customerByEmail: async (
+    _parent: undefined,
+    { email }: { email: string },
+    { models }: IContext,
+  ) => {
+    return models.Customer.findOne({ email });
+  },
 };

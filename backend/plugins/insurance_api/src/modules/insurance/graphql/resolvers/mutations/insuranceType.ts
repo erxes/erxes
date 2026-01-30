@@ -12,7 +12,8 @@ const generateCode = (name: string): string => {
 const processAttributes = (attributes: any[] = []): any[] => {
   return attributes.map((attr) => ({
     ...attr,
-    key: attr.key || generateCode(attr.name),
+    key:
+      attr.key && attr.key.trim() !== '' ? attr.key : generateCode(attr.name),
     subAttributes: attr.subAttributes
       ? processAttributes(attr.subAttributes)
       : undefined,

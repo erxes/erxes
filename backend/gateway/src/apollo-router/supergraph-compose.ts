@@ -70,8 +70,7 @@ const supergraphComposeOnce = async () => {
     const superGraphqlNext = supergraphPath + '.next';
 
     execSync(
-      `pnpm rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept --client-timeout=80000`,
-      // { stdio: ['ignore', 'ignore', 'ignore'] },
+      `pnpm rover supergraph compose --config "${supergraphConfigPath}" --output "${superGraphqlNext}" --elv2-license=accept --client-timeout=80000`,
     );
 
     if (

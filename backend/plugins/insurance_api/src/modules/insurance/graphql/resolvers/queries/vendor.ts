@@ -10,7 +10,7 @@ export const vendorQueries = {
     return vendors.map((vendor: any) => ({
       ...vendor.toObject(),
       offeredProducts: vendor.offeredProducts.filter(
-        (vp: any) => vp.product != null,
+        (vp: any) => vp.product != null && vp.product.insuranceType != null,
       ),
     }));
   },
@@ -30,7 +30,7 @@ export const vendorQueries = {
     return {
       ...vendor.toObject(),
       offeredProducts: vendor.offeredProducts.filter(
-        (vp: any) => vp.product != null,
+        (vp: any) => vp.product != null && vp.product.insuranceType != null,
       ),
     };
   },
@@ -41,7 +41,9 @@ export const vendorQueries = {
     { models, insuranceVendorUser }: IContext,
   ) => {
     if (!insuranceVendorUser) throw new Error('Must be logged in');
-    const vendorUser = await models.VendorUser.findById(insuranceVendorUser._id);
+    const vendorUser = await models.VendorUser.findById(
+      insuranceVendorUser._id,
+    );
     if (!vendorUser) throw new Error('Vendor user not found');
     const vendor = await models.Vendor.findById(vendorUser.vendor).populate({
       path: 'offeredProducts.product',
@@ -53,7 +55,7 @@ export const vendorQueries = {
     return {
       ...vendor.toObject(),
       offeredProducts: vendor.offeredProducts.filter(
-        (vp: any) => vp.product != null,
+        (vp: any) => vp.product != null && vp.product.insuranceType != null,
       ),
     };
   },

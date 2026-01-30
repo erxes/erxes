@@ -15,7 +15,7 @@ export const contractQueries = {
     );
 
     return contracts
-      .filter((c: any) => c.insuranceProduct != null)
+      .filter((c: any) => c.insuranceProduct != null && c.insuranceType != null)
       .map((c: any) => ({
         ...c.toObject(),
         coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
@@ -31,7 +31,8 @@ export const contractQueries = {
       'vendor customer insuranceType insuranceProduct coveredRisks.risk',
     );
 
-    if (!contract || !contract.insuranceProduct) return null;
+    if (!contract || !contract.insuranceProduct || !contract.insuranceType)
+      return null;
 
     return {
       ...contract.toObject(),
@@ -46,7 +47,9 @@ export const contractQueries = {
   ) => {
     if (!insuranceVendorUser) throw new Error('Must be logged in');
 
-    const vendorUser = await models.VendorUser.findById(insuranceVendorUser._id);
+    const vendorUser = await models.VendorUser.findById(
+      insuranceVendorUser._id,
+    );
     if (!vendorUser) throw new Error('Vendor user not found');
 
     const contracts = await models.Contract.find({
@@ -56,7 +59,7 @@ export const contractQueries = {
     );
 
     return contracts
-      .filter((c: any) => c.insuranceProduct != null)
+      .filter((c: any) => c.insuranceProduct != null && c.insuranceType != null)
       .map((c: any) => ({
         ...c.toObject(),
         coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
@@ -82,7 +85,8 @@ export const contractQueries = {
       'vendor customer insuranceType insuranceProduct coveredRisks.risk',
     );
 
-    if (!contract || !contract.insuranceProduct) return null;
+    if (!contract || !contract.insuranceProduct || !contract.insuranceType)
+      return null;
 
     return {
       ...contract.toObject(),
@@ -119,7 +123,6 @@ export const contractQueries = {
       if (!insuranceVendorUser) throw new Error('Must be logged in');
       // Handle both user.id and user._id for compatibility with JWT token
       // userId from vendorUserLogin JWT is a valid ObjectId, user.id from erxes core is not
-
 
       const vendorUser = await models.VendorUser.findOne({
         _id: insuranceVendorUser._id,
@@ -240,7 +243,9 @@ export const contractQueries = {
       ]);
 
       return {
-        list: list.filter((c: any) => c.insuranceProduct != null),
+        list: list.filter(
+          (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        ),
         totalCount,
       };
     },
@@ -255,7 +260,6 @@ export const contractQueries = {
     ) => {
       if (!insuranceVendorUser) throw new Error('Must be logged in');
 
-
       const vendorUser = await models.VendorUser.findById(
         insuranceVendorUser._id,
       );
@@ -265,6 +269,8 @@ export const contractQueries = {
         _id,
         vendor: vendorUser.vendor,
       }).populate('vendor customer insuranceType insuranceProduct');
+
+      if (!contract || !contract.insuranceType) return null;
 
       return contract;
     },

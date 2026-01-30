@@ -240,6 +240,7 @@ export const queries = `
   insuranceCustomers(search: String, page: Int, limit: Int, sort: Sort, sortField: String, filter: JSON): [InsuranceCustomer!]!
   insuranceCustomer(id: ID!): InsuranceCustomer
   customerByRegistration(registrationNumber: String!): InsuranceCustomer
+  customerByEmail(email: String!): InsuranceCustomer
 
   contracts(vendorId: ID, customerId: ID): [InsuranceContract!]!
   contract(id: ID!): InsuranceContract
@@ -273,6 +274,8 @@ export const mutations = `
   deleteCustomer(id: ID!): Boolean!
 
   createInsuranceContract(vendorId: ID!, customerId: ID!, productId: ID!, insuredObject: JSON!, startDate: Date!, endDate: Date!, paymentKind: String!): InsuranceContract!
+  updateContractPaymentStatus(contractId: ID!, paymentStatus: String!): InsuranceContract!
+  updateContract(contractId: ID!, customerId: ID!, insuredObject: JSON, paymentStatus: String): InsuranceContract!
 
   createVendorUser(name: String, email: String!, phone: String, password: String!, vendorId: ID!, role: String): InsuranceVendorUser!
   updateVendorUser(id: ID!, name: String, email: String, phone: String, password: String, role: String): InsuranceVendorUser!
