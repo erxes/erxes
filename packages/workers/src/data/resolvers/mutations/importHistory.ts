@@ -40,7 +40,7 @@ const importer = async (
     );
   } catch (e) {
     return models.ImportHistory.updateOne(
-      { _id: 'importHistoryId' },
+      { _id: importHistoryId },
       { error: `Error occurred during creating import ${e.message}` },
     );
   }
