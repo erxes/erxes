@@ -1,14 +1,24 @@
-import { CurrencyField, Editor, Form, InfoCard, Input, Label } from 'erxes-ui';
+import {
+  CurrencyField,
+  Editor,
+  Form,
+  InfoCard,
+  Input,
+  Label,
+  useQueryState,
+} from 'erxes-ui';
 import { SelectCategory, SelectProductType, SelectUOM } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 
 export const ProductDetailGeneral = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const form = useFormContext<ProductFormValues>();
+  const [productId] = useQueryState<string>(PRODUCT_QUERY_KEY);
 
   return (
     <InfoCard title={t('product-information')}>
@@ -112,7 +122,7 @@ export const ProductDetailGeneral = () => {
               <div className="col-span-2 space-y-2">
                 <Label>{t('description')}</Label>
                 <Editor
-                  key={field.value || ''}
+                  key={productId || 'new-product'}
                   initialContent={field.value || ''}
                   className="h-auto"
                   onChange={field.onChange}

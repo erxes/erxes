@@ -43,6 +43,7 @@ import { SelectBrand } from 'ui-modules/modules/brands';
 import { SelectCompany } from 'ui-modules/modules/contacts';
 import { MutationHookOptions } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { nanoid } from 'nanoid';
 import { useFieldGroups, useFields } from 'ui-modules/modules/properties';
 import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
 import { FieldLabel } from 'ui-modules/modules/properties/components/FieldLabel';
@@ -83,7 +84,6 @@ export function AddProductForm({
       if (Array.isArray(value) && value.length === 0) return;
 
       if (key === 'barcodes' && Array.isArray(value)) {
-        // Ensure barcodes is an array of strings (codes only)
         cleanData[key] = value.map((barcode: any) =>
           typeof barcode === 'object' && barcode?.code ? barcode.code : barcode,
         );
@@ -91,7 +91,6 @@ export function AddProductForm({
       }
 
       if (key === 'variants' && typeof value === 'object' && value !== null) {
-        // Keep variants as-is (object with code keys)
         const variantsObj = value as Record<string, any>;
         const hasValidVariants = Object.keys(variantsObj).some(
           (code) => variantsObj[code]?.name || variantsObj[code]?.image,
@@ -107,7 +106,6 @@ export function AddProductForm({
         typeof value === 'object' &&
         value !== null
       ) {
-        // Convert customFieldsData object to array format expected by backend
         const customFieldsArray = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
           .map(([fieldId, val]) => ({
@@ -117,6 +115,14 @@ export function AddProductForm({
         if (customFieldsArray.length > 0) {
           cleanData[key] = customFieldsArray;
         }
+        return;
+      }
+
+      if (key === 'subUoms' && Array.isArray(value)) {
+        cleanData[key] = value.map((subUom: SubUomItem) => {
+          const { _id, ...rest } = subUom;
+          return rest;
+        });
         return;
       }
 
@@ -332,22 +338,18 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
       : [];
   }, [attachmentMore]);
 
-  const isAddDisabled = !code.trim();
-
   return (
     <Form.Field
       control={form.control}
       name="barcodes"
       render={({ field }) => {
         const barcodesRaw = Array.isArray(field.value) ? field.value : [];
-        // Normalize barcodes to always be strings
         const barcodes: string[] = barcodesRaw.map(
           (code: string | BarcodeItem) =>
             typeof code === 'string' ? code : code?.code || '',
         );
         const variants = form.watch('variants') || {};
 
-        // Convert barcodes array to BarcodeItem array for display
         const barcodeItems: BarcodeItem[] = barcodes.map((codeValue) => {
           const variant = variants[codeValue];
           return {
@@ -356,6 +358,10 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
             image: variant?.image,
           };
         });
+
+        const normalizedCode = code.trim();
+        const isDuplicate = normalizedCode && barcodes.includes(normalizedCode);
+        const isAddDisabled = !normalizedCode || isDuplicate;
 
         const syncBarcodesAndVariants = (
           newBarcodes: string[],
@@ -369,9 +375,11 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
         };
 
         const handleAddBarcode = () => {
-          if (!code.trim()) return;
+          if (!normalizedCode) return;
 
-          const codeValue = code.trim();
+          if (barcodes.includes(normalizedCode)) return;
+
+          const codeValue = normalizedCode;
           const newBarcodes = [...barcodes, codeValue];
           const newVariants = {
             ...variants,
@@ -430,7 +438,7 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
                   variant="outline"
                   size="sm"
                   onClick={handleAddBarcode}
-                  disabled={isAddDisabled}
+                  disabled={Boolean(isAddDisabled)}
                   className="w-full"
                 >
                   <IconPlus className="mr-2 w-4 h-4" />
@@ -532,7 +540,7 @@ function SubUomManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
 
         const handleAddSubUom = () => {
           const newSubUom: SubUomItem = {
-            _id: Math.random().toString(),
+            _id: nanoid(),
             uom: '',
             ratio: 1,
           };
@@ -1181,7 +1189,7 @@ function CustomField({
 
   const fieldProps = {
     field,
-    value: value || '',
+    value: value ?? '',
     handleChange,
     loading: false,
     id: `product_form_${field._id}`,
