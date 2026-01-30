@@ -43,6 +43,13 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
         onCompleted: () => {
           onOpenChange?.(false);
         },
+        onError: (e) => {
+          toast({
+            title: 'Error',
+            description: e.message,
+            variant: 'destructive',
+          });
+        },
       });
     } else {
       uomsAdd({
