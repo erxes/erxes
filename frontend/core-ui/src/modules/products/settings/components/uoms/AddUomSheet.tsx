@@ -52,7 +52,15 @@ export const AddUomSheet = () => {
           e.preventDefault();
         }}
       >
-        <UomForm onOpenChange={setOpen} />
+        <UomForm
+          onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              onClose();
+            } else {
+              setOpen(true);
+            }
+          }}
+        />
       </Sheet.View>
     </Sheet>
   );

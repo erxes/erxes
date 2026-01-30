@@ -82,9 +82,9 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
               name="name"
               render={({ field }) => (
                 <Form.Item className="w-full">
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Name" {...field} autoFocus />
+                    <Input placeholder={t('name')} {...field} autoFocus />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -95,9 +95,13 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
               name="code"
               render={({ field }) => (
                 <Form.Item className="w-full">
-                  <Form.Label>Code</Form.Label>
+                  <Form.Label>{t('code')}</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Code" {...field} className="w-full" />
+                    <Input
+                      placeholder={t('code')}
+                      {...field}
+                      className="w-full"
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

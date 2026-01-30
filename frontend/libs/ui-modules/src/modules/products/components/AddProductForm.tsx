@@ -68,7 +68,7 @@ export function AddProductForm({
   onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
 }) {
-  const { productsAdd } = useAddProduct();
+  const { productsAdd, loading } = useAddProduct();
 
   const form = useForm<IProductFormValues>({
     resolver: zodResolver(PRODUCT_FORM_SCHEMA),
@@ -136,6 +136,11 @@ export function AddProductForm({
       },
       onCompleted: (data) => {
         options?.onCompleted?.(data);
+        toast({
+          title: 'Success',
+          description: 'Product created successfully',
+          variant: 'success',
+        });
         form.reset();
         const newShowMoreInfo = false;
         setShowMoreInfo(newShowMoreInfo);
@@ -171,8 +176,8 @@ export function AddProductForm({
       >
         {t('cancel')}
       </Button>
-      <Button type="submit" variant="default">
-        {t('create')}
+      <Button type="submit" variant="default" disabled={loading}>
+        {loading ? t('creating') || 'Creating...' : t('create')}
       </Button>
     </>
   );

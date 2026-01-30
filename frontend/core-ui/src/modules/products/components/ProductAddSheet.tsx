@@ -65,7 +65,13 @@ export const ProductAddSheet = () => {
           <div className="flex overflow-hidden flex-col flex-1">
             <AddProductForm
               embed
-              onOpenChange={setOpen}
+              onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                  onClose();
+                } else {
+                  setOpen(true);
+                }
+              }}
               showMoreInfo={showMoreInfo}
               onShowMoreInfoChange={setShowMoreInfo}
               options={{ refetchQueries: [productsQueries.productsMain] }}
