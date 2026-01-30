@@ -7,7 +7,7 @@ import { InitialMessage } from '../constants';
 import { connectionAtom } from '../states';
 import { useCustomerData } from '../hooks/useCustomerData';
 
-interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
 
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const [connection] = useAtom(connectionAtom);
@@ -20,6 +20,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const { message, handleInputChange, handleSubmit, isDisabled, loading } =
     useChatInput();
   const { hasEmailOrPhone } = useCustomerData();
+  const shouldDisable = requireAuth === true && !hasEmailOrPhone;
 
   return (
     <form
@@ -36,25 +37,16 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           )}
           placeholder={placeholder}
           value={message}
-          // disabled={!erxes}
+          disabled={shouldDisable}
           onClick={() => {
-            if (!hasEmailOrPhone && requireAuth === true) {
+            if (shouldDisable) {
               toast({
                 title: 'Please enter your email or phone number to continue',
                 variant: 'warning',
               });
             }
           }}
-          onChange={(value) => {
-            if (requireAuth === true && !hasEmailOrPhone) {
-              toast({
-                title: 'Please enter your email or phone number to continue',
-                variant: 'warning',
-              });
-              return;
-            }
-            handleInputChange(value);
-          }}
+          onChange={handleInputChange}
           {...inputProps}
         />
         <Button
@@ -62,7 +54,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           type="submit"
           aria-label="Send"
           className="aspect-square text-accent bg-primary size-8 p-2"
-          disabled={isDisabled || loading || !hasEmailOrPhone}
+          disabled={isDisabled || loading || shouldDisable}
         >
           <IconArrowUp />
         </Button>
