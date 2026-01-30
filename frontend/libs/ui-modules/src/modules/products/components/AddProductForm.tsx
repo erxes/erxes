@@ -1,5 +1,8 @@
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { PRODUCT_FORM_SCHEMA } from '../constants/addProductFormSchema';
+import {
+  EMPTY_PRODUCT_FORM_VALUES,
+  PRODUCT_FORM_SCHEMA,
+} from '../constants/addProductFormSchema';
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IProductFormValues } from '../types';
@@ -23,6 +26,7 @@ import {
   toast,
   useErxesUpload,
   useRemoveFile,
+  useQueryState,
 } from 'erxes-ui';
 import { SelectUOM } from './SelectUOM';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
@@ -68,27 +72,7 @@ export function AddProductForm({
 
   const form = useForm<IProductFormValues>({
     resolver: zodResolver(PRODUCT_FORM_SCHEMA),
-    defaultValues: {
-      name: '',
-      code: '',
-      categoryId: '',
-      vendorId: '',
-      type: 'product',
-      uom: '',
-      shortName: '',
-      attachment: '',
-      attachmentMore: '',
-      description: '',
-      pdfAttachment: {},
-      subUoms: [],
-      barcodes: [],
-      variants: {},
-      barcodeDescription: '',
-      scopeBrandIds: [],
-      unitPrice: 0,
-      currency: '',
-      customFieldsData: {},
-    },
+    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
   });
 
   async function onSubmit(data: IProductFormValues) {
@@ -165,6 +149,7 @@ export function AddProductForm({
   });
 
   const [internalShowMoreInfo, setInternalShowMoreInfo] = useState(false);
+  const [selectedTab] = useQueryState<string>('tab');
   const showMoreInfo =
     controlledShowMoreInfo !== undefined
       ? controlledShowMoreInfo
@@ -175,27 +160,44 @@ export function AddProductForm({
     }
     onShowMoreInfoChange?.(value);
   };
+  const isPropertiesTab = selectedTab === 'properties';
 
   const footerButtons = (
     <>
       <Button
         type="button"
-        variant="ghost"
-        className="bg-background hover:bg-background/90"
+        variant="outline"
         onClick={() => onOpenChange(false)}
       >
         {t('cancel')}
       </Button>
-      <Button
-        type="submit"
-        className="bg-primary text-primary-foreground hover:bg-primary/90"
-      >
+      <Button type="submit" variant="default">
         {t('save')}
       </Button>
     </>
   );
 
   if (embed) {
+    if (isPropertiesTab) {
+      return (
+        <Form {...form}>
+          <form
+            onSubmit={(e) => {
+              e.stopPropagation();
+              form.handleSubmit(onSubmit)(e);
+            }}
+            className="flex overflow-hidden flex-col flex-1 min-h-0"
+          >
+            <ScrollArea className="flex-1" viewportClassName="p-4">
+              <AddProductFormCustomFields form={form} noTopPadding />
+            </ScrollArea>
+            <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2.5">
+              {footerButtons}
+            </div>
+          </form>
+        </Form>
+      );
+    }
     return (
       <Form {...form}>
         <form
@@ -218,7 +220,6 @@ export function AddProductForm({
               >
                 <Collapsible.Content className="order-1 w-full">
                   <AddProductFormAttachmentsAndExtra form={form} />
-                  <AddProductFormCustomFields form={form} />
                 </Collapsible.Content>
                 <Collapsible.Trigger asChild>
                   <Button
@@ -240,7 +241,7 @@ export function AddProductForm({
               </Collapsible>
             </div>
           </ScrollArea>
-          <div className="flex shrink-0 justify-end gap-1 border-t bg-muted p-2.5">
+          <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2.5">
             {footerButtons}
           </div>
         </form>
@@ -297,7 +298,7 @@ export function AddProductForm({
             </div>
           </ScrollArea>
         </Sheet.Content>
-        <Sheet.Footer className="flex shrink-0 justify-end gap-1 bg-muted p-2.5">
+        <Sheet.Footer className="flex shrink-0 justify-end gap-1 bg-background p-2.5">
           {footerButtons}
         </Sheet.Footer>
       </form>
@@ -516,7 +517,6 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
 
 function SubUomManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
-  const mainUom = form.watch('uom');
 
   return (
     <Form.Field
@@ -577,7 +577,6 @@ function SubUomManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
                         key={subUom._id || index}
                         subUom={subUom}
                         index={index}
-                        mainUom={mainUom || ''}
                         onUpdate={handleUpdateSubUom}
                         onRemove={handleRemoveSubUom}
                         t={t}
@@ -697,6 +696,22 @@ function AddProductFormFieldsDetail({
               />
               <Form.Field
                 control={form.control}
+                name="uom"
+                render={({ field }) => (
+                  <Form.Item className="col-span-2">
+                    <Form.Label>{t('unit-of-measure')}</Form.Label>
+                    <SelectUOM
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                      inForm
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
@@ -715,6 +730,7 @@ function AddProductFormFieldsDetail({
           </InfoCard.Content>
         </InfoCard>
       </div>
+
       {showExtended && (
         <div className="grid gap-4 lg:col-span-2 lg:grid-cols-1">
           <InfoCard title={t('barcodes')}>
@@ -741,26 +757,10 @@ function AddProductFormFieldsDetail({
               </div>
             </InfoCard.Content>
           </InfoCard>
+
           <InfoCard title={t('unit-of-measure')}>
             <InfoCard.Content>
-              <div className="flex flex-col gap-4">
-                <Form.Field
-                  control={form.control}
-                  name="uom"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('unit-of-measure')}</Form.Label>
-                      <SelectUOM
-                        value={field.value || ''}
-                        onValueChange={field.onChange}
-                        inForm
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <SubUomManager form={form} />
-              </div>
+              <SubUomManager form={form} />
             </InfoCard.Content>
           </InfoCard>
         </div>
@@ -1055,8 +1055,10 @@ function AddProductFormAttachmentsAndExtra({
 
 function AddProductFormCustomFields({
   form,
+  noTopPadding,
 }: {
   form: UseFormReturn<IProductFormValues>;
+  noTopPadding?: boolean;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
@@ -1091,7 +1093,7 @@ function AddProductFormCustomFields({
   }
 
   return (
-    <div className="pt-4">
+    <div className={noTopPadding ? undefined : 'pt-4'}>
       <InfoCard title={t('product-properties') || 'Product Properties'}>
         <InfoCard.Content>
           <div className="flex flex-col gap-4">

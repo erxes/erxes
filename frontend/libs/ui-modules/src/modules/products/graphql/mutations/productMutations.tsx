@@ -85,6 +85,9 @@ export const PRODUCTS_EDIT = gql`
     $currency: String
     $variants: JSON
     $subUoms: JSON
+    $scopeBrandIds: [String]
+    $attachment: AttachmentInput
+    $attachmentMore: [AttachmentInput]
   ) {
     productsEdit(
       _id: $_id
@@ -103,6 +106,9 @@ export const PRODUCTS_EDIT = gql`
       currency: $currency
       variants: $variants
       subUoms: $subUoms
+      scopeBrandIds: $scopeBrandIds
+      attachment: $attachment
+      attachmentMore: $attachmentMore
     ) {
       _id
     }

@@ -1,16 +1,17 @@
-import { PRODUCT_FIELD_TYPES } from '@/products/constants/productFieldTypes';
+import { useProductFieldTypes } from '@/products/constants/productFieldTypes';
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { IProductType } from '@/products/types/productTypes';
 
 export const ProductSidebar = () => {
+  const productFieldTypes = useProductFieldTypes();
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
         <Sidebar.GroupLabel>Products types</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {PRODUCT_FIELD_TYPES().map((productType) => (
+            {productFieldTypes.map((productType) => (
               <Sidebar.MenuItem key={productType.value}>
                 <ProductMenuItem productType={productType} />
               </Sidebar.MenuItem>
