@@ -9,6 +9,7 @@ import {
   REACT_APP_API_URL,
   readImage,
   Spinner,
+  toast,
 } from 'erxes-ui';
 import {
   IconArrowUp,
@@ -26,7 +27,7 @@ import { useAddComment } from '../../../hooks/useAddComment';
 import AttachmentUploader from './attachments/AttachmentUploader';
 
 const SalesNoteAndComment = (deal: any) => {
-  const [content, setContent] = useState<Block[]>();
+  const [content, setContent] = useState<any>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
 
   const editor = useBlockEditor();
@@ -43,7 +44,6 @@ const SalesNoteAndComment = (deal: any) => {
   } = useAddComment();
   const [file, setFile] = useState<any>(null);
   const [fileUrl, setFileUrl] = useState<string>('');
-  const [sendContent, setSendContent] = useState<string>('');
 
   const {
     // setHotkeyScopeAndMemorizePreviousScope,
@@ -55,8 +55,6 @@ const SalesNoteAndComment = (deal: any) => {
     let url = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
       file.url,
     )}`;
-    console.log('file', file);
-    console.log('URL', url);
 
     setFile(file);
     setFileUrl(url);
@@ -65,70 +63,92 @@ const SalesNoteAndComment = (deal: any) => {
   const handleChange = async () => {
     const content = await editor?.document;
     content.pop();
-    setContent(content as Block[]);
+    setContent(content);
     const mentionedUserIds = getMentionedUserIds(content);
     setMentionedUserIds(mentionedUserIds);
   };
 
+  function renderBlocks(content: any) {
+    let finalContent = content
+      .map((block: any) => {
+        const text = block.content?.map((c: any) => c.text).join('') ?? '';
+
+        switch (block.type) {
+          case 'paragraph':
+            return `<p>${text}</p>`;
+          case 'heading':
+            return `<h${block.props.level}>${text}</h${block.props.level}>`;
+          case 'image':
+            return `<img src="${block.props.url}" alt="${block.props.caption}" />`;
+          default:
+            return '';
+        }
+      })
+      .join('');
+    if (fileUrl) {
+      finalContent += `<img src="${fileUrl}" />`;
+    }
+    return finalContent;
+  }
+
   const handleNoteSubmit = async () => {
-    if (!content || content?.length === 0) {
+    if (!content) {
       return;
     }
 
-    const html = await editor?.blocksToHTMLLossy(content);
-
-    const textContent = html?.replace(/<[^>]+>/g, '')?.trim() || '';
-
-    const sendContentA = fileUrl
-      ? `${textContent} <img src="${fileUrl}" alt="${file.name}" />`
-      : textContent;
-
-    setSendContent(sendContentA);
     addInternalNote({
       variables: {
         contentType: 'sales:deal',
         contentTypeId: deal.deal._id,
-        content: sendContent,
+        content: renderBlocks(content),
         mentionedUserIds,
       },
-      refetchQueries: ['activityLogs'],
       onCompleted: () => {
-        setFile(null);
-        setContent(undefined);
-        setSendContent('');
-        console.log('sendContent', sendContent);
+        editor?.removeBlocks(editor?.document);
+        setFileUrl('');
+        toast({
+          title: 'Note added successfully',
+          variant: 'success',
+        });
       },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+      refetchQueries: ['activityLogs'],
     });
   };
 
   const handleCommentSubmit = async () => {
-    if (content?.length === 0) {
+    if (!content) {
       return;
     }
-
-    const html = await editor?.blocksToHTMLLossy(content);
-
-    const textContent = html?.replace(/<[^>]+>/g, '')?.trim() || '';
-
-    const sendContentA = fileUrl
-      ? `${textContent} <img src="${fileUrl}" alt="${file.name}" />`
-      : textContent;
-
-    setSendContent(sendContentA);
 
     addComment({
       variables: {
         comment: {
-          content: sendContent,
+          content: renderBlocks(content),
           type: 'sales:deal',
           typeId: deal.deal._id,
         },
       },
       onCompleted: () => {
-        setFile(null);
-        setContent(undefined);
-        setSendContent('');
-        console.log('sendContent', sendContent);
+        editor?.removeBlocks(editor?.document);
+        setFileUrl('');
+        toast({
+          title: 'Comment added successfully',
+          variant: 'success',
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   };
@@ -168,21 +188,14 @@ const SalesNoteAndComment = (deal: any) => {
               onChange={handleChange}
               disabled={internalNoteLoading}
               className={cn('h-full w-full overflow-y-auto', 'internal-note')}
-              // onFocus={() =>
-              //   setHotkeyScopeAndMemorizePreviousScope(
-              //     InboxHotkeyScope.MessageInput,
-              //   )
-              // }
               onBlur={() => goBackToPreviousHotkeyScope()}
             >
               {<AssignMemberInEditor editor={editor} />}
             </BlockEditor>
 
-            {/* Display uploaded file */}
             {fileUrl && (
               <div className="px-6 py-2">
                 <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-md relative">
-                  <IconPaperclip size={16} className="text-gray-600" />
                   <img src={readImage(fileUrl)} width="100" height="100" />
                   <Button
                     variant="ghost"
@@ -207,6 +220,7 @@ const SalesNoteAndComment = (deal: any) => {
                 disabled={internalNoteLoading || content?.length === 0}
                 onClick={handleNoteSubmit}
               >
+                {internalNoteLoading ? <Spinner size="sm" /> : <IconArrowUp />}
                 Add note
               </Button>
             </div>
@@ -226,19 +240,32 @@ const SalesNoteAndComment = (deal: any) => {
               onChange={handleChange}
               disabled={commentLoading}
               className={cn('h-full w-full overflow-y-auto', 'internal-note')}
-              // onFocus={() =>
-              //   setHotkeyScopeAndMemorizePreviousScope(
-              //     InboxHotkeyScope.MessageInput,
-              //   )
-              // }
               onBlur={() => goBackToPreviousHotkeyScope()}
             >
               {<AssignMemberInEditor editor={editor} />}
             </BlockEditor>
+
+            {fileUrl && (
+              <div className="px-6 py-2">
+                <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-md relative">
+                  <img src={readImage(fileUrl)} width="100" height="100" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setFile(null);
+                      setFileUrl('');
+                    }}
+                    className="ml-auto p-1 h-6 w-6 hover:bg-gray-200"
+                  >
+                    <IconX size={14} />
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="flex px-6 gap-4">
-              <Button variant="outline">
-                <IconPaperclip /> Add attachment
-              </Button>
+              <AttachmentUploader type="note" onFileUpload={handleFileUpload} />
               <Button
                 size="lg"
                 className="ml-auto"

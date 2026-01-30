@@ -1,4 +1,3 @@
-// graphql/mutations/comments.ts
 import { gql } from '@apollo/client';
 
 export const CLIENT_PORTAL_COMMENT_ADD = gql`

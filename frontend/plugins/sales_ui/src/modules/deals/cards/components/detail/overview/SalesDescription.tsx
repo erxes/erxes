@@ -112,7 +112,7 @@ const SalesDescription = ({
       >
         <div
           className={cn(
-            'relative overflow-y-auto pb-4 transition-all duration-300',
+            'overflow-y-auto pb-4 transition-all duration-300',
             !expanded && 'pointer-events-none max-h-[100px]',
           )}
         >
