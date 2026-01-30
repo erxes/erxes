@@ -46,6 +46,13 @@ export const useConnect = ({ integrationId }: connectionProps) => {
       isConnectingRef.current = false;
       const connectionData = response?.widgetsMessengerConnect;
       if (connectionData) {
+        const uiOptions = connectionData.uiOptions || {
+          primary: {
+            DEFAULT: '#5629B6',
+            foreground: '#FFF',
+          },
+        };
+
         setConnection((prev: IConnectionInfo) => ({
           ...prev,
           widgetsMessengerConnect: {
@@ -53,7 +60,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
             visitorId: connectionData.visitorId,
             customerId: connectionData.customerId,
             messengerData: connectionData.messengerData,
-            uiOptions: connectionData.uiOptions,
+            uiOptions,
           },
         }));
         if (connectionData.customerId) {
@@ -61,12 +68,12 @@ export const useConnect = ({ integrationId }: connectionProps) => {
           setCustomerId(connectionData.customerId);
         }
         setIntegrationId(connectionData.integrationId);
-        setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
+        setUiOptions(uiOptions as IWidgetUiOptions);
         setTicketConfig(connectionData.ticketConfig as ITicketConfig);
         setHasTicketConfig(!!connectionData.ticketConfig);
         // Apply uiOptions to Tailwind CSS
-        if (connectionData.uiOptions) {
-          applyUiOptionsToTailwind(connectionData.uiOptions);
+        if (uiOptions) {
+          applyUiOptionsToTailwind(uiOptions);
         }
         if (connectionData.customer) {
           setCustomerData(connectionData.customer as ICustomerData);
