@@ -3,9 +3,9 @@ import { renderingProductDetailAtom } from '../states/productDetailStates';
 import { IProduct } from '@/products/types/productTypes';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
-import { RecordTable } from 'erxes-ui';
+import {  RecordTableInlineCell, TextOverflowTooltip } from 'erxes-ui';
 
-export const ProductMoreColumnCell = ({
+export const ProductNameCell = ({
   cell,
 }: {
   cell: Cell<IProduct, unknown>;
@@ -21,12 +21,18 @@ export const ProductMoreColumnCell = ({
   };
 
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
+    <RecordTableInlineCell>
+      <div
+        onClick={() => {
         setOpen(_id);
         setRenderingProductDetail(false);
-      }}
-    />
+        }}
+        className="cursor-pointer"
+      >
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </div>
+    </RecordTableInlineCell>
   );
 };
+
+

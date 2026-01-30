@@ -15,6 +15,12 @@ export interface UomType {
   code?: string;
 }
 
+export interface SubUomItem {
+  _id?: string;
+  uom: string;
+  ratio: number;
+}
+
 export interface ProductDetail {
   _id?: string;
   name?: string;
@@ -25,12 +31,17 @@ export interface ProductDetail {
   code?: string;
   status?: string;
   attachment?: ProductAttachment;
-  barcodes?: string;
+  attachmentMore?: ProductAttachment[] | ProductAttachment;
+  barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;
   uom?: string;
+  subUoms?: SubUomItem[];
   vendorId?: string;
   scopeBrandIds?: string[];
+  currency?: string;
+  variants?: Record<string, unknown>;
+  customFieldsData?: Record<string, unknown>;
 }
 
 export interface ProductFormValues {
