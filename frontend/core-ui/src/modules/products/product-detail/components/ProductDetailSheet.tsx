@@ -1,20 +1,121 @@
-import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
+import {
+  Empty,
+  FocusSheet,
+  Form,
+  ScrollArea,
+  Tabs,
+  useQueryState,
+  useToast,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityLogs, FieldsInDetail } from 'ui-modules';
-import { ProductDetailFields } from './ProductDetailFields';
 import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '../hooks/useProductCustomFieldEdit';
+import {
+  useProductFormData,
+  getProductFormDefaultValues,
+} from '../hooks/useProductFormData';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ProductDetailSidebar } from './ProductDetailSidebar';
+import { ProductDetailFooter } from './ProductDetailFooter';
+import { ProductDetailFields } from './ProductDetailFields';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
+import {
+  EMPTY_PRODUCT_FORM_VALUES,
+  ProductFormSchema,
+  ProductFormValues,
+} from '@/products/constants/ProductFormSchema';
+import { useProductsEdit } from '@/products/hooks/useProductsEdit';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
+  const { toast } = useToast();
   const [open, setOpen] = useQueryState<string>(PRODUCT_QUERY_KEY);
   const { productDetail, loading, error } = useProductDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { productsEdit, loading: editLoading } = useProductsEdit();
+
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(ProductFormSchema),
+    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
+  });
+
+  useProductFormData(productDetail, form);
+
+  const toAttachmentInput = (
+    obj: Record<string, unknown> | null | undefined,
+  ):
+    | { url?: string; name?: string; type?: string; size?: number }
+    | undefined => {
+    if (obj == null || typeof obj !== 'object') return undefined;
+    const { url, name, type, size } = obj;
+    return {
+      url: url as string | undefined,
+      name: name as string | undefined,
+      type: type as string | undefined,
+      size: size as number | undefined,
+    };
+  };
+
+  const normalizePayload = (data: ProductFormValues) => {
+    const attachment =
+      data.attachment != null && !Array.isArray(data.attachment)
+        ? toAttachmentInput(data.attachment as Record<string, unknown>)
+        : undefined;
+    const attachmentMore = Array.isArray(data.attachmentMore)
+      ? data.attachmentMore
+          .map((item) => toAttachmentInput(item as Record<string, unknown>))
+          .filter((x): x is NonNullable<typeof x> => x != null)
+      : undefined;
+    return { ...data, attachment, attachmentMore };
+  };
+
+  const handleSave = (data: ProductFormValues) => {
+    if (!productDetail?._id) {
+      toast({
+        title: 'Error',
+        description: 'Product ID is missing',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const variables = { ...normalizePayload(data), _id: productDetail._id };
+    productsEdit({
+      variables,
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Product updated successfully',
+          variant: 'success',
+        });
+      },
+      onError: (err) => {
+        toast({
+          title: 'Error',
+          description: err.message || 'Failed to update product',
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
+  const handleInvalid = (errors: Record<string, { message?: string }>) => {
+    const firstError = Object.values(errors)[0];
+    toast({
+      title: 'Validation error',
+      description: firstError?.message || 'Please check the form fields',
+      variant: 'destructive',
+    });
+  };
+
+  const handleCancel = () => {
+    const defaults = getProductFormDefaultValues(productDetail);
+    if (defaults) form.reset(defaults);
+  };
 
   return (
     <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
@@ -24,34 +125,62 @@ export const ProductDetailSheet = () => {
         notFound={!productDetail}
         notFoundState={<ProductDetailEmptyState />}
         errorState={<ProductDetailErrorState />}
+        className="w-[70%] md:w-[70%]"
       >
         <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
-        <FocusSheet.Content className="flex-1 min-h-0">
+        <FocusSheet.Content className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
           <FocusSheet.SideBar>
             <ProductDetailSidebar />
           </FocusSheet.SideBar>
-          <div className="flex overflow-hidden flex-col flex-1">
-            <ScrollArea className="flex-1" viewportClassName="h-full">
-              <Tabs
-                value={selectedTab ?? 'overview'}
-                onValueChange={setSelectedTab}
+          <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSave, handleInvalid)}
+                className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0"
               >
-                <Tabs.Content value="overview">
-                  <ProductDetailFields />
-                </Tabs.Content>
-                <Tabs.Content value="properties" className="p-6">
-                  <FieldsInDetail
-                    fieldContentType="core:product"
-                    customFieldsData={productDetail?.customFieldsData || {}}
-                    mutateHook={useProductCustomFieldEdit}
-                    id={productDetail?._id || ''}
-                  />
-                </Tabs.Content>
-                <Tabs.Content value="activity">
-                  <ActivityLogs targetId={productDetail?._id || ''} />
-                </Tabs.Content>
-              </Tabs>
-            </ScrollArea>
+                <ScrollArea
+                  className="flex-1 min-h-0"
+                  viewportClassName="h-full min-h-[200px]"
+                >
+                  <Tabs
+                    value={selectedTab ?? 'overview'}
+                    onValueChange={setSelectedTab}
+                    className="h-full"
+                  >
+                    <Tabs.Content
+                      value="overview"
+                      className="data-[state=active]:min-h-0"
+                    >
+                      <ProductDetailFields />
+                    </Tabs.Content>
+                    <Tabs.Content
+                      value="properties"
+                      className="p-4 data-[state=active]:min-h-0"
+                    >
+                      <FieldsInDetail
+                        fieldContentType="core:product"
+                        customFieldsData={productDetail?.customFieldsData || {}}
+                        mutateHook={useProductCustomFieldEdit}
+                        id={productDetail?._id || ''}
+                      />
+                    </Tabs.Content>
+                    <Tabs.Content
+                      value="activity"
+                      className="data-[state=active]:min-h-0"
+                    >
+                      <ActivityLogs targetId={productDetail?._id || ''} />
+                    </Tabs.Content>
+                  </Tabs>
+                </ScrollArea>
+                <ProductDetailFooter
+                  form={form}
+                  activeTab={selectedTab ?? 'overview'}
+                  onCancel={handleCancel}
+                  onSave={() => form.handleSubmit(handleSave, handleInvalid)()}
+                  editLoading={editLoading}
+                />
+              </form>
+            </Form>
           </div>
         </FocusSheet.Content>
       </FocusSheet.View>

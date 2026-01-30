@@ -13,6 +13,7 @@ import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { AddProductForm } from 'ui-modules';
 import { productsQueries } from '../graphql';
 import { useTranslation } from 'react-i18next';
+import { ProductCreateSidebar } from './ProductCreateSidebar';
 
 export const ProductAddSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -52,12 +53,15 @@ export const ProductAddSheet = () => {
         </Button>
       </Sheet.Trigger>
       <FocusSheet.View
-        className={
-          showMoreInfo ? 'w-[1200px] md:w-[1200px]' : 'w-[500px] md:w-[500px]'
-        }
+        className={showMoreInfo ? 'w-[70%] md:w-[70%]' : 'w-[30%] md:w-[30%]'}
       >
         <FocusSheet.Header title={t('create-product')} />
         <FocusSheet.Content className="flex-1 min-h-0">
+          {showMoreInfo && (
+            <FocusSheet.SideBar>
+              <ProductCreateSidebar />
+            </FocusSheet.SideBar>
+          )}
           <div className="flex overflow-hidden flex-col flex-1">
             <AddProductForm
               embed

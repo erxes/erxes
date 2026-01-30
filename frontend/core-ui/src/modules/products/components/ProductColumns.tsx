@@ -15,7 +15,6 @@ import {
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
 import { ProductNameCell } from './ProductNameCell';
-import { useTranslation } from 'react-i18next';
 
 export const productColumns: (
   t: (key: string) => string,
@@ -38,7 +37,7 @@ export const productColumns: (
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
-    cell: ({ cell }: { cell: any }) => ProductNameCell({ cell }),
+    cell: ({ cell }: { cell: any }) => <ProductNameCell cell={cell} />,
     size: 250,
   },
   {

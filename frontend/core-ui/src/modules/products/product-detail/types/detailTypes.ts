@@ -31,7 +31,8 @@ export interface ProductDetail {
   code?: string;
   status?: string;
   attachment?: ProductAttachment;
-  barcodes?: string;
+  attachmentMore?: ProductAttachment[] | ProductAttachment;
+  barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;
   uom?: string;
@@ -39,6 +40,8 @@ export interface ProductDetail {
   vendorId?: string;
   scopeBrandIds?: string[];
   currency?: string;
+  variants?: Record<string, unknown>;
+  customFieldsData?: Record<string, unknown>;
 }
 
 export interface ProductFormValues {

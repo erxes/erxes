@@ -1,14 +1,10 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Editor, InfoCard, Input, Label, Select } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
-import { useProductsEdit } from '@/products/hooks/useProductsEdit';
-
-interface ProductDetailBarcodeProps {
-  barcodes?: string[] | string;
-  barcodeDescription?: string;
-}
+import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 
 type BarcodeItem = {
   code: string;
@@ -27,23 +23,29 @@ const normalizeBarcodes = (
   return [];
 };
 
-export const ProductDetailBarcode = ({
-  barcodes: initialBarcodes,
-  barcodeDescription: initialBarcodeDescription,
-}: ProductDetailBarcodeProps) => {
+type VariantsMap = Record<
+  string,
+  { name?: string; image?: { url: string; name?: string } }
+>;
+
+export const ProductDetailBarcode = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
-
   const { productDetail } = useProductDetailWithQuery();
-  const { productsEdit } = useProductsEdit();
 
-  const normalizedBarcodes = normalizeBarcodes(initialBarcodes);
-  const variants =
-    (productDetail?.variants as Record<
-      string,
-      { name?: string; image?: { url: string; name?: string } }
-    >) || {};
+  const form = useFormContext<ProductFormValues>();
+  const variants = (form.watch('variants') as VariantsMap) ?? {};
+
+  const formBarcodes = normalizeBarcodes(form.watch('barcodes'));
+  const formVariants = variants;
+  const formBarcodeDescription = form.watch('barcodeDescription') ?? '';
+
+  const variantsFromProduct: VariantsMap =
+    (productDetail?.variants as VariantsMap) || {};
+
+  const variantsForDisplay =
+    Object.keys(formVariants).length > 0 ? formVariants : variantsFromProduct;
 
   const attachmentMore = Array.isArray(productDetail?.attachmentMore)
     ? productDetail.attachmentMore
@@ -57,108 +59,70 @@ export const ProductDetailBarcode = ({
   }, [attachmentMore]);
 
   const [code, setCode] = useState('');
-  const [description, setDescription] = useState<string>(
-    initialBarcodeDescription || '',
-  );
-  const [barcodes, setBarcodes] = useState<string[]>(normalizedBarcodes);
 
   const barcodeItems: BarcodeItem[] = useMemo(() => {
-    return barcodes.map((codeValue) => {
-      const variant = variants[codeValue];
+    return formBarcodes.map((codeValue) => {
+      const variant = variantsForDisplay[codeValue];
       return {
         code: codeValue,
         name: variant?.name,
         image: variant?.image,
       };
     });
-  }, [barcodes, variants]);
+  }, [formBarcodes, variantsForDisplay]);
 
   const isAddDisabled = !code.trim();
 
-  const syncBarcodesAndVariants = async (
+  const syncBarcodesAndVariants = (
     newBarcodes: string[],
-    newVariants: Record<
-      string,
-      { name?: string; image?: { url: string; name?: string } }
-    >,
+    newVariants: VariantsMap,
   ) => {
-    setBarcodes(newBarcodes);
-
-    if (productDetail?._id) {
-      await productsEdit({
-        variables: {
-          _id: productDetail._id,
-          barcodes: newBarcodes,
-          variants: newVariants,
-        },
-      });
-    }
+    form.setValue('barcodes', newBarcodes);
+    form.setValue('variants', newVariants);
   };
 
-  const handleAddBarcode = async () => {
+  const handleAddBarcode = () => {
     if (!code.trim()) return;
 
     const codeValue = code.trim();
-    const newBarcodes = [...barcodes, codeValue];
-    const newVariants = {
-      ...variants,
-      [codeValue]: {},
-    };
+    const newBarcodes = [...formBarcodes, codeValue];
+    const newVariants = { ...variantsForDisplay, [codeValue]: {} };
 
-    await syncBarcodesAndVariants(newBarcodes, newVariants);
+    syncBarcodesAndVariants(newBarcodes, newVariants);
     setCode('');
   };
 
-  const handleRemoveBarcode = async (index: number) => {
+  const handleRemoveBarcode = (index: number) => {
     const barcodeToRemove = barcodeItems[index];
     if (!barcodeToRemove) return;
 
-    const newBarcodes = barcodes.filter((_, i) => i !== index);
-    const newVariants = { ...variants };
+    const newBarcodes = formBarcodes.filter((_, i) => i !== index);
+    const newVariants = { ...variantsForDisplay };
     delete newVariants[barcodeToRemove.code];
 
-    await syncBarcodesAndVariants(newBarcodes, newVariants);
+    syncBarcodesAndVariants(newBarcodes, newVariants);
   };
 
-  const handleUpdateBarcode = async (
+  const handleUpdateBarcode = (
     index: number,
-    fieldName: keyof BarcodeItem,
+    field: 'name' | 'image',
     value: string | { url: string; name?: string } | undefined,
   ) => {
-    const barcodeItem = barcodeItems[index];
-    if (!barcodeItem) return;
+    const item = barcodeItems[index];
+    if (!item) return;
 
-    const codeValue = barcodeItem.code;
-    const currentVariant = variants[codeValue] || {};
     const newVariants = {
-      ...variants,
-      [codeValue]: {
-        ...currentVariant,
-        [fieldName]: value,
+      ...variantsForDisplay,
+      [item.code]: {
+        ...variantsForDisplay[item.code],
+        [field]: value,
       },
     };
-
-    if (productDetail?._id) {
-      await productsEdit({
-        variables: {
-          _id: productDetail._id,
-          variants: newVariants,
-        },
-      });
-    }
+    form.setValue('variants', newVariants);
   };
 
-  const handleDescriptionChange = async (content: string) => {
-    setDescription(content);
-
-    if (productDetail?._id) {
-      await productsEdit({
-        variables: {
-          _id: productDetail._id,
-          barcodeDescription: content,
-        },
-      });
-    }
+  const handleDescriptionChange = (content: string) => {
+    form.setValue('barcodeDescription', content);
   };
 
   return (
@@ -260,7 +224,7 @@ export const ProductDetailBarcode = ({
           <div className="space-y-2">
             <Label>{t('barcode-description')}</Label>
             <Editor
-              initialContent={description}
+              initialContent={formBarcodeDescription}
               onChange={handleDescriptionChange}
             />
           </div>

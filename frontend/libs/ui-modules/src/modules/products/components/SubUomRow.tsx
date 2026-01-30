@@ -12,7 +12,6 @@ export type SubUomItem = {
 interface SubUomRowProps {
   subUom: SubUomItem;
   index: number;
-  mainUom: string;
   onUpdate: (
     index: number,
     fieldName: keyof SubUomItem,
@@ -25,7 +24,6 @@ interface SubUomRowProps {
 export function SubUomRow({
   subUom,
   index,
-  mainUom,
   onUpdate,
   onRemove,
   t,
@@ -73,7 +71,6 @@ export function SubUomRow({
         <SelectUOM
           value={subUom.uom || ''}
           onValueChange={(value) => onUpdate(index, 'uom', value)}
-          disabledUoms={[mainUom || ''].filter(Boolean)}
         />
       </div>
       <div className="flex flex-col flex-1 gap-2">
