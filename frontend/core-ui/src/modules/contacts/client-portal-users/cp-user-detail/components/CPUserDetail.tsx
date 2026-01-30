@@ -4,11 +4,14 @@ import {
   FocusSheet,
   ScrollArea,
   Separator,
+  Tabs,
   useQueryState,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { ActivityLogs } from 'ui-modules';
 import { CPUserDetailGeneral } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailGeneral';
 import { CPUserDetailFields } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailFields';
+import { CPUserDetailSidebar } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailSidebar';
 import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
 
 export function CPUserDetail() {
@@ -16,6 +19,7 @@ export function CPUserDetail() {
     keyPrefix: 'clientPortalUser.detail',
   });
   const [open, setOpen] = useQueryState<string>('cpUserId');
+  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { cpUser, loading, error } = useClientPortalUser();
 
   return (
@@ -31,11 +35,24 @@ export function CPUserDetail() {
           title={t('title', { defaultValue: 'Client Portal User' })}
         />
         <FocusSheet.Content>
+          <FocusSheet.SideBar>
+            <CPUserDetailSidebar />
+          </FocusSheet.SideBar>
           <div className="flex-1 flex flex-col overflow-hidden">
             <CPUserDetailGeneral />
             <Separator />
             <ScrollArea className="h-full">
-              <CPUserDetailFields />
+              <Tabs
+                value={selectedTab ?? 'overview'}
+                onValueChange={setSelectedTab}
+              >
+                <Tabs.Content value="overview">
+                  <CPUserDetailFields />
+                </Tabs.Content>
+                <Tabs.Content value="activity">
+                  <ActivityLogs targetId={cpUser?._id || ''} />
+                </Tabs.Content>
+              </Tabs>
             </ScrollArea>
           </div>
         </FocusSheet.Content>

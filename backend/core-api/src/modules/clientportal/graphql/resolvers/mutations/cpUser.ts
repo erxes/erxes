@@ -112,7 +112,7 @@ export const cpUserMutations: Record<string, Resolver> = {
     params: CpUsersAddParams,
     { models }: IContext,
   ) {
-    return cpUserService.createUserAsAdmin(
+    return models.CPUser.createUserAsAdmin(
       params.clientPortalId,
       {
         email: params.email,
@@ -132,7 +132,7 @@ export const cpUserMutations: Record<string, Resolver> = {
     { _id, ...params }: CpUsersEditParams,
     { models }: IContext,
   ) {
-    return cpUserService.updateUser(_id, params, models);
+    return models.CPUser.updateUser(_id, params, models);
   },
 
   async cpUsersRemove(
@@ -140,7 +140,7 @@ export const cpUserMutations: Record<string, Resolver> = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    await cpUserService.removeUser(_id, models);
+    await models.CPUser.removeUser(_id, models);
     return { _id };
   },
 

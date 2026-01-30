@@ -597,7 +597,11 @@ export const loadClasses = (
 
   models.CPUser = db.model<ICPUserDocument, ICPUserModel>(
     'client_portal_users',
-    loadCPUserClass(models),
+    loadCPUserClass(
+      models,
+      subdomain,
+      eventDispatcher('core', 'clientportal', 'cpUser'),
+    ),
   );
   models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
     'client_portal_comments',
