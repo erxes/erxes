@@ -32,7 +32,6 @@ export const GET_COMPANY_DETAIL = gql`query CompanyDetail($id: String!) {
       }
     }
     description
-    plan
     businessType
     industry
     parentCompanyId

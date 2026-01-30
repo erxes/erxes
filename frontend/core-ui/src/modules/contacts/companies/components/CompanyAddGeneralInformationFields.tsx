@@ -205,7 +205,7 @@ export const CompanyAddGeneralInformationFields = ({
               <Form.Label>
                 {t('company.field.location', 'Headquarters country')}
               </Form.Label>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value || ''}>
                 <Form.Control>
                   <Select.Trigger>
                     <Select.Value placeholder="Select country" />
@@ -233,7 +233,7 @@ export const CompanyAddGeneralInformationFields = ({
               <Form.Label>
                 {t('company.field.businessType', 'Business Type')}
               </Form.Label>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value || ''}>
                 <Form.Control>
                   <Select.Trigger>
                     <Select.Value />
@@ -262,20 +262,6 @@ export const CompanyAddGeneralInformationFields = ({
               <Form.Label>{t('company.field.size', 'Size')}</Form.Label>
               <Form.Control>
                 <Input type="number" {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        <Form.Field
-          control={form.control}
-          name="plan"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('company.field.plan', 'Plan')}</Form.Label>
-              <Form.Control>
-                <Input {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>

@@ -263,15 +263,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <a
-            href={cell.getValue() as string}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline text-primary"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <TextOverflowTooltip value={cell.getValue() as string} />
-          </a>
+          <TextOverflowTooltip value={cell.getValue() as string} />
         </RecordTableInlineCell>
       ),
       size: 200,
@@ -291,20 +283,6 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
         </RecordTableInlineCell>
       ),
       size: 150,
-    },
-    {
-      id: 'plan',
-      accessorKey: 'plan',
-      header: () => (
-        <RecordTable.InlineHead icon={IconCreditCard} label={t('plan')} />
-      ),
-      cell: ({ cell }) => {
-        return (
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <TextOverflowTooltip value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        );
-      },
     },
     {
       id: 'tagIds',

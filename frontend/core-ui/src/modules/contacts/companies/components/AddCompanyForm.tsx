@@ -29,7 +29,6 @@ export function AddCompanyForm({
       description: '',
       code: '',
       avatar: '',
-      plan: '',
       location: '',
       parentCompanyId: '',
     },

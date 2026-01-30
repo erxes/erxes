@@ -27,7 +27,6 @@ export const CompanyDetailFields = () => {
     businessType,
     parentCompany,
     avatar,
-    plan,
     primaryName,
   } = companyDetail;
   const { companiesEdit } = useCompaniesEdit();
@@ -49,7 +48,6 @@ export const CompanyDetailFields = () => {
       description: description || '',
       code: code || '',
       avatar: avatar || '',
-      plan: plan || '',
       location: location || '',
       parentCompanyId: parentCompany?._id || '',
       ownerId: ownerId || '',

@@ -51,12 +51,6 @@ export const companySchema = schemaWrapper(
         optional: true,
       },
 
-      plan: {
-        type: String,
-        label: 'Plan',
-        optional: true,
-      },
-
       parentCompanyId: {
         type: String,
         optional: true,

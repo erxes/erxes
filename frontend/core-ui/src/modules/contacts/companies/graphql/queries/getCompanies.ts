@@ -53,7 +53,6 @@ export const GET_COMPANIES = gql`
         industry
         code
         website
-        plan
         location
         parentCompanyId
         parentCompany {

@@ -10,7 +10,6 @@ export const companyFormSchema = z.object({
   businessType: z.string().optional(),
   size: z.coerce.number().optional(),
   description: z.string().optional(),
-  plan: z.string().optional(),
   code: z.string().optional(),
   avatar: z.string().optional(),
   location: z.string().optional(),

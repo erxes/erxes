@@ -7,7 +7,6 @@ export const companiesAdd = gql`
     $website: String
     $size: Int
     $industry: [String]
-    $plan: String
     $email: String
     $ownerId: String
     $businessType: String
@@ -23,7 +22,6 @@ export const companiesAdd = gql`
       website: $website
       size: $size
       industry: $industry
-      plan: $plan
       email: $email
       ownerId: $ownerId
       businessType: $businessType

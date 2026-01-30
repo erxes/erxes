@@ -18,7 +18,6 @@ export interface TCompany {
   ownerId?: string;
   parentCompanyId?: string;
   parentCompany?: TCompany;
-  plan?: string;
   score?: number;
   size?: number;
   website?: string;
