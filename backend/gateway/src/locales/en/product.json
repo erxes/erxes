@@ -8,6 +8,8 @@
   "product-service": "Product Service",
   "add": {
     "create-product": "Create Product",
+    "create": "Create",
+    "cancel": "Cancel",
     "product-information": "Product Information",
     "name": "Name",
     "description": "Description",

@@ -172,7 +172,7 @@ export function AddProductForm({
         {t('cancel')}
       </Button>
       <Button type="submit" variant="default">
-        {t('save')}
+        {t('create')}
       </Button>
     </>
   );
@@ -837,7 +837,7 @@ function AddProductFeaturedImage({
   );
 
   return (
-    <InfoCard title={t('featured-image')}>
+    <InfoCard title={t('primary-upload') || 'Primary Image'}>
       <InfoCard.Content>
         <div className="flex flex-wrap gap-4">
           {file && (
@@ -938,7 +938,7 @@ function AddProductAttachmentMore({
   );
 
   return (
-    <InfoCard title={t('Secondary Images')}>
+    <InfoCard title={t('secondary-upload') || 'Secondary Images'}>
       <InfoCard.Content>
         <div className="flex flex-wrap gap-4">
           {files.map((f) => (
