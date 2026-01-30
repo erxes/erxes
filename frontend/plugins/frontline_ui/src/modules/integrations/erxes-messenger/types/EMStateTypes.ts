@@ -1,4 +1,5 @@
 import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
+import { ScheduleDay } from '../constants/emHoursSchema';
 
 export interface EMLink {
   url: string;
@@ -12,6 +13,8 @@ export interface ProcessedLinks {
   links: Partial<SocialLinks>;
   externalLinks: EMLink[];
 }
+
+type ScheduleDays = Weekday & ScheduleDay;
 
 // Messenger setup payload type
 export interface MessengerSetupPayload {
@@ -46,7 +49,7 @@ export interface MessengerSetupPayload {
     showTimezone?: boolean;
     onlineHours?: {
       _id: string;
-      day: Weekday;
+      day: ScheduleDays;
       from: string;
       to: string;
     }[];
