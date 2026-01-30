@@ -33,18 +33,15 @@ const queryParams = `
 `;
 
 export const queries = `
-  getAssignments(params: ${queryParams}): AssignmentListResponse
+  getAssignments(${queryParams}): AssignmentListResponse
   checkAssignment(customerId: String!, _ids: [String]): Assignment
 `;
 
 const mutationParams = `
   campaignId: String,
-
   ownerType: String,
   ownerId: String,
-
   conditions: JSON,
-
   status: String,
 `;
 

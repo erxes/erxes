@@ -1,7 +1,6 @@
-import { Button } from 'erxes-ui/components';
+import { Button, useToast, useConfirm } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { useConfirm } from 'erxes-ui/hooks';
-import { useToast } from 'erxes-ui';
+import { useNavigate } from 'react-router';
 import { useDeletePricing } from '@/pricing/hooks/useDeletePricing';
 
 interface PricingDeleteProps {
@@ -13,9 +12,11 @@ export const PricingDelete = ({
   pricingIds,
   onDeleteSuccess,
 }: PricingDeleteProps) => {
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
   const { deletePricing, loading } = useDeletePricing();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { confirm } = useConfirm();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const pricingCount = pricingIds.includes(',')
     ? pricingIds.split(',').length
@@ -31,39 +32,43 @@ export const PricingDelete = ({
       return;
     }
 
-    await confirm({
+    confirm({
       message: `Are you sure you want to delete the ${pricingCount} selected pricing item(s)?`,
-    });
+      options: confirmOptions,
+    }).then(async () => {
+      try {
+        await Promise.all(ids.map((id) => deletePricing(id)));
 
-    try {
-      await Promise.all(ids.map((id) => deletePricing(id)));
+        if (onDeleteSuccess) {
+          onDeleteSuccess();
+        }
 
-      toast({
-        title: 'Success',
-        description: 'Selected pricing item(s) deleted successfully.',
-      });
+        toast({
+          title: 'Success',
+          description: 'Selected pricing item(s) deleted successfully.',
+          variant: 'success',
+        });
 
-      if (onDeleteSuccess) {
-        onDeleteSuccess();
+        navigate('/settings/loyalty/pricing');
+      } catch (e: any) {
+        toast({
+          title: 'Error',
+          description: e.message || 'Failed to delete pricing. Please try again.',
+          variant: 'destructive',
+        });
       }
-    } catch {
-      toast({
-        title: 'Failed to delete pricing',
-        description: 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
-    }
+    });
   };
 
   return (
     <Button
-      variant="secondary"
-      className="text-destructive"
-      disabled={loading}
+      variant="default"
+      size="sm"
       onClick={handleDelete}
+      disabled={loading}
     >
-      <IconTrash />
-      Delete
+      <IconTrash className="mr-2 w-4 h-4" />
+      {loading ? 'Deleting...' : 'Delete'}
     </Button>
   );
 };

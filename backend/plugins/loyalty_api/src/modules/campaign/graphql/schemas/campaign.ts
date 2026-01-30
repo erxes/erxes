@@ -5,8 +5,8 @@ export const types = `
     _id: String
     name: String
     description: String
-    startDate: String
-    endDate: String
+    startDate: Date
+    endDate: Date
     status: String
     type: String
     amount: Float
@@ -30,23 +30,23 @@ const queryParams = `
   fromDate: String
   toDate: String
   dateField: String
+  kind: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
   getCampaign(_id: String!): Campaign
-  getCampaigns(${queryParams}): CampaignListRepsponse
+  getCampaigns(${queryParams}): CampaignListResponse
 `;
 
 const mutationParams = `
-  name: String!
+  name: String
   kind: String!
   description: String
-  startDate: String
-  endDate: String
+  startDate: Date
+  endDate: Date
   status: String
-
   type: String
   amount: Float
   conditions: JSON
@@ -55,5 +55,5 @@ const mutationParams = `
 export const mutations = `
   createCampaign(${mutationParams}): Campaign
   updateCampaign(_id: String!, ${mutationParams}): Campaign
-  removeCampaign(_id: String!): Campaign
+  removeCampaign(_ids: [String]): Campaign
 `;

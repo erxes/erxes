@@ -19,7 +19,7 @@ export const spinsMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    return models.Spin.removeSpin(_id);
+    return models.Spin.removeSpins([_id]);
   },
 
   async buySpin(

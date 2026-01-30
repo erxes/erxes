@@ -7,13 +7,20 @@ import {
 import { Separator, useQueryState } from 'erxes-ui';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
-import DealCardDetails from './DealsBoardCardDetails';
+import {
+  DealCardDetailsProduct,
+  DealCardDetailsCompany,
+  DealCardDetailsCustomer,
+  DealCardDetailsTag,
+  DealCardDetailsProperties,
+} from './DealsBoardCardDetails';
 import { IDeal } from '@/deals/types/deals';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { SelectTags } from 'ui-modules';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { memo } from 'react';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
@@ -63,12 +70,12 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
 
   return (
     <div className="p-3 pt-0">
-      <DealCardDetails items={companies} color="#EA475D" />
-      <DealCardDetails items={customers} color="#F7CE53" />
-      <DealCardDetails items={dealProducts} color="#63D2D6" />
-      <DealCardDetails items={excludedProducts} color="#b49cf1" />
-      <DealCardDetails color="#FF6600" items={tags || []} />
-      <DealCardDetails color="#FF9900" items={customProperties || []} />
+      <DealCardDetailsCompany items={companies} color="#EA475D" />
+      <DealCardDetailsCustomer items={customers} color="#F7CE53" />
+      <DealCardDetailsProduct items={dealProducts} color="#63D2D6" />
+      <DealCardDetailsProduct items={excludedProducts} color="#b49cf1" />
+      <DealCardDetailsTag color="#FF6600" items={tags || []} />
+      <DealCardDetailsProperties color="#FF9900" items={customProperties || []} />
     </div>
   );
 };

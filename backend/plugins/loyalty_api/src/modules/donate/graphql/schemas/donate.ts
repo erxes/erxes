@@ -33,7 +33,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  getDonates(params: ${queryParams}): DonateListResponse
+  getDonates(${queryParams}): DonateListResponse
 `;
 
 const mutationParams = `

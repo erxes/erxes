@@ -15,6 +15,7 @@ export const EBarimtMainSettingsForm = () => {
   } = useEBarimtConfig();
 
   const onSubmit = async (formData: any) => {
+    console.log(formData);
     await handleUpdate(formData);
   };
 

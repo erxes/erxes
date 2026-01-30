@@ -54,6 +54,12 @@ export const loadScoreClass = (models: IModels) => {
       }
 
       if (action === 'refund') {
+        if (!contentId || !contentType) {
+          throw new Error(
+            'contentId and contentType are required for refund action',
+          );
+        }
+
         return this.validateRefund(
           ownerId,
           ownerType,

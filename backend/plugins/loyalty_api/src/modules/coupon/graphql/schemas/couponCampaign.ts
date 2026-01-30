@@ -1,0 +1,51 @@
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from '~/utils/common';
+export const types = `
+
+    enum Kind {
+        amount
+        percent
+    }
+
+    type CouponCampaign @key(fields: "_id"){
+        _id: String!
+
+        ${commonCampaignTypes}
+
+        kind: Kind
+        value: Float
+        codeRule: JSON
+        restrictions: JSON
+        redemptionLimitPerUser: Int
+
+        buyScore: Int
+    }
+`;
+
+export const queries = `
+    couponCampaign(_id:String): CouponCampaign
+    couponCampaigns(${commonFilterTypes} ${paginateTypes}): [CouponCampaign]
+`;
+
+const couponCampaignParams = `
+    ${commonCampaignInputs}
+
+    kind: Kind
+    value: Float
+    codeRule: JSON
+    restrictions: JSON
+    redemptionLimitPerUser: Int
+    
+    buyScore: Int
+    charSet: [String]
+    `;
+
+export const mutations = `
+    couponCampaignAdd(${couponCampaignParams}): CouponCampaign
+    couponCampaignEdit(_id: String, ${couponCampaignParams}): CouponCampaign
+    couponCampaignsRemove(_ids: [String]): JSON
+`;

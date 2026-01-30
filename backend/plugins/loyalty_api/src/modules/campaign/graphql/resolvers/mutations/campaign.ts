@@ -4,7 +4,7 @@ import { ICampaign } from '~/modules/campaign/@types';
 export const campaignMutations = {
   createCampaign: async (
     _parent: undefined,
-    { doc }: { doc: ICampaign },
+    doc: ICampaign,
     { models, user }: IContext,
   ) => {
     return models.Campaign.createCampaign(doc, user);
@@ -20,9 +20,9 @@ export const campaignMutations = {
 
   removeCampaign: async (
     _parent: undefined,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) => {
-    return models.Campaign.removeCampaign(_id);
+    return models.Campaign.removeCampaign(_ids);
   },
 };
