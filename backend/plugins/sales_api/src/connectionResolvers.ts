@@ -94,7 +94,7 @@ export const loadClasses = (
     loadBoardClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'board', 'boards'),
+      eventDispatcher('sales', 'sales', 'boards'),
     ),
   );
 
@@ -104,7 +104,7 @@ export const loadClasses = (
     loadPipelineClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'pipelines'),
+      eventDispatcher('sales', 'sales', 'pipelines'),
     ),
   );
 
@@ -114,7 +114,7 @@ export const loadClasses = (
     loadStageClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'stage', 'stages'),
+      eventDispatcher('sales', 'sales', 'stages'),
     ),
   );
 
@@ -124,7 +124,7 @@ export const loadClasses = (
     loadDealClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'deal', 'deals'),
+      eventDispatcher('sales', 'sales', 'deals'),
     ),
   );
 
@@ -134,7 +134,7 @@ export const loadClasses = (
     loadCheckListClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'checklist', 'checklists'),
+      eventDispatcher('sales', 'sales', 'checklists'),
     ),
   );
 
@@ -144,7 +144,7 @@ export const loadClasses = (
     loadCheckListItemClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'checklist', 'checklistItems'),
+      eventDispatcher('sales', 'sales', 'checklistItems'),
     ),
   );
 
@@ -154,7 +154,7 @@ export const loadClasses = (
     loadPipelineLabelClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'pipelineLabels'),
+      eventDispatcher('sales', 'sales', 'pipelineLabels'),
     ),
   );
 

@@ -6,33 +6,45 @@ import { AccountSettingsBreadcrumb } from './settings/components/AccountSettings
 import { AccountingTopbar } from './settings/components/AccountingTopbar';
 import { AccountingSidebar } from './settings/components/Sidebar';
 
-export const AccountingMainConfig = lazy(() =>
+const AccountingMainConfig = lazy(() =>
   import('~/pages/SettingsPage').then((module) => ({
     default: module.SettingsPage,
   })),
 );
 
-export const Accounts = lazy(() =>
+const Accounts = lazy(() =>
   import('~/pages/AccountPage').then((module) => ({
     default: module.AccountPage,
   })),
 );
 
-export const AccountCategories = lazy(() =>
+const AccountCategories = lazy(() =>
   import('~/pages/AccountCategoriesPage').then((module) => ({
     default: module.AccountCategoriesPage,
   })),
 );
 
-export const VatRows = lazy(() =>
+const VatRows = lazy(() =>
   import('~/pages/VatRowsPage').then((module) => ({
     default: module.VatRowsPage,
   })),
 );
 
-export const CTaxRows = lazy(() =>
+const CTaxRows = lazy(() =>
   import('~/pages/CtaxRowsPage').then((module) => ({
     default: module.CTaxRowsPage,
+  })),
+);
+
+const SettingSyncDeal = lazy(() =>
+  import('~/pages/syncConfigs/settingSyncDealPage').then((module) => ({
+    default: module.SettingSyncDealPage,
+  })),
+);
+
+const SettingSyncOrder = lazy(() =>
+  import('~/pages/syncConfigs/settingSyncOrderPage').then((module) => ({
+    default: module.SettingSyncOrderPage,
   })),
 );
 
@@ -63,6 +75,8 @@ const AccountingSettings = () => {
               />
               <Route path='/vat-rows' element={<VatRows />} />
               <Route path='/ctax-rows' element={<CTaxRows />} />
+              <Route path='/sync-deal' element={<SettingSyncDeal />} />
+              <Route path='/sync-order' element={<SettingSyncOrder />} />
             </Routes>
           </Suspense>
         </div>

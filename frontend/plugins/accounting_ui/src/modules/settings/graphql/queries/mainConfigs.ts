@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_ACCOUNTING_CONFIGS = gql`
-  query accountingsConfigs($code: String!) {
+  query AccountingsConfigs($code: String!) {
     accountingsConfigs(code: $code) {
       _id
       code

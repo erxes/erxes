@@ -70,10 +70,8 @@ export const loadDealClass = (
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
-      const logDoc = {
-        prevDeal:prevDeal.toObject()
-      }
-     
+      const prevDealObj = prevDeal.toObject()
+
       // Fill searchText for indexing
       const searchText = fillSearchTextItem(doc, prevDeal);
 
@@ -84,25 +82,26 @@ export const loadDealClass = (
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
+
       await models.Deals.updateOne(
         { _id },
         { $set: { ...doc, searchText } },
       );
 
-      const updatedDeal = await models.Deals.findOne({ _id });
-      if (!updatedDeal) throw new Error('Deal not found after update');
+      const updatedDeal = await models.Deals.getDeal(_id);
+      const updatedDealObj = updatedDeal.toObject();
 
       sendDbEventLog?.({
         action: 'update',
         docId: updatedDeal._id,
-        currentDocument: updatedDeal.toObject(),
-        prevDocument: prevDeal.toObject(),
+        currentDocument: updatedDealObj,
+        prevDocument: prevDealObj,
       });
 
       const context = getContext();
       await generateDealActivityLogs(
-        logDoc.prevDeal,
-        updatedDeal.toObject(),
+        prevDealObj,
+        updatedDealObj,
         models,
         dispatcher.createActivityLog,
         subdomain,

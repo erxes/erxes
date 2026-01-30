@@ -7,3 +7,8 @@ export const SETTINGS_ROUTES = {
   '/settings/accounting/sync-deal': 'Sync Deal',
   '/settings/accounting/sync-order': 'Sync Order',
 };
+
+export enum ACCOUNTING_SETTINGS_CODES {
+  SYNC_DEAL = 'syncDeal',
+  SYNC_ORDER = 'syncOrder',
+}

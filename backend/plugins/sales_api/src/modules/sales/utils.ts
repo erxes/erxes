@@ -112,10 +112,8 @@ export const boardNumberGenerator = async (
 };
 
 export const fillSearchTextItem = (doc: IDeal, item?: IDealDocument) => {
-  const document = item || { name: '', description: '' };
-  Object.assign(document, doc);
-
-  return validSearchText([document.name || '', document.description || '']);
+  const { name = '', description = '' } = item || {};
+  return validSearchText([doc.name ?? name, doc.description ?? description]);
 };
 
 export const generateBoardNumber = async (models: IModels, doc: IDeal) => {
