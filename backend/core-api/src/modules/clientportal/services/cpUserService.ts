@@ -13,7 +13,12 @@ import {
 } from './helpers/validators';
 import { buildUserQuery, buildDuplicationQuery } from './helpers/queryBuilders';
 import { normalizeEmail } from '@/clientportal/utils';
-import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
+import {
+  updateLastLogin,
+  getCPUserByIdOrThrow,
+  setUserActionCode,
+  assertCPUserEmailPhoneUnique,
+} from '@/clientportal/services/helpers/userUtils';
 import {
   getOTPConfig,
   isEmailVerificationEnabled,
@@ -53,12 +58,17 @@ export class CPUserService {
     userFields: UserFields,
     models: IModels,
     idsToExclude?: string[] | string,
+    clientPortalId?: string,
   ): Promise<void> {
     if (!userFields) {
       return;
     }
 
-    const baseQuery = buildDuplicationQuery(userFields, idsToExclude);
+    const baseQuery = buildDuplicationQuery(
+      userFields,
+      idsToExclude,
+      clientPortalId,
+    );
 
     if (userFields.email) {
       await this.checkFieldDuplication(
@@ -125,23 +135,15 @@ export class CPUserService {
     clientPortal: IClientPortalDocument,
     models: IModels,
   ): Promise<void> {
-    if (identifierType === 'email' && user.email) {
-      await notificationService.sendOTPEmail(
-        subdomain,
-        user,
-        code,
-        emailSubject,
-        messageTemplate,
-        models,
-      );
-    } else if (identifierType === 'phone' && user.phone) {
-      await notificationService.sendOTPSMS(
-        user,
-        code,
-        messageTemplate,
-        clientPortal,
-      );
-    }
+    await notificationService.sendOTP(
+      subdomain,
+      user,
+      identifierType,
+      code,
+      { emailSubject, messageTemplate },
+      clientPortal,
+      models,
+    );
   }
 
   async registerUser(
@@ -202,17 +204,10 @@ export class CPUserService {
             ? 'EMAIL_VERIFICATION'
             : 'PHONE_VERIFICATION';
 
-        await models.CPUser.updateOne(
-          { _id: user._id },
-          {
-            $set: {
-              actionCode: {
-                code,
-                expires: codeExpires,
-                type: actionCodeType,
-              },
-            },
-          },
+        await setUserActionCode(
+          user._id,
+          { code, expires: codeExpires, type: actionCodeType },
+          models,
         );
 
         await this.sendVerificationOTP(
@@ -343,47 +338,31 @@ export class CPUserService {
     },
     models: IModels,
   ): Promise<ICPUserDocument> {
-    const user = await models.CPUser.findOne({ _id: userId });
-    if (!user) {
-      throw new AuthenticationError('User not found');
+    const user = await getCPUserByIdOrThrow(userId, models);
+
+    const normalizedEmail =
+      params.email !== undefined ? normalizeEmail(params.email) : undefined;
+    const trimmedPhone =
+      params.phone !== undefined ? (params.phone || '').trim() : undefined;
+
+    const userFields: UserFields = {};
+    if (normalizedEmail) userFields.email = normalizedEmail;
+    if (trimmedPhone) userFields.phone = trimmedPhone;
+    if (Object.keys(userFields).length > 0) {
+      await assertCPUserEmailPhoneUnique(
+        user.clientPortalId,
+        userFields,
+        userId,
+        models,
+      );
     }
 
     const updateData: Record<string, unknown> = { ...params };
     if (params.email !== undefined) {
-      const normalized = normalizeEmail(params.email);
-      if (normalized) {
-        const existing = await models.CPUser.findOne({
-          clientPortalId: user.clientPortalId,
-          email: normalized,
-          _id: { $ne: userId },
-        });
-        if (existing) {
-          throw new ValidationError(
-            'Email already exists in this client portal',
-          );
-        }
-        updateData.email = normalized;
-      } else {
-        updateData.email = undefined;
-      }
+      updateData.email = normalizedEmail || undefined;
     }
     if (params.phone !== undefined) {
-      const trimmed = (params.phone || '').trim();
-      if (trimmed) {
-        const existing = await models.CPUser.findOne({
-          clientPortalId: user.clientPortalId,
-          phone: trimmed,
-          _id: { $ne: userId },
-        });
-        if (existing) {
-          throw new ValidationError(
-            'Phone already exists in this client portal',
-          );
-        }
-        updateData.phone = trimmed;
-      } else {
-        updateData.phone = undefined;
-      }
+      updateData.phone = trimmedPhone || undefined;
     }
 
     const setData = Object.fromEntries(
@@ -409,12 +388,7 @@ export class CPUserService {
     if (Object.keys(unsetData).length > 0) update.$unset = unsetData;
     await models.CPUser.updateOne({ _id: userId }, update);
 
-    const updatedUser = await models.CPUser.findOne({ _id: userId });
-    if (!updatedUser) {
-      throw new AuthenticationError('User not found');
-    }
-
-    return updatedUser;
+    return getCPUserByIdOrThrow(userId, models);
   }
 
   async addFcmToken(
@@ -432,12 +406,7 @@ export class CPUserService {
       { $addToSet: { fcmTokens: trimmed } },
     );
 
-    const updatedUser = await models.CPUser.findOne({ _id: cpUserId });
-    if (!updatedUser) {
-      throw new AuthenticationError('User not found');
-    }
-
-    return updatedUser;
+    return getCPUserByIdOrThrow(cpUserId, models);
   }
 
   async removeFcmToken(
@@ -450,12 +419,7 @@ export class CPUserService {
       { $pull: { fcmTokens: (fcmToken || '').trim() } },
     );
 
-    const updatedUser = await models.CPUser.findOne({ _id: cpUserId });
-    if (!updatedUser) {
-      throw new AuthenticationError('User not found');
-    }
-
-    return updatedUser;
+    return getCPUserByIdOrThrow(cpUserId, models);
   }
 
   async createUserAsAdmin(
@@ -488,16 +452,11 @@ export class CPUserService {
     );
 
     await this.autoVerifyUser(user, models);
-    const updatedUser = await models.CPUser.findOne({ _id: user._id });
-    return updatedUser || user;
+    return getCPUserByIdOrThrow(user._id, models);
   }
 
   async removeUser(userId: string, models: IModels): Promise<void> {
-    const user = await models.CPUser.findOne({ _id: userId });
-    if (!user) {
-      throw new AuthenticationError('User not found');
-    }
-
+    await getCPUserByIdOrThrow(userId, models);
     await models.CPUser.findOneAndDelete({ _id: userId });
   }
 }

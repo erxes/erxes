@@ -10,6 +10,10 @@ import {
 } from './errorHandler';
 import { buildUserQuery } from './helpers/queryBuilders';
 import { detectIdentifierType, validatePassword } from './helpers/validators';
+import {
+  setUserActionCode,
+  getCPUserByIdOrThrowValidation,
+} from './helpers/userUtils';
 import { notificationService } from './notificationService';
 import { verificationService } from './verificationService';
 
@@ -22,17 +26,10 @@ export class PasswordService {
     expires: Date,
     models: IModels,
   ): Promise<void> {
-    await models.CPUser.updateOne(
-      { _id: userId },
-      {
-        $set: {
-          actionCode: {
-            code,
-            expires,
-            type: 'PASSWORD_RESET',
-          },
-        },
-      },
+    await setUserActionCode(
+      userId,
+      { code, expires, type: 'PASSWORD_RESET' },
+      models,
     );
   }
 
@@ -46,25 +43,20 @@ export class PasswordService {
     models: IModels,
   ): Promise<void> {
     const emailSubject = resetPasswordConfig?.emailSubject || 'Password Reset';
-    const emailContent = resetPasswordConfig?.emailContent || '';
+    const messageTemplate =
+      resetPasswordConfig?.emailContent ||
+      resetPasswordConfig?.messageTemplate ||
+      '';
 
-    if (identifierType === 'email') {
-      await notificationService.sendOTPEmail(
-        subdomain,
-        user,
-        code,
-        emailSubject,
-        emailContent,
-        models,
-      );
-    } else {
-      await notificationService.sendOTPSMS(
-        user,
-        code,
-        resetPasswordConfig?.messageTemplate || '',
-        clientPortal,
-      );
-    }
+    await notificationService.sendOTP(
+      subdomain,
+      user,
+      identifierType,
+      code,
+      { emailSubject, messageTemplate },
+      clientPortal,
+      models,
+    );
   }
 
   private async sendPasswordResetLink(
@@ -219,17 +211,13 @@ export class PasswordService {
     newPassword: string,
     models: IModels,
   ): Promise<ICPUserDocument> {
-    const user = await models.CPUser.findById(userId);
-    if (!user) {
-      throw new ValidationError('User not found');
-    }
+    await getCPUserByIdOrThrowValidation(userId, models);
 
     validatePassword(newPassword);
     const hashedPassword = await models.CPUser.generatePassword(newPassword);
     await this.updateUserPassword(userId, hashedPassword, models);
 
-    const updated = await models.CPUser.findById(userId);
-    return updated!;
+    return getCPUserByIdOrThrowValidation(userId, models);
   }
 }
 

@@ -6,6 +6,7 @@ import {
 } from '@/clientportal/types/cpUser';
 import { normalizeEmail } from '@/clientportal/utils';
 import { ValidationError } from './errorHandler';
+import { assertCPUserEmailPhoneUnique } from './helpers/userUtils';
 
 export class ContactService {
   async findOrCreateCustomer(
@@ -134,40 +135,19 @@ export class ContactService {
       throw new Error('Cp User already exists');
     }
 
-    // Check for unique email and phone within the same clientPortal
     const normalizedEmail = document.email
       ? normalizeEmail(document.email)
       : undefined;
-    const uniquenessQuery: any = {
+
+    await assertCPUserEmailPhoneUnique(
       clientPortalId,
-      _id: { $ne: user?._id },
-    };
-
-    const uniquenessConditions: any[] = [];
-    if (normalizedEmail) {
-      uniquenessConditions.push({ email: normalizedEmail });
-    }
-    if (document.phone) {
-      uniquenessConditions.push({ phone: document.phone });
-    }
-
-    if (uniquenessConditions.length > 0) {
-      uniquenessQuery.$or = uniquenessConditions;
-      const existingUser = await models.CPUser.findOne(uniquenessQuery);
-
-      if (existingUser) {
-        if (existingUser.email === normalizedEmail) {
-          throw new ValidationError(
-            'Email already exists in this client portal',
-          );
-        }
-        if (existingUser.phone === document.phone) {
-          throw new ValidationError(
-            'Phone already exists in this client portal',
-          );
-        }
-      }
-    }
+      {
+        ...(normalizedEmail && { email: normalizedEmail }),
+        ...(document.phone && { phone: document.phone }),
+      },
+      user?._id,
+      models,
+    );
 
     const hashedPassword = await this.prepareUserPassword(password, models);
     const userData = {

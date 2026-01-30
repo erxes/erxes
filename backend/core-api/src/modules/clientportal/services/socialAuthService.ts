@@ -9,6 +9,7 @@ import {
 } from '~/modules/clientportal/services/helpers/socialAuth';
 import { contactService } from './contactService';
 import { AuthenticationError, ValidationError } from './errorHandler';
+import { getCPUserByIdOrThrow } from './helpers/userUtils';
 
 export class SocialAuthService {
   private buildSocialAuthQuery(
@@ -232,12 +233,9 @@ export class SocialAuthService {
     clientPortal: IClientPortalDocument,
     models: IModels,
   ): Promise<ICPUserDocument> {
-    const user = await models.CPUser.findOne({
-      _id: userId,
-      clientPortalId: clientPortal._id,
-    });
+    const user = await getCPUserByIdOrThrow(userId, models);
 
-    if (!user) {
+    if (user.clientPortalId !== clientPortal._id) {
       throw new AuthenticationError('User not found');
     }
 
@@ -257,8 +255,7 @@ export class SocialAuthService {
 
     await this.linkSocialProviderToUser(userId, provider, profile, models);
 
-    const updatedUser = await models.CPUser.findOne({ _id: userId });
-    return updatedUser || user;
+    return getCPUserByIdOrThrow(userId, models);
   }
 
   private canUnlinkSocialAccount(
@@ -282,11 +279,7 @@ export class SocialAuthService {
     provider: SocialAuthProvider,
     models: IModels,
   ): Promise<ICPUserDocument> {
-    const user = await models.CPUser.findOne({ _id: userId });
-
-    if (!user) {
-      throw new AuthenticationError('User not found');
-    }
+    const user = await getCPUserByIdOrThrow(userId, models);
 
     if (!this.canUnlinkSocialAccount(user, provider)) {
       throw new ValidationError('Cannot unlink the only authentication method');
@@ -301,8 +294,7 @@ export class SocialAuthService {
       { $set: { socialAuthProviders } },
     );
 
-    const updatedUser = await models.CPUser.findOne({ _id: userId });
-    return updatedUser || user;
+    return getCPUserByIdOrThrow(userId, models);
   }
 }
 

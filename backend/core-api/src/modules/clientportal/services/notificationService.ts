@@ -243,6 +243,29 @@ export class NotificationService {
     );
   }
 
+  async sendOTP(
+    subdomain: string,
+    user: ICPUserDocument,
+    identifierType: 'email' | 'phone',
+    code: string,
+    options: { emailSubject: string; messageTemplate: string },
+    clientPortal: IClientPortalDocument,
+    models: IModels,
+  ): Promise<void> {
+    if (identifierType === 'email' && user.email) {
+      await this.sendOTPEmail(
+        subdomain,
+        user,
+        code,
+        options.emailSubject,
+        options.messageTemplate,
+        models,
+      );
+    } else if (identifierType === 'phone' && user.phone) {
+      await this.sendOTPSMS(user, code, options.messageTemplate, clientPortal);
+    }
+  }
+
   async createNotification(
     subdomain: string,
     models: IModels,

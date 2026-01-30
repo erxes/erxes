@@ -106,23 +106,15 @@ export class VerificationService {
     clientPortal: IClientPortalDocument,
     models: IModels,
   ): Promise<void> {
-    if (identifierType === 'email' && user.email) {
-      await notificationService.sendOTPEmail(
-        subdomain,
-        user,
-        code,
-        emailSubject,
-        messageTemplate,
-        models,
-      );
-    } else if (identifierType === 'phone' && user.phone) {
-      await notificationService.sendOTPSMS(
-        user,
-        code,
-        messageTemplate,
-        clientPortal,
-      );
-    }
+    await notificationService.sendOTP(
+      subdomain,
+      user,
+      identifierType,
+      code,
+      { emailSubject, messageTemplate },
+      clientPortal,
+      models,
+    );
   }
 
   async sendOTPForLogin(
