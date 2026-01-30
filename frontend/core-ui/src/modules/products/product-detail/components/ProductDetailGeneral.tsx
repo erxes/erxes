@@ -112,6 +112,7 @@ export const ProductDetailGeneral = () => {
               <div className="col-span-2 space-y-2">
                 <Label>{t('description')}</Label>
                 <Editor
+                  key={field.value || ''}
                   initialContent={field.value || ''}
                   className="h-auto"
                   onChange={field.onChange}
