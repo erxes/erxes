@@ -106,6 +106,11 @@ interface CpUsersEditParams {
   companyRegistrationNumber?: string;
 }
 
+interface CpUsersSetPasswordParams {
+  _id: string;
+  newPassword: string;
+}
+
 export const cpUserMutations: Record<string, Resolver> = {
   async cpUsersAdd(
     _root: unknown,
@@ -142,6 +147,14 @@ export const cpUserMutations: Record<string, Resolver> = {
   ) {
     await models.CPUser.removeUser(_id, models);
     return { _id };
+  },
+
+  async cpUsersSetPassword(
+    _root: unknown,
+    { _id, newPassword }: CpUsersSetPasswordParams,
+    { models }: IContext,
+  ) {
+    return passwordService.setPasswordByAdmin(_id, newPassword, models);
   },
 
   async clientPortalUserRegister(
@@ -432,11 +445,13 @@ export const cpUserMutations: Record<string, Resolver> = {
 checkPermission(cpUserMutations, 'cpUsersAdd', 'manageClientPortalUsers');
 checkPermission(cpUserMutations, 'cpUsersEdit', 'manageClientPortalUsers');
 checkPermission(cpUserMutations, 'cpUsersRemove', 'manageClientPortalUsers');
+checkPermission(cpUserMutations, 'cpUsersSetPassword', 'manageClientPortalUsers');
 
 const ADMIN_CP_USER_KEYS = new Set([
   'cpUsersAdd',
   'cpUsersEdit',
   'cpUsersRemove',
+  'cpUsersSetPassword',
 ]);
 const clientPortalOnlyMutations = Object.fromEntries(
   Object.entries(cpUserMutations).filter(

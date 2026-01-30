@@ -153,6 +153,7 @@ export const mutations = `
   cpUsersAdd(${cpUsersAddParams}): CPUser
   cpUsersEdit(${cpUsersEditParams}): CPUser
   cpUsersRemove(_id: String!): CPUserRemoveResponse
+  cpUsersSetPassword(_id: String!, newPassword: String!): CPUser
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
   clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser

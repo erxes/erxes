@@ -213,6 +213,24 @@ export class PasswordService {
 
     return user!;
   }
+
+  async setPasswordByAdmin(
+    userId: string,
+    newPassword: string,
+    models: IModels,
+  ): Promise<ICPUserDocument> {
+    const user = await models.CPUser.findById(userId);
+    if (!user) {
+      throw new ValidationError('User not found');
+    }
+
+    validatePassword(newPassword);
+    const hashedPassword = await models.CPUser.generatePassword(newPassword);
+    await this.updateUserPassword(userId, hashedPassword, models);
+
+    const updated = await models.CPUser.findById(userId);
+    return updated!;
+  }
 }
 
 export const passwordService = new PasswordService();

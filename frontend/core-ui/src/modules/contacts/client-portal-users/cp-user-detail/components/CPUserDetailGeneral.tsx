@@ -1,4 +1,4 @@
-import { IconTrash } from '@tabler/icons-react';
+import { IconKey, IconTrash } from '@tabler/icons-react';
 import {
   Avatar,
   Badge,
@@ -13,6 +13,8 @@ import { CP_USERS_REMOVE } from '@/contacts/client-portal-users/graphql/cpUsersR
 import { GET_CLIENT_PORTAL_USERS } from '@/contacts/client-portal-users/graphql/getClientPortalUsers';
 import { ApolloError, useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { CPUserSetPasswordDialog } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserSetPasswordDialog';
 
 function displayName(
   user: {
@@ -32,6 +34,7 @@ function displayName(
 export function CPUserDetailGeneral() {
   const { cpUser } = useClientPortalUser();
   const [cpUserId, setCpUserId] = useQueryState<string>('cpUserId');
+  const [setPasswordOpen, setSetPasswordOpen] = useState(false);
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { t } = useTranslation('contact');
@@ -79,51 +82,70 @@ export function CPUserDetailGeneral() {
   const { avatar, type, isVerified, isEmailVerified, isPhoneVerified } = cpUser;
 
   return (
-    <div className="py-5 px-8 flex flex-col gap-6">
-      <div className="flex gap-2 items-center flex-col lg:flex-row">
-        <Avatar size="lg" className="h-12 w-12">
-          <Avatar.Image src={readImage(avatar)} />
-          <Avatar.Fallback>
-            {(
-              cpUser.firstName ||
-              cpUser.lastName ||
-              cpUser.email ||
-              cpUser.phone
-            )?.charAt(0) ?? '-'}
-          </Avatar.Fallback>
-        </Avatar>
-        <div className="flex flex-col items-start flex-1">
-          <span className="text-base font-semibold">{displayName(cpUser)}</span>
-          <div className="flex flex-wrap gap-2 mt-1">
-            {type && <Badge variant="secondary">{type}</Badge>}
-            <Badge variant={isVerified ? 'success' : 'secondary'}>
-              {isVerified
-                ? t('verified', { defaultValue: 'Verified' })
-                : t('unverified', { defaultValue: 'Unverified' })}
-            </Badge>
-            {isEmailVerified && (
-              <Badge variant="success">
-                {t('emailVerified', { defaultValue: 'Email verified' })}
+    <>
+      <div className="py-5 px-8 flex flex-col gap-6">
+        <div className="flex gap-2 items-center flex-col lg:flex-row">
+          <Avatar size="lg" className="h-12 w-12">
+            <Avatar.Image src={readImage(avatar)} />
+            <Avatar.Fallback>
+              {(
+                cpUser.firstName ||
+                cpUser.lastName ||
+                cpUser.email ||
+                cpUser.phone
+              )?.charAt(0) ?? '-'}
+            </Avatar.Fallback>
+          </Avatar>
+          <div className="flex flex-col items-start flex-1">
+            <span className="text-base font-semibold">{displayName(cpUser)}</span>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {type && <Badge variant="secondary">{type}</Badge>}
+              <Badge variant={isVerified ? 'success' : 'secondary'}>
+                {isVerified
+                  ? t('verified', { defaultValue: 'Verified' })
+                  : t('unverified', { defaultValue: 'Unverified' })}
               </Badge>
-            )}
-            {isPhoneVerified && (
-              <Badge variant="success">
-                {t('phoneVerified', { defaultValue: 'Phone verified' })}
-              </Badge>
-            )}
+              {isEmailVerified && (
+                <Badge variant="success">
+                  {t('emailVerified', { defaultValue: 'Email verified' })}
+                </Badge>
+              )}
+              {isPhoneVerified && (
+                <Badge variant="success">
+                  {t('phoneVerified', { defaultValue: 'Phone verified' })}
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setSetPasswordOpen(true)}
+            >
+              <IconKey className="w-4 h-4" />
+              {t('clientPortalUser.setPassword', {
+                defaultValue: 'Set password',
+              })}
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="text-destructive"
+              onClick={handleDelete}
+              disabled={removeLoading}
+            >
+              <IconTrash className="w-4 h-4" />
+              {t('delete', { defaultValue: 'Delete' })}
+            </Button>
           </div>
         </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="text-destructive shrink-0"
-          onClick={handleDelete}
-          disabled={removeLoading}
-        >
-          <IconTrash className="w-4 h-4" />
-          {t('delete', { defaultValue: 'Delete' })}
-        </Button>
       </div>
-    </div>
+      <CPUserSetPasswordDialog
+        open={setPasswordOpen}
+        onOpenChange={setSetPasswordOpen}
+        cpUserId={cpUser._id}
+      />
+    </>
   );
 }
