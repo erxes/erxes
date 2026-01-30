@@ -1,4 +1,20 @@
-import { IconBuilding, IconLabelFilled, IconUser } from '@tabler/icons-react';
+import {
+  IconBriefcase,
+  IconBuilding,
+  IconBuildingFactory,
+  IconChartBar,
+  IconClock,
+  IconCreditCard,
+  IconLabelFilled,
+  IconMail,
+  IconMapPin,
+  IconNumber,
+  IconPhone,
+  IconTags,
+  IconUser,
+  IconUsers,
+  IconWorld,
+} from '@tabler/icons-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
@@ -86,7 +102,9 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
     {
       id: 'emails',
       accessorKey: 'primaryEmail',
-      header: () => <RecordTable.InlineHead label={t('emails')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconMail} label={t('emails')} />
+      ),
       cell: ({ cell }) => {
         const { primaryEmail, _id, emails, emailValidationStatus } =
           cell.row.original;
@@ -106,7 +124,9 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
     {
       id: 'phones',
       accessorKey: 'primaryPhone',
-      header: () => <RecordTable.InlineHead label={t('phones')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconPhone} label={t('phones')} />
+      ),
       cell: ({ cell }) => {
         const { _id, phones, phoneValidationStatus, primaryPhone } =
           cell.row.original;
@@ -126,7 +146,9 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
     {
       id: 'owner',
       accessorKey: 'ownerId',
-      header: () => <RecordTable.InlineHead label={t('owner')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconUser} label={t('owner')} />
+      ),
       cell: ({ cell }) => {
         const { companiesEdit } = useCompaniesEdit();
         return (
@@ -151,21 +173,123 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       size: 200,
     },
     {
-      id: 'plan',
-      accessorKey: 'plan',
-      header: () => <RecordTable.InlineHead label={t('plan')} />,
-      cell: ({ cell }) => {
-        return (
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <TextOverflowTooltip value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        );
-      },
+      id: 'code',
+      accessorKey: 'code',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconNumber}
+          label={t('field.code') || 'Code'}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      ),
+      size: 150,
+    },
+    {
+      id: 'parentCompany',
+      accessorKey: 'parentCompany',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconBuilding}
+          label={t('field.parentCompanyId') || 'Parent Company'}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={(cell.getValue() as TCompany)?.primaryName}
+          />
+        </RecordTableInlineCell>
+      ),
+      size: 200,
+    },
+    {
+      id: 'industry',
+      accessorKey: 'industry',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconBuildingFactory}
+          label={t('field.industry')}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={(cell.getValue() as string[])?.join(', ') || ''} />
+        </RecordTableInlineCell>
+      ),
+      size: 250,
+    },
+    {
+      id: 'size',
+      accessorKey: 'size',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconUsers}
+          label={t('field.size') || 'Size'}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={String(cell.getValue() || '')} />
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      id: 'businessType',
+      accessorKey: 'businessType',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconBriefcase}
+          label={t('field.businessType') || 'Business Type'}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      ),
+      size: 150,
+    },
+    {
+      id: 'website',
+      accessorKey: 'website',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconWorld}
+          label={t('field.website') || 'Website'}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      ),
+      size: 200,
+    },
+    {
+      id: 'location',
+      accessorKey: 'location',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconMapPin}
+          label={t('field.location') || 'Location'}
+        />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      ),
+      size: 150,
     },
     {
       id: 'tagIds',
       accessorKey: 'tagIds',
-      header: () => <RecordTable.InlineHead label={t('tags')} />,
+      header: () => <RecordTable.InlineHead icon={IconTags} label={t('tags')} />,
       cell: ({ cell }) => {
         return (
           <TagsSelect.InlineCell
@@ -195,7 +319,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
     {
       id: 'lastSeenAt',
       accessorKey: 'lastSeenAt',
-      header: () => <RecordTable.InlineHead label={t('last-seen')} />,
+      header: () => <RecordTable.InlineHead icon={IconClock} label={t('last-seen')} />,
       cell: ({ cell }) => {
         return (
           <RecordTableInlineCell>
@@ -208,7 +332,10 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       id: 'profileScore',
       accessorKey: 'score',
       header: () => (
-        <RecordTable.InlineHead icon={IconUser} label={t('profile-score')} />
+        <RecordTable.InlineHead
+          icon={IconChartBar}
+          label={t('profile-score')}
+        />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
