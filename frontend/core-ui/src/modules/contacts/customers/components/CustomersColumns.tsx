@@ -38,13 +38,16 @@ import { useSetAtom } from 'jotai';
 import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
+import { customerMoreColumn } from './CustomerMoreColumn';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
 export const createCustomersColumns = (
   t: TFunction,
 ): ColumnDef<ICustomer>[] => [
+  customerMoreColumn,
   checkBoxColumn,
+
   {
     id: 'avatar',
     accessorKey: 'avatar',
