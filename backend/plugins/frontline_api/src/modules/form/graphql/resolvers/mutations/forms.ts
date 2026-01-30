@@ -29,11 +29,7 @@ export const formMutations = {
    * Update a form data
    */
   formsEdit: async (_root, { _id, ...doc }: IForm, { models }: IContext) => {
-    return models.Forms.updateForm(_id, {
-      title: doc.title,
-      description: doc.description,
-      buttonText: doc.buttonText,
-    });
+    return models.Forms.updateForm(_id, doc);
   },
 
   /**
