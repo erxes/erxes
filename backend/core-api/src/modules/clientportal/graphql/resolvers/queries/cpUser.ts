@@ -52,9 +52,9 @@ export const cpUserQueries: Record<string, Resolver> = {
       query.isVerified = filter.isVerified;
     }
 
-    if (filter.searchValue && filter.searchValue.trim()) {
+    if (filter?.searchValue?.trim()) {
       const regex = new RegExp(
-        `.*${escapeRegExp(filter.searchValue.trim())}.*`,
+        `.*${escapeRegExp(filter?.searchValue?.trim())}.*`,
         'i',
       );
       query.$or = [

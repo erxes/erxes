@@ -7,7 +7,10 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { GET_CLIENT_PORTAL_USERS } from '@/contacts/client-portal-users/graphql/getClientPortalUsers';
-import { ICPUser, ICPUserListResponse } from '@/contacts/client-portal-users/types/cpUser';
+import {
+  ICPUser,
+  ICPUserListResponse,
+} from '@/contacts/client-portal-users/types/cpUser';
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { cpUserTotalCountAtom } from '@/contacts/client-portal-users/states/cpUserCounts';
 import { useSetAtom } from 'jotai';
@@ -30,19 +33,22 @@ export const useClientPortalUsers = (
     sessionKey: CP_USERS_CURSOR_SESSION_KEY,
   });
 
+  let isVerified: boolean | undefined = undefined;
+  if (queries?.isVerified) {
+    isVerified = queries?.isVerified === 'true' ? true : false;
+  }
+
   const filter = {
     limit: CP_USERS_PER_PAGE,
     cursor: cursor ?? undefined,
     direction: 'forward' as const,
     orderBy: { createdAt: -1 },
     searchValue: queries?.searchValue || undefined,
-    type: queries?.type === 'customer' || queries?.type === 'company' ? queries.type : undefined,
-    isVerified:
-      queries?.isVerified === 'true'
-        ? true
-        : queries?.isVerified === 'false'
-          ? false
-          : undefined,
+    type:
+      queries?.type === 'customer' || queries?.type === 'company'
+        ? queries.type
+        : undefined,
+    isVerified,
     clientPortalId: queries?.clientPortalId || undefined,
   };
 
@@ -53,8 +59,7 @@ export const useClientPortalUsers = (
     variables: { filter },
   });
 
-  const { list, totalCount, pageInfo } =
-    data?.getClientPortalUsers || {};
+  const { list, totalCount, pageInfo } = data?.getClientPortalUsers || {};
 
   useEffect(() => {
     if (totalCount != null) {

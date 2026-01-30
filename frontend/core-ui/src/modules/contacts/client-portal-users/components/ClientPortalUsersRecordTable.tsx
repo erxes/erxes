@@ -9,12 +9,27 @@ export const ClientPortalUsersRecordTable = () => {
     list,
     handleFetchMore,
     loading,
-    pageInfo,
     totalCount,
     hasNextPage,
     hasPreviousPage,
   } = useClientPortalUsers();
-
+  const RecordMain = () => {
+    if (loading) {
+      return <RecordTable.RowSkeleton rows={32} />;
+    }
+    if (!totalCount) {
+      return (
+        <tr className="h-[40vh]">
+          <td colSpan={9} className="py-10 text-center">
+            <div className="flex flex-col items-center justify-center text-muted-foreground">
+              <Label>No client portal users</Label>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+    return <RecordTable.RowList />;
+  };
   return (
     <RecordTable.Provider
       columns={clientPortalUserColumns}
@@ -34,19 +49,7 @@ export const ClientPortalUsersRecordTable = () => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading ? (
-              <RecordTable.RowSkeleton rows={32} />
-            ) : !totalCount ? (
-              <tr className="h-[40vh]">
-                <td colSpan={9} className="py-10 text-center">
-                  <div className="flex flex-col items-center justify-center text-muted-foreground">
-                    <Label>No client portal users</Label>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              <RecordTable.RowList />
-            )}
+            <RecordMain />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

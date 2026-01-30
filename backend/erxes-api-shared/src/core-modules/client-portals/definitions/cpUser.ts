@@ -209,20 +209,11 @@ cpUserSchema.index({ clientPortalId: 1 });
 cpUserSchema.index({ email: 1 });
 cpUserSchema.index({ phone: 1 });
 cpUserSchema.index(
-  { providerId: 1, email: 1 },
+  { createdAt: 1 },
   {
-    unique: true,
+    expireAfterSeconds: 24 * 60 * 60,
     partialFilterExpression: {
-      email: { $exists: true, $ne: null },
-    },
-  },
-);
-cpUserSchema.index(
-  { providerId: 1, phone: 1 },
-  {
-    unique: true,
-    partialFilterExpression: {
-      email: { $exists: true, $ne: null },
+      $and: [{ isPhoneVerified: false }, { isEmailVerified: false }],
     },
   },
 );

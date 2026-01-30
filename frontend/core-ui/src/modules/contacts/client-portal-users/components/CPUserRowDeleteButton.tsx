@@ -9,7 +9,6 @@ export function CPUserRowDeleteButton({ row }: { row: ICPUser }) {
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { t } = useTranslation('contact');
-  const [, setCpUserId] = useQueryState<string>('cpUserId');
 
   const [cpUsersRemove, { loading }] = useMutation(CP_USERS_REMOVE, {
     refetchQueries: ['getClientPortalUsers'],
@@ -32,7 +31,6 @@ export function CPUserRowDeleteButton({ row }: { row: ICPUser }) {
           });
         },
         onCompleted: () => {
-          // setCpUserId((current) => (current === row._id ? null : current));
           toast({
             title: t('success', { defaultValue: 'Success' }),
             variant: 'success',
