@@ -1,22 +1,21 @@
 import { Cell } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
 
 import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
-import { ITask } from '@/task/types';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
-import { useSetAtom } from 'jotai';
+import { ICycle } from '../types';
 
-export const TasksMoreColumnCell = ({
+export const CyclesMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<ITask, unknown>;
+  cell: Cell<ICycle, unknown>;
 }) => {
-  const setActiveTask = useSetAtom(taskDetailSheetState);
-  const { _id } = cell.row.original;
+  const navigate = useNavigate();
+  const { _id, teamId } = cell.row.original;
 
-  const handleEdit = (taskId: string) => {
-    setActiveTask(taskId);
+  const handleEdit = (cycleId: string) => {
+    navigate(`/operation/team/${teamId}/cycles/${cycleId}`);
   };
 
   return (
@@ -37,8 +36,8 @@ export const TasksMoreColumnCell = ({
   );
 };
 
-export const tasksMoreColumn = {
+export const cyclesMoreColumn = {
   id: 'more',
-  cell: TasksMoreColumnCell,
+  cell: CyclesMoreColumnCell,
   size: 33,
 };
