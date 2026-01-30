@@ -5,10 +5,8 @@ import { AssignmentAddCampaignMoreFields } from './assignment-campaign-field/Ass
 import { UseFormReturn } from 'react-hook-form';
 
 export function AddAssignmentCampaignForm({
-  onOpenChange,
   form: assignmentForm,
 }: {
-  onOpenChange: (open: boolean) => void;
   form: UseFormReturn<AssignmentFormValues>;
 }) {
   return (

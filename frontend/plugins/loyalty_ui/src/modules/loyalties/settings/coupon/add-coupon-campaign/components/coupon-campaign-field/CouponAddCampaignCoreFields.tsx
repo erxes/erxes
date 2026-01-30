@@ -73,7 +73,7 @@ export const CouponAddCampaignCoreFields: React.FC<
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
-                    className={!field.value ? 'text-muted-foreground' : ''}
+                    className={field.value ? '' : 'text-muted-foreground'}
                   >
                     {COUPON_KIND_TYPES.find(
                       (type) => type.value === field.value,

@@ -80,7 +80,7 @@ export const AssignmentTabs = ({ onOpenChange, form }: Props) => {
     <Form {...form}>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-auto overflow-hidden py-4 px-5">
-          <AddAssignmentCampaignForm onOpenChange={onOpenChange} form={form} />
+          <AddAssignmentCampaignForm form={form} />
         </div>
         {renderFooter()}
       </div>

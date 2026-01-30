@@ -10,7 +10,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { IconReceipt } from '@tabler/icons-react';
 import { IVoucherCampaign } from '../../types/voucherCampaignType';
 import {
@@ -19,6 +19,8 @@ import {
 } from '../../context/SelectVoucherCampaignContext';
 import { useVoucherCampaign } from '../../hooks/useSelectVoucherCampaign';
 import { VoucherCampaignInline } from '../VoucherCampaignInline';
+
+type VoucherCampaignValue = string[] | string | null;
 
 export const SelectVoucherCampaignProvider = ({
   children,
@@ -29,13 +31,13 @@ export const SelectVoucherCampaignProvider = ({
 }: {
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
-  value?: string[] | string | null;
-  onValueChange: (value: string[] | string | null) => void;
+  value?: VoucherCampaignValue;
+  onValueChange: (value: VoucherCampaignValue) => void;
   voucherCampaigns?: IVoucherCampaign[];
 }) => {
-  const [_voucherCampaigns, setVoucherCampaigns] = useState<IVoucherCampaign[]>(
-    voucherCampaigns || [],
-  );
+  const [selectedVoucherCampaigns, setVoucherCampaigns] = useState<
+    IVoucherCampaign[]
+  >(voucherCampaigns || []);
   const isSingleMode = mode === 'single';
 
   const onSelect = useCallback(
@@ -47,7 +49,13 @@ export const SelectVoucherCampaignProvider = ({
         return onValueChange(voucherCampaign._id);
       }
 
-      const arrayValue = Array.isArray(value) ? value : value ? [value] : [];
+      let arrayValue: string[] = [];
+
+      if (Array.isArray(value)) {
+        arrayValue = value;
+      } else if (value) {
+        arrayValue = [value];
+      }
       const isVoucherCampaignSelected = arrayValue.includes(
         voucherCampaign._id,
       );
@@ -66,22 +74,32 @@ export const SelectVoucherCampaignProvider = ({
     [isSingleMode, onValueChange, value],
   );
 
+  const voucherCampaignId = useMemo(() => {
+    if (!value || (Array.isArray(value) && value.length === 0)) {
+      return [];
+    }
+    return Array.isArray(value) ? value : [value];
+  }, [value]);
+
+  const contextValue = useMemo(
+    () => ({
+      voucherCampaigns: selectedVoucherCampaigns,
+      voucherCampaignId,
+      onSelect,
+      setVoucherCampaigns,
+      loading: false,
+      error: null,
+    }),
+    [
+      selectedVoucherCampaigns,
+      voucherCampaignId,
+      onSelect,
+      setVoucherCampaigns,
+    ],
+  );
+
   return (
-    <SelectVoucherCampaignContext.Provider
-      value={{
-        voucherCampaigns: _voucherCampaigns,
-        voucherCampaignId:
-          !value || (Array.isArray(value) && value.length === 0)
-            ? []
-            : Array.isArray(value)
-            ? value
-            : [value],
-        onSelect,
-        setVoucherCampaigns,
-        loading: false,
-        error: null,
-      }}
-    >
+    <SelectVoucherCampaignContext.Provider value={contextValue}>
       {children}
     </SelectVoucherCampaignContext.Provider>
   );
@@ -200,13 +218,12 @@ export const SelectVoucherCampaignFilterView = ({
   queryKey,
   mode = 'single',
 }: {
-  onValueChange?: (value: string[] | string | null) => void;
+  onValueChange?: (value: VoucherCampaignValue) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [voucherCampaign, setVoucherCampaign] = useQueryState<
-    string[] | string | null
-  >(queryKey || 'voucherCampaign');
+  const [voucherCampaign, setVoucherCampaign] =
+    useQueryState<VoucherCampaignValue>(queryKey || 'voucherCampaign');
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -233,13 +250,12 @@ export const SelectVoucherCampaignFilterBar = ({
   mode = 'single',
 }: {
   iconOnly?: boolean;
-  onValueChange?: (value: string[] | string | null) => void;
+  onValueChange?: (value: VoucherCampaignValue) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [voucherCampaign, setVoucherCampaign] = useQueryState<
-    string[] | string | null
-  >(queryKey || 'voucherCampaign');
+  const [voucherCampaign, setVoucherCampaign] =
+    useQueryState<VoucherCampaignValue>(queryKey || 'voucherCampaign');
   const [open, setOpen] = useState(false);
 
   return (

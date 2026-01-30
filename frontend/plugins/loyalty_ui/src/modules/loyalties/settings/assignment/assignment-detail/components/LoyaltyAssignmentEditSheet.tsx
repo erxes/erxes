@@ -58,7 +58,8 @@ export const LoyaltyAssignmentEditSheet = ({ assignmentId }: Props) => {
           : undefined,
         kind: assignmentDetail.kind || '',
         conditions: {
-          voucherCampaignId: assignmentDetail.conditions?.voucherCampaignId || '',
+          voucherCampaignId:
+            assignmentDetail.conditions?.voucherCampaignId || '',
           segmentId: assignmentDetail.conditions?.segmentId || '',
         },
       });
@@ -102,7 +103,7 @@ export const LoyaltyAssignmentEditSheet = ({ assignmentId }: Props) => {
 
   return (
     <Sheet
-      onOpenChange={(open: boolean) => (!open ? onClose() : null)}
+      onOpenChange={(open: boolean) => (open ? null : onClose())}
       open={open}
       modal
     >

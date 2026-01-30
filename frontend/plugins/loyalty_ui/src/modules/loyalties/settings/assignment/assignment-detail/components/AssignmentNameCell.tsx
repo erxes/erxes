@@ -13,13 +13,14 @@ export const AssignmentNameCell = ({
   const [, setEditOpen] = useQueryState('editAssignmentId');
 
   return (
-    <div
-      className="cursor-pointer px-3 py-2"
+    <button
+      type="button"
+      className="px-3 py-2 cursor-pointer"
       onClick={() => {
         setEditOpen(assignment._id);
       }}
     >
       {name}
-    </div>
+    </button>
   );
 };

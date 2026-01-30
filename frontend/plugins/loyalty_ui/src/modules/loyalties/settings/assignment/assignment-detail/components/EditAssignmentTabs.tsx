@@ -1,10 +1,8 @@
-import { Button, Form, Sheet } from 'erxes-ui';
+import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { AddAssignmentCampaignForm } from '../../add-assignment-campaign/components/AddAssignmentCampaignForm';
-
 import { UseFormReturn } from 'react-hook-form';
 import { AssignmentFormValues } from '../../constants/assignmentFormSchema';
 import { useAssignmentEdit } from '../hooks/useAssignmentEdit';
-import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import { useAssignmentDetailWithQuery } from '../hooks/useAssignmentDetailWithQuery';
 
@@ -84,7 +82,7 @@ export const EditAssignmentTabs = ({ onOpenChange, form }: Props) => {
     <Form {...form}>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-auto overflow-hidden py-4 px-5">
-          <AddAssignmentCampaignForm onOpenChange={onOpenChange} form={form} />
+          <AddAssignmentCampaignForm form={form} />
         </div>
         {renderFooter()}
       </div>

@@ -5,10 +5,8 @@ import { CouponAddCampaignMoreFields } from './coupon-campaign-field/CouponAddCa
 import { UseFormReturn } from 'react-hook-form';
 
 export function AddCouponCampaignForm({
-  onOpenChange,
   form: couponForm,
 }: {
-  onOpenChange: (open: boolean) => void;
   form: UseFormReturn<CouponFormValues>;
 }) {
   return (

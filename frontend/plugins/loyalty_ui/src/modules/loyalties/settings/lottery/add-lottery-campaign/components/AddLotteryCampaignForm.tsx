@@ -5,10 +5,8 @@ import { LotteryAddCampaignMoreFields } from './lottery-field/LotteryAddCampaign
 import { UseFormReturn } from 'react-hook-form';
 
 export function AddLotteryCampaignForm({
-  onOpenChange,
   form: lotteryForm,
 }: {
-  onOpenChange: (open: boolean) => void;
   form: UseFormReturn<LotteryFormValues>;
 }) {
   return (

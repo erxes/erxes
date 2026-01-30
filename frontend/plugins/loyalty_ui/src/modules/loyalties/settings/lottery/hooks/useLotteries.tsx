@@ -62,13 +62,19 @@ export const useLottery = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          getCampaigns: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.getCampaigns,
-            prevResult: prev.getCampaigns,
-          }),
-        });
+        return {
+          ...prev,
+          getCampaigns: {
+            ...mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.getCampaigns,
+              prevResult: prev.getCampaigns,
+            }),
+            totalCount:
+              fetchMoreResult.getCampaigns.totalCount ??
+              prev.getCampaigns.totalCount,
+          },
+        };
       },
     });
   };

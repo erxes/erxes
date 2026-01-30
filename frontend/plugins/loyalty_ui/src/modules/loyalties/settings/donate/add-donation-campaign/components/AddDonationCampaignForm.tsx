@@ -5,10 +5,8 @@ import { DonationAddCampaignMoreFields } from './donation-field/DonationAddCampa
 import { UseFormReturn } from 'react-hook-form';
 
 export function AddDonationCampaignForm({
-  onOpenChange,
   form: donationForm,
 }: {
-  onOpenChange: (open: boolean) => void;
   form: UseFormReturn<DonationFormValues>;
 }) {
   return (

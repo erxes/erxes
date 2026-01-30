@@ -10,7 +10,7 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -47,13 +47,11 @@ export const DateSelectProvider = ({
   ...props
 }: DateSelectContextType & {
   children: React.ReactNode;
-} & DateSelectContextType) => {
+}) => {
+  const memoizedValue = useMemo(() => props, [props]);
+
   return (
-    <DateSelectContext.Provider
-      value={{
-        ...props,
-      }}
-    >
+    <DateSelectContext.Provider value={memoizedValue}>
       {children}
     </DateSelectContext.Provider>
   );
@@ -62,26 +60,26 @@ export const DateSelectProvider = ({
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
   const { value } = useDateSelectContext();
 
-  if (!value) {
+  if (value) {
     return (
       <>
-        <IconCalendarPlus className="text-accent-foreground" />
-        <span className="text-accent-foreground font-medium">
-          {placeholder || 'Select date...'}
-        </span>
+        <IconCalendarTime className="size-4 text-muted-foreground" />
+        {format(
+          value,
+          value.getFullYear() === new Date().getFullYear()
+            ? 'MMM d'
+            : 'MMM d, yyyy',
+        )}
       </>
     );
   }
 
   return (
     <>
-      <IconCalendarTime className="size-4 text-muted-foreground" />
-      {format(
-        value,
-        value.getFullYear() === new Date().getFullYear()
-          ? 'MMM d'
-          : 'MMM d, yyyy',
-      )}
+      <IconCalendarPlus className="text-accent-foreground" />
+      <span className="text-accent-foreground font-medium">
+        {placeholder || 'Select date...'}
+      </span>
     </>
   );
 };

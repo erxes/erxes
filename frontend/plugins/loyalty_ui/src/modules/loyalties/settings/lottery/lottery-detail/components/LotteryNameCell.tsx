@@ -10,13 +10,13 @@ export const LotteryNameCell = ({ lottery, name }: LotteryNameCellProps) => {
   const [, setEditOpen] = useQueryState('editLotteryId');
 
   return (
-    <div
+    <button
       className="cursor-pointer px-3 py-2"
       onClick={() => {
         setEditOpen(lottery._id);
       }}
     >
       {name}
-    </div>
+    </button>
   );
 };

@@ -115,7 +115,9 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
 
   return (
     <Sheet
-      onOpenChange={(open: boolean) => (!open ? onClose() : null)}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
       open={open}
       modal
     >
@@ -140,7 +142,9 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">
           <EditCouponTabs
-            onOpenChange={(open) => !open && onClose()}
+            onOpenChange={(open) => {
+              if (!open) onClose();
+            }}
             form={form}
           />
         </Sheet.Content>

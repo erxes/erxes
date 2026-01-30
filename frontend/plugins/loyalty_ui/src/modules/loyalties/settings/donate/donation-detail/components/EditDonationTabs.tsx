@@ -1,10 +1,8 @@
-import { Button, Form, Sheet } from 'erxes-ui';
+import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { AddDonationCampaignForm } from '../../add-donation-campaign/components/AddDonationCampaignForm';
-
 import { UseFormReturn } from 'react-hook-form';
 import { DonationFormValues } from '../../constants/donationFormSchema';
 import { useDonationEdit } from '../hooks/useDonationEdit';
-import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import { useDonationDetailWithQuery } from '../hooks/useDonationDetailWithQuery';
 
@@ -85,7 +83,7 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
     <Form {...form}>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-auto overflow-hidden py-4 px-5">
-          <AddDonationCampaignForm onOpenChange={onOpenChange} form={form} />
+          <AddDonationCampaignForm form={form} />
         </div>
         {renderFooter()}
       </div>

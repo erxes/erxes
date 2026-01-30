@@ -25,7 +25,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
 
   try {
     const date = new Date(value);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return <span className="text-muted-foreground">-</span>;
     }
 

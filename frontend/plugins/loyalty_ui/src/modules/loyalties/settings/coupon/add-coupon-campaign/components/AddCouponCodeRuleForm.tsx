@@ -6,10 +6,8 @@ import { CouponStaticCodeRuleField } from './coupon-code-rule-field/CouponStatic
 import { UseFormReturn } from 'react-hook-form';
 
 export function AddCouponCodeRuleForm({
-  onOpenChange,
   form,
 }: {
-  onOpenChange: (open: boolean) => void;
   form: UseFormReturn<CouponFormValues>;
 }) {
   const [activeSubTab, setActiveSubTab] = useState('default');
@@ -24,7 +22,9 @@ export function AddCouponCodeRuleForm({
             className="w-full"
           >
             <Tabs.List className="grid w-full grid-cols-2 border-0">
-              <Tabs.Trigger className='' value="default">Default</Tabs.Trigger>
+              <Tabs.Trigger className="" value="default">
+                Default
+              </Tabs.Trigger>
               <Tabs.Trigger value="static">Static</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="default" className="mt-4">

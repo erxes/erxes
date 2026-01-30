@@ -10,7 +10,7 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -45,15 +45,18 @@ const useDateSelectContext = () => {
 export const DateSelectProvider = ({
   children,
   ...props
-}: DateSelectContextType & {
+}: {
   children: React.ReactNode;
 } & DateSelectContextType) => {
+  const memoizedValue = useMemo(
+    () => ({
+      ...props,
+    }),
+    [props],
+  );
+
   return (
-    <DateSelectContext.Provider
-      value={{
-        ...props,
-      }}
-    >
+    <DateSelectContext.Provider value={memoizedValue}>
       {children}
     </DateSelectContext.Provider>
   );

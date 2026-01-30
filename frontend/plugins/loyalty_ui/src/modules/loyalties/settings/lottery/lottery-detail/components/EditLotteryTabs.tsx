@@ -1,6 +1,4 @@
-import { Button, Form, Sheet } from 'erxes-ui';
-
-import { useToast } from 'erxes-ui';
+import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import { useEditLottery } from '../../hooks/useEditLottery';
 import { AddLotteryCampaignForm } from '../../add-lottery-campaign/components/AddLotteryCampaignForm';
@@ -95,7 +93,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
     <Form {...form}>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-auto overflow-hidden py-4 px-5">
-          <AddLotteryCampaignForm onOpenChange={onOpenChange} form={form} />
+          <AddLotteryCampaignForm form={form} />
         </div>
         {renderFooter()}
       </div>

@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Button, Tabs, Form, Sheet } from 'erxes-ui';
+import { Button, Tabs, Form, Sheet, useToast } from 'erxes-ui';
 import { AddCouponCampaignForm } from './AddCouponCampaignForm';
 import { AddCouponRestrictionForm } from './AddCouponRestrictionForm';
 import { UseFormReturn } from 'react-hook-form';
 import { CouponFormValues } from '../../constants/couponFormSchema';
 import { useAddCoupon } from '../../hooks/useAddCoupon';
-import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import { AddCouponCodeRuleForm } from './AddCouponCodeRuleForm';
 
@@ -174,7 +173,7 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
         <Form {...form}>
           <div className="flex flex-col h-full overflow-hidden">
             <div className="flex-auto overflow-hidden">
-              <AddCouponCampaignForm onOpenChange={onOpenChange} form={form} />
+              <AddCouponCampaignForm form={form} />
             </div>
             {renderFooter()}
           </div>
@@ -187,10 +186,7 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
         <Form {...form}>
           <div className="flex flex-col h-full overflow-hidden">
             <div className="flex-auto overflow-hidden">
-              <AddCouponRestrictionForm
-                onOpenChange={onOpenChange}
-                form={form}
-              />
+              <AddCouponRestrictionForm form={form} />
             </div>
             {renderFooter()}
           </div>
@@ -200,7 +196,7 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
         <Form {...form}>
           <div className="flex flex-col h-full overflow-hidden">
             <div className="flex-auto overflow-hidden">
-              <AddCouponCodeRuleForm onOpenChange={onOpenChange} form={form} />
+              <AddCouponCodeRuleForm form={form} />
             </div>
             {renderFooter()}
           </div>

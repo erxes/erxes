@@ -42,14 +42,7 @@ const DateSelectFormField = ({
         <Form.Control>
           <Popover.Trigger asChild>
             <Combobox.TriggerBase className="w-full h-8">
-              {!dateValue ? (
-                <>
-                  <IconCalendarPlus className="text-accent-foreground" />
-                  <span className="text-accent-foreground font-medium">
-                    {placeholder || 'Select date...'}
-                  </span>
-                </>
-              ) : (
+              {dateValue ? (
                 <>
                   <IconCalendarTime className="size-4 text-muted-foreground" />
                   {format(
@@ -58,6 +51,13 @@ const DateSelectFormField = ({
                       ? 'MMM d'
                       : 'MMM d, yyyy',
                   )}
+                </>
+              ) : (
+                <>
+                  <IconCalendarPlus className="text-accent-foreground" />
+                  <span className="text-accent-foreground font-medium">
+                    {placeholder || 'Select date...'}
+                  </span>
                 </>
               )}
             </Combobox.TriggerBase>

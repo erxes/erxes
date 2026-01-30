@@ -107,7 +107,9 @@ export const LoyaltyDonationEditSheet = ({ donationId }: Props) => {
 
   return (
     <Sheet
-      onOpenChange={(open: boolean) => (!open ? onClose() : null)}
+      onOpenChange={(open: boolean) => {
+        if (!open) onClose();
+      }}
       open={open}
       modal
     >

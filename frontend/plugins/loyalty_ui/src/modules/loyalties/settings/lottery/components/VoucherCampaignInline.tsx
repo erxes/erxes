@@ -9,11 +9,11 @@ import {
   VoucherCampaignInlineProps,
   IVoucherCampaign,
 } from '../types/voucherCampaignType';
+import { useVoucherCampaignInline } from '../hooks/useVoucherCampaignInline';
 import {
   useVoucherCampaignInlineContext,
   VoucherCampaignInlineContext,
 } from '../context/VoucherCampaignInlineContext';
-import { useVoucherCampaignInline } from '../hooks/useVoucherCampaignInline';
 
 const VoucherCampaignInlineRoot = (props: VoucherCampaignInlineProps) => {
   return (
@@ -33,16 +33,17 @@ const VoucherCampaignInlineProvider = ({
   const [_voucherCampaigns, _setVoucherCampaigns] = useState<
     IVoucherCampaign[]
   >(voucherCampaigns || []);
-
   const contextValue = useMemo(() => {
+    const normalizedVoucherCampaignId = Array.isArray(voucherCampaignId)
+      ? voucherCampaignId
+      : voucherCampaignId
+      ? [voucherCampaignId]
+      : undefined;
+
     return {
       voucherCampaigns: voucherCampaigns || _voucherCampaigns,
       loading: false,
-      voucherCampaignId: Array.isArray(voucherCampaignId)
-        ? voucherCampaignId
-        : voucherCampaignId
-        ? [voucherCampaignId]
-        : undefined,
+      voucherCampaignId: normalizedVoucherCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select voucher campaigns'
         : placeholder,

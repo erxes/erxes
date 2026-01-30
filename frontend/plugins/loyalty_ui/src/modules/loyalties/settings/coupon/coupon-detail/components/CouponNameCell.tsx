@@ -10,13 +10,14 @@ export const CouponNameCell = ({ coupon, name }: CouponNameCellProps) => {
   const [, setEditOpen] = useQueryState('editCouponId');
 
   return (
-    <div
-      className="cursor-pointer px-3 py-2"
+    <button
+      type="button"
+      className="px-3 py-2 cursor-pointer"
       onClick={() => {
         setEditOpen(coupon._id);
       }}
     >
       {name}
-    </div>
+    </button>
   );
 };

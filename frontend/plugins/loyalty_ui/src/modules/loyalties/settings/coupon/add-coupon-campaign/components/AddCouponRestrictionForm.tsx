@@ -5,10 +5,8 @@ import { CouponAddRestrictionMoreFields } from './coupon-restriction-field/Coupo
 import { UseFormReturn } from 'react-hook-form';
 
 export function AddCouponRestrictionForm({
-  onOpenChange,
   form,
 }: {
-  onOpenChange: (open: boolean) => void;
   form: UseFormReturn<CouponFormValues>;
 }) {
   return (
