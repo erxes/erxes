@@ -1,17 +1,16 @@
-import { CompanyTextField } from '@/contacts/companies/company-detail/CompanyTextField';
+import { CompanyAddGeneralInformationFields } from '@/contacts/companies/components/CompanyAddGeneralInformationFields';
+import {
+  companyFormSchema,
+  CompanyFormType,
+} from '@/contacts/companies/constants/formSchema';
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { DataListItem } from '@/contacts/components/ContactDataListItem';
-import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Combobox, Form, Label, Switch, useToast } from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  CompanyEmails,
-  CompanyOwner,
-  CompanyPhones,
-  TagsSelect,
-  useCompaniesEdit,
-} from 'ui-modules';
-import { useDebounce } from 'use-debounce';
+import { TagsSelect, useCompaniesEdit } from 'ui-modules';
 
 export const CompanyDetailFields = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
@@ -21,98 +20,94 @@ export const CompanyDetailFields = () => {
     ownerId,
     code,
     primaryEmail,
-    emails,
-    emailValidationStatus,
     primaryPhone,
-    phones,
-    phoneValidationStatus,
     isSubscribed,
     description,
+    location,
+    industry,
+    website,
+    size,
+    businessType,
+    parentCompany,
+    avatar,
+    primaryName,
   } = companyDetail;
   const { companiesEdit } = useCompaniesEdit();
+  const { toast } = useToast();
+  const { t } = useTranslation('contact');
 
-  const [localDescription, setLocalDescription] = useState(description || '');
-  const [debouncedDescription] = useDebounce(localDescription, 500);
+  const industryValue = industry
+    ? industry.map((i: string) => ({ label: i, value: i }))
+    : [];
 
-  const isInitialMount = useRef(true);
+  const form = useForm<CompanyFormType>({
+    resolver: zodResolver(companyFormSchema),
+    values: {
+      primaryName: primaryName || '',
+      email: primaryEmail || '',
+      phone: primaryPhone || '',
+      website: website || '',
+      industry: industryValue,
+      description: description || '',
+      code: code || '',
+      avatar: avatar || '',
+      location: location || '',
+      parentCompanyId: parentCompany?._id || '',
+      ownerId: ownerId || '',
+      businessType: businessType || '',
+      size: size || 0,
+    },
+  });
 
-  useEffect(() => {
-    setLocalDescription(description || '');
-  }, [description]);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
+  const onSubmit = (data: CompanyFormType) => {
+    const { phone, email, industry, ...rest } = data;
     companiesEdit({
       variables: {
         _id,
-        description: debouncedDescription,
+        ...rest,
+        primaryPhone: phone,
+        primaryEmail: email,
+        industry: industry?.map((i) => i.value),
+      },
+      onCompleted: () => {
+        toast({ title: t('saved') || 'Saved', variant: 'success' });
+      },
+      onError: (e) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
       },
     });
-  }, [debouncedDescription, _id, companiesEdit]);
+  };
 
   return (
     <div className="space-y-6 py-8">
       <CompanyDetailSelectTag tagIds={tagIds} companyId={_id} />
-      <fieldset className="px-8 space-y-2">
-        <Label asChild>
-          <legend>Owner</legend>
-        </Label>
-        <div className="inline-flex">
-          <CompanyOwner _id={_id} ownerId={ownerId} />
-        </div>
-      </fieldset>
-      <div className="px-8 font-medium flex gap-5 flex-col">
-        <div className="grid grid-cols-2 gap-5 col-span-5">
-          <DataListItem label="Code">
-            <CompanyTextField
-              value={code || ''}
-              placeholder="Add Code"
-              field="code"
-              _id={_id}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-8">
+          <CompanyAddGeneralInformationFields form={form} />
+
+          <DataListItem label={t('subscribed') || 'Subscribed'}>
+            <Switch
+              checked={isSubscribed === 'Yes'}
+              onCheckedChange={(checked) => {
+                companiesEdit({
+                  variables: {
+                    _id,
+                    isSubscribed: checked ? 'Yes' : 'No',
+                  },
+                });
+              }}
             />
           </DataListItem>
-          <DataListItem label="Emails">
-            <CompanyEmails
-              _id={_id}
-              primaryEmail={primaryEmail || ''}
-              emails={emails || []}
-              emailValidationStatus={emailValidationStatus || 'valid'}
-              Trigger={(props) => <Combobox.TriggerBase {...props} />}
-            />
-          </DataListItem>
-          <DataListItem label="phones">
-            <CompanyPhones
-              _id={_id}
-              primaryPhone={primaryPhone || ''}
-              phones={phones || []}
-              phoneValidationStatus={phoneValidationStatus || 'valid'}
-              Trigger={Combobox.TriggerBase}
-            />
-          </DataListItem>
-        </div>
-        <DataListItem label="Subscribed">
-          <Switch
-            checked={isSubscribed === 'Yes'}
-            onCheckedChange={(checked) => {
-              companiesEdit({
-                variables: {
-                  _id,
-                  isSubscribed: checked ? 'Yes' : 'No',
-                },
-              });
-            }}
-          />
-        </DataListItem>
-        <DataListItem label="Description">
-          <Textarea
-            value={localDescription}
-            onChange={(e) => setLocalDescription(e.target.value)}
-          />
-        </DataListItem>
-      </div>
+
+          <div className="flex justify-end">
+            <Button type="submit">{t('save', 'Save')}</Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 };
