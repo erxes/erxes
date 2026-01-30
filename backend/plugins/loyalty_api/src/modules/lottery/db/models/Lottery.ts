@@ -196,7 +196,7 @@ export const loadLotteryClass = (models: IModels) => {
         change: -1 * lotteryCampaign.conditions?.buyScore * count,
         description: 'buy lottery',
         campaignId,
-        action: 'buy',
+        action: 'subtract',
         contentId: campaignId,
         contentType: 'campaign',
         createdBy: user._id,

@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { IAssignmentCampaignDocument } from '@/assignment/@types/assignmentCampaign';
+import { IAssignmentCampaignDocument } from '@/assignment/@types/assigmentCampaign';
 
 export const assignmentCampaignResolvers = {
   assignmentsCount: async (

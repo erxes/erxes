@@ -5,7 +5,7 @@ import {
   paginateTypes
 } from '~/utils/common';
 export const types = `
-  type DonateCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type DonateCampaign @key(fields: "_id"){
     _id: String,
     ${commonCampaignTypes}
 

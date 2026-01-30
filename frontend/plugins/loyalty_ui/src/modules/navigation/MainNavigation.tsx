@@ -7,9 +7,10 @@ export const MainNavigation = () => {
       <NavigationMenuLinkItem
         name="Pricing"
         icon={IconClipboard}
-        pathPrefix="pricing"
+        pathPrefix="loyalty"
         path="pricing"
       />
+
       <NavigationMenuLinkItem
         name="Loyalty"
         icon={IconUserFilled}

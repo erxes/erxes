@@ -42,13 +42,10 @@ const mutationParams = `
   buyScore: Float
   awards: JSON
 `;
+
 export const mutations = `
   createLotteryCampaign(${mutationParams}): LotteryCampaign
   updateLotteryCampaign(_id: String!, ${mutationParams}): LotteryCampaign
   removeLotteryCampaign(_id: String!): LotteryCampaign
-
-  doLottery(campaignId: String, awardId: String): JSON
-  doLotteryMultiple(campaignId: String, awardId: String, multiple: Int): String
-  getNextChar(campaignId: String, awardId: String, prevChars: String): JSON
 `;
 
