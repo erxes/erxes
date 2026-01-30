@@ -86,7 +86,7 @@ const EmailMetaInfo: React.FC<{ mailData: MailData }> = ({ mailData }) => {
         <span className='text-foreground font-semibold'>
           {to?.name}
         </span>
-        <span className='text-muted-foreground font-medium'>
+        <span className='text-muted-foreground font-medium truncate'>
           {formatEmails(mailData.to)}
         </span>
       </span>

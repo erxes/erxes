@@ -101,7 +101,10 @@ const FocusSheetContent = ({
 }: React.ComponentProps<typeof Sheet.Content>) => {
   return (
     <Sheet.Content
-      className={cn('flex border-b-0 rounded-b-none', className)}
+      className={cn(
+        'flex border-b-0 rounded-b-none overflow-y-hidden',
+        className,
+      )}
       {...props}
     />
   );

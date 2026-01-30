@@ -128,6 +128,7 @@ export const createCustomersColumns = (
           _id={_id}
           emailValidationStatus={emailValidationStatus}
           emails={emails || []}
+          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
           Trigger={RecordTableInlineCell.Trigger}
         />
       );
@@ -150,7 +151,7 @@ export const createCustomersColumns = (
           primaryPhone={primaryPhone || ''}
           phones={phones || []}
           phoneValidationStatus={phoneValidationStatus}
-          scope={clsx(ContactsHotKeyScope.CustomersPage, _id, 'Phones')}
+          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
           Trigger={RecordTableInlineCell.Trigger}
         />
       );
@@ -168,6 +169,7 @@ export const createCustomersColumns = (
         <TagsSelect.InlineCell
           type="core:customer"
           mode="multiple"
+          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
           value={cell.row.original.tagIds}
           targetIds={[cell.row.original._id]}
           options={(newSelectedTagIds) => ({
@@ -201,7 +203,7 @@ export const createCustomersColumns = (
       const { _id } = cell.row.original;
       return (
         <PopoverScoped
-          scope={ContactsHotKeyScope.CustomersPage + '.' + _id + '.Sex'}
+          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
           open={open}
           onOpenChange={setOpen}
         >
