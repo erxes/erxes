@@ -101,7 +101,7 @@ export const CompanyDetailFields = () => {
           </DataListItem>
 
           <div className="flex justify-end">
-            <Button type="submit">{t('save') || 'Save'}</Button>
+            <Button type="submit">{t('save', 'Save')}</Button>
           </div>
         </form>
       </Form>

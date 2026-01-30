@@ -81,5 +81,7 @@
     }
   },
   "upload": "Upload",
-  "upload-description": "Upload 1:1, 2MB max"
+  "upload-description": "Upload 1:1, 2MB max",
+  "save": "Save",
+  "cancel": "Cancel"
 }
