@@ -52,6 +52,16 @@ export const EMPreviewMessages = () => {
                 </Tooltip>
               </>
             )}
+            {config?.ticketConfigId && (
+              <Tooltip delayDuration={100}>
+                <Tooltip.Trigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <IconSend />
+                  </Button>
+                </Tooltip.Trigger>
+                <Tooltip.Content>Send ticket</Tooltip.Content>
+              </Tooltip>
+            )}
             {/* <Tooltip delayDuration={100}>
               <Tooltip.Trigger asChild>
                 <Popover.Close asChild>
