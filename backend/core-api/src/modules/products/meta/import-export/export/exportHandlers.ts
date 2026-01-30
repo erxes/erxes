@@ -12,13 +12,13 @@ const productExportMap = {
 
 export const productExportHandlers: TExportHandlers = {
   getExportHeaders: async (data: any, ctx: IImportExportContext) => {
-    const { collectionName } = data;
+    const collectionName = data?.collectionName ?? data?.data?.collectionName;
     const handler = productExportMap[collectionName]?.getExportHeaders;
     if (!handler) throw new Error(`Export headers handler not found for ${collectionName}`);
     return handler(data, ctx);
   },
   getExportData: async (args: any, ctx: IImportExportContext) => {
-    const { collectionName } = args;
+    const collectionName = args?.collectionName ?? args?.data?.collectionName;
     const handler = productExportMap[collectionName]?.getExportData;
     if (!handler) throw new Error(`Export handler not found for ${collectionName}`);
     return handler(args, ctx);

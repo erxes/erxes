@@ -1,5 +1,5 @@
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   CompanyEmails,
   CompanyOwner,
@@ -35,14 +35,24 @@ export const CompanyDetailFields = () => {
   const [localDescription, setLocalDescription] = useState(description || '');
   const [debouncedDescription] = useDebounce(localDescription, 500);
 
-  useEffect(()=>{
-    companiesEdit({
-      variables:{
-        _id,
-        description:debouncedDescription,
-      },
-    });
-  }, [debouncedDescription, _id]);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    setLocalDescription(description || '');
+  }, [description]);
+
+  useEffect(() => {
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+        return;
+      }
+      companiesEdit({
+        variables: {
+          _id,
+          description: debouncedDescription,
+        },
+      });
+  }, [debouncedDescription, _id, companiesEdit]);
 
 
 

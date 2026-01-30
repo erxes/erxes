@@ -45,6 +45,7 @@ const stripHtml = (html: string) =>
             return extractTextFromBlocks(parsed.blocks);
           }
         } catch {
+            // ignore invalid JSON; fall through to return the trimmed string
         }
       }
   

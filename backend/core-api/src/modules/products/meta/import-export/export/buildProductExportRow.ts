@@ -61,6 +61,7 @@ const normalizeDescription = (value: any): string => {
       const txt = extractTextFromBlocks(parsed);
       return txt || '';
     } catch {
+      // Fall through to handle non-JSON content below.
     }
   }
 
