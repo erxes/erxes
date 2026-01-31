@@ -25,7 +25,7 @@ import {
   IKhanbankConfigModel,
   loadKhanbankConfigClass,
 } from './modules/corporateGateway/khanbank/db/models/KhanbankConfigs';
-import { IKhanbankConfigDocument, loadKhanbankConfigClass, } from './modules/corporateGateway/khanbank/db/definitions/khanbankConfigs';
+import { IKhanbankConfigDocument } from '~/modules/corporateGateway/khanbank/@types/khanbank';
 
 export interface IModels {
   PaymentMethods: IPaymentModel;
@@ -66,7 +66,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   'golomt_bank_configs',
   loadGolomtBankConfigClass(models),
 );
-
+ models.KhanbankConfigs = db.model<
+    IKhanbankConfigDocument,
+    IKhanbankConfigModel
+  >('khanbank_configs', loadKhanbankConfigClass(models));
 
   return models;
 };

@@ -1,9 +1,9 @@
 import { Model } from 'mongoose';
-
-import { IModels } from '../../../../../connectionResolvers';
+import { IKhanbankConfig,
+  IKhanbankConfigDocument
+} from '~/modules/corporateGateway/khanbank/@types/khanbank';
+import { IModels } from '~/connectionResolvers';
 import {
-  IKhanbankConfig,
-  IKhanbankConfigDocument,
   khanbankConfigSchema
 } from '../definitions/khanbankConfigs';
 
