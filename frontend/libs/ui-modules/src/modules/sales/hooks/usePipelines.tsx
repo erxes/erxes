@@ -66,39 +66,6 @@ export const usePipelines = (
   return { pipelines, loading, error, handleFetchMore, pageInfo, totalCount };
 };
 
-export const usePipelineUpdateOrder = (
-  options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
-) => {
-  const [updatePipelineOrder, { loading, error }] = useMutation(
-    UPDATE_PIPELINE_ORDER,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-      },
-      refetchQueries: ['SalesPipelines'],
-      awaitRefetchQueries: true,
-      onCompleted: () => {
-        toast({
-          title: 'Pipeline order updated successfully',
-        });
-      },
-      onError: (error) => {
-        toast({
-          title: error.message,
-          variant: 'destructive',
-        });
-      },
-    },
-  );
-
-  return {
-    updatePipelineOrder,
-    loading,
-    error,
-  };
-};
-
 export const usePipelineDetail = (
   options?: QueryHookOptions<{ salesPipelineDetail: IPipeline }>,
 ) => {

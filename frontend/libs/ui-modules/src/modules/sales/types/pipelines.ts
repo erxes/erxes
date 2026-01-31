@@ -1,8 +1,6 @@
 import { MutationHookOptions, OperationVariables } from '@apollo/client';
 
 import { IUser } from 'ui-modules/modules/team-members';
-import { PIPELINE_CREATE_SCHEMA } from '../schemas/pipelineFormSchema';
-import { z } from 'zod';
 
 export interface IPipeline {
   _id: string;
@@ -92,8 +90,6 @@ export enum PipelineHotKeyScope {
   PipelineSettingsPage = 'pipeline-settings-page',
   PipelineAddSheet = 'pipeline-add-sheet',
 }
-
-export type TPipelineForm = z.infer<typeof PIPELINE_CREATE_SCHEMA>;
 
 export interface ISelectPipelinesContext {
   pipelineIds: string[];

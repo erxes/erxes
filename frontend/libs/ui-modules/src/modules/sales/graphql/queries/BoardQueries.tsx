@@ -36,22 +36,8 @@ export const GET_BOARD_DETAIL = gql`
       pipelines {
         _id
         name
-        visibility
-        memberIds
-        isWatched
-        startDate
-        endDate
         state
         itemsTotalCount
-        members {
-          _id
-          email
-          username
-          details {
-            avatar
-            fullName
-          }
-        }
       }
     }
   }

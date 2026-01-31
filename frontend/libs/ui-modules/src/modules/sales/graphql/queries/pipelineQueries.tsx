@@ -14,49 +14,7 @@ export const GET_PIPELINE_DETAIL = gql`
     salesPipelineDetail(_id: $_id) {
       _id
       name
-      bgColor
-      isWatched
-      hackScoringType
-      tagId
-      initialCategoryIds
-      excludeCategoryIds
-      excludeProductIds
-      paymentIds
-      paymentTypes
-      erxesAppToken
-      visibility
-      memberIds
-      departmentIds
-      branchIds
       boardId
-    }
-  }
-`;
-
-export const GET_PIPELINE_LABELS = gql`
-  query SalesPipelineLabels($pipelineId: String, $pipelineIds: [String]) {
-    salesPipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
-      ${pipelineLabelFields}
-    }
-  }
-`;
-
-export const GET_PIPELINE_ASSIGNED_USERS = gql`
-  query SalesPipelineAssignedUsers($_id: String!) {
-    salesPipelineAssignedUsers(_id: $_id) {
-      _id
-      details {
-        avatar
-        fullName
-      }
-    }
-  }
-`;
-
-export const GET_PIPELINE_LABEL_DETAIL = gql`
-  query SalesPipelineLabelDetail($_id: String!) {
-    salesPipelineLabelDetail(_id: $_id) {
-      ${pipelineLabelFields}
     }
   }
 `;
@@ -88,23 +46,6 @@ export const GET_PIPELINES = gql`
         _id
         name
         boardId
-        state
-        startDate
-        endDate
-        status
-        createdAt
-        createdUser {
-          details {
-            fullName
-          }
-        }
-        itemsTotalCount
-      }
-      pageInfo {
-        endCursor
-        startCursor
-        hasNextPage
-        hasPreviousPage
       }
       totalCount
     }

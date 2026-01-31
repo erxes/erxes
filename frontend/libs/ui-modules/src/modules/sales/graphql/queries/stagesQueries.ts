@@ -63,25 +63,7 @@ const stageParamDefs = `
 const stageCommon = `
   _id
   name
-  order
-  unUsedAmount
-  amount
-  itemsTotalCount
   pipelineId
-  code
-  age
-  defaultTick
-  probability
-  visibility
-  status
-  canMoveMemberIds
-  canEditMemberIds
-`;
-
-export const GET_ARCHIVED_STAGES_COUNT = gql`
-  query SalesArchivedStagesCount($pipelineId: String!, $search: String) {
-    salesArchivedStagesCount(pipelineId: $pipelineId, search: $search)
-  }
 `;
 
 export const GET_STAGES = gql`
@@ -92,22 +74,6 @@ export const GET_STAGES = gql`
       ${stageParamDefs}
     ) {
       ${stageCommon}
-    }
-  }
-`;
-
-export const GET_CONVERSION_STAGES = gql`
-  query SalesStages(
-    ${stageParams}
-  ) {
-    salesStages(
-      ${stageParamDefs}
-    ) {
-      ${stageCommon}
-      compareNextStagePurchase
-      initialPurchasesTotalCount
-      stayedPurchasesTotalCount
-      inProcessPurchasesTotalCount
     }
   }
 `;
