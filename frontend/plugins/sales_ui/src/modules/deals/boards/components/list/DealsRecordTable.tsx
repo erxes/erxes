@@ -63,7 +63,7 @@ export const DealsRecordTable = () => {
     <div className="flex flex-col overflow-hidden h-full relative">
       <RecordTable.Provider
         columns={DealsColumn()}
-        data={filteredDeals || (loading ? [{}] : [])}
+        data={filteredDeals || []}
         className="m-3 h-full"
         stickyColumns={['checkbox', 'name']}
       >

@@ -15,17 +15,16 @@ import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssign
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 
 import {
-  BoardCell,
-  PipelineCell,
-  StageCell,
   NameCell,
   ProductsCell,
   NumberCell,
 } from '@/deals/components/deal-selects/MoveDealSelect';
+import { BoardCell, PipelineCell, StageCell } from 'ui-modules/modules';
+import { useDealsEdit } from '~/modules/deals/cards/hooks/useDeals';
 
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
-
+  const { editDeals } = useDealsEdit();
   return [
     checkBoxColumn,
     {
@@ -51,7 +50,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Board" icon={IconLabelFilled} />
       ),
-      cell: ({ row }) => <BoardCell deal={row.original} />,
+      cell: ({ row }) => <BoardCell boardId={row.original.boardId} />,
     },
     {
       id: 'pipeline',
@@ -59,7 +58,12 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Pipeline" icon={IconProgressCheck} />
       ),
-      cell: ({ row }) => <PipelineCell deal={row.original} />,
+      cell: ({ row }) => (
+        <PipelineCell
+          boardId={row.original.boardId}
+          pipelineId={row.original.pipeline?._id}
+        />
+      ),
       size: 170,
     },
     {
@@ -68,7 +72,22 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Stage" icon={IconProgressCheck} />
       ),
-      cell: ({ row }) => <StageCell deal={row.original} />,
+      cell: ({ row }) => (
+        <StageCell
+          pipelineId={row.original.pipeline?._id}
+          stageId={row.original.stageId}
+          onChangeStage={(stageId: string) => {
+            editDeals({
+              variables: {
+                _id: row.original._id,
+                boardId: row.original.boardId,
+                pipelineId: row.original.pipeline?._id,
+                stageId: stageId,
+              },
+            });
+          }}
+        />
+      ),
       size: 170,
     },
     {
