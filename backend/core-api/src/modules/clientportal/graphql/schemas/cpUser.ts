@@ -160,7 +160,7 @@ export const mutations = `
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): JSON
   clientPortalLogout: String
   clientPortalUserForgotPassword(identifier: String!): String
-  clientPortalUserResetPassword(token: String, newPassword: String!, otp: Int): String
+  clientPortalUserResetPassword(token: String, identifier: String, code: String, newPassword: String!): String
   clientPortalUserRequestOTP(identifier: String!): String
   clientPortalUserLoginWithOTP(identifier: String!, otp: Int!): JSON
   clientPortalUserRegisterWithSocial(provider: SocialAuthProvider!, token: String!): CPUser

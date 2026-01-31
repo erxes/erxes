@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { notificationService } from '../services/notificationService';
+import { notificationService } from '@/clientportal/services';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 

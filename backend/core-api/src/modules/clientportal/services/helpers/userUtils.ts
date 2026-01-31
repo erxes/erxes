@@ -1,6 +1,9 @@
 import { IModels } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import { AuthenticationError, ValidationError } from '@/clientportal/services/errorHandler';
+import {
+  AuthenticationError,
+  ValidationError,
+} from '@/clientportal/services/errorHandler';
 import {
   buildDuplicationQuery,
   UserFields,
@@ -16,18 +19,9 @@ export async function updateLastLogin(
   );
 }
 
-export async function getCPUserByIdOrThrow(
-  userId: string,
-  models: IModels,
-): Promise<ICPUserDocument> {
-  const user = await models.CPUser.findOne({ _id: userId });
-  if (!user) {
-    throw new AuthenticationError('User not found');
-  }
-  return user;
-}
+export type GetCPUserErrorType = 'authentication' | 'validation';
 
-export async function getCPUserByIdOrThrowValidation(
+export async function getCPUserByIdOrThrow(
   userId: string,
   models: IModels,
 ): Promise<ICPUserDocument> {
@@ -43,10 +37,7 @@ export async function setUserActionCode(
   actionCode: { code: string; expires: Date; type: string },
   models: IModels,
 ): Promise<void> {
-  await models.CPUser.updateOne(
-    { _id: userId },
-    { $set: { actionCode } },
-  );
+  await models.CPUser.updateOne({ _id: userId }, { $set: { actionCode } });
 }
 
 export async function assertCPUserEmailPhoneUnique(
@@ -71,9 +62,7 @@ export async function assertCPUserEmailPhoneUnique(
       ...baseQuery,
     });
     if (existing) {
-      throw new ValidationError(
-        'Email already exists in this client portal',
-      );
+      throw new ValidationError('Email already exists in this client portal');
     }
   }
 
@@ -83,11 +72,7 @@ export async function assertCPUserEmailPhoneUnique(
       ...baseQuery,
     });
     if (existing) {
-      throw new ValidationError(
-        'Phone already exists in this client portal',
-      );
+      throw new ValidationError('Phone already exists in this client portal');
     }
   }
 }
-
-

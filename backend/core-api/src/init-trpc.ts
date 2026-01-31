@@ -20,7 +20,7 @@ import { IModels } from './connectionResolvers';
 import { notificationTrpcRouter } from '~/modules/notifications/trpc';
 import { importExportTrpcRouter } from '~/modules/import-export/trpc';
 import { logsTrpcRouter } from './modules/logs/trpc';
-import { clientPortalNotificationTrpcRouter } from '~/modules/clientportal/trpc';
+import { clientPortalNotificationTrpcRouter } from '@/clientportal/trpc';
 
 export type CoreTRPCContext = ITRPCContext<{
   models: IModels;

@@ -9,7 +9,7 @@ import {
   removeExtraSpaces,
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
-import { authService } from '@/clientportal/services/authService';
+import { authService } from '@/clientportal/services';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;

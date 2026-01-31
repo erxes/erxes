@@ -8,7 +8,11 @@ import {
   ICPUserRegisterParams,
 } from '@/clientportal/types/cpUser';
 import { SALT_WORK_FACTOR } from '../../constants';
-import { cpUserService } from '@/clientportal/services/cpUserService';
+import { buildUserQuery } from '@/clientportal/services/helpers/queryBuilders';
+import { handleCPContacts, updateCustomerStateToCustomer } from '@/clientportal/services/user/contactService';
+import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
+import { ValidationError } from '@/clientportal/services/errorHandler';
+import { cpUserService } from '@/clientportal/services';
 import {
   generateCPUserCreatedActivityLog,
   generateCPUserActivityLogs,
@@ -18,6 +22,11 @@ import {
 export interface ICPUserModel extends Model<ICPUserDocument> {
   generatePassword(password: string): Promise<string>;
   comparePassword(password: string, userPassword: string): Promise<boolean>;
+  findByIdentifier(
+    identifier: string,
+    identifierType: 'email' | 'phone',
+    clientPortalId: string,
+  ): Promise<ICPUserDocument | null>;
   createUserAsAdmin(
     clientPortalId: string,
     params: ICPUserRegisterParams,
@@ -59,22 +68,78 @@ export const loadCPUserClass = (
       return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
     }
 
+    public static async findByIdentifier(
+      identifier: string,
+      identifierType: 'email' | 'phone',
+      clientPortalId: string,
+    ): Promise<ICPUserDocument | null> {
+      const query = buildUserQuery(
+        undefined,
+        identifierType === 'email' ? identifier : undefined,
+        identifierType === 'phone' ? identifier : undefined,
+        clientPortalId,
+      );
+      return (this as unknown as Model<ICPUserDocument>).findOne(query);
+    }
+
     public static async createUserAsAdmin(
       clientPortalId: string,
       params: ICPUserRegisterParams,
       models: IModels,
     ): Promise<ICPUserDocument> {
-      const user = await cpUserService.createUserAsAdmin(
-        clientPortalId,
-        params,
+      if (!params.email && !params.phone) {
+        throw new ValidationError('Email or phone is required');
+      }
+
+      const clientPortal = await models.ClientPortal.findOne({
+        _id: clientPortalId,
+      });
+      if (!clientPortal) {
+        throw new ValidationError('Client portal not found');
+      }
+
+      const document = {
+        ...params,
+        isEmailVerified: false,
+        isPhoneVerified: false,
+      };
+
+      const user = await handleCPContacts(
         models,
+        clientPortalId,
+        document,
+        params.password,
       );
+
+      await CPUser.autoVerifyUserForAdmin(user, models);
+      const resultUser = await getCPUserByIdOrThrow(user._id, models);
+
       try {
-        createActivityLog(generateCPUserCreatedActivityLog(user));
+        createActivityLog(generateCPUserCreatedActivityLog(resultUser));
       } catch {
         // Activity log failure should not fail the mutation
       }
-      return user;
+      return resultUser;
+    }
+
+    private static async autoVerifyUserForAdmin(
+      user: ICPUserDocument,
+      models: IModels,
+    ): Promise<void> {
+      await models.CPUser.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            isVerified: true,
+            isEmailVerified: !!user.email,
+            isPhoneVerified: !!user.phone,
+          },
+        },
+      );
+
+      if (user.erxesCustomerId) {
+        await updateCustomerStateToCustomer(user.erxesCustomerId, models);
+      }
     }
 
     public static async updateUser(
@@ -110,14 +175,12 @@ export const loadCPUserClass = (
       userId: string,
       models: IModels,
     ): Promise<void> {
-      const user = await models.CPUser.findOne({ _id: userId });
-      await cpUserService.removeUser(userId, models);
-      if (user) {
-        try {
-          createActivityLog(generateCPUserRemovedActivityLog(user));
-        } catch {
-          // Activity log failure should not fail the mutation
-        }
+      const user = await getCPUserByIdOrThrow(userId, models);
+      await models.CPUser.findOneAndDelete({ _id: userId });
+      try {
+        createActivityLog(generateCPUserRemovedActivityLog(user));
+      } catch {
+        // Activity log failure should not fail the mutation
       }
     }
   }

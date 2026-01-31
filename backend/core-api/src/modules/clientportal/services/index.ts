@@ -1,13 +1,16 @@
-export { cpUserService } from './cpUserService';
-export { authService } from './authService';
-export { verificationService } from './verificationService';
-export { contactService } from './contactService';
-export { passwordService } from './passwordService';
-export { socialAuthService } from './socialAuthService';
-export { otpService } from './otpService';
-export { notificationService } from './notificationService';
-export * from './helpers/userUtils';
-export * from './helpers/otpConfigHelper';
-export * from './helpers/validators';
-export * from './helpers/queryBuilders';
+export { authService } from './auth';
+export { cpUserService, contactService, socialAuthService } from './user';
+export {
+  verificationService,
+  otpService,
+  passwordService,
+} from './verification';
+export { notificationService, firebaseService } from './notification';
 export * from './errorHandler';
+export * from './helpers/userUtils';
+export * from './helpers/queryBuilders';
+export * from './verification/helpers/otpConfigHelper';
+export * from './verification/helpers/validators';
+export * from './verification/helpers/otpSenderHelper';
+export * from './verification/helpers/actionCodeHelper';
+export * from './helpers/socialAuth';
