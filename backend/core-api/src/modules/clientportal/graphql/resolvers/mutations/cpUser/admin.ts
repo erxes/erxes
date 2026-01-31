@@ -1,15 +1,14 @@
 import { checkPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  getCPUserByIdOrThrow,
-  validatePassword,
-} from '@/clientportal/services';
+
 import type {
   CpUsersAddParams,
   CpUsersEditParams,
   CpUsersSetPasswordParams,
 } from '@/clientportal/types/cpUserParams';
+import { getCPUserByIdOrThrow } from '~/modules/clientportal/services/helpers/userUtils';
+import { validatePassword } from '~/modules/clientportal/services/helpers/validators';
 
 export const adminMutations: Record<string, Resolver> = {
   async cpUsersAdd(

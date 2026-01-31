@@ -19,8 +19,6 @@ export async function updateLastLogin(
   );
 }
 
-export type GetCPUserErrorType = 'authentication' | 'validation';
-
 export async function getCPUserByIdOrThrow(
   userId: string,
   models: IModels,
@@ -30,14 +28,6 @@ export async function getCPUserByIdOrThrow(
     throw new ValidationError('User not found');
   }
   return user;
-}
-
-export async function setUserActionCode(
-  userId: string,
-  actionCode: { code: string; expires: Date; type: string },
-  models: IModels,
-): Promise<void> {
-  await models.CPUser.updateOne({ _id: userId }, { $set: { actionCode } });
 }
 
 export async function assertCPUserEmailPhoneUnique(

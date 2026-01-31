@@ -9,7 +9,7 @@ import {
   removeExtraSpaces,
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
-import { authService } from '@/clientportal/services';
+import { jwtManager } from '@/clientportal/services';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
@@ -23,7 +23,7 @@ export const loadClientPortalClass = (models: IModels) => {
     public static async createClientPortal(name: string) {
       const clientPortal = await models.ClientPortal.create({ name });
 
-      const token = authService.createClientPortalToken(clientPortal._id);
+      const token = jwtManager.createClientPortalToken(clientPortal._id);
 
       return models.ClientPortal.findOneAndUpdate(
         { _id: clientPortal._id },
@@ -40,7 +40,7 @@ export const loadClientPortalClass = (models: IModels) => {
         throw new Error('Client portal not found');
       }
 
-      const token = authService.createClientPortalToken(_id);
+      const token = jwtManager.createClientPortalToken(_id);
 
       await models.ClientPortal.findOneAndUpdate(
         { _id },

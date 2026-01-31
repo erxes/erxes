@@ -5,9 +5,9 @@ import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import {
   detectIdentifierType,
   identifierTypeToActionCodeType,
-} from './helpers/validators';
-import { validateActionCode } from './helpers/actionCodeHelper';
-import { isPasswordlessLoginEnabled } from './helpers/otpConfigHelper';
+} from '@/clientportal/services/helpers/validators';
+import { validateActionCode } from '@/clientportal/services/helpers/actionCodeHelper';
+import { isPasswordlessLoginEnabled } from '@/clientportal/services/helpers/otpConfigHelper';
 import { AuthenticationError, ValidationError } from '@/clientportal/services/errorHandler';
 
 const DEFAULT_OTP_RESEND_CONFIG = {

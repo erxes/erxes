@@ -36,15 +36,15 @@ export async function setActionCode(
     },
   };
 
-  if (options?.incrementResendAttempts && options.currentAttempts !== undefined) {
+  if (
+    options?.incrementResendAttempts &&
+    options.currentAttempts !== undefined
+  ) {
     (update as any).otpResendAttempts = options.currentAttempts + 1;
     (update as any).otpResendLastAttempt = new Date();
   }
 
-  await models.CPUser.updateOne(
-    { _id: userId },
-    { $set: update as any },
-  );
+  await models.CPUser.updateOne({ _id: userId }, { $set: update as any });
 }
 
 export function validateActionCode(

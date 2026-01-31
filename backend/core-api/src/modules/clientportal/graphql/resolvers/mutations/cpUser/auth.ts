@@ -2,12 +2,15 @@ import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
   cpUserService,
-  authService,
-  verificationService,
-  passwordService,
+  jwtManager,
   socialAuthService,
-  otpService,
 } from '@/clientportal/services';
+import {
+  loginWithCredentials,
+  sendOTPForLogin,
+  loginWithOTP,
+  loginWithSocial,
+} from '~/modules/clientportal/services/auth/login';
 import { getSocialUserProfile } from '@/clientportal/services/helpers/socialAuth';
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
 import type {
@@ -21,6 +24,11 @@ import type {
   SocialAuthParams,
   RefreshTokenParams,
 } from '@/clientportal/types/cpUserParams';
+import {
+  forgotPassword,
+  resetPasswordWithCode,
+  resetPasswordWithToken,
+} from '~/modules/clientportal/services/auth/password';
 
 export const authMutations: Record<string, Resolver> = {
   async clientPortalUserRegister(
@@ -45,7 +53,7 @@ export const authMutations: Record<string, Resolver> = {
       models,
     );
 
-    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { ...user.toObject(), ...tokens };
@@ -59,7 +67,7 @@ export const authMutations: Record<string, Resolver> = {
     { email, phone, password }: LoginCredentialsParams,
     { models, clientPortal, res }: IContext,
   ) {
-    const user = await cpUserService.login(
+    const user = await loginWithCredentials(
       email,
       phone,
       password,
@@ -67,7 +75,7 @@ export const authMutations: Record<string, Resolver> = {
       models,
     );
 
-    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
@@ -88,7 +96,7 @@ export const authMutations: Record<string, Resolver> = {
       );
     }
 
-    authService.clearAuthCookie(res);
+    jwtManager.clearAuthCookie(res);
 
     return 'loggedout';
   },
@@ -98,12 +106,7 @@ export const authMutations: Record<string, Resolver> = {
     { identifier }: ForgotPasswordParams,
     { models, subdomain, clientPortal }: IContext,
   ) {
-    await passwordService.forgotPassword(
-      identifier,
-      clientPortal,
-      models,
-      subdomain,
-    );
+    await forgotPassword(identifier, clientPortal, models, subdomain);
     return 'Password reset instructions have been sent';
   },
 
@@ -114,8 +117,13 @@ export const authMutations: Record<string, Resolver> = {
   ) {
     let user;
 
-    if (identifier != null && identifier !== '' && code != null && code !== '') {
-      user = await passwordService.resetPasswordWithCode(
+    if (
+      identifier != null &&
+      identifier !== '' &&
+      code != null &&
+      code !== ''
+    ) {
+      user = await resetPasswordWithCode(
         identifier,
         code,
         newPassword,
@@ -123,18 +131,14 @@ export const authMutations: Record<string, Resolver> = {
         models,
       );
     } else if (token) {
-      user = await passwordService.resetPasswordWithToken(
-        token,
-        newPassword,
-        models,
-      );
+      user = await resetPasswordWithToken(token, newPassword, models);
     } else {
       throw new AuthenticationError(
         'Either token (for reset link) or identifier and code (for OTP) are required',
       );
     }
 
-    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
@@ -147,12 +151,7 @@ export const authMutations: Record<string, Resolver> = {
     { identifier }: RequestOTPParams,
     { models, subdomain, clientPortal }: IContext,
   ) {
-    await verificationService.sendOTPForLogin(
-      subdomain,
-      identifier,
-      clientPortal,
-      models,
-    );
+    await sendOTPForLogin(subdomain, identifier, clientPortal, models);
     return 'OTP has been sent to your email/phone';
   },
 
@@ -161,13 +160,8 @@ export const authMutations: Record<string, Resolver> = {
     { identifier, otp }: LoginOTPParams,
     { models, clientPortal, res }: IContext,
   ) {
-    const user = await otpService.loginWithOTP(
-      identifier,
-      otp,
-      clientPortal,
-      models,
-    );
-    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    const user = await loginWithOTP(identifier, otp, clientPortal, models);
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
@@ -187,7 +181,7 @@ export const authMutations: Record<string, Resolver> = {
       clientPortal,
       models,
     );
-    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { ...user.toObject(), ...tokens };
@@ -200,13 +194,8 @@ export const authMutations: Record<string, Resolver> = {
     { provider, token }: SocialAuthParams,
     { models, clientPortal, res }: IContext,
   ) {
-    const user = await socialAuthService.loginWithSocial(
-      provider,
-      token,
-      clientPortal,
-      models,
-    );
-    const tokens = authService.setAuthCookie(res, user, clientPortal);
+    const user = await loginWithSocial(provider, token, clientPortal, models);
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
 
     if (tokens?.token && tokens?.refreshToken) {
       return { success: true, ...tokens };
@@ -219,7 +208,7 @@ export const authMutations: Record<string, Resolver> = {
     { refreshToken }: RefreshTokenParams,
     { models, res, clientPortal }: IContext,
   ) {
-    return authService.refreshAndSetAuth(
+    return jwtManager.refreshAndSetAuth(
       models,
       refreshToken,
       clientPortal,

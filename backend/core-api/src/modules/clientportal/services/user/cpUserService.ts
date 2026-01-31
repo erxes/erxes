@@ -8,104 +8,41 @@ import {
   handleCPContacts,
   updateCustomerStateToCustomer,
 } from './contactService';
-import {
-  isVerificationCodeExpired,
-  validateVerificationCode,
-} from '@/clientportal/services/verification';
-import { sendAndStoreOTP } from '@/clientportal/services/verification/helpers/otpSenderHelper';
+
+import { sendAndStoreOTP } from '@/clientportal/services/helpers/otpSenderHelper';
 import {
   detectIdentifierType,
   identifierTypeToActionCodeType,
   validateUserRegistration,
-} from '@/clientportal/services/verification/helpers/validators';
+} from '@/clientportal/services/helpers/validators';
 import {
   buildUserQuery,
   buildDuplicationQuery,
 } from '@/clientportal/services/helpers/queryBuilders';
 import { normalizeEmail } from '@/clientportal/utils';
 import {
-  updateLastLogin,
   getCPUserByIdOrThrow,
   assertCPUserEmailPhoneUnique,
 } from '@/clientportal/services/helpers/userUtils';
 import {
   isEmailVerificationEnabled,
   isPhoneVerificationEnabled,
-} from '@/clientportal/services/verification/helpers/otpConfigHelper';
+} from '@/clientportal/services/helpers/otpConfigHelper';
 import {
   AuthenticationError,
   ValidationError,
   TokenExpiredError,
 } from '@/clientportal/services/errorHandler';
+import {
+  ActionCodeType,
+  isActionCodeExpired,
+  validateActionCode,
+} from '../helpers/actionCodeHelper';
 
 interface UserFields {
   email?: string;
   phone?: string;
   userCode?: string;
-}
-
-async function checkFieldDuplication(
-  field: string,
-  value: string,
-  baseQuery: Record<string, any>,
-  models: IModels,
-  errorMessage: string,
-): Promise<void> {
-  const existingUser = await models.CPUser.findOne({
-    [field]: value,
-    ...baseQuery,
-  });
-
-  if (existingUser) {
-    throw new ValidationError(errorMessage);
-  }
-}
-
-export async function checkDuplication(
-  userFields: UserFields,
-  models: IModels,
-  idsToExclude?: string[] | string,
-  clientPortalId?: string,
-): Promise<void> {
-  if (!userFields) {
-    return;
-  }
-
-  const baseQuery = buildDuplicationQuery(
-    userFields,
-    idsToExclude,
-    clientPortalId,
-  );
-
-  if (userFields.email) {
-    await checkFieldDuplication(
-      'email',
-      userFields.email,
-      baseQuery,
-      models,
-      'Duplicated email',
-    );
-  }
-
-  if (userFields.phone) {
-    await checkFieldDuplication(
-      'phone',
-      userFields.phone,
-      baseQuery,
-      models,
-      'Duplicated phone',
-    );
-  }
-
-  if (userFields.userCode) {
-    await checkFieldDuplication(
-      'userCode',
-      userFields.userCode,
-      baseQuery,
-      models,
-      'Duplicated code',
-    );
-  }
 }
 
 async function autoVerifyUser(
@@ -156,12 +93,6 @@ async function markUserAsVerified(
   return updatedUser || user;
 }
 
-function validateUserVerificationStatus(user: ICPUserDocument): void {
-  if (!user.isVerified) {
-    throw new AuthenticationError('User is not verified');
-  }
-}
-
 export async function registerUser(
   subdomain: string,
   clientPortal: IClientPortalDocument,
@@ -194,8 +125,7 @@ export async function registerUser(
     const shouldAutoVerify =
       (identifierType === 'email' &&
         !isEmailVerificationEnabled(clientPortal)) ||
-      (identifierType === 'phone' &&
-        !isPhoneVerificationEnabled(clientPortal));
+      (identifierType === 'phone' && !isPhoneVerificationEnabled(clientPortal));
 
     if (shouldAutoVerify) {
       await autoVerifyUser(user, models);
@@ -239,43 +169,29 @@ export async function verifyUser(
     throw new ValidationError('User already verified');
   }
 
-  if (isVerificationCodeExpired(user)) {
+  if (isActionCodeExpired(user)) {
     throw new TokenExpiredError('Verification code expired');
   }
 
-  validateVerificationCode(user, code);
+  if (!user.actionCode) {
+    throw new ValidationError('No verification code found');
+  }
+
+  const VALID_VERIFICATION_TYPES: ActionCodeType[] = [
+    'EMAIL_VERIFICATION',
+    'PHONE_VERIFICATION',
+  ];
+
+  function isValidVerificationType(type: string): type is ActionCodeType {
+    return VALID_VERIFICATION_TYPES.includes(type as ActionCodeType);
+  }
+
+  if (!isValidVerificationType(user.actionCode.type)) {
+    throw new ValidationError('Invalid verification code type');
+  }
+  validateActionCode(user, code, user.actionCode.type as ActionCodeType);
 
   return markUserAsVerified(user, models);
-}
-
-export async function login(
-  email: string,
-  phone: string,
-  password: string,
-  clientPortal: IClientPortalDocument,
-  models: IModels,
-): Promise<ICPUserDocument> {
-  const query = buildUserQuery(undefined, email, phone, clientPortal._id);
-  const user = await models.CPUser.findOne(query);
-
-  if (!user || !user.password) {
-    throw new AuthenticationError('Invalid login');
-  }
-
-  validateUserVerificationStatus(user);
-
-  const isValid = await models.CPUser.comparePassword(
-    password,
-    user.password,
-  );
-
-  if (!isValid) {
-    throw new AuthenticationError('Invalid login');
-  }
-
-  await updateLastLogin(user._id, models);
-
-  return user;
 }
 
 export async function updateUser(
@@ -344,5 +260,3 @@ export async function updateUser(
 
   return getCPUserByIdOrThrow(userId, models);
 }
-
-

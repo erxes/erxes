@@ -10,13 +10,8 @@ import {
   linkSocialAccount,
   unlinkSocialAccount,
 } from './socialAuthService';
-import {
-  checkDuplication,
-  registerUser,
-  verifyUser,
-  login,
-  updateUser,
-} from './cpUserService';
+import { loginWithCredentials } from '~/modules/clientportal/services/auth/login';
+import { registerUser, verifyUser, updateUser } from './cpUserService';
 
 export * from './contactService';
 export * from './socialAuthService';
@@ -37,9 +32,8 @@ export const socialAuthService = {
 };
 
 export const cpUserService = {
-  checkDuplication,
   registerUser,
   verifyUser,
-  login,
+  login: loginWithCredentials,
   updateUser,
 };
