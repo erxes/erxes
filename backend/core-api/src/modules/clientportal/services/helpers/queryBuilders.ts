@@ -12,6 +12,7 @@ export interface UserQuery {
 export interface DuplicationQuery {
   status: { $ne: string };
   _id?: { $nin: string[] };
+  clientPortalId?: string;
 }
 
 export interface UserFields {
@@ -64,6 +65,7 @@ export function buildUserQuery(
 export function buildDuplicationQuery(
   userFields: UserFields,
   idsToExclude?: string[] | string,
+  clientPortalId?: string,
 ): DuplicationQuery {
   const query: DuplicationQuery = {
     status: { $ne: 'deleted' },
@@ -73,6 +75,10 @@ export function buildDuplicationQuery(
     query._id = {
       $nin: Array.isArray(idsToExclude) ? idsToExclude : [idsToExclude],
     };
+  }
+
+  if (clientPortalId) {
+    query.clientPortalId = clientPortalId;
   }
 
   return query;

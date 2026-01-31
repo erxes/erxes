@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { IClientPortal } from '~/modules/clientportal/types/clientPortal';
+import { IClientPortal } from '@/clientportal/types/clientPortal';
 
 export const clientPortalMutations = {
   async clientPortalAdd(

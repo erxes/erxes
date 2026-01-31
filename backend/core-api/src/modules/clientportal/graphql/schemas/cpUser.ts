@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type CPUser {
     _id: String!
@@ -12,6 +14,7 @@ export const types = `
     companyName: String
     companyRegistrationNumber: String
     clientPortalId: String!
+    clientPortal: ClientPortal
     erxesCustomerId: String
     erxesCompanyId: String
     customFieldsData: JSON
@@ -84,6 +87,24 @@ export const types = `
     email: String
     linkedAt: Date
   }
+
+  type CPUserListResponse {
+    list: [CPUser]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
+
+  type CPUserRemoveResponse {
+    _id: String!
+  }
+
+  input IClientPortalUserFilter {
+    ${GQL_CURSOR_PARAM_DEFS}
+    searchValue: String
+    type: CPUserType
+    isVerified: Boolean
+    clientPortalId: String
+  }
 `;
 
 const userRegisterParams = `
@@ -105,14 +126,41 @@ const userEditParams = `
   companyRegistrationNumber: String,
 `;
 
+const cpUsersAddParams = `
+  clientPortalId: String!,
+  email: String,
+  phone: String,
+  username: String,
+  password: String,
+  firstName: String,
+  lastName: String,
+  userType: CPUserType,
+`;
+
+const cpUsersEditParams = `
+  _id: String!,
+  email: String,
+  phone: String,
+  firstName: String,
+  lastName: String,
+  avatar: String,
+  username: String,
+  companyName: String,
+  companyRegistrationNumber: String,
+`;
+
 export const mutations = `
+  cpUsersAdd(${cpUsersAddParams}): CPUser
+  cpUsersEdit(${cpUsersEditParams}): CPUser
+  cpUsersRemove(_id: String!): CPUserRemoveResponse
+  cpUsersSetPassword(_id: String!, newPassword: String!): CPUser
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
   clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): JSON
   clientPortalLogout: String
   clientPortalUserForgotPassword(identifier: String!): String
-  clientPortalUserResetPassword(token: String, newPassword: String!, otp: Int): String
+  clientPortalUserResetPassword(token: String, identifier: String, code: String, newPassword: String!): String
   clientPortalUserRequestOTP(identifier: String!): String
   clientPortalUserLoginWithOTP(identifier: String!, otp: Int!): JSON
   clientPortalUserRegisterWithSocial(provider: SocialAuthProvider!, token: String!): CPUser
@@ -120,8 +168,12 @@ export const mutations = `
   clientPortalUserLinkSocialAccount(provider: SocialAuthProvider!, token: String!): CPUser
   clientPortalUserUnlinkSocialAccount(provider: SocialAuthProvider!): CPUser
   clientPortalUserRefreshToken(refreshToken: String!): String
+  clientPortalUserAddFcmToken(fcmToken: String!): CPUser
+  clientPortalUserRemoveFcmToken(fcmToken: String!): CPUser
 `;
 
 export const queries = `
   clientPortalCurrentUser: CPUser
+  getClientPortalUsers(filter: IClientPortalUserFilter): CPUserListResponse
+  getClientPortalUser(_id: String!): CPUser
 `;

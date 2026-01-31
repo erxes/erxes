@@ -2,6 +2,7 @@ import * as jwt from 'jsonwebtoken';
 import { getEnv, authCookieOptions } from 'erxes-api-shared/utils';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { IModels } from '~/connectionResolvers';
 
 interface JwtPayload {
   userId: string;
@@ -20,7 +21,7 @@ const DEFAULT_AUTH_CONFIG = {
   refreshTokenExpirationInDays: 7,
 };
 
-export class AuthService {
+export class JwtManager {
   private getJwtSecret(): string {
     const secret = process.env.JWT_TOKEN_SECRET || 'SECRET';
     const NODE_ENV = process.env.NODE_ENV;
@@ -61,7 +62,7 @@ export class AuthService {
   generateTokenPair(
     user: ICPUserDocument,
     clientPortal: IClientPortalDocument,
-    rememberMe: boolean = false,
+    _rememberMe: boolean = false,
   ): { token: string; refreshToken: string } {
     const authConfig = this.getAuthConfig(clientPortal);
     const accessTokenExpirationInDays =
@@ -76,10 +77,7 @@ export class AuthService {
 
     return {
       token: this.signToken(payload, accessTokenExpirationInDays),
-      refreshToken: this.signToken(
-        refreshPayload,
-        refreshTokenExpirationInDays,
-      ),
+      refreshToken: this.signToken(refreshPayload, refreshTokenExpirationInDays),
     };
   }
 
@@ -118,6 +116,93 @@ export class AuthService {
     res.cookie('client-auth-token', token, authCookieOptions(cookieOptions));
   }
 
+  setAccessTokenCookie(
+    res: any,
+    accessToken: string,
+    clientPortal: IClientPortalDocument,
+  ): void {
+    const deliveryMethod =
+      clientPortal.auth?.authConfig?.deliveryMethod || 'cookie';
+
+    if (deliveryMethod === 'header' || !res) {
+      return;
+    }
+
+    const cookieOptions = this.getCookieOptions();
+    res.cookie('client-auth-token', accessToken, authCookieOptions(cookieOptions));
+  }
+
+  async refreshAccessToken(
+    models: IModels,
+    refreshToken: string,
+    clientPortal: IClientPortalDocument,
+  ): Promise<{ accessToken: string; user: ICPUserDocument }> {
+    const secret = this.getJwtSecret();
+
+    const decoded = jwt.verify(refreshToken, secret) as JwtPayload;
+
+    if (decoded.type !== 'refresh') {
+      throw new Error('Invalid token type');
+    }
+
+    const user = await models.CPUser.findOne({
+      _id: decoded.userId,
+      'refreshTokens.token': refreshToken,
+    });
+
+    if (!user) {
+      throw new Error('Invalid refresh token');
+    }
+
+    const tokenData = user.refreshTokens?.find((t) => t.token === refreshToken);
+
+    if (!tokenData || new Date(tokenData.expiresAt) <= new Date()) {
+      throw new Error('Refresh token expired');
+    }
+
+    const authConfig = this.getAuthConfig(clientPortal);
+    const accessTokenExpirationInDays =
+      authConfig.accessTokenExpirationInDays ??
+      DEFAULT_AUTH_CONFIG.accessTokenExpirationInDays;
+
+    const payload = {
+      userId: user._id,
+      clientPortalId: decoded.clientPortalId,
+    };
+
+    const accessToken = jwt.sign(payload, secret, {
+      expiresIn: `${accessTokenExpirationInDays}d`,
+    });
+
+    return {
+      accessToken,
+      user,
+    };
+  }
+
+  async refreshAndSetAuth(
+    models: IModels,
+    refreshToken: string,
+    clientPortal: IClientPortalDocument,
+    res: any,
+  ): Promise<string> {
+    const { accessToken } = await this.refreshAccessToken(
+      models,
+      refreshToken,
+      clientPortal,
+    );
+
+    const deliveryMethod =
+      clientPortal.auth?.authConfig?.deliveryMethod || 'cookie';
+
+    if (deliveryMethod === 'header') {
+      return accessToken;
+    }
+
+    this.setAccessTokenCookie(res, accessToken, clientPortal);
+    return accessToken;
+  }
+
   clearAuthCookie(res: any): void {
     if (!res) {
       return;
@@ -133,4 +218,4 @@ export class AuthService {
   }
 }
 
-export const authService = new AuthService();
+export const jwtManager = new JwtManager();
