@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Select, cn } from 'erxes-ui';
+import { Select } from 'erxes-ui';
 
 const SEGMENTS_QUERY = gql`
   query segments($contentTypes: [String]!, $config: JSON) {
@@ -44,45 +44,32 @@ export default function SelectSegments({
 
   const segments: Segment[] = useMemo(() => data?.segments || [], [data]);
 
-  const selectedLabel = useMemo(() => {
-    if (!value) return '';
-    return segments.find((s) => s._id === value)?.name || value;
-  }, [value, segments]);
-
-  const placeholder = !contentTypes?.length
-    ? 'No contentTypes'
-    : loading
-      ? 'Loading...'
-      : 'Choose segment';
-
   return (
-  <Select
-    value={value || ''} 
-    onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
-    disabled={disabled || loading || !contentTypes?.length}
-  >
-    <Select.Trigger className="w-full">
-      <Select.Value
-        placeholder={
-          !contentTypes?.length
-            ? 'No contentTypes'
-            : loading
+    <Select
+      value={value || ''}
+      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
+      disabled={disabled || loading || !contentTypes?.length}
+    >
+      <Select.Trigger className="w-full">
+        <Select.Value
+          placeholder={
+            loading
               ? 'Loading...'
-              : 'Choose segment'
-        }
-      />
-    </Select.Trigger>
+              : contentTypes?.length && 'Choose segment' || 'No contentTypes'
+          }
+        />
+      </Select.Trigger>
 
-    <Select.Content>
-      <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
+      <Select.Content>
+        <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
 
-      {segments.map((s) => (
-        <Select.Item key={s._id} value={s._id}>
-          {s.name}
-        </Select.Item>
-      ))}
-    </Select.Content>
-  </Select>
-);
+        {segments.map((s) => (
+          <Select.Item key={s._id} value={s._id}>
+            {s.name}
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select>
+  );
 
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { Spinner } from 'erxes-ui';
 
@@ -62,7 +62,7 @@ const SettingsContainer = ({
   const normalizedConfig = useMemo(() => {
     const raw = data?.mnConfig;
 
-    if (!raw || !raw.value) return null;
+    if (!raw?.value) return null;
 
     try {
       let normalized: Record<string, any>;
