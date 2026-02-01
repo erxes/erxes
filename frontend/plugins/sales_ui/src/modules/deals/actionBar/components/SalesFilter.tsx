@@ -18,6 +18,8 @@ import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
 
+import AdvancedFilter from './AdvancedFilter';
+
 export const SalesFilter = () => {
   const [queries] = useMultiQueryState<SalesFilterState>([
     'companyIds',
@@ -218,6 +220,11 @@ const SalesFilterView = () => {
               <IconCalendarX />
               End date
             </Filter.Item>
+            <Command.Separator className="my-1" />
+            <Filter.Item value="advanced">
+              <IconCalendarX />
+              Advanced Filters
+            </Filter.Item>
           </Command.List>
         </Command>
       </Filter.View>
@@ -237,6 +244,9 @@ const SalesFilterView = () => {
       </Filter.View>
       <Filter.View filterKey="startDateEndDate">
         <Filter.DateView filterKey="startDateEndDate" />
+      </Filter.View>
+      <Filter.View filterKey="advanced">
+        <AdvancedFilter />
       </Filter.View>
     </>
   );
