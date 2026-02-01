@@ -2,10 +2,7 @@ import { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import EBarimtSettings from '@/ebarimt/settings/components/EBarimtSettings';
 import ProductPlacesSettings from '~/pages/productplaces/ProductPlacesSettings';
-import PrintPage from '~/pages/productplaces/PrintPage';
-import ProductFilterPage from '~/pages/productplaces/ProductFilterPage';
-import SplitPage from '~/pages/productplaces/SplitPage';
-import StagePage from '~/pages/productplaces/StagePage';
+import ErkhetSettings from '@/erkhet-sync/settings/components/ErkhetSettings';
 
 const MongolianSettings = () => {
   return (
@@ -18,6 +15,14 @@ const MongolianSettings = () => {
         </Route>
         {/* default */}
         <Route index element={<Navigate to="ebarimt" replace />} />
+      </Routes>
+      <Routes>
+        <Route path="sync-erkhet/*" element={<ErkhetSettings />} />
+        <Route index element={<Navigate to="sync-erkhet" replace />} />
+      </Routes>
+      <Routes>
+        <Route path="product-places/*" element={<ErkhetSettings />} />
+        <Route index element={<Navigate to="sync-erkhet" replace />} />
       </Routes>
     </Suspense>
   );

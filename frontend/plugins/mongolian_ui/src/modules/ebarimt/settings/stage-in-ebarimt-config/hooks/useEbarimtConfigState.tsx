@@ -16,7 +16,6 @@ export const useEbarimtConfigState = () => {
     return typeof value === 'string' ? JSON.parse(value) : value;
   };
 
-  // Convert array of configs to a map for backward compatibility
   const [localConfigsMap, setLocalConfigsMap] = useState(() => {
     const map: Record<string, any> = {};
     configsList.forEach((config: any) => {
@@ -94,7 +93,7 @@ export const useEbarimtConfigState = () => {
     return updatedConfigsMap;
   };
 
-  // Helper functions for the new structure
+
   const getConfigById = (configId: string) => {
     return configsList.find((config: any) => config._id === configId);
   };

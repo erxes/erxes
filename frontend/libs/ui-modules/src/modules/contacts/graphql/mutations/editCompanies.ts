@@ -13,7 +13,7 @@ export const EDIT_COMPANIES = gql`
     $primaryAddress: JSON
     $size: Int
     $website: String
-    $industry: String
+    $industry: [String]
     $email: String
     $businessType: String
     $tagIds: [String]

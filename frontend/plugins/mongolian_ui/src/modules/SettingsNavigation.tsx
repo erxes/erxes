@@ -1,5 +1,4 @@
-import { Sidebar } from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 
 export const SettingsNavigation = () => {
   return (
@@ -7,25 +6,21 @@ export const SettingsNavigation = () => {
       <Sidebar.GroupLabel className="h-4">Mongolian</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
-
-          {/* Ebarimt */}
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton asChild>
-              <Link to="/settings/mongolian/ebarimt">
-                Ebarimt
-              </Link>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-
-          {/* Product Places — RAW LINK, NO ERXES MAGIC */}
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton asChild>
-              <Link to="/settings/mongolian/product-places">
-                Product Places
-              </Link>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-
+          <SettingsNavigationMenuLinkItem
+            pathPrefix='mongolian'
+            path='/ebarimt'
+            name="Ebarimt"
+          />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix='mongolian'
+            path='/sync-erkhet'
+            name="Erkhet"
+          />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix='mongolian'
+            path='/product-places'
+            name="ProductPlace"
+          />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

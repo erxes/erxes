@@ -38,7 +38,7 @@ export const BroadcastSettings = () => {
 
   return (
     <Form {...form}>
-      <form className="h-full grid grid-cols-2 gap-4">
+      <form className="w-full h-full grid grid-cols-2 gap-4">
         {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, label, type }) => (
           <Form.Field
             key={name}

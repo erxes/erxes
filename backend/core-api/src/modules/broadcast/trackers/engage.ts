@@ -7,37 +7,7 @@ import { generateModels, IModels } from '~/connectionResolvers';
 import { SES_DELIVERY_STATUSES } from '../constants';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
-  const accessKeyId = await getValueAsString(
-    models,
-    'BROADCAST_AWS_SES_ACCESS_KEY_ID',
-    'BROADCAST_AWS_SES_ACCESS_KEY_ID',
-  );
-
-  const secretAccessKey = await getValueAsString(
-    models,
-    'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
-    'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
-  );
-
-  const region = await getValueAsString(
-    models,
-    'BROADCAST_AWS_REGION',
-    'BROADCAST_AWS_REGION',
-  );
-
-  const unverifiedEmailsLimit = await getValueAsString(
-    models,
-    'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
-    'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
-    '100',
-  );
-
-  const config = {
-    accessKeyId,
-    secretAccessKey,
-    region,
-    unverifiedEmailsLimit,
-  };
+  const config = await models.EngageMessages.broadcastConfigs();
 
   if (!config) {
     return;
