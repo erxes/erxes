@@ -1,5 +1,4 @@
-import { useMutation } from '@apollo/client';
-import { MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { getCampaignsQuery } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { editSpinMutation } from '../graphql/mutations/editSpinMutation';

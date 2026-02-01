@@ -1,11 +1,9 @@
-import { Button, Form, Sheet } from 'erxes-ui';
-import { AddAssignmentCampaignForm } from './AddAssignmentCampaignForm';
-
+import { ApolloError } from '@apollo/client';
+import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { AssignmentFormValues } from '../../constants/assignmentFormSchema';
 import { useAddAssignment } from '../../hooks/useAddAssignment';
-import { useToast } from 'erxes-ui';
-import { ApolloError } from '@apollo/client';
+import { AddAssignmentCampaignForm } from './AddAssignmentCampaignForm';
 
 type Props = {
   onOpenChange: (open: boolean) => void;

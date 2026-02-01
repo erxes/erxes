@@ -1,11 +1,9 @@
-import { Button, Form, Sheet } from 'erxes-ui';
-import { AddSpinCampaignForm } from './AddSpinCampaignForm';
-
+import { ApolloError } from '@apollo/client';
+import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { SpinFormValues } from '../../constants/spinFormSchema';
 import { useAddSpin } from '../../hooks/useAddSpin';
-import { useToast } from 'erxes-ui';
-import { ApolloError } from '@apollo/client';
+import { AddSpinCampaignForm } from './AddSpinCampaignForm';
 
 type Props = {
   onOpenChange: (open: boolean) => void;

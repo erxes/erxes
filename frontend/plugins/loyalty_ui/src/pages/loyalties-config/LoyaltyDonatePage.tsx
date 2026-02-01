@@ -1,8 +1,8 @@
-import { PageContainer } from 'erxes-ui';
-import { useQueryState } from 'erxes-ui';
+import { PageContainer, useQueryState } from 'erxes-ui';
+import { LoyaltyLayout } from '~/modules/loyalties/settings/components/LoyaltyLayout';
 import { DonationRecordTable } from '../../modules/loyalties/settings/donate/components/DonationRecordTable';
 import { LoyaltyDonationEditSheet } from '../../modules/loyalties/settings/donate/donation-detail/components/LoyaltyDonationEditSheet';
-import { LoyaltyLayout } from '~/modules/loyalties/settings/components/LoyaltyLayout';
+
 export const LoyaltyDonatePage = () => {
   const [editDonationId] = useQueryState<string>('editDonationId');
 

@@ -1,9 +1,7 @@
-import { useMutation } from '@apollo/client';
-import { MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
 import { editVoucherStatusMutation } from '../graphql/mutations/voucherEditStatusMutations';
-
+import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
 
 export function useVoucherStatusEdit() {
   const { toast } = useToast();

@@ -1,8 +1,7 @@
-import { PageContainer } from 'erxes-ui';
+import { PageContainer, useQueryState } from 'erxes-ui';
+import { LoyaltyLayout } from '~/modules/loyalties/settings/components/LoyaltyLayout';
 import { VoucherRecordTable } from '~/modules/loyalties/settings/voucher/components/VoucherRecordTable';
 import { LoyaltyVoucherEditSheet } from '~/modules/loyalties/settings/voucher/voucher-detail/components/LoyaltyVoucherEditSheet';
-import { useQueryState } from 'erxes-ui';
-import { LoyaltyLayout } from '~/modules/loyalties/settings/components/LoyaltyLayout';
 
 export const LoyaltyVoucherPage = () => {
   const [editVoucherId] = useQueryState<string>('editVoucherId');

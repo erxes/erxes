@@ -1,8 +1,8 @@
-import { PageContainer } from 'erxes-ui';
-import { useQueryState } from 'erxes-ui';
+import { PageContainer, useQueryState } from 'erxes-ui';
 import { LoyaltyLayout } from '~/modules/loyalties/settings/components/LoyaltyLayout';
-import { LoyaltyLotteryEditSheet } from '~/modules/loyalties/settings/lottery/lottery-detail/components/LoyaltyLotteryEditSheet';
 import { LotteryRecordTable } from '~/modules/loyalties/settings/lottery/components/LotteryRecordTable';
+import { LoyaltyLotteryEditSheet } from '~/modules/loyalties/settings/lottery/lottery-detail/components/LoyaltyLotteryEditSheet';
+
 export const LoyaltyLotteryPage = () => {
   const [editLotteryId] = useQueryState<string>('editLotteryId');
 

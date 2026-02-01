@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import { Button, Tabs, Form, Sheet } from 'erxes-ui';
-import { AddVoucherCampaignForm } from '../../add-voucher-campaign/components/AddVoucherCampaignForm';
-import { AddVoucherRestrictionForm } from '../../add-voucher-campaign/components/AddVoucherRestrictionForm';
-import { AddVoucherProductBonusForm } from '../../add-voucher-campaign/components/AddVoucherProductBonusForm';
-import { AddVoucherLotteryForm } from '../../add-voucher-campaign/components/AddVoucherLotteryForm';
-import { AddVoucherSpinForm } from '../../add-voucher-campaign/components/AddVoucherSpinForm';
-import { UseFormReturn } from 'react-hook-form';
-import { VoucherFormValues } from '../../constants/voucherFormSchema';
-import { useVoucherEdit } from '../hooks/useVoucherEdit';
-import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
+import { Button, Form, Sheet, Tabs, useToast } from 'erxes-ui';
+import { useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { AddVoucherCampaignForm } from '../../add-voucher-campaign/components/AddVoucherCampaignForm';
+import { AddVoucherLotteryForm } from '../../add-voucher-campaign/components/AddVoucherLotteryForm';
+import { AddVoucherProductBonusForm } from '../../add-voucher-campaign/components/AddVoucherProductBonusForm';
+import { AddVoucherRestrictionForm } from '../../add-voucher-campaign/components/AddVoucherRestrictionForm';
+import { AddVoucherSpinForm } from '../../add-voucher-campaign/components/AddVoucherSpinForm';
+import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { useVoucherDetailWithQuery } from '../hooks/useVoucherDetailWithQuery';
+import { useVoucherEdit } from '../hooks/useVoucherEdit';
 
 type Props = {
   onOpenChange: (open: boolean) => void;

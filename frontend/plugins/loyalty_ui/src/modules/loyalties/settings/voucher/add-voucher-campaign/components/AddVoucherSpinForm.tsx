@@ -54,7 +54,7 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
                 onChange={(e) => {
                   const value = e.target.value;
                   const numValue = Number(value);
-                  field.onChange(isNaN(numValue) ? 0 : numValue);
+                  field.onChange(Number.isNaN(numValue) ? 0 : numValue);
                 }}
               />
             </Form.Control>

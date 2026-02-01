@@ -77,7 +77,7 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       doc: Partial<ILotteryCampaign>,
       user: IUserDocument,
     ) {
-      const campaign = await this.getLotteryCampaign(_id);
+      await this.getLotteryCampaign(_id);
 
       return models.LotteryCampaign.updateOne(
         { _id },
