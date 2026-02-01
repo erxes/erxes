@@ -152,7 +152,7 @@ const PrintConfig: React.FC<Props> = ({
 
             {savedConfigs.map((cfg, index) => (
               <div
-                key={index}
+                key={`${cfg.stageId}-${index}`}
                 className={`cursor-pointer rounded px-3 py-2 border
                   ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
                 onClick={() => setActiveIndex(index)}
