@@ -59,7 +59,8 @@
 
       <h2>Widget Configuration</h2>
       <div class="code">
-        window.erxesSettings = { messenger: { /* your settings here */ } };
+        window.erxesSettings = { messenger: { 'window.erxesSettings': {
+        messenger: { integrationId: '9S6seo9wawN6cou8v' } } } };
       </div>
 
       <h2>Content Area</h2>
@@ -75,17 +76,30 @@
         proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
       </p>
     </div>
+    <div data-erxes-embed="GGQY5i" class="container"></div>
 
     <!-- Widget Configuration -->
-    <script>
-      window.erxesSettings = {
-        messenger: {
-          integrationId: '9S6seo9wawN6cou8v',
-        },
-      };
-    </script>
 
     <!-- Load the compiled widget script -->
-    <script src="/messengerBundle.js"></script>
+    <!-- <script src="./messengerBundle.js"></script> -->
+    <script>
+      window.erxesSettings = {
+        forms: [
+          {
+            form_id: 'GGQY5i',
+            channel_id: '0CdBWjlmo0p7acYcFKnZc',
+          },
+        ],
+      };
+
+      (function () {
+        var script = document.createElement('script');
+        script.src = 'http://localhost:4200/formBundle.js';
+        script.async = true;
+
+        var entry = document.getElementsByTagName('script')[0];
+        entry.parentNode.insertBefore(script, entry);
+      })();
+    </script>
   </body>
 </html>
