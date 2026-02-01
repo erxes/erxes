@@ -149,6 +149,7 @@ export const loadConfigClass = (
         action: existed ? 'update' : 'create',
         docId: config._id,
         currentDocument: config.toObject(),
+        prevDocument: existed?.toObject(),
       });
 
       return config;
