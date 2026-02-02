@@ -11,6 +11,7 @@ import { EMPreviewChatInput } from './EMPreviewChatInput';
 import { useMemo } from 'react';
 import { Weekday } from '../types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
+import { formatDate } from 'date-fns';
 
 const MAX_COUNT = 2;
 
@@ -44,7 +45,7 @@ export const EMPreviewIntro = () => {
 
   const getSchedule = (obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean | undefined; from?: string | undefined; to?: string | undefined; }>>) => {
     const days = Object.entries(obj).filter(([_, value]) => value.work).map(([key, _]) => key);
-    const times = Object.entries(obj).filter(([_, value]) => value.work).map(([_, value]) => `${value.from} - ${value.to}`);
+    const times = Object.entries(obj).filter(([_, value]) => value.work).map(([_, value]) => `${formatDate(value.from as string, 'hh:mm a')} - ${formatDate(value.to as string, 'hh:mm a')}`);
     return {
       days,
       times
