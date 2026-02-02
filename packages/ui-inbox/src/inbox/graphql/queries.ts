@@ -62,6 +62,7 @@ const sidebarConversations = `
       content
       status
       updatedAt
+      createdAt
       idleTime
       messageCount
       assignedUser {
