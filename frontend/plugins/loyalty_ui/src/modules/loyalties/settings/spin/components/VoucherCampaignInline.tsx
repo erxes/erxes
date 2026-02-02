@@ -41,8 +41,8 @@ const VoucherCampaignInlineProvider = ({
       voucherCampaignId: Array.isArray(voucherCampaignId)
         ? voucherCampaignId
         : voucherCampaignId
-        ? [voucherCampaignId]
-        : undefined,
+        && [voucherCampaignId]
+        || [],
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select voucher campaigns'
         : placeholder,
