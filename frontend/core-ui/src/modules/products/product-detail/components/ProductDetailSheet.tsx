@@ -64,7 +64,7 @@ export const ProductDetailSheet = () => {
   const normalizeSubUomRatio = (ratio: number | string | undefined): number => {
     if (typeof ratio === 'number' && Number.isFinite(ratio) && ratio > 0)
       return ratio;
-    const num = typeof ratio === 'string' ? Number(ratio) : Number(ratio);
+    const num = Number(ratio);
     return Number.isFinite(num) && num > 0 ? num : 1;
   };
 
@@ -202,6 +202,7 @@ export const ProductDetailSheet = () => {
 };
 
 const ProductDetailEmptyState = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'detail' });
   return (
     <div className="flex justify-center items-center h-full">
       <Empty>
@@ -209,10 +210,8 @@ const ProductDetailEmptyState = () => {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>Product not found</Empty.Title>
-          <Empty.Description>
-            There seems to be no product with this ID.
-          </Empty.Description>
+          <Empty.Title>{t('notFound')}</Empty.Title>
+          <Empty.Description>{t('notFoundDescription')}</Empty.Description>
         </Empty.Header>
       </Empty>
     </div>

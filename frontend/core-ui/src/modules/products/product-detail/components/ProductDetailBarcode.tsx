@@ -63,8 +63,11 @@ export const ProductDetailBarcode = () => {
     ? formVariants
     : variantsFromProduct;
 
-  const attachmentMore = Array.isArray(productDetail?.attachmentMore)
-    ? productDetail.attachmentMore
+  const rawAttachment = productDetail?.attachmentMore;
+  const attachmentMore = Array.isArray(rawAttachment)
+    ? rawAttachment
+    : rawAttachment != null && typeof rawAttachment === 'object'
+    ? [rawAttachment]
     : [];
 
   const availableImages = useMemo(() => {
@@ -197,7 +200,7 @@ export const ProductDetailBarcode = () => {
                             e.target.value || undefined,
                           )
                         }
-                        placeholder="Enter name"
+                        placeholder={t('enter-name')}
                       />
                     </div>
                     <div className="flex flex-col flex-1 gap-2">
@@ -221,8 +224,8 @@ export const ProductDetailBarcode = () => {
                           <Select.Value
                             placeholder={
                               availableImages.length > 0
-                                ? 'Select image'
-                                : 'No image'
+                                ? t('select-image')
+                                : t('no-image')
                             }
                           >
                             {barcode.image?.name}

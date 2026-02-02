@@ -59,6 +59,9 @@
     "barcode-image": "Зураг",
     "add-barcode": "Баркод нэмэх",
     "duplicate-barcode": "Энэ баркод аль хэдийн байна.",
+    "enter-name": "Нэр оруулах",
+    "select-image": "Зураг сонгох",
+    "no-image": "Зураг байхгүй",
     "unit-of-measurements": "Хэмжих нэгж",
     "sub-uom": "Дэд хэмжих нэгж",
     "add-sub-uom": "Дэд нэгж нэмэх",
@@ -69,6 +72,8 @@
     "featured-image": "Үндсэн зураг",
     "secondary-images": "Нэмэлт зургууд",
     "product-variants": "Бүтээгдэхүүний хувилбарууд",
-    "uom-description": "Бүтээгдэхүүний хэмжих нэгжийг сонгоно уу"
+    "uom-description": "Бүтээгдэхүүний хэмжих нэгжийг сонгоно уу",
+    "notFound": "Бүтээгдэхүүн олдсонгүй",
+    "notFoundDescription": "Энэ ID-тай бүтээгдэхүүн байхгүй байна."
   }
 }

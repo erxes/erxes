@@ -20,7 +20,7 @@
     "short-name": "Short Name",
     "brand": "Brand",
     "category": "Category",
-    "unit-of-measure": "Unit of Measurements",
+    "unit-of-measure": "Unit of Measure",
     "unit-price": "Unit Price",
     "code": "Code",
     "type": "Type",
@@ -36,9 +36,9 @@
     "add-product": "Add Product",
     "add-barcode": "Add barcode",
     "add-sub": "Add sub",
-    "sub-uom": "SUB UOM",
-    "ratio": "RATIO",
-    "inverse-ratio": "INVERSE RATIO",
+    "sub-uom": "Sub UOM",
+    "ratio": "Ratio",
+    "inverse-ratio": "Inverse Ratio",
     "currency": "Currency"
   },
   "detail": {
@@ -59,6 +59,9 @@
     "barcode-image": "Image",
     "add-barcode": "Add barcode",
     "duplicate-barcode": "This barcode already exists.",
+    "enter-name": "Enter name",
+    "select-image": "Select image",
+    "no-image": "No image",
     "uom": "UOM",
     "unit-of-measurements": "Unit of Measurements",
     "sub-uom": "Sub UOM",
@@ -70,6 +73,8 @@
     "featured-image": "Featured image",
     "secondary-images": "Secondary images",
     "product-variants": "Product Variants",
-    "uom-description": "Choose the unit of measure for the product"
+    "uom-description": "Choose the unit of measure for the product",
+    "notFound": "Product not found",
+    "notFoundDescription": "There seems to be no product with this ID."
   }
 }
