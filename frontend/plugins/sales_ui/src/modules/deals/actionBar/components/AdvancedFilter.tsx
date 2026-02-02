@@ -1,5 +1,13 @@
-import { Button, Popover, Command, useFilterContext, Input } from 'erxes-ui';
-import { IconArrowLeft, IconCirclePlus } from '@tabler/icons-react';
+import {
+  Button,
+  Popover,
+  Command,
+  useFilterContext,
+  Input,
+  useQueryState,
+  Filter,
+} from 'erxes-ui';
+import { IconArrowLeft, IconCirclePlus, IconX } from '@tabler/icons-react';
 import { useState } from 'react';
 
 const allFilters = [
@@ -32,13 +40,19 @@ const allFilters = [
   'Product categories',
 ];
 
-function AdvancedFilter() {
-  const { setView } = useFilterContext();
+export const AdvancedFilter = () => {
+  const { resetFilterState } = useFilterContext();
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [option, setOption] = useState<string | null>(null);
   const [value, setValue] = useState<string>('');
   const [isApplied, setIsApplied] = useState<boolean>(false);
   const [filterData, setFilterData] = useState<any>(null);
+  const [boardId, setBoardId] = useQueryState('boardId');
+  const [pipelineId, setPipelineId] = useQueryState('pipelineId');
+  const [advancedFilters, setAdvancedFilters] = useQueryState<Record<
+    string,
+    any
+  > | null>('advanced');
 
   const onSelect = (filter: string) => {
     setSelectedFilter(filter);
@@ -53,10 +67,111 @@ function AdvancedFilter() {
     setIsApplied(true);
   };
 
-  const finalFilter = () => {
-    // TODO: Implement final filter logic
-    console.log('Final filter:', filterData);
+  const removeAdvancedFilter = (filterKey: string) => {
+    const currentFilters = advancedFilters || {};
+    const newFilters = { ...currentFilters };
+    delete newFilters[filterKey];
+
+    if (Object.keys(newFilters).length === 0) {
+      setAdvancedFilters(null);
+    } else {
+      setAdvancedFilters(newFilters);
+    }
+    resetFilterState();
   };
+
+  const clearAllAdvancedFilters = () => {
+    setAdvancedFilters(null);
+    resetFilterState();
+  };
+
+  const finalFilter = () => {
+    if (filterData) {
+      const currentFilters = advancedFilters || {};
+      const filterKey = `${filterData.filter}_${filterData.option}`;
+      setAdvancedFilters({
+        ...currentFilters,
+        [filterKey]: filterData.value,
+      });
+    }
+    setIsApplied(false);
+    setSelectedFilter(null);
+    setOption(null);
+    setValue('');
+    setFilterData(null);
+    resetFilterState();
+  };
+
+  if (
+    advancedFilters &&
+    Object.keys(advancedFilters).length > 0 &&
+    !selectedFilter &&
+    !isApplied
+  ) {
+    return (
+      <Popover.Content align="start" className="p-1">
+        <Command>
+          <button
+            onClick={() => {
+              setSelectedFilter(null);
+              setOption(null);
+              setValue('');
+              setFilterData(null);
+              setIsApplied(false);
+            }}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground p-2"
+          >
+            <IconArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+          <Command.Separator />
+          <Command.List className="p-2">
+            <div className="space-y-2">
+              {Object.entries(advancedFilters).map(([key, value]) => {
+                const [filter, option] = key.split('_');
+                return (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                  >
+                    <span className="text-sm">
+                      <strong>{filter}</strong> {option}{' '}
+                      <strong>{value}</strong>
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeAdvancedFilter(key)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <IconX className="w-3 h-3" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </Command.List>
+          <div className="flex gap-2 p-2 border-t">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={clearAllAdvancedFilters}
+              className="text-xs"
+            >
+              Clear All
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setSelectedFilter('')}
+              className="text-xs"
+            >
+              Add Filter
+            </Button>
+          </div>
+        </Command>
+      </Popover.Content>
+    );
+  }
 
   if (isApplied) {
     return (
@@ -88,12 +203,15 @@ function AdvancedFilter() {
           <div className="w-full flex justify-end">Items found: 0</div>
         </Command>
         <div className="flex gap-2 justify-end">
-          <Button variant="secondary" className="text-sm">
-            Cancel
-          </Button>
-          <Button className="text-sm">Count</Button>
           <Button className="text-sm" onClick={() => finalFilter()}>
             Filter
+          </Button>
+          <Button
+            className="text-sm"
+            variant="secondary"
+            onClick={() => setIsApplied(false)}
+          >
+            Cancel
           </Button>
         </div>
       </Popover.Content>
@@ -121,11 +239,9 @@ function AdvancedFilter() {
           </button>
           <Command.Separator />
           <Command.List>
-            <div className="text-sm text-muted-foreground p-2">
-              Filter options for: {selectedFilter}
-            </div>
+            <div className="text-sm p-2">{selectedFilter}</div>
             <Command.Separator />
-            <div className="flex flex-col gap-2 m-1">
+            <div className="flex flex-col gap-2 mx-1 my-2">
               {filterOptions.map((filterOption) => (
                 <div key={filterOption}>
                   <input
@@ -166,14 +282,20 @@ function AdvancedFilter() {
     <Popover.Content align="start" className="p-1">
       <Command>
         <button
-          onClick={() => setView('root')}
+          onClick={() => {
+            setSelectedFilter(null);
+            setOption(null);
+            setValue('');
+            setFilterData(null);
+            setIsApplied(false);
+          }}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground p-2"
         >
           <IconArrowLeft className="w-4 h-4" />
           Back
         </button>
         <Command.Separator />
-        <Command.Input />
+        <Command.Input placeholder="Search filters..." />
         <Command.List>
           {allFilters.map((filter) => (
             <Command.Item
@@ -189,6 +311,35 @@ function AdvancedFilter() {
       </Command>
     </Popover.Content>
   );
-}
+};
 
-export default AdvancedFilter;
+export const AdvancedFilterBar = () => {
+  const [advancedFilters] = useQueryState<Record<string, any> | null>(
+    'advanced',
+  );
+
+  if (!advancedFilters || Object.keys(advancedFilters).length === 0) {
+    return null;
+  }
+
+  return (
+    <Filter.BarItem queryKey="advanced">
+      <Filter.BarName>Advanced Filters</Filter.BarName>
+      <div className="flex flex-wrap gap-1">
+        {Object.entries(advancedFilters).map(([key, value]) => {
+          const [filter, option] = key.split('_');
+          return (
+            <div
+              key={key}
+              className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded text-sm"
+            >
+              <span>
+                {filter} {option} {value}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </Filter.BarItem>
+  );
+};
