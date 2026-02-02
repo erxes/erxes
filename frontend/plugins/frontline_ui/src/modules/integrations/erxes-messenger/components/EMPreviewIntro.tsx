@@ -9,6 +9,8 @@ import { useAtomValue } from 'jotai';
 import { EMGreetingAvatar } from '@/integrations/erxes-messenger/components/EMGreeting';
 import { EMPreviewChatInput } from './EMPreviewChatInput';
 import { useMemo } from 'react';
+import { Weekday } from '../types/Weekday';
+import { ScheduleDay } from '../constants/emHoursSchema';
 
 const MAX_COUNT = 2;
 
@@ -40,9 +42,18 @@ export const EMPreviewIntro = () => {
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
 
+  const getSchedule = (obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean | undefined; from?: string | undefined; to?: string | undefined; }>>) => {
+    const days = Object.entries(obj).filter(([_, value]) => value.work).map(([key, _]) => key);
+    const times = Object.entries(obj).filter(([_, value]) => value.work).map(([_, value]) => `${value.from} - ${value.to}`);
+    return {
+      days,
+      times
+    }
+  }
+
   return (
     <>
-      <div className="bg-background text-foreground p-6 pt-4">
+      <div className="bg-background text-foreground p-6 pt-4 space-y-3">
         {/* <Popover.Close asChild>
           <Button
             size="icon"
@@ -55,13 +66,20 @@ export const EMPreviewIntro = () => {
         <h1 className="font-semibold text-accent-foreground text-base">
           Need help?
         </h1>
-        <p className="text-sm text-foreground/80 mt-3 mb-3">
+        <p className="text-sm text-foreground/80">
           {greeting?.title || 'Welcome to Erxes Messenger'}
         </p>
-        <p className="text-xs text-accent-foreground mb-5">
+        {
+          hours?.availabilityMethod === 'manual' ? (
+            <p className='text-sm text-medium text-accent-foreground'>We're available between 9.00 pm and 5.00 am</p>
+          ) : (
+            <p className='text-sm text-medium text-accent-foreground'>We're available between {getSchedule(hours?.onlineHours || {}).times[0]}, {getSchedule(hours?.onlineHours || {}).days.join(', ')}</p>
+          )
+        }
+        <p className="text-xs text-accent-foreground">
           Contact us for any questions or concerns.
         </p>
-        <div className="flex items-center gap-1 text-accent mb-2">
+        <div className="flex items-center gap-1 text-accent">
           {greeting?.links?.map(
             (link) =>
               !!link && (

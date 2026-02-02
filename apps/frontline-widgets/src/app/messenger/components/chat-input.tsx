@@ -1,11 +1,11 @@
 import { FC, useId } from 'react';
 import { IconArrowUp } from '@tabler/icons-react';
 import { Button, Input, cn, toast } from 'erxes-ui';
-import { useChatInput } from '../hooks/useChatInput';
 import { useAtom } from 'jotai';
 import { InitialMessage } from '../constants';
 import { connectionAtom } from '../states';
 import { useCustomerData } from '../hooks/useCustomerData';
+import { useChatInput } from '../hooks/useChatInput';
 
 interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
 
@@ -38,14 +38,6 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           placeholder={placeholder}
           value={message}
           disabled={shouldDisable}
-          onClick={() => {
-            if (shouldDisable) {
-              toast({
-                title: 'Please enter your email or phone number to continue',
-                variant: 'warning',
-              });
-            }
-          }}
           onChange={handleInputChange}
           {...inputProps}
         />
