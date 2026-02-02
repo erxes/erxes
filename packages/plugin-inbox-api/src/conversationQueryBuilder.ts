@@ -353,9 +353,25 @@ export default class Builder {
   }
 
   public dateFilter(startDate: string, endDate: string): IOR {
-    // Ensure dates are properly parsed
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Enhanced date parsing to handle both "YYYY-MM-DD HH:mm" and ISO formats
+    let start: Date;
+    let end: Date;
+
+    // Handle "YYYY-MM-DD HH:mm" format
+    if (startDate.includes(" ") && !startDate.includes("T")) {
+      const [datePart, timePart] = startDate.split(" ");
+      start = new Date(`${datePart}T${timePart}:00`);
+    } else {
+      // Handle ISO format and others
+      start = new Date(startDate);
+    }
+
+    if (endDate.includes(" ") && !endDate.includes("T")) {
+      const [datePart, timePart] = endDate.split(" ");
+      end = new Date(`${datePart}T${timePart}:00`);
+    } else {
+      end = new Date(endDate);
+    }
 
     // Validate dates
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
