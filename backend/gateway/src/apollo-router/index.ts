@@ -39,6 +39,7 @@ export const stopRouter = (signal: NodeJS.Signals) => {
 export const apolloRouterPort = Number(APOLLO_ROUTER_PORT) || 50_000;
 
 const downloadRouter = async () => {
+  // downloadRouter
   if (NODE_ENV === 'production') {
     // router must be already inside the image
     return;
