@@ -1,23 +1,24 @@
+import { IconReceipt } from '@tabler/icons-react';
 import {
   cn,
   Combobox,
   Command,
   Filter,
   Form,
-  RecordTableInlineCell,
   Popover,
+  RecordTableInlineCell,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import React, { useCallback, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import React, { useState, useCallback } from 'react';
-import { IconReceipt } from '@tabler/icons-react';
-import { IVoucherCampaign } from '../../types/voucherCampaignType';
+import { ValueChangeValueType } from '../../../general-config/types/loyaltyConfigTypes';
 import {
   SelectVoucherCampaignContext,
   useSelectVoucherCampaignContext,
 } from '../../context/SelectVoucherCampaignContext';
 import { useVoucherCampaign } from '../../hooks/useSelectVoucherCampaign';
+import { IVoucherCampaign } from '../../types/voucherCampaignType';
 import { VoucherCampaignInline } from '../VoucherCampaignInline';
 
 export const SelectVoucherCampaignProvider = ({
@@ -29,8 +30,8 @@ export const SelectVoucherCampaignProvider = ({
 }: {
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
-  value?: string[] | string | null;
-  onValueChange: (value: string[] | string | null) => void;
+  value?: ValueChangeValueType;
+  onValueChange: (value: ValueChangeValueType) => void;
   voucherCampaigns?: IVoucherCampaign[];
 }) => {
   const [selectedVoucherCampaigns, setSelectedVoucherCampaigns] = useState<IVoucherCampaign[]>(
@@ -198,12 +199,12 @@ export const SelectVoucherCampaignFilterView = ({
   queryKey,
   mode = 'single',
 }: {
-  onValueChange?: (value: string[] | string | null) => void;
+  onValueChange?: (value: ValueChangeValueType) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
   const [voucherCampaign, setVoucherCampaign] = useQueryState<
-    string[] | string | null
+    ValueChangeValueType
   >(queryKey || 'voucherCampaign');
   const { resetFilterState } = useFilterContext();
 
@@ -231,12 +232,12 @@ export const SelectVoucherCampaignFilterBar = ({
   mode = 'single',
 }: {
   iconOnly?: boolean;
-  onValueChange?: (value: string[] | string | null) => void;
+  onValueChange?: (value: ValueChangeValueType) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
   const [voucherCampaign, setVoucherCampaign] = useQueryState<
-    string[] | string | null
+    ValueChangeValueType
   >(queryKey || 'voucherCampaign');
   const [open, setOpen] = useState(false);
 

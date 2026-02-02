@@ -19,8 +19,7 @@ import {
 } from '../../context/SelectVoucherCampaignContext';
 import { useVoucherCampaign } from '../../hooks/useSelectVoucherCampaign';
 import { VoucherCampaignInline } from '../VoucherCampaignInline';
-
-type VoucherCampaignValue = string[] | string | null;
+import { ValueChangeValueType } from '../../../general-config/types/loyaltyConfigTypes';
 
 export const SelectVoucherCampaignProvider = ({
   children,
@@ -31,8 +30,8 @@ export const SelectVoucherCampaignProvider = ({
 }: {
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
-  value?: VoucherCampaignValue;
-  onValueChange: (value: VoucherCampaignValue) => void;
+  value?: ValueChangeValueType;
+  onValueChange: (value: ValueChangeValueType) => void;
   voucherCampaigns?: IVoucherCampaign[];
 }) => {
   const [selectedVoucherCampaigns, setSelectedVoucherCampaigns] = useState<
@@ -215,12 +214,12 @@ export const SelectVoucherCampaignFilterView = ({
   queryKey,
   mode = 'single',
 }: {
-  onValueChange?: (value: VoucherCampaignValue) => void;
+  onValueChange?: (value: ValueChangeValueType) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
   const [voucherCampaign, setVoucherCampaign] =
-    useQueryState<VoucherCampaignValue>(queryKey || 'voucherCampaign');
+    useQueryState<ValueChangeValueType>(queryKey || 'voucherCampaign');
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -247,12 +246,12 @@ export const SelectVoucherCampaignFilterBar = ({
   mode = 'single',
 }: {
   iconOnly?: boolean;
-  onValueChange?: (value: VoucherCampaignValue) => void;
+  onValueChange?: (value: ValueChangeValueType) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
   const [voucherCampaign, setVoucherCampaign] =
-    useQueryState<VoucherCampaignValue>(queryKey || 'voucherCampaign');
+    useQueryState<ValueChangeValueType>(queryKey || 'voucherCampaign');
   const [open, setOpen] = useState(false);
 
   return (

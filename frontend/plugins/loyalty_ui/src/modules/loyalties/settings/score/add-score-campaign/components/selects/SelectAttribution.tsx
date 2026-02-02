@@ -18,12 +18,12 @@ import React, { useState } from 'react';
 import { useUsers } from 'ui-modules/modules';
 import { currentUserState } from 'ui-modules/states';
 import { useDebounce } from 'use-debounce';
-
-import { IAttribution } from '../../../types/attributionType';
+import { ValueChangeValueType } from '~/modules/loyalties/settings/general-config/types/loyaltyConfigTypes';
 import {
-  useSelectAttributionContext,
   SelectAttributionContext,
+  useSelectAttributionContext,
 } from '../../../context/SelectAttributionContext';
+import { IAttribution } from '../../../types/attributionType';
 
 const SelectAttributionProvider = ({
   children,
@@ -37,7 +37,7 @@ const SelectAttributionProvider = ({
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   value?: string[] | string;
-  onValueChange?: (value: string[] | string | null) => void;
+  onValueChange?: (value: ValueChangeValueType) => void;
   attribution?: IAttribution[];
   setOpen?: (open: boolean) => void;
   allowUnassigned?: boolean;
@@ -253,7 +253,7 @@ export const SelectAttributionFilterView = ({
   queryKey,
   mode = 'single',
 }: {
-  onValueChange?: (value: string[] | string | null) => void;
+  onValueChange?: (value: ValueChangeValueType) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
@@ -287,7 +287,7 @@ export const SelectAttributionFilterBar = ({
   label,
 }: {
   iconOnly?: boolean;
-  onValueChange?: (value: string[] | string | null) => void;
+  onValueChange?: (value: ValueChangeValueType) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
   label?: string;
