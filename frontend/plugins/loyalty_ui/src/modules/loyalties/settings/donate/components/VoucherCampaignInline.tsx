@@ -36,9 +36,7 @@ const VoucherCampaignInlineProvider = ({
   const contextValue = useMemo(() => {
     const normalizedVoucherCampaignId = Array.isArray(voucherCampaignId)
       ? voucherCampaignId
-      : voucherCampaignId
-      ? [voucherCampaignId]
-      : undefined;
+      : voucherCampaignId && [voucherCampaignId] || [];
 
     return {
       voucherCampaigns: voucherCampaigns || _voucherCampaigns,

@@ -75,10 +75,7 @@ export const SelectVoucherCampaignProvider = ({
   );
 
   const voucherCampaignId = useMemo(() => {
-    if (!value || (Array.isArray(value) && value.length === 0)) {
-      return [];
-    }
-    return Array.isArray(value) ? value : [value];
+    return Array.isArray(value) ? value : value && [value] || [];
   }, [value]);
 
   const contextValue = useMemo(
@@ -364,9 +361,9 @@ SelectVoucherCampaignFormItem.displayName = 'SelectVoucherCampaignFormItem';
 const SelectVoucherCampaignRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectVoucherCampaignProvider>, 'children'> &
-    React.ComponentProps<typeof Combobox.Trigger> & {
-      placeholder?: string;
-    }
+  React.ComponentProps<typeof Combobox.Trigger> & {
+    placeholder?: string;
+  }
 >(({ onValueChange, className, mode, value, placeholder, ...props }, ref) => {
   const [open, setOpen] = useState(false);
 
