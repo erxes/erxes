@@ -312,7 +312,6 @@ export const loadCompanyClass = (
         (doc.phones || []).join(' '),
         doc.website || '',
         doc.industry || '',
-        doc.plan || '',
         doc.description || '',
         doc.code || '',
       ]);

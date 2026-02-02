@@ -8,7 +8,6 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
   toast,
-  useConfirm,
 } from 'erxes-ui';
 import {
   IconAlignLeft,
@@ -17,20 +16,19 @@ import {
   IconCheck,
   IconCopy,
   IconKey,
-  IconEdit,
-  IconTrash,
 } from '@tabler/icons-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   SettingsPath,
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { useState } from 'react';
-import { useMutation } from '@apollo/client';
-
-import { CLIENT_PORTAL_DELETE } from '@/client-portal/graphql/mutations/clientPortalDelete';
+import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
 
 export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
+  clientPortalMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IClientPortal>,
+
   {
     id: 'name',
     accessorKey: 'name',
@@ -85,7 +83,10 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
         <RecordTableInlineCell className="relative group" onClick={handleCopy}>
           <Badge variant="secondary">
             {cell.row.original.token
-              ? `${cell.row.original.token.slice(0, 4)}•••${cell.row.original.token.slice(-3)}`
+              ? `${cell.row.original.token.slice(
+                  0,
+                  4,
+                )}•••${cell.row.original.token.slice(-3)}`
               : ''}
           </Badge>
           <Button
@@ -113,59 +114,5 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
         </RecordTableInlineCell>
       </RelativeDateDisplay>
     ),
-  },
-
-  // NEW: Actions column (EDIT + DELETE)
-  {
-    id: 'actions',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ row }) => {
-      const portal = row.original;
-      const navigate = useNavigate();
-      const { confirm } = useConfirm();
-      const [clientPortalDelete] = useMutation(CLIENT_PORTAL_DELETE);
-
-      const handleEdit = () => {
-        navigate(
-          '/' +
-            SettingsPath.Index +
-            SettingsWorkspacePath.ClientPortals +
-            '/' +
-            portal._id
-        );
-      };
-
-      const handleDelete = () => {
-        confirm({
-          message: 'Delete client portal?',
-          options: {
-            description: 'This action cannot be undone.',
-            okLabel: 'Delete',
-            cancelLabel: 'Cancel',
-          },
-        }).then(() => {
-          clientPortalDelete({
-            variables: { _id: portal._id },
-            refetchQueries: ['getClientPortals'],
-          });
-        });
-      };
-
-      return (
-        <RecordTableInlineCell className="flex gap-1">
-          <Button variant="ghost" size="icon" onClick={handleEdit}>
-            <IconEdit size={16} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-red-500"
-            onClick={handleDelete}
-          >
-            <IconTrash size={16} />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
   },
 ];
