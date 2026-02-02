@@ -54,20 +54,11 @@ export const EMPreviewIntro = () => {
   return (
     <>
       <div className="bg-background text-foreground p-6 pt-4 space-y-3">
-        {/* <Popover.Close asChild>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="absolute top-4 right-4"
-          >
-            <IconX />
-          </Button>
-        </Popover.Close> */}
         <h1 className="font-semibold text-accent-foreground text-base">
-          Need help?
+          {greeting?.title || 'Need help?'}
         </h1>
         <p className="text-sm text-foreground/80">
-          {greeting?.title || 'Welcome to Erxes Messenger'}
+          {greeting?.message || 'Welcome to Erxes Messenger'}
         </p>
         {
           hours?.availabilityMethod === 'manual' ? (
@@ -109,26 +100,6 @@ export const EMPreviewIntro = () => {
       <div className="mt-auto">
         <EMPreviewChatInput />
       </div>
-      {/* <div className="bg-a px-4 py-6 -mt-8 mx-6 rounded-xl shadow-md">
-        <div className="font-medium text-accent-foreground mb-2 text-sm px-3">
-          Recent conversations
-        </div>
-        <Button
-          className="w-full text-left h-auto justify-start rounded-md px-2 my-2"
-          variant="ghost"
-        >
-          <div className="flex items-center bg-muted text-muted-foreground p-2 rounded-full">
-            <IconPlus className="size-5" strokeWidth={1.5} />
-          </div>
-          <div className="flex flex-col gap-1">
-            <span>Start new conversation</span>
-            <span className="text-xs font-normal text-accent-foreground">
-              Our usual response time is a few {hours?.responseRate}.
-            </span>
-          </div>
-        </Button>
-        <Separator />
-      </div> */}
     </>
   );
 };
