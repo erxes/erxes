@@ -18,14 +18,14 @@ import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQue
 import { useCustomerCustomFieldEdit } from '../../hooks/useEditCustomerCustomFields';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ContactSidebar } from '@/contacts/components/ContactSidebar';
+import { useIsCustomerLeadSessionKey } from '../../hooks/useCustomerLeadSessionKey';
 
 export const CustomerDetail = () => {
-  const { t } = useTranslation('contact', {
-    keyPrefix: 'customer.detail',
-  });
+  const { t } = useTranslation('contact');
   const [open, setOpen] = useQueryState<string>('contactId');
   const { customerDetail, loading, error } = useCustomerDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { isLead } = useIsCustomerLeadSessionKey();
 
   return (
     <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
@@ -36,7 +36,7 @@ export const CustomerDetail = () => {
         notFoundState={<CustomerDetailEmptyState />}
         errorState={<CustomerDetailErrorState />}
       >
-        <FocusSheet.Header title={t('customer-detail')} />
+        <FocusSheet.Header title={isLead ? t('lead.detail.lead-detail') : t('customer.detail.customer-detail')} />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <ContactSidebar />
