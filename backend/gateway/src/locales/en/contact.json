@@ -57,6 +57,31 @@
     "plan": "Plan",
     "owner": "Owner",
     "last-seen": "Last Seen",
-    "profile-score": "Profile Score"
-  }
+    "profile-score": "Profile Score",
+    "field": {
+      "primaryName": "Name",
+      "code": "Code",
+      "owner": "Owner",
+      "parentCompanyId": "Parent Company",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "industry": "Industries",
+      "location": "Headquarters country",
+      "businessType": "Business Type",
+      "size": "Size",
+      "plan": "Plan",
+      "description": "Description",
+      "owner-placeholder": "Select owner",
+      "industry-placeholder": "Select industries"
+    },
+    "add": {
+      "_": "Add company",
+      "success-message": "Company added successfully"
+    }
+  },
+  "upload": "Upload",
+  "upload-description": "Upload 1:1, 2MB max",
+  "save": "Save",
+  "cancel": "Cancel"
 }
