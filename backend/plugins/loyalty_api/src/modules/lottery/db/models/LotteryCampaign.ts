@@ -186,7 +186,7 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       { campaignId, awardId, multiple },
       user: IUserDocument,
     ) {
-      Array.from(Array(Number.parseInt(multiple)), async () => {
+      Array.from(new Array(Number.parseInt(multiple)), async () => {
         await this.doLottery({ campaignId, awardId }, user);
         return true;
       });

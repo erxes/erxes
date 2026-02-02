@@ -11,6 +11,8 @@ export const SpinNameCell = ({ spin, name }: SpinNameCellProps) => {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       className="cursor-pointer px-3 py-2"
       onClick={() => {
         setEditOpen(spin._id);
