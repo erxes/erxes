@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Label } from 'erxes-ui';
-
 import SelectSegments from '../selects/SelectSegments';
 import SelectUsers from '../selects/SelectUsers';
+
+const SEGMENT_CONTENT_TYPES = ['core:product.product'];
+
 
 type FilterConfig = {
   title: string;
@@ -12,7 +14,7 @@ type FilterConfig = {
 
 type Props = {
   config: any;
-  currentStageId: string;
+  currentStageId?: string;
   save: (config: any) => void;
   delete: () => void;
 };
@@ -30,7 +32,6 @@ const DefaultFilterConfig: React.FC<Props> = ({
   delete: deleteConfig,
 }) => {
   const [filters, setFilters] = useState<FilterConfig[]>([]);
-
   // sync from backend config
   useEffect(() => {
     const incoming = Array.isArray(config?.filters) ? config.filters : [];
@@ -147,7 +148,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
               <div className="space-y-2">
                 <Label>Segment</Label>
                 <SelectSegments
-                  contentTypes={['core:product']}
+                  contentTypes={SEGMENT_CONTENT_TYPES}
                   value={filter.segmentId}
                   onChange={(segmentId) =>
                     updateFilter(index, 'segmentId', segmentId || '')
@@ -166,13 +167,11 @@ const DefaultFilterConfig: React.FC<Props> = ({
                   <SelectUsers
                     value=""
                     onChange={(userId) => {
-                      if (!userId) return;
                       toggleUser(index, userId);
                     }}
                     ids={[]}
-                    excludeIds={true}
+                    excludeIds={false}
                     isAssignee={true}
-                    branchIds={[]}
                   />
                 </div>
 

@@ -39,6 +39,22 @@ const FacebookIntegrationActions = lazy(() =>
   ),
 );
 
+const ImapIntegrationDetail = lazy(() =>
+  import('@/integrations/imap/components/ImapIntegrationDetail').then(
+    (module) => ({
+      default: module.ImapIntegrationDetail,
+    }),
+  ),
+);
+
+const ImapIntegrationActions = lazy(() =>
+  import('@/integrations/imap/components/ImapIntegrationDetail').then(
+    (module) => ({
+      default: module.ImapIntegrationActions,
+    }),
+  ),
+);
+
 const CallIntegrationDetail = lazy(() =>
   import('@/integrations/call/components/CallIntegrationDetail').then(
     (module) => ({
@@ -106,6 +122,7 @@ export const IntegrationDetailPage = () => {
           <FacebookIntegrationDetail isPost />
         )}
         {integrationType === IntegrationType.CALL && <CallIntegrationDetail />}
+        {integrationType === IntegrationType.IMAP && <ImapIntegrationDetail />}
       </Suspense>
       <IntegrationsRecordTable
         Actions={({ cell }) => (
@@ -119,6 +136,9 @@ export const IntegrationDetailPage = () => {
             )}
             {integrationType === IntegrationType.CALL && (
               <CallIntegrationActions cell={cell} />
+            )}
+            {integrationType === IntegrationType.IMAP && (
+              <ImapIntegrationActions cell={cell} />
             )}
           </>
         )}

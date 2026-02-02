@@ -14,11 +14,6 @@ export const MainNavigation = () => {
         path="mongolian/sync-erkhet"
         icon={IconSandbox}
       />
-      <NavigationMenuLinkItem
-        name="Product Places"
-        path="mongolian/product-places"
-        icon={IconSandbox}
-      />
     </>
   );
 };

@@ -3,7 +3,6 @@
   "core-modules": {
     "_": "Core modules",
     "contacts": "Contacts",
-    "products": "Products",
     "segments": "Segments",
     "automations": "Automations",
     "documents": "Documents",
@@ -45,7 +44,6 @@
     "broadcast-config": "Broadcast config",
     "mail-config" : "Mail config",
     "client-portal" : "Client Portal",
-    "products" : "Products",
     "automations" : "Automations",
     "account" : "Account",
     "developer" : "Developer",
