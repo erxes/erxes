@@ -135,7 +135,7 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
                       <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
                         <DateDisplay date={pipeline.createdAt} />
                       </Table.Cell>
-                      <Table.Cell className="pipeline-none px-2 w-32 text-muted-foreground">
+                      <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
                         <DateDisplay date={pipeline.updatedAt} />
                       </Table.Cell>
                       <Table.Cell className="border-none px-2 w-10">
