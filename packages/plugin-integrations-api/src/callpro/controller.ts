@@ -83,7 +83,6 @@ const init = async (app) => {
       debugRequest(debugCallPro, req);
 
       const { numberTo, numberFrom, disp, callID, owner } = req.body;
-      console.log("callpro-receive:", req.body);
       try {
         await models.Logs.createLog({
           type: "call-pro",
