@@ -6,9 +6,9 @@ import { UseFormReturn } from 'react-hook-form';
 
 export function AddCouponCampaignForm({
   form: couponForm,
-}: {
+}: Readonly<{
   form: UseFormReturn<CouponFormValues>;
-}) {
+}>) {
   return (
     <Sheet.Content className="flex-auto overflow-hidden">
       <ScrollArea className="h-full">

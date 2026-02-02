@@ -77,7 +77,7 @@ const SelectAttributionProvider = ({
     onValueChange?.(newSelectedAttributionIds);
   };
 
-  const attributionIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const attributionIds = Array.isArray(value) ? value : value && [value] || [];
   const loading = attributionIds.some(
     (id) => !_attribution.find((m) => m._id === id),
   );
@@ -338,11 +338,11 @@ export const SelectAttributionFilterBar = ({
 export const SelectAttributionInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectAttributionProvider>, 'children'> &
-    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-      scope?: string;
-      placeholder?: string;
-      size?: AvatarProps['size'];
-    }
+  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+    scope?: string;
+    placeholder?: string;
+    size?: AvatarProps['size'];
+  }
 >(
   (
     {
@@ -446,14 +446,14 @@ export const SelectAttributionDetail = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          {!value ? (
-            <Combobox.TriggerBase className="font-medium">
-              Add Owner <IconPlus />
-            </Combobox.TriggerBase>
-          ) : (
+          {value ? (
             <Button variant="ghost" className="w-full inline-flex">
               <SelectAttributionValue size={size} />
             </Button>
+          ) : (
+            <Combobox.TriggerBase className="font-medium">
+              Add Owner <IconPlus />
+            </Combobox.TriggerBase>
           )}
         </Popover.Trigger>
         <Combobox.Content>

@@ -10,9 +10,9 @@ import { VoucherAddRestrictionMoreFields } from './voucher-restriction-field/Vou
 
 export function AddVoucherRestrictionForm({
   onOpenChange,
-}: {
+}: Readonly<{
   onOpenChange: (open: boolean) => void;
-}) {
+}>) {
   const form = useForm<VoucherFormValues>({
     resolver: zodResolver(voucherFormSchema),
     defaultValues: {

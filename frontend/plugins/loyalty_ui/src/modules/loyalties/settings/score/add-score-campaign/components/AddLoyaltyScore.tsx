@@ -11,9 +11,9 @@ import { AddScoreVariables, useAddScore } from '../hooks/useAddLoyaltyScore';
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
-}: {
+}: Readonly<{
   onOpenChange: (open: boolean) => void;
-}) {
+}>) {
   const { scoreAdd, loading: editLoading } = useAddScore();
   const form = useForm<LoyaltyScoreFormValues>({
     resolver: zodResolver(loyaltyScoreFormSchema),

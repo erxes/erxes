@@ -35,7 +35,7 @@ export const SelectVoucherCampaignProvider = ({
   onValueChange: (value: VoucherCampaignValue) => void;
   voucherCampaigns?: IVoucherCampaign[];
 }) => {
-  const [selectedVoucherCampaigns, setVoucherCampaigns] = useState<
+  const [selectedVoucherCampaigns, setSelectedVoucherCampaigns] = useState<
     IVoucherCampaign[]
   >(voucherCampaigns || []);
   const isSingleMode = mode === 'single';
@@ -45,7 +45,7 @@ export const SelectVoucherCampaignProvider = ({
       if (!voucherCampaign) return;
 
       if (isSingleMode) {
-        setVoucherCampaigns([voucherCampaign]);
+        setSelectedVoucherCampaigns([voucherCampaign]);
         return onValueChange(voucherCampaign._id);
       }
 
@@ -63,7 +63,7 @@ export const SelectVoucherCampaignProvider = ({
         ? arrayValue.filter((id) => id !== voucherCampaign._id)
         : [...arrayValue, voucherCampaign._id];
 
-      setVoucherCampaigns((prev) =>
+      setSelectedVoucherCampaigns((prev) =>
         [...prev, voucherCampaign].filter((b) =>
           newSelectedVoucherCampaignId.includes(b._id),
         ),
@@ -83,7 +83,7 @@ export const SelectVoucherCampaignProvider = ({
       voucherCampaigns: selectedVoucherCampaigns,
       voucherCampaignId,
       onSelect,
-      setVoucherCampaigns,
+      setVoucherCampaigns: setSelectedVoucherCampaigns,
       loading: false,
       error: null,
     }),
@@ -91,7 +91,7 @@ export const SelectVoucherCampaignProvider = ({
       selectedVoucherCampaigns,
       voucherCampaignId,
       onSelect,
-      setVoucherCampaigns,
+      setSelectedVoucherCampaigns,
     ],
   );
 

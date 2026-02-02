@@ -6,9 +6,9 @@ import { UseFormReturn } from 'react-hook-form';
 
 export function AddCouponRestrictionForm({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<CouponFormValues>;
-}) {
+}>) {
   return (
     <Sheet.Content className="flex-auto overflow-hidden">
       <ScrollArea className="h-full">

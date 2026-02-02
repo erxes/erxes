@@ -108,7 +108,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
 
   return (
     <Sheet
-      onOpenChange={(open: boolean) => (!open ? onClose() : null)}
+      onOpenChange={(open: boolean) => (!open && onClose())}
       open={open}
       modal
     >

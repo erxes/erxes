@@ -7,9 +7,9 @@ import { UseFormReturn } from 'react-hook-form';
 
 export function AddCouponCodeRuleForm({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<CouponFormValues>;
-}) {
+}>) {
   const [activeSubTab, setActiveSubTab] = useState('default');
 
   return (

@@ -29,7 +29,7 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger
-                  className={!field.value ? 'text-muted-foreground' : ''}
+                  className={field.value && '' || 'text-muted-foreground'}
                 >
                   {lotteryCampaigns.find(
                     (campaign: any) => campaign._id === field.value,

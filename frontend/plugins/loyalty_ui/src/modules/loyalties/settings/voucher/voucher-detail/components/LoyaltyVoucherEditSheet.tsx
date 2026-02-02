@@ -108,7 +108,7 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
 
   return (
     <Sheet
-      onOpenChange={(open) => (!open ? onClose() : null)}
+      onOpenChange={(open) => (!open && onClose())}
       open={open}
       modal
     >

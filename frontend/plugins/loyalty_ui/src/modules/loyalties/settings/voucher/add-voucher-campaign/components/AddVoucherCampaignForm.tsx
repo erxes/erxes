@@ -7,10 +7,10 @@ import { UseFormReturn } from 'react-hook-form';
 export function AddVoucherCampaignForm({
   onOpenChange,
   form: voucherForm,
-}: {
+}: Readonly<{
   onOpenChange: (open: boolean) => void;
   form: UseFormReturn<VoucherFormValues>;
-}) {
+}>) {
   return (
     <Sheet.Content className="flex-auto overflow-hidden">
       <ScrollArea className="h-full">

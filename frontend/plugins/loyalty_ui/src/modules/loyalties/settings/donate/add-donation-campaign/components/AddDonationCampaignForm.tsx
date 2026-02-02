@@ -6,9 +6,9 @@ import { UseFormReturn } from 'react-hook-form';
 
 export function AddDonationCampaignForm({
   form: donationForm,
-}: {
+}: Readonly<{
   form: UseFormReturn<DonationFormValues>;
-}) {
+}>) {
   return (
     <Sheet.Content className="flex-auto overflow-hidden">
       <ScrollArea className="h-full">

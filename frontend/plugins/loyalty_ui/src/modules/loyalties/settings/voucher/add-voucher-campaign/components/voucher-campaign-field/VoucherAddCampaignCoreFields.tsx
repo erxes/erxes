@@ -37,7 +37,7 @@ export const VoucherAddCampaignCoreFields: React.FC<
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
-                    className={!field.value ? 'text-muted-foreground' : ''}
+                    className={field.value && '' || 'text-muted-foreground'}
                   >
                     {VOUCHER_TYPES.find((type) => type.value === field.value)
                       ?.label || 'Select type'}
@@ -101,7 +101,7 @@ export const VoucherAddCampaignCoreFields: React.FC<
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
-                    className={!field.value ? 'text-muted-foreground' : ''}
+                    className={field.value && '' || 'text-muted-foreground'}
                   >
                     {VOUCHER_KIND_TYPES.find(
                       (type) => type.value === field.value,
