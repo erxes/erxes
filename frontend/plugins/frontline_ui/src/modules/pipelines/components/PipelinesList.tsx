@@ -13,9 +13,8 @@ import { format } from 'date-fns';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import { useNavigate } from 'react-router-dom';
 import { MembersInline } from 'ui-modules';
-import { IconGitBranch } from '@tabler/icons-react';
+import { IconGitBranch, IconTrash } from '@tabler/icons-react';
 import { CreatePipeline } from '@/pipelines/components/CreatePipeline';
-import { IconTrash } from '@tabler/icons-react';
 import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
 
 export const DeletePipeline = ({ pipelineId }: { pipelineId: string }) => {
