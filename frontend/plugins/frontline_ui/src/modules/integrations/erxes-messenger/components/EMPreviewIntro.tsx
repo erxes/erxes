@@ -73,7 +73,7 @@ export const EMPreviewIntro = () => {
           hours?.availabilityMethod === 'manual' ? (
             <p className='text-sm text-medium text-accent-foreground'>We're available between 9.00 pm and 5.00 am</p>
           ) : (
-            <p className='text-sm text-medium text-accent-foreground'>We're available between {getSchedule(hours?.onlineHours || {}).times[0]}, {getSchedule(hours?.onlineHours || {}).days.join(', ')}</p>
+            <p className='text-sm text-medium text-accent-foreground'>We're available between {getSchedule(hours?.onlineHours || {}).times[0] || '9.00 am - 5.00 pm'}, {getSchedule(hours?.onlineHours || {}).days.join(', ') || ''}</p>
           )
         }
         <p className="text-xs text-accent-foreground">
