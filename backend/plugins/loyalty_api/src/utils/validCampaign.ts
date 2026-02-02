@@ -3,7 +3,7 @@ export const validCampaign = (doc) => {
     return;
   }
 
-  if (doc.startDate.getTime() - new Date().getTime() < -24 * 1000 * 60 * 60) {
+  if (doc.startDate.getTime() - Date.now() < -24 * 1000 * 60 * 60) {
     throw new Error("The start date must be in the future");
   }
 
