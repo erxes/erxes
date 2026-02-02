@@ -62,13 +62,12 @@ export const productColumns: (
       <RecordTable.InlineHead icon={IconCategory} label={t('category')} />
     ),
     cell: ({ cell }: { cell: any }) => {
+      const code = cell.row.original?.category?.code;
+      const name = cell.row.original?.category?.name;
+      const value = [code, name].filter(Boolean).join(' - ') || '';
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={`${cell.row.original?.category?.code || ''} - ${
-              cell.row.original?.category?.name || ''
-            }`}
-          />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
@@ -117,11 +116,11 @@ export const productColumns: (
       <RecordTable.InlineHead icon={IconUser} label={t('hasAttach')} />
     ),
     cell: ({ cell }: { cell: any }) => {
+      const hasAttachment = Boolean(cell.row.original?.attachment?.url);
+      const value = hasAttachment ? 'Attached' : 'None';
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={Boolean(cell.row.original?.attachment?.url).toString()}
-          />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
@@ -145,7 +144,7 @@ export const productColumns: (
   {
     id: 'tags',
     accessorKey: 'tags',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('Tags')} />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('tags')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <TagsSelect.InlineCell

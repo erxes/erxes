@@ -6,9 +6,13 @@
   "category": "Category",
   "categories": "Categories",
   "product-service": "Product Service",
+  "uom": "UOM",
   "add": {
     "create-product": "Create Product",
+    "add-uom": "Add UOM",
+    "edit-uom": "Edit UOM",
     "create": "Create",
+    "creating": "Creating",
     "cancel": "Cancel",
     "product-information": "Product Information",
     "name": "Name",
@@ -34,7 +38,7 @@
     "add-sub": "Add sub",
     "sub-uom": "SUB UOM",
     "ratio": "RATIO",
-    "inverse-ratio": "~INVERSE RATIO",
+    "inverse-ratio": "INVERSE RATIO",
     "currency": "Currency"
   },
   "detail": {
@@ -53,6 +57,7 @@
     "barcode-description": "Barcode description",
     "barcodes": "Barcodes",
     "add-barcode": "Add barcode",
+    "duplicate-barcode": "This barcode already exists.",
     "uom": "UOM",
     "unit-of-measurements": "Unit of Measurements",
     "sub-uom": "Sub UOM",

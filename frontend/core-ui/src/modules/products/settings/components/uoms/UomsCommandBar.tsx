@@ -5,15 +5,12 @@ import {
   RecordTable,
   Separator,
   useConfirm,
-  useToast,
 } from 'erxes-ui';
 import { useUomsRemove } from '../../hooks/useUomsRemove';
-import { ApolloError } from '@apollo/client';
 
 export const UomsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
-  const { toast } = useToast();
   const { removeUoms } = useUomsRemove();
 
   const handleDelete = () => {
@@ -29,18 +26,7 @@ export const UomsCommandBar = () => {
       removeUoms({
         variables: { uomIds: selectedIds },
         onCompleted: () => {
-          toast({
-            title: 'UOMs deleted successfully',
-            variant: 'success',
-          });
           table.resetRowSelection();
-        },
-        onError: (e: ApolloError) => {
-          toast({
-            title: 'Error',
-            description: e.message,
-            variant: 'destructive',
-          });
         },
       });
     });

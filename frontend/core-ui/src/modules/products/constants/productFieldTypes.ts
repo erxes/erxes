@@ -14,7 +14,7 @@ export function useProductFieldTypes() {
     },
     {
       value: ProductsPath.Uoms,
-      label: 'UOM',
+      label: t('uom'),
     },
   ];
 }

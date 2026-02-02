@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Sheet, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { IUom } from 'ui-modules';
 import { useUomsAdd } from '../../hooks/useUomsAdd';
 import { useUomsEdit } from '../../hooks/useUomsEdit';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +13,7 @@ const uomFormSchema = z.object({
 });
 
 interface IUomFormProps {
-  uom?: any;
+  uom?: IUom;
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -130,7 +131,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
             disabled={loadingAdd || loadingEdit}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {loadingAdd || loadingEdit ? t('saving') : t('save')}
+            {loadingAdd || loadingEdit ? t('creating') : t('create')}
           </Button>
         </Sheet.Footer>
       </form>

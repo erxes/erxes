@@ -4,29 +4,14 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Badge,
 } from 'erxes-ui';
 import { IUom } from 'ui-modules';
-import { uomMoreColumn } from './UomMoreColumn';
+import { uomNameColumn } from './UomNameColumn';
 
 export const uomsColumns: ColumnDef<IUom>[] = [
-  uomMoreColumn,
+  uomNameColumn,
   RecordTable.checkboxColumn as ColumnDef<IUom>,
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="secondary">
-            <TextOverflowTooltip value={cell.getValue() as string} />
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 250,
-  },
+
   {
     id: 'code',
     accessorKey: 'code',

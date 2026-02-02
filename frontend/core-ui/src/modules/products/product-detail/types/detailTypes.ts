@@ -1,6 +1,7 @@
 import { CurrencyCode } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { ApolloError } from '@apollo/client';
+import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 
 export interface ProductAttachment {
   url: string;
@@ -44,24 +45,7 @@ export interface ProductDetail {
   customFieldsData?: Record<string, unknown>;
 }
 
-export interface ProductFormValues {
-  _id?: string;
-  name?: string;
-  barcodeDescription?: string;
-  description?: string;
-  categoryId?: string;
-  type?: string;
-  code?: string;
-  status?: string;
-  attachment?: ProductAttachment;
-  barcodes?: string;
-  shortName?: string;
-  unitPrice?: number;
-  uom?: string;
-  vendor?: string;
-  scopeBrandIds?: string[];
-  vendorId?: string;
-}
+export type { ProductFormValues };
 
 export interface ProductGeneralProps {
   form: UseFormReturn<ProductFormValues>;

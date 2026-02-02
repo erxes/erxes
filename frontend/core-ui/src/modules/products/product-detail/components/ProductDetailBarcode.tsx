@@ -1,5 +1,13 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Editor, InfoCard, Input, Label, Select } from 'erxes-ui';
+import {
+  Button,
+  Editor,
+  InfoCard,
+  Input,
+  Label,
+  Select,
+  useToast,
+} from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +40,7 @@ export const ProductDetailBarcode = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
+  const { toast } = useToast();
   const { productDetail } = useProductDetailWithQuery();
 
   const form = useFormContext<ProductFormValues>();
@@ -85,9 +94,22 @@ export const ProductDetailBarcode = () => {
     if (!code.trim()) return;
 
     const codeValue = code.trim();
+    const isDuplicate =
+      formBarcodes.includes(codeValue) || codeValue in variantsForDisplay;
+    if (isDuplicate) {
+      const message = t('duplicate-barcode') || 'This barcode already exists.';
+      form.setError('barcodes', { type: 'manual', message });
+      toast({
+        title: message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const newBarcodes = [...formBarcodes, codeValue];
     const newVariants = { ...variantsForDisplay, [codeValue]: {} };
 
+    form.clearErrors('barcodes');
     syncBarcodesAndVariants(newBarcodes, newVariants);
     setCode('');
   };

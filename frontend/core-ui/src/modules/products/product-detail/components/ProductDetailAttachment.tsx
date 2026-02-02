@@ -66,11 +66,11 @@ export const ProductDetailAttachment = ({
 
   useEffect(() => {
     form.setValue('attachment', featured ?? undefined);
-  }, [featured, form]);
+  }, [featured]);
 
   useEffect(() => {
     form.setValue('attachmentMore', secondary);
-  }, [secondary, form]);
+  }, [secondary]);
 
   const featuredUpload = useErxesUpload({
     allowedMimeTypes: ['image/*'],

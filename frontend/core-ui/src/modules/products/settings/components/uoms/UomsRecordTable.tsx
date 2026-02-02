@@ -20,7 +20,7 @@ export const UomsRecordTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             {loading && <RecordTable.RowSkeleton rows={10} />}
-            {!loading && uoms?.length === 0 && (
+            {!loading && (uoms?.length ?? 0) === 0 && (
               <div className="flex justify-center px-8 w-full h-full">
                 <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
                   <div className="mb-6">
@@ -37,7 +37,7 @@ export const UomsRecordTable = () => {
                 </div>
               </div>
             )}
-            {!loading && <RecordTable.RowList />}
+            {!loading && (uoms?.length ?? 0) > 0 && <RecordTable.RowList />}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
