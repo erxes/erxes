@@ -1,20 +1,20 @@
-import { RPSuccess } from '@erxes/api-utils/src/messageBroker';
-import { generateModels, IModels } from '../connectionResolver';
-import { debugCallPro, debugError, debugRequest } from '../debuggers';
-import { routeErrorHandling } from '../helpers';
-import { sendInboxMessage } from '../messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { RPSuccess } from "@erxes/api-utils/src/messageBroker";
+import { generateModels, IModels } from "../connectionResolver";
+import { debugCallPro, debugError, debugRequest } from "../debuggers";
+import { routeErrorHandling } from "../helpers";
+import { sendInboxMessage } from "../messageBroker";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 
 export const callproCreateIntegration = async (
   models: IModels,
   { integrationId, data },
 ): Promise<RPSuccess> => {
-  const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
+  const { phoneNumber, recordUrl } = JSON.parse(data || "{}");
 
   // Check existing Integration
   const integration = await models.Integrations.findOne({
-    kind: 'callpro',
+    kind: "callpro",
     phoneNumber,
   }).lean();
 
@@ -26,13 +26,13 @@ export const callproCreateIntegration = async (
   }
 
   await models.Integrations.create({
-    kind: 'callpro',
+    kind: "callpro",
     erxesApiId: integrationId,
     phoneNumber,
     recordUrl,
   });
 
-  return { status: 'success' };
+  return { status: "success" };
 };
 
 export const callproGetAudio = async (
@@ -44,7 +44,7 @@ export const callproGetAudio = async (
   });
 
   if (!integration) {
-    const message = 'Integration not found';
+    const message = "Integration not found";
     debugCallPro(`Failed to get callprop audio: ${message}`);
 
     throw new Error(message);
@@ -55,7 +55,7 @@ export const callproGetAudio = async (
   });
 
   if (!conversation) {
-    const message = 'Conversation not found';
+    const message = "Conversation not found";
 
     debugCallPro(`Failed to get callprop audio: ${message}`);
     throw new Error(message);
@@ -64,7 +64,7 @@ export const callproGetAudio = async (
   const { recordUrl } = integration;
   const { callId } = conversation;
 
-  let audioSrc = '';
+  let audioSrc = "";
 
   if (recordUrl) {
     audioSrc = `${recordUrl}&id=${callId}`;
@@ -75,7 +75,7 @@ export const callproGetAudio = async (
 
 const init = async (app) => {
   app.post(
-    '/callpro-receive',
+    "/callpro-receive",
     routeErrorHandling(async (req, res) => {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
@@ -83,12 +83,12 @@ const init = async (app) => {
       debugRequest(debugCallPro, req);
 
       const { numberTo, numberFrom, disp, callID, owner } = req.body;
-
+      console.log("callpro-receive:", req.body);
       try {
         await models.Logs.createLog({
-          type: 'call-pro',
+          type: "call-pro",
           value: req.body,
-          specialValue: numberFrom || '',
+          specialValue: numberFrom || "",
         });
       } catch (e) {
         const message = `Failed creating call pro log. Error: ${e.message}`;
@@ -107,7 +107,7 @@ const init = async (app) => {
 
       const inboxIntegration = await sendInboxMessage({
         subdomain,
-        action: 'integrations.findOne',
+        action: "integrations.findOne",
         data: { _id: integration.erxesApiId },
         isRPC: true,
         defaultValue: null,
@@ -132,8 +132,8 @@ const init = async (app) => {
             integrationId: integration._id,
           });
         } catch (e) {
-          const message = e.message.includes('duplicate')
-            ? 'Concurrent request: customer duplication'
+          const message = e.message.includes("duplicate")
+            ? "Concurrent request: customer duplication"
             : e.message;
 
           debugError(message);
@@ -144,14 +144,14 @@ const init = async (app) => {
         try {
           const apiCustomerResponse = await sendInboxMessage({
             subdomain,
-            action: 'integrations.receive',
+            action: "integrations.receive",
             data: {
-              action: 'get-create-update-customer',
+              action: "get-create-update-customer",
               payload: JSON.stringify({
                 integrationId: integration.erxesApiId,
                 primaryPhone: numberFrom,
                 isUser: true,
-                phones: [{ phone: numberFrom, type: 'other' }],
+                phones: [{ phone: numberFrom, type: "other" }],
               }),
             },
             isRPC: true,
@@ -163,7 +163,7 @@ const init = async (app) => {
           await models.CallProCustomers.deleteOne({ _id: customer._id });
 
           debugError(
-            'Callpro: error occured during create or update customer on api: ',
+            "Callpro: error occured during create or update customer on api: ",
             e.message,
           );
           throw new Error(e);
@@ -187,8 +187,8 @@ const init = async (app) => {
             integrationId: integration._id,
           });
         } catch (e) {
-          const message = e.message.includes('duplicate')
-            ? 'Concurrent request: conversation duplication'
+          const message = e.message.includes("duplicate")
+            ? "Concurrent request: conversation duplication"
             : e.message;
 
           debugError(message);
@@ -206,9 +206,9 @@ const init = async (app) => {
         try {
           await sendInboxMessage({
             subdomain,
-            action: 'integrations.receive',
+            action: "integrations.receive",
             data: {
-              action: 'create-or-update-conversation',
+              action: "create-or-update-conversation",
               payload: JSON.stringify({
                 content: disp,
                 conversationId: conversation.erxesApiId,
@@ -223,16 +223,16 @@ const init = async (app) => {
           throw new Error(e);
         }
 
-        return res.send('success');
+        return res.send("success");
       }
 
       // save on api
       try {
         const apiConversationResponse = await sendInboxMessage({
           subdomain,
-          action: 'integrations.receive',
+          action: "integrations.receive",
           data: {
-            action: 'create-or-update-conversation',
+            action: "create-or-update-conversation",
             payload: JSON.stringify({
               customerId: customer.erxesApiId,
               content: disp,
@@ -249,7 +249,7 @@ const init = async (app) => {
         await models.CallProConversations.deleteOne({ _id: conversation._id });
 
         debugError(
-          'Callpro: error occured during create or update conversation on api: ',
+          "Callpro: error occured during create or update conversation on api: ",
           e.message,
         );
         throw new Error(e);
@@ -257,7 +257,7 @@ const init = async (app) => {
 
       const channels = await sendInboxMessage({
         subdomain,
-        action: 'channels.find',
+        action: "channels.find",
         data: {
           integrationIds: { $in: [inboxIntegration._id] },
         },
@@ -269,7 +269,7 @@ const init = async (app) => {
           graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
             conversationClientMessageInserted: {
               _id: Math.random().toString(),
-              content: 'new callpro message',
+              content: "new callpro message",
               createdAt: new Date(),
               customerId: customer.erxesApiId,
               conversationId: conversation.erxesApiId,
@@ -280,7 +280,7 @@ const init = async (app) => {
         }
       }
 
-      res.send('success');
+      res.send("success");
     }),
   );
 };

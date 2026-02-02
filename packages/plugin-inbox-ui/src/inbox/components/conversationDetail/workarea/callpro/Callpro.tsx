@@ -44,12 +44,22 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
           grouped["No tags"] = {
             conversations: [],
             assignedUsers: new Set(),
+            latestDate: null,
           };
         }
-
         grouped["No tags"].conversations.push(conversation);
         if (conversation.assignedUser) {
           grouped["No tags"].assignedUsers.add(conversation.assignedUser);
+        }
+        if (conversation.assignedUser?.createdAt) {
+          const currentLatest = grouped["No tags"].latestDate;
+          if (
+            !currentLatest ||
+            new Date(conversation.assignedUser.createdAt) >
+              new Date(currentLatest)
+          ) {
+            grouped["No tags"].latestDate = conversation.assignedUser.createdAt;
+          }
         }
       } else {
         tags.forEach((tag) => {
@@ -58,12 +68,23 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
             grouped[tagName] = {
               conversations: [],
               assignedUsers: new Set(),
+              latestDate: null,
             };
           }
 
           grouped[tagName].conversations.push(conversation);
           if (conversation.assignedUser) {
             grouped[tagName].assignedUsers.add(conversation.assignedUser);
+          }
+
+          if (tag.createdAt) {
+            const currentLatest = grouped[tagName].latestDate;
+            if (
+              !currentLatest ||
+              new Date(tag.createdAt) > new Date(currentLatest)
+            ) {
+              grouped[tagName].latestDate = tag.createdAt;
+            }
           }
         });
       }
@@ -276,6 +297,47 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
                     {assignedUser ? assignedUser.username : "Unassigned"}
                   </div>
                 </div>
+
+                {groupData.latestDate && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginTop: 8,
+                      padding: "6px 8px",
+                      background: "#F9FAFB",
+                      borderRadius: 6,
+                      border: "1px solid #E5E7EB",
+                    }}
+                  >
+                    <Icon
+                      icon="clock"
+                      style={{
+                        fontSize: 10,
+                        color: "#9CA3AF",
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "#6B7280",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {new Date(groupData.latestDate).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        },
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
