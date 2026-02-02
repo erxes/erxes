@@ -10,7 +10,6 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import { RelationWidgetSideTabs } from 'ui-modules';
 import { TicketSidebar } from './TicketSidebar';
 import { IconAlertCircle } from '@tabler/icons-react';
@@ -20,7 +19,6 @@ export const TicketDetailSheet = ({
 }: {
   hideRelationWidgetSideTabs?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
   const [activeTicket, setActiveTicket] = useAtom(ticketDetailSheetState);
   const { ticket, loading, error } = useGetTicket({
     variables: { _id: activeTicket },
@@ -52,7 +50,7 @@ export const TicketDetailSheet = ({
           </div>
         }
       >
-        <FocusSheet.Header title={t('ticket.detail', 'Ticket Detail')} />
+        <FocusSheet.Header title="Ticket Detail" />
         <FocusSheet.Content>
           <Sheet.Title className="sr-only">
             Ticket detail {ticket?.name}

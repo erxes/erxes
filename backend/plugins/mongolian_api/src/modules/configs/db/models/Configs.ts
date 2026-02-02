@@ -49,10 +49,14 @@ export const loadConfigClass = (
     /*
      * Get a Config (nullable)
      */
-    public static async getConfig(code: string, subId?: string, defaultValue?: any) {
+    public static async getConfig(
+      code: string,
+      subId?: string,
+      defaultValue?: any,
+    ) {
       const config = await models.Configs.findOne({
         code,
-        subId: subId ?? ''
+        subId: subId ?? '',
       }).lean();
 
       if (!config) {
@@ -77,10 +81,14 @@ export const loadConfigClass = (
     /*
      * Get Config Value (nullable)
      */
-    public static async getConfigValue(code: string, subId?: string, defaultValue?: any) {
+    public static async getConfigValue(
+      code: string,
+      subId?: string,
+      defaultValue?: any,
+    ) {
       const config = await models.Configs.findOne({
         code,
-        subId: subId ?? ''
+        subId: subId ?? '',
       }).lean();
 
       if (!config) {
@@ -109,25 +117,42 @@ export const loadConfigClass = (
     public static async createConfig({
       code,
       subId,
-      value
+      value,
     }: {
       code: string;
       value: any;
       subId?: string;
     }) {
-      const newConfig = await models.Configs.create({
-        code,
-        subId: subId ?? '',
-        value
-      });
+      const filter = { code, subId: subId ?? '' };
 
+      // 1️⃣ Check existence FIRST
+      const existed = await models.Configs.findOne(filter);
+
+      // 2️⃣ Upsert (safe for both create & update)
+      const config = await models.Configs.findOneAndUpdate(
+        filter,
+        {
+          $set: {
+            code,
+            subId: subId ?? '',
+            value,
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        },
+      );
+
+      // 3️⃣ Correct event action
       sendDbEventLog({
-        action: 'create',
-        docId: newConfig._id,
-        currentDocument: newConfig.toObject()
+        action: existed ? 'update' : 'create',
+        docId: config._id,
+        currentDocument: config.toObject(),
+        prevDocument: existed?.toObject(),
       });
 
-      return newConfig;
+      return config;
     }
 
     /**
@@ -138,7 +163,7 @@ export const loadConfigClass = (
 
       await models.Configs.updateOne(
         { _id },
-        { $set: { subId: subId ?? '', value } }
+        { $set: { subId: subId ?? '', value } },
       );
 
       const updatedConfig = await models.Configs.findOne({ _id });
@@ -147,7 +172,7 @@ export const loadConfigClass = (
         action: 'update',
         docId: _id,
         currentDocument: updatedConfig?.toObject(),
-        prevDocument: oldConf
+        prevDocument: oldConf,
       });
 
       return updatedConfig;
@@ -163,7 +188,7 @@ export const loadConfigClass = (
 
       sendDbEventLog({
         action: 'delete',
-        docId: oldConf._id
+        docId: oldConf._id,
       });
 
       return 'success';
