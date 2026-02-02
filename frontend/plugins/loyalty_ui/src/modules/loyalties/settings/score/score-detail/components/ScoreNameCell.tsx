@@ -10,15 +10,13 @@ export const ScoreNameCell = ({ score, name }: ScoreNameCellProps) => {
   const [, setEditOpen] = useQueryState('editScoreId');
 
   return (
-    <span
-      role="button"
-      tabIndex={0}
+    <button
       className="cursor-pointer px-3 py-2"
       onClick={() => {
         setEditOpen(score._id);
       }}
     >
       {name}
-    </span>
+    </button>
   );
 };

@@ -10,15 +10,13 @@ export const SpinNameCell = ({ spin, name }: SpinNameCellProps) => {
   const [, setEditOpen] = useQueryState('editSpinId');
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
       className="cursor-pointer px-3 py-2"
       onClick={() => {
         setEditOpen(spin._id);
       }}
     >
       {name}
-    </div>
+    </button>
   );
 };

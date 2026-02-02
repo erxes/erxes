@@ -47,7 +47,7 @@ export const DateSelectProvider = ({
   ...props
 }: DateSelectContextType & {
   children: React.ReactNode;
-} & DateSelectContextType) => {
+}) => {
   return (
     <DateSelectContext.Provider
       value={{
