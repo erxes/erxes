@@ -2,6 +2,7 @@ import * as _ from "underscore";
 import { sendCoreMessage } from "./messageBroker";
 import { CONVERSATION_STATUSES } from "./models/definitions/constants";
 import { IModels } from "./connectionResolver";
+import { fixDate } from "@erxes/api-utils/src/core";
 
 interface IIn {
   $in: string[];
@@ -352,47 +353,15 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string): IOR {
-    // Enhanced date parsing to handle both "YYYY-MM-DD HH:mm" and ISO formats
-    let start: Date;
-    let end: Date;
-
-    // Handle "YYYY-MM-DD HH:mm" format
-    if (startDate.includes(" ") && !startDate.includes("T")) {
-      const [datePart, timePart] = startDate.split(" ");
-      start = new Date(`${datePart}T${timePart}:00`);
-    } else {
-      // Handle ISO format and others
-      start = new Date(startDate);
-    }
-
-    if (endDate.includes(" ") && !endDate.includes("T")) {
-      const [datePart, timePart] = endDate.split(" ");
-      end = new Date(`${datePart}T${timePart}:00`);
-    } else {
-      end = new Date(endDate);
-    }
-
-    // Validate dates
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return { $or: [] };
-    }
-
+  public dateFilter(
+    startDate: string,
+    endDate: string,
+  ): { createdAt: { $gte: Date; $lte: Date } } {
     return {
-      $or: [
-        {
-          createdAt: {
-            $gte: start,
-            $lte: end,
-          },
-        },
-        {
-          updatedAt: {
-            $gte: start,
-            $lte: end,
-          },
-        },
-      ],
+      createdAt: {
+        $gte: fixDate(startDate),
+        $lte: fixDate(endDate),
+      },
     };
   }
 

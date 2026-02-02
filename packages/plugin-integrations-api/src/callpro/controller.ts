@@ -147,7 +147,7 @@ const init = async (app) => {
             data: {
               action: "get-create-update-customer",
               payload: JSON.stringify({
-                integrationId: integration.erxesApiId,
+                integrationId: inboxIntegration._id,
                 primaryPhone: numberFrom,
                 isUser: true,
                 phones: [{ phone: numberFrom, type: "other" }],
@@ -211,7 +211,7 @@ const init = async (app) => {
               payload: JSON.stringify({
                 content: disp,
                 conversationId: conversation.erxesApiId,
-                integrationId: integration._id,
+                integrationId: inboxIntegration._id,
                 owner,
               }),
             },
@@ -235,7 +235,7 @@ const init = async (app) => {
             payload: JSON.stringify({
               customerId: customer.erxesApiId,
               content: disp,
-              integrationId: integration.erxesApiId,
+              integrationId: inboxIntegration._id,
               owner,
             }),
           },
