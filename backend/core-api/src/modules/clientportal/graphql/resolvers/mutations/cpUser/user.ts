@@ -1,9 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  cpUserService,
-  socialAuthService,
-} from '@/clientportal/services';
+import { cpUserService, socialAuthService } from '@/clientportal/services';
 import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
 import {
   AuthenticationError,
@@ -13,7 +10,8 @@ import type {
   EditUserParams,
   SocialAuthParams,
   UnlinkSocialParams,
-  FcmTokenParams,
+  FcmTokenAddParams,
+  FcmTokenRemoveParams,
 } from '@/clientportal/types/cpUserParams';
 
 export const userMutations: Record<string, Resolver> = {
@@ -68,21 +66,47 @@ export const userMutations: Record<string, Resolver> = {
 
   async clientPortalUserAddFcmToken(
     _root: unknown,
-    { fcmToken }: FcmTokenParams,
+    { deviceId, token, platform }: FcmTokenAddParams,
     { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new AuthenticationError('User not authenticated');
     }
 
-    const trimmed = (fcmToken || '').trim();
-    if (!trimmed) {
+    const trimmedDeviceId = (deviceId || '').trim();
+    const trimmedToken = (token || '').trim();
+    if (!trimmedDeviceId) {
+      throw new ValidationError('deviceId is required');
+    }
+    if (!trimmedToken) {
       throw new ValidationError('FCM token is required');
     }
+    if (!['ios', 'android', 'web'].includes(platform)) {
+      throw new ValidationError('platform must be ios, android, or web');
+    }
+
+    const doc = await models.CPUser.findById(cpUser._id).lean();
+    const current = (doc?.fcmTokens || []) as Array<{
+      deviceId: string;
+      token: string;
+      platform: string;
+    }>;
+    const existingIndex = current.findIndex(
+      (d) => d.deviceId === trimmedDeviceId,
+    );
+    const entry = {
+      deviceId: trimmedDeviceId,
+      token: trimmedToken,
+      platform,
+    };
+    const next =
+      existingIndex >= 0
+        ? current.map((d, i) => (i === existingIndex ? entry : d))
+        : [...current, entry];
 
     await models.CPUser.updateOne(
       { _id: cpUser._id },
-      { $addToSet: { fcmTokens: trimmed } },
+      { $set: { fcmTokens: next } },
     );
 
     return getCPUserByIdOrThrow(cpUser._id, models);
@@ -90,16 +114,21 @@ export const userMutations: Record<string, Resolver> = {
 
   async clientPortalUserRemoveFcmToken(
     _root: unknown,
-    { fcmToken }: FcmTokenParams,
+    { deviceId }: FcmTokenRemoveParams,
     { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new AuthenticationError('User not authenticated');
     }
 
+    const trimmedDeviceId = (deviceId || '').trim();
+    if (!trimmedDeviceId) {
+      throw new ValidationError('deviceId is required');
+    }
+
     await models.CPUser.updateOne(
       { _id: cpUser._id },
-      { $pull: { fcmTokens: (fcmToken || '').trim() } },
+      { $pull: { fcmTokens: { deviceId: trimmedDeviceId } } },
     );
 
     return getCPUserByIdOrThrow(cpUser._id, models);
