@@ -4,7 +4,6 @@ import {
   buildActivities,
   fieldChangeRule,
 } from 'erxes-api-shared/core-modules';
-<<<<<<< HEAD
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
@@ -21,11 +20,6 @@ interface CPUserLoginActivityPayload {
   metadata?: Record<string, unknown>;
 }
 
-=======
-import { IModels } from '~/connectionResolvers';
-import { ICPUserDocument } from '@/clientportal/types/cpUser';
-
->>>>>>> main
 // CP User Activity Fields (editable fields that show in "updated" logs)
 const CP_USER_ACTIVITY_FIELDS = [
   { field: 'firstName', label: 'First Name' },
@@ -203,10 +197,7 @@ export async function createCPUserActivityLog(
     actor,
   });
 
-  graphqlPubsub.publish(
-    `activityLogInserted:${subdomain}:${targetId}`,
-    {
-      activityLogInserted: activityLog.toObject(),
-    },
-  );
+  graphqlPubsub.publish(`activityLogInserted:${subdomain}:${targetId}`, {
+    activityLogInserted: activityLog.toObject(),
+  });
 }
