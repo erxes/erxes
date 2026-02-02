@@ -50,12 +50,10 @@ export const DateSelectProvider = ({
 }) => {
   return (
     <DateSelectContext.Provider
-      value={{
-        ...props,
-      }}
+      value={props}
     >
       {children}
-    </DateSelectContext.Provider>
+    </DateSelectContext.Provider >
   );
 };
 
