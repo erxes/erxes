@@ -30,13 +30,13 @@ const VoucherCampaignInlineProvider = ({
   placeholder,
   updateVoucherCampaigns,
 }: VoucherCampaignInlineProps & { children?: React.ReactNode }) => {
-  const [_voucherCampaigns, _setVoucherCampaigns] = useState<
+  const [currentVoucherCampaigns, setCurrentVoucherCampaigns] = useState<
     IVoucherCampaign[]
   >(voucherCampaigns || []);
 
   const contextValue = useMemo(() => {
     return {
-      voucherCampaigns: voucherCampaigns || _voucherCampaigns,
+      voucherCampaigns: voucherCampaigns || currentVoucherCampaigns,
       loading: false,
       voucherCampaignId: Array.isArray(voucherCampaignId)
         ? voucherCampaignId
@@ -46,11 +46,11 @@ const VoucherCampaignInlineProvider = ({
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select voucher campaigns'
         : placeholder,
-      updateVoucherCampaigns: updateVoucherCampaigns || _setVoucherCampaigns,
+      updateVoucherCampaigns: updateVoucherCampaigns || setCurrentVoucherCampaigns,
     };
   }, [
     voucherCampaigns,
-    _voucherCampaigns,
+    currentVoucherCampaigns,
     voucherCampaignId,
     placeholder,
     updateVoucherCampaigns,

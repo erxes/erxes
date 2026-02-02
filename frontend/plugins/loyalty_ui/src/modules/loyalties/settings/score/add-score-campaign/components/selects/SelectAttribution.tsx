@@ -42,20 +42,20 @@ const SelectAttributionProvider = ({
   setOpen?: (open: boolean) => void;
   allowUnassigned?: boolean;
 }) => {
-  const [_attribution, setAttribution] = useState<IAttribution[]>(
+  const [currentAttribution, setCurrentAttribution] = useState<IAttribution[]>(
     attribution || [],
   );
   const isSingleMode = mode === 'single';
 
   const onSelect = (attribution: IAttribution | null) => {
     if (!attribution) {
-      setAttribution([]);
+      setCurrentAttribution([]);
       onValueChange?.(mode === 'single' ? null : []);
       setOpen?.(false);
       return;
     }
     if (isSingleMode) {
-      setAttribution([attribution]);
+      setCurrentAttribution([attribution]);
       setOpen?.(false);
       return onValueChange?.(attribution._id);
     }
@@ -66,7 +66,7 @@ const SelectAttributionProvider = ({
       ? arrayValue.filter((id) => id !== attribution._id)
       : [...arrayValue, attribution._id];
 
-    setAttribution((prev) => {
+    setCurrentAttribution((prev) => {
       const uniqueAttribution = [...prev, attribution].filter(
         (m, index, self) => index === self.findIndex((t) => t._id === m._id),
       );
@@ -79,7 +79,7 @@ const SelectAttributionProvider = ({
 
   const attributionIds = Array.isArray(value) ? value : value && [value] || [];
   const loading = attributionIds.some(
-    (id) => !_attribution.find((m) => m._id === id),
+    (id) => !currentAttribution.find((m) => m._id === id),
   );
 
   return (
@@ -87,8 +87,8 @@ const SelectAttributionProvider = ({
       value={{
         attributionIds,
         onSelect,
-        members: _attribution,
-        setMembers: setAttribution,
+        members: currentAttribution,
+        setMembers: setCurrentAttribution,
         loading,
         allowUnassigned: allowUnassigned || false,
       }}

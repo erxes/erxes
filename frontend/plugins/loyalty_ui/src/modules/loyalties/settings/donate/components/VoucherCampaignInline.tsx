@@ -4,16 +4,16 @@ import {
   TextOverflowTooltip,
   Tooltip,
 } from 'erxes-ui';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  VoucherCampaignInlineProps,
-  IVoucherCampaign,
-} from '../types/voucherCampaignType';
+  useVoucherCampaignInlineContext,
+  VoucherCampaignInlineContext,
+} from '../context/VoucherCampaginInlineContext';
 import { useVoucherCampaignInline } from '../hooks/useVoucherCampaignInline';
 import {
-  VoucherCampaignInlineContext,
-  useVoucherCampaignInlineContext,
-} from '../context/VoucherCampaginInlineContext';
+  IVoucherCampaign,
+  VoucherCampaignInlineProps,
+} from '../types/voucherCampaignType';
 
 const VoucherCampaignInlineRoot = (props: VoucherCampaignInlineProps) => {
   return (
@@ -30,26 +30,27 @@ const VoucherCampaignInlineProvider = ({
   placeholder,
   updateVoucherCampaigns,
 }: VoucherCampaignInlineProps & { children?: React.ReactNode }) => {
-  const [_voucherCampaigns, _setVoucherCampaigns] = useState<
+  const [selectedVoucherCampaigns, setSelectedVoucherCampaigns] = useState<
     IVoucherCampaign[]
   >(voucherCampaigns || []);
+
   const contextValue = useMemo(() => {
     const normalizedVoucherCampaignId = Array.isArray(voucherCampaignId)
       ? voucherCampaignId
       : voucherCampaignId && [voucherCampaignId] || [];
 
     return {
-      voucherCampaigns: voucherCampaigns || _voucherCampaigns,
+      voucherCampaigns: voucherCampaigns || selectedVoucherCampaigns,
       loading: false,
       voucherCampaignId: normalizedVoucherCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select voucher campaigns'
         : placeholder,
-      updateVoucherCampaigns: updateVoucherCampaigns || _setVoucherCampaigns,
+      updateVoucherCampaigns: updateVoucherCampaigns || setSelectedVoucherCampaigns,
     };
   }, [
     voucherCampaigns,
-    _voucherCampaigns,
+    selectedVoucherCampaigns,
     voucherCampaignId,
     placeholder,
     updateVoucherCampaigns,
