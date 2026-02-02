@@ -14,7 +14,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const { messengerData } = connection.widgetsMessengerConnect || {};
   const { messages, isOnline, requireAuth } = messengerData || {};
   const placeholder = isOnline
-    ? messages?.welcome || InitialMessage.WELCOME
+    ? InitialMessage.WELCOME
     : messages?.away || InitialMessage.AWAY;
   const id = useId();
   const { message, handleInputChange, handleSubmit, isDisabled, loading } =

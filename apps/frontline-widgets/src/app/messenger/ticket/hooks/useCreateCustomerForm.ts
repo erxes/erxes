@@ -7,7 +7,7 @@ export const useCreateCustomerForm = () => {
   const form = useForm<TCreateCustomerForm>({
     resolver: zodResolver(createCustomerSchema),
     defaultValues: {
-      type: undefined,
+      type: 'email',
     },
   });
   return { form };
