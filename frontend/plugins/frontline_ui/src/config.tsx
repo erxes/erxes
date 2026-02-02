@@ -68,6 +68,7 @@ export const CONFIG: IUIConfig = {
       name: 'frontline',
       icon: IconMail,
       path: 'frontline',
+      hasAutomation: true,
     },
     {
       name: 'ticket',

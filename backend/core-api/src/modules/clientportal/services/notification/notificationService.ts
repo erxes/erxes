@@ -29,6 +29,8 @@ interface BaseNotificationData {
 interface CreateNotificationInput extends BaseNotificationData {
   cpUserId: string;
   clientPortalId: string;
+  /** Result of sending push: which platforms had FCM tokens */
+  result?: { ios?: boolean; android?: boolean; web?: boolean };
 }
 
 interface SendNotificationInput extends BaseNotificationData {}
@@ -162,42 +164,51 @@ async function sendViaTwilio(
   }
 }
 
+export type FirebaseSendStatus =
+  | 'sent'
+  | 'not_configured'
+  | 'no_tokens'
+  | 'error';
+
+export interface FirebaseSendResult {
+  status: FirebaseSendStatus;
+  tokensToRevoke: string[];
+}
+
 async function sendFirebaseNotification(
   clientPortal: IClientPortalDocument,
   cpUser: ICPUserDocument,
   notification: FirebaseNotificationPayload,
   data?: Record<string, string>,
-): Promise<string[]> {
+): Promise<FirebaseSendResult> {
   const firebaseConfig = clientPortal.firebaseConfig;
 
   if (!firebaseConfig?.enabled || !firebaseConfig?.serviceAccountKey) {
-    return [];
+    return { status: 'not_configured', tokensToRevoke: [] };
   }
 
-  const tokens = (cpUser.fcmTokens || []).filter(Boolean);
-  if (tokens.length === 0) {
-    return [];
+  const tokenStrings = (cpUser.fcmTokens || [])
+    .filter((d) => d?.token)
+    .map((d) => d.token);
+  if (tokenStrings.length === 0) {
+    return { status: 'no_tokens', tokensToRevoke: [] };
   }
 
   try {
     await firebaseService.initializeFromClientPortal(clientPortal);
     const response = await firebaseService.sendNotification(
       clientPortal._id,
-      tokens,
+      tokenStrings,
       notification,
       data,
     );
-    const toRevoke = firebaseService.getTokensToRevokeFromResponse(
-      tokens,
+    const tokensToRevoke = firebaseService.getTokensToRevokeFromResponse(
+      tokenStrings,
       response,
     );
-    return toRevoke;
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    throw new NetworkError(
-      `Failed to send Firebase notification: ${errorMessage}`,
-    );
+    return { status: 'sent', tokensToRevoke };
+  } catch {
+    return { status: 'error', tokensToRevoke: [] };
   }
 }
 
@@ -317,6 +328,7 @@ export async function createNotification(
     action,
     kind = 'user',
     allowMultiple = false,
+    result,
   } = notificationData;
 
   const notificationDoc: any = {
@@ -336,6 +348,8 @@ export async function createNotification(
     expiresAt: new Date(Date.now() + THIRTY_DAYS_IN_MS),
   };
 
+  if (result !== undefined) notificationDoc.result = result;
+
   let notification: ICPNotificationDocument | null = null;
 
   if (kind === 'user' && !allowMultiple && contentType && contentTypeId) {
@@ -353,6 +367,47 @@ export async function createNotification(
   return notification;
 }
 
+function getResultFromFcmTokens(cpUser: ICPUserDocument): {
+  ios: boolean;
+  android: boolean;
+  web: boolean;
+} {
+  const tokens = (cpUser.fcmTokens || []).filter((d) =>
+    Boolean(d?.token && d?.platform),
+  );
+  return {
+    android: tokens.some((t) => t.platform === 'android'),
+    ios: tokens.some((t) => t.platform === 'ios'),
+    web: tokens.some((t) => t.platform === 'web'),
+  };
+}
+
+/**
+ * Computes result after Firebase send: for each platform, true if at least one
+ * token for that platform was not in tokensToRevoke (i.e. send accepted or
+ * non-revokable failure). Uses cpUser.fcmTokens to map token -> platform.
+ */
+function getResultAfterSend(
+  cpUser: ICPUserDocument,
+  tokensToRevoke: string[],
+): { ios: boolean; android: boolean; web: boolean } {
+  const revokedSet = new Set(tokensToRevoke);
+  const tokensWithPlatform = (cpUser.fcmTokens || []).filter((d) =>
+    Boolean(d?.token && d?.platform),
+  );
+
+  const hasSuccessfulToken = (platform: 'android' | 'ios' | 'web') =>
+    tokensWithPlatform.some(
+      (t) => t.platform === platform && !revokedSet.has(t.token),
+    );
+
+  return {
+    android: hasSuccessfulToken('android'),
+    ios: hasSuccessfulToken('ios'),
+    web: hasSuccessfulToken('web'),
+  };
+}
+
 export async function sendNotification(
   subdomain: string,
   models: IModels,
@@ -366,31 +421,49 @@ export async function sendNotification(
     clientPortalId: clientPortal._id,
   });
 
-  try {
-    const tokensToRevoke = await sendFirebaseNotification(
-      clientPortal,
-      cpUser,
+  const { status, tokensToRevoke } = await sendFirebaseNotification(
+    clientPortal,
+    cpUser,
+    {
+      title: notificationData.title,
+      body: notificationData.message,
+    },
+    {
+      notificationId: notification._id,
+      type: notificationData.type || 'info',
+      action: notificationData.action || '',
+    },
+  );
+
+  if (status === 'sent') {
+    const resultAfterSend = getResultAfterSend(cpUser, tokensToRevoke);
+    await models.CPNotifications.updateOne(
+      { _id: notification._id },
+      { $set: { result: resultAfterSend } },
+    );
+    notification.result = resultAfterSend;
+  } else if (status === 'error') {
+    await models.CPNotifications.updateOne(
+      { _id: notification._id },
       {
-        title: notificationData.title,
-        body: notificationData.message,
-      },
-      {
-        notificationId: notification._id,
-        type: notificationData.type || 'info',
-        action: notificationData.action || '',
+        $set: {
+          result: { android: false, ios: false, web: false },
+        },
       },
     );
+    notification.result = {
+      android: false,
+      ios: false,
+      web: false,
+    };
+  }
 
-    if (tokensToRevoke.length > 0) {
-      await models.CPUser.updateOne(
-        { _id: cpUser._id },
-        { $pull: { fcmTokens: { $in: tokensToRevoke } } },
-      );
-    }
-  } catch {
-    // Swallow Firebase errors so notification creation still succeeds
+  if (tokensToRevoke.length > 0) {
+    await models.CPUser.updateOne(
+      { _id: cpUser._id },
+      { $pull: { fcmTokens: { token: { $in: tokensToRevoke } } } },
+    );
   }
 
   return notification;
 }
-
