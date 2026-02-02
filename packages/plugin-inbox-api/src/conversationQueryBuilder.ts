@@ -1,10 +1,7 @@
 import * as _ from "underscore";
-
 import { sendCoreMessage } from "./messageBroker";
-
 import { CONVERSATION_STATUSES } from "./models/definitions/constants";
 import { IModels } from "./connectionResolver";
-import { fixDate } from "@erxes/api-utils/src/core";
 
 interface IIn {
   $in: string[];
@@ -356,18 +353,27 @@ export default class Builder {
   }
 
   public dateFilter(startDate: string, endDate: string): IOR {
+    // Ensure dates are properly parsed
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Validate dates
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return { $or: [] };
+    }
+
     return {
       $or: [
         {
           createdAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
+            $gte: start,
+            $lte: end,
           },
         },
         {
           updatedAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
+            $gte: start,
+            $lte: end,
           },
         },
       ],
