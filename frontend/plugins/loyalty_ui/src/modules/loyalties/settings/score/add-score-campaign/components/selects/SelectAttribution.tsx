@@ -305,7 +305,7 @@ export const SelectAttributionFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'assignedTo'}>
       <Filter.BarName>
         <IconUser />
-        {label ? label : !iconOnly && 'Assigned To'}
+        {label ? label : !iconOnly && 'Assigned To' || ''}
       </Filter.BarName>
       <SelectAttributionProvider
         mode={mode}
