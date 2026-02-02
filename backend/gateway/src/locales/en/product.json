@@ -75,6 +75,13 @@
     "product-variants": "Product Variants",
     "uom-description": "Choose the unit of measure for the product",
     "notFound": "Product not found",
-    "notFoundDescription": "There seems to be no product with this ID."
+    "notFoundDescription": "There seems to be no product with this ID.",
+    "errorTitle": "Error",
+    "successTitle": "Success",
+    "productIdMissing": "Product ID is missing",
+    "productUpdated": "Product updated successfully",
+    "validationErrorTitle": "Validation error",
+    "validationErrorDescription": "Please check the form fields",
+    "unknownError": "An unknown error occurred"
   }
 }

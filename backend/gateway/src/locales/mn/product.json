@@ -74,6 +74,13 @@
     "product-variants": "Бүтээгдэхүүний хувилбарууд",
     "uom-description": "Бүтээгдэхүүний хэмжих нэгжийг сонгоно уу",
     "notFound": "Бүтээгдэхүүн олдсонгүй",
-    "notFoundDescription": "Энэ ID-тай бүтээгдэхүүн байхгүй байна."
+    "notFoundDescription": "Энэ ID-тай бүтээгдэхүүн байхгүй байна.",
+    "errorTitle": "Алдаа",
+    "successTitle": "Амжилттай",
+    "productIdMissing": "Бүтээгдэхүүний ID байхгүй байна",
+    "productUpdated": "Бүтээгдэхүүн амжилттай шинэчлэгдлээ",
+    "validationErrorTitle": "Баталгаажуулалтын алдаа",
+    "validationErrorDescription": "Талбаруудыг шалгана уу",
+    "unknownError": "Тодорхойгүй алдаа гарлаа"
   }
 }

@@ -11,16 +11,16 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityLogs, FieldsInDetail } from 'ui-modules';
-import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
-import { useProductCustomFieldEdit } from '../hooks/useProductCustomFieldEdit';
+import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
+import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
 import {
   useProductFormData,
   getProductFormDefaultValues,
-} from '../hooks/useProductFormData';
+} from '@/products/product-detail/hooks/useProductFormData';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
-import { ProductDetailSidebar } from './ProductDetailSidebar';
-import { ProductDetailFooter } from './ProductDetailFooter';
-import { ProductDetailFields } from './ProductDetailFields';
+import { ProductDetailSidebar } from '@/products/product-detail/components/ProductDetailSidebar';
+import { ProductDetailFooter } from '@/products/product-detail/components/ProductDetailFooter';
+import { ProductDetailFields } from '@/products/product-detail/components/ProductDetailFields';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import {
   EMPTY_PRODUCT_FORM_VALUES,
@@ -90,8 +90,8 @@ export const ProductDetailSheet = () => {
   const handleSave = (data: ProductFormValues) => {
     if (!productDetail?._id) {
       toast({
-        title: 'Error',
-        description: 'Product ID is missing',
+        title: t('errorTitle'),
+        description: t('productIdMissing'),
         variant: 'destructive',
       });
       return;
@@ -101,15 +101,15 @@ export const ProductDetailSheet = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Product updated successfully',
+          title: t('successTitle'),
+          description: t('productUpdated'),
           variant: 'success',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
-          description: err.message || 'Failed to update product',
+          title: t('errorTitle'),
+          description: err.message || t('unknownError'),
           variant: 'destructive',
         });
       },
@@ -119,8 +119,8 @@ export const ProductDetailSheet = () => {
   const handleInvalid = (errors: Record<string, { message?: string }>) => {
     const firstError = Object.values(errors)[0];
     toast({
-      title: 'Validation error',
-      description: firstError?.message || 'Please check the form fields',
+      title: t('validationErrorTitle'),
+      description: firstError?.message || t('validationErrorDescription'),
       variant: 'destructive',
     });
   };
@@ -219,6 +219,7 @@ const ProductDetailEmptyState = () => {
 };
 
 const ProductDetailErrorState = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const { error } = useProductDetailWithQuery();
   return (
     <div className="flex justify-center items-center h-full">
@@ -227,8 +228,10 @@ const ProductDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
-          <Empty.Description>{error?.message}</Empty.Description>
+          <Empty.Title>{t('errorTitle')}</Empty.Title>
+          <Empty.Description>
+            {error?.message ?? t('unknownError')}
+          </Empty.Description>
         </Empty.Header>
       </Empty>
     </div>
