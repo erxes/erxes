@@ -55,7 +55,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
   );
 
   useEffect(() => {
-    if (lotteryDetail && lotteryDetail._id === editLotteryId) {
+    if (lotteryDetail?._id === editLotteryId) {
       form.reset({
         title: lotteryDetail.name || '',
         status: lotteryDetail.status || 'active',

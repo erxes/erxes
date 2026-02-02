@@ -51,7 +51,7 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
   const spinDetail = spins?.find((spin) => spin._id === editSpinId);
 
   useEffect(() => {
-    if (spinDetail && spinDetail._id === editSpinId) {
+    if (spinDetail?._id === editSpinId) {
       form.reset({
         title: spinDetail.name || '',
         status: spinDetail.status || 'active',
