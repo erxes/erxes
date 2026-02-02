@@ -117,8 +117,6 @@ export function DealsBoardColumn({
 
       newColumnItems[column._id] = [...preserved, ...appended];
 
-      newColumnItems[column._id] = [...preserved, ...appended];
-      console.log('newColumnItems', newColumnItems);
       return { ...prev, items: newItems, columnItems: newColumnItems };
     });
 
