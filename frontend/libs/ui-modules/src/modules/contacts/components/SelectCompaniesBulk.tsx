@@ -145,7 +145,8 @@ const CompaniesList = ({
     const { primaryName, primaryEmail, primaryPhone } = company;
     return (
       (primaryName || primaryEmail || primaryPhone
-        ? `${primaryName || ''} ${primaryEmail || ''} ${primaryPhone || ''
+        ? `${primaryName || ''} ${primaryEmail || ''} ${
+            primaryPhone || ''
           }`.trim()
         : primaryEmail || primaryPhone) || 'anonymous company'
     );
