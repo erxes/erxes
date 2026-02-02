@@ -1,69 +1,69 @@
-import mongoose from 'mongoose';
-import { IMainContext } from 'erxes-api-shared/core-types';
-import { createGenerateModels } from 'erxes-api-shared/utils';
-import { IAgentDocument } from './modules/agent/@types';
-import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
 import { IAssignmentDocument } from '@/assignment/@types/assignment';
+import {
+  IAssignmentCampaignDocument,
+} from '@/assignment/@types/assignmentCampaign';
 import {
   IAssignmentModel,
   loadAssignmentClass,
 } from '@/assignment/db/models/Assignment';
 import {
-  IAssignmentCampaignDocument,
-} from '@/assignment/@types/assigmentCampaign';
-import {
   IAssignmentCampaignModel,
   loadAssignmentCampaignClass,
 } from '@/assignment/db/models/AssignmentCampaign';
-
 import { ICampaignDocument } from '@/campaign/@types';
 import {
   ICampaignModel,
   loadCampaignClass,
 } from '@/campaign/db/models/Campaign';
-
 import { ICouponDocument } from '@/coupon/@types/coupon';
 import {
   ICouponModel,
   loadCouponClass,
 } from '@/coupon/db/models/Coupon';
-
-import {
-  ICouponCampaignDocument,
-} from './modules/coupon/@types/couponCampaign';
-import {
-  ICouponCampaignModel,
-  loadCouponCampaignClass,
-} from './modules/coupon/db/models/CouponCampaign';
-
 import { IDonateDocument } from '@/donate/@types/donate';
 import {
   IDonateModel,
   loadDonateClass,
 } from '@/donate/db/models/Donate';
-
-import {
-  IDonateCampaignDocument,
-} from './modules/donate/@types/donateCampaign';
-import {
-  IDonateCampaignModel,
-  loadDonateCampaignClass,
-} from './modules/donate/db/models/DonateCampaign';
-
 import { ILotteryDocument } from '@/lottery/@types/lottery';
 import {
   ILotteryModel,
   loadLotteryClass,
 } from '@/lottery/db/models/Lottery';
-
+import { IPricingDocument } from '@/pricing/@types/pricing';
+import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import {
-  ILotteryCampaignDocument,
-} from './modules/lottery/@types/lotteryCampaign';
+  IPricingModel,
+  loadPricingClass,
+} from '@/pricing/db/models/Pricing';
 import {
-  ILotteryCampaignModel,
-  loadLotteryCampaignClass,
-} from './modules/lottery/db/models/LotteryCampaign';
-
+  IPricingPlanModel,
+  loadPricingPlanClass,
+} from '@/pricing/db/models/PricingPlan';
+import { IScoreDocument } from '@/score/@types/score';
+import {
+  IScoreModel,
+  loadScoreClass,
+} from '@/score/db/models/Score';
+import { ISpinDocument } from '@/spin/@types/spin';
+import {
+  ISpinModel,
+  loadSpinClass,
+} from '@/spin/db/models/Spin';
+import {
+  ISpinCampaignModel,
+  loadSpinCampaignClass
+} from '@/spin/db/models/SpinCampaign';
+import { IVoucherDocument } from '@/voucher/@types/voucher';
+import {
+  IVoucherModel,
+  loadVoucherClass,
+} from '@/voucher/db/models/Voucher';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
+import mongoose from 'mongoose';
+import { IAgentDocument } from './modules/agent/@types';
+import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
 import {
   ILoyaltyConfigDocument,
 } from './modules/config/@types/config';
@@ -71,57 +71,42 @@ import {
   ILoyaltyConfigModel,
   loadLoyaltyConfigClass,
 } from './modules/config/db/models/Config';
-
-import { IPricingDocument } from '@/pricing/@types/pricing';
 import {
-  IPricingModel,
-  loadPricingClass,
-} from '@/pricing/db/models/Pricing';
-
-import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+  ICouponCampaignDocument,
+} from './modules/coupon/@types/couponCampaign';
 import {
-  IPricingPlanModel,
-  loadPricingPlanClass,
-} from '@/pricing/db/models/PricingPlan';
-
-import { IScoreDocument } from '@/score/@types/score';
+  ICouponCampaignModel,
+  loadCouponCampaignClass,
+} from './modules/coupon/db/models/CouponCampaign';
 import {
-  IScoreModel,
-  loadScoreClass,
-} from '@/score/db/models/Score';
-
+  IDonateCampaignDocument,
+} from './modules/donate/@types/donateCampaign';
+import {
+  IDonateCampaignModel,
+  loadDonateCampaignClass,
+} from './modules/donate/db/models/DonateCampaign';
+import {
+  ILotteryCampaignDocument,
+} from './modules/lottery/@types/lotteryCampaign';
+import {
+  ILotteryCampaignModel,
+  loadLotteryCampaignClass,
+} from './modules/lottery/db/models/LotteryCampaign';
 import {
   IScoreCampaignDocument,
 } from './modules/score/@types/scoreCampaign';
 import {
+  IScoreLogDocument,
+} from './modules/score/@types/scoreLog';
+import {
   IScoreCampaignModel,
   loadScoreCampaignClass,
 } from './modules/score/db/models/ScoreCampaign';
-
-import {
-  IScoreLogDocument,
-} from './modules/score/@types/scoreLog';
 import {
   IScoreLogModel,
   loadScoreLogClass,
 } from './modules/score/db/models/ScoreLog';
-
-import { ISpinDocument } from '@/spin/@types/spin';
-import {
-  ISpinModel,
-  loadSpinClass,
-} from '@/spin/db/models/Spin';
 import { ISpinCampaignDocument } from './modules/spin/@types/spinCampaign';
-import {
- ISpinCampaignModel,
- loadSpinCampaignClass
-} from '@/spin/db/models/SpinCampaign';
-
-import { IVoucherDocument } from '@/voucher/@types/voucher';
-import {
-  IVoucherModel,
-  loadVoucherClass,
-} from '@/voucher/db/models/Voucher';
 import { IVoucherCampaignDocument } from './modules/voucher/@types/voucherCampaign';
 import { IVoucherCampaignModel, loadVoucherCampaignClass } from './modules/voucher/db/models/VoucherCampaign';
 
@@ -276,9 +261,9 @@ export const loadClasses = (
     loadVoucherClass(models),
   );
 
-  models.VoucherCampaign = db.model<IVoucherCampaignDocument,IVoucherCampaignModel>(
-      'voucher_campaigns', 
-      loadVoucherCampaignClass(models),
+  models.VoucherCampaign = db.model<IVoucherCampaignDocument, IVoucherCampaignModel>(
+    'voucher_campaigns',
+    loadVoucherCampaignClass(models),
   );
 
   return models;

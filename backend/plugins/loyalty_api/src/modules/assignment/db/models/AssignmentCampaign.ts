@@ -1,14 +1,13 @@
-import { Model } from 'mongoose';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { IModels } from '~/connectionResolvers';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
-
+import { IAssignmentDocument } from '@/assignment/@types/assignment';
 import {
   IAssignmentCampaign,
   IAssignmentCampaignDocument,
-} from '~/modules/assignment/@types/assigmentCampaign';
-import { IAssignmentDocument } from '~/modules/assignment/@types/assignment';
-import { assignmentCampaignSchema } from '~/modules/assignment/db/definitions/assignmentCampaign';
+} from '@/assignment/@types/assignmentCampaign';
+import { assignmentCampaignSchema } from '@/assignment/db/definitions/assignmentCampaign';
+import { CAMPAIGN_STATUS } from '@/campaign/constants';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 
 export interface IAssignmentCampaignModel
   extends Model<IAssignmentCampaignDocument> {
