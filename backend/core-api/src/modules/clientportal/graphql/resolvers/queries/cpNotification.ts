@@ -53,16 +53,15 @@ export const cpNotificationQueries: Record<string, Resolver> = {
       }
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<
-      ICPNotificationDocument
-    >({
-      model: models.CPNotifications,
-      params: {
-        ...params,
-        orderBy: { createdAt: -1 },
-      },
-      query,
-    });
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICPNotificationDocument>({
+        model: models.CPNotifications,
+        params: {
+          ...params,
+          orderBy: { createdAt: -1 },
+        },
+        query,
+      });
 
     return { list, totalCount, pageInfo };
   },
@@ -118,16 +117,15 @@ export const cpNotificationQueries: Record<string, Resolver> = {
       }
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<
-      ICPNotificationDocument
-    >({
-      model: models.CPNotifications,
-      params: {
-        ...params,
-        orderBy: { createdAt: -1 },
-      },
-      query,
-    });
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICPNotificationDocument>({
+        model: models.CPNotifications,
+        params: {
+          ...params,
+          orderBy: { createdAt: -1 },
+        },
+        query,
+      });
 
     return { list, totalCount, pageInfo };
   },

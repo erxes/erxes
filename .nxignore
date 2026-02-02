@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.svg
+**/*.webp

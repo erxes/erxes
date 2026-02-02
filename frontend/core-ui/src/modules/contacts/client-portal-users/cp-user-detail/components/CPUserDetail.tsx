@@ -11,7 +11,10 @@ import { useTranslation } from 'react-i18next';
 import { ActivityLogs } from 'ui-modules';
 import { CPUserDetailGeneral } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailGeneral';
 import { CPUserDetailFields } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailFields';
+<<<<<<< HEAD
 import { CPUserDetailNotifications } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailNotifications';
+=======
+>>>>>>> main
 import { CPUserDetailSidebar } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailSidebar';
 import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
 

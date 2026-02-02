@@ -58,7 +58,7 @@ export const TasksRecordTable = ({
         columns={tasksColumns(teams, team)}
         data={tasks || (loading ? [{}] : [])}
         className="m-3 h-full"
-        stickyColumns={['checkbox', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}

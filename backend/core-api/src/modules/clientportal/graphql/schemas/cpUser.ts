@@ -180,8 +180,13 @@ export const mutations = `
   clientPortalUserLinkSocialAccount(provider: SocialAuthProvider!, token: String!): CPUser
   clientPortalUserUnlinkSocialAccount(provider: SocialAuthProvider!): CPUser
   clientPortalUserRefreshToken(refreshToken: String!): String
+<<<<<<< HEAD
   clientPortalUserAddFcmToken(deviceId: String!, token: String!, platform: FcmPlatform!): CPUser
   clientPortalUserRemoveFcmToken(deviceId: String!): CPUser
+=======
+  clientPortalUserAddFcmToken(fcmToken: String!): CPUser
+  clientPortalUserRemoveFcmToken(fcmToken: String!): CPUser
+>>>>>>> main
 `;
 
 export const queries = `

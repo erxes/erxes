@@ -46,6 +46,8 @@ export const queries = `
   tagsMain(type: String, excludeWorkspaceTags: Boolean): [Tag]
   tagDetail(_id: String!): Tag
   tagsQueryCount(type: String, searchValue: String): Int
+
+  cpTags: TagsListResponse
 `;
 
 const mutationParams = `
