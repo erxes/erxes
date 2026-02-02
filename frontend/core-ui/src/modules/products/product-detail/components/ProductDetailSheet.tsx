@@ -61,6 +61,13 @@ export const ProductDetailSheet = () => {
     };
   };
 
+  const normalizeSubUomRatio = (ratio: number | string | undefined): number => {
+    if (typeof ratio === 'number' && Number.isFinite(ratio) && ratio > 0)
+      return ratio;
+    const num = typeof ratio === 'string' ? Number(ratio) : Number(ratio);
+    return Number.isFinite(num) && num > 0 ? num : 1;
+  };
+
   const normalizePayload = (data: ProductFormValues) => {
     const attachment =
       data.attachment != null && !Array.isArray(data.attachment)
@@ -71,7 +78,13 @@ export const ProductDetailSheet = () => {
           .map((item) => toAttachmentInput(item as Record<string, unknown>))
           .filter((x): x is NonNullable<typeof x> => x != null)
       : undefined;
-    return { ...data, attachment, attachmentMore };
+    const subUoms = Array.isArray(data.subUoms)
+      ? data.subUoms.map((item) => ({
+          ...item,
+          ratio: normalizeSubUomRatio(item?.ratio),
+        }))
+      : data.subUoms;
+    return { ...data, attachment, attachmentMore, subUoms };
   };
 
   const handleSave = (data: ProductFormValues) => {

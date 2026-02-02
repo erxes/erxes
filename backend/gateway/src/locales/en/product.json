@@ -56,6 +56,7 @@
     "description": "Description",
     "barcode-description": "Barcode description",
     "barcodes": "Barcodes",
+    "barcode-image": "Image",
     "add-barcode": "Add barcode",
     "duplicate-barcode": "This barcode already exists.",
     "uom": "UOM",

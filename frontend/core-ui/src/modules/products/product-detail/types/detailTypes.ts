@@ -19,7 +19,7 @@ export interface UomType {
 export interface SubUomItem {
   _id?: string;
   uom: string;
-  ratio: number;
+  ratio: number | string;
 }
 
 export interface ProductDetail {

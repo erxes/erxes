@@ -8,7 +8,7 @@ import {
   Select,
   useToast,
 } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
@@ -50,11 +50,18 @@ export const ProductDetailBarcode = () => {
   const formVariants = variants;
   const formBarcodeDescription = form.watch('barcodeDescription') ?? '';
 
+  const [hasEditedVariants, setHasEditedVariants] = useState(false);
+
+  useEffect(() => {
+    setHasEditedVariants(false);
+  }, [productDetail?._id]);
+
   const variantsFromProduct: VariantsMap =
     (productDetail?.variants as VariantsMap) || {};
 
-  const variantsForDisplay =
-    Object.keys(formVariants).length > 0 ? formVariants : variantsFromProduct;
+  const variantsForDisplay = hasEditedVariants
+    ? formVariants
+    : variantsFromProduct;
 
   const attachmentMore = Array.isArray(productDetail?.attachmentMore)
     ? productDetail.attachmentMore
@@ -110,6 +117,7 @@ export const ProductDetailBarcode = () => {
     const newVariants = { ...variantsForDisplay, [codeValue]: {} };
 
     form.clearErrors('barcodes');
+    setHasEditedVariants(true);
     syncBarcodesAndVariants(newBarcodes, newVariants);
     setCode('');
   };
@@ -122,6 +130,7 @@ export const ProductDetailBarcode = () => {
     const newVariants = { ...variantsForDisplay };
     delete newVariants[barcodeToRemove.code];
 
+    setHasEditedVariants(true);
     syncBarcodesAndVariants(newBarcodes, newVariants);
   };
 
@@ -140,6 +149,7 @@ export const ProductDetailBarcode = () => {
         [field]: value,
       },
     };
+    setHasEditedVariants(true);
     form.setValue('variants', newVariants);
   };
 
@@ -173,11 +183,11 @@ export const ProductDetailBarcode = () => {
                     className="flex gap-2 items-end p-2 rounded-md border"
                   >
                     <div className="flex flex-col flex-1 gap-2">
-                      <Label>CODE</Label>
+                      <Label>{t('code')}</Label>
                       <Input value={barcode.code || ''} disabled />
                     </div>
                     <div className="flex flex-col flex-1 gap-2">
-                      <Label>NAME</Label>
+                      <Label>{t('name')}</Label>
                       <Input
                         value={barcode.name || ''}
                         onChange={(e) =>
@@ -191,7 +201,7 @@ export const ProductDetailBarcode = () => {
                       />
                     </div>
                     <div className="flex flex-col flex-1 gap-2">
-                      <Label>IMAGE</Label>
+                      <Label>{t('barcode-image')}</Label>
                       <Select
                         value={barcode.image?.url || ''}
                         onValueChange={(imageUrl) => {
@@ -246,6 +256,7 @@ export const ProductDetailBarcode = () => {
           <div className="space-y-2">
             <Label>{t('barcode-description')}</Label>
             <Editor
+              key={productDetail?._id ?? 'new'}
               initialContent={formBarcodeDescription}
               onChange={handleDescriptionChange}
             />
