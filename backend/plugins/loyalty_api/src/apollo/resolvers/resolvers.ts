@@ -11,7 +11,7 @@ import Spin from '@/spin/graphql/resolvers/customResolvers/spin';
 import SpinCampaign from '@/spin/graphql/resolvers/customResolvers/spinCampaign';
 import Voucher from '@/voucher/graphql/resolvers/customResolvers/voucher';
 import VoucherCampaign from '@/voucher/graphql/resolvers/customResolvers/voucherCampaign';
-import { assignmentCampaignResolvers as AssignmentCampaign } from '~/modules/assignment/graphql/resolvers/customResolvers/assigmentCampaign';
+import { assignmentCampaignResolvers as AssignmentCampaign } from '~/modules/assignment/graphql/resolvers/customResolvers/assignmentCampaign';
 import { Assignment } from '~/modules/assignment/graphql/resolvers/customResolvers/assignment';
 import { donateCampaignResolvers as DonateCampaign } from '~/modules/donate/graphql/resolvers/customResolvers/donateCampaign';
 
