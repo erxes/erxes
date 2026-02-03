@@ -12,6 +12,7 @@ export interface Article {
   status: string;
   categoryId: string;
   createdDate: string;
+  scheduledDate?: string;
   createdUser: {
     _id: string;
     username: string;
@@ -56,7 +57,7 @@ export function useArticles({
     },
   });
 
-  const articles = data?.knowledgeBaseArticles?.list || [];
+  const articles = data?.knowledgeBaseArticles || [];
   const hasMore = data?.knowledgeBaseArticles?.pageInfo?.hasNextPage || false;
   const endCursor = data?.knowledgeBaseArticles?.pageInfo?.endCursor || null;
   const totalCount = data?.knowledgeBaseArticles?.totalCount || 0;

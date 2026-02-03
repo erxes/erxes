@@ -4,6 +4,8 @@ import {
   IconSettings,
   IconTicket,
   IconChartHistogram,
+  IconBook,
+  IconPlus,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -58,6 +60,25 @@ export const FrontlineNavigation = () => {
         icon={IconChartHistogram}
         path="frontline/reports"
       />
+      <div className="relative group/knowledgebase">
+        <NavigationMenuLinkItem
+          name="knowledgeBase"
+          icon={IconBook}
+          path="frontline/knowledgebase"
+        />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="invisible group-hover/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate('/frontline/knowledgebase?createTopic=true');
+          }}
+        >
+          <IconPlus className="size-4" />
+        </Button>
+      </div>  
     </>
   );
 };

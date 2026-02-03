@@ -17,7 +17,7 @@ export const articleSchema = new Schema(
     content: { type: String, required: true },
     status: {
       type: String,
-      enum: ['draft', 'publish', 'scheduled'],
+      enum: ['draft', 'publish', 'scheduled', 'archived'],
       default: 'draft',
       required: true,
     },
@@ -47,9 +47,9 @@ export const articleSchema = new Schema(
     // Common fields
     createdBy: { type: String }, 
     modifiedBy: { type: String }, 
-    modifiedDate: { type: Date }, 
     title: { type: String, required: true },
     code: { type: String },
+    createdDate: { type: Date },
   },
   {
     timestamps: true,

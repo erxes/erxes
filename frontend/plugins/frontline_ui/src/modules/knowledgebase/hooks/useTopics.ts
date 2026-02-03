@@ -4,6 +4,10 @@ import { ITopic } from '../types';
 
 const ITEMS_PER_PAGE = 10;
 
+interface UseTopicsProps {
+  searchValue?: string;
+}
+
 interface UseTopicsResult {
   topics: ITopic[];
   loading: boolean;
@@ -14,19 +18,19 @@ interface UseTopicsResult {
   totalCount: number;
 }
 
-export function useTopics(): UseTopicsResult {
+export function useTopics({ searchValue }: UseTopicsProps = {}): UseTopicsResult {
   const { data, loading, fetchMore, refetch } = useQuery(TOPICS, {
     variables: {
-      limit: ITEMS_PER_PAGE,
-      cursor: null,
-      direction: 'forward',
+      page: 1,
+      perPage: ITEMS_PER_PAGE,
+      searchValue: searchValue || '',
     },
   });
 
-  const topics = data?.knowledgeBaseTopics?.list || [];
-  const hasMore = data?.knowledgeBaseTopics?.pageInfo?.hasNextPage || false;
-  const endCursor = data?.knowledgeBaseTopics?.pageInfo?.endCursor || null;
-  const totalCount = data?.knowledgeBaseTopics?.totalCount || 0;
+  const topics = data?.knowledgeBaseTopics || [];
+  const hasMore = false;
+  const endCursor = null;
+  const totalCount = topics.length;
 
   const loadMore = async () => {
     if (!endCursor) return;

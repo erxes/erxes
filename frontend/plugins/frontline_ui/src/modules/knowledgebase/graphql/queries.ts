@@ -39,12 +39,6 @@ export const PARENT_CATEGORY_FRAGMENT = gql`
     description
     icon
     numOfArticles
-    children {
-      _id
-      title
-      icon
-      numOfArticles
-    }
     authors {
       _id
       details {
@@ -55,67 +49,64 @@ export const PARENT_CATEGORY_FRAGMENT = gql`
   }
 `;
 
-export const TOPICS_SHORT = gql`
-  ${PAGE_INFO_FRAGMENT}
+export const TOPICS = gql`
+  ${CATEGORY_FRAGMENT}
+  ${PARENT_CATEGORY_FRAGMENT}
   query knowledgeBaseTopics(
-    $limit: Int
-    $cursor: String
-    $direction: CURSOR_DIRECTION
+    $page: Int
+    $perPage: Int
+    $brandId: String
+    $codes: [String]
   ) {
-    knowledgeBaseTopics(limit: $limit, cursor: $cursor, direction: $direction) {
-      list {
+    knowledgeBaseTopics(
+      page: $page
+      perPage: $perPage
+      brandId: $brandId
+      codes: $codes
+    ) {
+      _id
+      title
+      code
+      description
+      brand {
         _id
-        title
+        name
       }
-      pageInfo {
-        ...PageInfoFragment
+      categories {
+        ...CategoryFragment
       }
-      totalCount
+      color
+      backgroundImage
+      languageCode
+      createdBy
+      createdDate
+      modifiedBy
+      notificationSegmentId
+      parentCategories {
+        ...ParentCategoryFragment
+      }
     }
   }
 `;
 
-export const TOPICS = gql`
-  ${PAGE_INFO_FRAGMENT}
-  ${CATEGORY_FRAGMENT}
-  ${PARENT_CATEGORY_FRAGMENT}
+
+
+export const TOPICS_SHORT = gql`
   query knowledgeBaseTopics(
-    $limit: Int
-    $cursor: String
-    $direction: CURSOR_DIRECTION
+    $page: Int
+    $perPage: Int
+    $brandId: String
+    $codes: [String]
+    $searchValue: String
   ) {
-    knowledgeBaseTopics(limit: $limit, cursor: $cursor, direction: $direction) {
-      list {
-        _id
-        title
-        code
-        description
-        brandId
-        brand {
-          _id
-          name
-        }
-        categories {
-          ...CategoryFragment
-        }
-        color
-        backgroundImage
-        languageCode
-        createdBy
-        createdDate
-        modifiedBy
-        notificationSegmentId
-        parentCategories {
-          ...ParentCategoryFragment
-        }
-      }
-      pageInfo {
-        ...PageInfoFragment
-      }
-      totalCount
+    knowledgeBaseTopics(page: $page, perPage: $perPage, brandId: $brandId, codes: $codes, searchValue: $searchValue) {
+      _id
+      title
     }
   }
 `;
+
+
 
 export const BRANDS = gql`
   query brands {
@@ -204,42 +195,36 @@ export const CATEGORY_LAST = gql`
 `;
 
 export const ARTICLES = gql`
-  ${USER_FRAGMENT}
-  ${PAGE_INFO_FRAGMENT}
-  query knowledgeBaseArticles(
-    $limit: Int
-    $cursor: String
-    $direction: CURSOR_DIRECTION
-    $categoryIds: [String]
-  ) {
-    knowledgeBaseArticles(
-      limit: $limit
-      cursor: $cursor
-      direction: $direction
-      categoryIds: $categoryIds
-    ) {
-      list {
-        _id
-        title
-        createdDate
-        status
-        createdUser {
-          _id
-          username
-          email
-        }
-        publishedUser {
-          ...UserFragment
-        }
-        createdBy
-        modifiedBy
+  query knowledgeBaseArticles($categoryIds: [String]) {
+  knowledgeBaseArticles(categoryIds: $categoryIds) {
+    _id
+    title
+    summary
+    createdDate
+    status
+    createdUser {
+      _id
+      username
+      email
+      details {
+        avatar
+        fullName
       }
-      pageInfo {
-        ...PageInfoFragment
-      }
-      totalCount
     }
+    publishedUser {
+      _id
+      username
+      email
+      details {
+        avatar
+        fullName
+      }
+    }
+    createdBy
+    modifiedBy
   }
+}
+
 `;
 
 export const ARTICLE_DETAIL = gql`
