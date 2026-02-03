@@ -85,17 +85,20 @@ export function CategoryDrawer({
   });
 
   const onSubmit = (data: CategoryFormData) => {
+    // Prevent self-parenting
+    const safeParentCategoryId = parentCategoryId === category?._id ? undefined : parentCategoryId;
+    
     if (isEditing && category) {
       editCategory({
         variables: {
           _id: category._id,
-          input: { ...data, topicId, parentCategoryId },
+          doc: { ...data, topicId, parentCategoryId: safeParentCategoryId },
         },
       });
     } else {
       addCategory({
         variables: {
-          input: { ...data, topicId, parentCategoryId },
+          doc: { ...data, topicId, parentCategoryId },
         },
       });
     }
@@ -103,8 +106,8 @@ export function CategoryDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <Sheet.View className="sm:max-w-lg p-0">
-        <Sheet.Header className="border-b gap-3">
+      <Sheet.View className="sm:max-w-lg p-0 flex flex-col h-full">
+        <Sheet.Header className="border-b gap-3 flex-shrink-0">
           <Sheet.Title>
             {isEditing ? 'Edit Category' : 'New Category'}
           </Sheet.Title>
@@ -116,7 +119,7 @@ export function CategoryDrawer({
             onSubmit={form.handleSubmit(onSubmit, (error) => {
               console.error(error);
             })}
-            className="p-4 space-y-4"
+            className="flex-1 overflow-y-auto p-4 space-y-4 bg-white"
           >
             <Form.Field
               control={form.control}
@@ -180,19 +183,7 @@ export function CategoryDrawer({
                   <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="icon"
-              render={({ field }) => (
-                <Form.Item className="flex flex-col gap-2">
-                  <Form.Label>Icon</Form.Label>
-                  <Form.Control></Form.Control>
-                  <Form.Message className="text-destructive" />
-                </Form.Item>
-              )}
-            />
+            />            
 
             <Form.Field
               control={form.control}
@@ -204,22 +195,23 @@ export function CategoryDrawer({
               name="parentCategoryId"
               render={({ field }) => <input type="hidden" {...field} />}
             />
-            <div className="flex justify-end space-x-2">
-              <Button onClick={onClose} variant="outline">
-                Cancel
-              </Button>
-              <Button type="submit" disabled={adding || editing}>
-                {adding || editing
-                  ? isEditing
-                    ? 'Saving...'
-                    : 'Creating...'
-                  : isEditing
-                  ? 'Save Changes'
-                  : 'Create Category'}
-              </Button>
-            </div>
           </form>
         </Form>
+
+        <div className="border-t gap-3 p-4 bg-white flex-shrink-0 flex justify-end">
+          <Button onClick={onClose} variant="outline">
+            Cancel
+          </Button>
+          <Button type="submit" disabled={adding || editing} onClick={form.handleSubmit(onSubmit)}>
+            {adding || editing
+              ? isEditing
+                ? 'Saving...'
+                : 'Creating...'
+              : isEditing
+              ? 'Save Changes'
+              : 'Create Category'}
+          </Button>
+        </div>
       </Sheet.View>
     </Sheet>
   );
