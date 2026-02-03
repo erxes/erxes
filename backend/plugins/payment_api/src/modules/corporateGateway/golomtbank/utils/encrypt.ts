@@ -12,10 +12,6 @@ export function encryptData(
     );
   }
 
-  /* CodeQL [js/weak-password-hash]:
-   * False positive – SHA-256 is used for request payload integrity/signing
-   * per Golomt Bank API requirements, not for password hashing.
-   */
   const payloadHash = CryptoJS.SHA256(JSON.stringify(data));
   const hexPayloadHash = payloadHash.toString(CryptoJS.enc.Hex);
 
