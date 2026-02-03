@@ -12,6 +12,7 @@ export interface Article {
   status: string;
   categoryId: string;
   createdDate: string;
+  scheduledDate?: string;
   createdUser: {
     _id: string;
     username: string;
@@ -49,33 +50,18 @@ export function useArticles({
 }: UseArticlesProps = {}): UseArticlesResult {
   const { data, loading, fetchMore, refetch } = useQuery(ARTICLES, {
     variables: {
-      limit: ITEMS_PER_PAGE,
-      cursor: null,
-      direction: 'forward',
       categoryIds,
     },
   });
 
-  const articles = data?.knowledgeBaseArticles?.list || [];
-  const hasMore = data?.knowledgeBaseArticles?.pageInfo?.hasNextPage || false;
-  const endCursor = data?.knowledgeBaseArticles?.pageInfo?.endCursor || null;
-  const totalCount = data?.knowledgeBaseArticles?.totalCount || 0;
+  const articles = data?.knowledgeBaseArticles || [];
+  const hasMore = false; // No pagination for now
+  const endCursor = null;
+  const totalCount = articles.length;
 
   const loadMore = async () => {
-    if (!endCursor) return;
-
-    try {
-      await fetchMore({
-        variables: {
-          limit: ITEMS_PER_PAGE,
-          cursor: endCursor,
-          direction: 'forward',
-          categoryIds,
-        },
-      });
-    } catch (error) {
-      console.error('Error loading more articles:', error);
-    }
+    // No pagination implemented
+    return;
   };
 
   return {

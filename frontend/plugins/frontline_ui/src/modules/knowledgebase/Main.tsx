@@ -3,11 +3,11 @@ import { Route, Routes } from 'react-router';
 
 const Knowledgebase = lazy(() =>
   import('~/pages/knowledgebase/IndexPage').then((module) => ({
-    default: module.IndexPage,
+    default: module.default,
   }))
 );
 
-const ContentFirstMain = () => {
+const KnowledgeBaseMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -17,4 +17,4 @@ const ContentFirstMain = () => {
   );
 };
 
-export default ContentFirstMain;
+export default KnowledgeBaseMain;
