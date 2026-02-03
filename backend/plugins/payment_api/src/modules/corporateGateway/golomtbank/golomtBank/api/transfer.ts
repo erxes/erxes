@@ -99,7 +99,7 @@ export class TransferApi extends BaseApi {
         path: 'transfer/interbank',
         data: {
           ...args,
-          tranPassword: args.password,
+          tranPassword: this.params.configPassword,
         },
       });
     } catch (e) {

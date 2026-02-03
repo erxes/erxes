@@ -28,7 +28,7 @@ export class TransferApi extends BaseApi {
         path: 'transfer/domestic',
         data: {
           ...args,
-          tranPassword: args.password
+          tranPassword: this.params.configPassword
         }
       });
       
@@ -67,7 +67,7 @@ export class TransferApi extends BaseApi {
         path: 'transfer/interbank',
         data: {
           ...args,
-          tranPassword: args.password
+          tranPassword: this.params.configPassword
         }
       });
 
