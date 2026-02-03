@@ -244,6 +244,10 @@ export function KnowledgeBaseSubGroup() {
       </NavigationMenuGroup>
       <NavigationMenuGroup name="Categories">
         {topicId && <Categories 
+          topics={topics}
+          topicId={topicId}
+          categoryId={categoryId}
+          setCategoryId={setCategoryId}
           onEditCategory={setEditingCategory}
           onSetCategoryDrawerOpen={setIsCategoryDrawerOpen}
           onSetParentCategoryId={setParentCategoryId}
@@ -291,21 +295,27 @@ export function KnowledgeBaseSubGroup() {
   );
 }
 
-const Categories = ({ 
-  onEditCategory, 
-  onSetCategoryDrawerOpen, 
-  onSetParentCategoryId, 
-  onDeleteCategory 
-}: {
+interface CategoriesProps {
+  topics: ITopic[];
+  topicId: string | null;
+  categoryId: string | null;
+  setCategoryId: (id: string | null) => void;
   onEditCategory: (category: any) => void;
   onSetCategoryDrawerOpen: (open: boolean) => void;
   onSetParentCategoryId: (id: string) => void;
   onDeleteCategory: (category: any) => void;
-}) => {
-  const [topicId] = useQueryState<string | null>('topicId');
-  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
-  const { topics } = useTopics();
-  
+}
+
+const Categories = ({
+  topics,
+  topicId,
+  categoryId,
+  setCategoryId,
+  onEditCategory,
+  onSetCategoryDrawerOpen,
+  onSetParentCategoryId,
+  onDeleteCategory,
+}: CategoriesProps) => {
   const selectedTopic = topics.find(topic => topic._id === topicId);
   const topicCategories = selectedTopic?.categories || [];
 

@@ -2,6 +2,10 @@
 import { defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 const findDetail = async (model, _id) => {
   return await model.findOne({ $or: [{ _id }, { code: _id }] });
 };
@@ -18,11 +22,13 @@ const buildQuery = (args: any) => {
     }
   });
 
-  if (args.searchValue && args.searchValue.trim()) {
+  const searchValue = args.searchValue?.trim();
+  if (searchValue) {
+    const safeSearch = escapeRegExp(searchValue);
     qry.$or = [
-      { title: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { description: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { code: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+      { title: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
+      { description: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
+      { code: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
     ];
   }
 

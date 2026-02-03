@@ -30,10 +30,9 @@ export function useTopics(
     notifyOnNetworkStatusChange: true,
   });
 
-  const topics = data?.knowledgeBaseTopics?.list || [];
-  const totalCount = data?.knowledgeBaseTopics?.totalCount || 0;
-
-  const hasMore = topics.length < totalCount;
+  const topics = data?.knowledgeBaseTopics || [];
+  
+  const hasMore = topics.length === ITEMS_PER_PAGE;
 
   const loadMore = async () => {
     if (!hasMore) return;
@@ -47,18 +46,15 @@ export function useTopics(
         searchValue: searchValue || '',
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.knowledgeBaseTopics?.list) {
+        if (!fetchMoreResult?.knowledgeBaseTopics) {
           return prev;
         }
 
-        const prevTopics = prev?.knowledgeBaseTopics?.list || [];
-        const newTopics = fetchMoreResult.knowledgeBaseTopics.list;
+        const prevTopics = prev?.knowledgeBaseTopics || [];
+        const newTopics = fetchMoreResult.knowledgeBaseTopics;
 
         return {
-          knowledgeBaseTopics: {
-            ...fetchMoreResult.knowledgeBaseTopics,
-            list: [...prevTopics, ...newTopics],
-          },
+          knowledgeBaseTopics: [...prevTopics, ...newTopics],
         };
       },
     });
@@ -71,6 +67,6 @@ export function useTopics(
     endCursor: null,
     loadMore,
     refetch,
-    totalCount,
+    totalCount: data?.knowledgeBaseTopicsTotalCount || 0,
   };
 }
