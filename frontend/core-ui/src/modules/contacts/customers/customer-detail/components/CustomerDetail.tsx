@@ -36,7 +36,13 @@ export const CustomerDetail = () => {
         notFoundState={<CustomerDetailEmptyState />}
         errorState={<CustomerDetailErrorState />}
       >
-        <FocusSheet.Header title={isLead ? t('lead.detail.lead-detail') : t('customer.detail.customer-detail')} />
+        <FocusSheet.Header
+          title={
+            isLead
+              ? t('lead.detail.lead-detail')
+              : t('customer.detail.customer-detail')
+          }
+        />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <ContactSidebar />
@@ -51,6 +57,9 @@ export const CustomerDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CustomerDetailFields />
+                  <ActivityLogs
+                    targetId={customerDetail?._id || ''}
+                  ></ActivityLogs>
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
@@ -59,9 +68,6 @@ export const CustomerDetail = () => {
                     mutateHook={useCustomerCustomFieldEdit}
                     id={customerDetail?._id || ''}
                   />
-                </Tabs.Content>
-                <Tabs.Content value="activity">
-                  <ActivityLogs targetId={customerDetail?._id || ''} />
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

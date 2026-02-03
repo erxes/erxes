@@ -39,7 +39,7 @@ export const RelationWidgetSideTabs = ({
             key={module.name}
             value={module.name}
             Icon={module.icon}
-            label={module.name}
+            label={module.name.charAt(0).toUpperCase() + module.name.slice(1)}
           />
         ))}
       </FocusSheet.SideTabsList>

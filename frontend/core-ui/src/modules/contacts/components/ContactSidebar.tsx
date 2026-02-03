@@ -9,7 +9,7 @@ export const ContactSidebar = () => {
         <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
-            {['overview', 'properties', 'activity'].map((tab) => (
+            {['overview', 'properties'].map((tab) => (
               <Sidebar.MenuItem key={tab}>
                 <Sidebar.MenuButton
                   isActive={
