@@ -1,38 +1,54 @@
-export interface IUser {
-  _id: string;
-  details: {
-    fullName: string;
-    avatar: string;
-  };
+import type { IAttachment, IPdfAttachment } from 'erxes-ui';
+
+export type { IUser, ICategory, ITopic } from '../../../../content_ui/src/modules/cms/types';
+
+export interface IArticleCustomFormField {
+  id: string;
+  label: string;
+  value: string;
 }
 
-export interface ICategory {
+export interface IKnowledgeBaseArticle {
   _id: string;
-  topicId: string;
-  title: string;
   code?: string;
-  description?: string;
-  icon?: string;
-  numOfArticles?: number;
-  countArticles?: number;
-  authors?: IUser[];
-  parentCategoryId?: string;
-  children?: ICategory[];
+  title: string;
+  summary?: string;
+  content?: string;
+  status: string;
+  isPrivate?: boolean;
+  reactionChoices?: string[];
+  image?: IAttachment;
+  attachments?: IAttachment[];
+  pdfAttachment?: IPdfAttachment;
+  categoryId?: string;
+  fileUrl?: string;
+  fileSize?: number;
+  fileDuration?: number;
+  fileName?: string;
+  fileType?: string;
+  customForms?: IArticleCustomFormField[];
 }
 
-export interface ITopic {
-  _id: string;
+export interface ArticleFormData {
+  code?: string;
   title: string;
-  code: string;
-  description: string;
-  brandId: string;
-  color: string;
-  backgroundImage: string;
-  languageCode: string;
-  notificationSegmentId: string;
-  categories?: ICategory[];
-  createdBy?: string;
-  createdDate?: string;
-  modifiedBy?: string;
-  parentCategories?: ICategory[];
+  summary: string;
+  content: string;
+  status: string;
+  isPrivate: boolean;
+  reactionChoices: string[];
+  image?: IAttachment;
+  attachments: IAttachment[];
+  pdfAttachment?: IPdfAttachment;
+  fileUrl?: string;
+  fileSize?: number;
+  fileDuration?: number;
+  fileName?: string;
+  fileType?: string;
+  customForms: IArticleCustomFormField[];
 }
+
+export type ArticleInput = Omit<
+  ArticleFormData,
+  'fileUrl' | 'fileSize' | 'fileDuration' | 'fileName' | 'fileType'
+>;

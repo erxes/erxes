@@ -4,9 +4,7 @@ import {
   Button,
   Editor,
   Form,
-  IAttachment,
   Input,
-  IPdfAttachment,
   MultipleSelector,
   ScrollArea,
   Select,
@@ -21,66 +19,16 @@ import { REACTIONS } from '../constants';
 import { ADD_ARTICLE, EDIT_ARTICLE } from '../graphql/mutations';
 import { ARTICLES } from '../graphql/queries';
 import { useArticles } from '../hooks/useArticles';
-
-interface Article {
-  _id: string;
-  code: string;
-  title: string;
-  summary: string;
-  content: string;
-  status: string;
-  isPrivate?: boolean;
-  reactionChoices?: string[];
-  image?: IAttachment;
-  attachments?: IAttachment[];
-  pdfAttachment?: IPdfAttachment;
-  categoryId: string;
-  fileUrl?: string;
-  fileSize?: number;
-  fileDuration?: number;
-  fileName?: string;
-  fileType?: string;
-  customForms?: Array<{
-    id: string;
-    label: string;
-    value: string;
-  }>;
-}
+import type { ArticleFormData, ArticleInput, IKnowledgeBaseArticle } from '../types';
 
 interface ArticleDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  article?: Article;
+  article?: IKnowledgeBaseArticle;
   categoryId: string;
   onSaved?: () => void;
   refetch?: () => void;
 }
-
-interface ArticleFormData {
-  title: string;
-  summary: string;
-  content: string;
-  status: string;
-  isPrivate: boolean;
-  reactionChoices: string[];
-  image?: IAttachment;
-  attachments: IAttachment[];
-  pdfAttachment?: IPdfAttachment;
-  fileUrl?: string;
-  fileSize?: number;
-  fileDuration?: number;
-  fileName?: string;
-  fileType?: string;
-  customForms: Array<{
-    id: string;
-    label: string;
-    value: string;
-  }>;
-}
-type ArticleInput = Omit<
-  ArticleFormData,
-  "fileUrl" | "fileSize" | "fileDuration" | "fileName" | "fileType" | "customForms"
->;
 
 const toArticleInput = (data: ArticleFormData): ArticleInput => {
   const {
@@ -89,7 +37,6 @@ const toArticleInput = (data: ArticleFormData): ArticleInput => {
     fileDuration,
     fileName,
     fileType,
-    customForms,
     ...clean
   } = data;
 
@@ -580,11 +527,14 @@ const onSubmit = (data: ArticleFormData) => {
                           <Form.Item>
                             <Form.Label>File Size (byte)</Form.Label>
                             <Form.Control>
-                              <Input 
+                              <Input
                                 {...field} 
                                 type="number"
                                 placeholder="Enter file size"
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(value === '' ? 0 : Number(value));
+                                }}
                               />
                             </Form.Control>
                             <Form.Message />
@@ -599,11 +549,14 @@ const onSubmit = (data: ArticleFormData) => {
                           <Form.Item>
                             <Form.Label>File Duration (sec)</Form.Label>
                             <Form.Control>
-                              <Input 
+                              <Input
                                 {...field} 
                                 type="number"
                                 placeholder="Enter file duration"
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(value === '' ? 0 : Number(value));
+                                }}
                               />
                             </Form.Control>
                             <Form.Message />
