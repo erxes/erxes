@@ -54,8 +54,8 @@ export interface IArticleCreate extends IArticle {
           docFields.code = `ART-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         }
 
-        // Ensure content is not empty
-        if (!docFields.content || docFields.content.trim() === '') {
+        // Ensure content is not empty (only if content is being updated)
+        if ('content' in docFields && (!docFields.content || docFields.content.trim() === '')) {
           docFields.content = '<p></p>';
         }
   
@@ -94,8 +94,8 @@ export interface IArticleCreate extends IArticle {
           throw new Error('Article not found')
         }
 
-        // Ensure content is not empty
-        if (!docFields.content || docFields.content.trim() === '') {
+        // Ensure content is not empty (only if content is being updated)
+        if ('content' in docFields && (!docFields.content || docFields.content.trim() === '')) {
           docFields.content = '<p></p>';
         }
   
@@ -114,7 +114,8 @@ export interface IArticleCreate extends IArticle {
         if (doc.status === PUBLISH_STATUSES.SCHEDULED) {
           doc.publishedUserId = userId;
           doc.scheduledDate = docFields.scheduledDate || new Date();
-          // Keep publishedAt as null until scheduled time
+          // Clear publishedAt when moving to SCHEDULED
+          doc.publishedAt = undefined;
         }
   
         return await models.Article.findOneAndUpdate(

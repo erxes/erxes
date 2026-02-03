@@ -47,6 +47,7 @@ export const articleSchema = new Schema(
     // Common fields
     createdBy: { type: String }, 
     modifiedBy: { type: String }, 
+    modifiedDate: { type: Date }, 
     title: { type: String, required: true },
     code: { type: String },
     createdDate: { type: Date },

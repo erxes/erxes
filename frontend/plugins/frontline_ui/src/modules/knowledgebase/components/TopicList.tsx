@@ -6,6 +6,7 @@ import {
   Sidebar,
   Spinner,
   useConfirm,
+  toast,
 } from 'erxes-ui';
 
 import { IconDotsVertical } from '@tabler/icons-react';
@@ -65,7 +66,10 @@ export function TopicList(props: TopicListProps) {
         refetch();
       });
     } catch (error) {
-      console.error('Error deleting category:', error);
+      toast({
+        type: 'foreground',
+        title: 'Failed to delete category. Please try again.',
+      });
     }
   };
 
@@ -83,9 +87,9 @@ export function TopicList(props: TopicListProps) {
       if (Object.keys(newParams).length > 0) {
         setSearchParams((prev) => {
           const updated = new URLSearchParams(prev.toString());
-          Object.entries(newParams).forEach(([key, value]) =>
-            updated.set(key, value),
-          );
+          Object.entries(newParams).forEach(([key, value]) => {
+            updated.set(key, value);
+          });
           return updated;
         });
       }
@@ -189,15 +193,23 @@ export function TopicList(props: TopicListProps) {
                   return (
                     <Sidebar.MenuItem key={category._id}>
                       <Sidebar.MenuButton
-                        className={cn(
-                          'flex items-center gap-2 flex-grow',
-                          isSubmenuActive && 'bg-primary/10 text-primary font-semibold',
-                        )}
-                      >
-                        <span className="truncate">{category.title}</span>
-                        {renderCategoryActions(category)}
-                      </Sidebar.MenuButton>
+                      onClick={() => {
+                        setSearchParams((prev) => {
+                          const next = new URLSearchParams(prev);
+                          next.set('categoryId', category._id);
+                          return next;
+                        });
+                      }}
+                      className={cn(
+                        'flex items-center gap-2 flex-grow',
+                        isSubmenuActive && 'bg-primary/10 text-primary font-semibold',
+                      )}
+                    >
+                       <span className="truncate">{category.title}</span>
+                       {renderCategoryActions(category)}
+                     </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
+                    
                   );
                 })}
               </Sidebar.Menu>
@@ -289,7 +301,10 @@ export function TopicItem(props: {
         refetch();
       });
     } catch (error) {
-      console.error('Error deleting category:', error);
+      toast({
+        type: 'foreground',
+        title: 'Failed to delete category. Please try again.',
+      });
     }
   };
 

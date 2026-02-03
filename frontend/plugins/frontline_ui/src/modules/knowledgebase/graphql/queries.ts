@@ -57,10 +57,12 @@ export const TOPICS = gql`
     $perPage: Int
     $brandId: String
     $codes: [String]
+    $searchValue: String
   ) {
     knowledgeBaseTopics(
       page: $page
       perPage: $perPage
+      searchValue: $searchValue
       brandId: $brandId
       codes: $codes
     ) {

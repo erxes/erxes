@@ -62,7 +62,7 @@ export const FrontlineNavigation = () => {
       />
       <div className="relative group/knowledgebase">
         <NavigationMenuLinkItem
-          name="knowledgeBase"
+          name="Knowledge Base"
           icon={IconBook}
           path="frontline/knowledgebase"
         />

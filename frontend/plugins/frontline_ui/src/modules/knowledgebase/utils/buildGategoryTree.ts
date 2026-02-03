@@ -11,6 +11,11 @@ export function buildCategoryTree(categories: any[]) {
     const parentId =
       c.parentCategoryId || c.parentId || c.parentCategory?._id || null;
 
+    if (parentId === c._id) {
+    roots.push(c);
+    return;
+  }
+
     if (parentId && byId.has(parentId)) {
       byId.get(parentId).children.push(c);
     } else {

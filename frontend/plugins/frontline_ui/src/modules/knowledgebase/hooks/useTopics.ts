@@ -18,41 +18,40 @@ interface UseTopicsResult {
   totalCount: number;
 }
 
-export function useTopics({ searchValue }: UseTopicsProps = {}): UseTopicsResult {
+export function useTopics(
+  { searchValue }: UseTopicsProps = {}
+): UseTopicsResult {
   const { data, loading, fetchMore, refetch } = useQuery(TOPICS, {
     variables: {
       page: 1,
       perPage: ITEMS_PER_PAGE,
       searchValue: searchValue || '',
     },
+    notifyOnNetworkStatusChange: true,
   });
 
   const topics = data?.knowledgeBaseTopics || [];
-  const hasMore = false;
-  const endCursor = null;
   const totalCount = topics.length;
 
-  const loadMore = async () => {
-    if (!endCursor) return;
+  const hasMore = topics.length === ITEMS_PER_PAGE;
 
-    try {
-      await fetchMore({
-        variables: {
-          limit: ITEMS_PER_PAGE,
-          cursor: endCursor,
-          direction: 'forward',
-        },
-      });
-    } catch (error) {
-      console.error('Error loading more topics:', error);
-    }
+  const loadMore = async () => {
+    if (!hasMore) return;
+
+    await fetchMore({
+      variables: {
+        page: Math.floor(topics.length / ITEMS_PER_PAGE) + 1,
+        perPage: ITEMS_PER_PAGE,
+        searchValue: searchValue || '',
+      },
+    });
   };
 
   return {
     topics,
     loading,
     hasMore,
-    endCursor,
+    endCursor: null,
     loadMore,
     refetch,
     totalCount,
