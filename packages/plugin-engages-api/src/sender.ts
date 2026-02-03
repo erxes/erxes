@@ -35,9 +35,9 @@ export const start = async (
   const configs = await getConfigs(models);
   const configSet = await getValueAsString(
     models,
-    "configSet",
-    "AWS_SES_CONFIG_SET",
-    "erxes"
+    'configSet',
+    'AWS_SES_CONFIG_SET',
+    'erxes'
   );
 
   await models.Stats.findOneAndUpdate(
@@ -58,13 +58,21 @@ export const start = async (
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
-      await transporter.sendMail(
-        prepareEmailParams(subdomain, customer, data, configSet)
-      );
+      const response = await transporter
+        .sendMail(prepareEmailParams(subdomain, customer, data, configSet))
+        .catch(async (e) => {
+          debugError(e.message);
+
+          await models.Logs.createLog(
+            engageMessageId,
+            'failure',
+            `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
+          );
+        });
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
-      await models.Logs.createLog(engageMessageId, 'success', msg);
+      await models.Logs.createLog(engageMessageId, 'success', msg, response);
 
       await models.Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
     } catch (e) {
@@ -299,9 +307,9 @@ export const sendEmail = async (
 
   const configSet = await getValueAsString(
     models,
-    "configSet",
-    "AWS_SES_CONFIG_SET",
-    "erxes"
+    'configSet',
+    'AWS_SES_CONFIG_SET',
+    'erxes'
   );
 
   try {
