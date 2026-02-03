@@ -1,14 +1,12 @@
-import { ISpinCampaignDocument } from '~/modules/spin/@types/spinCampaign';
+import { ISpinCampaignDocument } from '@/spin/@types/spinCampaign';
 import { IContext } from '~/connectionResolvers';
 
 export default {
   async spinsCount(
-    spinCampaign: ISpinCampaignDocument,
-    _args: unknown,
+    { _id }: ISpinCampaignDocument,
+    _args: undefined,
     { models }: IContext,
   ) {
-    return models.Spin.countDocuments({
-      campaignId: spinCampaign._id,
-    });
+    return models.Spins.find({ campaignId: _id }).countDocuments();
   },
 };

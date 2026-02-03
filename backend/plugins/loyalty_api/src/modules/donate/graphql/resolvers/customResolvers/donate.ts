@@ -1,34 +1,23 @@
+import { IDonateDocument } from '@/donate/@types/donate';
 import { IContext } from '~/connectionResolvers';
-import { IDonateDocument } from '~/modules/donate/@types/donate';
 import { getLoyaltyOwner } from '~/utils/getOwner';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export default {
   async owner(
-    donate: IDonateDocument,
+    { ownerType, ownerId }: IDonateDocument,
     _args: undefined,
     { subdomain }: IContext,
   ) {
     return getLoyaltyOwner(subdomain, {
-      ownerType: donate.ownerType,
-      ownerId: donate.ownerId,
+      ownerType,
+      ownerId,
     });
   },
-
   async campaign(
-    donate: IDonateDocument,
+    { campaignId }: IDonateDocument,
     _args: undefined,
-    { subdomain }: IContext,
+    { models }: IContext,
   ) {
-    return sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      method: 'query',
-      module: 'campaign',
-      action: 'findOne',
-      input: {
-        _id: donate.campaignId,
-      },
-    });
+    return models.DonateCampaigns.findOne({ _id: campaignId }).lean();
   },
 };

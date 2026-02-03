@@ -1,62 +1,51 @@
 import { gql } from '@apollo/client';
 
-export const editSpinStatusMutation = gql`
-  mutation UpdateCampaign(
+export const UPDATE_SPIN_CAMPAIGN = gql`
+  mutation UpdateSpinCampaign(
     $id: String!
-    $name: String
-    $kind: String!
+    $title: String
     $description: String
     $startDate: Date
     $endDate: Date
+    $finishDateOfUse: Date
+    $attachment: AttachmentInput
     $status: String
-    $type: String
-    $amount: Float
-    $conditions: JSON
+    $buyScore: Float
+    $awards: JSON
   ) {
-    updateCampaign(
+    spinCampaignsEdit(
       _id: $id
-      name: $name
-      kind: $kind
+      title: $title
       description: $description
       startDate: $startDate
       endDate: $endDate
+      finishDateOfUse: $finishDateOfUse
+      attachment: $attachment
       status: $status
-      type: $type
-      amount: $amount
-      conditions: $conditions
+      buyScore: $buyScore
+      awards: $awards
     ) {
       _id
-      name
+      createdAt
+      createdBy
+      modifiedAt
+      modifiedBy
+      title
       description
       startDate
       endDate
+      finishDateOfUse
+      attachment {
+        url
+        name
+        size
+        type
+        __typename
+      }
       status
-      type
-      amount
-      createdBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          position
-        }
-      }
-      updatedBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          position
-        }
-      }
-      conditions
-      kind
+      buyScore
+      awards
+      spinsCount
     }
   }
 `;

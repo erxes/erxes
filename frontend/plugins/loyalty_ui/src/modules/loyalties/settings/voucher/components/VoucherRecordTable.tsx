@@ -19,7 +19,7 @@ export const VoucherRecordTable = () => {
       columns={voucherColumns(editStatus)}
       data={vouchers || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

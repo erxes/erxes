@@ -1,28 +1,28 @@
-import { IContext } from '~/connectionResolvers';
 import { IDonateCampaign } from '@/donate/@types/donateCampaign';
+import { IContext } from '~/connectionResolvers';
 
 export const donateCampaignMutations = {
-  createDonateCampaign: async (
+  async donateCampaignsAdd(
     _parent: undefined,
     doc: IDonateCampaign,
     { models, user }: IContext,
-  ) => {
-    return models.DonateCampaign.createDonateCampaign(doc, user);
+  ) {
+    return models.DonateCampaigns.createDonateCampaign(doc, user._id);
   },
 
-  updateDonateCampaign: async (
+  async donateCampaignsEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & IDonateCampaign,
-    { models, user }: IContext,
-  ) => {
-    return models.DonateCampaign.updateDonateCampaign(_id, doc, user);
+    { models }: IContext,
+  ) {
+    return models.DonateCampaigns.updateDonateCampaign(_id, doc);
   },
 
-  removeDonateCampaign: async (
+  async donateCampaignsRemove(
     _parent: undefined,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
-  ) => {
-    return models.DonateCampaign.removeDonateCampaigns([_id]);
+  ) {
+    return models.DonateCampaigns.removeDonateCampaigns(_ids);
   },
 };

@@ -1,10 +1,10 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { editLoyaltyScoreMutation } from '../graphql/mutations/editLoyaltyScoreMutation';
+import { UPDATE_SCORE_CAMPAIGN } from '../graphql/mutations/editLoyaltyScoreMutation';
 
 export const useLoyaltyScoreEdit = () => {
   const { toast } = useToast();
-  const [editStatus, { loading }] = useMutation(editLoyaltyScoreMutation);
+  const [editStatus, { loading }] = useMutation(UPDATE_SCORE_CAMPAIGN);
 
   const mutate = ({ variables, ...options }: MutationHookOptions) => {
     editStatus({

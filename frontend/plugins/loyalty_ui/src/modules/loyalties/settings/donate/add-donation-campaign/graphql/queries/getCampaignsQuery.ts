@@ -1,69 +1,41 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
-export const getCampaignsQuery = gql`
-  query GetCampaigns(
+export const QUERY_DONATE_CAMPAIGNS = gql`
+  query GetDonateCampaigns(
     $searchValue: String
     $status: String
-    $fromDate: String
-    $toDate: String
-    $dateField: String
-    $kind: String
-    $limit: Int
-    $cursor: String
-    $cursorMode: CURSOR_MODE
-    $direction: CURSOR_DIRECTION
-    $orderBy: JSON
-    $sortMode: String
-    $aggregationPipeline: [JSON]
+
+    ${GQL_CURSOR_PARAM_DEFS}
   ) {
-    getCampaigns(
+    donateCampaigns(
       searchValue: $searchValue
       status: $status
-      fromDate: $fromDate
-      toDate: $toDate
-      dateField: $dateField
-      kind: $kind
-      limit: $limit
-      cursor: $cursor
-      cursorMode: $cursorMode
-      direction: $direction
-      orderBy: $orderBy
-      sortMode: $sortMode
-      aggregationPipeline: $aggregationPipeline
+      
+      ${GQL_CURSOR_PARAMS}
     ) {
       list {
         _id
-        name
+        createdAt
+        createdBy
+        modifiedAt
+        modifiedBy
+        title
         description
         startDate
         endDate
+        finishDateOfUse
+        attachment {
+          url
+          name
+          size
+          type
+          __typename
+        }
         status
-        type
-        amount
-        createdBy {
-          email
-          details {
-            avatar
-            firstName
-            fullName
-            lastName
-            middleName
-            position
-          }
-        }
-        updatedBy {
-          email
-          details {
-            avatar
-            firstName
-            fullName
-            lastName
-            middleName
-            position
-          }
-        }
-        conditions
-        kind
+        maxScore
+        awards
+        donatesCount
       }
       pageInfo {
         hasNextPage

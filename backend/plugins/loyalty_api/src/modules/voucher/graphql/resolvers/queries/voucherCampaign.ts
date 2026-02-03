@@ -1,29 +1,25 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
+import { IContext, IModels } from '~/connectionResolvers';
 
 import {
   IVoucherCampaign,
+  IVoucherCampaignDocument,
   IVoucherCampaignParams,
 } from '@/voucher/@types/voucherCampaign';
+import { CAMPAIGN_STATUS } from '~/constants';
 
 const generateFilter = async (
-  models: IContext['models'],
+  models: IModels,
   params: IVoucherCampaignParams,
 ): Promise<FilterQuery<IVoucherCampaign>> => {
   const filter: FilterQuery<IVoucherCampaign> = {};
 
-  const {
-    searchValue,
-    status,
-    voucherType,
-    equalTypeCampaignId,
-    _ids,
-  } = params || {};
+  const { searchValue, status, voucherType, equalTypeCampaignId, _ids } =
+    params || {};
 
   if (equalTypeCampaignId) {
-    const campaign = await models.VoucherCampaign.findOne({
+    const campaign = await models.VoucherCampaigns.findOne({
       _id: equalTypeCampaignId,
     }).lean();
 
@@ -51,40 +47,37 @@ const generateFilter = async (
   return filter;
 };
 
-/* -------------------- queries -------------------- */
-
 export const voucherCampaignQueries = {
-  getVoucherCampaigns: async (
-    _parent: undefined,
+  async voucherCampaigns(
+    _root: undefined,
     params: IVoucherCampaignParams,
     { models }: IContext,
-  ) => {
+  ) {
     const filter = await generateFilter(models, params);
 
-    return cursorPaginate({
-      // 👇 THIS IS THE FIX
-      model: models.VoucherCampaign as any,
+    return cursorPaginate<IVoucherCampaignDocument>({
+      model: models.VoucherCampaigns,
       params,
       query: filter,
     });
   },
 
-  getVoucherCampaignDetail: async (
-    _parent: undefined,
+  async voucherCampaignDetail(
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
-  ) => {
-    return models.VoucherCampaign.getVoucherCampaign(_id);
+  ) {
+    return models.VoucherCampaigns.getVoucherCampaign(_id);
   },
 
-  getCpVoucherCampaigns: async (
-    _parent: undefined,
+  async cpVoucherCampaigns(
+    _root: undefined,
     _args: unknown,
     { models }: IContext,
-  ) => {
+  ) {
     const now = new Date();
 
-    return models.VoucherCampaign.find({
+    return models.VoucherCampaigns.find({
       status: CAMPAIGN_STATUS.ACTIVE,
       startDate: { $lte: now },
       endDate: { $gte: now },

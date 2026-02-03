@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { editAssignmentStatusMutation } from '../../graphql/mutations/assignmentEditStatusMutations';
+import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../../graphql';
+import { UPDATE_ASSIGNMENT_CAMPAIGN } from '../../graphql/mutations/assignmentEditStatusMutations';
 
 export interface EditAssignmentVariables {
   id: string;
@@ -12,10 +13,8 @@ export interface EditAssignmentVariables {
   status?: string;
   type?: string;
   amount?: number;
-  conditions?: {
-    voucherCampaignId?: string;
-    segmentId?: string;
-  };
+  voucherCampaignId?: string;
+  segmentIds?: string[];
 }
 
 export const useAssignmentEdit = () => {
@@ -24,8 +23,8 @@ export const useAssignmentEdit = () => {
   const [assignmentEdit, { loading }] = useMutation<
     any,
     EditAssignmentVariables
-  >(editAssignmentStatusMutation, {
-    refetchQueries: ['getCampaigns'],
+  >(UPDATE_ASSIGNMENT_CAMPAIGN, {
+    refetchQueries: [QUERY_ASSIGNMENT_CAMPAIGNS],
     onCompleted: () => {
       toast({
         title: 'Success',

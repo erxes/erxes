@@ -1,6 +1,6 @@
 export interface ICoupon {
   _id: string;
-  name: string;
+  title: string;
   description?: string;
   startDate: string;
   endDate: string;

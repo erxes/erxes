@@ -26,15 +26,12 @@ export const AssignmentTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      name: data.title || '',
-      kind: 'assignment',
+      title: data.title || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-      conditions: {
-        voucherCampaignId: data.conditions.voucherCampaignId,
-        segmentId: data.conditions.segmentId,
-      },
+      voucherCampaignId: data.voucherCampaignId,
+      segmentIds: data.segmentIds,
     };
 
     assignmentAdd({

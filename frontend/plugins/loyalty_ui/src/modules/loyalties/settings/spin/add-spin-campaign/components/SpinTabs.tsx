@@ -26,16 +26,16 @@ export const SpinTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      name: data.title || '',
-      kind: 'spin',
+      title: data.title || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-      conditions: data.conditions?.map((condition) => ({
-        name: condition.name,
-        probablity: condition.probablity,
-        voucherCampaignId: condition.voucherCampaignId,
-        buyScore: condition.buyScore,
+      buyScore: data.buyScore,
+
+      awards: data.awards?.map((award) => ({
+        name: award.name,
+        probablity: award.probablity,
+        voucherCampaignId: award.voucherCampaignId,
       })),
     };
 

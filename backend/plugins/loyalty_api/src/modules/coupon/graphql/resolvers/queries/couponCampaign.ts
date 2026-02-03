@@ -1,23 +1,21 @@
+import {
+  ICouponCampaignDocument,
+  ICouponCampaignParams,
+} from '@/coupon/@types/couponCampaign';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
-export interface ICouponCampaignParams {
-  status?: string;
-  searchValue?: string;
-  limit?: number;
-  cursor?: string;
-}
-
 export const couponCampaignQueries = {
-  getCouponCampaigns: async (
+  couponCampaigns: async (
     _root: undefined,
     params: ICouponCampaignParams,
     { models }: IContext,
   ) => {
-    const filter: any = {};
+    const filter: FilterQuery<ICouponCampaignDocument> = {};
 
     if (params.searchValue) {
-      filter.name = new RegExp(params.searchValue, 'i');
+      filter.title = new RegExp(params.searchValue);
     }
 
     if (params.status) {
@@ -25,17 +23,17 @@ export const couponCampaignQueries = {
     }
 
     return cursorPaginate({
-      model: models.CouponCampaign,
+      model: models.CouponCampaigns,
       params,
       query: filter,
     });
   },
 
-  getCouponCampaign: async (
+  couponCampaign: async (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.CouponCampaign.getCouponCampaign(_id);
+    return models.CouponCampaigns.getCouponCampaign(_id);
   },
 };

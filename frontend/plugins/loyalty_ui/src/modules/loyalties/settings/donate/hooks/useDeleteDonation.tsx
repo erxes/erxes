@@ -1,21 +1,20 @@
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor } from 'erxes-ui';
-import { getCampaignsQuery } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
+import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
 import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
+import { REMOVE_DONATE_CAMPAIGN } from '../graphql/mutations/removeDonationMutations';
 import { DONATIONS_PER_PAGE } from './useDonations';
-import { removeDonationMutation } from '../graphql/mutations/removeDonationMutations';
 
 export const useDeleteDonation = () => {
   const { cursor } = useRecordTableCursor({
     sessionKey: DONATIONS_CURSOR_SESSION_KEY,
   });
 
-  const [removeDonation, { loading }] = useMutation(removeDonationMutation, {
+  const [removeDonation, { loading }] = useMutation(REMOVE_DONATE_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
+        query: QUERY_DONATE_CAMPAIGNS,
         variables: {
-          kind: 'donation',
           limit: DONATIONS_PER_PAGE,
           cursor,
         },
@@ -23,41 +22,40 @@ export const useDeleteDonation = () => {
     ],
     update: (cache, { data }) => {
       try {
-        const deletedCampaignIds = data?.removeCampaign?._id || [];
+        const deletedCampaign = data?.donateCampaignsRemove || {};
 
-        if (!deletedCampaignIds.length) {
+        if (!deletedCampaign) {
           return;
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
+          query: QUERY_DONATE_CAMPAIGNS,
           variables: {
-            kind: 'donation',
             limit: DONATIONS_PER_PAGE,
             cursor,
           },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.donateCampaigns) {
           return;
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
+          query: QUERY_DONATE_CAMPAIGNS,
           variables: {
-            kind: 'donation',
             limit: DONATIONS_PER_PAGE,
             cursor,
           },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: existingData.getCampaigns.list.filter(
-                (campaign: any) => !deletedCampaignIds.includes(campaign._id),
+            donateCampaigns: {
+              ...existingData.donateCampaigns,
+              list: existingData.donateCampaigns.list.filter(
+                (campaign: any) =>
+                  !deletedCampaign?._ids?.includes(campaign._id),
               ),
               totalCount: Math.max(
-                (existingData.getCampaigns.totalCount || 0) -
-                  deletedCampaignIds.length,
+                (existingData.donateCampaigns.totalCount || 0) -
+                  deletedCampaign?._ids?.length,
                 0,
               ),
             },

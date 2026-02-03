@@ -12,11 +12,8 @@ export const assignmentFormSchema = z.object({
   endDate: z
     .union([z.string(), z.date()])
     .refine((val) => val !== '', 'End date is required'),
-  kind: z.string().default('assignment'),
-  conditions: z.object({
-    voucherCampaignId: z.string().optional(),
-    segmentId: z.string().optional(),
-  }),
+  voucherCampaignId: z.string().optional(),
+  segmentIds: z.array(z.string()).optional(),
 });
 
 export type AssignmentFormValues = z.infer<typeof assignmentFormSchema>;

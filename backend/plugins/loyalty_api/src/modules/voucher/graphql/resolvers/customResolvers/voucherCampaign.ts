@@ -1,14 +1,14 @@
+import { IVoucherCampaignDocument } from '@/voucher/@types/voucherCampaign';
 import { IContext } from '~/connectionResolvers';
-import { IVoucherCampaignDocument } from '~/modules/voucher/@types/voucherCampaign';
 
 export default {
   async vouchersCount(
-    voucherCampaign: IVoucherCampaignDocument,
+    { _id }: IVoucherCampaignDocument,
     _args: undefined,
     { models }: IContext,
   ) {
-    return models.Voucher.countDocuments({
-      campaignId: voucherCampaign._id,
-    });
+    return models.Vouchers.find({
+      campaignId: _id,
+    }).countDocuments();
   },
 };

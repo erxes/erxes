@@ -1,22 +1,22 @@
 import { IconEdit } from '@tabler/icons-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Kbd,
   Sheet,
   usePreviousHotkeyScope,
+  useQueryState,
   useScopedHotkeys,
   useSetHotkeyScope,
-  useQueryState,
 } from 'erxes-ui';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useLottery } from '../../hooks/useLotteries';
 import {
   lotteryFormSchema,
   LotteryFormValues,
 } from '../../constants/lotteryFormSchema';
+import { useLottery } from '../../hooks/useLotteries';
 import { LotteryHotKeyScope } from '../../types/LotteryHotKeyScope';
 import { EditLotteryTabs } from './EditLotteryTabs';
 
@@ -39,12 +39,13 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
     defaultValues: {
       title: '',
       status: 'active',
-      conditions: [
+      buyScore: 0,
+
+      awards: [
         {
           name: '',
           voucherCampaignId: '',
           probablity: 0,
-          buyScore: 0,
         },
       ],
     },
@@ -57,7 +58,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
   useEffect(() => {
     if (lotteryDetail?._id === editLotteryId) {
       form.reset({
-        title: lotteryDetail.name || '',
+        title: lotteryDetail.title || '',
         status: lotteryDetail.status || 'active',
         startDate: lotteryDetail.startDate
           ? new Date(lotteryDetail.startDate)
@@ -65,14 +66,13 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         endDate: lotteryDetail.endDate
           ? new Date(lotteryDetail.endDate)
           : undefined,
-        kind: lotteryDetail.kind || '',
-        conditions: lotteryDetail.conditions || [
+        buyScore: lotteryDetail.buyScore || 0,
+
+        awards: lotteryDetail.awards || [
           {
-            name: lotteryDetail.conditions?.name || '',
-            voucherCampaignId:
-              lotteryDetail.conditions?.voucherCampaignId || '',
-            probablity: lotteryDetail.conditions?.probablity || 0,
-            buyScore: lotteryDetail.buyScore || 0,
+            name: lotteryDetail.awards?.name || '',
+            voucherCampaignId: lotteryDetail.awards?.voucherCampaignId || '',
+            probablity: lotteryDetail.awards?.probablity || 0,
           },
         ],
       });
@@ -108,7 +108,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
 
   return (
     <Sheet
-      onOpenChange={(open: boolean) => (!open && onClose())}
+      onOpenChange={(open: boolean) => !open && onClose()}
       open={open}
       modal
     >

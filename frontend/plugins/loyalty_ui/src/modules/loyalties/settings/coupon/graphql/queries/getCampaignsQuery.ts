@@ -1,69 +1,44 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
-export const getCampaignsQuery = gql`
-  query GetCampaigns(
+export const QUERY_COUPON_CAMPAIGNS = gql`
+  query GetCouponCampaigns(
     $searchValue: String
     $status: String
-    $fromDate: String
-    $toDate: String
-    $dateField: String
-    $kind: String
-    $limit: Int
-    $cursor: String
-    $cursorMode: CURSOR_MODE
-    $direction: CURSOR_DIRECTION
-    $orderBy: JSON
-    $sortMode: String
-    $aggregationPipeline: [JSON]
+   
+    ${GQL_CURSOR_PARAM_DEFS}
   ) {
-    getCampaigns(
+    couponCampaigns(
       searchValue: $searchValue
       status: $status
-      fromDate: $fromDate
-      toDate: $toDate
-      dateField: $dateField
-      kind: $kind
-      limit: $limit
-      cursor: $cursor
-      cursorMode: $cursorMode
-      direction: $direction
-      orderBy: $orderBy
-      sortMode: $sortMode
-      aggregationPipeline: $aggregationPipeline
+      
+      ${GQL_CURSOR_PARAMS}
     ) {
       list {
         _id
-        name
+        createdAt
+        createdBy
+        modifiedAt
+        modifiedBy
+        title
         description
         startDate
         endDate
+        finishDateOfUse
+        attachment {
+          url
+          name
+          type
+          size
+          duration
+        }
         status
-        type
-        amount
-        createdBy {
-          email
-          details {
-            avatar
-            firstName
-            fullName
-            lastName
-            middleName
-            position
-          }
-        }
-        updatedBy {
-          email
-          details {
-            avatar
-            firstName
-            fullName
-            lastName
-            middleName
-            position
-          }
-        }
-        conditions
         kind
+        value
+        codeRule
+        restrictions
+        redemptionLimitPerUser
+        buyScore
       }
       pageInfo {
         hasNextPage

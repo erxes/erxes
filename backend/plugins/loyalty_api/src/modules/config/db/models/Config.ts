@@ -1,24 +1,20 @@
+import { ILoyaltyConfig, ILoyaltyConfigDocument } from '@/config/@types/config';
+import { loyaltyConfigSchema } from '@/config/db/definitions/config';
 import { Model } from 'mongoose';
-import { ILoyaltyConfig, ILoyaltyConfigDocument } from '~/modules/config/@types/config';
-import { loyaltyConfigSchema } from '../definitions/config';
 import { IModels } from '~/connectionResolvers';
 
-export interface ILoyaltyConfigModel
-  extends Model<ILoyaltyConfigDocument> {
+export interface ILoyaltyConfigModel extends Model<ILoyaltyConfigDocument> {
   getConfig(code: string): Promise<ILoyaltyConfigDocument>;
-
-  createOrUpdateConfig(
-    doc: ILoyaltyConfig,
-  ): Promise<ILoyaltyConfigDocument>;
+  createOrUpdateConfig({ code, value }: ILoyaltyConfig): ILoyaltyConfigDocument;
 }
 
 export const loadLoyaltyConfigClass = (models: IModels) => {
   class LoyaltyConfig {
-    /**
-     * Get config by code
+    /*
+     * Get a Config
      */
     public static async getConfig(code: string) {
-      const config = await models.LoyaltyConfig.findOne({ code }).lean();
+      const config = await models.LoyaltyConfigs.findOne({ code });
 
       if (!config) {
         throw new Error('Config not found');
@@ -35,20 +31,24 @@ export const loadLoyaltyConfigClass = (models: IModels) => {
       value,
     }: {
       code: string;
-      value: any;
+      value: string[];
     }) {
-      return models.LoyaltyConfig.findOneAndUpdate(
-        { code },
-        { $set: { value } },
-        {
-          upsert: true,
-          new: true,
-        },
-      );
+      const obj = await models.LoyaltyConfigs.findOne({ code });
+
+      if (obj) {
+        await models.LoyaltyConfigs.updateOne(
+          { _id: obj._id },
+          { $set: { value } },
+        );
+
+        return models.LoyaltyConfigs.findOne({ _id: obj._id });
+      }
+
+      return models.LoyaltyConfigs.create({ code, value });
     }
   }
 
   loyaltyConfigSchema.loadClass(LoyaltyConfig);
+
   return loyaltyConfigSchema;
 };
-

@@ -1,60 +1,52 @@
 import { gql } from '@apollo/client';
 
-export const addLotteryMutation = gql`
-  mutation CreateCampaign(
-    $name: String!
-    $kind: String!
+export const CREATE_LOTTERY_CAMPAIGN = gql`
+  mutation CreateLotteryCampaign(
+    $title: String
     $description: String
     $startDate: Date
     $endDate: Date
+    $finishDateOfUse: Date
+    $attachment: AttachmentInput
     $status: String
-    $type: String
-    $amount: Float
-    $conditions: JSON
+    $numberFormat: String
+    $buyScore: Float
+    $awards: JSON
   ) {
-    createCampaign(
-      name: $name
-      kind: $kind
+    lotteryCampaignsAdd(
+      title: $title
       description: $description
       startDate: $startDate
       endDate: $endDate
+      finishDateOfUse: $finishDateOfUse
+      attachment: $attachment
       status: $status
-      type: $type
-      amount: $amount
-      conditions: $conditions
+      numberFormat: $numberFormat
+      buyScore: $buyScore
+      awards: $awards
     ) {
       _id
-      name
+      createdAt
+      createdBy
+      modifiedAt
+      modifiedBy
+      title
       description
       startDate
       endDate
+      finishDateOfUse
+      attachment {
+        url
+        name
+        size
+        type
+        __typename
+      }
       status
-      type
-      amount
-      createdBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          position
-        }
-      }
-      updatedBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          position
-        }
-      }
-      conditions
-      kind
+      numberFormat
+      buyScore
+      awards
+      lotteriesCount
     }
   }
 `;

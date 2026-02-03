@@ -1,135 +1,108 @@
 import { Model } from 'mongoose';
 
 import { IModels } from '~/connectionResolvers';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
 
 import {
   ISpinCampaign,
   ISpinCampaignDocument,
 } from '@/spin/@types/spinCampaign';
 
-import { spinCampaignSchema } from '../definitions/spinCampaign';
+import { spinCampaignSchema } from '@/spin/db/definitions/spinCampaign';
+import { CAMPAIGN_STATUS } from '~/constants';
 import { validCampaign } from '~/utils/validCampaign';
 
-/* -------------------- model interface -------------------- */
-
-export interface ISpinCampaignModel
-  extends Model<ISpinCampaignDocument> {
+export interface ISpinCampaignModel extends Model<ISpinCampaignDocument> {
   getSpinCampaign(_id: string): Promise<ISpinCampaignDocument>;
-
-  createSpinCampaign(
-    doc: ISpinCampaign,
-  ): Promise<ISpinCampaignDocument>;
-
+  createSpinCampaign(doc: ISpinCampaign): Promise<ISpinCampaignDocument>;
   updateSpinCampaign(
     _id: string,
     doc: ISpinCampaign,
-  ): Promise<ISpinCampaignDocument | null>;
-
-  removeSpinCampaigns(_ids: string[]): Promise<any>;
+  ): Promise<ISpinCampaignDocument>;
+  removeSpinCampaigns(_ids: string[]): void;
 }
-
-/* -------------------- model loader -------------------- */
 
 export const loadSpinCampaignClass = (models: IModels) => {
   class SpinCampaign {
-    /* ---------- queries ---------- */
-
     public static async getSpinCampaign(_id: string) {
-      const campaign = await models.SpinCampaign.findOne({ _id }).lean();
+      const spinCampaign = await models.SpinCampaigns.findOne({ _id }).lean();
 
-      if (!campaign) {
-        throw new Error('Spin campaign not found');
+      if (!spinCampaign) {
+        throw new Error('not found spin campaign');
       }
 
-      return campaign;
+      return spinCampaign;
     }
 
-    /* ---------- validation ---------- */
-
-    private static validateSpinCampaign(doc: ISpinCampaign) {
+    static async validSpinCampaign(doc) {
       validCampaign(doc);
+      let sumProbability = 0;
+      for (const award of doc.awards) {
+        sumProbability += award.probability;
+      }
 
-      const awards = doc.awards || [];
-      const totalProbability = awards.reduce(
-        (sum, award) => sum + Number(award.probability || 0),
-        0,
-      );
-
-      if (totalProbability !== 100) {
-        throw new Error('Awards probability must sum to exactly 100');
+      if (sumProbability < 0 || sumProbability > 100) {
+        throw new Error('must sum probability has between 0 to 100');
       }
     }
-
-    /* ---------- mutations ---------- */
 
     public static async createSpinCampaign(doc: ISpinCampaign) {
-      this.validateSpinCampaign(doc);
+      try {
+        await this.validSpinCampaign(doc);
+      } catch (e) {
+        throw new Error(e.message);
+      }
 
-      return models.SpinCampaign.create({
+      const modifier = {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-      });
+      };
+
+      return models.SpinCampaigns.create(modifier);
     }
 
-    public static async updateSpinCampaign(
-      _id: string,
-      doc: ISpinCampaign,
-    ) {
-      this.validateSpinCampaign(doc);
+    public static async updateSpinCampaign(_id: string, doc: ISpinCampaign) {
+      try {
+        await this.validSpinCampaign(doc);
+      } catch (e) {
+        throw new Error(e.message);
+      }
 
-      return models.SpinCampaign.findOneAndUpdate(
-        { _id },
-        {
-          $set: {
-            ...doc,
-            modifiedAt: new Date(),
-          },
-        },
-        { new: true },
-      );
+      const modifier = {
+        ...doc,
+        modifiedAt: new Date(),
+      };
+
+      return models.SpinCampaigns.updateOne({ _id }, { $set: modifier });
     }
 
-    public static async removeSpinCampaigns(_ids: string[]) {
-      /**
-       * A spin campaign is considered "used" if:
-       *  - there are Spins created from it
-       */
-      const usedCampaignIds = await models.Spin.distinct('campaignId', {
-        campaignId: { $in: _ids },
-      });
+    public static async removeSpinCampaigns(ids: string[]) {
+      const atSpinIds = await models.Spins.find({
+        campaignId: { $in: ids },
+      }).distinct('campaignId');
 
-      const deletableIds = _ids.filter(
-        (id) => !usedCampaignIds.includes(id),
-      );
+      const atVoucherIds = await models.VoucherCampaigns.find({
+        spinCampaignId: { $in: ids },
+      }).distinct('spinCampaignId');
 
+      const campaignIds = [...atSpinIds, ...atVoucherIds];
+      const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
+
+      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
       const now = new Date();
 
-      // Soft-delete used campaigns
-      if (usedCampaignIds.length) {
-        await models.SpinCampaign.updateMany(
-          { _id: { $in: usedCampaignIds } },
-          {
-            $set: {
-              status: CAMPAIGN_STATUS.INACTIVE,
-              modifiedAt: now,
-            },
-          },
-        );
-      }
+      await models.SpinCampaigns.updateMany(
+        { _id: { $in: usedCampaignIds } },
+        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+      );
 
-      // Hard-delete unused campaigns
-      if (deletableIds.length) {
-        return models.SpinCampaign.deleteMany({
-          _id: { $in: deletableIds },
-        });
-      }
-
-      return { ok: 1 };
+      return models.SpinCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds },
+      });
     }
   }
 
   spinCampaignSchema.loadClass(SpinCampaign);
+
   return spinCampaignSchema;
 };

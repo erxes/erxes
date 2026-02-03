@@ -4,128 +4,115 @@ import {
   IAssignmentCampaignDocument,
 } from '@/assignment/@types/assignmentCampaign';
 import { assignmentCampaignSchema } from '@/assignment/db/definitions/assignmentCampaign';
-import { CAMPAIGN_STATUS } from '@/campaign/constants';
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { CAMPAIGN_STATUS } from '~/constants';
 
 export interface IAssignmentCampaignModel
   extends Model<IAssignmentCampaignDocument> {
   getAssignmentCampaign(_id: string): Promise<IAssignmentCampaignDocument>;
-
   createAssignmentCampaign(
     doc: IAssignmentCampaign,
-    user: IUserDocument,
   ): Promise<IAssignmentCampaignDocument>;
-
   updateAssignmentCampaign(
     _id: string,
     doc: IAssignmentCampaign,
-    user: IUserDocument,
   ): Promise<IAssignmentCampaignDocument>;
-
-  removeAssignmentCampaigns(_ids: string[]): Promise<any>;
-
+  removeAssignmentCampaigns(_ids: string[]): void;
   awardAssignmentCampaign(
     _id: string,
     customerId: string,
-    user: IUserDocument,
   ): Promise<IAssignmentDocument>;
 }
 
 export const loadAssignmentCampaignClass = (models: IModels) => {
   class AssignmentCampaign {
-    /* ---------- queries ---------- */
-
     public static async getAssignmentCampaign(_id: string) {
-      const campaign = await models.AssignmentCampaign.findOne({ _id }).lean();
+      const assignmentCampaign = await models.AssignmentCampaigns.findOne({
+        _id,
+      });
 
-      if (!campaign) {
-        throw new Error('Assignment campaign not found');
+      if (!assignmentCampaign) {
+        throw new Error('not found assignment campaign');
       }
 
-      return campaign;
+      return assignmentCampaign;
     }
 
-    /* ---------- mutations ---------- */
-
-    public static async createAssignmentCampaign(
-      doc: IAssignmentCampaign,
-      user: IUserDocument,
-    ) {
-      return models.AssignmentCampaign.create({
+    public static async createAssignmentCampaign(doc: IAssignmentCampaign) {
+      const modifier = {
         ...doc,
-        createdBy: user._id,
-        updatedBy: user._id,
-      });
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+      };
+
+      return models.AssignmentCampaigns.create(modifier);
     }
 
     public static async updateAssignmentCampaign(
       _id: string,
       doc: IAssignmentCampaign,
-      user: IUserDocument,
     ) {
-      return models.AssignmentCampaign.findOneAndUpdate(
-        { _id },
-        {
-          $set: {
-            ...doc,
-            updatedBy: user._id,
-          },
-        },
-        { new: true },
-      );
+      const modifier = {
+        ...doc,
+        modifiedAt: new Date(),
+      };
+
+      return models.AssignmentCampaigns.updateOne({ _id }, { $set: modifier });
     }
 
     public static async awardAssignmentCampaign(
       _id: string,
       customerId: string,
-      user: IUserDocument,
     ) {
-      const campaign = await this.getAssignmentCampaign(_id);
+      const assignmentCampaign = await models.AssignmentCampaigns.findOne({
+        _id,
+      });
 
-      await models.Voucher.createVoucher(
-        {
-          campaignId: campaign.voucherCampaignId,
-          ownerId: customerId,
-          ownerType: 'customer',
-        },
-        user,
-      );
+      if (!assignmentCampaign) {
+        throw new Error('Not found assignment campaign');
+      }
 
-      return models.Assignment.createAssignment({
-        campaignId: campaign._id,
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: assignmentCampaign.voucherCampaignId,
+        ownerId: customerId,
+        ownerType: 'customer',
+        status: 'new',
+      });
+
+      return await models.Assignments.createAssignment({
+        campaignId: assignmentCampaign._id,
         ownerType: 'customer',
         ownerId: customerId,
-        createdBy: user._id,
+        status: 'new',
+        voucherId: voucher._id,
+        voucherCampaignId: assignmentCampaign.voucherCampaignId,
       });
     }
 
-    public static async removeAssignmentCampaigns(_ids: string[]) {
-      const usedIds = await models.Assignment.find({
-        campaignId: { $in: _ids },
+    public static async removeAssignmentCampaigns(ids: string[]) {
+      const atAssignmentIds = await models.Assignments.find({
+        campaignId: { $in: ids },
       }).distinct('campaignId');
 
-      const deletableIds = _ids.filter(
-        (id) => !usedIds.includes(id),
+      const campaignIds = [...atAssignmentIds];
+
+      const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
+      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const now = new Date();
+
+      await models.AssignmentCampaigns.updateMany(
+        { _id: { $in: usedCampaignIds } },
+        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
       );
 
-      await models.AssignmentCampaign.updateMany(
-        { _id: { $in: usedIds } },
-        {
-          $set: {
-            status: CAMPAIGN_STATUS.INACTIVE,
-            updatedAt: new Date(),
-          },
-        },
-      );
-
-      return models.AssignmentCampaign.deleteMany({
-        _id: { $in: deletableIds },
+      return models.AssignmentCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds },
       });
     }
   }
 
   assignmentCampaignSchema.loadClass(AssignmentCampaign);
+
   return assignmentCampaignSchema;
 };

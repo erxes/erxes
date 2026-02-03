@@ -1,37 +1,26 @@
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonCampaignDocument, ICommonCampaignFields } from '~/utils';
 
-/**
- * Embedded donate award
- */
-export interface IDonateAward {
+export interface IDonateAward extends Document {
   _id: string;
   minScore: number;
   voucherCampaignId: string;
 }
 
-/**
- * Donate campaign base fields
- */
-export interface IDonateCampaign {
-  name: string;
-  description?: string;
-
-  status?: string;
-
+export interface IDonateCampaign extends ICommonCampaignFields {
   awards?: IDonateAward[];
   maxScore?: number;
-
-  createdBy?: string;
-  updatedBy?: string;
 }
 
-/**
- * Donate campaign mongoose document
- */
 export interface IDonateCampaignDocument
   extends IDonateCampaign,
+    ICommonCampaignDocument,
     Document {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface IDonateCampaignParams extends ICursorPaginateParams {
+  status?: string;
+  searchValue?: string;
 }

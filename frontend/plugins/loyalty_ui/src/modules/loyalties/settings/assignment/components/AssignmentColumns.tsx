@@ -1,13 +1,3 @@
-import { ColumnDef } from '@tanstack/table-core';
-import {
-  Badge,
-  Button,
-  RecordTable,
-  RecordTableInlineCell,
-  RelativeDateDisplay,
-} from 'erxes-ui';
-import { IAssignment } from '../types/assignmentTypes';
-import { AssignmentNameCell } from '../assignment-detail/components/AssignmentNameCell';
 import {
   IconCalendar,
   IconCalendarEvent,
@@ -16,6 +6,16 @@ import {
   IconSettings,
   IconTag,
 } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/table-core';
+import {
+  Badge,
+  Button,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+} from 'erxes-ui';
+import { AssignmentNameCell } from '../assignment-detail/components/AssignmentNameCell';
+import { IAssignment } from '../types/assignmentTypes';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -44,9 +44,9 @@ export const assignmentColumns: (
   RecordTable.checkboxColumn as ColumnDef<IAssignment>,
 
   {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <AssignmentNameCell

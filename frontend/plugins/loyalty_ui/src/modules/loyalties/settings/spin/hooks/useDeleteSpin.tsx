@@ -1,21 +1,20 @@
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor } from 'erxes-ui';
-import { getCampaignsQuery } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
+import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
+import { REMOVE_SPIN_CAMPAIGN } from '../graphql/mutations/removeSpinMutations';
 import { SPINS_PER_PAGE } from './useSpins';
-import { removeSpinMutation } from '../graphql/mutations/removeSpinMutations';
 
 export const useDeleteSpin = () => {
   const { cursor } = useRecordTableCursor({
     sessionKey: SPINS_CURSOR_SESSION_KEY,
   });
 
-  const [removeSpin, { loading }] = useMutation(removeSpinMutation, {
+  const [removeSpin, { loading }] = useMutation(REMOVE_SPIN_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
+        query: QUERY_SPIN_CAMPAIGNS,
         variables: {
-          kind: 'spin',
           limit: SPINS_PER_PAGE,
           cursor,
         },
@@ -23,41 +22,40 @@ export const useDeleteSpin = () => {
     ],
     update: (cache, { data }) => {
       try {
-        const deletedCampaignIds = data?.removeCampaign?._id || [];
+        const deletedCampaign = data?.spinCampaignsRemove || {};
 
-        if (!deletedCampaignIds.length) {
+        if (!deletedCampaign) {
           return;
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
+          query: QUERY_SPIN_CAMPAIGNS,
           variables: {
-            kind: 'spin',
             limit: SPINS_PER_PAGE,
             cursor,
           },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.spinCampaigns) {
           return;
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
+          query: QUERY_SPIN_CAMPAIGNS,
           variables: {
-            kind: 'spin',
             limit: SPINS_PER_PAGE,
             cursor,
           },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: existingData.getCampaigns.list.filter(
-                (campaign: any) => !deletedCampaignIds.includes(campaign._id),
+            spinCampaigns: {
+              ...existingData.spinCampaigns,
+              list: existingData.spinCampaigns.list.filter(
+                (campaign: any) =>
+                  !deletedCampaign?._ids?.includes(campaign._id),
               ),
               totalCount: Math.max(
-                (existingData.getCampaigns.totalCount || 0) -
-                  deletedCampaignIds.length,
+                (existingData.spinCampaigns.totalCount || 0) -
+                  deletedCampaign?._ids?.length,
                 0,
               ),
             },

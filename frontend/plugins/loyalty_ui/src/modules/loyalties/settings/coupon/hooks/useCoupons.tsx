@@ -8,9 +8,9 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { ICoupon } from '../types/couponTypes';
 import { COUPONS_CURSOR_SESSION_KEY } from '../constants/couponsCursorSessionKey';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
+import { QUERY_COUPON_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
+import { ICoupon } from '../types/couponTypes';
 
 export const COUPONS_PER_PAGE = 30;
 
@@ -19,23 +19,22 @@ export const useCoupons = (options?: QueryHookOptions) => {
     sessionKey: COUPONS_CURSOR_SESSION_KEY,
   });
   const { data, loading, fetchMore } = useQuery<{
-    getCampaigns: {
+    couponCampaigns: {
       list: ICoupon[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_COUPON_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
       limit: COUPONS_PER_PAGE,
       cursor,
-      kind: 'coupon',
       ...options?.variables,
     },
   });
 
-  const { list: coupons, totalCount, pageInfo } = data?.getCampaigns || {};
+  const { list: coupons, totalCount, pageInfo } = data?.couponCampaigns || {};
 
   const handleFetchMore = ({
     direction,
@@ -64,15 +63,15 @@ export const useCoupons = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
         return {
           ...prev,
-          getCampaigns: {
+          couponCampaigns: {
             ...mergeCursorData({
               direction,
-              fetchMoreResult: fetchMoreResult.getCampaigns,
-              prevResult: prev.getCampaigns,
+              fetchMoreResult: fetchMoreResult.couponCampaigns,
+              prevResult: prev.couponCampaigns,
             }),
             totalCount:
-              fetchMoreResult.getCampaigns.totalCount ??
-              prev.getCampaigns.totalCount,
+              fetchMoreResult.couponCampaigns.totalCount ??
+              prev.couponCampaigns.totalCount,
           },
         };
       },

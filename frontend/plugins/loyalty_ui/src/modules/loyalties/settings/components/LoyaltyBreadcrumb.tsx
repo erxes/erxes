@@ -16,7 +16,7 @@ export const LoyaltyBreadcrumb = () => {
           Settings
         </Button>
         <Separator.Inline />
-        <Button variant="ghost" className="hover:bg-transparent font-semibold">
+        <Button variant="ghost" className="font-semibold">
           {label}
         </Button>
       </div>

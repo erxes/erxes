@@ -1,17 +1,17 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { editLotteryStatusMutation } from '../graphql/mutations/lotteryEditStatusMutations';
-import { getCampaignsQuery } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
+import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
+import { UPDATE_LOTTERY_CAMPAIGN } from '../graphql/mutations/lotteryEditStatusMutations';
 
 export function useLotteryStatusEdit() {
   const { toast } = useToast();
 
   const [editLottery, { loading, error }] = useMutation(
-    editLotteryStatusMutation,
+    UPDATE_LOTTERY_CAMPAIGN,
     {
       refetchQueries: [
         {
-          query: getCampaignsQuery,
+          query: QUERY_LOTTERY_CAMPAIGNS,
         },
       ],
     },
@@ -22,8 +22,7 @@ export function useLotteryStatusEdit() {
 
     return editLottery({
       variables: {
-        id: variables._id,
-        kind: 'lottery',
+        _id: variables._id,
         status: variables.status,
       },
       onCompleted: (data) => {

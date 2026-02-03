@@ -15,8 +15,8 @@ import {
   IconSettings,
   IconTag,
 } from '@tabler/icons-react';
-import { ILottery } from '../types/lotteryTypes';
 import { LotteryNameCell } from '../lottery-detail/components/LotteryNameCell';
+import { ILottery } from '../types/lotteryTypes';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -45,9 +45,9 @@ export const lotteryColumns: (
   RecordTable.checkboxColumn as ColumnDef<ILottery>,
 
   {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <LotteryNameCell

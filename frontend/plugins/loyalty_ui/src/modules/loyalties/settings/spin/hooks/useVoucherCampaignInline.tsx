@@ -1,34 +1,32 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { getCampaignsQuery } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
+import { QUERY_VOUCHER_CAMPAIGNS } from '../../voucher/graphql';
 
 export interface IVoucherCampaignInline {
   _id: string;
-  name: string;
+  title: string;
   description?: string;
   status?: string;
-  kind?: string;
 }
 
 export interface IVoucherCampaignInlineQuery {
-  getCampaigns: { list: IVoucherCampaignInline[] };
+  voucherCampaigns: { list: IVoucherCampaignInline[] };
 }
 
 export const useVoucherCampaignInline = (
   options?: QueryHookOptions<IVoucherCampaignInlineQuery>,
 ) => {
   const { data, loading, error } = useQuery<IVoucherCampaignInlineQuery>(
-    getCampaignsQuery,
+    QUERY_VOUCHER_CAMPAIGNS,
     {
       ...options,
       variables: {
-        kind: 'voucher',
         ...options?.variables,
       },
     },
   );
 
   return {
-    campaignDetail: data?.getCampaigns?.list?.[0],
+    campaignDetail: data?.voucherCampaigns?.list?.[0],
     loading,
     error,
   };

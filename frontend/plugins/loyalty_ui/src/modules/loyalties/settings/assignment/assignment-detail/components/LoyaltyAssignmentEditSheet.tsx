@@ -1,24 +1,24 @@
 import { IconEdit } from '@tabler/icons-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Kbd,
   Sheet,
   usePreviousHotkeyScope,
+  useQueryState,
   useScopedHotkeys,
   useSetHotkeyScope,
-  useQueryState,
 } from 'erxes-ui';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { AssignmentHotKeyScope } from '../../types/AssignmentHotKeyScope';
 
-import { useAssignmentDetailWithQuery } from '../hooks/useAssignmentDetailWithQuery';
 import {
   assignmentFormSchema,
   AssignmentFormValues,
 } from '../../constants/assignmentFormSchema';
+import { useAssignmentDetailWithQuery } from '../hooks/useAssignmentDetailWithQuery';
 import { EditAssignmentTabs } from './EditAssignmentTabs';
 
 type Props = {
@@ -38,17 +38,15 @@ export const LoyaltyAssignmentEditSheet = ({ assignmentId }: Props) => {
     defaultValues: {
       title: '',
       status: 'active',
-      conditions: {
-        voucherCampaignId: '',
-        segmentId: '',
-      },
+      voucherCampaignId: '',
+      segmentIds: [],
     },
   });
 
   useEffect(() => {
     if (assignmentDetail && assignmentDetail._id === editAssignmentId) {
       form.reset({
-        title: assignmentDetail.name || '',
+        title: assignmentDetail.title || '',
         status: assignmentDetail.status || 'active',
         startDate: assignmentDetail.startDate
           ? new Date(assignmentDetail.startDate)
@@ -56,12 +54,8 @@ export const LoyaltyAssignmentEditSheet = ({ assignmentId }: Props) => {
         endDate: assignmentDetail.endDate
           ? new Date(assignmentDetail.endDate)
           : undefined,
-        kind: assignmentDetail.kind || '',
-        conditions: {
-          voucherCampaignId:
-            assignmentDetail.conditions?.voucherCampaignId || '',
-          segmentId: assignmentDetail.conditions?.segmentId || '',
-        },
+        voucherCampaignId: assignmentDetail?.voucherCampaignId || '',
+        segmentIds: assignmentDetail?.segmentIds || [],
       });
     }
   }, [assignmentDetail, editAssignmentId, form]);

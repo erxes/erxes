@@ -34,3 +34,10 @@ export const LOYALTY_CHAR_SET_ADVANCED = {
   '0-Z': '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   '0-zZ': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
 };
+
+export const CAMPAIGN_STATUS = {
+  ACTIVE: 'active',
+  DRAFT: 'draft',
+  TRASH: 'trash',
+  ALL: ['active', 'draft', 'trash'],
+};

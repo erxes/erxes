@@ -8,9 +8,9 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { IAssignment } from '../types/assignmentTypes';
 import { ASSIGNMENTS_CURSOR_SESSION_KEY } from '../constants/assignmentsCursorSessionKey';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
+import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
+import { IAssignment } from '../types/assignmentTypes';
 
 export const ASSIGNMENTS_PER_PAGE = 30;
 
@@ -19,23 +19,26 @@ export const useAssignments = (options?: QueryHookOptions) => {
     sessionKey: ASSIGNMENTS_CURSOR_SESSION_KEY,
   });
   const { data, loading, fetchMore } = useQuery<{
-    getCampaigns: {
+    assignmentCampaigns: {
       list: IAssignment[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_ASSIGNMENT_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
       limit: ASSIGNMENTS_PER_PAGE,
       cursor,
-      kind: 'assignment',
       ...options?.variables,
     },
   });
 
-  const { list: assignments, totalCount, pageInfo } = data?.getCampaigns || {};
+  const {
+    list: assignments,
+    totalCount,
+    pageInfo,
+  } = data?.assignmentCampaigns || {};
 
   const handleFetchMore = ({
     direction,
@@ -64,15 +67,15 @@ export const useAssignments = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
         return {
           ...prev,
-          getCampaigns: {
+          assignmentCampaigns: {
             ...mergeCursorData({
               direction,
-              fetchMoreResult: fetchMoreResult.getCampaigns,
-              prevResult: prev.getCampaigns,
+              fetchMoreResult: fetchMoreResult.assignmentCampaigns,
+              prevResult: prev.assignmentCampaigns,
             }),
             totalCount:
-              fetchMoreResult.getCampaigns.totalCount ??
-              prev.getCampaigns.totalCount,
+              fetchMoreResult.assignmentCampaigns.totalCount ??
+              prev.assignmentCampaigns.totalCount,
           },
         };
       },

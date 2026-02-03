@@ -1,12 +1,12 @@
 import { useQuery } from '@apollo/client';
-import { IDonation } from '../../types/donationTypes';
 import { useQueryState } from 'erxes-ui';
-import { getCampaignQuery } from '../../../voucher/graphql/queries/getCampaignQuery';
+import { QUERY_DONATE_CAMPAIGN } from '../../graphql/queries/getCampaignQuery';
+import { IDonation } from '../../types/donationTypes';
 
 export const useDonationDetailWithQuery = () => {
   const [editDonationId] = useQueryState('editDonationId');
 
-  const { data, loading, error } = useQuery(getCampaignQuery, {
+  const { data, loading, error } = useQuery(QUERY_DONATE_CAMPAIGN, {
     variables: {
       id: editDonationId || '',
     },

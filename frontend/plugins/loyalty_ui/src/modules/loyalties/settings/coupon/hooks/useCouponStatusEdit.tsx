@@ -1,29 +1,25 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
-import { editCouponStatusMutation } from '../graphql/mutations/couponEditStatusMutations';
+import { UPDATE_COUPON_CAMPAIGN } from '../graphql/mutations/couponEditStatusMutations';
+import { QUERY_COUPON_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 
 export function useCouponStatusEdit() {
   const { toast } = useToast();
 
-  const [editCoupon, { loading, error }] = useMutation(
-    editCouponStatusMutation,
-    {
-      refetchQueries: [
-        {
-          query: getCampaignsQuery,
-        },
-      ],
-    },
-  );
+  const [editCoupon, { loading, error }] = useMutation(UPDATE_COUPON_CAMPAIGN, {
+    refetchQueries: [
+      {
+        query: QUERY_COUPON_CAMPAIGNS,
+      },
+    ],
+  });
 
   const editStatus = async (options: MutationHookOptions<any, any>) => {
     const { variables } = options;
 
     return editCoupon({
       variables: {
-        id: variables._id,
-        kind: 'coupon',
+        _id: variables._id,
         status: variables.status,
       },
       onCompleted: (data) => {

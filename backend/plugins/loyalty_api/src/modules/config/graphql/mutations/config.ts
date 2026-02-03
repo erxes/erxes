@@ -1,27 +1,25 @@
 import { IContext } from '~/connectionResolvers';
-import { ILoyaltyConfigDocument } from '~/modules/config/@types/config';
 
 export const loyaltyConfigMutations = {
-  updateLoyaltyConfigs: async (
-    _parent: undefined,
-    { configsMap }: { configsMap: Record<string, any> },
+  async loyaltyConfigsUpdate(
+    _root: undefined,
+    param: { configsMap: Record<string, string> },
     { models }: IContext,
-  ) => {
-    const results: ILoyaltyConfigDocument[] = [];
+  ) {
+    const { configsMap } = param;
 
-    for (const [code, value] of Object.entries(configsMap || {})) {
+    const codes = Object.keys(configsMap);
+
+    for (const code of codes) {
       if (!code) {
         continue;
       }
 
-      const config = await models.LoyaltyConfig.createOrUpdateConfig({
-        code,
-        value,
-      });
+      const value = configsMap[code];
 
-      results.push(config);
+      const doc = { code, value };
+
+      models.LoyaltyConfigs.createOrUpdateConfig(doc);
     }
-
-    return results;
   },
 };

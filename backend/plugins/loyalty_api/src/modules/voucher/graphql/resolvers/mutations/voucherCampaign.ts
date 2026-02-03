@@ -1,29 +1,29 @@
-import { IContext } from '~/connectionResolvers';
 import { IVoucherCampaign } from '@/voucher/@types/voucherCampaign';
+import { IContext } from '~/connectionResolvers';
 
 export const voucherCampaignMutations = {
-  async voucherCampaignAdd(
-    _parent: undefined,
+  async voucherCampaignsAdd(
+    _root: undefined,
     doc: IVoucherCampaign,
     { models }: IContext,
   ) {
-    return models.VoucherCampaign.createVoucherCampaign(doc);
+    return models.VoucherCampaigns.createVoucherCampaign(doc);
   },
 
-  async voucherCampaignEdit(
-    _parent: undefined,
+  async voucherCampaignsEdit(
+    _root: undefined,
     { _id, ...doc }: { _id: string } & IVoucherCampaign,
     { models }: IContext,
   ) {
-    return models.VoucherCampaign.updateVoucherCampaign(_id, doc);
+    return models.VoucherCampaigns.updateVoucherCampaign(_id, doc);
   },
 
   async voucherCampaignsRemove(
-    _parent: undefined,
+    _root: undefined,
     { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    return models.VoucherCampaign.removeVoucherCampaigns(_ids);
+    return models.VoucherCampaigns.removeVoucherCampaigns(_ids);
   },
 };
 

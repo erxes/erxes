@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { editDonationStatusMutation } from '../../graphql/mutations/donationEditStatusMutations';
+import { UPDATE_DONATE_CAMPAIGN } from '../../graphql/mutations/donationEditStatusMutations';
 
 export interface EditDonationVariables {
   id: string;
@@ -11,10 +11,10 @@ export interface EditDonationVariables {
   endDate?: string;
   status?: string;
   type?: string;
-  conditions?: {
+  maxScore?: number;
+  awards?: {
     voucherCampaignId?: string;
     minScore?: number;
-    maxScore?: number;
   };
 }
 
@@ -22,7 +22,7 @@ export const useDonationEdit = () => {
   const { toast } = useToast();
 
   const [donationEdit, { loading }] = useMutation<any, EditDonationVariables>(
-    editDonationStatusMutation,
+    UPDATE_DONATE_CAMPAIGN,
     {
       refetchQueries: ['getCampaigns'],
       onCompleted: () => {

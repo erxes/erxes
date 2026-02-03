@@ -48,7 +48,7 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
       const conditions = voucherDetail.conditions || {};
 
       form.reset({
-        title: voucherDetail.name || '',
+        title: voucherDetail.title || '',
         buyScore: conditions.buyScore?.toString() || '0',
         type: voucherDetail.type || 'Product discount',
         description: voucherDetail.description || '',

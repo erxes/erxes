@@ -19,7 +19,7 @@ export const SpinRecordTable = () => {
       columns={spinColumns(editStatus)}
       data={spins || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

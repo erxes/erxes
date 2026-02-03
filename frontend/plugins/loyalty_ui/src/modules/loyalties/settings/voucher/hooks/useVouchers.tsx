@@ -1,5 +1,4 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -8,9 +7,9 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { IVoucher } from '../types/voucherTypes';
 import { VOUCHERS_CURSOR_SESSION_KEY } from '../constants/vouchersCursorSessionKey';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
+import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
+import { IVoucher } from '../types/voucherTypes';
 
 export const VOUCHERS_PER_PAGE = 30;
 
@@ -19,23 +18,22 @@ export const useVouchers = (options?: QueryHookOptions) => {
     sessionKey: VOUCHERS_CURSOR_SESSION_KEY,
   });
   const { data, loading, fetchMore } = useQuery<{
-    getCampaigns: {
+    voucherCampaigns: {
       list: IVoucher[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_VOUCHER_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
       limit: VOUCHERS_PER_PAGE,
       cursor,
-      kind: 'voucher',
       ...options?.variables,
     },
   });
 
-  const { list: vouchers, totalCount, pageInfo } = data?.getCampaigns || {};
+  const { list: vouchers, totalCount, pageInfo } = data?.voucherCampaigns || {};
 
   const handleFetchMore = ({
     direction,
@@ -63,10 +61,10 @@ export const useVouchers = (options?: QueryHookOptions) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          getCampaigns: mergeCursorData({
+          voucherCampaigns: mergeCursorData({
             direction,
-            fetchMoreResult: fetchMoreResult.getCampaigns,
-            prevResult: prev.getCampaigns,
+            fetchMoreResult: fetchMoreResult.voucherCampaigns,
+            prevResult: prev.voucherCampaigns,
           }),
         });
       },

@@ -8,9 +8,9 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { ISpin } from '../types/spinTypes';
+import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
-import { getCampaignsQuery } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
+import { ISpin } from '../types/spinTypes';
 
 export const SPINS_PER_PAGE = 30;
 
@@ -19,23 +19,22 @@ export const useSpins = (options?: QueryHookOptions) => {
     sessionKey: SPINS_CURSOR_SESSION_KEY,
   });
   const { data, loading, fetchMore } = useQuery<{
-    getCampaigns: {
+    spinCampaigns: {
       list: ISpin[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_SPIN_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
       limit: SPINS_PER_PAGE,
       cursor,
-      kind: 'spin',
       ...options?.variables,
     },
   });
 
-  const { list: spins, totalCount, pageInfo } = data?.getCampaigns || {};
+  const { list: spins, totalCount, pageInfo } = data?.spinCampaigns || {};
 
   const handleFetchMore = ({
     direction,
@@ -63,10 +62,10 @@ export const useSpins = (options?: QueryHookOptions) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          getCampaigns: mergeCursorData({
+          spinCampaigns: mergeCursorData({
             direction,
-            fetchMoreResult: fetchMoreResult.getCampaigns,
-            prevResult: prev.getCampaigns,
+            fetchMoreResult: fetchMoreResult.spinCampaigns,
+            prevResult: prev.spinCampaigns,
           }),
         });
       },

@@ -1,17 +1,17 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { getCampaignsQuery } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
-import { editDonationStatusMutation } from '../graphql/mutations/donationEditStatusMutations';
+import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
+import { UPDATE_DONATE_CAMPAIGN } from '../graphql/mutations/donationEditStatusMutations';
 
 export function useDonationStatusEdit() {
   const { toast } = useToast();
 
   const [editDonation, { loading, error }] = useMutation(
-    editDonationStatusMutation,
+    UPDATE_DONATE_CAMPAIGN,
     {
       refetchQueries: [
         {
-          query: getCampaignsQuery,
+          query: QUERY_DONATE_CAMPAIGNS,
         },
       ],
     },
@@ -23,7 +23,6 @@ export function useDonationStatusEdit() {
     return editDonation({
       variables: {
         id: variables._id,
-        kind: 'donation',
         status: variables.status,
       },
       onCompleted: (data) => {

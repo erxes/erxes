@@ -1,5 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Kbd,
@@ -10,13 +11,12 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { AssignmentHotKeyScope } from '../types/AssignmentHotKeyScope';
 import { AssignmentTabs } from '../add-assignment-campaign/components/AssignmentTabs';
 import {
   assignmentFormSchema,
   AssignmentFormValues,
 } from '../constants/assignmentFormSchema';
+import { AssignmentHotKeyScope } from '../types/AssignmentHotKeyScope';
 
 export const LoyaltyAssignmentAddSheet = () => {
   const setHotkeyScope = useSetHotkeyScope();
@@ -28,10 +28,8 @@ export const LoyaltyAssignmentAddSheet = () => {
     defaultValues: {
       title: '',
       status: 'active',
-      conditions: {
-        voucherCampaignId: '',
-        segmentId: '',
-      },
+      voucherCampaignId: '',
+      segmentIds: [],
     },
   });
 

@@ -37,7 +37,7 @@ const VoucherCampaignInlineProvider = ({
   const contextValue = useMemo(() => {
     const normalizedVoucherCampaignId = Array.isArray(voucherCampaignId)
       ? voucherCampaignId
-      : voucherCampaignId && [voucherCampaignId] || [];
+      : (voucherCampaignId && [voucherCampaignId]) || [];
 
     return {
       voucherCampaigns: voucherCampaigns || selectedVoucherCampaigns,
@@ -46,7 +46,8 @@ const VoucherCampaignInlineProvider = ({
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select voucher campaigns'
         : placeholder,
-      updateVoucherCampaigns: updateVoucherCampaigns || setSelectedVoucherCampaigns,
+      updateVoucherCampaigns:
+        updateVoucherCampaigns || setSelectedVoucherCampaigns,
     };
   }, [
     voucherCampaigns,
@@ -117,7 +118,7 @@ const VoucherCampaignInlineTitle = () => {
     return (
       <TextOverflowTooltip
         value={voucherCampaigns
-          .map((c) => c.name || 'Unnamed Campaign')
+          .map((c) => c.title || 'Unnamed Campaign')
           .join(', ')}
       />
     );
@@ -130,7 +131,9 @@ const VoucherCampaignInlineTitle = () => {
           <span>{`${voucherCampaigns.length} voucher campaigns`}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          {voucherCampaigns.map((c) => c.name || 'Unnamed Campaign').join(', ')}
+          {voucherCampaigns
+            .map((c) => c.title || 'Unnamed Campaign')
+            .join(', ')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

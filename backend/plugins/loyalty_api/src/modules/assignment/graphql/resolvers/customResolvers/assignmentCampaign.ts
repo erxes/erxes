@@ -1,14 +1,14 @@
-import { IContext } from '~/connectionResolvers';
 import { IAssignmentCampaignDocument } from '@/assignment/@types/assignmentCampaign';
+import { IContext } from '~/connectionResolvers';
 
-export const assignmentCampaignResolvers = {
+export default {
   assignmentsCount: async (
-    assignmentCampaign: IAssignmentCampaignDocument,
-    _parent: undefined,
+    { _id }: IAssignmentCampaignDocument,
+    _args: undefined,
     { models }: IContext,
   ) => {
-    return models.Assignment.countDocuments({
-      campaignId: assignmentCampaign._id,
+    return models.Assignments.countDocuments({
+      campaignId: _id,
     });
   },
 };

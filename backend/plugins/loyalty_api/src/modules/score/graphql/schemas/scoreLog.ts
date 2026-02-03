@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type ScoreLogItem {
     _id: String
@@ -27,35 +29,47 @@ export const types = `
     logs: [ScoreLogItem]
     totalScore: Float
   }
-`;
-export const queries = `
-  getScoreLogs(
-    ownerType: String
-    ownerId: String
-    campaignId: String
-    action: String
-    limit: Int
-    cursor: String
-  ): [ScoreLogItem]
 
-  getScoreLogStatistics(
-    ownerType: String
-    ownerId: String
-    campaignId: String
-    action: String
-    fromDate: String
-    toDate: String
-  ): JSON
+  type ScoreLogList {
+    list: [ScoreLog]
+    total: Int
+  }
+
+  type ScoreLogListResponse {
+    list: [ScoreLogItem]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
 `;
+
+const queryParams = `
+  searchValue: String,
+  campaignId: String,
+  ownerType: String,
+  ownerId: String,
+  status: String,
+  action: String,
+  fromDate: String,
+  toDate: String,
+`;
+
+export const queries = `
+  scoreLogs(${queryParams} ${GQL_CURSOR_PARAM_DEFS}): ScoreLogListResponse
+  scoreLogList(${queryParams}): ScoreLogList
+  scoreLogStatistics(${queryParams}): JSON
+`;
+
+const mutationParams = `
+  ownerType: String!
+  ownerId: String!
+  campaignId: String
+  targetId: String
+  action: String!
+  change: Float!
+  description: String
+  serviceName: String
+`;
+
 export const mutations = `
-  changeScore(
-    ownerType: String!
-    ownerId: String!
-    campaignId: String
-    targetId: String
-    action: String!
-    change: Float!
-    description: String
-    serviceName: String
-  ): ScoreLogItem
+  changeScore(${mutationParams}): ScoreLogItem
 `;

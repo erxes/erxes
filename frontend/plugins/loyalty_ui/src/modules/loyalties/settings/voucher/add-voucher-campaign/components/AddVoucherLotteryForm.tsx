@@ -1,9 +1,9 @@
+import { useQuery } from '@apollo/client';
+import { Form, Input, Select } from 'erxes-ui';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Form, Input, Select } from 'erxes-ui';
-import { useQuery } from '@apollo/client';
+import { QUERY_LOTTERY_CAMPAIGNS } from '../../../lottery/add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
-import { getCampaignsQuery } from '../../graphql';
 
 interface AddVoucherLotteryFormProps {
   form: UseFormReturn<VoucherFormValues>;
@@ -12,9 +12,7 @@ interface AddVoucherLotteryFormProps {
 export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
   form,
 }) => {
-  const { data: campaignsData } = useQuery(getCampaignsQuery, {
-    variables: { kind: 'lottery' },
-  });
+  const { data: campaignsData } = useQuery(QUERY_LOTTERY_CAMPAIGNS);
 
   const lotteryCampaigns = campaignsData?.getCampaigns?.list || [];
 
@@ -33,12 +31,12 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
                 >
                   {lotteryCampaigns.find(
                     (campaign: any) => campaign._id === field.value,
-                  )?.name || 'Select lottery'}
+                  )?.title || 'Select lottery'}
                 </Select.Trigger>
                 <Select.Content>
                   {lotteryCampaigns.map((campaign: any) => (
                     <Select.Item key={campaign._id} value={campaign._id}>
-                      {campaign.name}
+                      {campaign.title}
                     </Select.Item>
                   ))}
                 </Select.Content>

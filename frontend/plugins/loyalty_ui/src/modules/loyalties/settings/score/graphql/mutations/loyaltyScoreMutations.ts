@@ -1,62 +1,41 @@
 import { gql } from '@apollo/client';
 
-export const UPDATE_LOYALTY_SCORE = gql`
-  mutation CreateCampaign(
-    $name: String!
-    $kind: String!
+export const CREATE_LOYALTY_SCORE = gql`
+  mutation CreateScoreCampaign(
+    $title: String
     $description: String
+    $add: JSON
+    $subtract: JSON
+    $createdAt: Date
+    $createdUserId: String
     $status: String
-    $startDate: String
-    $endDate: String
-    $type: String
-    $amount: Float
-    $conditions: JSON
+    $ownerType: String
+    $fieldGroupId: String
+    $fieldName: String
+    $fieldId: String
+    $fieldOrigin: String
+    $serviceName: String
+    $additionalConfig: JSON
+    $restrictions: JSON
+    $onlyClientPortal: Boolean
   ) {
-    createCampaign(
-      name: $name
-      kind: $kind
+    scoreCampaignAdd(
+      title: $title
       description: $description
+      add: $add
+      subtract: $subtract
+      createdAt: $createdAt
+      createdUserId: $createdUserId
       status: $status
-      startDate: $startDate
-      endDate: $endDate
-      type: $type
-      amount: $amount
-      conditions: $conditions
-    ) {
-      _id
-      name
-      description
-      status
-      startDate
-      endDate
-      type
-      amount
-      createdBy {
-        email
-        details {
-          avatar
-
-          fullName
-          shortName
-          birthDate
-          firstName
-          middleName
-          lastName
-        }
-      }
-      updatedBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          shortName
-          middleName
-        }
-      }
-      conditions
-      kind
-    }
+      ownerType: $ownerType
+      fieldGroupId: $fieldGroupId
+      fieldName: $fieldName
+      fieldId: $fieldId
+      fieldOrigin: $fieldOrigin
+      serviceName: $serviceName
+      additionalConfig: $additionalConfig
+      restrictions: $restrictions
+      onlyClientPortal: $onlyClientPortal
+    )
   }
 `;

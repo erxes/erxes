@@ -1,12 +1,12 @@
+import { ApolloError } from '@apollo/client';
+import { Button, Form, Sheet, Tabs, useToast } from 'erxes-ui';
 import { useState } from 'react';
-import { Button, Tabs, Form, Sheet, useToast } from 'erxes-ui';
-import { AddCouponCampaignForm } from './AddCouponCampaignForm';
-import { AddCouponRestrictionForm } from './AddCouponRestrictionForm';
 import { UseFormReturn } from 'react-hook-form';
 import { CouponFormValues } from '../../constants/couponFormSchema';
 import { useAddCoupon } from '../../hooks/useAddCoupon';
-import { ApolloError } from '@apollo/client';
+import { AddCouponCampaignForm } from './AddCouponCampaignForm';
 import { AddCouponCodeRuleForm } from './AddCouponCodeRuleForm';
+import { AddCouponRestrictionForm } from './AddCouponRestrictionForm';
 
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -52,43 +52,36 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      name: data.title || '',
-      kind: 'coupon',
+      title: data.title || '',
       description: data.description || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
 
-      conditions: {
-        restrictions: {
-          minimumSpend: data.minimumSpend,
-          maximumSpend: data.maximumSpend,
-          categoryIds: data.categoryIds,
-          excludeCategoryIds: data.excludeCategoryIds,
-          productIds: data.productIds,
-          excludeProductIds: data.excludeProductIds,
-          tag: data.tag,
-          orExcludeTag: data.orExcludeTag,
-        },
-        buyScore: data.buyScore,
-        count: data.count,
-        codeRule: {
-          codeLength: data.codeLength,
-          prefixUppercase: data.prefixUppercase,
-          pattern: data.pattern,
-          redemptionLimitPerUser: data.redemptionLimitPerUser,
-          characterSet: data.characterSet,
-          numberOfCodes: data.numberOfCodes,
-          postfixUppercase: data.postfixUppercase,
-          usageLimit: data.usageLimit,
-          staticCode: data.staticCode,
-        },
+      restrictions: {
+        minimumSpend: data.minimumSpend,
+        maximumSpend: data.maximumSpend,
+        categoryIds: data.categoryIds,
+        excludeCategoryIds: data.excludeCategoryIds,
+        productIds: data.productIds,
+        excludeProductIds: data.excludeProductIds,
+        tag: data.tag,
+        orExcludeTag: data.orExcludeTag,
+      },
+      buyScore: data.buyScore,
+      count: data.count,
+      codeRule: {
+        codeLength: data.codeLength,
+        prefixUppercase: data.prefixUppercase,
+        pattern: data.pattern,
+        redemptionLimitPerUser: data.redemptionLimitPerUser,
+        characterSet: data.characterSet,
+        numberOfCodes: data.numberOfCodes,
+        postfixUppercase: data.postfixUppercase,
+        usageLimit: data.usageLimit,
+        staticCode: data.staticCode,
       },
     };
-
-    if (data?.kind) {
-      variables.conditions[data.kind] = data.count;
-    }
 
     couponAdd({
       variables,

@@ -21,12 +21,11 @@ import {
   types as AssignmentTypes,
 } from '@/assignment/graphql/schemas/assignment';
 
-/* -------------------- Campaign -------------------- */
 import {
-  mutations as CampaignMutations,
-  queries as CampaignQueries,
-  types as CampaignTypes,
-} from '@/campaign/graphql/schemas/campaign';
+  mutations as AssignmentCampaignMutations,
+  queries as AssignmentCampaignQueries,
+  types as AssignmentCampaignTypes,
+} from '@/assignment/graphql/schemas/assignmentCampaign';
 
 /* -------------------- Coupon -------------------- */
 import {
@@ -69,11 +68,16 @@ import {
 
 /* -------------------- Score -------------------- */
 import {
-  mutations as ScoreMutations,
-  queries as ScoreQueries,
-  types as ScoreTypes,
-} from '@/score/graphql/schemas/score';
+  mutations as ScoreLogMutations,
+  queries as ScoreLogQueries,
+  types as ScoreLogTypes,
+} from '@/score/graphql/schemas/scoreLog';
 
+import {
+  mutations as ScoreCampaignMutations,
+  queries as ScoreCampaignQueries,
+  types as ScoreCampaignTypes,
+} from '@/score/graphql/schemas/scoreCampaign';
 
 /* -------------------- Spin -------------------- */
 import {
@@ -88,6 +92,7 @@ import {
   types as SpinCampaignTypes,
 } from '@/spin/graphql/schemas/spinCampaign';
 
+/* -------------------- Voucher -------------------- */
 import {
   mutations as VoucherMutations,
   queries as VoucherQueries,
@@ -100,14 +105,28 @@ import {
   types as VoucherCampaignTypes,
 } from '@/voucher/graphql/schemas/voucherCamapign';
 
+/* -------------------- Loyalty -------------------- */
+import {
+  mutations as LoyaltyConfigMutations,
+  queries as LoyaltyConfigQueries,
+  types as LoyaltyConfigTypes,
+} from '@/config/graphql/schemas/config';
+
+import {
+  mutations as LoyaltyMutations,
+  queries as LoyaltyQueries,
+  types as LoyaltyTypes,
+} from '@/config/graphql/schemas/loyalty';
 
 export const types = `
   ${TypeExtensions}
 
   ${PricingTypes}
+
   ${AgentTypes}
+
   ${AssignmentTypes}
-  ${CampaignTypes}
+  ${AssignmentCampaignTypes}
 
   ${CouponTypes}
   ${CouponCampaignTypes}
@@ -118,20 +137,26 @@ export const types = `
   ${LotteryTypes}
   ${LotteryCampaignTypes}
 
-  ${ScoreTypes}
+  ${ScoreLogTypes}
+  ${ScoreCampaignTypes}
 
   ${SpinTypes}
   ${SpinCampaignTypes}
 
   ${VoucherTypes}
   ${VoucherCampaignTypes}
+
+  ${LoyaltyConfigTypes}
+  ${LoyaltyTypes}
 `;
 
 export const queries = `
   ${PricingQueries}
+
   ${AgentQueries}
+
   ${AssignmentQueries}
-  ${CampaignQueries}
+  ${AssignmentCampaignQueries}
 
   ${CouponQueries}
   ${CouponCampaignQueries}
@@ -142,20 +167,26 @@ export const queries = `
   ${LotteryQueries}
   ${LotteryCampaignQueries}
 
-  ${ScoreQueries}
+  ${ScoreLogQueries}
+  ${ScoreCampaignQueries}
 
   ${SpinQueries}
   ${SpinCampaignQueries}
 
   ${VoucherQueries}
   ${VoucherCampaignQueries}
+
+  ${LoyaltyConfigQueries}
+  ${LoyaltyQueries}
 `;
 
 export const mutations = `
   ${PricingMutations}
+
   ${AgentMutations}
+
   ${AssignmentMutations}
-  ${CampaignMutations}
+  ${AssignmentCampaignMutations}
 
   ${CouponMutations}
   ${CouponCampaignMutations}
@@ -166,13 +197,17 @@ export const mutations = `
   ${LotteryMutations}
   ${LotteryCampaignMutations}
 
-  ${ScoreMutations}
+  ${ScoreLogMutations}
+  ${ScoreCampaignMutations}
 
   ${SpinMutations}
   ${SpinCampaignMutations}
 
   ${VoucherMutations}
   ${VoucherCampaignMutations}
+
+  ${LoyaltyConfigMutations}
+  ${LoyaltyMutations}
 `;
 
 export default { types, queries, mutations };

@@ -1,53 +1,49 @@
-import { IContext } from '~/connectionResolvers';
 import { IScoreCampaign } from '@/score/@types/scoreCampaign';
+import { IContext } from '~/connectionResolvers';
 
 export const scoreCampaignMutations = {
-  createScoreCampaign: async (
-    _parent: undefined,
+  async scoreCampaignAdd(
+    _root: undefined,
     doc: IScoreCampaign,
     { models, user }: IContext,
-  ) => {
-    return models.ScoreCampaign.createScoreCampaign(doc, user);
+  ) {
+    return await models.ScoreCampaigns.createScoreCampaign(doc, user);
   },
 
-  updateScoreCampaign: async (
-    _parent: undefined,
+  async scoreCampaignUpdate(
+    _root: undefined,
     { _id, ...doc }: { _id: string } & IScoreCampaign,
     { models, user }: IContext,
-  ) => {
-    return models.ScoreCampaign.updateScoreCampaign(_id, doc, user);
+  ) {
+    return await models.ScoreCampaigns.updateScoreCampaign(_id, doc, user);
   },
 
-  removeScoreCampaign: async (
-    _parent: undefined,
+  async scoreCampaignRemove(
+    _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
-  ) => {
-    return models.ScoreCampaign.removeScoreCampaign(_id);
+    { models, user }: IContext,
+  ) {
+    return await models.ScoreCampaigns.removeScoreCampaign(_id, user);
   },
 
-  removeScoreCampaigns: async (
-    _parent: undefined,
+  async scoreCampaignsRemove(
+    _root: undefined,
     { _ids }: { _ids: string[] },
-    { models }: IContext,
-  ) => {
-    return models.ScoreCampaign.removeScoreCampaigns(_ids);
+    { models, user }: IContext,
+  ) {
+    return await models.ScoreCampaigns.removeScoreCampaigns(_ids, user);
   },
 
-  refundLoyaltyScore: async (
-    _parent: undefined,
+  async refundLoyaltyScore(
+    _root: undefined,
     {
       ownerId,
       ownerType,
       targetId,
-    }: {
-      ownerId: string;
-      ownerType: string;
-      targetId: string;
-    },
+    }: { ownerId: string; ownerType: string; targetId: string },
     { models }: IContext,
-  ) => {
-    return models.ScoreCampaign.refundLoyaltyScore(
+  ) {
+    return await models.ScoreCampaigns.refundLoyaltyScore(
       targetId,
       ownerType,
       ownerId,

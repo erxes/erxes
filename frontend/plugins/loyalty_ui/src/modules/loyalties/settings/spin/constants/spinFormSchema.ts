@@ -13,14 +13,14 @@ export const spinFormSchema = z.object({
     .union([z.string(), z.date()])
     .refine((val) => val !== '', 'End date is required'),
   kind: z.string().default('voucher'),
+  buyScore: z.number().min(0, 'Max score must be at least 0'),
 
-  conditions: z
+  awards: z
     .array(
       z.object({
         name: z.string().min(1, 'Name is required'),
         voucherCampaignId: z.string().optional(),
         probablity: z.number().min(0, 'Probability must be at least 0'),
-        buyScore: z.number().min(0, 'Max score must be at least 0'),
       }),
     )
     .optional(),

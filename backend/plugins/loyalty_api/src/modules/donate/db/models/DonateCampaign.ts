@@ -1,133 +1,126 @@
-import { Model } from 'mongoose';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { IModels } from '~/connectionResolvers';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
 import {
   IDonateCampaign,
   IDonateCampaignDocument,
-  IDonateAward,
 } from '@/donate/@types/donateCampaign';
 import { donateCampaignSchema } from '@/donate/db/definitions/donateCampaign';
+import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+import { CAMPAIGN_STATUS } from '~/constants';
+import { validCampaign } from '~/utils';
 
-export interface IDonateCampaignModel
-  extends Model<IDonateCampaignDocument> {
+export interface IDonateCampaignModel extends Model<IDonateCampaignDocument> {
   getDonateCampaign(_id: string): Promise<IDonateCampaignDocument>;
-
   createDonateCampaign(
     doc: IDonateCampaign,
-    user: IUserDocument,
+    userId: string,
   ): Promise<IDonateCampaignDocument>;
-
   updateDonateCampaign(
     _id: string,
     doc: IDonateCampaign,
-    user: IUserDocument,
   ): Promise<IDonateCampaignDocument>;
-
-  removeDonateCampaigns(_ids: string[]): Promise<any>;
+  removeDonateCampaigns(_ids: string[]): void;
 }
 
-/* -------------------- helpers -------------------- */
-
-const sortAwards = (awards: IDonateAward[] = []) =>
-  [...awards].sort((a, b) => a.minScore - b.minScore);
-
-/* -------------------- loader -------------------- */
+const getSortAwards = (awards) => {
+  return awards.sort((a, b) => a.minScore - b.minScore);
+};
 
 export const loadDonateCampaignClass = (models: IModels) => {
   class DonateCampaign {
-    /* ---------- queries ---------- */
-
     public static async getDonateCampaign(_id: string) {
-      const campaign = await models.DonateCampaign.findOne({ _id }).lean();
+      const donateCampaign = await models.DonateCampaigns.findOne({ _id });
 
-      if (!campaign) {
-        throw new Error('Donate campaign not found');
+      if (!donateCampaign) {
+        throw new Error('not found donate campaign');
       }
 
-      return campaign;
+      return donateCampaign;
     }
 
-    /* ---------- validation ---------- */
+    static async validDonateCampaign(doc: IDonateCampaign) {
+      validCampaign(doc);
 
-    private static validateCampaign(doc: IDonateCampaign) {
-      const awards = sortAwards(doc.awards || []);
+      const awards = doc.awards || [];
 
       if (
-        typeof doc.maxScore === 'number' &&
+        doc.maxScore &&
         awards.length &&
-        awards[awards.length - 1].minScore > doc.maxScore
+        (awards[awards.length - 1].minScore || 0) > doc.maxScore
       ) {
-        throw new Error('Max score must be greater than award min scores');
+        throw new Error('Max score must be greather than level scores');
       }
 
-      const scores = awards.map((a) => a.minScore);
-      if (scores.length !== new Set(scores).size) {
-        throw new Error('Award minScore values must be unique');
+      const levels = awards.map((a) => a.minScore);
+
+      if (levels.length > [...new Set(levels)].length) {
+        throw new Error('Levels scores must be unique');
       }
     }
-
-    /* ---------- mutations ---------- */
 
     public static async createDonateCampaign(
       doc: IDonateCampaign,
-      user: IUserDocument,
+      userId: string,
     ) {
-      this.validateCampaign(doc);
-
-      return models.DonateCampaign.create({
+      const modifier = {
         ...doc,
-        awards: sortAwards(doc.awards),
-        createdBy: user._id,
-        updatedBy: user._id,
-      });
+        awards: getSortAwards(doc.awards),
+        createdBy: userId,
+        updatedBy: userId,
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+      };
+
+      try {
+        await this.validDonateCampaign(modifier);
+      } catch (e) {
+        throw new Error(e.message);
+      }
+
+      return models.DonateCampaigns.create(modifier);
     }
 
     public static async updateDonateCampaign(
       _id: string,
       doc: IDonateCampaign,
-      user: IUserDocument,
     ) {
-      this.validateCampaign(doc);
+      const modifier = {
+        ...doc,
+        awards: getSortAwards(doc.awards),
+        modifiedAt: new Date(),
+      };
 
-      return models.DonateCampaign.findOneAndUpdate(
-        { _id },
-        {
-          $set: {
-            ...doc,
-            awards: sortAwards(doc.awards),
-            updatedBy: user._id,
-          },
-        },
-        { new: true },
-      );
+      try {
+        await this.validDonateCampaign(modifier);
+      } catch (e) {
+        throw new Error(e.message);
+      }
+
+      return models.DonateCampaigns.updateOne({ _id }, { $set: modifier });
     }
 
-    public static async removeDonateCampaigns(_ids: string[]) {
-      const usedIds = await models.Donate.find({
-        campaignId: { $in: _ids },
+    public static async removeDonateCampaigns(ids: string[]) {
+      const atDonateIds = await models.Donates.find({
+        campaignId: { $in: ids },
       }).distinct('campaignId');
 
-      const deletableIds = _ids.filter(
-        (id) => !usedIds.includes(id),
+      const campaignIds = [...atDonateIds];
+
+      const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
+      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const now = new Date();
+
+      await models.DonateCampaigns.updateMany(
+        { _id: { $in: usedCampaignIds } },
+        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
       );
 
-      await models.DonateCampaign.updateMany(
-        { _id: { $in: usedIds } },
-        {
-          $set: {
-            status: CAMPAIGN_STATUS,
-            updatedAt: new Date(),
-          },
-        },
-      );
-
-      return models.DonateCampaign.deleteMany({
-        _id: { $in: deletableIds },
+      return models.DonateCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds },
       });
     }
   }
 
   donateCampaignSchema.loadClass(DonateCampaign);
+
   return donateCampaignSchema;
 };

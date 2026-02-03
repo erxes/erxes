@@ -1,9 +1,9 @@
+import { Form, Input, Select } from 'erxes-ui';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Form, Input, Select } from 'erxes-ui';
 import { VoucherFormValues } from '../../../constants/voucherFormSchema';
-import { VOUCHER_TYPES } from '../../constants/voucherTypeData';
 import { VOUCHER_KIND_TYPES } from '../../constants/voucherKindTypeData';
+import { VOUCHER_TYPES } from '../../constants/voucherTypeData';
 
 interface VoucherAddCampaignCoreFieldsProps {
   form: UseFormReturn<VoucherFormValues>;
@@ -57,7 +57,7 @@ export const VoucherAddCampaignCoreFields: React.FC<
         />
         <Form.Field
           control={form.control}
-          name="count"
+          name="value"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Count</Form.Label>

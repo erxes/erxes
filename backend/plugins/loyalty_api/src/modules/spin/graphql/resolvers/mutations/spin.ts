@@ -1,41 +1,33 @@
+import { ISpin } from '@/spin/@types/spin';
 import { IContext } from '~/connectionResolvers';
-import { ISpin } from '~/modules/spin/@types/spin';
+import { IBuyParams } from '~/utils';
 
 export const spinsMutations = {
-  async createSpin(_root, doc: ISpin, { models, user }: IContext) {
-    return models.Spin.createSpin(doc, user);
+  async spinsAdd(_root: undefined, doc: ISpin, { models }: IContext) {
+    return models.Spins.createSpin(doc);
   },
 
-  async updateSpin(
-    _parent: undefined,
+  async spinsEdit(
+    _root: undefined,
     { _id, ...doc }: ISpin & { _id: string },
     { models, user }: IContext,
   ) {
-    return models.Spin.updateSpin(_id, doc, user);
+    return models.Spins.updateSpin(_id, { ...doc, userId: user._id });
   },
 
-  async removeSpin(
-    _parent: undefined,
-    { _id }: { _id: string },
+  async spinsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    return models.Spin.removeSpins([_id]);
+    return models.Spins.removeSpins(_ids);
   },
 
-  async buySpin(
-    _parent: undefined,
-    param: {
-      campaignId: string;
-      ownerType: string;
-      ownerId: string;
-      count?: number;
-    },
-    { models, user }: IContext,
-  ) {
-    return models.Spin.buySpin(param, user);
+  async buySpin(_root: undefined, param: IBuyParams, { models }: IContext) {
+    return models.Spins.buySpin(param);
   },
 
-  async doSpin(_parent: undefined, spinId, { models, user }: IContext) {
-    return models.Spin.doSpin(spinId, user);
+  async doSpin(_root: undefined, spinId: string, { models }: IContext) {
+    return models.Spins.doSpin(spinId);
   },
 };

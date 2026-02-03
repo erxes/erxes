@@ -1,12 +1,12 @@
-import { useQuery, QueryHookOptions, OperationVariables } from '@apollo/client';
-import { getCampaignsQuery } from '../add-assignment-campaign/graphql/queries/getCampaignsQuery';
+import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
+import { QUERY_VOUCHER_CAMPAIGNS } from '../../voucher/graphql';
 import { IVoucherCampaign } from '../types/voucherCampaignType';
 
 const CAMPAIGNS_PER_PAGE = 20;
 
 export const useVoucherCampaign = (
   options?: QueryHookOptions<{
-    getCampaigns: {
+    voucherCampaigns: {
       list: IVoucherCampaign[];
       pageInfo: {
         hasNextPage: boolean;
@@ -19,7 +19,7 @@ export const useVoucherCampaign = (
   }>,
 ) => {
   const { data, loading, error, fetchMore } = useQuery<{
-    getCampaigns: {
+    voucherCampaigns: {
       list: IVoucherCampaign[];
       pageInfo: {
         hasNextPage: boolean;
@@ -29,33 +29,32 @@ export const useVoucherCampaign = (
       };
       totalCount: number;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_VOUCHER_CAMPAIGNS, {
     ...options,
     variables: {
-      kind: 'voucher',
       limit: CAMPAIGNS_PER_PAGE,
       ...options?.variables,
     },
   });
 
-  const campaignList = data?.getCampaigns?.list || [];
+  const campaignList = data?.voucherCampaigns?.list || [];
 
   const handleFetchMore = () => {
     fetchMore({
       variables: {
         limit: CAMPAIGNS_PER_PAGE,
-        cursor: data?.getCampaigns?.pageInfo?.endCursor,
+        cursor: data?.voucherCampaigns?.pageInfo?.endCursor,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return {
-          getCampaigns: {
-            ...prev.getCampaigns,
+          voucherCampaigns: {
+            ...prev.voucherCampaigns,
             list: [
-              ...prev.getCampaigns.list,
-              ...fetchMoreResult.getCampaigns.list,
+              ...prev.voucherCampaigns.list,
+              ...fetchMoreResult.voucherCampaigns.list,
             ],
-            pageInfo: fetchMoreResult.getCampaigns.pageInfo,
+            pageInfo: fetchMoreResult.voucherCampaigns.pageInfo,
           },
         };
       },
@@ -67,13 +66,13 @@ export const useVoucherCampaign = (
     loading,
     error,
     handleFetchMore,
-    totalCount: data?.getCampaigns?.totalCount || campaignList.length,
+    totalCount: data?.voucherCampaigns?.totalCount || campaignList.length,
   };
 };
 
 export const useVoucherCampaignByIds = (options: OperationVariables) => {
   const { data, loading, error } = useQuery<{
-    getCampaigns: {
+    voucherCampaigns: {
       list: IVoucherCampaign[];
       pageInfo: {
         hasNextPage: boolean;
@@ -83,18 +82,17 @@ export const useVoucherCampaignByIds = (options: OperationVariables) => {
       };
       totalCount: number;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_VOUCHER_CAMPAIGNS, {
     ...options,
     variables: {
-      kind: 'voucher',
       ...options?.variables,
     },
   });
 
-  const { getCampaigns } = data || {};
+  const { voucherCampaigns } = data || {};
 
   return {
-    campaignDetail: getCampaigns?.list?.[0],
+    campaignDetail: voucherCampaigns?.list?.[0],
     loading,
     error,
   };

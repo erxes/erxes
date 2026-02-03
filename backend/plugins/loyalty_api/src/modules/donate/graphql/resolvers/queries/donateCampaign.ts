@@ -1,15 +1,14 @@
+import {
+  IDonateCampaignDocument,
+  IDonateCampaignParams,
+} from '@/donate/@types/donateCampaign';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-
-export interface IDonateCampaignParams {
-  status?: string;
-  searchValue?: string;
-  limit?: number;
-  cursor?: string;
-}
+import { CAMPAIGN_STATUS } from '~/constants';
 
 const generateFilter = (params: IDonateCampaignParams) => {
-  const filter: any = {};
+  const filter: FilterQuery<IDonateCampaignDocument> = {};
 
   if (params.searchValue) {
     filter.name = new RegExp(params.searchValue, 'i');
@@ -23,25 +22,39 @@ const generateFilter = (params: IDonateCampaignParams) => {
 };
 
 export const donateCampaignQueries = {
-  getDonateCampaigns: async (
-    _parent: undefined,
+  async donateCampaigns(
+    _root: undefined,
     params: IDonateCampaignParams,
     { models }: IContext,
-  ) => {
-    const filter = generateFilter(params);
+  ) {
+    const filter: FilterQuery<IDonateCampaignDocument> = generateFilter(params);
 
     return cursorPaginate({
-      model: models.DonateCampaign,
+      model: models.DonateCampaigns,
       params,
       query: filter,
     });
   },
 
-  getDonateCampaignDetail: async (
-    _parent: undefined,
+  async cpDonateCampaigns(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    const now = new Date();
+
+    return models.DonateCampaigns.find({
+      status: CAMPAIGN_STATUS.ACTIVE,
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    }).sort({ modifiedAt: -1 });
+  },
+
+  async donateCampaignDetail(
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
-  ) => {
-    return models.DonateCampaign.getDonateCampaign(_id);
+  ) {
+    return models.DonateCampaigns.getDonateCampaign(_id);
   },
 };

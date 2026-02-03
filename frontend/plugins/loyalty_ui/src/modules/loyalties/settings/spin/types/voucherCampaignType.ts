@@ -1,6 +1,6 @@
 export interface IVoucherCampaign {
   _id: string;
-  name?: string;
+  title?: string;
   description?: string;
   status?: string;
   kind?: string;

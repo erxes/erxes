@@ -1,21 +1,17 @@
+import {
+  ISpinCampaignDocument,
+  ISpinCampaignParams,
+} from '@/spin/@types/spinCampaign';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
-
-export interface ISpinCampaignParams {
-  searchValue?: string;
-  status?: string;
-  limit?: number;
-  cursor?: string;
-}
-
-/* -------------------- filter -------------------- */
+import { CAMPAIGN_STATUS } from '~/constants';
 
 const generateFilter = (params: ISpinCampaignParams) => {
-  const filter: any = {};
+  const filter: FilterQuery<ISpinCampaignDocument> = {};
 
   if (params.searchValue) {
-    filter.title = new RegExp(params.searchValue, 'i');
+    filter.title = new RegExp(params.searchValue);
   }
 
   if (params.status) {
@@ -25,39 +21,37 @@ const generateFilter = (params: ISpinCampaignParams) => {
   return filter;
 };
 
-/* -------------------- queries -------------------- */
-
 export const spinCampaignQueries = {
-  getSpinCampaigns: async (
-    _parent: undefined,
+  async spinCampaigns(
+    _root: undefined,
     params: ISpinCampaignParams,
     { models }: IContext,
-  ) => {
-    const filter = generateFilter(params);
+  ) {
+    const filter: FilterQuery<ISpinCampaignDocument> = generateFilter(params);
 
     return cursorPaginate({
-      model: models.SpinCampaign,
+      model: models.SpinCampaigns,
       params,
       query: filter,
     });
   },
 
-  getSpinCampaignDetail: async (
-    _parent: undefined,
+  async spinCampaignDetail(
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
-  ) => {
-    return models.SpinCampaign.getSpinCampaign(_id);
+  ) {
+    return models.SpinCampaigns.getSpinCampaign(_id);
   },
 
-  getActiveSpinCampaigns: async (
-    _parent: undefined,
+  async cpSpinCampaigns(
+    _root: undefined,
     _args: undefined,
     { models }: IContext,
-  ) => {
+  ) {
     const now = new Date();
 
-    return models.SpinCampaign.find({
+    return models.SpinCampaigns.find({
       status: CAMPAIGN_STATUS.ACTIVE,
       startDate: { $lte: now },
       endDate: { $gte: now },

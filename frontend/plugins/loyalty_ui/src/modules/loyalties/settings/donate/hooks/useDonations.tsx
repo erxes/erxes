@@ -8,9 +8,9 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { IDonation } from '../types/donationTypes';
+import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
 import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
-import { getCampaignsQuery } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
+import { IDonation } from '../types/donationTypes';
 
 export const DONATIONS_PER_PAGE = 30;
 
@@ -19,23 +19,22 @@ export const useDonations = (options?: QueryHookOptions) => {
     sessionKey: DONATIONS_CURSOR_SESSION_KEY,
   });
   const { data, loading, fetchMore } = useQuery<{
-    getCampaigns: {
+    donateCampaigns: {
       list: IDonation[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_DONATE_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
       limit: DONATIONS_PER_PAGE,
       cursor,
-      kind: 'donation',
       ...options?.variables,
     },
   });
 
-  const { list: donations, totalCount, pageInfo } = data?.getCampaigns || {};
+  const { list: donations, totalCount, pageInfo } = data?.donateCampaigns || {};
 
   const handleFetchMore = ({
     direction,
@@ -64,15 +63,15 @@ export const useDonations = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
         return {
           ...prev,
-          getCampaigns: {
+          donateCampaigns: {
             ...mergeCursorData({
               direction,
-              fetchMoreResult: fetchMoreResult.getCampaigns,
-              prevResult: prev.getCampaigns,
+              fetchMoreResult: fetchMoreResult.donateCampaigns,
+              prevResult: prev.donateCampaigns,
             }),
             totalCount:
-              fetchMoreResult.getCampaigns.totalCount ??
-              prev.getCampaigns.totalCount,
+              fetchMoreResult.donateCampaigns.totalCount ??
+              prev.donateCampaigns.totalCount,
           },
         };
       },

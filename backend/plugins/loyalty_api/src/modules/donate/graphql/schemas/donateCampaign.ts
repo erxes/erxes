@@ -1,11 +1,8 @@
-import {
-  commonCampaignInputs,
-  commonCampaignTypes,
-  commonFilterTypes,
-  paginateTypes
-} from '~/utils/common';
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import { commonCampaignInputs, commonCampaignTypes } from '~/utils/common';
+
 export const types = `
-  type DonateCampaign @key(fields: "_id"){
+  type DonateCampaign @key(fields: "_id") {
     _id: String,
     ${commonCampaignTypes}
 
@@ -14,23 +11,35 @@ export const types = `
 
     donatesCount: Int,
   }
+
+  type DonateCampaignListResponse {
+    list: [DonateCampaign]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+`;
+
+const queryParams = `
+  searchValue: String
+  status: String
+
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
+  donateCampaigns(${queryParams}): DonateCampaignListResponse
   donateCampaignDetail(_id: String!): DonateCampaign
-  donateCampaigns(${commonFilterTypes} ${paginateTypes}): [DonateCampaign]
   cpDonateCampaigns: [DonateCampaign]
-  donateCampaignsCount(${commonFilterTypes}): Int
 `;
 
-const DonateCampaignDoc = `
+const mutationParams = `
   ${commonCampaignInputs}
   maxScore: Float
   awards: JSON
 `;
 
 export const mutations = `
-  donateCampaignsAdd(${DonateCampaignDoc}): DonateCampaign
-  donateCampaignsEdit(_id: String!, ${DonateCampaignDoc}): DonateCampaign
+  donateCampaignsAdd(${mutationParams}): DonateCampaign
+  donateCampaignsEdit(_id: String!, ${mutationParams}): DonateCampaign
   donateCampaignsRemove(_ids: [String]): JSON
 `;

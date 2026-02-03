@@ -1,8 +1,8 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
-import { addCouponMutation } from '../graphql/mutations/CouponMutations';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
 import { COUPONS_CURSOR_SESSION_KEY } from '../constants/couponsCursorSessionKey';
+import { CREATE_COUPON_CAMPAIGN } from '../graphql/mutations/CouponMutations';
+import { QUERY_COUPON_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 import { COUPONS_PER_PAGE } from './useCoupons';
 
 export interface AddCouponResult {
@@ -47,11 +47,11 @@ export const useAddCoupon = () => {
   const [addCoupon, { loading, error }] = useMutation<
     AddCouponResult,
     AddCouponVariables
-  >(addCouponMutation, {
+  >(CREATE_COUPON_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
-        variables: { kind: 'coupon', limit: COUPONS_PER_PAGE, cursor },
+        query: QUERY_COUPON_CAMPAIGNS,
+        variables: { limit: COUPONS_PER_PAGE, cursor },
       },
     ],
     update: (cache, { data }) => {
@@ -63,22 +63,22 @@ export const useAddCoupon = () => {
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
-          variables: { kind: 'coupon', limit: COUPONS_PER_PAGE, cursor },
+          query: QUERY_COUPON_CAMPAIGNS,
+          variables: { limit: COUPONS_PER_PAGE, cursor },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.couponCampaigns) {
           return;
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
-          variables: { kind: 'coupon', limit: COUPONS_PER_PAGE, cursor },
+          query: QUERY_COUPON_CAMPAIGNS,
+          variables: { limit: COUPONS_PER_PAGE, cursor },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: [newCampaign, ...existingData.getCampaigns.list],
-              totalCount: (existingData.getCampaigns.totalCount || 0) + 1,
+            couponCampaigns: {
+              ...existingData.couponCampaigns,
+              list: [newCampaign, ...existingData.couponCampaigns.list],
+              totalCount: (existingData.couponCampaigns.totalCount || 0) + 1,
             },
           },
         });

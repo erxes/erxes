@@ -1,12 +1,12 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
-import { addVoucherMutation } from '../graphql/mutations/VoucherMutations';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
 import { VOUCHERS_CURSOR_SESSION_KEY } from '../constants/vouchersCursorSessionKey';
+import { CREATE_VOUCHER_CAMPAIGN } from '../graphql/mutations/VoucherMutations';
+import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 import { VOUCHERS_PER_PAGE } from './useVouchers';
 
 export interface AddVoucherResult {
-  createCampaign: any;
+  voucherCampaignsAdd: any;
 }
 
 export interface AddVoucherVariables {
@@ -45,38 +45,38 @@ export const useAddVoucher = () => {
   const [addVoucher, { loading, error }] = useMutation<
     AddVoucherResult,
     AddVoucherVariables
-  >(addVoucherMutation, {
+  >(CREATE_VOUCHER_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
-        variables: { kind: 'voucher', limit: VOUCHERS_PER_PAGE, cursor },
+        query: QUERY_VOUCHER_CAMPAIGNS,
+        variables: { limit: VOUCHERS_PER_PAGE, cursor },
       },
     ],
     update: (cache, { data }) => {
       try {
-        const newCampaign = data?.createCampaign;
+        const newCampaign = data?.voucherCampaignsAdd;
 
         if (!newCampaign) {
           return;
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
-          variables: { kind: 'voucher', limit: VOUCHERS_PER_PAGE, cursor },
+          query: QUERY_VOUCHER_CAMPAIGNS,
+          variables: { limit: VOUCHERS_PER_PAGE, cursor },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.voucherCampaigns) {
           return;
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
-          variables: { kind: 'voucher', limit: VOUCHERS_PER_PAGE, cursor },
+          query: QUERY_VOUCHER_CAMPAIGNS,
+          variables: { limit: VOUCHERS_PER_PAGE, cursor },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: [newCampaign, ...existingData.getCampaigns.list],
-              totalCount: (existingData.getCampaigns.totalCount || 0) + 1,
+            voucherCampaigns: {
+              ...existingData.voucherCampaigns,
+              list: [newCampaign, ...existingData.voucherCampaigns.list],
+              totalCount: (existingData.voucherCampaigns.totalCount || 0) + 1,
             },
           },
         });

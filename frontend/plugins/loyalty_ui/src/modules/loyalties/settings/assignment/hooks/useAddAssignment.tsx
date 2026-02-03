@@ -1,8 +1,8 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
-import { addAssignmentMutation } from '../graphql/mutations/AssignmentMutations';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
 import { ASSIGNMENTS_CURSOR_SESSION_KEY } from '../constants/assignmentsCursorSessionKey';
+import { CREATE_ASSIGNMENT_CAMPAIGN } from '../graphql/mutations/AssignmentMutations';
+import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 import { ASSIGNMENTS_PER_PAGE } from './useAssignments';
 
 export interface AddAssignmentResult {
@@ -10,16 +10,15 @@ export interface AddAssignmentResult {
 }
 
 export interface AddAssignmentVariables {
-  name: string;
-  kind: string;
+  title?: string;
+  description?: string;
   status?: string;
   startDate?: Date;
   endDate?: Date;
-  title?: string;
-  conditions?: {
-    voucherCampaignId?: string;
-    segmentId?: string;
-  };
+  finishDateOfUse?: Date;
+  attachment?: string;
+  voucherCampaignId?: string;
+  segmentIds?: string[];
 }
 
 export const useAddAssignment = () => {
@@ -30,11 +29,11 @@ export const useAddAssignment = () => {
   const [addAssignment, { loading, error }] = useMutation<
     AddAssignmentResult,
     AddAssignmentVariables
-  >(addAssignmentMutation, {
+  >(CREATE_ASSIGNMENT_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
-        variables: { kind: 'assignment', limit: ASSIGNMENTS_PER_PAGE, cursor },
+        query: QUERY_ASSIGNMENT_CAMPAIGNS,
+        variables: { limit: ASSIGNMENTS_PER_PAGE, cursor },
       },
     ],
     update: (cache, { data }) => {
@@ -46,9 +45,8 @@ export const useAddAssignment = () => {
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
+          query: QUERY_ASSIGNMENT_CAMPAIGNS,
           variables: {
-            kind: 'assignment',
             limit: ASSIGNMENTS_PER_PAGE,
             cursor,
           },
@@ -59,9 +57,8 @@ export const useAddAssignment = () => {
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
+          query: QUERY_ASSIGNMENT_CAMPAIGNS,
           variables: {
-            kind: 'assignment',
             limit: ASSIGNMENTS_PER_PAGE,
             cursor,
           },

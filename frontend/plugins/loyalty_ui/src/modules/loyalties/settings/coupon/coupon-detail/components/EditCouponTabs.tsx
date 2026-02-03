@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Button, Tabs, Form, Sheet, useToast } from 'erxes-ui';
-import { AddCouponCampaignForm } from '../../add-coupon-campaign/components/AddCouponCampaignForm';
-import { AddCouponRestrictionForm } from '../../add-coupon-campaign/components/AddCouponRestrictionForm';
-import { UseFormReturn } from 'react-hook-form';
-import { CouponFormValues } from '../../constants/couponFormSchema';
-import { useCouponEdit } from '../hooks/useCouponEdit';
 import { ApolloError } from '@apollo/client';
-import { useCouponDetailWithQuery } from '../hooks/useCouponDetailWithQuery';
+import { Button, Form, Sheet, Tabs, useToast } from 'erxes-ui';
+import { useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { AddCouponCampaignForm } from '../../add-coupon-campaign/components/AddCouponCampaignForm';
 import { AddCouponCodeRuleForm } from '../../add-coupon-campaign/components/AddCouponCodeRuleForm';
+import { AddCouponRestrictionForm } from '../../add-coupon-campaign/components/AddCouponRestrictionForm';
+import { CouponFormValues } from '../../constants/couponFormSchema';
+import { useCouponDetailWithQuery } from '../hooks/useCouponDetailWithQuery';
+import { useCouponEdit } from '../hooks/useCouponEdit';
 
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -57,43 +57,36 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      id: couponDetail._id,
-      name: data.title || '',
-      kind: 'coupon',
+      _idid: couponDetail._id,
+      title: data.title || '',
       description: data.description || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
 
-      conditions: {
-        restrictions: {
-          minimumSpend: data.minimumSpend,
-          maximumSpend: data.maximumSpend,
-          categoryIds: data.categoryIds,
-          excludeCategoryIds: data.excludeCategoryIds,
-          productIds: data.productIds,
-          excludeProductIds: data.excludeProductIds,
-          tag: data.tag,
-          orExcludeTag: data.orExcludeTag,
-        },
-        buyScore: data.buyScore,
-        count: data.count,
-        codeRule: {
-          codeLength: data.codeLength,
-          prefixUppercase: data.prefixUppercase,
-          pattern: data.pattern,
-          redemptionLimitPerUser: data.redemptionLimitPerUser,
-          characterSet: data.characterSet,
-          numberOfCodes: data.numberOfCodes,
-          postfixUppercase: data.postfixUppercase,
-          usageLimit: data.usageLimit,
-        },
+      restrictions: {
+        minimumSpend: data.minimumSpend,
+        maximumSpend: data.maximumSpend,
+        categoryIds: data.categoryIds,
+        excludeCategoryIds: data.excludeCategoryIds,
+        productIds: data.productIds,
+        excludeProductIds: data.excludeProductIds,
+        tag: data.tag,
+        orExcludeTag: data.orExcludeTag,
+      },
+      buyScore: data.buyScore,
+      count: data.count,
+      codeRule: {
+        codeLength: data.codeLength,
+        prefixUppercase: data.prefixUppercase,
+        pattern: data.pattern,
+        redemptionLimitPerUser: data.redemptionLimitPerUser,
+        characterSet: data.characterSet,
+        numberOfCodes: data.numberOfCodes,
+        postfixUppercase: data.postfixUppercase,
+        usageLimit: data.usageLimit,
       },
     };
-
-    if (data?.kind) {
-      variables.conditions[data.kind] = data.count;
-    }
 
     couponEdit({
       variables,

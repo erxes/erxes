@@ -1,34 +1,24 @@
-import { IContext } from '~/connectionResolvers';
 import { ILotteryDocument } from '@/lottery/@types/lottery';
+import { IContext } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils/getOwner';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export default {
   async owner(
-    lottery: ILotteryDocument,
+    { ownerType, ownerId }: ILotteryDocument,
     _args: undefined,
     { subdomain }: IContext,
   ) {
     return getLoyaltyOwner(subdomain, {
-      ownerType: lottery.ownerType,
-      ownerId: lottery.ownerId,
+      ownerType,
+      ownerId,
     });
   },
 
   async campaign(
-    lottery: ILotteryDocument,
+    { campaignId }: ILotteryDocument,
     _args: undefined,
-    { subdomain }: IContext,
+    { models }: IContext,
   ) {
-    return sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      method: 'query',
-      module: 'campaign',
-      action: 'findOne',
-      input: {
-        _id: lottery.campaignId,
-      },
-    });
+    return models.LotteryCampaigns.findOne({ _id: campaignId }).lean();
   },
 };

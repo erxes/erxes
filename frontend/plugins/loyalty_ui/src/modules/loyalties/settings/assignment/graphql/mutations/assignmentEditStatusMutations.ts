@@ -1,62 +1,56 @@
 import { gql } from '@apollo/client';
 
-export const editAssignmentStatusMutation = gql`
-  mutation UpdateCampaign(
-    $id: String!
-    $name: String
-    $kind: String!
+export const UPDATE_ASSIGNMENT_CAMPAIGN = gql`
+  mutation UpdateAssignmentCampaign(
+    $_id: String!
+    $title: String
     $description: String
     $startDate: Date
     $endDate: Date
+    $finishDateOfUse: Date
+    $attachment: AttachmentInput
     $status: String
-    $type: String
-    $amount: Float
-    $conditions: JSON
+    $fieldId: String
+    $allowMultiWin: Boolean
+    $segmentIds: [String]
+    $voucherCampaignId: String
   ) {
-    updateCampaign(
-      _id: $id
-      name: $name
-      kind: $kind
+    assignmentCampaignsEdit(
+      _id: $_id
+      title: $title
       description: $description
       startDate: $startDate
       endDate: $endDate
+      finishDateOfUse: $finishDateOfUse
+      attachment: $attachment
       status: $status
-      type: $type
-      amount: $amount
-      conditions: $conditions
+      fieldId: $fieldId
+      segmentIds: $segmentIds
+      allowMultiWin: $allowMultiWin
+      voucherCampaignId: $voucherCampaignId
     ) {
       _id
-      name
+      createdAt
+      createdBy
+      modifiedAt
+      modifiedBy
+      title
       description
       startDate
       endDate
+      finishDateOfUse
+      attachment {
+        url
+        name
+        size
+        type
+        __typename
+      }
       status
-      type
-      amount
-      createdBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          position
-        }
-      }
-      updatedBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          position
-          middleName
-        }
-      }
-      conditions
-      kind
+      fieldId
+      allowMultiWin
+      segmentIds
+      voucherCampaignId
     }
   }
 `;

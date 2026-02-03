@@ -1,64 +1,20 @@
-import { Schema } from 'mongoose';
 import { schemaWrapper } from 'erxes-api-shared/utils';
-import { LOYALTY_STATUSES } from '~/constants';
+import { Schema } from 'mongoose';
+import { commonCampaignSchema } from '~/utils';
 
-/**
- * Embedded donate award schema
- */
-export const donateAwardSchema = new Schema({
-  minScore: {
-    type: Number,
-    label: 'Min score',
-    required: true,
+export const donateAwardSchema = new Schema(
+  {
+    minScore: { type: Number, label: 'Min score' },
+    voucherCampaignId: { type: String, label: 'Voucher campaign' },
   },
+  { _id: false },
+);
 
-  voucherCampaignId: {
-    type: String,
-    label: 'Voucher campaign',
-    required: true,
-  },
-});
-/**
- * Donate campaign schema
- */
 export const donateCampaignSchema = schemaWrapper(
-  new Schema(
-    {
-      name: {
-        type: String,
-        label: 'Name',
-      },
+  new Schema({
+    ...commonCampaignSchema,
 
-      description: {
-        type: String,
-        label: 'Description',
-        optional: true,
-      },
-
-      status: {
-        type: String,
-        label: 'Status',
-        enum: LOYALTY_STATUSES.ALL,
-        default: LOYALTY_STATUSES.ACTIVE,
-      },
-
-      awards: {
-        type: [donateAwardSchema],
-        label: 'Awards',
-        optional: true,
-      },
-
-      maxScore: {
-        type: Number,
-        label: 'Max score',
-        optional: true,
-      },
-
-      createdBy: { type: String, label: 'Created by' },
-      updatedBy: { type: String, label: 'Updated by' },
-    },
-    {
-      timestamps: true,
-    },
-  ),
+    awards: { type: [donateAwardSchema], label: 'Awards' },
+    maxScore: { type: Number },
+  }),
 );

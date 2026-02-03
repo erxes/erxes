@@ -1,9 +1,5 @@
-import {
-  commonCampaignInputs,
-  commonCampaignTypes,
-  commonFilterTypes,
-  paginateTypes
-} from '~/utils/common';
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import { commonCampaignInputs, commonCampaignTypes } from '~/utils/common';
 
 export const types = `
   type SpinCampaign @key(fields: "_id") {
@@ -15,23 +11,36 @@ export const types = `
 
     spinsCount: Int,
   }
+
+  type SpinCampaignListResponse {
+    list: [SpinCampaign]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+`;
+
+const queryParams = `
+  searchValue: String
+  status: String
+
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
+  spinCampaigns(${queryParams}): SpinCampaignListResponse
   spinCampaignDetail(_id: String!): SpinCampaign
-  spinCampaigns(${commonFilterTypes} ${paginateTypes}): [SpinCampaign]
   cpSpinCampaigns: [SpinCampaign]
-  spinCampaignsCount(${commonFilterTypes}): Int
 `;
 
-const SpinCampaignDoc = `
+const mutationParams = `
   ${commonCampaignInputs}
+  
   buyScore: Float,
   awards: JSON
 `;
 
 export const mutations = `
-  spinCampaignsAdd(${SpinCampaignDoc}): SpinCampaign
-  spinCampaignsEdit(_id: String!, ${SpinCampaignDoc}): SpinCampaign
+  spinCampaignsAdd(${mutationParams}): SpinCampaign
+  spinCampaignsEdit(_id: String!, ${mutationParams}): SpinCampaign
   spinCampaignsRemove(_ids: [String]): JSON
 `;

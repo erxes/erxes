@@ -37,16 +37,16 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
 
     const variables: any = {
       _id: spinId,
-      name: data.title || '',
-      kind: 'spin',
+      title: data.title || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-      conditions: data.conditions?.map((condition) => ({
-        name: condition.name,
-        voucherCampaignId: condition.voucherCampaignId,
-        probablity: condition.probablity,
-        buyScore: condition.buyScore,
+      buyScore: data.buyScore,
+
+      awards: data.awards?.map((award) => ({
+        name: award.name,
+        voucherCampaignId: award.voucherCampaignId,
+        probablity: award.probablity,
       })),
     };
 

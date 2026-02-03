@@ -1,8 +1,8 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
-import { addDonationMutation } from '../graphql/mutations/DonationMutations';
-import { getCampaignsQuery } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
+import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
 import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
+import { CREATE_DONATE_CAMPAIGN } from '../graphql/mutations/DonationMutations';
 import { DONATIONS_PER_PAGE } from './useDonations';
 
 export interface AddDonationResult {
@@ -11,16 +11,13 @@ export interface AddDonationResult {
 
 export interface AddDonationVariables {
   name: string;
-  kind: string;
   status?: string;
   startDate?: string;
   endDate?: string;
   title?: string;
-  conditions?: {
-    voucherCampaignId?: string;
-    minScore?: number;
-    maxScore?: number;
-  };
+  voucherCampaignId?: string;
+  minScore?: number;
+  maxScore?: number;
 }
 
 export const useAddDonation = () => {
@@ -31,11 +28,11 @@ export const useAddDonation = () => {
   const [addDonation, { loading, error }] = useMutation<
     AddDonationResult,
     AddDonationVariables
-  >(addDonationMutation, {
+  >(CREATE_DONATE_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
-        variables: { kind: 'donation', limit: DONATIONS_PER_PAGE, cursor },
+        query: QUERY_DONATE_CAMPAIGNS,
+        variables: { limit: DONATIONS_PER_PAGE, cursor },
       },
     ],
     update: (cache, { data }) => {
@@ -47,30 +44,28 @@ export const useAddDonation = () => {
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
+          query: QUERY_DONATE_CAMPAIGNS,
           variables: {
-            kind: 'donation',
             limit: DONATIONS_PER_PAGE,
             cursor,
           },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.donateCampaigns) {
           return;
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
+          query: QUERY_DONATE_CAMPAIGNS,
           variables: {
-            kind: 'donation',
             limit: DONATIONS_PER_PAGE,
             cursor,
           },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: [newCampaign, ...existingData.getCampaigns.list],
-              totalCount: (existingData.getCampaigns.totalCount || 0) + 1,
+            donateCampaigns: {
+              ...existingData.donateCampaigns,
+              list: [newCampaign, ...existingData.donateCampaigns.list],
+              totalCount: (existingData.donateCampaigns.totalCount || 0) + 1,
             },
           },
         });

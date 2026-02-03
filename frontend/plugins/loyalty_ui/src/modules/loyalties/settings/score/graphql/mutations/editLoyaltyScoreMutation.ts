@@ -1,61 +1,60 @@
 import { gql } from '@apollo/client';
 
-export const editLoyaltyScoreMutation = gql`
-  mutation updateCampaign(
-    $_id: String!
-    $name: String
-    $kind: String!
+export const UPDATE_SCORE_CAMPAIGN = gql`
+  mutation updateScoreCampaign(
+    $_id: String
+    $title: String
     $description: String
-    $startDate: Date
-    $endDate: Date
+    $add: JSON
+    $subtract: JSON
+    $createdAt: Date
+    $createdUserId: String
     $status: String
-    $type: String
-    $amount: Float
-    $conditions: JSON
+    $ownerType: String
+    $fieldGroupId: String
+    $fieldName: String
+    $fieldId: String
+    $fieldOrigin: String
+    $serviceName: String
+    $additionalConfig: JSON
+    $restrictions: JSON
+    $onlyClientPortal: Boolean
   ) {
-    updateCampaign(
+    scoreCampaignUpdate(
       _id: $_id
-      name: $name
-      kind: $kind
+      title: $title
       description: $description
-      startDate: $startDate
-      endDate: $endDate
+      add: $add
+      subtract: $subtract
+      createdAt: $createdAt
+      createdUserId: $createdUserId
       status: $status
-      type: $type
-      amount: $amount
-      conditions: $conditions
+      ownerType: $ownerType
+      fieldGroupId: $fieldGroupId
+      fieldName: $fieldName
+      fieldId: $fieldId
+      fieldOrigin: $fieldOrigin
+      serviceName: $serviceName
+      additionalConfig: $additionalConfig
+      restrictions: $restrictions
+      onlyClientPortal: $onlyClientPortal
     ) {
       _id
-      name
+      title
       description
-      startDate
-      endDate
+      add
+      subtract
+      createdAt
+      createdUserId
       status
-      type
-      amount
-      createdBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          position
-        }
-      }
-      updatedBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          position
-        }
-      }
-      conditions
-      kind
+      ownerType
+      fieldGroupId
+      fieldName
+      fieldId
+      serviceName
+      additionalConfig
+      restrictions
+      onlyClientPortal
     }
   }
 `;

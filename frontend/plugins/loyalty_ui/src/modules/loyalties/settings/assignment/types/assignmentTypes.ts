@@ -1,6 +1,6 @@
 export interface IAssignment {
   _id: string;
-  name: string;
+  title: string;
   description?: string;
   startDate?: string;
   endDate?: string;
@@ -29,6 +29,6 @@ export interface IAssignment {
       position?: string;
     };
   };
-  conditions?: any;
-  kind?: string;
+  voucherCampaignId?: string;
+  segmentIds?: string[];
 }

@@ -1,9 +1,9 @@
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { Button, Form, Input } from 'erxes-ui';
 import React from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { Button, Form, Input } from 'erxes-ui';
-import { LotteryFormValues } from '../../../constants/lotteryFormSchema';
 import { SelectVoucherCampaign } from '../../../components/selects/SelectVoucherCampaign';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { LotteryFormValues } from '../../../constants/lotteryFormSchema';
 
 interface LotteryAddCampaignCoreFieldsProps {
   form: UseFormReturn<LotteryFormValues>;
@@ -15,7 +15,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
   const { control } = form;
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'conditions',
+    name: 'awards',
   });
 
   return (
@@ -36,7 +36,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
         />
         <Form.Field
           control={form.control}
-          name={`conditions.0.buyScore`}
+          name={`buyScore`}
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Buy Score</Form.Label>
@@ -61,7 +61,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
               <div className="grid grid-cols-3 gap-4 ">
                 <Form.Field
                   control={form.control}
-                  name={`conditions.${index}.name`}
+                  name={`awards.${index}.name`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Name</Form.Label>
@@ -74,7 +74,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
                 />
                 <Form.Field
                   control={form.control}
-                  name={`conditions.${index}.voucherCampaignId`}
+                  name={`awards.${index}.voucherCampaignId`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Voucher Campaign</Form.Label>
@@ -90,7 +90,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
                 />
                 <Form.Field
                   control={form.control}
-                  name={`conditions.${index}.probablity`}
+                  name={`awards.${index}.probablity`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Probablity</Form.Label>
@@ -127,7 +127,6 @@ export const LotteryAddCampaignCoreFields: React.FC<
             append({
               name: '',
               probablity: 0,
-              buyScore: 0,
               voucherCampaignId: '',
             })
           }

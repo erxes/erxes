@@ -1,17 +1,17 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { editVoucherStatusMutation } from '../graphql/mutations/voucherEditStatusMutations';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
+import { UPDATE_VOUCHER_CAMPAIGN } from '../graphql/mutations/voucherEditStatusMutations';
+import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 
 export function useVoucherStatusEdit() {
   const { toast } = useToast();
 
   const [editVoucher, { loading, error }] = useMutation(
-    editVoucherStatusMutation,
+    UPDATE_VOUCHER_CAMPAIGN,
     {
       refetchQueries: [
         {
-          query: getCampaignsQuery,
+          query: QUERY_VOUCHER_CAMPAIGNS,
         },
       ],
     },
@@ -22,8 +22,7 @@ export function useVoucherStatusEdit() {
 
     return editVoucher({
       variables: {
-        id: variables._id,
-        kind: 'voucher',
+        _id: variables._id,
         status: variables.status,
       },
       onCompleted: (data) => {

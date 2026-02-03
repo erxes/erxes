@@ -1,5 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Kbd,
@@ -10,10 +11,9 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { SpinHotKeyScope } from '../types/SpinHotKeyScope';
 import { SpinTabs } from '../add-spin-campaign/components/SpinTabs';
 import { spinFormSchema, SpinFormValues } from '../constants/spinFormSchema';
+import { SpinHotKeyScope } from '../types/SpinHotKeyScope';
 
 export const LoyaltySpinAddSheet = () => {
   const setHotkeyScope = useSetHotkeyScope();
@@ -25,12 +25,13 @@ export const LoyaltySpinAddSheet = () => {
     defaultValues: {
       title: '',
       status: 'active',
-      conditions: [
+      buyScore: 0,
+
+      awards: [
         {
           name: '',
           voucherCampaignId: '',
           probablity: 0,
-          buyScore: 0,
         },
       ],
     },

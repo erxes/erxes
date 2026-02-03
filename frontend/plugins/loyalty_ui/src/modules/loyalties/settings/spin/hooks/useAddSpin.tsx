@@ -1,12 +1,12 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
-import { addSpinMutation } from '../graphql/mutations/SpinMutations';
-import { getCampaignsQuery } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
+import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
+import { CREATE_SPIN_CAMPAIGN } from '../graphql/mutations/SpinMutations';
 import { SPINS_PER_PAGE } from './useSpins';
 
 export interface AddSpinResult {
-  createCampaign: any;
+  spinCampaignsAdd: any;
 }
 
 export interface AddSpinVariables {
@@ -16,12 +16,12 @@ export interface AddSpinVariables {
   startDate?: string;
   endDate?: string;
   title?: string;
-  conditions?: {
+  buyScore?: number;
+  awards?: Array<{
     name?: string;
     voucherCampaignId?: string;
     probablity?: string;
-    buyScore?: number;
-  };
+  }>;
 }
 
 export const useAddSpin = () => {
@@ -32,46 +32,44 @@ export const useAddSpin = () => {
   const [addSpin, { loading, error }] = useMutation<
     AddSpinResult,
     AddSpinVariables
-  >(addSpinMutation, {
+  >(CREATE_SPIN_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
-        variables: { kind: 'spin', limit: SPINS_PER_PAGE, cursor },
+        query: QUERY_SPIN_CAMPAIGNS,
+        variables: { limit: SPINS_PER_PAGE, cursor },
       },
     ],
     update: (cache, { data }) => {
       try {
-        const newCampaign = data?.createCampaign;
+        const newCampaign = data?.spinCampaignsAdd;
 
         if (!newCampaign) {
           return;
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
+          query: QUERY_SPIN_CAMPAIGNS,
           variables: {
-            kind: 'spin',
             limit: SPINS_PER_PAGE,
             cursor,
           },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.spinCampaigns) {
           return;
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
+          query: QUERY_SPIN_CAMPAIGNS,
           variables: {
-            kind: 'spin',
             limit: SPINS_PER_PAGE,
             cursor,
           },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: [newCampaign, ...existingData.getCampaigns.list],
-              totalCount: (existingData.getCampaigns.totalCount || 0) + 1,
+            spinCampaigns: {
+              ...existingData.spinCampaigns,
+              list: [newCampaign, ...existingData.spinCampaigns.list],
+              totalCount: (existingData.spinCampaigns.totalCount || 0) + 1,
             },
           },
         });

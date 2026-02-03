@@ -1,9 +1,9 @@
-import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
+import { Button, Form, Sheet, useToast } from 'erxes-ui';
+import { UseFormReturn } from 'react-hook-form';
+import { LotteryFormValues } from '../../constants/lotteryFormSchema';
 import { useAddLottery } from '../../hooks/useAddLottery';
 import { AddLotteryCampaignForm } from './AddLotteryCampaignForm';
-import { LotteryFormValues } from '../../constants/lotteryFormSchema';
-import { UseFormReturn } from 'react-hook-form';
 
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -26,16 +26,15 @@ export const LotteryTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      name: data.title || '',
-      kind: 'lottery',
+      title: data.title || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-      conditions: data.conditions?.map((condition) => ({
-        name: condition.name,
-        probablity: condition.probablity,
-        voucherCampaignId: condition.voucherCampaignId,
-        buyScore: condition.buyScore,
+      buyScore: data.buyScore,
+      awards: data.awards?.map((award) => ({
+        name: award.name,
+        probablity: award.probablity,
+        voucherCampaignId: award.voucherCampaignId,
       })),
     };
 

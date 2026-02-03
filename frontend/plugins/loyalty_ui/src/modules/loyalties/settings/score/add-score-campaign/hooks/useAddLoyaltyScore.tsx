@@ -1,17 +1,16 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { LOYALTY_SCORE_CURSOR_SESSION_KEY } from '../../constants/loyaltyScoreCursorSessionKey';
 import { LOYALTY_SCORE_CAMPAIGN_QUERY } from '../../graphql/queries/loyaltyScoreCampaignQuery';
-import { LOYALTY_SCORE_ADD_MUTATION } from '../graphql/mutations/loyaltyScoreAddMutation';
+import { CREATE_SCORE_CAMPAIGN } from '../graphql/mutations/loyaltyScoreAddMutation';
 
 export interface AddScoreResult {
-  createCampaign: any;
+  scoreCampaignAdd: any;
 }
 
 export interface AddScoreVariables {
   name: string;
-  kind: string;
-  conditions: {
+  restrictions: {
     productCategoryIds?: string;
     excludeProductCategoryIds?: string;
     productIds?: string;
@@ -27,19 +26,20 @@ export const useAddScore = () => {
   const { cursor } = useRecordTableCursor({
     sessionKey: LOYALTY_SCORE_CURSOR_SESSION_KEY,
   });
+
   const [addScore, { loading, error }] = useMutation<
     AddScoreResult,
     AddScoreVariables
-  >(LOYALTY_SCORE_ADD_MUTATION, {
+  >(CREATE_SCORE_CAMPAIGN, {
     refetchQueries: [
       {
         query: LOYALTY_SCORE_CAMPAIGN_QUERY,
-        variables: { kind: 'score', limit: SCORE_PER_PAGE, cursor },
+        variables: { limit: SCORE_PER_PAGE, cursor },
       },
     ],
     update: (cache, { data }) => {
       try {
-        const newCampaign = data?.createCampaign;
+        const newCampaign = data?.scoreCampaignAdd;
 
         if (!newCampaign) {
           return;
@@ -47,21 +47,21 @@ export const useAddScore = () => {
 
         const existingData: any = cache.readQuery({
           query: LOYALTY_SCORE_CAMPAIGN_QUERY,
-          variables: { kind: 'score', limit: SCORE_PER_PAGE, cursor },
+          variables: { limit: SCORE_PER_PAGE, cursor },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.scoreCampaigns) {
           return;
         }
 
         cache.writeQuery({
           query: LOYALTY_SCORE_CAMPAIGN_QUERY,
-          variables: { kind: 'score', limit: SCORE_PER_PAGE, cursor },
+          variables: { limit: SCORE_PER_PAGE, cursor },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: [newCampaign, ...existingData.getCampaigns.list],
-              totalCount: (existingData.getCampaigns.totalCount || 0) + 1,
+            scoreCampaigns: {
+              ...existingData.scoreCampaigns,
+              list: [newCampaign, ...existingData.scoreCampaigns.list],
+              totalCount: (existingData.scoreCampaigns.totalCount || 0) + 1,
             },
           },
         });

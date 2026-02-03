@@ -1,150 +1,159 @@
-import { Model } from 'mongoose';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { IModels } from '~/connectionResolvers';
-import { LOYALTY_STATUSES } from '~/constants';
 import { ILottery } from '@/lottery/@types/lottery';
 import {
   ILotteryCampaign,
   ILotteryCampaignDocument,
 } from '@/lottery/@types/lotteryCampaign';
-import { lotteryCampaignSchema } from '../definitions/lotteryCampaign';
-import { randomBetween } from '~/utils';
+import { LOTTERY_STATUS } from '@/lottery/constants';
+import { lotteryCampaignSchema } from '@/lottery/db/definitions/lotteryCampaign';
+import { getRandomNumber } from '@/lottery/utils';
+import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+import { CAMPAIGN_STATUS } from '~/constants';
+import { randomBetween, validCampaign } from '~/utils';
 
-export interface ILotteryCampaignModel
-  extends Model<ILotteryCampaignDocument> {
+export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   getLotteryCampaign(_id: string): Promise<ILotteryCampaignDocument>;
-
   createLotteryCampaign(
     doc: ILotteryCampaign,
-    user: IUserDocument,
   ): Promise<ILotteryCampaignDocument>;
-
   updateLotteryCampaign(
     _id: string,
-    doc: Partial<ILotteryCampaign>,
-    user: IUserDocument,
+    doc: ILotteryCampaign,
   ): Promise<ILotteryCampaignDocument>;
-
-  removeLotteryCampaign(_id: string): Promise<{ ok: number }>;
-
-  doLottery(
-    params: { campaignId: string; awardId: string },
-    user: IUserDocument,
-  ): Promise<ILottery>;
-
-  multipleDoLottery(
-    params: { campaignId: string; awardId: string; multiple: number },
-    user: IUserDocument,
-  ): Promise<any>;
-
-  getNextChar(
-    params: { campaignId: string; awardId: string; prevChars: string },
-    user: IUserDocument,
-  ): Promise<any>;
+  removeLotteryCampaigns(_ids: string[]): void;
+  doLottery({
+    campaignId,
+    awardId,
+  }: {
+    campaignId: string;
+    awardId: string;
+  }): Promise<ILottery>;
+  getNextChar({
+    campaignId,
+    awardId,
+    prevChars,
+  }: {
+    campaignId: string;
+    awardId: string;
+    prevChars: string;
+  }): Promise<any>;
+  multipleDoLottery({ campaignId, awardId, multiple }): Promise<any>;
 }
 
 export const loadLotteryCampaignClass = (models: IModels) => {
   class LotteryCampaign {
-    /* -------------------- basic CRUD -------------------- */
-
     public static async getLotteryCampaign(_id: string) {
-      const campaign = await models.LotteryCampaign.findOne({ _id });
+      const lotteryCampaign = await models.LotteryCampaigns.findOne({ _id });
 
-      if (!campaign) {
-        throw new Error('Lottery campaign not found');
+      if (!lotteryCampaign) {
+        throw new Error('not found lottery campaign');
       }
 
-      return campaign;
+      return lotteryCampaign;
     }
 
-    public static async createLotteryCampaign(
-      doc: ILotteryCampaign,
-      user: IUserDocument,
-    ) {
-      const now = new Date();
+    static async validLotteryCampaign(doc) {
+      validCampaign(doc);
+    }
 
-      return models.LotteryCampaign.create({
+    public static async createLotteryCampaign(doc: ILotteryCampaign) {
+      try {
+        await this.validLotteryCampaign(doc);
+      } catch (e) {
+        throw new Error(e.message);
+      }
+
+      const modifier = {
         ...doc,
-        status: doc.status || LOYALTY_STATUSES.ACTIVE,
-        createdAt: now,
-        updatedAt: now,
-        createdBy: user._id,
-      });
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+      };
+
+      return models.LotteryCampaigns.create(modifier);
     }
 
     public static async updateLotteryCampaign(
       _id: string,
-      doc: Partial<ILotteryCampaign>,
-      user: IUserDocument,
+      doc: ILotteryCampaign,
     ) {
-      await this.getLotteryCampaign(_id);
+      try {
+        await this.validLotteryCampaign(doc);
+      } catch (e) {
+        throw new Error(e.message);
+      }
 
-      return models.LotteryCampaign.updateOne(
-        { _id },
-        {
-          $set: {
-            ...doc,
-            updatedAt: new Date(),
-            updatedBy: user._id,
-          },
-        },
+      const modifier = {
+        ...doc,
+        modifiedAt: new Date(),
+      };
+
+      return models.LotteryCampaigns.updateOne({ _id }, { $set: modifier });
+    }
+
+    public static async removeLotteryCampaigns(ids: string[]) {
+      const atLotteryIds = await models.Lotteries.find({
+        campaignId: { $in: ids },
+      }).distinct('campaignId');
+
+      const atVoucherIds = await models.VoucherCampaigns.find({
+        lotteryCampaignId: { $in: ids },
+      }).distinct('lotteryCampaignId');
+
+      const campaignIds = [...atLotteryIds, ...atVoucherIds];
+
+      const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
+      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const now = new Date();
+
+      await models.LotteryCampaigns.updateMany(
+        { _id: { $in: usedCampaignIds } },
+        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
       );
+
+      return models.LotteryCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds },
+      });
     }
 
-    public static async removeLotteryCampaign(_id: string) {
-      return models.LotteryCampaign.deleteOne({ _id });
-    }
-
-    /* -------------------- lottery logic -------------------- */
-
-    static async validDoLottery(campaignId: string, awardId: string) {
-      const campaign = (await this.getLotteryCampaign(campaignId)).toObject();
-
+    static async validDoLottery(campaignId, awardId) {
+      const campaign = await (
+        await models.LotteryCampaigns.getLotteryCampaign(campaignId)
+      ).toObject();
       const award = campaign.awards.find((a) => a._id === awardId);
-
       if (!award) {
-        throw new Error('Award not found');
+        throw new Error('not found award');
       }
 
       if ((award.wonLotteryIds || []).length >= award.count) {
-        throw new Error('This award is fully claimed');
+        throw new Error('this award is fully');
       }
 
       return { campaign, award };
     }
 
-    static async setLuckyLottery(
-      campaign,
-      award,
-      luckyLottery,
-      user: IUserDocument,
-    ) {
+    static async setLuckyLottery(campaign, award, luckyLottery) {
       const awards = campaign.awards.map((a) =>
         a._id === award._id
           ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] }
           : a,
       );
 
-      await models.LotteryCampaign.updateOne(
+      await models.LotteryCampaigns.updateOne(
         { _id: campaign._id },
         { awards },
       );
 
-      const voucher = await models.Voucher.createVoucher(
-        {
-          campaignId: award.voucherCampaignId,
-          ownerType: luckyLottery.ownerType,
-          ownerId: luckyLottery.ownerId,
-        },
-        user,
-      );
-
-      await models.Lottery.updateOne(
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: award.voucherCampaignId,
+        ownerType: luckyLottery.ownerType,
+        ownerId: luckyLottery.ownerId,
+      });
+      await models.Lotteries.updateOne(
         { _id: luckyLottery._id },
         {
           $set: {
             usedAt: new Date(),
-            status: LOYALTY_STATUSES.WON,
+            status: LOTTERY_STATUS.WON,
             voucherId: voucher._id,
             awardId: award._id,
           },
@@ -152,93 +161,93 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       );
     }
 
-    public static async doLottery(
-      { campaignId, awardId },
-      user: IUserDocument,
-    ) {
-      const { campaign, award } = await this.validDoLottery(
-        campaignId,
-        awardId,
-      );
-
-      const filter = {
-        campaignId,
-        status: LOYALTY_STATUSES.NEW,
-      };
-
-      const count = await models.Lottery.find(filter).countDocuments();
-      const random = Math.floor(randomBetween(0, count));
-
-      const luckyLottery = await models.Lottery.findOne(filter)
-        .skip(random)
-        .lean();
-
-      if (!luckyLottery) {
-        throw new Error('Lucky lottery not found');
-      }
-
-      await this.setLuckyLottery(campaign, award, luckyLottery, user);
-
-      return models.Lottery.getLottery(luckyLottery._id.toString());
-    }
-
-    public static async multipleDoLottery(
-      { campaignId, awardId, multiple },
-      user: IUserDocument,
-    ) {
-      Array.from(new Array(Number.parseInt(multiple)), async () => {
-        await this.doLottery({ campaignId, awardId }, user);
+    public static async multipleDoLottery({ campaignId, awardId, multiple }) {
+      Array.from(Array(parseInt(multiple)), async (e, i) => {
+        try {
+          await this.doLottery({ campaignId, awardId });
+        } catch (error) {
+          throw new Error(error.message);
+        }
         return true;
       });
     }
 
-    public static async getNextChar(
-      { campaignId, awardId, prevChars },
-      user: IUserDocument,
-    ) {
+    public static async doLottery({ campaignId, awardId }) {
       const { campaign, award } = await this.validDoLottery(
         campaignId,
         awardId,
       );
 
-      const randomNumber = campaign.numberFormat;
+      const filter = { campaignId, status: LOTTERY_STATUS.NEW };
+      const lotteriesCount = await models.Lotteries.find(
+        filter,
+      ).countDocuments();
+
+      const random = Math.floor(randomBetween(0, lotteriesCount));
+
+      const luckyLottery = await models.Lotteries.findOne(filter)
+        .skip(random)
+        .lean();
+
+      if (!luckyLottery) {
+        throw new Error('not found lucky lottery');
+      }
+
+      await this.setLuckyLottery(campaign, award, luckyLottery);
+
+      return models.Lotteries.getLottery(luckyLottery._id);
+    }
+
+    public static async getNextChar({ campaignId, awardId, prevChars }) {
+      const { campaign, award } = await this.validDoLottery(
+        campaignId,
+        awardId,
+      );
+
+      const randomNumber = getRandomNumber(campaign.numberFormat);
+
       const nextChar = randomNumber.substring(
         prevChars.length,
         prevChars.length + 1,
       );
-
       const afterChars = `${prevChars}${nextChar}`;
-
       const filter = {
         campaignId,
-        status: LOYALTY_STATUSES.NEW,
+        status: LOTTERY_STATUS.NEW,
         formatNumber: new RegExp(`^${afterChars}.*`, 'g'),
       };
 
-      const count = await models.Lottery.find(filter).countDocuments();
+      const fitLotteriesCount = await models.Lotteries.find(
+        filter,
+      ).countDocuments();
 
-      if (count === 1) {
-        const luckyLottery = await models.Lottery.findOne(filter).lean();
+      if (fitLotteriesCount === 1) {
+        const luckyLottery = (await models.Lotteries.findOne(filter)) || {};
 
-        await this.setLuckyLottery(campaign, award, luckyLottery, user);
+        await this.setLuckyLottery(campaign, award, luckyLottery);
 
         return {
           nextChar,
           afterChars,
-          fitLotteriesCount: count,
-          luckyLottery,
+          fitLotteriesCount,
+          luckyLottery: await models.Lotteries.findOne({
+            _id: (luckyLottery as any)._id,
+          }).lean(),
         };
       }
+
+      const fitLotteries = await models.Lotteries.find(filter).limit(10).lean();
 
       return {
         nextChar,
         afterChars,
-        fitLotteriesCount: count,
-        fitLotteries: await models.Lottery.find(filter).limit(10).lean(),
+        fitLotteriesCount,
+        fitLotteries,
       };
     }
   }
 
   lotteryCampaignSchema.loadClass(LotteryCampaign);
+
   return lotteryCampaignSchema;
 };

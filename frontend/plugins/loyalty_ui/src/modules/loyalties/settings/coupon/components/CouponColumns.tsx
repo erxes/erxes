@@ -46,9 +46,9 @@ export const couponColumns: (
   RecordTable.checkboxColumn as ColumnDef<ICoupon>,
 
   {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <CouponNameCell
@@ -90,8 +90,8 @@ export const couponColumns: (
     size: 150,
   },
   {
-    id: 'type',
-    accessorKey: 'type',
+    id: 'kind',
+    accessorKey: 'kind',
     header: () => <RecordTable.InlineHead icon={IconTicket} label="Type" />,
     cell: ({ cell }: { cell: any }) => {
       return (

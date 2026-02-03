@@ -20,7 +20,7 @@ export const ScoreRecordTable = () => {
       columns={scoreColumns(editStatus)}
       data={campaigns || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

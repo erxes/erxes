@@ -1,10 +1,6 @@
-import { Document } from 'mongoose';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import {
-  ICommonCampaignFields,
-  ICommonCampaignDocument,
-} from '~/utils/common';
-
+import { Document } from 'mongoose';
+import { ICommonCampaignDocument, ICommonCampaignFields } from '~/utils/common';
 
 export interface IVoucherCampaign extends ICommonCampaignFields {
   buyScore: number;
@@ -31,11 +27,8 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
 
   kind: 'amount' | 'percent';
   value: number;
-
   restrictions: any;
 }
-
-/* -------------------- mongoose document -------------------- */
 
 export interface IVoucherCampaignDocument
   extends IVoucherCampaign,
@@ -43,8 +36,6 @@ export interface IVoucherCampaignDocument
     Document {
   _id: string;
 }
-
-/* -------------------- query params -------------------- */
 
 export interface IVoucherCampaignParams extends ICursorPaginateParams {
   searchValue?: string;

@@ -46,9 +46,9 @@ export const voucherColumns: (
   RecordTable.checkboxColumn as ColumnDef<IVoucher>,
 
   {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <VoucherNameCell
@@ -90,8 +90,8 @@ export const voucherColumns: (
     size: 150,
   },
   {
-    id: 'type',
-    accessorKey: 'type',
+    id: 'voucherType',
+    accessorKey: 'voucherType',
     header: () => <RecordTable.InlineHead icon={IconTicket} label="Type" />,
     cell: ({ cell }: { cell: any }) => {
       return (

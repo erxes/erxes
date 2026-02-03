@@ -1,9 +1,5 @@
-import {
-  commonCampaignInputs,
-  commonCampaignTypes,
-  commonFilterTypes,
-  paginateTypes
-} from '~/utils/common';
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import { commonCampaignInputs, commonCampaignTypes } from '~/utils/common';
 
 export const types = `
   type VoucherCampaign @key(fields: "_id") {
@@ -38,16 +34,30 @@ export const types = `
     value: Float
     restrictions: JSON
   }
+
+  type VoucherCampaignListResponse {
+    list: [VoucherCampaign]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+`;
+
+const queryParams = `
+  searchValue: String,
+  status: String,
+  equalTypeCampaignId: String,
+  voucherType: String,
+  
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
+  voucherCampaigns(${queryParams}): VoucherCampaignListResponse
   voucherCampaignDetail(_id: String): VoucherCampaign
-  voucherCampaigns(${commonFilterTypes} ${paginateTypes} equalTypeCampaignId: String voucherType: String): [VoucherCampaign]
   cpVoucherCampaigns: [VoucherCampaign]
-  voucherCampaignsCount(${commonFilterTypes}): Int
 `;
 
-const VoucherCampaignDoc = `
+const mutationParams = `
   ${commonCampaignInputs}
   buyScore: Float,
 
@@ -77,7 +87,7 @@ const VoucherCampaignDoc = `
 `;
 
 export const mutations = `
-  voucherCampaignsAdd(${VoucherCampaignDoc}): VoucherCampaign
-  voucherCampaignsEdit(_id: String!, ${VoucherCampaignDoc}): VoucherCampaign
+  voucherCampaignsAdd(${mutationParams}): VoucherCampaign
+  voucherCampaignsEdit(_id: String!, ${mutationParams}): VoucherCampaign
   voucherCampaignsRemove(_ids: [String]): JSON
 `;

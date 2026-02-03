@@ -56,7 +56,7 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
       const conditions = couponDetail.conditions || {};
 
       form.reset({
-        title: couponDetail.name || '',
+        title: couponDetail.title || '',
         buyScore: conditions.buyScore?.toString() || '0',
         description: couponDetail.description || '',
         status: couponDetail.status || 'active',

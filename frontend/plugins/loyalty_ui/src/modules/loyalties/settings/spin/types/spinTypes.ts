@@ -1,6 +1,6 @@
 export interface ISpin {
   _id: string;
-  name: string;
+  title: string;
   description?: string;
   startDate?: string;
   endDate?: string;
@@ -29,7 +29,7 @@ export interface ISpin {
       position?: string;
     };
   };
-  conditions?: any;
+  awards?: any;
   kind?: string;
   maxScore?: number;
   buyScore?: number;

@@ -1,22 +1,20 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
-import { addLotteryMutation } from '../graphql/mutations/LotteryMutations';
-import { getCampaignsQuery } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
+import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { LOTTERY_CURSOR_SESSION_KEY } from '../constants/lotteryCursorSessionKey';
+import { CREATE_LOTTERY_CAMPAIGN } from '../graphql/mutations/LotteryMutations';
 import { LOTTERY_PER_PAGE } from './useLotteries';
 
 export interface AddLotteryResult {
-  createCampaign: any;
+  lotteryCampaignsAdd: any;
 }
 
 export interface AddLotteryVariables {
-  name: string;
-  kind: string;
   status?: string;
   startDate?: string;
   endDate?: string;
   title?: string;
-  conditions?: {
+  awards?: {
     name?: string;
     voucherCampaignId?: string;
     probablity?: string;
@@ -32,46 +30,44 @@ export const useAddLottery = () => {
   const [addLottery, { loading, error }] = useMutation<
     AddLotteryResult,
     AddLotteryVariables
-  >(addLotteryMutation, {
+  >(CREATE_LOTTERY_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
-        variables: { kind: 'lottery', limit: LOTTERY_PER_PAGE, cursor },
+        query: QUERY_LOTTERY_CAMPAIGNS,
+        variables: { limit: LOTTERY_PER_PAGE, cursor },
       },
     ],
     update: (cache, { data }) => {
       try {
-        const newCampaign = data?.createCampaign;
+        const newCampaign = data?.lotteryCampaignsAdd;
 
         if (!newCampaign) {
           return;
         }
 
         const existingData: any = cache.readQuery({
-          query: getCampaignsQuery,
+          query: QUERY_LOTTERY_CAMPAIGNS,
           variables: {
-            kind: 'lottery',
             limit: LOTTERY_PER_PAGE,
             cursor,
           },
         });
 
-        if (!existingData?.getCampaigns) {
+        if (!existingData?.lotteryCampaigns) {
           return;
         }
 
         cache.writeQuery({
-          query: getCampaignsQuery,
+          query: QUERY_LOTTERY_CAMPAIGNS,
           variables: {
-            kind: 'lottery',
             limit: LOTTERY_PER_PAGE,
             cursor,
           },
           data: {
-            getCampaigns: {
-              ...existingData.getCampaigns,
-              list: [newCampaign, ...existingData.getCampaigns.list],
-              totalCount: (existingData.getCampaigns.totalCount || 0) + 1,
+            lotteryCampaigns: {
+              ...existingData.lotteryCampaigns,
+              list: [newCampaign, ...existingData.lotteryCampaigns.list],
+              totalCount: (existingData.lotteryCampaigns.totalCount || 0) + 1,
             },
           },
         });

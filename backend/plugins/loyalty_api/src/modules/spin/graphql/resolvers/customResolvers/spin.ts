@@ -1,20 +1,23 @@
-import { ISpinDocument } from '~/modules/spin/@types/spin';
-import { getLoyaltyOwner } from '~/utils/getOwner';
+import { ISpinDocument } from '@/spin/@types/spin';
 import { IContext } from '~/connectionResolvers';
+import { getLoyaltyOwner } from '~/utils/getOwner';
 
 export default {
-  async owner(spin: ISpinDocument, _args: unknown, { subdomain }: IContext) {
+  async owner(
+    { ownerId, ownerType }: ISpinDocument,
+    _args: undefined,
+    { subdomain }: IContext,
+  ) {
     return getLoyaltyOwner(subdomain, {
-      ownerType: spin.ownerType,
-      ownerId: spin.ownerId,
+      ownerType,
+      ownerId,
     });
   },
-
   async campaign(
-    spin: ISpinDocument,
-    _args: unknown,
+    { campaignId }: ISpinDocument,
+    _args: undefined,
     { models }: IContext,
   ) {
-    return models.SpinCampaign.findOne({ _id: spin.campaignId }).lean();
+    return models.SpinCampaigns.findOne({ _id: campaignId }).lean();
   },
 };

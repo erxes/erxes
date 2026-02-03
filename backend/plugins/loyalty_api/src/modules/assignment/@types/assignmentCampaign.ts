@@ -1,30 +1,22 @@
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonCampaignDocument, ICommonCampaignFields } from '~/utils';
 
-/**
- * Assignment campaign base fields
- */
-export interface IAssignmentCampaign {
-  name: string;
-  description?: string;
-
-  status?: string;
-
+export interface IAssignmentCampaign extends ICommonCampaignFields {
   segmentIds: string[];
   fieldId: string;
   voucherCampaignId: string;
   allowMultiWin?: boolean;
-
-  createdBy?: string;
-  updatedBy?: string;
 }
 
-/**
- * Assignment campaign mongoose document
- */
 export interface IAssignmentCampaignDocument
   extends IAssignmentCampaign,
+    ICommonCampaignDocument,
     Document {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface IAssignmentCampaignParams extends ICursorPaginateParams {
+  status?: string;
+  searchValue?: string;
 }

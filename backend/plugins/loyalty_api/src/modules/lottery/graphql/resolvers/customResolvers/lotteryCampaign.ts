@@ -1,14 +1,14 @@
+import { ILotteryCampaignDocument } from '@/lottery/@types/lotteryCampaign';
 import { IContext } from '~/connectionResolvers';
-import { ILotteryCampaignDocument } from '~/modules/lottery/@types/lotteryCampaign';
 
 export default {
   async lotteriesCount(
     lotteryCampaign: ILotteryCampaignDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
-    return models.Lottery.find({
-      campaignId: lotteryCampaign._id
+    return models.Lotteries.find({
+      campaignId: lotteryCampaign._id,
     }).countDocuments();
-  }
+  },
 };

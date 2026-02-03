@@ -1,49 +1,56 @@
+import { IScoreLogParams } from '@/score/@types/scoreLog';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { IScoreLogParams } from '~/modules/score/@types/scoreLog';
-
-const generateFilter = (params: IScoreLogParams) => {
-  const filter: any = {};
-
-  if (params.ownerType) {
-    filter.ownerType = params.ownerType;
-  }
-
-  if (params.ownerId) {
-    filter.ownerId = params.ownerId;
-  }
-
-  if (params.campaignId) {
-    filter.campaignId = params.campaignId;
-  }
-
-  if (params.action) {
-    filter.action = params.action;
-  }
-
-  if (params.contentId) {
-    filter.contentId = params.contentId;
-  }
-
-  if (params.contentType) {
-    filter.contentType = params.contentType;
-  }
-
-  return filter;
-};
 
 export const scoreLogQueries = {
-  getScoreLogs: async (
-    _parent: undefined,
+  async scoreLogs(
+    _root: undefined,
     params: IScoreLogParams,
     { models }: IContext,
-  ) => {
-    const filter = generateFilter(params);
+  ) {
+    const { ownerType, ownerId, searchValue, campaignId, action } = params;
+    const filter: any = {};
+
+    if (ownerType) {
+      filter.ownerType = ownerType;
+    }
+
+    if (ownerId) {
+      filter.ownerId = ownerId;
+    }
+
+    if (searchValue) {
+      filter.description = searchValue;
+    }
+
+    if (campaignId) {
+      filter.campaignId = campaignId;
+    }
+
+    if (action) {
+      filter.action = action;
+    }
 
     return cursorPaginate({
-      model: models.ScoreLog,
-      params,
+      model: models.ScoreLogs,
+      params: { ...params, orderBy: { createdAt: -1 } },
       query: filter,
     });
+  },
+
+  async scoreLogList(
+    _root: undefined,
+    params: IScoreLogParams,
+    { models }: IContext,
+  ) {
+    return models.ScoreLogs.getScoreLogs(params);
+  },
+
+  async scoreLogStatistics(
+    _root: undefined,
+    params: IScoreLogParams,
+    { models }: IContext,
+  ) {
+    return models.ScoreLogs.getStatistic(params);
   },
 };

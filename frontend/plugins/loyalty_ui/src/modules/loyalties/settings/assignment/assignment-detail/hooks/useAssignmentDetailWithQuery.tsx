@@ -1,20 +1,20 @@
 import { useQuery } from '@apollo/client';
-import { IAssignment } from '../../types/assignmentTypes';
 import { useQueryState } from 'erxes-ui';
-import { getCampaignQuery } from '../../../voucher/graphql/queries/getCampaignQuery';
+import { QUERY_ASSIGNMENT_CAMPAIGN } from '../../graphql/queries/getCampaignQuery';
+import { IAssignment } from '../../types/assignmentTypes';
 
 export const useAssignmentDetailWithQuery = () => {
   const [editAssignmentId] = useQueryState('editAssignmentId');
 
-  const { data, loading, error } = useQuery(getCampaignQuery, {
+  const { data, loading, error } = useQuery(QUERY_ASSIGNMENT_CAMPAIGN, {
     variables: {
-      id: editAssignmentId || '',
+      _id: editAssignmentId || '',
     },
     skip: !editAssignmentId,
   });
 
   return {
-    assignmentDetail: data?.getCampaign as IAssignment,
+    assignmentDetail: data?.assignmentCampaignDetail as IAssignment,
     loading,
     error,
   };

@@ -1,24 +1,24 @@
 import { IconEdit } from '@tabler/icons-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Kbd,
   Sheet,
   usePreviousHotkeyScope,
+  useQueryState,
   useScopedHotkeys,
   useSetHotkeyScope,
-  useQueryState,
 } from 'erxes-ui';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { DonationHotKeyScope } from '../../types/DonationHotKeyScope';
 
-import { useDonationDetailWithQuery } from '../hooks/useDonationDetailWithQuery';
 import {
   donationFormSchema,
   DonationFormValues,
 } from '../../constants/donationFormSchema';
+import { useDonationDetailWithQuery } from '../hooks/useDonationDetailWithQuery';
 import { EditDonationTabs } from './EditDonationTabs';
 
 type Props = {
@@ -37,11 +37,11 @@ export const LoyaltyDonationEditSheet = ({ donationId }: Props) => {
     defaultValues: {
       title: '',
       status: 'active',
-      conditions: [
+      maxScore: 0,
+      awards: [
         {
           voucherCampaignId: '',
           minScore: 0,
-          maxScore: 0,
         },
       ],
     },
@@ -50,7 +50,7 @@ export const LoyaltyDonationEditSheet = ({ donationId }: Props) => {
   useEffect(() => {
     if (donationDetail && donationDetail._id === editDonationId) {
       form.reset({
-        title: donationDetail.name || '',
+        title: donationDetail.title || '',
         status: donationDetail.status || 'active',
         startDate: donationDetail.startDate
           ? new Date(donationDetail.startDate)
@@ -59,10 +59,10 @@ export const LoyaltyDonationEditSheet = ({ donationId }: Props) => {
           ? new Date(donationDetail.endDate)
           : undefined,
         kind: donationDetail.kind || '',
-        conditions: donationDetail.conditions?.map((condition: any) => ({
-          voucherCampaignId: condition.voucherCampaignId || '',
-          minScore: condition.minScore || 0,
-          maxScore: condition.maxScore || 0,
+        maxScore: donationDetail.maxScore || 0,
+        awards: donationDetail.awards?.map((award: any) => ({
+          voucherCampaignId: award.voucherCampaignId || '',
+          minScore: award.minScore || 0,
         })) || [
           {
             voucherCampaignId: '',

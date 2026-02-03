@@ -1,40 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const removeVoucherMutation = gql`
-  mutation RemoveCampaign($_ids: [String]!) {
-    removeCampaign(_ids: $_ids) {
-      _id
-      name
-      description
-      startDate
-      endDate
-      status
-      type
-      amount
-      updatedBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          shortName
-        }
-      }
-      conditions
-      kind
-      createdBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          middleName
-          shortName
-        }
-      }
-    }
+export const REMOVE_VOUCHER_CAMPAIGN = gql`
+  mutation RemoveVoucherCampaign($_ids: [String]) {
+    voucherCampaignsRemove(_ids: $_ids)
   }
 `;

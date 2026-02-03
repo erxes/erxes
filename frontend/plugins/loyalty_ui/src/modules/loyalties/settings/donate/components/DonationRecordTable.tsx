@@ -19,7 +19,7 @@ export const DonationRecordTable = () => {
       columns={donationColumns(editStatus)}
       data={donations || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

@@ -18,7 +18,7 @@ export const LotteryRecordTable = () => {
       columns={lotteryColumns(editStatus)}
       data={lottery || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

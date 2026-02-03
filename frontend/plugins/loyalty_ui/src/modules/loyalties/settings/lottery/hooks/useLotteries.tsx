@@ -8,9 +8,9 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { LOTTERY_CURSOR_SESSION_KEY } from '../constants/lotteryCursorSessionKey';
 import { ILottery } from '../types/lotteryTypes';
-import { getCampaignsQuery } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
 
 export const LOTTERY_PER_PAGE = 30;
 
@@ -19,23 +19,22 @@ export const useLottery = (options?: QueryHookOptions) => {
     sessionKey: LOTTERY_CURSOR_SESSION_KEY,
   });
   const { data, loading, fetchMore } = useQuery<{
-    getCampaigns: {
+    lotteryCampaigns: {
       list: ILottery[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(getCampaignsQuery, {
+  }>(QUERY_LOTTERY_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
       limit: LOTTERY_PER_PAGE,
       cursor,
-      kind: 'lottery',
       ...options?.variables,
     },
   });
 
-  const { list: lottery, totalCount, pageInfo } = data?.getCampaigns || {};
+  const { list: lottery, totalCount, pageInfo } = data?.lotteryCampaigns || {};
 
   const handleFetchMore = ({
     direction,
@@ -64,15 +63,15 @@ export const useLottery = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
         return {
           ...prev,
-          getCampaigns: {
+          lotteryCampaigns: {
             ...mergeCursorData({
               direction,
-              fetchMoreResult: fetchMoreResult.getCampaigns,
-              prevResult: prev.getCampaigns,
+              fetchMoreResult: fetchMoreResult.lotteryCampaigns,
+              prevResult: prev.lotteryCampaigns,
             }),
             totalCount:
-              fetchMoreResult.getCampaigns.totalCount ??
-              prev.getCampaigns.totalCount,
+              fetchMoreResult.lotteryCampaigns.totalCount ??
+              prev.lotteryCampaigns.totalCount,
           },
         };
       },

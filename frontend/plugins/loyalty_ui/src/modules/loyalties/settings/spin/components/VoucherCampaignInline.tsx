@@ -117,7 +117,7 @@ const VoucherCampaignInlineTitle = () => {
     return (
       <TextOverflowTooltip
         value={voucherCampaigns
-          .map((c) => c.name || 'Unnamed Campaign')
+          .map((c) => c.title || 'Unnamed Campaign')
           .join(', ')}
       />
     );
@@ -130,7 +130,7 @@ const VoucherCampaignInlineTitle = () => {
           <span>{`${voucherCampaigns.length} voucher campaigns`}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          {voucherCampaigns.map((c) => c.name || 'Unnamed Campaign').join(', ')}
+          {voucherCampaigns.map((c) => c.title || 'Unnamed Campaign').join(', ')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

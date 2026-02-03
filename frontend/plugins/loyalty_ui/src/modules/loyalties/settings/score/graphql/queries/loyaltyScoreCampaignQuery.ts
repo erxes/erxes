@@ -1,69 +1,36 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
-  query GetCampaigns(
+  query GetScoreCampaigns(
     $searchValue: String
     $status: String
-    $fromDate: String
-    $toDate: String
-    $dateField: String
-    $limit: Int
-    $cursor: String
-    $cursorMode: CURSOR_MODE
-    $direction: CURSOR_DIRECTION
-    $orderBy: JSON
-    $sortMode: String
-    $aggregationPipeline: [JSON]
-    $kind: String
+    
+    ${GQL_CURSOR_PARAM_DEFS}
   ) {
-    getCampaigns(
+    scoreCampaigns(
       searchValue: $searchValue
       status: $status
-      fromDate: $fromDate
-      toDate: $toDate
-      dateField: $dateField
-      limit: $limit
-      cursor: $cursor
-      cursorMode: $cursorMode
-      direction: $direction
-      orderBy: $orderBy
-      sortMode: $sortMode
-      aggregationPipeline: $aggregationPipeline
-      kind: $kind
+      
+      ${GQL_CURSOR_PARAMS}
     ) {
       list {
         _id
-        name
+        title
         description
-        startDate
-        endDate
+        add
+        subtract
+        createdAt
+        createdUserId
         status
-        type
-        amount
-        createdBy {
-          email
-          details {
-            firstName
-            fullName
-            lastName
-            avatar
-            middleName
-            shortName
-          }
-        }
-        updatedBy {
-          email
-          details {
-            avatar
-            firstName
-            fullName
-            lastName
-            shortName
-            middleName
-          }
-        }
-        conditions
-        kind
+        ownerType
+        fieldGroupId
+        fieldName
+        fieldId
+        serviceName
+        additionalConfig
+        restrictions
+        onlyClientPortal
       }
       totalCount
       pageInfo {

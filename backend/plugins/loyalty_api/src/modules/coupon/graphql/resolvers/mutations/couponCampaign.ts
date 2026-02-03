@@ -1,28 +1,28 @@
+import { ICouponCampaign } from '@/coupon/@types/couponCampaign';
 import { IContext } from '~/connectionResolvers';
-import { ICouponCampaign } from '~/modules/coupon/@types/couponCampaign';
 
 export const couponCampaignMutations = {
-  createCouponCampaign: async (
-    _parent: undefined,
+  async couponCampaignAdd(
+    _root: undefined,
     doc: ICouponCampaign,
     { models, user }: IContext,
-  ) => {
-    return models.CouponCampaign.createCouponCampaign(doc, user);
+  ) {
+    return models.CouponCampaigns.createCouponCampaign(doc, user);
   },
 
-  updateCouponCampaign: async (
-    _parent: undefined,
-    { _id, ...doc }: { _id: string } & ICouponCampaign,
+  async couponCampaignEdit(
+    _root: undefined,
+    { _id, ...doc }: ICouponCampaign & { _id: string },
     { models, user }: IContext,
-  ) => {
-    return models.CouponCampaign.updateCouponCampaign(_id, doc, user);
+  ) {
+    return models.CouponCampaigns.updateCouponCampaign(_id, doc, user);
   },
 
-  removeCouponCampaign: async (
-    _parent: undefined,
-    { _id }: { _id: string },
+  async couponCampaignsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
     { models }: IContext,
-  ) => {
-    return models.CouponCampaign.removeCouponCampaigns([_id]);
+  ) {
+    return models.CouponCampaigns.removeCouponCampaigns(_ids);
   },
 };

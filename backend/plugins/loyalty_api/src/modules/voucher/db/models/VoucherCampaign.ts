@@ -1,175 +1,164 @@
-import { Model } from 'mongoose';
-
-import { IModels } from '~/connectionResolvers';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
-
 import {
   IVoucherCampaign,
   IVoucherCampaignDocument,
 } from '@/voucher/@types/voucherCampaign';
+import { voucherCampaignSchema } from '@/voucher/db/definitions/voucherCampaign';
+import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+import { CAMPAIGN_STATUS } from '~/constants';
+import { validCampaign } from '~/utils';
 
-import { voucherCampaignSchema } from '../definitions/voucherCampaign';
-import { validCampaign } from '~/utils/validCampaign';
-
-/* -------------------- model interface -------------------- */
-
-export interface IVoucherCampaignModel
-  extends Model<IVoucherCampaignDocument> {
+export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   getVoucherCampaign(_id: string): Promise<IVoucherCampaignDocument>;
-
   createVoucherCampaign(
     doc: IVoucherCampaign,
   ): Promise<IVoucherCampaignDocument>;
-
   updateVoucherCampaign(
     _id: string,
     doc: IVoucherCampaign,
-  ): Promise<IVoucherCampaignDocument | null>;
-
-  removeVoucherCampaigns(_ids: string[]): Promise<any>;
+  ): Promise<IVoucherCampaignDocument>;
+  removeVoucherCampaigns(_ids: string[]): void;
 }
 
-/* -------------------- validation -------------------- */
-
-const validateVoucherCampaign = (doc: IVoucherCampaign) => {
+const validVoucherCampaign = (doc) => {
   validCampaign(doc);
 
   if (doc.bonusProductId && !doc.bonusCount) {
-    throw new Error('Bonus product requires bonus count');
+    throw new Error('Must fill product count or product limit to false');
   }
 
   if (doc.spinCampaignId && !doc.spinCount) {
-    throw new Error('Spin campaign requires spin count');
+    throw new Error('Must fill spin count when choosed spin campaign');
   }
 
   if (doc.lotteryCampaignId && !doc.lotteryCount) {
-    throw new Error('Lottery campaign requires lottery count');
+    throw new Error('Must fill lottery count when choosed lottery campaign');
   }
 };
 
-/* -------------------- model loader -------------------- */
-
 export const loadVoucherCampaignClass = (models: IModels) => {
   class VoucherCampaign {
-    /* ---------- queries ---------- */
-
     public static async getVoucherCampaign(_id: string) {
-      const campaign = await models.VoucherCampaign.findOne({ _id }).lean();
+      const voucherCampaign = await models.VoucherCampaigns.findOne({
+        _id,
+      }).lean();
 
-      if (!campaign) {
-        throw new Error('Voucher campaign not found');
+      if (!voucherCampaign) {
+        throw new Error('not found voucher rule');
       }
 
-      return campaign;
+      return voucherCampaign;
     }
 
-    /* ---------- mutations ---------- */
+    public static async createVoucherCampaign(doc) {
+      try {
+        await validVoucherCampaign(doc);
+      } catch (e) {
+        throw new Error(e.message);
+      }
 
-    public static async createVoucherCampaign(doc: IVoucherCampaign) {
-      validateVoucherCampaign(doc);
-
-      return models.VoucherCampaign.create({
+      doc = {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-      });
+      };
+
+      return models.VoucherCampaigns.create(doc);
     }
 
-    public static async updateVoucherCampaign(
-      _id: string,
-      doc: IVoucherCampaign,
-    ) {
-      validateVoucherCampaign(doc);
+    public static async updateVoucherCampaign(_id, doc) {
+      try {
+        await validVoucherCampaign(doc);
+      } catch (e) {
+        throw new Error(e.message);
+      }
 
-      const existing = await this.getVoucherCampaign(_id);
+      const voucherCampaignDB =
+        await models.VoucherCampaigns.getVoucherCampaign(_id);
 
-      // Prevent changing voucherType if already used
-      if (existing.voucherType !== doc.voucherType) {
-        const usedCount = await models.Voucher.countDocuments({
-          campaignId: _id,
-        });
+      if (voucherCampaignDB.voucherType !== doc.voucherType) {
+        let usedVoucherCount = 0;
+        switch (voucherCampaignDB.voucherType) {
+          case 'spin':
+            usedVoucherCount = Number(
+              models.Spins.find({
+                campaignId: voucherCampaignDB.spinCampaignId,
+              }).countDocuments(),
+            );
+            break;
+          case 'lottery':
+            usedVoucherCount = Number(
+              models.Lotteries.find({
+                campaignId: voucherCampaignDB.lotteryCampaignId,
+              }).countDocuments(),
+            );
+            break;
+          default:
+            usedVoucherCount = Number(
+              models.Vouchers.find({
+                campaignId: voucherCampaignDB._id,
+              }).countDocuments(),
+            );
+        }
 
-        if (usedCount > 0) {
+        if (usedVoucherCount) {
           throw new Error(
-            `Cannot change voucher type. Campaign already used (${existing.voucherType})`,
+            `Cant change voucher type because: this voucher Campaign in used. Set voucher type: ${voucherCampaignDB.voucherType}`,
           );
         }
       }
 
-      return models.VoucherCampaign.findOneAndUpdate(
-        { _id },
-        {
-          $set: {
-            ...doc,
-            modifiedAt: new Date(),
-          },
-        },
-        { new: true },
-      );
+      doc = {
+        ...doc,
+        modifiedAt: new Date(),
+      };
+
+      return models.VoucherCampaigns.updateOne({ _id }, { $set: doc });
     }
 
-    public static async removeVoucherCampaigns(_ids: string[]) {
-      /**
-       * A voucher campaign is "used" if:
-       *  - vouchers exist
-       *  - referenced by donate / lottery / spin campaigns
-       */
+    public static async removeVoucherCampaigns(ids: string[]) {
+      const atVoucherIds = await models.Vouchers.find({
+        voucherCampaignId: { $in: ids },
+      }).distinct('voucherCampaignId');
 
-      const usedVoucherIds = await models.Voucher.distinct('campaignId', {
-        campaignId: { $in: _ids },
-      });
+      const atDonateCampaignIds = await models.DonateCampaigns.find({
+        'awards.voucherCampaignId': { $in: ids },
+      }).distinct('awards.voucherCampaignId');
 
-      const usedDonateIds = await models.DonateCampaign.distinct(
-        'awards.voucherCampaignId',
-        { 'awards.voucherCampaignId': { $in: _ids } },
+      const atLotteryCampaignIds = await models.LotteryCampaigns.find({
+        'awards.voucherCampaignId': { $in: ids },
+      }).distinct('awards.voucherCampaignId');
+
+      const atSpinCampaignIds = await models.SpinCampaigns.find({
+        'awards.voucherCampaignId': { $in: ids },
+      }).distinct('awards.voucherCampaignId');
+
+      const campaignIds = [
+        ...atVoucherIds,
+        ...atDonateCampaignIds,
+        ...atLotteryCampaignIds,
+        ...atSpinCampaignIds,
+      ];
+      const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
+
+      const deleteCampaignIds = ids.filter(
+        (id) => !usedCampaignIds.includes(id),
       );
 
-      const usedLotteryIds = await models.LotteryCampaign.distinct(
-        'awards.voucherCampaignId',
-        { 'awards.voucherCampaignId': { $in: _ids } },
-      );
-
-      const usedSpinIds = await models.SpinCampaign.distinct(
-        'awards.voucherCampaignId',
-        { 'awards.voucherCampaignId': { $in: _ids } },
-      );
-
-      const usedIds = Array.from(
-        new Set([
-          ...usedVoucherIds,
-          ...usedDonateIds,
-          ...usedLotteryIds,
-          ...usedSpinIds,
-        ]),
-      );
-
-      const deletableIds = _ids.filter((id) => !usedIds.includes(id));
       const now = new Date();
 
-      // Soft-delete used campaigns
-      if (usedIds.length) {
-        await models.VoucherCampaign.updateMany(
-          { _id: { $in: usedIds } },
-          {
-            $set: {
-              status: CAMPAIGN_STATUS.INACTIVE,
-              modifiedAt: now,
-            },
-          },
-        );
-      }
+      await models.VoucherCampaigns.updateMany(
+        { _id: { $in: usedCampaignIds } },
+        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+      );
 
-      // Hard-delete unused campaigns
-      if (deletableIds.length) {
-        return models.VoucherCampaign.deleteMany({
-          _id: { $in: deletableIds },
-        });
-      }
-
-      return { ok: 1 };
+      return models.VoucherCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds },
+      });
     }
   }
 
   voucherCampaignSchema.loadClass(VoucherCampaign);
+
   return voucherCampaignSchema;
 };

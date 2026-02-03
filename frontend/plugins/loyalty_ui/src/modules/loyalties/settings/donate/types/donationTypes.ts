@@ -1,6 +1,6 @@
 export interface IDonation {
   _id: string;
-  name: string;
+  title: string;
   description?: string;
   startDate?: string;
   endDate?: string;
@@ -29,7 +29,7 @@ export interface IDonation {
       position?: string;
     };
   };
-  conditions?: any;
+  awards?: any;
   kind?: string;
   maxScore?: number;
 }

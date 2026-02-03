@@ -1,5 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Kbd,
@@ -10,13 +11,12 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { DonationHotKeyScope } from '../types/DonationHotKeyScope';
 import { DonationTabs } from '../add-donation-campaign/components/DonationTabs';
 import {
   donationFormSchema,
   DonationFormValues,
 } from '../constants/donationFormSchema';
+import { DonationHotKeyScope } from '../types/DonationHotKeyScope';
 
 export const LoyaltyDonationAddSheet = () => {
   const setHotkeyScope = useSetHotkeyScope();
@@ -28,11 +28,11 @@ export const LoyaltyDonationAddSheet = () => {
     defaultValues: {
       title: '',
       status: 'active',
-      conditions: [
+      maxScore: 0,
+      awards: [
         {
           voucherCampaignId: '',
           minScore: 0,
-          maxScore: 0,
         },
       ],
     },

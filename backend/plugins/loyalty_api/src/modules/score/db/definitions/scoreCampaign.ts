@@ -1,99 +1,56 @@
-import { Schema } from 'mongoose';
+import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
 import { schemaWrapper } from 'erxes-api-shared/utils';
-import { SCORE_CAMPAIGN_STATUSES } from '../../constants';
+import { Schema } from 'mongoose';
 
-const actionConfigSchema = new Schema(
+const addSchema = new Schema(
   {
-    placeholder: {
-      type: String,
-      label: 'Placeholder',
-      required: true,
-    },
-
-    currencyRatio: {
-      type: Number,
-      label: 'Currency ratio',
-      default: 1,
-    },
+    placeholder: { type: String, label: 'Placeholder' },
+    currencyRatio: { type: String, label: 'currencyRatio', default: 1 },
   },
   { _id: false },
 );
 
-/* -------------------- main schema -------------------- */
+const subtractSchema = new Schema(
+  {
+    placeholder: { type: String, label: 'Placeholder' },
+    currencyRatio: { type: String, label: 'currencyRatio', default: 1 },
+  },
+  { _id: false },
+);
 
 export const scoreCampaignSchema = schemaWrapper(
   new Schema(
     {
-      name: {
-        type: String,
-        label: 'Campaign name',
-        required: true,
-      },
-
-      description: {
-        type: String,
-        label: 'Campaign description',
-        optional: true,
-      },
-
-      ownerType: {
-        type: String,
-        label: 'Owner type',
-        required: true,
-      },
-
-      fieldGroupId: {
-        type: String,
-        label: 'Field group',
-        optional: true,
-      },
-
-      fieldName: {
-        type: String,
-        label: 'Field name',
-        optional: true,
-      },
-
-      fieldId: {
-        type: String,
-        label: 'Field id',
-        required: true,
-      },
-
-      add: {
-        type: actionConfigSchema,
-        label: 'Add config',
-        optional: true,
-      },
-
-      subtract: {
-        type: actionConfigSchema,
-        label: 'Subtract config',
-        optional: true,
-      },
-
+      title: { type: String, label: 'Campaign Title' },
+      description: { type: String, label: 'Campaign Description' },
+      add: { type: addSchema, label: 'Add config' },
+      subtract: { type: subtractSchema, label: 'Subtract config' },
+      createdAt: { type: Date, label: 'Created At', default: new Date() },
+      createdUserId: { type: String, label: 'Created User Id' },
+      ownerType: { type: String, label: 'Owner Type' },
+      fieldGroupId: { type: String, label: 'Field Group' },
+      fieldName: { type: String, label: 'Field Name', optional: true },
+      fieldId: { type: String, label: 'Field Id' },
       status: {
         type: String,
         enum: Object.values(SCORE_CAMPAIGN_STATUSES),
         default: SCORE_CAMPAIGN_STATUSES.DRAFT,
       },
-
       serviceName: {
         type: String,
-        label: 'Service name',
+        label: 'Service Name',
         required: true,
       },
-
       additionalConfig: {
         type: Schema.Types.Mixed,
-        label: 'Additional config',
+        label: 'Additional Config',
         optional: true,
       },
 
       onlyClientPortal: {
         type: Boolean,
-        label: 'Only client portal',
-        default: false,
+        label: 'Only Client Portal',
+        optional: true,
       },
 
       restrictions: {
@@ -101,15 +58,10 @@ export const scoreCampaignSchema = schemaWrapper(
         label: 'Restrictions',
         optional: true,
       },
-
-      createdBy: {
+      fieldOrigin: {
         type: String,
-        label: 'Created by',
-      },
-
-      updatedBy: {
-        type: String,
-        label: 'Updated by',
+        enum: ['exists', 'new'],
+        label: 'Field Origin',
       },
     },
     {

@@ -16,7 +16,7 @@ export const useLoyaltyScore = (options?: QueryHookOptions) => {
     sessionKey: LOYALTY_SCORE_CURSOR_SESSION_KEY,
   });
   const { data, loading, fetchMore } = useQuery<{
-    getCampaigns: {
+    scoreCampaigns: {
       list: any[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
@@ -26,12 +26,11 @@ export const useLoyaltyScore = (options?: QueryHookOptions) => {
     variables: {
       limit: LOYALTY_SCORE_PER_PAGE,
       cursor,
-      kind: 'score',
       ...options?.variables,
     },
   });
 
-  const { list: campaigns, totalCount, pageInfo } = data?.getCampaigns || {};
+  const { list: campaigns, totalCount, pageInfo } = data?.scoreCampaigns || {};
 
   const handleFetchMore = ({
     direction,
@@ -55,15 +54,14 @@ export const useLoyaltyScore = (options?: QueryHookOptions) => {
             : pageInfo?.startCursor,
         limit: LOYALTY_SCORE_PER_PAGE,
         direction,
-        kind: 'score',
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          getCampaigns: mergeCursorData({
+          scoreCampaigns: mergeCursorData({
             direction,
-            fetchMoreResult: fetchMoreResult.getCampaigns,
-            prevResult: prev.getCampaigns,
+            fetchMoreResult: fetchMoreResult.scoreCampaigns,
+            prevResult: prev.scoreCampaigns,
           }),
         });
       },

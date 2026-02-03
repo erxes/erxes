@@ -1,17 +1,17 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { getCampaignsQuery } from '../graphql/queries/getCampaignsQuery';
-import { editAssignmentStatusMutation } from '../graphql/mutations/assignmentEditStatusMutations';
+import { UPDATE_ASSIGNMENT_CAMPAIGN } from '../graphql/mutations/assignmentEditStatusMutations';
+import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 
 export function useAssignmentStatusEdit() {
   const { toast } = useToast();
 
   const [editAssignment, { loading, error }] = useMutation(
-    editAssignmentStatusMutation,
+    UPDATE_ASSIGNMENT_CAMPAIGN,
     {
       refetchQueries: [
         {
-          query: getCampaignsQuery,
+          query: QUERY_ASSIGNMENT_CAMPAIGNS,
         },
       ],
     },
@@ -22,8 +22,7 @@ export function useAssignmentStatusEdit() {
 
     return editAssignment({
       variables: {
-        id: variables._id,
-        kind: 'assignment',
+        _id: variables._id,
         status: variables.status,
       },
       onCompleted: (data) => {

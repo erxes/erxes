@@ -4,16 +4,16 @@ import {
   TextOverflowTooltip,
   Tooltip,
 } from 'erxes-ui';
-import { useEffect, useState, useMemo } from 'react';
-import {
-  VoucherCampaignInlineProps,
-  IVoucherCampaign,
-} from '../types/voucherCampaignType';
-import { useVoucherCampaignInline } from '../hooks/useVoucherCampaignInline';
+import { useEffect, useMemo, useState } from 'react';
 import {
   useVoucherCampaignInlineContext,
   VoucherCampaignInlineContext,
 } from '../context/VoucherCampaignInlineContext';
+import { useVoucherCampaignInline } from '../hooks/useVoucherCampaignInline';
+import {
+  IVoucherCampaign,
+  VoucherCampaignInlineProps,
+} from '../types/voucherCampaignType';
 
 const VoucherCampaignInlineRoot = (props: VoucherCampaignInlineProps) => {
   return (
@@ -36,7 +36,7 @@ const VoucherCampaignInlineProvider = ({
   const contextValue = useMemo(() => {
     const normalizedVoucherCampaignId = Array.isArray(voucherCampaignId)
       ? voucherCampaignId
-      : voucherCampaignId && [voucherCampaignId] || [];
+      : (voucherCampaignId && [voucherCampaignId]) || [];
 
     return {
       voucherCampaigns: voucherCampaigns || currentVoucherCampaigns,
@@ -45,7 +45,8 @@ const VoucherCampaignInlineProvider = ({
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select voucher campaigns'
         : placeholder,
-      updateVoucherCampaigns: updateVoucherCampaigns || setCurrentVoucherCampaigns,
+      updateVoucherCampaigns:
+        updateVoucherCampaigns || setCurrentVoucherCampaigns,
     };
   }, [
     voucherCampaigns,
@@ -116,7 +117,7 @@ const VoucherCampaignInlineTitle = () => {
     return (
       <TextOverflowTooltip
         value={voucherCampaigns
-          .map((c) => c.name || 'Unnamed Campaign')
+          .map((c) => c.title || 'Unnamed Campaign')
           .join(', ')}
       />
     );
@@ -129,7 +130,9 @@ const VoucherCampaignInlineTitle = () => {
           <span>{`${voucherCampaigns.length} voucher campaigns`}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          {voucherCampaigns.map((c) => c.name || 'Unnamed Campaign').join(', ')}
+          {voucherCampaigns
+            .map((c) => c.title || 'Unnamed Campaign')
+            .join(', ')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

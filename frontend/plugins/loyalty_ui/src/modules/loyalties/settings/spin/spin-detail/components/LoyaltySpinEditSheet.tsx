@@ -1,21 +1,21 @@
 import { IconEdit } from '@tabler/icons-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Kbd,
   Sheet,
   usePreviousHotkeyScope,
+  useQueryState,
   useScopedHotkeys,
   useSetHotkeyScope,
-  useQueryState,
 } from 'erxes-ui';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { SpinHotKeyScope } from '../../types/SpinHotKeyScope';
 
-import { useSpins } from '../../hooks/useSpins';
 import { spinFormSchema, SpinFormValues } from '../../constants/spinFormSchema';
+import { useSpins } from '../../hooks/useSpins';
 import { EditSpinTabs } from './EditSpinTabs';
 
 type Props = {
@@ -37,12 +37,13 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
     defaultValues: {
       title: '',
       status: 'active',
-      conditions: [
+      buyScore: 0,
+
+      awards: [
         {
           name: '',
           voucherCampaignId: '',
           probablity: 0,
-          buyScore: 0,
         },
       ],
     },
@@ -53,19 +54,20 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
   useEffect(() => {
     if (spinDetail?._id === editSpinId) {
       form.reset({
-        title: spinDetail.name || '',
+        title: spinDetail.title || '',
         status: spinDetail.status || 'active',
         startDate: spinDetail.startDate
           ? new Date(spinDetail.startDate)
           : undefined,
         endDate: spinDetail.endDate ? new Date(spinDetail.endDate) : undefined,
         kind: spinDetail.kind || '',
-        conditions: spinDetail.conditions || [
+        buyScore: spinDetail.buyScore || 0,
+
+        awards: spinDetail.awards || [
           {
-            name: spinDetail.conditions?.name || '',
-            voucherCampaignId: spinDetail.conditions?.voucherCampaignId || '',
-            probablity: spinDetail.conditions?.probablity || 0,
-            buyScore: spinDetail.buyScore || 0,
+            name: spinDetail.awards?.name || '',
+            voucherCampaignId: spinDetail.awards?.voucherCampaignId || '',
+            probablity: spinDetail.awards?.probablity || 0,
           },
         ],
       });
@@ -99,7 +101,7 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
 
   return (
     <Sheet
-      onOpenChange={(open: boolean) => (!open && onClose())}
+      onOpenChange={(open: boolean) => !open && onClose()}
       open={open}
       modal
     >

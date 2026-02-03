@@ -69,40 +69,33 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      id: voucherDetail._id,
-      name: data.title || '',
-      kind: 'voucher',
+      _id: voucherDetail._id,
+      title: data.title || '',
+      kind: data.kind,
+      value: data.value,
       description: data.description || '',
       status: data.status || 'active',
       type: data.type || 'Product Discount',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-
-      conditions: {
-        restrictions: {
-          minimumSpend: data.minimumSpend,
-          maximumSpend: data.maximumSpend,
-          categoryIds: data.categoryIds,
-          excludeCategoryIds: data.excludeCategoryIds,
-          productIds: data.productIds,
-          excludeProductIds: data.excludeProductIds,
-          tag: data.tag,
-          orExcludeTag: data.orExcludeTag,
-        },
-        buyScore: data.buyScore,
-        count: data.count,
-        ...(data.bonusProduct && { bonusProductId: data.bonusProduct }),
-        ...(data.bonusCount && { bonusCount: Number(data.bonusCount) }),
-        ...(data.spinCount && { spinCount: data.spinCount }),
-        ...(data.spinCampaignId && { spinCampaignId: data.spinCampaignId }),
-        ...(data.lottery && { lottery: data.lottery }),
-        ...(data.lotteryCount && { lotteryCount: data.lotteryCount }),
+      restrictions: {
+        minimumSpend: data.minimumSpend,
+        maximumSpend: data.maximumSpend,
+        categoryIds: data.categoryIds,
+        excludeCategoryIds: data.excludeCategoryIds,
+        productIds: data.productIds,
+        excludeProductIds: data.excludeProductIds,
+        tag: data.tag,
+        orExcludeTag: data.orExcludeTag,
       },
+      buyScore: data.buyScore,
+      ...(data.bonusProduct && { bonusProductId: data.bonusProduct }),
+      ...(data.bonusCount && { bonusCount: Number(data.bonusCount) }),
+      ...(data.spinCount && { spinCount: data.spinCount }),
+      ...(data.spinCampaignId && { spinCampaignId: data.spinCampaignId }),
+      ...(data.lottery && { lottery: data.lottery }),
+      ...(data.lotteryCount && { lotteryCount: data.lotteryCount }),
     };
-
-    if (data?.kind) {
-      variables.conditions[data.kind] = data.count;
-    }
 
     voucherEdit({
       variables,

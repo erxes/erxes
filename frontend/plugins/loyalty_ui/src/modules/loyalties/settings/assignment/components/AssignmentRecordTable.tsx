@@ -19,7 +19,7 @@ export const AssignmentRecordTable = () => {
       columns={assignmentColumns(editStatus)}
       data={assignments || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

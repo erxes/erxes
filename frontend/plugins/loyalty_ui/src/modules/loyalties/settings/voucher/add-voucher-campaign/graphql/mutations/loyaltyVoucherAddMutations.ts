@@ -1,62 +1,95 @@
 import { gql } from '@apollo/client';
 
-export const LOYALTY_VOUCHER_ADD_MUTATION = gql`
-  mutation CreateCampaign(
-    $name: String!
-    $kind: String!
+export const CREATE_VOUCHER_CAMPAIGN = gql`
+  mutation CreateVoucherCampaign(
+    $title: String
     $description: String
+    $startDate: Date
+    $endDate: Date
+    $finishDateOfUse: Date
+    $attachment: AttachmentInput
     $status: String
-    $type: String
-    $startDate: String
-    $endDate: String
-    $amount: Float
-    $conditions: JSON
+    $buyScore: Float
+    $score: Float
+    $scoreAction: String
+    $voucherType: String
+    $productCategoryIds: [String]
+    $productIds: [String]
+    $discountPercent: Float
+    $bonusProductId: String
+    $bonusCount: Float
+    $coupon: String
+    $spinCampaignId: String
+    $spinCount: Float
+    $lotteryCampaignId: String
+    $lotteryCount: Float
+    $kind: Kind
+    $value: Float
+    $restrictions: JSON
   ) {
-    createCampaign(
-      name: $name
-      kind: $kind
+    voucherCampaignsAdd(
+      title: $title
       description: $description
-      status: $status
-      type: $type
       startDate: $startDate
       endDate: $endDate
-      amount: $amount
-      conditions: $conditions
+      finishDateOfUse: $finishDateOfUse
+      attachment: $attachment
+      status: $status
+      buyScore: $buyScore
+      score: $score
+      scoreAction: $scoreAction
+      voucherType: $voucherType
+      productCategoryIds: $productCategoryIds
+      productIds: $productIds
+      discountPercent: $discountPercent
+      bonusProductId: $bonusProductId
+      bonusCount: $bonusCount
+      coupon: $coupon
+      spinCampaignId: $spinCampaignId
+      spinCount: $spinCount
+      lotteryCampaignId: $lotteryCampaignId
+      lotteryCount: $lotteryCount
+      kind: $kind
+      value: $value
+      restrictions: $restrictions
     ) {
       _id
-      name
+      createdAt
+      createdBy
+      modifiedAt
+      modifiedBy
+      title
       description
-      status
-      type
       startDate
       endDate
-      amount
-      createdBy {
-        email
-        details {
-          avatar
-
-          fullName
-          shortName
-          birthDate
-          firstName
-          middleName
-          lastName
-        }
+      finishDateOfUse
+      attachment {
+        url
+        name
+        size
+        type
+        __typename
       }
-      updatedBy {
-        email
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-          shortName
-          middleName
-        }
-      }
-      conditions
+      status
+      buyScore
+      score
+      scoreAction
+      voucherType
+      productCategoryIds
+      productIds
+      discountPercent
+      bonusProductId
+      bonusCount
+      coupon
+      spinCampaignId
+      spinCount
+      lotteryCampaignId
+      lotteryCount
+      vouchersCount
+      codesCount
       kind
+      value
+      restrictions
     }
   }
 `;

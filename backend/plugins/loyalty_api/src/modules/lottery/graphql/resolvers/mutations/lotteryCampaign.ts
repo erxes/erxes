@@ -2,51 +2,51 @@ import { ILotteryCampaign } from '@/lottery/@types/lotteryCampaign';
 import { IContext } from '~/connectionResolvers';
 
 export const lotteryCampaignMutations = {
-  createLotteryCampaign: async (
-    _parent: undefined,
+  async lotteryCampaignsAdd(
+    _root: undefined,
     doc: ILotteryCampaign,
-    { models, user }: IContext,
-  ) => {
-    return models.LotteryCampaign.createLotteryCampaign(doc, user);
-  },
-
-  updateLotteryCampaign: async (
-    _parent: undefined,
-    { _id, ...doc }: ILotteryCampaign & { _id: string },
-    { models, user }: IContext,
-  ) => {
-    return models.LotteryCampaign.updateLotteryCampaign(_id, doc, user);
-  },
-
-  removeLotteryCampaign: async (
-    _parent: undefined,
-    { _id }: { _id: string },
     { models }: IContext,
-  ) => {
-    return models.LotteryCampaign.removeLotteryCampaign(_id);
+  ) {
+    return models.LotteryCampaigns.createLotteryCampaign(doc);
   },
 
-  doLottery: async (
-    _parent: undefined,
+  async lotteryCampaignsEdit(
+    _root: undefined,
+    { _id, ...doc }: ILotteryCampaign & { _id: string },
+    { models }: IContext,
+  ) {
+    return models.LotteryCampaigns.updateLotteryCampaign(_id, doc);
+  },
+
+  async lotteryCampaignsRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models }: IContext,
+  ) {
+    return models.LotteryCampaigns.removeLotteryCampaigns(_ids);
+  },
+
+  async doLottery(
+    _root: undefined,
     params: { campaignId: string; awardId: string },
-    { models, user }: IContext,
-  ) => {
-    return models.LotteryCampaign.doLottery(params, user);
+    { models }: IContext,
+  ) {
+    return models.LotteryCampaigns.doLottery(params);
   },
 
-  doLotteryMultiple: async (
-    _parent: undefined,
+  async doLotteryMultiple(
+    _root: undefined,
     params: { campaignId: string; awardId: string; multiple: number },
-    { models, user }: IContext,
-  ) => {
-    return models.LotteryCampaign.multipleDoLottery(params, user);
+    { models }: IContext,
+  ) {
+    return models.LotteryCampaigns.multipleDoLottery(params);
   },
 
-  getNextChar: async (
-    _parent: undefined,
+  async getNextChar(
+    _root: undefined,
     params: { campaignId: string; awardId: string; prevChars: string },
-    { models, user }: IContext,
-  ) => {
-    return models.LotteryCampaign.getNextChar(params, user);
+    { models }: IContext,
+  ) {
+    return models.LotteryCampaigns.getNextChar(params);
   },
 };

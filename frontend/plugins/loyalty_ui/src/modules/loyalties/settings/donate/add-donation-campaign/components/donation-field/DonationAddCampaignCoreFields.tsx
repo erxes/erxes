@@ -1,9 +1,9 @@
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { Button, Form, Input } from 'erxes-ui';
 import React from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { Button, Form, Input } from 'erxes-ui';
-import { DonationFormValues } from '../../../constants/donationFormSchema';
 import { SelectVoucherCampaign } from '../../../components/selects/SelectVoucherCampaign';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { DonationFormValues } from '../../../constants/donationFormSchema';
 
 interface DonationAddCampaignCoreFieldsProps {
   form: UseFormReturn<DonationFormValues>;
@@ -15,7 +15,7 @@ export const DonationAddCampaignCoreFields: React.FC<
   const { control } = form;
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'conditions',
+    name: 'awards',
   });
 
   return (
@@ -36,7 +36,7 @@ export const DonationAddCampaignCoreFields: React.FC<
         />
         <Form.Field
           control={form.control}
-          name="conditions.0.maxScore"
+          name="maxScore"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Max Score</Form.Label>
@@ -61,7 +61,7 @@ export const DonationAddCampaignCoreFields: React.FC<
               <div className="flex-1 min-w-0">
                 <Form.Field
                   control={form.control}
-                  name={`conditions.${index}.voucherCampaignId`}
+                  name={`awards.${index}.voucherCampaignId`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Voucher Campaign</Form.Label>
@@ -79,7 +79,7 @@ export const DonationAddCampaignCoreFields: React.FC<
               <div className="w-full sm:w-60">
                 <Form.Field
                   control={form.control}
-                  name={`conditions.${index}.minScore`}
+                  name={`awards.${index}.minScore`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Min Score</Form.Label>
@@ -111,9 +111,7 @@ export const DonationAddCampaignCoreFields: React.FC<
         </div>
 
         <Button
-          onClick={() =>
-            append({ minScore: 0, voucherCampaignId: '', maxScore: 0 })
-          }
+          onClick={() => append({ minScore: 0, voucherCampaignId: '' })}
           className="flex w-full mt-5!"
           variant="secondary"
         >

@@ -1,9 +1,7 @@
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
-import { LOYALTY_CONDITIONS, STATUSES } from '~/@types';
+import { ICommonCampaignDocument, ICommonCampaignFields } from '~/utils';
 
-/**
- * Coupon code generation rules
- */
 export interface ICouponCodeRule {
   prefix?: string;
   postfix?: string;
@@ -16,35 +14,24 @@ export interface ICouponCodeRule {
   pattern?: string;
 }
 
-/**
- * Coupon campaign base fields
- */
-export interface ICouponCampaign {
-  name: string;
-  description?: string;
-
-  status: STATUSES;
-
+export interface ICouponCampaign extends ICommonCampaignFields {
   kind: 'amount' | 'percent';
   value: number;
-
   codeRule: ICouponCodeRule;
-  restrictions?: LOYALTY_CONDITIONS;
-
+  restrictions: any;
   redemptionLimitPerUser: number;
-  buyScore: number;
 
-  createdBy?: string;
-  updatedBy?: string;
+  buyScore: number;
 }
 
-/**
- * Coupon campaign mongoose document
- */
 export interface ICouponCampaignDocument
   extends ICouponCampaign,
+    ICommonCampaignDocument,
     Document {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface ICouponCampaignParams extends ICursorPaginateParams {
+  searchValue?: string;
+  status?: string;
 }

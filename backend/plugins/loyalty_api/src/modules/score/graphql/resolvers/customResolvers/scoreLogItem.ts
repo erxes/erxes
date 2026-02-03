@@ -1,7 +1,6 @@
-import { IContext } from '~/connectionResolvers';
 import { IScoreLog } from '@/score/@types/scoreLog';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-
+import { IContext } from '~/connectionResolvers';
 
 const TARGET_ACTIONS: Record<
   string,
@@ -19,18 +18,16 @@ const TARGET_ACTIONS: Record<
   },
 };
 
-/* -------------------- helpers -------------------- */
-
 const fetchTarget = async ({
   targetId,
-  serviceName,
+  module,
   subdomain,
 }: {
   targetId: string;
-  serviceName: string;
+  module: string;
   subdomain: string;
 }) => {
-  const config = TARGET_ACTIONS[serviceName];
+  const config = TARGET_ACTIONS[module];
 
   if (!targetId || !config) {
     return null;
@@ -38,7 +35,7 @@ const fetchTarget = async ({
 
   const target = await sendTRPCMessage({
     subdomain,
-    pluginName: serviceName,
+    pluginName: 'sales',
     method: 'query',
     module: config.module,
     action: config.action,
@@ -56,35 +53,31 @@ const fetchTarget = async ({
   );
 };
 
-/* -------------------- resolvers -------------------- */
-
 export default {
   async campaign(
-    scoreLog: IScoreLog,
+    { campaignId }: IScoreLog,
     _args: undefined,
     { models }: IContext,
   ) {
-    return models.ScoreCampaign.findOne({
-      _id: scoreLog.campaignId,
-    });
+    return await models.ScoreCampaigns.findOne({ _id: campaignId });
   },
 
-  type(scoreLog: IScoreLog) {
-    return scoreLog.serviceName ?? null;
+  type({ serviceName }: IScoreLog) {
+    return serviceName || null;
   },
 
   async target(
-    scoreLog: IScoreLog,
+    { targetId, serviceName }: IScoreLog,
     _args: undefined,
     { subdomain }: IContext,
   ) {
-    if (!scoreLog.targetId || !scoreLog.serviceName) {
+    if (!targetId || !serviceName) {
       return null;
     }
 
-    return fetchTarget({
-      targetId: scoreLog.targetId,
-      serviceName: scoreLog.serviceName,
+    return await fetchTarget({
+      targetId,
+      module: serviceName,
       subdomain,
     });
   },

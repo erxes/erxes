@@ -1,15 +1,15 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { getCampaignsQuery } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
-import { editSpinStatusMutation } from '../graphql/mutations/spinEditStatusMutations';
+import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
+import { UPDATE_SPIN_CAMPAIGN } from '../graphql/mutations/spinEditStatusMutations';
 
 export function useSpinStatusEdit() {
   const { toast } = useToast();
 
-  const [editSpin, { loading, error }] = useMutation(editSpinStatusMutation, {
+  const [editSpin, { loading, error }] = useMutation(UPDATE_SPIN_CAMPAIGN, {
     refetchQueries: [
       {
-        query: getCampaignsQuery,
+        query: QUERY_SPIN_CAMPAIGNS,
       },
     ],
   });
@@ -19,8 +19,7 @@ export function useSpinStatusEdit() {
 
     return editSpin({
       variables: {
-        id: variables._id,
-        kind: 'spin',
+        _id: variables._id,
         status: variables.status,
       },
       onCompleted: (data) => {

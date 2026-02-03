@@ -1,12 +1,18 @@
-import { randomBytes } from 'node:crypto';
 import { Schema } from 'mongoose';
-import { OWNER_TYPES } from '~/constants';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
+import { randomBytes } from 'node:crypto';
+import { CAMPAIGN_STATUS, OWNER_TYPES } from '~/constants';
 
 export const randomBetween = (min: number, max: number) => {
   const rand = randomBytes(4).readUInt32BE(0) / 0xffffffff;
   return rand * (max - min) + min;
 };
+
+export interface IProductD {
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface IBuyParams {
   campaignId: string;
   ownerType: string;
@@ -25,7 +31,6 @@ export interface ICodeConfig {
   staticCode?: string;
 }
 
-
 export interface ICommonCampaignFields {
   title: string;
   description?: string;
@@ -39,11 +44,14 @@ export interface ICommonCampaignFields {
 export interface ICommonCampaignDocument {
   createdAt?: Date;
   createdBy?: string;
-  modifiedAt?: Date;
-  modifiedBy?: string;
+  updatedAt?: Date;
+  updatedBy?: string;
 }
 
-
+export interface ICommonDocument {
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 export interface ICommonCampaignParams {
   page?: number;
@@ -83,7 +91,6 @@ export interface IScoreParams {
   stageId?: string;
 }
 
-
 export const attachmentSchema = new Schema(
   {
     name: String,
@@ -101,18 +108,13 @@ export const attachmentSchema = new Schema(
 
 export interface ICommonFields {
   campaignId: string;
-  ownerType: string;
+
   ownerId: string;
+  ownerType: string;
+
   usedAt?: Date;
   userId?: string;
 }
-
-export interface ICommonDocument {
-  createdAt?: Date;
-  modifiedAt?: Date;
-}
-
-
 
 export const commonCampaignSchema = {
   createdAt: { type: Date },
@@ -142,22 +144,11 @@ export const commonCampaignSchema = {
 export const commonSchema = {
   campaignId: { type: String, required: true },
 
-  createdAt: { type: Date },
-  modifiedAt: { type: Date },
-
   usedAt: { type: Date },
   userId: { type: String },
 
-  ownerType: {
-    type: String,
-    enum: OWNER_TYPES.ALL,
-    required: true,
-  },
-
-  ownerId: {
-    type: String,
-    required: true,
-  },
+  ownerId: { type: String, required: true },
+  ownerType: { type: String, enum: OWNER_TYPES.ALL, required: true },
 };
 
 export const commonCampaignTypes = `

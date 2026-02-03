@@ -44,9 +44,9 @@ export const spinColumns: (
   RecordTable.checkboxColumn as ColumnDef<ISpin>,
 
   {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+    id: 'title',
+    accessorKey: 'title',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <SpinNameCell

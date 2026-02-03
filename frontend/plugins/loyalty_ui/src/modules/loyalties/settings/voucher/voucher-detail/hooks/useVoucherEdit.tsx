@@ -1,12 +1,13 @@
 import { useMutation } from '@apollo/client';
-import { editVoucherStatusMutation } from '../../graphql/mutations/voucherEditStatusMutations';
-
-const VOUCHER_EDIT = editVoucherStatusMutation;
+import { UPDATE_VOUCHER_CAMPAIGN } from '../../graphql/mutations/voucherEditStatusMutations';
 
 export const useVoucherEdit = () => {
-  const [updateCampaign, { loading, error }] = useMutation(VOUCHER_EDIT, {
-    refetchQueries: ['getCampaignsQuery'],
-  });
+  const [updateCampaign, { loading, error }] = useMutation(
+    UPDATE_VOUCHER_CAMPAIGN,
+    {
+      refetchQueries: ['getCampaignsQuery'],
+    },
+  );
 
   return {
     voucherEdit: updateCampaign,

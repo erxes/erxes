@@ -1,9 +1,9 @@
+import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
-import { AddDonationCampaignForm } from './AddDonationCampaignForm';
 import { UseFormReturn } from 'react-hook-form';
 import { DonationFormValues } from '../../constants/donationFormSchema';
 import { useAddDonation } from '../../hooks/useAddDonation';
-import { ApolloError } from '@apollo/client';
+import { AddDonationCampaignForm } from './AddDonationCampaignForm';
 
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -26,15 +26,15 @@ export const DonationTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      name: data.title || '',
-      kind: 'donation',
+      title: data.title || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-      conditions: data.conditions?.map((condition) => ({
-        voucherCampaignId: condition.voucherCampaignId,
-        minScore: condition.minScore,
-        maxScore: condition.maxScore,
+      maxScore: data.maxScore,
+
+      awards: data.awards?.map((award) => ({
+        voucherCampaignId: award.voucherCampaignId,
+        minScore: award.minScore,
       })),
     };
 

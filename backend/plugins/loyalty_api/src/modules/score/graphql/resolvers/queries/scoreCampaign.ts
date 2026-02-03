@@ -1,26 +1,22 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { IScoreCampaignParams } from '@/score/@types/scoreCampaign';
+import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getPlugin,
+  getPlugins,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
+import { getLoyaltyOwner } from '~/utils';
 
-/* -------------------- params -------------------- */
-
-export interface IScoreCampaignParams {
-  status?: string;
-  searchValue?: string;
-  serviceName?: string;
-  limit?: number;
-  cursor?: string;
-}
-
-/* -------------------- filter -------------------- */
-
-const generateFilter = (params: IScoreCampaignParams) => {
+const generateFilter = (params: any) => {
   const filter: any = {
     status: { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
   };
 
   if (params.searchValue) {
-    filter.title = new RegExp(params.searchValue, 'i');
+    filter.title = new RegExp(`^${escapeRegExp(params.searchValue)}`);
   }
 
   if (params.status) {
@@ -34,28 +30,108 @@ const generateFilter = (params: IScoreCampaignParams) => {
   return filter;
 };
 
-/* -------------------- queries -------------------- */
-
 export const scoreCampaignQueries = {
-  getScoreCampaigns: async (
-    _parent: undefined,
+  scoreCampaigns: async (
+    _root: undefined,
     params: IScoreCampaignParams,
     { models }: IContext,
   ) => {
     const filter = generateFilter(params);
 
     return cursorPaginate({
-      model: models.ScoreCampaign,
+      model: models.ScoreCampaigns,
       params,
       query: filter,
     });
   },
 
-  getScoreCampaignDetail: async (
-    _parent: undefined,
+  scoreCampaign: async (
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.ScoreCampaign.getScoreCampaign(_id);
+    return models.ScoreCampaigns.getScoreCampaign(_id);
+  },
+
+  scoreCampaignAttributes: async (
+    _root: undefined,
+    { serviceName }: { serviceName: string },
+    { subdomain }: IContext,
+  ) => {
+    let attributes: any[] = [];
+
+    // for (const serviceName of services) {
+    const service = await getPlugin(serviceName);
+    const meta = service.config?.meta || {};
+
+    if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
+      const serviceAttributes = await sendTRPCMessage({
+        subdomain,
+        pluginName: serviceName,
+        method: 'query',
+        module: 'fields',
+        action: 'getScoreCampaingAttributes',
+        input: {},
+        defaultValue: [],
+      });
+
+      if (Array.isArray(serviceAttributes)) {
+        attributes = [...attributes, ...serviceAttributes];
+      }
+    }
+
+    return attributes;
+  },
+
+  async scoreCampaignServices() {
+    const services = await getPlugins();
+
+    const searviceNames: any[] = [];
+
+    for (const serviceName of services) {
+      const service = await getPlugin(serviceName);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
+        const { name, label, isAviableAdditionalConfig, icon } =
+          meta?.loyalties || {};
+        searviceNames.push({ name, label, isAviableAdditionalConfig, icon });
+      }
+    }
+
+    return searviceNames;
+  },
+
+  async checkOwnerScore(
+    _root: undefined,
+    {
+      ownerId,
+      ownerType,
+      campaignId,
+    }: { ownerId: string; ownerType: string; campaignId: string },
+    { subdomain, models }: IContext,
+  ) {
+    const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+
+    if (!owner) {
+      throw new Error('Owner not found');
+    }
+
+    if (!campaignId) {
+      return owner?.score || 0;
+    }
+
+    const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
+
+    if (!campaign) {
+      throw new Error('Campaign not found');
+    }
+
+    const { value = 0 } =
+      (owner?.customFieldsData || []).find(
+        ({ field }) => field === campaign?.fieldId,
+      ) || {};
+
+    return value;
   },
 };

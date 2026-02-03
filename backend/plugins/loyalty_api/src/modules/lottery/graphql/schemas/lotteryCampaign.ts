@@ -1,42 +1,44 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import { commonCampaignInputs, commonCampaignTypes } from '~/utils';
+
 export const types = `
   type LotteryCampaign {
     _id: String
-    name: String
-    description: String
-    status: String
+    ${commonCampaignTypes}
 
     numberFormat: String
     buyScore: Float
     awards: JSON
 
-    createdAt: String
+    lotteriesCount: Int,
+
     updatedAt: String
-    createdBy: String
-    updatedBy: String
+  }
+
+  type LotteryCampaignListResponse {
+    list: [LotteryCampaign]
+    pageInfo: PageInfo
+    totalCount: Int
   }
 `;
+
 const queryParams = `
   status: String
   searchValue: String
+
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
- export const queries = `
-  getLotteryCampaigns(${queryParams}): [LotteryCampaign]
-  getLotteryCampaignDetail(_id: String!): LotteryCampaign
 
-  getLotteryCampaignWinnerList(
-    campaignId: String!
-    awardId: String!
-  ): JSON
-
-  getLotteryCampaignCustomerList(
-    campaignId: String!
-  ): JSON
+export const queries = `
+  lotteryCampaigns(${queryParams}): LotteryCampaignListResponse
+  lotteryCampaignDetail(_id: String!): LotteryCampaign
+  lotteryCampaignWinnerList(campaignId: String!, awardId: String!): JSON
+  lotteriesCampaignCustomerList(campaignId: String!): JSON
+  cpLotteryCampaigns: [LotteryCampaign]
 `;
 
 const mutationParams = `
-  name: String
-  description: String
-  status: String
+  ${commonCampaignInputs}
 
   numberFormat: String
   buyScore: Float
@@ -44,8 +46,10 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  createLotteryCampaign(${mutationParams}): LotteryCampaign
-  updateLotteryCampaign(_id: String!, ${mutationParams}): LotteryCampaign
-  removeLotteryCampaign(_id: String!): LotteryCampaign
+  lotteryCampaignsAdd(${mutationParams}): LotteryCampaign
+  lotteryCampaignsEdit(_id: String!, ${mutationParams}): LotteryCampaign
+  lotteryCampaignsRemove(_ids: [String]): JSON
+  doLottery(campaignId: String, awardId: String ): JSON
+  doLotteryMultiple(campaignId: String, awardId: String,multiple: Int): String
+  getNextChar(campaignId: String, awardId: String, prevChars: String):JSON
 `;
-

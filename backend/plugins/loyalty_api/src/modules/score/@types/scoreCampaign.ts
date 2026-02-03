@@ -1,45 +1,49 @@
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonCampaignDocument } from '~/utils';
 
-/**
- * Score action config (add / subtract)
- */
-export interface IScoreActionConfig {
-  placeholder: string;
-  currencyRatio: number;
-}
-
-/**
- * Score campaign base fields
- */
 export interface IScoreCampaign {
-  name: string;
-  description?: string;
-
-  status?: string;
+  title: string;
+  description: string;
+  add: {
+    placeholder: string;
+    currencyRatio: string;
+  };
+  subtract: {
+    placeholder: string;
+    currencyRatio: string;
+  };
+  createdUserId: string;
   ownerType: string;
-
-  fieldGroupId?: string;
-  fieldName?: string;
-  fieldId?: string;
-
-  add?: IScoreActionConfig;
-  subtract?: IScoreActionConfig;
+  fieldGroupId: string;
+  fieldName: string;
+  fieldId: string;
+  status: string;
 
   onlyClientPortal?: boolean;
   restrictions?: any;
   additionalConfig?: any;
-
-  createdBy?: string;
-  updatedBy?: string;
 }
 
-/**
- * Score campaign mongoose document
- */
 export interface IScoreCampaignDocument
-  extends IScoreCampaign,
-    Document {
+  extends Document,
+    ICommonCampaignDocument,
+    IScoreCampaign {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface DoCampaignTypes {
+  ownerType: string;
+  ownerId: string;
+  campaignId: string;
+  target: any;
+  targetId?: string;
+  actionMethod: 'add' | 'subtract';
+  serviceName?: string;
+}
+
+export interface IScoreCampaignParams extends ICursorPaginateParams {
+  status?: string;
+  searchValue?: string;
+  serviceName?: string;
 }
