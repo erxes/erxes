@@ -8,7 +8,9 @@ import { MembersInline, useMembersInlineContext } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { EMGreetingAvatar } from '@/integrations/erxes-messenger/components/EMGreeting';
 import { EMPreviewChatInput } from './EMPreviewChatInput';
-import { useMemo } from 'react';
+import { Weekday } from '../types/Weekday';
+import { ScheduleDay } from '../constants/emHoursSchema';
+import { formatDate } from 'date-fns';
 
 const MAX_COUNT = 2;
 
@@ -40,28 +42,35 @@ export const EMPreviewIntro = () => {
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
 
+  const getSchedule = (obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean | undefined; from?: string | undefined; to?: string | undefined; }>>) => {
+    const days = Object.entries(obj).filter(([_, value]) => value.work).map(([key, _]) => key);
+    const times = Object.entries(obj).filter(([_, value]) => value.work).map(([_, value]) => `${value.from} - ${value.to}`);
+    return {
+      days,
+      times
+    }
+  }
+
   return (
     <>
-      <div className="bg-background text-foreground p-6 pt-4">
-        {/* <Popover.Close asChild>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="absolute top-4 right-4"
-          >
-            <IconX />
-          </Button>
-        </Popover.Close> */}
+      <div className="bg-background text-foreground p-6 pt-4 space-y-3">
         <h1 className="font-semibold text-accent-foreground text-base">
-          Need help?
+          {greeting?.title || 'Need help?'}
         </h1>
-        <p className="text-sm text-foreground/80 mt-3 mb-3">
-          {greeting?.title || 'Welcome to Erxes Messenger'}
+        <p className="text-sm text-foreground/80">
+          {greeting?.message || 'Welcome to Erxes Messenger'}
         </p>
-        <p className="text-xs text-accent-foreground mb-5">
+        {
+          hours?.availabilityMethod === 'manual' ? (
+            <p className='text-sm text-medium text-accent-foreground'>We're available between 9.00 pm and 5.00 am</p>
+          ) : (
+            <p className='text-sm text-medium text-accent-foreground'>We're available between {getSchedule(hours?.onlineHours || {}).times[0] || '9.00 am - 5.00 pm'}, {getSchedule(hours?.onlineHours || {}).days.join(', ') || ''}</p>
+          )
+        }
+        <p className="text-xs text-accent-foreground">
           Contact us for any questions or concerns.
         </p>
-        <div className="flex items-center gap-1 text-accent mb-2">
+        <div className="flex items-center gap-1 text-accent">
           {greeting?.links?.map(
             (link) =>
               !!link && (
@@ -91,26 +100,6 @@ export const EMPreviewIntro = () => {
       <div className="mt-auto">
         <EMPreviewChatInput />
       </div>
-      {/* <div className="bg-a px-4 py-6 -mt-8 mx-6 rounded-xl shadow-md">
-        <div className="font-medium text-accent-foreground mb-2 text-sm px-3">
-          Recent conversations
-        </div>
-        <Button
-          className="w-full text-left h-auto justify-start rounded-md px-2 my-2"
-          variant="ghost"
-        >
-          <div className="flex items-center bg-muted text-muted-foreground p-2 rounded-full">
-            <IconPlus className="size-5" strokeWidth={1.5} />
-          </div>
-          <div className="flex flex-col gap-1">
-            <span>Start new conversation</span>
-            <span className="text-xs font-normal text-accent-foreground">
-              Our usual response time is a few {hours?.responseRate}.
-            </span>
-          </div>
-        </Button>
-        <Separator />
-      </div> */}
     </>
   );
 };

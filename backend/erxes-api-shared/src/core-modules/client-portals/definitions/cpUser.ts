@@ -80,6 +80,19 @@ export const socialAuthProviderSchema = new Schema(
   { _id: false },
 );
 
+export const fcmDeviceSchema = new Schema(
+  {
+    deviceId: { type: String, required: true },
+    token: { type: String, required: true },
+    platform: {
+      type: String,
+      required: true,
+      enum: ['ios', 'android', 'web'],
+    },
+  },
+  { _id: false },
+);
+
 const actionCodeSchema = new Schema(
   {
     code: { type: String, required: true },
@@ -167,7 +180,7 @@ export const cpUserSchema = new Schema(
       default: false,
     },
     fcmTokens: {
-      type: [String],
+      type: [fcmDeviceSchema],
       default: [],
     },
     actionCode: {

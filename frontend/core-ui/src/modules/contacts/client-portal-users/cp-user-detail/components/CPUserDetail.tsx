@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityLogs } from 'ui-modules';
 import { CPUserDetailGeneral } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailGeneral';
 import { CPUserDetailFields } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailFields';
+import { CPUserDetailNotifications } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailNotifications';
 import { CPUserDetailSidebar } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailSidebar';
 import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
 
@@ -51,6 +52,9 @@ export function CPUserDetail() {
                 </Tabs.Content>
                 <Tabs.Content value="activity">
                   <ActivityLogs targetId={cpUser?._id || ''} />
+                </Tabs.Content>
+                <Tabs.Content value="notifications">
+                  <CPUserDetailNotifications />
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

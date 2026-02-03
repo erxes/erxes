@@ -1,6 +1,12 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  type CPNotificationResult {
+    ios: Boolean
+    android: Boolean
+    web: Boolean
+  }
+
   type CPNotification {
     _id: String!
     cpUserId: String!
@@ -17,6 +23,7 @@ export const types = `
     metadata: JSON
     action: String
     kind: String!
+    result: CPNotificationResult
     createdAt: Date!
     expiresAt: Date
     updatedAt: Date!
@@ -61,6 +68,14 @@ export const types = `
     fromDate: String
     endDate: String
   }
+
+  input CPNotificationSendInput {
+    title: String!
+    message: String!
+    type: CPNotificationType
+    priority: CPNotificationPriority
+    kind: CPNotificationKind
+  }
 `;
 
 const CP_NOTIFICATIONS_QUERIES_PARAMS = `
@@ -75,6 +90,7 @@ const CP_NOTIFICATIONS_QUERIES_PARAMS = `
 
 export const queries = `
     clientPortalNotifications(${CP_NOTIFICATIONS_QUERIES_PARAMS}, clientPortalId: String): CPNotificationListResponse
+    getClientPortalNotificationsByCpUserId(cpUserId: String!, ${CP_NOTIFICATIONS_QUERIES_PARAMS}, clientPortalId: String): CPNotificationListResponse
     clientPortalNotificationDetail(_id: String!): CPNotification
     clientPortalUnreadNotificationCount(clientPortalId: String): Int
 `;
@@ -82,6 +98,7 @@ export const queries = `
 export const mutations = `
     clientPortalMarkNotificationAsRead(_id: String!): JSON
     clientPortalMarkAllNotificationsAsRead(clientPortalId: String): JSON
+    clientPortalSendNotification(cpUserId: String!, clientPortalId: String!, input: CPNotificationSendInput!): CPNotification
 `;
 
 export default { queries, mutations, types };
