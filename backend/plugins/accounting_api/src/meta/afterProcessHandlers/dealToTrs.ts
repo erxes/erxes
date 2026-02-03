@@ -58,7 +58,7 @@ export const dealToTrs = async ({
     ctaxRowId: string,
     payments: Record<string, { accountId: string }>,
     defaultPayment: { accountId: string },
-    defaultPosPayment: { accountId: string },
+    defaultNegPayment: { accountId: string },
   }
 }) => {
   const activeProductsData = deal.productsData?.filter(pd => pd.tickUsed);
@@ -201,7 +201,7 @@ export const dealToTrs = async ({
   if (diffAmount < -0.005 || diffAmount > 0.005) {
     const { side, accountId, lastAmount, journal } = await getJournal(
       models,
-      diffAmount > 0 && config.defaultPayment || config.defaultPosPayment,
+      diffAmount > 0 && config.defaultPayment || config.defaultNegPayment,
       diffAmount
     )
 

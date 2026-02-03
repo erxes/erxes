@@ -34,7 +34,7 @@ export const EditAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES
 
   return (
     <Dialog open={open !== null && open !== ''} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog title="Edit Sync Config" description="Edit an config">
+      <AccountingDialog title="Edit Sync Config" description="Edit an config" className='max-w-4xl'>
         <EditAccountingConfigForm code={code} />
       </AccountingDialog>
     </Dialog>
@@ -63,7 +63,9 @@ export const EditAccountingConfigForm = ({
 
   const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
 
-  const form = useForm<any>({ defaultValues: { ...configValueDetail }, });
+  const form = useForm<any>({
+    defaultValues: { ...configValueDetail },
+  });
 
   const { reset } = form;
 

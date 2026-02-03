@@ -71,7 +71,7 @@ export const columns: ColumnDef<IConfig>[] = [
             setOpen(cell.row.original._id);
           }}
         >
-          {cell.getValue() as string}
+          {cell.row.original.code}
         </RecordTableInlineCell>
       );
     },
@@ -84,16 +84,15 @@ export const columns: ColumnDef<IConfig>[] = [
     cell: ({ cell }) => {
       const [, setOpen] = useQueryState('configId');
       const setAccountDetail = useSetAtom(accountingConfigDetailAtom);
-      <RecordTableInlineCell
+      return (<RecordTableInlineCell
         onClick={() => {
-          setAccountDetail(cell.row.original);
+          setAccountDetail(cell.row.original.value);
           setOpen(cell.row.original._id);
         }}
       >
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
+        {cell.row.original.value?.title || 'Undefined title'}
+      </RecordTableInlineCell>)
     },
-    size: 250,
   },
   {
     id: 'board',
@@ -101,14 +100,11 @@ export const columns: ColumnDef<IConfig>[] = [
     header: () => <RecordTable.InlineHead label="Board" />,
     cell: ({ cell }) => {
       return (
-        <AccountTextField
-          value={cell.getValue() as string}
-          field="boardId"
-          _id={cell.row.original._id}
-        />
+        <RecordTableInlineCell>
+          {cell.row.original.value?.boardId}
+        </RecordTableInlineCell>
       );
     },
-    size: 300,
   },
   {
     id: 'pipeline',
@@ -116,14 +112,11 @@ export const columns: ColumnDef<IConfig>[] = [
     header: () => <RecordTable.InlineHead label="Pipeline" />,
     cell: ({ cell }) => {
       return (
-        <AccountTextField
-          value={cell.getValue() as string}
-          field="pipelineId"
-          _id={cell.row.original._id}
-        />
+        <RecordTableInlineCell>
+          {cell.row.original.value?.pipelineId}
+        </RecordTableInlineCell>
       );
     },
-    size: 300,
   },
   {
     id: 'stage',
@@ -131,14 +124,11 @@ export const columns: ColumnDef<IConfig>[] = [
     header: () => <RecordTable.InlineHead label="Stage" />,
     cell: ({ cell }) => {
       return (
-        <AccountTextField
-          value={cell.row.original.subId ?? ''}
-          field="stageId"
-          _id={cell.row.original._id}
-        />
+        <RecordTableInlineCell>
+          {cell.row.original.value?.stageId}
+        </RecordTableInlineCell>
       );
     },
-    size: 300,
   },
 ];
 
