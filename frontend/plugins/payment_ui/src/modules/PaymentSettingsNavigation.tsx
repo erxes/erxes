@@ -21,15 +21,11 @@ export const PaymentSettingsNavigation = () => {
             name="Payment Settings"
           />
 
-          {/* Invoices — looks IDENTICAL */}
+          {/* Invoices */}
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
-            path="__invoices__" // fake path
+            path="invoices" 
             name="Invoices"
-            onClick={(e: React.MouseEvent) => {
-              e.preventDefault();
-              navigate('/payment');
-            }}
           />
 
           {/* Corporate Gateway */}
