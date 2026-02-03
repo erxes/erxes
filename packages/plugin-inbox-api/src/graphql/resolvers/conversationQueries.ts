@@ -424,7 +424,11 @@ const conversationQueries: any = {
     { customerId }: { customerId: string },
     { models }: IContext,
   ) {
-    return await models.Conversations.find({ customerId })
+    return await models.Conversations.find({
+      customerId,
+      assignedUserId: { $ne: null },
+      tagIds: { $exists: true, $ne: [] },
+    })
       .sort({ createdAt: -1 })
       .lean();
   },

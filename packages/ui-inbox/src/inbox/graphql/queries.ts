@@ -62,6 +62,7 @@ const sidebarConversations = `
       content
       status
       updatedAt
+      createdAt
       idleTime
       messageCount
       assignedUser {
@@ -416,16 +417,21 @@ const generateCustomerDetailQuery = (params) => {
 };
 
 const userConversationsByCustomerId = `
- query UserConversationsByCustomerId($customerId: String!) {
+query UserConversationsByCustomerId($customerId: String!) {
   userConversationsByCustomerId(customerId: $customerId) {
     assignedUser {
       _id
       username
-
+      email
+      branches {
+        address
+      }
+      createdAt
     }
     tags {
       _id
       name
+      createdAt
     }
   }
 }

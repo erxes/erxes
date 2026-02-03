@@ -1,7 +1,5 @@
 import * as _ from "underscore";
-
 import { sendCoreMessage } from "./messageBroker";
-
 import { CONVERSATION_STATUSES } from "./models/definitions/constants";
 import { IModels } from "./connectionResolver";
 import { fixDate } from "@erxes/api-utils/src/core";
@@ -355,22 +353,15 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string): IOR {
+  public dateFilter(
+    startDate: string,
+    endDate: string,
+  ): { createdAt: { $gte: Date; $lte: Date } } {
     return {
-      $or: [
-        {
-          createdAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
-          },
-        },
-        {
-          updatedAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
-          },
-        },
-      ],
+      createdAt: {
+        $gte: fixDate(startDate),
+        $lte: fixDate(endDate),
+      },
     };
   }
 

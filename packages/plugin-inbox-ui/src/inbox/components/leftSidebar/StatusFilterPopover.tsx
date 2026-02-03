@@ -35,6 +35,7 @@ const StatusFilterPopover: React.FC<Props> = ({ queryParams }) => {
         query: gql(queries.conversationCounts),
         variables: generateParams(queryParams),
         fetchPolicy: ignoreCache ? "network-only" : "cache-first",
+        notifyOnNetworkStatusChange: true,
       })
       .then(({ data }: { data: any }) => {
         setCounts(data.conversationCounts);
@@ -49,6 +50,12 @@ const StatusFilterPopover: React.FC<Props> = ({ queryParams }) => {
   useEffect(() => {
     fetchData(true);
   }, [location.search]);
+
+  useEffect(() => {
+    if (queryParams.startDate || queryParams.endDate) {
+      fetchData(true);
+    }
+  }, [queryParams.startDate, queryParams.endDate]);
 
   const clearStatusFilter = () => {
     router.setParams(navigate, location, {
@@ -69,7 +76,7 @@ const StatusFilterPopover: React.FC<Props> = ({ queryParams }) => {
     count: number,
   ) => {
     const onClick = (e: React.MouseEvent) => {
-      e.preventDefault(); // page reload-г зогсооно
+      e.preventDefault();
       clearStatusFilter();
       router.setParams(navigate, location, { [paramName]: paramValue });
     };
