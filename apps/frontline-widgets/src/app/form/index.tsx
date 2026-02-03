@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useWidgetConnect } from './hooks/useWidgetConnect';
-import { InfoCard, Input, Label } from 'erxes-ui';
+import { Skeleton } from 'erxes-ui';
+import { ErxesForm } from './components/ErxesForm';
+import { Container } from './components/container';
+import { ErxesFormProvider } from './ context/erxesFormContext';
 
 export const Form = () => {
   const [settings, setSettings] = useState<any>({});
-  const { connectMutation, data, loading } = useWidgetConnect();
+  const { connectMutation, form, loading } = useWidgetConnect();
+  const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      console.log(event.data, 'event.data');
       if (event.data.fromPublisher) {
-        console.log(event.data, 'event.data.settings');
         setSettings(event.data.settings || {});
       }
     };
@@ -32,20 +34,27 @@ export const Form = () => {
     }
   }, [connectMutation, settings]);
 
-  const form = data?.widgetsLeadConnect?.form;
-  console.log(form, 'form');
+  const { steps } = form?.leadData || {};
+
   return (
-    <InfoCard title={form?.name}>
-      <InfoCard.Content>
-        <div className="grid grid-cols-2 gap-4 mb-2">
-          {form?.fields.map((field: any) => (
-            <div key={field._id}>
-              <Label>{field.text}</Label>
-              <Input />
-            </div>
-          ))}
-        </div>
-      </InfoCard.Content>
-    </InfoCard>
+    <Container settings={settings} loading={loading}>
+      {loading && <Skeleton className="h-full" />}
+      {!loading && form && (
+        <ErxesFormProvider form={form}>
+          {!loading &&
+            form &&
+            steps &&
+            Object.keys(steps).length > 0 &&
+            Object.entries(steps)
+              .sort((a, b) => a[1].order - b[1].order)
+              .map(
+                ([key, step], index) =>
+                  activeStep === index && (
+                    <ErxesForm key={step.name} step={step} />
+                  ),
+              )}
+        </ErxesFormProvider>
+      )}
+    </Container>
   );
 };
