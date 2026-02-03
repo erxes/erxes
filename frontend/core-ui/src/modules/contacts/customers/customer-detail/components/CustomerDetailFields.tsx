@@ -30,7 +30,6 @@ export const CustomerDetailFields = () => {
     _id,
     isSubscribed,
     description,
-    score,
     phones,
     phoneValidationStatus,
     avatar,
