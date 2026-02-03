@@ -112,17 +112,17 @@ import {
   types as ConformityTypes,
 } from '@/conformities/graphql/schema';
 
-import {
-  mutations as PermissionMutations,
-  queries as PermissionQueries,
-  types as PermissionTypes,
-} from '@/permissions/graphql/schemas/permission';
+// import {
+//   mutations as PermissionMutations,
+//   queries as PermissionQueries,
+//   types as PermissionTypes,
+// } from '~/modules/_permissions/graphql/schemas/permission';
 
 import {
   mutations as UsersGroupMutations,
   queries as UsersGroupQueries,
   types as UsersGroupTypes,
-} from '@/permissions/graphql/schemas/userGroup';
+} from '~/modules/_permissions/graphql/schemas/userGroup';
 
 import {
   mutations as DocumentMutations,
@@ -155,7 +155,7 @@ import {
   mutations as RoleMutations,
   queries as RoleQueries,
   types as RoleTypes,
-} from '@/permissions/graphql/schemas/role';
+} from '~/modules/_permissions/graphql/schemas/role';
 
 import {
   mutations as PropertiesMutations,
@@ -236,7 +236,6 @@ export const types = `
     ${RelationTypes}
     ${FavoritesTypes}
     ${ExchangeRateTypes}
-    ${PermissionTypes}
     ${UsersGroupTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
@@ -274,7 +273,6 @@ export const queries = `
     ${RelationQueries}
     ${FavoritesQueries}
     ${ExchangeRateQueries}
-    ${PermissionQueries}
     ${UsersGroupQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
@@ -312,7 +310,6 @@ export const mutations = `
     ${RelationMutations}
     ${FavoritesMutations}
     ${ExchangeRateMutations}
-    ${PermissionMutations}
     ${UsersGroupMutations}
     ${DocumentMutations}
     ${AutomationsMutations}

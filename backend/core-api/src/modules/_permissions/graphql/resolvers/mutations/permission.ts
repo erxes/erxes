@@ -1,6 +1,6 @@
 import { IPermissionParams } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { resetPermissionsCache } from '~/modules/permissions/utils';
+import { resetPermissionsCache } from '~/modules/_permissions/utils';
 
 export const permissionMutations = {
   /**

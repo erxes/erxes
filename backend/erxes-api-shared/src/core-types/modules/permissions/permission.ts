@@ -1,61 +1,29 @@
-import { Document } from 'mongoose';
-import { IUser } from '../team-member/user';
-export interface IPermission {
-  module: string;
-  action: string;
-  userId?: string;
-  groupId?: string;
-  requiredActions: string[];
-  allowed: boolean;
-}
-
-export interface IPermissionDocument extends IPermission, Document {
-  _id: string;
-}
-
-export interface IPermissionParams {
-  module: string;
-  actions: string[];
-  userIds?: string[];
-  groupIds?: string[];
-  allowed: boolean;
-}
-
-export interface IUserGroup {
-  name?: string;
-  description?: string;
-  branchIds?: string[];
-  departmentIds?: string[];
-}
-
-export interface IUserGroupDocument extends IUserGroup, Document {
-  _id: string;
-}
-export interface IActionMap {
-  [key: string]: boolean;
-}
-
-export interface IActionsMap {
-  name?: string;
-  module?: string;
-  description?: string;
-  use?: string[];
-}
-export interface IPermissionParams {
-  module: string;
-  actions: string[];
-  userIds?: string[];
-  groupIds?: string[];
-  allowed: boolean;
-}
-
-export interface IModuleMap {
+export interface PermissionAction {
   name: string;
-  description?: string;
-  actions?: IActionsMap[];
+  description: string;
+  required?: boolean;
 }
 
-export interface IPermissionContext {
-  user?: IUser;
-  [x: string]: any;
+export interface PermissionModule {
+  name: string;
+  actions: PermissionAction[];
+}
+
+export interface PermissionGroupPermission {
+  module: string;
+  actions: string[];
+  scope: 'own' | 'group' | 'all';
+}
+
+export interface DefaultPermissionGroup {
+  id: string;
+  name: string;
+  description: string;
+  permissions: PermissionGroupPermission[];
+}
+
+export interface PermissionConfig {
+  plugin: string;
+  modules: PermissionModule[];
+  defaultGroups: DefaultPermissionGroup[];
 }

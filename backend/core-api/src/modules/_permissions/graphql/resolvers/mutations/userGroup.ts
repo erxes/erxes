@@ -4,7 +4,7 @@ import { IContext } from '~/connectionResolvers';
 import {
   fixPermissions,
   resetPermissionsCache,
-} from '~/modules/permissions/utils';
+} from '~/modules/_permissions/utils';
 
 export const usersGroupMutations = {
   /**

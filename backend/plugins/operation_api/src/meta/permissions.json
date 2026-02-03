@@ -1,0 +1,110 @@
+{
+  "plugin": "operation",
+  "modules": [
+    {
+      "name": "task",
+      "actions": [
+        { "name": "taskRead", "description": "View tasks", "required": true },
+        { "name": "taskCreate", "description": "Create tasks" },
+        { "name": "taskUpdate", "description": "Edit tasks" },
+        { "name": "taskRemove", "description": "Delete tasks" },
+        { "name": "taskAssign", "description": "Assign tasks" }
+      ]
+    },
+    {
+      "name": "project",
+      "actions": [
+        {
+          "name": "projectRead",
+          "description": "View projects",
+          "required": true
+        },
+        { "name": "projectCreate", "description": "Create projects" },
+        { "name": "projectUpdate", "description": "Edit projects" },
+        { "name": "projectRemove", "description": "Delete projects" }
+      ]
+    },
+    {
+      "name": "cycle",
+      "actions": [
+        { "name": "cycleRead", "description": "View cycles", "required": true },
+        { "name": "cycleCreate", "description": "Create cycles" },
+        { "name": "cycleUpdate", "description": "Edit cycles" },
+        { "name": "cycleRemove", "description": "Delete cycles" }
+      ]
+    },
+    {
+      "name": "team",
+      "actions": [
+        { "name": "teamRead", "description": "View teams", "required": true },
+        { "name": "teamCreate", "description": "Create teams" },
+        { "name": "teamUpdate", "description": "Edit teams" },
+        { "name": "teamRemove", "description": "Delete teams" }
+      ]
+    }
+  ],
+  "defaultGroups": [
+    {
+      "id": "operation:admin",
+      "name": "Operation Admin",
+      "description": "Full access to Operation plugin",
+      "permissions": [
+        {
+          "module": "task",
+          "actions": [
+            "taskRead",
+            "taskCreate",
+            "taskUpdate",
+            "taskRemove",
+            "taskAssign"
+          ],
+          "scope": "all"
+        },
+        {
+          "module": "project",
+          "actions": [
+            "projectRead",
+            "projectCreate",
+            "projectUpdate",
+            "projectRemove"
+          ],
+          "scope": "all"
+        },
+        {
+          "module": "cycle",
+          "actions": ["cycleRead", "cycleCreate", "cycleUpdate", "cycleRemove"],
+          "scope": "all"
+        },
+        {
+          "module": "team",
+          "actions": ["teamRead", "teamCreate", "teamUpdate", "teamRemove"],
+          "scope": "all"
+        }
+      ]
+    },
+    {
+      "id": "operation:user",
+      "name": "Operation User",
+      "description": "Standard team member",
+      "permissions": [
+        {
+          "module": "task",
+          "actions": ["taskRead", "taskCreate", "taskUpdate"],
+          "scope": "group"
+        },
+        { "module": "project", "actions": ["projectRead"], "scope": "group" },
+        { "module": "cycle", "actions": ["cycleRead"], "scope": "group" },
+        { "module": "team", "actions": ["teamRead"], "scope": "group" }
+      ]
+    },
+    {
+      "id": "operation:viewer",
+      "name": "Operation Viewer",
+      "description": "Read-only access",
+      "permissions": [
+        { "module": "task", "actions": ["taskRead"], "scope": "group" },
+        { "module": "project", "actions": ["projectRead"], "scope": "group" }
+      ]
+    }
+  ]
+}

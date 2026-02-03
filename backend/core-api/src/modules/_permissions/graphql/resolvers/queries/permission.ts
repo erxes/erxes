@@ -4,7 +4,7 @@ import { IContext, IModels } from '~/connectionResolvers';
 import {
   getPermissionActions,
   getPermissionModules,
-} from '~/modules/permissions/utils';
+} from '~/modules/_permissions/utils';
 
 const generateSelector = async (
   models: IModels,
