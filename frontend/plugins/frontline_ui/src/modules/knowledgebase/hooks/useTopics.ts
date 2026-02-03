@@ -30,19 +30,36 @@ export function useTopics(
     notifyOnNetworkStatusChange: true,
   });
 
-  const topics = data?.knowledgeBaseTopics || [];
-  const totalCount = topics.length;
+  const topics = data?.knowledgeBaseTopics?.list || [];
+  const totalCount = data?.knowledgeBaseTopics?.totalCount || 0;
 
-  const hasMore = topics.length === ITEMS_PER_PAGE;
+  const hasMore = topics.length < totalCount;
 
   const loadMore = async () => {
     if (!hasMore) return;
 
+    const currentPage = Math.ceil(topics.length / ITEMS_PER_PAGE) + 1;
+
     await fetchMore({
       variables: {
-        page: Math.floor(topics.length / ITEMS_PER_PAGE) + 1,
+        page: currentPage,
         perPage: ITEMS_PER_PAGE,
         searchValue: searchValue || '',
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult?.knowledgeBaseTopics?.list) {
+          return prev;
+        }
+
+        const prevTopics = prev?.knowledgeBaseTopics?.list || [];
+        const newTopics = fetchMoreResult.knowledgeBaseTopics.list;
+
+        return {
+          knowledgeBaseTopics: {
+            ...fetchMoreResult.knowledgeBaseTopics,
+            list: [...prevTopics, ...newTopics],
+          },
+        };
       },
     });
   };

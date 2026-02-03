@@ -70,11 +70,13 @@ export const FrontlineNavigation = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="invisible group-hover/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+          className="invisible group-hover/knowledgebase:visible group-focus-within/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
           onClick={(e) => {
             e.stopPropagation();
             navigate('/frontline/knowledgebase?createTopic=true');
           }}
+          aria-label="Create new topic"
+          title="Create new topic"
         >
           <IconPlus className="size-4" />
         </Button>

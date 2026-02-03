@@ -79,7 +79,7 @@ interface ArticleFormData {
 }
 type ArticleInput = Omit<
   ArticleFormData,
-  "fileUrl" | "fileSize" | "fileDuration" | "fileName" | "fileType" | "customForms"
+  "fileUrl" | "fileSize" | "fileDuration" | "fileName" | "fileType"
 >;
 
 const toArticleInput = (data: ArticleFormData): ArticleInput => {
@@ -89,7 +89,6 @@ const toArticleInput = (data: ArticleFormData): ArticleInput => {
     fileDuration,
     fileName,
     fileType,
-    customForms,
     ...clean
   } = data;
 

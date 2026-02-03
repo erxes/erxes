@@ -21,8 +21,8 @@ const buildQuery = (args: any) => {
   if (args.searchValue && args.searchValue.trim()) {
     qry.$or = [
       { title: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { content: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { summary: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+      { description: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+      { code: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
     ];
   }
 
@@ -175,7 +175,13 @@ export const knowledgeBaseQueries = {
 
   async knowledgeBaseTopics(
     _root,
-    args,
+    args: {
+      page: number;
+      perPage: number;
+      searchValue?: string;
+      brandId?: string;
+      codes?: string[];
+    },
     { models }: IContext
   ) {
     const qry: any = buildQuery(args);
