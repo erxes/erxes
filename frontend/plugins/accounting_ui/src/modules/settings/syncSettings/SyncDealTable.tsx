@@ -1,13 +1,17 @@
-import { Cell, ColumnDef } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/table-core';
 import {
   ITextFieldContainerProps,
   RecordTable,
+  RecordTableInlineCell,
   TextField,
   useQueryState,
 } from 'erxes-ui';
-import { useAccountingConfigs } from '../hooks/useAccountingConfigs';
-import { IConfig } from '../types/Config';
+import { useSetAtom } from 'jotai';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
+import { useAccountingConfigs } from '../hooks/useAccountingConfigs';
+import { accountingConfigDetailAtom } from '../states/accountingConfigState';
+import { IConfig } from '../types/Config';
+import { EditAccountingConfig } from './EditAccountingConfig';
 
 export const SettingSyncDealTable = () => {
   const { configs } = useAccountingConfigs({ variables: { code: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL } });
@@ -25,6 +29,7 @@ export const SettingSyncDealTable = () => {
           <RecordTable.RowList />
         </RecordTable.Body>
       </RecordTable>
+      <EditAccountingConfig code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL} />
     </RecordTable.Provider>
   );
 };
@@ -48,32 +53,7 @@ const AccountTextField = ({
   );
 };
 
-const AccountCategoryMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<{ hasChildren: boolean }, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('accountCategoryId');
-  // const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
-  return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        // setAccountCategoryDetail(cell.row.original);
-        // setOpen(cell.row.original._id);
-      }}
-    />
-  );
-};
-
-// const accountCategoryMoreColumn = {
-//   id: 'more',
-//   cell: AccountCategoryMoreColumnCell,
-//   size: 33,
-// };
-
 export const columns: ColumnDef<IConfig>[] = [
-  // accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
     IConfig
   >,
@@ -82,12 +62,17 @@ export const columns: ColumnDef<IConfig>[] = [
     accessorKey: 'code',
     header: () => <RecordTable.InlineHead label="Code" />,
     cell: ({ cell }) => {
+      const [, setOpen] = useQueryState('configId');
+      const setAccountDetail = useSetAtom(accountingConfigDetailAtom);
       return (
-        <AccountTextField
-          value={cell.getValue() as string}
-          field="code"
-          _id={cell.row.original._id}
-        />
+        <RecordTableInlineCell
+          onClick={() => {
+            setAccountDetail(cell.row.original.value);
+            setOpen(cell.row.original._id);
+          }}
+        >
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
       );
     },
     size: 250,
@@ -97,13 +82,16 @@ export const columns: ColumnDef<IConfig>[] = [
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead label="Title" />,
     cell: ({ cell }) => {
-      return (
-        <AccountTextField
-          value={cell.row.original.value?.title ?? ''}
-          field="title"
-          _id={cell.row.original._id}
-        />
-      );
+      const [, setOpen] = useQueryState('configId');
+      const setAccountDetail = useSetAtom(accountingConfigDetailAtom);
+      <RecordTableInlineCell
+        onClick={() => {
+          setAccountDetail(cell.row.original);
+          setOpen(cell.row.original._id);
+        }}
+      >
+        {cell.getValue() as string}
+      </RecordTableInlineCell>
     },
     size: 250,
   },

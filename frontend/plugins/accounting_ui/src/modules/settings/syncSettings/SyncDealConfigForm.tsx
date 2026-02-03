@@ -7,13 +7,43 @@ import {
   Select,
   Spinner,
 } from 'erxes-ui';
+import { z } from "zod";
+
+const configFormSchema = z.object({
+  title: z.string(),
+  boardId: z.string().optional(),
+  pipelineId: z.string().optional(),
+  stageId: z.string(),
+  dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
+  saleAccountId: z.string(),
+  saleOutAccountId: z.string(),
+  saleCostAccountId: z.string(),
+  branchId: z.string(),
+  departmentId: z.string(),
+  hasVat: z.boolean(),
+  hasCtax: z.boolean(),
+  vatRowId: z.string(),
+  ctaxRowId: z.string(),
+  payments: z.record(z.object({
+    accountId: z.string(),
+  })),
+  defaultPayment: z.object({
+    accountId: z.string(),
+  }),
+
+  defaultPosPayment: z.object({
+    accountId: z.string(),
+  }),
+});
+
+type ConfigFormValues = z.infer<typeof configFormSchema>;
 
 export const SyncDealConfigForm = ({
   form,
   onSubmit,
   loading,
 }: {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<ConfigFormValues>;
   onSubmit: (data: any) => void;
   loading: boolean;
 }) => {
@@ -31,6 +61,38 @@ export const SyncDealConfigForm = ({
               <Form.Label>Title</Form.Label>
               <Form.Control>
                 <Input {...field} />
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="stageId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Stage</Form.Label>
+              <Form.Control>
+                <Input value='gzgrcQKjBdhkSqvTyGXi1' />
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="dateRule"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Date Rule</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="alwaysNow">Always Now</Select.Item>
+                    <Select.Item value="syncedDateOrNow">Synced Date Or Now</Select.Item>
+                  </Select.Content>
+                </Select>
               </Form.Control>
             </Form.Item>
           )}

@@ -44,7 +44,7 @@ export const afterProcess: AfterProcessConfigs = {
             action: 'findOne',
             input: { query: { _id: userId } }
           });
-          await dealToTrs({ subdomain, models, user, deal: currentDocument, config })
+          await dealToTrs({ subdomain, models, user, deal: currentDocument, config });
         }
       }
     }

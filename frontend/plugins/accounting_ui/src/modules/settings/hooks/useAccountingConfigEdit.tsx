@@ -7,9 +7,15 @@ export const useAccountingConfigEdit = (options?: MutationFunctionOptions<{
 }, any>) => {
   const [configEdit, { loading, error }] = useMutation(ACCOUNTINGS_CONFIGS_EDIT);
 
-  const editConfig = () => {
+  const editConfig = ({ id, subId, value }: { id: string, subId?: string, value: any }) => {
     return configEdit({
       ...options,
+      variables: {
+        ...options?.variables,
+        _id: id,
+        subId,
+        value
+      },
       onError: (error) => {
         toast({
           title: 'Error',
