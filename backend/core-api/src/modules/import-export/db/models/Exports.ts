@@ -59,7 +59,7 @@ const buildNotificationMessage = (exportDoc: IExportDocument): string => {
       exportDoc.totalRows > 0
         ? ` ${exportDoc.totalRows.toLocaleString()} records exported.`
         : '';
-    return `Your export "${exportDoc.fileName}" has been completed successfully.${recordsText}`;
+    return `Your export "${exportDoc.entityType.toUpperCase().split(':').pop()?.split('.').pop()}" has been completed successfully. ${recordsText} `;
   }
 
   if (exportDoc.errorMessage) {
