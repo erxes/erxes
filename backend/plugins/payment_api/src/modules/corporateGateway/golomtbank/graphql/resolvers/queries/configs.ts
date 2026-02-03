@@ -1,37 +1,45 @@
-import {  paginate } from "@erxes/api-utils/src";
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
-import { IContext } from "../../../connectionResolver";
+type CursorArgs = {
+  limit?: number;
+  cursor?: string;
+  direction?: 'forward' | 'backward';
+};
 
 const queries = {
   async golomtBankConfigsList(
     _root,
-    { page, perPage }: { page: number; perPage: number },
+    { limit, cursor, direction }: CursorArgs,
     { models }: IContext
   ) {
-    const totalCount = await models.GolomtBankConfigs.find({}).countDocuments();
-
-    return {
-      list: await paginate(
-        models.GolomtBankConfigs.find({}).sort({ createdAt: -1 }).lean(),
-        {
-          page: page || 1,
-          perPage: perPage || 20,
-        }
-      ),
-      totalCount,
-    };
+    return cursorPaginate({
+      model: models.GolomtBankConfigs,
+      query: {},
+      params: {
+        limit: limit || 20,
+        cursor,
+        direction,
+        orderBy: { createdAt: -1 },
+      },
+    });
   },
 
   async golomtBankConfigs(
     _root,
-    { page, perPage }: { page: number; perPage: number },
+    { limit, cursor, direction }: CursorArgs,
     { models }: IContext
   ) {
-    const response = await models.GolomtBankConfigs.find({}).sort({
-      createdAt: -1,
+    return cursorPaginate({
+      model: models.GolomtBankConfigs,
+      query: {},
+      params: {
+        limit: limit || 20,
+        cursor,
+        direction,
+        orderBy: { createdAt: -1 },
+      },
     });
-
-    return paginate(response, { page: page || 1, perPage: perPage || 20 });
   },
 
   async golomtBankConfigsDetail(
@@ -42,4 +50,5 @@ const queries = {
     return models.GolomtBankConfigs.getConfig({ _id });
   },
 };
+
 export default queries;

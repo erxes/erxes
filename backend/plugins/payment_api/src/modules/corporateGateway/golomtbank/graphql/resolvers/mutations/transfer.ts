@@ -1,4 +1,4 @@
-import { IContext } from "../../../connectionResolver";
+import { IContext } from '~/connectionResolvers';
 import GolomtBank from "../../../golomtBank/golomtBank";
 
 const mutations = {
