@@ -1,9 +1,8 @@
-import { Cell, ColumnDef } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/table-core';
 import {
   ITextFieldContainerProps,
   RecordTable,
   TextField,
-  useQueryState,
 } from 'erxes-ui';
 import { useAccountingConfigs } from '../hooks/useAccountingConfigs';
 import { IConfig } from '../types/Config';

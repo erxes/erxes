@@ -80,7 +80,7 @@ export const SyncDealConfigForm = ({
     }
   }, [pipelineId, pipelineRefetch]);
 
-  // const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
+  // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
   const paymentTypes: any[] = pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
 
   return (
