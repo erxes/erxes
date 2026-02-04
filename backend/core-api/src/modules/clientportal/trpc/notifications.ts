@@ -41,38 +41,34 @@ export const cpNotificationTrpcRouter = t.router({
           throw new Error('Client portal not found');
         }
 
-        const results: unknown[] = [];
+        const cpUsers = await models.CPUser.find({
+          _id: { $in: cpUserIds },
+        });
 
-        for (const cpUserId of cpUserIds) {
-          const cpUser = await models.CPUser.findOne({ _id: cpUserId });
-
-          if (!cpUser) {
-            continue;
-          }
-
-          const notification = await notificationService.sendNotification(
-            subdomain,
-            models,
-            clientPortal,
-            cpUser,
-            {
-              title: data.title,
-              message: data.message,
-              type: data.type,
-              contentType: data.contentType,
-              contentTypeId: data.contentTypeId,
-              priority: data.priority,
-              metadata: data.metadata,
-              action: data.action,
-              kind: data.kind,
-              allowMultiple: data.allowMultiple,
-            },
-          );
-
-          results.push(notification);
+        if (cpUsers.length === 0) {
+          return { success: true, count: 0 };
         }
 
-        return { success: true, count: results.length };
+        await notificationService.sendNotificationBulk(
+          subdomain,
+          models,
+          clientPortal,
+          cpUsers,
+          {
+            title: data.title,
+            message: data.message,
+            type: data.type,
+            contentType: data.contentType,
+            contentTypeId: data.contentTypeId,
+            priority: data.priority,
+            metadata: data.metadata,
+            action: data.action,
+            kind: data.kind,
+            allowMultiple: data.allowMultiple,
+          },
+        );
+
+        return { success: true, count: cpUsers.length };
       }),
 
     markAsRead: t.procedure
