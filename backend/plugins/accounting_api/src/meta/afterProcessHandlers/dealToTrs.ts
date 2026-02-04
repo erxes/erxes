@@ -3,11 +3,15 @@ import { fixNum, sendTRPCMessage } from "erxes-api-shared/utils"
 import { nanoid } from "nanoid"
 import { IModels } from "~/connectionResolvers"
 import { ACCOUNT_JOURNALS, JOURNALS, TR_SIDES } from "~/modules/accounting/@types/constants"
-import { ITransaction } from "~/modules/accounting/@types/transaction"
+import { ITransaction, ITransactionDocument } from "~/modules/accounting/@types/transaction"
 
-const getJournal = async (models, payConfig, amount) => {
+const getJournal = async (models: IModels, payConfig: { accountId: string }, amount: number) => {
   const { accountId } = payConfig;
-  const account = await models.Accounts.getAccount({ _id: accountId });
+  const account = await models.Accounts.findOne({ _id: accountId }).lean();
+
+  if (!account) {
+    return;
+  }
 
   let journal: string = ''
   switch (account.journal) {
@@ -70,14 +74,14 @@ export const dealToTrs = async ({
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
-  let oldOtherTrs = [];
+  let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:deal', deal._id];
 
   const oldTrs = await models.Transactions.find({ contentType, contentId }).lean();
   if (oldTrs.length) {
-    const parentIds = new Set(oldTrs.map(otr => otr.parentId));
-    oldOtherTrs = await models.Transactions.find({ parentId: { $in: parentIds }, originId: { $in: [null, ''] }, contentId: { $in: [null, ''] } });
+    const parentIds = [...new Set(oldTrs.map(otr => otr.parentId))];
+    oldOtherTrs = await models.Transactions.find({ parentId: { $in: parentIds }, originId: { $in: [null, ''] }, contentId: { $in: [null, ''] } }).lean();
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
@@ -100,11 +104,6 @@ export const dealToTrs = async ({
     branchId: deal.branchId || config.branchId,
     departmentId: deal.departmentId || config.departmentId,
     assignedUserIds: deal.assignedUserIds,
-
-    hasVat: config.hasVat,
-    hasCtax: config.hasCtax,
-    vatRowId: config.vatRowId,
-    ctaxRowId: config.ctaxRowId,
 
     contentType,
     contentId,
@@ -145,16 +144,27 @@ export const dealToTrs = async ({
     saleTrDoc.customerId = customerIds[0];
   }
 
-  const vatRow = await models.VatRows.getVatRow(config.vatRowId);
-  const ctaxRow = await models.CtaxRows.getCtaxRow(config.ctaxRowId);
+  let taxPercent = 0;
+  if (config.hasVat && config.vatRowId) {
+    const vatRow = await models.VatRows.getVatRow({ _id: config.vatRowId });
+    taxPercent += fixNum((vatRow?.percent ?? 0));
+    saleTrDoc.hasVat = config.hasVat
+    saleTrDoc.vatRowId = config.vatRowId
+  }
 
-  const taxPercent = fixNum((vatRow.percent ?? 0) + (ctaxRow.percent ?? 0));
+  if (config.hasCtax && config.ctaxRowId) {
+    const ctaxRow = await models.VatRows.getVatRow({ _id: config.ctaxRowId });
+    taxPercent += fixNum((ctaxRow?.percent ?? 0));
+    saleTrDoc.hasCtax = config.hasCtax
+    saleTrDoc.ctaxRowId = config.ctaxRowId
+  }
 
   let diffAmount = 0;
   for (const productData of activeProductsData) {
-    diffAmount = diffAmount + deal.amount;
-    const taxAmount = fixNum((deal.amount * taxPercent) / (100 + taxPercent), 8);
-    const amount = fixNum(deal.amount - taxAmount, 8);
+    diffAmount = diffAmount + productData.amount;
+    const taxAmount = fixNum((productData.amount * taxPercent) / (100 + taxPercent), 8);
+    const amount = fixNum(productData.amount - taxAmount, 8);
+
     saleTrDoc.details.push({
       _id: nanoid(),
       accountId: config.saleAccountId,
@@ -176,7 +186,12 @@ export const dealToTrs = async ({
       continue;
     }
 
-    const { side, accountId, lastAmount, journal } = await getJournal(models, payConfig, amount)
+    const payResp = await getJournal(models, payConfig, amount);
+    if (!payResp) {
+      continue;
+    }
+
+    const { side, accountId, lastAmount, journal } = payResp
     diffAmount = diffAmount - amount;
     paymentTrs.push({
       _id: nanoid(),
@@ -199,30 +214,38 @@ export const dealToTrs = async ({
   }
 
   if (diffAmount < -0.005 || diffAmount > 0.005) {
-    const { side, accountId, lastAmount, journal } = await getJournal(
+    const payResp = await getJournal(
       models,
       diffAmount > 0 && config.defaultPayment || config.defaultNegPayment,
       diffAmount
-    )
+    );
 
-    paymentTrs.push({
-      _id: nanoid(),
-      ptrId,
-      parentId,
-      date,
-      journal,
-      branchId: deal.branchId || config.branchId,
-      departmentId: deal.departmentId || config.departmentId,
-      contentType,
-      contentId,
-      details: [{
+    if (payResp) {
+      const { side, accountId, lastAmount, journal } = payResp;
+
+      paymentTrs.push({
         _id: nanoid(),
-        accountId,
-        side,
-        amount: lastAmount,
-      }]
-    })
+        ptrId,
+        parentId,
+        date,
+        journal,
+        branchId: deal.branchId || config.branchId,
+        departmentId: deal.departmentId || config.departmentId,
+        contentType,
+        contentId,
+        details: [{
+          _id: nanoid(),
+          accountId,
+          side,
+          amount: lastAmount,
+        }]
+      })
+    }
   }
 
-  await models.Transactions.createPTransaction([{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], user);
+  if (oldTrs.length) {
+    await models.Transactions.updatePTransaction(parentId, [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], user);
+  } else {
+    await models.Transactions.createPTransaction([{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs], user);
+  }
 }

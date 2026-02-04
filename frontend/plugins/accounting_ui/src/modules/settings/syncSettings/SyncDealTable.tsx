@@ -34,25 +34,6 @@ export const SettingSyncDealTable = () => {
   );
 };
 
-const AccountTextField = ({
-  value,
-  field,
-  _id,
-  children,
-}: ITextFieldContainerProps & {
-  children?: React.ReactNode;
-}) => {
-  return (
-    <TextField
-      value={value}
-      scope={`account-category-${_id}-${field}`}
-      className={'shadow-none rounded-none px-2'}
-    >
-      {children}
-    </TextField>
-  );
-};
-
 export const columns: ColumnDef<IConfig>[] = [
   RecordTable.checkboxColumn as ColumnDef<
     IConfig

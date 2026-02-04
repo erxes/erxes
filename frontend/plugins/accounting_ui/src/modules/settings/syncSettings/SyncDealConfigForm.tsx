@@ -2,7 +2,7 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import { gql, useApolloClient } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import {
   Button,
   Checkbox,
@@ -12,7 +12,7 @@ import {
   Select,
   Spinner,
 } from 'erxes-ui';
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { z } from "zod";
@@ -58,43 +58,30 @@ export const SyncDealConfigForm = ({
     control: form.control,
     name: `pipelineId`
   });
-  const client = useApolloClient();
 
-  const { paymentIds, paymentTypes } = useMemo(() => {
-    const pipelineDetailQryResp = client.readQuery({
-      query: gql`
-        query SalesPipelineDetail($_id: String!) {
-          salesPipelineDetail(_id: $_id) {
-            _id
-            name
-            paymentIds
-            paymentTypes
-          }
-        }
-      `,
-      variables: { _id: pipelineId },
-    });
-
-    const { paymentIds, paymentTypes } = pipelineDetailQryResp?.salesPipelineDetail || {};
-    return {
-      paymentIds, paymentTypes: [
-        {
-          "type": "barter",
-          "title": "barter",
-          "icon": "mastercard",
-          "config": ""
-        },
-        {
-          "type": "invoice",
-          "title": "invoice",
-          "icon": "credit-card",
-          "config": ""
-        }
-      ]
+  const { data: pipelineDetail, loading: pipelineLoading, refetch: pipelineRefetch } = useQuery(gql`
+  query SalesPipelineDetail($_id: String!) {
+    salesPipelineDetail(_id: $_id) {
+      _id
+      name
+      paymentIds
+      paymentTypes
     }
-  }, [pipelineId]);
+  }
+`, {
+    variables: { _id: pipelineId },
+    skip: !pipelineId,          // pipelineId байхгүй үед асуухгүй
+    fetchPolicy: 'network-only' // заавал backend-ээс авна
+  });
 
+  useEffect(() => {
+    if (pipelineId) {
+      pipelineRefetch({ _id: pipelineId });
+    }
+  }, [pipelineId, pipelineRefetch]);
 
+  // const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
+  const paymentTypes: any[] = pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
 
   return (
     <Form {...form}>
@@ -141,7 +128,7 @@ export const SyncDealConfigForm = ({
             <Form.Item className='col-start-1'>
               <Form.Label>Board</Form.Label>
               <Form.Control>
-                <Input value='rpab9jkCPirQqSTt7' />
+                <Input {...field} />
               </Form.Control>
             </Form.Item>
           )}
@@ -153,7 +140,7 @@ export const SyncDealConfigForm = ({
             <Form.Item>
               <Form.Label>Pipeline</Form.Label>
               <Form.Control>
-                <Input value='qyjnZgprD0c_yuv8t7VFV' />
+                <Input {...field} />
               </Form.Control>
             </Form.Item>
           )}
@@ -165,7 +152,7 @@ export const SyncDealConfigForm = ({
             <Form.Item>
               <Form.Label>Stage</Form.Label>
               <Form.Control>
-                <Input value='gzgrcQKjBdhkSqvTyGXi1' />
+                <Input {...field} />
               </Form.Control>
             </Form.Item>
           )}
@@ -282,7 +269,13 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
-        {paymentTypes.map(ptype => (
+        {[
+          {
+            type: "cash",
+            title: "cash",
+          },
+          ...paymentTypes
+        ].map(ptype => (
           <Form.Field
             control={form.control}
             name={`payments.${ptype.type}.accountId`}

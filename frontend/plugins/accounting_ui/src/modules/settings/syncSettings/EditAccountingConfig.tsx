@@ -76,7 +76,6 @@ export const EditAccountingConfigForm = ({
   }, [configValueDetail, reset]);
 
   const handleSubmit = (data: any) => {
-    console.log(data)
     const initialData = { ...configValueDetail };
     const newData = { ...initialData, ...data };
 
