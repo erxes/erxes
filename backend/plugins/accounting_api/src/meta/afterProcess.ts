@@ -21,7 +21,7 @@ const allRules: IAfterProcessRule[] = [
 
 export const afterProcess: AfterProcessConfigs = {
   rules: allRules,
-  afterDocumentUpdated: async (ctx, input) => {
+  afterDocumentUpdated: (ctx, input) => {
     (async () => {
       const { data } = input;
       const { subdomain } = ctx;
