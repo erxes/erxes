@@ -12,12 +12,21 @@ export const InvoicesPage = lazy(() =>
     default: module.InvoicesPage,
   })),
 );
+export const CorporateGatewayPage = lazy(() =>
+  import('~/pages/payment/CorporateGatewayPage').then((module) => ({
+    default: module.default,
+  })),
+);
 
 const paymentSettings = () => {
   return (
     <Routes>
     <Route path="/" element={<PaymentSettingsPage />} />
     <Route path="invoices" element={<InvoicesPage />} />
+    <Route
+        path="corporate-gateway"
+        element={<CorporateGatewayPage />}
+    />
     </Routes>
   );
 };

@@ -31,7 +31,7 @@ export const PaymentSettingsNavigation = () => {
           {/* Corporate Gateway */}
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
-            path="corporate-gateway"
+            path="/corporate-gateway"
             name="Corporate Gateway"
           />
 

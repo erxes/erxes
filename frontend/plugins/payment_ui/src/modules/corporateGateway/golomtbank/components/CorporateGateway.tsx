@@ -1,8 +1,8 @@
-import React from 'react';
+
 import { useQueryState } from 'erxes-ui/hooks/use-query-state';
 import { Empty } from 'erxes-ui';
 
-import List from './List';
+import List from '../configs/containers/List';
 import Detail from './Detail';
 
 type Props = {

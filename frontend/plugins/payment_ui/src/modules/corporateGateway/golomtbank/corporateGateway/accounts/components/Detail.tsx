@@ -1,25 +1,24 @@
-import React from 'react';
-import { Button } from 'erxes-ui';
+import * as React from 'react';
+import { Button } from 'erxes-ui/components/button';
 import { useQueryState } from 'erxes-ui/hooks/use-query-state';
 
-import Transactions from './Transactions';
-import TransactionForm from '../../transactions/components/Form';
+import Transactions from '../../transactions/containers/List';
+import TransactionForm from '../../transactions/containers/Form';
 
 import {
   IGolomtBankAccountDetail,
   IGolomtBankAccountBalance,
-} from '../../../types';
+} from '../../../types/IGolomtAccount';
 
 type Props = {
+  queryParams: any;
   account: IGolomtBankAccountDetail;
   balances?: IGolomtBankAccountBalance;
+  accountId?: string;
 };
 
-const Detail = ({ account, balances }: Props) => {
-  const [configId] = useQueryState<string>('_id');
-  const [accountNumber] = useQueryState<string>('account');
-  const [showTransfer, setShowTransfer] =
-    React.useState(false);
+const Detail = ({ account, balances, queryParams }: Props) => {
+  const [showTransfer, setShowTransfer] = React.useState(false);
 
   const getStatusValue = (value: string) => {
     switch (value) {
@@ -30,122 +29,95 @@ const Detail = ({ account, balances }: Props) => {
       case 'D':
         return 'dormant';
       default:
-        return '';
+        return '-';
     }
   };
 
   const isRel = (value: string) => {
     switch (value) {
-      case 'N':
-        return 'NO';
       case 'Y':
         return 'YES';
+      case 'N':
+        return 'NO';
       default:
-        return '';
+        return '-';
     }
   };
 
+  const renderField = (label: string, value?: React.ReactNode) => (
+    <div className="space-y-1">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="font-medium">{value ?? '-'}</p>
+    </div>
+  );
+
   const renderAccount = () => (
-    <div>
-      <h4>Account detail</h4>
+    <section className="space-y-6">
+      <h4 className="text-sm font-semibold">Account detail</h4>
 
-      <BlockRow>
-        <FormGroup>
-          <p>Account</p>
-          <strong>{account.accountNumber}</strong>
-        </FormGroup>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {renderField('Account', account.accountNumber)}
+        {renderField('Account name', account.accountName)}
+        {renderField('Customer name', account.customerName)}
+      </div>
 
-        <FormGroup>
-          <p>Account name</p>
-          <strong>{account.accountName}</strong>
-        </FormGroup>
-
-        <FormGroup>
-          <p>Customer name</p>
-          <strong>{account.customerName}</strong>
-        </FormGroup>
-      </BlockRow>
-
-      <BlockRow>
-        <FormGroup>
-          <p>Balance</p>
-          {(balances?.balanceLL || []).map((balance) => (
-            <strong key={balance.amount.toString()}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {renderField(
+          'Balance',
+          (balances?.balanceLL || []).map((balance) => (
+            <div key={balance.amount.toString()}>
               {balance.amount.value.toLocaleString()}
-              {getCurrencySymbol(balance.amount.currency || 'MNT')}
-            </strong>
-          ))}
-        </FormGroup>
+              {balance.amount.currency ?? ' MNT'}
+            </div>
+          )),
+        )}
+        {renderField('Product name', account.productName)}
+        {renderField('Branch', account.branchId)}
+      </div>
 
-        <FormGroup>
-          <p>Product name</p>
-          <strong>{account.productName}</strong>
-        </FormGroup>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {renderField('Status', getStatusValue(account.status))}
+        {renderField('Registration', isRel(account.isRelParty))}
+        {renderField('Open date', account.openDate)}
+      </div>
 
-        <FormGroup>
-          <p>Branch</p>
-          <strong>{account.branchId}</strong>
-        </FormGroup>
-      </BlockRow>
+      <div>
+        <Button
+          size="sm"
+          onClick={() => setShowTransfer(true)}
+          disabled={!queryParams?._id || !queryParams?.account}
+        >
+          Transfer
+        </Button>
+      </div>
 
-      <BlockRow>
-        <FormGroup>
-          <p>Status</p>
-          <strong>{getStatusValue(account.status)}</strong>
-        </FormGroup>
-
-        <FormGroup>
-          <p>Registration</p>
-          <strong>{isRel(account.isRelParty)}</strong>
-        </FormGroup>
-
-        <FormGroup>
-          <p>Open date</p>
-          <strong>{account.openDate}</strong>
-        </FormGroup>
-      </BlockRow>
-
-      <BlockRow>
-        <FormGroup>
-          <Button
-            btnStyle="simple"
-            size="small"
-            icon="money-insert"
-            onClick={() => setShowTransfer(true)}
-            disabled={!configId || !accountNumber}
-          >
-            Transfer
-          </Button>
-        </FormGroup>
-      </BlockRow>
-
-      {showTransfer && configId && accountNumber && (
+      {showTransfer && (
         <TransactionForm
-          configId={configId}
-          accountNumber={accountNumber}
+          configId={queryParams._id}
+          accountNumber={queryParams.account}
           accountName={account.accountName}
-          onClose={() => setShowTransfer(false)}
+          closeModal={() => setShowTransfer(false)}
         />
       )}
-    </div>
+    </section>
   );
 
   const renderStatements = () => (
-    <div>
-      <h4>Latest transactions</h4>
+    <section className="space-y-4 pt-6">
+      <h4 className="text-sm font-semibold">Latest transactions</h4>
+
       <Transactions
-        account={account}
-        balances={balances}
+        queryParams={queryParams}
         showLatest
       />
-    </div>
+    </section>
   );
 
   return (
-    <>
+    <div className="space-y-8">
       {renderAccount()}
       {renderStatements()}
-    </>
+    </div>
   );
 };
 
