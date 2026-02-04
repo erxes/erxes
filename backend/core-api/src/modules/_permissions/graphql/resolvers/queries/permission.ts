@@ -89,16 +89,4 @@ export const permissionQueries = {
   async permissionActions() {
     return getPermissionActions();
   },
-
-  /**
-   * Get all permissions count. We will use it in pager
-   * @param {String} args.module
-   * @param {String} args.action
-   * @param {String} args.userId
-   * @return {Promise} total count
-   */
-  async permissionsTotalCount(_root, args, { models }: IContext) {
-    const filter = await generateSelector(models, args);
-    return models.Permissions.find(filter).countDocuments();
-  },
 };

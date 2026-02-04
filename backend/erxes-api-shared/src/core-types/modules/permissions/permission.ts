@@ -49,3 +49,8 @@ export interface IPermissionGroupDocument extends IPermissionGroup, Document {
   createdAt: Date;
   updatedAt: Date;
 }
+export interface IPermissionInput {
+  module: string;
+  actions: string[];
+  scope: 'own' | 'group' | 'all';
+}
