@@ -28,13 +28,11 @@ export const loyaltyQueries = {
     } & ICommonParams,
     { models, subdomain }: IContext,
   ) {
-    const score =
-      (
-        (await getLoyaltyOwner(subdomain, {
-          ownerType: params.ownerType,
-          ownerId: params.ownerId,
-        })) || {}
-      ).score || 0;
+    const score = (await getLoyaltyOwner(subdomain, {
+      ownerType: params.ownerType,
+      ownerId: params.ownerId,
+    }))?.score || 0
+
 
     const filter: any = {
       ownerType: params.ownerType,
