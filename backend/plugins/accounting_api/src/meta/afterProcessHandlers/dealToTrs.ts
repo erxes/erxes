@@ -201,6 +201,8 @@ export const dealToTrs = async ({
       journal,
       branchId: deal.branchId || config.branchId,
       departmentId: deal.departmentId || config.departmentId,
+      customerType: saleTrDoc.customerType,
+      customerId: saleTrDoc.customerId,
       contentType,
       contentId,
       details: [{
@@ -229,8 +231,10 @@ export const dealToTrs = async ({
         parentId,
         date,
         journal,
-        branchId: deal.branchId || config.branchId,
-        departmentId: deal.departmentId || config.departmentId,
+        branchId: saleTrDoc.branchId,
+        departmentId: saleTrDoc.departmentId,
+        customerType: saleTrDoc.customerType,
+        customerId: saleTrDoc.customerId,
         contentType,
         contentId,
         details: [{
