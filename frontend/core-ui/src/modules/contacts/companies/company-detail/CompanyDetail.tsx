@@ -47,7 +47,7 @@ export const CompanyDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CompanyDetailFields />
-                  <ActivityLogs targetId={companyDetail?._id || ''} />
+                  {!!companyDetail?.id && <ActivityLogs targetId={companyDetail._id } />}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
