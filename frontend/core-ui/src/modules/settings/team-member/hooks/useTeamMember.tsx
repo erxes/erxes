@@ -65,8 +65,9 @@ export const useTeamMemberVariables = (
   const parsedIsActive =
     isActive === 'true' ? true : isActive === 'false' ? false : undefined;
 
-  const parsedExcludeIds =
-    excludeIds === 'true' ? true : excludeIds === 'false' ? false : undefined;
+   const parsedExcludeIds = excludeIds
+     ? excludeIds.split(',').filter(Boolean)
+     : undefined;
 
   return {
     limit: TEAM_MEMBERS_PER_PAGE,
@@ -82,7 +83,7 @@ export const useTeamMemberVariables = (
     status: status || undefined,
     segment: segment || undefined,
     isActive: parsedIsActive,
-    excludeIds: parsedExcludeIds,
+    excludeIds: parsedExcludeIds?.length ? parsedExcludeIds : undefined,
 
     ...variables,
   };

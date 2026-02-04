@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { importTemplates } from './trpc/templates';
+import { importTemplates } from '~/modules/import-export/trpc/templates';
 
 const router: Router = Router();
 

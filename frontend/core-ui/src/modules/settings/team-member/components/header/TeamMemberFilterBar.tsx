@@ -42,7 +42,7 @@ export const TeamMemberFilterBar = () => {
 
           <Filter.SearchValueBarItem />
 
-          {!!brandIds && (
+          {!!brandIds?.length && (
             <SelectBrands.FilterBar
               mode="multiple"
               filterKey="brandIds"

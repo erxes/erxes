@@ -1,7 +1,7 @@
 import { GetExportData, IImportExportContext } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { buildUserExportRow } from './buildUserExportRow';
-
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 export async function getUserExportData(
   data: GetExportData & {
@@ -29,12 +29,13 @@ export async function getUserExportData(
   if (data.status) query.registrationToken = { $eq: null };
 
   if (data.searchValue?.trim()) {
-    const sv = data.searchValue.trim();
+    const sv = escapeRegExp(data.searchValue.trim());
+    const re = new RegExp(sv, 'i');
     query.$or = [
-      { email: new RegExp(`.*${sv}.*`, 'i') },
-      { employeeId: new RegExp(`.*${sv}.*`, 'i') },
-      { username: new RegExp(`.*${sv}.*`, 'i') },
-      { 'details.fullName': new RegExp(`.*${sv}.*`, 'i') },
+      { email: re },
+      { employeeId: re },
+      { username: re },
+      { 'details.fullName': re },
     ];
   }
 
@@ -65,24 +66,33 @@ export async function getUserExportData(
   const branchIds = new Set<string>();
 
   for (const u of users) {
-    collect(u.brandIds).forEach((id) => brandIds.add(id));
-    collect(u.departmentIds).forEach((id) => departmentIds.add(id));
-    collect(u.branchIds).forEach((id) => branchIds.add(id));
+    collect(u.brandIds).forEach((id) => {
+      brandIds.add(id);
+    });
+    collect(u.departmentIds).forEach((id) => {
+      departmentIds.add(id);
+    });
+    collect(u.branchIds).forEach((id) => {
+      branchIds.add(id);
+    });
   }
-
   const [brands, departments, branches] = await Promise.all([
     brandIds.size ? models.Brands?.find?.({ _id: { $in: Array.from(brandIds) } }).select('_id name').lean() : [],
     departmentIds.size ? models.Departments.find({ _id: { $in: Array.from(departmentIds) } }).select('_id title').lean() : [],
     branchIds.size ? models.Branches.find({ _id: { $in: Array.from(branchIds) } }).select('_id title').lean() : [],
   ]);
-
   const brandMap = new Map<string, string>();
   const departmentMap = new Map<string, string>();
   const branchMap = new Map<string, string>();
-
-  (brands || []).forEach((b: any) => brandMap.set(String(b._id), b.name || ''));
-  (departments || []).forEach((d: any) => departmentMap.set(String(d._id), d.title || ''));
-  (branches || []).forEach((b: any) => branchMap.set(String(b._id), b.title || ''));
+  (brands || []).forEach((b: any) => {
+    brandMap.set(String(b._id), b.name || '');
+  });
+  (departments || []).forEach((d: any) => {
+    departmentMap.set(String(d._id), d.title || '');
+  });
+  (branches || []).forEach((b: any) => {
+    branchMap.set(String(b._id), b.title || '');
+  });
 
   return users.map((u: any) =>
     buildUserExportRow(

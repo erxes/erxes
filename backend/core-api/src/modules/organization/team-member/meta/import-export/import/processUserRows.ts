@@ -13,13 +13,18 @@ export async function processUserRows(
   const usernames = rows.map((r) => r.username).filter(Boolean).map((x) => String(x).trim());
   const employeeIds = rows.map((r) => r.employeeId).filter(Boolean).map((x) => String(x).trim());
 
-  const existingDocs = await models.Users.find({
-    $or: [
+  const orFilters = [
       ...(emails.length ? [{ email: { $in: emails } }] : []),
       ...(usernames.length ? [{ username: { $in: usernames } }] : []),
       ...(employeeIds.length ? [{ employeeId: { $in: employeeIds } }] : []),
-    ],
-  }).select('_id email username employeeId').lean();
+      ];
+    
+  const existingDocs = orFilters.length
+    ? await models.Users
+    .find({ $or: orFilters })
+    .select('_id email username employeeId')
+    .lean()
+    : [];
 
   const byEmail = new Map<string, any>();
   const byUsername = new Map<string, any>();
