@@ -51,6 +51,12 @@ export const types = `
     totalCount: Int,
   }
 
+  type SalesPipelineProductListResponse {
+    list: [Product],
+    pageInfo: PageInfo,
+    totalCount: Int
+  }
+
   input SalesOrderItem {
     _id: String!
     order: Int!
@@ -69,6 +75,7 @@ export const queries = `
   salesPipelineDetail(_id: String!): SalesPipeline
   salesPipelineAssignedUsers(_id: String!): [User]
   salesPipelineStateCount(boardId: String): JSON
+  salesPipelineProducts(pipelineId: String!, categoryId: String, categoryIds: [String], searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): SalesPipelineProductListResponse
 `;
 
 const mutationParams = `
