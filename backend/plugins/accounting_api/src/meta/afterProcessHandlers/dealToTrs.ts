@@ -179,7 +179,7 @@ export const dealToTrs = async ({
   }
 
   const paymentTrs: ITransaction[] = []
-  for (const payKey of Object.keys(deal.paymentsData)) {
+  for (const payKey of Object.keys(deal.paymentsData || {})) {
     const { amount, currency } = deal.paymentsData[payKey];
     const payConfig = config.payments[payKey];
     if (!payConfig) {
