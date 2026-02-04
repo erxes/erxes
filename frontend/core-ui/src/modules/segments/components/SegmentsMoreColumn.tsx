@@ -1,30 +1,51 @@
 import { Cell } from '@tanstack/react-table';
-import { RecordTable, useQueryState, useConfirm, useToast } from 'erxes-ui';
-import { Popover, Command, Combobox } from 'erxes-ui';
+import {
+  RecordTable,
+  useQueryState,
+  Popover,
+  Command,
+  Combobox,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
-import { IBrand } from '../types';
-import { renderingBrandDetailAtom } from '../state';
-import { useBrandsRemove } from '../hooks/useBrandsRemove';
+import { ISegment } from 'ui-modules';
+import { useRemoveSegments } from '../hooks/useRemoveSegments';
 
-export const BrandsMoreColumnCell = ({
+export const SegmentMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IBrand, unknown>;
+  cell: Cell<{ order: string; hasChildren: boolean } & ISegment, unknown>;
 }) => {
-  const [, setBrandDetail] = useQueryState('brand_id');
-  const setRenderingBrandDetail = useSetAtom(renderingBrandDetailAtom);
   const { _id, name } = cell.row.original;
+  const [, setSegmentId] = useQueryState<string>('segmentId');
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { brandsRemove } = useBrandsRemove();
+  const { removeSegments } = useRemoveSegments();
 
+  const handleEdit = () => {
+    setSegmentId(_id);
+  };
   const handleDelete = () => {
+    if (!_id) {
+      toast({
+        title: 'Error',
+        description: 'Segment ID is missing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     confirm({
       message: `Are you sure you want to delete "${name}"?`,
     }).then(async () => {
       try {
-        await brandsRemove({ variables: { ids: [_id] } });
+        await removeSegments([_id]);
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Segment deleted successfully',
+        });
       } catch (e: any) {
         toast({
           title: 'Error',
@@ -43,13 +64,7 @@ export const BrandsMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => {
-                setRenderingBrandDetail(true);
-                setBrandDetail(_id);
-              }}
-            >
+            <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit /> Edit
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
@@ -62,8 +77,8 @@ export const BrandsMoreColumnCell = ({
   );
 };
 
-export const brandsMoreColumn = {
+export const segmentMoreColumn = {
   id: 'more',
-  cell: BrandsMoreColumnCell,
-  size: 25,
+  cell: SegmentMoreColumnCell,
+  size: 5,
 };
