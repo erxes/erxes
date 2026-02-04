@@ -10,18 +10,29 @@ import { useSearchParams } from 'react-router';
 import { SelectMember } from 'ui-modules';
 import { DocumentFilterState } from '../types';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 
 export const DocumentsFilter = () => {
   const [searchParams] = useSearchParams();
 
   const documentId = searchParams.get('documentId');
 
-  const [queries] = useMultiQueryState<DocumentFilterState & { assignedTo?: string | string[] | null }>([
+  const [queries, setQueries] = useMultiQueryState<DocumentFilterState & { assignedTo?: string | string[] | null }>([
     'createdAt',
     'createdBy',
     'assignedTo', // Read for backward compatibility
     'searchValue',
   ]);
+
+  // Migrate assignedTo to createdBy on load for backward compatibility
+  useEffect(() => {
+    if (queries?.assignedTo && !queries?.createdBy) {
+      setQueries({
+        createdBy: queries.assignedTo,
+        assignedTo: null, // Clear the old key
+      });
+    }
+  }, [queries?.assignedTo, queries?.createdBy, setQueries]);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -59,9 +70,7 @@ export const DocumentsFilter = () => {
 };
 
 const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState & { assignedTo?: string | string[] | null } }) => {
-  const { searchValue, createdBy, assignedTo } = queries || {};
-  // Use createdBy if available, otherwise fall back to assignedTo for backward compatibility
-  const userIds = createdBy || assignedTo;
+  const { searchValue, createdBy } = queries || {};
   const { t } = useTranslation('documents', {
     keyPrefix: 'filter',
   });
@@ -85,7 +94,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState & { assig
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
-      {userIds && <SelectMember.FilterBar queryKey="createdBy" label={t('created-by')} />}
+      {createdBy && <SelectMember.FilterBar queryKey="createdBy" label={t('created-by')} />}
     </>
   );
 };
