@@ -39,7 +39,7 @@ export const getRandomNumber = (number) => {
       let len = Number(
         (str.match(/ \* [0-9]* /g)[0] || '').substring(3) || '0',
       );
-      if (isNaN(len)) {
+      if (Number.isNaN(len)) {
         len = 8;
       }
 

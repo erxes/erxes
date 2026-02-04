@@ -41,8 +41,7 @@ export const loyaltyQueries = {
       ownerId: params.ownerId,
     };
 
-    filter.status =
-      params.statuses && params.statuses.length ? params.statuses : ['new'];
+    filter.status = params.statuses?.length ? params.statuses : ['new'];
 
     return {
       ownerId: params.ownerId,

@@ -29,7 +29,7 @@ export const couponQueries = {
 
     if (params.toDate) {
       filter.createdAt = {
-        ...(filter.createdAt || {}),
+        ...filter.createdAt,
         $lt: new Date(params.toDate),
       };
     }

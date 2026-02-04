@@ -60,11 +60,11 @@ export const scoreCampaignQueries = {
   ) => {
     let attributes: any[] = [];
 
-    // for (const serviceName of services) {
+    // note: for (const serviceName of services) {
     const service = await getPlugin(serviceName);
     const meta = service.config?.meta || {};
 
-    if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
+    if (meta?.loyalties?.aviableAttributes) {
       const serviceAttributes = await sendTRPCMessage({
         subdomain,
         pluginName: serviceName,

@@ -103,7 +103,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     }
 
     public static async removeScoreCampaign(_id: string, user: IUserDocument) {
-      const scoreCampaign = await this.getScoreCampaign(_id);
+      await this.getScoreCampaign(_id);
 
       return await models.ScoreCampaigns.updateOne(
         { _id },

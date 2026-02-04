@@ -37,7 +37,7 @@ export const loadCouponCampaignClass = (models: IModels) => {
       return couponCampaign;
     }
 
-    public static validateCampaign = (doc) => {
+    static validateCampaign = (doc) => {
       const { codeRule } = doc || {};
 
       const { pattern, charSet } = codeRule || {};
@@ -46,7 +46,7 @@ export const loadCouponCampaignClass = (models: IModels) => {
 
       if (charSet) {
         if (!Array.isArray(charSet)) {
-          throw new Error(`charSet should be an array.`);
+          throw new TypeError(`charSet should be an array.`);
         }
 
         const allowedChars = charSet.join('');

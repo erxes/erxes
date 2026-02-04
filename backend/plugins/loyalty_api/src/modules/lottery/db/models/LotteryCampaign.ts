@@ -162,7 +162,7 @@ export const loadLotteryCampaignClass = (models: IModels) => {
     }
 
     public static async multipleDoLottery({ campaignId, awardId, multiple }) {
-      Array.from(Array(parseInt(multiple)), async (e, i) => {
+      Array.from(new Array(Number.parseInt(multiple)), async (e, i) => {
         try {
           await this.doLottery({ campaignId, awardId });
         } catch (error) {

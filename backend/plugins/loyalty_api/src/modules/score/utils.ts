@@ -196,7 +196,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
         ...filter,
         targetId: {
           $nin: refundedTargetIds,
-          ...(filter.targetId || {}),
+          ...filter.targetId,
         },
       },
     },
@@ -256,7 +256,7 @@ export const scoreProducts = async ({ doc, models, filter }) => {
       $match: {
         ...filter,
         targetId: {
-          ...(filter.targetId || {}),
+          ...filter.targetId,
           $exists: true,
         },
       },

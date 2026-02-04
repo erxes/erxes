@@ -90,40 +90,6 @@ export const loyaltyMutations = {
       }
 
       destOwnerId = user._id;
-
-      //   const owner = await sendTRPCMessage({
-      //     subdomain,
-      //     pluginName: 'core',
-      //     method: 'query',
-      //     module: 'users',
-      //     action: 'findOne',
-      //     input: { _id: ownerId },
-      //     defaultValue: {}
-      //   });
-
-      //   sendNotification(subdomain, {
-      //     createdUser: owner,
-      //     title: 'Loyalty',
-      //     notifType: 'plugin',
-      //     action: `send score to you`,
-      //     content: 'Loyalty',
-      //     link: `/erxes-plugin-loyalty`,
-      //     receivers: [destOwnerId]
-      //   });
-
-      //   sendTRPCMessage({
-      //     subdomain,
-      //     pluginName: 'core',
-      //     method: 'mutation',
-      //     module: 'notifications',
-      //     action: 'sendMobileNotification',
-      //     input: {
-      //       title: `${owner.details.fullName} sent score to you`,
-      //       body: `${owner.details.fullName} sent ${(score / 100) *
-      //         (100 - fee)} score to you`,
-      //       receivers: [destOwnerId]
-      //     }
-      //   });
     }
 
     await models.ScoreLogs.changeScore({

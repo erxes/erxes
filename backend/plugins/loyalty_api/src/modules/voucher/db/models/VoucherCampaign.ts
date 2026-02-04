@@ -20,7 +20,7 @@ export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   removeVoucherCampaigns(_ids: string[]): void;
 }
 
-const validVoucherCampaign = (doc) => {
+const validVoucherCampaign = async (doc) => {
   validCampaign(doc);
 
   if (doc.bonusProductId && !doc.bonusCount) {

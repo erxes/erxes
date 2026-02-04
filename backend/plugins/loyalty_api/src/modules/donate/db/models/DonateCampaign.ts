@@ -52,7 +52,7 @@ export const loadDonateCampaignClass = (models: IModels) => {
 
       const levels = awards.map((a) => a.minScore);
 
-      if (levels.length > [...new Set(levels)].length) {
+      if (levels.length > (new Set(levels)).size) {
         throw new Error('Levels scores must be unique');
       }
     }
@@ -103,9 +103,7 @@ export const loadDonateCampaignClass = (models: IModels) => {
         campaignId: { $in: ids },
       }).distinct('campaignId');
 
-      const campaignIds = [...atDonateIds];
-
-      const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
+      const usedCampaignIds = ids.filter((id) => atDonateIds.includes(id));
       const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
       const now = new Date();
 
