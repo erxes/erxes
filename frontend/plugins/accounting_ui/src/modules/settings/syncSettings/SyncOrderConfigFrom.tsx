@@ -4,7 +4,6 @@ import {
   Dialog,
   Form,
   Input,
-  Select,
   Spinner,
 } from 'erxes-ui';
 

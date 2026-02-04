@@ -53,13 +53,6 @@ export const AddAccountingConfigForm = ({
   setOpen: (open: boolean) => void
 }) => {
   const rule = settingsRuleByCode[code];
-
-  if (!rule) {
-    return <div>Unknown config type </div>;
-  }
-
-  const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
-
   const form = useForm<any>({ defaultValues: {}, });
 
   const { addConfig, loading } = useAccountingConfigAdd({
@@ -68,6 +61,12 @@ export const AddAccountingConfigForm = ({
       form.reset();
     },
   });
+
+  if (!rule) {
+    return <div>Unknown config type </div>;
+  }
+
+  const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
 
   const onSubmit = (data: any) => {
     addConfig({

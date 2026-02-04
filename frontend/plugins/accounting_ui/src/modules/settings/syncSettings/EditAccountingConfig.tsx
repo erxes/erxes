@@ -57,12 +57,6 @@ export const EditAccountingConfigForm = ({
     },
   });
 
-  if (!rule) {
-    return <div>Unknown config type </div>;
-  }
-
-  const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
-
   const form = useForm<any>({
     defaultValues: { ...configValueDetail },
   });
@@ -74,6 +68,12 @@ export const EditAccountingConfigForm = ({
       reset(configValueDetail);
     }
   }, [configValueDetail, reset]);
+
+  if (!rule) {
+    return <div>Unknown config type </div>;
+  }
+
+  const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
 
   const handleSubmit = (data: any) => {
     const initialData = { ...configValueDetail };
@@ -87,12 +87,10 @@ export const EditAccountingConfigForm = ({
   };
 
   return (
-    <>
-      <FormComponent
-        form={form}
-        onSubmit={handleSubmit}
-        loading={editLoading}
-      />
-    </>
+    <FormComponent
+      form={form}
+      onSubmit={handleSubmit}
+      loading={editLoading}
+    />
   );
 };

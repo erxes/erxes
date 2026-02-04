@@ -1,9 +1,7 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  ITextFieldContainerProps,
   RecordTable,
   RecordTableInlineCell,
-  TextField,
   useQueryState,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';

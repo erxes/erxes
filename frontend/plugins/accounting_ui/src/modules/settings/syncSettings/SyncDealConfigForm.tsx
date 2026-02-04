@@ -59,7 +59,7 @@ export const SyncDealConfigForm = ({
     name: `pipelineId`
   });
 
-  const { data: pipelineDetail, loading: pipelineLoading, refetch: pipelineRefetch } = useQuery(gql`
+  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(gql`
   query SalesPipelineDetail($_id: String!) {
     salesPipelineDetail(_id: $_id) {
       _id
@@ -277,6 +277,7 @@ export const SyncDealConfigForm = ({
           ...paymentTypes
         ].map(ptype => (
           <Form.Field
+            key={`${pipelineId}-${ptype.type}`}
             control={form.control}
             name={`payments.${ptype.type}.accountId`}
             render={({ field }) => (

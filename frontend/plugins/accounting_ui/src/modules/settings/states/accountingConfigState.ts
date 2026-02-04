@@ -1,3 +1,3 @@
 import { atom } from 'jotai';
 
-export const accountingConfigDetailAtom = atom<any | null>(null);
+export const accountingConfigDetailAtom = atom<any>(null);

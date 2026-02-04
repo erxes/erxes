@@ -232,7 +232,6 @@ export const GET_DEAL_DETAIL = gql`
         categoryId
       }
       productsData
-      paymentsData
       relations
       pipeline {
         _id

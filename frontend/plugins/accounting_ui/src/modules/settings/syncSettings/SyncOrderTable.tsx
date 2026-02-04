@@ -48,30 +48,6 @@ const AccountTextField = ({
   );
 };
 
-const AccountCategoryMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<{ hasChildren: boolean }, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('accountCategoryId');
-  // const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
-  return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        // setAccountCategoryDetail(cell.row.original);
-        // setOpen(cell.row.original._id);
-      }}
-    />
-  );
-};
-
-// const accountCategoryMoreColumn = {
-//   id: 'more',
-//   cell: AccountCategoryMoreColumnCell,
-//   size: 33,
-// };
-
 export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
   // accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
