@@ -4,7 +4,6 @@ export * from './modules/contacts/company';
 export * from './modules/contacts/contacts-common';
 export * from './modules/contacts/customer';
 export * from './modules/permissions/permission';
-export * from './modules/permissions/role';
 export * from './modules/products/product';
 export * from './modules/products/productCategory';
 export * from './modules/products/productConfig';

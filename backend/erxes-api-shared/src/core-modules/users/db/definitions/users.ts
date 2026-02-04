@@ -73,6 +73,24 @@ export const userSchema = schemaWrapper(
     registrationTokenExpires: mongooseField({ type: Date }),
     resetPasswordExpires: mongooseField({ type: Date }),
     isOwner: mongooseField({ type: Boolean, label: 'Is owner' }),
+    permissionGroupIds: mongooseField({
+      type: [String],
+      default: [],
+      label: 'Permission Groups',
+    }),
+
+    customPermissions: mongooseField({
+      type: [
+        {
+          module: { type: String },
+          actions: { type: [String] },
+          scope: { type: String, enum: ['own', 'group', 'all'] },
+        },
+      ],
+      default: [],
+      label: 'Custom Permissions',
+    }),
+
     onboardedPlugins: mongooseField({
       type: [String],
       label: 'Onboarded plugins',
