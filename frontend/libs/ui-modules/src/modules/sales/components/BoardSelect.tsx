@@ -7,9 +7,11 @@ import { useEffect } from 'react';
 export const BoardSelect = ({
   boardId,
   className,
+  onChange,
 }: {
   boardId?: string;
   className?: string;
+  onChange?: (boardId: string | string[], callback?: () => void) => void;
 }) => {
   const setBoardId = useSetAtom(dealBoardState);
   const currentBoard = useAtomValue(dealBoardState);
@@ -28,6 +30,7 @@ export const BoardSelect = ({
         setBoardId({
           boardId: boardId as string,
         });
+        onChange?.(boardId);
       }}
     />
   );

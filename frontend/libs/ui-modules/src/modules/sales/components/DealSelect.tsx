@@ -8,6 +8,9 @@ export const DealSelect = ({
   boardId,
   pipelineId,
   stageId,
+  onChangeStage,
+  onChangePipeline,
+  onChangeBoard,
 }: DealSelectProps) => {
   return (
     <div className="flex flex-col">
@@ -17,6 +20,7 @@ export const DealSelect = ({
       <div className="px-2">
         <BoardSelect
           boardId={boardId}
+          onChange={onChangeBoard}
           className="border-none shadow-none h-8 font-normal hover:bg-accent/50 selection:bg-transparent"
         />
       </div>
@@ -28,6 +32,7 @@ export const DealSelect = ({
       <div className="px-2">
         <PipelineSelect
           pipelineId={pipelineId}
+          onChange={onChangePipeline}
           className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
         />
       </div>
@@ -38,6 +43,7 @@ export const DealSelect = ({
       <div className="px-2">
         <StageSelect
           stageId={stageId}
+          onChange={onChangeStage}
           className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
         />
       </div>

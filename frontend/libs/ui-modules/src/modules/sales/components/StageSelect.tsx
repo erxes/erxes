@@ -1,34 +1,58 @@
+import { dealPipelineState, dealStageState } from '../states';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
+
 import { SelectStage } from './common/select/SelectStages';
-import { dealPipelineState } from '../states';
-import { useAtomValue } from 'jotai';
 
 export const StageSelect = ({
   stageId,
   className,
+  onChange,
 }: {
   stageId?: string;
   className?: string;
+  onChange?: (stageId: string | string[], callback?: () => void) => void;
 }) => {
-  // const board = useAtomValue(dealBoardState);
+  const setStageId = useSetAtom(dealStageState);
   const pipeline = useAtomValue(dealPipelineState);
+  const currentStage = useAtomValue(dealStageState);
 
   const pipelineId = pipeline?.pipelineId || '';
-  console.log('pipelineId:', pipelineId);
+  const isInitialized = useRef(false);
+  const previousPipelineId = useRef(pipelineId);
+
+  useEffect(() => {
+    if (stageId && !isInitialized.current) {
+      setStageId({ stageId });
+      isInitialized.current = true;
+    } else if (!stageId && !isInitialized.current) {
+      isInitialized.current = true;
+    }
+  }, [stageId, setStageId]);
+
+  useEffect(() => {
+    if (previousPipelineId.current !== pipelineId && pipelineId) {
+      if (!stageId) {
+        setStageId(null);
+      }
+      previousPipelineId.current = pipelineId;
+    }
+  }, [pipelineId, setStageId, stageId]);
+
   return (
     <SelectStage.InlineCell
       mode="single"
-      value={stageId}
+      value={currentStage?.stageId || ''}
       pipelineId={pipelineId}
       className={className}
-      onValueChange={(stageId) => {
-        // editDeals({
-        //   variables: {
-        //     _id: deal._id,
-        //     boardId: board.boardId || deal.boardId,
-        //     pipelineId: pipeline.pipelineId || deal.pipeline?._id,
-        //     stageId: stageId as string,
-        //   },
-        // });
+      onValueChange={(stageId, isAutoSelection) => {
+        setStageId({
+          stageId: stageId as string,
+        });
+
+        if (!isAutoSelection) {
+          onChange?.(stageId);
+        }
       }}
     />
   );

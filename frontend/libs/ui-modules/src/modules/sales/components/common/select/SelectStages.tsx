@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { IStage, useStages } from 'ui-modules/index';
 import { IconChevronDown, IconListCheck } from '@tabler/icons-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SelectStagesContext,
   useSelectStagesContext,
@@ -31,7 +31,7 @@ export const SelectStageProvider = ({
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   value?: string[] | string;
-  onValueChange: (value: string[] | string) => void;
+  onValueChange: (value: string[] | string, isAutoSelection?: boolean) => void;
   stages?: IStage[];
   pipelineId?: string;
 }) => {
@@ -46,25 +46,28 @@ export const SelectStageProvider = ({
     skip: !pipelineId,
   });
 
-  // Auto-select first stage when pipeline changes and stages are available
-  React.useEffect(() => {
+  useEffect(() => {
     if (pipelineId && availableStages.length > 0) {
-      const firstStage = availableStages[0];
       const currentStageId = Array.isArray(value) ? value[0] : value;
 
-      // Only auto-select if no stage is currently selected
-      if (firstStage && !currentStageId) {
-        setStages([firstStage]);
-        onValueChange?.(firstStage._id);
+      const stage = availableStages.find((s) => s._id === currentStageId);
+      const selectedStage = stage || availableStages[0];
+
+      if (selectedStage) {
+        setStages([selectedStage]);
+
+        if (!stage && selectedStage) {
+          onValueChange?.(selectedStage._id, true);
+        }
       }
     }
-  }, [pipelineId, availableStages, onValueChange, value]);
+  }, [pipelineId, availableStages, value, onValueChange]);
 
   const onSelect = (stage: IStage) => {
     if (!stage) return;
     if (isSingleMode) {
       setStages([stage]);
-      return onValueChange?.(stage._id);
+      return onValueChange?.(stage._id, false);
     }
 
     const arrayValue = Array.isArray(value) ? value : [];
@@ -84,7 +87,7 @@ export const SelectStageProvider = ({
     <SelectStagesContext.Provider
       value={{
         stages: _stages,
-        stageIds: !value ? [] : Array.isArray(value) ? value : [value],
+        stageIds: _stages.map((s) => s._id),
         onSelect,
         setStages,
         loading: false,
@@ -140,7 +143,7 @@ const SelectStageContent = () => {
   });
 
   const isDisabled = !pipelineId;
-  console.log('selectedStages:', selectedStages);
+
   return (
     <Command shouldFilter={false} id="stage-command-menu">
       <Command.Input
@@ -300,8 +303,8 @@ export const SelectStageInlineCell = ({
 
   return (
     <SelectStageProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
+      onValueChange={(value, isAutoSelection) => {
+        onValueChange?.(value, isAutoSelection);
         setOpen(false);
       }}
       pipelineId={pipelineId}

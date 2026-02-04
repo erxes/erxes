@@ -7,9 +7,11 @@ import { SelectPipeline } from './common/select/SelectPipelines';
 export const PipelineSelect = ({
   pipelineId,
   className,
+  onChange,
 }: {
   pipelineId?: string;
   className?: string;
+  onChange?: (pipelineId: string | string[], callback?: () => void) => void;
 }) => {
   const setPipelineId = useSetAtom(dealPipelineState);
   const board = useAtomValue(dealBoardState);
@@ -42,6 +44,7 @@ export const PipelineSelect = ({
         setPipelineId({
           pipelineId: pipelineId as string,
         });
+        onChange?.(pipelineId);
       }}
     />
   );
