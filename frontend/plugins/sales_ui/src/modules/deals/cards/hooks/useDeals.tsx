@@ -51,22 +51,6 @@ interface ISalesProductsDataChangedPayload {
   };
 }
 
-const inletByOrder = (list: IDeal[], deal: IDeal) => {
-  const newList = list.filter(item => item._id !== deal._id);
-
-  const index = newList.findIndex(item => (item.order ?? 0) > (deal.order ?? 0));
-
-  if (index === -1) {
-    return [...newList, deal]; // хамгийн сүүлд
-  }
-
-  return [
-    ...newList.slice(0, index),
-    deal,
-    ...newList.slice(index),
-  ];
-};
-
 export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
@@ -134,25 +118,22 @@ export const useDeals = (
 
         if (action === 'edit' || action === 'add') {
           setDealIdToRefetch(deal._id);
-
-          updatedList = inletByOrder(currentList, deal);
         }
-        console.log(updatedList.map(ul => ul.order))
 
-        // if (action === 'add') {
-        //   const exists = currentList.some(
-        //     (item: IDeal) => item._id === deal._id,
-        //   );
-        //   if (!exists) {
-        //     updatedList = [deal, ...currentList];
-        //   }
-        // }
+        if (action === 'add') {
+          const exists = currentList.some(
+            (item: IDeal) => item._id === deal._id,
+          );
+          if (!exists) {
+            updatedList = [deal, ...currentList];
+          }
+        }
 
-        // if (action === 'edit') {
-        //   updatedList = currentList.map((item: IDeal) =>
-        //     item._id === deal._id ? { ...item, ...deal } : item,
-        //   );
-        // }
+        if (action === 'edit') {
+          updatedList = currentList.map((item: IDeal) =>
+            item._id === deal._id ? { ...item, ...deal } : item,
+          );
+        }
 
         if (action === 'remove') {
           updatedList = currentList.filter(
@@ -169,8 +150,8 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                  ? prev.deals.totalCount - 1
-                  : prev.deals.totalCount,
+                ? prev.deals.totalCount - 1
+                : prev.deals.totalCount,
           },
         };
       },
@@ -283,11 +264,11 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     refetchQueries:
       salesItemId || _id
         ? [
-          {
-            query: GET_DEAL_DETAIL,
-            variables: { ...options?.variables, _id: salesItemId || _id },
-          },
-        ]
+            {
+              query: GET_DEAL_DETAIL,
+              variables: { ...options?.variables, _id: salesItemId || _id },
+            },
+          ]
         : [],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
