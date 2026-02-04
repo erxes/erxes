@@ -1,11 +1,15 @@
 export interface PermissionAction {
   name: string;
   description: string;
-  required?: boolean;
+  always?: boolean;
+  disabled?: boolean;
 }
 
 export interface PermissionModule {
   name: string;
+  description?: string;
+  scopeField?: string | null;
+  ownerFields?: string[];
   actions: PermissionAction[];
 }
 
@@ -24,6 +28,11 @@ export interface DefaultPermissionGroup {
 
 export interface PermissionConfig {
   plugin: string;
+  scopes?: {
+    own: string;
+    group: string;
+    all: string;
+  };
   modules: PermissionModule[];
   defaultGroups: DefaultPermissionGroup[];
 }

@@ -1,10 +1,18 @@
 {
   "plugin": "operation",
+  "scopes": {
+    "own": "Records you created or assigned to you",
+    "group": "Records in your teams",
+    "all": "All records"
+  },
   "modules": [
     {
       "name": "task",
+      "description": "Task management",
+      "scopeField": "teamId",
+      "ownerFields": ["createdBy", "assignedTo"],
       "actions": [
-        { "name": "taskRead", "description": "View tasks", "required": true },
+        { "name": "taskRead", "description": "View tasks", "always": true },
         { "name": "taskCreate", "description": "Create tasks" },
         { "name": "taskUpdate", "description": "Edit tasks" },
         { "name": "taskRemove", "description": "Delete tasks" },
@@ -13,11 +21,14 @@
     },
     {
       "name": "project",
+      "description": "Project management",
+      "scopeField": "teamId",
+      "ownerFields": ["createdBy", "leadId"],
       "actions": [
         {
           "name": "projectRead",
           "description": "View projects",
-          "required": true
+          "always": true
         },
         { "name": "projectCreate", "description": "Create projects" },
         { "name": "projectUpdate", "description": "Edit projects" },
@@ -26,8 +37,11 @@
     },
     {
       "name": "cycle",
+      "description": "Cycle management",
+      "scopeField": "teamId",
+      "ownerFields": ["createdBy"],
       "actions": [
-        { "name": "cycleRead", "description": "View cycles", "required": true },
+        { "name": "cycleRead", "description": "View cycles", "always": true },
         { "name": "cycleCreate", "description": "Create cycles" },
         { "name": "cycleUpdate", "description": "Edit cycles" },
         { "name": "cycleRemove", "description": "Delete cycles" }
@@ -35,8 +49,11 @@
     },
     {
       "name": "team",
+      "description": "Team management",
+      "scopeField": null,
+      "ownerFields": ["createdBy"],
       "actions": [
-        { "name": "teamRead", "description": "View teams", "required": true },
+        { "name": "teamRead", "description": "View teams", "always": true },
         { "name": "teamCreate", "description": "Create teams" },
         { "name": "teamUpdate", "description": "Edit teams" },
         { "name": "teamRemove", "description": "Delete teams" }
