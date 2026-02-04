@@ -1,4 +1,5 @@
 import {
+  Button,
   cn,
   DatePicker,
   Form,
@@ -11,20 +12,62 @@ import {
 import { IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
 import { useErxesForm } from '../ context/erxesFormContext';
+import { ErxesSteps } from './steps';
+import { useAtom, useSetAtom } from 'jotai';
+import { activeStepAtom, formValuesAtom } from '../states/erxesFormStates';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const ErxesForm = ({ step }: { step: IFormStep }) => {
+export const ErxesForm = ({
+  step,
+  stepsLength,
+  defaultValue,
+  schema,
+}: {
+  step: IFormStep;
+  stepsLength: number;
+  defaultValue: any;
+  schema: z.ZodSchema;
+}) => {
+  console.log(defaultValue, schema);
   const formData = useErxesForm();
+  const [activeStep, setActiveStep] = useAtom(activeStepAtom);
+  const setFormValues = useSetAtom(formValuesAtom);
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
-  const form = useForm();
+  const form = useForm({
+    defaultValues: defaultValue,
+    resolver: zodResolver(schema),
+  });
 
   return (
     <Form {...form}>
-      <form className="text-sm">
-        <InfoCard title={step.name}>
+      <form
+        className="text-sm"
+        onSubmit={form.handleSubmit(
+          (values) =>
+            setFormValues((prev) => ({ ...prev, [step.order]: values })),
+          (errors) => {
+            console.log(errors);
+          },
+        )}
+      >
+        <InfoCard
+          title={formData?.title || ''}
+          description={formData?.description || ''}
+          className="p-2"
+        >
+          {stepsLength > 1 && (
+            <ErxesSteps
+              step={step.order}
+              title={step.name}
+              stepsLength={stepsLength}
+              description={step.description}
+            />
+          )}
           <InfoCard.Content>
-            <div className="grid grid-cols-2 gap-4 mb-2">
+            <div className="grid md:grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {
                 return (
                   <Form.Field
@@ -153,6 +196,27 @@ export const ErxesForm = ({ step }: { step: IFormStep }) => {
               })}
             </div>
           </InfoCard.Content>
+          <div className="flex justify-end mt-4 mb-2 mr-3 gap-2">
+            {stepsLength > 1 && (
+              <Button
+                variant="secondary"
+                onClick={() => setActiveStep((prevStep) => prevStep - 1)}
+                disabled={activeStep === 1}
+              >
+                Previous
+              </Button>
+            )}
+            {stepsLength > activeStep ? (
+              <Button
+                onClick={() => setActiveStep((prevStep) => prevStep + 1)}
+                type="submit"
+              >
+                Next
+              </Button>
+            ) : (
+              <Button type="submit">Submit</Button>
+            )}
+          </div>
         </InfoCard>
       </form>
     </Form>

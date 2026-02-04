@@ -16,13 +16,6 @@ export const generateIntegrationUrl = (): string => {
       return scripts[scripts.length - 1];
     })();
 
-  console.log(
-    !!script &&
-      !!(script as HTMLScriptElement) &&
-      (script as HTMLScriptElement).src,
-    'script src',
-  );
-
   if (script && script instanceof HTMLScriptElement) {
     return script.src.replace(`/formBundle.js`, `/form`);
   }
@@ -81,7 +74,7 @@ export const getBrowserInfo = async () => {
 export const listenForCommonRequests = async (event: any, iframe: any) => {
   const { message, fromErxes, source, key, value } = event.data;
 
-  if (fromErxes && iframe.contentWindow) {
+  if (fromErxes && iframe?.contentWindow) {
     if (message === 'requestingBrowserInfo') {
       iframe.contentWindow.postMessage(
         {
@@ -270,7 +263,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
     return null;
   }
 
-  const { container, iframe } = iframesMapping[getMappingKey(settings)];
+  const { container, iframe } = iframesMapping[getMappingKey(settings)] || {};
 
   listenForCommonRequests(event, iframe);
 
@@ -303,7 +296,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
         const elm = elements[i];
 
         elm.addEventListener('click', () => {
-          iframe.contentWindow.postMessage(
+          iframe?.contentWindow.postMessage(
             {
               fromPublisher: true,
               action: 'showPopup',
@@ -316,11 +309,13 @@ window.addEventListener('message', async (event: MessageEvent) => {
     }
   }
 
-  if (message === 'changeContainerClass') {
+  console.log(container, 'container', message, data);
+
+  if (message === 'changeContainerClass' && container) {
     container.className = data.className;
   }
 
-  if (message === 'changeContainerStyle') {
+  if (message === 'changeContainerStyle' && container) {
     container.style = data.style;
   }
 

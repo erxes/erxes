@@ -54,10 +54,6 @@
       const scripts = document.getElementsByTagName("script");
       return scripts[scripts.length - 1];
     })();
-    console.log(
-      !!script && !!script && script.src,
-      "script src"
-    );
     if (script && script instanceof HTMLScriptElement) {
       return script.src.replace(`/formBundle.js`, `/form`);
     }
@@ -105,7 +101,7 @@
   });
   var listenForCommonRequests = (event, iframe) => __async(void 0, null, function* () {
     const { message, fromErxes, source, key, value } = event.data;
-    if (fromErxes && iframe.contentWindow) {
+    if (fromErxes && (iframe == null ? void 0 : iframe.contentWindow)) {
       if (message === "requestingBrowserInfo") {
         iframe.contentWindow.postMessage(
           {
@@ -228,7 +224,7 @@
     if (!settings || source !== "fromForms") {
       return null;
     }
-    const { container, iframe } = iframesMapping[getMappingKey(settings)];
+    const { container, iframe } = iframesMapping[getMappingKey(settings)] || {};
     listenForCommonRequests(event, iframe);
     const completeSettings = getSettings(settings);
     if (!completeSettings) {
@@ -248,7 +244,7 @@
         for (let i = 0; i < elements.length; i++) {
           const elm = elements[i];
           elm.addEventListener("click", () => {
-            iframe.contentWindow.postMessage(
+            iframe == null ? void 0 : iframe.contentWindow.postMessage(
               {
                 fromPublisher: true,
                 action: "showPopup",
@@ -260,10 +256,11 @@
         }
       }
     }
-    if (message === "changeContainerClass") {
+    console.log(container, "container", message, data);
+    if (message === "changeContainerClass" && container) {
       container.className = data.className;
     }
-    if (message === "changeContainerStyle") {
+    if (message === "changeContainerStyle" && container) {
       container.style = data.style;
     }
     return null;
