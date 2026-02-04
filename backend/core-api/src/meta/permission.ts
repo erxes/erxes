@@ -442,6 +442,26 @@ export const moduleObjects = {
     ],
   },
 
+  clientPortalUsers: {
+    name: 'clientPortalUsers',
+    description: 'Client portal users',
+    actions: [
+      {
+        name: 'clientPortalUsersAll',
+        description: 'All',
+        use: ['showClientPortalUsers', 'manageClientPortalUsers'],
+      },
+      {
+        name: 'showClientPortalUsers',
+        description: 'Show client portal users',
+      },
+      {
+        name: 'manageClientPortalUsers',
+        description: 'Manage client portal users',
+      },
+    ],
+  },
+
   products: {
     name: 'products',
     description: 'Products',

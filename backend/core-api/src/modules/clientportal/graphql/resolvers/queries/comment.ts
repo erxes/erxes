@@ -55,14 +55,15 @@ export const commentQueries: Record<string, Resolver> = {
       query.userType = filter.userType;
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<ICPCommentDocument>({
-      model: models.CPComments,
-      params: {
-        ...paginationParams,
-        orderBy: { createdAt: -1 },
-      },
-      query,
-    });
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICPCommentDocument>({
+        model: models.CPComments,
+        params: {
+          ...paginationParams,
+          orderBy: { createdAt: -1 },
+        },
+        query,
+      });
 
     return { list, totalCount, pageInfo };
   },

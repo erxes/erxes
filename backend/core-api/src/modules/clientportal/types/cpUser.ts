@@ -40,6 +40,12 @@ export interface ISocialAuthProvider {
   linkedAt: Date;
 }
 
+export interface IFcmDevice {
+  deviceId: string;
+  token: string;
+  platform: 'ios' | 'android' | 'web';
+}
+
 export interface ICPUser {
   type?: string;
   email?: string;
@@ -69,8 +75,8 @@ export interface ICPUser {
 
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
-  // firebase cloud messaging tokens for push notifications and web push notifications
-  fcmTokens: string[];
+  // firebase cloud messaging devices (deviceId, token, platform) for push notifications
+  fcmTokens?: IFcmDevice[];
   // Verification codes - unified structure
   actionCode?: {
     code: string;
