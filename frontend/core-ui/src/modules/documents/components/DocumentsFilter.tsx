@@ -16,9 +16,10 @@ export const DocumentsFilter = () => {
 
   const documentId = searchParams.get('documentId');
 
-  const [queries] = useMultiQueryState<DocumentFilterState>([
+  const [queries] = useMultiQueryState<DocumentFilterState & { assignedTo?: string | string[] | null }>([
     'createdAt',
     'createdBy',
+    'assignedTo', // Read for backward compatibility
     'searchValue',
   ]);
 
@@ -57,8 +58,10 @@ export const DocumentsFilter = () => {
   );
 };
 
-const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
-  const { searchValue, createdBy } = queries || {};
+const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState & { assignedTo?: string | string[] | null } }) => {
+  const { searchValue, createdBy, assignedTo } = queries || {};
+  // Use createdBy if available, otherwise fall back to assignedTo for backward compatibility
+  const userIds = createdBy || assignedTo;
   const { t } = useTranslation('documents', {
     keyPrefix: 'filter',
   });
@@ -82,7 +85,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
-      {createdBy && <SelectMember.FilterBar queryKey="createdBy" label="Created By" />}
+      {userIds && <SelectMember.FilterBar queryKey="createdBy" label={t('created-by')} />}
     </>
   );
 };
@@ -106,7 +109,7 @@ const DocumentFilterView = () => {
               {t('search')}
             </Filter.Item>
 
-            <SelectMember.FilterItem value="createdBy" label="Created By" />
+            <SelectMember.FilterItem value="createdBy" label={t('created-by')} />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdAt">
               <IconCalendarPlus />
