@@ -71,7 +71,6 @@ export const AssignMemberInEditor = ({ editor }: { editor: IBlockEditor }) => {
             };
           });
         } catch (error) {
-          console.error(error);
           return [
             {
               title: 'Error loading users',

@@ -28,7 +28,7 @@ import { TagBadge } from './TagBadge';
 import { useDebounce } from 'use-debounce';
 import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
 import { IconTagPlus } from '@tabler/icons-react';
-
+import { useTags } from '../hooks/useTags';
 import { useTranslation } from 'react-i18next';
 
 export const SelectTagsProvider = ({
