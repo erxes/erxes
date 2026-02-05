@@ -34,16 +34,19 @@ export const GET_PERMISSION_GROUPS = gql`
 export const GET_PERMISSION_MODULES = gql`
   query permissionModules {
     permissionModules {
-      name
-      description
       plugin
-      scopeField
-      ownerFields
-      actions {
+      modules {
         name
         description
-        always
-        disabled
+        plugin
+        scopeField
+        ownerFields
+        actions {
+          name
+          description
+          always
+          disabled
+        }
       }
     }
   }

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const scopeEnum = z.enum(['own', 'group', 'all']);
+
 export const PERMISSION_GROUP_SCHEMA = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
@@ -7,7 +9,7 @@ export const PERMISSION_GROUP_SCHEMA = z.object({
     z.object({
       module: z.string().min(1, 'Module is required'),
       actions: z.array(z.string()).min(1, 'Actions are required'),
-      scope: z.string().min(1, 'Scope is required'),
+      scope: scopeEnum,
     }),
   ),
 });

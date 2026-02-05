@@ -1,5 +1,5 @@
 // import { zodResolver } from '@hookform/resolvers/zod';
-import { Sheet } from 'erxes-ui';
+import { FocusSheet, Sheet } from 'erxes-ui';
 import { Button } from 'erxes-ui';
 // import { PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
 // import { useForm } from 'react-hook-form';
@@ -9,7 +9,6 @@ import { PermissionGroupForm } from './PermissionGroupForm';
 
 export const PermissionGroupAdd = ({ text }: { text?: string }) => {
   const [open, setOpen] = useState<boolean>(false);
-
   //   const form = useForm<typeof PERMISSION_GROUP_SCHEMA>({
   //     resolver: zodResolver(PERMISSION_GROUP_SCHEMA),
   //     defaultValues: {
@@ -32,13 +31,16 @@ export const PermissionGroupAdd = ({ text }: { text?: string }) => {
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <FocusSheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button variant="secondary">{text || 'Add Custom Group'}</Button>
       </Sheet.Trigger>
-      <Sheet.View>
-        <PermissionGroupForm />
-      </Sheet.View>
-    </Sheet>
+      <FocusSheet.View>
+        <FocusSheet.Header title={'Add Custom Group'} />
+        <FocusSheet.Content>
+          <PermissionGroupForm onSubmit={onSubmit} />
+        </FocusSheet.Content>
+      </FocusSheet.View>
+    </FocusSheet>
   );
 };

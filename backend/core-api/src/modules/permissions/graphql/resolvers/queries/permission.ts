@@ -23,7 +23,7 @@ const mergePerm = (map: Map<string, any>, perm: any) => {
 
 export const permissionQueries = {
   async permissionModules() {
-    const modules: any[] = [];
+    const grouped: { plugin: string; modules: any[] }[] = [];
     const services = await getPlugins();
 
     for (const name of services) {
@@ -31,12 +31,14 @@ export const permissionQueries = {
       const permissions = service?.config?.meta?.permissions;
       if (!permissions?.modules) continue;
 
-      for (const module of permissions.modules) {
-        modules.push({ ...module, plugin: name });
-      }
+      const modules = permissions.modules
+        .map((module: any) => ({ ...module, plugin: name }))
+        .sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+      grouped.push({ plugin: name, modules });
     }
 
-    return modules.sort((a, b) => a.name.localeCompare(b.name));
+    return grouped.sort((a, b) => a.plugin.localeCompare(b.plugin));
   },
 
   async permissionDefaultGroups() {

@@ -39,6 +39,12 @@ export interface IPermissionGroup {
   updatedAt?: Date;
 }
 
+// Permission modules grouped by plugin (API response)
+export interface IPermissionModulesByPlugin {
+  plugin: string;
+  modules: IPermissionModule[];
+}
+
 // For groupedByPlugin
 export interface IGroupedByPlugin {
   [plugin: string]: IDefaultPermissionGroup[];

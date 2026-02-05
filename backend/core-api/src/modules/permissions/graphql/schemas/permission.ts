@@ -22,6 +22,11 @@ export const types = `
     actions: [PermissionAction]!
   }
 
+  type PermissionModulesByPlugin {
+    plugin: String!
+    modules: [PermissionModule]!
+  }
+
   type PermissionGroupPermission {
     module: String!
     actions: [String]!
@@ -60,7 +65,7 @@ export const types = `
 `;
 
 export const queries = `
-  permissionModules: [PermissionModule]
+  permissionModules: [PermissionModulesByPlugin]
   permissionDefaultGroups: [DefaultPermissionGroup]
   permissionGroups: [PermissionGroup]
   permissionGroupDetail(id: String!): PermissionGroup
