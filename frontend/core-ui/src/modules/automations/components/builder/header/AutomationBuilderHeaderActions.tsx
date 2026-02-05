@@ -44,6 +44,7 @@ export const AutomationBuilderHeaderActions = () => {
       <div className="flex items-center gap-2">
         {AUTOMATION_LIBRARY_TABS.map(({ value, label }) => (
           <Toggle
+            key={value}
             variant="outline"
             className="data-[state=on]:shadow-focus data-[state=on]:bg-background bg-background text-foreground"
             pressed={value === activeNodeTab}

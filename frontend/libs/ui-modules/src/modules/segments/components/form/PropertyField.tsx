@@ -12,9 +12,7 @@ export const PropertyField = ({
   loading,
 }: IPropertyField) => {
   const { form } = useSegment();
-  const { control, watch } = form;
-  const formFields = watch();
-  console.log(formFields.conditionSegments);
+  const { control } = form;
   const fieldsGroupsMap = groupFieldsByType(fields);
   return (
     <div className="flex flex-row w-full shadow-xs rounded-lg">

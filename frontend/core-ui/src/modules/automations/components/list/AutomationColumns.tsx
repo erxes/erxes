@@ -4,8 +4,13 @@ import {
   TAutomationRecordTableColumnDefData,
 } from '@/automations/types';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@apollo/client';
-import { IconPointerBolt, IconShare } from '@tabler/icons-react';
+import { ApolloError, useMutation } from '@apollo/client';
+import {
+  IconEdit,
+  IconPointerBolt,
+  IconShare,
+  IconTrash,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -18,12 +23,16 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
   Switch,
+  DropdownMenu,
+  Button,
+  useConfirm,
+  useToast,
 } from 'erxes-ui';
-import { Link } from 'react-router-dom';
 import { TagsSelect, TAutomationAction, TAutomationTrigger } from 'ui-modules';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
+import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
 
 const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
@@ -31,6 +40,78 @@ const checkBoxColumn =
 export const getAutomationColumns: (
   t: (key: string) => string,
 ) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
+  {
+    id: 'more',
+    cell: ({ cell }) => {
+      const navigate = useNavigate();
+      const { confirm } = useConfirm();
+      const { removeAutomations, loading } = useRemoveAutomations();
+      const { toast } = useToast();
+
+      const onRemove = () => {
+        confirm({
+          message: `Are you sure you want to delete the "${cell.row.original.name}" automation?`,
+        }).then(() => {
+          removeAutomations([cell.row.original._id], {
+            onError: (e: ApolloError) => {
+              toast({
+                title: 'Error',
+                description: e.message,
+                variant: 'destructive',
+              });
+            },
+            onCompleted: () => {
+              toast({
+                title: 'Success',
+                variant: 'success',
+                description: 'Automations deleted successfully',
+              });
+            },
+          });
+        });
+      };
+      return (
+        <DropdownMenu>
+          <DropdownMenu.Trigger asChild disabled={loading}>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            align="start"
+            className="w-[100px] min-w-0 [&>button]:cursor-pointer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DropdownMenu.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() =>
+                  navigate(`/automations/edit/${cell.row.original._id}`)
+                }
+              >
+                <IconEdit className="size-4" />
+                Edit
+              </Button>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive"
+                onClick={() => onRemove()}
+              >
+                <IconTrash className="size-4" />
+                Delete
+              </Button>
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu>
+      );
+    },
+    size: 34,
+    maxSize: 34,
+    minSize: 34,
+  },
   checkBoxColumn,
   {
     id: 'name',
@@ -40,6 +121,7 @@ export const getAutomationColumns: (
       const [editingName, setEditingName] = useState(cell.getValue() as string);
       const navigate = useNavigate();
       const [edit] = useMutation(AUTOMATION_EDIT);
+      const { toast } = useToast();
       const handleEnter = () => {
         if (
           editingName === (cell.getValue() as string) ||
@@ -51,6 +133,20 @@ export const getAutomationColumns: (
           variables: {
             id: cell.row.original._id,
             name: editingName,
+          },
+          onError: (e: ApolloError) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+          onCompleted: () => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Automation updated successfully',
+            });
           },
         });
       };
