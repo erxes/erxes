@@ -2,13 +2,97 @@ import { IContext } from '../../../../../connectionResolvers';
 import { ITemplateInput } from '../../../db/definitions/template';
 import { sendTRPCMessage, getSubdomain } from 'erxes-api-shared/utils';
 
+interface ITemplateAddInput extends Partial<ITemplateInput> {
+  name: string;
+  sourceId?: string;
+  sourceIds?: string[];
+  contentType?: string;
+}
+
 export const templateMutations = {
   templateAdd: async (
     _parent: undefined,
-    { doc }: { doc: ITemplateInput },
-    { models, user }: IContext,
+    { doc }: { doc: ITemplateAddInput },
+    { models, user, req }: IContext,
   ) => {
-    return models.Template.createTemplate(doc, user);
+    const { sourceId, sourceIds, ...templateDoc } = doc;
+
+    // If sourceId or sourceIds provided, fetch content from plugin via TRPC
+    if ((sourceId || sourceIds) && templateDoc.contentType) {
+      const contentType = templateDoc.contentType;
+
+      if (!contentType.includes(':')) {
+        throw new Error('Invalid contentType format. Expected: plugin:type');
+      }
+
+      const subdomain = getSubdomain(req);
+      const [pluginName] = contentType.split(':');
+
+      if (!pluginName) {
+        throw new Error('Invalid contentType format. Expected: plugin:type');
+      }
+
+      let result;
+
+      if (sourceIds && sourceIds.length > 0) {
+        // Multiple sources
+        result = await sendTRPCMessage({
+          subdomain,
+          pluginName,
+          method: 'mutation',
+          module: 'templates',
+          action: 'saveAsTemplateMulti',
+          input: {
+            sourceIds,
+            contentType,
+            name: templateDoc.name,
+            description: templateDoc.description,
+            status: templateDoc.status,
+            currentUser: user,
+          },
+        });
+      } else if (sourceId) {
+        // Single source
+        result = await sendTRPCMessage({
+          subdomain,
+          pluginName,
+          method: 'mutation',
+          module: 'templates',
+          action: 'saveAsTemplate',
+          input: {
+            sourceId,
+            contentType,
+            name: templateDoc.name,
+            description: templateDoc.description,
+            status: templateDoc.status,
+            currentUser: user,
+          },
+        });
+      }
+
+      if (!result || result.status === 'error') {
+        throw new Error(
+          result?.errorMessage || 'Failed to fetch template content',
+        );
+      }
+
+      // Create template with fetched content
+      return models.Template.createTemplate(
+        {
+          name: templateDoc.name,
+          content: result.data.content,
+          contentType,
+          pluginType: pluginName,
+          description: templateDoc.description || result.data.description,
+          categoryIds: templateDoc.categoryIds,
+          status: templateDoc.status || 'active',
+        },
+        user,
+      );
+    }
+
+    // Direct content provided - create template directly
+    return models.Template.createTemplate(templateDoc as ITemplateInput, user);
   },
 
   templateEdit: async (
@@ -93,148 +177,5 @@ export const templateMutations = {
         contentType: template.contentType,
       };
     }
-  },
-
-  templateSaveFrom: async (
-    _parent: undefined,
-    {
-      sourceId,
-      contentType,
-      name,
-      description,
-      status,
-    }: {
-      sourceId: string;
-      contentType: string;
-      name: string;
-      description?: string;
-      status?: string;
-    },
-    { models, req, user }: IContext,
-  ) => {
-    if (!contentType || !contentType.includes(':')) {
-      throw new Error('Invalid contentType format. Expected: plugin:type');
-    }
-
-    const subdomain = getSubdomain(req);
-    const [pluginName] = contentType.split(':');
-
-    if (!pluginName) {
-      throw new Error('Invalid contentType format. Expected: plugin:type');
-    }
-
-    const result = await sendTRPCMessage({
-      subdomain,
-      pluginName,
-      method: 'mutation',
-      module: 'templates',
-      action: 'saveAsTemplate',
-      input: {
-        sourceId,
-        contentType,
-        name,
-        description,
-        status,
-        currentUser: user,
-      },
-    });
-
-    if (!result || result.status === 'error') {
-      throw new Error(result?.errorMessage || 'Failed to save as template');
-    }
-
-    // Create template with data from source plugin
-    const template = await models.Template.createTemplate(
-      {
-        name,
-        content: result.data.content,
-        contentType,
-        pluginType: pluginName,
-        description: description || result.data.description,
-        status: 'active',
-      },
-      user,
-    );
-
-    return {
-      status: 'success',
-      data: {
-        templateId: template._id,
-        message: 'Template saved successfully',
-      },
-    };
-  },
-
-  templateSaveMulti: async (
-    _parent: undefined,
-    {
-      sourceIds,
-      contentType,
-      name,
-      description,
-      status,
-    }: {
-      sourceIds: string[];
-      contentType: string;
-      name: string;
-      description?: string;
-      status?: string;
-    },
-    { models, req, user }: IContext,
-  ) => {
-    if (!contentType || !contentType.includes(':')) {
-      throw new Error('Invalid contentType format. Expected: plugin:type');
-    }
-
-    if (!sourceIds || sourceIds.length === 0) {
-      throw new Error('sourceIds is required');
-    }
-
-    const subdomain = getSubdomain(req);
-    const [pluginName] = contentType.split(':');
-
-    if (!pluginName) {
-      throw new Error('Invalid contentType format. Expected: plugin:type');
-    }
-
-    const result = await sendTRPCMessage({
-      subdomain,
-      pluginName,
-      method: 'mutation',
-      module: 'templates',
-      action: 'saveAsTemplateMulti',
-      input: {
-        sourceIds,
-        contentType,
-        name,
-        description,
-        status,
-        currentUser: user,
-      },
-    });
-
-    if (!result || result.status === 'error') {
-      throw new Error(result?.errorMessage || 'Failed to save as template');
-    }
-
-    const template = await models.Template.createTemplate(
-      {
-        name,
-        content: result.data.content,
-        contentType,
-        pluginType: pluginName,
-        description: description || result.data.description,
-        status: 'active',
-      },
-      user,
-    );
-
-    return {
-      status: 'success',
-      data: {
-        templateId: template._id,
-        message: `Template saved successfully with ${sourceIds.length} items`,
-      },
-    };
   },
 };

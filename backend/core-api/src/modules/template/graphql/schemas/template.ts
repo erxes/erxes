@@ -61,6 +61,8 @@ export const inputs = `
     pluginType: String
     categoryIds: [String]
     status: String
+    sourceId: String
+    sourceIds: [String]
   }
 
   input TemplateEditInput {
@@ -86,6 +88,4 @@ export const mutations = `
   templateEdit(_id: String!, doc: TemplateEditInput!): Template
   templateRemove(_id: String!): Template
   templateUse(_id: String!, contentType: String, relTypeId: String): JSON
-  templateSaveFrom(sourceId: String!, contentType: String!, name: String!, description: String, status: String): JSON
-  templateSaveMulti(sourceIds: [String!]!, contentType: String!, name: String!, description: String, status: String): JSON
 `;

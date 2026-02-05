@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'erxes-ui';
+import { Button, useConfirm, useToast } from 'erxes-ui';
 import {
   IconTrash,
   IconDownload,
@@ -16,9 +16,23 @@ interface IProps {
 }
 
 const TemplateActions: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
-  const { removeTemplate } = useTemplateRemove({
+  const { confirm } = useConfirm();
+  const { toast } = useToast();
+
+  const { removeTemplate, loading: removing } = useTemplateRemove({
     onCompleted: () => {
+      toast({
+        title: 'Template deleted successfully',
+        variant: 'success',
+      });
       onRefetch();
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -29,11 +43,18 @@ const TemplateActions: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
   };
 
   const handleRemove = () => {
-    if (window.confirm(`Are you sure you want to remove "${template.name}"?`)) {
+    confirm({
+      message: `Are you sure you want to delete "${template.name}"?`,
+      options: {
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        description: 'This action cannot be undone.',
+      },
+    }).then(() => {
       removeTemplate({
         variables: { _id: template._id },
       });
-    }
+    });
   };
 
   const handleUse = () => {
@@ -92,8 +113,9 @@ const TemplateActions: React.FC<IProps> = ({ template, onRefetch, onEdit }) => {
         variant="ghost"
         size="sm"
         onClick={handleRemove}
+        disabled={removing}
         title="Remove"
-        className="text-red-600 hover:text-red-700"
+        className="text-destructive hover:text-destructive"
       >
         <IconTrash size={16} />
       </Button>

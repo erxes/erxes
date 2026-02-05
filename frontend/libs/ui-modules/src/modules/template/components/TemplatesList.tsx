@@ -57,7 +57,7 @@ const TemplatesList: React.FC<IProps> = ({
 
   if (loading && templates.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center flex-1">
         <p className="text-muted-foreground">Loading templates...</p>
       </div>
     );
@@ -65,7 +65,7 @@ const TemplatesList: React.FC<IProps> = ({
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center flex-1">
         <p className="text-red-500">Error: {error.message}</p>
       </div>
     );
@@ -73,7 +73,7 @@ const TemplatesList: React.FC<IProps> = ({
 
   if (!templates || templates.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center flex-1">
         <p className="text-muted-foreground">No templates found</p>
       </div>
     );

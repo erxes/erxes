@@ -10,39 +10,16 @@ import {
 } from 'erxes-ui';
 import { gql, useMutation } from '@apollo/client';
 
-const TEMPLATE_SAVE_FROM = gql`
-  mutation TemplateSaveFrom(
-    $sourceId: String!
-    $contentType: String!
-    $name: String!
-    $description: String
-    $status: String
-  ) {
-    templateSaveFrom(
-      sourceId: $sourceId
-      contentType: $contentType
-      name: $name
-      description: $description
-      status: $status
-    )
-  }
-`;
-
-const TEMPLATE_SAVE_MULTI = gql`
-  mutation TemplateSaveMulti(
-    $sourceIds: [String!]!
-    $contentType: String!
-    $name: String!
-    $description: String
-    $status: String
-  ) {
-    templateSaveMulti(
-      sourceIds: $sourceIds
-      contentType: $contentType
-      name: $name
-      description: $description
-      status: $status
-    )
+const TEMPLATE_ADD = gql`
+  mutation TemplateAdd($doc: TemplateInput!) {
+    templateAdd(doc: $doc) {
+      _id
+      name
+      content
+      contentType
+      description
+      status
+    }
   }
 `;
 
@@ -57,9 +34,9 @@ export const useSaveAsTemplate = ({
   onSuccess,
   onError,
 }: UseSaveAsTemplateOptions) => {
-  const [saveAsTemplate, { loading, error }] = useMutation(TEMPLATE_SAVE_FROM, {
+  const [templateAdd, { loading, error }] = useMutation(TEMPLATE_ADD, {
     onCompleted: (data) => {
-      onSuccess?.(data.templateSaveFrom);
+      onSuccess?.(data.templateAdd);
     },
     onError: (error) => {
       onError?.(error);
@@ -70,11 +47,13 @@ export const useSaveAsTemplate = ({
     input: { name: string; description?: string; status?: string },
     sourceId: string,
   ) => {
-    return saveAsTemplate({
+    return templateAdd({
       variables: {
-        sourceId,
-        contentType,
-        ...input,
+        doc: {
+          sourceId,
+          contentType,
+          ...input,
+        },
       },
     });
   };
@@ -91,27 +70,26 @@ export const useSaveAsTemplateMulti = ({
   onSuccess,
   onError,
 }: UseSaveAsTemplateOptions) => {
-  const [saveAsTemplateMulti, { loading, error }] = useMutation(
-    TEMPLATE_SAVE_MULTI,
-    {
-      onCompleted: (data) => {
-        onSuccess?.(data.templateSaveMulti);
-      },
-      onError: (error) => {
-        onError?.(error);
-      },
+  const [templateAdd, { loading, error }] = useMutation(TEMPLATE_ADD, {
+    onCompleted: (data) => {
+      onSuccess?.(data.templateAdd);
     },
-  );
+    onError: (error) => {
+      onError?.(error);
+    },
+  });
 
   const handleSave = (
     input: { name: string; description?: string; status?: string },
     sourceIds: string[],
   ) => {
-    return saveAsTemplateMulti({
+    return templateAdd({
       variables: {
-        sourceIds,
-        contentType,
-        ...input,
+        doc: {
+          sourceIds,
+          contentType,
+          ...input,
+        },
       },
     });
   };
