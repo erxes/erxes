@@ -1,7 +1,6 @@
+import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
+
 import { Form } from 'erxes-ui';
-import { SelectBoard } from '@/deals/boards/components/common/SelectBoards';
-import { SelectPipeline } from '@/deals/pipelines/components/SelectPipelines';
-import { SelectStage } from '@/deals/stage/components/SelectStages';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
 import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
