@@ -1,6 +1,6 @@
 import { ITagFilterQueryParams } from '@/tags/@types/tag';
 import { ITagDocument, Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp, getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -236,22 +236,18 @@ export const tagQueries: Record<string, Resolver> = {
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+      filter.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
     }
 
     if (ids?.length) {
-      filter._id = { $in: ids };
-    }
-
-    if (ids?.length && excludeIds) {
-      filter._id = { $nin: ids };
+      filter._id = excludeIds ? { $nin: ids } : { $in: ids };
     }
 
     if (isGroup) {
       filter.isGroup = isGroup;
     }
 
-    if (params.hasOwnProperty('isGroup') && isGroup === false) {
+    if (Object.prototype.hasOwnProperty.call(params, 'isGroup') && isGroup === false) {
       filter.isGroup = { $ne: true };
     }
 
