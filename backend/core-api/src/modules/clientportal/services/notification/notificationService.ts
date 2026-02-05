@@ -367,6 +367,226 @@ export async function createNotification(
   return notification;
 }
 
+export interface CreateNotificationsBulkInput extends BaseNotificationData {
+  clientPortalId: string;
+  cpUserIds: string[];
+}
+
+export async function createNotificationsBulk(
+  subdomain: string,
+  models: IModels,
+  input: CreateNotificationsBulkInput,
+): Promise<Array<{ cpUserId: string; notification: ICPNotificationDocument }>> {
+  const {
+    clientPortalId,
+    cpUserIds,
+    title,
+    message,
+    type = 'info',
+    contentType,
+    contentTypeId,
+    priority = 'medium',
+    metadata,
+    action,
+    kind = 'user',
+    allowMultiple = false,
+  } = input;
+
+  if (cpUserIds.length === 0) {
+    return [];
+  }
+
+  const baseDoc: Record<string, unknown> = {
+    clientPortalId,
+    title,
+    message,
+    type,
+    contentType,
+    contentTypeId,
+    priority,
+    priorityLevel: CP_NOTIFICATION_PRIORITY_ORDER[priority],
+    metadata,
+    action,
+    kind,
+    isRead: false,
+    expiresAt: new Date(Date.now() + THIRTY_DAYS_IN_MS),
+  };
+
+  const useUpsert =
+    kind === 'user' && !allowMultiple && Boolean(contentType && contentTypeId);
+
+  if (useUpsert) {
+    const bulkOps = cpUserIds.map((cpUserId) => ({
+      updateOne: {
+        filter: { contentTypeId, contentType, cpUserId },
+        update: {
+          $set: {
+            ...baseDoc,
+            cpUserId,
+          },
+        },
+        upsert: true,
+      },
+    }));
+
+    await models.CPNotifications.bulkWrite(bulkOps);
+
+    const notifications = await models.CPNotifications.find({
+      $or: cpUserIds.map((id) => ({
+        contentTypeId,
+        contentType,
+        cpUserId: id,
+      })),
+    }).lean();
+
+    const byUserId = new Map<string, ICPNotificationDocument>();
+    for (const n of notifications) {
+      const doc = n as ICPNotificationDocument;
+      byUserId.set(doc.cpUserId, doc);
+    }
+
+    return cpUserIds
+      .filter((id) => byUserId.has(id))
+      .map((cpUserId) => ({
+        cpUserId,
+        notification: byUserId.get(cpUserId)!,
+      }));
+  }
+
+  const docs = cpUserIds.map((cpUserId) => ({
+    ...baseDoc,
+    cpUserId,
+  }));
+
+  const inserted = await models.CPNotifications.insertMany(docs);
+  const list = Array.isArray(inserted) ? inserted : [inserted];
+
+  return list.map((notification, index) => ({
+    cpUserId: cpUserIds[index],
+    notification: notification as ICPNotificationDocument,
+  }));
+}
+
+export interface SendNotificationBulkResult {
+  count: number;
+}
+
+export async function sendNotificationBulk(
+  subdomain: string,
+  models: IModels,
+  clientPortal: IClientPortalDocument,
+  cpUsers: ICPUserDocument[],
+  notificationData: SendNotificationInput,
+): Promise<SendNotificationBulkResult> {
+  if (cpUsers.length === 0) {
+    return { count: 0 };
+  }
+
+  const clientPortalId = clientPortal._id;
+  const cpUserIds = cpUsers.map((u) => u._id);
+
+  const pairs = await createNotificationsBulk(subdomain, models, {
+    clientPortalId,
+    cpUserIds,
+    title: notificationData.title,
+    message: notificationData.message,
+    type: notificationData.type,
+    contentType: notificationData.contentType,
+    contentTypeId: notificationData.contentTypeId,
+    priority: notificationData.priority,
+    metadata: notificationData.metadata,
+    action: notificationData.action,
+    kind: notificationData.kind,
+    allowMultiple: notificationData.allowMultiple,
+  });
+
+  const notificationByUserId = new Map(
+    pairs.map((p) => [p.cpUserId, p.notification]),
+  );
+
+  const firebaseResults = await Promise.all(
+    cpUsers.map((cpUser) => {
+      const notification = notificationByUserId.get(cpUser._id);
+      if (!notification) {
+        return Promise.resolve({
+          status: 'not_configured' as const,
+          tokensToRevoke: [] as string[],
+        });
+      }
+      return sendFirebaseNotification(
+        clientPortal,
+        cpUser,
+        {
+          title: notificationData.title,
+          body: notificationData.message,
+        },
+        {
+          notificationId: notification._id,
+          type: notificationData.type || 'info',
+          action: notificationData.action || '',
+        },
+      );
+    }),
+  );
+
+  const notificationUpdates: Array<{
+    _id: string;
+    result: { ios: boolean; android: boolean; web: boolean };
+  }> = [];
+  const userTokenRevokes: Array<{ _id: string; tokensToRevoke: string[] }> = [];
+
+  for (let i = 0; i < cpUsers.length; i++) {
+    const cpUser = cpUsers[i];
+    const notification = notificationByUserId.get(cpUser._id);
+    if (!notification) continue;
+
+    const { status, tokensToRevoke } = firebaseResults[i];
+
+    if (status === 'sent') {
+      const resultAfterSend = getResultAfterSend(cpUser, tokensToRevoke);
+      notificationUpdates.push({
+        _id: notification._id,
+        result: resultAfterSend,
+      });
+    } else if (status === 'error') {
+      notificationUpdates.push({
+        _id: notification._id,
+        result: { android: false, ios: false, web: false },
+      });
+    }
+
+    if (tokensToRevoke.length > 0) {
+      userTokenRevokes.push({ _id: cpUser._id, tokensToRevoke });
+    }
+  }
+
+  if (notificationUpdates.length > 0) {
+    await models.CPNotifications.bulkWrite(
+      notificationUpdates.map(({ _id, result }) => ({
+        updateOne: {
+          filter: { _id },
+          update: { $set: { result } },
+        },
+      })),
+    );
+  }
+
+  if (userTokenRevokes.length > 0) {
+    await models.CPUser.bulkWrite(
+      userTokenRevokes.map(({ _id, tokensToRevoke }) => ({
+        updateOne: {
+          filter: { _id },
+          update: {
+            $pull: { fcmTokens: { token: { $in: tokensToRevoke } } },
+          },
+        },
+      })),
+    );
+  }
+
+  return { count: cpUsers.length };
+}
+
 function getResultFromFcmTokens(cpUser: ICPUserDocument): {
   ios: boolean;
   android: boolean;

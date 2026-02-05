@@ -147,7 +147,7 @@ export async function registerUser(
     }
   }
 
-  return resultUser;
+  return (await models.CPUser.findOne({ _id: resultUser._id })) || resultUser;
 }
 
 export async function verifyUser(

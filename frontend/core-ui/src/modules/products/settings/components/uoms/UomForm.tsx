@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Sheet, useToast } from 'erxes-ui';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { IUom } from 'ui-modules';
 import { useUomsAdd } from '../../hooks/useUomsAdd';
 import { useUomsEdit } from '../../hooks/useUomsEdit';
+import { useTranslation } from 'react-i18next';
 
 const uomFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -12,28 +13,15 @@ const uomFormSchema = z.object({
 });
 
 interface IUomFormProps {
-  uom?: any;
-  trigger?: React.ReactNode;
-  open?: boolean;
+  uom?: IUom;
   onOpenChange?: (open: boolean) => void;
 }
 
-export const UomForm = ({
-  uom,
-  trigger,
-  open: controlledOpen,
-  onOpenChange,
-}: IUomFormProps) => {
+export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
   const { toast } = useToast();
-  const [internalOpen, setInternalOpen] = useState(false);
-  const isOpen = controlledOpen ?? internalOpen;
-
-  const handleOpenChange = (val: boolean) => {
-    setInternalOpen(val);
-    onOpenChange?.(val);
-    if (!val) form.reset();
-  };
-
+  const { t } = useTranslation('product', {
+    keyPrefix: 'add',
+  });
   const { uomsAdd, loading: loadingAdd } = useUomsAdd();
   const { uomsEdit, loading: loadingEdit } = useUomsEdit();
 
@@ -44,20 +32,32 @@ export const UomForm = ({
     resolver: zodResolver(uomFormSchema),
   });
 
+  const handleCancel = () => {
+    form.reset();
+    onOpenChange?.(false);
+  };
+
   const onSubmit = (data: { name: string; code: string }) => {
     if (uom) {
       uomsEdit({
         variables: { id: uom._id, ...data },
         onCompleted: () => {
-          handleOpenChange(false);
+          onOpenChange?.(false);
+        },
+        onError: (e) => {
+          toast({
+            title: 'Error',
+            description: e.message,
+            variant: 'destructive',
+          });
         },
       });
     } else {
       uomsAdd({
         variables: { ...data },
         onCompleted: () => {
-          handleOpenChange(false);
           form.reset();
+          onOpenChange?.(false);
         },
         onError: (e) => {
           toast({
@@ -71,80 +71,70 @@ export const UomForm = ({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
-      {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
-      <Sheet.View
-        className="sm:max-w-lg p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex overflow-hidden flex-col h-full"
       >
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full"
+        <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
+          <Sheet.Title>{uom ? t('edit-uom') : t('add-uom')}</Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
+            {uom ? t('edit-uom') : t('add-uom')}
+          </Sheet.Description>
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden flex-auto">
+          <div className="flex gap-2 justify-center p-5 w-full">
+            <Form.Field
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <Form.Item className="w-full">
+                  <Form.Label>{t('name')}</Form.Label>
+                  <Form.Control>
+                    <Input placeholder={t('name')} {...field} autoFocus />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <Form.Item className="w-full">
+                  <Form.Label>{t('code')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      placeholder={t('code')}
+                      {...field}
+                      className="w-full"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </div>
+        </Sheet.Content>
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+          <Button
+            type="button"
+            variant="ghost"
+            className="bg-background hover:bg-background/90"
+            onClick={handleCancel}
           >
-            <Sheet.Content>
-              <Sheet.Header className="p-5">
-                <Sheet.Title>{uom ? 'Edit Uom' : 'Add Uom'}</Sheet.Title>
-                <Sheet.Description className="sr-only"></Sheet.Description>
-                <Sheet.Close />
-              </Sheet.Header>
-              <div className="flex justify-center gap-2 w-full p-4">
-                <Form.Field
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <Form.Item className="w-full">
-                      <Form.Label>Name</Form.Label>
-                      <Form.Control>
-                        <Input placeholder="Name" {...field} autoFocus />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                ></Form.Field>
-                <Form.Field
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <Form.Item className="w-full">
-                      <Form.Label>Code</Form.Label>
-                      <Form.Control>
-                        <Input
-                          placeholder="Code"
-                          {...field}
-                          className="w-full"
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                ></Form.Field>
-              </div>
-            </Sheet.Content>
-            <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
-              <Button
-                type="button"
-                variant="ghost"
-                className="bg-background hover:bg-background/90"
-                onClick={() => {
-                  handleOpenChange(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={loadingAdd || loadingEdit}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                {loadingAdd || loadingEdit ? 'Saving...' : 'Save'}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+            {t('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            disabled={loadingAdd || loadingEdit}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {loadingAdd || loadingEdit ? t('creating') : t('create')}
+          </Button>
+        </Sheet.Footer>
+      </form>
+    </Form>
   );
 };

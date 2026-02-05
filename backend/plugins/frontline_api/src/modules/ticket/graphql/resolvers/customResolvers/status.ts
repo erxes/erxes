@@ -28,6 +28,6 @@ export const Ticket = {
       return false;
     }
 
-    return subscribedUserIds.includes(user._id);
+    return subscribedUserIds.includes(user?._id);
   },
 };
