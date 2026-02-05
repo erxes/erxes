@@ -1,18 +1,21 @@
 import { Badge, RelativeDateDisplay } from 'erxes-ui';
+import { SelectCustomer } from 'ui-modules';
 import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
 import { TextFieldCPUser } from '@/contacts/client-portal-users/cp-user-detail/components/TextFieldCPUser';
+import { useCPUserEdit } from '@/contacts/client-portal-users/hooks/useCPUserEdit';
 import { useTranslation } from 'react-i18next';
 
 export function CPUserDetailFields() {
   const { cpUser } = useClientPortalUser();
+  const { cpUserEdit } = useCPUserEdit();
   const { t } = useTranslation('contact', {
     keyPrefix: 'clientPortalUser.detail',
   });
 
   if (!cpUser) return null;
 
-  const { _id, type, lastLoginAt, createdAt } = cpUser;
+  const { _id, type, lastLoginAt, createdAt, erxesCustomerId } = cpUser;
 
   return (
     <div className="py-8 space-y-6 px-8">
@@ -88,6 +91,33 @@ export function CPUserDetailFields() {
                 defaultValue: 'Add registration number',
               })}
             />
+          </DataListItem>
+          <DataListItem
+            label={t('customer', { defaultValue: 'Customer' })}
+          >
+            {type === 'customer' ? (
+              <SelectCustomer
+                mode="single"
+                value={erxesCustomerId ?? ''}
+                onValueChange={(value) =>
+                  cpUserEdit({
+                    variables: {
+                      _id,
+                      erxesCustomerId:
+                        typeof value === 'string'
+                          ? value || undefined
+                          : value && value.length > 0
+                            ? value[0]
+                            : undefined,
+                    },
+                  })
+                }
+              />
+            ) : (
+              <span className="text-muted-foreground">
+                {erxesCustomerId || '-'}
+              </span>
+            )}
           </DataListItem>
         </div>
         {lastLoginAt && (

@@ -47,6 +47,11 @@ export const CLIENTPORTAL_OTP_SCHEMA = z.object({
     .optional(),
 });
 
+export const CLIENTPORTAL_OTP_RESEND_SCHEMA = z.object({
+  cooldownPeriodInSeconds: z.number().min(1).optional(),
+  maxAttemptsPerHour: z.number().min(1).optional(),
+});
+
 export const CLIENTPORTAL_2FA_SCHEMA = z.object({
   email: z
     .object({
