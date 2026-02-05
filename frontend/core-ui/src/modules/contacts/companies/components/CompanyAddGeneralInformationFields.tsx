@@ -105,7 +105,7 @@ export const CompanyAddGeneralInformationFields = ({
                   <SelectMember.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
-                    placeholder={t('company.field.owner-placeholder')}
+                    placeholder={t('company.field.owner-placeholder', 'Select owner')}
                   />
                 </div>
               </Form.Control>
@@ -189,7 +189,7 @@ export const CompanyAddGeneralInformationFields = ({
                   defaultOptions={INDUSTRY_OPTIONS}
                   value={field.value}
                   onChange={field.onChange}
-                  placeholder={t('company.field.industry-placeholder')}
+                  placeholder={t('company.field.industry-placeholder', 'Select industries')}
                 />
               </Form.Control>
               <Form.Message />
