@@ -1,8 +1,5 @@
+import { IListParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
-import {
-  ICursorPaginateParams,
-  IListParams,
-} from 'erxes-api-shared/core-types';
 
 export interface ITicket {
   name: string;
@@ -37,10 +34,7 @@ export interface ITicketDocument extends ITicket, Document {
   updatedAt: Date;
 }
 
-export interface ITicketFilter
-  extends ICursorPaginateParams,
-    IListParams,
-    ITicket {
+export interface ITicketFilter extends IListParams, ITicket {
   userId?: string;
   createdAt?: Date;
 }
