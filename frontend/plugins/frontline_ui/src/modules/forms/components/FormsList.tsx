@@ -27,7 +27,9 @@ import { FORM_REMOVE } from '../graphql/formMutations';
 export const FormsList = () => {
   const { channelId } = useParams();
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
-    channelId: channelId || '',
+    variables: {
+      channelId: channelId || '',
+    },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
