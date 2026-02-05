@@ -6,14 +6,49 @@
 @plugin 'tailwindcss-animate';
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================
+   ADVANCED CONTAINER WITH MORPHING EFFECTS
+   ============================================ */
 @utility container {
   margin-inline: auto;
   padding-inline: 2rem;
+  position: relative;
+  overflow: hidden;
+  
   @media (width >= 1400px) {
     max-width: 1400px;
   }
+  
+  /* Animated gradient border */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(
+      45deg,
+      var(--primary),
+      var(--chart-1),
+      var(--info),
+      var(--success),
+      var(--warning),
+      var(--primary)
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  
+  &:hover::before {
+    opacity: 0.15;
+  }
 }
 
+/* ============================================
+   ENHANCED THEME WITH ADVANCED COLORS
+   ============================================ */
 @theme {
   --font-*: initial;
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif,
@@ -80,51 +115,116 @@
   --color-chart-900: var(--chart-900);
   --color-chart-950: var(--chart-950);
   
-
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
   --spacing-cell: 33px;
 
+  /* ============================================
+     ADVANCED ANIMATIONS
+     ============================================ */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-spinner: spinner 0.96s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow: glow 3s ease-in-out infinite;
+  --animate-slide-in: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-in: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-pulse-glow: pulseGlow 2s ease-in-out infinite;
+  --animate-rotate-gradient: rotateGradient 8s linear infinite;
+  --animate-morph: morph 10s ease-in-out infinite;
+  --animate-wave: wave 4s ease-in-out infinite;
 
-  --shadow-focus: 0px 0px 0px 4px rgba(79, 70, 229, 0.25),
-    0px 0px 0px 1px var(--primary);
+  /* ============================================
+     ENHANCED SHADOWS WITH DEPTH
+     ============================================ */
+  --shadow-focus: 
+    0px 0px 0px 4px rgba(79, 70, 229, 0.25),
+    0px 0px 0px 1px var(--primary),
+    0px 10px 40px rgba(79, 70, 229, 0.2);
+    
   --shadow-subtle: 0px 0px 0px 1px var(--primary);
+  
   --shadow-destructive: 0px 0px 0px 1px var(--destructive);
-  --shadow-focus-destructive: 0px 0px 0px 4px oklch(0.6334 0.2103 25.32 / 25%),
+  
+  --shadow-focus-destructive: 
+    0px 0px 0px 4px oklch(0.6334 0.2103 25.32 / 25%),
     0px 0px 0px 1px var(--destructive);
-  --shadow-xs: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow);
-  --shadow-sm: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow), 0 4px 4px var(--shadow);
-  --shadow-lg: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow);
-  --shadow-xl: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow),
-    0 16px 16px var(--shadow);
+    
+  --shadow-xs: 
+    0 0 0 1px var(--border-shadow), 
+    0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow),
+    0 0 20px rgba(79, 70, 229, 0.05);
+    
+  --shadow-sm: 
+    0 0 0 1px var(--border-shadow), 
+    0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow), 
+    0 4px 4px var(--shadow),
+    0 0 30px rgba(79, 70, 229, 0.08);
+    
+  --shadow-lg: 
+    0 0 0 1px var(--border-shadow), 
+    0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow), 
+    0 4px 4px var(--shadow), 
+    0 8px 8px var(--shadow),
+    0 0 40px rgba(79, 70, 229, 0.12);
+    
+  --shadow-xl: 
+    0 0 0 1px var(--border-shadow), 
+    0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow), 
+    0 4px 4px var(--shadow), 
+    0 8px 8px var(--shadow),
+    0 16px 16px var(--shadow),
+    0 0 60px rgba(79, 70, 229, 0.15);
+    
+  --shadow-neon: 
+    0 0 5px var(--primary),
+    0 0 20px var(--primary),
+    0 0 40px var(--primary);
+    
+  --shadow-glow: 
+    0 0 10px rgba(79, 70, 229, 0.3),
+    0 0 20px rgba(79, 70, 229, 0.2),
+    0 0 30px rgba(79, 70, 229, 0.1);
 
   --ring-color: var(--ring);
 
+  /* ============================================
+     KEYFRAME ANIMATIONS
+     ============================================ */
   @keyframes accordion-down {
     from {
       height: 0;
+      opacity: 0;
+      transform: translateY(-10px);
     }
     to {
       height: var(--radix-accordion-content-height);
+      opacity: 1;
+      transform: translateY(0);
     }
   }
+  
   @keyframes accordion-up {
     from {
       height: var(--radix-accordion-content-height);
+      opacity: 1;
+      transform: translateY(0);
     }
     to {
       height: 0;
+      opacity: 0;
+      transform: translateY(-10px);
     }
   }
+  
   @keyframes spinner {
     from {
       opacity: 1;
@@ -133,16 +233,168 @@
       opacity: 0.15;
     }
   }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-20px) rotate(2deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(-2deg);
+    }
+    75% {
+      transform: translateY(-15px) rotate(1deg);
+    }
+  }
+  
+  @keyframes glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 5px var(--primary)) 
+              drop-shadow(0 0 15px var(--primary));
+    }
+    50% {
+      filter: drop-shadow(0 0 20px var(--primary)) 
+              drop-shadow(0 0 40px var(--primary));
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(79, 70, 229, 0.8);
+    }
+  }
+  
+  @keyframes rotateGradient {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes morph {
+    0%, 100% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    25% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+    50% {
+      border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%;
+    }
+    75% {
+      border-radius: 60% 40% 60% 40% / 70% 30% 50% 60%;
+    }
+  }
+  
+  @keyframes wave {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  @keyframes particle {
+    0% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh) translateX(50px) scale(0);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes textGradient {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+/* ============================================
+   BORDER COMPATIBILITY
+   ============================================ */
 @layer base {
   *,
   ::after,
@@ -153,32 +405,50 @@
   }
 }
 
+/* ============================================
+   ADVANCED SCROLL UTILITIES
+   ============================================ */
 @utility hide-scroll {
-  /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
   }
-
-  /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @utility styled-scroll {
-  /* Custom scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
-    width: 1px;
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: var(--border);
+    background: linear-gradient(
+      180deg,
+      var(--primary) 0%,
+      var(--chart-1) 100%
+    );
     border-radius: 10px;
-    border: 3px solid var(--background);
+    border: 2px solid var(--background);
+    transition: all 0.3s ease;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      180deg,
+      var(--chart-1) 0%,
+      var(--info) 100%
+    );
+    box-shadow: 0 0 10px var(--primary);
   }
 
-  /* Custom scrollbar for IE, Edge and Firefox */
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--primary) transparent;
 }
 
 @utility block-child {
@@ -187,6 +457,112 @@
   }
 }
 
+/* ============================================
+   GLASSMORPHISM UTILITIES
+   ============================================ */
+@utility glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+@utility glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   GRADIENT TEXT UTILITIES
+   ============================================ */
+@utility gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--chart-1),
+    var(--info),
+    var(--success)
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textGradient 5s ease infinite;
+}
+
+@utility gradient-text-static {
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--chart-1)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ============================================
+   ANIMATED BORDER UTILITIES
+   ============================================ */
+@utility animated-border {
+  position: relative;
+  background: var(--background);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(
+      45deg,
+      var(--primary),
+      var(--chart-1),
+      var(--info),
+      var(--success),
+      var(--primary)
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    border-radius: inherit;
+    z-index: -1;
+  }
+}
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+@utility hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+@utility hover-glow {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: var(--shadow-glow);
+    transform: scale(1.02);
+  }
+}
+
+@utility hover-rotate {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: rotate(5deg) scale(1.05);
+  }
+}
+
+/* ============================================
+   BASE THEME VARIABLES
+   ============================================ */
 @layer base {
   :root {
     --font-sans: 'Inter', sans-serif;
@@ -216,11 +592,25 @@
     --border: oklch(0.9197 0.0041 286.32);
     --input: oklch(0.9197 0.0041 286.32);
     --ring: oklch(0.5146 0.2296 277.59);
-    --radius: 0.5rem;
+    --radius: 0.75rem;
     --sidebar-background: oklch(0.9848 0 0);
     --shadow: oklch(0 0 0 / 5%);
     --border-shadow: oklch(0 0 0 / 5%);
     --spacing: 0.25rem;
+
+    /* Enhanced gradient variables */
+    --gradient-primary: linear-gradient(135deg, 
+      oklch(0.514 0.2276 276.98) 0%, 
+      oklch(0.811 0.111 293.571) 100%);
+    --gradient-success: linear-gradient(135deg, 
+      oklch(0.7205 0.192 149.49) 0%, 
+      oklch(0.811 0.111 293.571) 100%);
+    --gradient-rainbow: linear-gradient(135deg,
+      oklch(0.514 0.2276 276.98) 0%,
+      oklch(0.6261 0.1859 259.6) 25%,
+      oklch(0.7205 0.192 149.49) 50%,
+      oklch(0.7453 0.1322 54.63) 75%,
+      oklch(0.6368 0.2078 25.33) 100%);
 
     /* Charts */
     --chart-1: oklch(0.811 0.111 293.571);
@@ -279,25 +669,86 @@
   }
 }
 
+/* ============================================
+   ENHANCED BASE STYLES
+   ============================================ */
 @layer base {
   * {
     @apply border-border;
+    scroll-behavior: smooth;
   }
+  
   body {
     @apply bg-background text-foreground;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+    position: relative;
+    overflow-x: hidden;
   }
+  
+  /* Animated background particles */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(79, 70, 229, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    animation: float 20s ease-in-out infinite;
+  }
+  
   h1 {
     @apply text-2xl font-bold;
+    background: linear-gradient(135deg, var(--foreground), var(--primary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: fadeIn 0.8s ease;
   }
+  
   h2 {
     @apply text-xl font-bold;
+    position: relative;
+    animation: slideIn 0.6s ease;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+      transition: width 0.3s ease;
+    }
+    
+    &:hover::after {
+      width: 100%;
+    }
   }
+  
   h3 {
     @apply text-base font-bold;
+    animation: scaleIn 0.5s ease;
+  }
+  
+  /* Selection styling */
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  
+  ::-moz-selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 }
 
+/* ============================================
+   BLOCKNOTE EDITOR ENHANCEMENTS
+   ============================================ */
 .bn-shadcn {
   --background: 0 0% 100%;
   --foreground: 0 0% 3.9%;
@@ -348,6 +799,14 @@
   padding-inline: 36px;
   min-height: 100%;
   height: 100%;
+  position: relative;
+  animation: fadeIn 0.6s ease;
+  
+  /* Subtle grid pattern */
+  background-image: 
+    linear-gradient(rgba(79, 70, 229, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 70, 229, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .bn-shadcn .bn-editor {
@@ -370,60 +829,121 @@
 .bn-editor .bn-container .bn-drag-handle {
   width: 20px;
   height: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px var(--primary);
+  }
 }
 
 .bn-editor .bn-block-content[data-content-type='checkListItem'] > div > div {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .bn-editor .bn-drag-handle-menu {
   background: var(--background);
-  backdrop-filter: var(--blur-medium);
-  box-shadow: var(--shadow-medium);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--shadow-xl);
   min-width: 160px;
   min-height: 96px;
-  padding: 4px;
+  padding: 8px;
   border: 1px solid var(--border);
+  border-radius: 12px;
   left: 26px;
+  animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.bn-editor .bn-container .bn-suggestion-menu-item:hover {
-  background-color: var(--primary);
+.bn-editor .bn-container .bn-suggestion-menu-item {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  
+  &:hover {
+    background-color: var(--primary);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  }
 }
 
 .bn-editor .bn-container .bn-suggestion-menu {
-  padding: 4px;
-  border-radius: 8px;
+  padding: 8px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--background);
-  backdrop-filter: var(--blur-medium);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s ease;
 }
 
 .bn-editor .bn-color-picker-dropdown {
   margin-left: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: scaleIn 0.2s ease;
 }
 
 .bn-editor .bn-inline-content code {
   font-family: monospace;
   color: var(--font-color-danger);
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: 3px 6px;
+  border-radius: 6px;
   border: 1px solid var(--font-color-extra-light);
   font-size: 0.9rem;
-  background-color: var(--background-transparent-light);
+  background: linear-gradient(135deg, 
+    rgba(79, 70, 229, 0.05), 
+    rgba(147, 51, 234, 0.05));
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+    transform: translateY(-1px);
+  }
 }
 
 .bn-toolbar.bn-formatting-toolbar {
-  padding: 2px;
-  gap: 2px;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 12px;
+  background: var(--background);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .bn-toolbar.bn-formatting-toolbar button {
-  height: 28px;
-  padding: 4px 7px;
+  height: 32px;
+  padding: 6px 10px;
   font-size: 13px;
   outline: none;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--primary), var(--chart-1));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    
+    &::before {
+      opacity: 0.1;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 .read-only.bn-shadcn .bn-editor {
@@ -433,15 +953,160 @@
 
 .bn-side-menu {
   height: 26px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateX(-2px);
+  }
 }
 
 [data-content-type='heading'] {
   --level: 24px;
+  position: relative;
+  animation: fadeIn 0.6s ease;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 0;
+    background: var(--gradient-primary);
+    border-radius: 2px;
+    transition: height 0.3s ease;
+  }
+  
+  &:hover::before {
+    height: 100%;
+  }
 }
+
 [data-content-type='heading'][data-level='2'] {
   --level: 20px;
 }
 
 [data-content-type='heading'][data-level='3'] {
   --level: 16px;
+}
+
+/* ============================================
+   PARTICLE SYSTEM
+   ============================================ */
+@utility particles {
+  position: relative;
+  overflow: hidden;
+  
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--primary);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particle 10s linear infinite;
+  }
+  
+  &::before {
+    left: 20%;
+    animation-delay: 0s;
+  }
+  
+  &::after {
+    left: 80%;
+    animation-delay: 5s;
+  }
+}
+
+/* ============================================
+   INTERACTIVE RIPPLE EFFECT
+   ============================================ */
+@utility ripple-effect {
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(79, 70, 229, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+  }
+  
+  &:active::after {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   NEON GLOW EFFECT
+   ============================================ */
+@utility neon-glow {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, 
+      var(--primary), 
+      var(--chart-1), 
+      var(--info),
+      var(--primary));
+    background-size: 400%;
+    border-radius: inherit;
+    filter: blur(8px);
+    opacity: 0.7;
+    z-index: -1;
+    animation: gradientShift 3s ease infinite;
+  }
+}
+
+/* ============================================
+   SHIMMER EFFECT
+   ============================================ */
+@utility shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(79, 70, 229, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* ============================================
+   RESPONSIVE ENHANCEMENTS
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .bn-editor {
+    padding-inline: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bn-editor {
+    padding-inline: 64px;
+  }
 }
