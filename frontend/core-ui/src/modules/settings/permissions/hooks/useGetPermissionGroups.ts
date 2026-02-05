@@ -2,7 +2,8 @@ import { useQuery } from '@apollo/client';
 import {
   GET_PERMISSION_DEFAULT_GROUPS,
   GET_PERMISSION_GROUPS,
-} from '@/settings/permissions/graphql/permissionGroups';
+} from '@/settings/permissions/graphql/permissionGroupQueries';
+
 import {
   IDefaultPermissionGroup,
   IPermissionGroup,

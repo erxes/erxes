@@ -1,10 +1,4 @@
-import {
-  IconDots,
-  IconEdit,
-  IconEye,
-  IconPlus,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconDots, IconEdit, IconEye, IconTrash } from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
@@ -22,6 +16,7 @@ import {
   IGroupedByPlugin,
   IPermissionGroup,
 } from '@/settings/permissions/types';
+import { PermissionGroupAdd } from './PermissionGroupAdd';
 
 export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =
@@ -76,7 +71,6 @@ export const PermissionGroups = () => {
           </Table.Header>
         </Table>
 
-        {/* Default Groups by plugin */}
         {Object.entries(groupedByPlugin).map(([plugin, groups]) => (
           <Collapsible className="group" defaultOpen key={plugin}>
             <div className="relative">
@@ -141,14 +135,10 @@ export const PermissionGroups = () => {
           </Collapsible>
         ))}
 
-        {/* Custom Groups */}
         {permissionGroups.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg">
             <p className="text-muted-foreground mb-4">No custom groups yet</p>
-            <Button variant="secondary">
-              <IconPlus />
-              Create custom group
-            </Button>
+            <PermissionGroupAdd />
           </div>
         ) : (
           <Table>

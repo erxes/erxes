@@ -57,25 +57,6 @@ export const types = `
     scope: String!
   }
 
-  # DEPRECATED - Old system
-  type Permission {
-    _id: String!
-    module: String
-    action: String
-    userId: String
-    groupId: String
-    requiredActions: [String]
-    allowed: Boolean
-    user: User
-    group: UsersGroup
-    cursor: String
-  }
-
-  type PermissionListResponse {
-    list: [Permission]
-    pageInfo: PageInfo
-    totalCount: Int
-  }
 `;
 
 export const queries = `
@@ -87,13 +68,13 @@ export const queries = `
 `;
 
 export const mutations = `
-  permissionGroupCreate(
+  permissionGroupAdd(
     name: String!
     description: String
     permissions: [PermissionInput]!
   ): PermissionGroup
 
-  permissionGroupUpdate(
+  permissionGroupEdit(
     id: String!
     name: String
     description: String

@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IPermissionInput } from 'erxes-api-shared/core-types';
 
 export const permissionMutations = {
-  async permissionGroupCreate(
+  async permissionGroupAdd(
     _root: any,
     {
       name,
@@ -23,7 +23,7 @@ export const permissionMutations = {
   },
 
   // Update custom permission group
-  async permissionGroupUpdate(
+  async permissionGroupEdit(
     _root: any,
     {
       id,
