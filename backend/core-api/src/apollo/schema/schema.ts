@@ -175,6 +175,13 @@ import {
   queries as CPUserQueries,
 } from '@/clientportal/graphql/schemas/cpUser';
 
+import {
+  mutations as TemplateMutations,
+  queries as TemplateQueries,
+  types as TemplateTypes,
+  inputs as TemplateInputs,
+} from '@/template/graphql/schemas/template';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -219,6 +226,8 @@ export const types = `
     ${PropertiesTypes}
     ${ClientPortalTypes}
     ${CPUserTypes}
+    ${TemplateTypes}
+    ${TemplateInputs}
   `;
 
 export const queries = `
@@ -252,6 +261,7 @@ export const queries = `
     ${PropertiesQueries}
     ${ClientPortalQueries}
     ${CPUserQueries}
+    ${TemplateQueries}
   `;
 
 export const mutations = `
@@ -284,6 +294,7 @@ export const mutations = `
     ${PropertiesMutations}
     ${ClientPortalMutations}
     ${CPUserMutations}
+    ${TemplateMutations}
   `;
 
 export default { types, queries, mutations };

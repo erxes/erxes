@@ -8,9 +8,12 @@ import {
   IconMagnet,
   IconShoppingCart,
   IconSpiral,
+  IconTemplate,
   IconUser,
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
+import { Suspense } from 'react';
+import { TemplateNavigation as TemplateNav } from 'ui-modules';
 
 export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
   const MODULES: IUIConfig['modules'] = [
@@ -71,6 +74,23 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
       icon: IconAffiliate,
       path: 'automations',
       hasSettings: true,
+    },
+    {
+      name: 'template',
+      icon: IconTemplate,
+      path: 'template',
+      hasSettings: true,
+      hasRelationWidget: false,
+      hasFloatingWidget: false,
+      navigationGroup: {
+        name: 'template',
+        icon: IconTemplate,
+        content: () => (
+          <Suspense fallback={<div />}>
+            <TemplateNav />
+          </Suspense>
+        ),
+      },
     },
     {
       name: 'logs',

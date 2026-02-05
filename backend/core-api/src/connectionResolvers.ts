@@ -185,6 +185,19 @@ import {
 } from './modules/clientportal/db/models/ClientPortal';
 import { ICPUserDocument } from './modules/clientportal/types/cpUser';
 import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
+import {
+  loadTemplateClass,
+  ITemplateModel,
+} from './modules/template/db/models/Template';
+import {
+  loadTemplateCategoryClass,
+  ITemplateCategoryModel,
+} from './modules/template/db/models/TemplateCategory';
+import {
+  TemplateDocument,
+  TemplateCategoryDocument,
+} from './modules/template/db/definitions/template';
+
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -227,6 +240,8 @@ export interface IModels {
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
   EmailDeliveries: IEmailDeliveryModel;
+  Template: ITemplateModel;
+  TemplateCategory: ITemplateCategoryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -430,6 +445,16 @@ export const loadClasses = (
     'client_portal_users',
     loadCPUserClass(models),
   );
+
+  models.Template = db.model<TemplateDocument, ITemplateModel>(
+    'templates',
+    loadTemplateClass(models),
+  );
+
+  models.TemplateCategory = db.model<
+    TemplateCategoryDocument,
+    ITemplateCategoryModel
+  >('template_categories', loadTemplateCategoryClass(models));
 
   return models;
 };

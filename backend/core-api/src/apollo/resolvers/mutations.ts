@@ -22,6 +22,7 @@ import { roleMutations } from '~/modules/permissions/graphql/resolvers/mutations
 import { propertiesMutations } from '~/modules/properties/graphql/resolvers/mutations';
 import { clientPortalMutations } from '@/clientportal/graphql/resolvers/mutations/clientPortal';
 import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUser';
+import { templateMutations } from '@/template/graphql/resolvers/mutations/template';
 
 export const mutations = {
   ...contactMutations,
@@ -48,4 +49,5 @@ export const mutations = {
   ...propertiesMutations,
   ...clientPortalMutations,
   ...cpUserMutations,
+  ...templateMutations,
 };

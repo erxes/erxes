@@ -12,6 +12,7 @@ import { DefaultLayout } from '@/app/components/MainLayout';
 import { AppPath } from '@/types/paths/AppPath';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
+import { TemplateRoutes } from '../components/TemplateRoutes';
 
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
 import { ProductsRoutes } from '@/app/components/ProductsRoutes';
@@ -118,6 +119,8 @@ export const useCreateAppRouter = () => {
                 path={AppPath.MyInboxCatchAll}
                 element={<NotificationsRoutes />}
               />
+
+              <Route path="/template/*" element={<TemplateRoutes />} />
 
               {...getPluginsRoutes()}
 
