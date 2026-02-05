@@ -1,4 +1,4 @@
-import { Cell } from '@tanstack/table-core';
+import { CellContext } from '@tanstack/react-table';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import {
   Button,
@@ -26,7 +26,7 @@ export const ImapIntegrationDetail = () => {
 export const ImapIntegrationActions = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
   return <ImapIntegrationEditSheet id={cell.row.original._id} />;
 };
@@ -36,9 +36,10 @@ export const ImapIntegrationEditSheet = ({ id }: { id: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline" size="icon">
-          <IconEdit />
-        </Button>
+        <div className="flex items-center gap-2 w-full">
+          <IconEdit size={16} />
+          Edit
+        </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
         <ImapIntegrationEditForm id={id} setOpen={setOpen} />

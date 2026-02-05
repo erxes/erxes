@@ -6,6 +6,7 @@ import {
   sendOTP,
   createNotification,
   sendNotification,
+  sendNotificationBulk,
 } from './notificationService';
 
 export * from './notificationService';
@@ -19,4 +20,5 @@ export const notificationService = {
   sendOTP,
   createNotification,
   sendNotification,
+  sendNotificationBulk,
 };

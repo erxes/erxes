@@ -2,15 +2,30 @@ import { ProductAddSheet } from '@/products/components/ProductAddSheet';
 import { ProductsFilter } from '@/products/components/ProductsFilter';
 import { ProductsHeader } from '@/products/components/ProductsHeader';
 import { ProductsRecordTable } from '@/products/components/ProductsRecordTable';
-import { useProducts } from '@/products/hooks/useProducts';
-import { ProductDetail } from '@/products/product-detail/components/ProductDetail';
 import { ProductDetailSheet } from '@/products/product-detail/components/ProductDetailSheet';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
+import { ProductSidebar } from '@/products/components/ProductSidebar';
+import { useProducts } from '@/products/hooks/useProducts';
 import { Export, Import } from 'ui-modules';
 
-
 export const ProductsIndexPage = () => {
-  
+  return (
+    <PageContainer>
+      <ProductsHeader>
+        <ProductAddSheet />
+      </ProductsHeader>
+
+      <div className="flex overflow-hidden flex-auto">
+        <ProductSidebar />
+        <div className="flex overflow-hidden flex-col flex-auto w-full">
+          <ProductsIndexPageContent />
+        </div>
+      </div>
+    </PageContainer>
+  );
+};
+
+const ProductsIndexPageContent = () => {
   const { productsQueryVariables } = useProducts();
 
   const getFilters = () => {
@@ -18,19 +33,15 @@ export const ProductsIndexPage = () => {
     return filters;
   };
 
-
   return (
-    <PageContainer>
-      <ProductsHeader >
-        <ProductAddSheet />
-      </ProductsHeader>
+    <>
       <PageSubHeader>
         <ProductsFilter />
         <Import
-            pluginName="core"
-            moduleName="product"
-            collectionName="product"
-          />
+          pluginName="core"
+          moduleName="product"
+          collectionName="product"
+        />
         <Export
           pluginName="core"
           moduleName="product"
@@ -38,10 +49,12 @@ export const ProductsIndexPage = () => {
           getFilters={getFilters}
         />
       </PageSubHeader>
-      <ProductsRecordTable />
-      <ProductDetailSheet>
-        <ProductDetail />
-      </ProductDetailSheet>
-    </PageContainer>
+      <div className="overflow-hidden flex-auto p-3">
+        <div className="h-full">
+          <ProductsRecordTable />
+        </div>
+      </div>
+      <ProductDetailSheet />
+    </>
   );
 };

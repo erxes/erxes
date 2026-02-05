@@ -11,10 +11,11 @@ export const AutomationBuilderNameInput = () => {
       render={({ field, fieldState }) => (
         <Form.Item>
           <Input
+            autoFocus
             placeholder={
               fieldState.error ? fieldState.error.message : 'Automation name'
             }
-            className={'w-64'}
+            className={'w-64 h-7 rounded-md'}
             {...field}
           />
         </Form.Item>
