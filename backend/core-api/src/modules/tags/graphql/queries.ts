@@ -1,6 +1,11 @@
 import { ITagFilterQueryParams } from '@/tags/@types/tag';
 import { ITagDocument, Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp, getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getPlugin,
+  getPlugins,
+} from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -229,10 +234,10 @@ export const tagQueries: Record<string, Resolver> = {
       }
 
       filter.type = contentType;
-    }
 
-    if (includeWorkspaceTags) {
-      filter.type = { $in: [null, '', contentType] };
+      if (includeWorkspaceTags) {
+        filter.type = { $in: [null, '', contentType] };
+      }
     }
 
     if (searchValue) {
@@ -247,7 +252,7 @@ export const tagQueries: Record<string, Resolver> = {
       filter.isGroup = isGroup;
     }
 
-    if (Object.prototype.hasOwnProperty.call(params, 'isGroup') && isGroup === false) {
+    if ('isGroup' in (params || {}) && isGroup === false) {
       filter.isGroup = { $ne: true };
     }
 
