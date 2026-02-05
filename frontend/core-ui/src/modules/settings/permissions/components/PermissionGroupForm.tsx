@@ -31,12 +31,17 @@ function getPermission(
   return permissions.find((p) => p.module === moduleName);
 }
 
+function getAlwaysActionNames(module: IPermissionModule): string[] {
+  return module.actions.filter((a) => a.always).map((a) => a.name);
+}
+
 function isActionEnabled(
   perm: IPermissionGroupPermission | undefined,
-  actionName: string,
+  action: { name: string; always?: boolean },
 ) {
+  if (action.always) return true;
   if (!perm) return false;
-  return perm.actions.includes('*') || perm.actions.includes(actionName);
+  return perm.actions.includes('*') || perm.actions.includes(action.name);
 }
 
 export const PermissionGroupForm = ({
@@ -84,6 +89,10 @@ export const PermissionGroupForm = ({
     const perm = getPermission(current, module.name);
     if (!perm) return;
 
+    const alwaysNames = getAlwaysActionNames(module);
+    const actionDef = module.actions.find((a) => a.name === actionName);
+    if (actionDef?.always && !enabled) return;
+
     const allActionNames = module.actions.map((a) => a.name).filter(Boolean);
     let newActions: string[];
 
@@ -106,6 +115,8 @@ export const PermissionGroupForm = ({
         newActions = perm.actions.filter((a) => a !== actionName);
       }
     }
+
+    newActions = [...new Set([...newActions, ...alwaysNames])];
 
     if (newActions.length === 0) {
       form.setValue(
@@ -240,6 +251,11 @@ export const PermissionGroupForm = ({
                                     <span className="text-sm font-medium">
                                       {action.name}
                                     </span>
+                                    {action.always && (
+                                      <span className="text-xs text-muted-foreground ml-2">
+                                        (always)
+                                      </span>
+                                    )}
                                     {action.description && (
                                       <span className="text-xs text-muted-foreground ml-2">
                                         {action.description}
@@ -247,8 +263,8 @@ export const PermissionGroupForm = ({
                                     )}
                                   </div>
                                   <Switch
-                                    checked={isActionEnabled(perm, action.name)}
-                                    disabled={action.disabled}
+                                    checked={isActionEnabled(perm, action)}
+                                    disabled={action.disabled || action.always}
                                     onCheckedChange={(checked) =>
                                       toggleAction(
                                         module,
