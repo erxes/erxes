@@ -18,6 +18,7 @@ export const types = `
         code: String
         type: String
         order: Float
+        groupId: String
         options: [FieldOption]
         validations: JSON
         logics: JSON

@@ -89,15 +89,15 @@ export const ProductCategoryAddMoreFields = ({
             <Form.Label>UPLOAD</Form.Label>
             <Form.Control>
               <Upload.Root {...field}>
-                <Upload.Preview className="hidden" />
+                <Upload.Preview className="" />
                 <Upload.Button
                   size="sm"
                   variant="secondary"
                   type="button"
-                  className="w-full h-20 flex flex-col items-center justify-center border border-dashed text-muted-foreground"
+                  className="flex flex-col justify-center items-center w-full h-20 border border-dashed text-muted-foreground"
                 >
                   <IconUpload />
-                  <span className="font-medium text-sm">Primary upload</span>
+                  <span className="text-sm font-medium">Primary upload</span>
                 </Upload.Button>
               </Upload.Root>
             </Form.Control>
