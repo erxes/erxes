@@ -1,62 +1,41 @@
-import { Separator, Sheet, Spinner, useToast } from 'erxes-ui';
-import {
-  MemberDetailLayout,
-  MemberDetailTabContent,
-} from '@/settings/team-member/details/components/MemberDetailLayout';
-import { MemberDetailGeneral } from '@/settings/team-member/details/components/MemberDetailGeneral';
-import { MemberLinks } from '@/settings/team-member/details/components/MemberLinks';
-import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
-import { ApolloError } from '@apollo/client';
-import { MemberGeneral } from '@/settings/team-member/details/components/MemberGeneral';
-import { UserDetailActions } from '@/settings/team-member/details/components/UserDetailActions';
-import { ActivityLogs, FieldsInDetail } from 'ui-modules';
-import { useUserCustomFieldEdit } from '../../hooks/useUserEdit';
+import { FocusSheet, Separator, useQueryState } from 'erxes-ui';
+import { MemberDetailGeneral } from './MemberDetailGeneral';
+import { useUserDetail } from '../../hooks/useUserDetail';
+import { MemberDetailSidebar } from './MemberDetailSidebar';
+import { MemberDetailMainContents } from './MemberDetailMainContents';
+import { MemberDetailErrorState } from './MemberDetailErrorState';
+import { RelationWidgetSideTabs } from 'ui-modules';
+import { MemberDetailEmptyState } from './MemberDetailEmptyState';
 
-export function MemberDetail() {
-  const { toast } = useToast();
-  const { error, userDetail, loading } = useUserDetail({
-    onError: (e: ApolloError) => {
-      if (!e.message.includes('not found')) {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
-      }
-    },
-  });
+export const MemberDetail = () => {
+  const [open, setOpen] = useQueryState<string>('user_id');
+  const { error, userDetail, loading } = useUserDetail();
 
   return (
-    <MemberDetailLayout
-      actions={<UserDetailActions />}
-      otherState={
-        error?.message.includes('not found') ? 'not-found' : undefined
-      }
-    >
-      {loading ? <Spinner /> : (
-        <div className="flex flex-auto flex-col">
-          <MemberDetailGeneral />
-          <Separator />
-          <Sheet.Content className="border-b-0 rounded-b-none">
-            <MemberDetailTabContent value="overview">
-              <MemberGeneral />
-            </MemberDetailTabContent>
-            <MemberDetailTabContent value="links" className="h-full">
-              <MemberLinks />
-            </MemberDetailTabContent>
-            <MemberDetailTabContent value="activity" className="h-full">
-              {userDetail ? <ActivityLogs targetId={userDetail._id} /> : <></>}
-            </MemberDetailTabContent>
-            <MemberDetailTabContent value="properties" className="h-full">
-              <FieldsInDetail
-                fieldContentType="core:user"
-                customFieldsData={userDetail?.customFieldsData || {}}
-                mutateHook={useUserCustomFieldEdit}
-                id={userDetail?._id || ''}
-              />
-            </MemberDetailTabContent>
-          </Sheet.Content>
-        </div>)}
-    </MemberDetailLayout>
+    <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
+      <FocusSheet.View
+        loading={loading}
+        error={!!error}
+        notFound={!userDetail}
+        notFoundState={<MemberDetailEmptyState />}
+        errorState={<MemberDetailErrorState />}
+      >
+        <FocusSheet.Header title="Member Detail" />
+        <FocusSheet.Content>
+          <FocusSheet.SideBar>
+            <MemberDetailSidebar />
+          </FocusSheet.SideBar>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <MemberDetailGeneral />
+            <Separator />
+            <MemberDetailMainContents />
+          </div>
+          <RelationWidgetSideTabs
+            contentId={userDetail?._id || ''}
+            contentType="core:user"
+          />
+        </FocusSheet.Content>
+      </FocusSheet.View>
+    </FocusSheet>
   );
-}
+};

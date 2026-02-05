@@ -10,7 +10,7 @@ export const createTransporter = async (models: IModels) => {
     return broadcasTransporter;
   }
 
-  const config: ISESConfig = await models.Configs.getSESConfigs();
+  const config: ISESConfig = await models.EngageMessages.broadcastConfigs();
 
   try {
     AWS.config.update(config);

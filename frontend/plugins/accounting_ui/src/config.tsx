@@ -14,9 +14,20 @@ const AdjustmentNavigation = lazy(() =>
   })),
 );
 
+const SettingsNavigation = lazy(() =>
+  import('./modules/SettingsNavigation').then((module) => ({
+    default: module.SettingsNavigation,
+  }))
+);
+
 export const CONFIG: IUIConfig = {
   name: 'accounting',
   path: 'accounting',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'accounting',
     icon: IconCashBanknote,

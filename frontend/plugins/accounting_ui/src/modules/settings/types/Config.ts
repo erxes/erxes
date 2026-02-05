@@ -6,5 +6,6 @@ export type TMainConfig = z.infer<typeof mainSettingsSchema>;
 export interface IConfig {
   _id: string;
   code: keyof TMainConfig;
-  value: string;
+  subId?: string;
+  value: any;
 }

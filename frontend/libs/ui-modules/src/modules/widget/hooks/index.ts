@@ -1,5 +1,4 @@
-import { useCreateMultipleRelations } from './useCreateMultipleRelations';
-import { useCreateRelation } from './useCreateRelation';
-import { useRelations } from './useRelations';
-
-export { useCreateMultipleRelations, useCreateRelation, useRelations };
+export { useCreateMultipleRelations } from './useCreateMultipleRelations';
+export { useCreateRelation } from './useCreateRelation';
+export { useRelations } from './useRelations';
+export { useManageRelations } from './useManageRelations';

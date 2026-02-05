@@ -86,7 +86,7 @@ export const FormFieldDetail = ({
               variant="outline"
               value={fieldData?.span?.toString() ?? '1'}
               onValueChange={(value) =>
-                handleValueChange('span', parseInt(value ?? '1'))
+                handleValueChange('span', Number.parseInt(value ?? '1'))
               }
             >
               <ToggleGroup.Item value="1" className="flex-1">

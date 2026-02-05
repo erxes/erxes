@@ -20,6 +20,7 @@ import {
   StageCell,
   NameCell,
   ProductsCell,
+  NumberCell,
 } from '@/deals/components/deal-selects/MoveDealSelect';
 
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
@@ -35,6 +36,14 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       ),
       cell: ({ row }) => <NameCell deal={row.original} />,
       size: 240,
+    },
+    {
+      id: 'number',
+      accessorKey: 'number',
+      header: () => (
+        <RecordTable.InlineHead label="Number" icon={IconLabelFilled} />
+      ),
+      cell: ({ row }) => <NumberCell deal={row.original} />,
     },
     {
       id: 'boardId',

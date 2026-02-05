@@ -59,7 +59,7 @@ export const SelectTrigger = ({
   if (variant === SelectTriggerVariant.FORM) {
     return (
       <Form.Control className="w-full">
-        <Combobox.TriggerBase className="w-full h-7 font-medium">
+        <Combobox.TriggerBase className="w-full h-8 font-medium">
           {children}
           <IconChevronDown className="h-4 w-4 opacity-50 ml-auto" />
         </Combobox.TriggerBase>

@@ -136,3 +136,57 @@ export const BROADCAST_MESSAGE_KIND = [
   { value: 'auto', label: 'Auto' },
   { value: 'manual', label: 'Manual' },
 ];
+
+export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
+  {
+    name: 'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+    inputType: 'input',
+    type: 'text',
+    label: 'AWS SES Access Key id',
+    description: '',
+  },
+  {
+    name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+    inputType: 'input',
+    type: 'text',
+    label: 'AWS SES Secret Access Key',
+    description: '',
+  },
+  {
+    name: 'BROADCAST_AWS_REGION',
+    inputType: 'input',
+    type: 'text',
+    label: 'AWS Region',
+    description: '',
+  },
+  {
+    name: 'BROADCAST_AWS_SES_CONFIG_SET',
+    inputType: 'input',
+    type: 'text',
+    label: 'AWS SES Config Set',
+    description: '',
+  },
+  {
+    name: 'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
+    inputType: 'input',
+    type: 'number',
+    label: 'Unverified emails limit',
+    description: '',
+  },
+  {
+    name: 'BROADCAST_ALLOWED_EMAIL_SKIP_LIMIT',
+    inputType: 'input',
+    type: 'number',
+    label: 'Allowed email skip limit',
+    description:
+      'The number of times that each customer can skip to open or click campaign emails. If this limit is exceeded, then the customer will automatically set to unsubscribed mode.',
+  },
+  {
+    name: 'BROADCAST_CUSTOMER_LIMIT_PER_AUTO_SMS_CAMPAIGN',
+    inputType: 'input',
+    type: 'number',
+    label: 'Customer limit per auto SMS campaign',
+    description:
+      'The maximum number of customers that can receive auto SMS campaign per each runtime.',
+  },
+];

@@ -27,7 +27,7 @@ export async function getCustomerExportData(
   }
   if (cursor) {
     if (ids && ids.length > 0) {
-      const processedCount = parseInt(cursor, 10) || 0;
+      const processedCount = Number.parseInt(cursor, 10) || 0;
       const remainingIds = ids.slice(processedCount);
       if (remainingIds.length === 0) {
         return [];

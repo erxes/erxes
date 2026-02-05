@@ -9,11 +9,11 @@ export const documents = {
   types: [
     {
       label: 'Customer',
-      contentType: 'core:customer',
+      contentType: 'core:contact.customer',
     },
     {
       label: 'Company',
-      contentType: 'core:company',
+      contentType: 'core:contact.company',
     },
     {
       label: 'Product',

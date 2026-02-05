@@ -1,4 +1,4 @@
-import { IconUserCog, IconUserShield } from '@tabler/icons-react';
+import { IconUserCog } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
 import { Permission } from '@/settings/permission/components/Permission';
 import { Permissions, SettingsHeader } from 'ui-modules';

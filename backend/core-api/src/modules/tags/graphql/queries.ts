@@ -2,6 +2,7 @@ import { ITagFilterQueryParams } from '@/tags/@types/tag';
 import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 const generateFilter = async ({ params, commonQuerySelector, models }) => {
   const {
@@ -81,7 +82,7 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
   return filter;
 };
 
-export const tagQueries = {
+export const tagQueries: Record<string, Resolver> = {
   /**
    * Get tags types
    */
@@ -193,4 +194,32 @@ export const tagQueries = {
   ) {
     return models.Tags.getTag(_id);
   },
+
+  async cpTags(
+    _parent: undefined,
+    params: ITagFilterQueryParams,
+    { models, commonQuerySelector }: IContext,
+  ) {
+    const filter = await generateFilter({
+      params,
+      commonQuerySelector,
+      models,
+    });
+
+    const { list, totalCount, pageInfo } = await cursorPaginate({
+      model: models.Tags,
+      params: {
+        orderBy: { order: 1 },
+        ...params,
+      },
+      query: filter,
+    });
+
+    return { list, totalCount, pageInfo };
+  },
+};
+
+tagQueries.cpTags.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
 };

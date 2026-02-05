@@ -19,7 +19,10 @@ type EventPayload = {
   collectionName: string;
   docIds?: string | string[];
   docId?: string;
+  action?: string;
   fullDocument?: any;
+  prevDocument?: any;
+  currentDocument?: any;
   updateDescription?: Record<string, any>;
   processId?: string;
   userId?: string;

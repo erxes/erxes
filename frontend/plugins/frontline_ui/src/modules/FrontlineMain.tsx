@@ -40,13 +40,23 @@ const Report = lazy(() =>
     default: module.default,
   })),
 );
+
+const KnowledgeBase = lazy(() =>
+  import('~/pages/knowledgebase/IndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
+
 const IntegrationsMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/tickets" element={<Ticket />} />
-        <Route path="/reports/*" element={<Report />} />
+        <Route path="/calls" element={<CallDashboardIndexPage />} />
+        <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
+        <Route path="/reports" element={<Report />} />
+        <Route path="/knowledgebase" element={<KnowledgeBase />} />
       </Routes>
     </Suspense>
   );

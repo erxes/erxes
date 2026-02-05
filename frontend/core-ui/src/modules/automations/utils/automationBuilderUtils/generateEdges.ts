@@ -1,13 +1,13 @@
 import { CONNECTION_PROPERTY_NAME_MAP } from '@/automations/constants';
 import { AutomationNodeType } from '@/automations/types';
 import { Edge } from '@xyflow/react';
+import type { IAutomationsActionFolkConfig } from 'ui-modules';
 import {
   TAutomationAction,
+  TAutomationOptionalConnect,
   TAutomationTrigger,
   TAutomationWorkflowNode,
-  TAutomationOptionalConnect,
 } from 'ui-modules';
-import type { IAutomationsActionFolkConfig } from 'ui-modules';
 
 const COMMON_EDGE_STYLES = { strokeWidth: 2 };
 const COMMON_EDGE_VARIABLES = {

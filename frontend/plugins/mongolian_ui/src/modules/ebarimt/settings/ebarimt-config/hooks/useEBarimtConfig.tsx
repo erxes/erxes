@@ -7,8 +7,9 @@ import {
   EBarimtFormData,
 } from '@/ebarimt/settings/ebarimt-config/types/ebarimtConfigTypes';
 import { useToast } from 'erxes-ui';
-import { UPDATE_EBARIMT_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/mutations/ebarimtConfigMutations';
-import { GET_EBARIMT_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/queries/ebarimtConfigQueries';
+
+import { UPDATE_MN_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/mutations/ebarimtConfigMutations';
+import { GET_MN_CONFIGS } from '../graphql/queries/mnConfigs';
 
 export const DEFAULT_VALUES: EBarimtFormData = {
   CompanyName: '',
@@ -24,30 +25,12 @@ const toFormValue = (val?: string) => val || 'empty';
 const toBackendValue = (val: string) => (val === 'empty' ? '' : val);
 
 export const useEBarimtConfig = () => {
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [selectedFieldGroup, setSelectedFieldGroup] = useState('empty');
   const { toast } = useToast();
 
-  const [updateConfig] = useMutation(UPDATE_EBARIMT_CONFIG, {
-    onCompleted: () => {
-      toast({
-        title: 'Success',
-        description: 'Ebarimt config updated successfully',
-        variant: 'default',
-      });
-      setIsUpdating(false);
-    },
-    onError: (err) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-      setIsUpdating(false);
-    },
-  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedFieldGroup, setSelectedFieldGroup] = useState('empty');
 
-  const { data, loading } = useQuery(GET_EBARIMT_CONFIG, {
+  const { data, loading } = useQuery(GET_MN_CONFIGS, {
     variables: { code: 'EBARIMT' },
   });
 
@@ -55,6 +38,8 @@ export const useEBarimtConfig = () => {
     defaultValues: DEFAULT_VALUES,
     mode: 'onChange',
   });
+
+  const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
 
   const handleFieldGroupChange = (value: string) => {
     setSelectedFieldGroup(value);
@@ -67,6 +52,8 @@ export const useEBarimtConfig = () => {
   };
 
   const handleUpdate = async (formData: EBarimtFormData) => {
+    if (loading) return;
+
     setIsUpdating(true);
 
     const payload = {
@@ -81,15 +68,36 @@ export const useEBarimtConfig = () => {
       },
     };
 
-    await updateConfig({
-      variables: { configsMap: { EBARIMT: payload } },
-    });
+    try {
+      await updateConfig({
+        variables: {
+          id: data?.mnConfigs?.[0]?._id,
+          subId: data?.mnConfigs?.[0]?.subId ?? null,
+          value: payload,
+        },
+      });
+
+      toast({
+        title: 'Success',
+        description: 'Ebarimt config saved successfully',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  useEffect(() => {
-    if (loading || !data?.configsGetValue?.value) return;
+  const configValue = data?.mnConfigs?.[0]?.value;
 
-    const raw = data.configsGetValue.value;
+  useEffect(() => {
+    if (loading || !configValue) return;
+
+    const raw = configValue;
     const config = typeof raw === 'string' ? JSON.parse(raw) : raw;
     const dealBillType = config.dealBillType || {};
 
@@ -111,19 +119,21 @@ export const useEBarimtConfig = () => {
       RegNoInput: toFormValue(dealBillType.regNoField),
       CompanyNameResponse: toFormValue(dealBillType.companyNameField),
     });
-  }, [data?.configsGetValue?.value, loading, form]);
+  }, [configValue, loading, form, data?.mnConfigs]);
 
   const getDependentOptions = (fieldName: string) =>
     getFieldDependentOptions(selectedFieldGroup, fieldName);
 
   return {
     form,
+    loading,
+    isUpdating,
+
     selectedFieldGroup,
     fieldGroupOptions: FIELD_GROUP_OPTIONS,
+
     getDependentOptions,
-    loading,
-    handleUpdate,
     handleFieldGroupChange,
-    isUpdating,
+    handleUpdate,
   };
 };

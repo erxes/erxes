@@ -24,6 +24,7 @@ import { ChartConfig } from 'erxes-ui';
 import clsx from 'clsx';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { CycleStatusDisplay } from '@/cycle/components/CycleStatusDisplay';
+import { cyclesMoreColumn } from './CyclesMoreColumn';
 
 const chartConfig = {
   visitors: {
@@ -37,6 +38,7 @@ const chartConfig = {
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICycle>;
 export const cyclesColumns: ColumnDef<ICycle>[] = [
+  cyclesMoreColumn,
   checkBoxColumn,
   {
     id: 'name',

@@ -12,7 +12,7 @@ export const IntegrationLogo = ({
   return (
     <div
       className={cn(
-        'size-8 rounded overflow-hidden shadow-sm bg-background',
+        'size-8 rounded overflow-hidden shadow-sm bg-background p-1',
         className,
       )}
     >

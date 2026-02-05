@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { addEBarimtStageInConfigSchema } from './addEBarimtReturnConfigSchema';
+import { addEBarimtStageInConfigSchema } from '../constants/addEBarimtReturnConfigSchema';
 
 export interface StageInEbarimtConfig {
   title: string;

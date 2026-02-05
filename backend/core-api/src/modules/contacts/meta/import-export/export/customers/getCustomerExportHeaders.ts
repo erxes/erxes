@@ -2,8 +2,6 @@ import {
   ImportHeaderDefinition,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
-import { getCustomFields } from '~/modules/forms/utils';
-import { getRealIdFromElk } from 'erxes-api-shared/utils';
 
 export async function getCustomerExportHeaders(
   {},

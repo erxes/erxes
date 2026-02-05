@@ -1,7 +1,7 @@
 import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-// import { sendCoreMessage, sendInboxMessage } from '../src/messageBroker';
 import * as nodemailer from 'nodemailer';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 interface IMapMail {
   name: string;
@@ -34,7 +34,7 @@ export const customerImapSchema = new Schema({
   lastName: String,
 });
 
-export interface ICustomerImapModel extends Model<ICustomerImapDocument> {}
+export type ICustomerImapModel = Model<ICustomerImapDocument>;
 
 export const loadImapCustomerClass = (models) => {
   class Customer {}
@@ -131,25 +131,32 @@ export const loadImapMessageClass = (models) => {
         ? { _id: customerId }
         : { status: { $ne: 'deleted' }, emails: { $in: to } };
 
-      // customer = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'customers.findOne',
-      //   data: selector,
-      //   isRPC: true
-      // });
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'customers',
+        action: 'findOne',
+        input: {
+          selector,
+        },
+        defaultValue: {},
+      });
 
       if (!customer) {
         const [primaryEmail] = to;
 
-        // customer = await sendCoreMessage({
-        //   subdomain,
-        //   action: 'customers.createCustomer',
-        //   data: {
-        //     state: 'lead',
-        //     primaryEmail
-        //   },
-        //   isRPC: true
-        // });
+        customer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'createCustomer',
+          input: {
+            state: 'lead',
+            primaryEmail,
+          },
+          defaultValue: {},
+        });
       }
 
       let integration;
@@ -167,15 +174,12 @@ export const loadImapMessageClass = (models) => {
       }
 
       if (!integration && conversationId) {
-        // const conversation = await sendInboxMessage({
-        //   subdomain,
-        //   action: 'conversations.findOne',
-        //   data: { _id: conversationId },
-        //   isRPC: true
-        // });
-        // integration = await models.Integrations.findOne({
-        //   inboxId: conversation.integrationId
-        // });
+        const conversation = await models.Conversations.findOne({
+          _id: conversationId,
+        });
+        integration = await models.ImapIntegrations.findOne({
+          inboxId: conversation?.integrationId,
+        });
       }
 
       if (!integration) {
@@ -184,20 +188,16 @@ export const loadImapMessageClass = (models) => {
 
       if (conversationId) {
         if (shouldResolve) {
-          // await sendInboxMessage({
-          //   subdomain,
-          //   action: 'conversations.changeStatus',
-          //   data: { id: conversationId, status: 'closed' },
-          //   isRPC: true
-          // });
+          await models.Conversations.updateOne(
+            { _id: conversationId },
+            { $set: { status: 'closed' } },
+          );
         }
         if (shouldOpen) {
-          // await sendInboxMessage({
-          //   subdomain,
-          //   action: 'conversations.changeStatus',
-          //   data: { id: conversationId, status: 'new' },
-          //   isRPC: true
-          // });
+          await models.Conversations.updateOne(
+            { _id: conversationId },
+            { $set: { status: 'new' } },
+          );
         }
       }
 
@@ -225,31 +225,31 @@ export const loadImapMessageClass = (models) => {
               filename: attach.name,
               path: attach.url,
             }))
-          : [], // Default to an empty array if attachments is undefined
+          : [],
       };
 
       const info = await transporter.sendMail(mailData);
 
-      // models.Messages.create({
-      //   inboxIntegrationId: integration.inboxId,
-      //   inboxConversationId: conversationId,
-      //   createdAt: new Date(),
-      //   messageId: info.messageId,
-      //   inReplyTo: replyToMessageId,
-      //   references: mailData.references,
-      //   subject: mailData.subject,
-      //   body: mailData.html,
-      //   to: (mailData.to || []).map((to) => ({ name: to, address: to })),
-      //   from: [{ name: mailData.from, address: mailData.from }],
-      //   attachments: attachments
-      //     ? attachments.map(({ name, type, size }) => ({
-      //         filename: name,
-      //         type,
-      //         size
-      //       }))
-      //     : [],
-      //   type: 'SENT'
-      // });
+      models.ImapMessages.create({
+        inboxIntegrationId: integration.inboxId,
+        inboxConversationId: conversationId,
+        createdAt: new Date(),
+        messageId: info.messageId,
+        inReplyTo: replyToMessageId,
+        references: mailData.references,
+        subject: mailData.subject,
+        body: mailData.html,
+        to: (mailData.to || []).map((to) => ({ name: to, address: to })),
+        from: [{ name: mailData.from, address: mailData.from }],
+        attachments: attachments
+          ? attachments.map(({ name, type, size }) => ({
+              filename: name,
+              type,
+              size,
+            }))
+          : [],
+        type: 'SENT',
+      });
       return {
         info: info,
       };
@@ -289,8 +289,7 @@ export const integrationImapSchema = new Schema({
   lastFetchDate: Date,
 });
 
-export interface IIntegrationImapModel
-  extends Model<IIntegrationImapDocument> {}
+export type IIntegrationImapModel = Model<IIntegrationImapDocument>;
 
 export const loadImapIntegrationClass = (models) => {
   class Integration {}
@@ -304,7 +303,7 @@ export interface ILog {
   date: Date;
   type: 'info' | 'error';
   message: string;
-  errorStack?: String;
+  errorStack?: string;
 }
 
 export interface ILogImapDocument extends ILog, Document {}
@@ -327,7 +326,6 @@ export interface ILogImapModel extends Model<ILogImapDocument> {
   }): JSON;
 }
 
-export const CreateSendMail = (Model) => {};
 export const loadImapLogClass = (models) => {
   class Log {
     public static createLog({ type, message, errorStack }) {

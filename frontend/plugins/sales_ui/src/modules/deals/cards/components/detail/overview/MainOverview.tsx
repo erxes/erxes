@@ -1,9 +1,14 @@
+import {
+  SelectBranches,
+  SelectDepartments,
+  SelectMember,
+  SelectTags,
+} from 'ui-modules';
+
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { SelectMember } from 'ui-modules';
-import SelectTags from './tags/SelectTags';
 import { useDealsContext } from '@/deals/context/DealContext';
 
 const MainOverview = ({ deal }: { deal: IDeal }) => {
@@ -29,8 +34,9 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
     assignedUserIds,
     labels,
     priority,
-    tags,
     tagIds,
+    branchIds,
+    departmentIds,
   } = deal;
 
   return (
@@ -97,7 +103,38 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Tags</h4>
-          <SelectTags dealTags={tags || []} tagIds={tagIds || []} />
+          <SelectTags
+            tagType="sales:deal"
+            mode="multiple"
+            value={tagIds}
+            onValueChange={(value) => {
+              handleDealFieldChange('tagIds', value);
+            }}
+          />
+        </div>
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Branches</h4>
+          <div className="shadow-xs rounded">
+            <SelectBranches.InlineCell
+              mode="multiple"
+              value={branchIds}
+              onValueChange={(value) => {
+                handleDealFieldChange('branchIds', value);
+              }}
+            />
+          </div>
+        </div>
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Departments</h4>
+          <div className="shadow-xs rounded">
+            <SelectDepartments.InlineCell
+              mode="multiple"
+              value={departmentIds}
+              onValueChange={(value) => {
+                handleDealFieldChange('departmentIds', value);
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

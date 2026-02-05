@@ -21,7 +21,9 @@ interface DocumentInEditorProps {
   handleFetchMore?: () => void;
 }
 
-interface DocumentMenuWrapperProps extends DocumentInEditorProps {}
+interface DocumentMenuWrapperProps extends DocumentInEditorProps {
+  contentType?: string;
+}
 
 interface DocumentMenuProps extends SlashMenuProps {
   items: DefaultReactSuggestionItem[];
@@ -152,15 +154,23 @@ const DocumentMenuWrapper = (props: DocumentMenuWrapperProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
 
+  const variables: Record<string, string> = {};
+
+  if (debouncedSearch) {
+    variables.searchValue = debouncedSearch;
+  }
+
+  if (props.contentType) {
+    variables.contentType = props.contentType;
+  }
+
   const {
     documents = [],
     loading,
     handleFetchMore,
     totalCount = 0,
   } = useDocuments({
-    variables: {
-      searchValue: debouncedSearch,
-    },
+    variables,
   });
 
   const updatedProps = {

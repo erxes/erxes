@@ -6,13 +6,6 @@ export const OWNER_TYPES = {
   ALL: ['user', 'customer', 'company', 'cpUser'],
 };
 
-export const CAMPAIGN_STATUSES = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-  EXPIRED: 'expired',
-  ALL: ['expired', 'active', 'inactive'],
-};
-
 export const LOYALTY_STATUSES = {
   NEW: 'new',
   ACTIVE: 'active',
@@ -40,4 +33,11 @@ export const LOYALTY_CHAR_SET_ADVANCED = {
   '0-z': '0123456789abcdefghijklmnopqrstuvwxyz',
   '0-Z': '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   '0-zZ': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+};
+
+export const CAMPAIGN_STATUS = {
+  ACTIVE: 'active',
+  DRAFT: 'draft',
+  TRASH: 'trash',
+  ALL: ['active', 'draft', 'trash'],
 };

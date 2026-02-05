@@ -8,6 +8,7 @@ interface IFormCodes {
 }
 
 export interface IArticle {
+    code?: string;
     title?: string;
     summary?: string;
     content?: string;
@@ -25,8 +26,8 @@ export interface IArticle {
     forms?: IFormCodes[];
   
     pdfAttachment?: IPdfAttachment;
-  }
-  
+}
+
 export interface IArticleDocument extends ICommonFields, IArticle, Document {
-_id: string;
+    _id: string;
 }

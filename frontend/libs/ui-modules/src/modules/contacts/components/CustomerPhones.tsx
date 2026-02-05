@@ -52,7 +52,7 @@ export function CustomerPhones({
   };
 
   return (
-    <PopoverScoped scope={scope || ''}>
+    <PopoverScoped scope={scope}>
       <Trigger>
         <PhoneDisplay {...phoneProps} />
       </Trigger>

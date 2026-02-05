@@ -1,18 +1,16 @@
-import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
-import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
-import { IProduct, IProductData, currentUserState } from 'ui-modules';
-import { useEffect, useState } from 'react';
-
-import { IconSearch } from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { IconSearch } from '@tabler/icons-react';
+import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { IProduct, IProductData, currentUserState } from 'ui-modules';
+import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
+import { useProductCalculations } from '../hooks/useProductCalculations';
+import { onLocalChangeAtom } from '../productTableAtom';
+import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
 import ProductFooter from './ProductFooter';
 import { ProductsRecordTable } from './ProductRecordTable';
-import { onLocalChangeAtom } from '../productTableAtom';
-import { useAtomValue } from 'jotai';
-import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { useProductCalculations } from '../hooks/useProductCalculations';
-import { useSetAtom } from 'jotai';
 
 const ProductsList = ({
   products,
@@ -91,9 +89,9 @@ const ProductsList = ({
         isVatApplied: true,
         unitPrice: p.isVatApplied
           ? p.unitPrice
-          : parseFloat(
-              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
-            ),
+          : Number.parseFloat(
+            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
+          ),
       };
 
       calculatePerProductAmount('', pData, false);

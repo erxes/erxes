@@ -1,11 +1,9 @@
 import { CustomersDelete } from '@/contacts/customers/components/customers-command-bar/delete/CustomersDelete';
-import { CommandBar, Separator, RecordTable } from 'erxes-ui';
 import { CustomersMerge } from '@/contacts/customers/components/customers-command-bar/merge/CustomersMerge';
-import { ICustomer, TagsSelect } from 'ui-modules';
 import { ApolloError } from '@apollo/client';
-import { toast } from 'erxes-ui';
 import { Row } from '@tanstack/table-core';
-import { Export } from 'ui-modules';
+import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
+import { Export, ICustomer, TagsSelect } from 'ui-modules';
 
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();

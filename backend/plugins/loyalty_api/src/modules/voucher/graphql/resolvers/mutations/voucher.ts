@@ -1,28 +1,33 @@
+import { IVoucher } from '@/voucher/@types/voucher';
 import { IContext } from '~/connectionResolvers';
-import { IVoucher } from '~/modules/voucher/@types/voucher';
+import { IBuyParams } from '~/utils';
 
 export const voucherMutations = {
-  createVoucher: async (
-    _parent: undefined,
-    doc: IVoucher,
-    { models, user }: IContext,
-  ) => {
-    return models.Voucher.createVoucher(doc, user);
+  async vouchersAdd(_root: undefined, doc: IVoucher, { models }: IContext) {
+    return models.Vouchers.createVoucher(doc);
   },
 
-  updateVoucher: async (
-    _parent: undefined,
-    { _id, ...doc }: { _id: string } & IVoucher,
-    { models, user }: IContext,
-  ) => {
-    return models.Voucher.updateVoucher(_id, doc, user);
+  async vouchersAddMany(_root: undefined, doc: IVoucher, { models }: IContext) {
+    return models.Vouchers.createVouchers(doc);
   },
 
-  removeVoucher: async (
-    _parent: undefined,
-    { _id }: { _id: string },
+  async vouchersEdit(
+    _root: undefined,
+    { _id, ...doc }: IVoucher & { _id: string },
+    { models, user }: IContext,
+  ) {
+    return models.Vouchers.updateVoucher(_id, { ...doc, userId: user._id });
+  },
+
+  async vouchersRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
     { models }: IContext,
-  ) => {
-    return models.Voucher.removeVoucher(_id);
+  ) {
+    return models.Vouchers.removeVouchers(_ids);
+  },
+
+  async buyVoucher(_root: undefined, param: IBuyParams, { models }: IContext) {
+    return models.Vouchers.buyVoucher(param);
   },
 };

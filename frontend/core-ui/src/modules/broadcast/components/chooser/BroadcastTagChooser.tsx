@@ -52,9 +52,9 @@ export const BroadcastTagChooser = ({
 
                   setValue('targetCount', targetCount);
                 }}
-                className={`mb-1 flex justify-between cursor-pointer ${
+                className={`mb-1 flex justify-between cursor-pointer last-of-type:mb-9 ${
                   value?.includes(tag._id)
-                    ? 'bg-primary/10 hover:bg-primary/10'
+                    ? 'bg-primary/10 data-[selected=true]:bg-primary/10'
                     : ''
                 }`}
               >
@@ -71,7 +71,7 @@ export const BroadcastTagChooser = ({
           }
 
           return (
-            <Command.Group heading={tag.name} className="p-0">
+            <Command.Group key={tag._id} heading={tag.name} className="p-0">
               {(tag.children || []).map((child: any) => (
                 <Command.Item
                   key={child._id}
@@ -79,12 +79,14 @@ export const BroadcastTagChooser = ({
                   onSelect={() => {
                     const targetIds = [];
 
-                    if (value?.includes(tag._id)) {
+                    if (value?.includes(child._id)) {
                       targetIds.push(
-                        ...(value || []).filter((id: string) => id !== tag._id),
+                        ...(value || []).filter(
+                          (id: string) => id !== child._id,
+                        ),
                       );
                     } else {
-                      targetIds.push(...(value || []), tag._id);
+                      targetIds.push(...(value || []), child._id);
                     }
 
                     onChange(targetIds);
@@ -96,9 +98,9 @@ export const BroadcastTagChooser = ({
 
                     setValue('targetCount', targetCount);
                   }}
-                  className={`mb-1 pl-5 flex justify-between cursor-pointer ${
+                  className={`mb-1 pl-5 flex justify-between cursor-pointer  ${
                     value?.includes(child._id)
-                      ? 'bg-primary/10 hover:bg-primary/10'
+                      ? 'bg-primary/10 data-[selected=true]:bg-primary/10'
                       : ''
                   }`}
                 >

@@ -50,3 +50,15 @@ export const BROADCAST_SET_LIVE = gql`
     }
   }
 `;
+
+export const BROADCAST_MEMBER_REMOVE = gql`
+  mutation BROADCAST_MEMBER_REMOVE($email: String!) {
+    engageMessageRemoveVerifiedEmail(email: $email)
+  }
+`;
+
+export const BROADCAST_MEMBER_ADD = gql`
+  mutation BROADCAST_MEMBER_ADD($email: String!) {
+    engageMessageVerifyEmail(email: $email)
+  }
+`;

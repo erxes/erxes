@@ -1,23 +1,19 @@
-import { IModels } from '~/connectionResolvers';
-import { debugError } from '@/integrations/facebook/debuggers';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { IFacebookCustomer } from '@/integrations/facebook/@types/customers';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import {
   ICommentParams,
   IPostParams,
 } from '@/integrations/facebook/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
-import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { IFacebookCustomer } from '@/integrations/facebook/@types/customers';
-import { getFacebookUser } from '@/integrations/facebook/utils';
-import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { debugError } from '@/integrations/facebook/debuggers';
 import {
-  getPostLink,
-  getFacebookUserProfilePic,
-  getPostDetails,
-  uploadMedia,
+  getFacebookUser, getFacebookUserProfilePic,
+  getPostDetails, getPostLink, uploadMedia
 } from '@/integrations/facebook/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 
 export const getOrCreateCustomer = async (
   models: IModels,

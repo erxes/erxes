@@ -73,19 +73,22 @@ export const useEditMessenger = () => {
             });
           },
         });
-        saveTicketConfigMutation({
-          variables: {
-            _id: integrationId,
-            configId: configFormValues.ticketConfigId,
-          },
-          onError(e) {
-            toast({
-              title: 'Failed to save ticket config',
-              description: e.message,
-              variant: 'destructive',
+        {
+          configFormValues.ticketConfigId &&
+            saveTicketConfigMutation({
+              variables: {
+                _id: integrationId,
+                configId: configFormValues.ticketConfigId,
+              },
+              onError(e) {
+                toast({
+                  title: 'Failed to save ticket config',
+                  description: e.message,
+                  variant: 'destructive',
+                });
+              },
             });
-          },
-        });
+        }
       },
       onError(e) {
         toast({

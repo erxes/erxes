@@ -1,7 +1,6 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { gql, MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { ITag } from '../types/Tag';
+import { ITag } from 'ui-modules/index';
 
 const ADD_TAG = gql`
   mutation TagsAdd(

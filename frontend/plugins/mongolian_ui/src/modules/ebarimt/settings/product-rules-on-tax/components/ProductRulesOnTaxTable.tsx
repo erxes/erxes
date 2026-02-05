@@ -1,5 +1,16 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { RecordTable, useQueryState } from 'erxes-ui';
+import {
+  RecordTable,
+  RecordTableInlineCell,
+  TextOverflowTooltip,
+  useQueryState,
+} from 'erxes-ui';
+import {
+  IconCode,
+  IconTag,
+  IconReceipt,
+  IconPercentage,
+} from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { IProductRulesOnTax } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
 import { ProductRulesOnTaxRowsCommandbar } from './ProductRulesOnTaxRowsCommandbar';
@@ -65,62 +76,70 @@ export const productRulesOnTaxColumns: ColumnDef<IProductRulesOnTax>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" />,
+    header: () => <RecordTable.InlineHead label="Title" icon={IconCode} />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
     },
-    size: 250,
+    size: 150,
   },
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" />,
+    header: () => <RecordTable.InlineHead label="Kind" icon={IconTag} />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
     },
     size: 100,
   },
   {
     id: 'taxType',
     accessorKey: 'taxType',
-    header: () => <RecordTable.InlineHead label="Tax Type" />,
+    header: () => (
+      <RecordTable.InlineHead label="Tax Type" icon={IconReceipt} />
+    ),
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
     },
   },
   {
     id: 'taxCode',
     accessorKey: 'taxCode',
-    header: () => <RecordTable.InlineHead label="Tax Code" />,
+    header: () => <RecordTable.InlineHead label="Tax Code" icon={IconCode} />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
     },
-    size: 250,
+    size: 150,
   },
 
   {
     id: 'taxPercent',
     accessorKey: 'taxPercent',
-    header: () => <RecordTable.InlineHead label="Percent" />,
+    header: () => (
+      <RecordTable.InlineHead label="Percent" icon={IconPercentage} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as string | number | null | undefined;
       return (
-        <div>{value !== null && value !== undefined ? String(value) : ''}</div>
+        <RecordTableInlineCell>
+          {value !== null && value !== undefined ? String(value) : ''}
+        </RecordTableInlineCell>
       );
     },
   },
 ];
-
-export const ProductRulesOnTaxMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IProductRulesOnTax, unknown>;
-}) => {
-  return <RecordTable.MoreButton />;
-};
-
-export const productRulesOnTaxMoreColumn = {
-  id: 'more',
-  cell: ProductRulesOnTaxMoreColumnCell,
-  size: 33,
-};

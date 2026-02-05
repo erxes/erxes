@@ -11,8 +11,13 @@ export interface IProductRule {
   tagIds?: string[];
   excludeTagIds?: string[];
 
+  // stage / district (NEW)
+  stageId?: string;
+  districtId?: string;
+
+
   // rules
-  kind: string; // vat, ctax
+  kind: 'vat' | 'ctax';
 
   // vat
   taxType?: string;

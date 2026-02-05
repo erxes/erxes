@@ -19,6 +19,11 @@ const USERS_SET_ACTIVE_STATUS = gql`
     }
   }
 `;
+const TEAM_MEMBER_REMOVE = gql`
+  mutation TeamMemberRemove($_ids: [String!]) {
+    teamMembersRemove(_ids: $_ids)
+  }
+`;
 
 const USERS_CONFIRM_INVITATION = gql`
   mutation usersConfirmInvitation(
@@ -41,7 +46,7 @@ const USERS_CONFIRM_INVITATION = gql`
 `;
 
 const USERS_INLINE_EDIT = gql`
-   mutation usersEdit(
+  mutation usersEdit(
     $_id: String!
     $username: String
     $email: String
@@ -108,6 +113,7 @@ const mutations = {
   USERS_SET_ACTIVE_STATUS,
   USERS_INLINE_EDIT,
   USERS_RESET_PASSWORD,
+  TEAM_MEMBER_REMOVE,
 };
 
 export default mutations;

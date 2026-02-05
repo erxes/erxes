@@ -1,26 +1,15 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonDocument, ICommonFields } from '~/utils';
 
-export interface IDonate {
-  ownerId: string;
-  ownerType: string;
-
-  campaignId: string;
-
+export interface IDonate extends ICommonFields {
   donateScore: number;
-
   awardId: string;
   voucherId: string;
-
-  conditions: Record<string, any>;
 }
 
-export interface IDonateDocument extends IDonate, Document {
-  createdBy: string;
-  updatedBy: string;
-
-  createdAt: Date;
-  updatedAt: Date;
+export interface IDonateDocument extends IDonate, ICommonDocument, Document {
+  _id: string;
 }
 
 export interface IDonateListParams extends ICursorPaginateParams {

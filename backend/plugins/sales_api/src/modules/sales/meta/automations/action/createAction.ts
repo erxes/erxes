@@ -23,13 +23,13 @@ export const actionCreate = async ({
 
   let newData = action.config.assignedTo
     ? await replacePlaceHolders({
-        models,
-        subdomain,
-        customResolver: { resolver: getRelatedValue, isRelated: false },
+      models,
+      subdomain,
+      customResolver: { resolver: getRelatedValue, isRelated: false },
 
-        actionData: { assignedTo: action.config.assignedTo },
-        target: { ...target, type: (triggerType || '').replace('sales:', '') },
-      })
+      actionData: { assignedTo: action.config.assignedTo },
+      target: { ...target, type: (triggerType || '').replace('sales:', '') },
+    })
     : {};
 
   delete action.config.assignedTo;
@@ -134,13 +134,16 @@ export const actionCreate = async ({
         subdomain,
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformity',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: 'customer',
-          mainTypeId: execution.target.customerId,
-          relType: `${collectionType}`,
-          relTypeId: item._id,
+          entities: [{
+            contentType: 'core:customer',
+            contentId: execution.target.customerId,
+          }, {
+            contentType: 'sales:deal',
+            contentId: item._id,
+          }]
         },
       });
     } else if (serviceName !== 'sales') {
@@ -148,13 +151,16 @@ export const actionCreate = async ({
         subdomain,
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformity',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: mainType.replace('lead', 'customer'),
-          mainTypeId: execution.targetId,
-          relType: `${collectionType}`,
-          relTypeId: item._id,
+          entities: [{
+            contentType: `core:${mainType.replace('lead', 'customer')}`,
+            contentId: execution.targetId,
+          }, {
+            contentType: 'sales:deal',
+            contentId: item._id,
+          }]
         },
       });
     }

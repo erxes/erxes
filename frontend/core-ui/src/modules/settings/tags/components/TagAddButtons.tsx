@@ -1,15 +1,16 @@
+import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
-  useQueryState,
+  cn,
   Kbd,
   usePreviousHotkeyScope,
-  cn,
+  useQueryState,
+  useScopedHotkeys,
 } from 'erxes-ui';
-import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { useAtom } from 'jotai';
-import { IconPlus } from '@tabler/icons-react';
-import { useScopedHotkeys } from 'erxes-ui';
-import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+
 export const TagAddButtons = ({ className }: { className?: string }) => {
   const [type] = useQueryState<string>('tagType');
   const [addingTag, setAddingTag] = useAtom(addingTagAtom);

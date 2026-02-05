@@ -1,4 +1,3 @@
-import { Document } from 'mongoose';
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
 import {
   IConformityModel,
@@ -17,6 +16,12 @@ import {
   IExchangeRateModel,
   loadExchangeRateClass,
 } from '@/exchangeRates/db/models/ExchangeRates';
+import {
+  IInternalNoteModel,
+  loadInternalNoteClass,
+} from '@/internalNote/db/models/InternalNote';
+import { IInternalNoteDocument } from '@/internalNote/types';
+import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 import {
   IBrandModel,
   loadBrandClass,
@@ -67,7 +72,21 @@ import {
 } from '@/relations/db/models/Relations';
 import { ITagModel, loadTagClass } from '@/tags/db/models/Tags';
 import {
+  activityLogsSchema,
+  AiAgentDocument,
+  aiAgentSchema,
+  aiEmbeddingSchema,
+  IActivityLogDocument,
+  IAiEmbeddingDocument,
+  IAutomationDocument,
+  IAutomationExecutionDocument,
+  IEmailDeliveryDocument,
+  INotificationDocument,
+  notificationSchema,
+} from 'erxes-api-shared/core-modules';
+import {
   IAppDocument,
+  IAutomationEmailTemplateDocument,
   IBrandDocument,
   ICompanyDocument,
   ICustomerDocument,
@@ -86,12 +105,22 @@ import {
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 import {
   IDocumentModel,
   loadDocumentClass,
 } from '~/modules/documents/db/models/Documents';
 import { IDocumentDocument } from '~/modules/documents/types';
+import {
+  IExportDocument,
+  IExportModel,
+  loadExportClass,
+} from '~/modules/import-export/db/models/Exports';
+import {
+  IImportDocument,
+  IImportModel,
+  loadImportClass,
+} from '~/modules/import-export/db/models/Imports';
 import { IConfigDocument } from '~/modules/organization/settings/db/definitions/configs';
 import {
   IConfigModel,
@@ -102,61 +131,13 @@ import {
   loadPermissionClass,
 } from '~/modules/permissions/db/models/Permissions';
 import {
-  IUserGroupModel,
-  loadUserGroupClass,
-} from '~/modules/permissions/db/models/UserGroups';
-import { IConformityDocument } from './modules/conformities/db/definitions/conformities';
-import {
-  IForm,
-  IFormSubmissionDocument,
-} from './modules/forms/db/definitions/forms';
-import {
-  IFormModel,
-  IFormSubmissionModel,
-  loadFormClass,
-  loadFormSubmissionClass,
-} from './modules/forms/db/models/Forms';
-import { ISegmentDocument } from './modules/segments/db/definitions/segments';
-import {
-  ISegmentModel,
-  loadSegmentClass,
-} from './modules/segments/db/models/Segments';
-
-import {
-  IInternalNoteModel,
-  loadInternalNoteClass,
-} from '@/internalNote/db/models/InternalNote';
-import { IInternalNoteDocument } from '@/internalNote/types';
-import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
-import {
-  IImportModel,
-  loadImportClass,
-} from '~/modules/import-export/db/models/Imports';
-import { IImportDocument } from '~/modules/import-export/db/models/Imports';
-import {
-  IExportModel,
-  loadExportClass,
-} from '~/modules/import-export/db/models/Exports';
-import { IExportDocument } from '~/modules/import-export/db/models/Exports';
-
-import {
-  AiAgentDocument,
-  aiAgentSchema,
-  aiEmbeddingSchema,
-  IAiEmbeddingDocument,
-  IAutomationDocument,
-  IAutomationExecutionDocument,
-  IEmailDeliveryDocument,
-  INotificationDocument,
-  notificationSchema,
-  activityLogsSchema,
-  IActivityLogDocument,
-} from 'erxes-api-shared/core-modules';
-import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
-import {
   IRoleModel,
   loadRoleClass,
 } from '~/modules/permissions/db/models/Roles';
+import {
+  IUserGroupModel,
+  loadUserGroupClass,
+} from '~/modules/permissions/db/models/UserGroups';
 import {
   IAutomationEmailTemplateModel,
   loadAutomationEmailTemplateClass,
@@ -170,6 +151,13 @@ import {
   loadClass as loadExecutionClass,
 } from './modules/automations/db/models/Executions';
 import {
+  IDeliveryReportsDocument,
+  IEngageMessageDocument,
+  ISmsRequestDocument,
+  IStatsDocument,
+} from './modules/broadcast/@types';
+import { deliveryReportsSchema } from './modules/broadcast/db/definitions/deliveryReports';
+import {
   IDeliveryReportModel,
   IStatsModel,
   loadStatsClass,
@@ -182,24 +170,6 @@ import {
   ISmsRequestModel,
   loadSmsRequestClass,
 } from './modules/broadcast/db/models/SmsRequests';
-
-import {
-  IFieldModel,
-  loadFieldClass,
-} from './modules/properties/db/models/Field';
-
-import {
-  IFieldGroupModel,
-  loadFieldGroupClass,
-} from './modules/properties/db/models/Group';
-
-import {
-  IDeliveryReportsDocument,
-  IEngageMessageDocument,
-  ISmsRequestDocument,
-  IStatsDocument,
-} from './modules/broadcast/@types';
-import { deliveryReportsSchema } from './modules/broadcast/db/definitions/deliveryReports';
 import {
   ICPUserModel,
   loadCPUserClass,
@@ -208,22 +178,55 @@ import {
   IClientPortalModel,
   loadClientPortalClass,
 } from './modules/clientportal/db/models/ClientPortal';
+import {
+  ICPCommentsModel,
+  loadCommentClass,
+} from './modules/clientportal/db/models/Comment';
 import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
+import { ICPCommentDocument } from './modules/clientportal/types/comment';
 import { ICPUserDocument } from './modules/clientportal/types/cpUser';
+import { IConformityDocument } from './modules/conformities/db/definitions/conformities';
+import {
+  IForm,
+  IFormSubmissionDocument,
+} from './modules/forms/db/definitions/forms';
+import {
+  IFormModel,
+  IFormSubmissionModel,
+  loadFormClass,
+  loadFormSubmissionClass,
+} from './modules/forms/db/models/Forms';
 import {
   IEmailDeliveryModel,
   loadEmailDeliveryClass,
 } from './modules/organization/team-member/db/models/EmailDeliveries';
-import {
-  IFieldDocument,
-  IFieldGroupDocument,
-} from './modules/properties/@types';
-
+import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
 import {
   IOrgWhiteLabelModel,
   loadOrgWhiteLabelClass,
 } from './modules/organization/whitelabel/db/models/OrgWhiteLabel';
-import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
+import {
+  IFieldDocument,
+  IFieldGroupDocument,
+} from './modules/properties/@types';
+import {
+  IFieldModel,
+  loadFieldClass,
+} from './modules/properties/db/models/Field';
+import {
+  IFieldGroupModel,
+  loadFieldGroupClass,
+} from './modules/properties/db/models/Group';
+import { ISegmentDocument } from './modules/segments/db/definitions/segments';
+import {
+  ISegmentModel,
+  loadSegmentClass,
+} from './modules/segments/db/models/Segments';
+import {
+  ICPNotificationModel,
+  loadCPNotificationClass,
+} from './modules/clientportal/db/models/CPNotification';
+import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -266,6 +269,9 @@ export interface IModels {
   EmailDeliveries: IEmailDeliveryModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
+  CPComments: ICPCommentsModel;
+  CPNotifications: ICPNotificationModel;
+
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
   ActivityLogs: Model<IActivityLogDocument>;
@@ -591,8 +597,25 @@ export const loadClasses = (
 
   models.CPUser = db.model<ICPUserDocument, ICPUserModel>(
     'client_portal_users',
-    loadCPUserClass(models),
+    loadCPUserClass(
+      models,
+      subdomain,
+      eventDispatcher('core', 'clientportal', 'cpUser'),
+    ),
   );
+  models.CPComments = db.model<ICPCommentDocument, ICPCommentsModel>(
+    'client_portal_comments',
+    loadCommentClass(
+      models,
+      subdomain,
+      eventDispatcher('core', 'clientportal', 'client_portal_comments'),
+    ),
+  );
+
+  models.CPNotifications = db.model<
+    ICPNotificationDocument,
+    ICPNotificationModel
+  >('client_portal_notifications', loadCPNotificationClass(models));
 
   const db_name = db.name;
 

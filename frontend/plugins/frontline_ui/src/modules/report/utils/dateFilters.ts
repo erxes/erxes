@@ -1,18 +1,18 @@
 import {
-  startOfDay,
   endOfDay,
-  subDays,
-  startOfWeek,
-  endOfWeek,
-  subWeeks,
-  startOfMonth,
   endOfMonth,
-  subMonths,
-  startOfYear,
+  endOfWeek,
   endOfYear,
+  parse,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subWeeks,
   subYears,
 } from 'date-fns';
-import { parse } from 'date-fns';
 
 export function getDateRange(value: string) {
   const today = new Date();
@@ -94,7 +94,7 @@ export function getDateRange(value: string) {
       } else if (value.includes('quarter')) {
         // Quarter format: YYYY-quarterN
         const [year] = value.split('-');
-        const quarterNumber = parseInt(value.split('quarter')[1]);
+        const quarterNumber = Number.parseInt(value.split('quarter')[1]);
         fromDate = startOfDay(
           new Date(parseInt(year), (quarterNumber - 1) * 3, 1),
         );
@@ -102,14 +102,14 @@ export function getDateRange(value: string) {
       } else if (value.includes('half')) {
         // Half year format: YYYY-halfN
         const [year] = value.split('-');
-        const halfNumber = parseInt(value.split('half')[1]);
+        const halfNumber = Number.parseInt(value.split('half')[1]);
         fromDate = startOfDay(
           new Date(parseInt(year), (halfNumber - 1) * 6, 1),
         );
         toDate = endOfDay(new Date(parseInt(year), halfNumber * 6, 0));
       } else if (/^\d{4}-y$/.test(value)) {
         // Year format: YYYY-y
-        const year = parseInt(value);
+        const year = Number.parseInt(value);
         fromDate = startOfDay(new Date(year, 0, 1));
         toDate = endOfDay(new Date(year, 11, 31));
       } else if (value.includes(',')) {

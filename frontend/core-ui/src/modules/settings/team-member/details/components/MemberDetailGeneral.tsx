@@ -1,12 +1,11 @@
-import { Avatar, Button, FullNameValue, Popover, readImage, Upload } from 'erxes-ui';
-import { FullNameField } from 'erxes-ui';
-import { useUserEdit } from '../../hooks/useUserEdit';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
-import { IUserDetailsType, IUserDetail, UsersHotKeyScope } from '@/settings/team-member/types';
-import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
+import { IUserDetail, IUserDetailsType, UsersHotKeyScope } from '@/settings/team-member/types';
 import { IconTrash } from '@tabler/icons-react';
+import { Avatar, Button, FullNameField, FullNameValue, Popover, readImage, Upload } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import React from 'react';
+import { currentUserState } from 'ui-modules';
+import { useUserEdit } from '../../hooks/useUserEdit';
 
 export const MemberDetailGeneral = () => {
   const { userDetail } = useUserDetail();

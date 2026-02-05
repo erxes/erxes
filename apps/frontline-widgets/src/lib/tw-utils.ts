@@ -52,9 +52,9 @@ class ColorUtils {
     }
 
     // Parse hex to RGB (0-1 range)
-    const r = parseInt(cleanHex.substr(0, 2), 16) / 255;
-    const g = parseInt(cleanHex.substr(2, 2), 16) / 255;
-    const b = parseInt(cleanHex.substr(4, 2), 16) / 255;
+    const r = Number.parseInt(cleanHex.substr(0, 2), 16) / 255;
+    const g = Number.parseInt(cleanHex.substr(2, 2), 16) / 255;
+    const b = Number.parseInt(cleanHex.substr(4, 2), 16) / 255;
 
     // Convert RGB to Linear RGB (sRGB to linear)
     const linearR =
@@ -111,9 +111,9 @@ class ColorUtils {
    */
   static getLuminance(hex: string): number {
     const cleanHex = hex.replace('#', '');
-    const r = parseInt(cleanHex.substr(0, 2), 16) / 255;
-    const g = parseInt(cleanHex.substr(2, 2), 16) / 255;
-    const b = parseInt(cleanHex.substr(4, 2), 16) / 255;
+    const r = Number.parseInt(cleanHex.substr(0, 2), 16) / 255;
+    const g = Number.parseInt(cleanHex.substr(2, 2), 16) / 255;
+    const b = Number.parseInt(cleanHex.substr(4, 2), 16) / 255;
 
     // Apply gamma correction
     const [rs, gs, bs] = [r, g, b].map((c) =>

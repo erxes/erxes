@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { useFields, useFieldsColumns } from 'ui-modules';
 import { useUserCustomFieldEdit } from '../hooks/useUserEdit';
-
+import { TeamMemberCommandBar } from './record/team-member-command-bar/TeamMemberCommandbar';
 
 const TeamMemberTable = () => {
   const { users, handleFetchMore, loading, error, pageInfo } = useUsers();
@@ -37,7 +37,7 @@ const TeamMemberTable = () => {
     <RecordTable.Provider
       columns={[...columns, ...teamMemberCustomFieldsColumns]}
       data={users || []}
-      stickyColumns={['avatar', 'name']}
+      stickyColumns={['more', 'checkbox', 'avatar', 'name']}
       className="m-3"
     >
       <RecordTable.CursorProvider
@@ -63,6 +63,7 @@ const TeamMemberTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <TeamMemberCommandBar />
     </RecordTable.Provider>
   );
 };

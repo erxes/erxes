@@ -3,11 +3,9 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import * as trpcExpress from '@trpc/server/adapters/express';
-import * as dotenv from 'dotenv';
-
 import cookieParser from 'cookie-parser';
-
 import cors from 'cors';
+import * as dotenv from 'dotenv';
 import express, {
   Request as ApiRequest,
   Response as ApiResponse,
@@ -17,13 +15,13 @@ import express, {
 import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
-
 import { startPayments } from '../common-modules/payment/worker';
-import { initSegmentProducers, startAutomations } from '../core-modules';
-import { startImportExportWorker } from '../core-modules/import-export/worker';
 import type { SegmentConfigs } from '../core-modules';
-import type { ImportExportConfigs } from '../core-modules/import-export/types';
+import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
+import type { ImportExportConfigs } from '../core-modules/import-export/types';
+import { startImportExportWorker } from '../core-modules/import-export/worker';
+import { IMainContext } from '../core-types';
 import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
@@ -35,7 +33,6 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
-import { IMainContext } from '../core-types';
 
 dotenv.config();
 
@@ -197,6 +194,8 @@ export async function startPlugin(
   // });
 
   const httpServer = http.createServer(app);
+  httpServer.keepAliveTimeout = 120000;
+  httpServer.headersTimeout = 121000;
 
   // GRACEFULL SHUTDOWN
   process.stdin.resume(); // so the program will not close instantly
@@ -246,7 +245,7 @@ export async function startPlugin(
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers,
+          resolvers: wrapApolloResolvers(resolvers as any),
         },
       ]),
 

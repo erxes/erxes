@@ -35,6 +35,7 @@ import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { SelectMilestone } from './task-selects/SelectMilestone';
 import { TagsSelect } from 'ui-modules';
+import { tasksMoreColumn } from './TasksMoreColumn';
 
 export const tasksColumns = (
   _teams: ITeam[] | undefined,
@@ -43,6 +44,7 @@ export const tasksColumns = (
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITask>;
 
   return [
+    tasksMoreColumn,
     checkBoxColumn,
     {
       id: 'name',

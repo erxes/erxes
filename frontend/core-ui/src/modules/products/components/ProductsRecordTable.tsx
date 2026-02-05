@@ -18,7 +18,7 @@ export const ProductsRecordTable = () => {
     <RecordTable.Provider
       columns={productColumns(t)}
       data={productsMain || []}
-      className="m-3"
+      className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.CursorProvider
@@ -42,15 +42,15 @@ export const ProductsRecordTable = () => {
         </RecordTable>
         {!loading && productsMain?.length === 0 && (
           <div>
-            <div className=" h-full w-full px-8 flex justify-center">
+            <div className="flex justify-center px-8 w-full h-full">
               <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
                 <div className="mb-6">
                   <IconShoppingCartX
                     size={64}
-                    className="text-muted-foreground mx-auto mb-4"
+                    className="mx-auto mb-4 text-muted-foreground"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No product yet</h3>
-                  <p className="text-muted-foreground max-w-md">
+                  <h3 className="mb-2 text-xl font-semibold">No product yet</h3>
+                  <p className="max-w-md text-muted-foreground">
                     Get started by creating your first product.
                   </p>
                 </div>

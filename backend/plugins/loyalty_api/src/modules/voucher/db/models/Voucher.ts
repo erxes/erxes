@@ -1,141 +1,362 @@
-import { IVoucher, IVoucherDocument } from '@/voucher/@types/voucher';
+import {
+  IVoucher,
+  IVoucherDocument,
+  IVoucherInput,
+} from '@/voucher/@types/voucher';
+import { IVoucherCampaignDocument } from '@/voucher/@types/voucherCampaign';
+import { VOUCHER_STATUS } from '@/voucher/constants';
 import { voucherSchema } from '@/voucher/db/definitions/voucher';
-import { IUserDocument } from 'erxes-api-shared/core-types';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
-import { OWNER_TYPES } from '~/@types';
 import { IModels } from '~/connectionResolvers';
-import { LOYALTY_STATUSES } from '~/constants';
-import { ICampaignDocument } from '~/modules/campaign/@types';
-import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
+import { IBuyParams } from '~/utils';
 
 export interface IVoucherModel extends Model<IVoucherDocument> {
   getVoucher(_id: string): Promise<IVoucherDocument>;
-  getVouchers(): Promise<IVoucherDocument[]>;
-  createVoucher(doc: IVoucher, user: IUserDocument): Promise<IVoucherDocument>;
-  updateVoucher(
-    _id: string,
-    doc: IVoucher,
-    user: IUserDocument,
-  ): Promise<IVoucherDocument>;
-  removeVoucher(voucherId: string): Promise<{ ok: number }>;
+  createVoucher(doc: IVoucher): Promise<IVoucherDocument>;
+  createVouchers(doc: IVoucherInput): Promise<IVoucherDocument>;
+  updateVoucher(_id: string, doc: IVoucher): Promise<IVoucherDocument>;
+  buyVoucher(params: IBuyParams): Promise<IVoucherDocument>;
+  removeVouchers(_ids: string[]): void;
 
-  checkVoucher(doc: {
+  checkVoucher({
+    voucherId,
+    ownerType,
+    ownerId,
+    totalAmount,
+  }: {
     voucherId: string;
+    ownerType: string;
     ownerId: string;
-    ownerType: OWNER_TYPES;
-  }): Promise<ICampaignDocument>;
-
-  redeemVoucher(doc: {
+    totalAmount?: number;
+  }): Promise<IVoucherCampaignDocument>;
+  redeemVoucher({
+    voucherId,
+    usageInfo,
+  }: {
     voucherId: string;
-    ownerId: string;
-    ownerType: OWNER_TYPES;
-  }): Promise<{ ok: number }>;
+    usageInfo?: any;
+  }): Promise<IVoucherDocument>;
 }
 
-export const loadVoucherClass = (models: IModels) => {
+export const loadVoucherClass = (models: IModels, subdomain: string) => {
   class Voucher {
     public static async getVoucher(_id: string) {
-      const voucher = await models.Voucher.findOne({ _id }).lean();
+      const voucherRule = await models.Vouchers.findOne({ _id });
+
+      if (!voucherRule) {
+        throw new Error('not found voucher rule');
+      }
+
+      return voucherRule;
+    }
+
+    public static async createVoucher(doc: IVoucher) {
+      const { campaignId, ownerType, ownerId, userId = '', config } = doc;
+
+      if (!ownerId || !ownerType) {
+        throw new Error('Not create voucher, owner is undefined');
+      }
+
+      const now = new Date();
+
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
+
+      if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
+        throw new Error('Cannot create voucher: voucher is expired');
+      }
+
+      switch (voucherCampaign.voucherType) {
+        case 'spin':
+          return models.Spins.createSpin({
+            campaignId: voucherCampaign.spinCampaignId,
+            ownerType,
+            ownerId,
+            voucherCampaignId: campaignId,
+            userId,
+          });
+        case 'lottery':
+          return models.Lotteries.createLottery({
+            campaignId: voucherCampaign.lotteryCampaignId,
+            ownerType,
+            ownerId,
+            voucherCampaignId: campaignId,
+            userId,
+          });
+        case 'score':
+          return models.ScoreLogs.changeScore({
+            ownerType,
+            ownerId,
+            changeScore: voucherCampaign.score,
+            description: 'score voucher',
+          });
+        default:
+          return models.Vouchers.create({
+            campaignId,
+            ownerType,
+            ownerId,
+            createdAt: now,
+            status: VOUCHER_STATUS.NEW,
+            userId,
+            config,
+          });
+      }
+    }
+
+    public static async createVouchers(doc: IVoucherInput) {
+      let { campaignId, ownerType, ownerIds, tagIds, userId = '' } = doc;
+
+      if (!ownerIds?.length && !tagIds?.length) {
+        throw new Error('Cannot create voucher: owner is undefined');
+      }
+
+      const now = new Date();
+
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
+
+      if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
+        throw new Error('Cannot create voucher: campaign is expired');
+      }
+
+      if (tagIds?.length) {
+        const customers = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'find',
+          input: {
+            tagIds: { $in: tagIds },
+            ...(ownerIds?.length && { _id: { $in: ownerIds } }),
+          },
+          defaultValue: [],
+        });
+
+        if (customers?.length) {
+          ownerIds = customers.map((customer) => customer._id) || [];
+        }
+      }
+
+      try {
+        const BATCH_SIZE = 100;
+
+        for (let i = 0; i < (ownerIds || []).length; i += BATCH_SIZE) {
+          const batch = (ownerIds || []).slice(i, i + BATCH_SIZE);
+
+          await Promise.all(
+            batch.map(async (ownerId) => {
+              switch (voucherCampaign.voucherType) {
+                case 'spin':
+                  return models.Spins.createSpin({
+                    campaignId: voucherCampaign.spinCampaignId,
+                    ownerType,
+                    ownerId,
+                    voucherCampaignId: campaignId,
+                    userId,
+                  });
+                case 'lottery':
+                  return models.Lotteries.createLottery({
+                    campaignId: voucherCampaign.lotteryCampaignId,
+                    ownerType,
+                    ownerId,
+                    voucherCampaignId: campaignId,
+                    userId,
+                  });
+                case 'score':
+                  return models.ScoreLogs.changeScore({
+                    ownerType,
+                    ownerId,
+                    changeScore: voucherCampaign.score,
+                    description: 'score voucher',
+                  });
+                default:
+                  return models.Vouchers.create({
+                    campaignId,
+                    ownerType,
+                    ownerId,
+                    createdAt: now,
+                    status: VOUCHER_STATUS.NEW,
+                    userId,
+                  });
+              }
+            }),
+          );
+        }
+
+        return 'success';
+      } catch (error) {
+        console.error('Failed to create vouchers:', error);
+        return 'error';
+      }
+    }
+
+    public static async updateVoucher(_id: string, doc: IVoucher) {
+      const { ownerType, ownerId, status = 'new', userId = '' } = doc;
+
+      if (!ownerId || !ownerType) {
+        throw new Error('Cannot create voucher: owner is undefined');
+      }
+
+      const voucher = await models.Vouchers.findOne({ _id }).lean();
+
+      if (!voucher) {
+        throw new Error(`Voucher ${_id} not found`);
+      }
+
+      const campaignId = doc.campaignId || voucher.campaignId;
+
+      await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+
+      const now = new Date();
+
+      return models.Vouchers.updateOne(
+        { _id },
+        {
+          $set: {
+            campaignId,
+            ownerType,
+            ownerId,
+            modifiedAt: now,
+            status,
+            userId,
+          },
+        },
+      );
+    }
+
+    public static async buyVoucher(doc: IBuyParams) {
+      const { campaignId, ownerType, ownerId, count = 1 } = doc;
+      if (!ownerId || !ownerType) {
+        throw new Error('can not buy voucher, owner is undefined');
+      }
+
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
+
+      if (!voucherCampaign.buyScore) {
+        throw new Error('can not buy this voucher');
+      }
+
+      await models.ScoreLogs.changeScore({
+        ownerType,
+        ownerId,
+        changeScore: -1 * voucherCampaign.buyScore * count,
+        description: 'buy voucher',
+      });
+
+      return models.Vouchers.createVoucher({ campaignId, ownerType, ownerId });
+    }
+
+    public static async removeVouchers(_ids: string[]) {
+      return models.Vouchers.deleteMany({ _id: { $in: _ids } });
+    }
+
+    public static async checkVoucher({
+      ownerType,
+      ownerId,
+      voucherId,
+      totalAmount = 0,
+    }) {
+      const voucher = await models.Vouchers.findOne({
+        _id: voucherId,
+        ownerId,
+        ownerType,
+      });
 
       if (!voucher) {
         throw new Error('Voucher not found');
       }
 
-      return voucher;
-    }
-
-    public static async getVouchers() {
-      return models.Voucher.find().lean();
-    }
-
-    public static async createVoucher(doc: IVoucher, user: IUserDocument) {
-      return models.Voucher.create({ ...doc, createdBy: user._id });
-    }
-
-    public static async updateVoucher(
-      _id: string,
-      doc: IVoucher,
-      user: IUserDocument,
-    ) {
-      return await models.Voucher.findOneAndUpdate(
-        { _id },
-        { $set: { ...doc, updatedBy: user._id } },
-        { new: true },
-      );
-    }
-
-    public static async removeVoucher(voucherId: string) {
-      return models.Voucher.findOneAndDelete({ _id: voucherId });
-    }
-
-    public static async checkVoucher(doc) {
-      const { voucherId, ownerId, ownerType } = doc;
-
-      if (!ownerId || !ownerType) {
-        throw new Error('Owner not defined');
-      }
-
-      const voucher = await models.Voucher.getVoucher(voucherId);
-
-      if (voucher.ownerId !== ownerId || voucher.ownerType !== ownerType) {
-        throw new Error('Voucher redemption denied');
-      }
-
-      if (voucher.status !== LOYALTY_STATUSES.NEW) {
-        throw new Error('Voucher is already redeemed');
+      if (voucher.status !== 'new') {
+        throw new Error(`Voucher is ${voucher.status}`);
       }
 
       if (!voucher.campaignId) {
-        throw new Error('This voucher is not associated with a campaign.');
+        throw new Error('Voucher is not associated with any campaign');
       }
 
-      const campaign = await models.Campaign.getCampaign(voucher.campaignId);
+      const voucherCampaign = await models.VoucherCampaigns.findOne({
+        _id: voucher.campaignId,
+      });
 
-      if (campaign.status === CAMPAIGN_STATUS.INACTIVE) {
+      if (!voucherCampaign) {
+        throw new Error('Campaign not found');
+      }
+
+      if (voucherCampaign.voucherType !== 'reward') {
+        throw new Error('This voucher is not reward voucher type');
+      }
+
+      if (voucherCampaign.status !== 'active') {
         throw new Error('Campaign is not active');
       }
 
-      if (campaign.status === CAMPAIGN_STATUS.EXPIRED) {
-        throw new Error('Campaign is expired');
+      if (totalAmount && voucherCampaign.restrictions) {
+        const { minimumSpend, maximumSpend } = voucherCampaign.restrictions;
+
+        if (maximumSpend && maximumSpend < totalAmount) {
+          throw new Error(
+            `This voucher allows a maximum spend of ${maximumSpend}`,
+          );
+        }
+
+        if (minimumSpend && minimumSpend > totalAmount) {
+          throw new Error(
+            `This voucher requires a minimum spend of ${minimumSpend}`,
+          );
+        }
       }
 
-      const NOW = new Date();
+      const currentDate = new Date();
 
-      if (NOW < campaign.startDate) {
-        throw new Error('Campaign is not active yet');
+      if (voucher?.config) {
+        const { endDate } = voucher.config;
+
+        if (endDate < currentDate) {
+          throw new Error(`This voucher is expired`);
+        }
       }
 
-      if (NOW > campaign.endDate) {
-        throw new Error('Campaign is expired');
+      if (
+        (voucherCampaign.finishDateOfUse || voucherCampaign.endDate) <
+        currentDate
+      ) {
+        throw new Error('The campaign has ended and the voucher is expired');
       }
 
-      return campaign;
+      return voucherCampaign;
     }
 
-    public static async redeemVoucher(doc: {
-      voucherId: string;
-      ownerId: string;
-      ownerType: OWNER_TYPES;
-    }) {
-      const { voucherId, ownerId, ownerType } = doc;
+    public static async redeemVoucher({ voucherId, usageInfo }) {
+      const { ownerType, ownerId } = usageInfo || {};
+
+      const isValid = await this.checkVoucher({
+        ownerType,
+        ownerId,
+        voucherId,
+      });
+
+      if (!isValid) {
+        throw new Error('Invalid voucher code');
+      }
 
       try {
-        await models.Voucher.checkVoucher({
-          voucherId,
-          ownerId,
-          ownerType,
-        });
-
-        return await models.Voucher.updateOne(
+        return await models.Vouchers.findOneAndUpdate(
           { _id: voucherId },
           {
             $set: {
-              status: LOYALTY_STATUSES.REDEEMED,
+              status: VOUCHER_STATUS.LOSS,
             },
           },
+          { new: true },
         );
       } catch (error) {
-        throw new Error(`Error occurred while redeeming voucher: ${error}`);
+        throw new Error(`Error occurred while redeeming voucher ${error}`);
       }
     }
   }

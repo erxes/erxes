@@ -93,6 +93,7 @@ export const loadStageClass = (
         updatedStage.toObject(),
         models,
         createActivityLog,
+        subdomain,
       );
 
       return updatedStage;

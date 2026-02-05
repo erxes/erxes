@@ -1,9 +1,16 @@
-import { IAssignmentListParams } from '@/assignment/@types/assignment';
+import {
+  IAssignmentCheckResponse,
+  IAssignmentDocument,
+  IAssignmentParams,
+} from '@/assignment/@types/assignment';
+import { IAssignmentCampaignDocument } from '@/assignment/@types/assignmentCampaign';
+import { generateFieldMaxValue } from '@/assignment/utils';
 import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
-const generateFilter = (params: IAssignmentListParams) => {
-  const filter: any = {};
+const generateFilter = (params: IAssignmentParams) => {
+  const filter: FilterQuery<IAssignmentDocument> = {};
 
   if (params.campaignId) {
     filter.campaignId = params.campaignId;
@@ -16,83 +23,39 @@ const generateFilter = (params: IAssignmentListParams) => {
   return filter;
 };
 
-const generateFieldMaxValue = async (
-  subdomain: string,
-  fieldId: string,
-  segments: any,
-  customerId: string,
-) => {
-  const customer = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'customers',
-    action: 'findOne',
-    input: { _id: customerId },
-    defaultValue: null,
-  });
-
-  for (const { _id, conditions } of segments || []) {
-    for (const {
-      propertyName,
-      propertyValue,
-      propertyOperator,
-    } of conditions || []) {
-      if (propertyName.includes(fieldId) && propertyOperator === 'numbere') {
-        const { customFieldsData = [] } = customer || {};
-
-        const customFieldData = customFieldsData.find(
-          (customFieldData) => customFieldData?.field === fieldId,
-        );
-
-        const segment = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'segment',
-          action: 'findOne',
-          input: {
-            'conditions.subSegmentId': _id,
-          },
-          defaultValue: null,
-        });
-
-        return {
-          checkValue: Number(propertyValue) || 0,
-          segmentId: segment?._id,
-          currentValue: Number(customFieldData?.value) || 0,
-        };
-      }
-    }
-  }
-
-  return null;
-};
-
 export const assignmentQueries = {
-  async getAssignments(
+  async assignments(
     _root: undefined,
-    params: IAssignmentListParams,
+    params: IAssignmentParams,
     { models }: IContext,
   ) {
-    const filter: any = generateFilter(params);
+    const filter: FilterQuery<IAssignmentDocument> = generateFilter(params);
 
     return cursorPaginate({
-      model: models.Assignment,
+      model: models.Assignments,
       params,
       query: filter,
     });
   },
 
+  async assignmentDetail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Assignments.getAssignment(_id);
+  },
+
   async checkAssignment(
     _root: undefined,
     params: { customerId: string; _ids?: string[] },
-    { models, subdomain, user }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const { _ids, customerId } = params;
+
     const now = new Date();
 
-    const filter: any = {
+    const filter: FilterQuery<IAssignmentCampaignDocument> = {
       status: 'active',
       startDate: { $lte: now },
       endDate: { $gte: now },
@@ -102,136 +65,126 @@ export const assignmentQueries = {
       filter._id = { $in: _ids };
     }
 
-    const assignmentCampaigns = await models.Campaign.find(filter).lean();
+    const assignmentCampaigns = await models.AssignmentCampaigns.find(
+      filter,
+    ).lean();
+
+    const assignments = await models.Assignments.find({
+      ownerId: customerId,
+      campaignId: { $in: assignmentCampaigns.map((ac) => ac._id) },
+    });
+
+    let positiveSegments: IAssignmentCheckResponse[] = [];
+    let negativeSegments: IAssignmentCheckResponse[] = [];
 
     if (!assignmentCampaigns.length) {
       return { status: 'checked' };
     }
 
-    const assignments = await models.Assignment.find({
-      ownerId: customerId,
-      campaignId: { $in: assignmentCampaigns.map((ac) => ac._id) },
-    });
-
-    let positiveSegments: { segmentId: string; isIn: boolean }[] = [];
-    let negativeSegments: { segmentId: string; isIn: boolean }[] = [];
-
     for (const assignmentCampaign of assignmentCampaigns) {
-      const { _id, conditions } = assignmentCampaign;
-
       if (
-        !conditions?.allowMultiWin &&
-        assignments.some(
-          (a) => a.campaignId.toString() === _id.toString(),
+        !assignmentCampaign?.allowMultiWin &&
+        (assignments.map((a) => a.campaignId) || []).includes(
+          assignmentCampaign._id,
         )
       ) {
         continue;
       }
 
-      if (!conditions?.segmentIds) {
-        continue;
-      }
+      if (assignmentCampaign.segmentIds) {
+        const segmentIds = assignmentCampaign.segmentIds;
 
-      const segmentIds = conditions.segmentIds;
+        for (const segmentId of segmentIds) {
+          const isIn = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'segment',
+            action: 'isInSegment',
+            input: { segmentId, idToCheck: customerId },
+            defaultValue: false,
+          });
 
-      for (const segmentId of segmentIds) {
-        const isIn = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'segment',
-          action: 'isInSegment',
-          input: { segmentId, idToCheck: customerId },
-          defaultValue: false,
-        });
-
-        if (isIn) {
-          positiveSegments.push({ segmentId, isIn: true });
-        } else {
-          negativeSegments.push({ segmentId, isIn: false });
-        }
-      }
-
-      if (conditions.fieldId) {
-        const subSegments = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'segment',
-          action: 'findSubSegments',
-          input: { segmentIds },
-          defaultValue: [],
-        });
-
-        const result = await generateFieldMaxValue(
-          subdomain,
-          conditions.fieldId,
-          subSegments,
-          customerId,
-        );
-
-        if (!result) {
-          continue;
+          if (isIn) {
+            positiveSegments.push({ segmentId: segmentId, isIn: true });
+          } else {
+            negativeSegments.push({ segmentId: segmentId, isIn: false });
+          }
         }
 
-        const { checkValue, currentValue, segmentId } = result;
+        if (assignmentCampaign?.fieldId) {
+          const subSegments = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'segment',
+            action: 'findSubSegments',
+            input: { segmentIds },
+            defaultValue: [],
+          });
 
-        if (currentValue < checkValue) {
-          continue;
-        }
+          const {
+            checkValue = 0,
+            currentValue = 0,
+            segmentId,
+          } = (await generateFieldMaxValue(
+            subdomain,
+            assignmentCampaign.fieldId,
+            subSegments,
+            customerId,
+          )) || {};
 
-        positiveSegments = positiveSegments.map((segment) =>
-          segment.segmentId === segmentId
-            ? { ...segment, isIn: true }
-            : segment,
-        );
+          if (currentValue >= checkValue) {
+            positiveSegments = positiveSegments.map((positiveSegment) =>
+              positiveSegment.segmentId === segmentId
+                ? { ...positiveSegment, isIn: true }
+                : positiveSegment,
+            );
 
-        if (!positiveSegments.every((segment) => segment.isIn)) {
-          continue;
-        }
+            const count = Math.floor(currentValue / checkValue);
 
-        const count = Math.floor(currentValue / checkValue);
+            if (positiveSegments.every((segment) => segment.isIn)) {
+              for (let i = 1; i <= count; i++) {
+                try {
+                  await models.AssignmentCampaigns.awardAssignmentCampaign(
+                    assignmentCampaign._id,
+                    customerId,
+                  );
 
-        for (let i = 0; i < count; i++) {
+                  await sendTRPCMessage({
+                    subdomain,
+                    pluginName: 'core',
+                    method: 'mutation',
+                    module: 'customers',
+                    action: 'updateOne',
+                    input: {
+                      selector: {
+                        _id: customerId,
+                        'customFieldsData.field': assignmentCampaign.fieldId,
+                      },
+                      modifier: {
+                        $set: {
+                          'customFieldsData.$.value':
+                            currentValue - checkValue * count,
+                        },
+                      },
+                    },
+                  });
+                } catch (error) {
+                  throw new Error(error.message);
+                }
+              }
+            }
+          }
+        } else if (positiveSegments.every((segment) => segment.isIn)) {
           try {
-            await models.Assignment.awardAssignment(
-              _id.toString(),
+            await models.AssignmentCampaigns.awardAssignmentCampaign(
+              assignmentCampaign._id,
               customerId,
-              user,
             );
           } catch (error) {
             throw new Error(error.message);
           }
-        }
-
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'customers',
-          action: 'updateOne',
-          input: {
-            selector: {
-              _id: customerId,
-              'customFieldsData.field': conditions.fieldId,
-            },
-            modifier: {
-              $set: {
-                'customFieldsData.$.value':
-                  currentValue - checkValue * count,
-              },
-            },
-          },
-        });
-      } else if (positiveSegments.every((segment) => segment.isIn)) {
-        try {
-          await models.Assignment.awardAssignment(
-            _id.toString(),
-            customerId,
-            user,
-          );
-        } catch (error) {
-          throw new Error(error.message);
         }
       }
     }

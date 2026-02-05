@@ -93,7 +93,6 @@ export const filterDeals = (deals: IDeal[], filters: SalesFilterState) => {
 
 const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
   const {
-    search,
     assignedUserIds,
     branchIds,
     departmentIds,

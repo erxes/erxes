@@ -24,11 +24,12 @@ export const types = `
 `;
 
 const queryParams = `
-  searchValue: String,
-  productId: String,
-  kind: String,
-  taxCode: String,
-  taxType: String,
+  searchValue: String
+  productId: String
+  kind: String
+  taxCode: String
+  taxType: String
+  taxPercent: Float
 `;
 
 export const queries = `

@@ -1,15 +1,14 @@
-import * as graph from 'fbgraph';
-import { getSubdomain } from 'erxes-api-shared/utils';
 import { getConfig } from '@/integrations/facebook/commonUtils';
-import { generateModels } from '~/connectionResolvers';
-import { graphRequest } from '@/integrations/facebook/utils';
 import {
   debugFacebook,
   debugRequest,
   debugResponse,
 } from '@/integrations/facebook/debuggers';
 import { repairIntegrations } from '@/integrations/facebook/helpers';
-import { getEnv } from 'erxes-api-shared/utils';
+import { graphRequest } from '@/integrations/facebook/utils';
+import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
+import * as graph from 'fbgraph';
+import { generateModels } from '~/connectionResolvers';
 
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);

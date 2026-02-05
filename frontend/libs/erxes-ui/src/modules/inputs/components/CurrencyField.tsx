@@ -1,15 +1,14 @@
+import { Popover } from 'erxes-ui/components';
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Command } from 'erxes-ui/components/command';
-import { Currency } from 'erxes-ui/types';
 import { inputVariants } from 'erxes-ui/components/input';
+import { CURRENCY_CODES } from 'erxes-ui/constants';
 import { cn } from 'erxes-ui/lib/utils';
-import { CurrencyCode } from 'erxes-ui/types';
+import { CurrencyDisplay } from 'erxes-ui/modules/display/components/CurrencyDisplay';
+import { Currency, CurrencyCode } from 'erxes-ui/types';
 import React, { useState } from 'react';
 import { IMaskInput } from 'react-imask';
 import { Except } from 'type-fest';
-import { CURRENCY_CODES } from 'erxes-ui/constants';
-import { CurrencyDisplay } from 'erxes-ui/modules/display/components/CurrencyDisplay';
-import { Popover } from 'erxes-ui/components';
 
 const CurrencyFieldRoot = React.forwardRef<
   HTMLDivElement,

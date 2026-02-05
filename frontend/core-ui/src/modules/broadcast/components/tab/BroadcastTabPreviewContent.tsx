@@ -37,7 +37,7 @@ export const BroadcastTabPreviewContent = ({ message }: { message: any }) => {
   }
 
   return (
-    <div className="w-full px-8 py-5 space-y-5">
+    <div className="w-full overflow-hidden px-8 py-5 space-y-5">
       <BroadcastMethodTabContent message={message} />
     </div>
   );

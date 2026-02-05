@@ -20,7 +20,13 @@ export const types = `
   type CouponListResponse {
     list: [Coupon]
     pageInfo: PageInfo
-    totalCount: Float
+    totalCount: Int
+  }
+
+  type OwnerCoupon {
+    campaign: CouponCampaign,
+    coupons: [Coupon],
+    count: Int
   }
 `;
 
@@ -35,8 +41,8 @@ const queryParams = `
 `;
 
 export const queries = `
-  getCoupon(_id: String!): Coupon
-  getCoupons(${queryParams}): CouponListResponse
+  coupons(${queryParams}): CouponListResponse
+  couponsByOwner(ownerId: String!, status: String): [OwnerCoupon]
 `;
 
 const mutationParams = `
@@ -50,7 +56,6 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  createCoupon(${mutationParams}): Coupon
-  updateCoupon(_id: String!, ${mutationParams}): Coupon
-  removeCoupon(_id: String!): Coupon
+  couponAdd(${mutationParams}): [Coupon]
+  couponsRemove(_ids: [String]): JSON
 `;

@@ -1,18 +1,17 @@
-import { ITag } from 'ui-modules';
+import { TagsListColorField } from '@/settings/tags/components/fields/TagsListColorField';
+import { TagsListCreatedAtField } from '@/settings/tags/components/fields/TagsListCreatedAtField';
 import { TagsListDescriptionField } from '@/settings/tags/components/fields/TagsListDescriptionField';
 import { TagsListNameField } from '@/settings/tags/components/fields/TagsListNameField';
 import { TagsListCell } from '@/settings/tags/components/TagsListCell';
-import { TagsListCreatedAtField } from '@/settings/tags/components/fields/TagsListCreatedAtField';
-import { TagsListColorField } from '@/settings/tags/components/fields/TagsListColorField';
-import { Collapsible, cn, Skeleton } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { useAtomValue } from 'jotai';
+import { TagsListRowForm } from '@/settings/tags/components/TagsListRowForm';
+import { TagsListRowOptionMenu } from '@/settings/tags/components/TagsListRowOptionMenu';
+import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { childTagsMapAtomFamily } from '@/settings/tags/states/childTagsMap';
 import { IconCaretRightFilled } from '@tabler/icons-react';
-import { TagsListRowOptionMenu } from '@/settings/tags/components/TagsListRowOptionMenu';
-import { TagsListRowForm } from '@/settings/tags/components/TagsListRowForm';
-import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
-import { useQueryState } from 'erxes-ui';
+import { cn, Collapsible, Skeleton, useQueryState } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
+import { ITag } from 'ui-modules';
 
 export const TagsListRow = ({ tag }: { tag: ITag }) => {
   if (tag.isGroup) {
@@ -65,7 +64,7 @@ export const TagsListRowContent = ({ tag }: { tag: ITag }) => {
       className={cn(
         'h-10 w-full shadow-xs flex items-center pr-12 pl-14 group hover:bg-foreground/10 bg-background relative ',
         tag.parentId &&
-          'pl-20 last:[--svg-height:calc(2.5rem/2-10px)] [--svg-height:calc(2.5rem)] [&>div>svg]:block',
+        'pl-20 last:[--svg-height:calc(2.5rem/2-10px)] [--svg-height:calc(2.5rem)] [&>div>svg]:block',
       )}
     >
       <TagsListRowOptionMenu tag={tag} />

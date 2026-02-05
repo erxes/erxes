@@ -6,12 +6,10 @@ import {
   CHECKLIST_ITEMS_REMOVE,
   REMOVE_CHECKLISTS,
 } from '@/deals/graphql/mutations/ChecklistMutations';
-import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
-import { MutationHookOptions, useMutation } from '@apollo/client';
-import { QueryHookOptions, useQuery } from '@apollo/client';
-
 import { GET_CHECKLISTS } from '@/deals/graphql/queries/ChecklistQueries';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
+import { MutationHookOptions, QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
 
 type AddChecklistResult = {

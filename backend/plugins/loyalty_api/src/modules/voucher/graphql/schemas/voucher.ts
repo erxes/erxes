@@ -33,8 +33,8 @@ const queryParams = `
 `;
 
 export const queries = `
-  getVoucher(_id: String!): Voucher
-  getVouchers(${queryParams}): VoucherListRepsponse
+  vouchers(${queryParams}): VoucherListRepsponse
+  ownerVouchers(ownerId: String!): JSON
 `;
 
 const mutationParams = `  
@@ -46,7 +46,9 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  createVoucher(${mutationParams}): Voucher
-  updateVoucher(_id: String!, ${mutationParams}): Voucher
-  removeVoucher(_id: String!): Voucher
+  vouchersAdd(${mutationParams}): Voucher
+  vouchersAddMany(${mutationParams}): String
+  vouchersEdit(_id: String!, ${mutationParams}): Voucher
+  vouchersRemove(_ids: [String]): JSON
+  buyVoucher(campaignId: String, ownerType: String, ownerId: String, count: Int): Voucher
 `;

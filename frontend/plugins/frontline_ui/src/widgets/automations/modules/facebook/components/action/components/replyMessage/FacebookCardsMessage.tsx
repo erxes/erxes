@@ -1,12 +1,13 @@
-import { IconPhotoScan, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
 import { Button, Card, Form, Input, Label, Tabs, Textarea } from 'erxes-ui';
-import { generateAutomationElementId } from 'ui-modules';
-import { TBotMessageCard } from '../../states/replyMessageActionForm';
-import { FacebookMessageProps } from '../../types/messageActionForm';
+import { IconPhotoScan, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
+
 import { FacebookMessageButtonsGenerator } from '../FacebookMessageButtonsGenerator';
-import { InputTextCounter } from '../InputTextCounter';
-import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
+import { FacebookMessageProps } from '../../types/messageActionForm';
 import { FileUploadSection } from '../FileUploadSection';
+import { InputTextCounter } from '../InputTextCounter';
+import { TBotMessageCard } from '../../states/replyMessageActionForm';
+import { generateAutomationElementId } from 'ui-modules';
+import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
 
 export const FacebookCardsMessage = ({
   message,
@@ -90,7 +91,6 @@ export const FacebookCardsMessage = ({
                   <FileUploadSection
                     url={card.image}
                     onUpload={(fileUrl) => {
-                      console.log(fileUrl);
                       onChangeCardInfo(
                         card._id,
                         { image: fileUrl },

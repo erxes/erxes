@@ -124,7 +124,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
   }, [posDetail, reset]);
 
   const parseMaxSkipNumber = (value: string): number => {
-    const parsed = parseInt(value, 10);
+    const parsed = Number.parseInt(value, 10);
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 

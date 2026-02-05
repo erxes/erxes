@@ -1,12 +1,7 @@
-import { IContext } from '~/connectionResolvers';
-import redis from '../../redlock';
-import { XMLParser } from 'fast-xml-parser';
-import { ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
-import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
-import {
-  mapCdrToCallHistory,
-  sendToGrandStream,
-} from '@/integrations/call/utils';
+import { IMessageDocument } from '@/inbox/@types/conversationMessages';
+import { INotesParams } from '@/integrations/call/@types/conversationNotes';
+import { ICallHistory, ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
+import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
   calculateAverageHandlingTime,
@@ -15,10 +10,14 @@ import {
   calculateOccupancyRate,
   calculateServiceLevel,
 } from '@/integrations/call/statistics';
-import { INotesParams } from '@/integrations/call/@types/conversationNotes';
-import { IMessageDocument } from '@/inbox/@types/conversationMessages';
-import { ICallHistory } from '@/integrations/call/@types/histories';
-import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
+import {
+  mapCdrToCallHistory,
+  sendToGrandStream,
+} from '@/integrations/call/utils';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { XMLParser } from 'fast-xml-parser';
+import { IContext } from '~/connectionResolvers';
+import redis from '../../redlock';
 
 const callQueries = {
   async callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {

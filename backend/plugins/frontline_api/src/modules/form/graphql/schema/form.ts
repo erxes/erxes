@@ -168,6 +168,7 @@ export const cursorParams = `
 export const queries = `
   formDetail(_id: String!): Form
   forms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
+  formsMain(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   formsTotalCount(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams} ): FormsTotalCount
   formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams},${cursorParams}): Int

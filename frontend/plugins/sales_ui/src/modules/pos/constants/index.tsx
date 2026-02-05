@@ -1,27 +1,22 @@
-import { CustomNode } from '../slot/types';
 import {
-  IconCreditCard,
-  IconCashBanknote,
-  IconBuilding,
-  IconPhone,
-  IconBrandVisa,
   IconBrandMastercard,
+  IconBrandVisa,
+  IconBuilding,
+  IconCashBanknote,
+  IconCreditCard,
   IconFile,
+  IconPhone,
 } from '@tabler/icons-react';
+import { CustomNode } from '../slot/types';
 import { isStepVisible } from './fieldConfig';
 
 export {
-  isFieldVisible,
+  FIELD_VISIBILITY_CONFIG, isFieldVisible,
   isStepVisible,
-  posTypeToContext,
-  FIELD_VISIBILITY_CONFIG,
-  STEP_VISIBILITY_CONFIG,
+  posTypeToContext, STEP_VISIBILITY_CONFIG
 } from './fieldConfig';
 export type {
-  FieldContext,
-  FieldConfig,
-  CategoryFieldConfig,
-  PosTypeValue,
+  CategoryFieldConfig, FieldConfig, FieldContext, PosTypeValue
 } from './fieldConfig';
 
 export type AllowedPosType =

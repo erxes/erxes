@@ -108,7 +108,7 @@ const ProductTotal = ({
                 min={0}
                 max={100}
                 className="w-20"
-                value={percent ? parseFloat(percent.toFixed(3)) : ''}
+                value={percent ? Number.parseFloat(percent.toFixed(3)) : ''}
                 onChange={(e) =>
                   handlePercentChange(currency, Number(e.target.value))
                 }
@@ -122,7 +122,7 @@ const ProductTotal = ({
                 <Input
                   type="number"
                   className="w-28"
-                  value={value ? parseFloat(value.toFixed(3)) : 0}
+                  value={value ? Number.parseFloat(value.toFixed(3)) : 0}
                   onChange={(e) =>
                     handleAmountChange(currency, Number(e.target.value))
                   }

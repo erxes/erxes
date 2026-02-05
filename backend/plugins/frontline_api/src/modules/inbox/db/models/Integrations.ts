@@ -40,8 +40,8 @@ interface IIntegrationBasicInfo {
 const getHourAndMinute = (timeString: string) => {
   const normalized = timeString.toLowerCase().trim();
   const colon = normalized.indexOf(':');
-  let hour = parseInt(normalized.substring(0, colon), 10);
-  const minute = parseInt(normalized.substring(colon + 1, colon + 3), 10);
+  let hour = Number.parseInt(normalized.substring(0, colon), 10);
+  const minute = Number.parseInt(normalized.substring(colon + 1, colon + 3), 10);
 
   const isPM = normalized.includes('pm');
   const isAM = normalized.includes('am');

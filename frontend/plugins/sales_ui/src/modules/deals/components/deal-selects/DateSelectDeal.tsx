@@ -156,15 +156,11 @@ export const DateSelectDealRoot = ({
   const { editDeals, loading, error } = useDealsEdit();
   const closeDate = type === 'closeDate';
   const now = new Date();
-  const dateValue = value ? new Date(value) : undefined;
+  const dateValue = value
+    ? new Date(typeof value === 'string' ? value.slice(0, 10) : value)
+    : undefined;
   const closeDateValue = closeDate && dateValue;
   const isEnded = closeDateValue && closeDateValue < now;
-  const formatted =
-    dateValue &&
-    dateValue.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
 
   const endedDiff = closeDateValue
     ? Math.floor(
@@ -201,7 +197,6 @@ export const DateSelectDealRoot = ({
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
               Ended {endedDiff} {endedDiff === 1 ? 'day' : 'days'} ago{' '}
-              {formatted && `(${formatted})`}
             </div>
           </DateSelectTrigger>
           <Content className="w-fit" onClick={(e) => e.stopPropagation()}>

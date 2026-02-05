@@ -1,403 +1,407 @@
-type Style = Record<string, string | boolean>;
-type BlockProps = Record<string, string | number | boolean>;
-type Config = Record<string, string>;
-
-type Block = {
-  type: string;
-  content?: Record<string, any>;
-  children?: Record<string, any>;
-  props?: BlockProps;
-};
-
-type Inline = {
-  type: string;
-  text: string;
-  href?: string;
-  styles?: Style;
-  content?: Inline[];
-};
+import type { Block, PartialBlock } from '@blocknote/core';
 
 export const COLORS_DEFAULT = {
-  gray: {
-    text: '#9b9a97',
-    background: '#ebeced',
-  },
-  brown: {
-    text: '#64473a',
-    background: '#e9e5e3',
-  },
-  red: {
-    text: '#e03e3e',
-    background: '#fbe4e4',
-  },
-  orange: {
-    text: '#d9730d',
-    background: '#f6e9d9',
-  },
-  yellow: {
-    text: '#dfab01',
-    background: '#fbf3db',
-  },
-  green: {
-    text: '#4d6461',
-    background: '#ddedea',
-  },
-  blue: {
-    text: '#0b6e99',
-    background: '#ddebf1',
-  },
-  purple: {
-    text: '#6940a5',
-    background: '#eae4f2',
-  },
-  pink: {
-    text: '#ad1a72',
-    background: '#f4dfeb',
-  },
+  gray: { text: '#9b9a97', background: '#ebeced' },
+  brown: { text: '#64473a', background: '#e9e5e3' },
+  red: { text: '#e03e3e', background: '#fbe4e4' },
+  orange: { text: '#d9730d', background: '#f6e9d9' },
+  yellow: { text: '#dfab01', background: '#fbf3db' },
+  green: { text: '#4d6461', background: '#ddedea' },
+  blue: { text: '#0b6e99', background: '#ddebf1' },
+  purple: { text: '#6940a5', background: '#eae4f2' },
+  pink: { text: '#ad1a72', background: '#f4dfeb' },
+} as const;
+
+type ColorName = keyof typeof COLORS_DEFAULT;
+type ColorConfig = Record<string, { text: string; background: string }>;
+
+interface Config {
+  colors?: ColorConfig;
+  baseFont?: string;
+  baseFontSize?: string;
+  baseLineHeight?: string;
+  baseColor?: string;
+  maxWidth?: number;
+  wrapper?: {
+    email?: boolean;
+  };
+}
+
+const DEFAULTS = {
+  baseFont:
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  baseFontSize: '16px',
+  baseLineHeight: '1.6',
+  baseColor: '#000000',
+  maxWidth: 600,
 };
 
-const color = (color: string, type: 'text' | 'background', config?: Config) => {
-  return COLORS_DEFAULT[color][type];
-};
+const getColor = (
+  colorName: string,
+  type: 'text' | 'background',
+  config?: Config,
+): string => {
+  const colors = config?.colors || COLORS_DEFAULT;
+  const color = colors[colorName]?.[type];
 
-const inline = (block: Block): Inline[] => {
-  const { content, children } = block;
-
-  if (content?.length) {
-    return content as Inline[];
+  if (!color) {
+    console.warn(`Color not found: ${colorName}.${type}`);
+    return type === 'text' ? '#000000' : 'transparent';
   }
 
-  if (children?.length) {
-    return children as Inline[];
-  }
-
-  return [];
+  return color;
 };
 
-const STYLE_PROPS = {
-  bold: 'font-weight',
-  italic: 'font-style',
-  underline: 'text-decoration',
-  strike: 'text-decoration',
-  textColor: 'color',
-  backgroundColor: 'background-color',
+const escapeHtml = (text: string): string => {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 };
 
-const KEY_CORRECTION = {
-  strike: 'line-through',
-};
+const stylesToCss = (styles?: Record<string, any>, config?: Config): string => {
+  if (!styles) return '';
 
-const getStyle = (source?: Record<string, any>, config?: Config) => {
-  if (!source) return '';
+  const cssProps: string[] = [];
 
-  const styles: string[] = [];
-
-  for (const key in source) {
-    const value = source[key];
-    if (!value) continue;
+  for (const [key, value] of Object.entries(styles)) {
+    if (!value || value === 'default') continue;
 
     switch (key) {
+      case 'bold':
+        cssProps.push('font-weight: bold');
+        break;
+      case 'italic':
+        cssProps.push('font-style: italic');
+        break;
+      case 'underline':
+        cssProps.push('text-decoration: underline');
+        break;
+      case 'strikethrough':
+      case 'strike':
+        cssProps.push('text-decoration: line-through');
+        break;
+      case 'code':
+        cssProps.push('font-family: Courier, monospace');
+        cssProps.push('background-color: #f4f4f4');
+        cssProps.push('padding: 2px 4px');
+        cssProps.push('border-radius: 3px');
+        cssProps.push('font-size: 90%');
+        break;
       case 'textColor':
-        if (value !== 'default')
-          styles.push(`color: ${color(value as string, 'text', config)}`);
+        if (value !== 'default') {
+          cssProps.push(`color: ${getColor(value, 'text', config)}`);
+        }
         break;
       case 'backgroundColor':
-        if (value !== 'default')
-          styles.push(
-            `background-color: ${color(value as string, 'background', config)}`,
+        if (value !== 'default') {
+          cssProps.push(
+            `background-color: ${getColor(value, 'background', config)}`,
           );
+        }
         break;
       case 'textAlignment':
-        styles.push(`text-align: ${value}`);
-        break;
-      case 'bold':
-      case 'italic':
-      case 'underline':
-      case 'strike':
-        styles.push(`${STYLE_PROPS[key]}: ${KEY_CORRECTION[key]}`);
-        break;
-      default:
+        cssProps.push(`text-align: ${value}`);
         break;
     }
   }
 
-  return styles.join('; ');
+  return cssProps.join('; ');
 };
 
-const renderInline = (inline: Inline, config?: Config) => {
-  if (!inline) return '';
+const renderInlineContent = (content: any[], config?: Config): string => {
+  if (!Array.isArray(content) || content.length === 0) return '';
 
-  const { text, styles, type, content } = inline;
+  return content
+    .map((item) => {
+      const { type, text, styles, href, content: nestedContent } = item;
 
-  const style = getStyle(styles, config);
+      // Handle links - email-safe with full inline styles
+      if (type === 'link') {
+        const children = renderInlineContent(nestedContent || [], config);
+        const linkStyles = 'color: #0066cc; text-decoration: underline';
+        return `<a href="${escapeHtml(
+          href || '#',
+        )}" style="${linkStyles}">${children}</a>`;
+      }
 
-  if (style.length) {
-    return `<span style="${style}">${text}</span>`;
-  }
+      const escapedText = escapeHtml(text || '').replace(/\n/g, '<br />');
+      const cssStyle = stylesToCss(styles, config);
 
-  if (type === 'link') {
-    const children = (content || [])
-      .map((child: Inline) => renderInline(child, config))
-      .join('');
-    return `<a href="${inline.href}" target="_blank" rel="noopener noreferrer">${children}</a>`;
-  }
+      if (cssStyle) {
+        return `<span style="${cssStyle}">${escapedText}</span>`;
+      }
 
-  return text?.replace(/\n/g, '<br />');
-};
-
-const renderParagraph = (block: Block, config?: Config) => {
-  const inlines = inline(block);
-
-  const content = inlines
-    .map((inline) => renderInline(inline, config))
-    .join('');
-
-  return `<p style="${getStyle(block.props, config)}">${content}</p>`;
-};
-
-const renderHeading = (block: Block, config?: Config) => {
-  const { level, isToggleable } = block.props || {};
-
-  const inlines = inline(block);
-
-  const content = inlines
-    .map((inline) => renderInline(inline, config))
-    .join('');
-
-  if (isToggleable) {
-    const nestedContent = (block.children || [])
-      .map((inline) => renderBlock(inline, config))
-      .join('\n');
-
-    return `<div style="${getStyle(block.props, config)}">
-    <details>
-    <summary><h${level} style="${getStyle(
-      block.props,
-      config,
-    )}; display: inline-block">${content}</h${level}></summary>
-      <div style="margin-left:24px">
-        ${nestedContent}
-      </div>
-    </details>
-  </div>`;
-  }
-
-  return `<h${level} style="${getStyle(
-    block.props,
-    config,
-  )}">${content}</h${level}>`;
-};
-
-const renderList = (block: Block, config?: Config) => {
-  const { type } = block || {};
-
-  const LIST_TAG = {
-    bulletListItem: 'ul',
-    numberedListItem: 'ol',
-  };
-
-  const inlines = inline(block);
-
-  const content = inlines
-    .map((inline) => `<li>${renderInline(inline, config)}</li>`)
-    .join('');
-
-  return `<${LIST_TAG[type]}>${content}</${LIST_TAG[type]}>`;
-};
-
-const renderToggleList = (block: Block, config?: Config) => {
-  const { children = [] } = block || {};
-
-  const inlines = inline(block);
-
-  const content = inlines
-    .map((inline) => renderInline(inline, config))
-    .join('');
-
-  const nestedContent = children
-    .map((inline) => renderBlock(inline, config))
-    .join('\n');
-
-  return `<div style="${getStyle(block.props, config)}"><details>
-    <summary>${content}</summary>
-      <div style="margin-left:24px">
-        ${nestedContent}
-      </div>
-    </details></div>`;
-};
-
-const renderCheckbox = (block: Block, config?: Config) => {
-  const { props } = block || {};
-
-  const { checked } = props || {};
-
-  const inlines = inline(block);
-
-  const content = inlines
-    .map((inline) => renderInline(inline, config))
-    .join('');
-
-  return `<div style="${getStyle(
-    block.props,
-    config,
-  )}" class="checkbox-group"><label><input type="checkbox" ${
-    checked ? 'checked' : ''
-  } /> ${content}</label></div>`;
-};
-
-const renderImage = (block: Block, config?: Config) => {
-  const { props } = block || {};
-
-  const { url, name, caption, previewWidth } = props || {};
-
-  return `<div style="${getStyle(
-    block.props,
-    config,
-  )}"><img src="${url}" alt="${name}" title="${caption}" width="${previewWidth}px" style="display:inline-block;"/></div>`;
-};
-
-const renderCode = (block: Block, config?: Config) => {
-  const { props } = block || {};
-
-  const { language } = props || {};
-
-  const inlines = inline(block);
-
-  const content = inlines
-    .map((inline) => renderInline(inline, config))
-    .join('');
-
-  return `<div style="${getStyle(
-    block.props,
-    config,
-  )}; padding: 24px;" class="code"><pre style="margin: 0;"><code class="language-${language}">${content}</code></pre></div>`;
-};
-
-const renderQuote = (block: Block, config?: Config) => {
-  const inlines = inline(block);
-
-  const content = inlines
-    .map((inline) => renderInline(inline, config))
-    .join('');
-
-  return `<blockquote style="${getStyle(
-    block.props,
-    config,
-  )}">${content}</blockquote>`;
-};
-
-const renderTable = (block: Block, config?: Config) => {
-  const { content } = block || {};
-
-  const colGroups = (content?.columnWidths || [])
-    .map((columnWidth) => {
-      return `<col width="${columnWidth}px" />`;
+      return escapedText;
     })
     .join('');
+};
 
-  const rows = (content?.rows || [])
-    .map((row) => {
-      const cells = (row?.cells || [])
-        .map((cell) => {
-          const { props } = cell || {};
+const getBaseStyles = (config?: Config) => {
+  return {
+    p: `margin: 0 0 16px 0; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }; font-size: ${
+      config?.baseFontSize || DEFAULTS.baseFontSize
+    }; line-height: ${
+      config?.baseLineHeight || DEFAULTS.baseLineHeight
+    }; color: ${config?.baseColor || DEFAULTS.baseColor}`,
+    h1: `margin: 24px 0 16px 0; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }; font-size: 32px; font-weight: bold; line-height: 1.2; color: ${
+      config?.baseColor || DEFAULTS.baseColor
+    }`,
+    h2: `margin: 20px 0 12px 0; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }; font-size: 24px; font-weight: bold; line-height: 1.3; color: ${
+      config?.baseColor || DEFAULTS.baseColor
+    }`,
+    h3: `margin: 16px 0 8px 0; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }; font-size: 20px; font-weight: bold; line-height: 1.4; color: ${
+      config?.baseColor || DEFAULTS.baseColor
+    }`,
+    ul: `margin: 0 0 16px 0; padding: 0 0 0 24px; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }`,
+    ol: `margin: 0 0 16px 0; padding: 0 0 0 24px; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }`,
+    li: `margin: 0 0 8px 0; font-size: ${
+      config?.baseFontSize || DEFAULTS.baseFontSize
+    }; line-height: ${config?.baseLineHeight || DEFAULTS.baseLineHeight}`,
+    blockquote: `margin: 16px 0; padding: 8px 16px; border-left: 4px solid #ddd; background-color: #f9f9f9; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }; font-style: italic`,
+    table: `border-collapse: collapse; width: 100%; margin: 16px 0; font-family: ${
+      config?.baseFont || DEFAULTS.baseFont
+    }`,
+    pre: `margin: 16px 0; padding: 16px; background-color: #f4f4f4; border: 1px solid #ddd; border-radius: 4px; overflow-x: auto; font-family: Courier, monospace; font-size: 14px; line-height: 1.5`,
+  };
+};
 
-          const { colspan, rowspan } = props || {};
+const mergeStyles = (baseStyle: string, customStyle?: string): string => {
+  if (!customStyle) return baseStyle;
+  return `${baseStyle}; ${customStyle}`;
+};
 
-          const inlines = inline(cell);
+const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
+  const { type, props, content, children } = block as any;
+  const baseStyles = getBaseStyles(config);
+  const customStyle = stylesToCss(props, config);
 
-          const content = inlines
-            .map((inline) => renderInline(inline, config))
+  switch (type) {
+    case 'paragraph': {
+      const html = renderInlineContent(content || [], config);
+      if (!html.trim()) return '<p style="' + baseStyles.p + '">&nbsp;</p>';
+      return `<p style="${mergeStyles(baseStyles.p, customStyle)}">${html}</p>`;
+    }
+
+    case 'heading': {
+      const level = Math.min(Math.max(props?.level || 1, 1), 3);
+      const html = renderInlineContent(content || [], config);
+      const headingStyle = baseStyles[`h${level}` as 'h1' | 'h2' | 'h3'];
+      return `<h${level} style="${mergeStyles(
+        headingStyle,
+        customStyle,
+      )}">${html}</h${level}>`;
+    }
+
+    case 'bulletListItem': {
+      const html = renderInlineContent(content || [], config);
+      return `<li style="${mergeStyles(
+        baseStyles.li,
+        customStyle,
+      )}">${html}</li>`;
+    }
+
+    case 'numberedListItem': {
+      const html = renderInlineContent(content || [], config);
+      return `<li style="${mergeStyles(
+        baseStyles.li,
+        customStyle,
+      )}">${html}</li>`;
+    }
+
+    case 'checkListItem': {
+      const html = renderInlineContent(content || [], config);
+      const checked = props?.checked;
+      const checkbox = checked ? '☑' : '☐';
+      return `<div style="${mergeStyles(
+        baseStyles.p,
+        customStyle,
+      )}">${checkbox} ${html}</div>`;
+    }
+
+    case 'codeBlock': {
+      const code =
+        content?.map((c: any) => escapeHtml(c.text || '')).join('\n') || '';
+      return `<pre style="${mergeStyles(
+        baseStyles.pre,
+        customStyle,
+      )}"><code>${code}</code></pre>`;
+    }
+
+    case 'image': {
+      const { url, caption, name, previewWidth } = props || {};
+      const width = Math.min(previewWidth, 600);
+      const imgStyle = `max-width: 100%; height: auto; display: block; margin: 0`;
+
+      let html = `<div style="margin: 16px 0;">
+        <img src="${escapeHtml(url || '')}" alt="${escapeHtml(
+        name || '',
+      )}" width="${width}" style="${imgStyle}" />`;
+
+      if (caption) {
+        html += `<div style="margin-top: 8px; font-size: 14px; color: #666; font-style: italic;">${escapeHtml(
+          caption,
+        )}</div>`;
+      }
+
+      html += `</div>`;
+      return html;
+    }
+
+    case 'table': {
+      const { rows } = content || {};
+      if (!rows || !Array.isArray(rows)) return '';
+
+      const tableRows = rows
+        .map((row: any, rowIndex: number) => {
+          const cells = (row.cells || [])
+            .map((cell: any) => {
+              const cellContent = renderInlineContent(
+                cell.content || [],
+                config,
+              );
+              const cellStyle = `padding: 8px; border: 1px solid #ddd; ${
+                rowIndex === 0
+                  ? 'font-weight: bold; background-color: #f4f4f4;'
+                  : ''
+              }`;
+              return `<td style="${cellStyle}">${cellContent || '&nbsp;'}</td>`;
+            })
             .join('');
-
-          return `<td style="${getStyle(
-            cell.props,
-            config,
-          )}" colspan="${colspan}" rowspan="${rowspan}">${content}</td>`;
+          return `<tr>${cells}</tr>`;
         })
         .join('');
 
-      return `<tr>${cells}</tr>`;
-    })
-    .join('');
+      return `<table style="${mergeStyles(baseStyles.table, customStyle)}">
+        <tbody>${tableRows}</tbody>
+      </table>`;
+    }
 
-  return `<table style="${getStyle(block.props, config)}">
-    <colgroup>${colGroups}</colgroup>
-    ${rows}
-  </table>`;
-};
+    case 'quote': {
+      const html = renderInlineContent(content || [], config);
+      return `<blockquote style="${mergeStyles(
+        baseStyles.blockquote,
+        customStyle,
+      )}">${html}</blockquote>`;
+    }
 
-const renderBlock = (block: Block, config?: Config) => {
-  const { type } = block || {};
-
-  switch (type) {
-    case 'paragraph':
-      return renderParagraph(block, config);
-    case 'heading':
-      return renderHeading(block, config);
-    case 'bulletListItem':
-    case 'numberedListItem':
-      return renderList(block, config);
-    case 'toggleListItem':
-      return renderToggleList(block, config);
-    case 'checkListItem':
-      return renderCheckbox(block, config);
-    case 'image':
-      return renderImage(block, config);
-    case 'codeBlock':
-      return renderCode(block, config);
-    case 'quote':
-      return renderQuote(block, config);
-    case 'table':
-      return renderTable(block, config);
     default: {
-      const inlines = inline(block);
-
-      if (inlines && inlines.length) {
-        return inlines.map((inline) => renderInline(inline, config)).join('');
-      }
-
-      return `<pre>${JSON.stringify(block)}</pre>`;
+      const html = renderInlineContent(content || [], config);
+      return html ? `<p style="${baseStyles.p}">${html}</p>` : '';
     }
   }
 };
 
-const renderBlocks = (blocks: Block[], config?: Config) => {
-  const html: string[] = [];
+const groupListBlocks = (
+  blocks: (Block | PartialBlock)[],
+  config?: Config,
+): string => {
+  const result: string[] = [];
+  const baseStyles = getBaseStyles(config);
   let i = 0;
 
   while (i < blocks.length) {
-    const block = blocks[i];
+    const block = blocks[i] as any;
 
-    // Check if this block is a list item
-    if (block.type === 'bulletListItem' || block.type === 'numberedListItem') {
-      const listType = block.type === 'bulletListItem' ? 'ul' : 'ol';
+    if (block.type === 'bulletListItem') {
       const items: string[] = [];
-
-      while (i < blocks.length && blocks[i].type === block.type) {
-        const inlines = inline(blocks[i]); // Inline[]
-        const content = inlines
-          .map((item) => renderInline(item, config))
-          .join('');
-        items.push(`<li>${content}</li>`);
+      while (
+        i < blocks.length &&
+        (blocks[i] as any).type === 'bulletListItem'
+      ) {
+        items.push(renderBlock(blocks[i], config));
         i++;
       }
-
-      html.push(`<${listType}>${items.join('')}</${listType}>`);
+      result.push(`<ul style="${baseStyles.ul}">${items.join('')}</ul>`);
       continue;
     }
 
-    // Render normal block
-    html.push(renderBlock(block, config));
+    if (block.type === 'numberedListItem') {
+      const items: string[] = [];
+      while (
+        i < blocks.length &&
+        (blocks[i] as any).type === 'numberedListItem'
+      ) {
+        items.push(renderBlock(blocks[i], config));
+        i++;
+      }
+      result.push(`<ol style="${baseStyles.ol}">${items.join('')}</ol>`);
+      continue;
+    }
+
+    result.push(renderBlock(block, config));
     i++;
   }
 
-  return html.join('\n');
+  return result.join('\n');
 };
 
-export const blocksToHtml = (content: any, config?: Config) => {
-  const blocks: Block[] = JSON.parse(content);
+export const blocksToHtml = (
+  blocks: Block[] | PartialBlock[] | string,
+  config?: Config,
+): string => {
+  const { wrapper } = config || {};
 
-  if (!blocks) return '';
+  try {
+    const parsedBlocks =
+      typeof blocks === 'string' ? JSON.parse(blocks) : blocks;
 
-  return renderBlocks(blocks, config);
+    if (!Array.isArray(parsedBlocks) || parsedBlocks.length === 0) {
+      return '';
+    }
+
+    if (wrapper?.email) {
+      return emailHtmlWrapper(groupListBlocks(parsedBlocks, config), config);
+    }
+
+    return groupListBlocks(parsedBlocks, config);
+  } catch (error) {
+    console.error('Error converting blocks to HTML:', error);
+    return '';
+  }
+};
+
+export const emailHtmlWrapper = (html: string, config?: Config) => {
+  const maxWidth = Math.min(config?.maxWidth || DEFAULTS.maxWidth, 600);
+
+  return `
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      </head>
+      <body style="margin: 0; padding: 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f4f4;">
+          <tr>
+            <td align="center" style="padding: 20px 0;">
+              <table border="0" cellpadding="0" cellspacing="0" width="${maxWidth}" style="background-color: #ffffff;">
+                <tr>
+                  <td style="padding: 20px;">
+                    ${html}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
 };

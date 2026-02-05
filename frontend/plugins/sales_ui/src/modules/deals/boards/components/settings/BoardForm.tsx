@@ -1,16 +1,14 @@
-import { Button, Form, Input, Sheet, Skeleton, Spinner, toast } from 'erxes-ui';
 import {
   useAddBoardForm,
   useBoardAdd,
   useBoardDetail,
   useBoardEdit,
 } from '@/deals/boards/hooks/useBoards';
-
+import { TBoardForm } from '@/deals/types/boards';
 import { IconPlus } from '@tabler/icons-react';
+import { Button, Form, Input, Sheet, Skeleton, Spinner, toast, useQueryState } from 'erxes-ui';
 import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { TBoardForm } from '@/deals/types/boards';
-import { useQueryState } from 'erxes-ui';
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState('boardId');

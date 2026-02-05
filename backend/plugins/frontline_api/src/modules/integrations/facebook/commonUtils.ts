@@ -1,7 +1,6 @@
-import { redis } from 'erxes-api-shared/utils';
 import * as dotenv from 'dotenv';
+import { getEnv, redis } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { getEnv } from 'erxes-api-shared/utils';
 
 dotenv.config();
 

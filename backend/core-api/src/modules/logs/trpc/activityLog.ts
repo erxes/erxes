@@ -90,5 +90,13 @@ export const activityLogRouter = t.router({
 
         return 'success';
       }),
+    deleteActivityLog: t.procedure
+      .input(z.object({ targetIds: z.array(z.string()) }))
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { targetIds } = input;
+        await models.ActivityLogs.deleteMany({ targetId: { $in: targetIds } });
+        return 'success'
+      })
   }),
 });

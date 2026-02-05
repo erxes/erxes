@@ -1,9 +1,10 @@
-import { escapeRegExp } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
-import { IModels } from '~/connectionResolvers';
-import { IAccountCategory, IAccountCategoryDocument } from '../../@types/accountCategory';
 import { ACCOUNT_STATUSES } from '../../@types/constants';
 import { accountCategorySchema } from '../definitions/accountCategory';
+import { escapeRegExp } from 'erxes-api-shared/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { IAccountCategory, IAccountCategoryDocument } from '../../@types/accountCategory';
+import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 
 export interface IAccountCategoryModel extends Model<IAccountCategoryDocument> {
   getAccountCategory(selector: any): Promise<IAccountCategoryDocument>;
@@ -17,7 +18,7 @@ export interface IAccountCategoryModel extends Model<IAccountCategoryDocument> {
   removeAccountCategory(_id: string): Promise<void>;
 }
 
-export const loadAccountCategoryClass = (models: IModels) => {
+export const loadAccountCategoryClass = (models: IModels, _subdomain: string, { sendDbEventLog }: EventDispatcherReturn) => {
   class AccountingCategory {
     /**
      *
@@ -62,7 +63,15 @@ export const loadAccountCategoryClass = (models: IModels) => {
       // Generating order
       doc.order = await this.generateOrder(doc, parentCategory);
 
-      return models.AccountCategories.create({ ...doc, createdAt: new Date() });
+      const category = await models.AccountCategories.create({ ...doc, createdAt: new Date() });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: category._id,
+        currentDocument: category.toObject()
+      });
+
+      return category
     }
 
     /**
@@ -112,6 +121,13 @@ export const loadAccountCategoryClass = (models: IModels) => {
         );
       });
 
+      sendDbEventLog({
+        action: 'update',
+        docId: category._id,
+        currentDocument: { ...category, ...doc },
+        prevDocument: category.toObject(),
+      });
+
       return models.AccountCategories.findOne({ _id });
     }
 
@@ -131,7 +147,14 @@ export const loadAccountCategoryClass = (models: IModels) => {
         throw new Error("Can't remove a accounting category");
       }
 
-      return models.AccountCategories.deleteOne({ _id });
+      const result = await models.AccountCategories.deleteOne({ _id });
+
+      sendDbEventLog({
+        action: 'delete',
+        docId: _id
+      });
+
+      return result;
     }
 
     /**

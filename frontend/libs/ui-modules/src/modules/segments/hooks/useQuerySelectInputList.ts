@@ -62,7 +62,8 @@ export const useQuerySelectInputList = (
 
           // setCursor(prevPageInfo?.endCursor);
 
-          return Object.assign({}, prev, {
+          return {
+            ...prev,
             [queryName]: mergeCursorData({
               direction: EnumCursorDirection.FORWARD,
               fetchMoreResult: {
@@ -74,7 +75,7 @@ export const useQuerySelectInputList = (
                 list: prevList,
               },
             }),
-          });
+          };
         },
       });
     }

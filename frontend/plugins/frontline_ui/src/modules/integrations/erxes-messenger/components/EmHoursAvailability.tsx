@@ -13,7 +13,7 @@ import {
 import { EMLayout, EMLayoutPreviousStepButton } from './EMLayout';
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { EMHOURS_SCHEMA } from '@/integrations/erxes-messenger/constants/emHoursSchema';
+import { EMHOURS_SCHEMA, ScheduleDay } from '@/integrations/erxes-messenger/constants/emHoursSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parseTime } from '@internationalized/date';
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
@@ -199,6 +199,14 @@ export const EMHoursAvailability = () => {
   );
 };
 
+const safeParseTime = (value: string) => {
+  try {
+    return parseTime(value);
+  } catch {
+    return null;
+  }
+};
+
 export const EMHoursTimeTable = ({
   form,
 }: {
@@ -236,7 +244,7 @@ export const EMHoursTimeTable = ({
 
   return (
     <ScrollArea className="w-full ">
-      {Object.values(Weekday).map((day, index) => (
+      {Object.values({ ...Weekday, ...ScheduleDay }).map((day, index) => (
         <Form.Field
           name={`onlineHours.${day}.work`}
           key={index}
@@ -277,7 +285,7 @@ export const EMHoursTimeTable = ({
                     render={({ field }) => (
                       <Form.Item>
                         <TimeField
-                          value={field.value ? parseTime(field.value) : null}
+                          value={field.value ? safeParseTime(field.value) : null}
                           onChange={(value) => {
                             field.onChange(value?.toString());
                           }}
@@ -297,7 +305,7 @@ export const EMHoursTimeTable = ({
                     render={({ field }) => (
                       <Form.Item>
                         <TimeField
-                          value={field.value ? parseTime(field.value) : null}
+                          value={field.value ? safeParseTime(field.value) : null}
                           onChange={(value) => {
                             field.onChange(value?.toString());
                           }}

@@ -1,10 +1,22 @@
 import { gql } from '@apollo/client';
 
-export const MAIN_CONFIGS = gql`
-  query accountingsConfigs {
-    accountingsConfigs {
+export const GET_ACCOUNTING_CONFIGS = gql`
+  query AccountingsConfigs($code: String!) {
+    accountingsConfigs(code: $code) {
       _id
       code
+      subId
+      value
+    }
+  }
+`;
+
+export const GET_ACCOUNTING_CONFIG = gql`
+  query accountingsConfigs($code: String!, $subId: String) {
+    accountingsConfigs(code: $code, subId: $subId) {
+      _id
+      code
+      subId
       value
     }
   }

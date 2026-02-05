@@ -1,5 +1,4 @@
 import { ValidationStatus } from 'erxes-ui';
-import { CountryCode } from 'libphonenumber-js';
 
 export interface TCompany {
   _id: string;
@@ -11,9 +10,18 @@ export interface TCompany {
   primaryPhone?: string;
   phones?: string[];
   tagIds?: string[];
-  location?: {
-    countryCode?: CountryCode | undefined;
-  };
+  location?: string;
+  businessType?: string;
+  code?: string;
+  description?: string;
+  industry?: string[];
+  ownerId?: string;
+  parentCompanyId?: string;
+  parentCompany?: TCompany;
+  score?: number;
+  size?: number;
+  website?: string;
+  lastSeenAt?: string;
   emailValidationStatus?: ValidationStatus;
   phoneValidationStatus?: ValidationStatus;
 }

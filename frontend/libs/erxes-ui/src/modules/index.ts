@@ -5,6 +5,7 @@ export * from './record-table';
 export * from './report';
 export * from './record-field';
 export * from './filter';
+export * from './focus-sheet/components/focus-sheet';
 export * from './side-menu/components/SideMenu';
 export * from './side-menu/context/SideMenuContext';
 export * from './inputs';

@@ -19,7 +19,7 @@ permissions:
   packages: write
 
 jobs:
-  core-ui:
+  frontline-widgets-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

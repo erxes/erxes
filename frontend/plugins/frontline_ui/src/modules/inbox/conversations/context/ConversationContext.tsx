@@ -6,7 +6,7 @@ interface IConversationContext extends IConversation {
   loading?: boolean;
   integration?: IIntegration;
   tagIds: string[];
-  setTagIds: (ids: string[]) => void;
+  setTagIds?: (ids: string[]) => void;
 }
 
 export const ConversationContext = createContext<IConversationContext | null>(

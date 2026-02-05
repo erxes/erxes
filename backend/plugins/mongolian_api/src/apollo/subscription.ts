@@ -3,21 +3,21 @@ import { withFilter } from 'graphql-subscriptions';
 export default {
   name: 'mongolian',
   typeDefs: `
-    automationResponded(userId: String, sessionCode: String): AutomationResponse
+    ebarimtResponded(userId: String, processId: String): EbarimtResponse
   `,
   generateResolvers: (graphqlPubsub) => {
     return {
-      automationResponded: {
+      ebarimtResponded: {
         subscribe: withFilter(
           (_, { userId }) =>
-            graphqlPubsub.asyncIterator(`automationResponded:${userId}`),
+            graphqlPubsub.asyncIterator(`ebarimtResponded:${userId}`),
           (payload, variables) => {
             return (
-              payload.automationResponded.sessionCode === variables.sessionCode
+              variables?.userId && payload?.ebarimtResponded?.userId === variables?.userId
             );
           },
         ),
       },
-    };
+    }
   },
 };

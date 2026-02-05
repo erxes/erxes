@@ -1,29 +1,25 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { readImage, formatDateISOStringToRelativeDate, cn } from 'erxes-ui';
-import { Button } from 'erxes-ui';
-import { Tooltip } from 'erxes-ui';
+import { IconFile } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import DOMPurify from 'dompurify';
+import { Avatar, Button, cn, formatDateISOStringToRelativeDate, readImage, Tooltip } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useMemo } from 'react';
+import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import {
   ReadConversationResult,
   useReadConversation,
 } from '../hooks/useReadConversation';
-import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import {
   connectionAtom,
   conversationIdAtom,
   setActiveTabAtom,
 } from '../states';
 import {
-  ISupporter,
   IAttachment,
-  IMessage,
   IConversationMessage,
+  ISupporter,
 } from '../types';
-import { Avatar } from 'erxes-ui';
 import { AvatarGroup } from './avatar-group';
-import { IconFile } from '@tabler/icons-react';
-import { useMemo } from 'react';
 
 export function EmptyChat() {
   const connection = useAtomValue(connectionAtom);
@@ -165,16 +161,16 @@ export function ConversationMessage({
               )}
             </span>
           )) || (
-            <span
-              className={cn(
-                'truncate line-clamp-1 w-auto',
-                !isCustomerRead && 'text-accent-foreground font-bold',
-              )}
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(content || ''),
-              }}
-            />
-          )}
+              <span
+                className={cn(
+                  'truncate line-clamp-1 w-auto',
+                  !isCustomerRead && 'text-accent-foreground font-bold',
+                )}
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(content || ''),
+                }}
+              />
+            )}
           <span
             className={cn(
               { 'font-bold': !isCustomerRead },
@@ -245,12 +241,12 @@ export function OperatorMessage({
                   'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all',
                   isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
                   isLastMessage &&
-                    !attachments?.length &&
-                    'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
+                  !attachments?.length &&
+                  'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
                   isMiddleMessage && 'rounded-r-md rounded-l-sm',
                   isSingleMessage &&
-                    !attachments?.length &&
-                    'rounded-md shadow-2xs',
+                  !attachments?.length &&
+                  'rounded-md shadow-2xs',
                   attachments?.length && 'rounded-t-md rounded-bl-sm',
                 )}
                 dangerouslySetInnerHTML={{
@@ -267,20 +263,20 @@ export function OperatorMessage({
                       'overflow-hidden bg-background',
                       content && index === 0 && 'rounded-b-md rounded-tl-sm',
                       !content &&
-                        isFirstMessage &&
-                        index === 0 &&
-                        'rounded-t-md rounded-bl-sm',
+                      isFirstMessage &&
+                      index === 0 &&
+                      'rounded-t-md rounded-bl-sm',
                       !content &&
-                        isLastMessage &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md rounded-tl-sm',
+                      isLastMessage &&
+                      index === attachments.length - 1 &&
+                      'rounded-b-md rounded-tl-sm',
                       !content &&
-                        isSingleMessage &&
-                        attachments.length === 1 &&
-                        'rounded-md',
+                      isSingleMessage &&
+                      attachments.length === 1 &&
+                      'rounded-md',
                       content &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md rounded-tl-sm',
+                      index === attachments.length - 1 &&
+                      'rounded-b-md rounded-tl-sm',
                     )}
                   >
                     {isImageAttachment(attachment.url) ? (
@@ -365,12 +361,12 @@ export const CustomerMessage = ({
                       content && index === 0 && 'rounded-b-md',
                       !content && index === 0 && 'rounded-t-md',
                       !content &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md',
+                      index === attachments.length - 1 &&
+                      'rounded-b-md',
                       !content && attachments.length === 1 && 'rounded-md',
                       content &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md',
+                      index === attachments.length - 1 &&
+                      'rounded-b-md',
                     )}
                   >
                     {isImageAttachment(attachment.url) ? (

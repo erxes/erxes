@@ -47,14 +47,14 @@ export function EMInstallScript({ integrationId }: Props) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size={'icon'}
+      <div
+        className="flex items-center gap-2 w-full cursor-pointer"
         onClick={() => setDialogOpen(true)}
         title="View installation script"
       >
-        <IconCode />
-      </Button>
+        <IconCode size={16} />
+        Install Script
+      </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <Dialog.Content className="max-w-2xl">

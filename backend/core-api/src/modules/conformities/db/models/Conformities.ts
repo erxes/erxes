@@ -99,7 +99,7 @@ export const loadConformityClass = (models: IModels, subdomain: string) => {
       );
 
       // insert on new relTypeIds
-      const insertTypes = await addedTypeIds.map((relTypeId) => ({
+      const insertTypes = addedTypeIds.map((relTypeId) => ({
         mainType: doc.mainType,
         mainTypeId: doc.mainTypeId,
         relType: doc.relType,

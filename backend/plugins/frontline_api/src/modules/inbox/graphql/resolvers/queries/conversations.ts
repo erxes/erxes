@@ -1,19 +1,21 @@
-import { IContext, IModels } from '~/connectionResolvers';
-import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import {
   IConversationDocument,
   IConversationListParams,
+  IConversationRes,
 } from '@/inbox/@types/conversations';
-import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { countByConversations } from '@/inbox/conversationUtils';
-import { IConversationRes } from '@/inbox/@types/conversations';
+import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { IContext, IModels } from '~/connectionResolvers';
+import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
+
 // count helper
 const count = async (models: IModels, query: any): Promise<number> => {
   const result = await models.Conversations.countDocuments(query);
   return Number(result);
 };
+
 export const conversationQueries = {
   /**
    * Conversations list

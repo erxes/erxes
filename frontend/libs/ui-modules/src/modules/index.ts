@@ -13,9 +13,7 @@ export * from './structure';
 export * from './tags';
 export * from './team-members';
 export * from './types/PageInfo';
-export * from './widget/widget-provider/context/widgetContext';
-export * from './widget/hooks';
-export * from './widget/graphql';
+export * from './widget';
 export * from './tags-new';
 
 export * from './import-export';

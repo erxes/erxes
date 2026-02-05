@@ -97,7 +97,6 @@ const initCallApp = async (app) => {
   });
 
   app.post('/call/cdrReceive', authenticateApi, async (req, res) => {
-    console.log('received cdr ...');
     try {
       const data = req.body;
 

@@ -40,7 +40,7 @@ export async function prepareCustomerDoc(
     doc.phones = [doc.primaryPhone];
   }
   if (doc.sex) {
-    doc.sex = parseInt(doc.sex);
+    doc.sex = Number.parseInt(doc.sex);
   }
   if (doc?.tags) {
     doc.tagIds = await generateTagIds(models, doc?.tags);

@@ -1,69 +1,56 @@
-import { Filter, Spinner } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
-import { SettingsHeader } from 'ui-modules';
+import { lazy } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { EBarimtSidebar } from '@/ebarimt/settings/components/EBarimtSidebar';
-import { EBarimtTopbar } from '@/ebarimt/settings/components/EBarimtTopbar';
 import { EBarimtBreadcrumb } from '@/ebarimt/settings/components/EBarimtBreadcrumb';
+import { SettingsLayout } from '~/modules/SettingsLayout';
 
 export const EBarimtMainConfig = lazy(() =>
-  import('~/pages/EBarimtSetting').then((module) => ({
-    default: module.EBarimtSetting,
+  import('~/pages/EBarimtSetting').then((m) => ({
+    default: m.EBarimtSetting,
   })),
 );
 
 export const ReturnEbarimtConfig = lazy(() =>
-  import('~/pages/ReturnEBarimtConfigPage').then((module) => ({
-    default: module.ReturnEBarimtConfig,
+  import('~/pages/ReturnEBarimtConfigPage').then((m) => ({
+    default: m.ReturnEBarimtConfig,
   })),
 );
+
 export const AddProductRulesOnTaxPage = lazy(() =>
-  import('~/pages/ProductRulesOnTaxPage').then((module) => ({
-    default: module.ProductRulesOnTaxPage,
+  import('~/pages/ProductRulesOnTaxPage').then((m) => ({
+    default: m.ProductRulesOnTaxPage,
   })),
 );
+
 export const StageInEBarimtConfig = lazy(() =>
-  import('~/pages/StageInEBarimtConfigPage').then((module) => ({
-    default: module.StageInEBarimtConfig,
+  import('~/pages/StageInEBarimtConfigPage').then((m) => ({
+    default: m.StageInEBarimtConfig,
   })),
 );
+
 export const ProductGroupPage = lazy(() =>
-  import('~/pages/ProductGroupPage').then((module) => ({
-    default: module.ProductGroupPage,
+  import('~/pages/ProductGroupPage').then((m) => ({
+    default: m.ProductGroupPage,
   })),
 );
+
 const EBarimtSettings = () => {
   return (
-    <Filter id="ebarimt-settings">
-      <div className="flex flex-col flex-auto overflow-hidden">
-        <SettingsHeader breadcrumbs={<EBarimtBreadcrumb />}>
-          <div className="flex ml-auto">
-            <EBarimtTopbar />
-          </div>
-        </SettingsHeader>
-        <div className="flex flex-auto overflow-hidden">
-          <EBarimtSidebar />
-          <Suspense
-            fallback={
-              <div className="flex justify-center items-center h-full">
-                <Spinner />
-              </div>
-            }
-          >
-            <Routes>
-              <Route path="/" element={<EBarimtMainConfig />} />
-              <Route path="/stage-in" element={<StageInEBarimtConfig />} />
-              <Route path="/return" element={<ReturnEbarimtConfig />} />
-              <Route
-                path="/product-rules-on-tax"
-                element={<AddProductRulesOnTaxPage />}
-              />
-              <Route path="/product-groups" element={<ProductGroupPage />} />
-            </Routes>
-          </Suspense>
-        </div>
-      </div>
-    </Filter>
+    <SettingsLayout
+      sidebar={<EBarimtSidebar />}
+      breadcrumbs={<EBarimtBreadcrumb />}
+    >
+      <Routes>
+        <Route index element={<EBarimtMainConfig />} />
+        <Route path="stage-in" element={<StageInEBarimtConfig />} />
+        <Route path="return" element={<ReturnEbarimtConfig />} />
+        <Route
+          path="product-rules-on-tax"
+          element={<AddProductRulesOnTaxPage />}
+        />
+        <Route path="product-groups" element={<ProductGroupPage />} />
+      </Routes>
+    </SettingsLayout>
   );
 };
 

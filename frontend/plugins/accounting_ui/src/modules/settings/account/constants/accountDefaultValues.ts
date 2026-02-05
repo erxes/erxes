@@ -1,6 +1,5 @@
-import { JournalEnum } from '../types/Account';
 import { CurrencyCode } from 'erxes-ui';
-import { AccountKind } from '../types/Account';
+import { AccountKind, JournalEnum } from '../types/Account';
 import { TAccountForm } from '../types/accountForm';
 
 export const ACCOUNTS_PER_PAGE = 30;

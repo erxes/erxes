@@ -28,7 +28,7 @@ export const BroadcastTabPreviewEmailContent = ({
   }, [content, editor]);
 
   return (
-    <div className="flex flex-col gap-8 h-full overflow-hidden">
+    <div className="flex flex-col gap-8 h-full w-full">
       <div className="px-9 py-5 border rounded-md bg-muted space-y-2">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Subject:</span>{' '}
@@ -47,13 +47,11 @@ export const BroadcastTabPreviewEmailContent = ({
         </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center overflow-y-auto">
-        <BlockEditor
-          editor={editor}
-          readonly
-          className="select-none h-full w-full"
-        />
-      </div>
+      <BlockEditor
+        editor={editor}
+        readonly
+        className="select-none flex-1 w-full overflow-y-auto"
+      />
     </div>
   );
 };

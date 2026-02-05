@@ -12,7 +12,7 @@ import {
   IconChevronDown,
   IconChevronUp,
 } from '@tabler/icons-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Block } from '@blocknote/core';
 import { useDealsContext } from '@/deals/context/DealContext';
@@ -73,24 +73,6 @@ const SalesDescription = ({
       },
     });
   }, [debouncedDescriptionContent, dealId, editDeals]);
-
-  useEffect(() => {
-    if (!expanded) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (loading) return;
-
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        onSave();
-        setExpanded(false);
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [expanded, loading, onSave]);
 
   return (
     <div className="flex flex-col h-full my-2 py-2 mx-2 px-4 gap-1 rounded-lg relative group sales-description">

@@ -1,7 +1,6 @@
 import { TicketFields } from '@/ticket/components/ticket-detail/TicketFields';
 import { useGetTicket } from '@/ticket/hooks/useGetTicket';
-import { Spinner, useQueryState } from 'erxes-ui';
-import { TicketSideWidgets } from '~/widgets/relations/TicketSideWidgets';
+import { Spinner } from 'erxes-ui';
 import { useLocation } from 'react-router-dom';
 
 export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
@@ -21,12 +20,5 @@ export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
       </div>
     );
   }
-  return (
-    <div className="h-full w-full flex overflow-auto">
-      <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">
-        <TicketFields ticket={ticket} />
-      </div>
-      <TicketSideWidgets contentId={ticket._id} />
-    </div>
-  );
+  return <TicketFields ticket={ticket} />;
 };

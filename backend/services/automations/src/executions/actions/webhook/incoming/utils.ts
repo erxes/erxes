@@ -59,7 +59,7 @@ export const validateTimestamp = (
   const timestamp = req.headers['x-timestamp'] as string;
   if (!timestamp) return false;
 
-  const requestTime = parseInt(timestamp, 10);
+  const requestTime = Number.parseInt(timestamp, 10);
   const currentTime = Date.now();
 
   return Math.abs(currentTime - requestTime) < maxAgeMs; // 5 minutes tolerance

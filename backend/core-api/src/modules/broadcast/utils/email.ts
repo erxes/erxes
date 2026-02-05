@@ -1,13 +1,22 @@
 import { ICustomer } from '@/broadcast/@types';
 import dotenv from 'dotenv';
 import { IAttachment } from 'erxes-api-shared/core-types';
-import {
-  getEnv,
-  randomAlphanumeric,
-  readFileUrl,
-} from 'erxes-api-shared/utils';
+import { getEnv, isValidURL, randomAlphanumeric } from 'erxes-api-shared/utils';
+import validator from 'validator';
 
 dotenv.config();
+
+export const readFileUrl = (value: string) => {
+  if (!value || isValidURL(value) || validator.isURL(value)) {
+    return value;
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+  });
+
+  return `${DOMAIN}/gateway/read-file?key=${value}`;
+};
 
 const prepareAttachments = (attachments: IAttachment[] = []) => {
   return attachments.map((file) => ({
@@ -35,7 +44,13 @@ const prepareContentAndSubject = (
     }
   }
 
-  replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">You are receiving this email because you have signed up for our services. <br /> <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a> </div>`;
+  replacedContent += `
+    <div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">
+      You are receiving this email because you have signed up for our services.
+      <br />
+      <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a>
+    </div>
+  `;
 
   return { replacedContent, replacedSubject };
 };

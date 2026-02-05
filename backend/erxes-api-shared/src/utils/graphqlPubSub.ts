@@ -9,7 +9,7 @@ const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, SKIP_REDIS } = process.env;
 
 const redisOptions = {
   host: REDIS_HOST,
-  port: parseInt(REDIS_PORT || '6379', 10),
+  port: Number.parseInt(REDIS_PORT || '6379', 10),
   password: REDIS_PASSWORD,
 };
 

@@ -74,7 +74,7 @@ const ItemProductProbabilities: FC<Props> = ({
   }
 
   const probabilityPercentage = probability
-    ? parseInt(getPercentage(probability), 10)
+    ? Number.parseInt(getPercentage(probability), 10)
     : 0;
 
   if (totalAmount) {

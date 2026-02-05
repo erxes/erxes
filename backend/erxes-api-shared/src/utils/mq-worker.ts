@@ -1,6 +1,6 @@
+import type { DefaultJobOptions, Job, Worker as WorkerType } from 'bullmq';
 import { Queue, QueueEvents, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
-import type { DefaultJobOptions, Job, Worker as WorkerType } from 'bullmq';
 import { redis } from './redis';
 
 const queueMap = new Map<string, Queue>();

@@ -66,7 +66,7 @@ export const start = async (
     }
   };
 
-  const unverifiedEmailsLimit = parseInt(
+  const unverifiedEmailsLimit = Number.parseInt(
     configs.unverifiedEmailsLimit || '100',
     10,
   );

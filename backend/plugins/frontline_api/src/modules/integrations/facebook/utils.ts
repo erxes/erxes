@@ -1,16 +1,16 @@
-import * as graph from 'fbgraph';
-import { IModels } from '~/connectionResolvers';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
-import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import {
   IAttachment,
   IAttachmentMessage,
 } from '@/integrations/facebook/@types/utils';
-import { randomAlphanumeric } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
+import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
 import * as AWS from 'aws-sdk';
+import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as graph from 'fbgraph';
+import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
+
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
@@ -110,7 +110,7 @@ export const createAWS = async (subdomain: string) => {
 
 // Define a simple in-memory cache (outside the function scope)
 
-type UploadConfig = { AWS_BUCKET?: string; [k: string]: any } | null;
+type UploadConfig = { AWS_BUCKET?: string;[k: string]: any } | null;
 let cachedUploadConfig: UploadConfig = null;
 let fetchUploadConfigPromise: Promise<UploadConfig | null> | null = null;
 let lastFetchTime = 0;

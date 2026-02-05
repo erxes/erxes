@@ -14,12 +14,12 @@ const pubsub = new RedisPubSub({
   },
   publisher: new Redis({
     host: REDIS_HOST,
-    port: parseInt(REDIS_PORT || '6379'),
+    port: Number.parseInt(REDIS_PORT || '6379'),
     password: REDIS_PASSWORD,
   }),
   subscriber: new Redis({
     host: REDIS_HOST,
-    port: parseInt(REDIS_PORT || '6379'),
+    port: Number.parseInt(REDIS_PORT || '6379'),
     password: REDIS_PASSWORD,
   }),
 } as any);

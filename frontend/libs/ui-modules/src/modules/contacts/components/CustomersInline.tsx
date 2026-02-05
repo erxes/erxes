@@ -1,17 +1,19 @@
 import {
+  Avatar,
+  AvatarProps,
+  Combobox,
+  Tooltip,
+  cn,
+  isUndefinedOrNull,
+} from 'erxes-ui';
+import {
   CustomersInlineContext,
   useCustomersInlineContext,
 } from '../contexts/CustomersInlineContext';
-import {
-  Avatar,
-  AvatarProps,
-  cn,
-  Combobox,
-  isUndefinedOrNull,
-  Tooltip,
-} from 'erxes-ui';
-import { ICustomer } from '../types';
 import React, { useEffect, useState } from 'react';
+
+import { ICustomer } from '../types';
+import { IconUser } from '@tabler/icons-react';
 import { useCustomerInline } from '../hooks';
 
 interface CustomersInlineProviderProps {
@@ -20,6 +22,7 @@ interface CustomersInlineProviderProps {
   customers?: ICustomer[];
   placeholder?: string;
   updateCustomers?: (customers: ICustomer[]) => void;
+  hideAvatar?: boolean;
 }
 
 const CustomersInlineProvider = ({
@@ -28,6 +31,7 @@ const CustomersInlineProvider = ({
   customerIds,
   customers,
   updateCustomers,
+  hideAvatar,
 }: CustomersInlineProviderProps) => {
   const [_customers, _setCustomers] = useState<ICustomer[]>(customers || []);
 
@@ -50,6 +54,7 @@ const CustomersInlineProvider = ({
           : placeholder,
         updateCustomers: updateCustomers || _setCustomers,
         getCustomerTitle,
+        hideAvatar,
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
@@ -95,8 +100,10 @@ const CustomerInlineEffectComponent = ({
 };
 
 const CustomersInlineAvatar = ({ className, ...props }: AvatarProps) => {
-  const { customers, loading, customerIds, getCustomerTitle } =
+  const { customers, loading, customerIds, getCustomerTitle, hideAvatar } =
     useCustomersInlineContext();
+
+  if (hideAvatar) return null;
 
   if (loading)
     return (
@@ -174,7 +181,7 @@ const CustomersInlineAvatar = ({ className, ...props }: AvatarProps) => {
 };
 
 const CustomersInlineTitle = ({ className }: { className?: string }) => {
-  const { getCustomerTitle, customers, loading, placeholder } =
+  const { getCustomerTitle, customers, loading, placeholder, hideAvatar } =
     useCustomersInlineContext();
 
   const getDisplayValue = () => {
@@ -182,6 +189,15 @@ const CustomersInlineTitle = ({ className }: { className?: string }) => {
 
     if (customers.length === 1) {
       return getCustomerTitle(customers[0]);
+    }
+
+    if (hideAvatar) {
+      return (
+        <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+          <IconUser className="w-4 h-4 text-gray-400" /> Customers +
+          {(customers || []).length}
+        </span>
+      );
     }
 
     return `${customers.length} customers`;
@@ -209,6 +225,7 @@ const CustomersInlineRoot = React.forwardRef<
       placeholder,
       updateCustomers,
       className,
+      hideAvatar,
       ...props
     },
     ref,
@@ -219,6 +236,7 @@ const CustomersInlineRoot = React.forwardRef<
         customers={customers}
         placeholder={placeholder}
         updateCustomers={updateCustomers}
+        hideAvatar={hideAvatar}
       >
         <span
           ref={ref}

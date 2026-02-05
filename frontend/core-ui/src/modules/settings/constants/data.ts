@@ -11,6 +11,7 @@ import {
   IconHierarchy2,
   IconMail,
   IconPassword,
+  IconShoppingCart,
   IconTag,
   IconUserCircle,
   IconUsersGroup,
@@ -149,6 +150,11 @@ export const SETTINGS_PATH_DATA = (
       name: 'Properties',
       icon: IconHierarchy2,
       path: SettingsWorkspacePath.Properties,
+    },
+    {
+      name: 'Products',
+      icon: IconShoppingCart,
+      path: SettingsWorkspacePath.Products,
     },
   ],
   developer: [

@@ -1,14 +1,24 @@
-import { IMainContext } from 'erxes-api-shared/core-types';
-import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
-import { IAccountDocument } from './modules/accounting/@types/account';
+import { createGenerateModels } from 'erxes-api-shared/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IAccountCategoryDocument } from './modules/accounting/@types/accountCategory';
+import { IAccountDocument } from './modules/accounting/@types/account';
 import { IAdjustInvDetailDocument, IAdjustInventoryDocument } from './modules/accounting/@types/adjustInventory';
-import { IAccountingConfigDocument } from './modules/accounting/@types/config';
+import {
+  IAdjustInvDetailsModel,
+  IAdjustInventoriesModel,
+  loadAdjustInvDetailsClass,
+  loadAdjustInventoriesClass
+} from './modules/accounting/db/models/AdjustInventories';
+import { IConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
+import { ICtaxRowModel, loadCtaxRowClass } from './modules/accounting/db/models/CtaxRows';
+import { IMainContext } from 'erxes-api-shared/core-types';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
+import { IPermissionModel, loadPermissionClass } from './modules/accounting/db/models/Permissions';
 import { ITransactionDocument } from './modules/accounting/@types/transaction';
 import { IVatRowDocument } from './modules/accounting/@types/vatRow';
+import { IVatRowModel, loadVatRowClass } from './modules/accounting/db/models/VatRows';
 import {
   IAccountCategoryModel,
   loadAccountCategoryClass,
@@ -17,24 +27,20 @@ import {
   IAccountModel,
   loadAccountClass,
 } from './modules/accounting/db/models/Accounts';
-import { IAdjustInvDetailsModel, IAdjustInventoriesModel, loadAdjustInvDetailsClass, loadAdjustInventoriesClass } from './modules/accounting/db/models/AdjustInventories';
 import {
-  IAccountingConfigModel,
-  loadAccountingConfigClass,
+  IConfigModel,
+  loadConfigClass,
 } from './modules/accounting/db/models/Configs';
-import { ICtaxRowModel, loadCtaxRowClass } from './modules/accounting/db/models/CtaxRows';
-import { IPermissionModel, loadPermissionClass } from './modules/accounting/db/models/Permissions';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
-import { IVatRowModel, loadVatRowClass } from './modules/accounting/db/models/VatRows';
 
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
-  AccountingConfigs: IAccountingConfigModel;
+  Configs: IConfigModel;
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
   Permissions: IPermissionModel;
@@ -50,22 +56,40 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventDispatcher: (
+    pluginName: string,
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
 ): IModels => {
   const models = {} as IModels;
 
+  models.Configs = db.model<
+    IConfigDocument,
+    IConfigModel
+  >('accountings_configs', loadConfigClass(
+    models,
+    subdomain,
+    eventDispatcher('accounting', 'accounting', 'accountings_configs')
+  ));
+
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'accounts',
-    loadAccountClass(models, subdomain),
+    loadAccountClass(
+      models,
+      subdomain,
+      eventDispatcher('accounting', 'accounting', 'accounts')
+    ),
   );
-  models.AccountingConfigs = db.model<
-    IAccountingConfigDocument,
-    IAccountingConfigModel
-  >('accountings_configs', loadAccountingConfigClass(models));
 
   models.AccountCategories = db.model<
     IAccountCategoryDocument,
     IAccountCategoryModel
-  >('account_categories', loadAccountCategoryClass(models));
+  >('account_categories',  loadAccountCategoryClass(
+    models,
+    subdomain,
+    eventDispatcher('accounting', 'accounting', 'account_categories')
+  ));
 
   models.AdjustInventories = db.model<
     IAdjustInventoryDocument,

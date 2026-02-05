@@ -1,10 +1,10 @@
-import type React from 'react';
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button, Sheet, Input, Label } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { nanoid } from 'nanoid';
 import { CatProd } from '@/pos/pos-detail/types/IPos';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, Input, Label, Sheet } from 'erxes-ui';
+import { nanoid } from 'nanoid';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 
 interface AddMappingFormData {
@@ -86,13 +86,13 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
   const handleCategorySelect: React.ReactEventHandler<HTMLButtonElement> &
     ((categoryId: string) => void) = (value) => {
-    const categoryId =
-      typeof value === 'string' ? value : value?.currentTarget?.value;
+      const categoryId =
+        typeof value === 'string' ? value : value?.currentTarget?.value;
 
-    if (categoryId) {
-      form.setValue('categoryId', categoryId);
-    }
-  };
+      if (categoryId) {
+        form.setValue('categoryId', categoryId);
+      }
+    };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

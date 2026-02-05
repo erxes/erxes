@@ -1,17 +1,16 @@
-import { IBrand } from '../types/brand';
-import {
-  BrandsInlineContext,
-  useBrandsInlineContext,
-} from '../contexts/BrandsInlineContext';
 import {
   isUndefinedOrNull,
   Skeleton,
   TextOverflowTooltip,
   Tooltip,
 } from 'erxes-ui';
-import { useBrandInline } from '../hooks/useBrandInline';
 import { useEffect, useState } from 'react';
-import { BrandsInlineProps } from '../types/brand';
+import {
+  BrandsInlineContext,
+  useBrandsInlineContext,
+} from '../contexts/BrandsInlineContext';
+import { useBrandInline } from '../hooks/useBrandInline';
+import { BrandsInlineProps, IBrand } from '../types/brand';
 
 const BrandsInlineRoot = (props: BrandsInlineProps) => {
   return (

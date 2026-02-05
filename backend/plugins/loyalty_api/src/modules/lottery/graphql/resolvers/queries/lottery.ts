@@ -1,9 +1,10 @@
-import { ILotteryParams } from '@/lottery/@types/lottery';
+import { ILotteryDocument, ILotteryParams } from '@/lottery/@types/lottery';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilter = (params: ILotteryParams) => {
-  const filter: any = {};
+  const filter: FilterQuery<ILotteryDocument> = {};
 
   if (params.campaignId) {
     filter.campaignId = params.campaignId;
@@ -29,15 +30,15 @@ const generateFilter = (params: ILotteryParams) => {
 };
 
 export const lotteryQueries = {
-  getLotteries: async (
-    _parent: undefined,
+  async lotteries(
+    _root: undefined,
     params: ILotteryParams,
     { models }: IContext,
-  ) => {
-    const filter = generateFilter(params);
+  ) {
+    const filter: FilterQuery<ILotteryDocument> = generateFilter(params);
 
     return cursorPaginate({
-      model: models.Lottery,
+      model: models.Lotteries,
       params,
       query: filter,
     });

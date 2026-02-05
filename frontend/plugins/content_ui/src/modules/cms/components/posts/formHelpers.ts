@@ -56,7 +56,7 @@ export const convertHTMLToBlocks = (htmlContent: string): Block[] => {
       };
       if (tag.match(/^h[1-6]$/)) {
         blockType = 'heading';
-        props.level = parseInt(tag.charAt(1));
+        props.level = Number.parseInt(tag.charAt(1));
       }
       blocks.push({
         id: crypto.randomUUID(),

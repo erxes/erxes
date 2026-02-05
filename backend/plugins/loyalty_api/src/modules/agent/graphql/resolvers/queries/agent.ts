@@ -1,8 +1,9 @@
-import { IAgentListParams } from '@/agent/@types';
+import { IAgentDocument, IAgentParams } from '@/agent/@types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
-const generateFilter = (params: IAgentListParams) => {
+const generateFilter = (params: IAgentParams) => {
   const {
     number,
     status,
@@ -10,21 +11,26 @@ const generateFilter = (params: IAgentListParams) => {
     customerIds = [],
     companyIds = [],
   } = params;
-  const filter: any = {};
+
+  const filter: FilterQuery<IAgentDocument> = {};
 
   if (number) {
     const escapedNumber = number.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     filter.number = new RegExp(escapedNumber, 'gi');
   }
+
   if (status) {
     filter.status = status;
   }
+
   if (typeof hasReturn === 'boolean') {
     filter.hasReturn = hasReturn;
   }
+
   if (customerIds.length > 0) {
     filter.customerIds = { $in: customerIds };
   }
+
   if (companyIds.length > 0) {
     filter.companyIds = { $in: companyIds };
   }
@@ -33,26 +39,21 @@ const generateFilter = (params: IAgentListParams) => {
 };
 
 export const agentQueries = {
-  getAgent: async (
-    _root: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) => {
-    const agent = await models.Agent.getAgent(_id);
-
-    return agent;
-  },
-  getAgents: async (
-    _root: undefined,
-    params: IAgentListParams,
-    { models }: IContext,
-  ) => {
-    const filter = generateFilter(params);
+  async agents(_root: undefined, params: IAgentParams, { models }: IContext) {
+    const filter: FilterQuery<IAgentDocument> = generateFilter(params);
 
     return await cursorPaginate({
-      model: models.Agent,
+      model: models.Agents,
       params,
       query: filter,
     });
+  },
+
+  async agentDetail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Agents.getAgent(_id);
   },
 };

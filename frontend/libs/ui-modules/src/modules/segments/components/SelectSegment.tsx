@@ -1,13 +1,6 @@
-import { useQuery } from '@apollo/client';
-import { useEffect, useRef, useState } from 'react';
-import { useDebounce } from 'use-debounce';
-import { SEGMENTS } from '../graphql/queries';
-import { useQueryState } from 'erxes-ui';
-import { ISegment } from '../types';
-import { Combobox, Command, Popover, TextOverflowTooltip } from 'erxes-ui';
-import { SelectTree } from 'erxes-ui';
+import { Combobox, Command, Popover, SelectTree, TextOverflowTooltip } from 'erxes-ui';
 import { useSelectSegments } from '../hooks/useSelectSegments';
-import { generateOrderPath } from '../utils/segmentsUtils';
+import { ISegment } from '../types';
 
 const SelectBranchBadge = ({
   segment,

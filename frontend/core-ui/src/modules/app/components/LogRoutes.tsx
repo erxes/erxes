@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Route } from 'react-router';
-import { Routes } from 'react-router';
+import { Route, Routes } from 'react-router';
 
 import { LogsPath } from '@/types/paths/LogPath';
 

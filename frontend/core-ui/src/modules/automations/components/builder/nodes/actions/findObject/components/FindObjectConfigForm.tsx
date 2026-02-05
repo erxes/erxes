@@ -4,12 +4,11 @@ import {
 } from '@/automations/components/builder/nodes/actions/findObject/states/findObjectConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { useAutomation } from '@/automations/context/AutomationProvider';
-import { useFormValidationErrorHandler } from 'ui-modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Select } from 'erxes-ui';
 import { useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { PlaceholderInput, TAutomationActionProps } from 'ui-modules';
+import { PlaceholderInput, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
 
 export const FindObjectConfigForm = ({
   currentAction,

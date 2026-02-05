@@ -7,15 +7,13 @@ import {
   Table,
   useConfirm,
 } from 'erxes-ui';
-import { useFields } from 'ui-modules';
+import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router';
+import { CORE_RELATION_TYPES, IField, useFields } from 'ui-modules';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { useFieldRemove } from '../hooks/useFieldRemove';
-import { IField } from 'ui-modules';
-import { CORE_RELATION_TYPES } from 'ui-modules';
-import { useAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
-import { useEffect } from 'react';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
   const { type } = useParams<{ type: string }>();
@@ -121,9 +119,8 @@ const PropertyRow = ({
             {fieldTypeObject?.icon}
             {fieldTypeObject?.label}
             {type === 'relation' &&
-              ` (${
-                CORE_RELATION_TYPES.find((type) => type.value === relationType)
-                  ?.label
+              ` (${CORE_RELATION_TYPES.find((type) => type.value === relationType)
+                ?.label
               })`}
           </div>
         </Button>

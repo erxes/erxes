@@ -277,7 +277,7 @@ function SortableCardInner<TItem extends BaseBoardItem>({
         {...attributes}
         {...listeners}
         className={cn(
-          'bg-white rounded-lg border shadow-sm cursor-grab active:cursor-grabbing',
+          'bg-white rounded-lg border shadow-sm cursor-grab overflow-hidden active:cursor-grabbing',
           'hover:shadow-md hover:border-primary/50 transition-all duration-150',
           isDragging && 'opacity-40 shadow-lg',
         )}

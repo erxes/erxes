@@ -1,23 +1,21 @@
-import { Model, Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 
-import { IMainContext } from 'erxes-api-shared/core-types';
-import { createGenerateModels } from 'erxes-api-shared/utils';
-import {
-  AiAgentDocument,
-  aiAgentSchema,
-  automationExecutionSchema,
-  automationSchema,
-  IAutomationDocument,
-  IAutomationExecutionDocument,
-} from 'erxes-api-shared/core-modules';
 import {
   IAutomationWaitingActionDocument,
   waitingActionsToExecuteSchema,
 } from '@/mongo/waitingActionsToExecute';
 import {
+  AiAgentDocument,
+  aiAgentSchema,
   aiEmbeddingSchema,
+  automationExecutionSchema,
+  automationSchema,
   IAiEmbeddingDocument,
+  IAutomationDocument,
+  IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
 
 export interface IModels {
   Automations: Model<IAutomationDocument>;

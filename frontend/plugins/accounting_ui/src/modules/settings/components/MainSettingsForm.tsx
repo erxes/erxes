@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { useMainConfigs } from '../hooks/useMainConfigs';
 import { useEffect } from 'react';
-import { useUpdateConfig } from '../hooks/useUpdateConfig';
+import { useMainUpdateConfigs } from '../hooks/useMainUpdateConfigs';
 import deepEqual from 'deep-equal';
 
 const DEFAULT_VALUES: TMainSettings = {
@@ -24,7 +24,7 @@ const DEFAULT_VALUES: TMainSettings = {
 
 export const MainSettingsForm = () => {
   const { configs, loading } = useMainConfigs();
-  const { updateConfigs } = useUpdateConfig();
+  const { updateConfigs } = useMainUpdateConfigs();
   const form = useForm<TMainSettings>({
     resolver: zodResolver(mainSettingsSchema),
     defaultValues: {

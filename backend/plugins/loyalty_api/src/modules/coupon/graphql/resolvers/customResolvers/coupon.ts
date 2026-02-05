@@ -1,47 +1,71 @@
+import { ICouponDocument } from '@/coupon/@types/coupon';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { OWNER_TYPES } from '~/constants';
-import { ICouponDocument } from '~/modules/coupon/@types/coupon';
+import { getLoyaltyOwner } from '~/utils';
 
-export const Coupon = {
-  async __resolveReference(
-    { _id }: ICouponDocument,
-    _: undefined,
+const TARGET_ACTIONS = {
+  pos: { module: 'orders', action: 'find', field: 'number' },
+  sales: { module: 'deals', action: 'find', field: 'name' },
+};
+
+export const fetchTarget = async ({
+  targetId,
+  targetType,
+  subdomain,
+}: {
+  targetId: string;
+  targetType: string;
+  subdomain: string;
+}) => {
+  const { action, field, module } = TARGET_ACTIONS[targetType] || {};
+
+  if (!targetId || !targetType || !TARGET_ACTIONS[targetType]) {
+    return '';
+  }
+
+  const [target] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'sales',
+    method: 'query',
+    module: module,
+    action,
+    input: {
+      query: { _id: targetId },
+    },
+    defaultValue: [],
+  });
+
+  return target[field];
+};
+
+export default {
+  async __resolveReference({ _id }, { models }: IContext) {
+    return models.Coupons.findOne({ code: _id }).lean();
+  },
+  async campaign(
+    coupon: ICouponDocument,
+    _args: undefined,
     { models }: IContext,
   ) {
-    return models.Coupon.findOne({ _id }).lean();
+    return models.CouponCampaigns.findOne({ _id: coupon.campaignId }).lean();
   },
 
-  async owner({ ownerId, ownerType }: ICouponDocument) {
-    if (!ownerId || !ownerType) return null;
+  async usageLogs(coupon: any, _args: undefined, { subdomain }: IContext) {
+    let { usageLogs = [] } = coupon || {};
 
-    if (ownerType === OWNER_TYPES.CUSTOMER) {
-      return { __typename: 'Customer', _id: ownerId };
-    }
-
-    if (ownerType === OWNER_TYPES.MEMBER) {
-      return { __typename: 'User', _id: ownerId };
-    }
-
-    if (ownerType === OWNER_TYPES.COMPANY) {
-      return { __typename: 'Company', _id: ownerId };
-    }
-
-    if (ownerType === OWNER_TYPES.CPUSER) {
-      return { __typename: 'ClientPortalUser', _id: ownerId };
-    }
-
-    return null;
-  },
-
-  async campaign({ campaignId }: ICouponDocument) {
-    return { __typename: 'CouponCampaign', _id: campaignId };
-  },
-
-  async createdBy({ createdBy }: ICouponDocument) {
-    return { __typename: 'User', _id: createdBy };
-  },
-
-  async updatedBy({ updatedBy }: ICouponDocument) {
-    return { __typename: 'User', _id: updatedBy };
+    return usageLogs.map(async (usageLog) => ({
+      owner: await getLoyaltyOwner(subdomain, {
+        ownerType: usageLog.ownerType,
+        ownerId: usageLog.ownerId,
+      }),
+      ownerType: usageLog.ownerType,
+      target: await fetchTarget({
+        targetId: usageLog.targetId,
+        targetType: usageLog.targetType,
+        subdomain,
+      }),
+      targetType: usageLog.targetType,
+      usedDate: usageLog.usedDate,
+    }));
   },
 };

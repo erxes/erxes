@@ -214,7 +214,7 @@ export const cleanIgnoredCustomers = async (
   ]);
 
   for (const delivery of deliveries) {
-    if (delivery.count > parseInt(allowedEmailSkipLimit, 10)) {
+    if (delivery.count > Number.parseInt(allowedEmailSkipLimit, 10)) {
       ignoredCustomerIds.push(delivery._id);
     }
   }

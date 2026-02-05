@@ -1,9 +1,4 @@
-import { useState } from 'react';
-import { IBranch, ISelectBranchesProviderProps } from '../types/Branch';
-import { SelectBranchesContext } from '../contexts/SelectBranchesContext';
-import { useDebounce } from 'use-debounce';
-import { useSelectBranchesContext } from '../hooks/useSelectBranchesContext';
-import { useBranches } from '../hooks/useBranches';
+import { IconGitBranch, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -19,13 +14,17 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { useDebounce } from 'use-debounce';
+import { SelectBranchesContext } from '../contexts/SelectBranchesContext';
+import { useBranches } from '../hooks/useBranches';
+import { useSelectBranchesContext } from '../hooks/useSelectBranchesContext';
+import { IBranch, ISelectBranchesProviderProps } from '../types/Branch';
 import { BranchBadge } from './BranchBadge';
 import {
   CreateBranchForm,
   SelectBranchCreateContainer,
 } from './CreateBranchForm';
-import React from 'react';
 
 export const SelectBranchesProvider = ({
   children,
@@ -47,14 +46,14 @@ export const SelectBranchesProvider = ({
     const newSelectedBranchIds = isSingleMode
       ? [branch._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== branch._id)
-      : [...multipleValue, branch._id];
+        ? multipleValue.filter((p) => p !== branch._id)
+        : [...multipleValue, branch._id];
 
     const newSelectedBranches = isSingleMode
       ? [branch]
       : isSelected
-      ? selectedBranches.filter((p) => p._id !== branch._id)
-      : [...selectedBranches, branch];
+        ? selectedBranches.filter((p) => p._id !== branch._id)
+        : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
     onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
@@ -331,12 +330,12 @@ const SelectBranchesBadgesView = () => {
 export const SelectBranchesDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(
   (
     { onValueChange, scope, value, mode, options, className, ...props },

@@ -1,4 +1,3 @@
-import { IconChessKnight, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
@@ -10,15 +9,17 @@ import {
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
+import { IconChessKnight, IconPlus } from '@tabler/icons-react';
 import React, { useState } from 'react';
-import { useClientPortalForm } from '@/client-portal/hooks/useClientPortalForm';
-import { SubmitHandler } from 'react-hook-form';
+import {
+  TClientPortalAddForm,
+  useClientPortalForm,
+} from '@/client-portal/hooks/useClientPortalForm';
 
-import { TClientPortalAddForm } from '@/client-portal/hooks/useClientPortalForm';
-import { ClientPortalHotKeyScope } from '@/client-portal/types/clientPortal';
-import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
 import { ClientPortalCreateForm } from '@/client-portal/components/ClientPortalCreateForm';
-
+import { ClientPortalHotKeyScope } from '@/client-portal/types/clientPortal';
+import { SubmitHandler } from 'react-hook-form';
+import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
 import { useNavigate } from 'react-router-dom';
 
 export const CreateClientPortalSheet = () => {
@@ -62,7 +63,6 @@ export const CreateClientPortalSheet = () => {
       clientPortalAdd({
         variables: data,
         onCompleted: (data) => {
-          console.log(data);
           toast({
             title: 'Success!',
             variant: 'success',

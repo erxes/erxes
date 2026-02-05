@@ -1,10 +1,9 @@
-import { Button, Form, Input } from 'erxes-ui';
-import { z } from 'zod';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useLogin } from '@/auth/login/hooks/useLogin';
-import { useQueryState } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Form, Input, useQueryState } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 export const ForgotPasswordForm = () => {
   const { handleForgotPassword } = useLogin();

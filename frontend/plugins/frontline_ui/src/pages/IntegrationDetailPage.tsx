@@ -15,14 +15,6 @@ const ErxesMessengerDetail = lazy(() =>
   ),
 );
 
-const ErxesMessengerActions = lazy(() =>
-  import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
-    (module) => ({
-      default: module.ErxesMessengerActions,
-    }),
-  ),
-);
-
 const FacebookIntegrationDetail = lazy(() =>
   import('@/integrations/facebook/components/FacebookIntegrationDetail').then(
     (module) => ({
@@ -31,10 +23,10 @@ const FacebookIntegrationDetail = lazy(() =>
   ),
 );
 
-const FacebookIntegrationActions = lazy(() =>
-  import('@/integrations/facebook/components/FacebookIntegrationDetail').then(
+const ImapIntegrationDetail = lazy(() =>
+  import('@/integrations/imap/components/ImapIntegrationDetail').then(
     (module) => ({
-      default: module.FacebookIntegrationActions,
+      default: module.ImapIntegrationDetail,
     }),
   ),
 );
@@ -43,14 +35,6 @@ const CallIntegrationDetail = lazy(() =>
   import('@/integrations/call/components/CallIntegrationDetail').then(
     (module) => ({
       default: module.CallIntegrationDetail,
-    }),
-  ),
-);
-
-const CallIntegrationActions = lazy(() =>
-  import('@/integrations/call/components/CallIntegrationDetail').then(
-    (module) => ({
-      default: module.CallIntegrationActions,
     }),
   ),
 );
@@ -106,23 +90,9 @@ export const IntegrationDetailPage = () => {
           <FacebookIntegrationDetail isPost />
         )}
         {integrationType === IntegrationType.CALL && <CallIntegrationDetail />}
+        {integrationType === IntegrationType.IMAP && <ImapIntegrationDetail />}
       </Suspense>
-      <IntegrationsRecordTable
-        Actions={({ cell }) => (
-          <>
-            {integrationType === IntegrationType.ERXES_MESSENGER && (
-              <ErxesMessengerActions cell={cell} />
-            )}
-            {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
-              integrationType === IntegrationType.FACEBOOK_POST) && (
-              <FacebookIntegrationActions cell={cell} />
-            )}
-            {integrationType === IntegrationType.CALL && (
-              <CallIntegrationActions cell={cell} />
-            )}
-          </>
-        )}
-      />
+      <IntegrationsRecordTable />
     </div>
   );
 };

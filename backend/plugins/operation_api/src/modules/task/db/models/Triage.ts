@@ -1,5 +1,9 @@
 import { IModels } from '~/connectionResolvers';
-import { ITriage, ITriageDocument } from '@/task/@types/triage';
+import {
+  ITriage,
+  ITriageDocument,
+  ITriageUpdateInput,
+} from '@/task/@types/triage';
 import { Model } from 'mongoose';
 import { triageSchema } from '../definitions/triage';
 import { createNotifications } from '~/utils/notifications';
@@ -13,7 +17,10 @@ export interface ITriageModel extends Model<ITriageDocument> {
     subdomain: string;
     triage: ITriage;
   }): Promise<ITriageDocument>;
-  updateTriage(_id: string, triage: ITriage): Promise<ITriageDocument>;
+  updateTriage(
+    _id: string,
+    triage: ITriageUpdateInput,
+  ): Promise<ITriageDocument>;
   deleteTriage(_id: string): Promise<{ ok: number }>;
 }
 
@@ -62,7 +69,7 @@ export const loadTriageClass = (models: IModels) => {
       return triageDoc;
     }
 
-    public static async updateTriage(_id: string, triage: ITriage) {
+    public static async updateTriage(_id: string, triage: ITriageUpdateInput) {
       return await models.Triage.findOneAndUpdate({ _id }, triage, {
         new: true,
       });

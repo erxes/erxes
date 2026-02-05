@@ -11,13 +11,17 @@ import { generateModels } from '~/connectionResolvers';
 import { contactImportHandlers } from '~/modules/contacts/meta/import-export/import/importHandlers';
 import { Express } from 'express';
 import { contactExportHandlers } from '~/modules/contacts/meta/import-export/export/exportHandlers';
+import { productImportHandlers } from '~/modules/products/meta/import-export/import/importHandlers';
+import { productExportHandlers } from '~/modules/products/meta/import-export/export/exportHandlers';
 
 const importModules = {
   contact: contactImportHandlers,
+  product: productImportHandlers,
 };
 
 const exportModules = {
   contact: contactExportHandlers,
+  product: productExportHandlers,
 };
 
 const modules = {

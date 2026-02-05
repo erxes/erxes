@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type Spin {
     _id: String
@@ -19,13 +21,18 @@ export const types = `
 
 const queryParams = `
   campaignId: String
+  searchValue: String
   status: String
   ownerType: String
   ownerId: String
+
+  voucherCampaignId: String
+
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
-  getSpins(${queryParams}): SpinListResponse
+  spins(${queryParams}): SpinListResponse
 `;
 
 const mutationParams = `
@@ -37,9 +44,9 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  createSpin(${mutationParams}): Spin
-  updateSpin(_id: String!, ${mutationParams}): Spin
-  removeSpin(_id: String!): Spin
+  spinsAdd(${mutationParams}): Spin
+  spinsEdit(_id: String!, ${mutationParams}): Spin
+  spinsRemove(_ids: [String]): JSON
   doSpin(_id: String!): Spin
   buySpin(campaignId: String, ownerType: String, ownerId: String, count: Int): Spin
 `;

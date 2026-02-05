@@ -1,10 +1,10 @@
 {
-  "name": "loyalty_api",
+  "name": "loyalty",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/main.ts",
+    "dev": "tsx watch src/main.ts",
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "node -r tsconfig-paths/register dist/src/main.js"
   },

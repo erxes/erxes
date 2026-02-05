@@ -508,7 +508,7 @@ export const loadCustomerClass = (
         action: 'update',
         docId: _id,
         currentDocument: { ...pssDoc, ...modifier },
-        prevDocument: customer.toObject(),
+        prevDocument: customer,
       });
       generateCustomerActivityLogs(
         customer,
@@ -591,8 +591,8 @@ export const loadCustomerClass = (
         sendDbEventLog({
           action: 'update',
           docId: customerId,
-          currentDocument: updatedCustomer.toObject(),
-          prevDocument: customer.toObject(),
+          currentDocument: updatedCustomer,
+          prevDocument: customer,
         });
         generateCustomerActivityLogs(
           customer,
@@ -710,7 +710,7 @@ export const loadCustomerClass = (
           action: 'update',
           docId: _id,
           currentDocument: updatedCustomer.toObject(),
-          prevDocument: customer.toObject(),
+          prevDocument: customer,
         });
         generateCustomerActivityLogs(
           customer,

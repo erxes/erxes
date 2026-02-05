@@ -24,6 +24,7 @@ const OperationSettingsNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'operation',
   path: 'operation',
+  icon: IconListCheck,
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <OperationSettingsNavigation />

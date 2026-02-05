@@ -1,8 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Card, cn, useUpload } from 'erxes-ui';
 import type React from 'react';
-
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 type FileUploadType = {
   key: string;

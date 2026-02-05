@@ -3,7 +3,7 @@ import {
   CustomerWidget,
   IRelationWidgetProps,
   SelectCustomersBulk,
-  useCreateMultipleRelations,
+  useManageRelations,
   useRelations,
 } from 'ui-modules';
 import { IconPlus, IconUserSearch } from '@tabler/icons-react';
@@ -13,7 +13,7 @@ export const CustomerWidgets = ({
   contentType,
   customerId,
 }: IRelationWidgetProps) => {
-  const { createMultipleRelations } = useCreateMultipleRelations();
+  const { manageRelations } = useManageRelations();
   const { ownEntities, loading } = useRelations({
     variables: {
       contentId,
@@ -24,14 +24,7 @@ export const CustomerWidgets = ({
   });
 
   const handleSelectCustomers = (customerIds: string[]) => {
-    const relations = customerIds.map((customerId) => ({
-      entities: [
-        { contentType, contentId },
-        { contentType: 'core:customer', contentId: customerId },
-      ],
-    }));
-
-    createMultipleRelations(relations);
+    manageRelations({ contentType, contentId, relatedContentType: 'core:customer', relatedContentIds: customerIds })
   };
 
   if (loading) {

@@ -1,21 +1,19 @@
 import {
   Button,
-  Combobox,
-  Command,
   Form,
   InfoCard,
   Input,
   PhoneInput,
-  Popover,
   Spinner,
   toast,
+  Tabs
 } from 'erxes-ui';
 import { useCreateCustomerForm } from '../ticket/hooks/useCreateCustomerForm';
 import { TCreateCustomerForm } from '../ticket/types';
-import { IconPhone, IconMail, IconUserShare } from '@tabler/icons-react';
+
 import { AnimatePresence, motion } from 'motion/react';
 import { SubmitHandler } from 'react-hook-form';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { useEditCustomer } from '../hooks/useEditCustomer';
 import { messengerDataAtom } from '../states';
@@ -94,10 +92,20 @@ export const NotifyCustomerForm = () => {
               name="type"
               render={({ field }) => (
                 <Form.Item>
-                  <SelectContactType
+                  <Tabs
                     value={field.value}
-                    onChange={field.onChange}
-                  />
+                    onValueChange={field.onChange}
+                    className="w-full"
+                  >
+                    <Tabs.List className="w-full">
+                      <Tabs.Trigger value="email" className="flex-1">
+                        Email
+                      </Tabs.Trigger>
+                      <Tabs.Trigger value="phone" className="flex-1">
+                        Phone
+                      </Tabs.Trigger>
+                    </Tabs.List>
+                  </Tabs>
                 </Form.Item>
               )}
             />
@@ -185,59 +193,4 @@ export const NotifyCustomerForm = () => {
   );
 };
 
-export const SelectContactType = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) => {
-  const [open, setOpen] = useState(false);
-  const handleValueChange = (value: string) => {
-    onChange(value);
-    setOpen(false);
-  };
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Form.Control>
-        <Combobox.TriggerBase className="w-fit h-7 font-medium max-w-64">
-          {!value ? (
-            <span className="flex items-center gap-2 text-accent-foreground">
-              <IconUserShare className="size-4" />
-              Select contact type
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              {value === 'email' ? (
-                <IconMail className="size-4" />
-              ) : (
-                <IconPhone className="size-4" />
-              )}
-              {value === 'email' ? 'Email' : 'Phone'}
-            </span>
-          )}
-        </Combobox.TriggerBase>
-      </Form.Control>
-      <Combobox.Content>
-        <Command>
-          <Command.List>
-            <Command.Item
-              value="email"
-              onSelect={() => handleValueChange('email')}
-            >
-              <IconMail className="size-4" />
-              Email
-            </Command.Item>
-            <Command.Item
-              value="phone"
-              onSelect={() => handleValueChange('phone')}
-            >
-              <IconPhone className="size-4" />
-              Phone
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
-};
+

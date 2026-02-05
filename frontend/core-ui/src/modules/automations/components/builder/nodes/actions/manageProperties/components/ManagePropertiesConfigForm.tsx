@@ -5,12 +5,11 @@ import {
   TManagePropertiesForm,
 } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { useFormValidationErrorHandler } from 'ui-modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Button, Form, Label, Select } from 'erxes-ui';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { TAutomationAction, TAutomationActionProps } from 'ui-modules';
+import { TAutomationAction, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
 
 const generateDefaultValues = (currentAction: TAutomationAction) => {
   const values = { ...(currentAction?.config || {}) };

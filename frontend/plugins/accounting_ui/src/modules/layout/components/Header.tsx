@@ -1,9 +1,7 @@
-import { IconSettings } from '@tabler/icons-react';
-
-import { IconArrowsRightLeft } from '@tabler/icons-react';
-import { Button, Breadcrumb, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { IconArrowsRightLeft, IconSettings } from '@tabler/icons-react';
+import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { PageHeader } from 'ui-modules';
 
 export const AccountingHeader = ({
   children,

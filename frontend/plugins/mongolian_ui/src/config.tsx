@@ -8,9 +8,21 @@ const MainNavigation = lazy(() =>
   })),
 );
 
+const SettingsNavigation = lazy(() =>
+  import('./modules/SettingsNavigation').then((module) => ({
+    default: module.SettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
-  icon: IconSandbox,
+  path: 'mongolian',
+  hasFloatingWidget: true,
+   settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'mongolian',
     icon: IconSandbox,
@@ -20,79 +32,63 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
-
+  widgets: {},
   modules: [
     {
       name: 'ebarimt',
       icon: IconSandbox,
-      path: 'ebarimt',
-      hasSettings: true,
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
+      path: 'mongolian/ebarimt',
     },
     {
       name: 'sync-erkhet',
       icon: IconSandbox,
-      path: 'sync-erkhet',
-      hasSettings: true,
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
+      path: 'mongolian/sync-erkhet',
     },
     {
       name: 'sync-erkhet-history',
       icon: IconSandbox,
       path: 'mongolian/sync-erkhet-history',
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'check-synced-deals',
       icon: IconSandbox,
       path: 'mongolian/check-synced-deals',
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'check-pos-orders',
       icon: IconSandbox,
       path: 'mongolian/check-pos-orders',
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'check-category',
       icon: IconSandbox,
       path: 'mongolian/check-category',
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'check-products',
       icon: IconSandbox,
       path: 'mongolian/check-products',
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'put-response',
       icon: IconSandbox,
       path: 'mongolian/put-response',
-      hasRelationWidget: false,
-      hasFloatingWidget: false,
     },
     {
       name: 'put-responses-by-date',
       icon: IconSandbox,
       path: 'mongolian/put-responses-by-date',
-      hasRelationWidget: false,
-      hasFloatingWidget: false,
     },
     {
       name: 'put-responses-duplicated',
       icon: IconSandbox,
       path: 'mongolian/put-responses-duplicated',
-      hasRelationWidget: false,
-      hasFloatingWidget: false,
+    },
+    {
+      name: 'productplaces',
+      icon: IconSandbox,
+      path: 'mongolian/product-places',
+
     },
   ],
 };

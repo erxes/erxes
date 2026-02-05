@@ -74,7 +74,7 @@ const DateTimeInput = ({
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const timeValue = e.target.value;
     if (!timeValue) return;
-    const [hh, mm] = timeValue.split(':').map((v) => parseInt(v, 10));
+    const [hh, mm] = timeValue.split(':').map((v) => Number.parseInt(v, 10));
     const base = value || new Date();
     const merged = new Date(base);
     merged.setHours(hh || 0);

@@ -16,9 +16,8 @@ const config: ModuleFederationConfig = {
   name: 'accounting_ui',
   exposes: {
     './config': './src/config.tsx',
-    './accounting': './src/modules/app/components/app.tsx',
-    './accountingSettings':
-      './src/modules/settings/components/AccountingSettings.tsx',
+    './accounting': './src/modules/AccountingMain.tsx',
+    './accountingSettings': './src/modules/AccountingSettings.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

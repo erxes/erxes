@@ -1,5 +1,5 @@
-import { createContext } from 'react';
 import { ICustomer } from '../types';
+import { createContext } from 'react';
 
 export type ISelectCustomerContext = {
   customerIds: string[];
@@ -8,6 +8,8 @@ export type ISelectCustomerContext = {
   setCustomers: (customers: ICustomer[]) => void;
   loading: boolean;
   error: string | null;
+  hideAvatar?: boolean;
+  mode: 'single' | 'multiple';
 };
 
 export const SelectCustomerContext =

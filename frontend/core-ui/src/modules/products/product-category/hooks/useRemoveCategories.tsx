@@ -1,8 +1,7 @@
+import { productsMutations, productsQueries } from '@/products/graphql';
+import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { IProductCategory } from 'ui-modules';
-import { productsMutations } from '@/products/graphql';
-import { productsQueries } from '@/products/graphql';
-import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
 
 export const useRemoveCategories = () => {
   const [_removeCategory, { loading }] = useMutation(productsMutations.categoryRemove);

@@ -18,6 +18,7 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './frontline': './src/modules/FrontlineMain.tsx',
     './frontlineSettings': './src/modules/FrontlineSettings.tsx',
+    './knowledgebase': './src/modules/knowledgebase/Main.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
     './notificationWidget':

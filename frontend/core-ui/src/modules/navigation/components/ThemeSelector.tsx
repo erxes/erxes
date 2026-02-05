@@ -1,6 +1,5 @@
 import { IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
-import { ToggleGroup, Tooltip } from 'erxes-ui';
-import { ThemeOption, themeState } from 'erxes-ui';
+import { ThemeOption, themeState, ToggleGroup, Tooltip } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 

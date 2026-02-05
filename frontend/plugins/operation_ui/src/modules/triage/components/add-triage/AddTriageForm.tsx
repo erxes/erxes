@@ -21,7 +21,9 @@ import { currentUserState } from 'ui-modules';
 import { addTriageSchema, IAddTriage } from '@/triage/types/triage';
 import { useCreateTriage } from '@/triage/hooks/useCreateTriage';
 import { SelectPriority } from '@/operation/components/SelectPriority';
+import { SelectStatus } from '@/operation/components/SelectStatus';
 import { toast } from 'erxes-ui';
+import { STATUS_TYPES } from '@/operation/components/StatusInline';
 
 export const AddTriageForm = ({
   onComplete,
@@ -44,6 +46,7 @@ export const AddTriageForm = ({
     teamId: _teamId || undefined,
     name: '',
     priority: 0,
+    status: STATUS_TYPES.TRIAGE,
   };
 
   const form = useForm<IAddTriage>({
@@ -77,6 +80,7 @@ export const AddTriageForm = ({
           ...data,
           description: JSON.stringify(descriptionContent),
           priority: data.priority || 0,
+          status: data.status || STATUS_TYPES.TRIAGE,
         },
       },
       onCompleted: ({ operationAddTriage }) => {
@@ -135,19 +139,35 @@ export const AddTriageForm = ({
               </Form.Item>
             )}
           />
-          <Form.Field
-            name="priority"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label className="sr-only">Priority</Form.Label>
-                <SelectPriority.FormItem
-                  value={field.value || 0}
-                  onValueChange={(value) => field.onChange(value)}
-                />
-              </Form.Item>
-            )}
-          />
+          <div className="flex gap-2 w-full">
+            <Form.Field
+              name="priority"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Priority</Form.Label>
+                  <SelectPriority.FormItem
+                    value={field.value || 0}
+                    onValueChange={(value) => field.onChange(value)}
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="status"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Status</Form.Label>
+                  <SelectStatus.FormItem
+                    value={field.value || STATUS_TYPES.TRIAGE}
+                    onValueChange={(value) => field.onChange(value)}
+                    useExtendedLabels={true}
+                  />
+                </Form.Item>
+              )}
+            />
+          </div>
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor
