@@ -1,12 +1,18 @@
 import { useState } from 'react';
+
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
+import { Dialog } from 'erxes-ui/components/dialog';
+
+import { PAYMENT_KINDS } from '~/modules/payment/constants';
+import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 
 import ConfigFormContainer from './configs/containers/Form';
-import { Dialog } from 'erxes-ui/components/dialog';
 
 const API_URL =
   (window as any)?.WIDGET_CONFIG?.API_URL || '';
+
+const GOLOMT_PAYMENT = PAYMENT_KINDS[PaymentKind.GOLOMT];
 
 const GolomtBankCard = () => {
   const [open, setOpen] = useState(false);
@@ -14,6 +20,7 @@ const GolomtBankCard = () => {
   return (
     <>
       <Card className="p-4 space-y-3">
+        {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <img
@@ -23,7 +30,9 @@ const GolomtBankCard = () => {
             />
 
             <div>
-              <p className="font-semibold">Golomt E-Commerce</p>
+              <p className="font-semibold">
+                {GOLOMT_PAYMENT.name}
+              </p>
               <p className="text-xs text-muted-foreground">
                 ( Accepts MNT )
               </p>
@@ -39,17 +48,19 @@ const GolomtBankCard = () => {
           </Button>
         </div>
 
+        {/* Description */}
         <p className="text-sm text-muted-foreground">
-          Becoming an E-Commerce merchant for online sales and payment we offer
-          products and services 24/7. Accepts most type of domestic and foreign card
-          and provide opportunity to make and receive payment from anywhere
+          {GOLOMT_PAYMENT.description}
         </p>
       </Card>
 
+      {/* Add Config Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>Add Golomt E-Commerce</Dialog.Title>
+            <Dialog.Title>
+              Add {GOLOMT_PAYMENT.name}
+            </Dialog.Title>
           </Dialog.Header>
 
           <ConfigFormContainer closeModal={() => setOpen(false)} />
@@ -59,4 +70,4 @@ const GolomtBankCard = () => {
   );
 };
 
-export default GolomtBankCard;
+export default GolomtBankCard;   

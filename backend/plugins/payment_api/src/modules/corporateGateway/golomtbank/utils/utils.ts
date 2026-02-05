@@ -1,6 +1,6 @@
-import fetch from "node-fetch";
-import redis from "../redis";
-import { encryptedPassword } from "./encryptPassword";
+import fetch from 'node-fetch';
+import { redis } from 'erxes-api-shared/src/utils/redis';
+import { encryptPassword } from './encryptPassword';
 
 export const getAuthHeaders = async (args: {
   name: string;
@@ -13,51 +13,70 @@ export const getAuthHeaders = async (args: {
   golomtCode?: string;
   apiUrl: string;
 }) => {
-  const { name, ivKey, clientId, configPassword, sessionKey, apiUrl } = args;
+  const {
+    name,
+    ivKey,
+    clientId,
+    configPassword,
+    sessionKey,
+    apiUrl,
+  } = args;
 
-  const accessToken = await redis.get(
-    `golomtbank_token_${clientId}:${sessionKey}`
-  );
+  if (!apiUrl) {
+    throw new Error('Not found apiUrl');
+  }
+
+  const cacheKey = `golomtbank_token_${clientId}:${sessionKey}`;
+
+  const accessToken = await redis.get(cacheKey);
 
   if (accessToken) {
     return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
     };
   }
 
   try {
-    if (!apiUrl) {
-      throw new Error("Not found url");
-    }
-
-    const encrypted = encryptedPassword(configPassword, sessionKey, ivKey);
+    const encrypted = encryptPassword(
+      configPassword,
+      sessionKey,
+      ivKey,
+    );
 
     const response = await fetch(`${apiUrl}/v1/auth/login`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name: name, password: encrypted })
-    }).then(res => res.json());
+      body: JSON.stringify({
+        name,
+        password: encrypted,
+      }),
+    }).then((res) => res.json());
 
+    if (!response?.token) {
+      throw new Error('Invalid auth response');
+    }
+
+    // 🔹 Cache token in Redis (expires a bit earlier than server)
     await redis.set(
-      `golomtbank_token_${clientId}:${sessionKey}`,
+      cacheKey,
       response.token,
-      "EX",
-      response.expiresIn - 60
+      'EX',
+      response.expiresIn - 60,
     );
 
     return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${response.token}`
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${response.token}`,
     };
-  } catch (e) {
-    console.error(e.message);
-    throw new Error("Authentication failed");
+  } catch (e: any) {
+    console.error(e);
+    throw new Error('Authentication failed');
   }
 };
 
 export const formatDate = (date: string) => {
-  return date.replace(/-/g, "");
+  return date.replace(/-/g, '');
 };

@@ -1,23 +1,27 @@
-const CryptoJS = require('crypto-js');
+import * as crypto from 'crypto';
 
-export function encryptPassword(
+export const encryptPassword = (
   data: string,
   keySession: string,
-  keyiv: string
-): string {
-  // key-үүдийг parse хийж байгаа
-  const sessionKey = CryptoJS.enc.Latin1.parse(keySession);
-  const ivKey = CryptoJS.enc.Latin1.parse(keyiv);
+  keyIv: string
+): string => {
+  /**
+   * Golomt Bank uses AES-128-CBC
+   * key = 16 bytes
+   * iv  = 16 bytes
+   */
 
-  const encryptedPass = CryptoJS.AES.encrypt(
-    data,
-    sessionKey,
-    {
-      mode: CryptoJS.mode.CBC,
-      iv: ivKey,
-      padding: CryptoJS.pad.Pkcs7,
-    }
+  const key = Uint8Array.from(Buffer.from(keySession, 'latin1'));
+  const iv = Uint8Array.from(Buffer.from(keyIv, 'latin1'));
+
+  const cipher = crypto.createCipheriv(
+    'aes-128-cbc',
+    key,
+    iv
   );
 
-  return encryptedPass.toString();
-}
+  let encrypted = cipher.update(data, 'utf8', 'base64');
+  encrypted += cipher.final('base64');
+
+  return encrypted;
+};
