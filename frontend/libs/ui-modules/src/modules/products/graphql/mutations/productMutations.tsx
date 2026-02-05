@@ -20,6 +20,7 @@ export const PRODUCTS_ADD = gql`
     $scopeBrandIds: [String]
     $uom: String
     $subUoms: JSON
+    $currency: String
   ) {
     productsAdd(
       name: $name
@@ -40,6 +41,7 @@ export const PRODUCTS_ADD = gql`
       scopeBrandIds: $scopeBrandIds
       uom: $uom
       subUoms: $subUoms
+      currency: $currency
     ) {
       _id
       attachment {
@@ -60,6 +62,7 @@ export const PRODUCTS_ADD = gql`
         _id
         primaryName
       }
+      currency
     }
   }
 `;
@@ -79,6 +82,12 @@ export const PRODUCTS_EDIT = gql`
     $uom: String
     $barcodeDescription: String
     $barcodes: [String]
+    $currency: String
+    $variants: JSON
+    $subUoms: JSON
+    $scopeBrandIds: [String]
+    $attachment: AttachmentInput
+    $attachmentMore: [AttachmentInput]
   ) {
     productsEdit(
       _id: $_id
@@ -94,6 +103,12 @@ export const PRODUCTS_EDIT = gql`
       barcodes: $barcodes
       uom: $uom
       barcodeDescription: $barcodeDescription
+      currency: $currency
+      variants: $variants
+      subUoms: $subUoms
+      scopeBrandIds: $scopeBrandIds
+      attachment: $attachment
+      attachmentMore: $attachmentMore
     ) {
       _id
     }
