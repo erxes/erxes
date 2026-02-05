@@ -24,6 +24,7 @@ export const BundleRuleRecordTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             {loading && <RecordTable.RowSkeleton rows={10} />}
+            <RecordTable.RowList />
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
