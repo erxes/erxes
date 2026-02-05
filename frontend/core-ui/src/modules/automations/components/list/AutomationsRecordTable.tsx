@@ -2,12 +2,23 @@ import { getAutomationColumns } from '@/automations/components/list/AutomationCo
 import { AutomationRecordTableFilters } from '@/automations/components/list/filters/AutomationRecordTableFilters';
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
-import { Breadcrumb, Button, RecordTable, Separator, Spinner } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  RecordTable,
+  Separator,
+  Spinner,
+  Kbd,
+  useScopedHotkeys,
+} from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AutomationsHotKeyScope } from '@/automations/types';
+import { useNavigate } from 'react-router-dom';
+
 export const AutomationsRecordTable = () => {
   const {
     list,
@@ -19,7 +30,13 @@ export const AutomationsRecordTable = () => {
   } = useAutomationsRecordTable();
 
   const { t } = useTranslation('automations');
-const columns = useMemo(() => getAutomationColumns(t), [t]);
+  const columns = useMemo(() => getAutomationColumns(t), [t]);
+  const navigate = useNavigate();
+  useScopedHotkeys(
+    `c`,
+    () => navigate('/automations/create'),
+    AutomationsHotKeyScope.AutomationsPage,
+  );
   if (loading) {
     return <Spinner />;
   }
@@ -48,7 +65,10 @@ const columns = useMemo(() => getAutomationColumns(t), [t]);
             </Link>
           </Button>
           <Button asChild>
-            <Link to={'/automations/create'}>{t('add')}</Link>
+            <Link to={'/automations/create'}>
+              {t('create')}
+              <Kbd>C</Kbd>
+            </Link>
           </Button>
         </PageHeader.End>
       </PageHeader>

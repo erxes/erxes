@@ -12,6 +12,7 @@ export const PropertyInput = ({
   parentFieldName,
   operators,
   selectedField,
+  loading,
 }: IPropertyInput) => {
   const { form } = useSegment();
   const { control } = form;
@@ -42,7 +43,7 @@ export const PropertyInput = ({
   }
 
   let Component = (field: ControllerRenderProps<any, any>) => (
-    <Input {...field} disabled={!value} />
+    <Input {...field} disabled={!value || loading} />
   );
 
   if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
@@ -52,6 +53,7 @@ export const PropertyInput = ({
         value={field.value}
         onChange={(date) => field.onChange(date as Date)}
         placeholder="Select date"
+        disabled={loading}
       />
     );
   }
@@ -61,6 +63,7 @@ export const PropertyInput = ({
       <Select
         value={field.value}
         onValueChange={(selectedValue) => field.onChange(selectedValue)}
+        disabled={loading}
       >
         <Select.Trigger>
           <Select.Value className="w-full" />
@@ -120,6 +123,7 @@ export const PropertyInput = ({
       <Select
         value={field.value}
         onValueChange={(selectedValue) => field.onChange(selectedValue)}
+        disabled={loading}
       >
         <Select.Trigger>
           <Select.Value className="w-full" />

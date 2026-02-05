@@ -1,13 +1,19 @@
 import { AUTOMATION_EDIT } from '@/automations/graphql/automationMutations';
-import { TAutomationRecordTableColumnDefData } from '@/automations/types';
+import {
+  AutomationsHotKeyScope,
+  TAutomationRecordTableColumnDefData,
+} from '@/automations/types';
+import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import { IconPointerBolt, IconShare } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
   cn,
+  Input,
   Label,
   Popover,
+  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -17,6 +23,7 @@ import { Link } from 'react-router-dom';
 import { TagsSelect, TAutomationAction, TAutomationTrigger } from 'ui-modules';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
+import { useState } from 'react';
 
 const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
@@ -29,14 +36,45 @@ export const getAutomationColumns: (
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Link to={`/automations/edit/${cell.row.original._id}`}>
-          {cell.getValue() as string}
-        </Link>
-      </RecordTableInlineCell>
-    ),
-    minSize: 120,
+    cell: ({ cell }) => {
+      const [editingName, setEditingName] = useState(cell.getValue() as string);
+      const navigate = useNavigate();
+      const [edit] = useMutation(AUTOMATION_EDIT);
+      const handleEnter = () => {
+        if (
+          editingName === (cell.getValue() as string) ||
+          editingName.trim() === ''
+        ) {
+          return;
+        }
+        edit({
+          variables: {
+            id: cell.row.original._id,
+            name: editingName,
+          },
+        });
+      };
+      return (
+        <PopoverScoped closeOnEnter onEnter={handleEnter}>
+          <RecordTableInlineCell.Trigger>
+            <RecordTableInlineCell.Anchor
+              onClick={() => {
+                navigate(`/automations/edit/${cell.row.original._id}`);
+              }}
+            >
+              {cell.getValue() as string}
+            </RecordTableInlineCell.Anchor>
+          </RecordTableInlineCell.Trigger>
+          <RecordTableInlineCell.Content>
+            <Input
+              value={editingName}
+              onChange={(e) => setEditingName(e.target.value)}
+            />
+          </RecordTableInlineCell.Content>
+        </PopoverScoped>
+      );
+    },
+    minSize: 150,
   },
   {
     id: 'status',
@@ -47,6 +85,7 @@ export const getAutomationColumns: (
     },
     size: 80,
   },
+
   {
     id: 'triggers',
     accessorKey: 'triggers',
@@ -76,6 +115,37 @@ export const getAutomationColumns: (
       );
     },
     size: 80,
+  },
+  {
+    id: 'tagIds',
+    accessorKey: 'tagIds',
+    header: () => <RecordTable.InlineHead label={t('tags')} />,
+    cell: ({ cell }) => {
+      const tagIds = cell.getValue() as string[];
+
+      return (
+        <TagsSelect.InlineCell
+          scope={AutomationsHotKeyScope.AutomationsTableInlinePopover}
+          type="core:automation"
+          mode="multiple"
+          value={tagIds}
+          targetIds={[cell.row.original._id]}
+          options={(newSelectedTagIds) => ({
+            update: (cache) => {
+              cache.modify({
+                id: cache.identify({
+                  __typename: 'Automation',
+                  _id: cell.row.original._id,
+                }),
+                fields: {
+                  tagIds: () => newSelectedTagIds,
+                },
+              });
+            },
+          })}
+        />
+      );
+    },
   },
   {
     id: 'updatedUser',
@@ -114,36 +184,6 @@ export const getAutomationColumns: (
             <RelativeDateDisplay.Value value={cell.getValue() as string} />
           </RecordTableInlineCell>
         </RelativeDateDisplay>
-      );
-    },
-  },
-  {
-    id: 'tagIds',
-    accessorKey: 'tagIds',
-    header: () => <RecordTable.InlineHead label={t('tags')} />,
-    cell: ({ cell }) => {
-      const tagIds = cell.getValue() as string[];
-
-      return (
-        <TagsSelect.InlineCell
-          type="core:automation"
-          mode="multiple"
-          value={tagIds}
-          targetIds={[cell.row.original._id]}
-          options={(newSelectedTagIds) => ({
-            update: (cache) => {
-              cache.modify({
-                id: cache.identify({
-                  __typename: 'Automation',
-                  _id: cell.row.original._id,
-                }),
-                fields: {
-                  tagIds: () => newSelectedTagIds,
-                },
-              });
-            },
-          })}
-        />
       );
     },
   },
