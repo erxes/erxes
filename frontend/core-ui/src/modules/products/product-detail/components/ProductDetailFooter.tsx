@@ -1,59 +1,23 @@
-import React from 'react';
-import { Button } from 'erxes-ui';
-import { useProductsEdit } from '@/products/hooks/useProductsEdit';
-import { useProductDetail } from '../hooks/useProductDetail';
-import { useToast } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import { Button } from 'erxes-ui';
+import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
 
 interface ProductDetailFooterProps {
   form: UseFormReturn<ProductFormValues>;
   activeTab: string;
   onCancel?: () => void;
+  onSave?: () => void;
+  editLoading?: boolean;
 }
 
 export const ProductDetailFooter: React.FC<ProductDetailFooterProps> = ({
   form,
   activeTab,
   onCancel,
+  onSave,
+  editLoading = false,
 }) => {
-  const { toast } = useToast();
-  const { productDetail } = useProductDetail();
-
-  const { productsEdit, loading: editLoading } = useProductsEdit();
-
-  const handleSubmit = (data: ProductFormValues) => {
-    if (!productDetail?._id) {
-      toast({
-        title: 'Error',
-        description: 'Product ID is missing',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    productsEdit({
-      variables: {
-        ...data,
-        _id: productDetail._id,
-      },
-      onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Product updated successfully',
-          variant: 'success',
-        });
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to update product',
-          variant: 'destructive',
-        });
-      },
-    });
-  };
-
   const handleCancel = () => {
     if (form && typeof form.reset === 'function') {
       form.reset();
@@ -63,16 +27,20 @@ export const ProductDetailFooter: React.FC<ProductDetailFooterProps> = ({
     }
   };
 
+  const handleSaveClick = () => {
+    if (onSave) onSave();
+  };
+
   return (
-    <div className="flex justify-end space-x-2 p-4 border-t bg-white">
-      <Button variant="ghost" onClick={handleCancel} type="button">
+    <div className="flex justify-end p-4 space-x-2 border-t bg-background">
+      <Button variant="outline" onClick={handleCancel} type="button">
         Cancel
       </Button>
       <Button
         type="button"
-        onClick={form.handleSubmit(handleSubmit)}
         disabled={editLoading}
-        className="bg-primary text-primary-foreground hover:bg-primary/90"
+        onClick={handleSaveClick}
+        variant="default"
       >
         {editLoading
           ? 'Saving...'

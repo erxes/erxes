@@ -1,25 +1,19 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ICommonDocument, ICommonFields } from '~/utils';
 
-export interface ISpin {
-  ownerId: string;
-  ownerType: string;
-  campaignId: string;
+export interface ISpin extends ICommonFields {
   status?: string;
-
-  // won
-  awardId?: string;
-  voucherId?: string;
-
   voucherCampaignId?: string;
-
-  createdBy?: string;
-  updatedBy?: string;
 }
 
-export interface ISpinDocument extends ISpin, Document {
-  createdAt: Date;
-  updatedAt: Date;
+export interface ISpinDocument extends ISpin, ICommonDocument, Document {
+  _id: string;
+  status: string;
+
+  // won
+  awardId: string;
+  voucherId: string;
 }
 
 export interface ISpinParams extends ICursorPaginateParams {

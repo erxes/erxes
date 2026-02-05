@@ -40,6 +40,11 @@ export const GET_CORE_MODULES = (
           icon: IconBuilding,
         },
         {
+          name: 'Client Portal Users',
+          path: 'contacts/client-portal-users',
+          icon: IconUser,
+        },
+        {
           name: t('vendors'),
           path: 'contacts/vendors',
           icon: IconSpiral,
@@ -48,18 +53,6 @@ export const GET_CORE_MODULES = (
           name: t('clients'),
           path: 'contacts/clients',
           icon: IconSpiral,
-        },
-      ],
-    },
-    {
-      name: t('products'),
-      icon: IconShoppingCart,
-      path: 'products',
-      submenus: [
-        {
-          name: 'categories',
-          path: 'products/categories',
-          icon: IconCategory,
         },
       ],
     },

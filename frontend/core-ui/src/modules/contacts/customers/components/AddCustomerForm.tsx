@@ -1,9 +1,3 @@
-import { useForm } from 'react-hook-form';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-
-import { Button, Form, ScrollArea, Sheet, useToast } from 'erxes-ui';
-
 import { CustomerAddGeneralInformationFields } from '@/contacts/customers/components/CustomerAddGeneralInformationFields';
 import { CustomerAddSheetHeader } from '@/contacts/customers/components/CustomerAddSheet';
 import {
@@ -13,9 +7,12 @@ import {
 import { useAddCustomer } from '@/contacts/customers/hooks/useAddCustomer';
 import { ContactsPath } from '@/types/paths/ContactsPath';
 import { ApolloError } from '@apollo/client';
-import { useLocation } from 'react-router-dom';
-import { useQueryState } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Form, ScrollArea, Sheet, useQueryState, useToast } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+
 export function AddCustomerForm({
   onOpenChange,
 }: {
@@ -55,7 +52,7 @@ export function AddCustomerForm({
         toast({
           title: t('success'),
           variant: 'success',
-          description: t('customer.add.success-message'),
+          description: state === 'lead' ? t('lead.add.success-message') : t('customer.add.success-message'),
         });
       },
     });

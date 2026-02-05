@@ -1,3 +1,15 @@
+import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
+import { tagGroupsAtomFamily } from '@/settings/tags/states/tagGroupsAtom';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import {
+  IconArrowMoveRight,
+  IconCaretRightFilled,
+  IconCirclesFilled,
+  IconDots,
+  IconPlus,
+  IconTransform,
+  IconTrash,
+} from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -5,23 +17,11 @@ import {
   Command,
   Popover,
   PopoverScoped,
+  useQueryState,
 } from 'erxes-ui';
-import {
-  IconDots,
-  IconTransform,
-  IconTrash,
-  IconPlus,
-  IconArrowMoveRight,
-  IconCaretRightFilled,
-  IconCirclesFilled,
-} from '@tabler/icons-react';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useState } from 'react';
-import { useTagEdit, ITag, useTagRemove } from 'ui-modules';
-import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
-import { useSetAtom, useAtomValue } from 'jotai';
-import { tagGroupsAtomFamily } from '@/settings/tags/states/tagGroupsAtom';
-import { useQueryState } from 'erxes-ui';
-import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import { ITag, useTagEdit, useTagRemove } from 'ui-modules';
 
 export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
   const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(

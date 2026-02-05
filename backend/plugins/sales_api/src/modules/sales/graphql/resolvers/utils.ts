@@ -28,16 +28,14 @@ export const subscriptionWrapper = async (
     const stage = await models.Stages.findOne({ _id: deal.stageId }).lean();
     pipelineId = stage?.pipelineId
   }
+  if (pipelineId) {
+    pipelineIds.push(pipelineId)
+  }
 
   if (!oldPipelineId && oldDeal?.stageId) {
     const stage = await models.Stages.findOne({ _id: oldDeal.stageId }).lean();
     oldPipelineId = stage?.pipelineId
   }
-
-  if (pipelineId) {
-    pipelineIds.push(pipelineId)
-  }
-
   if (oldPipelineId) {
     pipelineIds.push(oldPipelineId)
   }
@@ -289,31 +287,7 @@ export const removeStageWithItems = async (
 };
 
 export const removeItems = async (models: IModels, stageIds: string[]) => {
-  const items = await models.Deals.find(
-    { stageId: { $in: stageIds } },
-    { _id: 1 },
-  );
-
-  const itemIds = items.map((i) => i._id);
-
-  await models.Checklists.removeChecklists(itemIds);
-
-  //   await sendCoreMessage({
-  //     subdomain,
-  //     action: "conformities.removeConformities",
-  //     data: {
-  //       mainType: type,
-  //       mainTypeIds: itemIds
-  //     }
-  //   });
-
-  //   await sendCoreMessage({
-  //     subdomain,
-  //     action: "removeInternalNotes",
-  //     data: { contentType: `sales:${type}`, contentTypeIds: itemIds }
-  //   });
-
-  await models.Deals.deleteMany({ stageId: { $in: stageIds } });
+  await models.Deals.updateMany({ stageId: { $in: stageIds, status: { $ne: SALES_STATUSES.ARCHIVED } } }, { $set: { status: SALES_STATUSES.ARCHIVED } })
 };
 
 export const removePipelineStagesWithItems = async (

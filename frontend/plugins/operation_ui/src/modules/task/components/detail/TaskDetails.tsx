@@ -25,7 +25,7 @@ export const TaskDetails = ({
   }
 
   return (
-    <div className="h-full w-full flex overflow-auto">
+    <div className="h-full w-full flex overflow-auto flex-1 lg:min-h-dvh">
       <div className="w-full xl:max-w-3xl mx-auto p-6">
         {task && <TaskFields task={task} />}
         {triage && <TriageFields triage={triage} />}

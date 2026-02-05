@@ -1,6 +1,4 @@
-import { z } from 'zod';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTicketForm } from '../hooks/useTicketForm';
+import { getLocalStorageItem } from '@libs/utils';
 import {
   Button,
   Form,
@@ -11,13 +9,14 @@ import {
   toast,
   Upload,
 } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Path } from 'react-hook-form';
+import { z } from 'zod';
 import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
-import { ticketConfigAtom } from '../../states';
+import { ticketConfigAtom, userTicketCreatedNumberAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
-import { getLocalStorageItem } from '@libs/utils';
+import { useTicketForm } from '../hooks/useTicketForm';
 import { SelectTicketTag } from './tags/select-ticket-tag';
-import { userTicketCreatedNumberAtom } from '../../states';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 

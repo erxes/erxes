@@ -18,11 +18,6 @@ export const FrontlineSettingsNavigation = () => {
             path={FrontlinePaths.IntegrationConfig}
             name="Integrations Config"
           />
-          <SettingsNavigationMenuLinkItem
-            pathPrefix={FrontlinePaths.Frontline}
-            path={FrontlinePaths.Tickets}
-            name="Tickets"
-          />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

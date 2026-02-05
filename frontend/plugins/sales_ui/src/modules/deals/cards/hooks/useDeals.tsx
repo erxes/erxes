@@ -26,7 +26,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { IDeal } from '@/deals/types/deals';
@@ -55,7 +55,7 @@ export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
 ) => {
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
+  const { data, loading, fetchMore, refetch, subscribeToMore } = useQuery<
     ICursorListResponse<IDeal>
   >(GET_DEALS, {
     ...options,
@@ -71,6 +71,7 @@ export const useDeals = (
     },
   });
 
+  const [dealIdToRefetch, setDealIdToRefetch] = useState<string | null>(null);
   const currentUser = useAtomValue(currentUserState);
   const [qryStrPipelineId] = useQueryState('pipelineId');
 
@@ -89,11 +90,23 @@ export const useDeals = (
   );
 
   useEffect(() => {
+    if (!dealIdToRefetch) return;
+
+    refetch({
+      ...options?.variables,
+      _ids: [dealIdToRefetch],
+    }).finally(() => {
+      setDealIdToRefetch(null);
+    });
+  }, [dealIdToRefetch]);
+
+  useEffect(() => {
     if (!currentUser?._id) return;
 
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
       variables: subscriptionVars,
+
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
         if (!prev.deals?.list) return prev;
@@ -102,6 +115,10 @@ export const useDeals = (
         const currentList = prev.deals.list;
 
         let updatedList = currentList;
+
+        if (action === 'edit' || action === 'add') {
+          setDealIdToRefetch(deal._id);
+        }
 
         if (action === 'add') {
           const exists = currentList.some(
@@ -113,10 +130,9 @@ export const useDeals = (
         }
 
         if (action === 'edit') {
-          updatedList = currentList
-            .map((item: IDeal) =>
-              item._id === deal._id ? { ...item, ...deal } : item,
-            )
+          updatedList = currentList.map((item: IDeal) =>
+            item._id === deal._id ? { ...item, ...deal } : item,
+          );
         }
 
         if (action === 'remove') {
@@ -124,9 +140,6 @@ export const useDeals = (
             (item: IDeal) => item._id !== deal?._id,
           );
         }
-
-        updatedList.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-
         return {
           ...prev,
           deals: {
@@ -137,8 +150,8 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                  ? prev.deals.totalCount - 1
-                  : prev.deals.totalCount,
+                ? prev.deals.totalCount - 1
+                : prev.deals.totalCount,
           },
         };
       },
@@ -251,11 +264,11 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     refetchQueries:
       salesItemId || _id
         ? [
-          {
-            query: GET_DEAL_DETAIL,
-            variables: { ...options?.variables, _id: salesItemId || _id },
-          },
-        ]
+            {
+              query: GET_DEAL_DETAIL,
+              variables: { ...options?.variables, _id: salesItemId || _id },
+            },
+          ]
         : [],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {

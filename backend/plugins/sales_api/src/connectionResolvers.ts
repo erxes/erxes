@@ -51,6 +51,7 @@ import {
   loadPosSlotClass,
   loadProductGroupClass,
 } from './modules/pos/db/models/Pos';
+import { ILoaders } from './modules/sales/graphql/resolvers/loaders';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -72,6 +73,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   models: IModels;
   subdomain: string;
+  loaders: ILoaders
 }
 
 export const loadClasses = (
@@ -85,12 +87,6 @@ export const loadClasses = (
 ): IModels => {
   const models = {} as IModels;
 
-  // Get the getContext function from the models when it's available
-  const getContext = () => ({
-    subdomain,
-    processId: '',
-    userId: '',
-  });
 
   // Board model with event dispatcher
   models.Boards = db.model<IBoardDocument, IBoardModel>(
@@ -98,7 +94,7 @@ export const loadClasses = (
     loadBoardClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'board', 'boards'),
+      eventDispatcher('sales', 'sales', 'boards'),
     ),
   );
 
@@ -108,7 +104,7 @@ export const loadClasses = (
     loadPipelineClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'pipelines'),
+      eventDispatcher('sales', 'sales', 'pipelines'),
     ),
   );
 
@@ -118,7 +114,7 @@ export const loadClasses = (
     loadStageClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'stage', 'stages'),
+      eventDispatcher('sales', 'sales', 'stages'),
     ),
   );
 
@@ -128,7 +124,7 @@ export const loadClasses = (
     loadDealClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'deal', 'deals'),
+      eventDispatcher('sales', 'sales', 'deals'),
     ),
   );
 
@@ -138,7 +134,7 @@ export const loadClasses = (
     loadCheckListClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'checklist', 'checklists'),
+      eventDispatcher('sales', 'sales', 'checklists'),
     ),
   );
 
@@ -148,7 +144,7 @@ export const loadClasses = (
     loadCheckListItemClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'checklist', 'checklistItems'),
+      eventDispatcher('sales', 'sales', 'checklistItems'),
     ),
   );
 
@@ -158,7 +154,7 @@ export const loadClasses = (
     loadPipelineLabelClass(
       models,
       subdomain,
-      eventDispatcher('sales', 'pipeline', 'pipelineLabels'),
+      eventDispatcher('sales', 'sales', 'pipelineLabels'),
     ),
   );
 
@@ -188,32 +184,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>((
-  db: mongoose.Connection,
-  subdomain: string,
-  context?: any,
-) => {
-  // Create an event dispatcher function that follows the pattern in core API
-  const eventDispatcher = (
-    pluginName: string,
-    moduleName: string,
-    collectionName: string,
-  ): EventDispatcherReturn => {
-    // Create a getContext function that extracts processId and userId from context
-    const getContext = () => ({
-      subdomain,
-      processId: context?.processId || '',
-      userId: context?.userId || '',
-    });
-
-    return createEventDispatcher({
-      subdomain,
-      pluginName,
-      moduleName,
-      collectionName,
-      getContext,
-    });
-  };
-
-  return loadClasses(db, subdomain, eventDispatcher);
-});
+export const generateModels = createGenerateModels<IModels>(loadClasses);

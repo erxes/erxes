@@ -6,7 +6,7 @@ const relatedPlugins = (
   triggerCollectionType: string,
   moduleCollectionType: string,
   target: any,
-) => [
+) => ([
   {
     name: 'core',
     filter: async () => {
@@ -17,12 +17,12 @@ const relatedPlugins = (
       const relTypeIds = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'conformity',
-        action: 'savedConformity',
+        module: 'relation',
+        action: 'getRelationIds',
         input: {
-          mainType: triggerCollectionType,
-          mainTypeId: target._id,
-          relTypes: [moduleCollectionType],
+          contentType: triggerCollectionType,
+          contentId: target._id,
+          relatedContentType: moduleCollectionType,
         },
         defaultValue: [],
       });
@@ -40,7 +40,7 @@ const relatedPlugins = (
       sourceConversationIds: { $in: [target._id] },
     }),
   },
-];
+]);
 
 export const getItems = async (
   subdomain: string,
@@ -63,13 +63,14 @@ export const getItems = async (
     const relTypeIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformity',
-      action: 'savedConformity',
+      module: 'relation',
+      action: 'getRelationIds',
       input: {
-        mainType: triggerCollectionType,
-        mainTypeId: target._id,
-        relTypes: [moduleCollectionType],
+        contentType: triggerCollectionType,
+        contentId: target._id,
+        relatedContentType: moduleCollectionType,
       },
+      defaultValue: [],
     });
 
     return models.Deals.find({ _id: { $in: relTypeIds } });
@@ -90,7 +91,7 @@ export const getItems = async (
     filter = await sendTRPCMessage({
       subdomain,
       pluginName: pluginName,
-      module: 'conformity',
+      module: 'relation',
       action: 'getModuleRelation',
       input: {
         module,

@@ -1,8 +1,7 @@
-import { Form, Select } from 'erxes-ui';
-import { useUom } from '../hooks/useUom';
+import { Button, Form, Select } from 'erxes-ui';
 import React from 'react';
-import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useUom } from '../hooks/useUom';
 
 export const SelectUOM = ({
   value,
@@ -26,7 +25,7 @@ export const SelectUOM = ({
       </Controller>
       <Select.Content>
         {uoms.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground flex items-center justify-center flex-col gap-2">
+          <div className="flex flex-col gap-2 justify-center items-center py-8 text-sm text-center text-muted-foreground">
             No UOMs available
             <Button variant="secondary" size="sm" asChild>
               <Link to="/settings/products">Add UOM</Link>

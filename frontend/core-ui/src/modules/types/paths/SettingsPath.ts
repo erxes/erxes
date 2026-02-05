@@ -18,6 +18,7 @@ export enum SettingsWorkspacePath {
   // Structure = 'structures',
   // StructureCatchAll = 'structures/*',
   Tags = 'tags',
+  Products = 'products',
   ProductsCatchAll = 'products/*',
   Brands = 'brands',
   PropertiesCatchAll = 'properties/*',
@@ -26,6 +27,7 @@ export enum SettingsWorkspacePath {
   ClientPortals = 'client-portals',
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',
+  Broadcast = 'broadcast',
 }
 
 export type TSettingPath = {

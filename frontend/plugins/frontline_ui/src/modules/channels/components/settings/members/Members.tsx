@@ -52,7 +52,7 @@ export function Members() {
   };
 
   return (
-    <div className="overflow-auto h-full px-8">
+    <div className="overflow-auto h-full px-8 hide-scroll styled-scroll scroll-smooth">
       <div className="ml-auto flex justify-between py-6">
         <h1 className="text-xl font-semibold">Members</h1>
         <AddMembers />
@@ -69,48 +69,48 @@ export function Members() {
           <Table.Body>
             {loading
               ? Array.from({ length: 3 }).map((_, index) => (
-                  <MemberRowSkeleton key={index} />
-                ))
+                <MemberRowSkeleton key={index} />
+              ))
               : members?.map((member) => (
-                  <Table.Row key={member._id} className="shadow-xs group ">
-                    <Table.Cell className="font-medium border-none pl-2 w-auto">
-                      <MembersInline.Provider memberIds={[member.memberId]}>
-                        <span className="w-full flex gap-2 items-center">
-                          <span className="[1lh] flex items-center">
-                            <MembersInline.Avatar />
-                          </span>
-                          <MembersInline.Title />
+                <Table.Row key={member._id} className="shadow-xs group ">
+                  <Table.Cell className="font-medium border-none pl-2 w-auto">
+                    <MembersInline.Provider memberIds={[member.memberId]}>
+                      <span className="w-full flex gap-2 items-center">
+                        <span className="[1lh] flex items-center">
+                          <MembersInline.Avatar />
                         </span>
-                      </MembersInline.Provider>
-                    </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-52 ">
-                      <Select
-                        value={member.role}
-                        onValueChange={(value) =>
-                          roleHandler(value, member._id)
-                        }
-                      >
-                        <Select.Trigger className="w-full h-7 hover:bg-accent-foreground/10 shadow-none">
-                          <Select.Value placeholder="Select role" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="admin">
-                            <p className="text-xs">Admin</p>
-                          </Select.Item>
-                          <Select.Item value="lead">
-                            <p className="text-xs">Lead</p>
-                          </Select.Item>
-                          <Select.Item value="member">
-                            <p className="text-xs">Member</p>
-                          </Select.Item>
-                        </Select.Content>
-                      </Select>
-                    </Table.Cell>
-                    <Table.Cell className="border-none w-8 ">
-                      {renderMemberRemove(member)}
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
+                        <MembersInline.Title />
+                      </span>
+                    </MembersInline.Provider>
+                  </Table.Cell>
+                  <Table.Cell className="border-none px-2 w-52 ">
+                    <Select
+                      value={member.role}
+                      onValueChange={(value) =>
+                        roleHandler(value, member._id)
+                      }
+                    >
+                      <Select.Trigger className="w-full h-7 hover:bg-accent-foreground/10 shadow-none">
+                        <Select.Value placeholder="Select role" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value="admin">
+                          <p className="text-xs">Admin</p>
+                        </Select.Item>
+                        <Select.Item value="lead">
+                          <p className="text-xs">Lead</p>
+                        </Select.Item>
+                        <Select.Item value="member">
+                          <p className="text-xs">Member</p>
+                        </Select.Item>
+                      </Select.Content>
+                    </Select>
+                  </Table.Cell>
+                  <Table.Cell className="border-none w-8 ">
+                    {renderMemberRemove(member)}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
           </Table.Body>
         </Table>
       </div>
