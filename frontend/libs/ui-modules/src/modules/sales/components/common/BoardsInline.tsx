@@ -1,8 +1,8 @@
 import {
   BoardsInlineContext,
   useBoardsInlineContext,
-} from '@/deals/context/BoardsInlineContext';
-import { BoardsInlineProps, IBoard } from '@/deals/types/boards';
+} from '../../contexts/BoardsInlineContext';
+import { BoardsInlineProps, IBoard } from '../../types/boards';
 import {
   Skeleton,
   TextOverflowTooltip,
@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
-import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
+import { useBoardDetail } from '../../hooks';
 
 const BoardsInlineRoot = (props: BoardsInlineProps) => {
   return (
