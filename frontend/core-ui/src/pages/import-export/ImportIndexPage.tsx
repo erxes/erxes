@@ -12,14 +12,19 @@ export const ImportIndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/import-export/import">Imports</Link>
+                  <Link to="/import-export/import">Imports</Link>                             
                 </Button>
-              </Breadcrumb.Item>
+              </Breadcrumb.Item>                                                                                                                    
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <ImportHistories entityType="core:contact.customer" />
+      <ImportHistories entityTypes={[
+        "core:contact.customer",
+        "core:contact.lead",
+        "core:contact.company",
+        "core:user.user",
+        "core:product.product",]} />
     </PageContainer>
   );
 };

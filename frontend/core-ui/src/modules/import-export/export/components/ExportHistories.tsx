@@ -229,7 +229,7 @@ const exportHistoryColumns: ColumnDef<TExportProgress>[] = [
   },
 ];
 
-export function ExportHistories({ entityType }: { entityType: string }) {
+export function ExportHistories({ entityTypes }: { entityTypes: string[] }) {
   const {
     list,
     totalCount,
@@ -238,7 +238,7 @@ export function ExportHistories({ entityType }: { entityType: string }) {
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
-  } = useExportHistories({ entityType });
+  } = useExportHistories({ entityTypes });
 
   if (error) {
     return (
