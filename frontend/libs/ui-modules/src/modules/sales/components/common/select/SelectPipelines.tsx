@@ -10,7 +10,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconArrowsRight, IconChevronDown } from '@tabler/icons-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SelectPipelinesContext,
   useSelectPipelinesContext,
@@ -47,13 +47,11 @@ export const SelectPipelineProvider = ({
     skip: !boardId,
   });
 
-  // Auto-select first pipeline when board changes and pipelines are available
-  React.useEffect(() => {
+  useEffect(() => {
     if (boardId && availablePipelines.length > 0) {
       const firstPipeline = availablePipelines[0];
       const currentPipelineId = Array.isArray(value) ? value[0] : value;
 
-      // Only auto-select if no pipeline is currently selected
       if (firstPipeline && !currentPipelineId) {
         setPipelines([firstPipeline]);
         onValueChange?.(firstPipeline._id);

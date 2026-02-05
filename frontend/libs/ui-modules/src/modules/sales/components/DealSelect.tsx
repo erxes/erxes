@@ -43,6 +43,7 @@ export const DealSelect = ({
       <div className="px-2">
         <StageSelect
           stageId={stageId}
+          pipelineId={pipelineId}
           onChange={onChangeStage}
           className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
         />

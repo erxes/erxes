@@ -43,7 +43,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           boardId={deal.boardId}
           pipelineId={pipelineId}
           stageId={deal.stageId}
-          onChangeStage={(stageId, callback) => {
+          onChangeStage={(stageId) => {
             editDeals({
               variables: {
                 _id: deal._id,
@@ -53,7 +53,6 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
               },
               onCompleted: () => {
                 setOpen(false);
-                callback?.();
               },
             });
           }}

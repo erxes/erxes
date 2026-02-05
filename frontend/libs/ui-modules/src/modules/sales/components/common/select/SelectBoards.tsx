@@ -252,7 +252,7 @@ export const SelectBoardInlineCell = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <RecordTableInlineCell.Trigger>
-          <SelectBoardsValue placeholder={''} />
+          <SelectBoardsValue placeholder={'Choose board'} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectBoardContent />

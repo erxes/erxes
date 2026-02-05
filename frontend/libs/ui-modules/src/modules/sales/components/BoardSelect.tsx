@@ -24,7 +24,7 @@ export const BoardSelect = ({
 
   return (
     <SelectBoard
-      value={currentBoard?.boardId || boardId || ''}
+      value={boardId || currentBoard?.boardId || ''}
       className={className}
       onValueChange={(boardId) => {
         setBoardId({

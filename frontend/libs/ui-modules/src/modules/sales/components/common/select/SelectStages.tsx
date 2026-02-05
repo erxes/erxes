@@ -305,7 +305,9 @@ export const SelectStageInlineCell = ({
     <SelectStageProvider
       onValueChange={(value, isAutoSelection) => {
         onValueChange?.(value, isAutoSelection);
-        setOpen(false);
+        if (!isAutoSelection) {
+          setOpen(false);
+        }
       }}
       pipelineId={pipelineId}
       {...props}
