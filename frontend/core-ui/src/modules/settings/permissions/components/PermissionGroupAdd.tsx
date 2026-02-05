@@ -37,7 +37,7 @@ export const PermissionGroupAdd = ({ text }: { text?: string }) => {
         <Button variant="secondary">{text || 'Add Custom Group'}</Button>
       </Sheet.Trigger>
       <Sheet.View>
-        <PermissionGroupForm onSubmit={onSubmit} />
+        <PermissionGroupForm />
       </Sheet.View>
     </Sheet>
   );

@@ -99,6 +99,7 @@ const CustomerDetailEmptyState = () => {
 
 const CustomerDetailErrorState = () => {
   const { error } = useCustomerDetailWithQuery();
+
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
