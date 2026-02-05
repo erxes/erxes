@@ -243,7 +243,7 @@ export const generatePostDoc = async (
 
     pluginName: 'core',
     method: 'query',
-    module: 'users',
+    module: 'configs',
     action: 'getFileUploadConfigs',
     input: {},
   });

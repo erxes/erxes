@@ -809,7 +809,7 @@ export const widgetMutations: Record<string, Resolver> = {
       customerId,
       browserInfo,
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { subdomain }: IContext,
+    { models, subdomain }: IContext,
   ) {
     if (customerId) {
       await sendTRPCMessage({
@@ -850,7 +850,7 @@ export const widgetMutations: Record<string, Resolver> = {
     // }
 
     try {
-      await trackViewPageEvent(subdomain, {
+      await trackViewPageEvent(models, subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url },
