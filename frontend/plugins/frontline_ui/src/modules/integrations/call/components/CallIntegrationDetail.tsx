@@ -1,6 +1,6 @@
-import { Cell } from '@tanstack/table-core';
+import { CellContext } from '@tanstack/react-table';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
-import { Button, Switch, Tooltip } from 'erxes-ui';
+import { Switch, Tooltip } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
@@ -21,20 +21,20 @@ export const CallIntegrationDetail = () => {
 export const CallIntegrationActions = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
   const setEditId = useSetAtom(callEditSheetAtom);
 
   return (
     <>
       <CallIntegrationConnect integrationId={cell.row.original._id} />
-      <Button
-        variant={'outline'}
-        size="icon"
+      <div
         onClick={() => setEditId(cell.row.original._id)}
+        className="flex items-center gap-2 w-full"
       >
-        <IconEdit />
-      </Button>
+        <IconEdit size={16} />
+        Edit
+      </div>
     </>
   );
 };

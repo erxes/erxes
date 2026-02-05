@@ -1,4 +1,4 @@
-import { Button, cn, Collapsible, Spinner } from 'erxes-ui';
+import { Button, cn, Collapsible, InfoCard, Spinner } from 'erxes-ui';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
 import { useFields } from '../hooks/useFields';
@@ -30,25 +30,29 @@ export const FieldsInDetail = ({
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      {fieldGroups.map((group) => (
-        <Collapsible key={group._id} className="group" defaultOpen>
-          <Collapsible.Trigger asChild>
-            <Button variant="secondary" className="w-full justify-start">
-              <Collapsible.TriggerIcon />
-              {group.name}
-            </Button>
-          </Collapsible.Trigger>
-          <Collapsible.Content className="pt-4">
-            <FieldsInGroup
-              group={group}
-              id={id}
-              contentType={fieldContentType}
-              customFieldsData={customFieldsData}
-              mutateHook={mutateHook}
-            />
-          </Collapsible.Content>
-        </Collapsible>
-      ))}
+      <InfoCard title="Product Properties">
+        <InfoCard.Content>
+          {fieldGroups.map((group) => (
+            <Collapsible key={group._id} className="group" defaultOpen>
+              <Collapsible.Trigger asChild>
+                <Button variant="secondary" className="justify-start w-full">
+                  <Collapsible.TriggerIcon />
+                  {group.name}
+                </Button>
+              </Collapsible.Trigger>
+              <Collapsible.Content className="pt-4">
+                <FieldsInGroup
+                  group={group}
+                  id={id}
+                  contentType={fieldContentType}
+                  customFieldsData={customFieldsData}
+                  mutateHook={mutateHook}
+                />
+              </Collapsible.Content>
+            </Collapsible>
+          ))}
+        </InfoCard.Content>
+      </InfoCard>
     </div>
   );
 };
@@ -77,7 +81,7 @@ export const FieldsInGroup = ({
   }
 
   return (
-    <div className="grid gap-4 grid-cols-2">
+    <div className="grid grid-cols-2 gap-4">
       {fields.map((field) => (
         <Field
           key={field._id}
