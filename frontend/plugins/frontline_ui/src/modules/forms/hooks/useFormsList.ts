@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_FORMS_LIST } from '../graphql/formQueries';
 import {
   EnumCursorDirection,
@@ -8,13 +8,15 @@ import {
 
 const FORMS_PER_PAGE = 24;
 
-export const useFormsList = ({ channelId }: { channelId: string }) => {
+export const useFormsList = (options?: QueryHookOptions) => {
   const { data, loading, fetchMore } = useQuery(GET_FORMS_LIST, {
     variables: {
       limit: FORMS_PER_PAGE,
-      channelId,
+      channelId: options?.variables?.channelId,
+      ...options?.variables,
     },
     fetchPolicy: 'cache-and-network',
+    ...options,
   });
 
   const { list: forms, totalCount, pageInfo } = data?.forms || {};
