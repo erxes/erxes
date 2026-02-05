@@ -91,8 +91,6 @@ export const types = `
     customFieldsData: JSON
 
     isOwner: Boolean
-    role: String
-    permissionActions: JSON
     configs: JSON
     configsConstants: [JSON]
   

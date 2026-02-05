@@ -89,4 +89,12 @@ export const permissionQueries = {
   async permissionActions() {
     return getPermissionActions();
   },
+
+  /**
+   * Get all permissions count. We will use it in pager
+   * @param {String} args.module
+   * @param {String} args.action
+   * @param {String} args.userId
+   * @return {Promise} total count
+   */
 };

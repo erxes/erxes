@@ -6,8 +6,7 @@ export const ProductUomPage = () => {
   return (
     <PageContainer>
       <ProductsHeader />
-      <PageSubHeader>
-      </PageSubHeader>
+      <PageSubHeader></PageSubHeader>
       <UomsList />
     </PageContainer>
   );

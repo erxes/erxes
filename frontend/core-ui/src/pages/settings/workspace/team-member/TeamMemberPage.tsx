@@ -6,6 +6,7 @@ import { MemberDetail } from '@/settings/team-member/details/components/MemberDe
 export function TeamMemberPage() {
   const [userId] = useQueryState('user_id');
   const [resetId] = useQueryState('reset_password_id');
+
   return (
     <PageContainer>
       <TeamMember />

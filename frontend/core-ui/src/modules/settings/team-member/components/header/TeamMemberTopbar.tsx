@@ -1,10 +1,10 @@
 import { useLocation } from 'react-router';
-import { TEAM_MEMBER_SETTINGS } from '@/settings/team-member/constants/teamMemberRoutes';
 import { InviteTeamMember } from '@/settings/team-member/components/invite/InviteTeamMember';
+import { TeamMembersPath } from '@/settings/team-member/constants/teamMemberRoutes';
 
 export function TeamMemberTopbar() {
   const { pathname } = useLocation();
-  if (pathname === TEAM_MEMBER_SETTINGS) {
+  if (pathname === `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`) {
     return (
       <div className="ml-auto">
         <InviteTeamMember />

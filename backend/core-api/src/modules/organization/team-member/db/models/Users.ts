@@ -23,7 +23,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
-import { PERMISSION_ROLES } from '~/modules/_permissions/db/constants';
+
 import {
   generateLoginActivityLog,
   generateLogoutActivityLog,
@@ -251,11 +251,6 @@ export const loadUserClass = (
         currentDocument: user.toObject(),
       });
 
-      models.Roles.create({
-        userId: user._id,
-        role: isOwner ? PERMISSION_ROLES.OWNER : PERMISSION_ROLES.MEMBER,
-      });
-
       return user;
     }
 
@@ -373,11 +368,6 @@ export const loadUserClass = (
       });
 
       createActivityLog(generateUserInvitationActivityLog(user));
-
-      models.Roles.create({
-        userId: user._id,
-        role: PERMISSION_ROLES.MEMBER,
-      });
 
       return token;
     }
@@ -713,11 +703,11 @@ export const loadUserClass = (
         departmentIds: _user.departmentIds,
       };
 
-      const { role } = (await models.Roles.getRole(user._id)) || {};
+      // const { role } = (await models.Roles.getRole(user._id)) || {};
 
-      if (role) {
-        user['role'] = role;
-      }
+      // if (role) {
+      //   user['role'] = role;
+      // }
 
       return user;
     }
@@ -731,11 +721,11 @@ export const loadUserClass = (
         isOwner: _user.isOwner,
       };
 
-      const { role } = (await models.Roles.getRole(user._id)) || {};
+      // const { role } = (await models.Roles.getRole(user._id)) || {};
 
-      if (role) {
-        user['role'] = role;
-      }
+      // if (role) {
+      //   user['role'] = role;
+      // }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 

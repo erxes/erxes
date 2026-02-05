@@ -106,7 +106,7 @@ export const KEY_LABELS = {
 };
 
 export const SETTINGS_PATH_DATA = (
-  t: TFunction = ((key: string) => key) as TFunction
+  t: TFunction = ((key: string) => key) as TFunction,
 ): { [key: string]: TSettingPath[] } => ({
   account: [
     {

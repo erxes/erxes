@@ -2,12 +2,7 @@ import { IconChecks } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { IsActiveBar } from './IsActiveBar';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import {
-  SelectBranches,
-  SelectBrands,
-  SelectDepartments,
-  SelectUnit,
-} from 'ui-modules';
+import { SelectBrands } from 'ui-modules';
 
 export function TeamMemberFilterPopover() {
   return (

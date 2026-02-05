@@ -73,7 +73,6 @@ const GET_USERS_QUERY = gql`
         brandIds
         score
         positionIds
-        role
         details {
           avatar
           shortName

@@ -1,10 +1,5 @@
 import { Filter, PageSubHeader, useMultiQueryState } from 'erxes-ui';
-import {
-  SelectBranches,
-  SelectBrands,
-  SelectDepartments,
-  SelectUnit,
-} from 'ui-modules';
+import { SelectBrands } from 'ui-modules';
 import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { TeamMemberCounts } from '../TeamMemberCounts';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../../constants/teamMemberCursorSessionKey';
@@ -18,9 +13,7 @@ export const TeamMemberFilterBar = () => {
     brandIds: string[];
   }>(['branchIds', 'departmentIds', 'unitId', 'isActive', 'brandIds']);
 
-  const isFiltered = Object.values(queries).some((query) => !!query);
-
-  const { branchIds, departmentIds, unitId, brandIds } = queries;
+  const { brandIds } = queries;
 
   return (
     <PageSubHeader>

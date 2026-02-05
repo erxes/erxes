@@ -15,9 +15,9 @@ const ProductsCategoryPage = lazy(() =>
 );
 
 const ProductsGeneralSettings = lazy(() =>
-  import('~/pages/products/ProductsUomPage').then(
-    (module) => ({ default: module.ProductUomPage }),
-  ),
+  import('~/pages/products/ProductsUomPage').then((module) => ({
+    default: module.ProductUomPage,
+  })),
 );
 
 export const ProductsSettingRoutes = () => {
@@ -25,14 +25,8 @@ export const ProductsSettingRoutes = () => {
     <Suspense fallback={<></>}>
       <Routes>
         <Route index element={<ProductsIndexPage />} />
-        <Route
-          path='/categories'
-          element={<ProductsCategoryPage />}
-        />
-        <Route
-          path='/uoms'
-          element={<ProductsGeneralSettings />}
-        />
+        <Route path="/categories" element={<ProductsCategoryPage />} />
+        <Route path="/uoms" element={<ProductsGeneralSettings />} />
       </Routes>
       <ProductsPageEffect />
     </Suspense>
