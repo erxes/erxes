@@ -38,20 +38,17 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     params: ICPUserRegisterParams,
     models: IModels,
   ): Promise<ICPUserDocument>;
-  updateUser(
-    userId: string,
-    params: {
-      email?: string;
-      phone?: string;
-      firstName?: string;
-      lastName?: string;
-      avatar?: string;
-      username?: string;
-      companyName?: string;
-      companyRegistrationNumber?: string;
-    },
-    models: IModels,
-  ): Promise<ICPUserDocument>;
+  updateUser(userId: string, params: {
+    email?: string;
+    phone?: string;
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+    username?: string;
+    companyName?: string;
+    companyRegistrationNumber?: string;
+    erxesCustomerId?: string;
+  }, models: IModels): Promise<ICPUserDocument>;
   removeUser(userId: string, models: IModels): Promise<void>;
 }
 
@@ -153,20 +150,17 @@ export const loadCPUserClass = (
       }
     }
 
-    public static async updateUser(
-      userId: string,
-      params: {
-        email?: string;
-        phone?: string;
-        firstName?: string;
-        lastName?: string;
-        avatar?: string;
-        username?: string;
-        companyName?: string;
-        companyRegistrationNumber?: string;
-      },
-      models: IModels,
-    ): Promise<ICPUserDocument> {
+    public static async updateUser(userId: string, params: {
+      email?: string;
+      phone?: string;
+      firstName?: string;
+      lastName?: string;
+      avatar?: string;
+      username?: string;
+      companyName?: string;
+      companyRegistrationNumber?: string;
+      erxesCustomerId?: string;
+    }, models: IModels): Promise<ICPUserDocument> {
       const prevUser = await models.CPUser.findOne({ _id: userId }).lean();
       const updatedUser = await cpUserService.updateUser(
         userId,

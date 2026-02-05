@@ -159,6 +159,7 @@ const cpUsersEditParams = `
   username: String,
   companyName: String,
   companyRegistrationNumber: String,
+  erxesCustomerId: String,
 `;
 
 export const mutations = `

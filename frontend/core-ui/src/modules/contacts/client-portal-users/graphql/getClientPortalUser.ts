@@ -14,6 +14,7 @@ export const GET_CLIENT_PORTAL_USER = gql`
       companyName
       companyRegistrationNumber
       clientPortalId
+      erxesCustomerId
       isVerified
       isPhoneVerified
       isEmailVerified
