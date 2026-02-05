@@ -12,6 +12,7 @@ export interface IForm {
   buttonText: string;
   fields: IFormField[];
   leadData: ILeadData;
+  channelId?: string;
 }
 
 export interface ILeadData {
@@ -40,4 +41,8 @@ export interface IFormField {
 
 export interface IFormSetupPayload {
   title: string;
+}
+
+export enum FormsPageHotKeyScope {
+  FormsPage = 'forms-page',
 }
