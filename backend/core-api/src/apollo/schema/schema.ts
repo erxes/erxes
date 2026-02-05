@@ -203,6 +203,12 @@ import {
   types as BroadcastTypes,
 } from '@/broadcast/graphql/schemas';
 
+import {
+  types as PermissionTypes,
+  queries as PermissionQueries,
+  mutations as PermissionMutations,
+} from '@/permissions/graphql/schemas/permission';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -251,6 +257,7 @@ export const types = `
     ${CommentTypes}
     ${CPNotificationTypes}
     ${BroadcastTypes}
+    ${PermissionTypes}
   `;
 
 export const queries = `
@@ -288,6 +295,7 @@ export const queries = `
     ${CommentQueries}
     ${CPNotificationQueries}
     ${BroadcastQueries}
+    ${PermissionQueries}
   `;
 
 export const mutations = `
@@ -324,6 +332,7 @@ export const mutations = `
     ${CommentMutations}
     ${CPNotificationMutations}
     ${BroadcastMutations}
-  `;
+    ${PermissionMutations}
+    `;
 
 export default { types, queries, mutations };

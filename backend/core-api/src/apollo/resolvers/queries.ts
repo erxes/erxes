@@ -17,7 +17,6 @@ import { organizationConfigQueries } from '@/organization/settings/graphql/confi
 import { favoriteQueries } from '@/organization/settings/graphql/favorites/queries';
 import { structureQueries } from '@/organization/structure/graphql/resolvers/queries';
 import { userQueries } from '@/organization/team-member/graphql/queries';
-import { permissionQueries } from '~/modules/_permissions/graphql/resolvers/queries/permission';
 import { roleQueries } from '~/modules/_permissions/graphql/resolvers/queries/role';
 import { usersGroupQueries } from '~/modules/_permissions/graphql/resolvers/queries/userGroup';
 import { productQueries } from '@/products/graphql/resolvers/queries';
@@ -31,6 +30,7 @@ import {
 import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries';
 import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
+import { permissionQueries } from '@/permissions/graphql/resolvers/queries/permission';
 
 export const queries = {
   ...contactQueries,
@@ -64,4 +64,5 @@ export const queries = {
   ...commentQueries,
   ...cpNotificationQueries,
   ...activityLogQueries,
+  ...permissionQueries,
 };
