@@ -22,6 +22,7 @@ export const GET_CLIENT_PORTAL_USERS = gql`
         isVerified
         isPhoneVerified
         isEmailVerified
+        fcmTokens { deviceId platform }
         lastLoginAt
         createdAt
         updatedAt

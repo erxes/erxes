@@ -21,6 +21,7 @@ export const GET_CLIENT_PORTAL_USER = gql`
       accountLockedUntil
       lastLoginAt
       primaryAuthMethod
+      fcmTokens { deviceId token platform }
       createdAt
       updatedAt
     }
