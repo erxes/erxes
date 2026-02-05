@@ -57,6 +57,7 @@ export const types = `
       pdfAttachment: PdfAttachmentInput
       scheduledDate: Date
       forms: [FormCodeInput]
+      customForms: [String]
     }
 
     type KnowledgeBaseCategory {
@@ -71,7 +72,6 @@ export const types = `
       modifiedBy: String
       modifiedDate: Date
       parentCategoryId: String
-
       firstTopic: KnowledgeBaseTopic
       authors: [User]
       numOfArticles(status: String): Float
