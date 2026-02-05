@@ -23,6 +23,7 @@ export type SalesFilterState = {
   tagIds?: string[] | null;
   awaiting?: boolean | null;
   advanced?: Record<string, any> | null;
+  productId?: string | null;
 };
 
 export type ProductFilterState = {

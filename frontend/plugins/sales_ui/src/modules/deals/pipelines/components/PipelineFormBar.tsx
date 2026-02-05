@@ -272,7 +272,8 @@ export function PipelineFormBar() {
           </Dialog.Header>
           <div className="py-4">
             <p className="text-sm text-muted-foreground mb-2">
-              Type "update" in the field below to confirm:
+              Type <span className="font-bold">update</span> in the field below
+              to confirm:
             </p>
             <Input
               value={confirmText}
