@@ -1,5 +1,6 @@
 import {
   CLIENTPORTAL_AUTH_SCHEMA,
+  CLIENTPORTAL_OTP_RESEND_SCHEMA,
   CLIENTPORTAL_OTP_SCHEMA,
 } from '@/client-portal/constants/clientPortalEditSchema';
 import { useForm } from 'react-hook-form';
@@ -20,16 +21,32 @@ import { useUpdateClientPortal } from '@/client-portal/hooks/useUpdateClientPort
 import { IClientPortal } from '../types/clientPortal';
 import { useState } from 'react';
 
+function stripTypename<T>(obj: T): T {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(stripTypename) as T;
+  }
+  const result = {} as T;
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === '__typename') continue;
+    (result as Record<string, unknown>)[key] = stripTypename(value);
+  }
+  return result;
+}
+
 export const ClientPortalDetailAuth = ({
   clientPortal = {},
 }: {
   clientPortal?: IClientPortal;
 }) => {
-  const [activeTab, setActiveTab] = useState<'token' | 'email' | 'phone'>(
-    'token',
-  );
+  const [activeTab, setActiveTab] = useState<
+    'token' | 'email' | 'phone' | 'resend'
+  >('token');
 
   const otpConfig = clientPortal?.securityAuthConfig?.otpConfig;
+  const otpResendConfig = clientPortal?.securityAuthConfig?.otpResendConfig;
 
   const tokenForm = useForm<z.infer<typeof CLIENTPORTAL_AUTH_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_AUTH_SCHEMA),
@@ -69,6 +86,17 @@ export const ClientPortalDetailAuth = ({
     },
   });
 
+  const otpResendForm = useForm<
+    z.infer<typeof CLIENTPORTAL_OTP_RESEND_SCHEMA>
+  >({
+    resolver: zodResolver(CLIENTPORTAL_OTP_RESEND_SCHEMA),
+    defaultValues: {
+      cooldownPeriodInSeconds:
+        otpResendConfig?.cooldownPeriodInSeconds ?? 60,
+      maxAttemptsPerHour: otpResendConfig?.maxAttemptsPerHour ?? 5,
+    },
+  });
+
   const { updateClientPortal, loading } = useUpdateClientPortal();
 
   function handleTokenSubmit(data: z.infer<typeof CLIENTPORTAL_AUTH_SCHEMA>) {
@@ -93,12 +121,31 @@ export const ClientPortalDetailAuth = ({
       variables: {
         id: clientPortal?._id,
         clientPortal: {
-          securityAuthConfig: {
+          securityAuthConfig: stripTypename({
             otpConfig: {
               email: data.email,
               sms: data.sms,
             },
-          },
+          }),
+        },
+      },
+    });
+  }
+
+  function handleOtpResendSubmit(
+    data: z.infer<typeof CLIENTPORTAL_OTP_RESEND_SCHEMA>,
+  ) {
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: {
+          securityAuthConfig: stripTypename({
+            ...clientPortal?.securityAuthConfig,
+            otpResendConfig: {
+              cooldownPeriodInSeconds: data.cooldownPeriodInSeconds,
+              maxAttemptsPerHour: data.maxAttemptsPerHour,
+            },
+          }),
         },
       },
     });
@@ -111,7 +158,7 @@ export const ClientPortalDetailAuth = ({
           type="single"
           value={activeTab}
           onValueChange={(val) =>
-            setActiveTab(val as 'token' | 'email' | 'phone')
+            setActiveTab(val as 'token' | 'email' | 'phone' | 'resend')
           }
           variant="outline"
         >
@@ -124,12 +171,15 @@ export const ClientPortalDetailAuth = ({
           <ToggleGroup.Item value="phone" className="flex-auto">
             Phone
           </ToggleGroup.Item>
+          <ToggleGroup.Item value="resend" className="flex-auto">
+            OTP Resend
+          </ToggleGroup.Item>
         </ToggleGroup>
 
         <Tabs
           value={activeTab}
           onValueChange={(val) =>
-            setActiveTab(val as 'token' | 'email' | 'phone')
+            setActiveTab(val as 'token' | 'email' | 'phone' | 'resend')
           }
         >
           <Tabs.Content value="token">
@@ -489,6 +539,85 @@ export const ClientPortalDetailAuth = ({
                         </Form.Control>
                         <Form.Description>
                           OTP expiration duration in minutes
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="mt-2"
+                  disabled={loading}
+                  variant="secondary"
+                >
+                  {loading && (
+                    <Spinner containerClassName="w-auto flex-none mr-2" />
+                  )}
+                  Save
+                </Button>
+              </form>
+            </Form>
+          </Tabs.Content>
+
+          <Tabs.Content value="resend" className="mt-4">
+            <Form {...otpResendForm}>
+              <form
+                onSubmit={otpResendForm.handleSubmit(handleOtpResendSubmit)}
+                className="flex flex-col gap-4"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <Form.Field
+                    control={otpResendForm.control}
+                    name="cooldownPeriodInSeconds"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Cooldown period (seconds)</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            min={1}
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value
+                                  ? Number(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          Minimum seconds between OTP resend requests
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={otpResendForm.control}
+                    name="maxAttemptsPerHour"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Max attempts per hour</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            min={1}
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value
+                                  ? Number(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          Maximum OTP resend requests per hour
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
