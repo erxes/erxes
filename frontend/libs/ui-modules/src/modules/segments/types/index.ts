@@ -82,6 +82,7 @@ export type IPropertyField = {
   parentFieldName: IFormFieldName;
   defaultValue?: any;
   propertyTypes: any[];
+  loading: boolean;
 };
 
 export type IPropertyCondtion = {
@@ -90,6 +91,7 @@ export type IPropertyCondtion = {
   operators: IOperator[];
   parentFieldName: IFormFieldName;
   defaultValue?: any;
+  loading: boolean;
 };
 
 export type IPropertyInput = {
@@ -98,6 +100,7 @@ export type IPropertyInput = {
   defaultValue?: any;
   operators: IOperator[];
   selectedField?: IField;
+  loading: boolean;
 };
 
 export interface ISegmentMap {
