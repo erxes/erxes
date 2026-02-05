@@ -13,6 +13,6 @@ export const FILTER_OPTIONS = {
   action: [
     { label: "Add", value: "add" },
     { label: "Subtract", value: "subtract" },
-    { label: "Manual", value: "manual" },
+    { label: "Has A description", value: "manual" },
   ],
 };

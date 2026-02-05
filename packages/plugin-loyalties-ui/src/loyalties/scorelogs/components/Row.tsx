@@ -114,6 +114,9 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
           <td rowSpan={target?.length || 1}>
             {scoreLog.campaign?.title || "-"}
           </td>
+          <td rowSpan={target?.length || 1}>
+            {scoreLog.description || "-"}
+          </td>
         </tr>
         {/* {restItem?.map((item) => (
           <tr key={item._id} className="additional-row">
@@ -138,6 +141,7 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
           <th>Points Spent</th>
           <th>Points Refunded</th>
           <th>Campaign</th>
+          <th>Desciption</th>
         </tr>
       </thead>
       <tbody>{scoreLogs.map((scoreLog) => renderContent(scoreLog))}</tbody>

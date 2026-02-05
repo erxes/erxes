@@ -534,11 +534,16 @@ export const handleScore = async (models: IModels, data) => {
 
   const scoreToChange = eval(placeholer) / Number(config.currencyRatio);
 
+  let lastDescription = description;
+  if (!lastDescription.startsWith('handle')) {
+    lastDescription = `handle ${lastDescription}`
+  }
+
   await models.ScoreLogs.changeScore({
     ownerId,
     ownerType,
     changeScore: scoreToChange,
-    description,
+    description: lastDescription,
   });
 
   return "success";

@@ -31,6 +31,7 @@ type State = {
   ownerType: string;
   changeScore: number;
   campaignId?: string;
+  description?: string;
 };
 
 const campaignQuery = `
@@ -43,7 +44,7 @@ const campaignQuery = `
 
 const ScoreForm = ({ renderButton, closeModal }: Props) => {
   const [
-    { targetId, serviceName, ownerId, ownerType, changeScore, campaignId },
+    { targetId, serviceName, ownerId, ownerType, changeScore, campaignId, description },
     setState,
   ] = useState({
     targetId: undefined,
@@ -52,6 +53,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
     ownerId: "",
     changeScore: 0,
     campaignId: "",
+    description: "manual"
   } as State);
 
   const handleOwnerType = (e) => {
@@ -123,7 +125,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
     return {
       ...values,
       changeScore: Number(values?.changeScore || 0),
-      description: 'manual',
+      description,
       ownerId,
       targetId,
       serviceName,
@@ -201,6 +203,15 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
             placeholder="0"
             required={true}
             defaultValue={changeScore}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required>{__("Description")}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="description"
+            defaultValue={description}
+            onChange={e => setState((prevState) => ({ ...prevState, description: (e.target as any).value }))}
           />
         </FormGroup>
         <ModalFooter>

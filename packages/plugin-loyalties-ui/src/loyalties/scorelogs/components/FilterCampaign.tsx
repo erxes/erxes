@@ -62,7 +62,7 @@ const FilterCampaign = (props: Props) => {
   };
 
   const handleOnChange = (field, value) => {
-    if (field === "number" && value !== null) {
+    if ((field === "number" || field === "description") && value !== null) {
       value = value?.currentTarget?.value || "";
     }
 
@@ -163,7 +163,7 @@ const FilterCampaign = (props: Props) => {
   };
 
   const renderTarget = () => {
-    const { number, boardId, pipelineId, stageId } = filterParams;
+    const { number, boardId, pipelineId, stageId, description } = filterParams;
 
     return (
       <FilterContainer>
@@ -186,6 +186,15 @@ const FilterCampaign = (props: Props) => {
             name="number"
             onChange={(event) => handleOnChange("number", event)}
             defaultValue={number}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+          <FormControl
+            type="text"
+            name="description"
+            onChange={(event) => handleOnChange("description", event)}
+            defaultValue={description}
           />
         </FormGroup>
       </FilterContainer>

@@ -86,9 +86,13 @@ const generateFilter = async (
     }
 
     if (params.action === 'manual') {
-      filter.description = /^manual/i;
+      filter.description = { $exists: true, $ne: '' };
     } else {
       filter.action = params.action;
+    }
+    
+    if (params.description) {
+      filter.description = { $regex: params.description }
     }
   }
 

@@ -76,6 +76,7 @@ export interface IScoreParams {
   action?: string;
   number?: string;
   stageId?: string;
+  description?: string
 }
 
 export const attachmentSchema = new Schema(
