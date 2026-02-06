@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { AccountingLayout } from '~/modules/layout/components/Layout';
 import { AccountingHeader } from '~/modules/layout/components/Header';
 import { useEffect, useRef } from 'react';
+// import { numberToWord } from 'erxes:master/packages/api-utils/src/numberUtils';
 export const TransactionPrintPage = () => {
   const query = new URLSearchParams(useLocation().search);
   const parentId = query.get('parentId');
@@ -48,140 +49,148 @@ export const TransactionPrintPage = () => {
 };
 
 const PrintPart = ({ data }: any) => {
-  const firstDetail = data.details?.[0];
+  const detail = data?.details?.[0];
+  console.log({ data });
 
-  const displayAmount =
-    firstDetail?.currencyAmount || firstDetail?.amount || data.sumDt || 0;
+  const amount = detail?.currencyAmount ?? detail?.amount ?? data?.sumDt ?? '';
+
+  const amountFormatted =
+    amount !== ''
+      ? Number(amount).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        })
+      : '';
+
+  // const amountInWords =
+  //   amount !== '' ? numberToWord(amount) : '';
+
+  const payerBank = detail?.account?.extra?.bank || '';
+  const debitAccount = detail?.account?.extra?.bankAccount || '';
+
+  const receiverBank = data?.extraData?.bank || '';
+  const creditAccount = data?.extraData?.bankAccount || '';
+
+  const description = data?.description || '';
+
+  const transactionDate = data?.date
+    ? dayjs(data.date).format('YYYY.MM.DD')
+    : '';
 
   return (
     <div
       id="print-area"
-      className="w-[210mm] min-h-[297mm] mx-auto px-8 py-10 text-[12px] font-serif text-black bg-white"
+      className="w-[210mm] min-h-[297mm] mx-auto px-[15mm] py-[10mm] text-[12px] font-serif text-black bg-white"
     >
-      {/* TITLE */}
-      <div className="text-center mb-6">
-        <div className="text-[16px] font-bold uppercase tracking-widest">
-          Төлбөрийн даалгавар
-        </div>
-        <div className="text-[11px] mt-1">(Bank Payment Order)</div>
-      </div>
-
-      {/* META */}
-      <div className="flex justify-between mb-4">
-        <div>
-          №: <span className="font-bold">{data.number}</span>
-        </div>
-        <div>
-          Огноо:{' '}
-          <span className="font-bold">
-            {data.date ? dayjs(data.date).format('YYYY/MM/DD') : '____/__/__'}
-          </span>
+      <div className="text-center mb-4">
+        <div className="text-[18px] font-bold tracking-wide">
+          ТӨЛБӨРИЙН ДААЛГАВАР
         </div>
       </div>
 
-      {/* TABLE */}
-      <table className="w-full border-collapse border border-black">
+      <table className="w-full text-[12px]">
         <tbody>
-          {/* NAMES */}
           <tr>
-            <td className="border border-black p-2 w-1/2 align-top">
-              <div className="text-[10px] uppercase">Төлөгчийн нэр</div>
-              <div className="mt-1 font-medium">{`-Компанийн нэр /orgName/`}</div>
-            </td>
-            <td className="border border-black p-2 w-1/2 align-top">
-              <div className="text-[10px] uppercase">Хүлээн авагчийн нэр</div>
-              <div className="mt-1 font-medium">
-                {data.customer?.primaryEmail || '—'}
-              </div>
+            <td className="py-1 w-[120px]">№:</td>
+            <td className="py-1 w-[200px] font-bold">{data?._id}</td>
+            <td className="py-1" colSpan={2}></td>
+            <td className="py-1 text-right" colSpan={2}>
+              {dayjs(data.date).format('YYYY.MM.DD')}
             </td>
           </tr>
 
-          {/* BANKS */}
           <tr>
-            <td className="border border-black p-2">
-              <div className="text-[10px] uppercase">Төлөгчийн банк</div>
-              <div className="mt-1">
-                {firstDetail?.account?.extra?.bank || '—'}
-              </div>
+            <td className="py-1">Төлөгчийн нэр:</td>
+            <td className="py-1">
+              {data.company?.name || data.customer?.primaryEmail || '-'}
             </td>
-            <td className="border border-black p-2">
-              <div className="text-[10px] uppercase">Хүлээн авагчийн банк</div>
-              <div className="mt-1">{data.extraData?.bank || '—'}</div>
+            <td className="py-1" colSpan={4}></td>
+          </tr>
+
+          <tr>
+            <td className="py-1">Хүлээн авагч:</td>
+            <td className="py-1"></td>
+            <td className="py-1 pl-2">Данс</td>
+            <td className="py-1"></td>
+            <td className="py-1 pl-2" colSpan={2}>
+              Дүн
             </td>
           </tr>
 
-          {/* ACCOUNTS */}
           <tr>
-            <td className="border border-black p-2">
-              <div className="text-[10px] uppercase">Дебит данс</div>
-              <div className="mt-1 font-mono font-bold">
-                {firstDetail?.account?.extra?.bankAccount ||
-                  firstDetail?.account?.code}
-              </div>
-            </td>
-            <td className="border border-black p-2">
-              <div className="text-[10px] uppercase">Кредит данс</div>
-              <div className="mt-1 font-mono font-bold">
-                {data.extraData?.bankAccount || '—'}
-              </div>
+            <td className="border px-2">Төлөгчийн банк</td>
+            <td className="border px-2">{payerBank}</td>
+            <td className="border px-2">Дебит данс</td>
+            <td className="border px-2">{debitAccount}</td>
+            <td className="border px-2" colSpan={2}></td>
+          </tr>
+          <tr>
+            <td className="border px-2">Хүлээн авагчийн банк</td>
+            <td className="border px-2">{receiverBank}</td>
+            <td className="border px-2">Кредит данс</td>
+            <td className="border px-2">{creditAccount}</td>
+            <td className="border px-2 text-right font-bold" colSpan={2}>
+              {amountFormatted}
             </td>
           </tr>
 
-          {/* AMOUNT IN WORDS */}
           <tr>
-            <td colSpan={2} className="border border-black p-3 h-[60px]">
-              <div className="text-[10px] uppercase">Мөнгөн дүн (үсгээр)</div>
-              <div className="mt-2 italic">
-                {displayAmount > 0
-                  ? `${displayAmount.toLocaleString()} төгрөг`
-                  : '........................................................'}
-              </div>
+            <td className="border px-2">Мөнгөн дүн (үсгээр)</td>
+            <td className="border px-2" colSpan={3}>
+              {/* Наян сая төгрөг */}
+            </td>
+            <td className="border px-2" colSpan={2}>
+              ... хоног торгууль ... төг ... мөн
             </td>
           </tr>
 
-          {/* AMOUNT */}
           <tr>
-            <td className="border border-black p-2">
-              <div className="text-[10px] uppercase">Дүн</div>
-              <div className="mt-1 text-[14px] font-bold">
-                {displayAmount.toLocaleString()}{' '}
-                {firstDetail?.account?.currency || 'MNT'}
-              </div>
+            <td className="border px-2" colSpan={4}>
+              Барааг хүлээн авсан буюу ажил гүйцэтгэсэн: {transactionDate}
             </td>
-            <td className="border border-black p-2 text-center">
-              <div className="text-[10px] uppercase">Гүйлгээний төрөл</div>
-              <div className="mt-2 font-medium">{data.journal || 'Банк'}</div>
+            <td className="border px-2" colSpan={2}>
+              Дүн(торгуультай)
             </td>
           </tr>
 
-          {/* DESCRIPTION */}
           <tr>
-            <td
-              colSpan={2}
-              className="border border-black p-3 h-[90px] align-top"
-            >
-              <div className="text-[10px] uppercase">Төлбөрийн зориулалт</div>
-              <div className="mt-2">{data.description || '—'}</div>
+            <td className="border px-2" colSpan={4}>
+              Төлбөрийн зориулалт:
             </td>
+            <td className="border px-2">Гүйлгээний утга</td>
+            <td className="border px-2"></td>
           </tr>
 
-          {/* SIGNATURES */}
-          <tr className="h-[120px]">
-            <td className="border border-black p-4 text-center align-bottom">
-              <div className="text-[10px] uppercase mb-12">
-                Төлөгчийн гарын үсэг
-              </div>
-              <div className="border-t border-black w-40 mx-auto"></div>
+          <tr>
+            <td className="border px-2" colSpan={4} rowSpan={4}>
+              {description}
             </td>
-            <td className="border border-black p-4 text-center align-bottom">
-              <div className="text-[10px] uppercase mb-12">
-                Хүлээн авагчийн тамга
-              </div>
-              <div className="border-t border-black w-40 mx-auto"></div>
-            </td>
+            <td className="border px-2">Төлбөрийн зориулалт</td>
+            <td className="border px-2"></td>
+          </tr>
+
+          <tr>
+            <td className="border px-2">Төлөх</td>
+            <td className="border px-2"></td>
+          </tr>
+
+          <tr>
+            <td className="border px-2">Төлбөрийн ээлж</td>
+            <td className="border px-2"></td>
           </tr>
         </tbody>
       </table>
+
+      <div className="flex justify-between mt-10 text-[12px]">
+        <div className="w-1/2 text-center">
+          <div className="mb-10">Ерөнхий нягтлан бодогч</div>
+          <div className="border-t border-black w-48 mx-auto"></div>
+        </div>
+
+        <div className="w-1/2 text-center">
+          <div className="mb-10">Гарын үсэг / Тамга</div>
+          <div className="border-t border-black w-48 mx-auto"></div>
+        </div>
+      </div>
     </div>
   );
 };

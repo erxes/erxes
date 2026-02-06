@@ -208,7 +208,6 @@ export const BankField = ({ form, index }: ICommonFieldProps) => {
   ];
   return (
     <>
-      {/* Bank */}
       <Form.Field
         control={form.control}
         name={`trDocs.${index}.extraData.bank`}
@@ -234,7 +233,6 @@ export const BankField = ({ form, index }: ICommonFieldProps) => {
         )}
       />
 
-      {/* Bank Account */}
       <Form.Field
         control={form.control}
         name={`trDocs.${index}.extraData.bankAccount`}

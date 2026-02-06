@@ -31,7 +31,6 @@ export const BankTransaction = ({
         filter={{ journals: [JournalEnum.BANK] }}
       />
       <SideField form={form} index={index} sides={TR_SIDES.FUND_OPTIONS} />
-      <BankField form={form} index={index} />
       <AmountField form={form} index={index} />
       <CustomerFields form={form} index={index} />
       <AssignToField form={form} index={index} />
@@ -51,6 +50,8 @@ export const BankTransaction = ({
         isWithTax={true}
         isSameSide={false}
       />
+      <BankField form={form} index={index} />
+
     </div>
   );
 };
