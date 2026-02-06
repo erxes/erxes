@@ -16,7 +16,7 @@ import {
   IGroupedByPlugin,
   IPermissionGroup,
 } from '@/settings/permissions/types';
-import { PermissionGroupAdd } from './PermissionGroupAdd';
+import { PermissionGroupAdd } from '@/settings/permissions/components/form/PermissionGroupAdd';
 
 export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =

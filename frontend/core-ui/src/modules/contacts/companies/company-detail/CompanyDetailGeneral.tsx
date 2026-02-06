@@ -1,12 +1,11 @@
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { Avatar, readImage } from 'erxes-ui';
-import { CompanyName, useCompaniesEdit } from 'ui-modules';
+import { CompanyName } from 'ui-modules';
 
 export const CompanyDetailGeneral = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
   const { _id, primaryName, primaryEmail, primaryPhone, avatar } =
     companyDetail || {};
-  const { companiesEdit } = useCompaniesEdit();
 
   return (
     <div className="py-5 px-8 flex flex-col gap-6">

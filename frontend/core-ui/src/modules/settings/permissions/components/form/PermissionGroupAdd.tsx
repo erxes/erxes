@@ -38,7 +38,7 @@ export const PermissionGroupAdd = ({ text }: { text?: string }) => {
       <FocusSheet.View>
         <FocusSheet.Header title={'Add Custom Group'} />
         <FocusSheet.Content>
-          <PermissionGroupForm onSubmit={onSubmit} />
+          <PermissionGroupForm />
         </FocusSheet.Content>
       </FocusSheet.View>
     </FocusSheet>
