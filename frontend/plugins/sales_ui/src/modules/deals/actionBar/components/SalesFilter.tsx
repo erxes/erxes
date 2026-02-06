@@ -3,6 +3,7 @@ import {
   IconCalendarBolt,
   IconCalendarPlus,
   IconCalendarX,
+  IconChartFunnel,
 } from '@tabler/icons-react';
 import {
   SelectBranches,
@@ -17,6 +18,8 @@ import { IDeal } from '@/deals/types/deals';
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
+
+import { AdvancedFilter, AdvancedFilterBar } from '@/deals/actionBar/components/AdvancedFilter';
 
 export const SalesFilter = () => {
   const [queries] = useMultiQueryState<SalesFilterState>([
@@ -176,6 +179,7 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
           label="By Label"
         />
       )}
+      {queries?.advanced && <AdvancedFilterBar />}
     </>
   );
 };
@@ -218,6 +222,11 @@ const SalesFilterView = () => {
               <IconCalendarX />
               End date
             </Filter.Item>
+            <Command.Separator className="my-1" />
+            <Filter.Item value="advanced">
+              <IconChartFunnel />
+              Advanced Filters
+            </Filter.Item>
           </Command.List>
         </Command>
       </Filter.View>
@@ -237,6 +246,9 @@ const SalesFilterView = () => {
       </Filter.View>
       <Filter.View filterKey="startDateEndDate">
         <Filter.DateView filterKey="startDateEndDate" />
+      </Filter.View>
+      <Filter.View filterKey="advanced">
+        <AdvancedFilter />
       </Filter.View>
     </>
   );
