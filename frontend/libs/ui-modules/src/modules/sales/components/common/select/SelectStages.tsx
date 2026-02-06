@@ -31,7 +31,7 @@ export const SelectStageProvider = ({
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   value?: string[] | string;
-  onValueChange: (value: string[] | string, isAutoSelection?: boolean) => void;
+  onValueChange?: (value: string[] | string, isAutoSelection?: boolean) => void;
   stages?: IStage[];
   pipelineId?: string;
 }) => {

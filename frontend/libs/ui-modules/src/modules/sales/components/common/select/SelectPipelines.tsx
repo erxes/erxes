@@ -32,7 +32,7 @@ export const SelectPipelineProvider = ({
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   value?: string[] | string;
-  onValueChange: (value: string[] | string) => void;
+  onValueChange?: (value: string[] | string) => void;
   pipelines?: IPipeline[];
   boardId?: string;
 }) => {
