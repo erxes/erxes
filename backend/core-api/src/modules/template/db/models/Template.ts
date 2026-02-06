@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { model, Model } from 'mongoose';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   ITemplate,
@@ -42,7 +42,7 @@ export const loadTemplateClass = (models: IModels) => {
         createdBy: user?._id,
       };
 
-      return this.create(toCreate);
+      return models.Template.create(toCreate);
     }
 
     public static async updateTemplate(
@@ -72,7 +72,7 @@ export const loadTemplateClass = (models: IModels) => {
       this: ITemplateModel,
       _id: string,
     ): Promise<TemplateDocument> {
-      const template = await this.findOneAndDelete({ _id });
+      const template = await models.Template.findOneAndDelete({ _id });
       if (!template) {
         throw new Error(`Template not found with id ${_id}`);
       }

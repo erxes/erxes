@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ITemplate, ITemplateFilter } from '../types/types';
+import { ITemplate } from '../types/types';
 import TemplatesList from './TemplatesList';
 import TemplateForm from './TemplateForm';
 import { useTemplates } from '../hooks/useTemplates';
@@ -22,7 +22,6 @@ import {
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../../header';
-import { SelectTemplateCategory } from './SelectTemplateCategory';
 
 export const Templates: React.FC = () => {
   const [limit] = useState(20);
@@ -127,37 +126,51 @@ export const Templates: React.FC = () => {
                 Status
               </Filter.BarName>
               <Filter.BarButton filterKey="status">
-                {status === 'active' ? 'Active' : status === 'archived' ? 'Archived' : 'All'}
+                {status === 'active'
+                  ? 'Active'
+                  : status === 'inactive'
+                  ? 'Inactive'
+                  : 'All'}
               </Filter.BarButton>
             </Filter.BarItem>
-            <SelectTemplateCategory.FilterBar />
             <Filter.Popover>
               <Filter.Trigger />
               <Combobox.Content>
                 <Filter.View>
                   <Command>
-                    <Filter.CommandInput placeholder="Filter" variant="secondary" />
+                    <Filter.CommandInput
+                      placeholder="Filter"
+                      variant="secondary"
+                    />
                     <Command.List>
-                      <Filter.CommandItem onSelect={() => setQueries({ status: '' })}>
+                      <Filter.CommandItem
+                        onSelect={() => setQueries({ status: '' })}
+                      >
                         <IconProgressCheck />
                         Status: All
                         {!status && <IconCheck className="ml-auto" />}
                       </Filter.CommandItem>
-                      <Filter.CommandItem onSelect={() => setQueries({ status: 'active' })}>
+                      <Filter.CommandItem
+                        onSelect={() => setQueries({ status: 'active' })}
+                      >
                         <IconProgressCheck />
                         Status: Active
-                        {status === 'active' && <IconCheck className="ml-auto" />}
+                        {status === 'active' && (
+                          <IconCheck className="ml-auto" />
+                        )}
                       </Filter.CommandItem>
-                      <Filter.CommandItem onSelect={() => setQueries({ status: 'archived' })}>
+                      <Filter.CommandItem
+                        onSelect={() => setQueries({ status: 'inactive' })}
+                      >
                         <IconProgressCheck />
-                        Status: Archived
-                        {status === 'archived' && <IconCheck className="ml-auto" />}
+                        Status: Inactive
+                        {status === 'inactive' && (
+                          <IconCheck className="ml-auto" />
+                        )}
                       </Filter.CommandItem>
-                      <SelectTemplateCategory.FilterItem />
                     </Command.List>
                   </Command>
                 </Filter.View>
-                <SelectTemplateCategory.FilterView />
               </Combobox.Content>
             </Filter.Popover>
           </Filter.Bar>

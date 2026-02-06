@@ -60,14 +60,3 @@ export interface ICategoryListResponse {
     totalCount: number;
   };
 }
-
-export interface ITemplatesGetTypesResponse {
-  templatesGetTypes: Array<{ value: string; label: string }>;
-}
-
-export interface ITemplateFilter {
-  searchValue?: string;
-  status?: string;
-  categoryIds?: string[];
-  contentType?: string;
-}

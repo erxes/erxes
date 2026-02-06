@@ -83,7 +83,9 @@ export const productColumns: ColumnDef<IProduct>[] = [
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip
-            value={`${cell.row.original?.category?.code || ''} - ${cell.row.original?.category?.name || ''}`}
+            value={`${cell.row.original?.category?.code || ''} - ${
+              cell.row.original?.category?.name || ''
+            }`}
           />
         </RecordTableInlineCell>
       );

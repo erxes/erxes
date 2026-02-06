@@ -9,7 +9,6 @@ export const TEMPLATE_LIST = gql`
     $searchValue: String
     $status: String
     $categoryIds: [String]
-    $contentType: String
   ) {
     templateList(
       page: $page
@@ -19,7 +18,6 @@ export const TEMPLATE_LIST = gql`
       searchValue: $searchValue
       status: $status
       categoryIds: $categoryIds
-      contentType: $contentType
     ) {
       list {
         _id
@@ -62,12 +60,6 @@ export const TEMPLATE_DETAIL = gql`
   }
 `;
 
-export const TEMPLATES_GET_TYPES = gql`
-  query templatesGetTypes {
-    templatesGetTypes
-  }
-`;
-
 export const CATEGORY_LIST = gql`
   query categoryList($type: String) {
     categoryList(type: $type) {
@@ -89,6 +81,5 @@ export const CATEGORY_LIST = gql`
 export default {
   TEMPLATE_LIST,
   TEMPLATE_DETAIL,
-  TEMPLATES_GET_TYPES,
   CATEGORY_LIST,
 };

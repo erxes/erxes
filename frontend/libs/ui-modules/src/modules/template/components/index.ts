@@ -8,4 +8,3 @@ export {
   useSaveAsTemplateMulti,
 } from './SaveAsTemplateForm';
 export { default as TemplateActions } from './TemplateActions';
-export { SelectTemplateCategory } from './SelectTemplateCategory';

@@ -1,4 +1,4 @@
-import { Model, Schema } from 'mongoose';
+import { model, Model, Schema } from 'mongoose';
 import {
   ITemplateCategory,
   TemplateCategoryDocument,
@@ -80,9 +80,7 @@ export class TemplateCategoryClass {
   }
 }
 
-export const loadTemplateCategoryClass = (
-  models,
-): Schema<TemplateCategoryDocument, ITemplateCategoryModel> => {
+export const loadTemplateCategoryClass = (models) => {
   templateCategorySchema.loadClass(TemplateCategoryClass);
   return templateCategorySchema;
 };

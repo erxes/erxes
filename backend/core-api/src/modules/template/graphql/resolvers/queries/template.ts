@@ -3,16 +3,6 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { TemplateDocument } from '../../../db/definitions/template';
 
 export const templateQueries = {
-  templatesGetTypes: async (
-    _parent: undefined,
-    _args: any,
-    { models }: IContext,
-  ) => {
-    // Return distinct contentTypes as JSON array
-    const types = await models.Template.distinct('contentType');
-    return types.map((type) => ({ value: type, label: type }));
-  },
-
   templateList: async (
     _parent: undefined,
     params: {
@@ -22,13 +12,11 @@ export const templateQueries = {
       perPage?: number;
       limit?: number;
       cursor?: string;
-      contentType?: string;
       status?: string;
     },
     { models }: IContext,
   ) => {
-    const { searchValue, categoryIds, contentType, status, page, perPage } =
-      params;
+    const { searchValue, categoryIds, status, page, perPage } = params;
 
     const filter: any = {};
 
@@ -45,10 +33,6 @@ export const templateQueries = {
 
     if (categoryIds && categoryIds.length > 0) {
       filter.categoryIds = { $in: categoryIds };
-    }
-
-    if (contentType) {
-      filter.contentType = contentType;
     }
 
     // Support both cursor-based and offset-based pagination

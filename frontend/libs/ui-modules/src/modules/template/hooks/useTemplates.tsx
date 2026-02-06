@@ -8,7 +8,6 @@ import { toast } from 'erxes-ui';
 import {
   TEMPLATE_LIST,
   TEMPLATE_DETAIL,
-  TEMPLATES_GET_TYPES,
   CATEGORY_LIST,
 } from '../graphql/queries';
 import {
@@ -21,7 +20,6 @@ import {
   ITemplate,
   ITemplateListResponse,
   ITemplateDetailResponse,
-  ITemplatesGetTypesResponse,
   ICategoryListResponse,
 } from '../types/types';
 
@@ -70,35 +68,6 @@ export const useTemplateDetail = (
 
   return {
     template: data?.templateDetail,
-    loading,
-    error,
-  };
-};
-
-export const useTemplateTypes = () => {
-  const { data, loading, error } =
-    useQuery<ITemplatesGetTypesResponse>(TEMPLATES_GET_TYPES);
-
-  return {
-    types: data?.templatesGetTypes || [],
-    loading,
-    error,
-  };
-};
-
-export const useCategories = (
-  options?: QueryHookOptions<ICategoryListResponse>,
-) => {
-  const { data, loading, error } = useQuery<ICategoryListResponse>(
-    CATEGORY_LIST,
-    {
-      ...options,
-    },
-  );
-
-  return {
-    categories: data?.categoryList?.list || [],
-    totalCount: data?.categoryList?.totalCount || 0,
     loading,
     error,
   };

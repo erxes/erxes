@@ -77,8 +77,7 @@ export const inputs = `
 `;
 
 export const queries = `
-  templatesGetTypes: [JSON]
-  templateList(searchValue: String, categoryIds: [String], page: Int, perPage: Int, limit: Int, cursor: String, contentType: String, status: String): TemplateListResponse
+  templateList(searchValue: String, categoryIds: [String], page: Int, perPage: Int, limit: Int, cursor: String, status: String): TemplateListResponse
   templateDetail(_id: String!): Template
   categoryList(type: String): TemplateCategoryListResponse
 `;

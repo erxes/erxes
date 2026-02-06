@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ITemplate, ITemplateFilter } from '../types/types';
+import { ITemplate } from '../types/types';
 import TemplatesHeader from './TemplatesHeader';
 import TemplatesList from './TemplatesList';
 import TemplateForm from './TemplateForm';
@@ -8,7 +8,11 @@ import { PageContainer } from 'erxes-ui';
 
 export const Templates: React.FC = () => {
   const [limit] = useState(20);
-  const [filter, setFilter] = useState<ITemplateFilter>({ status: 'all' });
+  const [filter, setFilter] = useState<{
+    status?: string;
+    searchValue?: string;
+    categoryIds?: string[];
+  }>({});
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ITemplate | null>(
     null,
@@ -27,8 +31,8 @@ export const Templates: React.FC = () => {
       limit,
       searchValue: filter.searchValue,
       categoryIds: filter.categoryIds,
-      contentType: filter.contentType,
-      ...(filter.status !== 'all' && { status: filter.status }),
+      ...(filter.status &&
+        filter.status !== 'all' && { status: filter.status }),
     },
   });
 
@@ -49,8 +53,8 @@ export const Templates: React.FC = () => {
         cursor: pageInfo.endCursor,
         searchValue: filter.searchValue,
         categoryIds: filter.categoryIds,
-        contentType: filter.contentType,
-        ...(filter.status !== 'all' && { status: filter.status }),
+        ...(filter.status &&
+          filter.status !== 'all' && { status: filter.status }),
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
