@@ -14,7 +14,7 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { SelectBoard, SelectBranches, SelectDepartments, SelectPipeline, SelectStage } from 'ui-modules';
 import { z } from "zod";
 
 const configFormSchema = z.object({
@@ -57,6 +57,10 @@ export const SyncDealConfigForm = ({
   const pipelineId = useWatch({
     control: form.control,
     name: `pipelineId`
+  });
+  const boardId = useWatch({
+    control: form.control,
+    name: `boardId`
   });
 
   const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(gql`
@@ -128,7 +132,10 @@ export const SyncDealConfigForm = ({
             <Form.Item className='col-start-1'>
               <Form.Label>Board</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SelectBoard.FormItem
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
               </Form.Control>
             </Form.Item>
           )}
@@ -140,7 +147,11 @@ export const SyncDealConfigForm = ({
             <Form.Item>
               <Form.Label>Pipeline</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SelectPipeline.FormItem
+                  boardId={boardId}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
               </Form.Control>
             </Form.Item>
           )}
@@ -152,7 +163,11 @@ export const SyncDealConfigForm = ({
             <Form.Item>
               <Form.Label>Stage</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SelectStage.FormItem
+                  pipelineId={pipelineId}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
               </Form.Control>
             </Form.Item>
           )}
