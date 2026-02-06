@@ -26,8 +26,8 @@ export const PermissionGroupAdd = ({ text }: { text?: string }) => {
   //     });
   //   };
 
-  const onSubmit = (data: IPermissionGroupSchema) => {
-    console.log(data);
+  const onSubmit = (_data: IPermissionGroupSchema) => {
+    // TODO: call mutation (e.g. addPermissionGroup) and close sheet
   };
 
   return (
@@ -38,7 +38,7 @@ export const PermissionGroupAdd = ({ text }: { text?: string }) => {
       <FocusSheet.View>
         <FocusSheet.Header title={'Add Custom Group'} />
         <FocusSheet.Content>
-          <PermissionGroupForm />
+          <PermissionGroupForm onSubmit={onSubmit} />
         </FocusSheet.Content>
       </FocusSheet.View>
     </FocusSheet>

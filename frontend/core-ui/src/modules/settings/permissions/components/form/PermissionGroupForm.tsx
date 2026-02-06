@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Input, Separator, Collapsible, Button, Table } from 'erxes-ui';
+import { Form, Input, Separator, Button } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
@@ -68,8 +68,11 @@ export const PermissionGroupForm = ({
           </div>
         </div>
         <Separator />
-        <div className="h-full">
+        <div className="h-full flex-1 min-h-0">
           <PermissionModulesForm form={form} />
+        </div>
+        <div className="px-6 sm:px-8 py-4 border-t">
+          <Button type="submit">Create</Button>
         </div>
       </form>
     </Form>
