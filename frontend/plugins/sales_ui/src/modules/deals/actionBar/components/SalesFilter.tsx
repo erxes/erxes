@@ -3,6 +3,7 @@ import {
   IconCalendarBolt,
   IconCalendarPlus,
   IconCalendarX,
+  IconChartFunnel,
 } from '@tabler/icons-react';
 import {
   SelectBranches,
@@ -223,7 +224,7 @@ const SalesFilterView = () => {
             </Filter.Item>
             <Command.Separator className="my-1" />
             <Filter.Item value="advanced">
-              <IconCalendarX />
+              <IconChartFunnel />
               Advanced Filters
             </Filter.Item>
           </Command.List>

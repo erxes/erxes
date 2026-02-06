@@ -49,6 +49,7 @@ interface FilterEntry {
 
 export const AdvancedFilter = () => {
   const { resetFilterState } = useFilterContext();
+  const { setView } = useFilterContext();
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [option, setOption] = useState<string | null>(null);
   const [value, setValue] = useState<string>('');
@@ -294,11 +295,7 @@ export const AdvancedFilter = () => {
       <Command>
         <button
           onClick={() => {
-            setSelectedFilter(null);
-            setOption(null);
-            setValue('');
-            setFilterData(null);
-            setIsApplied(false);
+           setView('root');
           }}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground p-2"
         >
