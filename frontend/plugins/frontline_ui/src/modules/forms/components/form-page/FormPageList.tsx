@@ -3,6 +3,7 @@ import { RecordTable, useMultiQueryState, useQueryState } from "erxes-ui";
 import { formColumns } from "./form-columns";
 import { ColumnDef } from "@tanstack/table-core";
 import { IForm } from "@/forms/types/formTypes";
+import { FormCommandBar } from "./command-bar/form-command-bar";
 
 export const FormPageList = () => {
   const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
@@ -49,6 +50,7 @@ export const FormPageList = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <FormCommandBar />
     </RecordTable.Provider>
   );
 };

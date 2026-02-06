@@ -45,4 +45,5 @@ export interface IFormSetupPayload {
 
 export enum FormsPageHotKeyScope {
   FormsPage = 'forms-page',
+  FormMore = 'form-more',
 }
