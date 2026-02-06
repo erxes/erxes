@@ -1,13 +1,13 @@
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import { UseFormReturn } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { Button, Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
+import { Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
 import { useState } from 'react';
 import {
   IPermissionModule,
   IPermissionGroupPermission,
 } from '@/settings/permissions/types';
-import { IconShieldLock, IconPlugConnected } from '@tabler/icons-react';
+import { IconPlugConnected } from '@tabler/icons-react';
 
 const SCOPES: { value: IPermissionGroupPermission['scope']; label: string }[] =
   [
@@ -16,25 +16,25 @@ const SCOPES: { value: IPermissionGroupPermission['scope']; label: string }[] =
     { value: 'all', label: 'All' },
   ];
 
-function getPermission(
+const getPermission = (
   permissions: IPermissionGroupPermission[],
   moduleName: string,
-) {
+): IPermissionGroupPermission | undefined => {
   return permissions.find((p) => p.module === moduleName);
-}
+};
 
-function getAlwaysActionNames(module: IPermissionModule): string[] {
+const getAlwaysActionNames = (module: IPermissionModule): string[] => {
   return module.actions.filter((a) => a.always).map((a) => a.name);
-}
+};
 
-function isActionEnabled(
+const isActionEnabled = (
   perm: IPermissionGroupPermission | undefined,
   action: { name: string; always?: boolean },
-) {
+): boolean => {
   if (action.always) return true;
   if (!perm) return false;
   return perm.actions.includes('*') || perm.actions.includes(action.name);
-}
+};
 
 export const PermissionModulesForm = ({
   form,
@@ -43,6 +43,7 @@ export const PermissionModulesForm = ({
 }) => {
   const { permissionModulesByPlugin } = useGetPermissionModules();
   const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+
   const permissions = form.watch('permissions');
 
   const selectedPluginData = permissionModulesByPlugin.find(
@@ -237,7 +238,7 @@ export const PermissionModulesForm = ({
                         <>
                           <Separator />
                           <div className="px-5 py-5 space-y-6 bg-muted/5">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 flex-col sm:flex-row">
                               <Label className="text-sm font-medium min-w-[80px]">
                                 Access Scope
                               </Label>
@@ -268,6 +269,13 @@ export const PermissionModulesForm = ({
                                   ))}
                                 </Select.Content>
                               </Select>
+                              <p className="text-sm text-muted-foreground max-w-[280px]">
+                                {
+                                  module.scopes.find(
+                                    (s) => s.name === permOrDefault.scope,
+                                  )?.description
+                                }
+                              </p>
                             </div>
                             <div className="space-y-3">
                               <Label className="text-sm font-medium">

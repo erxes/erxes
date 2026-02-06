@@ -5,7 +5,7 @@ export const types = `
     scope: String!
   }
 
-  # New Permission System
+
   type PermissionAction {
     name: String!
     description: String!
@@ -13,10 +13,16 @@ export const types = `
     disabled: Boolean
   }
 
+  type PermissionScopeDescription {
+    name: String!
+    description: String!
+  }
+
   type PermissionModule {
     name: String!
     description: String
-    plugin: String!
+    scopes: [PermissionScopeDescription]
+    plugin: String! 
     scopeField: String
     ownerFields: [String]
     actions: [PermissionAction]!

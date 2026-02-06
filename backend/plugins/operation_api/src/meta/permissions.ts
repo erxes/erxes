@@ -2,17 +2,25 @@ import { IPermissionConfig } from 'erxes-api-shared/core-types';
 
 export const permissions: IPermissionConfig = {
   plugin: 'operation',
-  scopes: {
-    own: 'Records you created or assigned to you',
-    group: 'Records in your teams',
-    all: 'All records',
-  },
+
   modules: [
     {
       name: 'task',
       description: 'Task management',
       scopeField: 'teamId',
       ownerFields: ['createdBy', 'assignedTo'],
+
+      scopes: [
+        {
+          name: 'own',
+          description: 'Records you created or assigned to you',
+        },
+        {
+          name: 'group',
+          description: 'Records in your teams',
+        },
+        { name: 'all', description: 'All records' },
+      ],
 
       actions: [
         { name: 'taskRead', description: 'View tasks', always: true },
@@ -27,6 +35,19 @@ export const permissions: IPermissionConfig = {
       description: 'Project management',
       scopeField: 'teamId',
       ownerFields: ['createdBy', 'leadId'],
+
+      scopes: [
+        {
+          name: 'own',
+          description: 'Records you created or assigned to you',
+        },
+        {
+          name: 'group',
+          description: 'Records in your teams',
+        },
+        { name: 'all', description: 'All records' },
+      ],
+
       always: true,
       actions: [
         {
@@ -44,6 +65,18 @@ export const permissions: IPermissionConfig = {
       description: 'Cycle management',
       scopeField: 'teamId',
       ownerFields: ['createdBy'],
+      scopes: [
+        {
+          name: 'own',
+          description: 'Records you created or assigned to you',
+        },
+        {
+          name: 'group',
+          description: 'Records in your teams',
+        },
+        { name: 'all', description: 'All records' },
+      ],
+
       always: true,
       actions: [
         { name: 'cycleRead', description: 'View cycles', always: true },
@@ -58,6 +91,17 @@ export const permissions: IPermissionConfig = {
       scopeField: null,
       ownerFields: ['createdBy'],
       always: true,
+      scopes: [
+        {
+          name: 'own',
+          description: 'Records you created or assigned to you',
+        },
+        {
+          name: 'group',
+          description: 'Records in your teams',
+        },
+        { name: 'all', description: 'All records' },
+      ],
       actions: [
         { name: 'teamRead', description: 'View teams', always: true },
         { name: 'teamCreate', description: 'Create teams' },

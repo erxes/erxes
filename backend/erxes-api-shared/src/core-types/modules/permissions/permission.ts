@@ -9,6 +9,10 @@ export interface IPermissionAction {
 export interface IPermissionModule {
   name: string;
   description?: string;
+  scopes: {
+    name: string;
+    description: string;
+  }[];
   scopeField?: string | null;
   ownerFields?: string[];
   actions: IPermissionAction[];
@@ -30,11 +34,6 @@ export interface IDefaultPermissionGroup {
 
 export interface IPermissionConfig {
   plugin: string;
-  scopes?: {
-    own: string;
-    group: string;
-    all: string;
-  };
   modules: IPermissionModule[];
 
   defaultGroups?: IDefaultPermissionGroup[];

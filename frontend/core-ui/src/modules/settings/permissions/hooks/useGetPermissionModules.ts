@@ -11,9 +11,8 @@ export const useGetPermissionModules = () => {
   }>(GET_PERMISSION_MODULES);
 
   const permissionModulesByPlugin = data?.permissionModules || [];
-  const permissionModules: IPermissionModule[] = permissionModulesByPlugin.flatMap(
-    (g) => g.modules,
-  );
+  const permissionModules: IPermissionModule[] =
+    permissionModulesByPlugin.flatMap((g) => g.modules);
 
   return {
     permissionModulesByPlugin,

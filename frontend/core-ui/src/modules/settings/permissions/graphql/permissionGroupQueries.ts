@@ -41,6 +41,10 @@ export const GET_PERMISSION_MODULES = gql`
         plugin
         scopeField
         ownerFields
+        scopes {
+          name
+          description
+        }
         always
         actions {
           name

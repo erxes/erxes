@@ -10,6 +10,10 @@ export interface IPermissionAction {
 export interface IPermissionModule {
   name: string;
   description?: string;
+  scopes: {
+    name: string;
+    description: string;
+  }[];
   plugin: string;
   scopeField?: string | null;
   ownerFields?: string[];
