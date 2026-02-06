@@ -18,7 +18,7 @@ import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
 
-import { AdvancedFilter, AdvancedFilterBar } from './AdvancedFilter';
+import { AdvancedFilter, AdvancedFilterBar } from '@/deals/actionBar/components/AdvancedFilter';
 
 export const SalesFilter = () => {
   const [queries] = useMultiQueryState<SalesFilterState>([

@@ -40,19 +40,26 @@ const allFilters = [
   'Product categories',
 ];
 
+interface FilterEntry {
+  filter: string;
+  option: string;
+  value: string;
+}
+
+
 export const AdvancedFilter = () => {
   const { resetFilterState } = useFilterContext();
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [option, setOption] = useState<string | null>(null);
   const [value, setValue] = useState<string>('');
   const [isApplied, setIsApplied] = useState<boolean>(false);
-  const [filterData, setFilterData] = useState<any>(null);
-  const [boardId, setBoardId] = useQueryState('boardId');
-  const [pipelineId, setPipelineId] = useQueryState('pipelineId');
+  const [filterData, setFilterData] = useState<FilterEntry | null>(null);  
+  // const [boardId, setBoardId] = useQueryState('boardId');
+  // const [pipelineId, setPipelineId] = useQueryState('pipelineId');
   const [advancedFilters, setAdvancedFilters] = useQueryState<Record<
     string,
-    any
-  > | null>('advanced');
+    string
+  > | null>('advanced')
 
   const onSelect = (filter: string) => {
     setSelectedFilter(filter);
@@ -62,7 +69,7 @@ export const AdvancedFilter = () => {
     setSelectedFilter(null);
   };
 
-  const FilterButton = (filter: string, option: any, value: string) => {
+  const handleApplyFilter = (filter: string, option: any, value: string) => {
     setFilterData({ filter, option, value });
     setIsApplied(true);
   };
@@ -269,7 +276,11 @@ export const AdvancedFilter = () => {
           </Command.List>
           <Button
             className="mt-2"
-            onClick={() => FilterButton(selectedFilter, option, value)}
+            onClick={() => handleApplyFilter(selectedFilter, option, value)}
+            disabled={
+              !option ||
+              (option !== 'Is set' && option !== 'Is not set' && !value.trim())
+            }
           >
             Apply Filter
           </Button>
