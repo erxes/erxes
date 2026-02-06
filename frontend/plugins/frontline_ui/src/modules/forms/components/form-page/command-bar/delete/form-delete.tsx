@@ -21,7 +21,7 @@ export const FormDelete = ({
       disabled={loading}
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${formIds.length} selected Form?`,
+          message: `Are you sure you want to delete the ${formIds.length} selected form${formIds.length === 1 ? '' : 's'}?`,
         }).then(async () => {
           try {
             await removeForm(formIds);
@@ -31,7 +31,7 @@ export const FormDelete = ({
             toast({
               title: 'Success',
               variant: 'success',
-              description: 'Form deleted successfully',
+              description: `${formIds.length} Form${formIds.length === 1 ? '' : 's'} deleted successfully`,
             });
           } catch (e: any) {
             toast({

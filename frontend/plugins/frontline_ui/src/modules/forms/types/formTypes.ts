@@ -1,3 +1,4 @@
+import { IChannel } from '@/channels/types';
 import { IAttachment } from 'erxes-ui';
 
 export interface IForm {
@@ -13,6 +14,7 @@ export interface IForm {
   fields: IFormField[];
   leadData: ILeadData;
   channelId?: string;
+  channel?: IChannel;
 }
 
 export interface ILeadData {

@@ -162,7 +162,7 @@ export const FormsMoreColumnCell = ({
             <FormInstallScript formId={_id} />
             <Command.Item
               value="edit"
-              onClick={() => {
+              onSelect={() => {
                 navigate(
                   `/settings/frontline/forms/${cell.row.original.channelId}/${cell.row.original._id}`,
                 );
@@ -217,27 +217,23 @@ export const formColumns: ColumnDef<IForm>[] = [
     id: 'channelId',
     cell: ({ cell }) => {
       const navigate = useNavigate();
-      const { channelDetail } = useChannelInline({
-        variables: {
-          id: cell.getValue() as string,
-        }
-      });
+      const { channel } = cell.row.original;
 
       return (
         <RecordTableInlineCell>
           <RecordTableInlineCell.Anchor
             onClick={() => {
               navigate(
-                `/settings/frontline/channels/${cell.row.original.channelId}`,
+                `/settings/frontline/channels/${channel?._id}`,
               );
             }}
           >
             {
-              channelDetail?.icon ? (
-                <IconComponent name={channelDetail?.icon as string} className="size-4" />
+              channel?.icon ? (
+                <IconComponent name={channel?.icon as string} className="size-4" />
               ) : null
             }
-            {channelDetail?.name}
+            {channel?.name || '-'}
           </RecordTableInlineCell.Anchor>
         </RecordTableInlineCell>
       );
