@@ -21,6 +21,11 @@ export const SettingsNavigation = () => {
             path='/product-places'
             name="ProductPlace"
           />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix="mongolian"
+            path="/exchange-rates"
+            name="Exchange Rates"
+          />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

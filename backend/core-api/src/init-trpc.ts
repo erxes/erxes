@@ -4,7 +4,6 @@ import { ITRPCContext } from 'erxes-api-shared/utils';
 
 import { conformityTrpcRouter } from '~/modules/conformities/trpc/conformity';
 import { contactTrpcRouter } from '~/modules/contacts/trpc';
-import { exchangeRateTrpcRouter } from '~/modules/exchangeRates/trpc/exchangeRate';
 import { brandTrpcRouter } from '~/modules/organization/brand/trpc/brand';
 import { configTrpcRouter } from '~/modules/organization/settings/trpc/config';
 import { structureTrpcRouter } from '~/modules/organization/structure/trpc';
@@ -40,7 +39,6 @@ export const appRouter = t.mergeRouters(
   productTrpcRouter,
   brandTrpcRouter,
   tagTrpcRouter,
-  exchangeRateTrpcRouter,
   permissionTrpcRouter,
   segmentsTRPCRouter,
   automationsRouter,

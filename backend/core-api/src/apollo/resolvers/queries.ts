@@ -7,7 +7,6 @@ import { commentQueries } from '@/clientportal/graphql/resolvers/queries/comment
 import { cpNotificationQueries } from '@/clientportal/graphql/resolvers/queries/cpNotification';
 import { contactQueries } from '@/contacts/graphql/resolvers/queries';
 import { documentQueries } from '@/documents/graphql/queries';
-import { exchangeRateQueries } from '@/exchangeRates/graphql/resolvers';
 import { queries as formQueries } from '@/forms/graphql/resolvers';
 import { internalNoteQueries } from '@/internalNote/graphql/queries';
 import { logQueries } from '@/logs/graphql/resolvers/queries';
@@ -46,7 +45,6 @@ export const queries = {
   ...structureQueries,
   ...brandQueries,
   ...organizationConfigQueries,
-  ...exchangeRateQueries,
   ...permissionQueries,
   ...usersGroupQueries,
   ...documentQueries,
