@@ -13,6 +13,7 @@ export const permissions: IPermissionConfig = {
       description: 'Task management',
       scopeField: 'teamId',
       ownerFields: ['createdBy', 'assignedTo'],
+      always: true,
       actions: [
         { name: 'taskRead', description: 'View tasks', always: true },
         { name: 'taskCreate', description: 'Create tasks' },
@@ -26,6 +27,7 @@ export const permissions: IPermissionConfig = {
       description: 'Project management',
       scopeField: 'teamId',
       ownerFields: ['createdBy', 'leadId'],
+      always: true,
       actions: [
         {
           name: 'projectRead',
@@ -42,6 +44,7 @@ export const permissions: IPermissionConfig = {
       description: 'Cycle management',
       scopeField: 'teamId',
       ownerFields: ['createdBy'],
+      always: true,
       actions: [
         { name: 'cycleRead', description: 'View cycles', always: true },
         { name: 'cycleCreate', description: 'Create cycles' },
@@ -54,6 +57,7 @@ export const permissions: IPermissionConfig = {
       description: 'Team management',
       scopeField: null,
       ownerFields: ['createdBy'],
+      always: true,
       actions: [
         { name: 'teamRead', description: 'View teams', always: true },
         { name: 'teamCreate', description: 'Create teams' },

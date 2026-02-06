@@ -20,6 +20,7 @@ export const types = `
     scopeField: String
     ownerFields: [String]
     actions: [PermissionAction]!
+    always: Boolean
   }
 
   type PermissionModulesByPlugin {

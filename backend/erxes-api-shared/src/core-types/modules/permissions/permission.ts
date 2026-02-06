@@ -12,6 +12,7 @@ export interface IPermissionModule {
   scopeField?: string | null;
   ownerFields?: string[];
   actions: IPermissionAction[];
+  always?: boolean;
 }
 
 export interface IPermissionGroupPermission {
@@ -35,7 +36,8 @@ export interface IPermissionConfig {
     all: string;
   };
   modules: IPermissionModule[];
-  defaultGroups: IDefaultPermissionGroup[];
+
+  defaultGroups?: IDefaultPermissionGroup[];
 }
 
 export interface IPermissionGroup {

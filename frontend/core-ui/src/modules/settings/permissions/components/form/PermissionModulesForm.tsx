@@ -48,17 +48,23 @@ export const PermissionModulesForm = ({
     (p) => p.plugin === selectedPlugin,
   );
 
-  const isModuleEnabled = (moduleName: string) =>
-    permissions.some((p) => p.module === moduleName);
+  const isModuleEnabled = (module: IPermissionModule) =>
+    module.always || permissions.some((p) => p.module === module.name);
 
   const toggleModule = (module: IPermissionModule, enabled: boolean) => {
+    if (module.always && !enabled) return;
     const current = form.getValues('permissions');
     if (enabled) {
       form.setValue('permissions', [
         ...current,
-        { module: module.name, actions: ['*'], scope: 'all' },
+        {
+          module: module.name,
+          actions: ['*'],
+          scope: 'all',
+        },
       ]);
     } else {
+      if (module.always) return;
       form.setValue(
         'permissions',
         current.filter((p) => p.module !== module.name),
@@ -71,8 +77,16 @@ export const PermissionModulesForm = ({
     actionName: string,
     enabled: boolean,
   ) => {
-    const current = form.getValues('permissions');
-    const perm = getPermission(current, module.name);
+    let current = form.getValues('permissions');
+    let perm = getPermission(current, module.name);
+    if (!perm && module.always) {
+      form.setValue('permissions', [
+        ...current,
+        { module: module.name, actions: ['*'], scope: 'all' },
+      ]);
+      current = form.getValues('permissions');
+      perm = getPermission(current, module.name);
+    }
     if (!perm) return;
 
     const alwaysNames = getAlwaysActionNames(module);
@@ -124,10 +138,18 @@ export const PermissionModulesForm = ({
     scope: IPermissionGroupPermission['scope'],
   ) => {
     const current = form.getValues('permissions');
-    form.setValue(
-      'permissions',
-      current.map((p) => (p.module === moduleName ? { ...p, scope } : p)),
-    );
+    const existing = current.find((p) => p.module === moduleName);
+    if (existing) {
+      form.setValue(
+        'permissions',
+        current.map((p) => (p.module === moduleName ? { ...p, scope } : p)),
+      );
+    } else {
+      form.setValue('permissions', [
+        ...current,
+        { module: moduleName, actions: ['*'], scope },
+      ]);
+    }
   };
 
   return (
@@ -159,113 +181,135 @@ export const PermissionModulesForm = ({
               {selectedPluginData.plugin} — Modules
             </h3>
             {selectedPluginData.modules.map((module) => {
-              const moduleOn = isModuleEnabled(module.name);
+              const moduleOn = isModuleEnabled(module);
               const perm = getPermission(permissions, module.name);
+              const permOrDefault: IPermissionGroupPermission | undefined =
+                perm ??
+                (module.always
+                  ? { module: module.name, actions: ['*'], scope: 'all' }
+                  : undefined);
               return (
                 <Collapsible key={module.name} className="group" defaultOpen>
-                  <div className="relative rounded-md border">
+                  <div className="relative">
                     <Collapsible.Trigger asChild>
                       <Button
                         variant="secondary"
-                        className="w-full justify-start rounded-md h-auto py-3 px-3"
+                        className="w-full justify-start"
                       >
                         <Collapsible.TriggerIcon />
-                        <span className="flex flex-1 items-center justify-between gap-2 min-w-0">
-                          <span className="text-left truncate">
-                            {module.name}
-                            {module.description && (
-                              <span className="text-muted-foreground font-normal block text-xs truncate">
-                                {module.description}
-                              </span>
-                            )}
-                          </span>
-                          <span onClick={(e) => e.stopPropagation()}>
-                            <Switch
-                              checked={moduleOn}
-                              onCheckedChange={(checked) =>
-                                toggleModule(module, checked ?? false)
-                              }
-                            />
-                          </span>
+                        <span className="flex items-center gap-2">
+                          {module.name}
+                          {module.always && (
+                            <span className="text-muted-foreground text-xs">
+                              (always)
+                            </span>
+                          )}
+                          {module.description && (
+                            <span className="text-muted-foreground font-normal text-xs truncate">
+                              — {module.description}
+                            </span>
+                          )}
                         </span>
                       </Button>
                     </Collapsible.Trigger>
                   </div>
                   <Collapsible.Content className="pt-2">
-                    {moduleOn && perm && (
-                      <div className="rounded-md border border-t-0 rounded-t-none px-3 py-3 space-y-3 bg-muted/30">
-                        <div className="flex items-center gap-2">
-                          <Label className="text-xs text-muted-foreground shrink-0">
-                            Scope
-                          </Label>
-                          <Select
-                            value={perm.scope}
-                            onValueChange={(value) =>
-                              setModuleScope(
-                                module.name,
-                                value as IPermissionGroupPermission['scope'],
-                              )
-                            }
-                          >
-                            <Select.Trigger className="h-8 w-[120px]">
-                              <Select.Value />
-                            </Select.Trigger>
-                            <Select.Content>
-                              {SCOPES.map((s) => (
-                                <Select.Item key={s.value} value={s.value}>
-                                  {s.label}
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs text-muted-foreground">
-                            Actions
-                          </Label>
-                          <div className="flex flex-col gap-1.5">
-                            {module.actions.map((action) => (
-                              <div
-                                key={action.name}
-                                className="flex items-center justify-between rounded border px-2 py-1.5"
-                              >
-                                <div className="min-w-0">
-                                  <span className="text-sm font-medium">
-                                    {action.name}
-                                  </span>
-                                  {action.always && (
-                                    <span className="text-xs text-muted-foreground ml-2">
-                                      (always)
-                                    </span>
-                                  )}
-                                  {action.description && (
-                                    <span className="text-xs text-muted-foreground ml-2 block truncate">
-                                      {action.description}
-                                    </span>
-                                  )}
-                                </div>
-                                <Switch
-                                  checked={isActionEnabled(perm, action)}
-                                  disabled={action.disabled || action.always}
-                                  onCheckedChange={(checked) =>
-                                    toggleAction(
-                                      module,
-                                      action.name,
-                                      checked ?? false,
-                                    )
-                                  }
-                                />
-                              </div>
-                            ))}
-                          </div>
-                          {perm.actions.includes('*') && (
-                            <p className="text-xs text-muted-foreground">
-                              All actions selected (*)
-                            </p>
+                    <div className="space-y-3 px-1">
+                      <div className="flex items-center justify-between rounded border px-3 py-2 bg-muted/30">
+                        <Label className="text-sm font-medium">
+                          Enable this module
+                          {module.always && (
+                            <span className="text-muted-foreground font-normal ml-2">
+                              (always)
+                            </span>
                           )}
-                        </div>
+                        </Label>
+                        <Switch
+                          checked={moduleOn}
+                          disabled={module.always}
+                          onCheckedChange={(checked) =>
+                            toggleModule(module, checked ?? false)
+                          }
+                        />
                       </div>
-                    )}
+                      {moduleOn && permOrDefault && (
+                        <div className="rounded border px-3 py-3 space-y-3 bg-muted/30">
+                          <div className="flex items-center gap-2">
+                            <Label className="text-xs text-muted-foreground shrink-0">
+                              Scope
+                            </Label>
+                            <Select
+                              value={permOrDefault.scope}
+                              onValueChange={(value) =>
+                                setModuleScope(
+                                  module.name,
+                                  value as IPermissionGroupPermission['scope'],
+                                )
+                              }
+                            >
+                              <Select.Trigger className="h-8 w-[120px]">
+                                <Select.Value />
+                              </Select.Trigger>
+                              <Select.Content>
+                                {SCOPES.map((s) => (
+                                  <Select.Item key={s.value} value={s.value}>
+                                    {s.label}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground">
+                              Actions
+                            </Label>
+                            <div className="flex flex-col gap-1.5">
+                              {module.actions.map((action) => (
+                                <div
+                                  key={action.name}
+                                  className="flex items-center justify-between rounded border px-2 py-1.5"
+                                >
+                                  <div className="min-w-0">
+                                    <span className="text-sm font-medium">
+                                      {action.name}
+                                    </span>
+                                    {action.always && (
+                                      <span className="text-xs text-muted-foreground ml-2">
+                                        (always)
+                                      </span>
+                                    )}
+                                    {action.description && (
+                                      <span className="text-xs text-muted-foreground ml-2 block truncate">
+                                        {action.description}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <Switch
+                                    checked={isActionEnabled(
+                                      permOrDefault,
+                                      action,
+                                    )}
+                                    disabled={action.disabled || action.always}
+                                    onCheckedChange={(checked) =>
+                                      toggleAction(
+                                        module,
+                                        action.name,
+                                        checked ?? false,
+                                      )
+                                    }
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                            {permOrDefault.actions.includes('*') && (
+                              <p className="text-xs text-muted-foreground">
+                                All actions selected (*)
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </Collapsible.Content>
                 </Collapsible>
               );

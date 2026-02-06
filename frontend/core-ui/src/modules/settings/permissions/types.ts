@@ -14,6 +14,7 @@ export interface IPermissionModule {
   scopeField?: string | null;
   ownerFields?: string[];
   actions: IPermissionAction[];
+  always?: boolean;
 }
 
 export interface IPermissionGroupPermission {
