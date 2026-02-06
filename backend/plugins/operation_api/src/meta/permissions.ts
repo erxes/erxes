@@ -13,7 +13,7 @@ export const permissions: IPermissionConfig = {
       description: 'Task management',
       scopeField: 'teamId',
       ownerFields: ['createdBy', 'assignedTo'],
-      always: true,
+      always: false,
       actions: [
         { name: 'taskRead', description: 'View tasks', always: true },
         { name: 'taskCreate', description: 'Create tasks' },
