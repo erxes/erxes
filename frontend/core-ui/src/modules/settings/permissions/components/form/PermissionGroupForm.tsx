@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Input, Separator } from 'erxes-ui';
+import { Form, Input, Separator, Collapsible, Button, Table } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
+import { PermissionModulesForm } from './PermissionModulesForm';
 
 export const PermissionGroupForm = ({
   onSubmit,
@@ -17,6 +18,7 @@ export const PermissionGroupForm = ({
       permissions: [],
     },
   });
+
   const handleSubmit = (data: IPermissionGroupSchema) => {
     onSubmit?.(data);
   };
@@ -66,6 +68,9 @@ export const PermissionGroupForm = ({
           </div>
         </div>
         <Separator />
+        <div className="h-full">
+          <PermissionModulesForm form={form} />
+        </div>
       </form>
     </Form>
   );
