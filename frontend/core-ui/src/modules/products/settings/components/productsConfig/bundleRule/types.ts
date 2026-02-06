@@ -11,7 +11,7 @@ export interface IBundleRuleItem {
   priceValue?: number;
   priceType?: string;
   priceAdjustType?: string;
-  priceAdjustFactor?: number;
+  priceAdjustFactor?: string;
   percent?: number;
   code?: string;
   allowSkip?: boolean;

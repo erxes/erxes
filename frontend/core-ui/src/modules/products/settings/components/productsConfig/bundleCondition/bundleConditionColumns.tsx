@@ -1,13 +1,15 @@
-import { IconHash, IconCheck } from '@tabler/icons-react';
+import { IconHash, IconCircle, IconCircleCheck } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
   useConfirm,
+  Button,
 } from 'erxes-ui';
 import { IBundleCondition } from './types';
 import { bundleConditionNameColumn } from './BundleConditionNameColumn';
+import { bundleConditionMoreColumn } from './BundleConditionMoreColumn';
 import { useBundleConditionDefault } from '@/products/settings/hooks/useBundleConditionDefault';
 
 const DefaultIconCell = ({ row }: { row: any }) => {
@@ -27,26 +29,25 @@ const DefaultIconCell = ({ row }: { row: any }) => {
 
   return (
     <RecordTableInlineCell>
-      <button
+      <Button
         onClick={handleDefaultClick}
         disabled={loading}
-        className="p-1 rounded transition-colors hover:bg-muted"
+        variant="ghost"
         title={bundleCondition.isDefault ? 'Default' : 'Make it default'}
+        className="text-success"
       >
-        <IconCheck
-          size={20}
-          className={
-            bundleCondition.isDefault
-              ? 'text-green-500'
-              : 'text-muted-foreground'
-          }
-        />
-      </button>
+        {bundleCondition.isDefault ? (
+          <IconCircleCheck size={20} />
+        ) : (
+          <IconCircle size={20} />
+        )}
+      </Button>
     </RecordTableInlineCell>
   );
 };
 
 export const bundleConditionColumns: ColumnDef<IBundleCondition>[] = [
+  bundleConditionMoreColumn,
   bundleConditionNameColumn,
   RecordTable.checkboxColumn as ColumnDef<IBundleCondition>,
   {
@@ -62,7 +63,7 @@ export const bundleConditionColumns: ColumnDef<IBundleCondition>[] = [
   },
   {
     id: 'default',
-    header: () => <RecordTable.InlineHead icon={IconCheck} label="Default" />,
+    header: () => <RecordTable.InlineHead label="Default" />,
     cell: DefaultIconCell,
     size: 100,
   },

@@ -1,26 +1,40 @@
 import { ProductsHeader } from '@/products/components/ProductsHeader';
-import { PageContainer } from 'erxes-ui';
+import { Button, PageContainer } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
 import { ProductSidebar } from '@/products/components/ProductSidebar';
-import { SimilarityConfigForm } from '@/products/settings/components/productsConfig/similarityConfig/SimilarityConfigForm';
-import { SimilarityConfigGroupList } from '@/products/settings/components/productsConfig/similarityConfig/SimilarityConfigGroupList';
-import { SimilarityConfigProvider } from '@/products/settings/components/productsConfig/similarityConfig/SimilarityConfigContext';
+import { SimilarityGroupList } from '@/products/settings/components/productsConfig/similarityConfig';
+import { useSimilarityGroups } from '@/products/settings/components/productsConfig/similarityConfig/useSimilarityGroups';
 
 export const ProductsSimilarityGroupPage = () => {
+  const {
+    groupsMap,
+    configsLoading,
+    newlyAddedKey,
+    handleAddNew,
+    handleSave,
+    handleDelete,
+  } = useSimilarityGroups();
+
   return (
-    <SimilarityConfigProvider>
-      <PageContainer>
-        <ProductsHeader>
-          <SimilarityConfigForm />
-        </ProductsHeader>
-        <div className="flex overflow-hidden flex-auto">
-          <ProductSidebar />
-          <div className="flex overflow-y-auto flex-col flex-auto w-full min-h-0">
-            <div className="p-3">
-              <SimilarityConfigGroupList />
-            </div>
-          </div>
+    <PageContainer>
+      <ProductsHeader>
+        <Button onClick={handleAddNew}>
+          <IconPlus size={16} />
+          New Config
+        </Button>
+      </ProductsHeader>
+      <div className="flex overflow-hidden flex-auto">
+        <ProductSidebar />
+        <div className="flex overflow-y-auto flex-col flex-auto p-3 w-full min-h-0">
+          <SimilarityGroupList
+            groupsMap={groupsMap}
+            configsLoading={configsLoading}
+            newlyAddedKey={newlyAddedKey}
+            onSave={handleSave}
+            onDelete={handleDelete}
+          />
         </div>
-      </PageContainer>
-    </SimilarityConfigProvider>
+      </div>
+    </PageContainer>
   );
 };

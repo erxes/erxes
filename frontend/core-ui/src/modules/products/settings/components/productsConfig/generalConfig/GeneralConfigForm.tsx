@@ -70,7 +70,7 @@ export const GeneralConfigForm = () => {
       <div className="space-y-6">
         <InfoCard title={t('general-settings')}>
           <InfoCard.Content>
-            <Skeleton className="w-full h-64" />
+            <Skeleton className="w-full h-36" />
           </InfoCard.Content>
         </InfoCard>
       </div>

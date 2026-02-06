@@ -76,6 +76,10 @@ export const BundleConditionForm = ({
           code: data.code || null,
         },
         onCompleted: () => {
+          toast({
+            title: 'Success',
+            description: t('bundle-condition-added'),
+          });
           form.reset();
           onOpenChange?.(false);
         },
@@ -164,20 +168,17 @@ export const BundleConditionForm = ({
           </div>
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
-          <Button
-            type="button"
-            variant="ghost"
-            className="bg-background hover:bg-background/90"
-            onClick={handleCancel}
-          >
+          <Button type="button" variant="outline" onClick={handleCancel}>
             {t('cancel')}
           </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {isLoading ? t('creating') : t('create')}
+          <Button type="submit" disabled={isLoading}>
+            {isLoading
+              ? bundleCondition
+                ? t('updating')
+                : t('creating')
+              : bundleCondition
+              ? t('update')
+              : t('create')}
           </Button>
         </Sheet.Footer>
       </form>

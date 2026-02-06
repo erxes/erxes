@@ -18,21 +18,27 @@ export interface FieldProps {
   };
   customFieldsData?: Record<string, unknown>;
   id: string;
+  onFieldChange?: (value: unknown) => void;
 }
 
 export interface SpecificFieldProps extends FieldProps {
   handleChange: (value: unknown) => void;
+  onInputChange?: (value: unknown) => void;
   loading: boolean;
 }
 
 export const Field = (props: FieldProps) => {
-  const { field, mutateHook, customFieldsData, id } = props;
+  const { field, mutateHook, customFieldsData, id, onFieldChange } = props;
   const { mutate, loading } = mutateHook?.() ?? {
     mutate: () => null,
     loading: false,
   };
 
   const handleChange = (value: unknown) => {
+    if (onFieldChange) {
+      onFieldChange(value);
+      return;
+    }
     mutate({
       _id: id,
       customFieldsData: {
@@ -45,6 +51,7 @@ export const Field = (props: FieldProps) => {
   const fieldProps = {
     ...props,
     handleChange,
+    onInputChange: onFieldChange,
     loading,
     id: id + '_' + field._id,
   };

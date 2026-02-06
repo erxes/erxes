@@ -5,7 +5,10 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useBundleRulesAdd } from '@/products/settings/hooks/useBundleRulesAdd';
 import { useBundleRulesEdit } from '@/products/settings/hooks/useBundleRulesEdit';
-import { IBundleRule } from './types';
+import { IBundleRule, IBundleRuleItem } from './types';
+import { IconPlus, IconTrash, IconEdit } from '@tabler/icons-react';
+import { useState } from 'react';
+import { BundleRuleItemForm } from './BundleRuleItemForm';
 
 const bundleRuleFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -26,6 +29,11 @@ export const BundleRuleForm = ({
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const { bundleRulesAdd, loading: loadingAdd } = useBundleRulesAdd();
   const { bundleRulesEdit, loading: loadingEdit } = useBundleRulesEdit();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [rules, setRules] = useState<IBundleRuleItem[]>(
+    bundleRule?.rules || [],
+  );
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const form = useForm<{ name: string; description?: string; code?: string }>({
     defaultValues: bundleRule
@@ -43,6 +51,37 @@ export const BundleRuleForm = ({
     onOpenChange?.(false);
   };
 
+  const handleAddItem = (data: any) => {
+    if (editingIndex !== null) {
+      const updatedRules = [...rules];
+      updatedRules[editingIndex] = data as IBundleRuleItem;
+      setRules(updatedRules);
+      setEditingIndex(null);
+    } else {
+      setRules([...rules, data as IBundleRuleItem]);
+    }
+    setIsDialogOpen(false);
+  };
+
+  const handleEditItem = (index: number) => {
+    setEditingIndex(index);
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteItem = (index: number) => {
+    setRules(rules.filter((_, i) => i !== index));
+  };
+
+  const handleOpenDialog = () => {
+    setEditingIndex(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingIndex(null);
+  };
+
   const onSubmit = (data: {
     name: string;
     description?: string;
@@ -55,7 +94,7 @@ export const BundleRuleForm = ({
           name: data.name,
           description: data.description || null,
           code: data.code || null,
-          rules: bundleRule.rules || [],
+          rules: rules,
         },
         onCompleted: () => {
           onOpenChange?.(false);
@@ -74,7 +113,7 @@ export const BundleRuleForm = ({
           name: data.name,
           description: data.description || null,
           code: data.code || null,
-          rules: [],
+          rules: rules,
         },
         onCompleted: () => {
           form.reset();
@@ -158,26 +197,79 @@ export const BundleRuleForm = ({
                 </Form.Item>
               )}
             />
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleOpenDialog}
+            >
+              <IconPlus />
+              Add Row
+            </Button>
+
+            {rules.length > 0 && (
+              <div className="overflow-hidden mt-3 rounded-lg border">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Code</th>
+                      <th className="px-4 py-2 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rules.map((rule, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-4 py-2">{rule.code || '-'}</td>
+                        <td className="flex gap-2 justify-end px-4 py-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditItem(index)}
+                          >
+                            <IconEdit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive"
+                            onClick={() => handleDeleteItem(index)}
+                          >
+                            <IconTrash className="w-4 h-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
-          <Button
-            type="button"
-            variant="ghost"
-            className="bg-background hover:bg-background/90"
-            onClick={handleCancel}
-          >
+          <Button type="button" variant="outline" onClick={handleCancel}>
             {t('cancel')}
           </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {isLoading ? t('creating') : t('create')}
+          <Button type="submit" disabled={isLoading}>
+            {isLoading
+              ? bundleRule
+                ? t('updating')
+                : t('creating')
+              : bundleRule
+              ? t('update')
+              : t('create')}
           </Button>
         </Sheet.Footer>
       </form>
+
+      <BundleRuleItemForm
+        open={isDialogOpen}
+        onOpenChange={handleCloseDialog}
+        onSubmit={handleAddItem}
+        editingItem={editingIndex !== null ? rules[editingIndex] : undefined}
+        editingIndex={editingIndex}
+      />
     </Form>
   );
 };

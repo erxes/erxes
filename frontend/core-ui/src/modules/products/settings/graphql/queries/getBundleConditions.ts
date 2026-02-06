@@ -9,6 +9,7 @@ export const BUNDLE_CONDITIONS = gql`
       code
       createdAt
       userId
+      isDefault
       __typename
     }
   }
