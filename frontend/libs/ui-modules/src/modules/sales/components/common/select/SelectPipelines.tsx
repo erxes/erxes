@@ -9,17 +9,17 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import { IconArrowsRight, IconChevronDown } from '@tabler/icons-react';
+import React, { useEffect, useState } from 'react';
 import {
   SelectPipelinesContext,
   useSelectPipelinesContext,
-} from '@/deals/context/DealContext';
+} from 'ui-modules/modules/sales/contexts';
 
-import { PipelinesInline } from './PipelinesInline';
-import { IPipeline } from '@/deals/types/pipelines';
-import { IconArrowsRight, IconChevronDown } from '@tabler/icons-react';
-import { usePipelines } from '@/deals/boards/hooks/usePipelines';
+import { IPipeline } from 'ui-modules/index';
+import { PipelinesInline } from '../PipelinesInline';
 import { useDebounce } from 'use-debounce';
+import { usePipelines } from '../../../hooks/usePipelines';
 
 export const SelectPipelineProvider = ({
   children,
@@ -38,6 +38,26 @@ export const SelectPipelineProvider = ({
 }) => {
   const [_pipelines, setPipelines] = useState<IPipeline[]>(pipelines || []);
   const isSingleMode = mode === 'single';
+
+  const { pipelines: availablePipelines = [] } = usePipelines({
+    variables: {
+      searchValue: '',
+      boardId: boardId || undefined,
+    },
+    skip: !boardId,
+  });
+
+  useEffect(() => {
+    if (boardId && availablePipelines.length > 0) {
+      const firstPipeline = availablePipelines[0];
+      const currentPipelineId = Array.isArray(value) ? value[0] : value;
+
+      if (firstPipeline && !currentPipelineId) {
+        setPipelines([firstPipeline]);
+        onValueChange?.(firstPipeline._id);
+      }
+    }
+  }, [boardId, availablePipelines, onValueChange, value]);
 
   const onSelect = (pipeline: IPipeline) => {
     if (!pipeline) return;

@@ -1,5 +1,4 @@
 import { OperationVariables, useMutation } from '@apollo/client';
-import { useQueryState } from 'erxes-ui';
 import { SEGMENT_REMOVE, SEGMENTS } from 'ui-modules';
 
 export const useRemoveSegments = () => {

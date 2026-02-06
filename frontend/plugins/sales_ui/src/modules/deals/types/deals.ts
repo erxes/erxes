@@ -23,6 +23,7 @@ export interface IItem {
     attachments?: IAttachment[];
     labels: IPipelineLabel[];
     pipeline: IPipeline;
+    pipelineId?: string;
     stage?: IStage;
     stageId?: string;
     columnId?: string;

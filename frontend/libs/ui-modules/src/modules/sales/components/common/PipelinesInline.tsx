@@ -1,8 +1,7 @@
 import {
   PipelinesInlineContext,
   usePipelinesInlineContext,
-} from '@/deals/context/PipelinesInlineContext';
-import { IPipeline } from '@/deals/types/pipelines';
+} from '../../contexts';
 import {
   Skeleton,
   TextOverflowTooltip,
@@ -11,7 +10,8 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
-import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
+import { IPipeline } from '../../types';
+import { usePipelineDetail } from '../../hooks';
 
 export interface PipelinesInlineProps {
   pipelineIds?: string[];
@@ -97,6 +97,7 @@ const PipelinesInlineEffectComponent = ({
     if (pipelineDetail) {
       updatePipelines?.([...newPipelines, pipelineDetail]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pipelineDetail]);
 
   return null;

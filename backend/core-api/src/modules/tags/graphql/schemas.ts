@@ -40,6 +40,17 @@ const queryParams = `
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
+const cpQueryParams = `
+  type: String,
+  searchValue: String,
+  parentId: String,
+  ids: [String],
+  excludeIds: Boolean,
+  isGroup: Boolean,
+  instanceId: String,
+  includeWorkspaceTags: Boolean,
+`;
+
 export const queries = `
   tagsGetTypes: JSON
   tags(${queryParams}): TagsListResponse
@@ -47,7 +58,7 @@ export const queries = `
   tagDetail(_id: String!): Tag
   tagsQueryCount(type: String, searchValue: String): Int
 
-  cpTags: TagsListResponse
+  cpTags(${cpQueryParams}): [Tag]
 `;
 
 const mutationParams = `

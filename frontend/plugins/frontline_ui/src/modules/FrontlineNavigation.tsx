@@ -6,6 +6,7 @@ import {
   IconChartHistogram,
   IconBook,
   IconPlus,
+  IconForms,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -60,6 +61,11 @@ export const FrontlineNavigation = () => {
         icon={IconChartHistogram}
         path="frontline/reports"
       />
+      <NavigationMenuLinkItem
+        name="Forms"
+        icon={IconForms}
+        path="frontline/forms"
+      />
       <div className="relative group/knowledgebase">
         <NavigationMenuLinkItem
           name="Knowledge Base"
@@ -80,7 +86,7 @@ export const FrontlineNavigation = () => {
         >
           <IconPlus className="size-4" />
         </Button>
-      </div>  
+      </div>
     </>
   );
 };
