@@ -27,7 +27,7 @@ export const useAccountingConfigEdit = (options?: MutationFunctionOptions<{
       onCompleted: (data) => {
         toast({
           title: 'Success',
-          description: 'Added config',
+          description: 'Updated config',
         });
         options?.onCompleted?.(data);
       },

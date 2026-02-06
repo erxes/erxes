@@ -31,7 +31,7 @@ export const SelectBoardProvider = ({
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   value?: string[] | string;
-  onValueChange: (value: string[] | string) => void;
+  onValueChange?: (value: string[] | string) => void;
   boards?: IBoard[];
 }) => {
   const [_boards, setBoards] = useState<IBoard[]>(boards || []);
