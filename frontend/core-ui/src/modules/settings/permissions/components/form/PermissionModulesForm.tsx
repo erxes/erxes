@@ -1,12 +1,13 @@
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import { UseFormReturn } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { Button, Collapsible, Label, Select, Sidebar, Switch } from 'erxes-ui';
+import { Button, Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
 import { useState } from 'react';
 import {
   IPermissionModule,
   IPermissionGroupPermission,
 } from '@/settings/permissions/types';
+import { IconShieldLock, IconPlugConnected } from '@tabler/icons-react';
 
 const SCOPES: { value: IPermissionGroupPermission['scope']; label: string }[] =
   [
@@ -153,13 +154,13 @@ export const PermissionModulesForm = ({
   };
 
   return (
-    <div className="flex flex-1 h-full min-w-0">
-      <Sidebar.Content className="flex-1 shrink-0 min-w-0 w-44 border-r border-border/60 bg-sidebar/50">
-        <Sidebar.Group className="px-2">
-          <Sidebar.GroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground/90">
+    <div className="flex h-full min-w-0">
+      <Sidebar.Content className="flex-1 shrink-0 min-w-0 w-52 border-r border-border/60 bg-muted/20">
+        <Sidebar.Group className="px-3 py-4">
+          <Sidebar.GroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-2">
             Plugins
           </Sidebar.GroupLabel>
-          <Sidebar.GroupContent className="mt-2 space-y-0.5">
+          <Sidebar.GroupContent className="space-y-1">
             <Sidebar.Menu>
               {permissionModulesByPlugin.map(({ plugin }) => (
                 <Sidebar.MenuItem key={plugin}>
@@ -167,7 +168,7 @@ export const PermissionModulesForm = ({
                     type="button"
                     isActive={selectedPlugin === plugin}
                     onClick={() => setSelectedPlugin(plugin)}
-                    className="rounded-lg capitalize transition-colors"
+                    className="rounded-lg capitalize transition-all duration-150 hover:bg-muted/60 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium"
                   >
                     {plugin}
                   </Sidebar.MenuButton>
@@ -177,166 +178,168 @@ export const PermissionModulesForm = ({
           </Sidebar.GroupContent>
         </Sidebar.Group>
       </Sidebar.Content>
-      <div className="flex-1 min-w-0 overflow-auto">
-        {selectedPluginData ? (
-          <div className="p-5 space-y-3">
-            <div className="mb-4">
-              <h3 className="text-base font-semibold text-foreground capitalize">
-                {selectedPluginData.plugin}
-              </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Configure module permissions and scopes
-              </p>
-            </div>
-            <div className="space-y-2">
-              {selectedPluginData.modules.map((module) => {
-                const moduleOn = isModuleEnabled(module);
-                const perm = getPermission(permissions, module.name);
-                const permOrDefault: IPermissionGroupPermission | undefined =
-                  perm ??
-                  (module.always
-                    ? { module: module.name, actions: ['*'], scope: 'all' }
-                    : undefined);
-                return (
-                  <Collapsible
-                    key={module.name}
-                    className="group rounded-xl border border-border/80 bg-card shadow-sm overflow-hidden transition-shadow hover:shadow-md"
-                    defaultOpen
-                  >
-                    <Collapsible.Trigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start gap-3 h-auto py-3.5 px-4 rounded-none hover:bg-muted/50 rounded-t-xl data-[state=open]:rounded-b-none"
-                      >
-                        <Collapsible.TriggerIcon className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[state=open]:rotate-90" />
-                        <span className="flex flex-1 items-center justify-between gap-3 min-w-0 text-left">
-                          <span className="flex flex-col gap-0.5 min-w-0">
-                            <span className="font-medium text-foreground truncate">
+      <div className="w-[80%] overflow-auto styled-scroll">
+        <div className="mx-auto max-w-3xl px-6">
+          {selectedPluginData ? (
+            <div className="py-8 space-y-8">
+              <div className="border-b border-border/60 pb-5 ">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground capitalize">
+                    {selectedPluginData.plugin}
+                  </h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Configure module permissions and access scopes
+                </p>
+              </div>
+              <div className="space-y-4">
+                {selectedPluginData.modules.map((module) => {
+                  const moduleOn = isModuleEnabled(module);
+                  const perm = getPermission(permissions, module.name);
+                  const permOrDefault: IPermissionGroupPermission | undefined =
+                    perm ??
+                    (module.always
+                      ? { module: module.name, actions: ['*'], scope: 'all' }
+                      : undefined);
+                  return (
+                    <section
+                      key={module.name}
+                      className="rounded-xl border border-border/60 bg-card shadow-sm hover:shadow-md transition-all duration-200"
+                    >
+                      <div className="flex items-center justify-between gap-4 px-5 py-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-foreground capitalize">
                               {module.name}
                             </span>
-                            {module.description && (
-                              <span className="text-xs text-muted-foreground truncate">
-                                {module.description}
-                              </span>
-                            )}
-                          </span>
-                          <span
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-2 shrink-0"
-                          >
                             {module.always && (
-                              <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded">
-                                Always
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                                Required
                               </span>
                             )}
-                            <Switch
-                              checked={moduleOn}
-                              disabled={module.always}
-                              onCheckedChange={(checked) =>
-                                toggleModule(module, checked ?? false)
-                              }
-                              className="data-[state=checked]:bg-primary"
-                            />
-                          </span>
-                        </span>
-                      </Button>
-                    </Collapsible.Trigger>
-                    <Collapsible.Content>
-                      {moduleOn && permOrDefault && (
-                        <div className="border-t border-border/60 bg-muted/20 px-4 py-4 space-y-4">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <Label className="text-xs font-medium text-muted-foreground shrink-0">
-                              Scope
-                            </Label>
-                            <Select
-                              value={permOrDefault.scope}
-                              onValueChange={(value) =>
-                                setModuleScope(
-                                  module.name,
-                                  value as IPermissionGroupPermission['scope'],
-                                )
-                              }
-                            >
-                              <Select.Trigger className="h-9 w-[130px] rounded-lg border-border/80 bg-background shadow-xs">
-                                <Select.Value />
-                              </Select.Trigger>
-                              <Select.Content className="rounded-lg">
-                                {SCOPES.map((s) => (
-                                  <Select.Item key={s.value} value={s.value}>
-                                    {s.label}
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select>
                           </div>
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-muted-foreground">
-                              Actions
-                            </Label>
-                            <div className="flex flex-col gap-1.5">
-                              {module.actions.map((action) => (
-                                <div
-                                  key={action.name}
-                                  className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/80 px-3 py-2.5 transition-colors hover:bg-muted/30"
-                                >
-                                  <div className="min-w-0 flex-1">
-                                    <span className="text-sm font-medium text-foreground">
-                                      {action.name}
-                                    </span>
-                                    {action.always && (
-                                      <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                                        (always)
-                                      </span>
-                                    )}
-                                    {action.description && (
-                                      <span className="mt-0.5 block text-xs text-muted-foreground truncate">
-                                        {action.description}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <Switch
-                                    checked={isActionEnabled(
-                                      permOrDefault,
-                                      action,
-                                    )}
-                                    disabled={action.disabled || action.always}
-                                    onCheckedChange={(checked) =>
-                                      toggleAction(
-                                        module,
-                                        action.name,
-                                        checked ?? false,
-                                      )
-                                    }
-                                    className="shrink-0 data-[state=checked]:bg-primary"
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                            {permOrDefault.actions.includes('*') && (
-                              <p className="text-xs text-muted-foreground pt-1">
-                                All actions selected
-                              </p>
-                            )}
-                          </div>
+                          {module.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {module.description}
+                            </p>
+                          )}
                         </div>
+                        <Switch
+                          checked={moduleOn}
+                          disabled={module.always}
+                          onCheckedChange={(checked) =>
+                            toggleModule(module, checked ?? false)
+                          }
+                          className="shrink-0 data-[state=checked]:bg-primary"
+                        />
+                      </div>
+                      {moduleOn && permOrDefault && (
+                        <>
+                          <Separator />
+                          <div className="px-5 py-5 space-y-6 bg-muted/5">
+                            <div className="flex items-center gap-4">
+                              <Label className="text-sm font-medium min-w-[80px]">
+                                Access Scope
+                              </Label>
+                              <Select
+                                value={permOrDefault.scope}
+                                onValueChange={(value) =>
+                                  setModuleScope(
+                                    module.name,
+                                    value as IPermissionGroupPermission['scope'],
+                                  )
+                                }
+                              >
+                                <Select.Trigger className="w-min min-w-32 h-7">
+                                  <Select.Value />
+                                </Select.Trigger>
+                                <Select.Content
+                                  className="rounded-lg min-w-32"
+                                  position="item-aligned"
+                                >
+                                  {SCOPES.map((s) => (
+                                    <Select.Item
+                                      key={s.value}
+                                      value={s.value}
+                                      className="[&_svg]:text-primary"
+                                    >
+                                      {s.label}
+                                    </Select.Item>
+                                  ))}
+                                </Select.Content>
+                              </Select>
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">
+                                Allowed Actions
+                              </Label>
+                              <div className="flex flex-col gap-0.5">
+                                {module.actions.map((action) => (
+                                  <div
+                                    key={action.name}
+                                    className="flex items-center justify-between gap-4 rounded-lg py-3 px-3 hover:bg-muted/40 transition-all duration-150 group"
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-2 mb-0.5">
+                                        <span className="text-sm font-medium text-foreground">
+                                          {action.description || action.name}
+                                        </span>
+                                        {action.always && (
+                                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border/40">
+                                            Required
+                                          </span>
+                                        )}
+                                      </div>
+                                      {action.description && (
+                                        <span className="text-xs text-muted-foreground font-normal">
+                                          {action.name}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <Switch
+                                      checked={isActionEnabled(
+                                        permOrDefault,
+                                        action,
+                                      )}
+                                      disabled={
+                                        action.disabled || action.always
+                                      }
+                                      onCheckedChange={(checked) =>
+                                        toggleAction(
+                                          module,
+                                          action.name,
+                                          checked ?? false,
+                                        )
+                                      }
+                                      className="shrink-0 data-[state=checked]:bg-primary transition-all"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </>
                       )}
-                    </Collapsible.Content>
-                  </Collapsible>
-                );
-              })}
+                    </section>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-1 flex-col items-center justify-center p-12 text-center">
-            <p className="text-sm font-medium text-muted-foreground">
-              Select a plugin
-            </p>
-            <p className="text-xs text-muted-foreground/80 mt-1 max-w-[220px]">
-              Choose a plugin from the sidebar to configure its module
-              permissions
-            </p>
-          </div>
-        )}
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
+              <div className="mb-4 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary">
+                <IconPlugConnected size={32} stroke={1.5} />
+              </div>
+              <h4 className="text-base font-semibold text-foreground mb-2">
+                Select a plugin
+              </h4>
+              <p className="text-sm text-muted-foreground max-w-[280px]">
+                Choose a plugin from the sidebar to configure its module
+                permissions and access controls
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
