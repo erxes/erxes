@@ -7,13 +7,12 @@ import { useTranslation } from 'react-i18next';
 export function SegmentsRecordTable() {
   const { orderedSegments, loading } = useSegments();
   const { t } = useTranslation('segment');
-
   if (loading) {
     return <Spinner />;
   }
 
   return (
-    <div className="flex flex-col h-full p-3 pt-0">
+    <div className="flex flex-col h-full p-2 pt-0">
       <RecordTable.Provider
         columns={columns(t)}
         data={orderedSegments}
