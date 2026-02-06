@@ -251,6 +251,44 @@ export const types = `
     averageCallbackTime: Float!
   }
 
+    type OperatorStats {
+    operatorId: String
+    totalCalls: Int
+    answeredCount: Int
+    missedCount: Int
+    answerRate: Float
+  }
+
+  type CallLog {
+    _id: ID
+    src: String
+    dst: String
+    start: Date
+    duration: Int
+    disposition: String
+  }
+
+  type PaginatedCallLogs {
+    calls: [CallLog]
+    totalCount: Int  
+    totalPages: Int
+  }
+
+  input CallLogFilter {
+    startDate: Date!
+    endDate: Date!
+    operatorId: String 
+    status: String
+  }
+    type AgentStat {
+    agent: String
+    totalIncoming: Int
+    incomingAnswered: Int
+    incomingMissed: Int
+    totalOutgoing: Int
+    outgoingAnswered: Int
+    totalTalkTime: Int
+  }
 `;
 
 export const subscriptions = `
@@ -317,8 +355,8 @@ export const queries = `
   callGetQueueStats(startDate: String!, endDate: String!, queueId: String, direction: String): [QueueStats!]!
   callGetAgentStats(startDate: String!,endDate: String!, queueId: String, agentId: String, direction: String): [AgentStats!]!
   getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
-
-`;
+  callGetOperatorStats(startDate: Date!, endDate: Date!): [AgentStat]
+  `;
 
 export const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON

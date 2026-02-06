@@ -1322,6 +1322,176 @@ const callQueries = {
 
     return data;
   },
+  async callGetOperatorStats(_, { startDate, endDate }, { models }: IContext) {
+    console.log('-------', typeof startDate, startDate);
+    // const stats = await models.CallCdrs.aggregate([
+    //   // STAGE 1: $match (Огноо, нөхцөлөөр шүүх)
+    //   {
+    //     $match: {
+    //       // Огноог query-ээс авна
+    //       start: { $gte: new Date(startDate) },
+    //       end: { $lte: new Date(endDate) },
+
+    //       // lastApp: "Queue" эсвэл "ReadExten" гэж өргөтгөж болно. Одоогоор "Queue"
+    //       lastApp: { $in: ['Queue'] },
+
+    //       // Операторын ID (dst) байгаа эсэх болон 18-аар эхэлсэн эсэхийг баталгаажуулах
+    //       dst: {
+    //         $exists: true,
+    //         $ne: '',
+    //       },
+    //     },
+    //   },
+
+    //   // STAGE 2: $group by uniqueId (Дуудлагын давхцлыг арилгах)
+    //   // Нэг uniqueId-тай дуудлагаас хамгийн сайн мэдээллийг авна.
+    //   {
+    //     $group: {
+    //       _id: '$uniqueId',
+
+    //       // Энэ дуудлагыг хүлээж авсан операторын ID-г хадгалах
+    //       operatorId: { $first: '$dst' },
+
+    //       // Disposition (Хариулт/Татгалзсан)
+    //       disposition: { $first: '$disposition' },
+    //     },
+    //   },
+
+    //   // STAGE 3: $group by operatorId (Эцсийн тооцоо)
+    //   // Одоо оператор бүрээр давхардаагүй дуудлагуудыг тоолно.
+    //   {
+    //     $group: {
+    //       _id: '$operatorId', // Операторын ID
+
+    //       totalCalls: { $sum: 1 }, // Unique дуудлагын нийт тоо
+
+    //       // ANSWERED бол 1-ээр нэмэгдэнэ
+    //       answeredCount: {
+    //         $sum: { $cond: [{ $eq: ['$disposition', 'ANSWERED'] }, 1, 0] },
+    //       },
+
+    //       // ANSWERED биш бол 1-ээр нэмэгдэнэ (Missed/No Answer)
+    //       missedCount: {
+    //         $sum: { $cond: [{ $ne: ['$disposition', 'ANSWERED'] }, 1, 0] },
+    //       },
+    //     },
+    //   },
+
+    //   // STAGE 4: $addFields (Нэмэлт талбар: Хариултын хувь - Answer Rate)
+    //   {
+    //     $addFields: {
+    //       answerRate: {
+    //         $round: [
+    //           {
+    //             $multiply: [
+    //               { $divide: ['$answeredCount', '$totalCalls'] },
+    //               100,
+    //             ],
+    //           },
+    //           2, // 2 оронгоор тоймлох
+    //         ],
+    //       },
+    //     },
+    //   },
+
+    //   // STAGE 5: $sort (Хамгийн их дуудлагатай оператороос эхлэн эрэмбэлэх)
+    //   { $sort: { totalCalls: -1 } },
+    // ]);
+    return await models.CallCdrs.aggregate([
+      {
+        $match: {
+          start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            // Агентыг тодорхойлох логик:
+            // Outbound бол src нь агент. Inbound бол dst нь агент.
+            agent: {
+              $cond: [{ $eq: ['$userfield', 'Outbound'] }, '$src', '$dst'],
+            },
+          },
+          totalIncoming: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Inbound'] }, 1, 0] },
+          },
+          incomingAnswered: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Inbound'] },
+                    { $eq: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          incomingMissed: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Inbound'] },
+                    { $ne: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalOutgoing: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Outbound'] }, 1, 0] },
+          },
+          outgoingAnswered: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Outbound'] },
+                    { $eq: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalTalkTime: { $sum: '$billsec' },
+        },
+      },
+      // Зөвхөн 4 оронтой тоо (Агент)-уудыг шүүж авах (Жишээ нь 1801, 1002 гэх мэт)
+      {
+        $addFields: {
+          // Agent ID-г string болгож, цэвэрлэх
+          cleanAgentId: {
+            $trim: { input: { $toString: '$_id.agent' } },
+          },
+        },
+      },
+      {
+        $match: {
+          // Цэвэрлэсэн ID нь 3 эсвэл 4 оронтой тоо байх
+          cleanAgentId: { $regex: '^[0-9]{3,4}$' },
+        },
+      },
+      {
+        $project: {
+          agent: '$cleanAgentId',
+          totalIncoming: 1,
+          incomingAnswered: 1,
+          incomingMissed: 1,
+          totalOutgoing: 1,
+          outgoingAnswered: 1,
+          totalTalkTime: 1,
+          _id: 0,
+        },
+      },
+    ]);
+  },
 };
 markResolvers(callQueries, {
   wrapperConfig: {
