@@ -1,4 +1,4 @@
-import { IconFilter } from '@tabler/icons-react';
+import { IconListCheck } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useBundleRules } from '@/products/settings/hooks/useBundleRules';
 import { bundleRuleColumns } from './bundleRuleColumns';
@@ -36,7 +36,7 @@ export const BundleRuleRecordTable = () => {
 function EmptyStateRow() {
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
-      <IconFilter size={64} stroke={1.5} className="text-muted-foreground" />
+      <IconListCheck size={64} stroke={1.5} className="text-muted-foreground" />
       <h2 className="text-lg font-semibold text-muted-foreground">
         No bundle rules yet
       </h2>
