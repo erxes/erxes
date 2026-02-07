@@ -1,6 +1,7 @@
 import { PRODUCT_STATUSES, PRODUCT_TYPES } from '@/products/constants';
 import {
   attachmentSchema,
+  customFieldSchema,
 } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
@@ -41,9 +42,14 @@ export const productSchema = schemaWrapper(
       description: { type: String, optional: true, label: 'Description' },
       unitPrice: { type: Number, optional: true, label: 'Unit price' },
       customFieldsData: {
-        type: Schema.Types.Mixed,
+        type:[customFieldSchema],
         optional: true,
         label: 'Custom fields data',
+      },
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
       },
       attachment: { type: attachmentSchema },
       attachmentMore: { type: [attachmentSchema] },

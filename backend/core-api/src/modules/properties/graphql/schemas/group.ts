@@ -2,11 +2,11 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
     type FieldGroup {
-        _id: String!
-        name: String!
-        code: String!
+        _id: String
+        name: String
+        code: String
         description: String
-        contentType: String!
+        contentType: String
         order: Float
         logics: JSON
         configs: JSON
@@ -17,7 +17,7 @@ export const types = `
     type FieldGroupListResponse {
         list: [FieldGroup]
         pageInfo: PageInfo
-        totalCount: Int!
+        totalCount: Int
     }
 
     input FieldGroupParams {

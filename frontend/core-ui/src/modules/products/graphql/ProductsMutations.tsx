@@ -115,7 +115,7 @@ const productsEdit = gql`
     $description: String
     $unitPrice: Float
     $code: String
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $vendorId: String
     $uom: String
     $barcodeDescription: String
@@ -136,7 +136,7 @@ const productsEdit = gql`
       description: $description
       unitPrice: $unitPrice
       code: $code
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       vendorId: $vendorId
       barcodes: $barcodes
       uom: $uom

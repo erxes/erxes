@@ -42,7 +42,7 @@ export interface IUser extends IUserInline {
   isSubscribed?: string;
   score?: number;
   username?: string;
-  customFieldsData?: Record<string, unknown>;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface IUserDetail extends IUser {

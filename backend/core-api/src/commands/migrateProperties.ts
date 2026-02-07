@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import { Collection, Db, MongoClient, ObjectId } from 'mongodb';
+import { Collection, Db, MongoClient } from 'mongodb';
 
 const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } =
   process.env;
@@ -39,6 +39,35 @@ const parseContentType = (contentType) => {
       return `operation:${moduleName}`;
     default:
       return contentType;
+  }
+};
+
+const parseType = (type, validation) => {
+  if (validation === 'number') {
+    return 'number';
+  }
+
+  if (validation === 'date') {
+    return 'date';
+  }
+
+  switch (type) {
+    case 'input':
+      return 'text';
+    case 'customer':
+      return 'relation:core:customer';
+    case 'company':
+      return 'relation:core:company';
+    case 'user':
+      return 'relation:core:user';
+    case 'teamMember':
+      return 'relation:core:user';
+    case 'users':
+      return 'relation:core:user';
+    case 'product':
+      return 'relation:core:product';
+    default:
+      return type;
   }
 };
 
@@ -121,8 +150,8 @@ const parseOptions = (field) => {
   }));
 
   const parsedOptions = (options || []).map((option) => ({
-    label: option.label,
-    value: option.value,
+    label: option,
+    value: option.toLowerCase(),
   }));
 
   return [...(parsedOptions || []), ...(parsedLocationOptions || [])];
@@ -142,7 +171,9 @@ const command = async () => {
   NEW_PROPERTY_FIELDS = db.collection('properties_fields');
 
   try {
-    const property_groups = OLD_PROPERTY_GROUPS.find({}).batchSize(BATCH_SIZE);
+    const property_groups = OLD_PROPERTY_GROUPS.find({
+      isDefinedByErxes: { $ne: true },
+    }).batchSize(BATCH_SIZE);
 
     let property_groups_bulk: any = [];
 
@@ -155,7 +186,7 @@ const command = async () => {
       property_groups_bulk.push({
         insertOne: {
           document: {
-            _id: new ObjectId(property_group._id),
+            _id: property_group._id,
             name: property_group.name,
             code: property_group.code,
             description: property_group.description,
@@ -192,7 +223,9 @@ const command = async () => {
   }
 
   try {
-    const property_fields = OLD_PROPERTY_FIELDS.find({}).batchSize(BATCH_SIZE);
+    const property_fields = OLD_PROPERTY_FIELDS.find({
+      isDefinedByErxes: { $ne: true },
+    }).batchSize(BATCH_SIZE);
 
     let property_fields_bulk: any = [];
 
@@ -205,7 +238,7 @@ const command = async () => {
       property_fields_bulk.push({
         insertOne: {
           document: {
-            _id: new ObjectId(property_field._id),
+            _id: property_field._id,
             name: property_field.text,
             code: property_field.code,
             description: property_field.description,
@@ -214,11 +247,9 @@ const command = async () => {
             order: parseOrder(property_field.order),
             logics: parseLogics(property_field),
             configs: parseConfigs(property_field, 'field'),
-            type: property_field.type,
+            type: parseType(property_field.type, property_field.validation),
             validations: parseValidations(property_field),
-            groupId: property_field.groupId
-              ? new ObjectId(property_field.groupId)
-              : null,
+            groupId: property_field.groupId,
             options: parseOptions(property_field),
 
             createdBy: property_field.createdBy,

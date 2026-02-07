@@ -16,7 +16,7 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 import { startPayments } from '../common-modules/payment/worker';
-import type { SegmentConfigs } from '../core-modules';
+import type { IPropertyMeta, SegmentConfigs } from '../core-modules';
 import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
@@ -43,6 +43,7 @@ type IMeta = {
   payments?: any;
   notificationModules?: any[];
   tags?: any;
+  properties?: IPropertyMeta;
 };
 
 type ApiHandler = {

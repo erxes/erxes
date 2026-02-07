@@ -180,9 +180,14 @@ export const userSchema = schemaWrapper(
       label: 'User chat status /used for exm/',
     }),
     customFieldsData: mongooseField({
-      type: Schema.Types.Mixed,
+      type: [customFieldSchema],
       optional: true,
       label: 'Custom fields data',
+    }),
+    propertiesData: mongooseField({
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
     }),
     lastSeenAt: mongooseField({
       type: Date,

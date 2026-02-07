@@ -1,21 +1,22 @@
-import { NumberInput, PopoverScoped } from 'erxes-ui';
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
+import { PopoverScoped, RecordTableInlineCell, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { SpecificFieldProps } from './Field';
 
-export const FieldNumber = (props: SpecificFieldProps) => {
+export const FieldTextarea = (props: SpecificFieldProps) => {
   const { inCell } = props;
 
   if (inCell) {
-    return <FieldNumberInCell {...props} />;
+    return <FieldTextareaInCell {...props} />;
   }
 
-  return <FieldNumberDetail {...props} />;
+  return <FieldTextareaDetail {...props} />;
 };
 
-export const FieldNumberInCell = (props: SpecificFieldProps) => {
+export const FieldTextareaInCell = (props: SpecificFieldProps) => {
   const { value, handleChange } = props;
-  const [currentValue, setCurrentValue] = useState<number>(value);
+
+  const [currentValue, setCurrentValue] = useState<string>(value || '');
+
   return (
     <PopoverScoped
       closeOnEnter
@@ -30,26 +31,27 @@ export const FieldNumberInCell = (props: SpecificFieldProps) => {
       }}
     >
       <RecordTableInlineCell.Trigger>
-        {currentValue?.toLocaleString()}
+        {currentValue}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <NumberInput
+        <Textarea
           value={currentValue}
-          onChange={(value) => setCurrentValue(value)}
+          onChange={(e) => setCurrentValue(e.target.value)}
         />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );
 };
 
-export const FieldNumberDetail = (props: SpecificFieldProps) => {
+export const FieldTextareaDetail = (props: SpecificFieldProps) => {
   const { value, handleChange, id } = props;
-  const [currentValue, setCurrentValue] = useState<number>(value);
+  const [currentValue, setCurrentValue] = useState<string>(value || '');
+
   return (
-    <NumberInput
+    <Textarea
       id={id}
       value={currentValue}
-      onChange={(value) => setCurrentValue(value)}
+      onChange={(e) => setCurrentValue(e.target.value)}
       onBlur={() => currentValue !== value && handleChange(currentValue)}
     />
   );

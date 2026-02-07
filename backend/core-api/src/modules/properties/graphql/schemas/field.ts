@@ -15,7 +15,7 @@ export const types = `
     }
 
     type Field {
-        _id: String!
+        _id: String
         name: String
         code: String
         type: String
