@@ -338,7 +338,7 @@ export const loadFieldClass = (models: IModels) => {
 
         const group = await models.FieldsGroups.findOne({
           _id: mergedItem,
-          isMultiple: true,
+          'configs.isMultiple': true,
         }).lean();
 
         const fieldId = group?._id || field?._id;

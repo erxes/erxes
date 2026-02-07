@@ -127,9 +127,9 @@ const toObject = (contentType, document, fields, groups) => {
 
             const parsedValue = parseValue(field, value[fieldId]);
 
-            if (parsedValue) {
+            if (parsedValue !== null && parsedValue !== undefined) {
               parsedValues[field._id] = parsedValue;
-            }
+            } 
           }
 
           if (Object.keys(parsedValues).length) {
@@ -147,7 +147,7 @@ const toObject = (contentType, document, fields, groups) => {
 
     const parsedValue = parseValue(field, customField.value);
 
-    if (parsedValue) {
+    if (parsedValue !== null && parsedValue !== undefined) {
       propertiesData[field?._id || customField.field] = parsedValue;
     }
   }
@@ -185,8 +185,6 @@ const command = async () => {
 
     for (const contentType of contentTypes) {
       const collection = CONTENT_TYPE_COLLECTIONS[contentType];
-
-      await collection.updateMany({}, { $unset: { propertiesData: '' } });
 
       const documents = collection.find({}).batchSize(BATCH_SIZE);
 

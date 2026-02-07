@@ -151,7 +151,7 @@ const parseOptions = (field) => {
 
   const parsedOptions = (options || []).map((option) => ({
     label: option,
-    value: option.toLowerCase(),
+    value: String(option).toLowerCase(),
   }));
 
   return [...(parsedOptions || []), ...(parsedLocationOptions || [])];
