@@ -345,12 +345,12 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      const { customFieldsData, trackedData } = await sendTRPCMessage({
+      const { propertiesData } = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
         module: 'fields',
-        action: 'generateCustomFieldsData',
+        action: 'generatePropertiesData',
         input: {
           query: {
             customData: companyData,
@@ -359,8 +359,10 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      companyData.customFieldsData = customFieldsData;
-      companyData.trackedData = trackedData;
+      companyData.propertiesData = propertiesData;
+
+      // trackData note: trackedData is not used for now
+      // companyData.trackedData = trackedData;
 
       if (!company) {
         companyData.primaryName = companyData.name;

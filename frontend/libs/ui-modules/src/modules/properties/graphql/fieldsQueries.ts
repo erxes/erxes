@@ -13,6 +13,7 @@ export const FIELD_GROUPS_QUERY = gql`
         name
         order
         updatedAt
+        configs
       }
       ${GQL_PAGE_INFO}
     }

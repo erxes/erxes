@@ -30,7 +30,7 @@ export interface ICustomer extends ICustomerInline {
   };
   sex?: SexCode;
   owner?: IUser;
-  customFieldsData?: Record<string, unknown>;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface ICustomerDetail extends ICustomer {

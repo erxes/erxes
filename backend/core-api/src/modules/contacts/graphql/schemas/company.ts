@@ -40,9 +40,8 @@ export const types = `
 
     tagIds: [String]
 
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
     trackedData: JSON
+    propertiesData: JSON
 
     customers: [Customer]
     getTags: [Tag]
@@ -114,7 +113,7 @@ const mutationParams = `
   links: JSON,
 
   tagIds: [String]
-  customFieldsData: JSON
+  propertiesData: JSON
   code: String
   location: String
 `;

@@ -64,7 +64,7 @@ export const CustomerDetail = () => {
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
                     fieldContentType="core:customer"
-                    customFieldsData={customerDetail?.customFieldsData || {}}
+                    propertiesData={customerDetail?.propertiesData || {}}
                     mutateHook={useCustomerCustomFieldEdit}
                     id={customerDetail?._id || ''}
                   />

@@ -1,23 +1,27 @@
 import { IPropertyType } from '@/properties/types/Properties';
 import { Sidebar } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
-import { CORE_FIELD_TYPES } from '../constants/coreFieldTypes';
+import { usePropertyTypes } from '../hooks/usePropertyTypes';
 
 export const PropertiesSidebar = () => {
+  const { propertyTypes } = usePropertyTypes();
+
   return (
     <Sidebar collapsible="none" className="border-r flex-none">
-      <Sidebar.Group>
-        <Sidebar.GroupLabel>Property types</Sidebar.GroupLabel>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            {CORE_FIELD_TYPES.map((propertyType: IPropertyType) => (
-              <Sidebar.MenuItem key={propertyType.contentType}>
-                <PropertyTypeMenuItem propertyType={propertyType} />
-              </Sidebar.MenuItem>
-            ))}
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
+      {Object.entries(propertyTypes).map(([pluginName, propertyTypes]) => (
+        <Sidebar.Group key={pluginName}>
+          <Sidebar.GroupLabel className="mb-1">{`${pluginName} properties`}</Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              {propertyTypes.map((propertyType) => (
+                <Sidebar.MenuItem key={propertyType.contentType}>
+                  <PropertyTypeMenuItem propertyType={propertyType} />
+                </Sidebar.MenuItem>
+              ))}
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+      ))}
     </Sidebar>
   );
 };
@@ -32,7 +36,7 @@ const PropertyTypeMenuItem = ({
   return (
     <Sidebar.MenuButton isActive={isActive} asChild>
       <Link to={`/settings/properties/${propertyType.contentType}`}>
-        {propertyType.label}
+        {propertyType.description}
       </Link>
     </Sidebar.MenuButton>
   );

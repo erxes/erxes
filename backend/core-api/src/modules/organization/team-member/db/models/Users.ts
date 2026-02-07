@@ -14,6 +14,7 @@ import {
   IDetail,
   IEmailSignature,
   ILink,
+  IPropertyField,
   IUser,
   IUserDocument,
   IUserMovementDocument,
@@ -41,6 +42,7 @@ interface IEditProfile {
   links?: ILink;
   employeeId?: string;
   positionIds?: string[];
+  propertiesData?: IPropertyField;
 }
 
 interface IUpdateUser extends IEditProfile {
@@ -291,6 +293,12 @@ export const loadUserClass = (
           employeeId: doc.employeeId,
           idsToExclude: _id,
         });
+      }
+
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(doc.propertiesData);
+
+        doc.propertiesData = propertiesData;
       }
 
       const operations: any = { $set: doc };
