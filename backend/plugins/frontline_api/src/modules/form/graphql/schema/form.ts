@@ -182,7 +182,7 @@ export const queries = `
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-  formsRemove(_id: String!): JSON
+  formsRemove(_ids: [String]): [String]
   formsToggleStatus(_id: String!): Form
   formsDuplicate(_id: String!): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean
