@@ -219,7 +219,7 @@ export const RemoveForm = ({
         confirm({
           message: `Are you sure you want to remove "${title}" form?`,
         }).then(() => {
-          removeForm({ variables: { id: formId } });
+          removeForm({ variables: { _ids: [formId] } });
         });
       }}
       disabled={loading}
