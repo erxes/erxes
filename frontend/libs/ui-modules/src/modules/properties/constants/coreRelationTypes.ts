@@ -13,6 +13,6 @@ export const CORE_RELATION_TYPES = [
   },
   {
     label: 'Team members',
-    value: 'core:teamMembers',
+    value: 'core:user',
   },
 ];

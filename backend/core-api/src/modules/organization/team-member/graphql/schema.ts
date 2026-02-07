@@ -88,7 +88,7 @@ export const types = `
     groupIds: [String]
     isSubscribed: String
     isShowNotification: Boolean
-    customFieldsData: JSON
+    propertiesData: JSON
 
     isOwner: Boolean
     role: String
@@ -144,7 +144,7 @@ const commonParams = `
   branchIds: [String]
   positionIds: [String]
   departmentIds: [String]
-  customFieldsData: JSON
+  propertiesData: JSON
   employeeId: String
   password: String
   isOnboarded: Boolean
