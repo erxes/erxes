@@ -42,6 +42,8 @@ export const types = `
     tags: [Tag]
     channelId: String
     integrationId: String
+
+    channel: Channel
   }
 
   type FormSubmission {
