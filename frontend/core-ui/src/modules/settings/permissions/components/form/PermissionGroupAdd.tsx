@@ -20,7 +20,6 @@ export const PermissionGroupAdd = ({
 
   const onSubmit = useCallback(
     async (data: IPermissionGroupSchema) => {
-      console.log('lo----g', data);
       if (loading) return;
       addPermissionGroup({
         variables: {
@@ -44,6 +43,10 @@ export const PermissionGroupAdd = ({
     [loading, addPermissionGroup],
   );
 
+  const onCancel = useCallback(() => {
+    setOpen(false);
+  }, []);
+
   return (
     <FocusSheet open={open} onOpenChange={setOpen}>
       {trigger ? (
@@ -63,6 +66,8 @@ export const PermissionGroupAdd = ({
             defaultValues={defaultValues}
             onSubmit={onSubmit}
             isSubmitting={loading}
+            onCancel={onCancel}
+            mode="add"
           />
         </FocusSheet.Content>
       </FocusSheet.View>

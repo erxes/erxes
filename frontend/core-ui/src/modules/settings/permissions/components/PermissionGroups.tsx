@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   Spinner,
   Table,
+  toast,
   useConfirm,
 } from 'erxes-ui';
 import {
@@ -23,6 +24,7 @@ import {
   IPermissionGroup,
 } from '@/settings/permissions/types';
 import { PermissionGroupAdd } from '@/settings/permissions/components/form/PermissionGroupAdd';
+import { useRemovePermissionGroup } from '@/settings/permissions/hooks/useRemovePermissionGroup';
 
 export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =
@@ -188,16 +190,27 @@ export const PermissionGroups = () => {
 
 const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
   const { confirm } = useConfirm();
-  // const { removeGroup, loading } = usePermissionGroupRemove();
+  const { removePermissionGroup } = useRemovePermissionGroup();
 
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${group.name}"?`,
     }).then(() => {
-      // removeGroup(group._id);
+      removePermissionGroup({
+        variables: { _id: group._id },
+        onCompleted: () => {
+          toast({ title: 'Permission group deleted', variant: 'success' });
+        },
+        onError: (error) => {
+          toast({
+            title: 'Error deleting permission group',
+            variant: 'destructive',
+            description: error.message,
+          });
+        },
+      });
     });
   };
-
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>

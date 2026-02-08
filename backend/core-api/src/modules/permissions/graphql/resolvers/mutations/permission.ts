@@ -27,12 +27,12 @@ export const permissionMutations = {
   async permissionGroupEdit(
     _root: any,
     {
-      id,
+      _id,
       name,
       description,
       permissions,
     }: {
-      id: string;
+      _id: string;
       name?: string;
       description?: string;
       permissions?: IPermissionInput[];
@@ -47,27 +47,27 @@ export const permissionMutations = {
     if (description !== undefined) update.description = description;
     if (permissions !== undefined) update.permissions = permissions;
 
-    await models.PermissionGroups.updateOne({ _id: id }, { $set: update });
+    await models.PermissionGroups.updateOne({ _id: _id }, { $set: update });
 
-    return models.PermissionGroups.findOne({ _id: id });
+    return models.PermissionGroups.findOne({ _id: _id });
   },
 
   // Remove custom permission group
   async permissionGroupRemove(
     _root: any,
-    { id }: { id: string },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const group = await models.PermissionGroups.findOne({ _id: id });
+    const group = await models.PermissionGroups.findOne({ _id });
     if (!group) throw new Error('Permission group not found');
 
     // Remove from all users
     await models.Users.updateMany(
-      { permissionGroupIds: id },
-      { $pull: { permissionGroupIds: id } },
+      { permissionGroupIds: _id },
+      { $pull: { permissionGroupIds: _id } },
     );
 
-    await models.PermissionGroups.deleteOne({ _id: id });
+    await models.PermissionGroups.deleteOne({ _id });
 
     return { success: true };
   },

@@ -33,3 +33,9 @@ export const EDIT_PERMISSION_GROUP_MUTATION = gql`
     }
   }
 `;
+
+export const REMOVE_PERMISSION_GROUP_MUTATION = gql`
+  mutation permissionGroupRemove($_id: String!) {
+    permissionGroupRemove(_id: $_id)
+  }
+`;

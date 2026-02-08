@@ -88,13 +88,13 @@ export const mutations = `
   ): PermissionGroup
 
   permissionGroupEdit(
-    id: String!
+    _id: String!
     name: String
     description: String
     permissions: [PermissionInput]
   ): PermissionGroup
 
-  permissionGroupRemove(id: String!): JSON
+  permissionGroupRemove(_id: String!): JSON
 
   userUpdatePermissionGroups(userId: String!, groupIds: [String]!): User
   userAddCustomPermission(userId: String!, permission: PermissionInput!): User

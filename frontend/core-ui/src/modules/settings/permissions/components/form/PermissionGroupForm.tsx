@@ -13,13 +13,16 @@ const EMPTY_DEFAULTS: IPermissionGroupSchema = {
 
 export const PermissionGroupForm = ({
   onSubmit,
+  onCancel,
+  mode,
   defaultValues,
   isSubmitting,
 }: {
   onSubmit?: (data: IPermissionGroupSchema) => void;
-  /** Initial form data (e.g. when editing a group or using a default group template). Use a stable key on the form when switching context so it remounts with new defaults. */
   defaultValues?: Partial<IPermissionGroupSchema>;
   isSubmitting?: boolean;
+  onCancel?: () => void;
+  mode?: 'add' | 'edit';
 }) => {
   const form = useForm<IPermissionGroupSchema>({
     resolver: zodResolver(PERMISSION_GROUP_SCHEMA),
@@ -82,9 +85,18 @@ export const PermissionGroupForm = ({
         <div className="h-full flex-1 min-h-0">
           <PermissionModulesForm form={form} />
         </div>
-        <div className="px-6 sm:px-8 py-4 border-t">
+        <div className="px-6 sm:px-8 py-4 border-t flex items-center justify-end gap-3">
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create'}
+            {isSubmitting
+              ? mode === 'edit'
+                ? 'Saving...'
+                : 'Creating...'
+              : mode === 'edit'
+              ? 'Save Changes'
+              : 'Create Group'}
           </Button>
         </div>
       </form>
