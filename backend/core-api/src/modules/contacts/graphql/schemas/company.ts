@@ -10,7 +10,7 @@ export const conformityQueryFields = `
 
 export const types = `
   type Company @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id:String
+    _id:String!
     createdAt: Date
     updatedAt: Date
     avatar: String

@@ -47,6 +47,7 @@ export const GET_PERMISSION_MODULES = gql`
         }
         always
         actions {
+          title
           name
           description
           always

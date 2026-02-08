@@ -1,4 +1,5 @@
 export interface IPermissionAction {
+  title: string;
   name: string;
   description: string;
   always?: boolean;
@@ -6,13 +7,15 @@ export interface IPermissionAction {
   type?: 'resolver' | 'custom';
 }
 
+export interface IPermissionScope {
+  name: string;
+  description: string;
+}
+
 export interface IPermissionModule {
   name: string;
   description?: string;
-  scopes: {
-    name: string;
-    description: string;
-  }[];
+  scopes: IPermissionScope[];
   scopeField?: string | null;
   ownerFields?: string[];
   actions: IPermissionAction[];

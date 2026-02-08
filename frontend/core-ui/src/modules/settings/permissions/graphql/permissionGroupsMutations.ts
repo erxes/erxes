@@ -18,13 +18,13 @@ export const ADD_PERMISSION_GROUP_MUTATION = gql`
 
 export const EDIT_PERMISSION_GROUP_MUTATION = gql`
   mutation permissionGroupEdit(
-    $id: String!
+    $_id: String!
     $name: String
     $description: String
     $permissions: [PermissionInput]
   ) {
     permissionGroupEdit(
-      id: $id
+      _id: $_id
       name: $name
       description: $description
       permissions: $permissions

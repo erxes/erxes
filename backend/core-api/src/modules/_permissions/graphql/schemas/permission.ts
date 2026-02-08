@@ -16,6 +16,7 @@ export const types = `
   }
 
   type PermissionAction {
+    title: String
     name: String
     description: String
     module: String

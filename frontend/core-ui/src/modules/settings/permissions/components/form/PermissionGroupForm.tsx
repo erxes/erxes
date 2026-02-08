@@ -5,17 +5,28 @@ import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissio
 import { PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
 import { PermissionModulesForm } from './PermissionModulesForm';
 
+const EMPTY_DEFAULTS: IPermissionGroupSchema = {
+  name: '',
+  description: '',
+  permissions: [],
+};
+
 export const PermissionGroupForm = ({
   onSubmit,
+  defaultValues,
+  isSubmitting,
 }: {
   onSubmit?: (data: IPermissionGroupSchema) => void;
+  /** Initial form data (e.g. when editing a group or using a default group template). Use a stable key on the form when switching context so it remounts with new defaults. */
+  defaultValues?: Partial<IPermissionGroupSchema>;
+  isSubmitting?: boolean;
 }) => {
   const form = useForm<IPermissionGroupSchema>({
     resolver: zodResolver(PERMISSION_GROUP_SCHEMA),
     defaultValues: {
-      name: '',
-      description: '',
-      permissions: [],
+      ...EMPTY_DEFAULTS,
+      ...defaultValues,
+      permissions: defaultValues?.permissions ?? EMPTY_DEFAULTS.permissions,
     },
   });
 
@@ -72,7 +83,9 @@ export const PermissionGroupForm = ({
           <PermissionModulesForm form={form} />
         </div>
         <div className="px-6 sm:px-8 py-4 border-t">
-          <Button type="submit">Create</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Creating...' : 'Create'}
+          </Button>
         </div>
       </form>
     </Form>

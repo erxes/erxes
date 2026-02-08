@@ -2,7 +2,7 @@ import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPerm
 import { UseFormReturn } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IPermissionModule,
   IPermissionGroupPermission,
@@ -45,6 +45,25 @@ export const PermissionModulesForm = ({
   const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
 
   const permissions = form.watch('permissions');
+
+  useEffect(() => {
+    if (permissionModulesByPlugin.length === 0 || permissions.length > 0) {
+      return;
+    }
+    const alwaysModules = permissionModulesByPlugin.flatMap((p) =>
+      p.modules.filter((m) => m.always),
+    );
+    if (alwaysModules.length > 0) {
+      form.setValue(
+        'permissions',
+        alwaysModules.map((m) => ({
+          module: m.name,
+          actions: ['*'],
+          scope: 'all' as const,
+        })),
+      );
+    }
+  }, [permissionModulesByPlugin, form]);
 
   const selectedPluginData = permissionModulesByPlugin.find(
     (p) => p.plugin === selectedPlugin,
@@ -183,16 +202,6 @@ export const PermissionModulesForm = ({
         <div className="mx-auto max-w-3xl px-6">
           {selectedPluginData ? (
             <div className="py-8 space-y-8">
-              <div className="border-b border-border/60 pb-5 ">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-lg font-semibold text-foreground capitalize">
-                    {selectedPluginData.plugin}
-                  </h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Configure module permissions and access scopes
-                </p>
-              </div>
               <div className="space-y-4">
                 {selectedPluginData.modules.map((module) => {
                   const moduleOn = isModuleEnabled(module);
@@ -213,11 +222,6 @@ export const PermissionModulesForm = ({
                             <span className="font-semibold text-foreground capitalize">
                               {module.name}
                             </span>
-                            {module.always && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-                                Required
-                              </span>
-                            )}
                           </div>
                           {module.description && (
                             <p className="text-sm text-muted-foreground">
@@ -292,11 +296,6 @@ export const PermissionModulesForm = ({
                                         <span className="text-sm font-medium text-foreground">
                                           {action.description || action.name}
                                         </span>
-                                        {action.always && (
-                                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border/40">
-                                            Required
-                                          </span>
-                                        )}
                                       </div>
                                       {action.description && (
                                         <span className="text-xs text-muted-foreground font-normal">

@@ -23,11 +23,33 @@ export const permissions: IPermissionConfig = {
       ],
 
       actions: [
-        { name: 'taskRead', description: 'View tasks', always: true },
-        { name: 'taskCreate', description: 'Create tasks' },
-        { name: 'taskUpdate', description: 'Edit tasks' },
-        { name: 'taskRemove', description: 'Delete tasks' },
-        { name: 'taskAssign', description: 'Assign tasks', type: 'custom' },
+        {
+          title: 'View tasks records',
+          name: 'taskRead',
+          description: 'View tasks',
+          always: true,
+        },
+        {
+          title: 'Create tasks records',
+          name: 'taskCreate',
+          description: 'Create tasks',
+        },
+        {
+          title: 'Edit tasks records',
+          name: 'taskUpdate',
+          description: 'Edit tasks records',
+        },
+        {
+          title: 'Delete tasks',
+          name: 'taskRemove',
+          description: 'Delete tasks',
+        },
+        {
+          title: 'Assign tasks',
+          name: 'taskAssign',
+          description: 'Assign tasks',
+          type: 'custom',
+        },
       ],
     },
     {
@@ -51,13 +73,26 @@ export const permissions: IPermissionConfig = {
       always: true,
       actions: [
         {
+          title: 'View projects records',
           name: 'projectRead',
           description: 'View projects',
           always: true,
         },
-        { name: 'projectCreate', description: 'Create projects' },
-        { name: 'projectUpdate', description: 'Edit projects' },
-        { name: 'projectRemove', description: 'Delete projects' },
+        {
+          title: 'Create projects records',
+          name: 'projectCreate',
+          description: 'Create projects',
+        },
+        {
+          title: 'Edit projects records',
+          name: 'projectUpdate',
+          description: 'Edit projects records',
+        },
+        {
+          title: 'Delete projects records',
+          name: 'projectRemove',
+          description: 'Delete projects records',
+        },
       ],
     },
     {
@@ -79,10 +114,27 @@ export const permissions: IPermissionConfig = {
 
       always: true,
       actions: [
-        { name: 'cycleRead', description: 'View cycles', always: true },
-        { name: 'cycleCreate', description: 'Create cycles' },
-        { name: 'cycleUpdate', description: 'Edit cycles' },
-        { name: 'cycleRemove', description: 'Delete cycles' },
+        {
+          title: 'View cycles records',
+          name: 'cycleRead',
+          description: 'View cycles records',
+          always: true,
+        },
+        {
+          title: 'Create cycles records',
+          name: 'cycleCreate',
+          description: 'Create cycles records',
+        },
+        {
+          title: 'Edit cycles records',
+          name: 'cycleUpdate',
+          description: 'Edit cycles records',
+        },
+        {
+          title: 'Delete cycles records',
+          name: 'cycleRemove',
+          description: 'Delete cycles records',
+        },
       ],
     },
     {
@@ -103,10 +155,27 @@ export const permissions: IPermissionConfig = {
         { name: 'all', description: 'All records' },
       ],
       actions: [
-        { name: 'teamRead', description: 'View teams', always: true },
-        { name: 'teamCreate', description: 'Create teams' },
-        { name: 'teamUpdate', description: 'Edit teams' },
-        { name: 'teamRemove', description: 'Delete teams' },
+        {
+          title: 'View teams records',
+          name: 'teamRead',
+          description: 'View teams records',
+          always: true,
+        },
+        {
+          title: 'Create teams records',
+          name: 'teamCreate',
+          description: 'Create teams records',
+        },
+        {
+          title: 'Edit teams records',
+          name: 'teamUpdate',
+          description: 'Edit teams records',
+        },
+        {
+          title: 'Delete teams records',
+          name: 'teamRemove',
+          description: 'Delete teams records',
+        },
       ],
     },
   ],

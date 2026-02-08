@@ -1,44 +1,69 @@
-// import { zodResolver } from '@hookform/resolvers/zod';
-import { FocusSheet, Sheet } from 'erxes-ui';
+import { FocusSheet, Sheet, toast } from 'erxes-ui';
 import { Button } from 'erxes-ui';
-// import { PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
-// import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { PermissionGroupForm } from './PermissionGroupForm';
+import { useAddPermissionGroup } from '@/settings/permissions/hooks/useAddPermissionGroup';
 
-export const PermissionGroupAdd = ({ text }: { text?: string }) => {
+export const PermissionGroupAdd = ({
+  text,
+  defaultValues,
+  trigger,
+}: {
+  text?: string;
+  defaultValues?: Partial<IPermissionGroupSchema>;
+  trigger?: React.ReactNode;
+}) => {
   const [open, setOpen] = useState<boolean>(false);
-  //   const form = useForm<typeof PERMISSION_GROUP_SCHEMA>({
-  //     resolver: zodResolver(PERMISSION_GROUP_SCHEMA),
-  //     defaultValues: {
-  //       name: '',
-  //       description: '',
-  //       permissions: [],
-  //     },
-  //   });
 
-  //   const onSubmit = (data: IPermissionGroupForm) => {
-  //     addPermissionGroup({
-  //       variables: {
-  //         ...data,
-  //       },
-  //     });
-  //   };
+  const { addPermissionGroup, loading } = useAddPermissionGroup();
 
-  const onSubmit = (_data: IPermissionGroupSchema) => {
-    // TODO: call mutation (e.g. addPermissionGroup) and close sheet
-  };
+  const onSubmit = useCallback(
+    async (data: IPermissionGroupSchema) => {
+      console.log('lo----g', data);
+      if (loading) return;
+      addPermissionGroup({
+        variables: {
+          name: data.name.trim(),
+          description: data.description?.trim() || null,
+          permissions: data.permissions,
+        },
+        onCompleted: () => {
+          toast({ title: 'Permission group added', variant: 'success' });
+          setOpen(false);
+        },
+        onError: (error) => {
+          toast({
+            title: 'Error adding permission group',
+            variant: 'destructive',
+            description: error.message,
+          });
+        },
+      });
+    },
+    [loading, addPermissionGroup],
+  );
 
   return (
     <FocusSheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button variant="secondary">{text || 'Add Custom Group'}</Button>
-      </Sheet.Trigger>
+      {trigger ? (
+        <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
+      ) : (
+        <Sheet.Trigger asChild>
+          <Button variant="secondary">{text || 'Add Custom Group'}</Button>
+        </Sheet.Trigger>
+      )}
       <FocusSheet.View>
-        <FocusSheet.Header title={'Add Custom Group'} />
+        <FocusSheet.Header
+          title={defaultValues?.name ? 'Edit Group' : 'Add Custom Group'}
+        />
         <FocusSheet.Content>
-          <PermissionGroupForm onSubmit={onSubmit} />
+          <PermissionGroupForm
+            key={defaultValues?.name ?? 'new'}
+            defaultValues={defaultValues}
+            onSubmit={onSubmit}
+            isSubmitting={loading}
+          />
         </FocusSheet.Content>
       </FocusSheet.View>
     </FocusSheet>

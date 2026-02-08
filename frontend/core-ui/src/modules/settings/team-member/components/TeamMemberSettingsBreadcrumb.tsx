@@ -1,5 +1,5 @@
-import { IconShieldLock, IconUsersGroup } from '@tabler/icons-react';
-import { Breadcrumb, Toggle } from 'erxes-ui';
+import { IconUsersGroup } from '@tabler/icons-react';
+import { Breadcrumb, Button, Toggle } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { TeamMembersPath } from '../constants/teamMemberRoutes';
@@ -11,6 +11,14 @@ export function TeamMemberSettingsBreadcrumb() {
 
   return (
     <Breadcrumb.List className="gap-1">
+      <Breadcrumb.Item>
+        <Button variant="ghost" asChild>
+          <Link to={`${TeamMembersPath.Index}`}>
+            <IconUsersGroup className="w-4 h-4 text-accent-foreground" />
+            Members & Permission groups
+          </Link>
+        </Button>
+      </Breadcrumb.Item>
       <Breadcrumb.Page>
         <Toggle
           type="button"
@@ -21,7 +29,6 @@ export function TeamMemberSettingsBreadcrumb() {
           }
         >
           <Link to={`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`}>
-            <IconUsersGroup className="w-4 h-4 text-accent-foreground" />
             {t('Members')}
           </Link>
         </Toggle>
@@ -39,8 +46,7 @@ export function TeamMemberSettingsBreadcrumb() {
           <Link
             to={`${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`}
           >
-            <IconShieldLock className="w-4 h-4 text-accent-foreground" />
-            {t('Permissions')}
+            {t('Permission groups')}
           </Link>
         </Toggle>
       </Breadcrumb.Page>
