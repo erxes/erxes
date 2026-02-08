@@ -1,21 +1,21 @@
+// types/permissions.ts
+
 export interface IPermissionAction {
   title: string;
   name: string;
   description: string;
   always?: boolean;
   disabled?: boolean;
-  type?: 'resolver' | 'custom';
-}
-
-export interface IPermissionScope {
-  name: string;
-  description: string;
 }
 
 export interface IPermissionModule {
   name: string;
   description?: string;
-  scopes: IPermissionScope[];
+  scopes: {
+    name: string;
+    description: string;
+  }[];
+  plugin: string;
   scopeField?: string | null;
   ownerFields?: string[];
   actions: IPermissionAction[];
@@ -31,30 +31,27 @@ export interface IPermissionGroupPermission {
 export interface IDefaultPermissionGroup {
   id: string;
   name: string;
-  description: string;
-  permissions: IPermissionGroupPermission[];
-}
-
-export interface IPermissionConfig {
+  description?: string;
   plugin: string;
-  modules: IPermissionModule[];
-
-  defaultGroups?: IDefaultPermissionGroup[];
+  permissions: IPermissionGroupPermission[];
 }
 
 export interface IPermissionGroup {
+  _id: string;
   name: string;
   description?: string;
   permissions: IPermissionGroupPermission[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface IPermissionGroupDocument extends IPermissionGroup, Document {
-  _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+// Permission modules grouped by plugin (API response)
+export interface IPermissionModulesByPlugin {
+  plugin: string;
+  modules: IPermissionModule[];
 }
-export interface IPermissionInput {
-  module: string;
-  actions: string[];
-  scope: 'own' | 'group' | 'all';
+
+// For groupedByPlugin
+export interface IGroupedByPlugin {
+  [plugin: string]: IDefaultPermissionGroup[];
 }

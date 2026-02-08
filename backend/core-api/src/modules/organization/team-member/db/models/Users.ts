@@ -24,7 +24,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
+import { PERMISSION_ROLES } from '~/modules/_permissions/db/constants';
 import {
   generateLoginActivityLog,
   generateLogoutActivityLog,
@@ -301,7 +301,9 @@ export const loadUserClass = (
       }
 
       if (doc.propertiesData) {
-        const propertiesData = await models.Fields.validateFieldValues(doc.propertiesData);
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
+        );
 
         doc.propertiesData = propertiesData;
       }

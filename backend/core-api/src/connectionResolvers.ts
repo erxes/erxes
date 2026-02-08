@@ -129,15 +129,15 @@ import {
 import {
   IPermissionModel,
   loadPermissionClass,
-} from '~/modules/permissions/db/models/Permissions';
+} from '~/modules/_permissions/db/models/Permissions';
 import {
   IRoleModel,
   loadRoleClass,
-} from '~/modules/permissions/db/models/Roles';
+} from '~/modules/_permissions/db/models/Roles';
 import {
   IUserGroupModel,
   loadUserGroupClass,
-} from '~/modules/permissions/db/models/UserGroups';
+} from '~/modules/_permissions/db/models/UserGroups';
 import {
   IAutomationEmailTemplateModel,
   loadAutomationEmailTemplateClass,
