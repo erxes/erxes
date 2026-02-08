@@ -1,4 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS, GQL_OFFSET_PARAM_DEFS } from 'erxes-api-shared/utils';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
 
 export const types = `
 
@@ -111,6 +114,7 @@ export const queries = `
   getTickets(filter: ITicketFilter): TicketListResponse
 
   cpGetTickets(filter: ICpTicketFilter): [Ticket]
+  cpGetTicket(_id: String!): Ticket
 `;
 
 export const mutations = `
