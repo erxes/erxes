@@ -452,8 +452,8 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
 
     if (!grandStreamResponse) throw new Error('Failed to get response from GrandStream API');
 
-    const fileBuffer = await grandStreamResponse.arrayBuffer();
-    if (!fileBuffer || fileBuffer.byteLength === 0) {
+    const fileBuffer = await grandStreamResponse.buffer();
+    if (!fileBuffer || fileBuffer.length === 0) {
       throw new Error('Received empty buffer from GrandStream API');
     }
 
@@ -461,8 +461,7 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
     const sanitizedFileName = sanitizeFileName(rawFileName);
 
     const formData = new FormData();
-    const blob = new Blob([fileBuffer]);
-    formData.append('file', blob, sanitizedFileName);
+    formData.append('file', fileBuffer, sanitizedFileName);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
