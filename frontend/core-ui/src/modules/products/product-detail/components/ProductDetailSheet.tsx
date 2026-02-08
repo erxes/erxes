@@ -172,7 +172,11 @@ export const ProductDetailSheet = () => {
                     >
                       <FieldsInDetail
                         fieldContentType="core:product"
+<<<<<<< HEAD
                         propertiesData={productDetail?.propertiesData || {}}
+=======
+                        customFieldsData={productDetail?.customFieldsData || {}}
+>>>>>>> fe7bf3b463 (update)
                         mutateHook={useProductCustomFieldEdit}
                         id={productDetail?._id || ''}
                       />
