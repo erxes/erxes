@@ -16,6 +16,14 @@ export const cpTicketQueries = {
 
     return defaultPaginate(models.Ticket.find(query), { page, perPage });
   },
+
+  cpGetTicket: async (
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return models.Ticket.getTicket(_id);
+  },
 };
 
 markResolvers(cpTicketQueries, {
