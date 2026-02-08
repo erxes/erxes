@@ -81,7 +81,7 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     }
     await createOrUpdateErxesConversation(subdomain, payload);
   } else {
-    console.log('now date:', new Date(), params.start, typeof params.start);
+    // console.log('now date:', new Date(), params.start, typeof params.start);
 
     const [datePart, timePart] = params.start.split(' ');
     const localTimeString = `${datePart}T${timePart}+08:00`;
