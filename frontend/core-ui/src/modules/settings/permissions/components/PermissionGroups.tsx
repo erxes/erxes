@@ -25,6 +25,8 @@ import {
 } from '@/settings/permissions/types';
 import { PermissionGroupAdd } from '@/settings/permissions/components/form/PermissionGroupAdd';
 import { useRemovePermissionGroup } from '@/settings/permissions/hooks/useRemovePermissionGroup';
+import { PermissionGroupEdit } from './form/PermissionGroupEdit';
+import { PermissionGroupDetails } from './PermissionGroupDetails';
 
 export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =
@@ -117,10 +119,18 @@ export const PermissionGroups = () => {
                             </Button>
                           </DropdownMenu.Trigger>
                           <DropdownMenu.Content className="min-w-48">
-                            <DropdownMenu.Item>
-                              <IconEye size={16} />
-                              View
-                            </DropdownMenu.Item>
+                            <PermissionGroupDetails
+                              group={group}
+                              isDefault={true}
+                              trigger={
+                                <DropdownMenu.Item
+                                  onSelect={(e) => e.preventDefault()}
+                                >
+                                  <IconEye size={16} />
+                                  View
+                                </DropdownMenu.Item>
+                              }
+                            />
                           </DropdownMenu.Content>
                         </DropdownMenu>
                       </Table.Cell>
@@ -223,14 +233,25 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-48">
-        <DropdownMenu.Item>
-          <IconEye size={16} />
-          View
-        </DropdownMenu.Item>
-        <DropdownMenu.Item>
-          <IconEdit size={16} />
-          Edit
-        </DropdownMenu.Item>
+        <PermissionGroupDetails
+          group={group}
+          isDefault={false}
+          trigger={
+            <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+              <IconEye size={16} />
+              View
+            </DropdownMenu.Item>
+          }
+        />
+        <PermissionGroupEdit
+          group={group}
+          trigger={
+            <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+              <IconEdit size={16} />
+              Edit
+            </DropdownMenu.Item>
+          }
+        />
         <DropdownMenu.Separator />
         <DropdownMenu.Item className="text-destructive" onClick={handleDelete}>
           <IconTrash size={16} />

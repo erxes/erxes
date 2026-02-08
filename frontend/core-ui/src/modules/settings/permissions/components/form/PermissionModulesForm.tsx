@@ -294,12 +294,12 @@ export const PermissionModulesForm = ({
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center gap-2 mb-0.5">
                                         <span className="text-sm font-medium text-foreground">
-                                          {action.description || action.name}
+                                          {action.title || action.name}
                                         </span>
                                       </div>
                                       {action.description && (
                                         <span className="text-xs text-muted-foreground font-normal">
-                                          {action.name}
+                                          {action.description}
                                         </span>
                                       )}
                                     </div>

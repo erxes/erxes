@@ -1,6 +1,7 @@
 // types/permissions.ts
 
 export interface IPermissionAction {
+  title: string;
   name: string;
   description: string;
   always?: boolean;
