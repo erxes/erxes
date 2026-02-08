@@ -5,7 +5,6 @@ import {
   IconMail,
   IconMailCheck,
   IconUser,
-  IconUserCheck,
 } from '@tabler/icons-react';
 import type { ColumnDef, Cell } from '@tanstack/react-table';
 import { TFunction } from 'i18next';
@@ -13,7 +12,6 @@ import { TFunction } from 'i18next';
 import {
   Avatar,
   Badge,
-  Switch,
   useQueryState,
   RecordTable,
   Popover,
@@ -35,7 +33,6 @@ import { format } from 'date-fns';
 import { ApolloError } from '@apollo/client';
 import { TeamMemberEmailField } from '@/settings/team-member/components/record/team-member-edit/TeammemberEmailField';
 import clsx from 'clsx';
-import { TeamMemberRoleSelect } from '@/settings/team-member/components/record/team-member-edit/TeamMemberRoleSelect';
 import { teamMemberMoreColumn } from './TeamMemberMoreColumn';
 
 export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
@@ -319,22 +316,37 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
     //     );
     //   },
     // },
-    {
-      id: 'role',
-      accessorKey: 'role',
-      header: () => (
-        <RecordTable.InlineHead icon={IconUserCheck} label={t('role')} />
-      ),
-      cell: ({ cell }) => {
-        const { _id } = cell.row.original || {};
-        return (
-          <TeamMemberRoleSelect
-            value={cell.getValue() as string}
-            userId={_id}
-          />
-        );
-      },
-    },
+    // {
+    //   id: 'role',
+    //   accessorKey: 'role',
+    //   header: () => (
+    //     <RecordTable.InlineHead icon={IconUserCheck} label={t('role')} />
+    //   ),
+    //   cell: ({ cell }) => {
+    //     const { _id } = cell.row.original || {};
+    //     return (
+    //       <TeamMemberRoleSelect
+    //         value={cell.getValue() as string}
+    //         userId={_id}
+    //       />
+    //     );
+    //   },
+    // },
+
+    // {
+    //   id: 'permissionGroupIds',
+    //   accessorKey: 'permissionGroupIds',
+    //   header: () => (
+    //     <RecordTable.InlineHead
+    //       icon={IconUserCheck}
+    //       label={t('permissionGroupIds')}
+    //     />
+    //   ),
+    //   cell: ({ cell }) => {
+    //     const { permissionGroupIds } = cell.row.original;
+    //     return <div>{permissionGroupIds.join(', ')}</div>;
+    //   },
+    // },
     teamMemberMoreColumn,
   ];
 };
