@@ -51,15 +51,17 @@ export const BundleRuleForm = ({
     onOpenChange?.(false);
   };
 
-  const handleAddItem = (data: any) => {
-    if (editingIndex !== null) {
-      const updatedRules = [...rules];
-      updatedRules[editingIndex] = data as IBundleRuleItem;
-      setRules(updatedRules);
-      setEditingIndex(null);
-    } else {
-      setRules([...rules, data as IBundleRuleItem]);
+  const handleAddItem = (data: IBundleRuleItem) => {
+    if (editingIndex === null) {
+      setRules([...rules, data]);
+      setIsDialogOpen(false);
+      return;
     }
+
+    const updatedRules = [...rules];
+    updatedRules[editingIndex] = data;
+    setRules(updatedRules);
+    setEditingIndex(null);
     setIsDialogOpen(false);
   };
 

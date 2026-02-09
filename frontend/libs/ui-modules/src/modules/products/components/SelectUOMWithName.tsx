@@ -6,6 +6,12 @@ import { UOMS_ADD } from '../graphql/mutations/uomMutations';
 import { UOM_QUERY } from '../graphql/queries/productsQueries';
 import { IconPlus } from '@tabler/icons-react';
 
+const normalizeUomCode = (name: string) => {
+  const normalized = name.trim().toUpperCase();
+  const replaced = (normalized as any).replaceAll?.(/\s+/g, '_');
+  return replaced ?? normalized.replace(/\s+/g, '_');
+};
+
 export const SelectUOMWithName = ({
   value,
   onValueChange,
@@ -38,7 +44,7 @@ export const SelectUOMWithName = ({
       const { data } = await uomsAdd({
         variables: {
           name: newUomName.trim(),
-          code: newUomName.trim().toUpperCase().replace(/\s+/g, '_'),
+          code: normalizeUomCode(newUomName),
         },
       });
 

@@ -3,6 +3,29 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { IProductCategory } from 'ui-modules';
 import { useToast } from 'erxes-ui';
 
+const normalizeCategoryIds = (categoryIds: string | string[]) =>
+  Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+
+const filterOutCategories = (ids: string[]) => (category: IProductCategory) =>
+  !ids.includes(category._id);
+
+const getUpdatedCategories = (
+  productCategories: IProductCategory[],
+  ids: string[],
+) => ({
+  productCategories: productCategories.filter(filterOutCategories(ids)),
+});
+
+const applyCacheCategoryRemoval = (cache: any, ids: string[]) => {
+  cache.updateQuery(
+    {
+      query: productsQueries.productCategories,
+    },
+    ({ productCategories }: { productCategories: IProductCategory[] }) =>
+      getUpdatedCategories(productCategories, ids),
+  );
+};
+
 export const useRemoveCategories = () => {
   const [_removeCategory, { loading }] = useMutation(
     productsMutations.categoryRemove,
@@ -13,33 +36,15 @@ export const useRemoveCategories = () => {
     categoryIds: string | string[],
     options?: OperationVariables,
   ) => {
+    const ids = normalizeCategoryIds(categoryIds);
+
     await _removeCategory({
       ...options,
       variables: {
         _id: categoryIds,
         ...options?.variables,
       },
-      update: (cache) => {
-        try {
-          cache.updateQuery(
-            {
-              query: productsQueries.productCategories,
-            },
-            ({ productCategories }) => {
-              const ids = Array.isArray(categoryIds)
-                ? categoryIds
-                : [categoryIds];
-              return {
-                productCategories: productCategories.filter(
-                  (category: IProductCategory) => !ids.includes(category._id),
-                ),
-              };
-            },
-          );
-        } catch (e) {
-          console.log(e);
-        }
-      },
+      update: (cache) => applyCacheCategoryRemoval(cache, ids),
       onCompleted: () => {
         toast({
           title: 'Success',

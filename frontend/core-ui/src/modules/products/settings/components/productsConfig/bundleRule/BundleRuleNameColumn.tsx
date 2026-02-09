@@ -5,12 +5,12 @@ import {
   Sheet,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useState, type FC } from 'react';
 import { BundleRuleForm } from './BundleRuleForm';
 import { IBundleRule } from './types';
 
-export const BundleRuleNameColumnCell = (
-  props: CellContext<IBundleRule, unknown>,
+export const BundleRuleNameColumnCell: FC<CellContext<IBundleRule, unknown>> = (
+  props,
 ) => {
   const bundleRule = props.row.original;
   const [open, setOpen] = useState(false);

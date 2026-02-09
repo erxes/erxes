@@ -90,6 +90,12 @@ export const SimilarityGroupItem = ({
         defaultProduct,
         rules,
       });
+    } catch (error) {
+      toast({
+        title: 'Save failed',
+        description: error?.message || 'Unknown error',
+        variant: 'destructive',
+      });
     } finally {
       setIsSaving(false);
     }
@@ -108,10 +114,16 @@ export const SimilarityGroupItem = ({
     setIsDeleting(true);
     try {
       await onDelete(initialCodeGroup);
+    } catch (error) {
+      toast({
+        title: 'Delete failed',
+        description: error?.message || 'Unknown error',
+        variant: 'destructive',
+      });
     } finally {
       setIsDeleting(false);
     }
-  }, [initialCodeGroup, onDelete]);
+  }, [initialCodeGroup, onDelete, toast]);
 
   return (
     <Collapsible open={isOpen} onOpenChange={() => onToggle?.()}>
@@ -169,7 +181,7 @@ export const SimilarityGroupItem = ({
           {rules.length > 0 && (
             <div className="space-y-2">
               {rules.map((rule, index) => (
-                <div key={index} className="flex gap-2 items-end w-full">
+                <div key={rule.id} className="flex gap-2 items-end w-full">
                   <div className="space-y-2 w-full">
                     <Label>Title</Label>
                     <Input

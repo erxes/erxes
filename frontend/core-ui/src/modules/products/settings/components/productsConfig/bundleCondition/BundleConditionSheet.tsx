@@ -29,14 +29,28 @@ export const BundleConditionSheet = () => {
     goBackToPreviousHotkeyScope();
   };
 
+  const handleSheetOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      onOpen();
+      return;
+    }
+
+    onClose();
+  };
+
+  const handleFormOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      onOpen();
+      return;
+    }
+
+    onClose();
+  };
+
   useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
 
   return (
-    <Sheet
-      onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}
-      open={open}
-      modal
-    >
+    <Sheet onOpenChange={handleSheetOpenChange} open={open} modal>
       <Sheet.Trigger asChild>
         <Button className="whitespace-nowrap shrink-0">
           <IconPlus />
@@ -50,15 +64,7 @@ export const BundleConditionSheet = () => {
           e.preventDefault();
         }}
       >
-        <BundleConditionForm
-          onOpenChange={(isOpen) => {
-            if (!isOpen) {
-              onClose();
-            } else {
-              setOpen(true);
-            }
-          }}
-        />
+        <BundleConditionForm onOpenChange={handleFormOpenChange} />
       </Sheet.View>
     </Sheet>
   );

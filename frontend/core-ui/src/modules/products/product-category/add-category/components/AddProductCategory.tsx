@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -12,7 +12,6 @@ import {
   IAttachment,
 } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
-import { useState } from 'react';
 import { useFieldGroups, useFields } from 'ui-modules';
 import { productFormSchema, ProductFormValues } from './formSchema';
 import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm';
@@ -134,12 +133,17 @@ export function AddCategoryForm({
     removeFile: (name: string, cb: (status: string) => void) => void;
   } = useRemoveFile();
 
+  const removeFileFromState = (fileName: string) =>
+    setFiles((prevFiles) => prevFiles.filter((f) => f.name !== fileName));
+
+  const handleRemoveStatus = (fileName: string) => (status: string) => {
+    if (status === 'ok') {
+      removeFileFromState(fileName);
+    }
+  };
+
   const handleRemoveFile = (file: IAttachment) => {
-    removeFile(file.name, (status: string) => {
-      if (status === 'ok') {
-        setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
-      }
-    });
+    removeFile(file.name, handleRemoveStatus(file.name));
   };
 
   return (

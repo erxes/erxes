@@ -8,7 +8,9 @@ interface ProductsBreadcrumbProps {
   currentPage: IProductNavigationItem;
 }
 
-export function ProductsBreadcrumb({ currentPage }: ProductsBreadcrumbProps) {
+export function ProductsBreadcrumb({
+  currentPage,
+}: Readonly<ProductsBreadcrumbProps>) {
   const Icon = currentPage.icon;
 
   return (
@@ -23,7 +25,9 @@ export function ProductsBreadcrumb({ currentPage }: ProductsBreadcrumbProps) {
               </Link>
             </Button>
           </Breadcrumb.Item>
+
           <Breadcrumb.Separator />
+
           <Breadcrumb.Page>
             <Button variant="ghost" asChild>
               <Link to={currentPage.path}>

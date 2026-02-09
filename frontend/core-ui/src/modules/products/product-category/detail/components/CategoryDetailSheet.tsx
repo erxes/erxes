@@ -27,6 +27,34 @@ import {
 import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
 import { useProductCategoryDetail } from '../hooks/useCategoryDetail';
 
+type UploadAddedFile = {
+  name?: string;
+  url: string;
+  type?: string;
+  size?: number;
+};
+
+const mergeAddedFiles = (
+  previousFiles: IAttachment[],
+  addedFiles: UploadAddedFile[],
+): IAttachment[] => {
+  const normalizedAdded = addedFiles.map((file) => ({
+    name: file.name ?? file.url,
+    url: file.url,
+    type: file.type ?? '',
+    size: file.size ?? 0,
+  }));
+
+  const addedNames = new Set(
+    normalizedAdded.map((file) => file.name ?? file.url),
+  );
+  const remainingFiles = previousFiles.filter(
+    (file) => !addedNames.has(file.name ?? file.url),
+  );
+
+  return [...remainingFiles, ...normalizedAdded];
+};
+
 export const CategoryDetailSheet = () => {
   const [activeTab] = useAtom(renderingCategoryDetailAtom);
   const setHotkeyScope = useSetHotkeyScope();
@@ -45,17 +73,7 @@ export const CategoryDetailSheet = () => {
     maxFiles: 1,
     maxFileSize: 20 * 1024 * 1024,
     onFilesAdded: (added) => {
-      setFiles((prev) => [
-        ...prev.filter(
-          (f) => !added.some((a) => (a.name ?? a.url) === (f.name ?? f.url)),
-        ),
-        ...added.map((f) => ({
-          name: f.name ?? f.url,
-          url: f.url,
-          type: f.type,
-          size: f.size,
-        })),
-      ]);
+      setFiles((prev) => mergeAddedFiles(prev, added));
     },
   });
 

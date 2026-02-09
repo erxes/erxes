@@ -2,11 +2,17 @@ import { CellContext } from '@tanstack/react-table';
 import { IProductCategory } from '@/products/types/productTypes';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
-import { RecordTable, Popover, useConfirm, useToast } from 'erxes-ui';
+import {
+  RecordTable,
+  Popover,
+  useConfirm,
+  useToast,
+  Command,
+  Combobox,
+} from 'erxes-ui';
 import { renderingCategoryDetailAtom } from '../states/ProductCategory';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRemoveCategories } from '../hooks/useRemoveCategories';
-import { Command, Combobox } from 'erxes-ui';
 
 export const CategoryMoreColumnCell = (
   props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>,
