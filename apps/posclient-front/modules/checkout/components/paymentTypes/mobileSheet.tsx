@@ -28,7 +28,7 @@ const MobileSheet = () => {
     mutations.generateInvoiceUrl,
     {
       context: {
-        headers: { "x-app-token": config?.erxesAppToken },
+        headers: { "erxes-app-token": config?.erxesAppToken },
       },
       client: clientMain,
       onError(error) {
