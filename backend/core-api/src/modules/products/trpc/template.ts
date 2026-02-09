@@ -163,6 +163,67 @@ const convertProductsToTemplate = async (
   };
 };
 
+interface ITemplateCategory {
+  name: string;
+  code: string;
+  order?: string;
+  description?: string;
+  meta?: string;
+  parentName?: string;
+  parentCode?: string;
+  status?: string;
+  maskType?: string;
+  mask?: any;
+  isSimilarity?: boolean;
+  similarities?: {
+    id: string;
+    groupId: string;
+    fieldId: string;
+    title: string;
+  }[];
+  attachment?: any;
+  scopeBrandIds?: string[];
+}
+
+const convertCategoriesToTemplate = async (
+  models: any,
+  categories: any[],
+  templateName: string,
+) => {
+  const templateCategories: ITemplateCategory[] = [];
+
+  for (const category of categories) {
+    let parentName = '';
+    let parentCode = '';
+    if (category.parentId) {
+      const parent = await models.ProductCategories.findOne({
+        _id: category.parentId,
+      }).lean();
+      if (parent) {
+        parentName = parent.name || '';
+        parentCode = parent.code || '';
+      }
+    }
+
+    const { _id, createdAt, updatedAt, __v, productCount, ...categoryData } =
+      category;
+
+    templateCategories.push({
+      ...categoryData,
+      parentName,
+      parentCode,
+    });
+  }
+
+  return {
+    name: templateName,
+    content: JSON.stringify(templateCategories),
+    contentType: 'core:productCategory',
+    pluginType: 'core',
+    status: 'active' as const,
+  };
+};
+
 const parseTemplateToProducts = (
   templateContent: string,
 ): ITemplateProduct[] => {
@@ -188,6 +249,33 @@ export const templatesRouter = router({
       }
 
       const [, type] = contentType.split(':');
+
+      if (type === 'productCategory') {
+        const category = await models.ProductCategories.findOne({
+          _id: sourceId,
+        }).lean();
+
+        if (!category) {
+          return {
+            status: 'error',
+            errorMessage: 'Product category not found',
+          };
+        }
+
+        const templateData = await convertCategoriesToTemplate(
+          models,
+          [category],
+          name || category.name,
+        );
+
+        return {
+          status: 'success',
+          data: {
+            content: templateData.content,
+            description: description || category.description,
+          },
+        };
+      }
 
       if (type !== 'product') {
         return {
@@ -235,17 +323,46 @@ export const templatesRouter = router({
 
       const [, type] = contentType.split(':');
 
-      if (type !== 'product') {
-        return {
-          status: 'error',
-          errorMessage: `Unsupported content type: ${type}`,
-        };
-      }
-
       if (!sourceIds || sourceIds.length === 0) {
         return {
           status: 'error',
           errorMessage: 'sourceIds is required',
+        };
+      }
+
+      if (type === 'productCategory') {
+        const categories = await models.ProductCategories.find({
+          _id: { $in: sourceIds },
+        }).lean();
+
+        if (!categories.length) {
+          return {
+            status: 'error',
+            errorMessage: 'Product categories not found',
+          };
+        }
+
+        const templateData = await convertCategoriesToTemplate(
+          models,
+          categories,
+          name || `${categories.length} categories template`,
+        );
+
+        return {
+          status: 'success',
+          data: {
+            content: templateData.content,
+            description:
+              description ||
+              `Template with ${categories.length} product categories`,
+          },
+        };
+      }
+
+      if (type !== 'product') {
+        return {
+          status: 'error',
+          errorMessage: `Unsupported content type: ${type}`,
         };
       }
 
