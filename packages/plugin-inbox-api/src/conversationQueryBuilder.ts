@@ -353,16 +353,24 @@ export default class Builder {
     };
   }
 
-  public dateFilter(
-    startDate: string,
-    endDate: string,
-  ): { createdAt: { $gte: Date; $lte: Date } } {
-    return {
-      createdAt: {
-        $gte: fixDate(startDate),
-        $lte: fixDate(endDate),
-      },
+  public async dateFilter(startDate: string, endDate: string) {
+    const query = {
+      $or: [
+        {
+          createdAt: {
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate),
+          },
+        },
+        {
+          updatedAt: {
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate),
+          },
+        },
+      ],
     };
+    return query;
   }
 
   public async extendedQueryFilter({ integrationType }: IListArgs) {
@@ -448,7 +456,7 @@ export default class Builder {
     }
 
     if (this.params.startDate && this.params.endDate) {
-      this.queries.createdAt = this.dateFilter(
+      this.queries.createdAt = await this.dateFilter(
         this.params.startDate,
         this.params.endDate,
       );
@@ -463,7 +471,7 @@ export default class Builder {
   }
 
   public mainQuery(): any {
-    return {
+    const query = {
       ...this.queries.default,
       ...this.queries.integrations,
       ...this.queries.extended,
@@ -478,5 +486,6 @@ export default class Builder {
       ...this.queries.callNotAnswered,
       ...this.queries.segments,
     };
+    return query;
   }
 }

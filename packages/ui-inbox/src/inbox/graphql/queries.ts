@@ -425,14 +425,21 @@ query UserConversationsByCustomerId($customerId: String!) {
       email
       branches {
         address
+        __typename
       }
       createdAt
+      __typename
     }
     tags {
       _id
       name
       createdAt
+      __typename
     }
+    __typename
+    updatedAt
+    createdAt
+    _id
   }
 }
 `;

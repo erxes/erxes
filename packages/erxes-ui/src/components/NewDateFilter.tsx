@@ -1,5 +1,5 @@
 import { PopoverButton, PopoverHeader } from "../styles/main";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Alert from "../utils/Alert";
@@ -47,8 +47,6 @@ type Props = {
   countQueryParam?: string;
 };
 
-const format = "YYYY-MM-DD HH:mm";
-
 const NewDateFilter: React.FC<Props> = ({
   queryParams = {},
   countQuery,
@@ -61,44 +59,38 @@ const NewDateFilter: React.FC<Props> = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (queryParams.startDate) {
-      setStartDate(dayjs(queryParams.startDate).toDate());
-    }
-    if (queryParams.endDate) {
-      setEndDate(dayjs(queryParams.endDate).toDate());
-    }
-  }, [queryParams]);
-
-  const refetchCountQuery = () => {
-    if (!countQuery || !countQueryParam) return;
-
-    client
-      .query({
-        query: gql(countQuery),
-        variables: queryParams,
-      })
-      .then(({ data }) => {
-        setTotalCount(data[countQueryParam]);
-      })
-      .catch((e) => Alert.error(e.message));
-  };
-
   const applyFilter = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
     if (start.isAfter(end)) {
       return Alert.error("The start date must be earlier than the end date.");
     }
 
+    const startForApi = start.clone().add(8, "hour").toISOString();
+    const endForApi = end.clone().add(8, "hour").toISOString();
+
     setStartDate(start.toDate());
     setEndDate(end.toDate());
 
     setParams(navigate, location, {
-      startDate: start.format(format),
-      endDate: end.format(format),
+      startDate: startForApi,
+      endDate: endForApi,
     });
 
     if (countQuery) {
-      refetchCountQuery();
+      client
+        .query({
+          query: gql(countQuery),
+          variables: {
+            ...queryParams,
+            startDate: startForApi,
+            endDate: endForApi,
+          },
+        })
+        .then(({ data }) => {
+          if (countQueryParam) {
+            setTotalCount(data[countQueryParam]);
+          }
+        })
+        .catch((e) => Alert.error(e.message));
     }
   };
 
