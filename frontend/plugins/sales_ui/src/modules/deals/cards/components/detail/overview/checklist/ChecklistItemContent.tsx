@@ -1,15 +1,15 @@
+import { Checkbox, toast, useConfirm } from 'erxes-ui';
 import { IconDotsVertical, IconRefresh, IconTrash } from '@tabler/icons-react';
-
-import { Checkbox, toast } from 'erxes-ui';
-import { IChecklistItem } from '@/deals/types/checklists';
 import {
   useChecklistItemsEdit,
   useChecklistItemsRemove,
 } from '@/deals/cards/hooks/useChecklists';
-import { useState, useEffect, useRef } from 'react';
-import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
-import { GET_STAGE_DETAIL } from '~/modules/deals/graphql/queries/StagesQueries';
+import { useEffect, useRef, useState } from 'react';
+
 import { GET_CHECKLIST_DETAIL } from '~/modules/deals/graphql/queries/ChecklistQueries';
+import { GET_STAGE_DETAIL } from '~/modules/deals/graphql/queries/StagesQueries';
+import { IChecklistItem } from '@/deals/types/checklists';
+import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 
 const ChecklistItemContent = ({
   item,
@@ -25,8 +25,9 @@ const ChecklistItemContent = ({
   dealId?: string;
 }) => {
   const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
+  const { confirm } = useConfirm();
   const { salesChecklistItemsEdit } = useChecklistItemsEdit();
-  const { salesChecklistItemsRemove, error } = useChecklistItemsRemove({
+  const { salesChecklistItemsRemove } = useChecklistItemsRemove({
     onError: (error) => {
       toast({
         title: 'Error',
@@ -39,16 +40,6 @@ const ChecklistItemContent = ({
   const { addDeals } = useDealsAdd();
 
   const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  }, [error]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -77,25 +68,27 @@ const ChecklistItemContent = ({
   };
 
   const handleRemove = (id: string) => {
-    salesChecklistItemsRemove({
-      variables: {
-        _id: id,
-      },
-      refetchQueries: [
-        {
-          query: GET_CHECKLIST_DETAIL,
-          variables: {
-            _id: dealId,
-          },
+    confirm({
+      message: `Are you sure?`,
+    }).then(() => {
+      salesChecklistItemsRemove({
+        variables: {
+          _id: id,
         },
-      ],
-      onCompleted: () => {
-        setItems((prev) => prev.filter((item) => item._id !== id));
-        setActiveMenuIndex(null);
-      },
+        refetchQueries: [
+          {
+            query: GET_CHECKLIST_DETAIL,
+            variables: {
+              _id: dealId,
+            },
+          },
+        ],
+        onCompleted: () => {
+          setItems((prev) => prev.filter((item) => item._id !== id));
+          setActiveMenuIndex(null);
+        },
+      });
     });
-    console.log('dealId', dealId);
-    console.log('id', id);
   };
 
   const onChangeChecked = (id: string) => {
@@ -105,6 +98,42 @@ const ChecklistItemContent = ({
       variables: {
         _id: id,
         isChecked: !item.isChecked,
+      },
+    });
+  };
+
+  const onConvert = () => {
+    setActiveMenuIndex(null);
+    addDeals({
+      variables: {
+        name: item.content,
+        stageId: stageId,
+      },
+      refetchQueries: dealId
+        ? [
+            {
+              query: GET_STAGE_DETAIL,
+              variables: {
+                _id: stageId,
+              },
+            },
+          ]
+        : [],
+
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Checklist item converted to deal successfully',
+          variant: 'default',
+        });
+        handleRemove(item._id);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to convert to deal',
+          variant: 'destructive',
+        });
       },
     });
   };
@@ -156,45 +185,10 @@ const ChecklistItemContent = ({
         {activeMenuIndex === index && (
           <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white border rounded shadow-md">
             <button
-              onClick={() => {
-                setActiveMenuIndex(null);
-                addDeals({
-                  variables: {
-                    name: item.content,
-                    stageId: stageId,
-                  },
-                  refetchQueries: dealId
-                    ? [
-                        {
-                          query: GET_STAGE_DETAIL,
-                          variables: {
-                            _id: stageId,
-                          },
-                        },
-                      ]
-                    : [],
-
-                  onCompleted: () => {
-                    toast({
-                      title: 'Success',
-                      description:
-                        'Checklist item converted to deal successfully',
-                      variant: 'default',
-                    });
-                    handleRemove(item._id);
-                  },
-                  onError: (error) => {
-                    toast({
-                      title: 'Error',
-                      description: error.message || 'Failed to convert to deal',
-                      variant: 'destructive',
-                    });
-                  },
-                });
-              }}
+              onClick={onConvert}
               className="flex items-center gap-2 px- py-2 hover:bg-gray-100 w-full text-sm"
             >
-              <IconRefresh size={16} className="ml-3"/>
+              <IconRefresh size={16} className="ml-3" />
               Convert to deal
             </button>
             <button
