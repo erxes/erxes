@@ -117,7 +117,7 @@ export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEv
         action: 'update',
         docId: account._id,
         currentDocument: { ...account, ...doc },
-        prevDocument: account.toObject(),
+        prevDocument: account,
       });
 
       return await models.Accounts.findOne({ _id }).lean();

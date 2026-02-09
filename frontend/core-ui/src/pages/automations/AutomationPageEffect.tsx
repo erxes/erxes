@@ -13,6 +13,14 @@ export const AutomationsPageEffect = () => {
 
   useEffect(() => {
     switch (true) {
+      case isMatchingLocation(''): {
+        setHotkeyScope(AutomationsHotKeyScope.AutomationsPage);
+        break;
+      }
+      case isMatchingLocation(AutomationsPath.Create): {
+        setHotkeyScope(AutomationsHotKeyScope.AutomationCreatePage);
+        break;
+      }
       case isMatchingLocation(AutomationsPath.Detail): {
         if (activeTab === 'history') {
           setHotkeyScope(AutomationsHotKeyScope.HistoriesFilter);

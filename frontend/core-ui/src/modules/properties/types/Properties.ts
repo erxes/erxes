@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export interface IPropertyType {
   contentType: string;
-  label: string;
+  description: string;
 }
 
 export enum PropertiesHotkeyScope {

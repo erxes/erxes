@@ -1,4 +1,4 @@
-import { FocusSheet } from 'erxes-ui';
+import { FocusSheet, SideMenuContext } from 'erxes-ui';
 import { useRelationWidget } from '../widget-provider/context/widgetContext';
 
 export const RelationWidgetSideTabs = ({
@@ -20,16 +20,17 @@ export const RelationWidgetSideTabs = ({
     <FocusSheet.SideTabs>
       {relationWidgetsModules.map((module) => (
         <FocusSheet.SideContent key={module.name} value={module.name}>
-          <FocusSheet.SideContentHeader
-            Icon={module.icon}
-            label={module.name}
-          />
-          <RelationWidget
-            module={module.name}
-            pluginName={module.pluginName}
-            contentId={contentId}
-            contentType={contentType}
-          />
+          <SideMenuContext.Provider
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            value={{ activeTab: module.name, setActiveTab: () => {} }}
+          >
+            <RelationWidget
+              module={module.name}
+              pluginName={module.pluginName}
+              contentId={contentId}
+              contentType={contentType}
+            />
+          </SideMenuContext.Provider>
         </FocusSheet.SideContent>
       ))}
       <FocusSheet.SideTabsList>
@@ -38,7 +39,7 @@ export const RelationWidgetSideTabs = ({
             key={module.name}
             value={module.name}
             Icon={module.icon}
-            label={module.name}
+            label={module.name.charAt(0).toUpperCase() + module.name.slice(1)}
           />
         ))}
       </FocusSheet.SideTabsList>

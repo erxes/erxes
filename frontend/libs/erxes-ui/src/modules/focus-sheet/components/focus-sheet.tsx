@@ -101,7 +101,10 @@ const FocusSheetContent = ({
 }: React.ComponentProps<typeof Sheet.Content>) => {
   return (
     <Sheet.Content
-      className={cn('flex border-b-0 rounded-b-none', className)}
+      className={cn(
+        'flex border-b-0 rounded-b-none overflow-y-hidden',
+        className,
+      )}
       {...props}
     />
   );
@@ -211,7 +214,9 @@ const FocusSheetSideContentHeader = forwardRef<
         {!!Icon && (
           <Icon className="size-4 flex-none text-primary" strokeWidth={3} />
         )}
-        <div className="mr-auto font-medium text-primary">{label}</div>
+        <div className="mr-auto font-medium text-primary capitalize">
+          {label}
+        </div>
         {children}
       </div>
       {!hideSeparator && <Separator />}

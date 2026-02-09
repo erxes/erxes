@@ -57,14 +57,14 @@ export function shouldProcessUpdatedDocument(
     return true;
   }
 
-  const { updatedFields = {}, removedFields = {} } =
+  const { updated: updatedFields = {}, added: addedFields = {}, removed: removedFields = {} } =
     payload.updateDescription || {};
 
   const hasRemovedFields = getAllKeys(removedFields).some((key) =>
     (when.fieldsRemoved || []).includes(key),
   );
 
-  const hasUpdatedFields = getAllKeys(updatedFields).some((key) =>
+  const hasUpdatedFields = getAllKeys({ ...addedFields, ...updatedFields }).some((key) =>
     (when.fieldsUpdated || []).includes(key),
   );
 

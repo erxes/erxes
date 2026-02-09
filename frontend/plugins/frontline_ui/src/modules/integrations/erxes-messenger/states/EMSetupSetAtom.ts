@@ -129,7 +129,7 @@ export const erxesMessengerSetSetupAtom = atom(
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',
-        thankyou: messages?.thank ?? '',
+        thank: messages?.thank ?? '',
       };
       set(erxesMessengerSetupIntroAtom, intro);
       set(settedIntegrationDetailAtom, true);

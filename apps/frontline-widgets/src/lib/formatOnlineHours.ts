@@ -25,7 +25,10 @@ function parseTime(timeString: string): { hour: number; minute: number } {
   }
 
   let hour = Number.parseInt(normalized.substring(0, colonIndex), 10);
-  const minute = Number.parseInt(normalized.substring(colonIndex + 1, colonIndex + 3), 10);
+  const minute = Number.parseInt(
+    normalized.substring(colonIndex + 1, colonIndex + 3),
+    10,
+  );
 
   const isPM = normalized.includes('pm');
   const isAM = normalized.includes('am');
@@ -90,20 +93,22 @@ export function formatOnlineHours({
         if (minutes === 0) {
           result += ` (GMT ${sign}${hours})`;
         } else {
-          result += ` (GMT ${sign}${hours}:${minutes.toString().padStart(2, '0')})`;
+          result += ` (GMT ${sign}${hours}:${minutes
+            .toString()
+            .padStart(2, '0')})`;
         }
       } else {
         result += ` (${timezoneLabel})`;
       }
     }
-
-    result += '.';
+    const onlineDays = onlineHours?.map((item) => item.day).join(', ');
+    result += `, ${onlineDays}.`;
 
     return result;
   } catch (error) {
     // Fallback to original format if parsing fails
-    return `We're available between ${firstHour.from} and ${firstHour.to}${showTimezone && timezone ? ` (${formatTimeZoneLabel(timezone)})` : ''
-      }.`;
+    return `We're available between ${firstHour.from} and ${firstHour.to}${
+      showTimezone && timezone ? ` (${formatTimeZoneLabel(timezone)})` : ''
+    }`;
   }
 }
-

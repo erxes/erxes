@@ -1,4 +1,5 @@
 import { markResolvers } from 'erxes-api-shared/utils';
+import { AnyBulkWriteOperation } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { IFormSubmission } from '~/modules/form/@types/form';
 import { IForm } from '~/modules/form/db/definitions/forms';
@@ -28,12 +29,12 @@ export const formMutations = {
   /**
    * Update a form data
    */
-  formsEdit: async (_root, { _id, ...doc }: IForm, { models }: IContext) => {
-    return models.Forms.updateForm(_id, {
-      title: doc.title,
-      description: doc.description,
-      buttonText: doc.buttonText,
-    });
+  formsEdit: async (
+    _root: undefined,
+    { _id, ...doc }: IForm,
+    { models }: IContext,
+  ) => {
+    return models.Forms.updateForm(_id, doc);
   },
 
   /**
@@ -41,7 +42,7 @@ export const formMutations = {
    */
 
   formsDuplicate: async (
-    _root,
+    _root: undefined,
     { _id: id }: { _id: string },
     { models, user }: IContext,
   ) => {
@@ -66,40 +67,57 @@ export const formMutations = {
    * Remove a form
    */
   formsRemove: async (
-    _root,
-    { _id }: { _id: string },
+    _root: undefined,
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) => {
-    const form = await models.Forms.getForm(_id);
-    if (form?.integrationId) {
-      await models.Integrations.removeIntegration(form.integrationId);
+    const integrationIds: string[] = await models.Forms.find({
+      _id: { $in: _ids },
+    }).distinct('integrationId');
+
+    if (integrationIds?.length) {
+      await models.Integrations.removeIntegrations(integrationIds);
     }
 
-    await models.Fields.deleteMany({ contentTypeId: _id });
-    await models.FormSubmissions.deleteMany({ formId: _id });
+    await models.Fields.deleteMany({ contentTypeId: { $in: _ids } });
+    await models.FormSubmissions.deleteMany({ formId: { $in: _ids } });
 
-    return await models.Forms.removeForm(_id);
+    await models.Forms.deleteMany({ _id: { $in: _ids } });
+
+    return _ids;
   },
 
   formsToggleStatus: async (
-    _root,
-    { _id }: { _id: string; status: boolean },
+    _root: undefined,
+    { _ids, status }: { _ids: string[]; status?: string },
     { models }: IContext,
   ) => {
-    const form = await models.Forms.getForm(_id);
-    const status = form.status === 'active' ? 'archived' : 'active';
+    const forms = await models.Forms.find({ _id: { $in: _ids } });
+    const _forms: AnyBulkWriteOperation<IForm>[] = [];
 
-    form.status = status;
+    forms.forEach((form) => {
+      const newStatus = status
+        ? status
+        : form.status === 'active'
+        ? 'archived'
+        : 'active';
 
-    await form.save();
-    return form;
+      _forms.push({
+        updateOne: {
+          filter: { _id: form._id },
+          update: { $set: { status: newStatus } },
+        },
+      });
+    });
+
+    await models.Forms.bulkWrite(_forms);
   },
 
   /**
    * Create a form submission data
    */
   formSubmissionsSave: async (
-    _root,
+    _root: undefined,
     {
       formId,
       contentTypeId,
@@ -141,7 +159,11 @@ export const formMutations = {
     return true;
   },
 
-  formSubmissionsEdit: async (_root, params, { models }: IContext) => {
+  formSubmissionsEdit: async (
+    _root: undefined,
+    params,
+    { models }: IContext,
+  ) => {
     const { contentTypeId, customerId, submissions } = params;
 
     const conversation = await models.Conversations.findOne({
@@ -169,7 +191,11 @@ export const formMutations = {
     };
   },
 
-  formSubmissionsRemove: async (_root, params, { models }: IContext) => {
+  formSubmissionsRemove: async (
+    _root: undefined,
+    params,
+    { models }: IContext,
+  ) => {
     const { customerId, contentTypeId } = params;
 
     await models.ConversationMessages.deleteMany({
