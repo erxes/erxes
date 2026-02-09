@@ -11,6 +11,7 @@ const GET_USER = gql`
       _id
       username
       email
+      isOwner
       positionIds
       details {
         avatar

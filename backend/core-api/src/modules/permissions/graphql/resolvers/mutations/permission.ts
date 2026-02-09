@@ -39,7 +39,7 @@ export const permissionMutations = {
     },
     { models }: IContext,
   ) {
-    const group = await models.PermissionGroups.findOne({ _id: id });
+    const group = await models.PermissionGroups.findOne({ _id });
     if (!group) throw new Error('Permission group not found');
 
     const update: any = {};
@@ -47,9 +47,9 @@ export const permissionMutations = {
     if (description !== undefined) update.description = description;
     if (permissions !== undefined) update.permissions = permissions;
 
-    await models.PermissionGroups.updateOne({ _id: _id }, { $set: update });
+    await models.PermissionGroups.updateOne({ _id }, { $set: update });
 
-    return models.PermissionGroups.findOne({ _id: _id });
+    return models.PermissionGroups.findOne({ _id });
   },
 
   // Remove custom permission group
