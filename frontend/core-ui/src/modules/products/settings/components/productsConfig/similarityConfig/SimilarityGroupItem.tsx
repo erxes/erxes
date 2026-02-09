@@ -83,7 +83,7 @@ export const SimilarityGroupItem = ({
 
     setIsSaving(true);
     try {
-      await onSave(initialCodeGroup, title, {
+      await onSave(initialCodeGroup, codeGroupKey, {
         title,
         filterField,
         codeMask: codeGroupKey,

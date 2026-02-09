@@ -23,16 +23,17 @@ export const useBundleConditionAdd = () => {
           userId: null,
         },
       },
-      update: (cache, { data: { bundleConditionAdd } }) => {
-        cache.updateQuery(
-          { query: BUNDLE_CONDITIONS },
-          (data) => ({
-            bundleConditions: [
-              bundleConditionAdd,
-              ...(data?.bundleConditions || []),
-            ],
-          })
-        );
+      update: (cache, result) => {
+        if (!result?.data?.bundleConditionAdd) {
+          return;
+        }
+        const { bundleConditionAdd } = result.data;
+        cache.updateQuery({ query: BUNDLE_CONDITIONS }, (data) => ({
+          bundleConditions: [
+            bundleConditionAdd,
+            ...(data?.bundleConditions || []),
+          ],
+        }));
       },
       ...options,
     });

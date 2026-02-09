@@ -25,11 +25,16 @@ export const useRemoveCategories = () => {
             {
               query: productsQueries.productCategories,
             },
-            ({ productCategories }) => ({
-              productCategories: productCategories.filter(
-                (category: IProductCategory) => category._id !== categoryIds,
-              ),
-            }),
+            ({ productCategories }) => {
+              const ids = Array.isArray(categoryIds)
+                ? categoryIds
+                : [categoryIds];
+              return {
+                productCategories: productCategories.filter(
+                  (category: IProductCategory) => !ids.includes(category._id),
+                ),
+              };
+            },
           );
         } catch (e) {
           console.log(e);
