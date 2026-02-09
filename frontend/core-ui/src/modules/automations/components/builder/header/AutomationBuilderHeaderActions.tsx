@@ -49,7 +49,7 @@ export const AutomationBuilderHeaderActions = () => {
             className="data-[state=on]:shadow-focus data-[state=on]:bg-background bg-background text-foreground"
             pressed={value === activeNodeTab}
             asChild
-            onClick={() => {
+            onPressedChange={() => {
               if (value === activeNodeTab) {
                 handleClose();
               } else {
