@@ -39,3 +39,11 @@ export const REMOVE_PERMISSION_GROUP_MUTATION = gql`
     permissionGroupRemove(_id: $_id)
   }
 `;
+
+export const UPDATE_USER_PERMISSION_GROUPS_MUTATION = gql`
+  mutation UserUpdatePermissionGroups($userId: String!, $groupIds: [String]!) {
+    userUpdatePermissionGroups(userId: $userId, groupIds: $groupIds) {
+      _id
+    }
+  }
+`;

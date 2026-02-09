@@ -13,6 +13,7 @@ const GET_USER = gql`
       email
       isOwner
       positionIds
+      permissionGroupIds
       details {
         avatar
         shortName

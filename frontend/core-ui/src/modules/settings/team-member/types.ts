@@ -49,6 +49,7 @@ export interface IUser extends IUserInline {
 export interface IUserDetail extends IUser {
   branchIds?: string[];
   departmentIds?: string[];
+  permissionGroupIds?: string[];
 }
 
 export interface IUserEntry {

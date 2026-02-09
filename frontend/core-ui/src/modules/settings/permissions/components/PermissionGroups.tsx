@@ -49,7 +49,7 @@ export const PermissionGroups = () => {
               <Table.Row className="hover:bg-background">
                 <Table.Cell
                   colSpan={3}
-                  className="h-auto py-12 group-hover/table-row:bg-background"
+                  className="h-auto py-12 group-hover/table-row:bg-background border-none"
                 >
                   <Spinner />
                 </Table.Cell>

@@ -1,12 +1,13 @@
 import { IconUsersGroup } from '@tabler/icons-react';
-import { Breadcrumb, Button, Toggle } from 'erxes-ui';
+import { Breadcrumb, Button, Tabs, Toggle, ToggleGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TeamMembersPath } from '../constants/teamMemberRoutes';
 import { useLocation } from 'react-router';
 
 export function TeamMemberSettingsBreadcrumb() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation('settings');
 
   return (
@@ -19,37 +20,30 @@ export function TeamMemberSettingsBreadcrumb() {
           </Link>
         </Button>
       </Breadcrumb.Item>
-      <Breadcrumb.Page>
-        <Toggle
-          type="button"
-          asChild
-          pressed={
-            pathname ===
-            `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`
+      <Breadcrumb.Separator className="mx-2" />
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={
+          pathname === `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`
+            ? 'members'
+            : 'permissions'
+        }
+        onValueChange={(value) => {
+          if (value === 'members') {
+            navigate(`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`);
+          } else {
+            navigate(
+              `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
+            );
           }
-        >
-          <Link to={`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`}>
-            {t('Members')}
-          </Link>
-        </Toggle>
-      </Breadcrumb.Page>
-      <Breadcrumb.Separator />
-      <Breadcrumb.Page>
-        <Toggle
-          type="button"
-          asChild
-          pressed={
-            pathname ===
-            `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`
-          }
-        >
-          <Link
-            to={`${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`}
-          >
-            {t('Permission groups')}
-          </Link>
-        </Toggle>
-      </Breadcrumb.Page>
+        }}
+      >
+        <ToggleGroup.Item value="members"> {t('Members')} </ToggleGroup.Item>
+        <ToggleGroup.Item value="permissions">
+          {t('Permission groups')}
+        </ToggleGroup.Item>
+      </ToggleGroup>
     </Breadcrumb.List>
   );
 }
