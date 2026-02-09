@@ -118,6 +118,8 @@ export const types = `
     number: String
     stageChangedDate: Date
 
+    customProperties: JSON
+
     unUsedAmount: JSON
     amount: JSON
 
