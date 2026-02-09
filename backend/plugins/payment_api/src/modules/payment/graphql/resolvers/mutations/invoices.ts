@@ -4,7 +4,6 @@ import {
 } from 'erxes-api-shared/core-types';
 import {
   getEnv,
-  markResolvers,
   sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
