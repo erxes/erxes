@@ -1,12 +1,16 @@
 import { splitType } from 'erxes-api-shared/core-modules';
 import {
+  Resolver,
+} from 'erxes-api-shared/core-types';
+import {
+  getEnv,
   markResolvers,
+  sendWorkerMessage,
 } from 'erxes-api-shared/utils';
-import { getEnv, sendWorkerMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice } from '~/modules/payment/@types/invoices';
 
-const mutations = {
+const mutations: Record<string, Resolver> = {
   async generateInvoiceUrl(
     _root,
     { input }: { input: IInvoice },
@@ -102,7 +106,7 @@ const mutations = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:4000';
+      : 'http://localhost:5173';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     return models.Invoices.updateInvoice(_id, {
@@ -112,15 +116,14 @@ const mutations = {
   },
 };
 
-// requireLogin(mutations, 'invoiceCreate');
-
-// checkPermission(mutations, 'invoiceCreate', 'createInvoice');
-
 export default mutations;
 
-markResolvers(mutations, {
-  wrapperConfig: {
-    forClientPortal: true,
-    cpUserRequired: false,
-  },
-});
+mutations.generateInvoiceUrl.wrapperConfig = {
+  skipPermission: true,
+};
+mutations.invoiceCreate.wrapperConfig = {
+  skipPermission: true,
+};
+mutations.invoicesCheck.wrapperConfig = {
+  skipPermission: true,
+};
