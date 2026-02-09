@@ -49,7 +49,6 @@ export const appRouter = t.mergeRouters(
   importExportTrpcRouter,
   logsTrpcRouter,
   clientPortalNotificationTrpcRouter,
-  propertiesTrpcRouter
 );
 
 export type AppRouter = typeof appRouter;
