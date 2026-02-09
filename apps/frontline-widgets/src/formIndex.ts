@@ -73,7 +73,6 @@ export const getBrowserInfo = async () => {
 
 export const listenForCommonRequests = async (event: any, iframe: any) => {
   const { message, fromErxes, source, key, value } = event.data;
-
   if (fromErxes && iframe?.contentWindow) {
     if (message === 'requestingBrowserInfo') {
       iframe.contentWindow.postMessage(
@@ -308,8 +307,6 @@ window.addEventListener('message', async (event: MessageEvent) => {
       }
     }
   }
-
-  console.log(container, 'container', message, data);
 
   if (message === 'changeContainerClass' && container) {
     container.className = data.className;

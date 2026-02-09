@@ -9,10 +9,12 @@ export const ErxesFormValues = ({
   step,
   stepsLength,
   isLastStep,
+  browserInfo,
 }: {
   step: IFormStep;
   stepsLength: number;
   isLastStep: boolean;
+  browserInfo: any;
 }) => {
   const formData = useErxesForm();
   const formValues = useAtomValue(formValuesAtom);
@@ -71,6 +73,7 @@ export const ErxesFormValues = ({
       step={step}
       stepsLength={stepsLength}
       isLastStep={isLastStep}
+      browserInfo={browserInfo}
     />
   );
 };

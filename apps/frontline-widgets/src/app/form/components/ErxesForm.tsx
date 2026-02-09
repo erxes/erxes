@@ -26,12 +26,14 @@ export const ErxesForm = ({
   defaultValue,
   schema,
   isLastStep,
+  browserInfo,
 }: {
   step: IFormStep;
   stepsLength: number;
   defaultValue: any;
   schema: z.ZodSchema;
   isLastStep: boolean;
+  browserInfo: any;
 }) => {
   const formData = useErxesForm();
   const [activeStep, setActiveStep] = useAtom(activeStepAtom);
@@ -47,7 +49,13 @@ export const ErxesForm = ({
 
   const handleSubmit = (values: any) => {
     if (isLastStep) {
-      saveLead({ variables: { formId: formData._id, submissions: values } });
+      saveLead({
+        variables: {
+          formId: formData._id,
+          submissions: values,
+          browserInfo,
+        },
+      });
     } else {
       setFormValues((prev) => ({ ...prev, [step.order]: values }));
     }
@@ -55,7 +63,12 @@ export const ErxesForm = ({
 
   return (
     <Form {...form}>
-      <form className="text-sm" onSubmit={form.handleSubmit(handleSubmit)}>
+      <form
+        className="text-sm"
+        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
+          console.log(errors);
+        })}
+      >
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}

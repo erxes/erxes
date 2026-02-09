@@ -256,7 +256,6 @@
         }
       }
     }
-    console.log(container, "container", message, data);
     if (message === "changeContainerClass" && container) {
       container.className = data.className;
     }
