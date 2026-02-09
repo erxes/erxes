@@ -70,6 +70,10 @@ export const SelectUOMWithName = ({
   };
 
   const Controller = inForm ? Form.Control : React.Fragment;
+  const selectedUom = uoms.find((uom) => uom._id === value);
+
+  const displayValue =
+    selectedUom?.name || (value && !loading ? value : 'Choose UOM');
 
   if (isCreating) {
     return (
@@ -121,7 +125,9 @@ export const SelectUOMWithName = ({
         <Select value={value} onValueChange={onValueChange} disabled={loading}>
           <Controller>
             <Select.Trigger>
-              <Select.Value placeholder="Choose UOM" />
+              <Select.Value placeholder="Choose UOM">
+                {displayValue}
+              </Select.Value>
             </Select.Trigger>
           </Controller>
           <Select.Content>
