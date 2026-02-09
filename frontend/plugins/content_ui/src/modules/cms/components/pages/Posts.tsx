@@ -23,6 +23,10 @@ import {
   IconCalendarUp,
   IconFilter,
   IconDots,
+  IconArrowsSort,
+  IconCalendarEvent,
+  IconChevronLeft,
+  IconChevronRight,
 } from '@tabler/icons-react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -54,6 +58,28 @@ export function Posts() {
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [tagFilters, setTagFilters] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [direction, setDirection] = useState<string | undefined>(undefined);
+  const [sortField, setSortField] = useState<string | undefined>(
+    'scheduledDate',
+  );
+  const [sortDirection, setSortDirection] = useState<string | undefined>(
+    'desc',
+  );
+  const perPage = 20;
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+    setCursor(undefined);
+    setDirection(undefined);
+    setCurrentPage(1);
+  };
 
   const sessionKey = `posts-filter-${websiteId}`;
 
@@ -62,17 +88,63 @@ export function Posts() {
     loading,
     error,
     totalCount,
+    hasNextPage,
+    hasPreviousPage,
+    endCursor,
+    startCursor,
     refetch: refetchPosts,
   } = usePosts({
     clientPortalId: websiteId || '',
-    type: typeFilter, // Filter by selected custom type or show all
-    perPage: 20,
-    page: 1,
+    type: typeFilter,
+    perPage,
+    page: currentPage,
     searchValue,
     status: statusFilter as any,
     categoryIds: categoryFilters.length ? categoryFilters : undefined,
     tagIds: tagFilters.length ? tagFilters : undefined,
+    cursor,
+    sortField,
+    sortDirection,
   });
+
+  const sortedPosts = useMemo(() => {
+    if (!posts || posts.length === 0) return posts;
+    const sorted = [...posts].sort((a: any, b: any) => {
+      const field = sortField || 'scheduledDate';
+      let aVal: string;
+      let bVal: string;
+      if (field === 'scheduledDate') {
+        aVal = a.scheduledDate || a.createdAt;
+        bVal = b.scheduledDate || b.createdAt;
+      } else {
+        aVal = a[field] || '';
+        bVal = b[field] || '';
+      }
+      const aTime = new Date(aVal).getTime();
+      const bTime = new Date(bVal).getTime();
+      return sortDirection === 'asc' ? aTime - bTime : bTime - aTime;
+    });
+    return sorted;
+  }, [posts, sortField, sortDirection]);
+
+  const handlePageChange = (action: 'first' | 'prev' | 'next' | 'last') => {
+    if (action === 'first') {
+      setCursor(undefined);
+      setDirection(undefined);
+      setCurrentPage(1);
+    } else if (action === 'prev' && hasPreviousPage) {
+      setCursor(startCursor);
+      setDirection('BACKWARD');
+      setCurrentPage(Math.max(1, currentPage - 1));
+    } else if (action === 'next' && hasNextPage) {
+      setCursor(endCursor);
+      setDirection('FORWARD');
+      setCurrentPage(currentPage + 1);
+    } else if (action === 'last') {
+      const totalPages = Math.ceil(totalCount / perPage);
+      setCurrentPage(totalPages);
+    }
+  };
 
   const { removePost } = usePostMutations({ websiteId });
 
@@ -146,14 +218,15 @@ export function Posts() {
       accessorKey: 'title',
       cell: ({ cell, row }) => (
         <div
-          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent"
+          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium h-6 text-xs border gap-1 bg-accent max-w-[280px]"
           onClick={() =>
             navigate(`/content/cms/${websiteId}/posts/add`, {
               state: { post: row.original },
             })
           }
+          title={cell.getValue() as string}
         >
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium truncate">
             {cell.getValue() as string}
           </span>
         </div>
@@ -170,8 +243,8 @@ export function Posts() {
       cell: ({ row }) => {
         const excerpt = row.original.excerpt || t('No Description');
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm font-medium line-clamp-1" title={excerpt}>
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium h-6 text-xs border gap-1 bg-accent max-w-[280px]">
+            <span className="text-sm font-medium truncate" title={excerpt}>
               {excerpt}
             </span>
           </div>
@@ -212,15 +285,54 @@ export function Posts() {
     //   size: 240,
     // },
     {
+      id: 'scheduledDate',
+      header: () => (
+        <div
+          className="flex items-center gap-1 cursor-pointer select-none"
+          onClick={() => handleSort('scheduledDate')}
+        >
+          <RecordTable.InlineHead
+            label={t('publishDate')}
+            icon={IconCalendarEvent}
+          />
+        </div>
+      ),
+      accessorFn: (row: any) => row.scheduledDate || row.createdAt,
+      cell: ({ row }) => {
+        const date = row.original.scheduledDate;
+        return (
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1">
+            <IconCalendarEvent className="h-3 w-3" />
+            {date
+              ? new Date(date).toLocaleDateString('mn-MN', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })
+              : 'Publish date not selected'}
+          </div>
+        );
+      },
+      size: 180,
+    },
+    {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead label={t('Created Date')} icon={IconList} />
+        <div
+          className="flex items-center gap-1 cursor-pointer select-none"
+          onClick={() => handleSort('createdAt')}
+        >
+          <RecordTable.InlineHead
+            label={t('Created At')}
+            icon={IconCalendarPlus}
+          />
+        </div>
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
         <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 ">
           <IconCalendarPlus className="h-3 w-3" />
-          {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
+          {new Date(cell.getValue() as string).toLocaleDateString('mn-MN', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -232,13 +344,21 @@ export function Posts() {
     {
       id: 'updatedAt',
       header: () => (
-        <RecordTable.InlineHead label={t('Modified Date')} icon={IconList} />
+        <div
+          className="flex items-center gap-1 cursor-pointer select-none"
+          onClick={() => handleSort('updatedAt')}
+        >
+          <RecordTable.InlineHead
+            label={t('Updated At')}
+            icon={IconCalendarUp}
+          />
+        </div>
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (
         <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1">
           <IconCalendarUp className="h-3 w-3" />
-          {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
+          {new Date(cell.getValue() as string).toLocaleDateString('mn-MN', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -329,6 +449,11 @@ export function Posts() {
               setTypeFilter(undefined);
               setCategoryFilters([]);
               setTagFilters([]);
+              setCursor(undefined);
+              setDirection(undefined);
+              setSortField('scheduledDate');
+              setSortDirection('desc');
+              setCurrentPage(1);
             }}
             className="ml-auto"
           >
@@ -337,7 +462,7 @@ export function Posts() {
         </div>
       </div>
 
-      {!loading && (posts || []).length === 0 ? (
+      {!loading && (sortedPosts || []).length === 0 ? (
         <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
           <div className="p-12">
             <EmptyState
@@ -350,39 +475,100 @@ export function Posts() {
           </div>
         </div>
       ) : (
-        <div className="h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
-          <RecordTable.Provider
-            columns={columns}
-            data={posts}
-            className="h-full"
-            stickyColumns={['more', 'checkbox', 'title']}
-          >
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList />
-              </RecordTable.Body>
-            </RecordTable>
+        <div className="flex flex-col rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+          <div className="overflow-hidden">
+            <RecordTable.Provider
+              columns={columns}
+              data={sortedPosts}
+              className="h-full"
+              stickyColumns={['more', 'checkbox', 'title']}
+            >
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                </RecordTable.Body>
+              </RecordTable>
 
-            {/* Bulk actions command bar */}
-            <PostsCommandBar
-              onBulkDelete={async (ids: string[]) => {
-                await confirm({
-                  message: `Delete ${ids.length} selected posts?`,
-                });
-                const results = await Promise.allSettled(
-                  ids.map((id) => removePost(id)),
-                );
-                await refetchPosts();
-                const failed = results.filter((r) => r.status === 'rejected');
-                if (failed.length) {
-                  throw new Error(
-                    `Failed to delete ${failed.length}/${ids.length} posts`,
+              {/* Bulk actions command bar */}
+              <PostsCommandBar
+                onBulkDelete={async (ids: string[]) => {
+                  await confirm({
+                    message: `Delete ${ids.length} selected posts?`,
+                  });
+                  const results = await Promise.allSettled(
+                    ids.map((id) => removePost(id)),
                   );
+                  await refetchPosts();
+                  const failed = results.filter((r) => r.status === 'rejected');
+                  if (failed.length) {
+                    throw new Error(
+                      `Failed to delete ${failed.length}/${ids.length} posts`,
+                    );
+                  }
+                }}
+              />
+            </RecordTable.Provider>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-white">
+            <div className="text-sm text-gray-600">
+              {t('Showing')} {(currentPage - 1) * perPage + 1} {t('to')}{' '}
+              {Math.min(currentPage * perPage, totalCount)} {t('of')}{' '}
+              {totalCount} {t('results')}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange('first')}
+                disabled={currentPage === 1 || loading}
+              >
+                {t('First')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange('prev')}
+                disabled={!hasPreviousPage || currentPage === 1 || loading}
+              >
+                <IconChevronLeft className="h-4 w-4" />
+                {t('Previous')}
+              </Button>
+
+              <div className="flex items-center gap-1 px-2">
+                <span className="text-sm text-gray-600">
+                  {t('Page')} {currentPage} {t('of')}{' '}
+                  {Math.ceil(totalCount / perPage)}
+                </span>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange('next')}
+                disabled={
+                  !hasNextPage ||
+                  currentPage === Math.ceil(totalCount / perPage) ||
+                  loading
                 }
-              }}
-            />
-          </RecordTable.Provider>
+              >
+                {t('Next')}
+                <IconChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange('last')}
+                disabled={
+                  currentPage === Math.ceil(totalCount / perPage) || loading
+                }
+              >
+                {t('Last')}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </CmsLayout>
@@ -405,7 +591,6 @@ const InlineTagsEditor = ({
 
   const { tags, loading } = useTags({
     clientPortalId: websiteId || '',
-    type: 'cms',
     limit: 100,
   });
 
