@@ -6,23 +6,25 @@ import { UOMS_ADD } from '../graphql/mutations/uomMutations';
 import { UOM_QUERY } from '../graphql/queries/productsQueries';
 import { IconPlus } from '@tabler/icons-react';
 
-const normalizeUomCode = (name: string) => {
+function normalizeUomCode(name: string): string {
   const normalized = name.trim().toUpperCase();
   const replaced = (normalized as any).replaceAll?.(/\s+/g, '_');
   return replaced ?? normalized.replace(/\s+/g, '_');
-};
+}
+
+interface SelectUOMWithNameProps {
+  value: string;
+  onValueChange: (value: string) => void;
+  inForm?: boolean;
+  disabledUoms?: string[];
+}
 
 export const SelectUOMWithName = ({
   value,
   onValueChange,
   inForm = false,
   disabledUoms = [],
-}: {
-  value: string;
-  onValueChange: (value: string) => void;
-  inForm?: boolean;
-  disabledUoms?: string[];
-}) => {
+}: SelectUOMWithNameProps) => {
   const { uoms, loading } = useUom();
   const [isCreating, setIsCreating] = useState(false);
   const [newUomName, setNewUomName] = useState('');

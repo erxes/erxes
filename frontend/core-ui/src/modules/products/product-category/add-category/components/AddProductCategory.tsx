@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -47,14 +47,6 @@ export function AddCategoryForm({
   const { fieldGroups } = useFieldGroups({ contentType: 'core:product' });
   const { fields } = useFields({ contentType: 'core:product' });
 
-  useEffect(() => {
-    const current = form.getValues('similarities') || [];
-    form.setValue(
-      'similarities',
-      current.map((item) => ({ ...item, id: item.id || `${Date.now()}` })),
-    );
-  }, [form, fieldGroups.length, fields.length]);
-
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['image/*'],
     maxFiles: 1,
@@ -89,6 +81,7 @@ export function AddCategoryForm({
             url: files[0].url,
             name: files[0].name,
             type: files[0].type,
+            size: files[0].size,
           }
         : undefined;
 

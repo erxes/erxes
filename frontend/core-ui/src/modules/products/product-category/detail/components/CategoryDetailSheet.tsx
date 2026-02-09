@@ -73,7 +73,18 @@ export const CategoryDetailSheet = () => {
     maxFiles: 1,
     maxFileSize: 20 * 1024 * 1024,
     onFilesAdded: (added) => {
-      setFiles((prev) => mergeAddedFiles(prev, added));
+      setFiles((prev) => {
+        const maxFiles = 1;
+        if (maxFiles === 1) {
+          return added.map((file) => ({
+            name: file.name ?? file.url,
+            url: file.url,
+            type: file.type ?? '',
+            size: file.size ?? 0,
+          }));
+        }
+        return mergeAddedFiles(prev, added);
+      });
     },
   });
 

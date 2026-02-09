@@ -38,24 +38,31 @@ export const CategoryMoreColumnCell = (
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${name}"?`,
-    }).then(() => {
-      removeCategory(_id, {
-        onError: (e: any) => {
-          toast({
-            title: 'Error',
-            description: e.message,
-            variant: 'destructive',
-          });
-        },
-        onCompleted: () => {
-          toast({
-            title: 'Success',
-            description: 'Category deleted successfully.',
-            variant: 'success',
-          });
-        },
+    })
+      .then(() => {
+        removeCategory(_id, {
+          onError: (e: any) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+          onCompleted: () => {
+            toast({
+              title: 'Success',
+              description: 'Category deleted successfully.',
+              variant: 'success',
+            });
+          },
+        });
+      })
+      .catch(() => {
+        toast({
+          title: 'Cancelled',
+          description: 'Category deletion cancelled.',
+        });
       });
-    });
   };
 
   return (

@@ -91,9 +91,10 @@ export const SimilarityGroupItem = ({
         rules,
       });
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Save failed',
-        description: error?.message || 'Unknown error',
+        description: msg || 'Unknown error',
         variant: 'destructive',
       });
     } finally {
@@ -115,9 +116,10 @@ export const SimilarityGroupItem = ({
     try {
       await onDelete(initialCodeGroup);
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Delete failed',
-        description: error?.message || 'Unknown error',
+        description: msg || 'Unknown error',
         variant: 'destructive',
       });
     } finally {

@@ -21,8 +21,12 @@ const applyCacheCategoryRemoval = (cache: any, ids: string[]) => {
     {
       query: productsQueries.productCategories,
     },
-    ({ productCategories }: { productCategories: IProductCategory[] }) =>
-      getUpdatedCategories(productCategories, ids),
+    (data: { productCategories: IProductCategory[] } | null | undefined) => {
+      if (!data?.productCategories) {
+        return data;
+      }
+      return getUpdatedCategories(data.productCategories, ids);
+    },
   );
 };
 
