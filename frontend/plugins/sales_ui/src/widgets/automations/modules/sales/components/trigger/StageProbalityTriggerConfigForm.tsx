@@ -1,5 +1,8 @@
 import {
   AutomationTriggerFormProps,
+  SelectBoard,
+  SelectPipeline,
+  SelectStage,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -11,9 +14,6 @@ import {
 import { useForm, useWatch } from 'react-hook-form';
 
 import { STAGE_PROBABILITIES } from '~/widgets/automations/modules/sales/constants/configForm';
-import { SelectBoard } from '~/modules/deals/boards/components/common/SelectBoards';
-import { SelectPipeline } from '~/modules/deals/pipelines/components/SelectPipelines';
-import { SelectStage } from '~/modules/deals/stage/components/SelectStages';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export const StageProbalityTriggerConfigForm = ({

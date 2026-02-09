@@ -65,8 +65,16 @@ export interface RefreshTokenParams {
   refreshToken: string;
 }
 
-export interface FcmTokenParams {
-  fcmToken: string;
+export type FcmPlatform = 'ios' | 'android' | 'web';
+
+export interface FcmTokenAddParams {
+  deviceId: string;
+  token: string;
+  platform: FcmPlatform;
+}
+
+export interface FcmTokenRemoveParams {
+  deviceId: string;
 }
 
 export interface CpUsersAddParams {
@@ -90,6 +98,7 @@ export interface CpUsersEditParams {
   username?: string;
   companyName?: string;
   companyRegistrationNumber?: string;
+   erxesCustomerId?: string;
 }
 
 export interface CpUsersSetPasswordParams {

@@ -42,6 +42,8 @@ export const types = `
     tags: [Tag]
     channelId: String
     integrationId: String
+
+    channel: Channel
   }
 
   type FormSubmission {
@@ -180,8 +182,8 @@ export const queries = `
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-  formsRemove(_id: String!): JSON
-  formsToggleStatus(_id: String!): Form
+  formsRemove(_ids: [String]): [String]
+  formsToggleStatus(_ids: [String]!, status: String): Boolean
   formsDuplicate(_id: String!): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean
 

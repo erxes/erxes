@@ -40,7 +40,7 @@ const productsMain = gql`
         categoryId
         code
         createdAt
-        customFieldsData
+        propertiesData
         description
         tagIds
         category {

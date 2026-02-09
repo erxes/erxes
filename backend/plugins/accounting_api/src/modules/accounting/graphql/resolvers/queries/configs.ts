@@ -25,14 +25,18 @@ const configQueries = {
     await models.Configs.updateMany({ subId: { $exists: false } }, { $set: { subId: '' } });
 
     const { codes } = params;
+
     const configs = await models.Configs.find({
       code: { $in: codes },
       subId: ''
     }).lean();
+
     const result: any = {};
+
     for (const code of codes) {
       result[code] = configs.find(c => c.code === code)?.value;
     }
+
     return result;
   }
 };

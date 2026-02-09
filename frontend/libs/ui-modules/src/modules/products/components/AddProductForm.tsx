@@ -114,14 +114,14 @@ export function AddProductForm({
         typeof value === 'object' &&
         value !== null
       ) {
-        const customFieldsArray = Object.entries(value)
+        const customFieldsObj = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .map(([fieldId, val]) => ({
-            field: fieldId,
-            value: val,
-          }));
-        if (customFieldsArray.length > 0) {
-          cleanData[key] = customFieldsArray;
+          .reduce((acc, [fieldId, val]) => {
+            acc[fieldId] = val;
+            return acc;
+          }, {} as Record<string, unknown>);
+        if (Object.keys(customFieldsObj).length > 0) {
+          cleanData['propertiesData'] = customFieldsObj;
         }
         return;
       }
@@ -262,7 +262,8 @@ export function AddProductForm({
                       size={12}
                       strokeWidth={2}
                       className={`transition-transform ${
-                        showMoreInfo ? 'rotate-180' : ''}`}
+                        showMoreInfo ? 'rotate-180' : ''
+                      }`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -317,7 +318,8 @@ export function AddProductForm({
                       size={12}
                       strokeWidth={2}
                       className={`transition-transform ${
-                        showMoreInfo ? 'rotate-180' : ''}`}
+                        showMoreInfo ? 'rotate-180' : ''
+                      }`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -642,7 +644,9 @@ function AddProductFormFieldsDetail({
                 name="name"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('name')}</Form.Label>
+                    <Form.Label>
+                      {t('name')} <span className="text-destructive">*</span>
+                    </Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -655,7 +659,9 @@ function AddProductFormFieldsDetail({
                 name="code"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('code')}</Form.Label>
+                    <Form.Label>
+                      {t('code')} <span className="text-destructive">*</span>
+                    </Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -696,7 +702,10 @@ function AddProductFormFieldsDetail({
                 name="categoryId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('category')}</Form.Label>
+                    <Form.Label>
+                      {t('category')}{' '}
+                      <span className="text-destructive">*</span>
+                    </Form.Label>
                     <Form.Control>
                       <SelectCategory
                         selected={field.value}
@@ -712,7 +721,10 @@ function AddProductFormFieldsDetail({
                 name="unitPrice"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('unit-price')}</Form.Label>
+                    <Form.Label>
+                      {t('unit-price')}{' '}
+                      <span className="text-destructive">*</span>
+                    </Form.Label>
                     <Form.Control>
                       <CurrencyField.ValueInput
                         value={field.value}
@@ -728,7 +740,10 @@ function AddProductFormFieldsDetail({
                 name="uom"
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
-                    <Form.Label>{t('unit-of-measure')}</Form.Label>
+                    <Form.Label>
+                      {t('unit-of-measure')}{' '}
+                      <span className="text-destructive">*</span>
+                    </Form.Label>
                     <SelectUOMWithName
                       value={field.value || ''}
                       onValueChange={field.onChange}

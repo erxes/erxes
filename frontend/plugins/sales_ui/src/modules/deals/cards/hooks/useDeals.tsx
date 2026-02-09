@@ -98,6 +98,7 @@ export const useDeals = (
     }).finally(() => {
       setDealIdToRefetch(null);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dealIdToRefetch]);
 
   useEffect(() => {

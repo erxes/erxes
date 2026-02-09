@@ -1,12 +1,12 @@
-import { random } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
+import { ValidationError } from '@/clientportal/services/errorHandler';
+import { assertCPUserEmailPhoneUnique } from '@/clientportal/services/helpers/userUtils';
 import {
   ICPUserDocument,
   ICPUserRegisterParams,
 } from '@/clientportal/types/cpUser';
 import { normalizeEmail } from '@/clientportal/utils';
-import { ValidationError } from '@/clientportal/services/errorHandler';
-import { assertCPUserEmailPhoneUnique } from '@/clientportal/services/helpers/userUtils';
+import { random } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 
 async function prepareUserPassword(
   password: string | undefined,
@@ -121,6 +121,7 @@ async function handleCompanyUser(
 }
 
 export async function findOrCreateCustomer(
+  document: ICPUserRegisterParams,
   email: string,
   phone: string,
   models: IModels,
@@ -144,10 +145,14 @@ export async function findOrCreateCustomer(
     return customer;
   }
 
-  const createData: any = {};
+  const createData: any = {
+    ...document,
+  };
+
   if (email) {
     createData.primaryEmail = email;
   }
+
   if (phone) {
     createData.primaryPhone = phone;
   }
@@ -156,35 +161,41 @@ export async function findOrCreateCustomer(
 }
 
 export async function findOrCreateCompany(
+  document: ICPUserRegisterParams,
   email: string,
   phone: string,
   models: IModels,
 ): Promise<any> {
-  const queryConditions: any = {};
+  const queryConditions: any[] = [];
 
   if (email) {
-    queryConditions.email = email;
+    queryConditions.push({ primaryEmail: email });
   }
 
   if (phone) {
-    queryConditions.phone = phone;
+    queryConditions.push({ primaryPhone: phone });
   }
 
   const company =
-    Object.keys(queryConditions).length > 0
-      ? await models.Companies.findOne(queryConditions)
+    queryConditions.length > 0
+      ? await models.Companies.findOne({ $or: queryConditions })
       : null;
 
   if (company) {
     return company;
   }
 
-  const createData: any = {};
+  const createData: any = {
+    ...document,
+    primaryName: document.companyName || '',
+  };
+
   if (email) {
-    createData.email = email;
+    createData.primaryEmail = email;
   }
+
   if (phone) {
-    createData.phone = phone;
+    createData.primaryPhone = phone;
   }
 
   return models.Companies.create(createData);
@@ -208,11 +219,17 @@ export async function handleCPContacts(
 ): Promise<ICPUserDocument> {
   const defaultPassword = password || random('Aa0!', 8);
   const { type = 'customer' } = document;
+
   const trimmedMail = document.email ? normalizeEmail(document.email) : '';
   const phone = document.phone || '';
 
   if (type === 'customer') {
-    const customer = await findOrCreateCustomer(trimmedMail, phone, models);
+    const customer = await findOrCreateCustomer(
+      document,
+      trimmedMail,
+      phone,
+      models,
+    );
     return handleCustomerUser(
       models,
       clientPortalId,
@@ -223,7 +240,12 @@ export async function handleCPContacts(
   }
 
   if (type === 'company') {
-    const company = await findOrCreateCompany(trimmedMail, phone, models);
+    const company = await findOrCreateCompany(
+      document,
+      trimmedMail,
+      phone,
+      models,
+    );
     return handleCompanyUser(
       models,
       clientPortalId,

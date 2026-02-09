@@ -27,6 +27,7 @@ import { SelectTagsContext } from '../contexts/SelectTagsContext';
 import { TagBadge } from './TagBadge';
 import { useDebounce } from 'use-debounce';
 import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
+import { IconTagPlus } from '@tabler/icons-react';
 import { useTags } from '../hooks/useTags';
 import { useTranslation } from 'react-i18next';
 
@@ -354,7 +355,12 @@ export const TagList = ({
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
   if (!value || !value.length) {
-    return <Combobox.Value placeholder={placeholder || ''} />;
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <IconTagPlus className="size-4 text-muted-foreground" />
+        <Combobox.Value placeholder={placeholder || ''} />
+      </div>
+    );
   }
 
   return (

@@ -28,7 +28,7 @@ export const FORM_CONTENT_SCHEMA = z.object({
           type: z.string(),
           label: z.string(),
           description: z.string(),
-          placeholder: z.string(),
+          placeholder: z.string().optional(),
           options: z.array(z.string()),
           span: z.number().optional().default(1),
           required: z.boolean().optional().default(false),

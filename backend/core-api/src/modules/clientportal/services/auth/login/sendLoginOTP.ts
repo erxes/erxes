@@ -39,6 +39,14 @@ export async function sendOTPForLogin(
     );
   }
 
+  const oneHourMs = 60 * 60 * 1000;
+  const lastAttemptMs = user.otpResendLastAttempt
+    ? new Date(user.otpResendLastAttempt).getTime()
+    : 0;
+  const oneHourAgo = Date.now() - oneHourMs;
+  const currentAttempts =
+    lastAttemptMs > oneHourAgo ? (user.otpResendAttempts || 0) : 0;
+
   const actionCodeType = identifierTypeToActionCodeType(identifierType);
 
   await sendAndStoreOTP({
@@ -51,7 +59,7 @@ export async function sendOTPForLogin(
     models,
     resendOptions: {
       incrementResendAttempts: true,
-      currentAttempts: user.otpResendAttempts || 0,
+      currentAttempts,
     },
   });
 }

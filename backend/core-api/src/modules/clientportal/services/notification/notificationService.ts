@@ -29,6 +29,8 @@ interface BaseNotificationData {
 interface CreateNotificationInput extends BaseNotificationData {
   cpUserId: string;
   clientPortalId: string;
+  /** Result of sending push: which platforms had FCM tokens */
+  result?: { ios?: boolean; android?: boolean; web?: boolean };
 }
 
 interface SendNotificationInput extends BaseNotificationData {}
@@ -162,42 +164,51 @@ async function sendViaTwilio(
   }
 }
 
+export type FirebaseSendStatus =
+  | 'sent'
+  | 'not_configured'
+  | 'no_tokens'
+  | 'error';
+
+export interface FirebaseSendResult {
+  status: FirebaseSendStatus;
+  tokensToRevoke: string[];
+}
+
 async function sendFirebaseNotification(
   clientPortal: IClientPortalDocument,
   cpUser: ICPUserDocument,
   notification: FirebaseNotificationPayload,
   data?: Record<string, string>,
-): Promise<string[]> {
+): Promise<FirebaseSendResult> {
   const firebaseConfig = clientPortal.firebaseConfig;
 
   if (!firebaseConfig?.enabled || !firebaseConfig?.serviceAccountKey) {
-    return [];
+    return { status: 'not_configured', tokensToRevoke: [] };
   }
 
-  const tokens = (cpUser.fcmTokens || []).filter(Boolean);
-  if (tokens.length === 0) {
-    return [];
+  const tokenStrings = (cpUser.fcmTokens || [])
+    .filter((d) => d?.token)
+    .map((d) => d.token);
+  if (tokenStrings.length === 0) {
+    return { status: 'no_tokens', tokensToRevoke: [] };
   }
 
   try {
     await firebaseService.initializeFromClientPortal(clientPortal);
     const response = await firebaseService.sendNotification(
       clientPortal._id,
-      tokens,
+      tokenStrings,
       notification,
       data,
     );
-    const toRevoke = firebaseService.getTokensToRevokeFromResponse(
-      tokens,
+    const tokensToRevoke = firebaseService.getTokensToRevokeFromResponse(
+      tokenStrings,
       response,
     );
-    return toRevoke;
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    throw new NetworkError(
-      `Failed to send Firebase notification: ${errorMessage}`,
-    );
+    return { status: 'sent', tokensToRevoke };
+  } catch {
+    return { status: 'error', tokensToRevoke: [] };
   }
 }
 
@@ -317,6 +328,7 @@ export async function createNotification(
     action,
     kind = 'user',
     allowMultiple = false,
+    result,
   } = notificationData;
 
   const notificationDoc: any = {
@@ -336,6 +348,8 @@ export async function createNotification(
     expiresAt: new Date(Date.now() + THIRTY_DAYS_IN_MS),
   };
 
+  if (result !== undefined) notificationDoc.result = result;
+
   let notification: ICPNotificationDocument | null = null;
 
   if (kind === 'user' && !allowMultiple && contentType && contentTypeId) {
@@ -353,6 +367,267 @@ export async function createNotification(
   return notification;
 }
 
+export interface CreateNotificationsBulkInput extends BaseNotificationData {
+  clientPortalId: string;
+  cpUserIds: string[];
+}
+
+export async function createNotificationsBulk(
+  subdomain: string,
+  models: IModels,
+  input: CreateNotificationsBulkInput,
+): Promise<Array<{ cpUserId: string; notification: ICPNotificationDocument }>> {
+  const {
+    clientPortalId,
+    cpUserIds,
+    title,
+    message,
+    type = 'info',
+    contentType,
+    contentTypeId,
+    priority = 'medium',
+    metadata,
+    action,
+    kind = 'user',
+    allowMultiple = false,
+  } = input;
+
+  if (cpUserIds.length === 0) {
+    return [];
+  }
+
+  const baseDoc: Record<string, unknown> = {
+    clientPortalId,
+    title,
+    message,
+    type,
+    contentType,
+    contentTypeId,
+    priority,
+    priorityLevel: CP_NOTIFICATION_PRIORITY_ORDER[priority],
+    metadata,
+    action,
+    kind,
+    isRead: false,
+    expiresAt: new Date(Date.now() + THIRTY_DAYS_IN_MS),
+  };
+
+  const useUpsert =
+    kind === 'user' && !allowMultiple && Boolean(contentType && contentTypeId);
+
+  if (useUpsert) {
+    const bulkOps = cpUserIds.map((cpUserId) => ({
+      updateOne: {
+        filter: { contentTypeId, contentType, cpUserId },
+        update: {
+          $set: {
+            ...baseDoc,
+            cpUserId,
+          },
+        },
+        upsert: true,
+      },
+    }));
+
+    await models.CPNotifications.bulkWrite(bulkOps);
+
+    const notifications = await models.CPNotifications.find({
+      $or: cpUserIds.map((id) => ({
+        contentTypeId,
+        contentType,
+        cpUserId: id,
+      })),
+    }).lean();
+
+    const byUserId = new Map<string, ICPNotificationDocument>();
+    for (const n of notifications) {
+      const doc = n as ICPNotificationDocument;
+      byUserId.set(doc.cpUserId, doc);
+    }
+
+    return cpUserIds
+      .filter((id) => byUserId.has(id))
+      .map((cpUserId) => ({
+        cpUserId,
+        notification: byUserId.get(cpUserId)!,
+      }));
+  }
+
+  const docs = cpUserIds.map((cpUserId) => ({
+    ...baseDoc,
+    cpUserId,
+  }));
+
+  const inserted = await models.CPNotifications.insertMany(docs);
+  const list = Array.isArray(inserted) ? inserted : [inserted];
+
+  return list.map((notification, index) => ({
+    cpUserId: cpUserIds[index],
+    notification: notification as ICPNotificationDocument,
+  }));
+}
+
+export interface SendNotificationBulkResult {
+  count: number;
+}
+
+export async function sendNotificationBulk(
+  subdomain: string,
+  models: IModels,
+  clientPortal: IClientPortalDocument,
+  cpUsers: ICPUserDocument[],
+  notificationData: SendNotificationInput,
+): Promise<SendNotificationBulkResult> {
+  if (cpUsers.length === 0) {
+    return { count: 0 };
+  }
+
+  const clientPortalId = clientPortal._id;
+  const cpUserIds = cpUsers.map((u) => u._id);
+
+  const pairs = await createNotificationsBulk(subdomain, models, {
+    clientPortalId,
+    cpUserIds,
+    title: notificationData.title,
+    message: notificationData.message,
+    type: notificationData.type,
+    contentType: notificationData.contentType,
+    contentTypeId: notificationData.contentTypeId,
+    priority: notificationData.priority,
+    metadata: notificationData.metadata,
+    action: notificationData.action,
+    kind: notificationData.kind,
+    allowMultiple: notificationData.allowMultiple,
+  });
+
+  const notificationByUserId = new Map(
+    pairs.map((p) => [p.cpUserId, p.notification]),
+  );
+
+  const firebaseResults = await Promise.all(
+    cpUsers.map((cpUser) => {
+      const notification = notificationByUserId.get(cpUser._id);
+      if (!notification) {
+        return Promise.resolve({
+          status: 'not_configured' as const,
+          tokensToRevoke: [] as string[],
+        });
+      }
+      return sendFirebaseNotification(
+        clientPortal,
+        cpUser,
+        {
+          title: notificationData.title,
+          body: notificationData.message,
+        },
+        {
+          notificationId: notification._id,
+          type: notificationData.type || 'info',
+          action: notificationData.action || '',
+        },
+      );
+    }),
+  );
+
+  const notificationUpdates: Array<{
+    _id: string;
+    result: { ios: boolean; android: boolean; web: boolean };
+  }> = [];
+  const userTokenRevokes: Array<{ _id: string; tokensToRevoke: string[] }> = [];
+
+  for (let i = 0; i < cpUsers.length; i++) {
+    const cpUser = cpUsers[i];
+    const notification = notificationByUserId.get(cpUser._id);
+    if (!notification) continue;
+
+    const { status, tokensToRevoke } = firebaseResults[i];
+
+    if (status === 'sent') {
+      const resultAfterSend = getResultAfterSend(cpUser, tokensToRevoke);
+      notificationUpdates.push({
+        _id: notification._id,
+        result: resultAfterSend,
+      });
+    } else if (status === 'error') {
+      notificationUpdates.push({
+        _id: notification._id,
+        result: { android: false, ios: false, web: false },
+      });
+    }
+
+    if (tokensToRevoke.length > 0) {
+      userTokenRevokes.push({ _id: cpUser._id, tokensToRevoke });
+    }
+  }
+
+  if (notificationUpdates.length > 0) {
+    await models.CPNotifications.bulkWrite(
+      notificationUpdates.map(({ _id, result }) => ({
+        updateOne: {
+          filter: { _id },
+          update: { $set: { result } },
+        },
+      })),
+    );
+  }
+
+  if (userTokenRevokes.length > 0) {
+    await models.CPUser.bulkWrite(
+      userTokenRevokes.map(({ _id, tokensToRevoke }) => ({
+        updateOne: {
+          filter: { _id },
+          update: {
+            $pull: { fcmTokens: { token: { $in: tokensToRevoke } } },
+          },
+        },
+      })),
+    );
+  }
+
+  return { count: cpUsers.length };
+}
+
+function getResultFromFcmTokens(cpUser: ICPUserDocument): {
+  ios: boolean;
+  android: boolean;
+  web: boolean;
+} {
+  const tokens = (cpUser.fcmTokens || []).filter((d) =>
+    Boolean(d?.token && d?.platform),
+  );
+  return {
+    android: tokens.some((t) => t.platform === 'android'),
+    ios: tokens.some((t) => t.platform === 'ios'),
+    web: tokens.some((t) => t.platform === 'web'),
+  };
+}
+
+/**
+ * Computes result after Firebase send: for each platform, true if at least one
+ * token for that platform was not in tokensToRevoke (i.e. send accepted or
+ * non-revokable failure). Uses cpUser.fcmTokens to map token -> platform.
+ */
+function getResultAfterSend(
+  cpUser: ICPUserDocument,
+  tokensToRevoke: string[],
+): { ios: boolean; android: boolean; web: boolean } {
+  const revokedSet = new Set(tokensToRevoke);
+  const tokensWithPlatform = (cpUser.fcmTokens || []).filter((d) =>
+    Boolean(d?.token && d?.platform),
+  );
+
+  const hasSuccessfulToken = (platform: 'android' | 'ios' | 'web') =>
+    tokensWithPlatform.some(
+      (t) => t.platform === platform && !revokedSet.has(t.token),
+    );
+
+  return {
+    android: hasSuccessfulToken('android'),
+    ios: hasSuccessfulToken('ios'),
+    web: hasSuccessfulToken('web'),
+  };
+}
+
 export async function sendNotification(
   subdomain: string,
   models: IModels,
@@ -366,31 +641,49 @@ export async function sendNotification(
     clientPortalId: clientPortal._id,
   });
 
-  try {
-    const tokensToRevoke = await sendFirebaseNotification(
-      clientPortal,
-      cpUser,
+  const { status, tokensToRevoke } = await sendFirebaseNotification(
+    clientPortal,
+    cpUser,
+    {
+      title: notificationData.title,
+      body: notificationData.message,
+    },
+    {
+      notificationId: notification._id,
+      type: notificationData.type || 'info',
+      action: notificationData.action || '',
+    },
+  );
+
+  if (status === 'sent') {
+    const resultAfterSend = getResultAfterSend(cpUser, tokensToRevoke);
+    await models.CPNotifications.updateOne(
+      { _id: notification._id },
+      { $set: { result: resultAfterSend } },
+    );
+    notification.result = resultAfterSend;
+  } else if (status === 'error') {
+    await models.CPNotifications.updateOne(
+      { _id: notification._id },
       {
-        title: notificationData.title,
-        body: notificationData.message,
-      },
-      {
-        notificationId: notification._id,
-        type: notificationData.type || 'info',
-        action: notificationData.action || '',
+        $set: {
+          result: { android: false, ios: false, web: false },
+        },
       },
     );
+    notification.result = {
+      android: false,
+      ios: false,
+      web: false,
+    };
+  }
 
-    if (tokensToRevoke.length > 0) {
-      await models.CPUser.updateOne(
-        { _id: cpUser._id },
-        { $pull: { fcmTokens: { $in: tokensToRevoke } } },
-      );
-    }
-  } catch {
-    // Swallow Firebase errors so notification creation still succeeds
+  if (tokensToRevoke.length > 0) {
+    await models.CPUser.updateOne(
+      { _id: cpUser._id },
+      { $pull: { fcmTokens: { token: { $in: tokensToRevoke } } } },
+    );
   }
 
   return notification;
 }
-

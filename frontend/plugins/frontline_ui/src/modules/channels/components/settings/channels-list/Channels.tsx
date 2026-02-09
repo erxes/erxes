@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { type IChannel } from '@/channels/types';
 import { IconBrandTrello, IconTrash } from '@tabler/icons-react';
 import { useChannelRemove } from '@/channels/hooks/useChannelRemove';
+import { channelsMoreColumn } from './ChannelsMoreColumn';
 
 export function Channels() {
   const { channels, loading } = useGetChannels();
@@ -46,13 +47,11 @@ export function Channels() {
         <Table>
           <Table.Header>
             <Table.Row className="rounded-t-md">
-              <Table.Head className="w-auto rounded-tl-md pl-2">
-                Title
-              </Table.Head>
+              <Table.Head className="w-10 rounded-tl-md"></Table.Head>
+              <Table.Head className="w-auto pl-2">Title</Table.Head>
               <Table.Head className="w-20">Members</Table.Head>
               <Table.Head className="w-32">Created At</Table.Head>
               <Table.Head className="w-32">Updated At</Table.Head>
-              <Table.Head className="w-10"></Table.Head>
             </Table.Row>
           </Table.Header>
         </Table>
@@ -66,10 +65,23 @@ export function Channels() {
                 : channels?.map((channel: IChannel) => (
                     <Table.Row
                       key={channel._id}
-                      onClick={() => onClick(channel._id)}
                       className="hover:cursor-pointer shadow-xs group/row"
                     >
-                      <Table.Cell className="font-medium border-none pl-2 w-auto ">
+                      <Table.Cell className="border-none px-2 w-10">
+                        <channelsMoreColumn.cell
+                          cell={
+                            {
+                              row: {
+                                original: channel,
+                              },
+                            } as any
+                          }
+                        />
+                      </Table.Cell>
+                      <Table.Cell
+                        className="font-medium border-none pl-2 w-auto "
+                        onClick={() => onClick(channel._id)}
+                      >
                         <span className="w-full flex gap-2 text-base font-medium">
                           <span className="[1lh] flex items-center">
                             <IconComponent
@@ -90,9 +102,6 @@ export function Channels() {
                       <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
                         <DateDisplay date={channel.updatedAt} />
                       </Table.Cell>
-                      <Table.Cell className="border-none px-2 w-10">
-                        <DeleteChannel channelId={channel._id} />
-                      </Table.Cell>
                     </Table.Row>
                   ))}
             </Table.Body>
@@ -105,24 +114,20 @@ export function Channels() {
 
 const TableRowSkeleton = () => (
   <Table.Row className="shadow-xs">
-    <Table.Cell className="w-10 border-none pl-3">
+    <Table.Cell className="w-10 border-none pl-2">
       <Skeleton className="h-4 w-4" />
     </Table.Cell>
-
-    <Table.Cell className="w-auto pl-8 border-none">
-      <Skeleton className="h-4 w-10" />
+    <Table.Cell className="w-auto pl-2 border-none">
+      <Skeleton className="h-4 w-32" />
     </Table.Cell>
     <Table.Cell className="w-20 border-none">
       <Skeleton className="h-4 w-5" />
     </Table.Cell>
-    <Table.Cell className="w-32 pr-8 border-none">
+    <Table.Cell className="w-32 border-none">
       <Skeleton className="h-4 w-16" />
     </Table.Cell>
     <Table.Cell className="w-32 border-none">
       <Skeleton className="h-4 w-16" />
-    </Table.Cell>
-    <Table.Cell className="w-10 border-none">
-      <Skeleton className="h-4 w-4" />
     </Table.Cell>
   </Table.Row>
 );

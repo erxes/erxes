@@ -22,7 +22,7 @@ export const types = `
     isVerified: Boolean!
     isPhoneVerified: Boolean!
     isEmailVerified: Boolean!
-    fcmTokens: [String]
+    fcmTokens: [FcmDevice]
     socialAuthProviders: [SocialAuthProviderInfo]
     failedLoginAttempts: Int
     accountLockedUntil: Date
@@ -88,6 +88,18 @@ export const types = `
     linkedAt: Date
   }
 
+  enum FcmPlatform {
+    ios
+    android
+    web
+  }
+
+  type FcmDevice {
+    deviceId: String!
+    token: String!
+    platform: FcmPlatform!
+  }
+
   type CPUserListResponse {
     list: [CPUser]
     totalCount: Int
@@ -147,6 +159,7 @@ const cpUsersEditParams = `
   username: String,
   companyName: String,
   companyRegistrationNumber: String,
+  erxesCustomerId: String,
 `;
 
 export const mutations = `
@@ -168,8 +181,8 @@ export const mutations = `
   clientPortalUserLinkSocialAccount(provider: SocialAuthProvider!, token: String!): CPUser
   clientPortalUserUnlinkSocialAccount(provider: SocialAuthProvider!): CPUser
   clientPortalUserRefreshToken(refreshToken: String!): String
-  clientPortalUserAddFcmToken(fcmToken: String!): CPUser
-  clientPortalUserRemoveFcmToken(fcmToken: String!): CPUser
+  clientPortalUserAddFcmToken(deviceId: String!, token: String!, platform: FcmPlatform!): CPUser
+  clientPortalUserRemoveFcmToken(deviceId: String!): CPUser
 `;
 
 export const queries = `

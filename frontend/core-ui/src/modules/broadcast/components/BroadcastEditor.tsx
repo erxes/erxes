@@ -30,7 +30,7 @@ export const BroadcastEditor = ({
       {attribute && (
         <AttributeInEditor editor={editor} contentType="core:contact.customer" />
       )}
-      {document && <DocumentInEditor editor={editor} contentType="core:contact.customer" />}
+      {document && <DocumentInEditor editor={editor} contentType="core:broadcast" />}
     </BlockEditor>
   );
 };

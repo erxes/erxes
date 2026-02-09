@@ -1,4 +1,9 @@
-import { IPropertyField, IUserDocument } from 'erxes-api-shared/core-types';
+import {
+  ICustomField,
+  ILocationOption,
+  IPropertyField,
+  IUserDocument,
+} from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
@@ -17,7 +22,23 @@ export interface IFieldModel extends Model<IFieldDocument> {
   removeField(_id: string): Promise<IFieldDocument>;
 
   validateFieldValue(_id: string, value: any): Promise<any>;
-  validateFieldValues(customFieldsData: any): Promise<any>;
+  validateFieldValues(data: any): Promise<any>;
+
+  generatePropertiesData(
+    data: { [key: string]: any },
+    contentType: string,
+  ): Promise<{ propertiesData: IPropertyField }>;
+
+  syncFieldValues({
+    customFieldsData,
+    propertiesData,
+  }: {
+    customFieldsData?: ICustomField[];
+    propertiesData?: IPropertyField;
+  }): Promise<{
+    customFieldsData: ICustomField[];
+    propertiesData: IPropertyField;
+  }>;
 }
 
 export const loadFieldClass = (models: IModels) => {
@@ -98,7 +119,7 @@ export const loadFieldClass = (models: IModels) => {
     public static async validateField(doc: IField, _id?: string) {
       const { code } = doc || {};
 
-      if (_id) {
+      if (code && _id) {
         const field = await models.Fields.getField({ _id });
 
         if (field.code !== code) {
@@ -120,7 +141,7 @@ export const loadFieldClass = (models: IModels) => {
     }
 
     public static async validateFieldValue(_id: string, value: any) {
-      const field = await models.Fields.getField({ _id });
+      const field = await models.Fields.findOne({ _id });
       const group = await models.FieldsGroups.exists({ _id });
 
       if (group && value && Array.isArray(value)) {
@@ -181,11 +202,11 @@ export const loadFieldClass = (models: IModels) => {
       return value;
     }
 
-    public static async validateFieldValues(customFieldsData: IPropertyField) {
+    public static async validateFieldValues(data: IPropertyField) {
       const result: Record<string, any> = {};
 
-      for (const fieldName in customFieldsData) {
-        const fieldValue = customFieldsData[fieldName];
+      for (const fieldName in data) {
+        const fieldValue = data[fieldName];
 
         if (!fieldValue) {
           continue;
@@ -197,7 +218,7 @@ export const loadFieldClass = (models: IModels) => {
 
         const group = await models.FieldsGroups.findOne({
           _id: fieldName,
-          isMultiple: true,
+          'configs.isMultiple': true,
         }).lean();
 
         if (!field && !group) {
@@ -211,14 +232,166 @@ export const loadFieldClass = (models: IModels) => {
         }
 
         try {
-          result[fieldName] = await this.validateFieldValue(fieldId.toString(), fieldValue);
-
+          result[fieldName] = await this.validateFieldValue(
+            fieldId,
+            fieldValue,
+          );
         } catch (e) {
           throw new Error(e.message);
         }
       }
 
-      return result
+      return result;
+    }
+
+    public static async generatePropertiesData(
+      data: { [key: string]: any },
+      contentType: string,
+    ) {
+      const keys = Object.keys(data || {});
+
+      let propertiesData: Record<string, any> = {};
+
+      for (const key of keys) {
+        const field = await models.Fields.findOne({
+          contentType,
+          $or: [{ code: key }, { _id: key }],
+        }).lean();
+
+        let value = data[key];
+
+        if (field) {
+          propertiesData[field._id] = value;
+        }
+      }
+
+      propertiesData = await models.Fields.validateFieldValues(propertiesData);
+
+      return { propertiesData };
+    }
+
+    public static async syncFieldValues({
+      customFieldsData,
+      propertiesData,
+    }: {
+      customFieldsData?: ICustomField[];
+      propertiesData?: IPropertyField;
+    }) {
+      const result: {
+        customFieldsData: ICustomField[];
+        propertiesData: IPropertyField;
+      } = {
+        customFieldsData: [],
+        propertiesData: {},
+      };
+
+      const mergedData: Record<string, any> = {};
+
+      for (const customFieldData of customFieldsData || []) {
+        const {
+          field,
+          value,
+          stringValue,
+          numberValue,
+          dateValue,
+          locationValue,
+          extraValue,
+        } = customFieldData;
+
+        if (!field) {
+          continue;
+        }
+
+        try {
+          mergedData[field] =
+            value ??
+            stringValue ??
+            numberValue ??
+            dateValue ??
+            locationValue ??
+            extraValue;
+        } catch (e) {
+          throw new Error(e.message);
+        }
+      }
+
+      for (const fieldName in propertiesData || {}) {
+        if (!fieldName) {
+          continue;
+        }
+
+        const fieldValue = (propertiesData || {})[fieldName];
+
+        if (fieldValue === undefined) {
+          continue;
+        }
+
+        mergedData[fieldName] = fieldValue;
+      }
+
+      for (const mergedItem in mergedData) {
+        const mergedValue = mergedData[mergedItem];
+
+        const field = await models.Fields.findOne({
+          $or: [{ _id: mergedItem }, { code: mergedItem }],
+        }).lean();
+
+        const group = await models.FieldsGroups.findOne({
+          _id: mergedItem,
+          'configs.isMultiple': true,
+        }).lean();
+
+        const fieldId = group?._id || field?._id;
+
+        if (!fieldId) {
+          const customFieldData = (customFieldsData || []).find(
+            (item) => item.field === mergedItem,
+          );
+
+          if (!customFieldData) {
+            continue;
+          }
+
+          result.customFieldsData.push(customFieldData);
+
+          continue;
+        }
+
+        const values = {};
+
+        const { type } = field || {};
+
+        if (['text', 'textarea'].includes(type || '')) {
+          values['stringValue'] = String(mergedValue);
+        }
+
+        if (type === 'number') {
+          values['numberValue'] = Number(mergedValue);
+        }
+
+        if (type === 'date') {
+          values['dateValue'] = mergedValue;
+        }
+
+        if (type === 'location') {
+          const { lat, lng } = mergedValue as ILocationOption;
+
+          values['stringValue'] = String(mergedValue);
+          values['locationValue'] = { type: 'Point', coordinates: [lng, lat] };
+        }
+
+        result.customFieldsData.push({
+          field: mergedItem,
+          value: mergedValue,
+          ...values,
+        });
+      }
+
+      result.propertiesData = await models.Fields.validateFieldValues(
+        mergedData,
+      );
+
+      return result;
     }
   }
 

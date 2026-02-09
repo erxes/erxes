@@ -2,6 +2,7 @@ import { Sidebar, useQueryState } from 'erxes-ui';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
 import { IDocumentType } from '../types';
+import { IconCube } from '@tabler/icons-react';
 
 export const DocumentsTypes = () => {
   const [contentType, setQuery] = useQueryState('contentType');
@@ -16,7 +17,7 @@ export const DocumentsTypes = () => {
           <Sidebar.Menu>
             {documentsTypes.map(
               ({ contentType: module, label }: IDocumentType) => {
-                const Icon = DOCUMENTS_TYPES_SET[module]['icon'];
+                const Icon = DOCUMENTS_TYPES_SET?.[module]?.['icon'] || IconCube;
 
                 return (
                   <Sidebar.MenuItem key={module}>
