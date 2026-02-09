@@ -596,6 +596,24 @@ export function AddPost() {
     <>
       <Form {...form}>
         <div className="flex items-center gap-2">
+          {form.watch('status') === 'published' && (
+            <Form.Field
+              control={form.control}
+              name="scheduledDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <DateTimeInput
+                      value={field.value || undefined}
+                      onChange={field.onChange}
+                      placeholder="Нийтлэх огноо"
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          )}
+
           {form.watch('status') === 'scheduled' && (
             <Form.Field
               control={form.control}
@@ -606,7 +624,7 @@ export function AddPost() {
                     <DateTimeInput
                       value={field.value || undefined}
                       onChange={field.onChange}
-                      placeholder="Schedule date"
+                      placeholder="Товлосон огноо"
                     />
                   </Form.Control>
                 </Form.Item>
