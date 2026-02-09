@@ -723,12 +723,6 @@ export const loadUserClass = (
         departmentIds: _user.departmentIds,
       };
 
-      const { role } = (await models.Roles.getRole(user._id)) || {};
-
-      if (role) {
-        user['role'] = role;
-      }
-
       return user;
     }
 
@@ -740,12 +734,6 @@ export const loadUserClass = (
         _id: _user._id,
         isOwner: _user.isOwner,
       };
-
-      const { role } = (await models.Roles.getRole(user._id)) || {};
-
-      if (role) {
-        user['role'] = role;
-      }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 
