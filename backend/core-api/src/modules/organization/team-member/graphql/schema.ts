@@ -86,6 +86,8 @@ export const types = `
     organizations: [CookieOrganization]
     onboardedPlugins: [String]
     groupIds: [String]
+    permissionGroupIds: [String]
+    customPermissions: [CustomPermission]
     isSubscribed: String
     isShowNotification: Boolean
     propertiesData: JSON
