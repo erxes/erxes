@@ -6,10 +6,11 @@ import { useDocument } from '../hooks/useDocument';
 
 export const DocumentSheet = () => {
   const [documentId, setDocumentId] = useQueryState('documentId');
-  const [contentType] = useQueryState('contentType');
+  const [contentType] = useQueryState<string>('contentType');
 
   const {
     reset: resetForm,
+    setValue,
     handleSubmit,
     formState,
   } = useFormContext<FormType>();
@@ -32,6 +33,8 @@ export const DocumentSheet = () => {
         onClick={() => {
           setDocumentId(' ');
           resetForm();
+
+          setValue('contentType', contentType);
         }}
       >
         Add Document

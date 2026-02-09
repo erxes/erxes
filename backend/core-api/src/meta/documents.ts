@@ -23,6 +23,10 @@ export const documents = {
       label: 'Team member',
       contentType: 'core:user',
     },
+    {
+      label: 'Broadcast',
+      contentType: 'core:broadcast',
+    },
   ],
   editorAttributes: async (
     models: IModels,

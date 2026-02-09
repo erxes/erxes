@@ -20,6 +20,7 @@ export interface ICPUserRegisterParams {
   username?: string;
   firstName?: string;
   lastName?: string;
+  companyName?: string;
   password?: string;
   type?: string | 'customer' | 'company';
 }

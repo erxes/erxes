@@ -82,8 +82,8 @@ export const types = `
 const createTicketParams = `
   name: String!
   description: String
-  channelId: String
-  pipelineId:String
+  channelId: String!
+  pipelineId:String!
   statusId: String!
   priority: Int
   labelIds: [String]
