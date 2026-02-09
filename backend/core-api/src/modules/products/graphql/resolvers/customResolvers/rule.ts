@@ -41,7 +41,7 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    if (!rule.productIds?.length) return [];
+    if (!rule.excludeProductIds?.length) return [];
 
     return models.Products.find({
       _id: { $in: rule.excludeProductIds },
