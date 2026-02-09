@@ -53,7 +53,7 @@ export interface IItem {
     branchIds: string[];
   }
 
-  interface IPaymentsData {
+  export interface IPaymentsData {
     [key: string]: {
       currency?: string;
       amount?: number;
