@@ -9,6 +9,7 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
+
 startPlugin({
   name: 'frontline',
   port: 3304,
@@ -96,6 +97,18 @@ startPlugin({
         {
           description: 'Form',
           type: 'form',
+        },
+      ],
+    },
+    properties: {
+      types: [
+        {
+          description: 'Inbox',
+          type: 'conversation',
+        },
+        {
+          description: 'Tickets',
+          type: 'ticket',
         },
       ],
     },

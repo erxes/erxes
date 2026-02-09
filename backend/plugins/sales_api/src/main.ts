@@ -50,6 +50,14 @@ startPlugin({
     automations,
     segments,
     tags: { types: [{ type: 'deal', description: 'Sales' }] },
+    properties: {
+      types: [
+        {
+          description: 'Sales pipelines',
+          type: 'deal',
+        },
+      ],
+    },
     notificationModules: [
       {
         name: 'deals',

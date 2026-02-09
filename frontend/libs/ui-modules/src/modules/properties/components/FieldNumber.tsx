@@ -1,13 +1,15 @@
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import { NumberInput, PopoverScoped } from 'erxes-ui';
-import { SpecificFieldProps } from './Field';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import { useState } from 'react';
+import { SpecificFieldProps } from './Field';
 
 export const FieldNumber = (props: SpecificFieldProps) => {
   const { inCell } = props;
+
   if (inCell) {
     return <FieldNumberInCell {...props} />;
   }
+
   return <FieldNumberDetail {...props} />;
 };
 

@@ -9,6 +9,7 @@ export type IField = {
   relationType?: string;
   multiple?: boolean;
   icon?: string;
+  configs?: Record<string, any>;
 };
 
 export interface IFieldGroup {
@@ -18,7 +19,8 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics: string;
+  logics?: Record<string, any>;
+  configs?: Record<string, any>;
 }
 
 export type mutateFunction = (

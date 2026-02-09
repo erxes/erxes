@@ -41,7 +41,7 @@ export const getOrCreateCustomer = async (
       (await getFacebookUser(models, pageId, facebookPageTokensMap, userId)) ||
       {};
   } catch (e: any) {
-    debugError(`Error during get customer info: ${e.message}`);
+    debugError(`Error during get customer info: ${JSON.stringify(e)}`);
   }
 
   const fbUserProfilePic: string | null = await getFacebookUserProfilePic(
@@ -238,7 +238,7 @@ export const generatePostDoc = async (
   } = postParams;
   let generatedMediaUrls: string[] = [];
 
-  const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+  const uploadConfig = await sendTRPCMessage({
     subdomain,
 
     pluginName: 'core',
@@ -247,6 +247,9 @@ export const generatePostDoc = async (
     action: 'getFileUploadConfigs',
     input: {},
   });
+
+  const { UPLOAD_SERVICE_TYPE } = (uploadConfig as any) || {};
+
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     if (link) {
       if (video_id) {
