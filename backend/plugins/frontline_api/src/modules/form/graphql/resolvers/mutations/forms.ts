@@ -1,4 +1,5 @@
 import { markResolvers } from 'erxes-api-shared/utils';
+import { AnyBulkWriteOperation } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { IFormSubmission } from '~/modules/form/@types/form';
 import { IForm } from '~/modules/form/db/definitions/forms';
@@ -28,7 +29,11 @@ export const formMutations = {
   /**
    * Update a form data
    */
-  formsEdit: async (_root: undefined, { _id, ...doc }: IForm, { models }: IContext) => {
+  formsEdit: async (
+    _root: undefined,
+    { _id, ...doc }: IForm,
+    { models }: IContext,
+  ) => {
     return models.Forms.updateForm(_id, doc);
   },
 
@@ -66,8 +71,10 @@ export const formMutations = {
     { _ids }: { _ids: string[] },
     { models }: IContext,
   ) => {
-    const integrationIds: string[] = await models.Forms.find({ _id: { $in: _ids } }).distinct('integrationId');
-    
+    const integrationIds: string[] = await models.Forms.find({
+      _id: { $in: _ids },
+    }).distinct('integrationId');
+
     if (integrationIds?.length) {
       await models.Integrations.removeIntegrations(integrationIds);
     }
@@ -77,21 +84,33 @@ export const formMutations = {
 
     await models.Forms.deleteMany({ _id: { $in: _ids } });
 
-    return _ids
+    return _ids;
   },
 
   formsToggleStatus: async (
     _root: undefined,
-    { _id }: { _id: string; status: boolean },
+    { _ids, status }: { _ids: string[]; status?: string },
     { models }: IContext,
   ) => {
-    const form = await models.Forms.getForm(_id);
-    const status = form.status === 'active' ? 'archived' : 'active';
+    const forms = await models.Forms.find({ _id: { $in: _ids } });
+    const _forms: AnyBulkWriteOperation<IForm>[] = [];
 
-    form.status = status;
+    forms.forEach((form) => {
+      const newStatus = status
+        ? status
+        : form.status === 'active'
+        ? 'archived'
+        : 'active';
 
-    await form.save();
-    return form;
+      _forms.push({
+        updateOne: {
+          filter: { _id: form._id },
+          update: { $set: { status: newStatus } },
+        },
+      });
+    });
+
+    await models.Forms.bulkWrite(_forms);
   },
 
   /**
@@ -140,7 +159,11 @@ export const formMutations = {
     return true;
   },
 
-  formSubmissionsEdit: async (_root: undefined, params, { models }: IContext) => {
+  formSubmissionsEdit: async (
+    _root: undefined,
+    params,
+    { models }: IContext,
+  ) => {
     const { contentTypeId, customerId, submissions } = params;
 
     const conversation = await models.Conversations.findOne({
@@ -168,7 +191,11 @@ export const formMutations = {
     };
   },
 
-  formSubmissionsRemove: async (_root: undefined, params, { models }: IContext) => {
+  formSubmissionsRemove: async (
+    _root: undefined,
+    params,
+    { models }: IContext,
+  ) => {
     const { customerId, contentTypeId } = params;
 
     await models.ConversationMessages.deleteMany({

@@ -77,3 +77,9 @@ export const FORM_EDIT = gql`
     }
   }
 `;
+
+export const FORM_TOGGLE_STATUS = gql`
+  mutation FormsToggleStatus($ids: [String]!, $status: String) {
+    formsToggleStatus(_ids: $ids, status: $status)
+  }
+`;

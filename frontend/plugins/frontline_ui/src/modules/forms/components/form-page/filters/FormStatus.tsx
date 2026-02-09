@@ -1,5 +1,5 @@
-import { IconCircleDashed } from "@tabler/icons-react"
-import { Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from "erxes-ui"
+import { IconCircleCheck, IconCircleDashed, IconSquareToggle } from "@tabler/icons-react"
+import { Badge, Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from "erxes-ui"
 import { useState } from "react";
 
 const BarItem = () => {
@@ -12,11 +12,11 @@ const BarItem = () => {
   return (
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
-        <IconCircleDashed />
+        <IconSquareToggle />
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <Filter.BarButton filterKey={'status'}>
+          <Filter.BarButton filterKey={'status'} className="capitalize">
             {query || ''}
           </Filter.BarButton>
         </Popover.Trigger>
@@ -24,8 +24,8 @@ const BarItem = () => {
           <Command>
             <Command.List>
               <Command.Group>
-                <Command.Item onSelect={handleSelect} value="active">active</Command.Item>
-                <Command.Item onSelect={handleSelect} value="archived">archived</Command.Item>
+                <Command.Item onSelect={handleSelect} value="active">Active</Command.Item>
+                <Command.Item onSelect={handleSelect} value="archived">Archived</Command.Item>
               </Command.Group>
             </Command.List>
           </Command>
@@ -48,8 +48,8 @@ const View = () => {
         <Command>
           <Command.List>
             <Command.Group>
-              <Command.Item onSelect={handleSelect} value="active">active</Command.Item>
-              <Command.Item onSelect={handleSelect} value="archived">archived</Command.Item>
+              <Command.Item onSelect={handleSelect} value="active">Active</Command.Item>
+              <Command.Item onSelect={handleSelect} value="archived">Archived</Command.Item>
             </Command.Group>
           </Command.List>
         </Command>
@@ -61,10 +61,19 @@ const View = () => {
 const Item = () => {
   return (
     <Filter.Item value="status">
-      <IconCircleDashed />
+      <IconSquareToggle />
       Status
     </Filter.Item>
   )
 }
 
-export const FormStatus = Object.assign({ BarItem, View, Item });
+const StatusBadge = ({ status }: { status: string }) => {
+  return (
+    <Badge variant={status === 'active' ? 'success' : 'secondary'}>
+      {status === 'active' ? <IconCircleCheck size={16} /> : <IconCircleDashed size={16} />}
+      {status}
+    </Badge>
+  )
+}
+
+export const FormStatus = Object.assign({ BarItem, View, Item, Badge: StatusBadge });
