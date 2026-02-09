@@ -210,7 +210,7 @@ export const ProductRuleForm = ({
                         placeholder="0"
                         {...field}
                         onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value) || 0)
+                          field.onChange(Number.parseFloat(e.target.value) || 0)
                         }
                       />
                     </Form.Control>

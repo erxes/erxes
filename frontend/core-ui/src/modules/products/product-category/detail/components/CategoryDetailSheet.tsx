@@ -120,19 +120,32 @@ export const CategoryDetailSheet = () => {
   }, [categoryId, setHotkeyScope]);
 
   useEffect(() => {
-    if (categoryDetail?.attachment) {
-      setFiles([
-        {
-          name: categoryDetail.attachment.name,
-          url: categoryDetail.attachment.url,
-          type: categoryDetail.attachment.type,
-          size: categoryDetail.attachment.size,
-        },
-      ]);
-    } else {
-      setFiles([]);
-    }
-  }, [categoryDetail]);
+    setFiles((prevFiles) => {
+      const attachmentUrl = categoryDetail?.attachment?.url;
+      const currentFileUrl = prevFiles[0]?.url;
+
+      if (attachmentUrl && attachmentUrl !== currentFileUrl) {
+        return [
+          {
+            name: categoryDetail.attachment.name,
+            url: categoryDetail.attachment.url,
+            type: categoryDetail.attachment.type,
+            size: categoryDetail.attachment.size,
+          },
+        ];
+      }
+
+      if (!attachmentUrl && prevFiles.length === 0) {
+        return prevFiles;
+      }
+
+      if (!attachmentUrl && prevFiles.length > 0) {
+        return [];
+      }
+
+      return prevFiles;
+    });
+  }, [categoryDetail?._id, categoryDetail?.attachment?.url]);
 
   const setOpen = (newCategoryId: string | null) => {
     setCategoryId(newCategoryId);

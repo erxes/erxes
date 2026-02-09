@@ -105,8 +105,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
       name: uom?.name || '',
       code: uom?.code || '',
       isForSubscription: Boolean((uom as any)?.isForSubscription),
-      subscriptionPeriod:
-        (uom as any)?.subscriptionConfig?.period || (uom ? '' : ''),
+      subscriptionPeriod: (uom as any)?.subscriptionConfig?.period || '',
       subscriptionRule: (uom as any)?.subscriptionConfig?.rule || '',
       subscriptionRenewable: Boolean(
         (uom as any)?.subscriptionConfig?.subsRenewable,

@@ -80,8 +80,10 @@ export const SelectUOMWithName = ({
           onChange={(e) => setNewUomName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
+              e.preventDefault();
               handleCreateUom();
             } else if (e.key === 'Escape') {
+              e.preventDefault();
               setIsCreating(false);
               setNewUomName('');
             }

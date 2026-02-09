@@ -9,7 +9,7 @@ import { IProductRule } from './types';
 import { useState } from 'react';
 import { ProductRuleForm } from './ProductRuleForm';
 
-export const productRuleNameColumnCell = (
+const ProductRuleNameColumnCell = (
   props: CellContext<IProductRule, unknown>,
 ) => {
   const productRule = props.row.original;
@@ -37,6 +37,6 @@ export const productRuleNameColumnCell = (
 export const productRuleNameColumn = {
   id: 'name',
   accessorKey: 'name',
-  cell: productRuleNameColumnCell,
+  cell: ProductRuleNameColumnCell,
   size: 250,
 } as const;
