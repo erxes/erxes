@@ -6,6 +6,7 @@ import {
   InfoCard,
   Input,
   Select,
+  Spinner,
   Switch,
   Textarea,
 } from 'erxes-ui';
@@ -17,19 +18,21 @@ import { useAtom, useSetAtom } from 'jotai';
 import { activeStepAtom, formValuesAtom } from '../states/erxesFormStates';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
 
 export const ErxesForm = ({
   step,
   stepsLength,
   defaultValue,
   schema,
+  isLastStep,
 }: {
   step: IFormStep;
   stepsLength: number;
   defaultValue: any;
   schema: z.ZodSchema;
+  isLastStep: boolean;
 }) => {
-  console.log(defaultValue, schema);
   const formData = useErxesForm();
   const [activeStep, setActiveStep] = useAtom(activeStepAtom);
   const setFormValues = useSetAtom(formValuesAtom);
@@ -40,19 +43,19 @@ export const ErxesForm = ({
     defaultValues: defaultValue,
     resolver: zodResolver(schema),
   });
+  const { saveLead, loading: saveLeadLoading } = useFormWidgetLead();
+
+  const handleSubmit = (values: any) => {
+    if (isLastStep) {
+      saveLead({ variables: { formId: formData._id, submissions: values } });
+    } else {
+      setFormValues((prev) => ({ ...prev, [step.order]: values }));
+    }
+  };
 
   return (
     <Form {...form}>
-      <form
-        className="text-sm"
-        onSubmit={form.handleSubmit(
-          (values) =>
-            setFormValues((prev) => ({ ...prev, [step.order]: values })),
-          (errors) => {
-            console.log(errors);
-          },
-        )}
-      >
+      <form className="text-sm" onSubmit={form.handleSubmit(handleSubmit)}>
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}
@@ -214,7 +217,10 @@ export const ErxesForm = ({
                 Next
               </Button>
             ) : (
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={saveLeadLoading}>
+                {saveLeadLoading && <Spinner size="sm" />}
+                Submit
+              </Button>
             )}
           </div>
         </InfoCard>

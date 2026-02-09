@@ -58,3 +58,28 @@ export const FORM_WIDGET_CONNECT = gql`
     }
   }
 `;
+
+export const FORM_WIDGET_SAVE_LEAD = gql`
+  mutation widgetsSaveLead(
+    $formId: String!
+    $submissions: [FieldValueInput]
+    $browserInfo: JSON!
+    $cachedCustomerId: String
+  ) {
+    widgetsSaveLead(
+      formId: $formId
+      submissions: $submissions
+      browserInfo: $browserInfo
+      cachedCustomerId: $cachedCustomerId
+    ) {
+      status
+      conversationId
+      customerId
+      errors {
+        fieldId
+        code
+        text
+      }
+    }
+  }
+`;

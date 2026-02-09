@@ -8,9 +8,11 @@ import { formValuesAtom } from '../states/erxesFormStates';
 export const ErxesFormValues = ({
   step,
   stepsLength,
+  isLastStep,
 }: {
   step: IFormStep;
   stepsLength: number;
+  isLastStep: boolean;
 }) => {
   const formData = useErxesForm();
   const formValues = useAtomValue(formValuesAtom);
@@ -68,6 +70,7 @@ export const ErxesFormValues = ({
       schema={z.object(formSchema)}
       step={step}
       stepsLength={stepsLength}
+      isLastStep={isLastStep}
     />
   );
 };

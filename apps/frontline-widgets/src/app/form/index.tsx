@@ -66,6 +66,7 @@ export const Form = () => {
                     key={step.name}
                     step={step}
                     stepsLength={stepsArray.length}
+                    isLastStep={step.order === stepsArray.length - 1}
                   />
                 ),
             )}
