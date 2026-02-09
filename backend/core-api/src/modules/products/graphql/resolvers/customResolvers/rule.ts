@@ -7,6 +7,8 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
+    if (!rule.categoryIds?.length) return [];
+
     return models.ProductCategories.find({
       _id: { $in: rule.categoryIds },
     }).lean();
@@ -17,6 +19,8 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
+    if (!rule.excludeCategoryIds?.length) return [];
+
     return models.ProductCategories.find({
       _id: { $in: rule.excludeCategoryIds },
     }).lean();
@@ -27,6 +31,8 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
+    if (!rule.productIds?.length) return [];
+
     return models.Products.find({ _id: { $in: rule.productIds } }).lean();
   },
 
@@ -35,6 +41,8 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
+    if (!rule.productIds?.length) return [];
+
     return models.Products.find({
       _id: { $in: rule.excludeProductIds },
     }).lean();
@@ -45,6 +53,8 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
+    if (!rule.tagIds?.length) return [];
+
     return models.Tags.find({ _id: { $in: rule.tagIds } }).lean();
   },
 
@@ -53,6 +63,8 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
+    if (!rule.excludeTagIds?.length) return [];
+
     return models.Tags.find({ _id: { $in: rule.excludeTagIds } }).lean();
   },
 };

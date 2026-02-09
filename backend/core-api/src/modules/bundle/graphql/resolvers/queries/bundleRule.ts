@@ -4,15 +4,27 @@ export const bundleRuleQueries = {
   async bundleRules(_root: undefined, _args: undefined, { models }: IContext) {
     const bundles = await models.BundleRule.find({}).lean();
 
-    const bundlesWithProducts = bundles.map(async (bundle) => {
-      const rules = bundle.rules.map(async (rule) => ({
-        ...rule,
-        products: await models.Products.find({
+    const bundlesWithProducts: any[] = [];
+
+    for (const bundle of bundles) {
+      const rulesWithProducts: any[] = [];
+
+      for (const rule of bundle.rules) {
+        const products = await models.Products.find({
           _id: { $in: rule.productIds || [] },
-        }),
-      }));
-      return { ...bundle, rules: rules };
-    });
+        });
+
+        rulesWithProducts.push({
+          ...rule,
+          products,
+        });
+      }
+
+      bundlesWithProducts.push({
+        ...bundle,
+        rules: rulesWithProducts,
+      });
+    }
 
     return bundlesWithProducts;
   },
@@ -24,13 +36,26 @@ export const bundleRuleQueries = {
   ) {
     const bundle = await models.BundleRule.findById(_id).lean();
 
-    const rules = bundle?.rules.map(async (rule) => ({
-      ...rule,
-      products: await models.Products.find({
-        _id: { $in: rule.productIds || [] },
-      }),
-    }));
+    if (!bundle) {
+      return null;
+    }
 
-    return { ...bundle, rules: rules };
+    const rulesWithProducts: any[] = [];
+
+    for (const rule of bundle.rules || []) {
+      const products = await models.Products.find({
+        _id: { $in: rule.productIds || [] },
+      });
+
+      rulesWithProducts.push({
+        ...rule,
+        products,
+      });
+    }
+
+    return {
+      ...bundle,
+      rules: rulesWithProducts,
+    };
   },
 };
