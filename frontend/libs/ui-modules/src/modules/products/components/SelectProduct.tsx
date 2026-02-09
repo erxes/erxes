@@ -1,25 +1,26 @@
 import {
-  SelectProductContext,
-  useSelectProductContext,
-} from '../contexts/SelectProductContext';
-import { IProduct } from '../types/Product';
-import { useProducts } from '../hooks/useProducts';
-import { useDebounce } from 'use-debounce';
-import React, { useState } from 'react';
-import {
-  cn,
   Combobox,
   Command,
   Filter,
   Form,
   Popover,
   PopoverScoped,
+  RecordTableInlineCell,
+  cn,
   useFilterContext,
   useQueryState,
-  RecordTableInlineCell,
 } from 'erxes-ui';
-import { ProductsInline } from './ProductsInline';
+import React, { useState } from 'react';
+import {
+  SelectProductContext,
+  useSelectProductContext,
+} from '../contexts/SelectProductContext';
+
+import { IProduct } from '../types/Product';
 import { IconShoppingCart } from '@tabler/icons-react';
+import { ProductsInline } from './ProductsInline';
+import { useDebounce } from 'use-debounce';
+import { useProducts } from '../hooks/useProducts';
 
 interface SelectProductProviderProps {
   children: React.ReactNode;
@@ -129,7 +130,6 @@ const SelectProductContent = () => {
 
 const SelectProductCommandItem = ({ product }: { product: IProduct }) => {
   const { onSelect, productIds } = useSelectProductContext();
-  const [productId] = useQueryState('productId');
   return (
     <Command.Item
       value={product._id}
@@ -215,8 +215,7 @@ const SelectProductRoot = React.forwardRef<
 );
 
 const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
-  const { productIds, products, setProducts, selectedProducts } =
-    useSelectProductContext();
+  const { productIds, products, setProducts } = useSelectProductContext();
 
   if (productIds.length === 0) {
     return null;
@@ -256,7 +255,9 @@ export const SelectProductFilterView = ({
   filterKey: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [product, setProduct] = useQueryState<string[] | string | undefined>(filterKey);
+  const [product, setProduct] = useQueryState<string[] | string | undefined>(
+    filterKey,
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -289,7 +290,9 @@ export const SelectProductFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
-  const [product, setProduct] = useQueryState<string[] | string | undefined>(filterKey);
+  const [product, setProduct] = useQueryState<string[] | string | undefined>(
+    filterKey,
+  );
   const [open, setOpen] = useState(false);
 
   if (!product) {

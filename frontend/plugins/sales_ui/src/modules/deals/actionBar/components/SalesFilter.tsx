@@ -106,12 +106,6 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
     productId,
   } = queries || {};
 
-  const productIds = productId
-    ? Array.isArray(productId)
-      ? productId
-      : [productId]
-    : undefined;
-
   return (
     <>
       <Filter.BarItem queryKey="createdStartDate">
