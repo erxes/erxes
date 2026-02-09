@@ -167,17 +167,17 @@ const command = async () => {
 
     // core:modules: collection
 
-    'core:customer': db.collection('customers'),
-    'core:company': db.collection('companies'),
-    'core:product': db.collection('products'),
-    'core:user': db.collection('users'),
+    // 'core:customer': db.collection('customers'),
+    // 'core:company': db.collection('companies'),
+    // 'core:product': db.collection('products'),
+    // 'core:user': db.collection('users'),
 
     // plugin:modules: collection
 
     // 'frontline:ticket': db.collection('frontline_tickets'),
     // 'frontline:conversation': db.collection('conversations'),
 
-    // "sales:deal": db.collection('deals')
+    "sales:deal": db.collection('deals')
   };
 
   try {

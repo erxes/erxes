@@ -290,16 +290,6 @@ export const generateFilter = async (
     }
   }
 
-  if (customFieldsDataFilters) {
-    for (const { value, name } of customFieldsDataFilters) {
-      if (Array.isArray(value) && value?.length) {
-        filter[`customFieldsData.${name}`] = { $in: value };
-      } else {
-        filter[`customFieldsData.${name}`] = value;
-      }
-    }
-  }
-
   const stageChangedDateFilter: any = {};
   if (stageChangedStartDate) {
     stageChangedDateFilter.$gte = new Date(stageChangedStartDate);
