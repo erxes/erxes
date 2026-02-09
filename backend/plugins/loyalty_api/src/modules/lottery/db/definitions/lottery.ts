@@ -1,16 +1,15 @@
 import { Schema } from 'mongoose';
 
+import { LOTTERY_STATUS } from '@/lottery/constants';
 import { schemaWrapper } from 'erxes-api-shared/utils';
-import { LOYALTY_STATUSES } from '~/constants';
+import { commonSchema } from '~/utils';
 
 export const lotterySchema = schemaWrapper(
   new Schema(
     {
-      ownerId: { type: String, label: 'Owner ID' },
-      ownerType: { type: String, label: 'Owner Type' },
-      campaignId: { type: String, label: 'Campaign ID' },
+      ...commonSchema,
 
-      status: { type: String, enum: LOYALTY_STATUSES.ALL, default: 'new' },
+      status: { type: String, enum: LOTTERY_STATUS.ALL, default: 'new' },
       number: { type: String, optional: true, label: 'Lottery number' },
 
       voucherCampaignId: {

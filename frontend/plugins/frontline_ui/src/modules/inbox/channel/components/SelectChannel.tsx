@@ -1,23 +1,26 @@
-import { IChannel } from '@/inbox/types/Channel';
 import {
-  SelectChannelContext,
-  useSelectChannelContext,
-} from '@/inbox/channel/context/SelectChannelContext';
-import { useState } from 'react';
-import { ChannelsInline } from './ChannelsInline';
-import {
-  cn,
   Combobox,
   Command,
   Filter,
   Form,
   Popover,
+  PopoverScoped,
+  RecordTableInlineCell,
+  cn,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import {
+  SelectChannelContext,
+  useSelectChannelContext,
+} from '@/inbox/channel/context/SelectChannelContext';
+
+import { ChannelsInline } from './ChannelsInline';
+import { IChannel } from '@/inbox/types/Channel';
 import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import React, { useState } from 'react';
 
 const SelectChannelProvider = ({
   children,
@@ -222,7 +225,6 @@ export const SelectChannelFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  console.log('called select channel filter...');
   const [channelId, setChannelId] = useQueryState<string | string[]>(
     queryKey || 'channelId',
   );
@@ -266,6 +268,35 @@ export const SelectChannelFilterBar = ({
   );
 };
 
+export const SelectChannelInlineCell = ({
+  onValueChange,
+  scope,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectChannelProvider>, 'children'> & {
+  scope?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectChannelProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+        <RecordTableInlineCell.Trigger>
+          <SelectChannelsValue />
+        </RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Content className="min-w-72">
+          <SelectChannelsContent />
+        </RecordTableInlineCell.Content>
+      </PopoverScoped>
+    </SelectChannelProvider>
+  )
+}
+
 export const SelectChannel = {
   Provider: SelectChannelProvider,
   Value: SelectChannelsValue,
@@ -274,4 +305,5 @@ export const SelectChannel = {
   FilterItem: SelectChannelFilterItem,
   FilterView: SelectChannelFilterView,
   FilterBar: SelectChannelFilterBar,
+  InlineCell: SelectChannelInlineCell,
 };

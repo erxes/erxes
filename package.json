@@ -81,6 +81,7 @@
     "express": "^4.21.2",
     "express-rate-limit": "^8.0.1",
     "file-type": "^20.5.0",
+    "firebase-admin": "^13.0.0",
     "form-data": "^4.0.2",
     "formidable": "^3.5.4",
     "framer-motion": "^12.0.6",
@@ -144,6 +145,7 @@
     "strip-ansi": "^6.0.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "telnyx": "^1.7.2",
     "ts-key-enum": "^3.0.13",
     "tslib": "^2.8.1",
     "ua-parser-js": "^2.0.3",
@@ -154,8 +156,7 @@
     "ws": "^8.18.2",
     "xss": "^1.0.15",
     "yaml": "^2.7.0",
-    "zod": "^3.23.8",
-    "telnyx": "^1.7.2"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@apollo/rover": "^0.26.3",
@@ -210,6 +211,7 @@
     "@types/react-color": "^3.0.13",
     "@types/react-dom": "18.3.0",
     "@types/sha256": "^0.2.2",
+    "@types/validator": "^13.15.10",
     "autoprefixer": "10.4.13",
     "babel-jest": "^29.7.0",
     "chokidar-cli": "^3.0.0",

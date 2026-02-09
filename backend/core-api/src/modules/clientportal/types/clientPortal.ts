@@ -99,6 +99,11 @@ export interface IOTPResendConfig {
   maxAttemptsPerHour?: number; // Default: 5
 }
 
+export interface IFirebaseConfig {
+  serviceAccountKey?: string; // JSON string of Firebase service account credentials
+  enabled?: boolean; // Enable/disable Firebase notifications
+}
+
 export interface IClientPortal {
   name?: string;
   description?: string;
@@ -137,6 +142,8 @@ export interface IClientPortal {
   enableManualVerification?: boolean;
 
   testUser?: ITestUser;
+
+  firebaseConfig?: IFirebaseConfig;
 }
 
 export interface IClientPortalDocument extends IClientPortal, Document {

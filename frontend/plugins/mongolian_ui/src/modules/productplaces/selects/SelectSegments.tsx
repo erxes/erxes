@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Select, cn } from 'erxes-ui';
+import { Select } from 'erxes-ui';
 
 const SEGMENTS_QUERY = gql`
   query segments($contentTypes: [String]!, $config: JSON) {
@@ -44,35 +44,20 @@ export default function SelectSegments({
 
   const segments: Segment[] = useMemo(() => data?.segments || [], [data]);
 
-  const selectedLabel = useMemo(() => {
-    if (!value) return '';
-    return segments.find((s) => s._id === value)?.name || value;
-  }, [value, segments]);
-
-  const placeholder = !contentTypes?.length
-    ? 'No contentTypes'
-    : loading
-      ? 'Loading...'
-      : 'Choose segment';
-
   return (
     <Select
-      value={value ? value : undefined}
-      onValueChange={(v) => {
-        if (v === CLEAR_VALUE) return onChange('');
-        onChange(v);
-      }}
+      value={value || ''}
+      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
       disabled={disabled || loading || !contentTypes?.length}
     >
       <Select.Trigger className="w-full">
-        <span
-          className={cn(
-            'text-sm line-clamp-1',
-            !selectedLabel && 'text-accent-foreground/70',
-          )}
-        >
-          {selectedLabel || placeholder}
-        </span>
+        <Select.Value
+          placeholder={
+            loading
+              ? 'Loading...'
+              : contentTypes?.length && 'Choose segment' || 'No contentTypes'
+          }
+        />
       </Select.Trigger>
 
       <Select.Content>
@@ -86,4 +71,5 @@ export default function SelectSegments({
       </Select.Content>
     </Select>
   );
+
 }

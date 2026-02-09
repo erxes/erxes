@@ -104,14 +104,6 @@ export const userMutations: Record<string, Resolver> = {
   async usersEdit(_parent: undefined, args: IUsersEdit, { models }: IContext) {
     const { _id, ...doc } = args;
 
-    // clean custom field values
-    if (doc.customFieldsData) {
-      doc.customFieldsData = doc.customFieldsData.map((cd) => ({
-        ...cd,
-        stringValue: cd.value ? cd.value.toString() : '',
-      }));
-    }
-
     let updatedDoc = doc;
 
     if (doc.details) {

@@ -24,7 +24,7 @@ export const BroadcastSelectTargetType = ({
               key={key}
               className="text-xs h-7"
               value={key}
-              disabled={key === 'segment'}
+              disabled={key === 'segment' || key === 'brand'}
             >
               {label}
             </Select.Item>

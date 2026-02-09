@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { ICustomField, ILink } from '../../common';
+import { ICustomField, ILink, IPropertyField } from '../../common';
 import { IPermissionDocument } from '../permissions/permission';
 
 export interface IEmailSignature {
@@ -50,6 +50,7 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField;
   departmentIds?: string[];
   branchIds?: string[];
   positionIds?: string[];

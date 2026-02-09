@@ -1,16 +1,14 @@
 import { Input, PopoverScoped, RecordTableInlineCell } from 'erxes-ui';
 import { SpecificFieldProps } from './Field';
 import { useState } from 'react';
-import { FieldStringMultiple } from './FieldStringMultiple';
 
 export const FieldString = (props: SpecificFieldProps) => {
-  const { inCell, field } = props;
-  if (field.multiple) {
-    return <FieldStringMultiple {...props} />;
-  }
+  const { inCell } = props;
+
   if (inCell) {
     return <FieldStringInCell {...props} />;
   }
+
   return <FieldStringDetail {...props} />;
 };
 

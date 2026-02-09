@@ -16,7 +16,7 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 import { startPayments } from '../common-modules/payment/worker';
-import type { SegmentConfigs } from '../core-modules';
+import type { IPropertyMeta, SegmentConfigs } from '../core-modules';
 import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
@@ -43,6 +43,7 @@ type IMeta = {
   payments?: any;
   notificationModules?: any[];
   tags?: any;
+  properties?: IPropertyMeta;
 };
 
 type ApiHandler = {
@@ -194,6 +195,8 @@ export async function startPlugin(
   // });
 
   const httpServer = http.createServer(app);
+  httpServer.keepAliveTimeout = 120000;
+  httpServer.headersTimeout = 121000;
 
   // GRACEFULL SHUTDOWN
   process.stdin.resume(); // so the program will not close instantly

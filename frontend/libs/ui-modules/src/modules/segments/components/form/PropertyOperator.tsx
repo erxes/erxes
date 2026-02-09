@@ -9,6 +9,7 @@ export const PropertyOperator = ({
   operators,
   parentFieldName,
   defaultValue,
+  loading,
 }: IPropertyCondtion) => {
   const { form } = useSegment();
   const { control } = form;
@@ -21,7 +22,7 @@ export const PropertyOperator = ({
         <FieldWithError error={fieldState.error}>
           <Select
             value={field.value}
-            disabled={!currentField}
+            disabled={!currentField || loading}
             onValueChange={(selectedValue) => field.onChange(selectedValue)}
           >
             <Select.Trigger>
@@ -29,7 +30,11 @@ export const PropertyOperator = ({
             </Select.Trigger>
             <Select.Content>
               {operators.map((operator, i) => (
-                <Select.Item key={i} value={operator.value}>
+                <Select.Item
+                  key={i}
+                  value={operator.value}
+                  className="[&_svg]:text-primary"
+                >
                   {operator.name}
                 </Select.Item>
               ))}

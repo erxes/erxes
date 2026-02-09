@@ -14,7 +14,7 @@ import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mu
 
 export const receiveCdr = async (models: IModels, subdomain, params) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-  console.log(params.src, params.dst, 'received cdr phone number');
+  // console.log(params.src, params.dst, 'received cdr phone number');
   const integration = await models.CallIntegrations.findOne({
     $or: [
       { srcTrunk: params.src_trunk_name },
@@ -81,7 +81,7 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     }
     await createOrUpdateErxesConversation(subdomain, payload);
   } else {
-    console.log('now date:', new Date(), params.start, typeof params.start);
+    // console.log('now date:', new Date(), params.start, typeof params.start);
 
     const [datePart, timePart] = params.start.split(' ');
     const localTimeString = `${datePart}T${timePart}+08:00`;

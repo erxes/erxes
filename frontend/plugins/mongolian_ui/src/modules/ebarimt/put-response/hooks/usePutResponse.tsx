@@ -77,13 +77,12 @@ export const usePutResponseVariables = (
 
   return {
     limit: PUT_RESPONSE_PER_PAGE,
+    cursor,
     orderBy: {
       createdAt: -1,
     },
-    cursor,
     createdStartDate: parseDateRangeFromString(dateRange)?.from,
     createdEndDate: parseDateRangeFromString(dateRange)?.to,
-    type: 'putResponse',
     search: billId || undefined,
     contentType: contentType && contentType !== 'all' ? contentType : undefined,
     boardId: boardId || undefined,
@@ -103,7 +102,7 @@ export const usePutResponseVariables = (
 
 export const usePutResponse = (options?: QueryHookOptions) => {
   const variables = usePutResponseVariables(options?.variables);
-  const { data, loading, fetchMore, error } = useQuery<{
+  const { data, loading, fetchMore } = useQuery<{
     putResponses: {
       list: IPutResponse[];
       totalCount: number;
@@ -111,14 +110,18 @@ export const usePutResponse = (options?: QueryHookOptions) => {
     };
   }>(putResponseQueries.putResponses, {
     ...options,
-    // skip: options?.skip || isUndefinedOrNull(variables.cursor),
+
     variables: {
       ...options?.variables,
       ...variables,
     },
   });
 
-  const { list: putResponses = [], totalCount = 0, pageInfo } = data?.putResponses || {};
+  const {
+    list: putResponses = [],
+    totalCount = 0,
+    pageInfo,
+  } = data?.putResponses || {};
 
   const handleFetchMore = ({
     direction,
@@ -137,9 +140,10 @@ export const usePutResponse = (options?: QueryHookOptions) => {
     fetchMore({
       variables: {
         ...variables,
-        cursor: direction === EnumCursorDirection.FORWARD
-          ? pageInfo?.endCursor
-          : pageInfo?.startCursor,
+        cursor:
+          direction === EnumCursorDirection.FORWARD
+            ? pageInfo?.endCursor
+            : pageInfo?.startCursor,
         limit: PUT_RESPONSE_PER_PAGE,
         direction,
       },

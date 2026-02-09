@@ -1,13 +1,13 @@
 import AWS from 'aws-sdk';
 
+import { getValueAsString } from '@/organization/settings/db/models/Configs';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
-import { ISESConfig } from '~/modules/organization/settings/db/definitions/configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
-  const config: ISESConfig = await models.Configs.getSESConfigs();
+  const config = await models.EngageMessages.broadcastConfigs();
 
   if (!config) {
     return;

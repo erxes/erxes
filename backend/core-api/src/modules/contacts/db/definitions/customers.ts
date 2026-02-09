@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 
 import {
   CUSTOMER_SELECT_OPTIONS,
@@ -200,9 +200,15 @@ export const customerSchema = schemaWrapper(
         label: 'Tracked Data',
       },
       customFieldsData: {
-        type: Schema.Types.Mixed,
+        type: [customFieldSchema],
         optional: true,
         label: 'Custom fields data',
+      },
+
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
       },
 
       location: {

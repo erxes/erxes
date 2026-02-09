@@ -22,7 +22,7 @@ export const useSaveStageInEbarimtConfig = () => {
         result = await createConfig({
           variables: {
             code: 'stageInEbarimt',
-            subId: config.stageId, // Use stageId as subId for uniqueness
+            subId: config.stageId,
             value: config,
           },
         });
@@ -30,13 +30,13 @@ export const useSaveStageInEbarimtConfig = () => {
         result = await updateConfig({
           variables: {
             id: configId,
-            subId: config.stageId, // Update subId to match stageId
+            subId: config.stageId,
             value: config,
           },
         });
       }
 
-      toast({
+      toast.toast({
         title: 'Success',
         description: 'Configuration saved successfully',
         variant: 'default',
@@ -48,7 +48,7 @@ export const useSaveStageInEbarimtConfig = () => {
         configId
       );
     } catch (error) {
-      toast({
+      toast.toast({
         title: 'Error',
         description: 'Failed to save configuration',
         variant: 'destructive',
