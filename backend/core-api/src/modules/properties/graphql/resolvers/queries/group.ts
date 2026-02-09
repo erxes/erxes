@@ -1,4 +1,4 @@
-import { IFieldGroup, IFieldGroupParams } from '@/properties/@types';
+import { IFieldGroup, IFieldGroupDocument, IFieldGroupParams } from '@/properties/@types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -33,7 +33,7 @@ export const groupQueries = {
       params.orderBy = { code: 1 };
     }
 
-    return await cursorPaginate({
+    return await cursorPaginate<IFieldGroupDocument>({
       model: models.FieldsGroups,
       params,
       query: filter,

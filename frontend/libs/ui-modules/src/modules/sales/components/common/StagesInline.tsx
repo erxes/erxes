@@ -1,16 +1,14 @@
 import {
-  StagesInlineContext,
-  useStagesInlineContext,
-} from '@/deals/context/StagesInlineContext';
-import { IStage } from '@/deals/types/stages';
-import {
   Skeleton,
   TextOverflowTooltip,
   Tooltip,
   isUndefinedOrNull,
 } from 'erxes-ui';
+import { StagesInlineContext, useStagesInlineContext } from '../../contexts';
 import { useEffect, useState } from 'react';
-import { useStageDetail } from '../hooks/useStages';
+
+import { IStage } from '../../types';
+import { useStageDetail } from '../../hooks';
 
 export interface StagesInlineProps {
   stageIds?: string[];
@@ -87,6 +85,7 @@ const StagesInlineEffectComponent = ({ stageId }: { stageId: string }) => {
     if (stageDetail) {
       updateStages?.([...newStages, stageDetail]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stageDetail]);
 
   return null;

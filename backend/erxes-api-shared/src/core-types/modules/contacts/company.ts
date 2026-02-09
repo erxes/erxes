@@ -36,7 +36,7 @@ export interface ICompany {
   links?: IStringMap;
   tagIds?: string[];
   customFieldsData?: ICustomField[];
-  propertiesFieldsData?: IPropertyField;
+  propertiesData?: IPropertyField;
   trackedData?: ICustomField[];
   website?: string;
   code?: string;

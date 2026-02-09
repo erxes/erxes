@@ -23,6 +23,7 @@ export interface IItem {
     attachments?: IAttachment[];
     labels: IPipelineLabel[];
     pipeline: IPipeline;
+    pipelineId?: string;
     stage?: IStage;
     stageId?: string;
     columnId?: string;
@@ -52,7 +53,7 @@ export interface IItem {
     branchIds: string[];
   }
 
-  interface IPaymentsData {
+  export interface IPaymentsData {
     [key: string]: {
       currency?: string;
       amount?: number;
