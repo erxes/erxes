@@ -9,16 +9,15 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import { IStage, useStages } from 'ui-modules/index';
+import { IconChevronDown, IconListCheck } from '@tabler/icons-react';
+import React, { useEffect, useState } from 'react';
 import {
   SelectStagesContext,
   useSelectStagesContext,
-} from '@/deals/context/DealContext';
+} from 'ui-modules/modules/sales/contexts';
 
-import { StagesInline } from './StagesInline';
-import { IStage } from '@/deals/types/stages';
-import { IconListCheck, IconChevronDown } from '@tabler/icons-react';
-import { useStages } from '../hooks/useStages';
+import { StagesInline } from '../StagesInline';
 import { useDebounce } from 'use-debounce';
 
 export const SelectStageProvider = ({
@@ -32,18 +31,43 @@ export const SelectStageProvider = ({
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   value?: string[] | string;
-  onValueChange: (value: string[] | string) => void;
+  onValueChange?: (value: string[] | string, isAutoSelection?: boolean) => void;
   stages?: IStage[];
   pipelineId?: string;
 }) => {
   const [_stages, setStages] = useState<IStage[]>(stages || []);
   const isSingleMode = mode === 'single';
 
+  const { stages: availableStages = [] } = useStages({
+    variables: {
+      pipelineId: pipelineId || undefined,
+      search: '',
+    },
+    skip: !pipelineId,
+  });
+
+  useEffect(() => {
+    if (pipelineId && availableStages.length > 0) {
+      const currentStageId = Array.isArray(value) ? value[0] : value;
+
+      const stage = availableStages.find((s) => s._id === currentStageId);
+      const selectedStage = stage || availableStages[0];
+
+      if (selectedStage) {
+        setStages([selectedStage]);
+
+        if (!stage && selectedStage) {
+          onValueChange?.(selectedStage._id, true);
+        }
+      }
+    }
+  }, [pipelineId, availableStages, value, onValueChange]);
+
   const onSelect = (stage: IStage) => {
     if (!stage) return;
     if (isSingleMode) {
       setStages([stage]);
-      return onValueChange?.(stage._id);
+      return onValueChange?.(stage._id, false);
     }
 
     const arrayValue = Array.isArray(value) ? value : [];
@@ -63,7 +87,7 @@ export const SelectStageProvider = ({
     <SelectStagesContext.Provider
       value={{
         stages: _stages,
-        stageIds: !value ? [] : Array.isArray(value) ? value : [value],
+        stageIds: _stages.map((s) => s._id),
         onSelect,
         setStages,
         loading: false,
@@ -279,9 +303,11 @@ export const SelectStageInlineCell = ({
 
   return (
     <SelectStageProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
-        setOpen(false);
+      onValueChange={(value, isAutoSelection) => {
+        onValueChange?.(value, isAutoSelection);
+        if (!isAutoSelection) {
+          setOpen(false);
+        }
       }}
       pipelineId={pipelineId}
       {...props}

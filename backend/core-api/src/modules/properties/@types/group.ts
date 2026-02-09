@@ -17,6 +17,8 @@ export interface IFieldGroup {
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
+  _id: string;
+
   createdBy: string;
   updatedBy: string;
 }

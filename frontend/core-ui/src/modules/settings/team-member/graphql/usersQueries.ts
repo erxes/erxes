@@ -29,7 +29,7 @@ const GET_USER = gql`
       branchIds
       departmentIds
       isSubscribed
-      customFieldsData
+      propertiesData
     }
   }
 `;
@@ -88,7 +88,7 @@ const GET_USERS_QUERY = gql`
         }
         links
         employeeId
-        customFieldsData
+        propertiesData
       }
       ${GQL_PAGE_INFO}
     }

@@ -1,4 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
 
 export const types = `
 
@@ -51,6 +54,25 @@ export const types = `
     ${GQL_CURSOR_PARAM_DEFS}
   }
 
+  input ICpTicketFilter {
+    _id: String
+    statusId: String
+    priority: Int
+    pipelineId: String
+    assigneeId: String
+    createdBy: String
+    labelIds: [String]
+    tagIds: [String]
+    startDate: Date
+    targetDate: Date
+    channelId: String
+    userId: String
+    name: String
+    statusType: Int
+
+    ${GQL_OFFSET_PARAM_DEFS}
+  }
+
   type TicketSubscription {
     type: String
     ticket: Ticket
@@ -90,10 +112,15 @@ const updateTicketParams = `
 export const queries = `
   getTicket(_id: String!): Ticket
   getTickets(filter: ITicketFilter): TicketListResponse
+
+  cpGetTickets(filter: ICpTicketFilter): [Ticket]
+  cpGetTicket(_id: String!): Ticket
 `;
 
 export const mutations = `
   createTicket(${createTicketParams}): Ticket
   updateTicket(${updateTicketParams}): Ticket
   removeTicket(_id: String!): Ticket
+
+  cpCreateTicket(${createTicketParams}): Ticket
 `;

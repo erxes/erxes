@@ -58,7 +58,8 @@ export const AutomationBuilderSidebar = () => {
   useScopedHotkeys(`mod+esc`, () => onClose(), AutomationsHotKeyScope.Builder);
 
   const hasSegmentFormContent =
-    activeNode?.nodeType === AutomationNodeType.Trigger && !activeNode?.isCustom;
+    activeNode?.nodeType === AutomationNodeType.Trigger &&
+    !activeNode?.isCustom;
   const sidebarWidthClasses = hasSegmentFormContent
     ? 'min-w-md max-w-4xl w-fit'
     : 'min-w-80 max-w-2xl w-fit';
@@ -83,7 +84,9 @@ export const AutomationBuilderSidebar = () => {
           <Card.Content
             className={cn(
               'w-full flex-1 overflow-auto p-0',
-              hasSegmentFormContent ? 'min-w-md max-w-4xl' : 'min-w-80 max-w-2xl',
+              hasSegmentFormContent
+                ? 'min-w-md max-w-4xl'
+                : 'min-w-80 max-w-2xl',
             )}
           >
             <AutomationBuilderSidebarContent activeNode={activeNode} />

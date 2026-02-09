@@ -51,7 +51,7 @@ export const AutomationBuilderHeaderActions = () => {
             asChild
             onClick={() => {
               if (value === activeNodeTab) {
-               handleClose()
+                handleClose();
               } else {
                 setQueryParams({ activeNodeTab: value });
                 setIsOpenSideBar(true);

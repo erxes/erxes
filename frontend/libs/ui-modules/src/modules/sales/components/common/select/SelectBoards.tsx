@@ -13,12 +13,12 @@ import React, { useState } from 'react';
 import {
   SelectBoardsContext,
   useSelectBoardsContext,
-} from '@/deals/context/DealContext';
+} from 'ui-modules/modules/sales/contexts/DealContext';
 
-import { BoardsInline } from './BoardsInline';
-import { IBoard } from '@/deals/types/boards';
+import { BoardsInline } from '../BoardsInline';
+import { IBoard } from 'ui-modules/modules/sales/types';
 import { IconLabel } from '@tabler/icons-react';
-import { useBoards } from '../../hooks/useBoards';
+import { useBoards } from 'ui-modules/modules/sales/hooks/useBoards';
 import { useDebounce } from 'use-debounce';
 
 export const SelectBoardProvider = ({
@@ -31,10 +31,11 @@ export const SelectBoardProvider = ({
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   value?: string[] | string;
-  onValueChange: (value: string[] | string) => void;
+  onValueChange?: (value: string[] | string) => void;
   boards?: IBoard[];
 }) => {
   const [_boards, setBoards] = useState<IBoard[]>(boards || []);
+  const boardIds = !value ? [] : Array.isArray(value) ? value : [value];
   const isSingleMode = mode === 'single';
 
   const onSelect = (board: IBoard) => {
@@ -61,7 +62,7 @@ export const SelectBoardProvider = ({
     <SelectBoardsContext.Provider
       value={{
         boards: _boards,
-        boardIds: !value ? [] : Array.isArray(value) ? value : [value],
+        boardIds: boardIds,
         onSelect,
         setBoards,
         loading: false,
@@ -251,7 +252,7 @@ export const SelectBoardInlineCell = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <RecordTableInlineCell.Trigger>
-          <SelectBoardsValue placeholder={''} />
+          <SelectBoardsValue placeholder={'Choose board'} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectBoardContent />

@@ -1,0 +1,299 @@
+import { ColumnDef, Cell } from "@tanstack/react-table";
+import { IForm } from "@/forms/types/formTypes";
+import { Badge, Button, Combobox, Command, Dialog, IconComponent, Popover, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
+import { useNavigate } from "react-router";
+import { IconCalendarEvent, IconCheck, IconCode, IconCopy, IconEdit, IconTag, IconTrash, IconUser } from "@tabler/icons-react";
+import { MembersInline, SelectTags } from "ui-modules";
+import { useState } from "react";
+import { REACT_APP_WIDGETS_URL } from "@/utils";
+import { useChannelInline } from "@/inbox/channel/hooks/useChannelInline";
+import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
+
+export function FormInstallScript({ formId }: { formId: string }) {
+  const [copied, setCopied] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const API = REACT_APP_WIDGETS_URL;
+  const script = `<script>
+  window.erxesSettings = {
+    form: {
+      formId: ${JSON.stringify(formId)},
+    },
+  };
+
+  (function () {
+    var script = document.createElement("script");
+    script.src = "${API}/formBundle.js";
+    script.async = true;
+    var entry = document.getElementsByTagName("script")[0];
+    entry.parentNode.insertBefore(script, entry);
+  })();
+</script>`;
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(script)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 3000);
+      })
+      .catch(() => {
+        toast({
+          title: 'Failed to copy script',
+          description: 'Please try again',
+          variant: 'destructive',
+        });
+      });
+  };
+
+  return (
+    <>
+      <Command.Item value="install" onSelect={() => setDialogOpen(true)}>
+        <IconCode /> Install Script
+      </Command.Item>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog.Content className="max-w-2xl">
+          <Dialog.Header>
+            <Dialog.Title>Installation Script</Dialog.Title>
+            <Dialog.Description>
+              Copy and paste this script into your website's HTML, just before
+              the closing {'</body>'} tag.
+            </Dialog.Description>
+          </Dialog.Header>
+
+          <div className="space-y-4">
+            <div className="relative">
+              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
+                <code>{script}</code>
+              </pre>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="absolute top-2 right-2"
+                onClick={handleCopy}
+              >
+                {copied ? (
+                  <>
+                    <IconCheck className="w-4 h-4 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <IconCopy className="w-4 h-4 mr-2" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <Badge variant="info" className="block w-full h-auto p-3">
+              <h4 className="font-medium text-sm mb-2">Installation Steps:</h4>
+              <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
+                <li>Copy the script above</li>
+                <li>Paste it into your website's HTML</li>
+                <li>Place it just before the closing {'</body>'} tag</li>
+                <li>The form widget will appear on your site</li>
+              </ol>
+            </Badge>
+          </div>
+
+          <Dialog.Footer>
+            <Button variant="secondary" onClick={() => setDialogOpen(false)}>
+              Close
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    </>
+  );
+}
+
+export const FormsMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<IForm, unknown>;
+}) => {
+  const { _id } = cell.row.original;
+  const { confirm } = useConfirm();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const { removeForm, loading } = useRemoveForm();
+
+  const handleDelete = () => {
+    if (!_id) {
+      toast({
+        title: 'Error',
+        description: 'Form ID is missing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    confirm({
+      message: 'Are you sure you want to delete this form?',
+    }).then(async () => {
+      try {
+        await removeForm([_id]);
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Form deleted successfully',
+        });
+      } catch (e: any) {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <FormInstallScript formId={_id} />
+            <Command.Item
+              value="edit"
+              onSelect={() => {
+                navigate(
+                  `/settings/frontline/forms/${cell.row.original.channelId}/${cell.row.original._id}`,
+                );
+              }}
+            >
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item disabled={loading} value="delete" onSelect={handleDelete} className="text-destructive">
+              {loading ? <Spinner /> : <IconTrash />} Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+export const MoreColumn: ColumnDef<IForm> = {
+  id: 'more',
+  size: 30,
+  cell: FormsMoreColumnCell,
+}
+
+export const formColumns: ColumnDef<IForm>[] = [
+  MoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IForm>,
+  {
+    accessorKey: 'name',
+    id: 'name',
+    cell: ({ cell }) => {
+      const navigate = useNavigate();
+
+      return (
+        <RecordTableInlineCell>
+          <RecordTableInlineCell.Anchor
+            onClick={() => {
+              navigate(
+                `/settings/frontline/forms/${cell.row.original.channelId}/${cell.row.original._id}`,
+              );
+            }}
+          >
+            {cell.getValue() as string}
+          </RecordTableInlineCell.Anchor>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 250,
+  },
+  {
+    accessorKey: 'channelId',
+    header: () => <RecordTable.InlineHead label="Channel" />,
+    id: 'channelId',
+    cell: ({ cell }) => {
+      const navigate = useNavigate();
+      const { channel } = cell.row.original;
+
+      return (
+        <RecordTableInlineCell>
+          <RecordTableInlineCell.Anchor
+            onClick={() => {
+              navigate(
+                `/settings/frontline/channels/${channel?._id}`,
+              );
+            }}
+          >
+            {
+              channel?.icon ? (
+                <IconComponent name={channel?.icon as string} className="size-4" />
+              ) : null
+            }
+            {channel?.name || '-'}
+          </RecordTableInlineCell.Anchor>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    accessorKey: 'status',
+    id: 'status',
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <Badge
+            variant={cell.getValue() === 'active' ? 'success' : 'secondary'}
+          >
+            {cell.getValue() as string}
+          </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    accessorKey: 'tagIds',
+    id: 'tagIds',
+    header: () => <RecordTable.InlineHead label="Tags" icon={IconTag} />,
+    cell: ({ cell }) => {
+      return (
+        <SelectTags.InlineCell
+          tagType="frontline:form"
+          mode="multiple"
+          value={cell.getValue() as string[]}
+          targetIds={[cell.row.original._id]}
+        />
+      );
+    },
+  },
+
+  {
+    accessorKey: 'createdUserId',
+    id: 'createdUserId',
+    header: () => <RecordTable.InlineHead label="Created By" icon={IconUser} />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <MembersInline memberIds={[cell.getValue() as string]} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    accessorKey: 'createdDate',
+    id: 'createdDate',
+    header: () => (
+      <RecordTable.InlineHead label="Created At" icon={IconCalendarEvent} />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+];

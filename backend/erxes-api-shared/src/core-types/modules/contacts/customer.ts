@@ -5,8 +5,9 @@ import {
   ICustomField,
   IListParams,
   IStringMap,
+  IPropertyField
 } from '../../common';
-import { IAddress, ILocation } from './contacts-common';
+import { IAddress, ILocation, } from './contacts-common';
 
 export interface IVisitorContact {
   email?: string;
@@ -51,6 +52,7 @@ export interface ICustomer {
   deviceTokens?: string[];
   trackedData?: ICustomField[];
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField;
   lastSeenAt?: Date;
   isOnline?: boolean;
   sessionCount?: number;

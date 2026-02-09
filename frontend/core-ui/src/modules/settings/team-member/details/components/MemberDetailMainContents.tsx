@@ -25,7 +25,7 @@ export const MemberDetailMainContents = () => {
         <Tabs.Content value="properties">
           <FieldsInDetail
             fieldContentType="core:user"
-            customFieldsData={userDetail?.customFieldsData || {}}
+            propertiesData={userDetail?.propertiesData || {}}
             mutateHook={useUserCustomFieldEdit}
             id={userDetail?._id || ''}
             className="p-6"

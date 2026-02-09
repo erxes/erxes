@@ -17,6 +17,16 @@ export interface ILink {
 export interface IRuleDocument extends IRule, Document {
   _id: string;
 }
+
+export interface IOffsetPaginateParams {
+  limit?: number;
+  page?: number;
+  perPage?: number;
+
+  sortField?: string;
+  sortDirection?: SortOrder;
+}
+
 export interface ICursorPaginateParams {
   limit?: number;
   cursor?: string;
@@ -51,6 +61,7 @@ export interface ICustomField {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
+  locationValue?: ILocationOption
   extraValue?: string;
 }
 

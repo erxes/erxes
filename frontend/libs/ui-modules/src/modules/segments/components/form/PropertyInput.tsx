@@ -44,11 +44,7 @@ export const PropertyInput = ({
   }
 
   let Component = (field: ControllerRenderProps<any, any>) => (
-    <Input
-      {...field}
-      className="w-full min-w-0"
-      disabled={!value || loading}
-    />
+    <Input {...field} className="w-full min-w-0" disabled={!value || loading} />
   );
 
   if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
