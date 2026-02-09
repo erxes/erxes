@@ -4,6 +4,7 @@ import {
   PRODUCT_FORM_SCHEMA,
 } from '../constants/addProductFormSchema';
 import { useAddProduct } from '../hooks/useProductsAdd';
+import { useUom } from '../hooks/useUom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IProductFormValues } from '../types';
 import {
@@ -28,7 +29,7 @@ import {
   useRemoveFile,
   useQueryState,
 } from 'erxes-ui';
-import { SelectUOM } from './SelectUOM';
+import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
 import { SelectCategory } from '../categories';
 import { SelectProductType } from './SelectProductType';
@@ -70,6 +71,13 @@ export function AddProductForm({
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
 }) {
   const { productsAdd, loading } = useAddProduct();
+  const { uoms } = useUom();
+
+  const uomIdToName = useMemo(() => {
+    const map = new Map<string, string>();
+    uoms.forEach((uom) => map.set(uom._id, uom.name));
+    return map;
+  }, [uoms]);
 
   const form = useForm<IProductFormValues>({
     resolver: zodResolver(PRODUCT_FORM_SCHEMA),
@@ -118,10 +126,20 @@ export function AddProductForm({
         return;
       }
 
+      if (key === 'uom') {
+        const uomName = uomIdToName.get(value as string);
+        cleanData[key] = uomName || value;
+        return;
+      }
+
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
           const { _id, ...rest } = subUom;
-          return rest;
+          const mappedUom = uomIdToName.get(rest.uom);
+          return {
+            ...rest,
+            uom: mappedUom || rest.uom,
+          };
         });
         return;
       }
@@ -244,8 +262,7 @@ export function AddProductForm({
                       size={12}
                       strokeWidth={2}
                       className={`transition-transform ${
-                        showMoreInfo ? 'rotate-180' : ''
-                      }`}
+                        showMoreInfo ? 'rotate-180' : ''}`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -300,8 +317,7 @@ export function AddProductForm({
                       size={12}
                       strokeWidth={2}
                       className={`transition-transform ${
-                        showMoreInfo ? 'rotate-180' : ''
-                      }`}
+                        showMoreInfo ? 'rotate-180' : ''}`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -713,7 +729,7 @@ function AddProductFormFieldsDetail({
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
                     <Form.Label>{t('unit-of-measure')}</Form.Label>
-                    <SelectUOM
+                    <SelectUOMWithName
                       value={field.value || ''}
                       onValueChange={field.onChange}
                       inForm

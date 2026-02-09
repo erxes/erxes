@@ -1,10 +1,13 @@
 import { productsMutations, productsQueries } from '@/products/graphql';
-import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { IProductCategory } from 'ui-modules';
+import { useToast } from 'erxes-ui';
 
 export const useRemoveCategories = () => {
-  const [_removeCategory, { loading }] = useMutation(productsMutations.categoryRemove);
+  const [_removeCategory, { loading }] = useMutation(
+    productsMutations.categoryRemove,
+  );
+  const { toast } = useToast();
 
   const removeCategory = async (
     categoryIds: string | string[],
@@ -13,31 +16,40 @@ export const useRemoveCategories = () => {
     await _removeCategory({
       ...options,
       variables: {
-        _id: categoryIds, ...options?.variables
+        _id: categoryIds,
+        ...options?.variables,
       },
       update: (cache) => {
         try {
           cache.updateQuery(
             {
               query: productsQueries.productCategories,
-              variables: { perPage: PRODUCTS_PER_PAGE, dateFilters: null },
             },
-            ({ productCategoriesMain }) => ({
-              productCategoriesMain: {
-                ...productCategoriesMain,
-                list: productCategoriesMain.list.filter(
-                  (category: IProductCategory) => category._id !== categoryIds,
-                ),
-                totalCount: productCategoriesMain.totalCount - 1,
-              },
+            ({ productCategories }) => ({
+              productCategories: productCategories.filter(
+                (category: IProductCategory) => category._id !== categoryIds,
+              ),
             }),
           );
         } catch (e) {
           console.log(e);
         }
       },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Category removed successfully',
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
   };
 
-  return { removeCategory, loading }
-}
+  return { removeCategory, loading };
+};
