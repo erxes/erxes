@@ -334,8 +334,6 @@ class Uploader extends React.Component<Props, State> {
   render() {
     const { loading } = this.state;
 
-    console.log('this.state.attachments', this.state.attachments)
-
     return (
       <>
         {loading && this.renderLoader()}
