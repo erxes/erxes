@@ -106,18 +106,17 @@ import {
   ICustomerDocument,
   ILogDocument,
   IMainContext,
-  IPermissionDocument,
   IProductCategoryDocument,
   IProductDocument,
   IProductsConfigDocument,
   IRelationDocument,
-  IRoleDocument,
   ITagDocument,
   IUomDocument,
   IUserDocument,
-  IUserGroupDocument,
   IUserMovementDocument,
+  IPermissionGroupDocument,
 } from 'erxes-api-shared/core-types';
+
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose, { Document, Model } from 'mongoose';
 import {
@@ -140,18 +139,7 @@ import {
   IConfigModel,
   loadConfigClass,
 } from '~/modules/organization/settings/db/models/Configs';
-import {
-  IPermissionModel,
-  loadPermissionClass,
-} from '~/modules/permissions/db/models/Permissions';
-import {
-  IRoleModel,
-  loadRoleClass,
-} from '~/modules/permissions/db/models/Roles';
-import {
-  IUserGroupModel,
-  loadUserGroupClass,
-} from '~/modules/permissions/db/models/UserGroups';
+
 import {
   IAutomationEmailTemplateModel,
   loadAutomationEmailTemplateClass,
@@ -202,7 +190,6 @@ import {
 } from './modules/clientportal/db/models/Comment';
 import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
 import { ICPCommentDocument } from './modules/clientportal/types/comment';
-import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 import { ICPUserDocument } from './modules/clientportal/types/cpUser';
 import { IConformityDocument } from './modules/conformities/db/definitions/conformities';
 import {
@@ -242,6 +229,12 @@ import {
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
 
+import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
+
+import {
+  loadPermissionGroupClass,
+  IPermissionGroupModel,
+} from '@/permissions/db/models/Permissions';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -249,9 +242,6 @@ export interface IModels {
   Users: IUserModel;
   UserMovements: IUserMovemmentModel;
   Configs: IConfigModel;
-  Permissions: IPermissionModel;
-  UsersGroups: IUserGroupModel;
-  Roles: IRoleModel;
   Tags: ITagModel;
   InternalNotes: IInternalNoteModel;
   Products: IProductModel;
@@ -299,6 +289,7 @@ export interface IModels {
   BundleCondition: IBundleConditionModel;
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
+  PermissionGroups: IPermissionGroupModel;
 }
 
 export interface IContext extends IMainContext {
@@ -370,33 +361,6 @@ export const loadClasses = (
       subdomain,
       models,
       eventDispatcher('core', 'organization', 'configs'),
-    ),
-  );
-
-  models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
-    'permissions',
-    loadPermissionClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'permissions', 'permissions'),
-    ),
-  );
-
-  models.Roles = db.model<IRoleDocument, IRoleModel>(
-    'roles',
-    loadRoleClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'permissions', 'roles'),
-    ),
-  );
-
-  models.UsersGroups = db.model<IUserGroupDocument, IUserGroupModel>(
-    'user_groups',
-    loadUserGroupClass(
-      models,
-      subdomain,
-      eventDispatcher('core', 'permissions', 'user_groups'),
     ),
   );
 
@@ -659,6 +623,11 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
+
+  models.PermissionGroups = db.model<
+    IPermissionGroupDocument,
+    IPermissionGroupModel
+  >('permission_groups', loadPermissionGroupClass(models));
 
   return models;
 };

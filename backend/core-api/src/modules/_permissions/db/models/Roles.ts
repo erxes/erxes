@@ -6,7 +6,7 @@ import {
 import { Model } from 'mongoose';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
+import { PERMISSION_ROLES } from '~/modules/_permissions/db/constants';
 import { roleSchema } from '../definitions/roles';
 
 export interface IRoleModel extends Model<IRoleDocument> {
