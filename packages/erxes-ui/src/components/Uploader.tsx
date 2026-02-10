@@ -174,14 +174,16 @@ class Uploader extends React.Component<Props, State> {
 
         Alert.info('Success');
 
-        const attachment: AttachmentWithProgress = {
-          url: response,
-          ...fileInfo,
-          progress: 100,
-          uploading: false,
-        };
-
-        const attachments = [attachment, ...this.state.attachments];
+        const attachments = this.state.attachments.map((a) =>
+          a.name === fileInfo.name && a.size === fileInfo.size
+            ? {
+                ...a,
+                url: response,
+                progress: 100,
+                uploading: false,
+              }
+            : a
+        );
 
         this.props.onChange(
           attachments.map(({ progress, uploading, ...a }) => a)
@@ -331,6 +333,8 @@ class Uploader extends React.Component<Props, State> {
 
   render() {
     const { loading } = this.state;
+
+    console.log('this.state.attachments', this.state.attachments)
 
     return (
       <>
