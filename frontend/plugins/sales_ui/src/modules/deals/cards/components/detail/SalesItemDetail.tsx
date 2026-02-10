@@ -69,7 +69,7 @@ export const SalesItemDetail = () => {
                   <Tabs.Content value="properties" className="p-6">
                     <FieldsInDetail
                       fieldContentType="sales:deal"
-                      propertiesData={deal?.customFieldsData || {}}
+                      propertiesData={deal?.propertiesData || {}}
                       mutateHook={useDealCustomFieldEdit}
                       id={deal?._id || ''}
                     />
