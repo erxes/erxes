@@ -4,14 +4,16 @@ import { IExchangeRate, ExchangeRateFormValues } from '../types';
 
 type Props = {
   exchangeRate?: IExchangeRate;
-  closeModal: () => void;
   currencies: string[];
+  submitting?: boolean;
+  onSubmit: (values: ExchangeRateFormValues) => void;
 };
 
 const ExchangeRateForm = ({
   exchangeRate,
-  closeModal,
   currencies,
+  submitting,
+  onSubmit,
 }: Props) => {
   const [date, setDate] = useState<Date>(
     exchangeRate?.date ?? new Date(),
@@ -30,7 +32,7 @@ const ExchangeRateForm = ({
   );
 
   const handleSubmit = () => {
-    const doc: ExchangeRateFormValues  = {
+    const values: ExchangeRateFormValues = {
       _id: exchangeRate?._id,
       date,
       mainCurrency,
@@ -38,8 +40,7 @@ const ExchangeRateForm = ({
       rate,
     };
 
-    console.log('exchangeRate doc:', doc);
-    closeModal();
+    onSubmit(values);
   };
 
   return (
@@ -101,10 +102,19 @@ const ExchangeRateForm = ({
 
       {/* Footer */}
       <div className="flex justify-end gap-2 pt-4">
-        <Button variant="ghost" onClick={closeModal}>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => window.history.back()}
+        >
           Close
         </Button>
-        <Button onClick={handleSubmit}>
+
+        <Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting}
+        >
           Save
         </Button>
       </div>

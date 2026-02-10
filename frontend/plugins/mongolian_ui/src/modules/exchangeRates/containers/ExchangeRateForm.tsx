@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 
-import ExchangeRateForm from './ExchangeRateForm';
+import ExchangeRateForm from '../components/ExchangeRateForm';
 import {
   IExchangeRate,
   ExchangeRateFormValues,
@@ -11,15 +11,12 @@ import { mutations } from '../graphql/index';
 
 type Props = {
   exchangeRate?: IExchangeRate;
-currencies: string[];
-  submitting?: boolean;
-  onSubmit: (values: ExchangeRateFormValues) => void;
 };
 
 const ExchangeRateFormContainer = ({
   exchangeRate,
 }: Props) => {
-  /* -------- configs query -------- */
+
 
   const { data, loading } = useQuery(
     queries.configs,
@@ -32,7 +29,7 @@ const ExchangeRateFormContainer = ({
   const currencies: string[] =
     data?.configsGetValue?.value || [];
 
-  /* -------- mutations -------- */
+
 
   const [addExchangeRate, { loading: adding }] =
     useMutation(mutations.exchangeRateAdd, {
@@ -44,7 +41,6 @@ const ExchangeRateFormContainer = ({
       refetchQueries: ['exchangeRatesMain'],
     });
 
-  /* -------- submit -------- */
 
   const handleSubmit = async (
     values: ExchangeRateFormValues,
