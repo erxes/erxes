@@ -36,7 +36,6 @@ export const CompaniesRecordTable = () => {
               <RecordTable.RowList />
             )}
 
-            <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

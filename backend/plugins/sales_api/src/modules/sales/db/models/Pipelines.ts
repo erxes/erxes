@@ -113,7 +113,8 @@ export const loadPipelineClass = (
         prevPipeline.toObject(),
         updatedPipeline.toObject(),
         models,
-        createActivityLog
+        createActivityLog,
+        subdomain,
       );
 
       return updatedPipeline;

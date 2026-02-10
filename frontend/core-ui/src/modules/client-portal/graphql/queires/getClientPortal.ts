@@ -104,6 +104,10 @@ export const GET_CLIENT_PORTAL = gql`
         password
         otp
       }
+      firebaseConfig {
+        enabled
+        serviceAccountKey
+      }
     }
   }
 `;

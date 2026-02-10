@@ -19,7 +19,9 @@ export const ProductCategoryAddSheet = () => {
 
   const onOpen = () => {
     setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(CategoryHotKeyScope.CategoryAddSheet);
+    setHotkeyScopeAndMemorizePreviousScope(
+      CategoryHotKeyScope.CategoryAddSheet,
+    );
   };
 
   const onClose = () => {
@@ -28,7 +30,11 @@ export const ProductCategoryAddSheet = () => {
   };
 
   useScopedHotkeys(`c`, () => onOpen(), CategoryHotKeyScope.CategoriesPage);
-  useScopedHotkeys(`esc`, () => onClose(), CategoryHotKeyScope.CategoryAddSheet);
+  useScopedHotkeys(
+    `esc`,
+    () => onClose(),
+    CategoryHotKeyScope.CategoryAddSheet,
+  );
 
   return (
     <Sheet
@@ -44,7 +50,7 @@ export const ProductCategoryAddSheet = () => {
         </Button>
       </Sheet.Trigger>
       <Sheet.View
-        className="sm:max-w-lg p-0"
+        className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
@@ -57,7 +63,7 @@ export const ProductCategoryAddSheet = () => {
 
 export const CategoryAddSheetHeader = () => {
   return (
-    <Sheet.Header className="border-b gap-3">
+    <Sheet.Header className="gap-3 border-b">
       <Sheet.Title>Create Category</Sheet.Title> <Sheet.Close />
     </Sheet.Header>
   );

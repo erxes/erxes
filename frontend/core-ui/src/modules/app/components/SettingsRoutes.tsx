@@ -10,6 +10,7 @@ import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
+import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -36,16 +37,6 @@ const SettingsMailConfig = lazy(() =>
 const GeneralSettings = lazy(() =>
   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
     default: module.GeneralSettingsPage,
-  })),
-);
-const TeamMemberSettings = lazy(() =>
-  import('~/pages/settings/workspace/TeamMemberPage').then((module) => ({
-    default: module.TeamMemberPage,
-  })),
-);
-const PermissionsSettings = lazy(() =>
-  import('~/pages/settings/workspace/PermissionPage').then((module) => ({
-    default: module.PermissionPage,
   })),
 );
 
@@ -94,6 +85,12 @@ const LogsRoutes = lazy(() =>
   })),
 );
 
+const BroadcastSettings = lazy(() =>
+  import('~/pages/settings/workspace/BroadcastSettingsPage').then((module) => ({
+    default: module.BroadcastSettingsPage,
+  })),
+);
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -130,13 +127,10 @@ export function SettingsRoutes() {
           element={<GeneralSettings />}
         />
         <Route
-          path={SettingsWorkspacePath.TeamMember}
-          element={<TeamMemberSettings />}
+          path={SettingsWorkspacePath.TeamMemberCatchAll}
+          element={<TeamMemberSettingsRoutes />}
         />
-        <Route
-          path={SettingsWorkspacePath.Permissions}
-          element={<PermissionsSettings />}
-        />
+
         <Route
           path={SettingsWorkspacePath.ClientPortals}
           element={<ClientPortalPage />}
@@ -145,10 +139,7 @@ export function SettingsRoutes() {
           path={`${SettingsWorkspacePath.ClientPortals}/:clientPortalId`}
           element={<ClientPortalDetailPage />}
         />
-          <Route
-          path={SettingsWorkspacePath.Logs}
-          element={<LogsRoutes />}
-        />
+        <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
         {/* <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
@@ -171,6 +162,11 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
           element={<PropertiesSettingsRoutes />}
+        />
+
+        <Route
+          path={SettingsWorkspacePath.Broadcast}
+          element={<BroadcastSettings />}
         />
         {getPluginsSettingsRoutes()}
       </Routes>

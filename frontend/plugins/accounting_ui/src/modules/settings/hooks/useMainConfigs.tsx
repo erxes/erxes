@@ -1,20 +1,32 @@
 import { useQuery } from '@apollo/client';
-import { MAIN_CONFIGS } from '../graphql/queries/mainConfigs';
-import { IConfig, TMainConfig } from '../types/Config';
+import { CONFIGS_BY_CODE } from '../graphql/queries/mainConfigs';
+import { TMainConfig } from '../types/Config';
 
 export const useMainConfigs = () => {
   const { data, loading, error } = useQuery<{
-    accountingsConfigs: IConfig[];
-  }>(MAIN_CONFIGS);
+    accountingsConfigsByCode: TMainConfig;
+  }>(
+    CONFIGS_BY_CODE,
+    {
+      variables: {
+        codes: [
+          'MainCurrency',
+          'HasVat',
+          'VatPayableAccount',
+          'VatReceivableAccount',
+          'VatAfterPayableAccount',
+          'VatAfterReceivableAccount',
+          'HasCtax',
+          'CtaxPayableAccount',
+        ]
+      },
+    }
+  );
 
-  const { accountingsConfigs } = data || {};
-
-  const configs = accountingsConfigs?.reduce<TMainConfig>((acc, config) => {
-    return { ...acc, [config.code]: config.value };
-  }, {} as TMainConfig);
+  const { accountingsConfigsByCode } = data || {};
 
   return {
-    configs,
+    configs: accountingsConfigsByCode,
     loading,
     error,
   };

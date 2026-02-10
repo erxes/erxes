@@ -1,21 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const conformityQueryFields = `
-  $mainType: String,
-  $mainTypeId: String,
-  $relType: String,
-  $isRelated: Boolean,
-  $isSaved: Boolean,
-`;
-
-export const conformityQueryFieldDefs = `
-  conformityMainType: $mainType,
-  conformityMainTypeId: $mainTypeId,
-  conformityRelType: $relType,
-  conformityIsRelated: $isRelated,
-  conformityIsSaved: $isSaved,
-`;
-
 const commonParams = `
   $_ids: [String]
   $companyIds: [String],
@@ -135,6 +119,7 @@ export const commonListFields = `
   number
   tagIds
   customProperties
+  propertiesData
   status
   tags {
     _id
@@ -248,10 +233,13 @@ export const GET_DEAL_DETAIL = gql`
         categoryId
       }
       productsData
+      paymentsData
       relations
       pipeline {
         _id
         name
+        paymentTypes
+        paymentIds
       }
       boardId
     }

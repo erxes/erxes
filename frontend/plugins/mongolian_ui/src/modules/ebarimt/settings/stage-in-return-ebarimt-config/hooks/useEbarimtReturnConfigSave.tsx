@@ -11,7 +11,7 @@ export const useEbarimtReturnConfigSave = () => {
   const { toast } = useToast();
 
   const saveConfigsToServer = async (
-    configs: any,
+    config: any,
     operation: 'create' | 'update',
     configId?: string,
   ) => {
@@ -22,15 +22,16 @@ export const useEbarimtReturnConfigSave = () => {
         result = await createConfig({
           variables: {
             code: 'returnStageInEbarimt',
-            subId: `config_${Date.now()}`,
-            value: configs,
+            subId: config.stageId,
+            value: config,
           },
         });
       } else {
         result = await updateConfig({
           variables: {
             id: configId,
-            value: configs,
+            subId: config.stageId,
+            value: config,
           },
         });
       }

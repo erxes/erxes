@@ -1,4 +1,4 @@
-import { IField, IFieldParams } from '@/properties/@types';
+import { IField, IFieldDocument, IFieldParams } from '@/properties/@types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
@@ -30,7 +30,7 @@ export const fieldQueries = {
       params.orderBy = { code: 1 };
     }
 
-    return await cursorPaginate({
+    return await cursorPaginate<IFieldDocument>({
       model: models.Fields,
       params,
       query: filter,

@@ -40,7 +40,7 @@ export const AddTriageSheet = ({
   return (
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
       <Sheet.Trigger asChild>
-        <Button variant="secondary">
+        <Button>
           <IconPlus />
           Add triage
         </Button>

@@ -32,9 +32,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Label>Product Category</Label>
             <SelectProductCategories
               value={condition.productCategoryIds ?? []}
-              onChange={(ids) =>
-                onChangeConfig('productCategoryIds', ids)
-              }
+              onChange={(ids) => onChangeConfig('productCategoryIds', ids)}
             />
           </div>
 
@@ -42,9 +40,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Label>Exclude categories</Label>
             <SelectProductCategories
               value={condition.excludeCategoryIds ?? []}
-              onChange={(ids) =>
-                onChangeConfig('excludeCategoryIds', ids)
-              }
+              onChange={(ids) => onChangeConfig('excludeCategoryIds', ids)}
             />
           </div>
 
@@ -52,9 +48,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Label>Product Tags</Label>
             <SelectProductTags
               value={condition.productTagIds ?? []}
-              onChange={(ids) =>
-                onChangeConfig('productTagIds', ids)
-              }
+              onChange={(ids) => onChangeConfig('productTagIds', ids)}
             />
           </div>
 
@@ -62,9 +56,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Label>Exclude tags</Label>
             <SelectProductTags
               value={condition.excludeTagIds ?? []}
-              onChange={(ids) =>
-                onChangeConfig('excludeTagIds', ids)
-              }
+              onChange={(ids) => onChangeConfig('excludeTagIds', ids)}
             />
           </div>
 
@@ -72,9 +64,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Label>Exclude products</Label>
             <SelectProducts
               value={condition.excludeProductIds ?? []}
-              onChange={(ids) =>
-                onChangeConfig('excludeProductIds', ids)
-              }
+              onChange={(ids) => onChangeConfig('excludeProductIds', ids)}
             />
           </div>
 
@@ -82,10 +72,8 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Label>Segment</Label>
             <SelectSegments
               contentTypes={['core:product']}
-              value={condition.segmentIds ?? []}
-              onChange={(ids) =>
-                onChangeConfig('segmentIds', ids)
-              }
+              value={condition.segmentIds?.[0] || undefined}
+              onChange={(id) => onChangeConfig('segmentIds', id ? [id] : [])}
             />
           </div>
         </div>
@@ -137,10 +125,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Select
               value={condition.subUomType ?? ''}
               onValueChange={(v) =>
-                onChangeConfig(
-                  'subUomType',
-                  v === CLEAR_VALUE ? undefined : v,
-                )
+                onChangeConfig('subUomType', v === CLEAR_VALUE ? undefined : v)
               }
             >
               <Select.Trigger>
@@ -164,9 +149,7 @@ const PerConditions = ({ condition, onChange, onRemove }: Props) => {
             <Label>Set branch</Label>
             <SelectBranches
               value={condition.branchId || ''}
-              onChange={(branchId) =>
-                onChangeConfig('branchId', branchId)
-              }
+              onChange={(branchId) => onChangeConfig('branchId', branchId)}
               ids={[]}
             />
           </div>

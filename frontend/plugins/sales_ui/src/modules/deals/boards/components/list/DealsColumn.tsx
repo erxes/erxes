@@ -1,3 +1,4 @@
+import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import {
   IconAlertSquareRounded,
   IconCalendarFilled,
@@ -5,24 +6,22 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import {
+  NameCell,
+  NumberCell,
+  ProductsCell,
+} from '@/deals/components/deal-selects/MoveDealSelect';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
+import { RecordTable } from 'erxes-ui';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
-
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-
-import {
-  BoardCell,
-  PipelineCell,
-  StageCell,
-  NameCell,
-  ProductsCell,
-} from '@/deals/components/deal-selects/MoveDealSelect';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
+  const { editDeals } = useDealsEdit();
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
 
   return [
@@ -37,12 +36,20 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       size: 240,
     },
     {
+      id: 'number',
+      accessorKey: 'number',
+      header: () => (
+        <RecordTable.InlineHead label="Number" icon={IconLabelFilled} />
+      ),
+      cell: ({ row }) => <NumberCell deal={row.original} />,
+    },
+    {
       id: 'boardId',
       accessorFn: (row) => row.boardId,
       header: () => (
         <RecordTable.InlineHead label="Board" icon={IconLabelFilled} />
       ),
-      cell: ({ row }) => <BoardCell deal={row.original} />,
+      cell: ({ row }) => <BoardSelect boardId={row.original.boardId} />,
     },
     {
       id: 'pipeline',
@@ -50,7 +57,9 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Pipeline" icon={IconProgressCheck} />
       ),
-      cell: ({ row }) => <PipelineCell deal={row.original} />,
+      cell: ({ row }) => {
+        return <PipelineSelect pipelineId={row.original.pipeline?._id} />;
+      },
       size: 170,
     },
     {
@@ -59,7 +68,24 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Stage" icon={IconProgressCheck} />
       ),
-      cell: ({ row }) => <StageCell deal={row.original} />,
+      cell: ({ row }) => {
+        return (
+          <StageSelect
+            stageId={row.original.stageId}
+            pipelineId={row.original.pipeline?._id || ''}
+            onChange={(stageId) => {
+              editDeals({
+                variables: {
+                  _id: row.original._id,
+                  boardId: row.original.boardId,
+                  pipelineId: row.original.pipelineId,
+                  stageId: stageId as string,
+                },
+              });
+            }}
+          />
+        );
+      },
       size: 170,
     },
     {

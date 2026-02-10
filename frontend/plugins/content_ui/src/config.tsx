@@ -21,12 +21,7 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
-  modules: [
-    {
-      name: 'knowledgebase',
-      icon: IconBooks,
-      path: 'content/knowledgebase',
-    },
+  modules: [    
     {
       name: 'cms',
       icon: IconBooks,

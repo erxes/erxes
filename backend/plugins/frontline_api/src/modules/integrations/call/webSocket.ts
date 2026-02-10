@@ -146,6 +146,10 @@ class QueueStateManager {
     }
   }
 
+  resetState(): void {
+    this.queueStates = {};
+  }
+
   handleCallAnswered(
     extension: string,
     callerid: string,
@@ -166,9 +170,9 @@ class QueueStateManager {
       bridge_time: bridgeTime || new Date().toISOString(),
     });
 
-    console.log(
-      `Call answered: ${callerid} -> ${calleeid}, moved to talking list`,
-    );
+    // console.log(
+    //   `Call answered: ${callerid} -> ${calleeid}, moved to talking list`,
+    // );
   }
 
   handleCallHangup(extension: string, event: PBXEvent): void {
@@ -201,10 +205,10 @@ class QueueStateManager {
     const afterWaiting = queue.waiting.length;
     const afterTalking = queue.talking.length;
 
-    console.log(`Call hangup: ${callerid} -> ${calleeid}`);
-    console.log(
-      `Waiting: ${beforeWaiting} -> ${afterWaiting}, Talking: ${beforeTalking} -> ${afterTalking}`,
-    );
+    // console.log(`Call hangup: ${callerid} -> ${calleeid}`);
+    // console.log(
+    //   `Waiting: ${beforeWaiting} -> ${afterWaiting}, Talking: ${beforeTalking} -> ${afterTalking}`,
+    // );
   }
 
   handleActiveCallEvent(extension: string, event: PBXEvent): void {
@@ -275,7 +279,7 @@ class QueueStateManager {
         state: event.state || undefined,
       });
 
-      console.log(`Added call ${callerId} to waiting list`);
+      // console.log(`Added call ${callerId} to waiting list`);
     }
   }
 
@@ -298,7 +302,7 @@ class QueueStateManager {
         callerid: callerId,
         callerchannel: event.callerchannel || undefined,
       });
-      console.log(`Moved call ${callerId} from waiting to talking`);
+      // console.log(`Moved call ${callerId} from waiting to talking`);
     } else {
       // Update waiting call metadata
       queue.waiting = queue.waiting.map((call) =>
@@ -324,12 +328,12 @@ class QueueStateManager {
     queue.waiting = queue.waiting.filter(channelFilter);
     queue.talking = queue.talking.filter(channelFilter);
 
-    const afterWaiting = queue.waiting.length;
-    const afterTalking = queue.talking.length;
+    // const afterWaiting = queue.waiting.length;
+    // const afterTalking = queue.talking.length;
 
-    console.log(
-      `Removed call - Waiting: ${beforeWaiting} -> ${afterWaiting}, Talking: ${beforeTalking} -> ${afterTalking}`,
-    );
+    // console.log(
+    //   `Removed call - Waiting: ${beforeWaiting} -> ${afterWaiting}, Talking: ${beforeTalking} -> ${afterTalking}`,
+    // );
   }
 
   getAllQueues(): Record<string, QueueState> {
@@ -339,7 +343,7 @@ class QueueStateManager {
 
 // Event Processing
 class EventProcessor {
-  constructor(private stateManager: QueueStateManager) {}
+  constructor(private stateManager: QueueStateManager) { }
 
   async processEvent(eventData: any): Promise<string[]> {
     const updatedQueues: Set<string> = new Set();
@@ -447,7 +451,7 @@ class PBXWebSocketClient {
   constructor(
     private stateManager: QueueStateManager,
     private eventProcessor: EventProcessor,
-  ) {}
+  ) { }
 
   async initialize(): Promise<void> {
     this.queues = await this.loadQueuesFromDB();
@@ -493,6 +497,7 @@ class PBXWebSocketClient {
   private handleOpen(): void {
     console.log('WebSocket connected to PBX');
     this.reconnectAttempts = 0;
+    this.stateManager.resetState();
     this.requestChallenge();
   }
 
@@ -550,9 +555,9 @@ class PBXWebSocketClient {
         message: payload,
       };
       await this.handleEvent(mockEvent);
-      console.log(
-        `Processed initial status for queue: ${payload.extension || 'unknown'}`,
-      );
+      // console.log(
+      //   `Processed initial status for queue: ${payload.extension || 'unknown'}`,
+      // );
     }
   }
 
@@ -639,7 +644,7 @@ class PBXWebSocketClient {
       });
     });
 
-    console.log(`Requested initial status for ${this.queues.length} queues`);
+    // console.log(`Requested initial status for ${this.queues.length} queues`);
   }
 
   private subscribeToEvents(): void {
@@ -682,9 +687,9 @@ class PBXWebSocketClient {
       CONFIG.RECONNECT_BASE_DELAY * 2 ** this.reconnectAttempts,
     );
 
-    console.log(
-      `Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`,
-    );
+    // console.log(
+    //   `Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`,
+    // );
     setTimeout(() => this.connect(), delay);
   }
 
@@ -703,7 +708,7 @@ class PBXWebSocketClient {
       graphqlPubsub.publish('queueRealtimeUpdate', {
         queueRealtimeUpdate: newSnapshot,
       });
-      console.log(`Published queue update for ${queueExtension}`);
+      // console.log(`Published queue update for ${queueExtension}`);
     }
   }
 
@@ -723,7 +728,7 @@ class PBXWebSocketClient {
 
   private setupGracefulShutdown(): void {
     const cleanup = async () => {
-      console.log('Shutting down PBX WebSocket client...');
+      // console.log('Shutting down PBX WebSocket client...');
 
       if (this.heartbeatInterval) {
         clearInterval(this.heartbeatInterval);

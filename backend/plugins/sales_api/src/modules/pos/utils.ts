@@ -271,9 +271,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
+          }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -322,9 +321,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description: `<p>${doneOrder.description || ''}</p> <p>${
-      description || ''
-    }</p>`,
+    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''
+      }</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -355,26 +353,18 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     //   },
     //   "stringValue": "106.93628311157227,47.920138551642026"
     // }
-    dealsData.customFieldsData = [
-      {
-        field: deliveryConfig.mapCustomField.replace('customFieldsData.', ''),
-        locationValue: {
-          type: 'Point',
-          coordinates: [
-            marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
-        },
-        value: {
-          lat: marker.latitude || marker.lat,
-          lng: marker.longitude || marker.lng,
-          description: 'location',
-        },
-        stringValue: `${marker.longitude || marker.lng},${
-          marker.latitude || marker.lat
-        }`,
-      },
-    ];
+
+    const field = deliveryConfig.mapCustomField.replace('customFieldsData.', '')
+
+    dealsData.propertiesData = {
+      [field]: {
+        type: 'Point',
+        coordinates: [
+          marker.longitude || marker.lng,
+          marker.latitude || marker.lat,
+        ],
+      }
+    }
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
@@ -427,16 +417,18 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     ) {
       await sendTRPCMessage({
         subdomain,
-
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformity',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: 'deal',
-          mainTypeId: deal._id,
-          relType: doneOrder.customerType || 'customer',
-          relTypeId: doneOrder.customerId,
+          entities: [{
+            contentType: 'sales:deal',
+            contentId: deal._id,
+          }, {
+            contentType: `core:${doneOrder.customerType || 'customer'}`,
+            contentId: doneOrder.customerId,
+          }]
         },
       });
     }
@@ -603,16 +595,18 @@ const createDealPerOrder = async ({
     if (newOrder.customerId && cardDeal._id) {
       await sendTRPCMessage({
         subdomain,
-
         method: 'mutation',
         pluginName: 'core',
-        module: 'conformity',
-        action: 'addConformity',
+        module: 'relation',
+        action: 'createRelation',
         input: {
-          mainType: 'deal',
-          mainTypeId: cardDeal._id,
-          relType: newOrder.customerType || 'customer',
-          relTypeId: newOrder.customerId,
+          entities: [{
+            contentType: 'sales:deal',
+            contentId: cardDeal._id,
+          }, {
+            contentType: `core:${newOrder.customerType || 'customer'}`,
+            contentId: newOrder.customerId,
+          }]
         },
       });
     }

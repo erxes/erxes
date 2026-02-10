@@ -50,8 +50,6 @@ export const EMConfig = () => {
   const loading = createLoading || editLoading;
   const isEditMode = !!idToEdit;
 
-  console.log(form.watch(), '\nwatch');
-
   return (
     <Form {...form}>
       <EMFormValueEffectComponent
@@ -241,7 +239,7 @@ export const EMConfig = () => {
                   name="ticketConfigId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label className="sr-only">Ticket config</Form.Label>
+                      <Form.Label>Select ticket config</Form.Label>
                       <Form.Control>
                         <SelectTicketConfig.FormItem
                           value={field.value}
