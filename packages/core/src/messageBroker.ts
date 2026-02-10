@@ -1530,3 +1530,10 @@ export const sendPurchasesMessage = async (
     ...args,
   });
 };
+
+export const sendLoyaltiesMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'loyalties',
+    ...args,
+  });
+};

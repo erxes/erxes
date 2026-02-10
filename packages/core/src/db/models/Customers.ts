@@ -13,6 +13,7 @@ import {
   sendClientPortalMessage,
   sendEngagesMessage,
   sendInboxMessage,
+  sendLoyaltiesMessage,
 } from "../../messageBroker";
 import {
   customerSchema,
@@ -668,6 +669,11 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         data: { customerId: customer._id, customerIds },
       });
       await sendClientPortalMessage({
+        subdomain,
+        action: "changeCustomer",
+        data: { customerId: customer._id, customerIds },
+      });
+      await sendLoyaltiesMessage({
         subdomain,
         action: "changeCustomer",
         data: { customerId: customer._id, customerIds },

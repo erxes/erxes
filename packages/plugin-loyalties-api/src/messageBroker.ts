@@ -13,6 +13,7 @@ import {
   checkVouchersSale,
   confirmVoucherSale,
   doScoreCampaign,
+  handleLoyaltyOwnerChange,
   handleLoyaltyReward,
   handleScore,
   refundLoyaltyScore,
@@ -147,6 +148,15 @@ export const setupMessageConsumers = async () => {
       status: "success",
     };
   });
+
+  consumeQueue(
+    "loyalties:changeCustomer",
+    async ({ subdomain, data: { customerId, customerIds } }) => {
+      const models = await generateModels(subdomain);
+
+      await handleLoyaltyOwnerChange(subdomain, models, customerId, customerIds);
+    }
+  );
 };
 
 export const sendCoreMessage = async (
