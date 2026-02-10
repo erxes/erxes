@@ -13,7 +13,7 @@ import { productTrpcRouter } from '~/modules/products/trpc';
 import { relationTrpcRouter } from '~/modules/relations/trpc/relation';
 import { tagTrpcRouter } from '~/modules/tags/trpc/tag';
 import { formsTrpcRouter } from './modules/forms/trpc';
-import { permissionTrpcRouter } from './modules/permissions/trpc';
+import { permissionTrpcRouter } from './modules/_permissions/trpc';
 import { segmentsTRPCRouter } from './modules/segments/trpc';
 import { automationsRouter } from './modules/automations/trpc/automations';
 import { IModels } from './connectionResolvers';
