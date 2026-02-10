@@ -17,7 +17,7 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { REACTIONS } from '../constants';
+import { REACTIONS } from '../constants/index';
 import { ADD_ARTICLE, EDIT_ARTICLE } from '../graphql/mutations';
 import { ARTICLES } from '../graphql/queries';
 import { useArticles } from '../hooks/useArticles';
@@ -370,7 +370,7 @@ export function ArticleDrawer({
                         <Form.Label>Attachments</Form.Label>
                         <Form.Control>
                           <div className="space-y-2">
-                            {field.value?.map((attachment, index) => (
+                            {/* {field.value?.map((attachment, index) => (
                               <div
                                 key={index}
                                 className="flex items-center gap-2"
@@ -417,7 +417,7 @@ export function ArticleDrawer({
                                   </div>
                                 </Upload.Root>
                               </div>
-                            ))}
+                            ))} */}
                             <Upload.Root
                               value=""
                               onChange={(value) => {

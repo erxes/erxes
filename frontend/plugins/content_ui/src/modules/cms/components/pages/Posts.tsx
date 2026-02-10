@@ -83,6 +83,9 @@ export function Posts() {
 
   const sessionKey = `posts-filter-${websiteId}`;
 
+  // Calculate skip for offset-based pagination when jumping to specific pages
+  const skip = cursor ? undefined : (currentPage - 1) * perPage;
+
   const {
     posts,
     loading,
@@ -103,6 +106,7 @@ export function Posts() {
     categoryIds: categoryFilters.length ? categoryFilters : undefined,
     tagIds: tagFilters.length ? tagFilters : undefined,
     cursor,
+    skip,
     sortField,
     sortDirection,
   });
@@ -218,7 +222,7 @@ export function Posts() {
       accessorKey: 'title',
       cell: ({ cell, row }) => (
         <div
-          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium h-6 text-xs border gap-1 bg-accent max-w-[280px]"
+          className="mx-2 my-1 p-1 flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium h-6 text-xs border gap-1 bg-accent overflow-hidden"
           onClick={() =>
             navigate(`/content/cms/${websiteId}/posts/add`, {
               state: { post: row.original },
@@ -375,9 +379,9 @@ export function Posts() {
       cell: ({ row }) => (
         <div className="flex px-2 items-center gap-1">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+            className="h-7 w-7"
             onClick={() =>
               navigate(`/content/cms/${websiteId}/posts/add`, {
                 state: { post: row.original },
@@ -389,7 +393,7 @@ export function Posts() {
           <Button
             variant="ghost"
             size="icon"
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+            className="h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
             onClick={() =>
               confirm({ message: 'Delete this post?' })
                 .then(async () => {
@@ -463,7 +467,7 @@ export function Posts() {
       </div>
 
       {!loading && (sortedPosts || []).length === 0 ? (
-        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+        <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
           <div className="p-12">
             <EmptyState
               icon={IconFile}
@@ -512,41 +516,38 @@ export function Posts() {
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex items-center justify-between px-4 py-3 border-t bg-white">
-            <div className="text-sm text-gray-600">
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-background">
+            <div className="text-sm text-muted-foreground">
               {t('Showing')} {(currentPage - 1) * perPage + 1} {t('to')}{' '}
               {Math.min(currentPage * perPage, totalCount)} {t('of')}{' '}
               {totalCount} {t('results')}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <Button
                 variant="outline"
-                size="sm"
-                onClick={() => handlePageChange('first')}
-                disabled={currentPage === 1 || loading}
-              >
-                {t('First')}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
+                size="icon"
+                className="h-8 w-8"
                 onClick={() => handlePageChange('prev')}
                 disabled={!hasPreviousPage || currentPage === 1 || loading}
               >
                 <IconChevronLeft className="h-4 w-4" />
-                {t('Previous')}
               </Button>
 
-              <div className="flex items-center gap-1 px-2">
-                <span className="text-sm text-gray-600">
-                  {t('Page')} {currentPage} {t('of')}{' '}
-                  {Math.ceil(totalCount / perPage)}
-                </span>
-              </div>
+              <PaginationPageNumbers
+                currentPage={currentPage}
+                totalPages={Math.ceil(totalCount / perPage)}
+                onPageChange={(page) => {
+                  // Use skip-based pagination for direct page jumping
+                  setCurrentPage(page);
+                  setCursor(undefined);
+                  setDirection(undefined);
+                }}
+              />
 
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
+                className="h-8 w-8"
                 onClick={() => handlePageChange('next')}
                 disabled={
                   !hasNextPage ||
@@ -554,18 +555,7 @@ export function Posts() {
                   loading
                 }
               >
-                {t('Next')}
                 <IconChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange('last')}
-                disabled={
-                  currentPage === Math.ceil(totalCount / perPage) || loading
-                }
-              >
-                {t('Last')}
               </Button>
             </div>
           </div>
@@ -923,6 +913,71 @@ const TagsFilterButton = ({
         </div>
       </Popover.Content>
     </Popover>
+  );
+};
+
+const PaginationPageNumbers = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) => {
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    pages.push(1);
+
+    if (currentPage > 3) {
+      pages.push('ellipsis');
+    }
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    if (currentPage < totalPages - 2) {
+      pages.push('ellipsis');
+    }
+
+    pages.push(totalPages);
+    return pages;
+  };
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center gap-1">
+      {getPageNumbers().map((page, idx) =>
+        page === 'ellipsis' ? (
+          <span
+            key={`ellipsis-${idx}`}
+            className="w-8 text-center text-sm text-muted-foreground select-none"
+          >
+            ...
+          </span>
+        ) : (
+          <Button
+            key={page}
+            variant={currentPage === page ? 'default' : 'outline'}
+            size="icon"
+            className="h-8 w-8 text-xs"
+            onClick={() => onPageChange(page)}
+          >
+            {page}
+          </Button>
+        ),
+      )}
+    </div>
   );
 };
 

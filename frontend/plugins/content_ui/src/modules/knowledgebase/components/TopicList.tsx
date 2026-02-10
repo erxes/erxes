@@ -10,7 +10,7 @@ import {
 
 import { IconDotsVertical, IconFolder } from '@tabler/icons-react';
 
-import { ICONS } from '@/knowledgebase/constants';
+import { ICONS } from '../constants';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { REMOVE_CATEGORY } from '../graphql/mutations';

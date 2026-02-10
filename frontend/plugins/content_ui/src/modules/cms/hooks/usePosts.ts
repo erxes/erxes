@@ -90,6 +90,7 @@ interface UsePostsProps {
   sortDirection?: string;
   cursor?: string;
   direction?: 'forward' | 'backward';
+  skip?: number;
 }
 
 interface UsePostsResult {
@@ -120,6 +121,7 @@ export function usePosts({
   sortDirection,
   cursor,
   direction,
+  skip,
 }: UsePostsProps): UsePostsResult {
   const { data, loading, error, refetch } = useQuery(POST_LIST, {
     variables: {
@@ -129,6 +131,7 @@ export function usePosts({
       searchValue,
       status,
       limit: perPage,
+      skip,
       cursor,
       direction,
       tagIds,
