@@ -129,16 +129,6 @@ export default {
     }).lean();
   },
 
-  async permissionActions(
-    user: IUserDocument,
-    _args,
-    { models: { Permissions }, subdomain }: IContext,
-  ) {
-    return getUserActionsMap(subdomain, user, (query) =>
-      Permissions.find(query),
-    );
-  },
-
   async departments(user: IUserDocument, _args, { models }: IContext) {
     return models.Departments.find({ _id: { $in: user.departmentIds } });
   },
