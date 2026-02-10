@@ -2,7 +2,7 @@ import { ColumnDef, Cell } from "@tanstack/react-table";
 import { IForm } from "@/forms/types/formTypes";
 import { Badge, Button, Dialog, DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
 import { useNavigate } from "react-router";
-import { IconCalendarEvent, IconCheck, IconCode, IconCopy, IconEdit, IconSquareToggle, IconTag, IconTrash, IconUser } from "@tabler/icons-react";
+import { IconArrowBarToRight, IconCalendarEvent, IconCheck, IconCode, IconCopy, IconEdit, IconSquareToggle, IconTag, IconTrash, IconUser } from "@tabler/icons-react";
 import { MembersInline, SelectTags } from "ui-modules";
 import { useState } from "react";
 import { REACT_APP_WIDGETS_URL } from "@/utils";
@@ -143,6 +143,47 @@ export function FormToggleStatus({ formId, status, setOpen }: { formId: string, 
   )
 }
 
+export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { formId: string, channelId: string, setOpen: (open: boolean) => void, name: string, type: string }) => {
+  const { editForm, loading } = useFormEdit();
+
+  const onSelect = (id: string) => {
+    editForm({
+      variables: {
+        id: formId,
+        name,
+        type,
+        channelId: id,
+      },
+      refetchQueries: [GET_FORMS_LIST],
+      onCompleted: () => {
+        setOpen(false);
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Form moved successfully',
+        });
+      },
+    });
+  }
+
+  return (
+
+    <DropdownMenu.Sub>
+      <DropdownMenu.SubTrigger>
+        <IconArrowBarToRight />
+        Move to Channel
+      </DropdownMenu.SubTrigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
+          <SelectChannel.DropDownContent channelId={channelId} onValueChange={(value) => {
+            onSelect(value)
+          }} />
+        </DropdownMenu.SubContent>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Sub>
+  )
+}
+
 export const FormsMoreColumnCell = ({
   cell,
 }: {
@@ -203,6 +244,7 @@ export const FormsMoreColumnCell = ({
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+        <MoveFormToChannel formId={_id} channelId={cell.row.original.channelId as string} setOpen={setOpen} name={cell.row.original.name} type={cell.row.original.type} />
         <DropdownMenu.Item disabled={loading} onSelect={handleDelete} className="text-destructive">
           {loading ? <Spinner /> : <IconTrash />} Delete
         </DropdownMenu.Item>
