@@ -78,7 +78,6 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
   const products = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    method: 'query',
     module: 'products',
     action: 'find',
     input: {
@@ -99,7 +98,6 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
     const branches = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
       module: 'branches',
       action: 'find',
       input: {

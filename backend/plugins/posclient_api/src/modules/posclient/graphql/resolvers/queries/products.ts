@@ -37,8 +37,6 @@ export interface IProductParams extends ICommonParams {
   tags?: string[];
   excludeTags?: string[];
   tagWithRelated?: boolean;
-  pipelineId?: string;
-  boardId?: string;
   segment?: string;
   segmentData?: string;
   isKiosk?: boolean;
@@ -120,17 +118,8 @@ const generateFilter = async (
     let tagIds: string[] = tags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -147,17 +136,8 @@ const generateFilter = async (
     let tagIds: string[] = excludeTags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -444,12 +424,12 @@ const productQueries = {
       const getRegex = (str) => {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
-              `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
-                .replace(/_/g, '.')}.*`,
-              'igu',
-            )
+            `^${str
+              .replace(/\./g, '\\.')
+              .replace(/\*/g, '.')
+              .replace(/_/g, '.')}.*`,
+            'igu',
+          )
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 

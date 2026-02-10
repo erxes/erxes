@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import { getConfig } from '~/init-trpc';
+import { getCoreConfig } from '~/init-trpc';
 import { JOURNALS, TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
 import { createOrUpdateTr } from './utils';
@@ -26,7 +26,7 @@ export default class CurrencyTr {
       throw new Error('has not detail');
     }
 
-    const mainCurrency = await getConfig(this.subdomain, 'mainCurrency', '');
+    const mainCurrency = await getCoreConfig(this.subdomain, 'mainCurrency', '');
 
     const account = await this.models.Accounts.getAccount({
       _id: detail.accountId,
