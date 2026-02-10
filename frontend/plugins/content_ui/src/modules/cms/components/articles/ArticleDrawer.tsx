@@ -17,7 +17,7 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { REACTIONS } from '../../constants/index';
+import { REACTIONS } from '../../../shared/constants';
 import { ADD_ARTICLE, EDIT_ARTICLE } from '../../graphql/mutations';
 import { ARTICLES } from '../../graphql/queries';
 import { useArticles } from '../../hooks/useArticles';
