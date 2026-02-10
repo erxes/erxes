@@ -1,12 +1,14 @@
 import { IconFilter } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useBundleConditions } from '@/products/settings/hooks/useBundleConditions';
+import { useBundleConditionsVariables } from '@/products/settings/hooks/useBundleConditionsVariables';
 import { bundleConditionColumns } from './bundleConditionColumns';
 import { BundleConditionCommandBar } from './BundleConditionCommandBar';
 import { BundleConditionSheet } from './BundleConditionSheet';
 
 export const BundleConditionRecordTable = () => {
-  const { bundleConditions, loading } = useBundleConditions();
+  const variables = useBundleConditionsVariables();
+  const { bundleConditions, loading } = useBundleConditions(variables);
 
   if (!loading && (bundleConditions?.length ?? 0) === 0) {
     return <EmptyStateRow />;
