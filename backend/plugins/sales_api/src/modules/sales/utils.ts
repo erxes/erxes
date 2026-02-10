@@ -531,8 +531,8 @@ export const getItemList = async (
     action: 'find',
     input: {
       query: {
-        showInCard: true,
-        contentType: `sales:sales.deal`,
+        "configs.showInCard": true,
+        contentType: `sales:deal`,
       },
     },
     defaultValue: [],
@@ -547,7 +547,7 @@ export const getItemList = async (
 
         if (item.customProperties && fieldData) {
           item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
+            name: `${field.name} - ${fieldData}`,
           });
         }
       };
@@ -620,7 +620,7 @@ export const generateProducts = async (
 
     const properties: any = {};
 
-    const fieldIds: string[] = Object.keys(propertiesData);
+    const fieldIds: string[] = Object.keys(propertiesData || {});
 
     const fields = await sendTRPCMessage({
       subdomain,

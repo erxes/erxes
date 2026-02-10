@@ -77,7 +77,6 @@ export const generateFilter = async (
     branchIds,
     departmentIds,
     dateRangeFilters,
-    customFieldsDataFilters,
     resolvedDayBetween,
     productIds,
     date,

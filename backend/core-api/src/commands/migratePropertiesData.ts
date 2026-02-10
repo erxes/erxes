@@ -186,8 +186,6 @@ const command = async () => {
     for (const contentType of contentTypes) {
       const collection = CONTENT_TYPE_COLLECTIONS[contentType];
 
-      await collection.updateMany({}, { $set: { propertiesData: {} } });
-
       const documents = collection.find({}).batchSize(BATCH_SIZE);
 
       const fields = await db
