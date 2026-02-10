@@ -9,13 +9,6 @@ import {
 } from '@/settings/permissions/types';
 import { IconPlugConnected } from '@tabler/icons-react';
 
-const SCOPES: { value: IPermissionGroupPermission['scope']; label: string }[] =
-  [
-    { value: 'own', label: 'Own' },
-    { value: 'group', label: 'Group' },
-    { value: 'all', label: 'All' },
-  ];
-
 const getPermission = (
   permissions: IPermissionGroupPermission[],
   moduleName: string,
@@ -262,24 +255,17 @@ export const PermissionModulesForm = ({
                                   className="rounded-lg min-w-32"
                                   position="item-aligned"
                                 >
-                                  {SCOPES.map((s) => (
+                                  {module.scopes.map((s) => (
                                     <Select.Item
-                                      key={s.value}
-                                      value={s.value}
+                                      key={s.name}
+                                      value={s.name}
                                       className="[&_svg]:text-primary"
                                     >
-                                      {s.label}
+                                      {s.description}
                                     </Select.Item>
                                   ))}
                                 </Select.Content>
                               </Select>
-                              <p className="text-sm text-muted-foreground max-w-[280px]">
-                                {
-                                  module.scopes.find(
-                                    (s) => s.name === permOrDefault.scope,
-                                  )?.description
-                                }
-                              </p>
                             </div>
                             <div className="space-y-3">
                               <Label className="text-sm font-medium">

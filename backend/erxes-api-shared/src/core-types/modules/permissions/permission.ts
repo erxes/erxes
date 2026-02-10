@@ -8,7 +8,7 @@ export interface IPermissionAction {
 }
 
 export interface IPermissionScope {
-  name: string;
+  name: 'own' | 'group' | 'all';
   description: string;
 }
 
