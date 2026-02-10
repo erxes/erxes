@@ -20,7 +20,6 @@ export const Login = () => {
       </div>
 
       <Tabs
-        defaultValue="credential"
         value={value}
         onValueChange={(value) => setValue(value as string)}
         className="flex flex-col h-full shadow-none"
@@ -29,7 +28,6 @@ export const Login = () => {
           <Tabs.Trigger
             className="font-normal after:content-none after:border-none after:shadow-none text-muted-foreground data-[state=active]:text-primary hover:bg-transparent rounded-md transition-colors cursor-pointer relative z-10"
             value="magic-link"
-            onClick={() => setValue('magic-link')}
           >
             {value === 'magic-link' && (
               <motion.div
@@ -47,7 +45,6 @@ export const Login = () => {
           <Tabs.Trigger
             className="font-normal after:content-none after:border-none after:shadow-none text-muted-foreground data-[state=active]:text-primary hover:bg-transparent rounded-md transition-colors cursor-pointer relative z-10"
             value="credential"
-            onClick={() => setValue('credential')}
           >
             {value === 'credential' && (
               <motion.div
