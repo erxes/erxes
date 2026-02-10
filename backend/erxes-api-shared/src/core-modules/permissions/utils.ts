@@ -145,21 +145,6 @@ export const checkRolePermission = async (
   user: IUserDocument,
   resolverKey: string,
 ) => {
-  const { role } = user || {};
-
-  if (!role) {
-    return false;
-  }
-
-  if (
-    role === 'member' &&
-    ['remove', 'delete'].some((resolver) =>
-      resolverKey.toLowerCase().includes(resolver),
-    )
-  ) {
-    return false;
-  }
-
   return true;
 };
 
