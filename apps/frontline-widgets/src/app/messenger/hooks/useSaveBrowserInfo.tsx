@@ -45,6 +45,7 @@ export const useSaveBrowserInfo = () => {
     connection.widgetsMessengerConnect.visitorId,
     connection.widgetsMessengerConnect.customerId,
     setBrowserInfo,
-    connection,
+    setConnection,
+    mutate,
   ]);
 };
