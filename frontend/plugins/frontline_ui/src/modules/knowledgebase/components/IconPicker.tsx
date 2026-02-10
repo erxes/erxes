@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Popover } from 'erxes-ui/components/popover';
 import { Popover as PopoverPrimitive } from 'radix-ui';
-import { ICONS } from '@/knowledgebase/constants'; // adjust path as needed
+import { ICONS } from '../constants';
 import { Button } from 'erxes-ui';
 import { Command } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';

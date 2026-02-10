@@ -12,6 +12,8 @@ export interface BaseQueryArgs {
   cursor?: string;
   direction?: 'forward' | 'backward';
   orderBy?: Record<string, SortOrder>;
+  sortField?: string;
+  sortDirection?: string;
   [key: string]: any;
 }
 
@@ -159,9 +161,16 @@ export class BaseQueryResolver {
     args: BaseQueryArgs,
     fieldMappings: Record<string, string>,
   ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
+    // Convert sortField/sortDirection to orderBy format
+    const params = { ...args };
+    if (args.sortField && !args.orderBy) {
+      const sortOrder: SortOrder = args.sortDirection === 'asc' ? 1 : -1;
+      params.orderBy = { [args.sortField]: sortOrder };
+    }
+
     const { list, totalCount, pageInfo } = await cursorPaginate<any>({
       model,
-      params: args,
+      params,
       query,
     });
 

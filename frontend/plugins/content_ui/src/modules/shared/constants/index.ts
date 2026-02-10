@@ -117,3 +117,12 @@ export const REACTIONS = [
     label: 'Dislike',
   },
 ];
+
+export const LANGUAGES = [
+  { value: 'en', label: 'English' },
+  { value: 'mn', label: 'Mongolian' },
+  { value: 'zh', label: 'Chinese' },
+  { value: 'ja', label: 'Japanese' },
+  { value: 'ko', label: 'Korean' },
+  { value: 'ru', label: 'Russian' },
+];
