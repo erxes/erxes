@@ -23,7 +23,9 @@ export const types = `
         teamId: String
 
         member: User
-        role: String
+
+        # ** Deprecated
+        #role: String
     }
 `;
 
@@ -40,5 +42,7 @@ export const mutations = `
     teamRemove(_id: String!): Team
     teamAddMembers(_id: String!, memberIds: [String]): [TeamMember]
     teamRemoveMember(teamId: String!, memberId: String!): TeamMember
-    teamUpdateMember(_id: String!, role: String): TeamMember
+    # ** Deprecated
+    # teamUpdateMember(_id: String!, role: String): TeamMember
+    teamUpdateMember(_id: String!): TeamMember
 `;

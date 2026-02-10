@@ -23,6 +23,7 @@ export interface IPermissionModule {
 }
 
 export interface IPermissionGroupPermission {
+  plugin: string;
   module: string;
   actions: string[];
   scope: 'own' | 'group' | 'all';

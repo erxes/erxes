@@ -48,10 +48,11 @@ export const permissions: IPermissionConfig = {
     {
       id: 'core:admin',
       name: 'Core modules admin',
-      description: 'Full access to Operation plugin',
+      description: 'Full access to Core modules',
       permissions: [
         {
-          module: 'task',
+          plugin: 'core',
+          module: 'contacts',
           actions: [
             'contactsRead',
             'contactsCreate',
