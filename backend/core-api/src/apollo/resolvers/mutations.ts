@@ -4,7 +4,6 @@ import { automationMutations } from '@/automations/graphql/resolvers/mutations';
 import conformityMutations from '@/conformities/graphql/mutations';
 import { contactMutations } from '@/contacts/graphql/resolvers/mutations';
 import { documentMutations } from '@/documents/graphql/mutations';
-import { exchangeRateMutations } from '@/exchangeRates/graphql/resolvers/mutations';
 import { internalNoteMutations } from '@/internalNote/graphql/mutations';
 import { brandMutations } from '@/organization/brand/graphql/mutations';
 import { organizationConfigMutations } from '@/organization/settings/graphql/configs/mutations';
@@ -42,7 +41,6 @@ export const mutations = {
   ...favoriteMutations,
   ...structureMutations,
   ...brandMutations,
-  ...exchangeRateMutations,
   ...permissionMutations,
   ...documentMutations,
   ...automationMutations,

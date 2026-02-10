@@ -11,11 +11,6 @@ import {
   ICustomerModel,
   loadCustomerClass,
 } from '@/contacts/db/models/Customers';
-import { IExchangeRateDocument } from '@/exchangeRates/@types/exchangeRate';
-import {
-  IExchangeRateModel,
-  loadExchangeRateClass,
-} from '@/exchangeRates/db/models/ExchangeRates';
 import {
   IInternalNoteModel,
   loadInternalNoteClass,
@@ -247,7 +242,6 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
-  ExchangeRates: IExchangeRateModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -464,11 +458,6 @@ export const loadClasses = (
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(
     'favorites',
     loadFavoritesClass(models),
-  );
-
-  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
-    'exchange_rates',
-    loadExchangeRateClass(models, subdomain),
   );
 
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
