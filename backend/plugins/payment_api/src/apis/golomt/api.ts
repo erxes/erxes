@@ -207,28 +207,6 @@ export class GolomtAPI extends BaseAPI {
       callback,
       checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
     };
-
-    try {
-      const res = await this.request({
-        path: PAYMENTS.golomt.actions.invoice,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.token}`,
-        },
-        data,
-      });
-
-      const json = await safeJson(res);
-
-      if (json.status && json.status !== 200) {
-        throw new Error(json.message || 'Golomt authorization failed');
-      }
-
-      return { success: true };
-    } catch (e: any) {
-      throw new Error(extractErrorMessage(e));
-    }
   }
 
   async createInvoice(transaction: ITransactionDocument) {

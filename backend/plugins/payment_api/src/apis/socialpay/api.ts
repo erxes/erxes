@@ -20,7 +20,7 @@ function extractErrorMessage(e: any): string {
   }
 }
 
-export const hmac256 = (key: string, message: string) => {
+export const hmac256 = (key: string, message: string): string => {
   return crypto.createHmac('sha256', key).update(message).digest('hex');
 };
 
@@ -71,15 +71,16 @@ export class SocialPayAPI extends BaseAPI {
 
   async authorize() {
     const invoiceId = random('aA0', 10);
+    const amount = '0';
 
     try {
       const data: ISocialPayInvoice = {
-        amount: '0',
+        amount,
         invoice: invoiceId,
         terminal: this.inStoreSPTerminal,
         checksum: hmac256(
           this.inStoreSPKey,
-          this.inStoreSPTerminal + invoiceId + 0
+          `${this.inStoreSPTerminal}${invoiceId}${amount}`
         ),
       };
 
@@ -90,8 +91,10 @@ export class SocialPayAPI extends BaseAPI {
         data,
       }).then((r) => r.json());
 
-      if (header.code !== 200) {
-        throw new Error(body?.error?.errorDesc || 'SocialPay authorization failed');
+      if (header?.code !== 200) {
+        throw new Error(
+          body?.error?.errorDesc || 'SocialPay authorization failed'
+        );
       }
 
       return { success: true };
@@ -114,7 +117,7 @@ export class SocialPayAPI extends BaseAPI {
       terminal: this.inStoreSPTerminal,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount
+        `${this.inStoreSPTerminal}${invoice._id}${amount}`
       ),
     };
 
@@ -122,7 +125,7 @@ export class SocialPayAPI extends BaseAPI {
       data.phone = details.phone;
       data.checksum = hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount + details.phone
+        `${this.inStoreSPTerminal}${invoice._id}${amount}${details.phone}`
       );
     }
 
@@ -134,19 +137,24 @@ export class SocialPayAPI extends BaseAPI {
         data,
       }).then((r) => r.json());
 
-      if (header.code !== 200) {
-        return { error: body?.error?.errorDesc || 'Failed to create invoice' };
+      if (header?.code !== 200) {
+        return {
+          error: body?.error?.errorDesc || 'Failed to create SocialPay invoice',
+        };
       }
 
       if (details.phone) {
         return {
           message:
-            'Invoice sent to phone. Please open SocialPay app to pay.',
+            'Invoice sent to phone. Please open the SocialPay app to pay.',
         };
       }
 
       const qrData = await QRCode.toDataURL(body.response.desc);
-      return { qrData, deeplink: body.response.desc };
+      return {
+        qrData,
+        deeplink: body.response.desc,
+      };
     } catch (e: any) {
       return { error: extractErrorMessage(e) };
     }
@@ -161,8 +169,8 @@ export class SocialPayAPI extends BaseAPI {
         data,
       }).then((r) => r.json());
 
-      if (body.response.resp_code !== '00') {
-        throw new Error(body.response.resp_desc);
+      if (body?.response?.resp_code !== '00') {
+        throw new Error(body?.response?.resp_desc || 'Payment not completed');
       }
 
       return PAYMENT_STATUS.PAID;
@@ -172,30 +180,34 @@ export class SocialPayAPI extends BaseAPI {
   }
 
   async manualCheck(invoice: ITransactionDocument) {
+    const amount = invoice.amount.toString();
+
     return this.checkInvoice({
-      amount: invoice.amount.toString(),
+      amount,
       invoice: invoice._id,
       terminal: this.inStoreSPTerminal,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + invoice.amount
+        `${this.inStoreSPTerminal}${invoice._id}${amount}`
       ),
     });
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
+    const amount = invoice.amount.toString();
+
     try {
       await this.request({
         path: PAYMENTS.socialpay.actions.invoiceCancel,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: {
-          amount: invoice.amount.toString(),
+          amount,
           invoice: invoice._id,
           terminal: this.inStoreSPTerminal,
           checksum: hmac256(
             this.inStoreSPKey,
-            this.inStoreSPTerminal + invoice._id + invoice.amount
+            `${this.inStoreSPTerminal}${invoice._id}${amount}`
           ),
         },
       });

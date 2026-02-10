@@ -138,9 +138,6 @@ class ErxesPayment {
     }
   }
 
-  /**
-   * ✅ MANUAL CHECK (FIXED)
-   */
   async manualCheck(invoice: ITransactionDocument) {
     const api = (this as any)[this.payment.kind];
 
