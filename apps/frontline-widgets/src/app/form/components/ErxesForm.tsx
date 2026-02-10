@@ -6,7 +6,6 @@ import {
   InfoCard,
   Input,
   Select,
-  Spinner,
   Switch,
   Textarea,
 } from 'erxes-ui';
@@ -15,10 +14,13 @@ import { useForm } from 'react-hook-form';
 import { useErxesForm } from '../ context/erxesFormContext';
 import { ErxesSteps } from './steps';
 import { useAtom, useSetAtom } from 'jotai';
-import { activeStepAtom, formValuesAtom } from '../states/erxesFormStates';
+import {
+  activeStepAtom,
+  formValuesAtom,
+  showConfirmationAtom,
+} from '../states/erxesFormStates';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
 
 export const ErxesForm = ({
   step,
@@ -26,18 +28,17 @@ export const ErxesForm = ({
   defaultValue,
   schema,
   isLastStep,
-  browserInfo,
 }: {
   step: IFormStep;
   stepsLength: number;
   defaultValue: any;
   schema: z.ZodSchema;
   isLastStep: boolean;
-  browserInfo: any;
 }) => {
   const formData = useErxesForm();
   const [activeStep, setActiveStep] = useAtom(activeStepAtom);
-  const setFormValues = useSetAtom(formValuesAtom);
+  const [showConfirmation, setShowConfirmation] = useAtom(showConfirmationAtom);
+  const [formValues, setFormValues] = useAtom(formValuesAtom);
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
@@ -45,28 +46,15 @@ export const ErxesForm = ({
     defaultValues: defaultValue,
     resolver: zodResolver(schema),
   });
-  const { saveLead, loading: saveLeadLoading } = useFormWidgetLead();
+
+  console.log(formValues, 'formValues');
 
   const handleSubmit = (values: any) => {
-    if (isLastStep) {
-      saveLead({
-        variables: {
-          formId: formData._id,
-          submissions: Object.entries(values).map(([key, value]) => {
-            const field = fields.find((field) => field._id === key);
-            return {
-              _id: key,
-              type: field?.type || 'input',
-              text: field?.text || key,
-              value,
-            };
-          }),
-          browserInfo,
-        },
-      });
-    } else {
-      setFormValues((prev) => ({ ...prev, [step.order]: values }));
-    }
+    setFormValues((prev) => ({ ...(prev || {}), [step.order]: values }));
+
+    isLastStep
+      ? setShowConfirmation(true)
+      : setActiveStep((prevStep) => prevStep + 1);
   };
 
   return (
@@ -231,17 +219,9 @@ export const ErxesForm = ({
               </Button>
             )}
             {stepsLength > activeStep ? (
-              <Button
-                onClick={() => setActiveStep((prevStep) => prevStep + 1)}
-                type="submit"
-              >
-                Next
-              </Button>
+              <Button type="submit">Next</Button>
             ) : (
-              <Button type="submit" disabled={saveLeadLoading}>
-                {saveLeadLoading && <Spinner size="sm" />}
-                Submit
-              </Button>
+              <Button type="submit">Submit</Button>
             )}
           </div>
         </InfoCard>

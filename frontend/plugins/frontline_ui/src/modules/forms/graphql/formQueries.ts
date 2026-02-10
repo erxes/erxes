@@ -31,6 +31,7 @@ export const GET_FORMS_LIST = gql`
         code
         createdDate
         createdUserId
+        channelId
         name
         status
         tagIds

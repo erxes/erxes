@@ -33,6 +33,7 @@ export interface IRule {
 
 export interface LeadData {
   adminEmails: string[];
+  thankImage?: string;
   thankTitle: string;
   thankContent: string;
   viewCount: number;

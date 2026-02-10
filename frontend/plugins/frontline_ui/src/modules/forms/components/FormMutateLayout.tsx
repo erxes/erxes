@@ -22,7 +22,7 @@ export const FormMutateLayout = ({
   isLoading?: boolean;
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
-  const { formId } = useParams();
+  const { id } = useParams<{ id: string }>();
 
   return (
     <Form {...form}>
@@ -60,11 +60,11 @@ export const FormMutateLayout = ({
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
-              ? formId
+              ? id
                 ? 'Updating form...'
                 : 'Creating form...'
               : step === 3
-              ? formId
+              ? id
                 ? 'Update form'
                 : 'Create form'
               : 'Next step'}

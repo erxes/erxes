@@ -3,17 +3,23 @@ import { useWidgetConnect } from './hooks/useWidgetConnect';
 import { hexToOklch, Skeleton } from 'erxes-ui';
 import { Container } from './components/container';
 import { ErxesFormProvider } from './ context/erxesFormContext';
-import { useAtomValue } from 'jotai';
-import { activeStepAtom } from './states/erxesFormStates';
+import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  activeStepAtom,
+  browserInfoAtom,
+  showConfirmationAtom,
+} from './states/erxesFormStates';
 import { ErxesFormValues } from './components/ErxesFormValues';
 import { postMessage } from '@libs/utils';
+import { ErxesFormFinal } from './components/ErxesFormFinal';
 
 export const Form = () => {
   const [settings, setSettings] = useState<any>({});
   const { connectMutation, form, loading } = useWidgetConnect();
   const [settingAppearance, setSettingAppearance] = useState<any>(true);
   const activeStep = useAtomValue(activeStepAtom);
-  const [browserInfo, setBrowserInfo] = useState<any>({});
+  const setBrowserInfo = useSetAtom(browserInfoAtom);
+  const showConfirmation = useAtomValue(showConfirmationAtom);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -66,7 +72,10 @@ export const Form = () => {
       {(loading || settingAppearance) && <Skeleton className="h-full" />}
       {!loading && !settingAppearance && form && (
         <ErxesFormProvider form={form}>
-          {!loading &&
+          {showConfirmation ? (
+            <ErxesFormFinal />
+          ) : (
+            !loading &&
             form &&
             stepsArray.length > 0 &&
             stepsArray.map(
@@ -83,10 +92,10 @@ export const Form = () => {
                         0,
                       )
                     }
-                    browserInfo={browserInfo}
                   />
                 ),
-            )}
+            )
+          )}
         </ErxesFormProvider>
       )}
     </Container>
