@@ -24,14 +24,25 @@ export const BrandsMoreColumnCell = ({
       message: `Are you sure you want to delete "${name}"?`,
     }).then(async () => {
       try {
-        await brandsRemove({ variables: { ids: [_id] } });
+        await brandsRemove({ 
+          variables: { _ids: [_id] },
+          onError: (error) => {
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to delete brand',
+              variant: 'destructive',
+            });
+          },
+        });
       } catch (e: any) {
         toast({
           title: 'Error',
-          description: e.message,
+          description: e?.message || 'Failed to delete brand. It may be in use.',
           variant: 'destructive',
         });
       }
+    }).catch(() => {
+      // User cancelled confirmation - do nothing
     });
   };
 

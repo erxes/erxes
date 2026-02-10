@@ -27,12 +27,24 @@ export const sendPosclientHealthCheck = async ({
   });
 };
 
-export const sendPosclientMessage = async (args: any) => {
+interface SendPosclientMessageArgs {
+  action: string;
+  pos: IPosDocument;
+  data: Record<string, any>;
+  subdomain: string;
+  isRPC?: boolean;
+  isMQ?: boolean;
+}
+
+export const sendPosclientMessage = async (args: SendPosclientMessageArgs) => {
   const { action, pos, data, subdomain } = args;
   let lastAction = action;
   let serviceName = 'posclient';
 
   const { ALL_AUTO_INIT } = process.env;
+
+  // Create a mutable copy of data to avoid modifying the original
+  const messageData = { ...data };
 
   if (
     ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
@@ -40,17 +52,17 @@ export const sendPosclientMessage = async (args: any) => {
   ) {
     lastAction = `posclient:${action}_${pos.token}`;
     serviceName = '';
-    args.data.thirdService = true;
+    messageData.thirdService = true;
     args.isMQ = true;
 
     if (args.isRPC) {
-      const response = await sendPosclientHealthCheck(args);
+      const response = await sendPosclientHealthCheck({ subdomain, pos });
       if (!response || response.healthy !== 'ok') {
         throw new Error('syncing error not connected posclient');
       }
     }
   }
-  args.data.token = pos.token;
+  messageData.token = pos.token;
 
   const ret = await sendTRPCMessage({
     subdomain,
@@ -58,7 +70,7 @@ export const sendPosclientMessage = async (args: any) => {
     method: lastAction === 'crudData' ? 'mutation' : 'query',
     module: 'posclient',
     action: lastAction,
-    input: { ...data, token: pos.token },
+    input: messageData,
     defaultValue: {},
   });
 

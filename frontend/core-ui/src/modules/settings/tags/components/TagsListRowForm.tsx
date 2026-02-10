@@ -22,10 +22,14 @@ export const TagsListRowForm = () => {
   const [type] = useQueryState<string>('tagType');
 
   const handleSave = (value: string) => {
+    // Validate that name is not empty before saving
+    if (!value || value.trim().length === 0) {
+      return; // Don't save empty tags
+    }
     setAddingTag(null);
     addTag({
       variables: {
-        name: value,
+        name: value.trim(),
         colorCode: DEFAULT_COLOR,
         ...addingTag,
         type: type,
