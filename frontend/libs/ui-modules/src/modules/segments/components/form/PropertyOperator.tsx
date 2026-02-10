@@ -10,6 +10,7 @@ export const PropertyOperator = ({
   parentFieldName,
   defaultValue,
   loading,
+  onBeforeFieldChange,
 }: IPropertyCondtion) => {
   const { form } = useSegment();
   const { control } = form;
@@ -23,9 +24,12 @@ export const PropertyOperator = ({
           <Select
             value={field.value}
             disabled={!currentField || loading}
-            onValueChange={(selectedValue) => field.onChange(selectedValue)}
+            onValueChange={(selectedValue) => {
+              onBeforeFieldChange?.('propertyOperator');
+              field.onChange(selectedValue);
+            }}
           >
-            <Select.Trigger>
+            <Select.Trigger className="w-full min-w-0">
               <Select.Value placeholder="Select an operator" />
             </Select.Trigger>
             <Select.Content>
