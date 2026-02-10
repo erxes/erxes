@@ -60,11 +60,11 @@ export const updateLiveRemainders = async ({
         return item;
     });
 
-    const transactionSelector: any = {
-      departmentId,
-      branchId,
-      productId
-    };
+    // const transactionSelector: any = {
+    //   departmentId,
+    //   branchId,
+    //   productId
+    // };
 
     // const transactionItems =
     //   await models.TransactionItems.find(transactionSelector).lean();
