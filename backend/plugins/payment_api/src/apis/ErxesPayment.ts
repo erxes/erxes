@@ -1,4 +1,3 @@
-
 import { getEnv } from 'erxes-api-shared/utils';
 
 import { GolomtAPI } from '~/apis/golomt/api';
@@ -17,6 +16,22 @@ import { WechatPayAPI } from '~/apis/wechatpay/api';
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 
+function extractErrorMessage(e: any): string {
+  if (!e) return 'Unknown error';
+
+  if (typeof e === 'string') return e;
+
+  if (e.message) return e.message;
+
+  if (e.response?.data?.message) return e.response.data.message;
+
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
+
 class ErxesPayment {
   public socialpay!: SocialPayAPI;
   public storepay!: StorePayAPI;
@@ -32,15 +47,15 @@ class ErxesPayment {
   public khanbank!: KhanbankAPI;
   public domain: string;
 
-  private payment: any;
+  private payment: IPaymentDocument;
 
   constructor(payment: IPaymentDocument, subdomain?: string) {
     this.payment = payment;
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
-    const apiDomain = DOMAIN.replace('<subdomain>', subdomain || '');
-    this.domain = apiDomain;
+
+    this.domain = DOMAIN.replace('<subdomain>', subdomain || '');
 
     switch (payment.kind) {
       case 'socialpay':
@@ -88,13 +103,14 @@ class ErxesPayment {
   }
 
   async authorize(payment: IPaymentDocument) {
-    const api = this[payment.kind];
+    const api = (this as any)[payment.kind];
 
-    if (api.authorize) {
+    if (api?.authorize) {
       try {
         return await api.authorize(payment);
-      } catch (e) {
-        throw new Error(e.message);
+      } catch (e: any) {
+        console.error('Authorize error:', e);
+        throw new Error(extractErrorMessage(e));
       }
     }
 
@@ -102,59 +118,46 @@ class ErxesPayment {
   }
 
   async createInvoice(transaction: ITransactionDocument) {
-    const { payment } = this;
-    const details = transaction.details || {};
-
-    // return { qrData: await QRCode.toDataURL('test') };
-
-    const api = this[payment.kind];
-
-    if (details.monpayCoupon) {
-      const amount = transaction.amount - details.monpayCoupon;
-
-      transaction.amount = amount > 0 ? amount : 0;
-    }
+    const api = (this as any)[this.payment.kind];
 
     try {
-      return await api.createInvoice(transaction, payment);
-    } catch (e) {
-      return { error: e.message };
+      return await api.createInvoice(transaction, this.payment);
+    } catch (e: any) {
+      console.error('Create invoice error:', e);
+      return { error: extractErrorMessage(e) };
     }
   }
 
   async checkInvoice(invoice: ITransactionDocument) {
-    const { payment } = this;
-
-    const api = this[payment.kind];
+    const api = (this as any)[this.payment.kind];
 
     try {
       return await api.checkInvoice(invoice);
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
+  /**
+   * ✅ MANUAL CHECK (FIXED)
+   */
   async manualCheck(invoice: ITransactionDocument) {
-    const { payment } = this;
-
-    const api = this[payment.kind];
+    const api = (this as any)[this.payment.kind];
 
     try {
       return await api.manualCheck(invoice);
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
-    const { payment } = this;
-
-    const api = this[payment.kind];
+    const api = (this as any)[this.payment.kind];
 
     try {
       return api.cancelInvoice && (await api.cancelInvoice(invoice));
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 }

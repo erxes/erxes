@@ -146,14 +146,6 @@ const PaymentModule = () => {
         <PageHeader.Start>
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/payment">
-                    <IconCurrencyDollar />
-                    Invoices
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>

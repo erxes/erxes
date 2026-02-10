@@ -3,15 +3,24 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import Stripe from 'stripe';
 
+function extractErrorMessage(e: any): string {
+  if (!e) return 'Unknown error';
+  if (typeof e === 'string') return e;
+  if (e.message) return e.message;
+  if (e.raw?.message) return e.raw.message; // Stripe-specific
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
+
+
 export const stripeCallbackHandler = async (models: IModels, data: any) => {
   const { type } = data;
 
-  if (!data.data.object) {
+  if (!data?.data?.object) {
     throw new Error('Data object is required');
-  }
-
-  if (!type) {
-    throw new Error('Type is required');
   }
 
   if (
@@ -19,10 +28,11 @@ export const stripeCallbackHandler = async (models: IModels, data: any) => {
       type
     )
   ) {
-    throw new Error('Invalid type');
+    return null;
   }
 
   const intentId = data.data.object.id;
+
   const transaction = await models.Transactions.getTransaction({
     'response.paymentIntent': intentId,
   });
@@ -31,20 +41,19 @@ export const stripeCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     const api = new StripeAPI(payment.config);
-    const res = await api.checkInvoice(transaction);
+    const status = await api.checkInvoice(transaction);
 
-    if (![PAYMENT_STATUS.PAID, PAYMENT_STATUS.CANCELLED].includes(res)) {
+    if (![PAYMENT_STATUS.PAID, PAYMENT_STATUS.CANCELLED].includes(status)) {
       return transaction;
     }
 
-    transaction.status = res;
+    transaction.status = status;
     transaction.updatedAt = new Date();
-
     await transaction.save();
 
     return transaction;
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (e: any) {
+    throw new Error(extractErrorMessage(e));
   }
 };
 
@@ -57,7 +66,6 @@ export class StripeAPI {
   private secretKey: string;
   private publishableKey: string;
   private domain?: string;
-
   private client: Stripe;
 
   constructor(config: IStripeConfig, domain?: string) {
@@ -65,27 +73,27 @@ export class StripeAPI {
     this.publishableKey = config.publishableKey;
     this.domain = domain;
 
-    this.client = new Stripe(this.secretKey);
+    this.client = new Stripe(this.secretKey, {
+      apiVersion: '2025-02-24.acacia',
+    });
+
   }
 
   async authorize() {
     try {
       await this.client.accounts.retrieve();
-
-      return { success: true, message: 'Authorized' };
-    } catch (e) {
-      throw new Error(e.message);
+      return { success: true };
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async createInvoice(transaction: ITransactionDocument) {
     try {
       const intent = await this.client.paymentIntents.create({
-        amount: 100 * transaction.amount,
+        amount: Math.round(transaction.amount * 100),
         currency: 'usd',
-        automatic_payment_methods: {
-          enabled: true,
-        },
+        automatic_payment_methods: { enabled: true },
         metadata: {
           invoiceId: transaction.invoiceId,
           transactionId: transaction._id,
@@ -96,16 +104,17 @@ export class StripeAPI {
         paymentIntent: intent.id,
         clientSecret: intent.client_secret,
       };
-    } catch (e) {
-      return { error: e.message };
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 
-  private async check(transaction) {
+  private async check(transaction: ITransactionDocument) {
     try {
       const res = await this.client.paymentIntents.retrieve(
         transaction.response.paymentIntent
       );
+
       if (res.status === 'succeeded') {
         return PAYMENT_STATUS.PAID;
       }
@@ -115,13 +124,12 @@ export class StripeAPI {
       }
 
       return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async checkInvoice(transaction: ITransactionDocument) {
-    // return PAYMENT_STATUS.PAID;
     return this.check(transaction);
   }
 
@@ -131,24 +139,27 @@ export class StripeAPI {
 
   async cancelInvoice(invoice: ITransactionDocument) {
     try {
-      await this.client.paymentIntents.cancel(invoice.response.paymentIntent);
+      await this.client.paymentIntents.cancel(
+        invoice.response.paymentIntent
+      );
       return { status: 'success' };
-    } catch (e) {
-      return { error: e.message };
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 
   async getWebhooks() {
     const response = await this.client.webhookEndpoints.list();
-
     return response.data;
   }
 
   async registerWebhook(paymentId: string) {
     const webhookUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.stripe.kind}?paymentId=${paymentId}`;
+
     try {
-      const list = (await this.getWebhooks()) || [];
-      if (list.findIndex((e) => e.url === webhookUrl) > -1) {
+      const list = await this.getWebhooks();
+
+      if (list.find((e) => e.url === webhookUrl)) {
         return { status: 'success' };
       }
 
@@ -161,9 +172,8 @@ export class StripeAPI {
       });
 
       return { status: 'success' };
-    } catch (e) {
-      console.error(e);
-      return { error: e.message };
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 }

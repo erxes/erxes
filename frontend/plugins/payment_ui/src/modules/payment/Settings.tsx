@@ -7,10 +7,17 @@ export const PaymentSettingsPage = lazy(() =>
   })),
 );
 
+export const InvoicesPage = lazy(() =>
+  import('~/pages/payment/InvoicesPage').then((module) => ({
+    default: module.InvoicesPage,
+  })),
+);
+
 const paymentSettings = () => {
   return (
     <Routes>
-      <Route path="/" element={<PaymentSettingsPage />} />
+    <Route path="/" element={<PaymentSettingsPage />} />
+    <Route path="invoices" element={<InvoicesPage />} />
     </Routes>
   );
 };

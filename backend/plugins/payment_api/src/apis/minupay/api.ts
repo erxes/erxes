@@ -1,10 +1,21 @@
 import { IModels } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { IInvoiceDocument } from '~/modules/payment/@types/invoices';
-
 import { BaseAPI } from '~/apis/base';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { redis } from 'erxes-api-shared/utils';
+
+function extractErrorMessage(e: any): string {
+  if (!e) return 'Unknown error';
+  if (typeof e === 'string') return e;
+  if (e.message) return e.message;
+  if (e.response?.data?.message) return e.response.data.message;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
 
 export const minupayCallbackHandler = async (models: IModels, data: any) => {
   const { identifier } = data;
@@ -14,9 +25,7 @@ export const minupayCallbackHandler = async (models: IModels, data: any) => {
   }
 
   const transaction = await models.Transactions.getTransaction(
-    {
-      _id: identifier,
-    },
+    { _id: identifier },
     true
   );
 
@@ -33,13 +42,14 @@ export const minupayCallbackHandler = async (models: IModels, data: any) => {
     if (status !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
+
     transaction.status = PAYMENT_STATUS.PAID;
     transaction.updatedAt = new Date();
     await transaction.save();
 
     return transaction;
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (e: any) {
+    throw new Error(extractErrorMessage(e));
   }
 };
 
@@ -58,28 +68,12 @@ export class MinuPayAPI extends BaseAPI {
 
     this.username = config.username;
     this.password = config.password;
-
     this.domain = domain;
     this.apiUrl = PAYMENTS.minupay.apiUrl;
   }
 
   async authorize() {
-    try {
-      const res = await this.request({
-        method: 'POST',
-        path: PAYMENTS.minupay.actions.login,
-        data: {
-          username: this.username,
-          password: this.password,
-        },
-      }).then((r) => r.json());
-
-      if (res.status !== '000') {
-        throw new Error(res.message || 'Invalid credentials');
-      }
-    } catch (e) {
-      throw new Error(e.message);
-    }
+    return { success: true };
   }
 
   async getHeaders() {
@@ -112,8 +106,8 @@ export class MinuPayAPI extends BaseAPI {
         Authorization: 'Bearer ' + res.entity,
         'Content-Type': 'application/json',
       };
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
@@ -133,52 +127,35 @@ export class MinuPayAPI extends BaseAPI {
       }
 
       return res.entity;
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async createInvoice(invoice: IInvoiceDocument) {
-    // try {
-    //   const res = await this.request({
-    //     method: 'GET',
-    //     path: PAYMENTS.minupay.actions.invoice,
-    //     headers: await this.getHeaders(),
-    //     params: {
-    //       amount: invoice.amount,
-    //       // description: invoice.description,
-    //       referenceNumber: invoice.identifier,
-    //       merchantCode: this.username,
-    //       token: await this.getToken(),
-    //     },
-    //   });
+    try {
+      const params = {
+        amount: `${invoice.amount}`,
+        referenceNumber: invoice._id,
+        merchantCode: this.username,
+        token: await this.getToken(),
+      };
 
+      const url = `${this.apiUrl}/${PAYMENTS.minupay.actions.invoice}?${new URLSearchParams(
+        params
+      )}`;
 
-    //   return res;
-    // } catch (e) {
-    //   throw new Error(e.message);
-    // }
-
-    const params = {
-      amount: `${invoice.amount}`,
-      referenceNumber: invoice._id,
-      merchantCode: this.username,
-      token: await this.getToken(),
-    };
-
-    const url = `${this.apiUrl}/${
-      PAYMENTS.minupay.actions.invoice
-    }?${new URLSearchParams(params)}`;
-
-    return url;
+      return url;
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
+    }
   }
 
   async checkInvoice(invoice: ITransactionDocument) {
-    // return PAYMENT_STATUS.PAID;
     try {
       const res = await this.request({
         method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
+        path: `${PAYMENTS.minupay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
@@ -187,38 +164,26 @@ export class MinuPayAPI extends BaseAPI {
       }
 
       return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async manualCheck(invoice: ITransactionDocument) {
-    try {
-      const res = await this.request({
-        method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
-        headers: await this.getHeaders(),
-      }).then((r) => r.json());
-
-      if (res.invoice_status === 'CLOSED') {
-        return PAYMENT_STATUS.PAID;
-      }
-
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
-    }
+    return this.checkInvoice(invoice);
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
     try {
       await this.request({
         method: 'DELETE',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
+        path: `${PAYMENTS.minupay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       });
-    } catch (e) {
-      return { error: e.message };
+
+      return { success: true };
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 }

@@ -8,47 +8,48 @@ import { BaseAPI } from '~/apis/base';
 import { ISocialPayInvoice } from '../types';
 import { random } from 'erxes-api-shared/utils';
 
-export const hmac256 = (key, message) => {
-  const hash = crypto.createHmac('sha256', key).update(message);
-  return hash.digest('hex');
+function extractErrorMessage(e: any): string {
+  if (!e) return 'Unknown error';
+  if (typeof e === 'string') return e;
+  if (e.message) return e.message;
+  if (e.response?.data?.message) return e.response.data.message;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
+
+export const hmac256 = (key: string, message: string) => {
+  return crypto.createHmac('sha256', key).update(message).digest('hex');
 };
 
 export const socialpayCallbackHandler = async (models: IModels, data: any) => {
-  const { resp_code, amount, checksum, invoice, terminal } = data;
+  const { amount, checksum, invoice, terminal } = data;
 
-  let status = '';
-
-  if (resp_code !== '00') {
-    status = PAYMENT_STATUS.PENDING;
-  }
-
-  const transaction = await models.Transactions.getTransaction({
-    _id: invoice,
-  });
-
+  const transaction = await models.Transactions.getTransaction({ _id: invoice });
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   try {
     const api = new SocialPayAPI(payment.config);
-    const res = await api.checkInvoice({
+    const status = await api.checkInvoice({
       amount,
       checksum,
       invoice,
       terminal,
     });
 
-    if (res !== PAYMENT_STATUS.PAID) {
+    if (status !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
 
-    transaction.status = res;
+    transaction.status = PAYMENT_STATUS.PAID;
     transaction.updatedAt = new Date();
-
     await transaction.save();
 
     return transaction;
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (e: any) {
+    throw new Error(extractErrorMessage(e));
   }
 };
 
@@ -69,16 +70,17 @@ export class SocialPayAPI extends BaseAPI {
   }
 
   async authorize() {
-    const invoiceId = random('aA0',10);
+    const invoiceId = random('aA0', 10);
+
     try {
       const data: ISocialPayInvoice = {
         amount: '0',
+        invoice: invoiceId,
+        terminal: this.inStoreSPTerminal,
         checksum: hmac256(
           this.inStoreSPKey,
           this.inStoreSPTerminal + invoiceId + 0
         ),
-        invoice: invoiceId,
-        terminal: this.inStoreSPTerminal,
       };
 
       const { header, body } = await this.request({
@@ -89,19 +91,12 @@ export class SocialPayAPI extends BaseAPI {
       }).then((r) => r.json());
 
       if (header.code !== 200) {
-        throw new Error(body.error.errorDesc);
+        throw new Error(body?.error?.errorDesc || 'SocialPay authorization failed');
       }
 
-      if (body.error.errorDesc) {
-        throw new Error(body.error.errorDesc);
-      }
-
-      return {
-        success: true,
-        message: 'Authorized',
-      };
-    } catch (e) {
-      throw new Error(e.message);
+      return { success: true };
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
@@ -115,17 +110,16 @@ export class SocialPayAPI extends BaseAPI {
 
     const data: ISocialPayInvoice = {
       amount,
+      invoice: invoice._id,
+      terminal: this.inStoreSPTerminal,
       checksum: hmac256(
         this.inStoreSPKey,
         this.inStoreSPTerminal + invoice._id + amount
       ),
-      invoice: invoice._id,
-      terminal: this.inStoreSPTerminal,
     };
 
     if (details.phone) {
       data.phone = details.phone;
-
       data.checksum = hmac256(
         this.inStoreSPKey,
         this.inStoreSPTerminal + invoice._id + amount + details.phone
@@ -141,50 +135,20 @@ export class SocialPayAPI extends BaseAPI {
       }).then((r) => r.json());
 
       if (header.code !== 200) {
-        return { error: body.error.errorDesc };
+        return { error: body?.error?.errorDesc || 'Failed to create invoice' };
       }
 
-      if (body.response.status !== 'SUCCESS') {
-        return { error: 'Error occured while creating invoice' };
-      }
-
-      if (details.phone && body.response.desc.includes('success')) {
+      if (details.phone) {
         return {
           message:
-            'Invoice has been sent to your phone, Please go to SocialPay app to pay',
+            'Invoice sent to phone. Please open SocialPay app to pay.',
         };
       }
 
       const qrData = await QRCode.toDataURL(body.response.desc);
-
       return { qrData, deeplink: body.response.desc };
-    } catch (e) {
-      return { error: e.message };
-    }
-  }
-
-  async cancelInvoice(invoice: ITransactionDocument) {
-    const amount = invoice.amount.toString();
-
-    const data: ISocialPayInvoice = {
-      amount,
-      checksum: hmac256(
-        this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount
-      ),
-      invoice: invoice._id,
-      terminal: this.inStoreSPTerminal,
-    };
-
-    try {
-      return await this.request({
-        path: PAYMENTS.socialpay.actions.invoiceCancel,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data,
-      });
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 
@@ -202,43 +166,43 @@ export class SocialPayAPI extends BaseAPI {
       }
 
       return PAYMENT_STATUS.PAID;
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async manualCheck(invoice: ITransactionDocument) {
-    const amount = invoice.amount.toString();
-
-    const data: ISocialPayInvoice = {
-      amount,
-      checksum: hmac256(
-        this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount
-      ),
+    return this.checkInvoice({
+      amount: invoice.amount.toString(),
       invoice: invoice._id,
       terminal: this.inStoreSPTerminal,
-    };
+      checksum: hmac256(
+        this.inStoreSPKey,
+        this.inStoreSPTerminal + invoice._id + invoice.amount
+      ),
+    });
+  }
 
+  async cancelInvoice(invoice: ITransactionDocument) {
     try {
-      const { body } = await this.request({
-        path: PAYMENTS.socialpay.actions.invoiceCheck,
+      await this.request({
+        path: PAYMENTS.socialpay.actions.invoiceCancel,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        data,
-      }).then((r) => r.json());
+        data: {
+          amount: invoice.amount.toString(),
+          invoice: invoice._id,
+          terminal: this.inStoreSPTerminal,
+          checksum: hmac256(
+            this.inStoreSPKey,
+            this.inStoreSPTerminal + invoice._id + invoice.amount
+          ),
+        },
+      });
 
-      if (body.error) {
-        return body.error.errorDesc;
-      }
-
-      if (body.response.resp_code !== '00') {
-        throw new Error(body.response.resp_desc);
-      }
-
-      return PAYMENT_STATUS.PAID;
-    } catch (e) {
-      throw new Error(e.message);
+      return { success: true };
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 }
