@@ -25,6 +25,23 @@ import {
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
 } from '@/accounting/graphql/resolvers/queries';
+import Remainder from '@/inventories/graphql/resolvers/customResolvers/remainder';
+import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
+import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
+import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
+import {
+  Remainders as QueriesRemainder,
+  ReserveRems as QueriesReserveRem,
+  SafeRemainderItems as QueriesSafeRemainderItem,
+  SafeRemainders as QueriesSafeRemainder
+} from '@/inventories/graphql/resolvers/queries'
+import {
+  Remainders as MutationsRemainder,
+  ReserveRems as MutationsReserveRem,
+  SafeRemainderItems as MutationsSafeRemainderItem,
+  SafeRemainders as MutationsSafeRemainder
+
+} from '@/inventories/graphql/resolvers/mutations'
 
 const resolvers: any = {
   ...apolloCustomScalars,
@@ -34,6 +51,12 @@ const resolvers: any = {
   AccCommonTrRecord: AccTrRecord,
   AccTrDetail,
   AdjustInvDetail,
+
+  Remainder,
+  ReserveRem,
+  SafeRemainderItem,
+  SafeRemainder,
+
   Mutation: {
     ...MutationsAccountCategory,
     ...MutationsAccount,
@@ -42,6 +65,11 @@ const resolvers: any = {
     ...MutationsCtaxRow,
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
+
+    ...MutationsRemainder,
+    ...MutationsReserveRem,
+    ...MutationsSafeRemainderItem,
+    ...MutationsSafeRemainder,
   },
   Query: {
     ...QueriesAccount,
@@ -53,6 +81,11 @@ const resolvers: any = {
     ...QueriesInventories,
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
+
+    ...QueriesRemainder,
+    ...QueriesReserveRem,
+    ...QueriesSafeRemainderItem,
+    ...QueriesSafeRemainder,
   },
 };
 

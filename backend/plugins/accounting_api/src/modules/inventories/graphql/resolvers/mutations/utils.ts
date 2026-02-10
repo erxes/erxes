@@ -1,9 +1,9 @@
-import * as _ from "lodash";
-import { generateModels } from "../../../connectionResolver";
-import { sendCoreMessage } from "../../../messageBroker";
-import { IRemainderDocument } from "../../../models/definitions/remainders";
-import { ISafeRemainderItemDocument } from "../../../models/definitions/safeRemainderItems";
+import * as lodash from "lodash";
+import { generateModels } from "~/connectionResolvers";
+import { IRemainderDocument } from "~/modules/inventories/@types/remainders";
+import { ISafeRemainderItemDocument } from "~/modules/inventories/@types/safeRemainderItems";
 import { IUpdateRemaindersParams } from "./remainders";
+import { sendTRPCMessage } from "erxes-api-shared/utils";
 
 export const updateLiveRemainders = async ({
   subdomain,
@@ -22,25 +22,26 @@ export const updateLiveRemainders = async ({
 
   if (productCategoryId) {
     // Find all products in category by categoryId
-    const products = await sendCoreMessage({
+    const products = await sendTRPCMessage({
       subdomain,
-      action: "products.find",
-      data: {
+      pluginName: 'core',
+      module: 'products',
+      action: "find",
+      input: {
         query: {},
         categoryId: productCategoryId
       },
-      isRPC: true
     });
 
     // Get product ids
     const productIds = products.map((item: any) => item._id);
     selector.productId = { $in: productIds };
-    allProductIds = _.union(allProductIds, productIds);
+    allProductIds = lodash.union(allProductIds, productIds);
   }
 
   if (productIds) {
     selector.productId = { $in: productIds };
-    allProductIds = _.union(allProductIds, productIds);
+    allProductIds = lodash.union(allProductIds, productIds);
   }
 
   const safeRemainders: any =
@@ -65,13 +66,13 @@ export const updateLiveRemainders = async ({
       productId
     };
 
-    const transactionItems =
-      await models.TransactionItems.find(transactionSelector).lean();
+    // const transactionItems =
+    //   await models.TransactionItems.find(transactionSelector).lean();
     let remainderCount = safe ? safe.count : 0;
 
-    for (const item of transactionItems) {
-      remainderCount += item.isDebit ? item.count : -1 * item.count;
-    }
+    // for (const item of transactionItems) {
+    //   remainderCount += item.isDebit ? item.count : -1 * item.count;
+    // }
 
     const realRemainder = remainders.find((item: any) => {
       if (
@@ -110,25 +111,27 @@ export const updateLiveRemainders = async ({
 export const getProducts = async (subdomain, productId, productCategoryId) => {
   let products: any[] = [];
   if (productId) {
-    const product = await sendCoreMessage({
+    const product = await sendTRPCMessage({
       subdomain,
-      action: "products.find",
-      data: { _id: productId },
-      isRPC: true
+      pluginName: 'core',
+      module: 'products',
+      action: "find",
+      input: { _id: productId },
     });
     products = [product];
   }
 
   if (productCategoryId) {
-    products = await sendCoreMessage({
+    products = await sendTRPCMessage({
       subdomain,
+      pluginName: 'core',
+      module: 'products',
       action: "products.find",
-      data: {
+      input: {
         query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
         sort: { code: 1 }
       },
-      isRPC: true,
       defaultValue: []
     });
   }
