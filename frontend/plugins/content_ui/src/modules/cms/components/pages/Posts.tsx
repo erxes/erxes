@@ -1,11 +1,4 @@
-import {
-  Button,
-  RecordTable,
-  CommandBar,
-  Separator,
-  toast,
-  Filter,
-} from 'erxes-ui';
+import { Button, RecordTable, CommandBar, Separator, toast } from 'erxes-ui';
 import { Popover, Combobox, Command } from 'erxes-ui';
 import { MultipleSelector, Spinner } from 'erxes-ui';
 import { PopoverScoped } from 'erxes-ui';
