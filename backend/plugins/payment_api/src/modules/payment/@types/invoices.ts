@@ -24,4 +24,3 @@ export interface IInvoice {
 export interface IInvoiceDocument extends IInvoice, Document {
   _id: string;
 }
-

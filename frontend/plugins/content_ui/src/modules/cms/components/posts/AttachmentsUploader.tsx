@@ -1,23 +1,22 @@
 import { Button, useErxesUpload } from 'erxes-ui';
-import { IconX } from '@tabler/icons-react';
-import { readImage } from 'erxes-ui/utils/core';
+import { IconX, IconPaperclip } from '@tabler/icons-react';
 import { useEffect } from 'react';
 
-interface GalleryUploaderProps {
+interface AttachmentsUploaderProps {
   value?: string[];
   onChange: (urls: string[]) => void;
 }
 
-export const GalleryUploader = ({
+export const AttachmentsUploader = ({
   value = [],
   onChange,
-}: GalleryUploaderProps) => {
+}: AttachmentsUploaderProps) => {
   const urls = value || [];
 
   const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
+    allowedMimeTypes: [], // Allow all file types
     maxFiles: 10,
-    maxFileSize: 20 * 1024 * 1024,
+    maxFileSize: 20 * 1024 * 1024, // 20MB
     onFilesAdded: (addedFiles) => {
       const existing = urls || [];
       const addedUrls = (addedFiles || [])
@@ -42,30 +41,24 @@ export const GalleryUploader = ({
   return (
     <div className="space-y-2">
       {urls.length > 0 && (
-        <div className="relative">
-          <div className="flex flex-wrap gap-4">
-            {urls.map((url) => (
-              <div
-                key={url}
-                className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
+        <div className="relative space-y-1">
+          {urls.map((url) => (
+            <div
+              key={url}
+              className="flex items-center gap-2 border rounded p-2 bg-muted"
+            >
+              <IconPaperclip size={16} className="text-muted-foreground" />
+              <span className="text-sm flex-1 truncate">{url}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                type="button"
+                onClick={() => handleRemove(url)}
               >
-                <img
-                  src={readImage(url)}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-0 right-0"
-                  type="button"
-                  onClick={() => handleRemove(url)}
-                >
-                  <IconX size={12} />
-                </Button>
-              </div>
-            ))}
-          </div>
+                <IconX size={16} />
+              </Button>
+            </div>
+          ))}
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
               <div className="text-sm text-gray-500">Uploading...</div>
@@ -82,7 +75,7 @@ export const GalleryUploader = ({
           disabled={uploadProps.loading}
           type="button"
         >
-          {uploadProps.loading ? 'Uploading...' : 'Add Images'}
+          {uploadProps.loading ? 'Uploading...' : 'Upload Attachments'}
         </Button>
       </div>
     </div>

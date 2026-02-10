@@ -137,7 +137,6 @@ export const POST_LIST = gql`
     $clientPortalId: String!
     $type: String
     $featured: Boolean
-    $categoryIds: [String]
     $searchValue: String
     $status: PostStatus
     $limit: Int
@@ -151,7 +150,6 @@ export const POST_LIST = gql`
       clientPortalId: $clientPortalId
       featured: $featured
       type: $type
-      categoryIds: $categoryIds
       searchValue: $searchValue
       status: $status
       limit: $limit
@@ -194,12 +192,6 @@ export const POST_LIST = gql`
             __typename
           }
           # Remove or replace the ClientPortalUser fragment if not needed
-          __typename
-        }
-        categoryIds
-        categories {
-          _id
-          name
           __typename
         }
         featured

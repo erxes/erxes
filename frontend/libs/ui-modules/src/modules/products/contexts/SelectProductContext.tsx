@@ -8,7 +8,11 @@ export type ISelectProductContext = {
   setProducts: (products: IProduct[]) => void;
   loading: boolean;
   error: string | null;
+<<<<<<< HEAD
   defaultSearchValue?: string;
+=======
+  selectedProducts?: IProduct[];
+>>>>>>> ec74e41336c8c90d023d7b76ecedd60a6dfef5f5
 };
 
 export const SelectProductContext =

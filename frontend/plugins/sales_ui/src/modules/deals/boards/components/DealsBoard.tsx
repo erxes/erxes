@@ -52,6 +52,13 @@ export const DealsBoard = () => {
       }
     }
 
+    if (vars.productId) {
+      vars.productIds = Array.isArray(vars.productId)
+        ? vars.productId
+        : [vars.productId];
+      delete vars.productId;
+    }
+
     if (searchParams.get('archivedOnly') === 'true') {
       vars.noSkipArchive = true;
     }
