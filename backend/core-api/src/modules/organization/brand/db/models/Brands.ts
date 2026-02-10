@@ -10,7 +10,7 @@ export interface IBrandModel extends Model<IBrandDocument> {
   generateCode(code: string): Promise<string>;
   createBrand(doc: IBrand): Promise<IBrandDocument>;
   updateBrand(_id: string, fields: IBrand): Promise<IBrandDocument>;
-  removeBrands(_ids: string[]): Promise<{ n: number; ok: number }>;
+  removeBrands(_ids: string[]): Promise<{ deletedCount: number; acknowledged?: boolean }>;
 }
 
 export const loadBrandClass = (

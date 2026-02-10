@@ -16,7 +16,7 @@ export const sendPosclientHealthCheck = async ({
   ) {
     return { healthy: 'ok' };
   }
-  sendTRPCMessage({
+  return await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
     method: 'query',
@@ -37,25 +37,25 @@ interface SendPosclientMessageArgs {
 }
 
 export const sendPosclientMessage = async (args: SendPosclientMessageArgs) => {
-  const { action, pos, data, subdomain } = args;
+  const { action, pos, data, subdomain, isRPC } = args;
   let lastAction = action;
-  let serviceName = 'posclient';
 
   const { ALL_AUTO_INIT } = process.env;
 
   // Create a mutable copy of data to avoid modifying the original
   const messageData = { ...data };
+  // Use local variable for isMQ to avoid mutating args
+  // let isMQ = args.isMQ;
 
   if (
     ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
     !pos.onServer
   ) {
     lastAction = `posclient:${action}_${pos.token}`;
-    serviceName = '';
     messageData.thirdService = true;
-    args.isMQ = true;
+    // isMQ = true;
 
-    if (args.isRPC) {
+    if (isRPC) {
       const response = await sendPosclientHealthCheck({ subdomain, pos });
       if (!response || response.healthy !== 'ok') {
         throw new Error('syncing error not connected posclient');

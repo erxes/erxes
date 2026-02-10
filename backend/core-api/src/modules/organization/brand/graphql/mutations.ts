@@ -22,35 +22,31 @@ export const brandMutations = {
 
   /**
    * Delete brand
-   * @throws {Error} If brand is in use or deletion fails
+   * @throws {Error} If brands are not found or deletion fails
    */
   async brandsRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    try {
-      // Check if brands are in use before deletion
-      // This prevents crashes from foreign key constraints
-      const brands = await models.Brands.find({ _id: { $in: _ids } });
-      if (brands.length === 0) {
-        throw new Error('Brands not found');
-      }
+    // Validate that brands exist before attempting deletion
+    const brands = await models.Brands.find({ _id: { $in: _ids } });
+    if (brands.length === 0) {
+      throw new Error('No brands found to delete.');
+    }
 
-      // Attempt to remove brands
+    // Attempt to remove brands
+    try {
       const result = await models.Brands.removeBrands(_ids);
       
       if (result.deletedCount === 0) {
-        throw new Error('Failed to delete brands. They may be in use.');
+        throw new Error('No brands found to delete.');
       }
 
       return result;
     } catch (error: any) {
-      // Provide user-friendly error messages
-      if (error.code === 11000 || error.message?.includes('foreign key')) {
-        throw new Error('Cannot delete brand: it is currently in use');
-      }
-      if (error.message) {
+      // Re-throw with original message if it's already an Error
+      if (error instanceof Error) {
         throw error;
       }
       throw new Error('Failed to delete brands');
