@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useFormsList } from '../hooks/useFormsList';
 import {
   Badge,
@@ -167,23 +167,13 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'action',
     header: () => <RecordTable.InlineHead label="Action" icon={IconDots} />,
     cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { channelId } = useParams();
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const navigate = useNavigate();
       return (
         <RecordTableInlineCell>
           <FormInstallScript formId={cell.row.original._id} />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              navigate(
-                `/settings/frontline/forms/${channelId}/${cell.row.original._id}`,
-              );
-            }}
-          >
-            <IconEdit />
+          <Button variant="outline" size="icon" asChild>
+            <Link to={`/frontline/forms/${cell.row.original._id}`}>
+              <IconEdit />
+            </Link>
           </Button>
           <RemoveForm
             formId={cell.row.original._id}
