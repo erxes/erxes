@@ -135,9 +135,9 @@ class PostQueryResolver extends BaseQueryResolver {
       FIELD_MAPPINGS.POST,
     );
 
-    const totalCount = await models.Posts.countDocuments(query)
+    const totalCount = await models.Posts.countDocuments(query);
 
-    return { posts : list, totalCount };
+    return { posts: list, totalCount };
   }
 
   async cpPost(_parent: any, args: any, context: IContext): Promise<any> {

@@ -63,6 +63,11 @@ export const types = `
         pageInfo: PageInfo
     }
 
+    type PostListPagination {
+        posts: [Post]
+        totalCount: Int
+    }
+
 
     type Translation {
         _id: String!
@@ -136,8 +141,6 @@ const commonPostQuerySelectorPagination = `
     searchValue: String
     status: PostStatus
     tagIds: [String]
-    sortField: String
-    sortDirection: String
     language: String
 `;
 
@@ -150,7 +153,7 @@ export const queries = `
     cpPosts(language: String, ${commonPostQuerySelector}): [Post]
     cpPostList(language: String, ${commonPostQuerySelector}): PostList
     cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
-    cpPostListWithPagination(language:String, ${commonPostQuerySelectorPagination}):PostList
+    cpPostListWithPagination(language:String, ${commonPostQuerySelectorPagination}): PostListPagination
 `;
 
 export const mutations = `

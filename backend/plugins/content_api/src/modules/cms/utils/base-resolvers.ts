@@ -209,12 +209,12 @@ export class BaseQueryResolver {
     fieldMappings: Record<string, string>,
   ): Promise<T[]> {
 
-    const { sortField = 'scheduledDate', sortDirection= -1, page = 1, perPage = 20 } = args || {}
-
+    const { sortField = 'scheduledDate', sortDirection, page = 1, perPage = 20 } = args;
+    const sortOrder: SortOrder = sortDirection === 'asc' ? 1 : -1;
 
 
     const list = (await defaultPaginate(
-      model.find(query).sort({ [sortField]: sortDirection }).lean(),
+      model.find(query).sort({ [sortField]: sortOrder }).lean(),
       { page, perPage },
     )) as T[];
 
