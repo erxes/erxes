@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
@@ -33,21 +34,33 @@ const sortByCreatedAtDesc = (a: TExportProgress, b: TExportProgress) => {
   return db - da;
 };
 
-export function useExportHistories({ entityTypes }: { entityTypes: string[] }) {
-  // run one query per entityType (stable order)
-  const results = entityTypes.map((entityType) => {
-    const q = useQuery<ExportHistoriesQueryResponse>(GET_EXPORT_HISTORIES, {
-      variables: {
-        entityType,
-        limit: EXPORT_HISTORIES_PER_PAGE,
-      },
-      // prevent cache collisions when using same query with different variables
-      // (apollo usually handles this, but this keeps it safe)
-      fetchPolicy: 'cache-and-network',
-    });
+function uniqStable(arr: string[]) {
+  const seen = new Set<string>();
+  return (arr || []).filter((x) => {
+    if (!x) return false;
+    if (seen.has(x)) return false;
+    seen.add(x);
+    return true;
+  });
+}
 
-    const { list = [], totalCount = 0, pageInfo } = q.data?.exportHistories || {};
-    return {
+function ExportHistoriesByType({
+  entityType,
+  onState,
+}: {
+  entityType: string;
+  onState: (state: PerTypeState) => void;
+}) {
+  const q = useQuery<ExportHistoriesQueryResponse>(GET_EXPORT_HISTORIES, {
+    variables: { entityType, limit: EXPORT_HISTORIES_PER_PAGE },
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const { list = [], totalCount = 0, pageInfo } = q.data?.exportHistories || {};
+
+  React.useEffect(() => {
+    onState({
       entityType,
       list,
       totalCount,
@@ -55,65 +68,119 @@ export function useExportHistories({ entityTypes }: { entityTypes: string[] }) {
       loading: q.loading,
       error: q.error,
       fetchMore: q.fetchMore,
-    } satisfies PerTypeState;
-  });
+    });
+  }, [entityType, list, totalCount, pageInfo, q.loading, q.error, q.fetchMore, onState]);
 
-  const loading = results.some((r) => r.loading);
-  const error = results.find((r) => r.error)?.error;
+  return null;
+}
 
-  // merged list
-  const list = results
-    .flatMap((r) => r.list)
-    .sort(sortByCreatedAtDesc);
+export function useExportHistories({ entityTypes }: { entityTypes: string[] }) {
 
-  const totalCount = results.reduce((sum, r) => sum + (r.totalCount || 0), 0);
+  const typesKey = (entityTypes || []).join('|');
 
-  const hasNextPage = results.some((r) => r.pageInfo?.hasNextPage);
-  const hasPreviousPage = results.some((r) => r.pageInfo?.hasPreviousPage);
+  const types = React.useMemo(() => {
+    return uniqStable(entityTypes);
+  }, [typesKey]); 
 
-  const handleFetchMore = async ({ direction }: { direction: EnumCursorDirection }) => {
-    // fetch more for each entityType that can paginate in that direction
-    await Promise.all(
-      results.map((r) => {
-        const pageInfo = r.pageInfo;
+  const [perType, setPerType] = React.useState<Record<string, PerTypeState>>({});
 
-        if (!pageInfo) {
-          return Promise.resolve();
-        }
+  const perTypeRef = React.useRef(perType);
+  React.useEffect(() => {
+    perTypeRef.current = perType;
+  }, [perType]);
 
-        if (!validateFetchMore({ direction, pageInfo })) {
-          return Promise.resolve();
-        }
+  const onState = React.useCallback((state: PerTypeState) => {
+    setPerType((prev) => ({ ...prev, [state.entityType]: state }));
+  }, []);
 
-        const cursor =
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo.endCursor
-            : pageInfo.startCursor;
+  React.useEffect(() => {
+    setPerType((prev) => {
+      const next: Record<string, PerTypeState> = {};
+      for (const t of types) if (prev[t]) next[t] = prev[t];
+      return next;
+    });
+  }, [typesKey]); 
 
-        return r.fetchMore({
-          variables: {
-            entityType: r.entityType,
-            limit: EXPORT_HISTORIES_PER_PAGE,
-            direction,
-            cursor,
-          },
-          updateQuery: (prev: ExportHistoriesQueryResponse, { fetchMoreResult }: any) => {
-            if (!fetchMoreResult) {
-              return prev;
-            }
+  const results = React.useMemo(() => {
+    return types.map((t) => perType[t]).filter(Boolean) as PerTypeState[];
+  }, [types, perType]);
 
-            return Object.assign({}, prev, {
-              exportHistories: mergeCursorData({
-                direction,
-                fetchMoreResult: fetchMoreResult.exportHistories,
-                prevResult: prev.exportHistories,
-              }),
-            });
-          },
-        });
-      }),
+  const loading = React.useMemo(() => {
+    return types.some((t) => perType[t]?.loading ?? true);
+  }, [types, perType]);
+
+  const error = React.useMemo(() => {
+    return results.find((r) => r.error)?.error;
+  }, [results]);
+
+  const list = React.useMemo(() => {
+    return results.flatMap((r) => r.list || []).sort(sortByCreatedAtDesc);
+  }, [results]);
+
+  const totalCount = React.useMemo(() => {
+    return results.reduce((sum, r) => sum + (r.totalCount || 0), 0);
+  }, [results]);
+
+  const hasNextPage = React.useMemo(() => {
+    return results.some((r) => r.pageInfo?.hasNextPage);
+  }, [results]);
+
+  const hasPreviousPage = React.useMemo(() => {
+    return results.some((r) => r.pageInfo?.hasPreviousPage);
+  }, [results]);
+
+  const handleFetchMore = React.useCallback(
+    async ({ direction }: { direction: EnumCursorDirection }) => {
+      const snapshotTypes = types;
+      const snapshot = perTypeRef.current;
+
+      await Promise.all(
+        snapshotTypes.map((t) => {
+          const r = snapshot[t];
+          if (!r?.pageInfo) return Promise.resolve();
+
+          const pageInfo = r.pageInfo;
+          if (!validateFetchMore({ direction, pageInfo })) return Promise.resolve();
+
+          const cursor =
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo.endCursor
+              : pageInfo.startCursor;
+
+          return r.fetchMore({
+            variables: {
+              entityType: r.entityType,
+              limit: EXPORT_HISTORIES_PER_PAGE,
+              direction,
+              cursor,
+            },
+            updateQuery: (prev: ExportHistoriesQueryResponse, { fetchMoreResult }: any) => {
+              if (!fetchMoreResult) return prev;
+
+              return Object.assign({}, prev, {
+                exportHistories: mergeCursorData({
+                  direction,
+                  fetchMoreResult: fetchMoreResult.exportHistories,
+                  prevResult: prev.exportHistories,
+                }),
+              });
+            },
+          });
+        }),
+      );
+    },
+    [typesKey], 
+  );
+
+  const Queries = React.useMemo(() => {
+    return (
+      <>
+        {types.map((t) => (
+          <ExportHistoriesByType key={t} entityType={t} onState={onState} />
+        ))}
+      </>
     );
-  };
+  }, [typesKey, onState]);
 
   return {
     list,
@@ -123,5 +190,6 @@ export function useExportHistories({ entityTypes }: { entityTypes: string[] }) {
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
+    Queries,
   };
 }

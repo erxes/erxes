@@ -86,12 +86,11 @@ export async function processUserRows(
         continue;
       }
 
-      // ✅ create properly using model method (important!)
       const created = await models.Users.createUser({
         username: doc.username,
         email: doc.email,
-        password: '',              // allowed only if notUsePassword = true
-        notUsePassword: true,      // IMPORTANT
+        password: '',             
+        notUsePassword: true,      
         details: doc.details,
         links: doc.links || [],
         groupIds: doc.groupIds,
@@ -106,9 +105,14 @@ export async function processUserRows(
       if (doc.branchIds) extraSet.branchIds = doc.branchIds;
       if (doc.positionIds) extraSet.positionIds = doc.positionIds;
 
-      if (Object.keys(extraSet).length) {
-        await models.Users.updateOne({ _id: created._id }, { $set: extraSet });
-      }
+      try {
+          if (Object.keys(extraSet).length)
+            await models.Users.updateOne({ _id: created._id }, { $set: extraSet });
+        } catch (err) {
+          await models.Users.deleteOne({ _id: created._id });
+          throw err;
+        }
+        
 
       successRows.push({ ...row, _id: created._id });
     } catch (e: any) {

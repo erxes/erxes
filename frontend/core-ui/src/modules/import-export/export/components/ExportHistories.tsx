@@ -238,6 +238,7 @@ export function ExportHistories({ entityTypes }: { entityTypes: string[] }) {
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
+    Queries,
   } = useExportHistories({ entityTypes });
 
   if (error) {
@@ -247,60 +248,76 @@ export function ExportHistories({ entityTypes }: { entityTypes: string[] }) {
       </div>
     );
   }
-
   if (!list.length) {
     return (
-      <div className="text-center py-8">
-        <p className="text-sm text-muted-foreground">No export histories</p>
-      </div>
+      <>
+        {Queries}
+        <div className="text-center py-8">
+          <p className="text-sm text-muted-foreground">No export histories</p>
+        </div>
+      </>
     );
   }
 
   return (
     <div className="space-y-4">
-      <PageSubHeader className="flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-semibold">Export history</h3>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Review and download your past exports.
-          </p>
-        </div>
-        <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
-          {totalCount
-            ? `${totalCount} records found`
-            : loading && <Skeleton className="w-20 h-4 inline-block mt-1.5" />}
-        </div>
-      </PageSubHeader>
+      {Queries}
 
-      <RecordTable.Provider
-        columns={exportHistoryColumns}
-        data={list}
-        className="border rounded-md overflow-hidden"
-      >
-        <RecordTable.CursorProvider
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          dataLength={list.length}
-          sessionKey="export_histories_cursor"
-        >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {loading ? (
-                <RecordTable.RowSkeleton rows={20} />
-              ) : (
-                <RecordTable.RowList />
-              )}
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.CursorProvider>
-      </RecordTable.Provider>
+      {error ? (
+        <div className="p-4 border rounded-md text-sm text-destructive">
+          Failed to load export histories.
+        </div>
+      ) : !loading && !list.length ? (
+        <div className="text-center py-8">
+          <p className="text-sm text-muted-foreground">No export histories</p>
+        </div>
+      ) : (
+        <>
+          <PageSubHeader className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold">Export history</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Review and download your past exports.
+              </p>
+            </div>
+            <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
+              {totalCount
+                ? `${totalCount} records found`
+                : loading && <Skeleton className="w-20 h-4 inline-block mt-1.5" />}
+            </div>
+          </PageSubHeader>
+
+          <RecordTable.Provider
+            columns={exportHistoryColumns}
+            data={list}
+            className="border rounded-md overflow-hidden"
+          >
+            <RecordTable.CursorProvider
+              hasPreviousPage={hasPreviousPage}
+              hasNextPage={hasNextPage}
+              dataLength={list.length}
+              sessionKey="export_histories_cursor"
+            >
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.CursorBackwardSkeleton
+                    handleFetchMore={handleFetchMore}
+                  />
+                  {loading ? (
+                    <RecordTable.RowSkeleton rows={20} />
+                  ) : (
+                    <RecordTable.RowList />
+                  )}
+                  <RecordTable.CursorForwardSkeleton
+                    handleFetchMore={handleFetchMore}
+                  />
+                </RecordTable.Body>
+              </RecordTable>
+            </RecordTable.CursorProvider>
+          </RecordTable.Provider>
+        </>
+      )}
     </div>
   );
 }

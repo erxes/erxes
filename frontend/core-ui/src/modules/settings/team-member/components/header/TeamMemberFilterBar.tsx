@@ -7,7 +7,7 @@ import {
 import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { TeamMemberCounts } from '../TeamMemberCounts';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../../constants/teamMemberCursorSessionKey';
-import { useTeamMemberVariables } from '../../hooks/useTeamMember';
+import { useTeamMemberVariables } from '@/settings/team-member/hooks/useTeamMember';
 
 export const TeamMemberFilterBar = () => {
   const [queries] = useMultiQueryState<{

@@ -26,7 +26,11 @@ export async function getUserExportData(
   if (data.brandIds?.length) query.brandIds = { $in: data.brandIds };
   if (data.departmentIds?.length) query.departmentIds = { $in: data.departmentIds };
   if (data.branchIds?.length) query.branchIds = { $in: data.branchIds };
-  if (data.status) query.registrationToken = { $eq: null };
+  if (data.status === 'Verified') {
+    query.registrationToken = { $eq: null };
+  } else if (data.status === 'Not verified') {
+    query.registrationToken = { $ne: null };
+  }
 
   if (data.searchValue?.trim()) {
     const sv = escapeRegExp(data.searchValue.trim());
