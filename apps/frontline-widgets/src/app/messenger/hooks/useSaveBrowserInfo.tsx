@@ -7,7 +7,7 @@ import { useMutation } from '@apollo/client';
 import { SAVE_BROWSER_INFO } from '../graphql';
 
 export const useSaveBrowserInfo = () => {
-  const [connection] = useAtom(connectionAtom);
+  const [connection, setConnection] = useAtom(connectionAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const [mutate, { loading }] = useMutation(SAVE_BROWSER_INFO);
 
@@ -17,7 +17,10 @@ export const useSaveBrowserInfo = () => {
         requestBrowserInfo({
           source: 'fromMessenger',
           callback: (browserInfo: IBrowserInfo) => {
-            connection.browserInfo = browserInfo;
+            setConnection((prev) => ({
+              ...prev,
+              browserInfo,
+            }));
 
             setBrowserInfo(browserInfo);
 
