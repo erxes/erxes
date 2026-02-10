@@ -96,13 +96,7 @@ export const cursorPaginate = async <T extends Document>({
   params,
   query,
 }: CursorPaginateParams<T>): Promise<CursorResult<T>> => {
-  const {
-    limit = 20,
-    skip,
-    cursor,
-    direction = 'forward',
-    orderBy = {},
-  } = params;
+  const { limit = 20, cursor, direction = 'forward', orderBy = {} } = params;
 
   if (limit < 1 || limit > 100) {
     throw new Error('Limit must be between 1 and 100');
@@ -110,8 +104,7 @@ export const cursorPaginate = async <T extends Document>({
 
   const baseQuery = { ...query };
 
-  // Only apply cursor query if not using skip-based pagination
-  if (cursor && !skip) {
+  if (cursor) {
     const cursorQuery = buildCursorQuery(cursor, orderBy, direction);
     Object.assign(baseQuery, cursorQuery);
   }
@@ -131,16 +124,12 @@ export const cursorPaginate = async <T extends Document>({
 
   sortOrder._id = (direction === 'forward' ? 1 : -1) as 1 | -1;
 
-  // Build the query with optional skip for offset-based pagination
-  let queryBuilder = model.find(baseQuery as FilterQuery<T>).sort(sortOrder);
-
-  // Apply skip if provided (for direct page jumping)
-  if (skip && skip > 0) {
-    queryBuilder = queryBuilder.skip(skip);
-  }
-
   const [items, totalCount] = await Promise.all([
-    queryBuilder.limit(limit + 1).lean(),
+    model
+      .find(baseQuery as FilterQuery<T>)
+      .sort(sortOrder)
+      .limit(limit + 1)
+      .lean(),
     model.countDocuments(query as FilterQuery<T>),
   ]);
 

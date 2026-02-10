@@ -1,6 +1,5 @@
 export const GQL_CURSOR_PARAM_DEFS = `
   limit: Int
-  skip: Int
   cursor: String
   cursorMode: CURSOR_MODE
   direction: CURSOR_DIRECTION

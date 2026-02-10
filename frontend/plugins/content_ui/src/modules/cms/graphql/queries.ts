@@ -140,7 +140,6 @@ export const POST_LIST = gql`
     $searchValue: String
     $status: PostStatus
     $limit: Int
-    $skip: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
     $tagIds: [String]
@@ -154,7 +153,6 @@ export const POST_LIST = gql`
       searchValue: $searchValue
       status: $status
       limit: $limit
-      skip: $skip
       cursor: $cursor
       direction: $direction
       tagIds: $tagIds

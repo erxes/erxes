@@ -5,7 +5,6 @@ export interface CursorPaginateParams<T> {
   model: Model<T>;
   params: {
     limit?: number;
-    skip?: number;
     cursor?: string;
     direction?: 'forward' | 'backward';
     orderBy?: Record<string, SortOrder>;

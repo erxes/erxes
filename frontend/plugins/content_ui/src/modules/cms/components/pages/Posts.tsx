@@ -76,9 +76,6 @@ export function Posts() {
 
   const sessionKey = `posts-filter-${websiteId}`;
 
-  // Calculate skip for offset-based pagination when jumping to specific pages
-  const skip = cursor ? undefined : (currentPage - 1) * perPage;
-
   const {
     posts,
     loading,
@@ -99,7 +96,6 @@ export function Posts() {
     categoryIds: categoryFilters.length ? categoryFilters : undefined,
     tagIds: tagFilters.length ? tagFilters : undefined,
     cursor,
-    skip,
     sortField,
     sortDirection,
   });
@@ -530,10 +526,13 @@ export function Posts() {
                 currentPage={currentPage}
                 totalPages={Math.ceil(totalCount / perPage)}
                 onPageChange={(page) => {
-                  // Use skip-based pagination for direct page jumping
-                  setCurrentPage(page);
-                  setCursor(undefined);
-                  setDirection(undefined);
+                  // Cursor pagination only supports sequential navigation
+                  // Direct page jumping is disabled
+                  if (page === 1) {
+                    setCurrentPage(1);
+                    setCursor(undefined);
+                    setDirection(undefined);
+                  }
                 }}
               />
 
