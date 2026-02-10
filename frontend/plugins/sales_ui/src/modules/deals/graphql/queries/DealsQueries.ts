@@ -119,6 +119,7 @@ export const commonListFields = `
   number
   tagIds
   customProperties
+  propertiesData
   status
   tags {
     _id
