@@ -21,7 +21,7 @@ import {
   CONTENT_DELETE_CMS,
 } from '../../graphql/mutations';
 import { useClientPortals } from '../../hooks/useClientPortals';
-import { LANGUAGES } from '../../../../constants';
+import { LANGUAGES } from '../../../shared/constants';
 
 interface Website {
   _id: string;
