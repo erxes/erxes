@@ -88,6 +88,8 @@ interface UsePostsProps {
   tagIds?: string[];
   sortField?: string;
   sortDirection?: string;
+  cursor?: string;
+  direction?: 'forward' | 'backward';
 }
 
 interface UsePostsResult {
@@ -98,6 +100,10 @@ interface UsePostsResult {
   totalCount: number;
   currentPage: number;
   totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  endCursor?: string;
+  startCursor?: string;
 }
 
 export function usePosts({
@@ -112,27 +118,32 @@ export function usePosts({
   tagIds,
   sortField,
   sortDirection,
+  cursor,
+  direction,
 }: UsePostsProps): UsePostsResult {
   const { data, loading, error, refetch } = useQuery(POST_LIST, {
     variables: {
       clientPortalId,
       type,
       featured,
-      categoryIds: categoryIds && categoryIds.length > 0 ? categoryIds : undefined,
       searchValue,
       status,
       limit: perPage,
+      cursor,
+      direction,
       tagIds,
       sortField,
       sortDirection,
     },
     errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network',
   });
 
   const posts = data?.cmsPostList?.posts || [];
   const totalCount = data?.cmsPostList?.totalCount || 0;
+  const pageInfo = data?.cmsPostList?.pageInfo || {};
   const currentPage = 1;
-  const totalPages = 0;
+  const totalPages = Math.ceil(totalCount / perPage);
 
   return {
     posts,
@@ -142,5 +153,9 @@ export function usePosts({
     totalCount,
     currentPage,
     totalPages,
+    hasNextPage: pageInfo.hasNextPage || false,
+    hasPreviousPage: pageInfo.hasPreviousPage || false,
+    endCursor: pageInfo.endCursor,
+    startCursor: pageInfo.startCursor,
   };
 }

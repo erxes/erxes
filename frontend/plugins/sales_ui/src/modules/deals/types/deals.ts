@@ -49,11 +49,12 @@ export interface IItem {
     tags: ITag[];
     tagIds: string[];
     customProperties?: any;
+    propertiesData?: Record<string, any>;
     departmentIds: string[];
     branchIds: string[];
   }
 
-  interface IPaymentsData {
+  export interface IPaymentsData {
     [key: string]: {
       currency?: string;
       amount?: number;

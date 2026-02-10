@@ -80,9 +80,8 @@ const FocusSheetView = ({
   return (
     <Sheet.View
       className={cn(
-        'p-0 transition-[width] flex flex-col gap-0 overflow-hidden sm:max-w-screen-2xl',
-        !!activeSideTab &&
-          'w-[calc(100vw-(--spacing(4)))] md:w-[calc(100vw-(--spacing(4)))]',
+        'p-0 transition-[width] flex flex-col gap-0 overflow-hidden sm:max-w-screen-2xl md:w-[calc(100vw-(--spacing(4)))] lg:w-3/4',
+        !!activeSideTab && 'lg:w-[calc(100vw-(--spacing(4)))]',
         className,
       )}
       {...props}

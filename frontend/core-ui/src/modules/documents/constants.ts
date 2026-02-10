@@ -1,4 +1,5 @@
 import {
+  IconBroadcast,
   IconBuilding,
   IconShoppingCart,
   IconUser,
@@ -26,5 +27,9 @@ export const DOCUMENTS_TYPES_SET: Record<string, DocumentTypeConfig> = {
   'core:user': {
     icon: IconUsersGroup,
     label: 'Team Member',
+  },
+  'core:broadcast': {
+    icon: IconBroadcast,
+    label: 'Broadcast',
   },
 };

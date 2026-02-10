@@ -1,4 +1,4 @@
-import { IPermissionContext, IUserDocument, Resolver } from '../../core-types';
+import { IUserDocument, Resolver } from '../../core-types';
 import { getEnv } from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
@@ -17,12 +17,7 @@ export const permissionWrapper = (
 ) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = async (
-    root: any,
-    args: any,
-    context: IPermissionContext,
-    info: any,
-  ) => {
+  cls[methodName] = async (root: any, args: any, context: any, info: any) => {
     const { user } = context;
 
     for (const checker of checkers) {
@@ -150,21 +145,6 @@ export const checkRolePermission = async (
   user: IUserDocument,
   resolverKey: string,
 ) => {
-  const { role } = user || {};
-
-  if (!role) {
-    return false;
-  }
-
-  if (
-    role === 'member' &&
-    ['remove', 'delete'].some((resolver) =>
-      resolverKey.toLowerCase().includes(resolver),
-    )
-  ) {
-    return false;
-  }
-
   return true;
 };
 
@@ -174,11 +154,11 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
 
     checkLogin(user);
 
-    const permission = await checkRolePermission(user, resolverKey);
+    // const permission = await checkRolePermission(user, resolverKey);
 
-    if (!permission) {
-      throw new Error('Permission denied');
-    }
+    // if (!permission) {
+    //   throw new Error('Permission denied');
+    // }
 
     return resolver(parent, args, context, info);
   };

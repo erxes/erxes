@@ -41,7 +41,7 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
 
   return (
     <div className="border-b py-4 px-8">
-      <div className="grid xl:grid-cols-3 lg:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Due date</h4>
           <div className="flex items-center">
@@ -59,6 +59,17 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
               variant="button"
             />
           </div>
+        </div>
+        <div>
+          <h4 className="uppercase text-sm text-gray-500 pb-2">Assigned to</h4>
+          <SelectMember
+            value={assignedUserIds}
+            onValueChange={(value) =>
+              handleDealFieldChange('assignedUserIds', value)
+            }
+            className="text-foreground"
+            mode="multiple"
+          />
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Label</h4>
@@ -88,17 +99,6 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
             dealId={_id}
             value={priority || ''}
             variant="card"
-          />
-        </div>
-        <div>
-          <h4 className="uppercase text-sm text-gray-500 pb-2">Assigned to</h4>
-          <SelectMember
-            value={assignedUserIds}
-            onValueChange={(value) =>
-              handleDealFieldChange('assignedUserIds', value)
-            }
-            className="text-foreground"
-            mode="multiple"
           />
         </div>
         <div>

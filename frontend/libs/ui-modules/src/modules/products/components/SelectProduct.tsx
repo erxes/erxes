@@ -1,25 +1,26 @@
 import {
-  SelectProductContext,
-  useSelectProductContext,
-} from '../contexts/SelectProductContext';
-import { IProduct } from '../types/Product';
-import { useProducts } from '../hooks/useProducts';
-import { useDebounce } from 'use-debounce';
-import React, { useState } from 'react';
-import {
-  cn,
   Combobox,
   Command,
   Filter,
   Form,
   Popover,
   PopoverScoped,
+  RecordTableInlineCell,
+  cn,
   useFilterContext,
   useQueryState,
-  RecordTableInlineCell,
 } from 'erxes-ui';
-import { ProductsInline } from './ProductsInline';
+import React, { useState } from 'react';
+import {
+  SelectProductContext,
+  useSelectProductContext,
+} from '../contexts/SelectProductContext';
+
+import { IProduct } from '../types/Product';
 import { IconShoppingCart } from '@tabler/icons-react';
+import { ProductsInline } from './ProductsInline';
+import { useDebounce } from 'use-debounce';
+import { useProducts } from '../hooks/useProducts';
 
 interface SelectProductProviderProps {
   children: React.ReactNode;
@@ -110,9 +111,7 @@ const SelectProductContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           productsData
-            ?.filter(
-              (product) => !productIds.includes(product._id)
-            )
+            ?.filter((product) => !productIds.includes(product._id))
             .map((product) => (
               <SelectProductCommandItem key={product._id} product={product} />
             ))}
@@ -218,6 +217,10 @@ const SelectProductRoot = React.forwardRef<
 const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   const { productIds, products, setProducts } = useSelectProductContext();
 
+  if (productIds.length === 0) {
+    return null;
+  }
+
   return (
     <ProductsInline
       productIds={productIds}
@@ -228,31 +231,37 @@ const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-export const SelectProductFilterItem = () => {
+export const SelectProductFilterItem = ({
+  value,
+  label,
+}: {
+  value: string;
+  label: string;
+}) => {
   return (
-    <Filter.Item value="product">
+    <Filter.Item value={value}>
       <IconShoppingCart />
-      Product
+      {label}
     </Filter.Item>
   );
 };
 
 export const SelectProductFilterView = ({
   onValueChange,
-  queryKey,
+  filterKey,
   mode = 'single',
 }: {
   onValueChange?: (value: string[] | string) => void;
-  queryKey?: string;
+  filterKey: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [product, setProduct] = useQueryState<string[] | string>(
-    queryKey || 'product',
+  const [product, setProduct] = useQueryState<string[] | string | undefined>(
+    filterKey,
   );
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={queryKey || 'product'}>
+    <Filter.View filterKey={filterKey}>
       <SelectProductProvider
         mode={mode}
         value={product || (mode === 'single' ? '' : [])}
@@ -271,16 +280,18 @@ export const SelectProductFilterView = ({
 export const SelectProductFilterBar = ({
   iconOnly,
   onValueChange,
-  queryKey,
+  filterKey,
+  label,
   mode = 'single',
 }: {
   iconOnly?: boolean;
+  filterKey: string;
+  label: string;
   onValueChange?: (value: string[] | string) => void;
-  queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [product, setProduct] = useQueryState<string[] | string>(
-    queryKey || 'product',
+  const [product, setProduct] = useQueryState<string[] | string | undefined>(
+    filterKey,
   );
   const [open, setOpen] = useState(false);
 
@@ -289,16 +300,16 @@ export const SelectProductFilterBar = ({
   }
 
   return (
-    <Filter.BarItem queryKey={queryKey || 'product'}>
+    <Filter.BarItem queryKey={filterKey}>
       <Filter.BarName>
         <IconShoppingCart />
-        {!iconOnly && 'Products'}
+        {label}
       </Filter.BarName>
       <SelectProductProvider
         mode={mode}
         value={product || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          if (value.length > 0) {
+          if (value && value.length > 0) {
             setProduct(value as string[] | string);
           } else {
             setProduct(null);
@@ -309,7 +320,7 @@ export const SelectProductFilterBar = ({
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={queryKey || 'product'}>
+            <Filter.BarButton filterKey={filterKey}>
               <SelectProductValue />
             </Filter.BarButton>
           </Popover.Trigger>

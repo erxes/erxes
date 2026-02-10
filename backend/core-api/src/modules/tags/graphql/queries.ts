@@ -262,5 +262,4 @@ export const tagQueries: Record<string, Resolver> = {
 
 tagQueries.cpTags.wrapperConfig = {
   forClientPortal: true,
-  cpUserRequired: true,
 };
