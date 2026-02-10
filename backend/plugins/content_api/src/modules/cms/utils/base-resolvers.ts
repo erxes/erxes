@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext, IModels } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
@@ -202,9 +202,53 @@ export class BaseQueryResolver {
     return { list: translatedList, totalCount, pageInfo };
   }
 
-  /**
-   * Generic single item query with translation support
-   */
+  protected async getListWithDefaultPagination<T extends {_id:string}>(
+    model: any,
+    query: any,
+    args: BaseQueryArgs,
+    fieldMappings: Record<string, string>,
+  ): Promise<T[]> {
+
+    const { sortField = 'scheduledDate', sortDirection= -1, page = 1, perPage = 20 } = args || {}
+
+
+
+    const list = (await defaultPaginate(
+      model.find(query).sort({ [sortField]: sortDirection }).lean(),
+      { page, perPage },
+    )) as T[];
+
+  
+    if (!args.language) {
+      return list;
+    }
+  
+    if (!args.clientPortalId && !this.context.clientPortal._id) {
+      throw new Error('Client portal ID is required');
+    }
+  
+    const shouldSkip = await this.shouldSkipTranslation(
+      args.clientPortalId || this.context.clientPortal._id || '',
+      args.language || '',
+    );
+  
+    if (shouldSkip) {
+      return list;
+    }
+  
+    const itemIds = list.map((item) => item._id);
+
+    const translations = await this.getTranslations(itemIds, args.language);
+  
+    const translatedList = this.applyTranslationsToList(
+      list,
+      translations,
+      fieldMappings,
+    );
+  
+    return translatedList;
+  }
+
   protected async getItemWithTranslation<T>(
     model: any,
     query: any,
