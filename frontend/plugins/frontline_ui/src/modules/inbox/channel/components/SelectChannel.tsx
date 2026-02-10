@@ -312,7 +312,6 @@ const SelectChannelList = ({ channelId, onValueChange }: { channelId: string, on
     <DropdownMenu.RadioGroup
       value={channelId}
       onValueChange={(value) => {
-        onValueChange?.(value);
         const channel = allChannels.find((c) => c._id === value);
         if (channel) {
           onSelect(channel);

@@ -132,6 +132,13 @@ export function FormToggleStatus({ formId, status, setOpen }: { formId: string, 
       onCompleted: () => {
         setOpen(false);
       },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          variant: 'destructive',
+          description: error.message,
+        });
+      },
     });
   }
 
@@ -161,6 +168,13 @@ export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { 
           title: 'Success',
           variant: 'success',
           description: 'Form moved successfully',
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          variant: 'destructive',
+          description: error.message,
         });
       },
     });
@@ -244,7 +258,7 @@ export const FormsMoreColumnCell = ({
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <MoveFormToChannel formId={_id} channelId={cell.row.original.channelId as string} setOpen={setOpen} name={cell.row.original.name} type={cell.row.original.type} />
+        <MoveFormToChannel formId={_id} channelId={cell.row.original.channelId || ''} setOpen={setOpen} name={cell.row.original.name} type={cell.row.original.type} />
         <DropdownMenu.Item disabled={loading} onSelect={handleDelete} className="text-destructive">
           {loading ? <Spinner /> : <IconTrash />} Delete
         </DropdownMenu.Item>

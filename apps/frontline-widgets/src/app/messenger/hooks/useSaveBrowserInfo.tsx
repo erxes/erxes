@@ -27,7 +27,9 @@ export const useSaveBrowserInfo = () => {
                 visitorId: connection.widgetsMessengerConnect.visitorId,
                 browserInfo,
               }
-            })
+            }).catch((error) => {
+              console.error('Error saving browser info mutation', error);
+            });
           },
         });
       };
