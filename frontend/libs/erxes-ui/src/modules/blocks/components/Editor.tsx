@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useBlockEditor } from '../hooks/useBlockEditor';
 import { BlockEditor } from './BlockEditor';
 import { Block } from '@blocknote/core';
@@ -14,6 +14,7 @@ export const Editor = ({
   isHTML = false,
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
+  const skipNextOnChangeRef = useRef(false);
   const parsedInitialContent = parseBlocks(initialContent ?? '');
   const editor = useBlockEditor({
     initialContent: parsedInitialContent || undefined,
@@ -41,7 +42,10 @@ export const Editor = ({
         const currentSerialized = JSON.stringify(editor.document);
         const nextSerialized = JSON.stringify(parsed);
 
+        if (!isActive) return;
+
         if (currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
           editor.replaceBlocks(editor.document, parsed);
         }
         return;
@@ -59,6 +63,7 @@ export const Editor = ({
         const nextSerialized = JSON.stringify(blocks);
 
         if (currentSerialized !== nextSerialized) {
+          skipNextOnChangeRef.current = true;
           editor.replaceBlocks(editor.document, blocks);
         }
       } catch {
@@ -74,6 +79,11 @@ export const Editor = ({
   }, [editor, initialContent, isHTML]);
 
   const handleChange = async () => {
+    if (skipNextOnChangeRef.current) {
+      skipNextOnChangeRef.current = false;
+      return;
+    }
+
     const content = await editor?.document;
     if (isHTML) {
       const htmlContent = await editor?.blocksToHTMLLossy(content as Block[]);

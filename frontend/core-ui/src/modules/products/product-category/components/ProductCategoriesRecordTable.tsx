@@ -2,8 +2,6 @@ import { IProductCategory } from '@/products/types/productTypes';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
-  Input,
-  Popover,
   RecordTable,
   RecordTableInlineCell,
   RecordTableTree,

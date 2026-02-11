@@ -24,6 +24,7 @@ export const CategoriesUpdateCoreFields: React.FC<
         code: categoryDetail.code,
         name: categoryDetail.name,
         parentId: categoryDetail.parentId || '',
+        maskType: categoryDetail.maskType || '',
       }));
     }
   }, [categoryDetail, form]);
