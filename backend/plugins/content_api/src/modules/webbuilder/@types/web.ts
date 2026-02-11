@@ -16,7 +16,7 @@ export interface IAppearances{
 
 export interface IWeb {
     name: string;
-    description: string;
+    description?: string;
     keywords? : string [];
     domain : string;
     copyright : string;

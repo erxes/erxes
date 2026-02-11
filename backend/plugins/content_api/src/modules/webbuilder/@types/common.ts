@@ -1,7 +1,4 @@
 export interface ICommonFields {
-    createdBy?: string;
-    createdDate: Date;
-    modifiedBy?: string;
-    modifiedDate?: Date;
-    code?: string;
+    createdAt: Date;
+    updatedAt?: Date;
   }
