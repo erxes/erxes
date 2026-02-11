@@ -169,7 +169,10 @@ const formsColumns: ColumnDef<IForm>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <FormInstallScript formId={cell.row.original._id} />
+          <FormInstallScript
+            formId={cell.row.original._id}
+            channelId={cell.row.original.channelId}
+          />
           <Button variant="outline" size="icon" asChild>
             <Link to={`/frontline/forms/${cell.row.original._id}`}>
               <IconEdit />
