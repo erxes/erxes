@@ -1,4 +1,4 @@
-import * as dayjs from "dayjs";
+// import * as dayjs from "dayjs";
 import * as relativeTime from "dayjs/plugin/relativeTime";
 
 import {
@@ -38,7 +38,11 @@ import Tags from "@erxes/ui/src/components/Tags";
 import Tip from "@erxes/ui/src/components/Tip";
 import strip from "strip";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
-
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(relativeTime);
 
 type Props = {
@@ -151,7 +155,7 @@ const ConversationItem: React.FC<Props> = (props) => {
                   {isExistingCustomer && renderFullName(customer)}
                 </EllipsisContent>
                 <time>
-                  {(dayjs(createdAt || updatedAt) || ({} as any)).fromNow(true)}
+                  {(dayjs(updatedAt || createdAt) || ({} as any)).fromNow(true)}
                 </time>
               </CustomerName>
 
