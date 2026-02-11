@@ -799,7 +799,6 @@ export const uploadFileLocal = async (file: {
   type: string;
 }): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.name);
-
   const oldPath = file.path;
 
   if (!fs.existsSync(uploadsFolderPath)) {

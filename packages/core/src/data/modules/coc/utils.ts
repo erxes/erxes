@@ -580,22 +580,12 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       }
     }
 
-    console.log(
-      JSON.stringify({
-        subdomain: this.subdomain,
-        action,
-        index: this.contentType,
-        body: queryOptions,
-      })
-    );
     const response = await fetchEs({
       subdomain: this.subdomain,
       action,
       index: this.contentType,
       body: queryOptions,
     });
-
-    console.log({ response: JSON.stringify(response) });
 
     if (action === 'count') {
       return response && response.count ? response.count : 0;

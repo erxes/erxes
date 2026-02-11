@@ -107,6 +107,7 @@ type Props = {
   showOnlyIcon?: boolean;
   noPreview?: boolean;
   hideUploadButtonOnLoad?: boolean;
+  url?: string;
 };
 
 type AttachmentWithProgress = IAttachment & {
@@ -148,6 +149,7 @@ class Uploader extends React.Component<Props, State> {
 
     uploadHandler({
       files,
+      url: this.props.url,
 
       beforeUpload: () => {
         this.setState({ loading: true });
