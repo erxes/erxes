@@ -204,7 +204,7 @@ export const ProductForm = ({
           )}
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
               <Label>PDF Гэрээний загвар</Label>
               <div className="flex gap-2">
                 {!formData.pdfContent && (
@@ -244,7 +244,7 @@ export const ProductForm = ({
             </div>
             {formData.pdfContent ? (
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-green-600">
                     ✓ PDF загвар тохируулсан
                   </span>
@@ -289,7 +289,7 @@ export const ProductForm = ({
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
               <Label>Covered Risks *</Label>
               <Button
                 type="button"
@@ -381,7 +381,7 @@ export const ProductForm = ({
                     ...formData,
                     pricingConfig: {
                       ...formData.pricingConfig,
-                      percentage: parseFloat(e.target.value) || 3,
+                      percentage: Number.parseFloat(e.target.value) || 3,
                     },
                   })
                 }
@@ -394,7 +394,7 @@ export const ProductForm = ({
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <Label className="text-sm">Хугацаагаар хувь (сонголттой)</Label>
                 <Button
                   type="button"
@@ -460,7 +460,8 @@ export const ProductForm = ({
                             const newFields = [...durationFields];
                             newFields[index] = {
                               ...newFields[index],
-                              percentage: parseFloat(e.target.value) || 0,
+                              percentage:
+                                Number.parseFloat(e.target.value) || 0,
                             };
                             setDurationFields(newFields);
 
