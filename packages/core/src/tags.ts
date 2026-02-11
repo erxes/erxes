@@ -20,24 +20,24 @@ export default {
   types: [
     {
       description: "Customer",
-      type: "customer"
+      type: "customer",
     },
     {
       description: "Company",
-      type: "company"
+      type: "company",
     },
     {
       description: "Product & Service",
-      type: "product"
+      type: "product",
     },
     {
       description: "Form",
-      type: "form"
+      type: "form",
     },
     {
       description: "Reports",
-      type: "reports"
-    }
+      type: "reports",
+    },
   ],
   tag: async ({ subdomain, data }) => {
     const { type, action, _ids, tagIds, targetIds } = data;
@@ -55,7 +55,7 @@ export default {
       await model.updateMany(
         { _id: { $in: targetIds } },
         { $set: { tagIds } },
-        { multi: true }
+        { multi: true },
       );
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
@@ -65,10 +65,10 @@ export default {
         action: "trigger",
         data: {
           type: `core:${type}`,
-          targets: [response]
+          targets: [response],
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
     }
 
@@ -76,7 +76,7 @@ export default {
   },
   fixRelatedItems: async ({
     subdomain,
-    data: { sourceId, destId, type, action }
+    data: { sourceId, destId, type, action },
   }) => {
     const models = await generateModels(subdomain);
     const model: any = modelChanger(type, models);
@@ -84,7 +84,7 @@ export default {
     if (action === "remove") {
       await model.updateMany(
         { tagIds: { $in: [sourceId] } },
-        { $pull: { tagIds: { $in: [sourceId] } } }
+        { $pull: { tagIds: { $in: [sourceId] } } },
       );
     }
 
@@ -97,8 +97,8 @@ export default {
       await model.updateMany(
         { _id: { $in: itemIds } },
         { $set: { "tagIds.$[elem]": destId } },
-        { arrayFilters: [{ elem: { $eq: sourceId } }] }
+        { arrayFilters: [{ elem: { $eq: sourceId } }] },
       );
     }
-  }
+  },
 };
