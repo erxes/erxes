@@ -145,21 +145,6 @@ export const checkRolePermission = async (
   user: IUserDocument,
   resolverKey: string,
 ) => {
-  const { role } = user || {};
-
-  if (!role) {
-    return false;
-  }
-
-  if (
-    role === 'member' &&
-    ['remove', 'delete'].some((resolver) =>
-      resolverKey.toLowerCase().includes(resolver),
-    )
-  ) {
-    return false;
-  }
-
   return true;
 };
 
@@ -169,11 +154,11 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
 
     checkLogin(user);
 
-    const permission = await checkRolePermission(user, resolverKey);
+    // const permission = await checkRolePermission(user, resolverKey);
 
-    if (!permission) {
-      throw new Error('Permission denied');
-    }
+    // if (!permission) {
+    //   throw new Error('Permission denied');
+    // }
 
     return resolver(parent, args, context, info);
   };
