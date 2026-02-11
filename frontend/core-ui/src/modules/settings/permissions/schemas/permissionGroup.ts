@@ -8,6 +8,7 @@ export const PERMISSION_GROUP_SCHEMA = z.object({
   permissions: z
     .array(
       z.object({
+        plugin: z.string().min(1, 'Plugin is required'),
         module: z.string().min(1, 'Module is required'),
         actions: z.array(z.string()).min(1, 'Actions are required'),
         scope: scopeEnum,

@@ -183,7 +183,7 @@ const importHistoryColumns: ColumnDef<TImportProgress>[] = [
   },
 ];
 
-export function ImportHistories({ entityType }: { entityType: string }) {
+export function ImportHistories({ entityTypes }: { entityTypes: string[] }) {
   const {
     list,
     totalCount,
@@ -192,7 +192,7 @@ export function ImportHistories({ entityType }: { entityType: string }) {
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
-  } = useImportHistories({ entityType });
+  } = useImportHistories({ entityTypes });
 
   if (error) {
     return (

@@ -126,7 +126,7 @@ export const SelectTagGroupsCommand = ({
         focusOnMount
       />
       {selectedTags?.length > 0 && (
-        <div className="flex flex-wrap p-2 gap-2">
+        <div className="flex flex-wrap gap-2 p-2">
           <TagList />
         </div>
       )}
@@ -184,7 +184,7 @@ export const SelectTagsCommand = ({
       />
       {selectedTags?.length > 0 && (
         <>
-          <div className="flex flex-wrap p-2 gap-2">
+          <div className="flex flex-wrap gap-2 p-2">
             <TagList />
           </div>
           <Command.Separator />
@@ -396,7 +396,7 @@ export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
 
   if ((selectedTags || []).length !== 0) {
     return (
-      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+      <span className="flex gap-1 items-center -ml-1 text-muted-foreground">
         <IconTag className="w-4 h-4 text-gray-400" /> Tag +
         {(selectedTags || []).length}
       </span>
@@ -489,7 +489,7 @@ export const SelectTagsDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
             <Popover.Trigger asChild>
               <Button
