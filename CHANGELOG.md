@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.34](https://github.com/erxes/erxes/compare/2.17.33...2.17.34) (2026-02-11)
+
+### Bug Fixes
+
+* improve import file upload handling and remove debug logs ([2d1962d](https://github.com/erxes/erxes/commit/2d1962d0bcf48b5d5f9e1bfcf1b7e2d38479f9de))
+
 ## [2.17.33](https://github.com/erxes/erxes/compare/2.17.32...2.17.33) (2026-02-11)
 
 ### Bug Fixes
