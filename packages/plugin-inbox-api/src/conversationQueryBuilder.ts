@@ -354,18 +354,21 @@ export default class Builder {
   }
 
   public async dateFilter(startDate: string, endDate: string) {
+    const startUTC = fixDate(startDate);
+    const endUTC = fixDate(endDate);
+
     const query = {
       $or: [
         {
           createdAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
+            $gte: startUTC,
+            $lte: endUTC,
           },
         },
         {
           updatedAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
+            $gte: startUTC,
+            $lte: endUTC,
           },
         },
       ],

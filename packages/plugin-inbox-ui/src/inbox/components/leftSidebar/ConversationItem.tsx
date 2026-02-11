@@ -151,7 +151,7 @@ const ConversationItem: React.FC<Props> = (props) => {
                   {isExistingCustomer && renderFullName(customer)}
                 </EllipsisContent>
                 <time>
-                  {(dayjs(updatedAt || createdAt) || ({} as any)).fromNow(true)}
+                  {(dayjs(createdAt || updatedAt) || ({} as any)).fromNow(true)}
                 </time>
               </CustomerName>
 
