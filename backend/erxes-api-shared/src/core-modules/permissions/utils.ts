@@ -88,15 +88,17 @@ export const checkPermission = async (
 
     checkLogin(user);
 
-    const allowed = await can(subdomain, actionName, user);
+    // deprecated
 
-    if (!allowed) {
-      if (defaultValue) {
-        return defaultValue;
-      }
+    // const allowed = await can(subdomain, actionName, user);
 
-      throw new Error('Permission required');
-    }
+    // if (!allowed) {
+    //   if (defaultValue) {
+    //     return defaultValue;
+    //   }
+
+    //   throw new Error('Permission required');
+    // }
 
     const VERSION = getEnv({ name: 'VERSION' });
 
