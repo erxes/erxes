@@ -57,8 +57,11 @@ function ExportHistoriesByType({
     notifyOnNetworkStatusChange: true,
   });
 
-  const { list = [], totalCount = 0, pageInfo } = q.data?.exportHistories || {};
-
+  const raw = q.data?.exportHistories;
+  const list = React.useMemo(() => raw?.list ?? [], [raw?.list]);
+  const totalCount = raw?.totalCount ?? 0;
+  const pageInfo = raw?.pageInfo;
+  
   React.useEffect(() => {
     onState({
       entityType,

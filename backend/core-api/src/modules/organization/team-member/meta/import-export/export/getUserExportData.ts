@@ -82,8 +82,8 @@ export async function getUserExportData(
   }
   const [brands, departments, branches] = await Promise.all([
     brandIds.size ? models.Brands?.find?.({ _id: { $in: Array.from(brandIds) } }).select('_id name').lean() : [],
-    departmentIds.size ? models.Departments.find({ _id: { $in: Array.from(departmentIds) } }).select('_id title').lean() : [],
-    branchIds.size ? models.Branches.find({ _id: { $in: Array.from(branchIds) } }).select('_id title').lean() : [],
+    departmentIds.size ? models.Departments?.find?.({ _id: { $in: Array.from(departmentIds) } })?.select('_id title')?.lean() : [],
+    branchIds.size ? models.Branches?.find?.({ _id: { $in: Array.from(branchIds) } })?.select('_id title')?.lean() : [],
   ]);
   const brandMap = new Map<string, string>();
   const departmentMap = new Map<string, string>();
