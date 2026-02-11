@@ -1,7 +1,8 @@
 import { IContext } from "~/connectionResolvers";
 import { IWeb } from "../../@types/web";
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const WebBuilderMutations  = {
+export const webBuilderMutations: Record<string, Resolver> = {
 
     async cpCreateWeb(
        _root,
@@ -11,7 +12,6 @@ export const WebBuilderMutations  = {
         const web = await models.Web.createWeb(
             doc
         );
-
         return web;
     },
 
@@ -36,4 +36,16 @@ export const WebBuilderMutations  = {
 
         return removed;
     }
-}
+};
+
+webBuilderMutations.cpCreateWeb.wrapperConfig = {
+    forClientPortal: true,
+};
+
+webBuilderMutations.cpEditWeb.wrapperConfig = {
+    forClientPortal: true,
+};
+
+webBuilderMutations.cpRemoveWeb.wrapperConfig = {
+    forClientPortal: true,
+};

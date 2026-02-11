@@ -2,10 +2,10 @@
 export const types = `
 
     type Appearances{
-        backgroundColor : String!
-        primaryColor : String!
-        secondaryColor: String!
-        accentColor: String!
+        backgroundColor : String
+        primaryColor : String
+        secondaryColor: String
+        accentColor: String
 
         fontSans: String
         fontHeading: String
@@ -17,15 +17,15 @@ export const types = `
     clientPortalId: String!
     name: String!
     description : String
-    keywords : [String!]
-    domain : String!
-    copyright : String!
+    keywords : [String]
+    domain : String
+    copyright : String
     
     thumbnail : Attachment
     logo : Attachment
     favicon : Attachment
     
-    appearances : Appearances!
+    appearances : Appearances
 
     createdAt : Date
     updatedAt: Date
@@ -34,10 +34,10 @@ export const types = `
 
 export const inputs = `
     input AppearancesInput{
-        backgroundColor : String!
-        primaryColor : String!
-        secondaryColor: String!
-        accentColor: String!
+        backgroundColor : String
+        primaryColor : String
+        secondaryColor: String
+        accentColor: String
 
         fontSans: String
         fontHeading: String
@@ -45,27 +45,28 @@ export const inputs = `
     }
 
     input WebInput{
+        clientPortalId: String!
         name: String!
         description : String
         keywords : [String]
-        domain : String!
-        copyright : String!
+        domain : String
+        copyright : String
         
         thumbnail : AttachmentInput
         logo : AttachmentInput
         favicon : AttachmentInput
         
-        appearances : AppearancesInput!
+        appearances : AppearancesInput
     }
 `
 
 export const queries = `
     cpGetWebList : [Web!]
-    cpGetWebDetail: (_id: String!) : Web!
+    cpGetWebDetail(_id: String!) : Web!
 `
 
 export const mutations = `
-    cpCreateWeb( input: WebInput!) : Web!
-    cpEditWeb( _id: String!, input WebInput! ): Web!
-    cpRemoveWeb( _id: String! ): JSON
+    cpCreateWeb( doc: WebInput!) : Web!
+    cpEditWeb( _id: String!, doc: WebInput! ): Web!
+    cpRemoveWeb( _id: String! ): Web!
 `

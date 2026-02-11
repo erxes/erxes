@@ -7,30 +7,27 @@ import { IWebDocument } from '../../@types/web';
 export const webSchema = new mongoose.Schema<IWebDocument> (
     {
         _id:mongooseStringRandomId,
-        clientPortalId:{type : String, required : true},
+        clientPortalId:{type : String, required : true, unique: true},
 
         name : {type : String, required: true},
-        description: {type : String, required:true },
+        description: {type : String },
         keywords : {type : [String]},
-        domain : {type: String, required: true},
-        copyright : {type : String, required:true},
+        domain : {type: String},
+        copyright : {type : String},
 
         logo : { type: attachmentSchema },
         favicon : {type: attachmentSchema },
         thumbnail : {type: attachmentSchema},
 
-        appearances: [
-            {
-            _id: mongooseStringRandomId,
-            backgroundColor: {type: String, required: true},
-            primaryColor: {type: String, required: true},
-            secondaryColor: {type: String, required: true},
-            accentColor: {type: String, required: true},
+        appearances:{
+            backgroundColor: {type: String},
+            primaryColor: {type: String},
+            secondaryColor: {type: String},
+            accentColor: {type: String},
             fontSans: String,
             fontHeading:String,
             fontMono: String,
-          },
-        ], 
+          }
     },
     {timestamps: true}
 )
