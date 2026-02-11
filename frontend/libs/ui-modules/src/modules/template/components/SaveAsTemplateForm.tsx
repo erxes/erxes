@@ -45,12 +45,16 @@ export const useSaveAsTemplate = ({
 
   const handleSave = (
     input: { name: string; description?: string; status?: string },
-    sourceId: string,
+    sourceId: string | string[],
   ) => {
+    const sourceField = Array.isArray(sourceId)
+      ? { sourceIds: sourceId }
+      : { sourceId };
+
     return templateAdd({
       variables: {
         doc: {
-          sourceId,
+          ...sourceField,
           contentType,
           ...input,
         },
@@ -60,42 +64,6 @@ export const useSaveAsTemplate = ({
 
   return {
     saveAsTemplate: handleSave,
-    loading,
-    error,
-  };
-};
-
-export const useSaveAsTemplateMulti = ({
-  contentType,
-  onSuccess,
-  onError,
-}: UseSaveAsTemplateOptions) => {
-  const [templateAdd, { loading, error }] = useMutation(TEMPLATE_ADD, {
-    onCompleted: (data) => {
-      onSuccess?.(data.templateAdd);
-    },
-    onError: (error) => {
-      onError?.(error);
-    },
-  });
-
-  const handleSave = (
-    input: { name: string; description?: string; status?: string },
-    sourceIds: string[],
-  ) => {
-    return templateAdd({
-      variables: {
-        doc: {
-          sourceIds,
-          contentType,
-          ...input,
-        },
-      },
-    });
-  };
-
-  return {
-    saveAsTemplateMulti: handleSave,
     loading,
     error,
   };
@@ -121,9 +89,7 @@ export const SaveAsTemplateForm = ({
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('active');
 
-  const isMulti = Array.isArray(contentId) && contentId.length > 0;
-
-  const { saveAsTemplate, loading: singleLoading } = useSaveAsTemplate({
+  const { saveAsTemplate, loading } = useSaveAsTemplate({
     contentType,
     onSuccess: (data) => {
       setOpen(false);
@@ -131,19 +97,6 @@ export const SaveAsTemplateForm = ({
     },
     onError,
   });
-
-  const { saveAsTemplateMulti, loading: multiLoading } = useSaveAsTemplateMulti(
-    {
-      contentType,
-      onSuccess: (data) => {
-        setOpen(false);
-        onSuccess?.(data);
-      },
-      onError,
-    },
-  );
-
-  const loading = isMulti ? multiLoading : singleLoading;
 
   const entityName = contentType.split(':')[1] || 'item';
 
@@ -165,10 +118,8 @@ export const SaveAsTemplateForm = ({
       status,
     };
 
-    if (isMulti) {
-      saveAsTemplateMulti(input, contentId as string[]);
-    } else if (contentId) {
-      saveAsTemplate(input, contentId as string);
+    if (contentId) {
+      saveAsTemplate(input, contentId);
     }
   };
 

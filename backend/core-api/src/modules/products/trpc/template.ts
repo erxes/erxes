@@ -396,90 +396,202 @@ export const templatesRouter = router({
   useTemplate: publicProcedure
     .input(
       z.object({
-        templateContent: z.string(),
+        template: z
+          .object({
+            content: z.string(),
+            contentType: z.string().optional(),
+            description: z.string().optional(),
+          })
+          .optional(),
+        templateContent: z.string().optional(),
+        contentType: z.string().optional(),
+        currentUser: z
+          .object({
+            _id: z.string(),
+          })
+          .optional(),
         categoryId: z.string().optional(),
         prefix: z.string().optional(),
+        relTypeId: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { models } = ctx;
-      const { templateContent, categoryId, prefix = '' } = input;
 
-      const templateProducts = parseTemplateToProducts(templateContent);
+      // Support both direct templateContent and template object from templateUse mutation
+      const content = input.templateContent || input.template?.content || '';
+      const resolvedContentType =
+        input.contentType || input.template?.contentType || '';
+      const prefix = input.prefix || '';
 
-      const createdProducts: any[] = [];
-      const createdRelatedItems = {
-        uoms: [] as string[],
-        categories: [] as string[],
-        brands: [] as string[],
-      };
-
-      for (const product of templateProducts) {
-        const uom = await ensureUomExists(models, product.uom);
-        if (product.uom && !createdRelatedItems.uoms.includes(product.uom)) {
-          const existingUom = await models.Uoms.findOne({
-            code: product.uom,
-          }).lean();
-          if (!existingUom) {
-            createdRelatedItems.uoms.push(product.uom);
-          }
-        }
-
-        let productCategoryId = categoryId;
-        if (!productCategoryId) {
-          productCategoryId = await ensureCategoryExists(
-            models,
-            product.categoryName,
-            product.categoryCode,
-          );
-          if (
-            product.categoryName &&
-            !createdRelatedItems.categories.includes(product.categoryName)
-          ) {
-            createdRelatedItems.categories.push(product.categoryName);
-          }
-        }
-
-        const scopeBrandIds = await ensureBrandsExist(
-          models,
-          product.brandNames,
-          product.brandCodes,
-        );
-        if (product.brandNames) {
-          for (const brandName of product.brandNames) {
-            if (!createdRelatedItems.brands.includes(brandName)) {
-              createdRelatedItems.brands.push(brandName);
-            }
-          }
-        }
-
-        const newProduct = await models.Products.createProduct({
-          name: prefix + product.name,
-          code: prefix + product.code,
-          shortName: product.shortName ? prefix + product.shortName : undefined,
-          type: product.type,
-          description: product.description,
-          unitPrice: product.unitPrice,
-          barcodes: product.barcodes,
-          barcodeDescription: product.barcodeDescription,
-          uom,
-          categoryId: productCategoryId,
-          scopeBrandIds: scopeBrandIds.length > 0 ? scopeBrandIds : undefined,
-          variants: {},
-        });
-
-        createdProducts.push(newProduct);
+      if (!content) {
+        return {
+          status: 'error',
+          errorMessage: 'No template content provided',
+        };
       }
 
+      const [, type] = resolvedContentType.includes(':')
+        ? resolvedContentType.split(':')
+        : ['', ''];
+
+      // productCategory template -> create categories
+      if (type === 'productCategory') {
+        try {
+          const templateCategories: ITemplateCategory[] = JSON.parse(content);
+          const createdCategories: any[] = [];
+
+          for (const catData of templateCategories) {
+            let parentId: string | undefined;
+            if (catData.parentCode) {
+              const parent = await models.ProductCategories.findOne({
+                code: catData.parentCode,
+              }).lean();
+              if (parent) {
+                parentId = parent._id;
+              }
+            }
+            if (!parentId && catData.parentName) {
+              const parent = await models.ProductCategories.findOne({
+                name: catData.parentName,
+              }).lean();
+              if (parent) {
+                parentId = parent._id;
+              }
+            }
+
+            // Check if category with same code already exists
+            const existing = await models.ProductCategories.findOne({
+              code: catData.code,
+            }).lean();
+
+            if (existing) {
+              createdCategories.push(existing);
+              continue;
+            }
+
+            const newCategory =
+              await models.ProductCategories.createProductCategory({
+                name: prefix + catData.name,
+                code: prefix + catData.code,
+                order: catData.order || '',
+                description: catData.description,
+                meta: catData.meta,
+                parentId,
+                status: catData.status || 'active',
+                maskType: catData.maskType,
+                mask: catData.mask,
+                isSimilarity: catData.isSimilarity,
+                similarities: catData.similarities,
+                attachment: catData.attachment,
+                scopeBrandIds: catData.scopeBrandIds,
+              } as any);
+
+            createdCategories.push(newCategory);
+          }
+
+          return {
+            status: 'success',
+            categories: createdCategories,
+            summary: {
+              totalCategories: createdCategories.length,
+            },
+          };
+        } catch (error: any) {
+          return {
+            status: 'error',
+            errorMessage:
+              error.message || 'Failed to create categories from template',
+          };
+        }
+      }
+
+      // =============================================
+      // product template -> create products (commented out)
+      // =============================================
+      /*
+      if (type === 'product' || !type) {
+        const templateProducts = parseTemplateToProducts(content);
+
+        const createdProducts: any[] = [];
+        const createdRelatedItems = {
+          uoms: [] as string[],
+          categories: [] as string[],
+          brands: [] as string[],
+        };
+
+        for (const product of templateProducts) {
+          const uom = await ensureUomExists(models, product.uom);
+          if (product.uom && !createdRelatedItems.uoms.includes(product.uom)) {
+            const existingUom = await models.Uoms.findOne({
+              code: product.uom,
+            }).lean();
+            if (!existingUom) {
+              createdRelatedItems.uoms.push(product.uom);
+            }
+          }
+
+          let productCategoryId = input.categoryId;
+          if (!productCategoryId) {
+            productCategoryId = await ensureCategoryExists(
+              models,
+              product.categoryName,
+              product.categoryCode,
+            );
+            if (
+              product.categoryName &&
+              !createdRelatedItems.categories.includes(product.categoryName)
+            ) {
+              createdRelatedItems.categories.push(product.categoryName);
+            }
+          }
+
+          const scopeBrandIds = await ensureBrandsExist(
+            models,
+            product.brandNames,
+            product.brandCodes,
+          );
+          if (product.brandNames) {
+            for (const brandName of product.brandNames) {
+              if (!createdRelatedItems.brands.includes(brandName)) {
+                createdRelatedItems.brands.push(brandName);
+              }
+            }
+          }
+
+          const newProduct = await models.Products.createProduct({
+            name: prefix + product.name,
+            code: prefix + product.code,
+            shortName: product.shortName ? prefix + product.shortName : undefined,
+            type: product.type,
+            description: product.description,
+            unitPrice: product.unitPrice,
+            barcodes: product.barcodes,
+            barcodeDescription: product.barcodeDescription,
+            uom,
+            categoryId: productCategoryId,
+            scopeBrandIds: scopeBrandIds.length > 0 ? scopeBrandIds : undefined,
+            variants: {},
+          });
+
+          createdProducts.push(newProduct);
+        }
+
+        return {
+          products: createdProducts,
+          createdRelatedItems,
+          summary: {
+            totalProducts: createdProducts.length,
+            newUoms: createdRelatedItems.uoms.length,
+            newCategories: createdRelatedItems.categories.length,
+            newBrands: createdRelatedItems.brands.length,
+          },
+        };
+      }
+      */
       return {
-        products: createdProducts,
-        createdRelatedItems,
-        summary: {
-          totalProducts: createdProducts.length,
-          newUoms: createdRelatedItems.uoms.length,
-          newCategories: createdRelatedItems.categories.length,
-          newBrands: createdRelatedItems.brands.length,
-        },
+        status: 'error',
+        errorMessage: `Unsupported content type for useTemplate: ${resolvedContentType}`,
       };
     }),
 });
