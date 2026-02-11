@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.33](https://github.com/erxes/erxes/compare/2.17.32...2.17.33) (2026-02-11)
+
+### Bug Fixes
+
+* handle loyalty owner when customers merge ([#6957](https://github.com/erxes/erxes/issues/6957)) ([3884345](https://github.com/erxes/erxes/commit/3884345ed779485bce23ea5ffa7be126f32a5526))
+* update existing attachment instead of creating duplicate in uploader ([07fe50e](https://github.com/erxes/erxes/commit/07fe50e986e28dc6351126d28e6eb3e1c64d9a71))
+
 ## [2.17.32](https://github.com/erxes/erxes/compare/2.17.31...2.17.32) (2026-02-06)
 
 ### Features
