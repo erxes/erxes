@@ -44,14 +44,17 @@ export const FieldStringInCell = (props: SpecificFieldProps) => {
 };
 
 export const FieldStringDetail = (props: SpecificFieldProps) => {
-  const { value, handleChange, id } = props;
+  const { value, handleChange, onInputChange, id } = props;
   const [currentValue, setCurrentValue] = useState<string>(value || '');
 
   return (
     <Input
       id={id}
       value={currentValue}
-      onChange={(e) => setCurrentValue(e.target.value)}
+      onChange={(e) => {
+        setCurrentValue(e.target.value);
+        onInputChange?.(e.target.value);
+      }}
       onBlur={() => currentValue !== value && handleChange(currentValue)}
     />
   );

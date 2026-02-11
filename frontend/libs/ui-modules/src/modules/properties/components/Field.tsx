@@ -22,10 +22,12 @@ export interface FieldProps {
   };
   propertiesData?: Record<string, unknown>;
   id: string;
+  onFieldChange?: (value: unknown) => void;
 }
 
 export interface SpecificFieldProps extends FieldProps {
   handleChange: (value: unknown) => void;
+  onInputChange?: (value: unknown) => void;
   loading: boolean;
 }
 
