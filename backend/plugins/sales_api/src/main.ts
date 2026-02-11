@@ -1,9 +1,13 @@
-import { startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from './trpc/init-trpc';
-import resolvers from './apollo/resolvers';
-import { typeDefs } from './apollo/typeDefs';
+import automations from './meta/automations';
 import { generateModels } from './connectionResolvers';
+import resolvers from './apollo/resolvers';
 import { router } from './routes';
+import segments from './meta/segments';
+import { startPlugin } from 'erxes-api-shared/utils';
+import { afterProcess } from '~/meta/afterProcess';
+import { typeDefs } from './apollo/typeDefs';
+import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
 
 startPlugin({
   name: 'sales',
@@ -13,7 +17,6 @@ startPlugin({
     resolvers,
   }),
   expressRouter: router,
-
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
@@ -23,9 +26,10 @@ startPlugin({
       : 'subscription.ts',
   ),
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
+    context.loaders = createLoaders(subdomain, models);
 
     return context;
   },
@@ -43,6 +47,17 @@ startPlugin({
     // await initMQWorkers(redis);
   },
   meta: {
+    automations,
+    segments,
+    tags: { types: [{ type: 'deal', description: 'Sales' }] },
+    properties: {
+      types: [
+        {
+          description: 'Sales pipelines',
+          type: 'deal',
+        },
+      ],
+    },
     notificationModules: [
       {
         name: 'deals',
@@ -60,5 +75,6 @@ startPlugin({
         types: [{ name: 'note', text: 'Mentioned in note' }],
       },
     ],
+    afterProcess,
   },
 });

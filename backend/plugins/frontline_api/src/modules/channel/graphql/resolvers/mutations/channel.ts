@@ -106,6 +106,7 @@ export const channelMutations = {
     { channelId, memberId }: { channelId: string; memberId: string },
     { models, user }: IContext,
   ) => {
+    console.log('channelId, memberId', channelId, memberId);
     if (!user.isOwner) {
       await checkUserRole({
         models,

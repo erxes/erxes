@@ -1,28 +1,31 @@
+import { IChannelDocument } from '@/channel/@types/channel';
 import {
+  IArchiveParams,
   IIntegration,
   IMessengerData,
-  IUiOptions,
-  ITicketData,
   IOnboardingParamsEdit,
-  IArchiveParams,
+  IUiOptions,
 } from '@/inbox/@types/integrations';
-import { IContext } from '~/connectionResolvers';
 import { IExternalIntegrationParams } from '@/inbox/db/models/Integrations';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getUniqueValue } from 'erxes-api-shared/utils';
-import {
-  facebookUpdateIntegrations,
-  facebookRemoveIntegrations,
-  facebookRemoveAccount,
-  facebookRepairIntegrations,
-  facebookCreateIntegrations,
-} from '@/integrations/facebook/messageBroker';
 import {
   callCreateIntegration,
   callRemoveIntergration,
   callUpdateIntegration,
 } from '@/integrations/call/messageBroker';
-import { IChannelDocument } from '@/channel/@types/channel';
+import {
+  imapCreateIntegration,
+  imapUpdateIntegration,
+  imapRemoveIntegrations,
+} from '~/modules/integrations/imap/messageBroker';
+import {
+  facebookCreateIntegrations,
+  facebookRemoveAccount,
+  facebookRemoveIntegrations,
+  facebookRepairIntegrations,
+  facebookUpdateIntegrations,
+} from '@/integrations/facebook/messageBroker';
+import { getUniqueValue, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 interface IntegrationParams {
   integrationId: string;
@@ -53,12 +56,15 @@ export const sendCreateIntegration = async (
   serviceName: string,
   data: CreateIntegrationParams,
 ) => {
+  console.log(serviceName, 'serviceName');
   try {
     switch (serviceName) {
       case 'facebook':
         return await facebookCreateIntegrations({ subdomain, data });
       case 'calls':
         return await callCreateIntegration({ subdomain, data });
+      case 'imap':
+        return await imapCreateIntegration({ subdomain, data });
 
       case 'instagram':
         // TODO: Implement Instagram integration
@@ -91,6 +97,8 @@ export const sendUpdateIntegration = async (
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
         break;
+      case 'imap':
+        return await imapUpdateIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -118,6 +126,8 @@ export const sendRemoveIntegration = async (
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
         break;
+      case 'imap':
+        return await imapRemoveIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -292,7 +302,7 @@ export const integrationMutations = {
       integrationDocs,
     );
 
-    const uiOptions = { logo: fields.logo, color: fields.color };
+    const uiOptions = { logo: fields.logo, primary: fields.primary };
 
     return await models.Integrations.saveMessengerAppearanceData(
       updated._id,
@@ -354,6 +364,25 @@ export const integrationMutations = {
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
+  async integrationsSaveMessengerColorTheme(
+    _root,
+    { _id, colorTheme }: { _id: string; colorTheme: any },
+    { models }: IContext,
+  ) {
+    return models.Integrations.saveMessengerColorTheme(_id, colorTheme);
+  },
+
+  async integrationsGetMessengerColorThemes(_root, _args) {
+    return [
+      {
+        _id: '',
+        primary: {
+          DEFAULT: '#3b82f6',
+          foreground: '#ffffff',
+        },
+      },
+    ];
+  },
   /**
    * Create a new messenger integration
    */
@@ -594,12 +623,12 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { _id, configId }: { _id: string; configId: string },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(
       _id,
-      ticketData,
+      configId,
     );
   },
 };

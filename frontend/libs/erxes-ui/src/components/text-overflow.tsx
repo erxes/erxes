@@ -5,12 +5,13 @@ import { cn } from 'erxes-ui/lib';
 interface TextOverflowTooltipProps {
   value?: string;
   className?: string;
+  delayDuration?: number;
 }
 
 export const TextOverflowTooltip = forwardRef<
   HTMLSpanElement,
   TextOverflowTooltipProps
->(({ value, className }, forwardedRef) => {
+>(({ value, className, delayDuration = 100 }, forwardedRef) => {
   const innerRef = useRef<HTMLSpanElement>(null);
   const textRef = forwardedRef || innerRef;
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -38,7 +39,7 @@ export const TextOverflowTooltip = forwardRef<
   }, [value, textRef]);
 
   return (
-    <Tooltip.Provider delayDuration={100}>
+    <Tooltip.Provider delayDuration={delayDuration}>
       <Tooltip>
         <Tooltip.Trigger asChild>
           <span ref={textRef} className={cn('truncate w-full', className)}>

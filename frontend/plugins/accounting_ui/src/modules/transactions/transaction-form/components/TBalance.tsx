@@ -7,6 +7,7 @@ import { tbalanceColumns } from './TBalanceTableColumns';
 import { TBalanceTableRow } from './TBalanceTableRow';
 import { useAtomValue } from 'jotai';
 import { useWatch } from 'react-hook-form';
+import { useMemo } from 'react';
 
 export const TBalance = (
   { form }: {
@@ -31,6 +32,7 @@ export const TBalance = (
   const followTrDocs = useAtomValue(followTrDocsState);
 
   const data: ITBalanceTransaction[] = [];
+
   (trDocs || []).forEach((activeTr, index) => {
     activeTr.details.forEach((detail) => {
       data.push({ ...activeTr, date, number, detail: detail as ITrDetail, journalIndex: index.toString() });
@@ -50,11 +52,19 @@ export const TBalance = (
     })
   })
 
+  const columns = useMemo(() => {
+    if ((trDocs || []).some(tr => tr.journal.includes('inv'))) {
+      return tbalanceColumns.filter(c => !c.id?.includes('inv'))
+    }
+    return tbalanceColumns
+  }, [trDocs])
+
+
   return (
     <RecordTable.Provider
-      columns={tbalanceColumns}
+      columns={columns}
       data={data || []}
-      stickyColumns={[]}
+      stickyColumns={['account']}
       className='m-3'
     >
       <RecordTable.Scroll>

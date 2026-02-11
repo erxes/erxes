@@ -11,10 +11,16 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { AddCustomerForm } from './AddCustomerForm';
+import { useTranslation } from 'react-i18next';
+import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
+
 export const CustomerAddSheet = () => {
+  const { t } = useTranslation('contact');
+  const { isLead } = useIsCustomerLeadSessionKey();
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+
   const onOpen = () => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
@@ -39,7 +45,7 @@ export const CustomerAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add customer
+          {isLead ? t('lead.add._') : t('customer.add._')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -56,11 +62,16 @@ export const CustomerAddSheet = () => {
 };
 
 export const CustomerAddSheetHeader = () => {
+  const { t } = useTranslation('contact');
+  const { isLead } = useIsCustomerLeadSessionKey();
+
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>Add contact</Sheet.Title>
+      <Sheet.Title>
+        {isLead ? t('lead.add._') : t('customer.add._')}
+      </Sheet.Title>
       <Sheet.Description className="sr-only">
-        Add a new contact to your organization.
+        "Manage the uoms for your product & service"
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

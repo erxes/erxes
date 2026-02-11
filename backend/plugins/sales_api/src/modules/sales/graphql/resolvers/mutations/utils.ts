@@ -4,7 +4,7 @@ import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import {
-  createConformity,
+  createRelations,
   getNewOrder,
   sendNotifications,
 } from '~/modules/sales/utils';
@@ -41,19 +41,17 @@ export const addDeal = async ({
     }),
   };
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: {
-        customFieldsData: extendedDoc.customFieldsData,
-      },
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: extendedDoc.propertiesData,
+      defaultValue: {},
     });
   }
 
@@ -61,9 +59,8 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createConformity(subdomain, {
-    mainType: 'deal',
-    mainTypeId: deal._id,
+  await createRelations(subdomain, {
+    dealId: deal._id,
     companyIds: doc.companyIds,
     customerIds: doc.customerIds,
   });
@@ -164,19 +161,17 @@ export const editDeal = async ({
     throw new Error('Permission denied');
   }
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: {
-        customFieldsData: extendedDoc.customFieldsData,
-      },
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: extendedDoc.propertiesData,
+      defaultValue: {},
     });
   }
 
@@ -197,19 +192,6 @@ export const editDeal = async ({
   if (doc.status && oldDeal.status && oldDeal.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    // putActivityLog(subdomain, {
-    //   action: "createArchiveLog",
-    //   data: {
-    //     item: updatedItem,
-    //     contentType: type,
-    //     action: "archive",
-    //     userId: user._id,
-    //     createdBy: user._id,
-    //     contentId: updatedItem._id,
-    //     content: activityAction,
-    //   },
-    // });
-
     // order notification
     await changeItemStatus(models, user, {
       item: updatedItem,
@@ -225,20 +207,6 @@ export const editDeal = async ({
       doc.assignedUserIds,
     );
 
-    // const activityContent = { addedUserIds, removedUserIds };
-
-    // putActivityLog(subdomain, {
-    //   action: "createAssigneLog",
-    //   data: {
-    //     contentId: _id,
-    //     userId: user._id,
-    //     contentType: type,
-    //     content: activityContent,
-    //     action: "assignee",
-    //     createdBy: user._id,
-    //   },
-    // });
-
     notificationDoc.invitedUsers = addedUserIds;
     notificationDoc.removedUsers = removedUserIds;
   }
@@ -250,7 +218,6 @@ export const editDeal = async ({
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
-  const updatedStage = await models.Stages.getStage(updatedItem.stageId);
   await subscriptionWrapper(models, {
     action: 'update',
     deal: updatedItem,

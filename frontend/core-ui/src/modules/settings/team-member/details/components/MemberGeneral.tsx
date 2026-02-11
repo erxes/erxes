@@ -1,21 +1,17 @@
-import { DetailsField } from '@/settings/team-member/details/components/fields/DetailsField';
-import { PhoneFieldUser } from '@/settings/team-member/details/components/fields/PhoneFieldUser';
-import { TextFieldUserDetail } from '@/settings/team-member/details/components/fields/TextFieldUserDetail';
-import { TextareaField } from '@/settings/team-member/details/components/fields/TextareaField';
-import { UserDateField } from '@/settings/team-member/details/components/fields/UserDateField';
-import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
-import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { IDetailsType } from '@/settings/team-member/types';
-import { format } from 'date-fns';
-import { cn, DatePicker, Label, Switch, Textarea } from 'erxes-ui';
+import { DetailsField } from './fields/DetailsField';
+import { PhoneFieldUser } from './fields/PhoneFieldUser';
+import { TextFieldUserDetail } from './fields/TextFieldUserDetail';
+import { TextareaField } from './fields/TextareaField';
+import { UserDateField } from './fields/UserDateField';
+import { useUserDetail } from '../../hooks/useUserDetail';
+import { Label } from 'erxes-ui';
 import React from 'react';
 
 export const MemberGeneral = () => {
   const { userDetail } = useUserDetail();
   if (!userDetail) return;
 
-  const { _id, details, email, score, isSubscribed, username } =
-    userDetail || {};
+  const { _id, details, email, score, username } = userDetail || {};
   return (
     <>
       <div className="py-8 space-y-6">
@@ -29,7 +25,7 @@ export const MemberGeneral = () => {
                 _id={_id}
               />
             </DataListItem>
-            <DataListItem label="Operator Phone">
+            <DataListItem label="Phone">
               <PhoneFieldUser _id={_id} details={details} />
             </DataListItem>
             <DataListItem label="Username">
@@ -69,20 +65,16 @@ export const MemberGeneral = () => {
           </div>
 
           <div className="grid grid-cols-2">
-            <div className="space-x-2 flex items-center">
-              <Label asChild>
-                <legend>Joined date</legend>
-              </Label>
-
+            <div className="space-y-2">
+              <Label>Joined date</Label>
               <UserDateField
                 value={details?.workStartedDate || ''}
                 field="workStartedDate"
-                className="w-min my-2"
+                className="w-full"
                 details={details || {}}
                 _id={_id}
               />
             </div>
-            <FieldSubscribeSwitch isSubscribed={isSubscribed} />
           </div>
 
           <DataListItem label="Description">
@@ -113,23 +105,5 @@ const DataListItem = ({
       </Label>
       {children}
     </fieldset>
-  );
-};
-
-const FieldSubscribeSwitch = ({
-  isSubscribed,
-}: {
-  isSubscribed: string | undefined;
-}) => {
-  const currentValue = isSubscribed === 'Yes';
-  const initialValue = currentValue || false;
-
-  return (
-    <div className="space-x-2 flex items-center gap-2">
-      <Label asChild>
-        <legend>Subscribed</legend>
-      </Label>
-      <Switch checked={initialValue} />
-    </div>
   );
 };

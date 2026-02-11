@@ -1,19 +1,22 @@
-import dayjs from 'dayjs';
-import { activeJournalState } from '../states/trStates';
-import { Cell, ColumnDef } from '@tanstack/react-table';
-import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
-import { ITBalanceTransaction } from '../types/TBalance';
 import { TR_SIDES } from '@/transactions/types/constants';
-import { useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import dayjs from 'dayjs';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
   Input,
+  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  PopoverScoped,
+  fixNum,
 } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { useState } from 'react';
+import { ProductsInline } from 'ui-modules';
+import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
+import { activeJournalState } from '../states/trStates';
+import { ITBalanceTransaction } from '../types/TBalance';
 
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ getValue, row }: any) => {
@@ -56,36 +59,49 @@ const DescriptionCell = ({ getValue, row }: any) => {
   );
 };
 
-const DebitCell = ({ getValue, row }: any) => {
+const AmountCell = ({ value }: { value: number }) => {
+  return (
+    <RecordTableInlineCell>
+      <CurrencyFormatedDisplay
+        currencyValue={{
+          currencyCode: CurrencyCode.MNT,
+          amountMicros: value,
+        }}
+      />
+    </RecordTableInlineCell>
+  );
+}
+
+const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
   const { detail } = row.original;
-  const { amount, side } = detail;
+  if (!detail.productId) {
+    return undefined;
+  }
 
   return (
     <RecordTableInlineCell>
       <CurrencyFormatedDisplay
         currencyValue={{
           currencyCode: CurrencyCode.MNT,
-          amountMicros: side === TR_SIDES.DEBIT ? amount : 0,
+          amountMicros: value,
         }}
       />
     </RecordTableInlineCell>
   );
+}
+
+const DebitCell = ({ row }: any) => {
+  const { detail } = row.original;
+  const { amount, side } = detail;
+
+  return (<AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />)
 };
 
-const CreditCell = ({ getValue, row }: any) => {
+const CreditCell = ({ row }: any) => {
   const { detail } = row.original;
   const { amount, side } = detail;
 
-  return (
-    <RecordTableInlineCell>
-      <CurrencyFormatedDisplay
-        currencyValue={{
-          currencyCode: CurrencyCode.MNT,
-          amountMicros: side === TR_SIDES.CREDIT ? amount : 0,
-        }}
-      />
-    </RecordTableInlineCell>
-  );
+  return (<AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />)
 };
 
 const BranchCell = ({ row }: any) => {
@@ -93,7 +109,7 @@ const BranchCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      {`${branch?.code ? `${branch.code} - ` : ''}${branch?.title ?? ''}`}
+      {[branch?.code, branch?.title].filter(Boolean).join(' - ')}
     </RecordTableInlineCell>
   );
 };
@@ -103,9 +119,7 @@ const DepartmentCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      {`${department?.code ? `${department.code} - ` : ''}${
-        department?.title ?? ''
-      }`}
+      {[department?.code, department?.title].filter(Boolean).join(' - ')}
     </RecordTableInlineCell>
   );
 };
@@ -119,12 +133,23 @@ const DateCell = ({ getValue }: any) => {
 };
 
 const AccountCell = ({ row }: any) => {
-  const { details } = row.original;
+  const { detail } = row.original;
+  return (
+    <RecordTableInlineCell>
+      <AccountsInline accountIds={[detail.accountId]} accounts={detail.account && [detail.account]} />
+    </RecordTableInlineCell>
+  );
+};
+
+const ProductCell = ({ row }: any) => {
+  const { detail } = row.original;
+  if (!detail.productId) {
+    return undefined;
+  }
 
   return (
     <RecordTableInlineCell>
-      {details.length &&
-        `${details[0].account?.code} - ${details[0].account?.name}`}
+      <ProductsInline productIds={[detail.productId]} products={detail.product && [detail.product]} />
     </RecordTableInlineCell>
   );
 };
@@ -160,7 +185,7 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
     ),
-    accessorKey: 'details',
+    accessorKey: 'account',
     cell: ({ row }) => <AccountCell row={row} />,
   },
   {
@@ -176,17 +201,6 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
   },
   {
-    id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
-    accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
-    size: 300,
-  },
-  {
     id: 'debit',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Debit" />,
     accessorKey: 'debit',
@@ -197,6 +211,26 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Credit" />,
     accessorKey: 'credit',
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
+  },
+  {
+    id: 'product-inv',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
+    ),
+    accessorKey: 'product-inv',
+    cell: ({ row }) => <ProductCell row={row} />,
+  },
+  {
+    id: 'unitPrice-inv',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    accessorKey: 'unitPrice-inv',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />,
+  },
+  {
+    id: 'count-inv',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
+    accessorKey: 'count-inv',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />,
   },
   {
     id: 'branch',
@@ -211,5 +245,16 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
     cell: ({ getValue, row }) => (
       <DepartmentCell getValue={getValue} row={row} />
     ),
+  },
+  {
+    id: 'description',
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label="Description" />
+    ),
+    accessorKey: 'description',
+    cell: ({ getValue, row }) => (
+      <DescriptionCell getValue={getValue} row={row} />
+    ),
+    size: 300,
   },
 ];

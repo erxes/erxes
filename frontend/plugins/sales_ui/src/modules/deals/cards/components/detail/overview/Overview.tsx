@@ -1,4 +1,3 @@
-import ActivityLogs from './activity/ActivityLogs';
 import { AttachmentProvider } from './attachments/AttachmentContext';
 import AttachmentUploader from './attachments/AttachmentUploader';
 import Attachments from './attachments/Attachments';
@@ -15,25 +14,24 @@ const Overview = ({ deal }: { deal: IDeal }) => {
     <AttachmentProvider
       initialAttachments={deal.attachments || ([] as IAttachment[])}
     >
-      <div className="border-b">
+      <div className="border-b ">
         <SalesDescription
           dealDescription={deal.description || []}
           dealId={deal._id}
         />
-        <div className="flex gap-4 py-2 px-4">
-          <ChecklistOverview />
-          <AttachmentUploader />
+        <div className="flex justify-between ">
+          <div className="flex gap-4 py-2 px-4">
+            <ChecklistOverview />
+            <AttachmentUploader />
+          </div>
         </div>
       </div>
-      <div className="border-b">
-        <Attachments />
-      </div>
-      <div className="overview">
+      <Attachments />
+      <div className="overview mb-4">
         <MainOverview deal={deal} />
-        <Checklists />
+        <Checklists stageId={deal.stageId} dealId={deal._id} />
       </div>
       <SalesNoteAndComment />
-      <ActivityLogs />
     </AttachmentProvider>
   );
 };

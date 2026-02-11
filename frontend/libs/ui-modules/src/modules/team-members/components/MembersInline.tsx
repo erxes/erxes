@@ -11,7 +11,7 @@ import {
   MembersInlineContext,
   useMembersInlineContext,
 } from '../contexts/MembersInlineContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Dispatch, SetStateAction } from 'react';
 
 import { IUser } from '../types/TeamMembers';
 import { IconUserCancel } from '@tabler/icons-react';
@@ -31,7 +31,7 @@ export const MembersInlineRoot = ({
   members?: IUser[];
   memberIds?: string[];
   placeholder?: string;
-  updateMembers?: (members: IUser[]) => void;
+  updateMembers?: Dispatch<SetStateAction<IUser[]>>;
   className?: string;
   size?: AvatarProps['size'];
   allowUnassigned?: boolean;
@@ -64,7 +64,7 @@ export const MembersInlineProvider = ({
   memberIds?: string[];
   members?: IUser[];
   placeholder?: string;
-  updateMembers?: (members: IUser[]) => void;
+  updateMembers?: Dispatch<SetStateAction<IUser[]>>;
   size?: AvatarProps['size'];
   allowUnassigned?: boolean;
 }) => {
@@ -96,30 +96,31 @@ export const MembersInlineProvider = ({
 
 const MemberInlineEffectComponent = ({ memberId }: { memberId: string }) => {
   const currentUser = useAtomValue(currentUserState) as IUser;
-  const { members, memberIds, updateMembers } = useMembersInlineContext();
+  const { updateMembers } = useMembersInlineContext();
   const { userDetail } = useMemberInline({
     variables: {
       _id: memberId,
     },
-    skip: !memberId || memberId === currentUser._id,
+    skip: !memberId || memberId === currentUser?._id,
   });
 
   useEffect(() => {
-    const newMembers = [...members].filter(
-      (m) => memberIds?.includes(m._id) && m._id !== memberId,
-    );
-    if (newMembers.some((m) => m._id === memberId)) {
-      updateMembers?.(newMembers);
-      return;
-    }
+    if (!updateMembers) return;
+
     if (userDetail) {
-      updateMembers?.([...newMembers, { ...userDetail, _id: memberId }]);
+      updateMembers((prev) => {
+        if (prev.some((m) => m._id === memberId)) return prev;
+        return [...prev, { ...userDetail, _id: memberId }];
+      });
     }
-    if (currentUser._id === memberId) {
-      updateMembers?.([currentUser, ...newMembers]);
+    if (currentUser && currentUser._id === memberId) {
+      updateMembers((prev) => {
+        if (prev.some((m) => m._id === memberId)) return prev;
+        return [currentUser, ...prev];
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userDetail, currentUser]);
+  }, [userDetail, currentUser, updateMembers]);
 
   return null;
 };
@@ -135,7 +136,9 @@ export const MembersInlineAvatar = ({
     useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
 
-  const sortedMembers = [...members].sort((a, b) => {
+  const activeMembers = members.filter((m) => memberIds?.includes(m._id));
+
+  const sortedMembers = [...activeMembers].sort((a, b) => {
     if (a._id === currentUser?._id) return -1;
     if (b._id === currentUser?._id) return 1;
     return 0;

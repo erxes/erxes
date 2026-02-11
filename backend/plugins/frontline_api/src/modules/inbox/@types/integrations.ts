@@ -12,12 +12,18 @@ export interface ILink {
   youtube?: string;
 }
 
+export interface IStep {
+  name: string;
+  description: string;
+  order: number;
+}
+
+export interface ILeadDataSteps {
+  [key: string]: IStep;
+}
+
 export interface ITicketData {
-  ticketLabel?: string;
-  ticketToggle?: boolean;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
+  configId: string;
 }
 interface IOnboardingParams {
   brandName: string;
@@ -42,7 +48,7 @@ export interface IMessengerOnlineHours {
 
 export interface IMessengerOnlineHoursDocument
   extends IMessengerOnlineHours,
-    Document {}
+  Document { }
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -96,7 +102,7 @@ export interface IMessengerData {
   isReceiveWebCall?: boolean;
 }
 
-export interface IMessengerDataDocument extends IMessengerData, Document {}
+export interface IMessengerDataDocument extends IMessengerData, Document { }
 
 export interface ICallout extends Document {
   title?: string;
@@ -132,6 +138,10 @@ export interface ILeadData {
   successImage?: string;
   successImageSize?: string;
   verifyEmail?: boolean;
+  appearance?: string;
+  thanksImage?: string;
+  primaryColor?: string;
+  steps?: ILeadDataSteps;
 }
 
 export interface IWebhookData {
@@ -144,16 +154,17 @@ export interface ILeadDataDocument extends ILeadData, Document {
   viewCount?: number;
   contactsGathered?: number;
 }
-
+export interface IColorDefinition {
+  DEFAULT?: string;
+  foreground?: string;
+}
 export interface IUiOptions {
-  color?: string;
-  wallpaper?: string;
   logo?: string;
-  textColor?: string;
+  primary?: IColorDefinition;
 }
 
 // subdocument schema for messenger UiOptions
-export interface IUiOptionsDocument extends IUiOptions, Document {}
+export interface IUiOptionsDocument extends IUiOptions, Document { }
 
 export interface IIntegration {
   kind: string;
@@ -164,12 +175,13 @@ export interface IIntegration {
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
   departmentIds?: string[];
   visibility?: string;
+  configId?: string;
+  ticketConfigId?: string;
 }
 
 export interface IExternalLink {

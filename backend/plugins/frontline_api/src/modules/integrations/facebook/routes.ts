@@ -9,21 +9,11 @@ import {
 export const router: Router = express.Router();
 
 // Facebook routes
-router.get('/fblogin', async (req, res) => {
-  try {
-    await loginMiddleware(req, res);
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Login failed',
-      error: err.message || err.toString(),
-    });
-  }
-});
+router.get('/fblogin', loginMiddleware);
 
-router.get('/get-post', async (req, res) => {
+router.get('/get-post', async (req, res, next) => {
   try {
-    await facebookGetPost(req, res);
+    await facebookGetPost(req, res, next);
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -33,9 +23,9 @@ router.get('/get-post', async (req, res) => {
   }
 });
 
-router.get('/get-status', async (req, res) => {
+router.get('/get-status', async (req, res, next) => {
   try {
-    await facebookGetStatus(req, res);
+    await facebookGetStatus(req, res, next);
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -45,9 +35,9 @@ router.get('/get-status', async (req, res) => {
   }
 });
 
-router.get('/receive', async (req, res) => {
+router.get('/receive', async (req, res, next) => {
   try {
-    await facebookSubscription(req, res);
+    await facebookSubscription(req, res, next);
   } catch (err) {
     res.status(500).json({
       success: false,

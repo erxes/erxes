@@ -23,6 +23,7 @@ import {
   Input,
   Separator,
   Sheet,
+  useToast,
   useBlockEditor,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
@@ -31,6 +32,9 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
+import { SelectTags } from 'ui-modules';
+import { SelectTemplate } from '@/template/components/SelectTemplate';
+import { IOperationTemplate } from '@/template/types';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const { teamId, projectId, cycleId } = useParams<{
@@ -47,7 +51,6 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [defaultValuesState, setDefaultValues] = useAtom(
     taskCreateDefaultValuesState,
   );
-
   const { project } = useGetProject({
     variables: { _id: projectId || '' },
     skip: !projectId,
@@ -56,7 +59,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [_teamId, _setTeamId] = useState<string | undefined>(
     teamId ? teamId : project?.teamIds?.[0] ? project?.teamIds?.[0] : undefined,
   );
-
+  const { toast } = useToast();
   const defaultValues = {
     teamId: _teamId || undefined,
     name: '',
@@ -68,6 +71,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     estimatePoint: 0,
     cycleId: cycleId,
     milestoneId: undefined,
+    tagIds: [] as string[],
   };
 
   const form = useForm<TAddTask>({
@@ -116,10 +120,38 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     });
   };
 
+  const onTemplateSelect = async (template: IOperationTemplate) => {
+    if (template.defaults) {
+      if (template.defaults.description) {
+        try {
+          const content = JSON.parse(template.defaults.description);
+          editor.replaceBlocks(editor.document, content);
+          setDescriptionContent(content);
+        } catch (e) {
+          console.error('Failed to parse description', e);
+        }
+      }
+
+      const ALLOWED_FIELDS = ['name'];
+
+      Object.keys(template.defaults).forEach((key) => {
+        if (ALLOWED_FIELDS.includes(key)) {
+          form.setValue(key as any, template.defaults[key]);
+        }
+      });
+    }
+  };
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: Object.entries(errors)[0][1].message,
+          });
+        })}
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">
@@ -144,6 +176,12 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
           />
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">New task</Sheet.Title>
+          <div className="ml-auto">
+            <SelectTemplate
+              teamId={_teamId}
+              onSelect={onTemplateSelect}
+            />
+          </div>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
@@ -215,7 +253,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <SelectProject.FormItem
                     value={field.value || ''}
                     onValueChange={(value: any) => {
-                      field.onChange(value);
+                      field.onChange(value || undefined);
                     }}
                     teamId={form.getValues('teamId') || undefined}
                   />
@@ -301,7 +339,23 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                 </Form.Item>
               )}
             />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="operation:task"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
+                  />
+                </Form.Item>
+              )}
+            />
           </div>
+
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor
@@ -311,7 +365,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

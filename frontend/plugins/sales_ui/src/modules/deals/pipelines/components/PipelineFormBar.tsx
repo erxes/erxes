@@ -2,7 +2,7 @@ import {
   Button,
   Form,
   Sheet,
-  Spinner,
+  useConfirm,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
@@ -87,6 +87,7 @@ export function PipelineFormBar() {
 
     const searchParams = new URLSearchParams(location.search);
     searchParams.delete('pipelineId');
+    searchParams.delete('tab');
     navigate(`${location.pathname}?${searchParams.toString()}`, {
       replace: true,
     });
@@ -94,6 +95,7 @@ export function PipelineFormBar() {
 
   const { addPipeline, loading: addLoading } = usePipelineAdd();
   const { pipelineEdit, loading: editLoading } = usePipelineEdit();
+  const { confirm } = useConfirm();
 
   const submitHandler: SubmitHandler<TPipelineForm> = useCallback(
     async (data) => {
@@ -102,18 +104,29 @@ export function PipelineFormBar() {
         ? 'Pipeline updated successfully'
         : 'Pipeline added successfully';
 
-      const variables = pipelineId
-        ? { _id: pipelineId, ...data } // include _id for edit
-        : { ...data };
+      const { paymentTypes, erxesAppToken, paymentIds, ...rest } = data;
 
-      managePipeline({
-        variables,
-        onCompleted: () => {
-          toast({ title: successTitle });
-          onClose();
-        },
+      const variables = {
+        ...(pipelineId && { _id: pipelineId }),
+        ...rest,
+        paymentTypes: paymentTypes || [],
+        erxesAppToken: erxesAppToken || '',
+        paymentIds: paymentIds || [],
+      };
+
+      confirm({
+        message: `Are you absolutely sure to continue?`,
+      }).then(() => {
+        managePipeline({
+          variables,
+          onCompleted: () => {
+            toast({ title: successTitle });
+            onClose();
+          },
+        });
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [addPipeline, pipelineEdit, pipelineId, toast, onClose],
   );
 
@@ -154,6 +167,12 @@ export function PipelineFormBar() {
         isCheckDate: pipelineDetail?.isCheckDate || false,
         isCheckUser: pipelineDetail?.isCheckUser || false,
         isCheckDepartment: pipelineDetail?.isCheckDepartment || false,
+        initialCategoryIds: pipelineDetail?.initialCategoryIds || [],
+        excludeCategoryIds: pipelineDetail?.excludeCategoryIds || [],
+        excludeProductIds: pipelineDetail?.excludeProductIds || [],
+        erxesAppToken: pipelineDetail?.erxesAppToken || '',
+        paymentIds: pipelineDetail?.paymentIds || [],
+        paymentTypes: pipelineDetail?.paymentTypes || [],
       });
     } else {
       reset({
@@ -171,6 +190,12 @@ export function PipelineFormBar() {
         isCheckDate: false,
         isCheckUser: false,
         isCheckDepartment: false,
+        initialCategoryIds: [],
+        excludeCategoryIds: [],
+        excludeProductIds: [],
+        erxesAppToken: '',
+        paymentIds: [],
+        paymentTypes: [],
       });
     }
   }, [pipelineId, pipelineDetail, reset, boardId, methods]);
@@ -184,7 +209,7 @@ export function PipelineFormBar() {
           </Button>
         </Sheet.Trigger>
         <Sheet.View
-          className="p-0 md:max-w-screen-2xl"
+          className="p-0 md:max-w-6xl"
           onEscapeKeyDown={(e) => {
             e.preventDefault();
           }}
@@ -209,7 +234,7 @@ export function PipelineFormBar() {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={addLoading || editLoading}>
-                  {addLoading || editLoading ? <Spinner /> : 'Create'}
+                  {pipelineId ? 'Update' : 'Create'}
                 </Button>
               </Sheet.Footer>
             </form>

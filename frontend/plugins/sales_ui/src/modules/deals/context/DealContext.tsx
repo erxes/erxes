@@ -6,13 +6,13 @@ import {
 } from '../cards/hooks/useDeals';
 
 import { ISelectBoardsContext } from '../types/boards';
-import { useConformityEdit } from '../cards/hooks/useConformity';
+import { ISelectPipelinesContext } from '../types/pipelines';
+import { ISelectStagesContext } from '../types/stages';
 
 interface DealsContextType {
   addDeals: ReturnType<typeof useDealsAdd>['addDeals'];
   editDeals: ReturnType<typeof useDealsEdit>['editDeals'];
   removeDeals: ReturnType<typeof useDealsRemove>['removeDeals'];
-  editConformity: ReturnType<typeof useConformityEdit>['editConformity'];
   loading: boolean;
   error: any;
 }
@@ -28,26 +28,19 @@ export const DealsProvider = ({ children }: { children: ReactNode }) => {
     error: errorRemove,
   } = useDealsRemove();
 
-  const {
-    editConformity,
-    loading: loadingEditConformity,
-    error: errorEditConformity,
-  } = useConformityEdit();
-
   const loading =
-    loadingAdd || loadingEdit || loadingRemove || loadingEditConformity;
-  const error = errorAdd || errorEdit || errorRemove || errorEditConformity;
+    loadingAdd || loadingEdit || loadingRemove;
+  const error = errorAdd || errorEdit || errorRemove;
 
   const value = useMemo(
     () => ({
       addDeals,
       editDeals,
       removeDeals,
-      editConformity,
       loading,
       error,
     }),
-    [addDeals, editDeals, removeDeals, editConformity, loading, error],
+    [addDeals, editDeals, removeDeals, loading, error],
   );
 
   return (
@@ -72,6 +65,33 @@ export const useSelectBoardsContext = () => {
   if (!context) {
     throw new Error(
       'useSelectBoardsContext must be used within <SelectBoardsProvider>',
+    );
+  }
+  return context;
+};
+
+export const SelectPipelinesContext =
+  createContext<ISelectPipelinesContext | null>(null);
+
+export const useSelectPipelinesContext = () => {
+  const context = useContext(SelectPipelinesContext);
+  if (!context) {
+    throw new Error(
+      'useSelectPipelinesContext must be used within <SelectPipelineProvider>',
+    );
+  }
+  return context;
+};
+
+export const SelectStagesContext = createContext<ISelectStagesContext | null>(
+  null,
+);
+
+export const useSelectStagesContext = () => {
+  const context = useContext(SelectStagesContext);
+  if (!context) {
+    throw new Error(
+      'useSelectStagesContext must be used within <SelectStageProvider>',
     );
   }
   return context;

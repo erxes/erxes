@@ -11,6 +11,7 @@ export const EM_INTEGRATION_DETAIL_QUERY = gql`
         name
       }
       messengerData
+      ticketConfigId
       callData {
         header
         description

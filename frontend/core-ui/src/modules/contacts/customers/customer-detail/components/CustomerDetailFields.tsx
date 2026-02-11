@@ -1,19 +1,23 @@
-import { Combobox, Label, Switch, Textarea } from 'erxes-ui';
+import { CustomerAddGeneralInformationFields } from '@/contacts/customers/components/CustomerAddGeneralInformationFields';
 import { CustomerDetailSelectTag } from '@/contacts/customers/customer-detail/components/CustomerDetailSelectTag';
-import { TextFieldCustomer } from '@/contacts/customers/customer-detail/components/TextFieldCustomer';
 import {
-  CustomerEmails,
-  CustomerOwner,
-  useCustomerEdit,
-  CustomerPhones,
-} from 'ui-modules';
+  customerFormSchema,
+  CustomerFormType,
+} from '@/contacts/customers/constants/formSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Form, useToast } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useCustomerEdit } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
-import { DataListItem } from '@/contacts/components/ContactsDetail';
 
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
   const { customerEdit } = useCustomerEdit();
-  if (!customerDetail) return;
+  const { t } = useTranslation('contact');
+  const { toast } = useToast();
+
+  if (!customerDetail) return null;
 
   const {
     primaryEmail,
@@ -26,88 +30,74 @@ export const CustomerDetailFields = () => {
     _id,
     isSubscribed,
     description,
-    score,
     phones,
     phoneValidationStatus,
+    avatar,
+    firstName,
+    lastName,
+    middleName,
+    sex,
+    links,
+    state,
   } = customerDetail;
 
+  const form = useForm<CustomerFormType>({
+    resolver: zodResolver(customerFormSchema),
+    values: {
+      avatar: avatar || null,
+      firstName: firstName || '',
+      lastName: lastName || '',
+      middleName: middleName || '',
+      sex: sex || null,
+      primaryEmail: primaryEmail || '',
+      primaryPhone: primaryPhone || '',
+      phones: phones || [],
+      emails: emails || [],
+      ownerId: ownerId || '',
+      description: description || '',
+      isSubscribed: isSubscribed || 'Yes',
+      links: links || {},
+      code: code || '',
+      emailValidationStatus: emailValidationStatus || 'unknown',
+      phoneValidationStatus: phoneValidationStatus || 'unknown',
+      state: state || '',
+    },
+  });
+
+  const onSubmit = (data: CustomerFormType) => {
+    const { emailValidationStatus, phoneValidationStatus, sex, avatar, ...rest } = data;
+
+    customerEdit({
+      variables: {
+        ...rest,
+        sex: sex === null ? undefined : sex,
+        avatar: avatar === null ? undefined : avatar,
+        _id,
+      },
+      onCompleted: () => {
+        toast({ title: t('saved') || 'Saved', variant: 'success' });
+      },
+      onError: (e) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
   return (
-    <>
-      <div className="py-8 space-y-6">
-        <CustomerDetailSelectTag tagIds={tagIds || []} customerId={_id} />
-        <div className="px-8 space-y-2">
-          <Label asChild>
-            <legend>Owner</legend>
-          </Label>
-          <div className="inline-flex">
-            <CustomerOwner _id={_id} ownerId={ownerId} />
+    <div className="py-8 space-y-6">
+      <CustomerDetailSelectTag tagIds={tagIds || []} customerId={_id} />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-8">
+          <CustomerAddGeneralInformationFields form={form} />
+          <div className="flex justify-end">
+            <Button type="submit">{t('save', 'Save')}</Button>
           </div>
-        </div>
-        <div className="px-8 font-medium flex gap-5 flex-col">
-          <div className="grid grid-cols-2 gap-5 col-span-5">
-            <DataListItem label="Code">
-              <TextFieldCustomer
-                value={code || ''}
-                placeholder="Add Code"
-                field="code"
-                _id={_id}
-              />
-            </DataListItem>
-            <DataListItem label="Emails">
-              <CustomerEmails
-                _id={_id}
-                primaryEmail={primaryEmail || ''}
-                emails={emails || []}
-                emailValidationStatus={emailValidationStatus || 'valid'}
-                Trigger={(props) => <Combobox.TriggerBase {...props} />}
-              />
-            </DataListItem>
-            <DataListItem label="phones">
-              <CustomerPhones
-                _id={_id}
-                primaryPhone={primaryPhone || ''}
-                phones={phones || []}
-                phoneValidationStatus={phoneValidationStatus || 'valid'}
-                Trigger={Combobox.TriggerBase}
-              />
-            </DataListItem>
-            <DataListItem label="Score">
-              <TextFieldCustomer
-                value={score?.toString() || ''}
-                placeholder="Add Score"
-                field="score"
-                _id={_id}
-              />
-            </DataListItem>
-          </div>
-          <DataListItem label="Subscribed">
-            <Switch
-              checked={isSubscribed === 'Yes'}
-              onCheckedChange={(checked) => {
-                customerEdit({
-                  variables: {
-                    _id,
-                    isSubscribed: checked ? 'Yes' : 'No',
-                  },
-                });
-              }}
-            />
-          </DataListItem>
-          <DataListItem label="Description">
-            <Textarea
-              value={description || ''}
-              onChange={(e) => {
-                customerEdit({
-                  variables: {
-                    _id,
-                    description: e.target.value,
-                  },
-                });
-              }}
-            />
-          </DataListItem>
-        </div>
-      </div>
-    </>
+        </form>
+      </Form>
+    </div>
   );
 };

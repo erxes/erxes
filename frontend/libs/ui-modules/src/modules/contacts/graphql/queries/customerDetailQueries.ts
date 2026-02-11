@@ -5,6 +5,7 @@ export const CUSTOMER_DETAIL = gql`
     customerDetail(_id: $_id) {
       _id
       avatar
+      propertiesData
       firstName
       lastName
       middleName
@@ -31,7 +32,6 @@ export const CUSTOMER_DETAIL = gql`
         avatar
         primaryName
       }
-      __typename
     }
   }
 `;

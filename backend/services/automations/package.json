@@ -13,7 +13,18 @@
   "license": "ISC",
   "dependencies": {
     "erxes-api-shared": "workspace:^",
-    "tslib": "^2.6.3"
+    "tslib": "^2.6.3",
+    "debug": "^4.4.0",
+    "nodemailer": "^6.9.10",
+    "aws-sdk": "^2.1692.0",
+    "bullmq": "^5.40.0",
+    "moment": "^2.30.1",
+    "helmet": "^8.1.0",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "https-proxy-agent": "^7.0.6",
+    "zod": "^3.23.8"
   },
   "devDependencies": {}
 }

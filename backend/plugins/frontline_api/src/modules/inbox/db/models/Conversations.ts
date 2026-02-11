@@ -1,15 +1,14 @@
-import { Model } from 'mongoose';
-
-import { cleanHtml, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IMessageDocument } from '@/inbox/@types/conversationMessages';
+import {
+  IConversation,
+  IConversationDocument,
+} from '@/inbox/@types/conversations';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { conversationSchema } from '@/inbox/db/definitions/conversations';
+import { cleanHtml, graphqlPubsub, stream } from 'erxes-api-shared/utils';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { graphqlPubsub, stream } from 'erxes-api-shared/utils';
-import {
-  IConversationDocument,
-  IConversation,
-} from '@/inbox/@types/conversations';
-import { IMessageDocument } from '@/inbox/@types/conversationMessages';
+
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;

@@ -16,10 +16,9 @@ const config: ModuleFederationConfig = {
   name: 'frontline_ui',
   exposes: {
     './config': './src/config.tsx',
-    './frontline': './src/modules/Main.tsx',
-    './configsSettings': './src/modules/integrations-config/Settings.tsx',
-    './ticketSettings': './src/modules/ticket/Settings.tsx',
-    './channelsSettings': './src/modules/channels/Settings.tsx',
+    './frontline': './src/modules/FrontlineMain.tsx',
+    './frontlineSettings': './src/modules/FrontlineSettings.tsx',
+    './knowledgebase': './src/modules/knowledgebase/Main.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
     './notificationWidget':

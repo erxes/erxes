@@ -1,11 +1,7 @@
-import {
-  IconListCheck,
-  IconChecklist,
-  IconClipboard,
-} from '@tabler/icons-react';
+import { IconChecklist, IconListCheck } from '@tabler/icons-react';
+import { Suspense, lazy } from 'react';
 
 import { IUIConfig } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
 
 const MainNavigation = lazy(() =>
   import('./modules/navigation/MainNavigation').then((module) => ({
@@ -19,9 +15,21 @@ const TeamsNavigation = lazy(() =>
   })),
 );
 
+const OperationSettingsNavigation = lazy(() =>
+  import('@/OperationSettingsNavigation').then((mod) => ({
+    default: mod.OperationSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'operation',
+  path: 'operation',
   icon: IconListCheck,
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <OperationSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'operation',
     icon: IconListCheck,
@@ -30,7 +38,7 @@ export const CONFIG: IUIConfig = {
         <MainNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <TeamsNavigation />
       </Suspense>
@@ -41,25 +49,22 @@ export const CONFIG: IUIConfig = {
       name: 'operation',
       icon: IconListCheck,
       path: 'operation',
-      hasSettings: false,
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
     {
       name: 'team',
       path: 'operation/team',
-      settingsOnly: true,
-    },
-  ],
-
-  relationWidgets: [
-    {
-      name: 'tasks',
-      icon: IconChecklist,
     },
     {
       name: 'projects',
-      icon: IconClipboard,
+      path: 'operation/projects',
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'tasks',
+        icon: IconChecklist,
+      },
+    ],
+  },
 };

@@ -1,4 +1,4 @@
-import { Members } from '@/channels/components/members/Members';
+import { Members } from '@/channels/components/settings/members/Members';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 export const ChannelMembersPage = () => {
   const navigate = useNavigate();
   return (
-    <div className="h-screen">
+    <>
       <div className="px-4 h-16 flex items-center">
         <Breadcrumb>
           <Breadcrumb.List>
@@ -26,6 +26,6 @@ export const ChannelMembersPage = () => {
         </Breadcrumb>
       </div>
       <Members />
-    </div>
+    </>
   );
 };

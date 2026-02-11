@@ -1,14 +1,25 @@
 import { Link, useLocation } from 'react-router';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { IconMinusVertical, IconSettings } from '@tabler/icons-react';
-import { SETTINGS_PATH_DATA } from '../constants/data';
-import { PageHeader, PageHeaderStart } from 'ui-modules';
+import { GET_SETTINGS_PATH_DATA } from '../constants/data';
+import { PageHeader, PageHeaderStart, useVersion } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 
 export function SettingsBreadcrumbs() {
   const { pathname } = useLocation();
-  const currentPath =
-    SETTINGS_PATH_DATA.nav.find((nav) => pathname.includes(nav.path)) ||
-    SETTINGS_PATH_DATA.account.find((acc) => pathname.includes(acc.path));
+  const { t } = useTranslation('common', {
+    keyPrefix: 'sidebar',
+  });
+  const version = useVersion();
+  const currentPath = useMemo(() => {
+    const settingsData = GET_SETTINGS_PATH_DATA(version, t);
+    return (
+      settingsData.nav.find((nav: any) => pathname.includes(nav.path)) ||
+      settingsData.account.find((acc: any) => pathname.includes(acc.path))
+    );
+  }, [pathname, t]);
+
   return (
     <PageHeader>
       <PageHeaderStart>

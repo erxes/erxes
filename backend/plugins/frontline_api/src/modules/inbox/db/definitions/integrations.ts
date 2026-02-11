@@ -8,6 +8,13 @@ import {
 } from './constants';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 
+export interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+}
+
 const messengerOnlineHoursSchema = new Schema(
   {
     day: { type: String },
@@ -226,6 +233,34 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Verify email',
     },
+    appearance: {
+      type: String,
+      optional: true,
+      label: 'Appearance',
+    },
+    thanksImage: {
+      type: String,
+      optional: true,
+      label: 'Thanks image',
+    },
+    primaryColor: {
+      type: String,
+      optional: true,
+      label: 'Primary color',
+    },
+    steps: {
+      type: Object,
+      optional: true,
+      label: 'Steps',
+    },
+  },
+  { _id: false },
+);
+
+const colorDefinitionSchema = new Schema(
+  {
+    DEFAULT: { type: String },
+    foreground: { type: String },
   },
   { _id: false },
 );
@@ -233,10 +268,8 @@ export const leadDataSchema = new Schema(
 // subdocument schema for messenger UiOptions
 const uiOptionsSchema = new Schema(
   {
-    color: { type: String },
-    textColor: { type: String },
-    wallpaper: { type: String },
     logo: { type: String },
+    primary: { type: colorDefinitionSchema },
   },
   { _id: false },
 );
@@ -283,5 +316,6 @@ export const integrationSchema = schemaWrapper(
     formData: { type: leadDataSchema },
     messengerData: { type: messengerDataSchema },
     uiOptions: { type: uiOptionsSchema },
+    ticketConfigId: { type: String },
   }),
 );

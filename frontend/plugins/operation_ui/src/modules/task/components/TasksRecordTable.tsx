@@ -8,17 +8,30 @@ import { currentUserState } from 'ui-modules';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { taskTotalCountAtom } from '@/task/states/tasksTotalCountState';
+import { TasksCommandBar } from './tasks-command-bar';
 
-export const TasksRecordTable = () => {
+interface TasksRecordTableProps {
+  isCreatedView?: boolean;
+}
+
+export const TasksRecordTable = ({
+  isCreatedView = false,
+}: TasksRecordTableProps) => {
   const { projectId, cycleId, teamId } = useParams();
   const currentUser = useAtomValue(currentUserState);
   const setTaskTotalCount = useSetAtom(taskTotalCountAtom);
 
-  const variables = {
-    projectId: projectId || undefined,
-    cycleId: cycleId || undefined,
-    userId: currentUser?._id,
-  };
+  const variables = isCreatedView
+    ? {
+        ...(projectId && { projectId }),
+        ...(cycleId && { cycleId }),
+        createdBy: currentUser?._id,
+      }
+    : {
+        ...(projectId && { projectId }),
+        ...(cycleId && { cycleId }),
+        userId: currentUser?._id,
+      };
 
   const { tasks, handleFetchMore, pageInfo, loading, totalCount } = useTasks({
     variables,
@@ -45,7 +58,7 @@ export const TasksRecordTable = () => {
         columns={tasksColumns(teams, team)}
         data={tasks || (loading ? [{}] : [])}
         className="m-3 h-full"
-        stickyColumns={['checkbox', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
@@ -67,6 +80,7 @@ export const TasksRecordTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <TasksCommandBar />
       </RecordTable.Provider>
     </div>
   );

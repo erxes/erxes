@@ -1,13 +1,14 @@
-import { FilterQuery, Model } from 'mongoose';
-import { IModels } from '~/connectionResolvers';
-import { channelSchema } from '@/channel/db/definitions/channel';
 import {
   ChannelMemberRoles,
   IChannel,
   IChannelDocument,
   IChannelFilter,
+  IChannelMember,
 } from '@/channel/@types/channel';
-import { IChannelMember } from '@/channel/@types/channel';
+import { channelSchema } from '@/channel/db/definitions/channel';
+import { FilterQuery, Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+
 export interface IChannelModel extends Model<IChannelDocument> {
   getChannel(_id: string): Promise<IChannelDocument>;
   getChannels(params: IChannelFilter): Promise<IChannelDocument[]>;
@@ -33,8 +34,19 @@ export const loadChannelClass = (models: IModels) => {
      */
     public static async getChannel(_id: string): Promise<IChannelDocument> {
       const channel = await models.Channels.findOne({ _id }).lean();
+
       if (!channel) throw new Error('Channel not found');
-      return channel;
+
+      const pipelineCount = await models.Pipeline.countDocuments({
+        channelId: _id,
+      });
+
+      const data = {
+        ...channel,
+        pipelineCount,
+      };
+
+      return data;
     }
 
     public static async createChannel({

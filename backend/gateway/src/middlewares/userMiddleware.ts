@@ -3,8 +3,9 @@ import * as dotenv from 'dotenv';
 import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
 import {
   getSubdomain,
-  PERMISSION_ROLES,
   redis,
+  setClientPortalHeader,
+  setCPUserHeader,
   setUserHeader,
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response } from 'express';
@@ -15,7 +16,7 @@ import { generateModels, IModels } from '../connectionResolver';
 dotenv.config();
 
 export default async function userMiddleware(
-  req: Request & { user?: any },
+  req: Request & { user?: any; cpUser?: any; clientPortal?: any },
   res: Response,
   next: NextFunction,
 ) {
@@ -154,42 +155,57 @@ export default async function userMiddleware(
     }
   }
 
-  const clientToken = req.headers['x-app-token'];
+  const clientPortalToken = req.headers['x-app-token'];
+  const clientAuthToken =
+    req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 
-  if (clientToken) {
-    const token = String(clientToken);
+  if (clientPortalToken) {
+    const clientPortalTokenString = String(clientPortalToken);
+
     try {
-      const decoded: any = jwt.verify(
-        token,
+      const clientPortalTokenDecoded: any = jwt.verify(
+        clientPortalTokenString,
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
-      const client = await models.Clients.findOne({
-        clientId: decoded.clientId,
+      const clientPortal = await models.ClientPortals.findOne({
+        _id: clientPortalTokenDecoded.clientPortalId,
       });
 
-      if (!client) {
+      if (!clientPortal) {
         return next();
       }
 
-      if (
-        client.whiteListedIps?.length > 0 &&
-        !client.whiteListedIps.includes(req.ip)
-      ) {
-        return next();
+      req.clientPortal = clientPortal;
+
+      setClientPortalHeader(req.headers, req.clientPortal);
+
+      if (clientAuthToken) {
+        try {
+          const clientAuthTokenString = String(clientAuthToken);
+
+          const clientAuthTokenDecoded: any = jwt.verify(
+            clientAuthTokenString,
+            process.env.JWT_TOKEN_SECRET || 'SECRET',
+          );
+
+          const clientPortalUser = await models.CPUsers.findOne({
+            _id: clientAuthTokenDecoded.userId,
+            clientPortalId: clientPortal._id,
+          });
+
+          if (clientPortalUser) {
+            req.cpUser = clientPortalUser;
+            setCPUserHeader(req.headers, req.cpUser);
+          }
+        } catch (e) {
+          if (e instanceof jwt.TokenExpiredError) {
+            return next();
+          } else {
+            console.error(e);
+          }
+        }
       }
-
-      const systemUser = await models.Users.findOne({
-        role: USER_ROLES.SYSTEM,
-        appId: client._id,
-      });
-
-      if (!systemUser) {
-        return next();
-      }
-
-      req.user = systemUser;
-      setUserHeader(req.headers, req.user);
 
       return next();
     } catch (e) {
@@ -222,19 +238,6 @@ export default async function userMiddleware(
       return next();
     }
 
-    let userRole = await models.Roles.findOne({ userId: userDoc._id }).lean();
-
-    if (!userRole) {
-      const role = userDoc.isOwner
-        ? PERMISSION_ROLES.OWNER
-        : PERMISSION_ROLES.MEMBER;
-
-      userRole = await models.Roles.create({
-        userId: userDoc._id,
-        role,
-      });
-    }
-
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
 
     // invalid token access.
@@ -243,7 +246,7 @@ export default async function userMiddleware(
     }
 
     // save user in request
-    req.user = { ...userDoc, role: userRole.role };
+    req.user = { ...userDoc };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
 

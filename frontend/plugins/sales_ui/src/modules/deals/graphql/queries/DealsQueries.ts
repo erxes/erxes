@@ -1,21 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const conformityQueryFields = `
-  $mainType: String,
-  $mainTypeId: String,
-  $relType: String,
-  $isRelated: Boolean,
-  $isSaved: Boolean,
-`;
-
-export const conformityQueryFieldDefs = `
-  conformityMainType: $mainType,
-  conformityMainTypeId: $mainTypeId,
-  conformityRelType: $relType,
-  conformityIsRelated: $isRelated,
-  conformityIsSaved: $isSaved,
-`;
-
 const commonParams = `
   $_ids: [String]
   $companyIds: [String],
@@ -88,12 +72,18 @@ export const commonListFields = `
   companies {
     _id
     primaryName
+    primaryPhone
+    primaryEmail
   }
   customers {
     _id
     firstName
+    middleName
     lastName
-    email
+    primaryPhone
+    primaryEmail
+    phones
+    emails
   }
   assignedUsers {
     _id
@@ -111,8 +101,11 @@ export const commonListFields = `
   stage {
     _id
     name
+    defaultTick
+    age
   }
   stageId
+  order
   isComplete
   isWatched
   relations
@@ -126,12 +119,15 @@ export const commonListFields = `
   number
   tagIds
   customProperties
+  propertiesData
   status
   tags {
     _id
     name
     colorCode
   }
+  branchIds
+  departmentIds
 `;
 
 export const GET_DEALS = gql`
@@ -158,6 +154,7 @@ export const GET_DEALS = gql`
             _id
             name
           }
+          productsData
           unUsedAmount
           amount
           ${commonListFields}
@@ -170,6 +167,11 @@ export const GET_DEALS = gql`
             title
           }
           relations
+          pipeline {
+            _id
+            name
+          }
+          boardId
         }
         pageInfo {
           endCursor
@@ -177,6 +179,7 @@ export const GET_DEALS = gql`
           hasNextPage
           hasPreviousPage
         }
+       
         totalCount
       }
   }
@@ -217,8 +220,28 @@ export const GET_DEAL_DETAIL = gql`
       products {
         _id
         name
+        code
+        unitPrice
+        category {
+          _id
+          name
+        }
+        vendor {
+          _id
+          primaryName
+        }
+        categoryId
       }
+      productsData
+      paymentsData
       relations
+      pipeline {
+        _id
+        name
+        paymentTypes
+        paymentIds
+      }
+      boardId
     }
   }
 `;

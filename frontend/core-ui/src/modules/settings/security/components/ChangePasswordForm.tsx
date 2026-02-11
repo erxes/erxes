@@ -4,6 +4,7 @@ import { useChangePassword } from '@/settings/security/hooks/useChangePassword';
 import { useChangePasswordForm } from '@/settings/security/hooks/useChangePasswordForm';
 import { IChangePassword } from '@/settings/security/types';
 import { Button, Form, Spinner, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ChangePasswordForm = () => {
   const { form } = useChangePasswordForm();
@@ -16,6 +17,7 @@ export const ChangePasswordForm = () => {
     'reTypeNewPassword',
     'currentPassword',
   ]);
+  const { t } = useTranslation('settings', { keyPrefix: 'change-password' });
   const onSubmit = (data: IChangePassword) => {
     const { currentPassword, newPassword } = data;
     changePassword({
@@ -24,11 +26,18 @@ export const ChangePasswordForm = () => {
         newPassword,
       },
       onCompleted: () => {
-        toast({ title: 'Password has changed successfully' });
+        toast({
+          title: 'Password has changed successfully',
+          variant: 'success',
+        });
         reset();
       },
       onError: (error) =>
-        toast({ title: error.message, variant: 'destructive' }),
+        toast({
+          title: 'Error changing password',
+          description: error.message,
+          variant: 'destructive',
+        }),
     });
   };
 
@@ -39,19 +48,17 @@ export const ChangePasswordForm = () => {
         onSubmit={handleSubmit(onSubmit)}
       >
         <fieldset className="flex flex-col space-y-4">
-          <legend className="font-semibold text-lg pt-4 pb-6">
-            Change password
-          </legend>
+          <legend className="font-semibold text-lg pt-4 pb-6">{t('_')}</legend>
           <Form.Field
             control={control}
             name="currentPassword"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Current password</Form.Label>
+                <Form.Label>{t('current-password')}</Form.Label>
                 <Form.Control>
                   <PasswordInput
                     {...field}
-                    placeholder="Current password"
+                    placeholder={t('current-password')}
                     autoComplete={field.name}
                   />
                 </Form.Control>
@@ -64,11 +71,11 @@ export const ChangePasswordForm = () => {
             name="newPassword"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>New password</Form.Label>
+                <Form.Label>{t('new-password')}</Form.Label>
                 <Form.Control>
                   <PasswordInput
                     {...field}
-                    placeholder="New password"
+                    placeholder={t('new-password')}
                     autoComplete={field.name}
                   />
                 </Form.Control>
@@ -80,11 +87,11 @@ export const ChangePasswordForm = () => {
             name="reTypeNewPassword"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Re-type password to confirm</Form.Label>
+                <Form.Label>{t('confirm-password')}</Form.Label>
                 <Form.Control>
                   <PasswordInput
                     {...field}
-                    placeholder="Re-type password to confirm"
+                    placeholder={t('confirm-password')}
                     autoComplete={field.name}
                   />
                 </Form.Control>
@@ -108,7 +115,7 @@ export const ChangePasswordForm = () => {
               newPassword !== reTypeValue
             }
           >
-            {loading ? <Spinner /> : 'Save'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </div>
       </form>

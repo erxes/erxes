@@ -5,20 +5,12 @@ import { IntegrationType } from '@/types/Integration';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 const ErxesMessengerDetail = lazy(() =>
   import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
     (module) => ({
       default: module.ErxesMessengerDetail,
-    }),
-  ),
-);
-
-const ErxesMessengerActions = lazy(() =>
-  import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
-    (module) => ({
-      default: module.ErxesMessengerActions,
     }),
   ),
 );
@@ -31,10 +23,10 @@ const FacebookIntegrationDetail = lazy(() =>
   ),
 );
 
-const FacebookIntegrationActions = lazy(() =>
-  import('@/integrations/facebook/components/FacebookIntegrationDetail').then(
+const ImapIntegrationDetail = lazy(() =>
+  import('@/integrations/imap/components/ImapIntegrationDetail').then(
     (module) => ({
-      default: module.FacebookIntegrationActions,
+      default: module.ImapIntegrationDetail,
     }),
   ),
 );
@@ -47,16 +39,11 @@ const CallIntegrationDetail = lazy(() =>
   ),
 );
 
-const CallIntegrationActions = lazy(() =>
-  import('@/integrations/call/components/CallIntegrationDetail').then(
-    (module) => ({
-      default: module.CallIntegrationActions,
-    }),
-  ),
-);
-
 export const IntegrationDetailPage = () => {
-  const { integrationType } = useParams();
+  const { integrationType, id } = useParams<{
+    integrationType: string;
+    id: string;
+  }>();
   const navigate = useNavigate();
 
   const integration =
@@ -68,7 +55,13 @@ export const IntegrationDetailPage = () => {
         <Button
           variant="ghost"
           className="text-muted-foreground"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (!id) {
+              navigate('/settings/frontline/channels');
+              return;
+            }
+            navigate(`/settings/frontline/channels/${id}`);
+          }}
         >
           <IconChevronLeft />
           Integrations
@@ -97,23 +90,9 @@ export const IntegrationDetailPage = () => {
           <FacebookIntegrationDetail isPost />
         )}
         {integrationType === IntegrationType.CALL && <CallIntegrationDetail />}
+        {integrationType === IntegrationType.IMAP && <ImapIntegrationDetail />}
       </Suspense>
-      <IntegrationsRecordTable
-        Actions={({ cell }) => (
-          <>
-            {integrationType === IntegrationType.ERXES_MESSENGER && (
-              <ErxesMessengerActions cell={cell} />
-            )}
-            {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
-              integrationType === IntegrationType.FACEBOOK_POST) && (
-              <FacebookIntegrationActions cell={cell} />
-            )}
-            {integrationType === IntegrationType.CALL && (
-              <CallIntegrationActions cell={cell} />
-            )}
-          </>
-        )}
-      />
+      <IntegrationsRecordTable />
     </div>
   );
 };

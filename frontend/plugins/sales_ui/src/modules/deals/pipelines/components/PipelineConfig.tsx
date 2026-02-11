@@ -76,7 +76,7 @@ const PipelineConfig = ({ form }: { form: any }) => {
             <Form.Label>Select the day after the card created date</Form.Label>
             <Form.Control>
               <Checkbox
-                className="!mt-0"
+                className="mt-0!"
                 checked={field.value}
                 onCheckedChange={field.onChange}
               />
@@ -94,7 +94,7 @@ const PipelineConfig = ({ form }: { form: any }) => {
             <Form.Label>Show only the user's assigned(created) deal</Form.Label>
             <Form.Control>
               <Checkbox
-                className="!mt-0"
+                className="mt-0!"
                 checked={field.value}
                 onCheckedChange={field.onChange}
               />
@@ -114,7 +114,7 @@ const PipelineConfig = ({ form }: { form: any }) => {
             </Form.Label>
             <Form.Control>
               <Checkbox
-                className="!mt-0"
+                className="mt-0!"
                 checked={field.value}
                 onCheckedChange={field.onChange}
               />

@@ -5,9 +5,6 @@ export const types = `
     _id: String @external
     conversations: [Conversation]
   }
-  extend type Brand @key(fields: "_id") {
-    _id: String @external
-  }
 
   extend type Tag @key(fields: "_id") {
     _id: String @external
@@ -170,6 +167,7 @@ const mutationFilterParams = `
   startDate: String
   endDate: String
   segment: String
+  customerId: String
 `;
 
 const convertParams = `
@@ -225,6 +223,7 @@ export const queries = `
 export const mutations = `
   conversationMessageAdd(
     conversationId: String,
+    responseTemplateId: String,
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,
@@ -246,7 +245,7 @@ export const mutations = `
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
   changeConversationOperator(_id: String!, operatorStatus: String!): JSON
-  conversationResolveAll(${mutationFilterParams}): Int
+  conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

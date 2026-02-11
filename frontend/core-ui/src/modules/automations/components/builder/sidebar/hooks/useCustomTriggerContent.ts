@@ -1,37 +1,47 @@
-import { useAutomation } from '@/automations/context/AutomationProvider';
-import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
-import { NodeData } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { AutomationNodesType, NodeData } from '@/automations/types';
+import { Node, useReactFlow } from '@xyflow/react';
+
+import { splitAutomationNodeType } from 'ui-modules';
 import { toast } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
+import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useMemo } from 'react';
-import { useFormContext } from 'react-hook-form';
-import { getAutomationTypes } from 'ui-modules';
+import { useSetAtom } from 'jotai';
 
 export const useCustomTriggerContent = (activeNode: NodeData) => {
-  const { setValue, watch } = useFormContext<TAutomationBuilderForm>();
+  const { setAutomationBuilderFormValue } = useAutomationFormController();
   const { setQueryParams } = useAutomation();
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
-
-  const triggers = watch(`triggers`);
-
-  const activeTrigger =
-    triggers.find((trigger) => trigger.id === activeNode.id) ||
-    (activeNode as any);
+  const { triggers } = useAutomationNodes();
+  const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
+  const activeTrigger = triggers[activeNode.nodeIndex];
 
   const [pluginName, moduleName] = useMemo(
-    () => getAutomationTypes(activeNode.type || ''),
+    () => splitAutomationNodeType(activeNode.type || ''),
     [activeNode.type],
   );
 
-  const onSaveTriggerConfig = (config: any) => {
-    setValue(`triggers.${activeNode.nodeIndex}.config`, config);
+  const onSaveTriggerConfigCallback = () => {
     setQueryParams({ activeNodeId: null });
     toggleSideBarOpen();
-
     toast({
       title: 'Trigger configuration added successfully.',
+      variant: 'success',
     });
+  };
+
+  const onSaveTriggerConfig = (config: any) => {
+    setAutomationBuilderFormValue(
+      `${AutomationNodesType.Triggers}.${activeNode.nodeIndex}.config`,
+      config,
+    );
+    if (activeTrigger) {
+      const node = getNode(activeTrigger.id);
+      updateNodeData(activeTrigger.id, { ...node?.data, config });
+    }
+    onSaveTriggerConfigCallback();
   };
 
   return {

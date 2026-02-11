@@ -1,23 +1,19 @@
-import { IModels } from '~/connectionResolvers';
-import { debugError } from '@/integrations/facebook/debuggers';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { IFacebookCustomer } from '@/integrations/facebook/@types/customers';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import {
   ICommentParams,
   IPostParams,
 } from '@/integrations/facebook/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
-import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { IFacebookCustomer } from '@/integrations/facebook/@types/customers';
-import { getFacebookUser } from '@/integrations/facebook/utils';
-import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { debugError } from '@/integrations/facebook/debuggers';
 import {
-  getPostLink,
-  getFacebookUserProfilePic,
-  getPostDetails,
-  uploadMedia,
+  getFacebookUser, getFacebookUserProfilePic,
+  getPostDetails, getPostLink, uploadMedia
 } from '@/integrations/facebook/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -45,7 +41,7 @@ export const getOrCreateCustomer = async (
       (await getFacebookUser(models, pageId, facebookPageTokensMap, userId)) ||
       {};
   } catch (e: any) {
-    debugError(`Error during get customer info: ${e.message}`);
+    debugError(`Error during get customer info: ${JSON.stringify(e)}`);
   }
 
   const fbUserProfilePic: string | null = await getFacebookUserProfilePic(
@@ -56,7 +52,6 @@ export const getOrCreateCustomer = async (
   );
 
   const profile = fbUserProfilePic || fbUser.profile_pic;
-  console.log(profile, 'profile');
 
   // Save in integrations DB
   try {
@@ -88,7 +83,7 @@ export const getOrCreateCustomer = async (
     };
 
     const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
-    console.log('get-create-update-customer', apiCustomerResponse);
+
     if (apiCustomerResponse.status === 'success') {
       customer.erxesApiId = apiCustomerResponse.data._id;
       await customer.save();
@@ -243,15 +238,18 @@ export const generatePostDoc = async (
   } = postParams;
   let generatedMediaUrls: string[] = [];
 
-  const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+  const uploadConfig = await sendTRPCMessage({
     subdomain,
 
     pluginName: 'core',
     method: 'query',
-    module: 'users',
+    module: 'configs',
     action: 'getFileUploadConfigs',
     input: {},
   });
+
+  const { UPLOAD_SERVICE_TYPE } = (uploadConfig as any) || {};
+
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     if (link) {
       if (video_id) {

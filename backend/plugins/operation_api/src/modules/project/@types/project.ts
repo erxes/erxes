@@ -8,11 +8,13 @@ export interface IProject {
   name: string;
   description?: string;
   teamIds: string[];
+  tagIds?: string[];
   priority: number;
   startDate?: Date;
   status: number;
   targetDate?: Date;
   leadId?: string;
+  memberIds?: string[];
   createdBy?: string;
   convertedFromId?: string;
 }
@@ -22,10 +24,13 @@ export interface IProjectFilter extends ICursorPaginateParams, IListParams {
   name?: string;
   description?: string;
   teamIds?: string[];
+  tagIds?: string[];
   priority: number;
   startDate?: Date;
   targetDate?: Date;
   leadId?: string;
+  memberIds?: string[];
+  memberId?: string;
   status?: number;
   userId?: string;
   active?: boolean;

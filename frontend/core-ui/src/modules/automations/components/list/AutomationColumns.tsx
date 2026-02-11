@@ -1,98 +1,193 @@
-import { IconPointerBolt, IconShare } from '@tabler/icons-react';
+import { AUTOMATION_EDIT } from '@/automations/graphql/automationMutations';
+import {
+  AutomationsHotKeyScope,
+  TAutomationRecordTableColumnDefData,
+} from '@/automations/types';
+import { useNavigate } from 'react-router-dom';
+import { ApolloError, useMutation } from '@apollo/client';
+import {
+  IconEdit,
+  IconPointerBolt,
+  IconShare,
+  IconTrash,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  Avatar,
   Badge,
   cn,
+  Input,
+  Label,
+  Popover,
+  PopoverScoped,
   RecordTable,
-  readImage,
   RecordTableInlineCell,
   RelativeDateDisplay,
   Switch,
-  Label,
-  Popover,
+  DropdownMenu,
+  Button,
+  useConfirm,
+  useToast,
 } from 'erxes-ui';
-import { Link } from 'react-router-dom';
-import { IAction, ITrigger, SelectTags } from 'ui-modules';
-import { IAutomation } from '../../types';
-import { IUser } from '@/settings/team-member/types';
-import { useMutation } from '@apollo/client';
-import { AUTOMATION_EDIT } from '../../graphql/automationMutations';
+import { TagsSelect, TAutomationAction, TAutomationTrigger } from 'ui-modules';
+import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
+import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
+import { useState } from 'react';
+import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
 
-const generateUserName = (user: IUser) => {
-  if (user?.details?.firstName || user?.details?.lastName) {
-    return `${user?.details?.firstName || ''} ${user?.details?.lastName || ''}`;
-  }
+const checkBoxColumn =
+  RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
 
-  return user.email;
-};
-
-export const automationColumns: ColumnDef<IAutomation>[] = [
+export const getAutomationColumns: (
+  t: (key: string) => string,
+) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
   {
     id: 'more',
     cell: ({ cell }) => {
-      const { _id } = cell.row.original;
+      const navigate = useNavigate();
+      const { confirm } = useConfirm();
+      const { removeAutomations, loading } = useRemoveAutomations();
+      const { toast } = useToast();
+
+      const onRemove = () => {
+        confirm({
+          message: `Are you sure you want to delete the "${cell.row.original.name}" automation?`,
+        }).then(() => {
+          removeAutomations([cell.row.original._id], {
+            onError: (e: ApolloError) => {
+              toast({
+                title: 'Error',
+                description: e.message,
+                variant: 'destructive',
+              });
+            },
+            onCompleted: () => {
+              toast({
+                title: 'Success',
+                variant: 'success',
+                description: 'Automations deleted successfully',
+              });
+            },
+          });
+        });
+      };
       return (
-        <Link to={`/automations/edit/${_id}`}>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Link>
+        <DropdownMenu>
+          <DropdownMenu.Trigger asChild disabled={loading}>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            align="start"
+            className="w-[100px] min-w-0 [&>button]:cursor-pointer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DropdownMenu.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() =>
+                  navigate(`/automations/edit/${cell.row.original._id}`)
+                }
+              >
+                <IconEdit className="size-4" />
+                Edit
+              </Button>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive"
+                onClick={() => onRemove()}
+              >
+                <IconTrash className="size-4" />
+                Delete
+              </Button>
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu>
       );
     },
-    size: 40,
+    size: 34,
+    maxSize: 34,
+    minSize: 34,
   },
+  checkBoxColumn,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
-    minSize: 120,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
+    cell: ({ cell }) => {
+      const [editingName, setEditingName] = useState(cell.getValue() as string);
+      const navigate = useNavigate();
+      const [edit] = useMutation(AUTOMATION_EDIT);
+      const { toast } = useToast();
+      const handleEnter = () => {
+        if (
+          editingName === (cell.getValue() as string) ||
+          editingName.trim() === ''
+        ) {
+          return;
+        }
+        edit({
+          variables: {
+            id: cell.row.original._id,
+            name: editingName,
+          },
+          onError: (e: ApolloError) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+          onCompleted: () => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Automation updated successfully',
+            });
+          },
+        });
+      };
+      return (
+        <PopoverScoped closeOnEnter onEnter={handleEnter}>
+          <RecordTableInlineCell.Trigger>
+            <RecordTableInlineCell.Anchor
+              onClick={() => {
+                navigate(`/automations/edit/${cell.row.original._id}`);
+              }}
+            >
+              {cell.getValue() as string}
+            </RecordTableInlineCell.Anchor>
+          </RecordTableInlineCell.Trigger>
+          <RecordTableInlineCell.Content>
+            <Input
+              value={editingName}
+              onChange={(e) => setEditingName(e.target.value)}
+            />
+          </RecordTableInlineCell.Content>
+        </PopoverScoped>
+      );
+    },
+    minSize: 150,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label={t('status')} />,
     cell: ({ cell }) => {
-      const status = cell.getValue() as 'active' | 'draft';
-      const [edit] = useMutation(AUTOMATION_EDIT);
-      return (
-        <Popover>
-          <RecordTableInlineCell.Trigger>
-            <div className="w-full flex justify-center">
-              <Badge
-                variant={status === 'active' ? 'success' : 'secondary'}
-                className={cn('font-bold', {
-                  'text-accent-foreground': status !== 'active',
-                })}
-              >
-                {status}
-              </Badge>
-            </div>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content className="w-24 h-12 flex justify-center items-center space-x-2">
-            <Label htmlFor="mode">Inactive</Label>
-            <Switch
-              id="mode"
-              onCheckedChange={(open) =>
-                edit({
-                  variables: {
-                    id: cell.row.original._id,
-                    status: open ? 'active' : 'draft',
-                  },
-                })
-              }
-              checked={status === 'active'}
-            />
-          </RecordTableInlineCell.Content>
-        </Popover>
-      );
+      return <AutomationRecordTableStatusInlineCell cell={cell} />;
     },
     size: 80,
   },
+
   {
     id: 'triggers',
     accessorKey: 'triggers',
-    header: () => <RecordTable.InlineHead label="Triggers" />,
+    header: () => <RecordTable.InlineHead label={t('triggers')} />,
     cell: ({ cell }) => {
-      const triggers = (cell.getValue() || []) as ITrigger[];
+      const triggers = (cell.getValue() || []) as TAutomationTrigger[];
       return (
         <RecordTableInlineCell>
           <IconPointerBolt size={12} />
@@ -105,9 +200,9 @@ export const automationColumns: ColumnDef<IAutomation>[] = [
   {
     id: 'actions',
     accessorKey: 'actions',
-    header: () => <RecordTable.InlineHead label="Actions" />,
+    header: () => <RecordTable.InlineHead label={t('actions')} />,
     cell: ({ cell }) => {
-      const actions = (cell.getValue() || []) as IAction[];
+      const actions = (cell.getValue() || []) as TAutomationAction[];
       return (
         <RecordTableInlineCell>
           <IconShare size={12} />
@@ -118,89 +213,18 @@ export const automationColumns: ColumnDef<IAutomation>[] = [
     size: 80,
   },
   {
-    id: 'updatedUser',
-    accessorKey: 'updatedUser',
-    header: () => <RecordTable.InlineHead label="Last Updated By" />,
-    cell: ({ cell }) => {
-      const user = (cell.getValue() || {}) as IUser;
-      const { details } = user;
-      return (
-        <RecordTableInlineCell>
-          <Avatar className="h-6 w-6 rounded-full">
-            <Avatar.Image
-              src={readImage(details?.avatar)}
-              alt={details?.fullName || ''}
-            />
-            <Avatar.Fallback className="rounded-lg text-black">
-              {(details?.fullName || '').split('')[0]}
-            </Avatar.Fallback>
-          </Avatar>
-          {generateUserName(user)}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'createdUser',
-    accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead label="Created By" />,
-    cell: ({ cell }) => {
-      const user = (cell.getValue() || {}) as IUser;
-      const { details } = user;
-      return (
-        <RecordTableInlineCell>
-          <Avatar className="h-6 w-6 rounded-full">
-            <Avatar.Image
-              src={readImage(details?.avatar)}
-              alt={details?.fullName || ''}
-            />
-            <Avatar.Fallback className="rounded-lg text-black">
-              {(details?.fullName || '').split('')[0]}
-            </Avatar.Fallback>
-          </Avatar>
-          {generateUserName(user)}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'updatedAt',
-    accessorKey: 'updatedAt',
-    header: () => <RecordTable.InlineHead label="Last Updated At" />,
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
-  },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label="Created At" />,
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
-  },
-  {
     id: 'tagIds',
     accessorKey: 'tagIds',
-    header: () => <RecordTable.InlineHead label="Tags" />,
+    header: () => <RecordTable.InlineHead label={t('tags')} />,
     cell: ({ cell }) => {
+      const tagIds = cell.getValue() as string[];
+
       return (
-        <SelectTags.InlineCell
-          tagType="core:automation"
+        <TagsSelect.InlineCell
+          scope={AutomationsHotKeyScope.AutomationsTableInlinePopover}
+          type="core:automation"
           mode="multiple"
-          value={cell.row.original.tagIds}
+          value={tagIds}
           targetIds={[cell.row.original._id]}
           options={(newSelectedTagIds) => ({
             update: (cache) => {
@@ -216,6 +240,46 @@ export const automationColumns: ColumnDef<IAutomation>[] = [
             },
           })}
         />
+      );
+    },
+  },
+  {
+    id: 'updatedUser',
+    accessorKey: 'updatedUser',
+    header: () => <RecordTable.InlineHead label={t('updated-user')} />,
+    cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
+  },
+  {
+    id: 'createdUser',
+    accessorKey: 'createdUser',
+    header: () => <RecordTable.InlineHead label={t('created-user')} />,
+    cell: ({ cell }) => <AutomationRecordTableUserInlineCell cell={cell} />,
+  },
+  {
+    id: 'updatedAt',
+    accessorKey: 'updatedAt',
+    header: () => <RecordTable.InlineHead label={t('last-updated-at')} />,
+    cell: ({ cell }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      );
+    },
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => <RecordTable.InlineHead label={t('created-at')} />,
+    cell: ({ cell }) => {
+      return (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       );
     },
   },

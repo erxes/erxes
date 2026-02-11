@@ -35,6 +35,7 @@ const SelectAssigneeValue = ({
   variant?: `${SelectTriggerVariant}`;
 }) => {
   const { memberIds, members, setMembers } = useSelectMemberContext();
+
   if (variant === SelectTriggerVariant.CARD) {
     return (
       <MembersInline.Provider
@@ -47,6 +48,7 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
+
   return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
 };
 
@@ -182,12 +184,16 @@ const SelectAssigneeDealRoot = ({
   variant,
   id,
   teamIds,
+  onValueChange,
+  mode,
 }: {
   value: string[];
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamIds?: string[] | string;
   id?: string;
+  onValueChange?: (value: string | string[] | null) => void;
+  mode?: 'single' | 'multiple';
 }) => {
   const { editDeals } = useDealsEdit();
   const [open, setOpen] = useState(false);
@@ -204,15 +210,24 @@ const SelectAssigneeDealRoot = ({
     setOpen(false);
   };
 
+  const onChange = (value: string | string[] | null) => {
+    if (onValueChange) {
+      onValueChange(value);
+    }
+    setOpen(false);
+  };
+
   return (
     <SelectAssigneeProvider
       value={value}
-      onValueChange={handleValueChange}
-      mode="single"
+      onValueChange={onValueChange ? onChange : handleValueChange}
+      mode={mode || 'single'}
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
+        <SelectTriggerOperation
+          variant={variant === 'card' ? 'default' : variant}
+        >
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
@@ -228,11 +243,13 @@ export const SelectAssigneeDealFormItem = ({
   onValueChange,
   scope,
   teamIds,
+  mode,
 }: {
   value: string[];
   onValueChange: (value: string[] | null) => void;
   scope?: string;
   teamIds?: string[] | string;
+  mode?: 'single' | 'multiple';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -242,7 +259,7 @@ export const SelectAssigneeDealFormItem = ({
         onValueChange(value as string[]);
         setOpen(false);
       }}
-      mode="single"
+      mode={mode || 'single'}
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>

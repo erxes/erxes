@@ -9,7 +9,9 @@ type Project {
     status: Int
     priority: Int
     teamIds: [String]!
+    tagIds: [String]
     leadId: String
+    memberIds: [String]
     startDate: Date
     targetDate: Date
     createdBy: String
@@ -33,7 +35,10 @@ input IProjectFilter {
     status: Int
     priority: Int
     teamIds: [String]
+    tagIds: [String]
     leadId: String
+    memberIds: [String]
+    memberId: String
     startDate: Date
     targetDate: Date
     userId: String
@@ -51,11 +56,13 @@ type ProjectSubscription {
 const createProjectParams = `
   name: String!
   leadId: String
+  memberIds: [String]
   icon: String
   description: String
   status: Int
   priority: Int
   teamIds: [String!]!
+  tagIds: [String]
   startDate: Date
   targetDate: Date
   convertedFromId: String
@@ -65,11 +72,13 @@ const updateProjectParams = `
   _id: String!
   name: String
   leadId: String
+  memberIds: [String]
   icon: String
   description: String
   status: Int
   priority: Int
   teamIds: [String]
+  tagIds: [String]
   startDate: Date
   targetDate: Date
 `;
@@ -82,6 +91,7 @@ export const queries = `
     getProjectProgressByTeam(_id: String!): JSON
     getProjectProgressChart(_id: String!): JSON
     getConvertedProject(convertedFromId: String): Project
+    cpGetProjects: [Project]
 `;
 
 export const mutations = `

@@ -8,6 +8,24 @@ export const types = `
     value: String,
   }
 
+   type ColorDefinition {
+    DEFAULT: String
+    foreground: String
+  }
+  type MessengerColorTheme {
+    _id: String
+    primary: ColorDefinition
+    createdAt: Date
+    updatedAt: Date
+  }
+  input ColorDefinitionInput {
+    DEFAULT: String
+    foreground: String
+  }
+  input MessengerColorThemeInput {
+    primary: ColorDefinitionInput
+  }
+
   type CloudflareCallDataDepartment {
     _id: String
     name: String
@@ -21,11 +39,7 @@ export const types = `
     departments: [CloudflareCallDataDepartment]
     isReceiveWebCall: Boolean
   }
-    type Form {
-      _id: String
-      title: String
-      code: String
-    }
+
   type Integration @key(fields: "_id") {
    _id: String!
     kind: String!
@@ -39,7 +53,7 @@ export const types = `
 
     leadData: JSON
     messengerData: JSON
-    ticketData: JSON
+    ticketConfigId: JSON
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -69,7 +83,6 @@ export const types = `
     total: Int
     byTag: JSON
     byChannel: JSON
-    byBrand: JSON
     byKind: JSON
     byStatus: JSON
   }
@@ -134,10 +147,8 @@ export const types = `
   }
 
   input MessengerUiOptions {
-    color: String
-    wallpaper: String
     logo: String
-    textColor: String
+    primary: ColorDefinitionInput
   }
 
   input OperatorInput {
@@ -187,7 +198,6 @@ export const queries = `
 export const mutations = `
   integrationsCreateMessengerOnboarding(
     channelId: String!,
-    brandName: String!,
     languageCode: String
     color: String
     logo:String
@@ -197,7 +207,6 @@ export const mutations = `
   integrationsEditMessengerOnboarding(
     _id: String!,
     channelId: String!,
-    brandName: String!,
     languageCode: String
     color: String
     logo:String
@@ -220,6 +229,11 @@ export const mutations = `
     _id: String!,
     channelId: String!,
     uiOptions: MessengerUiOptions): Integration
+
+  integrationsSaveMessengerColorTheme(
+    _id: String!,
+    colorTheme: MessengerColorThemeInput): Integration
+  integrationsGetMessengerColorThemes: [MessengerColorTheme]
 
   integrationsSaveMessengerConfigs(
     _id: String!,
@@ -256,4 +270,8 @@ export const mutations = `
     channelId: String
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
+
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    configId: String!): Integration
 `;

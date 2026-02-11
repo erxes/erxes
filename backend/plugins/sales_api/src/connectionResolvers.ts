@@ -1,6 +1,6 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-
+import { createEventDispatcher, EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import mongoose from 'mongoose';
 
 import {
@@ -51,6 +51,7 @@ import {
   loadPosSlotClass,
   loadProductGroupClass,
 } from './modules/pos/db/models/Pos';
+import { ILoaders } from './modules/sales/graphql/resolvers/loaders';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -62,7 +63,6 @@ export interface IModels {
   PipelineLabels: IPipelineLabelModel;
 
   // pos section
-
   Pos: IPosModel;
   ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
@@ -73,50 +73,92 @@ export interface IModels {
 export interface IContext extends IMainContext {
   models: IModels;
   subdomain: string;
+  loaders: ILoaders
 }
 
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventDispatcher: (
+    pluginName: string,
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
 ): IModels => {
   const models = {} as IModels;
 
+
+  // Board model with event dispatcher
   models.Boards = db.model<IBoardDocument, IBoardModel>(
     'sales_boards',
-    loadBoardClass(models),
+    loadBoardClass(
+      models,
+      subdomain,
+      eventDispatcher('sales', 'sales', 'boards'),
+    ),
   );
 
+  // Pipeline model with event dispatcher
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
     'sales_pipelines',
-    loadPipelineClass(models),
+    loadPipelineClass(
+      models,
+      subdomain,
+      eventDispatcher('sales', 'sales', 'pipelines'),
+    ),
   );
 
+  // Stage model with event dispatcher
   models.Stages = db.model<IStageDocument, IStageModel>(
     'sales_stages',
-    loadStageClass(models, subdomain),
+    loadStageClass(
+      models,
+      subdomain,
+      eventDispatcher('sales', 'sales', 'stages'),
+    ),
   );
 
+  // Deal model with event dispatcher
   models.Deals = db.model<IDealDocument, IDealModel>(
     'deals',
-    loadDealClass(models),
+    loadDealClass(
+      models,
+      subdomain,
+      eventDispatcher('sales', 'sales', 'deals'),
+    ),
   );
 
+  // Checklist model with event dispatcher
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(
     'sales_checklists',
-    loadCheckListClass(models),
+    loadCheckListClass(
+      models,
+      subdomain,
+      eventDispatcher('sales', 'sales', 'checklists'),
+    ),
   );
 
+  // ChecklistItem model with event dispatcher
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
     'sales_checklist_items',
-    loadCheckListItemClass(models),
+    loadCheckListItemClass(
+      models,
+      subdomain,
+      eventDispatcher('sales', 'sales', 'checklistItems'),
+    ),
   );
 
+  // PipelineLabel model with event dispatcher
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
     'sales_pipeline_labels',
-    loadPipelineLabelClass(models),
+    loadPipelineLabelClass(
+      models,
+      subdomain,
+      eventDispatcher('sales', 'sales', 'pipelineLabels'),
+    ),
   );
 
-  // pos section
+  // pos section - without event dispatchers
   models.Pos = db.model<IPosDocument, IPosModel>(
     'pos',
     loadPosClass(models, subdomain),

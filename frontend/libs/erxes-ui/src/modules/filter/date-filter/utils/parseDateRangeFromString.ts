@@ -55,7 +55,7 @@ export const parseDateRangeFromString = (
   // Quarter format: YYYY-quarterN
   if (date.includes('quarter')) {
     const [year] = date.split('-');
-    const quarterNumber = parseInt(date.split('quarter')[1]);
+    const quarterNumber = Number.parseInt(date.split('quarter')[1]);
     return {
       from: startOfDay(new Date(parseInt(year), (quarterNumber - 1) * 3, 1)),
       to: endOfDay(new Date(parseInt(year), quarterNumber * 3, 0)),
@@ -65,7 +65,7 @@ export const parseDateRangeFromString = (
   // Half year format: YYYY-halfN
   if (date.includes('half')) {
     const [year] = date.split('-');
-    const halfNumber = parseInt(date.split('half')[1]);
+    const halfNumber = Number.parseInt(date.split('half')[1]);
     return {
       from: startOfDay(new Date(parseInt(year), (halfNumber - 1) * 6, 1)),
       to: endOfDay(new Date(parseInt(year), halfNumber * 6, 0)),
@@ -74,7 +74,7 @@ export const parseDateRangeFromString = (
 
   // Year format: YYYY
   if (/^\d{4}-y$/.test(date)) {
-    const year = parseInt(date);
+    const year = Number.parseInt(date);
     return {
       from: startOfDay(new Date(year, 0, 1)),
       to: endOfDay(new Date(year, 11, 31)),

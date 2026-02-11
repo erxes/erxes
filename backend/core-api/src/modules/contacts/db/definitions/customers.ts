@@ -205,6 +205,12 @@ export const customerSchema = schemaWrapper(
         label: 'Custom fields data',
       },
 
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
+      },
+
       location: {
         type: locationSchema,
         optional: true,
@@ -245,7 +251,6 @@ export const customerSchema = schemaWrapper(
       timestamps: true,
     },
   ),
-  { contentType: 'core:customer' },
 );
 
 customerSchema.index({ _id: 1, createdAt: 1, searchText: 1 });

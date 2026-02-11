@@ -1,3 +1,23 @@
+import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
+import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
+import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
+import {
+  usePipelineLabelLabel,
+  usePipelineLabels,
+} from '@/deals/pipelines/hooks/usePipelineDetails';
+import {
+  IPipelineLabel,
+  ISelectLabelContext,
+  ISelectLabelProviderProps,
+} from '@/deals/types/pipelines';
+import {
+  IconCheck,
+  IconLabel,
+  IconLoader,
+  IconPencil,
+  IconPlus,
+  IconTagMinus,
+} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -16,19 +36,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import {
-  IPipelineLabel,
-  ISelectLabelContext,
-  ISelectLabelProviderProps,
-} from '@/deals/types/pipelines';
-import { IconLabel, IconPlus } from '@tabler/icons-react';
-import { useContext, useState } from 'react';
-
-import { LabelBadge } from './LabelBadge';
-import React from 'react';
-import { createContext } from 'react';
-import { useDebounce } from 'use-debounce';
-import { usePipelineLabels } from '@/deals/pipelines/hooks/usePipelineDetails';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -60,14 +68,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== label._id)
-      : [...multipleValue, label._id];
+        ? multipleValue.filter((p) => p !== label._id)
+        : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-      ? selectedLabels.filter((p) => p._id !== label._id)
-      : [...selectedLabels, label];
+        ? selectedLabels.filter((p) => p._id !== label._id)
+        : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -91,87 +99,176 @@ export const SelectLabelsProvider = ({
   );
 };
 
-export const SelectLabelsCommand = ({
-  disableCreateOption,
-}: {
-  disableCreateOption?: boolean;
-}) => {
-  const [search, setSearch] = useState<string>('');
-  const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedLabels, labelIds } = useSelectLabelsContext();
-  const [noLabelsSearchValue] = useState<string>('');
+export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
+  const { labelPipelineLabel } = usePipelineLabelLabel();
+  const { labelIds, onSelect } = useSelectLabelsContext();
 
-  const { pipelineLabels, loading, error } = usePipelineLabels({
-    variables: {
-      searchValue: debouncedSearch,
-    },
-    skip:
-      !!noLabelsSearchValue && debouncedSearch.includes(noLabelsSearchValue),
+  const [pipelineId] = useQueryState('pipelineId');
+
+  const {
+    pipelineLabels = [],
+    loading,
+    error,
+  } = usePipelineLabels({
+    variables: { pipelineId },
+    skip: !pipelineId,
   });
-  return (
-    <Command shouldFilter={false}>
-      <Command.Input
-        value={search}
-        onValueChange={setSearch}
-        placeholder="Search labels"
-        focusOnMount
-      />
-      <Command.List>
-        {selectedLabels?.length > 0 && (
-          <>
-            <div className="flex flex-wrap justify-start p-2 gap-2">
-              <LabelsList />
-            </div>
-            <Command.Separator />
-          </>
-        )}
-        <SelectTree.Provider id={'select-labels'} ordered={!search}>
-          <SelectLabelsCreate
-            search={search}
-            show={!disableCreateOption && !loading && !pipelineLabels?.length}
-          />
+
+  const toggleLabel = (label: IPipelineLabel) => {
+    if (!label._id) {
+      return;
+    }
+
+    let newLabelIds = Array.isArray(labelIds) ? [...labelIds] : [];
+
+    if (newLabelIds.includes(label._id)) {
+      newLabelIds = newLabelIds.filter((id) => id !== label._id);
+    } else {
+      newLabelIds.push(label._id);
+    }
+
+    if (targetId) {
+      labelPipelineLabel({
+        variables: {
+          targetId: targetId,
+          labelIds: newLabelIds,
+        },
+        refetchQueries: [
+          {
+            query: GET_PIPELINE_LABELS,
+            variables: { pipelineId },
+          },
+          {
+            query: GET_DEALS,
+            variables: { pipelineId },
+          },
+        ],
+      });
+    } else {
+      onSelect(label);
+    }
+  };
+
+  const [editLabelId, setEditLabelId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  if (showForm) {
+    return (
+      <>
+        <div className="flex items-center justify-between border-b px-2 py-2">
+          <button
+            onClick={() => setShowForm(false)}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Back
+          </button>
+          <h3 className="text-sm font-semibold text-gray-600">
+            {editLabelId ? 'Edit Label' : 'Add Label'}
+          </h3>
+          <span />
+        </div>
+        <LabelForm
+          onSuccess={() => {
+            setShowForm(false);
+            setEditLabelId(null);
+          }}
+          labelId={editLabelId}
+        />
+      </>
+    );
+  }
+  if (pipelineLabels.length === 0) {
+    return (
+      <Command>
+        <div className="flex relative items-center justify-center -mb-5">
+          <IconTagMinus className="mb-10 absolute" />
           <Combobox.Empty loading={loading} error={error} />
-          {pipelineLabels
-            ?.filter((label) => !labelIds?.find((bId) => bId === label._id))
-            .map((label) => (
-              <SelectLabelsItem
+        </div>
+
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
+    );
+  }
+  if (loading) {
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <div className="flex items-center gap-2">
+          <IconLoader className="animate-spin" />
+        </div>
+      </Command>
+    );
+  } else
+    return (
+      <Command>
+        <Command.Input placeholder="Search label" />
+        <Command.List className="px-1">
+          {pipelineLabels.map((label) => {
+            return (
+              <Command.Item
                 key={label._id}
-                label={{
-                  ...label,
-                }}
-              />
-            ))}
-        </SelectTree.Provider>
-      </Command.List>
-    </Command>
-  );
-};
+                className={cn(
+                  'flex items-center justify-between p-2 cursor-pointer my-1  ',
+                  labelIds?.includes(label._id || '')
+                    ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
+                    : '',
+                )}
+                onSelect={() => toggleLabel(label)}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-3 h-3 rounded-full"
+                    style={{ backgroundColor: label.colorCode }}
+                  />
+                  <span className="text-sm">{label.name}</span>
+                </div>
 
-export const SelectLabelsCreate = ({
-  search,
-  show,
-}: {
-  search: string;
-  show: boolean;
-}) => {
-  const { setNewLabelName } = useSelectLabelsContext();
-
-  if (!search || !show) return null;
-
-  return (
-    <Command.Item
-      onSelect={() => setNewLabelName(search)}
-      className="font-medium"
-    >
-      <IconPlus />
-      Create new label: "{search}"
-    </Command.Item>
-  );
+                <div className="flex items-center gap-2">
+                  {labelIds?.includes(label._id || '') && (
+                    <IconCheck className="w-4 h-4 text-green-600" />
+                  )}
+                  <IconPencil
+                    className="w-5 h-5 cursor-pointer text-gray-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditLabelId(label._id || '');
+                      setShowForm(true);
+                    }}
+                  />
+                </div>
+              </Command.Item>
+            );
+          })}
+        </Command.List>
+        <Button
+          type="button"
+          className="w-[90%] mx-auto mb-2"
+          onClick={() => {
+            setEditLabelId(null);
+            setShowForm(true);
+          }}
+        >
+          <IconPlus size={16} />
+          Create a new label
+        </Button>
+      </Command>
+    );
 };
 
 export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
   const { onSelect, labelIds } = useSelectLabelsContext();
   const isSelected = labelIds?.some((b) => b === label._id);
+
   return (
     <SelectTree.Item
       key={label._id}
@@ -190,70 +287,22 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
   );
 };
 
-export const LabelsList = ({
-  placeholder,
-  renderAsPlainText,
-  ...props
-}: Omit<React.ComponentProps<typeof LabelBadge>, 'onClose'> & {
-  placeholder?: string;
-  renderAsPlainText?: boolean;
-}) => {
-  const { value, selectedLabels, setSelectedLabels, onSelect } =
-    useSelectLabelsContext();
-
-  const selectedLabelIds = Array.isArray(value) ? value : [value];
-
-  if (!value || !value.length) {
-    return <Combobox.Value placeholder={placeholder || ''} />;
-  }
-
-  return (
-    <>
-      {selectedLabelIds.map((labelId) => (
-        <LabelBadge
-          key={labelId}
-          labelId={labelId}
-          label={selectedLabels.find((b) => b._id === labelId)}
-          renderAsPlainText={renderAsPlainText}
-          variant={'secondary'}
-          onCompleted={(label) => {
-            if (!label) return;
-            if (selectedLabelIds.includes(label._id)) {
-              setSelectedLabels([...selectedLabels, label]);
-            }
-          }}
-          onClose={() =>
-            onSelect?.(
-              selectedLabels.find((p) => p._id === labelId) as IPipelineLabel,
-            )
-          }
-          {...props}
-        />
-      ))}
-    </>
-  );
-};
-
 export const SelectLabelsValue = () => {
-  const { selectedLabels, mode } = useSelectLabelsContext();
+  const { labelIds } = useSelectLabelsContext();
 
-  if (selectedLabels?.length > 1)
+  if ((labelIds || [])?.length !== 0) {
     return (
-      <span className="text-muted-foreground">
-        {selectedLabels.length} labels selected
+      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+        {(labelIds || []).length}
       </span>
     );
-
-  return (
-    <LabelsList
-      placeholder="Select labels"
-      renderAsPlainText={mode === 'single'}
-    />
-  );
+  }
+  return <Combobox.Value placeholder="Select Label" />;
 };
 
-export const SelectLabelsContent = () => {
-  return <SelectLabelsCommand />;
+export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
+  return <SelectLabelsCommand targetId={targetId} />;
 };
 
 export const SelectLabelsInlineCell = ({
@@ -285,82 +334,37 @@ export const SelectLabelsInlineCell = ({
   );
 };
 
-const SelectLabelsBadgesView = () => {
-  const { labelIds, selectedLabels, setSelectedLabels, onSelect } =
-    useSelectLabelsContext();
-
-  return (
-    <div className="flex gap-2 flex-wrap">
-      {labelIds?.map((lId) => (
-        <LabelBadge
-          key={lId}
-          labelId={lId}
-          onCompleted={(label) => {
-            if (!label) return;
-            if (labelIds.includes(label._id || '')) {
-              setSelectedLabels([...selectedLabels, label]);
-            }
-          }}
-          onClose={() =>
-            onSelect?.(
-              selectedLabels.find((p) => p._id === lId) as IPipelineLabel,
-            )
-          }
-        />
-      ))}
-    </div>
-  );
-};
-
 export const SelectLabelsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
->(
-  (
-    { onValueChange, scope, value, mode, options, className, ...props },
-    ref,
-  ) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <SelectLabelsProvider
-        onValueChange={(value) => {
-          if (mode === 'single') {
-            setOpen(false);
-          }
-          onValueChange?.(value);
-        }}
-        value={value}
-        {...props}
-        mode={mode}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Button
-              className={cn(
-                'w-min inline-flex text-sm font-medium shadow-xs',
-                className,
-              )}
-              variant="outline"
-            >
-              Add Labels
-              <IconPlus className="text-lg" />
-            </Button>
-          </Popover.Trigger>
-          <Combobox.Content className="mt-2">
-            <SelectLabelsContent />
-          </Combobox.Content>
-        </Popover>
-        <SelectLabelsBadgesView />
-      </SelectLabelsProvider>
-    );
-  },
-);
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
+>(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <SelectLabelsProvider
+      onValueChange={(value) => {
+        if (mode === 'single') {
+          setOpen(false);
+        }
+        onValueChange?.(value);
+      }}
+      value={value}
+      {...props}
+      mode={mode}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Content className="mt-2">
+          <SelectLabelsContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectLabelsProvider>
+  );
+});
 
 SelectLabelsDetail.displayName = 'SelectLabelsDetail';
 
@@ -473,15 +477,30 @@ export const SelectLabelsFilterBar = ({
   label,
   variant,
   scope,
+  targetId,
+  initialValue,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
   label: string;
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
+  targetId?: string;
+  initialValue?: string[];
 }) => {
-  const [query, setQuery] = useQueryState<string[]>(filterKey);
+  const isCardVariant = variant === 'card';
+
+  const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
+  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isCardVariant && initialValue) {
+      setLocalQuery(initialValue);
+    }
+  }, [initialValue, isCardVariant]);
+
+  const query = isCardVariant ? localQuery : urlQuery;
 
   if (!query && variant !== 'card') {
     return null;
@@ -493,9 +512,17 @@ export const SelectLabelsFilterBar = ({
       value={query || []}
       onValueChange={(value) => {
         if (value && value.length > 0) {
-          setQuery(value as string[]);
+          if (isCardVariant) {
+            setLocalQuery(value as string[]);
+          } else {
+            setUrlQuery(value as string[]);
+          }
         } else {
-          setQuery(null);
+          if (isCardVariant) {
+            setLocalQuery([]);
+          } else {
+            setUrlQuery(null);
+          }
         }
         setOpen(false);
       }}
@@ -505,7 +532,7 @@ export const SelectLabelsFilterBar = ({
           <SelectLabelsValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant || 'filter'}>
-          <SelectLabelsContent />
+          <SelectLabelsContent targetId={targetId} />
         </SelectOperationContent>
       </PopoverScoped>
     </SelectLabelsProvider>

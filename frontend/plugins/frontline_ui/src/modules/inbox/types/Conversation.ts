@@ -1,5 +1,5 @@
 import { IAttachment } from 'erxes-ui';
-import { ICustomerInline } from 'ui-modules';
+import { ICustomerInline, IUser } from 'ui-modules';
 import { IFormWidgetItem } from './FormWidget';
 
 export interface IConversation {
@@ -12,6 +12,7 @@ export interface IConversation {
   integrationId?: string;
   readUserIds?: string[];
   assignedUserId?: string;
+  assignedUser?: IUser;
   tagIds?: string[];
   status?: ConversationStatus;
 }
@@ -32,4 +33,37 @@ export enum ConversationStatus {
   NEW = '',
   OPEN = 'open',
   CLOSED = 'closed',
+}
+
+export interface IConversationMemberProgress {
+  assigneeId: string;
+  new: number;
+  open: number;
+  closed: number;
+}
+
+export interface IConversationSourceProgressItem {
+  count: number;
+  source: string;
+}
+
+export interface IConversationSourceProgress {
+  conversationSourceProgress: {
+    new: IConversationSourceProgressItem[];
+    open: IConversationSourceProgressItem[];
+    closed: IConversationSourceProgressItem[];
+  }[];
+}
+
+export interface IConversationTagProgressItem {
+  count: number;
+  tagId: string;
+}
+
+export interface IConversationTagProgress {
+  conversationTagProgress: {
+    new: IConversationTagProgressItem[];
+    open: IConversationTagProgressItem[];
+    closed: IConversationTagProgressItem[];
+  }[];
 }

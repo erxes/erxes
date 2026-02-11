@@ -6,13 +6,13 @@ import {
 } from '@/project/utils/charUtils';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { differenceInCalendarDays } from 'date-fns';
-import { requireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import moment from 'moment';
 import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
-export const projectQueries = {
+export const projectQueries: Record<string, Resolver> = {
   getProject: async (_parent: undefined, { _id }, { models }: IContext) => {
     return models.Project.getProject(_id);
   },
@@ -52,6 +52,21 @@ export const projectQueries = {
       filterQuery.leadId = filter.leadId;
     }
 
+    if (filter.memberIds && filter.memberIds.length > 0) {
+      filterQuery.memberIds = { $in: filter.memberIds };
+    }
+
+    if (filter.memberId) {
+      filterQuery.$or = [
+        { memberIds: { $in: [filter.memberId] } },
+        { leadId: filter.memberId },
+      ];
+    }
+
+    if (filter.tagIds && filter.tagIds.length > 0) {
+      filterQuery.tagIds = { $in: filter.tagIds };
+    }
+
     if (filter.teamIds && filter.teamIds.length > 0) {
       filterQuery.teamIds = {
         $in: filter.teamIds,
@@ -60,13 +75,21 @@ export const projectQueries = {
 
     if (
       (filter.teamIds && filter.teamIds.length <= 0 && filter.userId) ||
-      !filter.teamIds
+      (!filter.teamIds && !filter.memberId)
     ) {
       const teamIds = await models.TeamMember.find({
         memberId: filter.userId,
       }).distinct('teamId');
 
-      filterQuery.teamIds = { $in: teamIds };
+      if (filter.userId) {
+        filterQuery.$or = [
+          { teamIds: { $in: teamIds } },
+          { leadId: filter.userId },
+          { memberIds: filter.userId },
+        ];
+      } else {
+        filterQuery.teamIds = { $in: teamIds };
+      }
     }
 
     if (filter.active) {
@@ -93,7 +116,13 @@ export const projectQueries = {
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IProjectDocument>({
         model: models.Project,
-        params: filter,
+        params: {
+          ...filter,
+          orderBy: {
+            status: 1,
+            createdAt: -1,
+          },
+        },
         query: filterQuery,
       });
 
@@ -684,10 +713,17 @@ export const projectQueries = {
 
     return chartData;
   },
+
+  cpGetProjects: async (
+    _parent: undefined,
+    _filter: unknown,
+    { models }: IContext,
+  ) => {
+    return models.Project.find({});
+  },
 };
 
-requireLogin(projectQueries, 'getProject');
-requireLogin(projectQueries, 'getProjects');
-requireLogin(projectQueries, 'getProjectProgress');
-requireLogin(projectQueries, 'getProjectProgressByMember');
-requireLogin(projectQueries, 'getProjectProgressChart');
+projectQueries.cpGetProjects.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};

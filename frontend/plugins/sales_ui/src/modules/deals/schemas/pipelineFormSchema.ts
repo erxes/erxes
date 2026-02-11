@@ -15,6 +15,35 @@ export const PIPELINE_CREATE_SCHEMA = z.object({
     isCheckUser: z.boolean().optional(),
     isCheckDepartment: z.boolean().optional(),
     excludeCheckUserIds: z.array(z.string()).optional(),
+    initialCategoryIds: z.array(z.string()).optional(),
+    excludeCategoryIds: z.array(z.string()).optional(),
+    excludeProductIds: z.array(z.string()).optional(),
+    erxesAppToken: z.string().optional(),
+    paymentIds: z.array(z.string()).optional(),
+    paymentTypes: z
+      .array(
+        z.object({
+          type: z.string().min(1, 'Type is required'),
+          title: z.string().min(1, 'Title is required'),
+          icon: z.string().min(1, 'Icon is required'),
+          config: z.string().optional(),
+        }),
+      )
+      .optional()
+      .default([]),
+    payment: z.string().optional().default(''),
+    token: z.string().optional().default(''),
+    otherPayments: z
+      .array(
+        z.object({
+          type: z.string().min(1, 'Type is required'),
+          title: z.string().min(1, 'Title is required'),
+          icon: z.string().min(1, 'Icon is required'),
+          config: z.string().optional(),
+        }),
+      )
+      .optional()
+      .default([]),
     stages: z.array(z.object({
         _id: z.string(),
        age: z.number().optional(),

@@ -1,8 +1,12 @@
 import {
   IconMail,
-  IconMessageReply,
   IconDotsVertical,
   IconSettings,
+  IconTicket,
+  IconChartHistogram,
+  IconBook,
+  IconPlus,
+  IconForms,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +28,7 @@ export const FrontlineNavigation = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground"
+              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
               onClick={(e) => e.stopPropagation()}
             >
               <IconDotsVertical className="size-4" />
@@ -38,7 +42,7 @@ export const FrontlineNavigation = () => {
           >
             <DropdownMenu.Item
               className="cursor-pointer"
-              onSelect={() => navigate('/settings/inbox')}
+              onSelect={() => navigate('/settings/frontline/channels')}
             >
               <IconSettings className="size-4" />
               Go to inbox settings
@@ -47,11 +51,42 @@ export const FrontlineNavigation = () => {
         </DropdownMenu>
       </div>
       <NavigationMenuLinkItem
-        name="Ticket"
-        icon={IconMessageReply}
-        path="frontline/ticket"
+        name="Tickets"
+        icon={IconTicket}
+        path="frontline/tickets"
       />
       <IntegrationNavigation />
+      <NavigationMenuLinkItem
+        name="Reports"
+        icon={IconChartHistogram}
+        path="frontline/reports"
+      />
+      <NavigationMenuLinkItem
+        name="Forms"
+        icon={IconForms}
+        path="frontline/forms"
+      />
+      <div className="relative group/knowledgebase">
+        <NavigationMenuLinkItem
+          name="Knowledge Base"
+          icon={IconBook}
+          path="frontline/knowledgebase"
+        />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="invisible group-hover/knowledgebase:visible group-focus-within/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate('/frontline/knowledgebase?createTopic=true');
+          }}
+          aria-label="Create new topic"
+          title="Create new topic"
+        >
+          <IconPlus className="size-4" />
+        </Button>
+      </div>
     </>
   );
 };

@@ -35,7 +35,7 @@ export const configReplacer = (config) => {
 // board item number calculator
 const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   if (num && !skip) {
-    num = parseInt(num, 10) + 1;
+    num = Number.parseInt(num, 10) + 1;
   }
 
   if (skip) {
@@ -112,10 +112,8 @@ export const boardNumberGenerator = async (
 };
 
 export const fillSearchTextItem = (doc: IDeal, item?: IDealDocument) => {
-  const document = item || { name: '', description: '' };
-  Object.assign(document, doc);
-
-  return validSearchText([document.name || '', document.description || '']);
+  const { name = '', description = '' } = item || {};
+  return validSearchText([doc.name ?? name, doc.description ?? description]);
 };
 
 export const generateBoardNumber = async (models: IModels, doc: IDeal) => {
@@ -229,24 +227,32 @@ export const generateLastNum = async (models: IModels, doc: IPipeline) => {
 
 // Removes all board item related things
 export const destroyBoardItemRelations = async (
+  subdomain: string,
   models: IModels,
-  contentTypeId: string,
+  dealIds: string[],
 ) => {
-  //   await putActivityLog(subdomain, {
-  //     action: 'removeActivityLog',
-  //     data: { contentTypeId },
-  //   });
+  await sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'activityLog',
+    action: 'deleteActivityLog',
+    input: { targetIds: dealIds }
+  })
 
-  await models.Checklists.removeChecklists([contentTypeId]);
+  await models.Checklists.removeChecklists(dealIds);
 
-  //   await sendCoreMessage({
-  //     subdomain,
-  //     action: 'conformities.removeConformity',
-  //     data: {
-  //       mainType: contentType,
-  //       mainTypeId: contentTypeId,
-  //     },
-  //   });
+  await sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'relation',
+    action: 'cleanRelation',
+    input: {
+      contentType: 'sales:deal',
+      contentIds: dealIds
+    },
+  });
 
   //   await sendCoreMessage({
   //     subdomain,
@@ -504,212 +510,53 @@ export const getItemList = async (
   user: IUserDocument,
   getExtraFields?: (item: any) => { [key: string]: any },
 ) => {
+  const { orderBy } = args;
+  if (!orderBy || !Object.keys(orderBy)) {
+    args.orderBy = { order: 1 }
+  }
+
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
     model: models.Deals,
     params: args,
     query: filter,
   });
 
-  // const ids = list.map((item) => item._id);
-
-  // const conformities = await sendCoreMessage({
-  //   subdomain,
-  //   action: 'conformities.getConformities',
-  //   data: {
-  //     mainType: type,
-  //     mainTypeIds: ids,
-  //     relTypes: ['company', 'customer'],
-  //   },
-  //   isRPC: true,
-  //   defaultValue: [],
-  // });
-
-  const companyIds: string[] = [];
-  const customerIds: string[] = [];
-  const companyIdsByItemId = {};
-  const customerIdsByItemId = {};
-
-  // const perConformity = (
-  //   conformity,
-  //   cocIdsByItemId,
-  //   cocIds,
-  //   typeId1,
-  //   typeId2,
-  // ) => {
-  //   cocIds.push(conformity[typeId1]);
-
-  //   if (!cocIdsByItemId[conformity[typeId2]]) {
-  //     cocIdsByItemId[conformity[typeId2]] = [];
-  //   }
-
-  //   cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
-  // };
-
-  // for (const conf of conformities) {
-  //   if (conf.mainType === 'company') {
-  //     perConformity(
-  //       conf,
-  //       companyIdsByItemId,
-  //       companyIds,
-  //       'mainTypeId',
-  //       'relTypeId',
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.relType === 'company') {
-  //     perConformity(
-  //       conf,
-  //       companyIdsByItemId,
-  //       companyIds,
-  //       'relTypeId',
-  //       'mainTypeId',
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.mainType === 'customer') {
-  //     perConformity(
-  //       conf,
-  //       customerIdsByItemId,
-  //       customerIds,
-  //       'mainTypeId',
-  //       'relTypeId',
-  //     );
-  //     continue;
-  //   }
-  //   if (conf.relType === 'customer') {
-  //     perConformity(
-  //       conf,
-  //       customerIdsByItemId,
-  //       customerIds,
-  //       'relTypeId',
-  //       'mainTypeId',
-  //     );
-  //     continue;
-  //   }
-  // }
-
-  const companies = await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query',
-    module: 'companies',
-    action: 'findActiveCompanies',
-    input: {
-      query: {
-        _id: { $in: [...new Set(companyIds)] },
-      },
-      fields: {
-        primaryName: 1,
-        primaryEmail: 1,
-        primaryPhone: 1,
-        emails: 1,
-        phones: 1,
-      },
-    },
-    defaultValue: [],
-  });
-
-  const customers = await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query',
-    module: 'customers',
-    action: 'findActiveCustomers',
-    input: {
-      query: {
-        _id: { $in: [...new Set(customerIds)] },
-      },
-      fields: {
-        firstName: 1,
-        lastName: 1,
-        middleName: 1,
-        visitorContactInfo: 1,
-        primaryEmail: 1,
-        primaryPhone: 1,
-        emails: 1,
-        phones: 1,
-      },
-    },
-    defaultValue: [],
-  });
-
-  const getCocsByItemId = (
-    itemId: string,
-    cocIdsByItemId: any,
-    cocs: any[],
-  ) => {
-    const cocIds = cocIdsByItemId[itemId] || [];
-
-    return cocIds.flatMap((cocId: string) => {
-      const found = cocs.find((coc) => cocId === coc._id);
-
-      return found || [];
-    });
-  };
-
   const updatedList: any[] = [];
-
-  // const notifications = await sendNotificationsMessage({
-  //   subdomain,
-  //   action: 'find',
-  //   data: {
-  //     selector: {
-  //       contentTypeId: { $in: ids },
-  //       isRead: false,
-  //       receiver: user._id
-  //     },
-  //     fields: { contentTypeId: 1 }
-  //   },
-  //   isRPC: true,
-  //   defaultValue: []
-  // });
 
   const fields = await sendTRPCMessage({
     subdomain,
-
     pluginName: 'core',
     method: 'query',
     module: 'fields',
     action: 'find',
     input: {
       query: {
-        showInCard: true,
+        "configs.showInCard": true,
         contentType: `sales:deal`,
       },
     },
     defaultValue: [],
   });
 
-  // add just incremented order to each item in list, not from db
-  let order = 0;
   for (const item of list) {
-    if (item.customFieldsData?.length && fields?.length) {
+    if (Object.keys(item.propertiesData || {}).length && fields?.length) {
       item.customProperties = [];
 
-      fields.forEach((field) => {
-        const fieldData = (item.customFieldsData || []).find(
-          (f) => f.field === field._id,
-        );
+      for (const field of fields) {
+        const fieldData = item.propertiesData?.[field._id];
 
         if (item.customProperties && fieldData) {
           item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
+            name: `${field.name} - ${fieldData}`,
           });
         }
-      });
+      };
     }
-
-    // const notification = notifications.find(n => n.contentTypeId === item._id);
 
     updatedList.push({
       ...item,
-      order: order++,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       // hasNotified: notification ? false : true,
-      customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
-      companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
       ...(getExtraFields ? getExtraFields(item) : {}),
     });
   }
@@ -733,6 +580,82 @@ const compareDepartmentIds = (
   }
 
   return false;
+};
+
+export const generateProducts = async (
+  subdomain: string,
+  productsData?: any[]
+) => {
+  const products: any = [];
+
+  if (!productsData || !productsData.length) {
+    return products;
+  }
+
+  const productIds = productsData
+    .filter(pd => pd.productId)
+    .map(pd => pd.productId);
+
+  const allProducts = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'products',
+    action: "find",
+    input: { query: { _id: { $in: productIds } }, limit: productsData.length },
+    defaultValue: []
+  });
+
+  for (const data of productsData || []) {
+    if (!data.productId) {
+      continue;
+    }
+    const product = allProducts.find(p => p._id === data.productId);
+
+    if (!product) {
+      continue;
+    }
+
+    const { propertiesData } = product;
+
+    const properties: any = {};
+
+    const fieldIds: string[] = Object.keys(propertiesData || {});
+
+    const fields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: "find",
+      input: {
+        query: {
+          _id: { $in: fieldIds }
+        }
+      },
+      defaultValue: []
+    });
+
+    for (const fieldId of fieldIds || []) {
+      const field = fields.find(f => f._id === fieldId);
+
+      if (field) {
+        properties[fieldId] = {
+          text: field.text,
+          data: propertiesData[fieldId]
+        };
+      }
+    }
+
+    product.propertiesData = properties;
+
+    products.push({
+      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
+      product
+    });
+  }
+
+  return products;
 };
 
 export const generateAmounts = (productsData, useTick = true) => {
@@ -961,36 +884,19 @@ export const getAmountsMap = async (
   return amountsMap;
 };
 
-interface IMainType {
-  mainType: string;
-  mainTypeId: string;
-}
-
-export interface IConformityAdd extends IMainType {
-  relType: string;
-  relTypeId: string;
-}
-
-interface IConformityCreate extends IMainType {
-  companyIds?: string[];
-  customerIds?: string[];
-}
-
 export const getCompanyIds = async (
   subdomain: string,
-  mainType: string,
-  mainTypeId: string,
+  dealId: string,
 ): Promise<string[]> => {
   return await sendTRPCMessage({
     subdomain,
-
     pluginName: 'core',
-    module: 'conformity',
-    action: 'savedConformity',
+    module: 'relation',
+    action: 'getRelationIds',
     input: {
-      mainType,
-      mainTypeId,
-      relTypes: ['company'],
+      contentType: 'sales:deal',
+      contentId: dealId,
+      relatedContentType: 'core:company',
     },
     defaultValue: [],
   });
@@ -998,58 +904,65 @@ export const getCompanyIds = async (
 
 export const getCustomerIds = async (
   subdomain: string,
-  mainType: string,
-  mainTypeId: string,
+  dealId: string,
 ): Promise<string[]> => {
   return await sendTRPCMessage({
     subdomain,
-
     pluginName: 'core',
-    module: 'conformity',
-    action: 'savedConformity',
+    module: 'relation',
+    action: 'getRelationIds',
     input: {
-      mainType,
-      mainTypeId,
-      relTypes: ['company'],
+      contentType: 'sales:deal',
+      contentId: dealId,
+      relatedContentType: 'core:customer',
     },
     defaultValue: [],
   });
 };
 
-export const createConformity = async (
+export const createRelations = async (
   subdomain: string,
-  { companyIds, customerIds, mainType, mainTypeId }: IConformityCreate,
+  { dealId, companyIds, customerIds }: { dealId: string, companyIds?: string[], customerIds?: string[] },
 ) => {
-  const companyConformities: IConformityAdd[] = (companyIds || []).map(
-    (companyId) => ({
-      mainType,
-      mainTypeId,
-      relType: 'company',
-      relTypeId: companyId,
-    }),
-  );
+  const companyEntities = companyIds?.map(companyId => ({
+    entities: [{
+      "contentType": "sales:deal",
+      "contentId": dealId
+    },
+    {
+      "contentType": "core:company",
+      "contentId": companyId
+    }]
+  })) ?? [];
 
-  const customerConformities: IConformityAdd[] = (customerIds || []).map(
-    (customerId) => ({
-      mainType,
-      mainTypeId,
-      relType: 'customer',
-      relTypeId: customerId,
-    }),
-  );
+  const customerEntities = customerIds?.map(customerId => ({
+    entities: [{
+      "contentType": "sales:deal",
+      "contentId": dealId
+    },
+    {
+      "contentType": "core:customer",
+      "contentId": customerId
+    }]
+  })) ?? [];
 
-  const allConformities = companyConformities.concat(customerConformities);
-  if (allConformities.length) {
-    await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'conformity',
-      action: 'addConformities',
-      input: allConformities,
-    });
+  if (!(companyEntities.length + customerEntities.length)) {
+    return;
   }
+
+  await sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'relation',
+    action: 'createMultipleRelations',
+    input: {
+      relations: [
+        ...companyEntities,
+        ...customerEntities
+      ]
+    },
+  });
 };
 
 export const getTotalAmounts = async (productsData: IProductData[]) => {
@@ -1235,4 +1148,49 @@ export const sendNotifications = async (
       ...notificationDoc,
     },
   });
+};
+
+export const itemsAdd = async (
+  models: IModels,
+  subdomain: string,
+  doc: IDeal & {
+    processId: string;
+    aboveItemId: string;
+  },
+  type: string,
+  createModel: any,
+  user?: IUserDocument,
+  docModifier?: any,
+) => {
+  doc.initialStageId = doc.stageId;
+  doc.watchedUserIds = user && [user._id];
+
+  const modifiedDoc = docModifier ? docModifier(doc) : doc;
+
+  const extendedDoc = {
+    ...modifiedDoc,
+    modifiedBy: user && user._id,
+    userId: user ? user._id : doc.userId,
+    order: await getNewOrder({
+      collection: models.Deals,
+      stageId: doc.stageId,
+      aboveItemId: doc.aboveItemId,
+    }),
+  };
+
+  if (extendedDoc.propertiesData) {
+    // clean custom field values
+    extendedDoc.propertiesData = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'fields',
+      action: 'validateFieldValues',
+      input: extendedDoc.propertiesData,
+      defaultValue: {},
+    });
+  }
+
+  const item = await createModel(extendedDoc);
+
+  return item;
 };

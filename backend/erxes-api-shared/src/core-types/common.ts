@@ -1,6 +1,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
+import { Request as ApiRequest, Response as ApiResponse } from 'express';
 
 export interface IRule {
   kind: string;
@@ -16,6 +17,16 @@ export interface ILink {
 export interface IRuleDocument extends IRule, Document {
   _id: string;
 }
+
+export interface IOffsetPaginateParams {
+  limit?: number;
+  page?: number;
+  perPage?: number;
+
+  sortField?: string;
+  sortDirection?: SortOrder;
+}
+
 export interface ICursorPaginateParams {
   limit?: number;
   cursor?: string;
@@ -50,7 +61,18 @@ export interface ICustomField {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
+  locationValue?: ILocationOption
   extraValue?: string;
+}
+
+export interface IPropertyField {
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | Date
+    | Array<string | number | boolean | Date>
+    | null;
 }
 
 export interface IBrowserInfo {
@@ -74,9 +96,11 @@ export interface IPdfAttachment {
 
 export interface IMainContext {
   res: any;
-  req: any;
+  req: ApiRequest;
   requestInfo: any;
   user: IUserDocument;
+  cpUser?: any;
+  clientPortal?: any;
   models?: any;
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
@@ -102,7 +126,11 @@ export interface IPageInfo {
 }
 
 export interface IResolverSymbol {
-  skipPermission?: boolean;
+  wrapperConfig?: {
+    skipPermission?: boolean;
+    forClientPortal?: boolean;
+    cpUserRequired?: boolean;
+  };
 }
 
 export type Resolver<
@@ -117,3 +145,9 @@ export type Resolver<
   info: GraphQLResolveInfo,
 ) => Promise<Result> | Result) &
   IResolverSymbol;
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
+}

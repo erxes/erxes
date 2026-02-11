@@ -44,7 +44,7 @@ export const ProductCategoriesRecordTable = () => {
     <RecordTable.Provider
       columns={productCategoryColumns(categoryObject)}
       data={categories || []}
-      className="m-3"
+      className="h-full"
     >
       <RecordTableTree id="product-categories" ordered>
         <RecordTable.Scroll>
@@ -77,7 +77,7 @@ export const productCategoryColumns: (
     accessorKey: 'attachment',
     cell: ({ cell }) => {
       return (
-        <RecordTableInlineCell className="px-1 justify-center">
+        <RecordTableInlineCell className="justify-center px-1">
           <Avatar>
             <Avatar.Image src={(cell.getValue() as any)?.url || ''} />
             <Avatar.Fallback>

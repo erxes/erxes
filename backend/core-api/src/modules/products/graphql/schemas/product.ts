@@ -14,8 +14,7 @@ export const types = `
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
+    propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     attachment: Attachment
@@ -107,7 +106,7 @@ export const mutationParams = `
   barcodeDescription: String,
   unitPrice: Float,
   code: String,
-  customFieldsData: JSON,
+  propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
   vendorId: String,

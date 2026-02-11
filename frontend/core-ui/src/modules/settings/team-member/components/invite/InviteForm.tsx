@@ -1,110 +1,159 @@
-import { FormProvider, SubmitHandler, useFieldArray } from 'react-hook-form';
-import { Button, ScrollArea, Spinner, Table, useToast } from 'erxes-ui';
-import { TUserForm } from '@/settings/team-member/types';
+import {
+  Button,
+  Spinner,
+  useToast,
+  Input,
+  Badge,
+  TextOverflowTooltip,
+  cn,
+} from 'erxes-ui';
 import { useCallback, useState } from 'react';
-import { IconSend } from '@tabler/icons-react';
+import { IconSend, IconX } from '@tabler/icons-react';
 import { useUsersInvite } from '@/settings/team-member/hooks/useUsersInvite';
-import { useUsersSubmitForm } from '@/settings/team-member/hooks/useUserForm';
-import { InviteRow } from './InviteRow';
-import { InviteHeaderCheckbox } from './InviteRowCheckbox';
-import { InviteMemberContext } from '../../context/InviteMemberContext';
-import { AddInviteRowButton } from './AddInviteRow';
-import { InviteRowRemoveButton } from './RemoveButton';
+import { z } from 'zod';
+import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
+
+const emailSchema = z.string().email();
 
 export function InviteForm({
   setIsOpen,
 }: {
   setIsOpen: (open: boolean) => void;
 }) {
-  const {
-    methods,
-    methods: { control, handleSubmit },
-  } = useUsersSubmitForm();
   const { toast } = useToast();
   const { handleInvitations, loading } = useUsersInvite();
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'entries',
+  const [tags, setTags] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [error, setError] = useState('');
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'team-member',
   });
+  const addTag = (value: string) => {
+    const trimmedValue = value.trim();
 
-  const submitHandler: SubmitHandler<TUserForm> = useCallback(
-    async (data) => {
-      try {
-        handleInvitations({
-          variables: {
-            entries: data?.entries,
-          },
-          onCompleted() {
-            toast({ title: 'Invitation has been sent' });
-            setIsOpen(false);
-          },
+    if (!trimmedValue) return;
+
+    const validation = emailSchema.safeParse(trimmedValue);
+    if (!validation.success) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (tags.includes(trimmedValue)) {
+      setError('This email has already been added');
+      return;
+    }
+
+    setTags([...tags, trimmedValue]);
+    setInputValue('');
+    setError('');
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === ',' || e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      addTag(inputValue);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setError('');
+
+    if (value.endsWith(',') || value.endsWith(' ')) {
+      addTag(value.slice(0, -1));
+    } else {
+      setInputValue(value);
+    }
+  };
+
+  const submitHandler = useCallback(async () => {
+    const validation = emailSchema.safeParse(inputValue);
+
+    if (tags.length === 0 && !validation.success) {
+      toast({
+        title: 'Please add at least one email address',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    handleInvitations({
+      variables: {
+        entries: [
+          ...tags.map((tag) => ({
+            email: tag,
+          })),
+          ...(validation.success ? [{ email: inputValue }] : []),
+        ],
+      },
+      onCompleted() {
+        toast({ title: 'Invitation has been sent', variant: 'success' });
+        setIsOpen(false);
+      },
+      onError(e: ApolloError) {
+        toast({
+          title: 'Failed to send invitation',
+          description: e.message,
+          variant: 'destructive',
         });
-      } catch (error) {
-        console.error('Error submitting form:', error);
-        toast({ title: error.message, variant: 'destructive' });
-      }
-    },
-    [handleInvitations, setIsOpen, toast],
-  );
+      },
+    });
+  }, [handleInvitations, setIsOpen, toast, tags, inputValue]);
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(submitHandler)} className="h-full">
-        <ScrollArea className="max-h-[400px] flex flex-col">
-          <Table className="p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar">
-            <InviteMemberContext.Provider
-              value={{
-                selectedUsers,
-                setSelectedUsers,
-                fields: fields as any,
-              }}
-            >
-              <InviteTableHeader />
-              <Table.Body className="overflow-hidden">
-                {fields.map((field, index) => (
-                  <InviteRow userIndex={index} user={field} key={field.id} />
-                ))}
-              </Table.Body>
-              <Table.Footer>
-                <tr>
-                  <td colSpan={3} className="p-4">
-                    <div className="flex w-full justify-center gap-4">
-                      <AddInviteRowButton append={append} />
-                      <InviteRowRemoveButton remove={remove} />
-                    </div>
-                  </td>
-                </tr>
-              </Table.Footer>
-            </InviteMemberContext.Provider>
-          </Table>
-          <ScrollArea.Bar />
-        </ScrollArea>
-        <div className="mt-3 w-full flex gap-3 justify-end">
-          <Button type="submit" disabled={loading} className="text-sm">
-            {(loading && (
-              <Spinner size={'sm'} className="stroke-white" />
-            )) || <IconSend size={16} />}
-            Send invites
-          </Button>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
+        <div className="w-full">
+          <Input
+            name="email"
+            placeholder="Enter email addresses"
+            value={inputValue}
+            autoFocus
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            className={cn(error && 'focus-visible:shadow-focus-destructive')}
+          />
+          {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
+          {!error && (
+            <p className="text-sm text-muted-foreground mt-1.5">
+              {t('seperate-emails')}
+            </p>
+          )}
         </div>
-      </form>
-    </FormProvider>
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="gap-1.5 pr-1.5 max-w-full"
+              >
+                <TextOverflowTooltip value={tag} className="truncate" />
+                <button
+                  onClick={() => removeTag(tag)}
+                  className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
+                >
+                  <IconX className="size-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="w-full flex gap-3 justify-end">
+        <Button onClick={submitHandler} disabled={loading} className="text-sm">
+          {(loading && <Spinner size={'sm'} className="stroke-white" />) || (
+            <IconSend size={16} />
+          )}
+          {t('send-invites')}
+        </Button>
+      </div>
+    </div>
   );
 }
-
-const InviteTableHeader = () => {
-  return (
-    <Table.Header>
-      <Table.Row>
-        <InviteHeaderCheckbox />
-        <Table.Head>Email</Table.Head>
-        <Table.Head>Password</Table.Head>
-        {/* <Table.Head>Permission</Table.Head>
-        <Table.Head>Unit</Table.Head>
-        <Table.Head>Department</Table.Head>
-        <Table.Head>Branch</Table.Head> */}
-      </Table.Row>
-    </Table.Header>
-  );
-};

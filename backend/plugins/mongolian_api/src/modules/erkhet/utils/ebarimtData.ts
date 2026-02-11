@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
 import { calcProductsTaxRule } from './productsByTaxType';
 
@@ -63,10 +63,9 @@ export const getConfigPostData = async (
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
-    action: 'savedConformity',
-    method: 'query',
-    input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    module: 'relation',
+    action: 'getRelationIds',
+    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
     defaultValue: [],
   });
 
@@ -106,10 +105,9 @@ export const getConfigPostData = async (
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
-      action: 'savedConformity',
-      method: 'query',
-      input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+      module: 'relation',
+      action: 'getRelationIds',
+      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
       defaultValue: [],
     });
 
@@ -230,7 +228,7 @@ export const getConfigPostData = async (
       continue;
     }
 
-    let otherCode: string = '';
+    let otherCode = '';
 
     if (productData.branchId || productData.departmentId) {
       const branch = branchesById[productData.branchId || ''] || {};
@@ -369,14 +367,9 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'conformities',
-    action: 'savedConformity',
-    method: 'query',
-    input: {
-      mainType: 'deal',
-      mainTypeId: deal._id,
-      relTypes: ['company'],
-    },
+    module: 'relation',
+    action: 'getRelationIds',
+    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
     defaultValue: [],
   });
 
@@ -406,14 +399,9 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'conformities',
-      action: 'savedConformity',
-      method: 'query',
-      input: {
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relTypes: ['customer'],
-      },
+      module: 'relation',
+      action: 'getRelationIds',
+      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
       defaultValue: [],
     });
 
@@ -510,7 +498,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       continue;
     }
 
-    let otherCode: string = '';
+    let otherCode = '';
     if (productData.branchId || productData.departmentId) {
       const branch = branchesById[productData.branchId || ''] || {};
       const department = departmentsById[productData.departmentId || ''] || {};

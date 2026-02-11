@@ -1,83 +1,105 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
+  Input,
   RecordTable,
   RecordTableInlineCell,
+  Popover,
   RecordTableTree,
   useQueryState,
-  Button,
 } from 'erxes-ui';
-import { IconEdit } from '@tabler/icons-react';
+import { useState } from 'react';
 import { ISegment } from 'ui-modules';
+import { segmentMoreColumn } from './SegmentsMoreColumn';
 
-const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<
-  { order: string; hasChildren: boolean } & ISegment
->;
+const columns: (
+  t: (key: string) => string,
+) => ColumnDef<{ order: string; hasChildren: boolean } & ISegment>[] = (t) => [
+  segmentMoreColumn,
+  {
+    ...RecordTable.checkboxColumn,
+    size: 20,
+  } as ColumnDef<{ order: string; hasChildren: boolean } & ISegment>,
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead label={t('name')} />,
+    cell: ({ cell }) => {
+      const [, setSegmentId] = useQueryState('segmentId');
+      const { _id, name } = cell.row.original;
+      const [open, setOpen] = useState<boolean>(false);
+      const [_name, setName] = useState<string>(name);
 
-const columns: ColumnDef<{ order: string; hasChildren: boolean } & ISegment>[] =
-  [
-    checkBoxColumn,
-    {
-      id: 'name',
-      accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label="Name" />,
-      cell: ({ cell, row }) => {
-        return (
+      const onSave = () => {
+        if (name !== _name) {
+          console.log('Saving segment:', _id, _name);
+        }
+      };
+
+      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
+        setName(el.currentTarget.value);
+      };
+
+      return (
+        <Popover
+          open={open}
+          onOpenChange={(open) => {
+            setOpen(open);
+            if (!open) {
+              onSave();
+            }
+          }}
+        >
           <RecordTableTree.Trigger
             order={cell.row.original.order}
             name={cell.getValue() as string}
             hasChildren={cell.row.original.hasChildren}
             className="pl-2"
           >
-            {cell.getValue() as string}
+            <RecordTableInlineCell.Trigger>
+              <Badge
+                variant="secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSegmentId(cell.row.original._id);
+                }}
+              >
+                {cell.getValue() as string}
+              </Badge>
+            </RecordTableInlineCell.Trigger>
           </RecordTableTree.Trigger>
-        );
-      },
+          <RecordTableInlineCell.Content className="min-w-72">
+            <Input value={_name} onChange={onChange} />
+          </RecordTableInlineCell.Content>
+        </Popover>
+      );
     },
+  },
 
-    {
-      id: 'description',
-      accessorKey: 'description',
-      header: () => <RecordTable.InlineHead label="Description" />,
-      cell: ({ cell }) => {
-        return (
-          <RecordTableInlineCell>
-            {cell.getValue() as string}
-          </RecordTableInlineCell>
-        );
-      },
+  {
+    id: 'description',
+    accessorKey: 'description',
+    header: () => <RecordTable.InlineHead label={t('description')} />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      );
     },
-    {
-      id: 'count',
-      accessorKey: 'count',
-      header: () => <RecordTable.InlineHead label="Count" />,
-      cell: ({ cell }) => {
-        const { count } = cell.row.original;
-        return (
-          <RecordTableInlineCell>
-            {cell.getValue() as string}
-          </RecordTableInlineCell>
-        );
-      },
+  },
+  {
+    id: 'count',
+    accessorKey: 'count',
+    header: () => <RecordTable.InlineHead label={t('count')} />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      );
     },
-    {
-      id: 'actions',
-      header: () => <RecordTable.InlineHead label="" />,
-      cell: ({ cell }) => {
-        const [, setOpen] = useQueryState('segmentId');
-        return (
-          <RecordTableInlineCell>
-            <Button
-              variant="ghost"
-              className="w-full h-full"
-              onClick={() => setOpen(cell.row.original._id)}
-            >
-              <IconEdit className="hover:text-accent-foreground" />
-            </Button>
-          </RecordTableInlineCell>
-        );
-      },
-      size: 40,
-    },
-  ];
+  },
+];
 
 export default columns;

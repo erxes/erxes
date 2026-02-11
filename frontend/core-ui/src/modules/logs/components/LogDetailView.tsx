@@ -2,7 +2,7 @@ import { useLogDetail } from '@/logs/hooks/useLogDetail';
 import React, { lazy, Suspense } from 'react';
 import ReactJson from 'react-json-view';
 import { ILogDoc, ILogSourceType, ILogStatusType } from '../types';
-import { Badge, RelativeDateDisplay } from 'erxes-ui';
+import { Badge, RelativeDateDisplay, Spinner } from 'erxes-ui';
 import { LogUserInfo } from '@/logs/components/LogUser';
 
 const MongoContent = lazy(() =>
@@ -24,27 +24,31 @@ const AuthContent = lazy(() =>
 );
 
 const LogDetailComponents: Record<ILogSourceType, any> = {
-  [ILogSourceType.mongo]: MongoContent,
-  [ILogSourceType.graphql]: GraphqlContent,
-  [ILogSourceType.auth]: AuthContent,
-  [ILogSourceType.webhook]: ({ payload }: ILogDoc) => (
+  [ILogSourceType.MONGO]: MongoContent,
+  [ILogSourceType.GRAPHQL]: GraphqlContent,
+  [ILogSourceType.AUTH]: AuthContent,
+  [ILogSourceType.WEBHOOK]: ({ payload }: ILogDoc) => (
     <ReactJson src={payload} collapsed={1} />
   ),
 };
 
 const generateOperationText = ({ source, action, payload }: ILogDoc) => {
   const operationTextMap = {
-    [ILogSourceType.mongo]: action,
-    [ILogSourceType.graphql]: payload?.mutationName,
-    [ILogSourceType.auth]: action,
-    [ILogSourceType.webhook]: action,
+    [ILogSourceType.MONGO]: action,
+    [ILogSourceType.GRAPHQL]: payload?.mutationName,
+    [ILogSourceType.AUTH]: action,
+    [ILogSourceType.WEBHOOK]: action,
   };
 
   return operationTextMap[source] || '-';
 };
 
 export const LogDetailView = ({ logId }: { logId: string }) => {
-  const { detail, error } = useLogDetail(logId);
+  const { detail, error, loading } = useLogDetail(logId);
+
+  if(loading) {
+    return <Spinner />
+  }
 
   if (!detail) {
     return error?.message || 'Something went wrong';
@@ -57,7 +61,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div className="flex flex-row gap-6 h-full w-full">
-        <div className="flex flex-col gap-2 w-1/4 border-r-2 p-4">
+        <div className="flex flex-col gap-2 w-1/4 border-r p-4">
           <h4 className="text-lg font-semibold text-foreground leading-none">
             Operation Summary
           </h4>
@@ -67,7 +71,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
           <LogDetailSideBarItem title="Status">
             <Badge
               variant={
-                status === ILogStatusType.failed ? 'destructive' : 'success'
+                status === ILogStatusType.FAILED ? 'destructive' : 'success'
               }
               className="uppercase"
             >

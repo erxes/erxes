@@ -1,92 +1,255 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' source(none);
+@source './**/*.{ts,tsx,js,jsx}';
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@theme {
+  --font-*: initial;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 0.875rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.125rem;
+  --text-lg: 1rem;
+  --text-lg--line-height: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.5rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.75rem;
+
+  --color-border: var(--border);
+  --color-scroll: var(--scroll);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-sidebar: var(--sidebar-background);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --spacing-cell: 33px;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-spinner: spinner 0.96s linear infinite;
+
+  --shadow-focus: 0px 0px 0px 4px rgba(79, 70, 229, 0.25),
+    0px 0px 0px 1px var(--primary);
+  --shadow-subtle: 0px 0px 0px 1px var(--primary);
+  --shadow-destructive: 0px 0px 0px 1px var(--destructive);
+  --shadow-focus-destructive: 0px 0px 0px 4px oklch(0.6334 0.2103 25.32 / 25%),
+    0px 0px 0px 1px var(--destructive);
+  --shadow-xs: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow);
+  --shadow-sm: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow), 0 4px 4px var(--shadow);
+  --shadow-lg: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow);
+  --shadow-xl: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+    0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow),
+    0 16px 16px var(--shadow);
+
+  --ring-color: var(--ring);
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes spinner {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0.15;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility hide-scroll {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@utility styled-scroll {
+  /* Custom scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    width: 1px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 10px;
+    border: 3px solid var(--background);
+  }
+
+  /* Custom scrollbar for IE, Edge and Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+@utility block-child {
+  & > * {
+    @apply block!;
+  }
+}
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.2102 0.006 285.87);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --primary: oklch(0.514 0.2276 276.98);
+    --primary-foreground: oklch(0.9848 0 0);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --secondary: oklch(0.8372 0.0563 288.17);
+    --muted: oklch(0.9619 0 0);
+    --muted-foreground: oklch(0.5509 0.0057 17.33);
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --accent: oklch(0.9688 0.0008 286.38);
+    --accent-foreground: oklch(0.7258 0.0074 286.21);
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --destructive: oklch(0.6368 0.2078 25.33);
+    --destructive-foreground: oklch(0.9848 0 0);
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --success: oklch(0.7205 0.192 149.49);
+    --warning: oklch(0.7453 0.1322 54.63);
+    --info: oklch(0.6261 0.1859 259.6);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    --scroll: oklch(0.8634 0.0059 286.27);
+    --border: oklch(0.9197 0.0041 286.32);
+    --input: oklch(0.9197 0.0041 286.32);
+    --ring: oklch(0.5146 0.2296 277.59);
     --radius: 0.5rem;
+    --sidebar-background: oklch(0.9848 0 0);
+    --shadow: oklch(0 0 0 / 5%);
+    --border-shadow: oklch(0 0 0 / 5%);
+    --spacing: 0.25rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Charts */
+    --chart-1: oklch(0.811 0.111 293.571);
+    --chart-2: oklch(0.606 0.25 292.717);
+    --chart-3: oklch(0.541 0.281 293.009);
+    --chart-4: oklch(0.491 0.27 292.581);
+    --chart-5: oklch(0.432 0.232 292.759);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: oklch(0.2044 0 0);
+    --foreground: oklch(0.9761 0.0012 286.38);
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --primary: oklch(0.514 0.2276 276.98);
+    --primary-foreground: oklch(0.9848 0 0);
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --secondary: oklch(0.2219 0.0798 280.68);
+    --muted: oklch(0.2591 0 0);
+    --muted-foreground: oklch(0.7132 0.0043 17.26);
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --accent: oklch(0.245 0.0037 286.12);
+    --accent-foreground: oklch(0.5278 0.0102 286.05);
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --destructive: oklch(0.6368 0.2078 25.33);
+    --destructive-foreground: oklch(0.98 0.01 257);
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --success: oklch(0.7205 0.192 149.49);
+    --warning: oklch(0.7453 0.1322 54.63);
+    --info: oklch(0.6261 0.1859 259.6);
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --scroll: oklch(0.3701 0.0113 285.84);
+    --border: oklch(0.28 0.0104 285.76);
+    --input: oklch(0.28 0.0104 285.76);
+    --ring: oklch(0.514 0.2276 276.98);
+    --sidebar-background: oklch(0.2267 0 0);
+    --border-shadow: oklch(0.9761 0.0012 286.38 / 8%);
+    --shadow: oklch(0 0 0 / 5%);
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --chart-1: oklch(0.811 0.111 293.571);
+    --chart-2: oklch(0.606 0.25 292.717);
+    --chart-3: oklch(0.541 0.281 293.009);
+    --chart-4: oklch(0.491 0.27 292.581);
+    --chart-5: oklch(0.432 0.232 292.759);
   }
 }
 
@@ -94,112 +257,17 @@
   * {
     @apply border-border;
   }
-
-  html {
-    overflow-y: scroll;
-  }
-
   body {
-    @apply bg-background text-foreground overflow-hidden touch-manipulation;
-    -webkit-tap-highlight-color: transparent;
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
-
-  /* Remove default button styling on iOS */
-  button {
-    -webkit-appearance: none;
-    appearance: none;
+  h1 {
+    @apply text-2xl font-bold;
   }
-
-  /* Mobile optimizations */
-  input,
-  select,
-  textarea {
-    font-size: 16px; /* Prevents iOS zoom on focus */
+  h2 {
+    @apply text-xl font-bold;
   }
-}
-
-/* Mobile-friendly card styles */
-@layer components {
-  .mobile-card {
-    @apply rounded-xl border bg-card p-4 shadow;
-  }
-
-  .mobile-bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around items-center h-16 z-50;
-  }
-
-  .mobile-button {
-    @apply rounded-full p-3 flex items-center justify-center;
-  }
-
-  .mobile-header {
-    @apply text-lg font-semibold mb-2;
-  }
-
-  /* Mobile scrollable area */
-  .mobile-scroll-area {
-    @apply overflow-y-auto scrollbar-none;
-    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
-    overscroll-behavior-y: contain; /* Prevents page overscroll */
-  }
-
-  /* Mobile table optimizations */
-  @media (max-width: 768px) {
-    .table-container {
-      @apply overflow-x-auto -mx-4 px-0;
-    }
-
-    .table-mobile-row {
-      @apply flex flex-wrap border-b py-2;
-    }
-
-    .table-mobile-cell {
-      @apply flex flex-col px-2 pb-2;
-    }
-
-    .table-mobile-header {
-      @apply text-xs text-muted-foreground;
-    }
-
-    .table-mobile-content {
-      @apply font-medium;
-    }
-
-    /* Hide scrollbar but keep functionality */
-    .scrollbar-none {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .scrollbar-none::-webkit-scrollbar {
-      display: none;
-    }
-  }
-  @keyframes growLine {
-    0% {
-      width: 0;
-    }
-    100% {
-      width: 100%;
-    }
-  }
-
-  @keyframes fadeInUp {
-    0% {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-grow-line {
-    animation: growLine 0.8s ease-out 1.2s forwards;
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
+  h3 {
+    @apply text-base font-bold;
   }
 }

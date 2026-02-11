@@ -1,5 +1,6 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+// import { EventDispatcher } from 'erxes-api-shared/core-modules';
 import {
   conformityHelper,
   getMatchConformities,
@@ -38,7 +39,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   getConformities(doc: IGetConformityBulk): Promise<IConformityDocument[]>;
 }
 
-export const loadConformityClass = (models: IModels) => {
+export const loadConformityClass = (models: IModels, subdomain: string) => {
   class Conformity {
     /**
      * Create a conformity
@@ -48,6 +49,11 @@ export const loadConformityClass = (models: IModels) => {
 
       if (!conformity) {
         conformity = await models.Conformities.create(doc);
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'create',
+        //   docId: conformity._id,
+        //   currentDocument: conformity.toObject(),
+        // });
       }
 
       return conformity;
@@ -58,6 +64,13 @@ export const loadConformityClass = (models: IModels) => {
         ordered: false,
         rawResult: false,
       });
+      if (Array.isArray(result) && result.length > 0) {
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'create',
+        //   docId: result.map((r) => r._id),
+        //   currentDocument: result.map((r) => r.toObject()),
+        // });
+      }
       return result;
     }
 
@@ -86,16 +99,23 @@ export const loadConformityClass = (models: IModels) => {
       );
 
       // insert on new relTypeIds
-      const insertTypes = await addedTypeIds.map((relTypeId) => ({
+      const insertTypes = addedTypeIds.map((relTypeId) => ({
         mainType: doc.mainType,
         mainTypeId: doc.mainTypeId,
         relType: doc.relType,
         relTypeId,
       }));
-      await models.Conformities.insertMany(insertTypes);
+      const inserted = await models.Conformities.insertMany(insertTypes);
+      if (inserted.length > 0) {
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'create',
+        //   docId: inserted.map((r) => r._id),
+        //   currentDocument: inserted.map((r) => r.toObject()),
+        // });
+      }
 
       // delete on removedTypeIds
-      await models.Conformities.deleteMany({
+      const toDelete = await models.Conformities.find({
         $or: [
           {
             $and: [
@@ -115,6 +135,32 @@ export const loadConformityClass = (models: IModels) => {
           },
         ],
       });
+      if (toDelete.length > 0) {
+        await models.Conformities.deleteMany({
+          $or: [
+            {
+              $and: [
+                { mainType: doc.mainType },
+                { mainTypeId: doc.mainTypeId },
+                { relType: doc.relType },
+                { relTypeId: { $in: removedTypeIds } },
+              ],
+            },
+            {
+              $and: [
+                { mainType: doc.relType },
+                { mainTypeId: { $in: removedTypeIds } },
+                { relType: doc.mainType },
+                { relTypeId: doc.mainTypeId },
+              ],
+            },
+          ],
+        });
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'deleteMany',
+        //   docIds: toDelete.map((d) => d._id),
+        // });
+      }
 
       return { addedTypeIds, removedTypeIds };
     }
@@ -137,6 +183,9 @@ export const loadConformityClass = (models: IModels) => {
     }
 
     public static async changeConformity(doc: IConformityChange) {
+      const toUpdate1 = await models.Conformities.find({
+        $and: [{ mainType: doc.type }, { mainTypeId: { $in: doc.oldTypeIds } }],
+      });
       await models.Conformities.updateMany(
         {
           $and: [
@@ -146,13 +195,37 @@ export const loadConformityClass = (models: IModels) => {
         },
         { $set: { mainTypeId: doc.newTypeId } },
       );
+      if (toUpdate1.length > 0) {
+        const updated1 = await models.Conformities.find({
+          $and: [{ mainType: doc.type }, { mainTypeId: doc.newTypeId }],
+        });
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'updateMany',
+        //   docIds: updated1.map((d) => d._id),
+        //   updateDescription: { mainTypeId: doc.newTypeId },
+        // });
+      }
 
-      return models.Conformities.updateMany(
+      const toUpdate2 = await models.Conformities.find({
+        $and: [{ relType: doc.type }, { relTypeId: { $in: doc.oldTypeIds } }],
+      });
+      const result = await models.Conformities.updateMany(
         {
           $and: [{ relType: doc.type }, { relTypeId: { $in: doc.oldTypeIds } }],
         },
         { $set: { relTypeId: doc.newTypeId } },
       );
+      if (toUpdate2.length > 0) {
+        const updated2 = await models.Conformities.find({
+          $and: [{ relType: doc.type }, { relTypeId: doc.newTypeId }],
+        });
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'updateMany',
+        //   docIds: updated2.map((d) => d._id),
+        //   updateDescription: { relTypeId: doc.newTypeId },
+        // });
+      }
+      return result;
     }
 
     public static async filterConformity(doc: IConformityFilter) {
@@ -227,14 +300,22 @@ export const loadConformityClass = (models: IModels) => {
         mainTypeId: doc.mainTypeId,
       });
 
-      return models.Conformities.deleteMany(match);
+      const toDelete = await models.Conformities.find(match);
+      const result = await models.Conformities.deleteMany(match);
+      if (toDelete.length > 0) {
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'deleteMany',
+        //   docIds: toDelete.map((d) => d._id),
+        // });
+      }
+      return result;
     }
 
     /**
      * Remove conformities
      */
     public static async removeConformities(doc: IConformitiesRemove) {
-      return models.Conformities.deleteMany({
+      const toDelete = await models.Conformities.find({
         $or: [
           {
             $and: [
@@ -250,22 +331,71 @@ export const loadConformityClass = (models: IModels) => {
           },
         ],
       });
+      const result = await models.Conformities.deleteMany({
+        $or: [
+          {
+            $and: [
+              { mainType: doc.mainType },
+              { mainTypeId: { $in: doc.mainTypeIds } },
+            ],
+          },
+          {
+            $and: [
+              { relType: doc.mainType },
+              { relTypeId: { $in: doc.mainTypeIds } },
+            ],
+          },
+        ],
+      });
+      if (toDelete.length > 0) {
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'deleteMany',
+        //   docIds: toDelete.map((d) => d._id),
+        // });
+      }
+      return result;
     }
 
     public static async deleteConformities(doc: IConformitiesDelete) {
       const { mainType, mainTypeId, relType, relTypeIds } = doc;
+      const toDelete = await models.Conformities.find({
+        $or: [
+          {
+            mainType,
+            mainTypeId,
+            relType,
+            relTypeId: { $in: relTypeIds },
+          },
+          {
+            relType: mainType,
+            relTypeId: mainTypeId,
+            mainType: relType,
+            mainTypeId: { $in: relTypeIds },
+          },
+        ],
+      });
       await models.Conformities.deleteMany({
         $or: [
           {
-            mainType, mainTypeId,
-            relType, relTypeId: { $in: relTypeIds }
+            mainType,
+            mainTypeId,
+            relType,
+            relTypeId: { $in: relTypeIds },
           },
           {
-            relType: mainType, relTypeId: mainTypeId,
-            mainType: relType, mainTypeId: { $in: relTypeIds },
+            relType: mainType,
+            relTypeId: mainTypeId,
+            mainType: relType,
+            mainTypeId: { $in: relTypeIds },
           },
-        ]
+        ],
       });
+      if (toDelete.length > 0) {
+        // eventDispatcher.sendDbLogEvent({
+        //   action: 'deleteMany',
+        //   docIds: toDelete.map((d) => d._id),
+        // });
+      }
     }
   }
 

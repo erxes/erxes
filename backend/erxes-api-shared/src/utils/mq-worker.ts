@@ -1,6 +1,6 @@
+import type { DefaultJobOptions, Job, Worker as WorkerType } from 'bullmq';
 import { Queue, QueueEvents, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
-import type { DefaultJobOptions, Job, Worker as WorkerType } from 'bullmq';
 import { redis } from './redis';
 
 const queueMap = new Map<string, Queue>();
@@ -44,10 +44,17 @@ export const createMQWorkerWithListeners = (
   return worker;
 };
 
-export const sendWorkerQueue = (serviceName: string, queueName: string) =>
-  new Queue(`${serviceName}-${queueName}`, {
-    connection: redis,
-  });
+export const sendWorkerQueue = (serviceName: string, queueName: string) => {
+  const queueKey = `${serviceName}-${queueName}`;
+  let queue = queueMap.get(queueKey);
+
+  if (!queue) {
+    queue = new Queue(queueKey, { connection: redis });
+    queueMap.set(queueKey, queue);
+  }
+
+  return queue;
+};
 
 export const sendWorkerMessage = async ({
   pluginName,

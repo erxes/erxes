@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
 export interface IAutomationExecAction {
-  createdAt?: Date;
+  createdAt?: string;
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -10,8 +10,8 @@ export interface IAutomationExecAction {
 }
 
 export interface IAutomationExecution {
-  createdAt?: Date;
-  modifiedAt?: Date;
+  createdAt?: string;
+  modifiedAt?: string;
   automationId: string;
   triggerId: string;
   triggerType: string;

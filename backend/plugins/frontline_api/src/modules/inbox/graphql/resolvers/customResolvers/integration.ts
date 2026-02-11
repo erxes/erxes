@@ -3,6 +3,7 @@ import { IContext } from '~/connectionResolvers';
 import { facebookStatus } from '@/integrations/facebook/messageBroker';
 import { graphRequest } from '@/integrations/facebook/utils';
 import { IFacebookPageResponse } from '@/integrations/facebook/@types/integrations';
+import { imapIntegrationDetails } from '@/integrations/imap/messageBroker';
 export const integrationStatus = async (
   serviceName: string,
   subdomain: string,
@@ -31,6 +32,23 @@ export const integrationStatus = async (
   }
 };
 
+export const integrationDetail = async (
+  serviceName: string,
+  subdomain: string,
+  data: { integrationId: string },
+) => {
+  try {
+    switch (serviceName) {
+      case 'imap':
+        return await imapIntegrationDetails({ subdomain, data });
+    }
+  } catch (e) {
+    throw new Error(
+      `Failed to check integration details for ${serviceName}. Error: ${e.message}`,
+    );
+  }
+};
+
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Integrations.findOne({ _id });
@@ -45,7 +63,6 @@ export default {
     _args,
     { models }: IContext,
   ) {
-    console.log(integration, 'channel integration');
     if (integration?.channelId) {
       return models.Channels.findOne({
         _id: integration.channelId,
@@ -95,8 +112,15 @@ export default {
       return { status: 'healthy' };
     }
   },
+  async details(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
+    console.log(integration, 'integration');
+    console.log(_args, '_args');
+    const inboxId: string = integration._id;
 
-  async details(integration: IIntegrationDocument, _args) {
     const serviceName = integration.kind.includes('facebook')
       ? 'facebook'
       : integration.kind;
@@ -104,7 +128,18 @@ export default {
     if (integration.kind === 'messenger') {
       return null;
     }
-    return serviceName;
+
+    try {
+      const detail = await integrationDetail(serviceName, subdomain, {
+        integrationId: inboxId,
+      });
+
+      return detail;
+    } catch (e) {
+      console.error('error', e);
+
+      return null;
+    }
   },
 
   async facebookPage(

@@ -1,16 +1,22 @@
-import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
-
 import {
+  AUTOMATION_ACTIONS,
+  AUTOMATION_CORE_PROPERTY_TYPES,
   AUTOMATION_STATUSES,
+  AUTOMATION_TRIGGERS,
+  AutomationConstants,
   IAutomationDocument,
   IAutomationExecutionDocument,
-  IAutomationsActionConfig,
-  IAutomationsTriggerConfig,
+  requireLogin,
 } from 'erxes-api-shared/core-modules';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-
+import { IAutomationEmailTemplateDocument, ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  getEnv,
+  getPlugin,
+  getPlugins,
+} from 'erxes-api-shared/utils';
+import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { UI_ACTIONS, UI_TRIGGERS } from '../../constants';
 
 export interface IListArgs extends ICursorPaginateParams {
   status: string;
@@ -21,7 +27,15 @@ export interface IListArgs extends ICursorPaginateParams {
   sortField: string;
   sortDirection: number;
   tagIds: string[];
+  excludeIds: string[];
   triggerTypes: string[];
+  createdByIds: string[];
+  updatedByIds: string[];
+  createdAtFrom: Date;
+  createdAtTo: Date;
+  updatedAtFrom: Date;
+  updatedAtTo: Date;
+  actionTypes: string[];
 }
 
 export interface IHistoriesParams {
@@ -36,7 +50,21 @@ export interface IHistoriesParams {
 }
 
 const generateFilter = (params: IListArgs) => {
-  const { status, searchValue, tagIds, triggerTypes, ids } = params;
+  const {
+    status,
+    searchValue,
+    tagIds,
+    triggerTypes,
+    ids,
+    excludeIds = [],
+    createdByIds,
+    updatedByIds,
+    actionTypes,
+    createdAtFrom,
+    createdAtTo,
+    updatedAtFrom,
+    updatedAtTo,
+  } = params;
 
   const filter: any = {
     status: { $nin: [AUTOMATION_STATUSES.ARCHIVED, 'template'] },
@@ -58,8 +86,33 @@ const generateFilter = (params: IListArgs) => {
     filter['triggers.type'] = { $in: triggerTypes };
   }
 
+  if (actionTypes?.length) {
+    filter['actions.type'] = { $in: actionTypes };
+  }
+
   if (ids?.length) {
     filter._id = { $in: ids };
+  }
+  if (excludeIds.length) {
+    filter._id = { $nin: excludeIds };
+  }
+  if (createdByIds?.length) {
+    filter.createdBy = { $in: createdByIds };
+  }
+  if (updatedByIds?.length) {
+    filter.updatedBy = { $in: updatedByIds };
+  }
+  if (createdAtFrom) {
+    filter.createdAt = { $gte: createdAtFrom };
+  }
+  if (createdAtTo) {
+    filter.createdAt = { ...(filter.createdAt || {}), $lte: createdAtTo };
+  }
+  if (updatedAtFrom) {
+    filter.updatedAt = { $gte: updatedAtFrom };
+  }
+  if (updatedAtTo) {
+    filter.updatedAt = { ...(filter.updatedAt || {}), $lte: updatedAtTo };
   }
 
   return filter;
@@ -192,46 +245,6 @@ export const automationQueries = {
     return await models.AutomationExecutions.find(filter).countDocuments();
   },
 
-  async automationConfigPrievewCount(
-    _root,
-    params: { config: any },
-    { subdomain }: IContext,
-  ) {
-    return;
-    // const config = params.config;
-    // if (!config) {
-    //   return;
-    // }
-
-    // const contentId = config.contentId;
-    // if (!contentId) {
-    //   return;
-    // }
-
-    // const segment = await sendSegmentsMessage({
-    //   subdomain,
-    //   action: 'findOne',
-    //   data: { _id: contentId },
-    //   isRPC: true
-    // });
-
-    // if (!segment) {
-    //   return;
-    // }
-
-    // const result = await sendSegmentsMessage({
-    //   subdomain,
-    //   action: 'fetchSegment',
-    //   data: {
-    //     segmentId: segment._id,
-    //     options: { returnCount: true }
-    //   },
-    //   isRPC: true
-    // });
-
-    // return result;
-  },
-
   async automationsTotalCount(
     _root,
     { status }: { status: string },
@@ -250,15 +263,15 @@ export const automationQueries = {
     const plugins = await getPlugins();
 
     const constants: {
-      triggersConst: IAutomationsTriggerConfig[];
+      triggersConst: any[];
       triggerTypesConst: string[];
-      actionsConst: IAutomationsActionConfig[];
+      actionsConst: any[];
       propertyTypesConst: Array<{ value: string; label: string }>;
     } = {
-      triggersConst: [...UI_TRIGGERS],
+      triggersConst: [...AUTOMATION_TRIGGERS],
       triggerTypesConst: [],
-      actionsConst: [...UI_ACTIONS],
-      propertyTypesConst: [],
+      actionsConst: [...AUTOMATION_ACTIONS],
+      propertyTypesConst: [...AUTOMATION_CORE_PROPERTY_TYPES],
     };
 
     for (const pluginName of plugins) {
@@ -267,42 +280,79 @@ export const automationQueries = {
 
       if (meta && meta.automations && meta.automations.constants) {
         const pluginConstants = meta.automations.constants || {};
-        const { triggers = [], actions = [] } = pluginConstants;
+        const { triggers = [], actions = [] } =
+          pluginConstants as AutomationConstants;
 
-        for (const trigger of triggers) {
-          constants.triggersConst.push({ ...trigger, pluginName });
-          constants.triggerTypesConst.push(trigger.type);
+        for (const {
+          moduleName,
+          collectionName,
+          relationType,
+          ...trigger
+        } of triggers) {
+          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
+          const type = `${propertyType}${
+            relationType ? `.${relationType}` : ''
+          }`;
+          constants.triggersConst.push({ ...trigger, type, pluginName });
+          constants.triggerTypesConst = [
+            ...new Set([...constants.triggerTypesConst, propertyType]),
+          ];
+
           constants.propertyTypesConst.push({
-            value: trigger.type,
+            value: propertyType,
             label: trigger.label,
           });
         }
 
-        for (const action of actions) {
-          constants.actionsConst.push({ ...action, pluginName });
-        }
-
-        if (pluginConstants?.emailRecipientTypes?.length) {
-          const updatedEmailRecipIentTypes =
-            pluginConstants.emailRecipientTypes.map((eRT) => ({
-              ...eRT,
-              pluginName,
-            }));
-          constants.actionsConst = constants.actionsConst.map((actionConst) =>
-            actionConst.type === 'sendEmail'
-              ? {
-                  ...actionConst,
-                  emailRecipientsConst: actionConst.emailRecipientsConst.concat(
-                    updatedEmailRecipIentTypes,
-                  ),
-                }
-              : actionConst,
-          );
+        for (const {
+          moduleName,
+          collectionName,
+          method = 'create',
+          ...action
+        } of actions) {
+          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
+          const type = `${propertyType}.${method}`;
+          constants.actionsConst.push({ ...action, type, pluginName });
         }
       }
     }
 
     return constants;
+  },
+
+  async getAutomationWebhookEndpoint(
+    _root,
+    { _id },
+    { models, subdomain }: IContext,
+  ) {
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+
+    if (!DOMAIN) {
+      throw new Error('DOMAIN is not set');
+    }
+
+    const automation = await models.Automations.findById(_id).lean();
+
+    if (!automation) {
+      throw new Error('Not found');
+    }
+
+    return `${DOMAIN}/automation/${automation._id}/`;
+  },
+
+  async getAutomationExecutionDetail(
+    _root,
+    { executionId },
+    { models }: IContext,
+  ) {
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
+    if (!execution) {
+      throw new Error('Execution not found');
+    }
+
+    return execution;
   },
 
   async automationBotsConstants() {
@@ -320,14 +370,92 @@ export const automationQueries = {
 
     return botsConstants;
   },
+
+  async automationsAiAgents(_root, { kind }, { models }: IContext) {
+    return await models.AiAgents.find(kind ? { provider: kind } : {});
+  },
+
+  async automationsAiAgentDetail(_root, _, { models }: IContext) {
+    return await models.AiAgents.findOne({});
+  },
+
+  async getTrainingStatus(_root, { agentId }, { }: IContext) {
+    const agent = await this.models.AiAgents.findById(agentId);
+    if (!agent) {
+      throw new Error('AI Agent not found');
+    }
+
+    const files = agent.files || [];
+    const embeddedFiles = await this.models.AiEmbeddings.find({
+      fileId: { $in: files.map(({ id }) => id) },
+    });
+
+    return {
+      agentId,
+      totalFiles: files.length,
+      processedFiles: embeddedFiles.length,
+      status: embeddedFiles.length === files.length ? 'completed' : 'pending',
+    };
+  },
+
+  /**
+   * Email templates list
+   */
+  async automationEmailTemplates(
+    _root,
+    params: {
+      page?: number;
+      perPage?: number;
+      searchValue?: string;
+      sortField?: string;
+      sortDirection?: number;
+    },
+    { models }: IContext,
+  ) {
+    const { searchValue, sortField = 'createdAt', sortDirection = -1 } = params;
+
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.$or = [
+        { name: new RegExp(`.*${searchValue}.*`, 'i') },
+        { description: new RegExp(`.*${searchValue}.*`, 'i') },
+      ];
+    }
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<IAutomationEmailTemplateDocument>({
+        model: models.AutomationEmailTemplates,
+        params: {
+          ...params,
+          orderBy: {
+            [sortField]: sortDirection as SortOrder,
+          },
+        },
+        query: filter,
+      });
+
+    return {
+      list,
+      totalCount,
+      pageInfo,
+    };
+  },
+
+  /**
+   * Get one email template
+   */
+  async automationEmailTemplateDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.AutomationEmailTemplates.getEmailTemplate(_id);
+  },
 };
 
-// requireLogin(automationQueries, 'automationsMain');
-// requireLogin(automationQueries, 'automationNotes');
-// requireLogin(automationQueries, 'automationDetail');
-
-// checkPermission(automationQueries, 'automations', 'showAutomations', []);
-// checkPermission(automationQueries, 'automationsMain', 'showAutomations', {
-//   list: [],
-//   totalCount: 0
-// });
+requireLogin(automationQueries, 'automationsMain');
+requireLogin(automationQueries, 'automationNotes');
+requireLogin(automationQueries, 'automationDetail');
+requireLogin(automationQueries, 'automationEmailTemplates');
+requireLogin(automationQueries, 'automationEmailTemplateDetail');

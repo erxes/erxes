@@ -1,7 +1,7 @@
 import { Job } from 'bullmq';
 import {
   getEnv,
-  getSaasOrganizations,
+  getSaasOrganizationsByFilter,
   sendTRPCMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
@@ -12,7 +12,7 @@ export const dailyCheckCycles = async () => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   if (VERSION && VERSION === 'saas') {
-    const orgs = await getSaasOrganizations();
+    const orgs = await getSaasOrganizationsByFilter({ cycleEnabled: true });
 
     for (const org of orgs) {
       sendWorkerQueue('operations', 'checkCycle').add('checkCycle', {
@@ -51,8 +51,12 @@ export const checkCycle = async (job: Job) => {
 
   const tzToday = tz(new Date(), timezone);
 
-  console.log('tzToday', tzToday);
-  console.log('tzToday.hour', tzToday.hour());
+  // LOG: Script Execution Context
+  console.log(
+    `[Cycle Check: ${subdomain}] Running at ${tzToday.format(
+      'YYYY-MM-DD HH:mm:ss',
+    )} (${timezone})`,
+  );
 
   if (tzToday.hour() !== 0) {
     return;
@@ -60,68 +64,76 @@ export const checkCycle = async (job: Job) => {
 
   const models = await generateModels(subdomain);
 
-  const tzStart = tzToday.clone().startOf('day').subtract(1, 'day');
-  const tzEnd = tzToday.clone().endOf('day');
+  // Define clear boundaries
+  const yesterdayStart = tzToday.clone().subtract(1, 'day').startOf('day');
+  const yesterdayEnd = tzToday.clone().subtract(1, 'day').endOf('day');
+  const todayStart = tzToday.clone().startOf('day');
+  const todayEnd = tzToday.clone().endOf('day');
 
-  console.log('tzStart', tzStart);
-  console.log('tzEnd', tzEnd);
+  console.log(`[Cycle Check: ${subdomain}] Logic Windows: 
+    Closing Cycles ending between: [${yesterdayStart.format()}] AND [${yesterdayEnd.format()}]
+    Starting Cycles starting between: [${todayStart.format()}] AND [${todayEnd.format()}]`);
 
-  console.log('tzEnd.toDate() ', tzEnd.toDate());
-
+  // --- ENDING CYCLES ---
   const endCycles = await models.Cycle.find({
     isActive: true,
     isCompleted: false,
-    endDate: { $lte: tzEnd.toDate() },
+    endDate: { $lte: todayEnd.toDate() },
   });
 
   const endCycleIds: string[] = [];
+  for (const cycle of endCycles) {
+    const endDateTz = tz(cycle.endDate, timezone);
+    const isMatch = endDateTz.isBetween(
+      yesterdayStart,
+      yesterdayEnd,
+      null,
+      '[]',
+    );
 
-  if (endCycles?.length) {
-    for (const cycle of endCycles) {
-      const { _id, endDate } = cycle;
+    console.log(
+      `[DEBUG END] Cycle: "${
+        cycle.name
+      }" | EndDate(UTC): ${cycle.endDate.toISOString()} | EndDate(Local): ${endDateTz.format()} | Match: ${isMatch}`,
+    );
 
-      console.log('endDate', endDate);
-      const endDateTz = tz(endDate, timezone);
-      console.log('endDateTz', endDateTz);
-      if (endDateTz.isBetween(tzStart, tzEnd, null, '(]')) {
-        endCycleIds.push(_id);
-      }
-    }
+    if (isMatch) endCycleIds.push(cycle._id);
   }
 
-  console.log('endCycleIds', endCycleIds);
-
-  if (endCycleIds?.length) {
+  if (endCycleIds.length > 0) {
+    console.log(`[ACTION] Ending ${endCycleIds.length} cycles...`);
     for (const cycleId of endCycleIds) {
       await models.Cycle.endCycle(cycleId);
     }
   }
 
+  // --- STARTING CYCLES ---
   const startCycles = await models.Cycle.find({
     isActive: false,
     isCompleted: false,
-    startDate: { $lte: tzEnd.toDate() },
+    startDate: { $lte: todayEnd.toDate() },
   });
 
   const startCycleIds: string[] = [];
+  for (const cycle of startCycles) {
+    const startDateTz = tz(cycle.startDate, timezone);
+    const isMatch = startDateTz.isBetween(todayStart, todayEnd, null, '[]');
 
-  if (startCycles?.length) {
-    for (const cycle of startCycles) {
-      const { _id, startDate } = cycle;
+    console.log(
+      `[DEBUG START] Cycle: "${
+        cycle.name
+      }" | StartDate(UTC): ${cycle.startDate.toISOString()} | StartDate(Local): ${startDateTz.format()} | Match: ${isMatch}`,
+    );
 
-      const startDateTz = tz(startDate, timezone);
-
-      if (startDateTz.isBetween(tzStart, tzEnd, null, '(]')) {
-        startCycleIds.push(_id);
-      }
-    }
+    if (isMatch) startCycleIds.push(cycle._id);
   }
 
-  console.log('startCycleIds', startCycleIds);
-
-  if (startCycleIds?.length) {
+  if (startCycleIds.length > 0) {
+    console.log(`[ACTION] Starting ${startCycleIds.length} cycles...`);
     for (const cycleId of startCycleIds) {
       await models.Cycle.startCycle(cycleId);
     }
   }
+
+  console.log(`[Cycle Check: ${subdomain}] Finished.`);
 };

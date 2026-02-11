@@ -40,17 +40,13 @@ export const useLoginMagicLink = () => {
       },
       onError: ({ message }) => {
         const isInvalidLogin = message.includes('Invalid login');
-        const toastData = {
-          title: 'Something went wrong',
-          description: message,
-        };
-
-        if (isInvalidLogin) {
-          toastData.title = 'Invalid login';
-          toastData.description =
-            'The email address or password you entered is incorrect.';
-        }
-        toast(toastData);
+        toast({
+          title: isInvalidLogin ? 'Invalid login' : 'Something went wrong',
+          description: isInvalidLogin
+            ? 'The email address or password you entered is incorrect.'
+            : message,
+          variant: 'destructive',
+        });
       },
     });
   };
@@ -70,12 +66,17 @@ export const useLoginMagicLink = () => {
             toast({
               title: 'Something went wrong',
               description: 'Invalid redirect URL received',
+              variant: 'destructive',
             });
           }
         }
       },
       onError: ({ message }) => {
-        toast({ title: 'Something went wrong', description: message });
+        toast({
+          title: 'Something went wrong',
+          description: message,
+          variant: 'destructive',
+        });
       },
     });
 

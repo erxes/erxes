@@ -18,6 +18,7 @@ import { useGetProject } from '@/project/hooks/useGetProject';
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
+import { SelectTags, SelectMember } from 'ui-modules';
 
 export const ProjectFields = ({ projectId }: { projectId: string }) => {
   const { project } = useGetProject({
@@ -30,22 +31,58 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
     icon,
     status,
     leadId,
+    memberIds,
     name: _name,
     startDate,
     targetDate,
     description,
+    tagIds,
   } = project || {};
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
   >(description ? JSON.parse(description) : undefined);
   const editor = useBlockEditor({
-    initialContent: descriptionContent,
+    initialContent: descriptionContent?.length ? descriptionContent : undefined,
     placeholder: 'Description...',
   });
   const { updateProject } = useUpdateProject();
 
   const [name, setName] = useState(_name);
+  const [localMemberIds, setLocalMemberIds] = useState<string[]>(
+    memberIds || [],
+  );
+  const [debouncedMemberIds] = useDebounce(localMemberIds, 1000);
+  const serverMemberIdsString = JSON.stringify(memberIds || []);
+
+  useEffect(() => {
+    const currentServerIds = JSON.stringify(memberIds || []);
+    const currentDebouncedIds = JSON.stringify(debouncedMemberIds);
+    const currentLocalIds = JSON.stringify(localMemberIds);
+
+    if (
+      currentDebouncedIds !== currentServerIds &&
+      currentLocalIds !== currentServerIds
+    ) {
+      updateProject({
+        variables: { _id: projectId, memberIds: debouncedMemberIds },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedMemberIds]);
+
+  useEffect(() => {
+    const currentLocalIds = JSON.stringify(localMemberIds);
+    const currentDebouncedIds = JSON.stringify(debouncedMemberIds);
+
+    if (
+      currentLocalIds === currentDebouncedIds &&
+      currentLocalIds !== serverMemberIdsString
+    ) {
+      setLocalMemberIds(memberIds || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverMemberIdsString]);
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
@@ -110,10 +147,30 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
         <SelectLead.Detail value={leadId} id={projectId} teamIds={teamIds} />
         <DateSelect.Detail value={startDate} id={projectId} type="start" />
         <DateSelect.Detail value={targetDate} id={projectId} type="target" />
+        <SelectMember.CustomDetail
+          value={localMemberIds}
+          onValueChange={(value) => {
+            setLocalMemberIds(value as string[]);
+          }}
+          mode="multiple"
+          size="lg"
+        />
         <SelectProjectTeam
           value={teamIds || []}
           projectId={projectId}
           variant="detail"
+        />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="operation:project"
+          onValueChange={(newTagIds: string[]) => {
+            updateProject({
+              variables: {
+                _id: projectId,
+                tagIds: newTagIds,
+              },
+            });
+          }}
         />
       </div>
       <Separator className="my-4" />

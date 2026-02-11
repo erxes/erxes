@@ -4,8 +4,9 @@ import {
   TRPCRequestOptions,
 } from '@trpc/client';
 import * as trpcExpress from '@trpc/server/adapters/express';
+import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
-import { getEnv, getSubdomain } from '../utils';
+import { generateRequestProcess, getEnv } from '../utils';
 
 export type MessageProps = {
   subdomain: string;
@@ -16,7 +17,19 @@ export type MessageProps = {
   input: any;
   defaultValue?: any;
   options?: TRPCRequestOptions;
+  context?: CommonTRPCContext;
 };
+
+type CommonTRPCContext = {
+  processId?: string;
+  userId?: string;
+  cpUserId?: string;
+};
+
+export type TRPCContext = {
+  subdomain: string;
+} & CommonTRPCContext;
+
 export interface InterMessage {
   subdomain: string;
   data?: any;
@@ -36,9 +49,43 @@ export interface RPError {
 export type RPResult = RPSuccess | RPError;
 export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
-type TRPCContext = {
+export const trpcContextHeaderName = 'x-trpc-context';
+
+export function encodeTRPCContextHeader(
+  subdomain: string,
+  method: 'query' | 'mutation',
+  context: CommonTRPCContext | undefined,
+): string {
+  const contextData = {
+    subdomain,
+    method,
+    ...context,
+  };
+  const contextJson = JSON.stringify(contextData);
+  return Buffer.from(contextJson, 'utf8').toString('base64');
+}
+
+function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
   subdomain: string;
-};
+  method: 'query' | 'mutation';
+  context: TRPCContext;
+} | null {
+  const contextHeader = headers[trpcContextHeaderName];
+  if (!contextHeader) {
+    return null;
+  }
+  if (Array.isArray(contextHeader)) {
+    throw new Error(`Multiple ${trpcContextHeaderName} headers`);
+  }
+  try {
+    const contextJson = Buffer.from(contextHeader, 'base64').toString('utf-8');
+    const decoded = JSON.parse(contextJson);
+    const { subdomain, method, ...context } = decoded;
+    return { subdomain, method, context };
+  } catch (error) {
+    return null;
+  }
+}
 
 export const sendTRPCMessage = async ({
   subdomain,
@@ -49,6 +96,7 @@ export const sendTRPCMessage = async ({
   input,
   defaultValue,
   options,
+  context,
 }: MessageProps) => {
   if (!method) {
     method = 'query';
@@ -65,27 +113,42 @@ export const sendTRPCMessage = async ({
   let client;
 
   try {
+    // Encode context into header
+    const contextHeader = encodeTRPCContextHeader(subdomain, method, context);
+
     if (VERSION && VERSION === 'saas') {
       client = createTRPCUntypedClient({
         links: [
           httpBatchLink({
             url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
+            headers: () => ({
+              [trpcContextHeaderName]: contextHeader,
+            }),
           }),
         ],
       });
     } else {
+      // Validate plugin address before constructing URL
+      if (!pluginInfo.address || pluginInfo.address.trim() === '') {
+        console.warn(
+          `Plugin "${pluginName}" address is not available. Returning defaultValue.`,
+        );
+        return defaultValue;
+      }
+
       client = createTRPCUntypedClient({
-        links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
+        links: [
+          httpBatchLink({
+            url: `${pluginInfo.address}/trpc`,
+            headers: () => ({
+              [trpcContextHeaderName]: contextHeader,
+            }),
+          }),
+        ],
       });
     }
 
-    // Extract subdomain from context
-
-    const result = await client[method](
-      `${module}.${action}`,
-      { subdomain, ...input },
-      options,
-    );
+    const result = await client[method](`${module}.${action}`, input, options);
     return result || defaultValue;
   } catch (e) {
     console.log(e, 'e');
@@ -101,10 +164,22 @@ export const createTRPCContext =
     ) => Promise<TContext & TRPCContext>,
   ) =>
   async ({ req }: trpcExpress.CreateExpressContextOptions) => {
-    // Extract subdomain from request body/input instead of headers
-    const subdomain = req.body?.input?.subdomain || getSubdomain(req);
+    // Extract context from header (encoded) or fallback to request body/input
+    const {
+      subdomain,
+      context: reqContext,
+      method = 'query',
+    } = decodeTRPCContextHeader(req.headers) || {};
 
-    const context: TRPCContext = {
+    if (!subdomain || (method === 'mutation' && !reqContext)) {
+      throw new Error('Invalid context');
+    }
+
+    const processInfo = generateRequestProcess();
+
+    const context: { subdomain: string } & TRPCContext = {
+      ...processInfo,
+      ...reqContext,
       subdomain,
     };
 
@@ -112,7 +187,7 @@ export const createTRPCContext =
       return await trpcContext(subdomain, context);
     }
 
-    return context as TContext & TRPCContext;
+    return context as TContext & { subdomain: string } & TRPCContext;
   };
 
 export type ITRPCContext<TExtraContext = object> = Awaited<

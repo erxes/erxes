@@ -19,6 +19,7 @@ export interface SortableItemProps {
   style?: React.CSSProperties;
   transition?: string | null;
   wrapperStyle?: React.CSSProperties;
+  attributes?: any;
   value: React.ReactNode;
   onRemove?(): void;
   renderItem?(args: {
@@ -35,6 +36,7 @@ export interface SortableItemProps {
     handle: SortableItemProps['handle'];
     wrapperStyle?: React.CSSProperties;
     color?: string;
+    attributes?: any;
   }): React.ReactElement;
 }
 
@@ -60,6 +62,7 @@ export const Item = React.memo(
         transform,
         value,
         wrapperStyle,
+        attributes,
         ...props
       },
       ref,
@@ -88,6 +91,7 @@ export const Item = React.memo(
             handle,
             wrapperStyle,
             color,
+            attributes,
           })}
         </li>
       ) : (
@@ -96,7 +100,7 @@ export const Item = React.memo(
           className={`
             flex box-border origin-top-left touch-manipulation
             ${fadeIn ? 'animate-fadeIn' : ''}
-            ${dragOverlay ? 'z-[999]' : ''}
+            ${dragOverlay ? 'z-999' : ''}
           `}
           style={
             {
@@ -123,7 +127,7 @@ export const Item = React.memo(
         >
           <div
             className={`
-              relative flex flex-grow items-center
+              relative flex grow items-center
               px-5 py-[18px] bg-white rounded shadow-md
               list-none select-none
               text-gray-800 font-normal text-base

@@ -1,16 +1,15 @@
+import { IconInfoCircle } from '@tabler/icons-react';
+import { Button, cn, PageContainer, Switch, toast, Tooltip } from 'erxes-ui';
+import { Slot } from 'radix-ui';
+import React, { useState } from 'react';
 import {
+  SelectBrand,
   SelectCompany,
   SelectCustomer,
-  SelectProduct,
   SelectMember,
+  SelectProduct,
   SelectTags,
-  SelectBrand,
 } from 'ui-modules';
-import { PageContainer, Switch, Tooltip } from 'erxes-ui';
-import { useState } from 'react';
-import { IconInfoCircle } from '@tabler/icons-react';
-import React from 'react';
-import { Slot } from 'radix-ui';
 
 interface SelectContainerProps {
   children: React.ReactElement<{ mode?: 'single' | 'multiple' }>;
@@ -26,7 +25,7 @@ const SelectContainer = ({
   const [isMultipleMode, setIsMultipleMode] = useState(false);
 
   return (
-    <div className="rounded-lg shadow-sm p-6 flex flex-col gap-4 md:max-w-[17rem]">
+    <div className="rounded-lg shadow-sm p-6 flex flex-col gap-4 md:max-w-68">
       <div className="flex flex-col gap-1">
         <div className="flex justify-between">
           <h3 className="text-lg font-medium text-foreground">{label}</h3>
@@ -244,7 +243,131 @@ export const SelectComponentIndexPage = () => {
             </SelectContainer>
           </SelectContainerGroup>
         </div>
+        <div className="py-12">
+          <div className="rounded-lg shadow-sm p-6">
+            <h2 className="text-xl font-medium tracking-tight pb-4">Colors</h2>
+            <div className="grid grid-cols-12 gap-2 w-full">
+              {[
+                'bg-primary',
+                'bg-secondary',
+                'bg-destructive',
+                'bg-success',
+                'bg-warning',
+                'bg-info',
+              ].map((className, index) => (
+                <div
+                  className={cn(
+                    'col-span-1 aspect-square rounded font-mono text-xs  p-2 uppercase',
+                    className,
+                  )}
+                >
+                  // {className.split('bg-')[1]}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-12 gap-2 w-full mt-4">
+              {[
+                'bg-background',
+                'bg-sidebar',
+                'bg-accent',
+                'bg-muted',
+                'bg-border',
+                'bg-scroll',
+                'bg-muted-foreground',
+                'bg-accent-foreground',
+              ].map((className) => (
+                <div
+                  className={cn(
+                    'col-span-1 aspect-square rounded font-mono text-xs  p-2 uppercase shadow-xs',
+                    className,
+                  )}
+                  key={className}
+                >
+                  {className.split('bg-')[1]}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-12 gap-2 w-full mt-4 dark">
+              {[
+                'bg-background',
+                'bg-sidebar',
+                'bg-accent',
+                'bg-muted',
+                'bg-border',
+                'bg-scroll',
+                'bg-muted-foreground',
+                'bg-accent-foreground',
+              ].map((className) => (
+                <div
+                  className={cn(
+                    'col-span-1 aspect-square rounded font-mono text-xs  p-2 uppercase shadow-xs',
+                    className,
+                  )}
+                  key={className}
+                >
+                  {className.split('bg-')[1]}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <ToastExample />
       </div>
     </PageContainer>
+  );
+};
+
+const ToastExample = () => {
+  return (
+    <div className="flex gap-2 shadow-sm p-6 rounded-lg">
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            title: 'Default Toast',
+            description: 'This is a default toast.',
+          })
+        }
+      >
+        Show Default Toast
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            variant: 'success',
+            title: 'Success Toast',
+            description: 'This is a success toast.',
+          })
+        }
+      >
+        Show Success Toast
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            variant: 'warning',
+            title: 'Warning Toast',
+            description: 'This is a warning toast.',
+          })
+        }
+      >
+        Show Warning Toast
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            variant: 'destructive',
+            title: 'Destructive Toast',
+            description: 'This is a destructive toast.',
+          })
+        }
+      >
+        Show Destructive Toast
+      </Button>
+    </div>
   );
 };

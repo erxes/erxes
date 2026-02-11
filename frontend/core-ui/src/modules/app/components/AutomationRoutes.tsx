@@ -1,9 +1,7 @@
-import { lazy, Suspense } from 'react';
-import { Route } from 'react-router';
-import { Routes } from 'react-router';
-import { Spinner } from 'erxes-ui';
-
 import { AutomationsPath } from '@/types/paths/AutomationPath';
+import { Spinner } from 'erxes-ui';
+import { lazy, Suspense } from 'react';
+import { Route, Routes } from 'react-router';
 import { AutomationsPageEffect } from '~/pages/automations/AutomationPageEffect';
 
 const AutomationIndexPage = lazy(() =>
@@ -23,11 +21,11 @@ export const AutomationRoutes = () => {
       <Routes>
         <Route path={AutomationsPath.Index} element={<AutomationIndexPage />} />
         <Route
-          path={AutomationsPath.Detail}
+          path={AutomationsPath.Create}
           element={<AutomationDetailPage />}
         />
         <Route
-          path={AutomationsPath.Create}
+          path={AutomationsPath.Detail}
           element={<AutomationDetailPage />}
         />
       </Routes>

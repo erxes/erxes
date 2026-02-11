@@ -1,40 +1,62 @@
 import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
-import { useRelations } from '../hooks/useRelations';
+import { useRelations } from 'ui-modules';
 import { TaskWidget } from './TaskWidget';
 import { ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { useCreateRelation } from '../hooks/useCreateRelation';
 import { IconCaretLeftRight } from '@tabler/icons-react';
+
+import { useCreateMultipleRelations } from 'ui-modules';
 
 export const Task = ({
   contentId,
   contentType,
+  customerId,
+  companyId,
 }: {
   contentId: string;
   contentType: string;
+  customerId?: string;
+  companyId?: string;
 }) => {
-  const { ownEntities, loading } = useRelations({
-    contentId,
-    contentType,
+  const { ownEntities, loading: loadingRelations } = useRelations({
+    variables: {
+      contentId,
+      contentType,
+      relatedContentType: 'operation:task',
+    },
   });
-  const { createRelation } = useCreateRelation();
 
-  if (loading) {
+  const { createMultipleRelations } = useCreateMultipleRelations();
+
+  if (loadingRelations) {
     return <Spinner containerClassName="py-20" />;
   }
 
   const onComplete = (triageId: string) => {
-    createRelation({
+    const createRelation = (ct: string, cid: string) => ({
       entities: [
-        {
-          contentType,
-          contentId,
-        },
-        {
-          contentType: 'operation:task',
-          contentId: triageId,
-        },
+        { contentType: ct, contentId: cid },
+        { contentType: 'operation:task', contentId: triageId },
       ],
     });
+
+    const relationKeys = new Set<string>();
+
+    const relations = [
+      [contentType, contentId],
+      ...(customerId ? [['core:customer', customerId]] : []),
+      ...(companyId ? [['core:company', companyId]] : []),
+    ]
+      .filter(([ct, cid]) => {
+        const key = `${ct}:${cid}`;
+        if (relationKeys.has(key)) {
+          return false;
+        }
+        relationKeys.add(key);
+        return true;
+      })
+      .map(([ct, cid]) => createRelation(ct, cid));
+
+    createMultipleRelations(relations);
   };
 
   if (ownEntities?.length === 0) {

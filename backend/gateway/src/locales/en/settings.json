@@ -1,0 +1,142 @@
+{
+  "account": "Account",
+  "workspace": "Workspace",
+  "developer": "Developer",
+  "client-portal": "Client Portal",
+  "core-modules": "Core Modules",
+  "products": "Products",
+  "automations": "Automations",
+  "exit-settings": "Exit Settings",
+
+  "profile": {
+    "_": "Profile",
+    "profile-picture": "Profile picture",
+    "email": "Email",
+    "position": "Position",
+    "profile-description": "Upload a profile picture to help identify you.",
+    "name-description": "This is your public display name.",
+    "name": "Name",
+    "email-description": "This is your public email address.",
+    "link": "Link",
+    "link-description": "This is your public link address.",
+    "more-information": "More Information",
+    "more-information-description": "Provide any relevant additional personal information, if applicable.",
+    "lastname": "Lastname",
+    "firstname": "Firstname",
+    "username": "Username",
+    "add-position": "Add Position",
+    "middle-name": "Middle Name",
+    "short-name": "Short Name",
+    "employee-id": "Employee ID",
+    "phone-operator": "Phone (Operator)",
+    "join-date": "Join Date",
+    "birth-date": "Birth Date",
+    "update": "Update",
+    "upload": "Upload",
+    "lastname-placeholder": "Enter Last Name",
+    "firstname-placeholder": "Enter First Name",
+    "username-placeholder": "Enter Username"
+  },
+
+  "change-password": {
+    "_": "Change Password",
+    "current-password": "Current password",
+    "change-password": "Change Password",
+    "new-password": "New password",
+    "confirm-password": "Re-enter your password to confirm",
+    "save": "Save",
+    "atleast-8": "At least 8 characters",
+    "least-number": "At least 1 number",
+    "least-lowercase": "At least 1 lowercase letter",
+    "least-uppercase": "At least 1 uppercase letter",
+    "password-same": "Passwords must match",
+    "password-error": "Please provide your current password"
+  },
+
+  "general": {
+    "_": "General",
+    "general-settings": "General Settings",
+    "language": "Language",
+    "main-currency": "Main currency",
+    "currency": "Currency",
+    "timezone": "Timezone",
+    "update": "Update"
+  },
+
+  "team-member": {
+    "_": "Team Member",
+    "invite-team-members": "Invite team members",
+    "notify": "Send an email and notify members that they've been invited!",
+    "seperate-emails": "Separate emails with comma, space, or Enter",
+    "send-invites": "Send invites",
+    "date-created": "Date created",
+    "name": "Name",
+    "email": "Email",
+    "employeeId": "Employee ID",
+    "work-started-date": "Work started date",
+    "invitation-status": "Invitation status",
+    "status": "Status",
+    "role": "Role",
+    "actions": "Actions",
+    "team-member": "Team Member"
+  },
+
+  "brands": {
+    "_": "Brands",
+    "create-brand": "Create brand",
+    "brand-name": "Brand name",
+    "description": "Description",
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "code": "Code",
+    "date-created": "Date created",
+    "brands": "Brands",
+    "brand-created-successfully": "Brand created successfully"
+  },
+
+  "file-upload": {
+    "_": "File Upload",
+    "upload-file-types": "Upload file types",
+    "upload-file-types-of-widget": "Upload file types of widget",
+    "bucket-file-system-type": "Bucket file system type",
+    "upload-service-type": "Upload service type",
+    "local": "Local",
+    "amazon-web-service": "Amazon web service",
+    "google-cloud-service": "Google cloud service",
+    "azure-storage": "Azure storage",
+    "cloudflare": "Cloudflare",
+    "update": "Update",
+    "file-upload": "File Upload"
+  },
+
+  "mail-config": {
+    "_": "Mail Configuration",
+    "update": "Update",
+    "mail-service": "Mail service",
+    "email": "Email",
+    "email-desc": "Set an email address you wish to send your internal transactional emails from (e.g. task notifications, team member mentions).",
+    "type": "Type",
+    "type-desc": "Choose \"custom\" to change the template of transactional emails.",
+    "template": "Template",
+    "temp-desc": "Your email will be sent with erxes email template.",
+    "default-email-service": "Default email service",
+    "default-email-service-desc": "Choose your email service name. The default email service is SES."
+  },
+
+  "tags": {
+    "_": "Tags",
+    "add-group": "Add Group",
+    "add-tag": "Add Tag",
+    "name": "Name",
+    "description": "Description",
+    "created-at": "Created At",
+    "not-found": "No tags found",
+    "workspace-description": "Workspace tags are shared tags that can be used across all tag types."
+  },
+
+  "broadcast": {
+    "_": "Broadcast",
+    "broadcast": "Broadcast"
+  }
+}

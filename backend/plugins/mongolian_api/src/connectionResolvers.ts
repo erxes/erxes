@@ -1,7 +1,7 @@
+import mongoose from 'mongoose';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-
-import mongoose from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 import {
   IEbarimtDocument,
@@ -24,27 +24,39 @@ import {
   loadProductRuleClass,
 } from '@/ebarimt/db/models/ProductRule';
 
-import { ISyncLogDocument as IEerkhetSyncLogDocument } from '@/erkhet/@types';
-import { ISyncLogModel as IEerkhetSyncLogModel, loadSyncLogClass as loadErkhetSyncLogClass } from '@/erkhet/db/model/SyncLog';
+// Erkhet
+import {
+  ISyncLogDocument as IEerkhetSyncLogDocument,
+} from '@/erkhet/@types';
 
-import { 
-  ICustomerRelationModel,
-  ISyncLogModel as IMsDynamicSyncLogModel,
-  loadCustomerRelationClass,
-  loadSyncLogClass as loadMsDynamicSyncLogClass
-} from '@/msdynamic/db/models/Dynamic';
+import {
+  ISyncLogModel as IEerkhetSyncLogModel,
+  loadSyncLogClass as loadErkhetSyncLogClass,
+} from '@/erkhet/db/model/SyncLog';
 
-import { 
+// MS Dynamic
+import {
   ICustomerRelationDocument,
-  ISyncLogDocument as IMsDynamicSyncLogDocument
 } from '@/msdynamic/@types/dynamic';
 
+import {
+  ICustomerRelationModel,
+  loadCustomerRelationClass,
+} from '@/msdynamic/db/models/Dynamic';
+
+// Configs
+import { IConfigDocument } from './modules/configs/@types/configs';
+import {
+  IConfigModel,
+  loadConfigClass,
+} from './modules/configs/db/models/Configs';
 
 export interface IModels {
+  Configs: IConfigModel;
   PutResponses: IPutResponseModel;
   ProductRules: IProductRuleModel;
   ProductGroups: IProductGroupModel;
-  SyncLogs: IEerkhetSyncLogModel; 
+  SyncLogs: IEerkhetSyncLogModel;
   CustomerRelations: ICustomerRelationModel;
 }
 
@@ -53,8 +65,25 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string,
+  eventDispatcher: (
+    pluginName: string,
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
+): IModels => {
   const models = {} as IModels;
+
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'mongolian_configs',
+    loadConfigClass(
+      models,
+      subdomain,
+      eventDispatcher('mongolian', 'configs', 'mongolian_configs'),
+    ),
+  );
 
   models.PutResponses = db.model<IEbarimtDocument, IPutResponseModel>(
     'putresponses',
@@ -71,17 +100,18 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadProductGroupClass(models),
   );
 
-  models.SyncLogs = db.model<IEerkhetSyncLogDocument, IEerkhetSyncLogModel>(
-  'syncerkhet_synclogs',
-  loadErkhetSyncLogClass(models),
-);
-
-  models.CustomerRelations = db.model<ICustomerRelationDocument, ICustomerRelationModel>(
-    'msdynamics_customer_relation',
-    loadCustomerRelationClass(models),
+  models.SyncLogs = db.model<
+    IEerkhetSyncLogDocument,
+    IEerkhetSyncLogModel
+  >(
+    'syncerkhet_synclogs',
+    loadErkhetSyncLogClass(models),
   );
-  
-  models.CustomerRelations = db.model<ICustomerRelationDocument, ICustomerRelationModel>(
+
+  models.CustomerRelations = db.model<
+    ICustomerRelationDocument,
+    ICustomerRelationModel
+  >(
     'msdynamics_customer_relation',
     loadCustomerRelationClass(models),
   );
@@ -89,4 +119,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(loadClasses);
+export const generateModels =
+  createGenerateModels<IModels>(loadClasses);

@@ -1,13 +1,15 @@
 import { companySchema } from '@/contacts/db/definitions/company';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
   ICompany,
   ICompanyDocument,
-  ICustomField,
+  IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { generateCompanyActivityLogs } from '../../utils/activityLogs';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompany(_id: string): Promise<ICompanyDocument>;
@@ -29,7 +31,11 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
   ): Promise<ICompanyDocument>;
 }
 
-export const loadCompanyClass = (models: IModels) => {
+export const loadCompanyClass = (
+  subdomain: string,
+  models: IModels,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Company {
     /**
      * Retreive company
@@ -82,9 +88,9 @@ export const loadCompanyClass = (models: IModels) => {
 
       this.fixListFields(doc, doc.trackedData);
 
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        doc.propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
       }
 
@@ -95,6 +101,22 @@ export const loadCompanyClass = (models: IModels) => {
         searchText: this.fillSearchText(doc),
       });
 
+      sendDbEventLog({
+        action: 'create',
+        docId: company._id,
+        currentDocument: company.toObject(),
+      });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: company._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Company created',
+        },
+        changes: {},
+      });
       return company;
     }
 
@@ -110,10 +132,12 @@ export const loadCompanyClass = (models: IModels) => {
       this.fixListFields(doc, doc.trackedData, company);
 
       // clean custom field values
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
+        
+        doc.propertiesData = propertiesData;
       }
 
       const searchText = this.fillSearchText(
@@ -125,14 +149,36 @@ export const loadCompanyClass = (models: IModels) => {
         { $set: { ...doc, searchText, updatedAt: new Date() } },
       );
 
-      return models.Companies.findOne({ _id });
+      const updatedCompany = await models.Companies.findOne({ _id });
+      if (updatedCompany) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedCompany._id,
+          currentDocument: updatedCompany.toObject(),
+          prevDocument: company.toObject(),
+        });
+        generateCompanyActivityLogs(
+          company,
+          updatedCompany,
+          models,
+          createActivityLog,
+        );
+      }
+      return updatedCompany;
     }
 
     /**
      * Remove company
      */
     public static async removeCompanies(companyIds: string[]) {
-      return models.Companies.deleteMany({ _id: { $in: companyIds } });
+      const deletedCompanies = await models.Companies.deleteMany({
+        _id: { $in: companyIds },
+      });
+      sendDbEventLog({
+        action: 'deleteMany',
+        docIds: companyIds,
+      });
+      return deletedCompanies;
     }
 
     /**
@@ -146,7 +192,7 @@ export const loadCompanyClass = (models: IModels) => {
       await this.checkDuplication(companyFields, companyIds);
 
       let scopeBrandIds: string[] = [];
-      let customFieldsData: ICustomField[] = [];
+      let propertiesData: IPropertyField = {};
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -166,10 +212,12 @@ export const loadCompanyClass = (models: IModels) => {
         scopeBrandIds = scopeBrandIds.concat(companyScopeBrandIds);
 
         // merge custom fields data
-        customFieldsData = [
-          ...customFieldsData,
-          ...(companyObj.customFieldsData || []),
-        ];
+
+        // property note: prepare mergeProperties method
+        propertiesData = {
+          ...propertiesData,
+          ...(companyObj.propertiesData || {}),
+        };
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
@@ -200,7 +248,7 @@ export const loadCompanyClass = (models: IModels) => {
       const company = await models.Companies.createCompany({
         ...companyFields,
         scopeBrandIds,
-        customFieldsData,
+        propertiesData,
         tagIds,
         mergedIds: companyIds,
         names,
@@ -268,7 +316,6 @@ export const loadCompanyClass = (models: IModels) => {
         (doc.phones || []).join(' '),
         doc.website || '',
         doc.industry || '',
-        doc.plan || '',
         doc.description || '',
         doc.code || '',
       ]);

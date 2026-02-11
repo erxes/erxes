@@ -1,4 +1,4 @@
-import { IconInbox, IconSettings } from '@tabler/icons-react';
+import { IconMail } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
@@ -16,7 +16,7 @@ const InboxIndexPage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/inbox">
-                    <IconInbox />
+                    <IconMail />
                     Inbox
                   </Link>
                 </Button>
@@ -26,14 +26,6 @@ const InboxIndexPage = () => {
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
-        <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/settings/inbox">
-              <IconSettings />
-              Go to settings
-            </Link>
-          </Button>
-        </PageHeader.End>
       </PageHeader>
       <InboxLayout
         conversations={<Conversations />}

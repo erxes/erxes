@@ -1,25 +1,23 @@
-import { ApolloQueryResult, OperationVariables } from '@apollo/client';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
-import { ISegment, ListQueryResponse, SegmentForm } from 'ui-modules';
+import { SegmentForm } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
-  refetch: (
-    variables?: Partial<OperationVariables> | undefined,
-  ) => Promise<ApolloQueryResult<ListQueryResponse>>;
+  onRefresh: () => void;
 };
 
-export function SegmentDetail({ refetch }: Props) {
+export function SegmentDetail({ onRefresh }: Props) {
   const [selectedContentType] = useQueryState<string>('contentType');
 
+  
+  const [segmentId, setOpen] = useQueryState<string>('segmentId');
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const { t } = useTranslation('segment');
   if (!selectedContentType) {
     return null;
   }
-
-  const [segmentId, setOpen] = useQueryState<string>('segmentId');
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
-  let segment: ISegment | undefined;
 
   return (
     <Sheet
@@ -37,12 +35,12 @@ export function SegmentDetail({ refetch }: Props) {
           onClick={() => setIsCreatingNew(!isCreatingNew)}
           disabled={!selectedContentType}
         >
-          <IconPlus /> Create Segment
+          <IconPlus /> {t('create-segment')}
         </Button>
       </Sheet.Trigger>
 
       <Sheet.View
-        className="p-0 md:max-w-screen-lg"
+        className="p-0 md:max-w-5xl"
         onEscapeKeyDown={(e: any) => {
           e.preventDefault();
         }}
@@ -50,15 +48,15 @@ export function SegmentDetail({ refetch }: Props) {
         <Sheet.Content className="h-full">
           <div className="h-full flex flex-col">
             <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
-              <Sheet.Title>{`${
-                segment ? 'Edit' : 'Create'
-              } a segment`}</Sheet.Title>
+              <Sheet.Title>{`${segmentId ? t('edit') : t('create')} ${t(
+                'a-segment',
+              )}`}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <SegmentForm
               contentType={selectedContentType}
               segmentId={segmentId || ''}
-              callback={() => refetch()}
+              callback={onRefresh}
             />
           </div>
         </Sheet.Content>

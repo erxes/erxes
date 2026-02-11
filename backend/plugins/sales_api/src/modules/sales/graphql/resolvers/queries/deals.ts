@@ -39,7 +39,7 @@ export const generateFilter = async (
   models: IModels,
   subdomain: string,
   userId: string,
-  params: any,
+  params: any = {},
 ) => {
   const filter: FilterQuery<IDealDocument> = {};
 
@@ -57,10 +57,8 @@ export const generateFilter = async (
     customerIds,
     vendorCustomerIds,
     companyIds,
-    conformityMainType,
-    conformityMainTypeId,
-    conformityIsRelated,
-    conformityIsSaved,
+    relationType,
+    relationId,
     initialStageId,
     labelIds,
     priority,
@@ -79,7 +77,6 @@ export const generateFilter = async (
     branchIds,
     departmentIds,
     dateRangeFilters,
-    customFieldsDataFilters,
     resolvedDayBetween,
     productIds,
     date,
@@ -156,17 +153,15 @@ export const generateFilter = async (
   if (customerIds) {
     const relIds = await sendTRPCMessage({
       subdomain,
-
-      method: 'query',
       pluginName: 'core',
-      module: 'conformity',
-      action: 'filterConformity',
+      module: 'relation',
+      action: 'filterRelationIds',
       input: {
-        mainType: 'customer',
-        mainTypeIds: customerIds,
-        relType: 'deal',
+        contentType: 'core:customer',
+        contentIds: customerIds,
+        relatedContentType: 'sales:deal'
       },
-      defaultValue: [],
+      defaultValue: []
     });
 
     filterIds = relIds;
@@ -175,16 +170,15 @@ export const generateFilter = async (
   if (companyIds) {
     const relIds = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
-      module: 'conformity',
-      action: 'filterConformity',
+      module: 'relation',
+      action: 'filterRelationIds',
       input: {
-        mainType: 'company',
-        mainTypeIds: companyIds,
-        relType: 'deal',
+        contentType: 'core:company',
+        contentIds: companyIds,
+        relatedContentType: 'sales:deal'
       },
-      defaultValue: [],
+      defaultValue: []
     });
 
     filterIds = filterIds.length
@@ -196,46 +190,23 @@ export const generateFilter = async (
     filter._id = { $in: filterIds };
   }
 
-  if (_ids && _ids.length) {
+  if (_ids?.length) {
     filter._id = { $in: _ids };
   }
 
-  if (conformityMainType && conformityMainTypeId) {
-    if (conformityIsSaved) {
-      const relIds = await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        module: 'conformity',
-        action: 'savedConformity',
-        input: {
-          mainType: conformityMainType,
-          mainTypeId: conformityMainTypeId,
-          relTypes: ['deal'],
-        },
-        defaultValue: [],
-      });
-
-      filter._id = contains(relIds || []);
-    }
-
-    if (conformityIsRelated) {
-      const relIds = await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        module: 'conformity',
-        action: 'conformities.relatedConformity',
-        input: {
-          mainType: conformityMainType,
-          mainTypeId: conformityMainTypeId,
-          relType: 'deal',
-        },
-        defaultValue: [],
-      });
-
-      filter._id = contains(relIds);
-    }
+  if (relationType && relationId) {
+    const relIds = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: relationType,
+        contentId: relationId,
+        relatedContentType: 'sales:deal'
+      }
+    });
+    filter._id = contains(relIds || []);
   }
 
   if (initialStageId) {
@@ -314,16 +285,6 @@ export const generateFilter = async (
 
       if (to) {
         filter[name] = { ...filter[name], $lte: new Date(to) };
-      }
-    }
-  }
-
-  if (customFieldsDataFilters) {
-    for (const { value, name } of customFieldsDataFilters) {
-      if (Array.isArray(value) && value?.length) {
-        filter[`customFieldsData.${name}`] = { $in: value };
-      } else {
-        filter[`customFieldsData.${name}`] = value;
       }
     }
   }
@@ -547,7 +508,7 @@ export const generateFilter = async (
   }
 
   if (segment) {
-    const itemIds = await fetchSegment(subdomain,segment);
+    const itemIds = await fetchSegment(subdomain, segment);
 
     filter._id = { $in: itemIds };
   }
@@ -666,7 +627,11 @@ export const dealQueries = {
   /**
    * Deals list
    */
-  async deals(_root, args: IDealQueryParams, { user, models, subdomain }: IContext) {
+  async deals(
+    _root,
+    args: IDealQueryParams,
+    { user, models, subdomain }: IContext,
+  ) {
     const filter = await generateFilter(models, subdomain, user._id, args);
 
     const getExtraFields = async (item: any) => ({
@@ -678,7 +643,14 @@ export const dealQueries = {
       list: deals,
       pageInfo,
       totalCount,
-    } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
+    } = await getItemList(
+      models,
+      subdomain,
+      filter,
+      args,
+      user,
+      getExtraFields,
+    );
 
     const dealProductIds = deals.flatMap((deal) => {
       if (deal.productsData && deal.productsData.length > 0) {

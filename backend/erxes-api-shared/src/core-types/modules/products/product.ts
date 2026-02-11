@@ -1,4 +1,4 @@
-import { IAttachment, ICustomField, IPdfAttachment } from '../../common';
+import { IAttachment, ICustomField, IPdfAttachment, IPropertyField } from '../../common';
 import { Document } from 'mongoose';
 
 interface ISubUom {
@@ -20,6 +20,7 @@ export interface IProduct {
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField;
   tagIds?: string[];
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];

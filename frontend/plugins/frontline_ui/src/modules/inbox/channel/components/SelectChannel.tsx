@@ -1,23 +1,27 @@
-import { IChannel } from '@/inbox/types/Channel';
+import {
+  Combobox,
+  Command,
+  DropdownMenu,
+  Filter,
+  Form,
+  Popover,
+  PopoverScoped,
+  RecordTableInlineCell,
+  cn,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
 import {
   SelectChannelContext,
   useSelectChannelContext,
 } from '@/inbox/channel/context/SelectChannelContext';
-import { useState } from 'react';
+
 import { ChannelsInline } from './ChannelsInline';
-import {
-  cn,
-  Combobox,
-  Command,
-  Filter,
-  Form,
-  Popover,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
+import { IChannel } from '@/inbox/types/Channel';
 import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import React, { useState } from 'react';
 
 const SelectChannelProvider = ({
   children,
@@ -187,7 +191,7 @@ export const SelectChannelFilterItem = () => {
   return (
     <Filter.Item value="channelId">
       <IconTopologyStar3 />
-      Select Channel
+      By Channel
     </Filter.Item>
   );
 };
@@ -222,7 +226,6 @@ export const SelectChannelFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  console.log('called select channel filter...');
   const [channelId, setChannelId] = useQueryState<string | string[]>(
     queryKey || 'channelId',
   );
@@ -266,6 +269,74 @@ export const SelectChannelFilterBar = ({
   );
 };
 
+export const SelectChannelInlineCell = ({
+  onValueChange,
+  scope,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectChannelProvider>, 'children'> & {
+  scope?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectChannelProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+        <RecordTableInlineCell.Trigger>
+          <SelectChannelsValue />
+        </RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Content className="min-w-72">
+          <SelectChannelsContent />
+        </RecordTableInlineCell.Content>
+      </PopoverScoped>
+    </SelectChannelProvider>
+  )
+}
+
+const SelectChannelList = ({ channelId, onValueChange }: { channelId: string, onValueChange: (value: string) => void }) => {
+  const { channels, onSelect } = useSelectChannelContext();
+  const { channels: channelsData, loading } = useGetChannels({
+    variables: {
+      searchValue: "",
+    },
+  });
+
+  const allChannels = [...channels, ...(channelsData || []).filter((c: IChannel) => !channels.find((ch) => ch._id === c._id))];
+
+  return (
+    <DropdownMenu.RadioGroup
+      value={channelId}
+      onValueChange={(value) => {
+        const channel = allChannels.find((c) => c._id === value);
+        if (channel) {
+          onSelect(channel);
+        }
+      }}
+    >
+      {allChannels.map((channel) => (
+        <DropdownMenu.RadioItem key={channel._id} value={channel._id}>
+          {channel.name}
+        </DropdownMenu.RadioItem>
+      ))}
+    </DropdownMenu.RadioGroup>
+  )
+}
+
+export const SelectChannelDropDownContent = ({ channelId, onValueChange }: { channelId: string, onValueChange: (value: string) => void }) => {
+  return (
+    <SelectChannelProvider mode='single' value={channelId} onValueChange={(value) => {
+      onValueChange?.(value as string)
+    }}>
+      <SelectChannelList channelId={channelId} onValueChange={onValueChange} />
+    </SelectChannelProvider>
+  )
+}
+
 export const SelectChannel = {
   Provider: SelectChannelProvider,
   Value: SelectChannelsValue,
@@ -274,4 +345,6 @@ export const SelectChannel = {
   FilterItem: SelectChannelFilterItem,
   FilterView: SelectChannelFilterView,
   FilterBar: SelectChannelFilterBar,
+  InlineCell: SelectChannelInlineCell,
+  DropDownContent: SelectChannelDropDownContent,
 };

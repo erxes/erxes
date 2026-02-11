@@ -1,21 +1,21 @@
-import { IconCashRegister, IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconCashRegister, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { Link, useSearchParams } from 'react-router-dom';
-import { PosRecordTable } from '@/pos/components/PosRecordTable';
-import { useAtom } from 'jotai';
-import { PosCreate } from '@/pos/create-pos/components/index/pos-create';
-import { PosEdit } from '@/pos/pos-detail/components/posDetail';
-import { renderingPosCreateAtom } from '@/pos/create-pos/states/renderingPosCreateAtom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { usePosList } from '@/pos/hooks/usePosList';
 
 export const PosIndexPage = () => {
-  const [, setSearchParams] = useSearchParams();
-  const [, setRenderingPosCreate] = useAtom(renderingPosCreateAtom);
+  const navigate = useNavigate();
+  const { posList, loading } = usePosList();
 
-  const onCreatePos = () => {
-    setRenderingPosCreate(true);
-    setSearchParams({ create: 'true' });
-  };
+  useEffect(() => {
+    if (!loading && posList && posList.length > 0) {
+      const firstPos = posList[0];
+      navigate(`/sales/pos/${firstPos._id}/orders`);
+    }
+  }, [loading, posList, navigate]);
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -24,7 +24,7 @@ export const PosIndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/pos">
+                  <Link to="/sales/pos">
                     <IconCashRegister />
                     pos
                   </Link>
@@ -37,20 +37,13 @@ export const PosIndexPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/pos">
+            <Link to="/settings/sales/pos">
               <IconSettings />
               Go to settings
             </Link>
           </Button>
-          <Button onClick={onCreatePos}>
-            <IconPlus className="mr-2 h-4 w-4" />
-            Create POS
-          </Button>
         </PageHeader.End>
       </PageHeader>
-      <PosCreate />
-      <PosRecordTable />
-      <PosEdit />
     </div>
   );
 };

@@ -1,11 +1,13 @@
 export enum ContactsHotKeyScope {
   CustomersPage = 'customers-page',
-  CustomerDetailPage = 'customer-detail-page',
+  CustomersTableInlinePopover = 'customers-table-inline-popover',
   CustomerAddSheet = 'customer-add-sheet',
   CustomerEditSheet = 'customer-edit-sheet',
   CustomerAddSheetDescriptionField = 'customer-add-sheet-description-field',
-
   CompaniesPage = 'companies-page',
-  CompanyDetailPage = 'company-detail-page',
-  ClientsPage = 'clients-page',
+  CompanyAddSheet = 'company-add-sheet',
+  CompanyEditSheet = 'company-edit-sheet',
+  ClientPortalUsersPage = 'client-portal-users-page',
+  ClientPortalUserAddSheet = 'client-portal-user-add-sheet',
+  ClientPortalUserEditSheet = 'client-portal-user-edit-sheet',
 }

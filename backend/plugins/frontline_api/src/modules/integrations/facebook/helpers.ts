@@ -1,4 +1,3 @@
-import { IModels } from '~/connectionResolvers';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
 import {
   getPageAccessToken,
@@ -6,8 +5,8 @@ import {
   subscribePage,
   unsubscribePage,
 } from '@/integrations/facebook/utils';
-import fetch from 'node-fetch';
 import { getEnv, resetConfigsCache } from 'erxes-api-shared/utils';
+import fetch from 'node-fetch';
 import { generateModels } from '~/connectionResolvers';
 
 export const removeIntegration = async (
@@ -132,15 +131,11 @@ export const removeAccount = async (
 
   if (integrations.length > 0) {
     for (const integration of integrations) {
-      try {
-        const response = await removeIntegration(
-          subdomain,
-          integration.erxesApiId,
-        );
-        erxesApiIds.push(response);
-      } catch (e) {
-        throw e;
-      }
+      const response = await removeIntegration(
+        subdomain,
+        integration.erxesApiId,
+      );
+      erxesApiIds.push(response);
     }
   }
   await models.FacebookAccounts.deleteOne({ _id });
@@ -291,8 +286,7 @@ export const facebookCreateIntegration = async (
       } catch (e) {
         // Log and throw error if token retrieval fails
         debugError(
-          `Error occurred while trying to get page access token with ${
-            e.message || e
+          `Error occurred while trying to get page access token with ${e.message || e
           }`,
         );
         throw e;

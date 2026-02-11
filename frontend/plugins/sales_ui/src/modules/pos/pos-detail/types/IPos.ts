@@ -1,5 +1,12 @@
 import { IUser } from '@/pos/types/pos';
 
+export interface ProductGroup {
+  _id: string;
+  categoryIds?: string[];
+  excludedCategoryIds?: string[];
+  excludedProductIds?: string[];
+}
+
 export interface IScreenConfig {
   isActive: boolean;
   isPrint?: boolean;
@@ -33,7 +40,7 @@ export interface IPosDetail {
   createdAt: Date;
   productDetails?: ProductDetail[];
   token: string;
-  erxesAppToken: string;
+  erxesAppToken?: string;
   adminIds: string[];
   cashierIds: string[];
   paymentIds: string[];
@@ -74,4 +81,5 @@ export interface IPosDetail {
   cashierPrintTempBill?: boolean;
   cashierDirectSales?: boolean;
   cashierDirectDiscountLimit?: string;
+  productGroups?: ProductGroup[];
 }

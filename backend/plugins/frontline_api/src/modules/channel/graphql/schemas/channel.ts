@@ -2,9 +2,9 @@ export const types = `
 
     extend type User @key(fields: "_id") {
         _id: String @external
-    }  
+    }
 
-    type Channel {
+    type Channel @key(fields: "_id") {
         _id: String!
         icon: String
         name: String!
@@ -12,6 +12,7 @@ export const types = `
         createdAt: Date
         updatedAt: Date
         memberCount: Int
+        pipelineCount:Int
     }
 
     type ChannelMember {

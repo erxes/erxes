@@ -1,30 +1,35 @@
+import { saveValidatedToken } from '@/auth/utils';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
-import { Model } from 'mongoose';
-
 import {
+  EventDispatcherReturn,
   sendNotification,
+  USER_MOVEMENT_STATUSES,
   USER_ROLES,
   userMovemmentSchema,
   userSchema,
 } from 'erxes-api-shared/core-modules';
-import { getAvailablePlugins, redis } from 'erxes-api-shared/utils';
-
-import { saveValidatedToken } from '@/auth/utils';
 import {
   IAppDocument,
   IDetail,
   IEmailSignature,
   ILink,
+  IPropertyField,
   IUser,
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
+import { redis, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as jwt from 'jsonwebtoken';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-
-import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
+import {
+  generateLoginActivityLog,
+  generateLogoutActivityLog,
+  generateUserActivityLogs,
+  generateUserInvitationActivityLog,
+} from '../../utils/activityLogs';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -36,6 +41,7 @@ interface IEditProfile {
   links?: ILink;
   employeeId?: string;
   positionIds?: string[];
+  propertiesData?: IPropertyField;
 }
 
 interface IUpdateUser extends IEditProfile {
@@ -44,19 +50,9 @@ interface IUpdateUser extends IEditProfile {
   brandIds?: string[];
 }
 
-interface IConfirmParams {
-  token: string;
-  password: string;
-  passwordConfirmation: string;
-  fullName?: string;
-  username?: string;
-}
-
 interface IInviteParams {
   email: string;
-  password: string;
-  groupId: string;
-  brandIds: string[];
+  password?: string;
 }
 
 interface ILoginParams {
@@ -82,7 +78,7 @@ export interface IUserModel extends Model<IUserDocument> {
     username?: string;
   }): Promise<never>;
   getSecret(): string;
-  generateToken(): { token: string; expires: Date };
+  generateToken(duration?: number): { token: string; expires: Date };
   createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -99,8 +95,7 @@ export interface IUserModel extends Model<IUserDocument> {
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): string;
-  resendInvitation({ email }: { email: string }): string;
-  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
+  resendInvitation({ email }: { email: string }): Promise<string>;
   comparePassword(password: string, userPassword: string): boolean;
   resetPassword(params: {
     token: string;
@@ -129,9 +124,14 @@ export interface IUserModel extends Model<IUserDocument> {
   logout(_user: IUserDocument, token: string): Promise<string>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   createSystemUser(doc: IAppDocument): IUserDocument;
+  setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
 
-export const loadUserClass = (models: IModels, subdomain: string) => {
+export const loadUserClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class User {
     public static async getUser(_id: string) {
       const user = await models.Users.findOne({ _id });
@@ -198,7 +198,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
         // Checking if duplicated
         if (previousEntry) {
-          throw new Error('Duplicated User Name Id');
+          throw new Error('Username already exists');
         }
       }
     }
@@ -246,10 +246,10 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         password: notUsePassword ? '' : await this.generatePassword(password),
         code: await this.generateUserCode(),
       });
-
-      models.Roles.create({
-        userId: user._id,
-        role: PERMISSION_ROLES.MEMBER,
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: user.toObject(),
       });
 
       return user;
@@ -259,6 +259,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
      * Update user information
      */
     public static async updateUser(_id: string, doc: IUpdateUser) {
+      const user = await models.Users.getUser(_id);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
       doc.password = (doc.password ?? '').trim();
       doc.email = (doc.email ?? '').toLowerCase().trim();
 
@@ -288,6 +294,14 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         });
       }
 
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
+        );
+
+        doc.propertiesData = propertiesData;
+      }
+
       const operations: any = { $set: doc };
 
       if (['', undefined, null].includes(doc.employeeId)) {
@@ -304,54 +318,65 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
       await models.Users.updateOne({ _id }, operations);
 
-      return models.Users.findOne({ _id });
+      const updatedUser = await models.Users.findOne({ _id });
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: updatedUser.toObject(),
+          prevDocument: user.toObject(),
+        });
+
+        // Generate activity logs for changed activity fields
+        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+      }
+      return updatedUser;
     }
 
-    public static async generateToken() {
+    public static async generateToken(duration?: number) {
       const buffer = await crypto.randomBytes(20);
       const token = buffer.toString('hex');
 
+      const expires = Date.now() + (duration || 86400000);
+
       return {
         token,
-        expires: Date.now() + 86400000,
+        expires,
       };
     }
 
     /**
      * Create new user with invitation token
      */
-    public static async invite({
-      email,
-      password,
-      groupId,
-      brandIds,
-    }: IInviteParams) {
+    public static async invite({ email, password }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
       // Checking duplicated email
       await models.Users.checkDuplication({ email });
 
-      const { token, expires } = await User.generateToken();
+      const { token, expires } = await models.Users.generateToken(1800000); // 30 minutes
 
-      this.checkPassword(password);
+      if (password) {
+        this.checkPassword(password);
+      }
 
       const user = await models.Users.create({
         email,
-        groupIds: [groupId],
         isActive: true,
-        // hash password
-        password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
-        brandIds,
+        ...(password && { password: await this.generatePassword(password) }),
       });
 
-      models.Roles.create({
-        userId: user._id,
-        role: PERMISSION_ROLES.MEMBER,
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: user.toObject(),
       });
+
+      createActivityLog(generateUserInvitationActivityLog(user));
 
       return token;
     }
@@ -370,7 +395,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         throw new Error('Invalid request');
       }
 
-      const { token, expires } = await models.Users.generateToken();
+      const { token, expires } = await models.Users.generateToken(1800000); // 30 minutes
 
       await models.Users.updateOne(
         { email },
@@ -380,64 +405,9 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         },
       );
 
+      createActivityLog(generateUserInvitationActivityLog(user));
+
       return token;
-    }
-
-    /**
-     * Confirms user by invitation
-     */
-    public static async confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
-    }: {
-      token: string;
-      password: string;
-      passwordConfirmation: string;
-      fullName?: string;
-      username?: string;
-    }) {
-      const user = await models.Users.findOne({
-        registrationToken: token,
-        registrationTokenExpires: {
-          $gt: Date.now(),
-        },
-      });
-
-      if (!user || !token) {
-        throw new Error('Token is invalid or has expired');
-      }
-
-      if (password === '') {
-        throw new Error('Password can not be empty');
-      }
-
-      if (password !== passwordConfirmation) {
-        throw new Error('Password does not match');
-      }
-
-      this.checkPassword(password);
-
-      await models.Users.updateOne(
-        { _id: user._id },
-        {
-          $set: {
-            password: await this.generatePassword(password),
-            isActive: true,
-            registrationToken: undefined,
-            username,
-            details: {
-              fullName,
-              firstName: (fullName ?? '').split(' ')[0],
-              lastName: (fullName ?? '').split(' ')[1] || '',
-            },
-          },
-        },
-      );
-
-      return user;
     }
 
     /*
@@ -454,6 +424,8 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         positionIds,
       }: IEditProfile,
     ) {
+      const user = await models.Users.getUser(_id);
+
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
 
@@ -470,7 +442,18 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         { $set: { username, email, details, links, employeeId, positionIds } },
       );
 
-      return models.Users.findOne({ _id });
+      const updatedUser = await models.Users.findOne({ _id });
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: updatedUser.toObject(),
+          prevDocument: user.toObject(),
+        });
+
+        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+      }
+      return updatedUser;
     }
 
     /*
@@ -516,16 +499,42 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       if (user.isActive === false) {
         await models.Users.updateOne({ _id }, { $set: { isActive: true } });
 
-        return models.Users.findOne({ _id });
+        const updatedUser = await models.Users.findOne({ _id });
+        if (updatedUser) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updatedUser._id,
+            currentDocument: updatedUser.toObject(),
+            prevDocument: user.toObject(),
+          });
+          generateUserActivityLogs(
+            user,
+            updatedUser,
+            models,
+            createActivityLog,
+          );
+        }
+        return updatedUser;
+      } else {
+        await models.Users.updateOne({ _id }, { $set: { isActive: false } });
+
+        const updatedUser = await models.Users.findOne({ _id });
+        if (updatedUser) {
+          sendDbEventLog({
+            action: 'update',
+            docId: updatedUser._id,
+            currentDocument: updatedUser.toObject(),
+            prevDocument: user.toObject(),
+          });
+          generateUserActivityLogs(
+            user,
+            updatedUser,
+            models,
+            createActivityLog,
+          );
+        }
+        return updatedUser;
       }
-
-      if (user.isOwner) {
-        throw new Error('Can not deactivate owner');
-      }
-
-      await models.Users.updateOne({ _id }, { $set: { isActive: false } });
-
-      return models.Users.findOne({ _id });
     }
 
     /*
@@ -703,12 +712,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         departmentIds: _user.departmentIds,
       };
 
-      const { role } = (await models.Roles.getRole(user._id)) || {};
-
-      if (role) {
-        user['role'] = role;
-      }
-
       return user;
     }
 
@@ -720,12 +723,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id: _user._id,
         isOwner: _user.isOwner,
       };
-
-      const { role } = (await models.Roles.getRole(user._id)) || {};
-
-      if (role) {
-        user['role'] = role;
-      }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 
@@ -749,7 +746,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id = user._id;
         // if refresh token is expired then force to login
       } catch (e: any) {
-        console.log(e);
         return {};
       }
 
@@ -821,38 +817,14 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (!user.lastSeenAt) {
-        const pluginNames = await getAvailablePlugins(subdomain);
+      await sendOnboardNotification(subdomain, models, user._id);
+      await user.updateOne({ $set: { registrationToken: null } });
 
-        for (const pluginName of pluginNames) {
-          if (pluginName === 'core') {
-            sendNotification(subdomain, {
-              title: 'Welcome to erxes 🎉',
-              message:
-                'We’re excited to have you on board! Explore the features, connect with your team, and start growing your business with erxes.',
-              type: 'info',
-              userIds: [user._id],
-              priority: 'low',
-              kind: 'system',
-              contentType: `${pluginName}:system.welcome`,
-            });
-
-            await user.updateOne({ $set: { lastSeenAt: new Date() } });
-
-            continue;
-          }
-
-          sendNotification(subdomain, {
-            title: `Get Started with ${pluginName}`,
-            message: `Excited to introduce ${pluginName}! Dive in to explore its features and see how it can help your business thrive.`,
-            type: 'info',
-            userIds: [user._id],
-            priority: 'low',
-            kind: 'system',
-            contentType: `${pluginName}:system.welcome`,
-          });
-        }
-      }
+      const loginActivityLog = generateLoginActivityLog(user, {
+        method: 'email/password',
+        deviceToken,
+      });
+      createActivityLog(loginActivityLog, user._id);
 
       return {
         token,
@@ -876,6 +848,9 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
           { $set: { lastSeenAt: new Date() } },
         );
 
+        const logoutActivityLog = generateLogoutActivityLog(user);
+        createActivityLog(logoutActivityLog);
+
         return 'loggedout';
       }
 
@@ -896,7 +871,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         };
       }> = [];
 
-      let code = parseInt((await this.generateUserCode()) || '', 10);
+      let code = Number.parseInt((await this.generateUserCode()) || '', 10);
 
       for (const user of users) {
         code++;
@@ -923,7 +898,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
       const [user] = users;
 
-      let code = parseInt(user.code || '', 10);
+      let code = Number.parseInt(user.code || '', 10);
 
       code++;
 
@@ -952,7 +927,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         return user;
       }
 
-      return models.Users.create({
+      const newUser = await models.Users.create({
         role: USER_ROLES.SYSTEM,
         password: await this.generatePassword(app._id),
         username: app.name,
@@ -965,6 +940,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
           fullName: app.name,
         },
       });
+      sendDbEventLog({
+        action: 'create',
+        docId: newUser._id,
+        currentDocument: newUser.toObject(),
+      });
+      return newUser;
     }
     public static async checkLoginAuth({
       email,
@@ -995,6 +976,24 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
       return user;
     }
+    public static async setChatStatus(_id: string, status: string) {
+      const user = await models.Users.findOne({ _id });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      await models.Users.updateOne({ _id }, { $set: { chatStatus: status } });
+      const updatedUser = await models.Users.findOne({ _id });
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: updatedUser.toObject(),
+          prevDocument: user.toObject(),
+        });
+        generateUserActivityLogs(user, updatedUser, models, createActivityLog);
+      }
+      return updatedUser;
+    }
   }
 
   userSchema.loadClass(User);
@@ -1010,6 +1009,7 @@ type ICommonUserMovement = {
   contentTypeIds?: string[];
   contentTypeId?: string;
   createdBy?: string;
+  processId?: string;
 };
 
 type IUserStructureAssignee = {
@@ -1020,6 +1020,7 @@ type IUserStructureAssignee = {
   contentTypeId?: string;
   userIds?: string[];
   createdBy?: string;
+  processId?: string;
 };
 
 export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
@@ -1109,7 +1110,8 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
     public static async manageStructureUsersMovement(
       params: ICommonUserMovement,
     ) {
-      const { createdBy, userIds, contentType, contentTypeId } = params;
+      const { createdBy, userIds, contentType, contentTypeId, processId } =
+        params;
       const fieldName = `${contentType}Ids`;
 
       this.handleUsersStructureAssignee({
@@ -1120,6 +1122,7 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
         contentTypeId,
         userIds,
         createdBy,
+        processId,
       });
 
       const userMovements = await models.UserMovements.find({
@@ -1184,6 +1187,7 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
       contentTypeId,
       userIds,
       createdBy,
+      processId,
     }: IUserStructureAssignee) {
       const removedAssigneeUserIds = await models.Users.find({
         _id: { $nin: userIds },
@@ -1217,29 +1221,79 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
             update,
           );
 
-          if (contentType && contentTypeId && createdBy) {
-            const notificationType =
-              contentType === 'department'
-                ? 'departmentAssigneeChanged'
-                : 'branchAssigneeChanged';
-            console.log({
-              fromUserId: createdBy,
-              userIds: targetUserIds,
-              notificationType,
-              message,
+          if (contentType && contentTypeId) {
+            const schemas = {
+              branch: models.Branches,
+              department: models.Departments,
+              position: models.Positions,
+            };
+
+            const schema = schemas[contentType];
+
+            const content = await schema
+              .find({ _id: contentTypeId }, { title: 1 })
+              .lean();
+            const contextNames = content?.title || `unknown ${contentType}`;
+            const activities = targetUserIds.map((userId) => ({
+              activityType: 'assignment',
+              target: {
+                moduleName: 'organization',
+                collectionName: 'users',
+                _id: userId,
+              },
+              action: {
+                type: action === 'assigned' ? 'assigned' : 'unassigned',
+                description:
+                  action === 'assigned'
+                    ? `assigned to ${contextNames}`
+                    : `unassigned from ${contextNames}`,
+              },
+              changes: {
+                [action === 'assigned' ? 'added' : 'removed']: {
+                  [fieldName]: contentTypeId,
+                },
+              },
+              metadata: {
+                contentType,
+                contentTypeId,
+                action,
+                createdBy,
+              },
+            }));
+
+            sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'mutation',
+              module: 'activityLog',
+              action: 'createActivityLog',
+              input: activities,
+              context: {
+                processId,
+                userId: createdBy,
+              },
             });
-            sendNotification(subdomain, {
-              title,
-              message,
-              type: 'info',
-              fromUserId: createdBy,
-              userIds: targetUserIds,
-              contentType: `core:structure.${contentType}`,
-              contentTypeId,
-              action,
-              priority: 'medium',
-              notificationType,
-            });
+
+            if (createdBy) {
+              const notificationType = {
+                department: 'departmentAssigneeChanged',
+                branch: 'branchAssigneeChanged',
+                position: 'positionAssigneeChanged',
+              }[contentType];
+
+              sendNotification(subdomain, {
+                title,
+                message,
+                type: 'info',
+                fromUserId: createdBy,
+                userIds: targetUserIds,
+                contentType: `core:structure.${contentType}`,
+                contentTypeId,
+                action,
+                priority: 'medium',
+                notificationType,
+              });
+            }
           }
         }
       }

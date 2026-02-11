@@ -11,7 +11,6 @@ import {
   usePreviousHotkeyScope,
   useQueryState,
 } from 'erxes-ui';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -47,7 +46,10 @@ export const ResetPasswordDialog = () => {
         onError: (error) =>
           toast({ title: error.message, variant: 'destructive' }),
         onCompleted: () => {
-          toast({ title: "This user's password has been changed" });
+          toast({
+            title: "This user's password has been changed",
+            variant: 'success',
+          });
           reset();
           setOpen(null);
           goBackToPreviousHotkeyScope();

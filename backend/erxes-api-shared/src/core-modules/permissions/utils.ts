@@ -1,5 +1,5 @@
-import { IPermissionContext, IUserDocument, Resolver } from '../../core-types';
-import { getEnv, redis } from '../../utils';
+import { IUserDocument, Resolver } from '../../core-types';
+import { getEnv } from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
 export const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
@@ -10,40 +10,6 @@ export const checkLogin = (user?: IUserDocument) => {
   }
 };
 
-const resolverWrapper = async (
-  methodName: string,
-  args: any,
-  context: IPermissionContext,
-) => {
-  const value = await redis.get('beforeResolvers');
-  const beforeResolvers = JSON.parse(value || '{}');
-
-  let results = {};
-
-  if (beforeResolvers[methodName] && beforeResolvers[methodName].length) {
-    for (const service of beforeResolvers[methodName]) {
-      results = {
-        ...results,
-        // ...(await sendTRPCMessage({subdomain,
-
-        //   pluginName: service,
-        //   method: 'query',
-        //   module: service,
-        //   action: 'beforeResolver',
-        //   input: {
-        //     resolver: methodName,
-        //     args,
-        //     user: context.user,
-        //   },
-        //   defaultValue: [],
-        // })),
-      };
-    }
-  }
-
-  return { ...args, ...results };
-};
-
 export const permissionWrapper = (
   cls: any,
   methodName: string,
@@ -51,19 +17,12 @@ export const permissionWrapper = (
 ) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = async (
-    root: any,
-    args: any,
-    context: IPermissionContext,
-    info: any,
-  ) => {
+  cls[methodName] = async (root: any, args: any, context: any, info: any) => {
     const { user } = context;
 
     for (const checker of checkers) {
       checker(user);
     }
-
-    args = await resolverWrapper(methodName, args, context);
 
     return oldMethod(root, args, context, info);
   };
@@ -129,15 +88,17 @@ export const checkPermission = async (
 
     checkLogin(user);
 
-    const allowed = await can(subdomain, actionName, user);
+    // deprecated
 
-    if (!allowed) {
-      if (defaultValue) {
-        return defaultValue;
-      }
+    // const allowed = await can(subdomain, actionName, user);
 
-      throw new Error('Permission required');
-    }
+    // if (!allowed) {
+    //   if (defaultValue) {
+    //     return defaultValue;
+    //   }
+
+    //   throw new Error('Permission required');
+    // }
 
     const VERSION = getEnv({ name: 'VERSION' });
 
@@ -151,8 +112,6 @@ export const checkPermission = async (
       //     params: args,
       //   });
     }
-
-    args = await resolverWrapper(methodName, args, context);
 
     return oldMethod(root, args, context, info);
   };
@@ -188,21 +147,6 @@ export const checkRolePermission = async (
   user: IUserDocument,
   resolverKey: string,
 ) => {
-  const { role } = user || {};
-
-  if (!role) {
-    return false;
-  }
-
-  if (
-    role === 'member' &&
-    ['remove', 'delete'].some((resolver) =>
-      resolverKey.toLowerCase().includes(resolver),
-    )
-  ) {
-    return false;
-  }
-
   return true;
 };
 
@@ -212,10 +156,28 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
 
     checkLogin(user);
 
-    const permission = await checkRolePermission(user, resolverKey);
+    // const permission = await checkRolePermission(user, resolverKey);
 
-    if (!permission) {
-      throw new Error('Permission denied');
+    // if (!permission) {
+    //   throw new Error('Permission denied');
+    // }
+
+    return resolver(parent, args, context, info);
+  };
+};
+
+export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
+  return async (parent: any, args: any, context: any, info: any) => {
+    const { cpUserRequired, forClientPortal } = wrapperConfig || {};
+
+    if (forClientPortal) {
+      if (!context.clientPortal) {
+        throw new Error('Client portal required');
+      }
+
+      if (cpUserRequired && !context.cpUser) {
+        throw new Error('Client portal user required');
+      }
     }
 
     return resolver(parent, args, context, info);

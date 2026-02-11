@@ -1,4 +1,3 @@
-
 import { IconCurrencyDollar } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -9,8 +8,20 @@ const PaymentNavigation = lazy(() =>
   })),
 );
 
+const PaymentSettingsNavigation = lazy(() =>
+  import('./modules/PaymentSettingsNavigation').then((module) => ({
+    default: module.PaymentSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'payment',
+  path: 'payment',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <PaymentSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'payment',
     icon: IconCurrencyDollar,
@@ -25,9 +36,8 @@ export const CONFIG: IUIConfig = {
       name: 'payment',
       icon: IconCurrencyDollar,
       path: 'payment',
-      hasSettings: true,
-      hasRelationWidget: false,
-      hasFloatingWidget: false,
+      // hasRelationWidget: false,
+      // hasFloatingWidget: false,
     },
   ],
 };

@@ -7,9 +7,16 @@ export * from './internal-notes';
 export * from './notifications';
 export * from './permissions';
 export * from './products';
+export * from './properties';
 export * from './segments';
 export * from './structure';
 export * from './tags';
 export * from './team-members';
 export * from './types/PageInfo';
-export * from './widget-provider/context/widgetContext';
+export * from './widget';
+export * from './tags-new';
+
+export * from './import-export';
+export * from './activity-logs';
+export * from './payments';
+export * from './sales';

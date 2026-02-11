@@ -1,42 +1,52 @@
 import {
   IconChecks,
+  IconChevronDown,
   IconPlus,
   IconTool,
   IconUser,
   IconUserCog,
 } from '@tabler/icons-react';
 import {
-  RecordTable,
-  Sidebar,
-  useQueryState,
+  Badge,
+  Button,
   Collapsible,
-  Filter,
   Combobox,
   Command,
-  PageSubHeader,
-  Skeleton,
-  Popover,
-  useFilterQueryState,
-  useSetHotkeyScope,
-  usePreviousHotkeyScope,
-  useScopedHotkeys,
-  useToast,
-  Sheet,
-  Button,
+  Filter,
   Form,
-  Spinner,
   Kbd,
-  Badge,
-  toast,
+  PageSubHeader,
+  RecordTable,
+  Sheet,
+  Sidebar,
+  Skeleton,
+  Spinner,
   Switch,
-  useMultiQueryState,
+  toast,
   useFilterContext,
+  useFilterQueryState,
+  useMultiQueryState,
+  usePreviousHotkeyScope,
+  useQueryState,
+  useScopedHotkeys,
+  useSetHotkeyScope,
+  useToast,
 } from 'erxes-ui';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { Link, useLocation } from 'react-router-dom';
+import { SelectActions } from 'ui-modules/modules/permissions/components/SelectActions';
+import { SelectModule } from 'ui-modules/modules/permissions/components/SelectModule';
 import { permissionColumns } from 'ui-modules/modules/permissions/components/permission-columns';
+import { PermissionsCommandBar } from 'ui-modules/modules/permissions/components/permissions-commandbar';
 import { PERMISSION_CURSOR_SESSION_KEY } from 'ui-modules/modules/permissions/constants/permissionCursorSessionKey';
 import { usePermissions } from 'ui-modules/modules/permissions/hooks/usePermissions';
-import { IconChevronDown } from '@tabler/icons-react';
+import { usePermissionsForm } from 'ui-modules/modules/permissions/hooks/usePermissionsForm';
+import {
+  usePermissionsAdd,
+  usePermissionsFix,
+} from 'ui-modules/modules/permissions/hooks/usePermissionsMutations';
 import {
   IPermissionFormSchema,
   PermissionsFilterScope,
@@ -46,18 +56,6 @@ import {
   SelectMember,
   SelectUsersGroup,
 } from 'ui-modules/modules/team-members';
-import React, { useEffect, useState } from 'react';
-import { usePermissionsForm } from 'ui-modules/modules/permissions/hooks/usePermissionsForm';
-import {
-  usePermissionsAdd,
-  usePermissionsFix,
-  usePermissionsRemove,
-} from 'ui-modules/modules/permissions/hooks/usePermissionsMutations';
-import { SubmitHandler, useFormContext } from 'react-hook-form';
-import { SelectModule } from 'ui-modules/modules/permissions/components/SelectModule';
-import { AnimatePresence, motion } from 'framer-motion';
-import { SelectActions } from 'ui-modules/modules/permissions/components/SelectActions';
-import { PermissionsCommandBar } from 'ui-modules/modules/permissions/components/permissions-commandbar';
 
 export const PermissionsSidebarItem = ({
   to,
@@ -362,7 +360,10 @@ export const PermissionsCreate = ({ module }: { module?: string }) => {
       permissionsAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Successfully created permission!',
+            variant: 'success',
+          });
           reset();
           setOpen(false);
         },
@@ -546,7 +547,7 @@ export const PermissionForm = () => {
             <Form.Item className="flex items-center gap-2">
               <Form.Label>Allow</Form.Label>
               <Form.Control>
-                <div className="flex items-center !m-0">
+                <div className="flex items-center m-0!">
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
@@ -573,7 +574,11 @@ export const PermissionsFix = () => {
       onClick={(e) => {
         e.stopPropagation();
         permissionsFix({
-          onCompleted: () => toast({ title: 'Fixed permissions' }),
+          onCompleted: () =>
+            toast({
+              title: 'Permissions fixed successfully',
+              variant: 'success',
+            }),
         });
       }}
     >
