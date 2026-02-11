@@ -1,14 +1,5 @@
-// PermissionGroupDetails.tsx
-
-import {
-  IconLock,
-  IconCheck,
-  IconX,
-  IconShield,
-  IconInfoCircle,
-  IconPlugConnected,
-} from '@tabler/icons-react';
-import { Button, Collapsible, Dialog, Separator } from 'erxes-ui';
+import { IconLock, IconShield } from '@tabler/icons-react';
+import { Button, Collapsible, Dialog, Separator, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import {
@@ -24,17 +15,27 @@ interface Props {
   trigger?: React.ReactNode;
 }
 
-const SCOPE_LABELS: Record<string, { label: string; color: string }> = {
-  own: { label: 'Own records', color: 'bg-amber-500/10 text-amber-600' },
-  group: { label: 'Team records', color: 'bg-blue-500/10 text-blue-600' },
-  all: { label: 'All records', color: 'bg-green-500/10 text-green-600' },
-};
-
 interface IGroupedByPlugin {
   [plugin: string]: {
     module: IPermissionModule;
     permission: IPermissionGroupPermission;
   }[];
+}
+
+function createFallbackModule(perm: IPermissionGroupPermission): {
+  module: IPermissionModule;
+  plugin: string;
+} {
+  const plugin = perm.plugin || 'other';
+  return {
+    plugin,
+    module: {
+      name: perm.module,
+      plugin,
+      scopes: [],
+      actions: [],
+    },
+  };
 }
 
 export const PermissionGroupDetails = ({
@@ -43,7 +44,8 @@ export const PermissionGroupDetails = ({
   trigger,
 }: Props) => {
   const [open, setOpen] = useState(false);
-  const { permissionModulesByPlugin } = useGetPermissionModules();
+  const { permissionModulesByPlugin, loading: modulesLoading } =
+    useGetPermissionModules();
 
   const getModuleInfo = (
     moduleName: string,
@@ -55,21 +57,21 @@ export const PermissionGroupDetails = ({
     return null;
   };
 
-  const permissions = 'permissions' in group ? group.permissions : [];
+  const permissions: IPermissionGroupPermission[] = Array.isArray(
+    group.permissions,
+  )
+    ? group.permissions
+    : [];
 
-  // Group permissions by plugin
   const groupedByPlugin: IGroupedByPlugin = {};
 
   for (const perm of permissions) {
-    const moduleInfo = getModuleInfo(perm.module);
-    if (!moduleInfo) continue;
-
-    const { module, plugin } = moduleInfo;
+    const resolved = getModuleInfo(perm.module) ?? createFallbackModule(perm);
+    const { module, plugin } = resolved;
 
     if (!groupedByPlugin[plugin]) {
       groupedByPlugin[plugin] = [];
     }
-
     groupedByPlugin[plugin].push({ module, permission: perm });
   }
 
@@ -82,26 +84,21 @@ export const PermissionGroupDetails = ({
           </Button>
         )}
       </Dialog.Trigger>
-      <Dialog.Content className="max-w-2xl max-h-[85vh] flex flex-col p-0">
-        {/* Header */}
+      <Dialog.Content className="max-w-2xl h-[85vh] flex flex-col p-0">
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-3">
-            <div
-              className={`p-2.5 rounded-xl ${
-                isDefault ? 'bg-primary/10' : 'bg-green-500/10'
-              }`}
-            >
+            <div className="p-2 rounded-lg bg-muted">
               {isDefault ? (
-                <IconLock size={22} className="text-primary" />
+                <IconLock size={18} className="text-muted-foreground" />
               ) : (
-                <IconShield size={22} className="text-green-500" />
+                <IconShield size={18} className="text-muted-foreground" />
               )}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-semibold">{group.name}</h2>
                 {isDefault && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                  <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
                     Default
                   </span>
                 )}
@@ -117,13 +114,13 @@ export const PermissionGroupDetails = ({
 
         <Separator />
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 styled-scroll">
-          {permissions.length === 0 ? (
+          {modulesLoading ? (
+            <div className="flex justify-center py-16">
+              <Spinner />
+            </div>
+          ) : permissions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="p-4 rounded-full bg-muted/30 mb-4">
-                <IconShield size={40} className="text-muted-foreground/40" />
-              </div>
               <p className="text-muted-foreground font-medium">
                 No permissions configured
               </p>
@@ -134,20 +131,13 @@ export const PermissionGroupDetails = ({
           ) : (
             Object.entries(groupedByPlugin).map(([plugin, items]) => (
               <Collapsible key={plugin} defaultOpen>
-                {/* Plugin Header */}
                 <Collapsible.Trigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start px-4 py-3 bg-muted/30 hover:bg-muted/50 rounded-lg"
+                    className="group w-full justify-start px-4 py-2.5 bg-muted/30 hover:bg-muted/50 rounded-lg"
                   >
-                    <Collapsible.TriggerIcon className="mr-2" />
-                    <IconPlugConnected
-                      size={16}
-                      className="mr-2 text-primary"
-                    />
-                    <span className="font-semibold uppercase tracking-wide text-sm">
-                      {plugin}
-                    </span>
+                    <Collapsible.TriggerIcon className="mr-2 shrink-0 transition-transform duration-200 ease-out" />
+                    <span className="font-medium text-sm">{plugin}</span>
                     <span className="ml-auto text-xs text-muted-foreground">
                       {items.length} {items.length === 1 ? 'module' : 'modules'}
                     </span>
@@ -156,10 +146,6 @@ export const PermissionGroupDetails = ({
 
                 <Collapsible.Content className="pt-3 space-y-3">
                   {items.map(({ module, permission }) => {
-                    const scopeInfo = SCOPE_LABELS[permission.scope] || {
-                      label: permission.scope,
-                      color: 'bg-muted text-muted-foreground',
-                    };
                     const scopeDescription = module.scopes?.find(
                       (s) => s.name === permission.scope,
                     )?.description;
@@ -167,94 +153,83 @@ export const PermissionGroupDetails = ({
                     return (
                       <div
                         key={permission.module}
-                        className="rounded-xl border border-border overflow-hidden"
+                        className="rounded-lg border border-border overflow-hidden"
                       >
-                        {/* Module Header */}
-                        <div className="flex items-center justify-between px-5 py-4 bg-muted/30">
-                          <div>
-                            <p className="font-semibold capitalize text-foreground">
-                              {module.name}
+                        <div className="px-4 py-3 bg-muted/20">
+                          <p className="font-medium capitalize text-foreground">
+                            {module.name}
+                          </p>
+                          {module.description && (
+                            <p className="text-sm text-muted-foreground mt-0.5">
+                              {module.description}
                             </p>
-                            {module.description && (
-                              <p className="text-sm text-muted-foreground mt-0.5">
-                                {module.description}
-                              </p>
-                            )}
-                          </div>
-                          <span
-                            className={`text-xs font-medium px-3 py-1.5 rounded-full ${scopeInfo.color}`}
-                          >
-                            {scopeInfo.label}
-                          </span>
+                          )}
                         </div>
-
-                        {/* Scope Description */}
                         {scopeDescription && (
-                          <div className="px-5 py-3 bg-muted/10 border-b border-border flex items-start gap-2">
-                            <IconInfoCircle
-                              size={16}
-                              className="text-primary shrink-0 mt-0.5"
-                            />
+                          <div className="px-4 py-2 border-t border-border">
                             <p className="text-sm text-muted-foreground">
                               {scopeDescription}
                             </p>
                           </div>
                         )}
 
-                        {/* Actions */}
                         <div className="divide-y divide-border">
-                          {module.actions.map((action) => {
-                            const hasPermission =
-                              permission.actions.includes('*') ||
-                              permission.actions.includes(action.name);
+                          {(module.actions ?? []).length > 0
+                            ? (module.actions ?? []).map((action) => {
+                                const hasPermission =
+                                  permission.actions.includes('*') ||
+                                  permission.actions.includes(action.name);
 
-                            return (
-                              <div
-                                key={action.name}
-                                className={`flex items-center justify-between px-5 py-3 transition-colors ${
-                                  hasPermission
-                                    ? 'bg-background'
-                                    : 'bg-muted/10 opacity-60'
-                                }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  {action.always && (
-                                    <IconLock
-                                      size={14}
-                                      className="text-muted-foreground"
-                                    />
-                                  )}
-                                  <div>
-                                    <p
-                                      className={`text-sm font-medium ${
+                                return (
+                                  <div
+                                    key={action.name}
+                                    className={`flex items-center justify-between px-4 py-2.5 ${
+                                      hasPermission
+                                        ? 'bg-background'
+                                        : 'bg-muted/5 opacity-70'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      {action.always && (
+                                        <IconLock
+                                          size={12}
+                                          className="text-muted-foreground shrink-0"
+                                        />
+                                      )}
+                                      <div className="min-w-0">
+                                        <p
+                                          className={`text-sm ${
+                                            hasPermission
+                                              ? 'text-foreground'
+                                              : 'text-muted-foreground'
+                                          }`}
+                                        >
+                                          {action.title || action.name}
+                                        </p>
+                                        {action.description && (
+                                          <p className="text-xs text-muted-foreground">
+                                            {action.description}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <span
+                                      className={`text-xs shrink-0 ml-2 ${
                                         hasPermission
-                                          ? 'text-foreground'
+                                          ? 'text-success'
                                           : 'text-muted-foreground'
                                       }`}
                                     >
-                                      {action.title || action.name}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {action.description}
-                                    </p>
-                                  </div>
-                                </div>
-                                {hasPermission ? (
-                                  <div className="flex items-center gap-1.5 text-green-500">
-                                    <IconCheck size={18} strokeWidth={2.5} />
-                                    <span className="text-xs font-medium">
-                                      Allowed
+                                      {hasPermission ? 'Yes' : 'No'}
                                     </span>
                                   </div>
-                                ) : (
-                                  <div className="flex items-center gap-1.5 text-muted-foreground/50">
-                                    <IconX size={18} />
-                                    <span className="text-xs">Denied</span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                                );
+                              })
+                            : permission.actions.length > 0 && (
+                                <div className="px-4 py-2.5 text-sm text-muted-foreground">
+                                  {permission.actions.join(', ')}
+                                </div>
+                              )}
                         </div>
                       </div>
                     );
@@ -267,7 +242,6 @@ export const PermissionGroupDetails = ({
 
         <Separator />
 
-        {/* Footer */}
         <div className="px-6 py-4 flex justify-end">
           <Button variant="secondary" onClick={() => setOpen(false)}>
             Close
