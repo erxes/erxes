@@ -7,6 +7,18 @@ import { StripeAPI } from '~/apis/stripe/api';
 import ErxesPayment from '~/apis/ErxesPayment';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 
+function extractErrorMessage(e: any): string {
+  if (!e) return 'Unknown error';
+  if (typeof e === 'string') return e;
+  if (e?.response?.data?.message) return e.response.data.message;
+  if (e?.message) return e.message;
+
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
 const mutations = {
   async paymentAdd(
     _root,
@@ -25,13 +37,11 @@ const mutations = {
       throw new Error(`Unsupported payment kind: ${input.kind}`);
     }
 
-
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
 
     const domain = DOMAIN.replace('<subdomain>', subdomain);
-
 
     input.acceptedCurrencies = paymentConfig.acceptedCurrencies;
 
@@ -39,9 +49,8 @@ const mutations = {
       input.acceptedCurrencies = [input.config.currency];
     }
 
-
+    // ================= QPay =================
     if (input.kind === 'qpayQuickqr') {
-      // 🔥 FRONTEND → BACKEND FIX
       if (input.config?.type) {
         input.config.isCompany = input.config.type === 'company';
         delete input.config.type;
@@ -63,67 +72,41 @@ const mutations = {
 
         input.config.merchantId = response.id;
       } catch (e: any) {
-        console.error('QPay ERROR FULL:', e);
-        console.error('QPay ERROR JSON:', JSON.stringify(e, null, 2));
-
-        throw new Error(
-          e?.message ||
-          e?.response?.data?.message ||
-          JSON.stringify(e)
-        );
+        throw new Error(extractErrorMessage(e));
       }
     }
-
 
     const payment = await models.PaymentMethods.createPayment(input);
 
     if (input.kind === 'pocket') {
       const pocketApi = new PocketAPI(input.config, domain);
+
       try {
         await pocketApi.registerWebhook(payment._id);
       } catch (e: any) {
         await models.PaymentMethods.removePayment(payment._id);
-
-        throw new Error(
-          e?.message ||
-          e?.response?.data?.message ||
-          'Pocket webhook registration failed'
-        );
+        throw new Error(extractErrorMessage(e));
       }
     }
 
-
     if (input.kind === 'stripe') {
       const stripeApi = new StripeAPI(input.config, domain);
+
       try {
         await stripeApi.registerWebhook(payment._id);
       } catch (e: any) {
         await models.PaymentMethods.removePayment(payment._id);
-
-        throw new Error(
-          e?.message ||
-          e?.response?.data?.message ||
-          'Stripe webhook registration failed'
-        );
+        throw new Error(extractErrorMessage(e));
       }
     }
-
 
     const api = new ErxesPayment(payment);
 
     try {
       await api.authorize(payment);
     } catch (e: any) {
-      console.error('AUTHORIZE ERROR FULL:', e);
-      console.error('AUTHORIZE ERROR JSON:', JSON.stringify(e, null, 2));
-
       await models.PaymentMethods.removePayment(payment._id);
-
-      throw new Error(
-        e?.message ||
-        e?.response?.data?.message ||
-        JSON.stringify(e)
-      );
+      throw new Error(extractErrorMessage(e));
     }
 
     return payment;
@@ -172,11 +155,7 @@ const mutations = {
 
         config.merchantId = response.id;
       } catch (e: any) {
-        throw new Error(
-          e?.message ||
-          e?.response?.data?.message ||
-          JSON.stringify(e)
-        );
+        throw new Error(extractErrorMessage(e));
       }
     }
 
@@ -195,7 +174,6 @@ const mutations = {
     return await models.PaymentMethods.updatePayment(_id, doc);
   },
 };
-
 
 requireLogin(mutations, 'paymentAdd');
 requireLogin(mutations, 'paymentEdit');

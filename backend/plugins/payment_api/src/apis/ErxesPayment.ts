@@ -12,7 +12,6 @@ import { SocialPayAPI } from '~/apis/socialpay/api';
 import { StorePayAPI } from '~/apis/storepay/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import { WechatPayAPI } from '~/apis/wechatpay/api';
-
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 
@@ -67,7 +66,7 @@ class ErxesPayment {
       case 'qpay':
         this.qpay = new QpayAPI(
           { ...payment.config, branchCode: payment.name },
-          this.domain
+          this.domain,
         );
         break;
       case 'monpay':
@@ -109,7 +108,6 @@ class ErxesPayment {
       try {
         return await api.authorize(payment);
       } catch (e: any) {
-        console.error('Authorize error:', e);
         throw new Error(extractErrorMessage(e));
       }
     }
@@ -120,16 +118,34 @@ class ErxesPayment {
   async createInvoice(transaction: ITransactionDocument) {
     const api = (this as any)[this.payment.kind];
 
+    if (!api?.createInvoice) {
+      return {
+        error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
+      };
+    }
+
+    // preserve existing monpay coupon logic if needed
+    const details = transaction.details || {};
+    if (details.monpayCoupon) {
+      const amount = transaction.amount - details.monpayCoupon;
+      transaction.amount = amount > 0 ? amount : 0;
+    }
+
     try {
       return await api.createInvoice(transaction, this.payment);
     } catch (e: any) {
-      console.error('Create invoice error:', e);
       return { error: extractErrorMessage(e) };
     }
   }
 
   async checkInvoice(invoice: ITransactionDocument) {
     const api = (this as any)[this.payment.kind];
+
+    if (!api?.checkInvoice) {
+      throw new Error(
+        `Payment kind "${this.payment.kind}" does not support checkInvoice`,
+      );
+    }
 
     try {
       return await api.checkInvoice(invoice);
@@ -141,6 +157,12 @@ class ErxesPayment {
   async manualCheck(invoice: ITransactionDocument) {
     const api = (this as any)[this.payment.kind];
 
+    if (!api?.manualCheck) {
+      throw new Error(
+        `Payment kind "${this.payment.kind}" does not support manualCheck`,
+      );
+    }
+
     try {
       return await api.manualCheck(invoice);
     } catch (e: any) {
@@ -151,8 +173,14 @@ class ErxesPayment {
   async cancelInvoice(invoice: ITransactionDocument) {
     const api = (this as any)[this.payment.kind];
 
+    if (!api?.cancelInvoice) {
+      throw new Error(
+        `Payment kind "${this.payment.kind}" does not support cancelInvoice`,
+      );
+    }
+
     try {
-      return api.cancelInvoice && (await api.cancelInvoice(invoice));
+      return await api.cancelInvoice(invoice);
     } catch (e: any) {
       throw new Error(extractErrorMessage(e));
     }

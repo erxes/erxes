@@ -8,11 +8,15 @@ import { BaseAPI } from '~/apis/base';
 import { ISocialPayInvoice } from '../types';
 import { random } from 'erxes-api-shared/utils';
 
+export const hmac256 = (key: string, message: string): string =>
+  crypto.createHmac('sha256', key).update(message).digest('hex');
+
 function extractErrorMessage(e: any): string {
   if (!e) return 'Unknown error';
   if (typeof e === 'string') return e;
   if (e.message) return e.message;
-  if (e.response?.data?.message) return e.response.data.message;
+  if (e.response?.data?.errorDesc) return e.response.data.errorDesc;
+
   try {
     return JSON.stringify(e);
   } catch {
@@ -20,17 +24,22 @@ function extractErrorMessage(e: any): string {
   }
 }
 
-export const hmac256 = (key: string, message: string): string => {
-  return crypto.createHmac('sha256', key).update(message).digest('hex');
-};
-
 export const socialpayCallbackHandler = async (models: IModels, data: any) => {
-  const { amount, checksum, invoice, terminal } = data;
+  const { resp_code, amount, checksum, invoice, terminal } = data;
 
-  const transaction = await models.Transactions.getTransaction({ _id: invoice });
-  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
+  const transaction = await models.Transactions.getTransaction({
+    _id: invoice,
+  });
+
+  const payment = await models.PaymentMethods.getPayment(
+    transaction.paymentId
+  );
 
   try {
+    if (resp_code !== '00') {
+      return transaction;
+    }
+
     const api = new SocialPayAPI(payment.config);
     const status = await api.checkInvoice({
       amount,
@@ -71,19 +80,19 @@ export class SocialPayAPI extends BaseAPI {
 
   async authorize() {
     const invoiceId = random('aA0', 10);
-    const amount = '0';
+    const amount = '100';
+
+    const data: ISocialPayInvoice = {
+      amount,
+      invoice: invoiceId,
+      terminal: this.inStoreSPTerminal,
+      checksum: hmac256(
+        this.inStoreSPKey,
+        this.inStoreSPTerminal + invoiceId + amount,
+      ),
+    };
 
     try {
-      const data: ISocialPayInvoice = {
-        amount,
-        invoice: invoiceId,
-        terminal: this.inStoreSPTerminal,
-        checksum: hmac256(
-          this.inStoreSPKey,
-          `${this.inStoreSPTerminal}${invoiceId}${amount}`
-        ),
-      };
-
       const { header, body } = await this.request({
         path: PAYMENTS.socialpay.actions.invoiceQr,
         method: 'POST',
@@ -92,9 +101,11 @@ export class SocialPayAPI extends BaseAPI {
       }).then((r) => r.json());
 
       if (header?.code !== 200) {
-        throw new Error(
-          body?.error?.errorDesc || 'SocialPay authorization failed'
-        );
+        throw new Error(body?.error?.errorDesc || 'Authorization failed');
+      }
+
+      if (body?.error?.errorDesc) {
+        throw new Error(body.error.errorDesc);
       }
 
       return { success: true };
@@ -117,7 +128,7 @@ export class SocialPayAPI extends BaseAPI {
       terminal: this.inStoreSPTerminal,
       checksum: hmac256(
         this.inStoreSPKey,
-        `${this.inStoreSPTerminal}${invoice._id}${amount}`
+        this.inStoreSPTerminal + invoice._id + amount,
       ),
     };
 
@@ -125,7 +136,7 @@ export class SocialPayAPI extends BaseAPI {
       data.phone = details.phone;
       data.checksum = hmac256(
         this.inStoreSPKey,
-        `${this.inStoreSPTerminal}${invoice._id}${amount}${details.phone}`
+        this.inStoreSPTerminal + invoice._id + amount + details.phone,
       );
     }
 
@@ -138,19 +149,25 @@ export class SocialPayAPI extends BaseAPI {
       }).then((r) => r.json());
 
       if (header?.code !== 200) {
+        return { error: body?.error?.errorDesc || 'Create invoice failed' };
+      }
+
+      if (body?.response?.status !== 'SUCCESS') {
         return {
-          error: body?.error?.errorDesc || 'Failed to create SocialPay invoice',
+          error:
+            body?.response?.desc || 'Error occurred while creating invoice',
         };
       }
 
       if (details.phone) {
         return {
           message:
-            'Invoice sent to phone. Please open the SocialPay app to pay.',
+            'Invoice has been sent to your phone. Please open SocialPay app to pay.',
         };
       }
 
       const qrData = await QRCode.toDataURL(body.response.desc);
+
       return {
         qrData,
         deeplink: body.response.desc,
@@ -170,7 +187,7 @@ export class SocialPayAPI extends BaseAPI {
       }).then((r) => r.json());
 
       if (body?.response?.resp_code !== '00') {
-        throw new Error(body?.response?.resp_desc || 'Payment not completed');
+        throw new Error(body?.response?.resp_desc || 'Not paid');
       }
 
       return PAYMENT_STATUS.PAID;
@@ -188,7 +205,7 @@ export class SocialPayAPI extends BaseAPI {
       terminal: this.inStoreSPTerminal,
       checksum: hmac256(
         this.inStoreSPKey,
-        `${this.inStoreSPTerminal}${invoice._id}${amount}`
+        this.inStoreSPTerminal + invoice._id + amount,
       ),
     });
   }
@@ -197,7 +214,7 @@ export class SocialPayAPI extends BaseAPI {
     const amount = invoice.amount.toString();
 
     try {
-      await this.request({
+      const { header, body } = await this.request({
         path: PAYMENTS.socialpay.actions.invoiceCancel,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -207,10 +224,22 @@ export class SocialPayAPI extends BaseAPI {
           terminal: this.inStoreSPTerminal,
           checksum: hmac256(
             this.inStoreSPKey,
-            `${this.inStoreSPTerminal}${invoice._id}${amount}`
+            this.inStoreSPTerminal + invoice._id + amount,
           ),
         },
-      });
+      }).then((r) => r.json());
+
+      // HTTP-level validation
+      if (header?.code !== 200) {
+        throw new Error(body?.error?.errorDesc || 'Cancel invoice failed');
+      }
+
+      // Provider-level validation
+      if (body?.response?.resp_code !== '00') {
+        throw new Error(
+          body?.response?.resp_desc || 'Invoice cancellation rejected',
+        );
+      }
 
       return { success: true };
     } catch (e: any) {

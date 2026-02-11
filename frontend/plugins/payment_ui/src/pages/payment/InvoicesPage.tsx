@@ -11,7 +11,6 @@ export const InvoicesPage = () => {
         <PageHeader.Start>
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
-              {/* Parent */}
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
                   <Link to="/settings/payment">
@@ -21,7 +20,8 @@ export const InvoicesPage = () => {
                 </Button>
               </Breadcrumb.Item>
 
-              {/* Current page */}
+              <Breadcrumb.Separator />
+
               <Breadcrumb.Item>
                 <Breadcrumb.Page>Invoices</Breadcrumb.Page>
               </Breadcrumb.Item>
@@ -45,4 +45,3 @@ export const InvoicesPage = () => {
     </div>
   );
 };
-

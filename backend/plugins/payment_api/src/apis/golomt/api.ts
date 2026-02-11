@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 
 import { IModels } from '~/connectionResolvers';
+
 import { BaseAPI } from '~/apis/base';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { IGolomtInvoice } from '~/apis/types';
@@ -12,48 +13,11 @@ import {
   sendWorkerMessage,
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
-type FetchResponse = {
-  text(): Promise<string>;
+
+export const hmac256 = (key, message) => {
+  const hash = crypto.createHmac('sha256', key).update(message);
+  return hash.digest('hex');
 };
-
-async function safeJson(res: FetchResponse) {
-  const text = await res.text();
-
-  if (!text) {
-    throw new Error('Empty response from Golomt');
-  }
-
-  if (text.trim().startsWith('<')) {
-    throw new Error(
-      'Golomt returned HTML instead of JSON (token / endpoint / IP whitelist issue)'
-    );
-  }
-
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error(`Invalid JSON from Golomt: ${text.slice(0, 200)}`);
-  }
-}
-
-
-function extractErrorMessage(e: any): string {
-  if (!e) return 'Unknown error';
-  if (typeof e === 'string') return e;
-  if (e.message) return e.message;
-  if (e.response?.data?.message) return e.response.data.message;
-
-  try {
-    return JSON.stringify(e);
-  } catch {
-    return String(e);
-  }
-}
-
-
-export const hmac256 = (key: string, message: string) =>
-  crypto.createHmac('sha256', key).update(message).digest('hex');
-
 
 export const notificationHandler = async (
   models: IModels,
@@ -75,10 +39,9 @@ export const notificationHandler = async (
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'golomt') {
-    res.status(400).json({
-      status: 'error',
-      message: 'Payment method kind is mismatched',
-    });
+    res
+      .status(400)
+      .json({ status: 'error', message: 'Payment method kind is mismatched' });
     return;
   }
 
@@ -87,12 +50,12 @@ export const notificationHandler = async (
     const status = await api.checkInvoice(transaction);
 
     if (status !== PAYMENT_STATUS.PAID) {
-      res.json({ status: 'pending' });
-      return;
+      return transaction;
     }
 
     transaction.status = status;
     transaction.updatedAt = new Date();
+
     await transaction.save();
 
     graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
@@ -103,19 +66,17 @@ export const notificationHandler = async (
         paymentKind: transaction.paymentKind,
       },
     });
-
     const invoice = await models.Invoices.getInvoice({
       _id: transaction.invoiceId,
     });
-
-    const result = await models.Invoices.checkInvoice(
-      invoice._id,
-      subdomain,
-    );
+    const result = await models.Invoices.checkInvoice(invoice._id, subdomain);
 
     if (result === 'paid') {
       graphqlPubsub.publish(`invoiceUpdated:${invoice._id}`, {
-        invoiceUpdated: { _id: invoice._id, status: 'paid' },
+        invoiceUpdated: {
+          _id: transaction.invoiceId,
+          status: 'paid',
+        },
       });
     }
 
@@ -124,24 +85,60 @@ export const notificationHandler = async (
     );
 
     if (await isEnabled(pluginName)) {
-      await sendWorkerMessage({
-        subdomain,
-        pluginName,
-        queueName: 'payments',
-        jobName: 'transactionCallback',
-        data: {
-          ...transaction,
-          moduleName,
-          collectionType,
-          apiResponse: 'success',
-        },
-        defaultValue: null,
-      });
-    }
+      try {
+        await sendWorkerMessage({
+          subdomain,
+          pluginName,
+          queueName: 'payments',
+          jobName: 'transactionCallback',
+          data: {
+            ...transaction,
+            moduleName,
+            collectionType,
+            apiResponse: 'success',
+          },
+          defaultValue: null,
+        });
 
-    res.json({ status: 'success' });
-  } catch (e: any) {
-    res.status(500).json({ status: 'error', message: extractErrorMessage(e) });
+        if (result === 'paid') {
+          await sendWorkerMessage({
+            subdomain,
+            pluginName,
+            queueName: 'payments',
+            jobName: 'callback',
+            data: {
+              ...invoice,
+              moduleName,
+              collectionType,
+              status: 'paid',
+            },
+            defaultValue: null,
+          });
+
+          if (invoice.callback) {
+            try {
+              await fetch(invoice.callback, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  _id: invoice._id,
+                  amount: invoice.amount,
+                  status: 'paid',
+                }),
+              });
+            } catch (e) {
+              console.error('Error: ', e);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error: ', e);
+      }
+    }
+  } catch (e) {
+    throw new Error(e.message);
   }
 };
 
@@ -156,18 +153,23 @@ export const golomtCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Payment config type is mismatched');
   }
 
-  const api = new GolomtAPI(payment.config);
-  const status = await api.checkInvoice(transaction);
+  try {
+    const api = new GolomtAPI(payment.config);
+    const status = await api.checkInvoice(transaction);
 
-  if (status !== PAYMENT_STATUS.PAID) {
+    if (status !== PAYMENT_STATUS.PAID) {
+      return transaction;
+    }
+
+    transaction.status = status;
+    transaction.updatedAt = new Date();
+
+    await transaction.save();
+
     return transaction;
+  } catch (e) {
+    throw new Error(e.message);
   }
-
-  transaction.status = status;
-  transaction.updatedAt = new Date();
-  await transaction.save();
-
-  return transaction;
 };
 
 export interface IGolomtParams {
@@ -185,45 +187,26 @@ export class GolomtAPI extends BaseAPI {
   constructor(config: IGolomtParams, domain?: string) {
     super(config);
     this.merchant = config.merchant;
-    this.key = config.key;
     this.token = config.token;
-    this.domain = domain;
+    this.key = config.key;
     this.apiUrl = PAYMENTS.golomt.apiUrl;
+    this.domain = domain;
   }
 
-  /**
-   * Golomt requires a **test invoice** to validate credentials
-   */
   async authorize() {
     const callback = `${this.domain}/pl:payment/callback/golomt`;
+    // const transactionId = randomAlphanumeric(10);
+
     const transactionId = random('aA0', 10);
 
     const data: IGolomtInvoice = {
       amount: '1',
-      transactionId,
-      genToken: 'N',
-      socialDeeplink: 'Y',
-      returnType: 'GET',
-      callback,
       checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
-    };
-  }
-
-  async createInvoice(transaction: ITransactionDocument) {
-    const amount = transaction.amount.toString();
-    const callback = `${this.domain}/pl:payment/callback/golomt?transactionId=${transaction._id}`;
-
-    const transactionId =
-      transaction.details?.golomtTransactionId || transaction._id;
-
-    const data: IGolomtInvoice = {
-      amount,
       transactionId,
       genToken: 'N',
       socialDeeplink: 'Y',
-      returnType: 'GET',
       callback,
-      checksum: hmac256(this.key, transactionId + amount + 'GET' + callback),
+      returnType: 'GET',
     };
 
     try {
@@ -232,14 +215,56 @@ export class GolomtAPI extends BaseAPI {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.token}`,
+          Authorization: 'Bearer ' + this.token,
         },
         data,
-      });
+      }).then((r) => r.json());
 
-      return await safeJson(res);
-    } catch (e: any) {
-      return { error: extractErrorMessage(e) };
+      if (res.status && res.status !== 200) {
+        throw new Error(res.message);
+      }
+      return { success: true, message: 'Authorized' };
+    } catch (e) {
+      console.error('error', e);
+      throw new Error(e.message);
+    }
+  }
+
+  async createInvoice(transaction: ITransactionDocument) {
+    const amount = transaction.amount.toString();
+
+    const callback = `${this.domain}/pl:payment/callback/golomt?transactionId=${transaction._id}`;
+
+    let transactionId = transaction._id;
+
+    if (transaction.details?.golomtTransactionId) {
+      transactionId = transaction.details.golomtTransactionId;
+    }
+
+    const data: IGolomtInvoice = {
+      amount,
+      checksum: hmac256(this.key, transactionId + amount + 'GET' + callback),
+      transactionId,
+      genToken: 'N',
+      socialDeeplink: 'Y',
+      callback,
+      returnType: 'GET',
+    };
+
+    try {
+      const res = await this.request({
+        path: PAYMENTS.golomt.actions.invoice,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + this.token,
+        },
+        data,
+      }).then((r) => r.json());
+      return res;
+    } catch (e) {
+      console.error('error', e);
+      return { error: e.message };
     }
   }
 
@@ -251,31 +276,28 @@ export class GolomtAPI extends BaseAPI {
       transactionId,
       checksum: hmac256(this.key, transactionId + transactionId),
     };
-
     try {
-      const res = await this.request({
+      const response = await this.request({
         path: PAYMENTS.golomt.actions.invoiceCheck,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.token}`,
+          Authorization: 'Bearer ' + this.token,
         },
         data,
-      });
+      }).then((r) => r.json());
 
-      const json = await safeJson(res);
-
-      if (json.status === 'SENT') {
+      if (response.status && response.status === 'SENT') {
         return PAYMENT_STATUS.PAID;
       }
 
       return PAYMENT_STATUS.PENDING;
-    } catch (e: any) {
-      throw new Error(extractErrorMessage(e));
+    } catch (e) {
+      throw new Error(e.message);
     }
   }
 
-  async checkInvoice(transaction: ITransactionDocument) {
+  async checkInvoice(transaction: any) {
     return this.check(transaction);
   }
 
