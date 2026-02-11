@@ -1,15 +1,16 @@
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
-import { TagsFilter } from 'ui-modules';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
 import { useTranslation } from 'react-i18next';
+import { ProductsTotalCount } from './ProductsTotalCount';
 
 export const ProductsFilter = () => {
   return (
     <Filter id="products-filter" sessionKey={PRODUCTS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
         <ProductsFilterPopover />
+        <ProductsTotalCount />
       </Filter.Bar>
     </Filter>
   );
@@ -33,7 +34,6 @@ export const ProductsFilterPopover = () => {
                   <IconSearch />
                   {t('search')}
                 </Filter.Item>
-                <TagsFilter />
               </Command.List>
             </Command>
           </Filter.View>

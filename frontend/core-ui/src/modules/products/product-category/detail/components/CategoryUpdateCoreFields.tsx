@@ -19,11 +19,12 @@ export const CategoriesUpdateCoreFields: React.FC<
 > = ({ form, categoryDetail }) => {
   useEffect(() => {
     if (categoryDetail) {
-      form.reset({
+      form.reset((prevValues) => ({
+        ...prevValues,
         code: categoryDetail.code,
         name: categoryDetail.name,
         parentId: categoryDetail.parentId || '',
-      });
+      }));
     }
   }, [categoryDetail, form]);
 

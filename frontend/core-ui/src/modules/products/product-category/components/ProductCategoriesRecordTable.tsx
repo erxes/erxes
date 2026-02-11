@@ -96,21 +96,18 @@ export const productCategoryColumns: (
     ),
     accessorKey: 'name',
     cell: ({ cell }) => {
+      const name = (cell.getValue() as string) || '';
+
       return (
-        <Popover>
-          <RecordTableInlineCell.Trigger>
-            <RecordTableTree.Trigger
-              order={cell.row.original.order}
-              name={cell.getValue() as string}
-              hasChildren={cell.row.original.hasChildren}
-            >
-              {cell.getValue() as string}
-            </RecordTableTree.Trigger>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input value={cell.getValue() as string} />
-          </RecordTableInlineCell.Content>
-        </Popover>
+        <RecordTableInlineCell>
+          <RecordTableTree.Trigger
+            order={cell.row.original.order}
+            name={name}
+            hasChildren={cell.row.original.hasChildren}
+          >
+            {cell.getValue() as string}
+          </RecordTableTree.Trigger>
+        </RecordTableInlineCell>
       );
     },
     size: 300,
@@ -121,14 +118,9 @@ export const productCategoryColumns: (
     accessorKey: 'code',
     cell: ({ cell }) => {
       return (
-        <Popover>
-          <RecordTableInlineCell.Trigger>
-            {cell.getValue() as string}
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input value={cell.getValue() as string} />
-          </RecordTableInlineCell.Content>
-        </Popover>
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
       );
     },
   },
