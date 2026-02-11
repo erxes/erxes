@@ -17,7 +17,6 @@ import { putCreateLog } from "../logUtils";
 import { MODULE_NAMES } from "../constants";
 import { sendToWebhook } from "@erxes/api-utils/src";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import { getMongoliaNow, toMongoliaTime } from "../utils/timezone";
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
@@ -116,6 +115,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
      * Create a conversation
      */
     public static async createConversation(doc: IConversation) {
+      const now = new Date();
+
       const userRelevance = await this.getUserRelevance({
         skillId: doc.skillId,
       });
@@ -125,12 +126,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         status: CONVERSATION_STATUSES.NEW,
         ...doc,
         content: cleanHtml(doc.content),
-        createdAt: doc.createdAt
-          ? toMongoliaTime(doc.createdAt)
-          : getMongoliaNow(),
-        updatedAt: doc.createdAt
-          ? toMongoliaTime(doc.createdAt)
-          : getMongoliaNow(),
+        createdAt: doc.createdAt || now,
+        updatedAt: doc.createdAt || now,
         number: (await models.Conversations.find().countDocuments()) + 1,
         messageCount: 0,
         ...(userRelevance ? { userRelevance } : {}),
@@ -169,7 +166,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         doc.content = cleanHtml(doc.content);
       }
 
-      doc.updatedAt = getMongoliaNow();
+      doc.updatedAt = new Date();
 
       // clean custom field values
       doc.customFieldsData = await sendCoreMessage({
@@ -224,7 +221,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       await models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
-        { $set: { assignedUserId, updatedAt: getMongoliaNow() } },
+        { $set: { assignedUserId } },
         { multi: true },
       );
 
@@ -286,10 +283,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       let closedAt;
       let closedUserId;
-      const updatedAt = getMongoliaNow();
+      const updatedAt = new Date();
 
       if (status === CONVERSATION_STATUSES.CLOSED) {
-        closedAt = getMongoliaNow();
+        closedAt = new Date();
 
         closedUserId = userId;
       }
