@@ -16,7 +16,6 @@ export const start = async (
     engageMessageId,
     customers = [],
     createdBy,
-    title,
     fromEmail,
     email,
   } = data;
