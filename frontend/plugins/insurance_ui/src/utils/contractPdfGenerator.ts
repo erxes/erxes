@@ -38,173 +38,99 @@ const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('mn-MN').format(amount) + '₮';
 };
 
+function applyTemplatePlaceholders(
+  template: string,
+  contract: Contract,
+): string {
+  const insuredObject = contract.insuredObject || {};
+  const carValuation =
+    insuredObject.carValuation ||
+    insuredObject.valuation ||
+    insuredObject.price;
+
+  return template
+    .replace(/\{\{contractNumber\}\}/g, contract.contractNumber || '')
+    .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
+    .replace(
+      /\{\{customerName\}\}/g,
+      `${contract.customer?.firstName || ''} ${
+        contract.customer?.lastName || ''
+      }`.trim() || 'N/A',
+    )
+    .replace(
+      /\{\{registrationNumber\}\}/g,
+      contract.customer?.registrationNumber || 'N/A',
+    )
+    .replace(/\{\{insuranceType\}\}/g, contract.insuranceType?.name || 'N/A')
+    .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
+    .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
+    .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
+    .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
+    .replace(
+      /\{\{carBrand\}\}/g,
+      insuredObject.carBrand ||
+        insuredObject.brand ||
+        insuredObject.mark ||
+        'N/A',
+    )
+    .replace(
+      /\{\{carModel\}\}/g,
+      insuredObject.carModel ||
+        insuredObject.model ||
+        insuredObject.zagvar ||
+        'N/A',
+    )
+    .replace(
+      /\{\{carYear\}\}/g,
+      insuredObject.carYear ||
+        insuredObject.year ||
+        insuredObject.manufacturingYear ||
+        'N/A',
+    )
+    .replace(
+      /\{\{plateNumber\}\}/g,
+      insuredObject.plateNumber ||
+        insuredObject.ulsNumber ||
+        insuredObject.licensePlate ||
+        'N/A',
+    )
+    .replace(
+      /\{\{vinNumber\}\}/g,
+      insuredObject.vinNumber ||
+        insuredObject.vin ||
+        insuredObject.chassisNumber ||
+        'N/A',
+    )
+    .replace(
+      /\{\{engineNumber\}\}/g,
+      insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
+    )
+    .replace(
+      /\{\{carColor\}\}/g,
+      insuredObject.carColor ||
+        insuredObject.color ||
+        insuredObject.ongo ||
+        'N/A',
+    )
+    .replace(
+      /\{\{carValuation\}\}/g,
+      carValuation ? formatCurrency(carValuation) : 'N/A',
+    );
+}
+
 function generateContractHTML(contract: Contract): string {
   // First priority: use product's pdfContent if available
   const productTemplate = contract.insuranceProduct?.pdfContent;
 
   if (productTemplate) {
-    // Use product's PDF template and replace placeholders
-    const insuredObject = contract.insuredObject || {};
-    return productTemplate
-      .replace(/\{\{contractNumber\}\}/g, contract.contractNumber)
-      .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
-      .replace(
-        /\{\{customerName\}\}/g,
-        `${contract.customer?.firstName || ''} ${
-          contract.customer?.lastName || ''
-        }`.trim(),
-      )
-      .replace(
-        /\{\{registrationNumber\}\}/g,
-        contract.customer?.registrationNumber || 'N/A',
-      )
-      .replace(/\{\{insuranceType\}\}/g, contract.insuranceType?.name || 'N/A')
-      .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
-      .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
-      .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
-      .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
-      .replace(
-        /\{\{carBrand\}\}/g,
-        insuredObject.carBrand ||
-          insuredObject.brand ||
-          insuredObject.mark ||
-          'N/A',
-      )
-      .replace(
-        /\{\{carModel\}\}/g,
-        insuredObject.carModel ||
-          insuredObject.model ||
-          insuredObject.zagvar ||
-          'N/A',
-      )
-      .replace(
-        /\{\{carYear\}\}/g,
-        insuredObject.carYear ||
-          insuredObject.year ||
-          insuredObject.manufacturingYear ||
-          'N/A',
-      )
-      .replace(
-        /\{\{plateNumber\}\}/g,
-        insuredObject.plateNumber ||
-          insuredObject.ulsNumber ||
-          insuredObject.licensePlate ||
-          'N/A',
-      )
-      .replace(
-        /\{\{vinNumber\}\}/g,
-        insuredObject.vinNumber ||
-          insuredObject.vin ||
-          insuredObject.chassisNumber ||
-          'N/A',
-      )
-      .replace(
-        /\{\{engineNumber\}\}/g,
-        insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
-      )
-      .replace(
-        /\{\{carColor\}\}/g,
-        insuredObject.carColor ||
-          insuredObject.color ||
-          insuredObject.ongo ||
-          'N/A',
-      )
-      .replace(
-        /\{\{carValuation\}\}/g,
-        insuredObject.carValuation ||
-          insuredObject.valuation ||
-          insuredObject.price
-          ? formatCurrency(
-              insuredObject.carValuation ||
-                insuredObject.valuation ||
-                insuredObject.price,
-            )
-          : 'N/A',
-      );
+    return applyTemplatePlaceholders(productTemplate, contract);
   }
 
   // Second priority: use localStorage template (legacy support)
   const savedTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
 
   if (savedTemplate) {
-    // Use saved template and replace placeholders
-    const insuredObject = contract.insuredObject || {};
-    return savedTemplate
-      .replace(/\{\{contractNumber\}\}/g, contract.contractNumber)
-      .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
-      .replace(
-        /\{\{customerName\}\}/g,
-        `${contract.customer?.firstName || ''} ${
-          contract.customer?.lastName || ''
-        }`.trim(),
-      )
-      .replace(
-        /\{\{registrationNumber\}\}/g,
-        contract.customer?.registrationNumber || 'N/A',
-      )
-      .replace(/\{\{insuranceType\}\}/g, contract.insuranceType?.name || 'N/A')
-      .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
-      .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
-      .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
-      .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
-      .replace(
-        /\{\{carBrand\}\}/g,
-        insuredObject.carBrand ||
-          insuredObject.brand ||
-          insuredObject.mark ||
-          'N/A',
-      )
-      .replace(
-        /\{\{carModel\}\}/g,
-        insuredObject.carModel ||
-          insuredObject.model ||
-          insuredObject.zagvar ||
-          'N/A',
-      )
-      .replace(
-        /\{\{carYear\}\}/g,
-        insuredObject.carYear ||
-          insuredObject.year ||
-          insuredObject.manufacturingYear ||
-          'N/A',
-      )
-      .replace(
-        /\{\{plateNumber\}\}/g,
-        insuredObject.plateNumber ||
-          insuredObject.ulsNumber ||
-          insuredObject.licensePlate ||
-          'N/A',
-      )
-      .replace(
-        /\{\{vinNumber\}\}/g,
-        insuredObject.vinNumber ||
-          insuredObject.vin ||
-          insuredObject.chassisNumber ||
-          'N/A',
-      )
-      .replace(
-        /\{\{engineNumber\}\}/g,
-        insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
-      )
-      .replace(
-        /\{\{carColor\}\}/g,
-        insuredObject.carColor ||
-          insuredObject.color ||
-          insuredObject.ongo ||
-          'N/A',
-      )
-      .replace(
-        /\{\{carValuation\}\}/g,
-        insuredObject.carValuation ||
-          insuredObject.valuation ||
-          insuredObject.price
-          ? formatCurrency(
-              insuredObject.carValuation ||
-                insuredObject.valuation ||
-                insuredObject.price,
-            )
-          : 'N/A',
-      );
+    return applyTemplatePlaceholders(savedTemplate, contract);
   }
 
   // Return default full HTML template if no saved template
@@ -616,83 +542,7 @@ export function generatePdfFromProductTemplate(
   pdfContent: string,
   contract: Contract,
 ): string {
-  const insuredObject = contract.insuredObject || {};
-  return pdfContent
-    .replace(/\{\{contractNumber\}\}/g, contract.contractNumber || '')
-    .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
-    .replace(
-      /\{\{customerName\}\}/g,
-      `${contract.customer?.firstName || ''} ${
-        contract.customer?.lastName || ''
-      }`.trim() || 'N/A',
-    )
-    .replace(
-      /\{\{registrationNumber\}\}/g,
-      contract.customer?.registrationNumber || 'N/A',
-    )
-    .replace(/\{\{insuranceType\}\}/g, contract.insuranceType?.name || 'N/A')
-    .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
-    .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
-    .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
-    .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
-    .replace(
-      /\{\{carBrand\}\}/g,
-      insuredObject.carBrand ||
-        insuredObject.brand ||
-        insuredObject.mark ||
-        'N/A',
-    )
-    .replace(
-      /\{\{carModel\}\}/g,
-      insuredObject.carModel ||
-        insuredObject.model ||
-        insuredObject.zagvar ||
-        'N/A',
-    )
-    .replace(
-      /\{\{carYear\}\}/g,
-      insuredObject.carYear ||
-        insuredObject.year ||
-        insuredObject.manufacturingYear ||
-        'N/A',
-    )
-    .replace(
-      /\{\{plateNumber\}\}/g,
-      insuredObject.plateNumber ||
-        insuredObject.ulsNumber ||
-        insuredObject.licensePlate ||
-        'N/A',
-    )
-    .replace(
-      /\{\{vinNumber\}\}/g,
-      insuredObject.vinNumber ||
-        insuredObject.vin ||
-        insuredObject.chassisNumber ||
-        'N/A',
-    )
-    .replace(
-      /\{\{engineNumber\}\}/g,
-      insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
-    )
-    .replace(
-      /\{\{carColor\}\}/g,
-      insuredObject.carColor ||
-        insuredObject.color ||
-        insuredObject.ongo ||
-        'N/A',
-    )
-    .replace(
-      /\{\{carValuation\}\}/g,
-      insuredObject.carValuation ||
-        insuredObject.valuation ||
-        insuredObject.price
-        ? formatCurrency(
-            insuredObject.carValuation ||
-              insuredObject.valuation ||
-              insuredObject.price,
-          )
-        : 'N/A',
-    );
+  return applyTemplatePlaceholders(pdfContent, contract);
 }
 
 export function getDefaultPdfTemplate(): string {
