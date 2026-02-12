@@ -96,13 +96,18 @@ class ErxesPayment {
 
     const details = transaction.details || {};
 
-    if (details.monpayCoupon) {
-      const amount = transaction.amount - details.monpayCoupon;
-      transaction.amount = amount > 0 ? amount : 0;
-    }
+    const invoiceAmount = details.monpayCoupon
+      ? Math.max(transaction.amount - details.monpayCoupon, 0)
+      : transaction.amount;
+
+    // clone transaction safely instead of mutating
+    const invoicePayload = {
+      ...transaction,
+      amount: invoiceAmount,
+    };
 
     try {
-      return await this.api.createInvoice(transaction, this.payment);
+      return await this.api.createInvoice(invoicePayload, this.payment);
     } catch (e: any) {
       return { error: extractErrorMessage(e) };
     }

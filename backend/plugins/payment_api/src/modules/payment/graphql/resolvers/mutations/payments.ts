@@ -16,6 +16,16 @@ function resolveDomain(subdomain: string) {
   return DOMAIN.replace('<subdomain>', subdomain);
 }
 
+function validatePaymentKind(kind: string) {
+  const paymentConfig = PAYMENTS[kind];
+
+  if (!paymentConfig || Array.isArray(paymentConfig)) {
+    throw new Error(`Unsupported payment kind: ${kind}`);
+  }
+
+  return paymentConfig;
+}
+
 async function handleQPaySetup(input: any) {
   if (input.kind !== 'qpayQuickqr') return;
 
@@ -40,6 +50,21 @@ async function handleQPaySetup(input: any) {
   input.config.merchantId = response.id;
 }
 
+async function authorizePayment(
+  payment: any,
+  models: any,
+  subdomain: string,
+) {
+  const api = new ErxesPayment(payment, subdomain);
+
+  try {
+    await api.authorize(payment);
+  } catch (e: any) {
+    await models.PaymentMethods.removePayment(payment._id);
+    throw new Error(extractErrorMessage(e));
+  }
+}
+
 async function registerWebhookIfNeeded(
   input: any,
   payment: any,
@@ -62,22 +87,9 @@ async function registerWebhookIfNeeded(
   }
 }
 
-async function authorizePayment(payment: any, models: any) {
-  const api = new ErxesPayment(payment);
-
-  try {
-    await api.authorize(payment);
-  } catch (e: any) {
-    await models.PaymentMethods.removePayment(payment._id);
-    throw new Error(extractErrorMessage(e));
-  }
-}
-
-/* ------------------------- Mutations ------------------------- */
-
 const mutations = {
   async paymentAdd(
-    _root,
+    _root: any,
     args: any,
     { models, subdomain }: IContext,
   ) {
@@ -87,11 +99,7 @@ const mutations = {
       throw new Error('Payment kind is required');
     }
 
-    const paymentConfig = PAYMENTS[input.kind];
-
-    if (!paymentConfig) {
-      throw new Error(`Unsupported payment kind: ${input.kind}`);
-    }
+    const paymentConfig = validatePaymentKind(input.kind);
 
     const domain = resolveDomain(subdomain);
 
@@ -107,14 +115,17 @@ const mutations = {
 
     const payment = await models.PaymentMethods.createPayment(input);
 
+    // 1️⃣ Authorize first (multi-tenant safe)
+    await authorizePayment(payment, models, subdomain);
+
+    // 2️⃣ Register webhook only after successful authorization
     await registerWebhookIfNeeded(input, payment, domain, models);
-    await authorizePayment(payment, models);
 
     return payment;
   },
 
   async paymentRemove(
-    _root,
+    _root: any,
     { _id }: { _id: string },
     { models }: IContext,
   ) {
@@ -123,18 +134,14 @@ const mutations = {
   },
 
   async paymentEdit(
-    _root,
+    _root: any,
     args: any,
     { models }: IContext,
   ) {
     const { _id, input } = args;
     const { name, status, kind, config, currency } = input;
 
-    const paymentConfig = PAYMENTS[kind];
-
-    if (!paymentConfig) {
-      throw new Error(`Unsupported payment kind: ${kind}`);
-    }
+    const paymentConfig = validatePaymentKind(kind);
 
     if (kind === 'qpayQuickqr') {
       try {
@@ -173,6 +180,7 @@ const mutations = {
     return await models.PaymentMethods.updatePayment(_id, doc);
   },
 };
+
 
 requireLogin(mutations, 'paymentAdd');
 requireLogin(mutations, 'paymentEdit');
