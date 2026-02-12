@@ -748,7 +748,6 @@ export const handleLoyaltyOwnerChange = async (
     isRPC: true,
     defaultValue: {},
   });
-  
 
   const scoreCampaigns = await models.ScoreCampaigns.find({ status: SCORE_CAMPAIGN_STATUSES.PUBLISHED }).distinct("fieldId");
 
@@ -795,5 +794,4 @@ export const handleLoyaltyOwnerChange = async (
     ownerType: "customer",
     updatedCustomFieldsData: preparedCustomFieldsData,
   });
-
 };

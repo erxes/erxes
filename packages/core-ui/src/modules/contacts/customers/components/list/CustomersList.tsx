@@ -4,7 +4,7 @@ import { gql } from "@apollo/client";
 import { Menu } from "@headlessui/react";
 import { Link } from "react-router-dom";
 
-import CustomersMerge from "@erxes/ui-contacts/src/customers/components/detail/CustomersMerge";
+import CustomersMerge from "@erxes/ui-contacts/src/customers/containers/CustomersMerge";
 import CustomerForm from "@erxes/ui-contacts/src/customers/containers/CustomerForm";
 import { queries } from "@erxes/ui-contacts/src/customers/graphql";
 import Widget from "@erxes/ui-engage/src/containers/Widget";
@@ -275,8 +275,8 @@ const CustomersList: React.FC<IProps> = props => {
     changeVerificationStatus("phone", value, bulk);
   };
 
-  const onStateClick = e => {
-    changeState(e.target.id);
+  const onStateClick = value => {
+    changeState(value);
   };
 
   const emailVerificationStatusList = [] as any;
@@ -320,7 +320,7 @@ const CustomersList: React.FC<IProps> = props => {
   for (const option of CUSTOMER_STATE_OPTIONS) {
     customerStateOptions.push(
       <Menu.Item key={option.value}>
-        <a id={option.value} href="#changeState" onClick={onStateClick}>
+        <a id={option.value} href="#changeState" onClick={() => onStateClick(option.value)}>
           {option.label}
         </a>
       </Menu.Item>
