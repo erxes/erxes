@@ -12,13 +12,82 @@ function extractErrorMessage(e: any): string {
   if (typeof e === 'string') return e;
   if (e?.response?.data?.message) return e.response.data.message;
   if (e?.message) return e.message;
-
   try {
     return JSON.stringify(e);
   } catch {
     return String(e);
   }
 }
+
+/* ------------------------- Helpers ------------------------- */
+
+function resolveDomain(subdomain: string) {
+  const DOMAIN = getEnv({ name: 'DOMAIN' })
+    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+    : 'http://localhost:4000';
+
+  return DOMAIN.replace('<subdomain>', subdomain);
+}
+
+async function handleQPaySetup(input: any) {
+  if (input.kind !== 'qpayQuickqr') return;
+
+  if (input.config?.type) {
+    input.config.isCompany = input.config.type === 'company';
+    delete input.config.type;
+  }
+
+  const api = new QPayQuickQrAPI(input.config);
+  const { isCompany } = input.config;
+
+  const response = isCompany
+    ? await api.createCompany(input.config)
+    : await api.createCustomer(input.config);
+
+  if (!response?.id) {
+    throw new Error(
+      `QPay did not return merchant id: ${JSON.stringify(response)}`,
+    );
+  }
+
+  input.config.merchantId = response.id;
+}
+
+async function registerWebhookIfNeeded(
+  input: any,
+  payment: any,
+  domain: string,
+  models: any,
+) {
+  try {
+    if (input.kind === 'pocket') {
+      const api = new PocketAPI(input.config, domain);
+      await api.registerWebhook(payment._id);
+    }
+
+    if (input.kind === 'stripe') {
+      const api = new StripeAPI(input.config, domain);
+      await api.registerWebhook(payment._id);
+    }
+  } catch (e: any) {
+    await models.PaymentMethods.removePayment(payment._id);
+    throw new Error(extractErrorMessage(e));
+  }
+}
+
+async function authorizePayment(payment: any, models: any) {
+  const api = new ErxesPayment(payment);
+
+  try {
+    await api.authorize(payment);
+  } catch (e: any) {
+    await models.PaymentMethods.removePayment(payment._id);
+    throw new Error(extractErrorMessage(e));
+  }
+}
+
+/* ------------------------- Mutations ------------------------- */
+
 const mutations = {
   async paymentAdd(
     _root,
@@ -37,77 +106,22 @@ const mutations = {
       throw new Error(`Unsupported payment kind: ${input.kind}`);
     }
 
-    const DOMAIN = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:4000';
+    const domain = resolveDomain(subdomain);
 
-    const domain = DOMAIN.replace('<subdomain>', subdomain);
+    input.acceptedCurrencies = input.config?.currency
+      ? [input.config.currency]
+      : paymentConfig.acceptedCurrencies;
 
-    input.acceptedCurrencies = paymentConfig.acceptedCurrencies;
-
-    if (input.config?.currency) {
-      input.acceptedCurrencies = [input.config.currency];
-    }
-
-    // ================= QPay =================
-    if (input.kind === 'qpayQuickqr') {
-      if (input.config?.type) {
-        input.config.isCompany = input.config.type === 'company';
-        delete input.config.type;
-      }
-
-      const api = new QPayQuickQrAPI(input.config);
-      const { isCompany } = input.config;
-
-      try {
-        const response = isCompany
-          ? await api.createCompany(input.config)
-          : await api.createCustomer(input.config);
-
-        if (!response?.id) {
-          throw new Error(
-            `QPay did not return merchant id: ${JSON.stringify(response)}`
-          );
-        }
-
-        input.config.merchantId = response.id;
-      } catch (e: any) {
-        throw new Error(extractErrorMessage(e));
-      }
+    try {
+      await handleQPaySetup(input);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
 
     const payment = await models.PaymentMethods.createPayment(input);
 
-    if (input.kind === 'pocket') {
-      const pocketApi = new PocketAPI(input.config, domain);
-
-      try {
-        await pocketApi.registerWebhook(payment._id);
-      } catch (e: any) {
-        await models.PaymentMethods.removePayment(payment._id);
-        throw new Error(extractErrorMessage(e));
-      }
-    }
-
-    if (input.kind === 'stripe') {
-      const stripeApi = new StripeAPI(input.config, domain);
-
-      try {
-        await stripeApi.registerWebhook(payment._id);
-      } catch (e: any) {
-        await models.PaymentMethods.removePayment(payment._id);
-        throw new Error(extractErrorMessage(e));
-      }
-    }
-
-    const api = new ErxesPayment(payment);
-
-    try {
-      await api.authorize(payment);
-    } catch (e: any) {
-      await models.PaymentMethods.removePayment(payment._id);
-      throw new Error(extractErrorMessage(e));
-    }
+    await registerWebhookIfNeeded(input, payment, domain, models);
+    await authorizePayment(payment, models);
 
     return payment;
   },
@@ -136,15 +150,15 @@ const mutations = {
     }
 
     if (kind === 'qpayQuickqr') {
-      if (config?.type) {
-        config.isCompany = config.type === 'company';
-        delete config.type;
-      }
-
-      const api = new QPayQuickQrAPI(config);
-      const { isCompany } = config;
-
       try {
+        if (config?.type) {
+          config.isCompany = config.type === 'company';
+          delete config.type;
+        }
+
+        const api = new QPayQuickQrAPI(config);
+        const { isCompany } = config;
+
         const response = isCompany
           ? await api.updateCompany(config)
           : await api.updateCustomer(config);
@@ -164,12 +178,10 @@ const mutations = {
       status,
       kind,
       config,
-      acceptedCurrencies: paymentConfig.acceptedCurrencies,
+      acceptedCurrencies: currency
+        ? [currency]
+        : paymentConfig.acceptedCurrencies,
     };
-
-    if (currency) {
-      doc.acceptedCurrencies = [currency];
-    }
 
     return await models.PaymentMethods.updatePayment(_id, doc);
   },

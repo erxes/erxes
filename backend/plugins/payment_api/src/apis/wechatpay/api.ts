@@ -5,12 +5,15 @@ import { BaseAPI } from '~/apis/base';
 import { IQpayInvoice } from '../types';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 
-
 function extractErrorMessage(e: any): string {
   if (!e) return 'Unknown error';
   if (typeof e === 'string') return e;
-  if (e.message) return e.message;
-  if (e.response?.data?.error) return e.response.data.error;
+
+  // Prefer provider-specific error first
+  if (e?.response?.data?.error) return e.response.data.error;
+
+  if (e?.message) return e.message;
+
   try {
     return JSON.stringify(e);
   } catch {
@@ -31,7 +34,7 @@ async function safeJson(res: FetchResponse) {
 
   if (text.trim().startsWith('<')) {
     throw new Error(
-      'WeChatPay returned HTML instead of JSON (credentials or endpoint issue)'
+      'WeChatPay returned HTML instead of JSON (credentials or endpoint issue)',
     );
   }
 
@@ -42,7 +45,10 @@ async function safeJson(res: FetchResponse) {
   }
 }
 
-export const wechatCallbackHandler = async (models: IModels, data: any) => {
+export const wechatCallbackHandler = async (
+  models: IModels,
+  data: any,
+) => {
   const { _id } = data;
 
   if (!_id) {
@@ -81,17 +87,19 @@ export interface IQpayConfig {
 }
 
 export class WechatPayAPI extends BaseAPI {
-  private qpayMerchantUser: string;
-  private qpayMerchantPassword: string;
-  private qpayInvoiceCode: string;
+  private readonly qpayMerchantUser: string;
+  private readonly qpayMerchantPassword: string;
+  private readonly qpayInvoiceCode: string;
   private domain?: string;
 
   constructor(config: IQpayConfig, domain?: string) {
     super(config);
+
     this.qpayMerchantUser = config.qpayMerchantUser;
     this.qpayMerchantPassword = config.qpayMerchantPassword;
     this.qpayInvoiceCode = config.qpayInvoiceCode;
     this.domain = domain;
+
     this.apiUrl = PAYMENTS.wechatpay.apiUrl;
   }
 
@@ -104,7 +112,7 @@ export class WechatPayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
             ).toString('base64'),
         },
       });
@@ -113,7 +121,7 @@ export class WechatPayAPI extends BaseAPI {
 
       if (json.error === 'CLIENT_NOTFOUND') {
         throw new Error(
-          'Invalid credentials!!! Please check your credentials'
+          'Invalid credentials. Please check your configuration.',
         );
       }
 
@@ -146,7 +154,7 @@ export class WechatPayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
             ).toString('base64'),
         },
       });
@@ -200,9 +208,6 @@ export class WechatPayAPI extends BaseAPI {
     }
   }
 
-  /**
-   * ✅ CHECK INVOICE
-   */
   async checkInvoice(invoice: ITransactionDocument) {
     try {
       const res = await this.request({
@@ -225,11 +230,17 @@ export class WechatPayAPI extends BaseAPI {
 
   async cancelInvoice(invoice: ITransactionDocument) {
     try {
-      await this.request({
+      const res = await this.request({
         method: 'DELETE',
         path: `${PAYMENTS.wechatpay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       });
+
+      const json = await safeJson(res);
+
+      if (json.error) {
+        throw new Error(json.error);
+      }
 
       return { success: true };
     } catch (e: any) {
