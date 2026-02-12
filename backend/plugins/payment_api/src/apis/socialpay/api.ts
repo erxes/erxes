@@ -7,7 +7,7 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { BaseAPI } from '~/apis/base';
 import { ISocialPayInvoice } from '../types';
 import { random } from 'erxes-api-shared/utils';
-import { extractErrorMessage } from '~/utils/extracrErrorMessage';
+import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 export const hmac256 = (key: string, message: string): string =>
   crypto.createHmac('sha256', key).update(message).digest('hex');

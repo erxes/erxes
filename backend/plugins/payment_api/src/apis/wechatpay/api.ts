@@ -4,7 +4,7 @@ import { redis } from 'erxes-api-shared/utils';
 import { BaseAPI } from '~/apis/base';
 import { IQpayInvoice } from '../types';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
-import { extractErrorMessage } from '~/utils/extracrErrorMessage';
+import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 type FetchResponse = {
   text(): Promise<string>;

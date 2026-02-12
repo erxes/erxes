@@ -1,5 +1,4 @@
 import { getEnv } from 'erxes-api-shared/utils';
-
 import { GolomtAPI } from '~/apis/golomt/api';
 import { KhanbankAPI } from '~/apis/khanbank/api';
 import { MinuPayAPI } from '~/apis/minupay/api';
@@ -12,31 +11,14 @@ import { SocialPayAPI } from '~/apis/socialpay/api';
 import { StorePayAPI } from '~/apis/storepay/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import { WechatPayAPI } from '~/apis/wechatpay/api';
-
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
-
-
-function extractErrorMessage(e: any): string {
-  if (!e) return 'Unknown error';
-  if (typeof e === 'string') return e;
-
-  // Prefer backend/provider error first
-  if (e?.response?.data?.message) return e.response.data.message;
-
-  if (e?.message) return e.message;
-
-  try {
-    return JSON.stringify(e);
-  } catch {
-    return String(e);
-  }
-}
+import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 class ErxesPayment {
-  public domain: string;
-  private payment: IPaymentDocument;
-  private api: any;
+  public readonly domain: string;
+  private readonly payment: IPaymentDocument;
+  private readonly api: any;
 
   constructor(payment: IPaymentDocument, subdomain?: string) {
     this.payment = payment;
@@ -51,54 +33,42 @@ class ErxesPayment {
       case 'socialpay':
         this.api = new SocialPayAPI(payment.config);
         break;
-
       case 'storepay':
         this.api = new StorePayAPI(payment.config, this.domain);
         break;
-
       case 'qpay':
         this.api = new QpayAPI(
           { ...payment.config, branchCode: payment.name },
           this.domain,
         );
         break;
-
       case 'monpay':
         this.api = new MonpayAPI(payment.config, this.domain);
         break;
-
       case 'paypal':
         this.api = new PaypalAPI(payment.config);
         break;
-
       case 'wechatpay':
         this.api = new WechatPayAPI(payment.config, this.domain);
         break;
-
       case 'qpayQuickqr':
         this.api = new QPayQuickQrAPI(payment.config, this.domain);
         break;
-
       case 'pocket':
         this.api = new PocketAPI(payment.config, this.domain);
         break;
-
       case 'minupay':
         this.api = new MinuPayAPI(payment.config, this.domain);
         break;
-
       case 'golomt':
         this.api = new GolomtAPI(payment.config, this.domain);
         break;
-
       case 'stripe':
         this.api = new StripeAPI(payment.config, this.domain);
         break;
-
       case 'khanbank':
         this.api = new KhanbankAPI(payment.config, subdomain || '');
         break;
-
       default:
         this.api = null;
         break;

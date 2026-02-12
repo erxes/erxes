@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
-  IconCurrencyDollar,
   IconPlus,
   IconSettings
 } from '@tabler/icons-react';

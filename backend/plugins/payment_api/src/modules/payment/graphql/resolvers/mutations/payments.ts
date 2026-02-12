@@ -6,7 +6,7 @@ import { PocketAPI } from '~/apis/pocket/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import ErxesPayment from '~/apis/ErxesPayment';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
-import { extractErrorMessage } from '~/utils/extracrErrorMessage';
+import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 function resolveDomain(subdomain: string) {
   const DOMAIN = getEnv({ name: 'DOMAIN' })
