@@ -345,7 +345,10 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
                     }}
                   >
                     <Icon icon="clock" style={{ fontSize: 10 }} />
-                    {dayjs.utc(groupData.latestDate).format("YYYY-MM-DD HH:mm")}
+                    {dayjs
+                      .utc(groupData.latestDate)
+                      .add(8, "hour")
+                      .format("YYYY-MM-DD HH:mm")}{" "}
                   </div>
                 )}
               </div>
