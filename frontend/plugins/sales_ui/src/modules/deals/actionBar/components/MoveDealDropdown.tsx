@@ -1,21 +1,33 @@
-import { Button, DropdownMenu, Separator } from 'erxes-ui';
-import { memo } from 'react';
-
+import { Button, DropdownMenu } from 'erxes-ui';
 import {
-  BoardCell,
-  PipelineCell,
-  StageCell,
-} from '@/deals/components/deal-selects/MoveDealSelect';
+  dealBoardState,
+  dealPipelineState,
+} from '@/deals/states/dealContainerState';
+import { memo, useState } from 'react';
+
+import { DealSelect } from 'ui-modules';
 import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+
 interface MoveDealDropdownProps {
   deal: IDeal;
 }
+
 export const MoveDealDropdown = memo(function MoveDealDropdown({
   deal,
 }: MoveDealDropdownProps) {
+  const { editDeals } = useDealsEdit();
+
+  const board = useAtomValue(dealBoardState);
+  const pipeline = useAtomValue(dealPipelineState);
+
+  const pipelineId = pipeline.pipelineId || deal.pipeline?._id;
+  const [open, setOpen] = useState(false);
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
         <Button
           variant="outline"
@@ -27,40 +39,24 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-62 py-2">
-        <div className="flex flex-col">
-          <div className="px-4 py-1">
-            <span className=" text-xs text-gray-400">BOARD</span>
-          </div>
-          <div className="px-2">
-            <BoardCell
-              deal={deal}
-              className="border-none shadow-none h-8 font-normal hover:bg-accent/50 selection:bg-transparent"
-            />
-          </div>
-          <Separator className="mt-2 mb-1" />
-
-          <div className="px-4 py-1 mt-1">
-            <span className=" text-xs  text-gray-400">PIPELINE</span>
-          </div>
-          <div className="px-2">
-            <PipelineCell
-              deal={deal}
-              className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
-            />
-          </div>
-          <Separator className="mt-2 mb-1" />
-
-          <div className="px-4 py-1 mt-1">
-            <span className="text-xs  text-gray-400">STAGE</span>
-          </div>
-          <div className="px-2">
-            <StageCell
-              deal={deal}
-              className="border-none shadow-none h-8 font-normal px-2 hover:bg-accent/50 w-full justify-between"
-            />
-          </div>
-          <Separator className="mt-2" />
-        </div>
+        <DealSelect
+          boardId={deal.boardId}
+          pipelineId={pipelineId}
+          stageId={deal.stageId}
+          onChangeStage={(stageId) => {
+            editDeals({
+              variables: {
+                _id: deal._id,
+                boardId: board.boardId || deal.boardId,
+                pipelineId,
+                stageId: stageId as string,
+              },
+              onCompleted: () => {
+                setOpen(false);
+              },
+            });
+          }}
+        />
       </DropdownMenu.Content>
     </DropdownMenu>
   );

@@ -16,7 +16,6 @@ import { ComponentsRoutes } from '../components/ComponentsRoutes';
 import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
-import { ProductsRoutes } from '@/app/components/ProductsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
@@ -83,11 +82,6 @@ export const useCreateAppRouter = () => {
               <Route
                 path={AppPath.SettingsCatchAll}
                 element={<SettingsRoutes />}
-              />
-
-              <Route
-                path={AppPath.ProductsCatchAll}
-                element={<ProductsRoutes />}
               />
 
               <Route

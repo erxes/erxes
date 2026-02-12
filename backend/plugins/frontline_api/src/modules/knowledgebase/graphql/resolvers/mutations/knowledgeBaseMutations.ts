@@ -146,9 +146,7 @@ export const knowledgeBaseMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    const kbArticle = await models.Article.getArticle(_id);
     const removed = await models.Article.removeDoc(_id);
-
 
     return removed;
   },

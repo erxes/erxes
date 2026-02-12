@@ -13,13 +13,13 @@ import { productTrpcRouter } from '~/modules/products/trpc';
 import { relationTrpcRouter } from '~/modules/relations/trpc/relation';
 import { tagTrpcRouter } from '~/modules/tags/trpc/tag';
 import { formsTrpcRouter } from './modules/forms/trpc';
-import { permissionTrpcRouter } from './modules/permissions/trpc';
 import { segmentsTRPCRouter } from './modules/segments/trpc';
 import { automationsRouter } from './modules/automations/trpc/automations';
 import { IModels } from './connectionResolvers';
 import { notificationTrpcRouter } from '~/modules/notifications/trpc';
 import { importExportTrpcRouter } from '~/modules/import-export/trpc';
 import { logsTrpcRouter } from './modules/logs/trpc';
+import { clientPortalNotificationTrpcRouter } from '@/clientportal/trpc';
 
 export type CoreTRPCContext = ITRPCContext<{
   models: IModels;
@@ -40,12 +40,12 @@ export const appRouter = t.mergeRouters(
   brandTrpcRouter,
   tagTrpcRouter,
   exchangeRateTrpcRouter,
-  permissionTrpcRouter,
   segmentsTRPCRouter,
   automationsRouter,
   notificationTrpcRouter,
   importExportTrpcRouter,
   logsTrpcRouter,
+  clientPortalNotificationTrpcRouter,
 );
 
 export type AppRouter = typeof appRouter;

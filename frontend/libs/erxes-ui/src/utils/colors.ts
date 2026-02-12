@@ -19,8 +19,16 @@ export const stringToHslColor = (
 };
 
 export const hexToOklch = (hex: string): string => {
-  const cleanHex = hex.replace('#', '');
-  if (!/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+  let cleanHex = hex.replace('#', '');
+
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex
+      .split('')
+      .map((char) => char + char)
+      .join('');
+  }
+
+  if (!/^[0-9A-Fa-f]{0,6}$/.test(cleanHex)) {
     throw new Error(`Invalid hex color format: ${hex}`);
   }
 

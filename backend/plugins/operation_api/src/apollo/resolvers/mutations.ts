@@ -6,6 +6,7 @@ import { statusMutations } from '@/status/graphql/resolvers/mutations/status';
 import { taskMutations } from '@/task/graphql/resolvers/mutations/task';
 import { teamMutations } from '@/team/graphql/resolvers/mutations/team';
 import { triageMutations } from '@/task/graphql/resolvers/mutations/triage';
+import { mutations as templateMutations } from '@/template/graphql/resolvers';
 
 export const mutations = {
   ...taskMutations,
@@ -16,4 +17,5 @@ export const mutations = {
   ...cycleMutations,
   ...milestoneMutations,
   ...triageMutations,
+  ...templateMutations,
 };

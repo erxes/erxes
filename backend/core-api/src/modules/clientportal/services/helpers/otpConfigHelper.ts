@@ -1,4 +1,5 @@
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { ValidationError } from '@/clientportal/services/errorHandler';
 
 export interface OTPConfig {
   codeLength: number;
@@ -23,20 +24,22 @@ export function getOTPConfig(
   const otpConfig = clientPortal.securityAuthConfig?.otpConfig;
 
   if (!otpConfig) {
-    throw new Error('OTP configuration is not set for this client portal');
+    throw new ValidationError(
+      'OTP configuration is not set for this client portal',
+    );
   }
 
   if (identifierType === 'email') {
     const emailConfig = otpConfig.email;
 
     if (!emailConfig) {
-      throw new Error(
+      throw new ValidationError(
         'Email OTP configuration is not set for this client portal',
       );
     }
 
     if (!emailConfig.codeLength || !emailConfig.duration) {
-      throw new Error('Email OTP configuration is incomplete');
+      throw new ValidationError('Email OTP configuration is incomplete');
     }
 
     return {
@@ -50,11 +53,13 @@ export function getOTPConfig(
   const smsConfig = otpConfig.sms;
 
   if (!smsConfig) {
-    throw new Error('SMS OTP configuration is not set for this client portal');
+    throw new ValidationError(
+      'SMS OTP configuration is not set for this client portal',
+    );
   }
 
   if (!smsConfig.codeLength || !smsConfig.duration) {
-    throw new Error('SMS OTP configuration is incomplete');
+    throw new ValidationError('SMS OTP configuration is incomplete');
   }
 
   return {

@@ -1,6 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { readImage } from 'erxes-ui/utils/core';
+import { useEffect } from 'react';
 
 interface GalleryUploaderProps {
   value?: string[];
@@ -26,6 +27,12 @@ export const GalleryUploader = ({
       onChange(next);
     },
   });
+
+  useEffect(() => {
+    if (uploadProps.files.length > 0 && !uploadProps.loading) {
+      uploadProps.onUpload();
+    }
+  }, [uploadProps.files.length]);
 
   const handleRemove = (url: string) => {
     const next = (urls || []).filter((u) => u !== url);
@@ -66,14 +73,18 @@ export const GalleryUploader = ({
           )}
         </div>
       )}
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={() => uploadProps.open()}
-        disabled={uploadProps.loading}
-      >
-        {uploadProps.loading ? 'Uploading...' : 'Add Images'}
-      </Button>
+      <div>
+        <input {...uploadProps.getInputProps()} />
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={uploadProps.open}
+          disabled={uploadProps.loading}
+          type="button"
+        >
+          {uploadProps.loading ? 'Uploading...' : 'Add Images'}
+        </Button>
+      </div>
     </div>
   );
 };

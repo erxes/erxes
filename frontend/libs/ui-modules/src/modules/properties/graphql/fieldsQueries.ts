@@ -13,6 +13,7 @@ export const FIELD_GROUPS_QUERY = gql`
         name
         order
         updatedAt
+        configs
       }
       ${GQL_PAGE_INFO}
     }
@@ -29,6 +30,7 @@ export const FIELDS_QUERY = gql`
         code
         type
         order
+        groupId
         validations
         logics 
         createdAt

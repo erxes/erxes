@@ -79,5 +79,12 @@ export const fieldsTrpcRouter = t.router({
         const { subdomain, models } = ctx;
         return await fieldsCombinedByContentType(models, subdomain, input);
       }),
+    validateFieldValues: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return models.Fields.validateFieldValues(input);
+      }),
   }),
 });

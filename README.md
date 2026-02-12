@@ -11,7 +11,7 @@
   |
   <a href="https://erxes.io/invest">Invest</a>
   |
-  <a href="https://erxes.io/docs/local-setup">Docs</a>
+  <a href="https://erxes.io/docs/introduction">Docs</a>
   |
   <a href="https://erxes.io/roadmap">Roadmap</a>
   |
@@ -73,7 +73,7 @@ erxes is a secure, self-hosted, and scalable source available experience managem
 ## erxes Core & Plugins
 erxes is composed of 2 main components: **Core** & **Plugins**
 
-**Core:** It contains the core five modules which goes with all plugins - **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
+**Core:** It contains the core five modules which goes with all plugins - **My inbox**, **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
 
 
 **Plugins:** erxes comes with a set of plugins that allow you to create unique business experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
@@ -83,7 +83,7 @@ erxes is composed of 2 main components: **Core** & **Plugins**
 - **erxes | Sales**  – Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
 - **erxes | Content** - Publish anywhere with headless website, corporate sites, e-commerce, scheduling, knowledge base, and help center tools. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
 - **erxes | Accounting** – Simplify finances with accounting and salary management built into your workflow. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
-- **erxes | Tour**  – Run tours and properties seamlessly with booking and management systems in one place. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
+- **erxes | Tourism**  – Run tours and properties seamlessly with booking and management systems in one place. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
 - **erxes | Property**  – Oversee real estate with stacking plans, financing & leasing, asset management, community, and investment platforms. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
 - **erxes | Team**  – Empower people with directories, time clocks, chat, updates, training, and rewards. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
 - **erxes | Finance**   – Power your bank and non-banking organization with e-banking, mobile apps, core banking, and scoring systems and many more. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
@@ -175,7 +175,7 @@ pnpm nx affected:test
 
 ## 📚 Documentation
 
-- **[Official Documentation](https://erxes.io/docs)** - Complete guides and API references
+- **[Official Documentation](https://erxes.io/docs/introduction)** - Complete guides and API references
 - **[Local Setup Guide](https://erxes.io/docs/local-setup)** - Detailed installation requirements
 - **[CLAUDE.md](./CLAUDE.md)** - Comprehensive codebase guide for AI assistants and developers
 - **[Contributing Guide](https://erxes.io/docs/contribute)** - How to contribute to erxes
