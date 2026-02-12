@@ -6,20 +6,7 @@ import { PocketAPI } from '~/apis/pocket/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import ErxesPayment from '~/apis/ErxesPayment';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
-
-function extractErrorMessage(e: any): string {
-  if (!e) return 'Unknown error';
-  if (typeof e === 'string') return e;
-  if (e?.response?.data?.message) return e.response.data.message;
-  if (e?.message) return e.message;
-  try {
-    return JSON.stringify(e);
-  } catch {
-    return String(e);
-  }
-}
-
-/* ------------------------- Helpers ------------------------- */
+import { extractErrorMessage } from '~/utils/extracrErrorMessage';
 
 function resolveDomain(subdomain: string) {
   const DOMAIN = getEnv({ name: 'DOMAIN' })

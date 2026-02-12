@@ -4,22 +4,7 @@ import { redis } from 'erxes-api-shared/utils';
 import { BaseAPI } from '~/apis/base';
 import { IQpayInvoice } from '../types';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
-
-function extractErrorMessage(e: any): string {
-  if (!e) return 'Unknown error';
-  if (typeof e === 'string') return e;
-
-  // Prefer provider-specific error first
-  if (e?.response?.data?.error) return e.response.data.error;
-
-  if (e?.message) return e.message;
-
-  try {
-    return JSON.stringify(e);
-  } catch {
-    return String(e);
-  }
-}
+import { extractErrorMessage } from '~/utils/extracrErrorMessage';
 
 type FetchResponse = {
   text(): Promise<string>;

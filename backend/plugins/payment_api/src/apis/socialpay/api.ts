@@ -7,22 +7,11 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { BaseAPI } from '~/apis/base';
 import { ISocialPayInvoice } from '../types';
 import { random } from 'erxes-api-shared/utils';
+import { extractErrorMessage } from '~/utils/extracrErrorMessage';
 
 export const hmac256 = (key: string, message: string): string =>
   crypto.createHmac('sha256', key).update(message).digest('hex');
 
-function extractErrorMessage(e: any): string {
-  if (!e) return 'Unknown error';
-  if (typeof e === 'string') return e;
-  if (e.message) return e.message;
-  if (e.response?.data?.errorDesc) return e.response.data.errorDesc;
-
-  try {
-    return JSON.stringify(e);
-  } catch {
-    return String(e);
-  }
-}
 
 export const socialpayCallbackHandler = async (models: IModels, data: any) => {
   const { resp_code, amount, checksum, invoice, terminal } = data;
@@ -37,8 +26,21 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     if (resp_code !== '00') {
-      return transaction;
+  transaction.status = PAYMENT_STATUS.FAILED;
+  transaction.updatedAt = new Date();
+
+  // Optional: store failure reason if your schema supports it
+  transaction.response = {
+    ...(transaction.response || {}),
+    resp_code,
+    error: 'SocialPay callback failed',
+  };
+
+  await transaction.save();
+
+  return transaction;
     }
+
 
     const api = new SocialPayAPI(payment.config);
     const status = await api.checkInvoice({
