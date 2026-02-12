@@ -1,3 +1,5 @@
+// PermissionModulesForm.tsx
+
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import { UseFormReturn } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
@@ -9,18 +11,14 @@ import {
 } from '@/settings/permissions/types';
 import { IconPlugConnected } from '@tabler/icons-react';
 
-const SCOPES: { value: IPermissionGroupPermission['scope']; label: string }[] =
-  [
-    { value: 'own', label: 'Own' },
-    { value: 'group', label: 'Group' },
-    { value: 'all', label: 'All' },
-  ];
-
 const getPermission = (
   permissions: IPermissionGroupPermission[],
+  plugin: string,
   moduleName: string,
 ): IPermissionGroupPermission | undefined => {
-  return permissions.find((p) => p.module === moduleName);
+  return permissions.find(
+    (p) => p.plugin === plugin && p.module === moduleName,
+  );
 };
 
 const getAlwaysActionNames = (module: IPermissionModule): string[] => {
@@ -50,35 +48,50 @@ export const PermissionModulesForm = ({
     if (permissionModulesByPlugin.length === 0 || permissions.length > 0) {
       return;
     }
-    const alwaysModules = permissionModulesByPlugin.flatMap((p) =>
-      p.modules.filter((m) => m.always),
-    );
+    const alwaysModules: { plugin: string; module: IPermissionModule }[] = [];
+
+    for (const pluginData of permissionModulesByPlugin) {
+      for (const module of pluginData.modules) {
+        if (module.always) {
+          alwaysModules.push({ plugin: pluginData.plugin, module });
+        }
+      }
+    }
+
     if (alwaysModules.length > 0) {
       form.setValue(
         'permissions',
-        alwaysModules.map((m) => ({
-          module: m.name,
+        alwaysModules.map(({ plugin, module }) => ({
+          plugin,
+          module: module.name,
           actions: ['*'],
           scope: 'all' as const,
         })),
       );
     }
-  }, [permissionModulesByPlugin, form]);
+  }, [permissionModulesByPlugin, form, permissions.length]);
 
   const selectedPluginData = permissionModulesByPlugin.find(
     (p) => p.plugin === selectedPlugin,
   );
 
-  const isModuleEnabled = (module: IPermissionModule) =>
-    module.always || permissions.some((p) => p.module === module.name);
+  const isModuleEnabled = (plugin: string, module: IPermissionModule) =>
+    module.always ||
+    permissions.some((p) => p.plugin === plugin && p.module === module.name);
 
-  const toggleModule = (module: IPermissionModule, enabled: boolean) => {
+  const toggleModule = (
+    plugin: string,
+    module: IPermissionModule,
+    enabled: boolean,
+  ) => {
     if (module.always && !enabled) return;
     const current = form.getValues('permissions');
+
     if (enabled) {
       form.setValue('permissions', [
         ...current,
         {
+          plugin,
           module: module.name,
           actions: ['*'],
           scope: 'all',
@@ -88,25 +101,29 @@ export const PermissionModulesForm = ({
       if (module.always) return;
       form.setValue(
         'permissions',
-        current.filter((p) => p.module !== module.name),
+        current.filter(
+          (p) => !(p.plugin === plugin && p.module === module.name),
+        ),
       );
     }
   };
 
   const toggleAction = (
+    plugin: string,
     module: IPermissionModule,
     actionName: string,
     enabled: boolean,
   ) => {
     let current = form.getValues('permissions');
-    let perm = getPermission(current, module.name);
+    let perm = getPermission(current, plugin, module.name);
+
     if (!perm && module.always) {
       form.setValue('permissions', [
         ...current,
-        { module: module.name, actions: ['*'], scope: 'all' },
+        { plugin, module: module.name, actions: ['*'], scope: 'all' },
       ]);
       current = form.getValues('permissions');
-      perm = getPermission(current, module.name);
+      perm = getPermission(current, plugin, module.name);
     }
     if (!perm) return;
 
@@ -142,33 +159,43 @@ export const PermissionModulesForm = ({
     if (newActions.length === 0) {
       form.setValue(
         'permissions',
-        current.filter((p) => p.module !== module.name),
+        current.filter(
+          (p) => !(p.plugin === plugin && p.module === module.name),
+        ),
       );
     } else {
       form.setValue(
         'permissions',
         current.map((p) =>
-          p.module === module.name ? { ...p, actions: newActions } : p,
+          p.plugin === plugin && p.module === module.name
+            ? { ...p, actions: newActions }
+            : p,
         ),
       );
     }
   };
 
   const setModuleScope = (
+    plugin: string,
     moduleName: string,
     scope: IPermissionGroupPermission['scope'],
   ) => {
     const current = form.getValues('permissions');
-    const existing = current.find((p) => p.module === moduleName);
+    const existing = current.find(
+      (p) => p.plugin === plugin && p.module === moduleName,
+    );
+
     if (existing) {
       form.setValue(
         'permissions',
-        current.map((p) => (p.module === moduleName ? { ...p, scope } : p)),
+        current.map((p) =>
+          p.plugin === plugin && p.module === moduleName ? { ...p, scope } : p,
+        ),
       );
     } else {
       form.setValue('permissions', [
         ...current,
-        { module: moduleName, actions: ['*'], scope },
+        { plugin, module: moduleName, actions: ['*'], scope },
       ]);
     }
   };
@@ -204,13 +231,20 @@ export const PermissionModulesForm = ({
             <div className="py-8 space-y-8">
               <div className="space-y-4">
                 {selectedPluginData.modules.map((module) => {
-                  const moduleOn = isModuleEnabled(module);
-                  const perm = getPermission(permissions, module.name);
+                  const plugin = selectedPluginData.plugin;
+                  const moduleOn = isModuleEnabled(plugin, module);
+                  const perm = getPermission(permissions, plugin, module.name);
                   const permOrDefault: IPermissionGroupPermission | undefined =
                     perm ??
                     (module.always
-                      ? { module: module.name, actions: ['*'], scope: 'all' }
+                      ? {
+                          plugin,
+                          module: module.name,
+                          actions: ['*'],
+                          scope: 'all',
+                        }
                       : undefined);
+
                   return (
                     <section
                       key={module.name}
@@ -233,7 +267,7 @@ export const PermissionModulesForm = ({
                           checked={moduleOn}
                           disabled={module.always}
                           onCheckedChange={(checked) =>
-                            toggleModule(module, checked ?? false)
+                            toggleModule(plugin, module, checked ?? false)
                           }
                           className="shrink-0 data-[state=checked]:bg-primary"
                         />
@@ -250,6 +284,7 @@ export const PermissionModulesForm = ({
                                 value={permOrDefault.scope}
                                 onValueChange={(value) =>
                                   setModuleScope(
+                                    plugin,
                                     module.name,
                                     value as IPermissionGroupPermission['scope'],
                                   )
@@ -262,24 +297,17 @@ export const PermissionModulesForm = ({
                                   className="rounded-lg min-w-32"
                                   position="item-aligned"
                                 >
-                                  {SCOPES.map((s) => (
+                                  {module.scopes.map((s) => (
                                     <Select.Item
-                                      key={s.value}
-                                      value={s.value}
+                                      key={s.name}
+                                      value={s.name}
                                       className="[&_svg]:text-primary"
                                     >
-                                      {s.label}
+                                      {s.description}
                                     </Select.Item>
                                   ))}
                                 </Select.Content>
                               </Select>
-                              <p className="text-sm text-muted-foreground max-w-[280px]">
-                                {
-                                  module.scopes.find(
-                                    (s) => s.name === permOrDefault.scope,
-                                  )?.description
-                                }
-                              </p>
                             </div>
                             <div className="space-y-3">
                               <Label className="text-sm font-medium">
@@ -313,6 +341,7 @@ export const PermissionModulesForm = ({
                                       }
                                       onCheckedChange={(checked) =>
                                         toggleAction(
+                                          plugin,
                                           module,
                                           action.name,
                                           checked ?? false,
