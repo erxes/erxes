@@ -140,7 +140,7 @@ function generateContractHTML(contract: Contract): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Даатгалын гэрээ - ${contract.contractNumber}</title>
+  <title>Insurance Contract - ${contract.contractNumber}</title>
   <style>
     * {
       margin: 0;
@@ -309,15 +309,15 @@ function generateContractHTML(contract: Contract): string {
 </head>
 <body>
   <div class="header">
-    <h1>ДААТГАЛЫН ГЭРЭЭ</h1>
-    <div class="contract-number">Гэрээний дугаар: ${
+    <h1>INSURANCE CONTRACT</h1>
+    <div class="contract-number">Contract Number: ${
       contract.contractNumber
     }</div>
     <div style="margin-top: 10px;">
       <span class="status-badge ${
         contract.paymentStatus === 'paid' ? 'status-paid' : 'status-pending'
       }">
-        ${contract.paymentStatus === 'paid' ? 'Төлсөн' : 'Хүлээгдэж буй'}
+        ${contract.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
       </span>
     </div>
   </div>
@@ -342,7 +342,7 @@ function generateContractHTML(contract: Contract): string {
   }</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Регистрийн дугаар</div>
+        <div class="info-label">Registration Number</div>
         <div class="info-value">${
           contract.customer?.registrationNumber || 'N/A'
         }</div>
@@ -351,7 +351,7 @@ function generateContractHTML(contract: Contract): string {
         contract.customer?.email
           ? `
       <div class="info-item">
-        <div class="info-label">Имэйл</div>
+        <div class="info-label">Email</div>
         <div class="info-value">${contract.customer.email}</div>
       </div>
       `
@@ -361,7 +361,7 @@ function generateContractHTML(contract: Contract): string {
         contract.customer?.phone
           ? `
       <div class="info-item">
-        <div class="info-label">Утас</div>
+        <div class="info-label">Phone</div>
         <div class="info-value">${contract.customer.phone}</div>
       </div>
       `
@@ -371,7 +371,7 @@ function generateContractHTML(contract: Contract): string {
         contract.customer?.companyName
           ? `
       <div class="info-item">
-        <div class="info-label">Байгууллагын нэр</div>
+        <div class="info-label">Organization Name</div>
         <div class="info-value">${contract.customer.companyName}</div>
       </div>
       `
@@ -597,7 +597,7 @@ export function getDefaultPdfTemplate(): string {
         <div class="info-value">{{customerName}}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Регистрийн дугаар</div>
+        <div class="info-label">Registration Number</div>
         <div class="info-value">{{registrationNumber}}</div>
       </div>
     </div>

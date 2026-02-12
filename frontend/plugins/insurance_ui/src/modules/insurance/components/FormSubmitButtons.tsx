@@ -14,13 +14,13 @@ export const FormSubmitButtons = ({
   creating,
   success,
   cancelPath = '/insurance/products',
-  submitText = 'Гэрээ үүсгэх',
-  submittingText = 'Үүсгэж байна...',
+  submitText = 'Create Contract',
+  submittingText = 'Creating...',
 }: FormSubmitButtonsProps) => {
   return (
     <div className="flex justify-end gap-3 pt-4">
       <Button type="button" variant="outline" asChild disabled={creating}>
-        <Link to={cancelPath}>Болих</Link>
+        <Link to={cancelPath}>Cancel</Link>
       </Button>
       <Button type="submit" disabled={creating || success}>
         <IconPlus size={16} />

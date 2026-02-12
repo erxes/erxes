@@ -282,7 +282,7 @@ export const VendorDetailPage = () => {
                           <p className="font-medium">{vp.product.name}</p>
                           {vp.pricingOverride?.percentage && (
                             <p className="text-xs text-muted-foreground">
-                              Хувь: {vp.pricingOverride.percentage}%
+                              Rate: {vp.pricingOverride.percentage}%
                             </p>
                           )}
                         </div>
@@ -464,9 +464,7 @@ export const VendorDetailPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="vendorPercentage">
-                Үндсэн хувь (%) - Сонголттой
-              </Label>
+              <Label htmlFor="vendorPercentage">Base Rate (%) - Optional</Label>
               <Input
                 id="vendorPercentage"
                 type="number"
@@ -477,16 +475,16 @@ export const VendorDetailPage = () => {
                   const value = e.target.value;
                   setVendorPercentage(value ? parseFloat(value) : undefined);
                 }}
-                placeholder="Product-ийн хувийг ашиглана"
+                placeholder="Uses product's rate"
               />
               <p className="text-xs text-muted-foreground">
-                Хоосон орхивол product-ийн үндсэн хувийг ашиглана.
+                Leave empty to use the product's base rate.
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm">Хугацаагаар хувь (сонголттой)</Label>
+                <Label className="text-sm">Rate by Duration (optional)</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -498,21 +496,21 @@ export const VendorDetailPage = () => {
                     ]);
                   }}
                 >
-                  Хугацаа нэмэх
+                  Add Duration
                 </Button>
               </div>
 
               {vendorDurationFields.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Vendor-д хугацаагаар өөр хувь тохируулах бол "Хугацаа нэмэх"
-                  дарна уу
+                  Click "Add Duration" to set different rates by duration for
+                  this vendor
                 </p>
               ) : (
                 <div className="space-y-2">
                   {vendorDurationFields.map((field, index) => (
                     <div key={index} className="flex gap-2 items-end">
                       <div className="flex-1">
-                        <Label className="text-xs">Хугацаа</Label>
+                        <Label className="text-xs">Duration</Label>
                         <Input
                           value={field.duration}
                           onChange={(e) => {
@@ -527,7 +525,7 @@ export const VendorDetailPage = () => {
                         />
                       </div>
                       <div className="w-32">
-                        <Label className="text-xs">Хувь (%)</Label>
+                        <Label className="text-xs">Rate (%)</Label>
                         <Input
                           type="number"
                           min="0"
@@ -554,15 +552,15 @@ export const VendorDetailPage = () => {
                           );
                         }}
                       >
-                        Устгах
+                        Remove
                       </Button>
                     </div>
                   ))}
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
-                Жишээ: "12months", "24months" гэх мэт. Энэ vendor-д зориулсан
-                хугацаагаар хувь.
+                Example: "12months", "24months", etc. Duration-specific rates
+                for this vendor.
               </p>
             </div>
           </div>

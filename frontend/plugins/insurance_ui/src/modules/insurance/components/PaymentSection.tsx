@@ -18,20 +18,20 @@ export const PaymentSection = ({
     <div>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
         <IconCurrencyTugrik size={20} />
-        Төлбөрийн мэдээлэл
+        Payment Information
       </h3>
 
       <div className={showPremiumDisplay ? 'grid grid-cols-2 gap-4' : ''}>
         <div>
           <label className="block text-sm font-medium mb-2">
-            Төлбөрийн хэлбэр *
+            Payment Method *
           </label>
           <Select value={paymentKind} onValueChange={onPaymentKindChange}>
             <Select.Trigger>
-              <Select.Value placeholder="Сонгох" />
+              <Select.Value placeholder="Select" />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value="cash">Бэлэн мөнгө</Select.Item>
+              <Select.Item value="cash">Cash</Select.Item>
               <Select.Item value="qpay">QPay</Select.Item>
             </Select.Content>
           </Select>
@@ -40,14 +40,17 @@ export const PaymentSection = ({
         {showPremiumDisplay && (
           <div>
             <label className="block text-sm font-medium mb-2">
-              Төлбөрийн дүн (₮)
+              Payment Amount ($)
             </label>
             <div className="p-3 bg-gray-50 border rounded-md">
               <p className="text-lg font-semibold">
-                {calculatedPremium > 0 ? calculatedPremium.toLocaleString() : '0'} ₮
+                {calculatedPremium > 0
+                  ? calculatedPremium.toLocaleString()
+                  : '0'}{' '}
+                ₮
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Автоматаар тооцоологдсон
+                Automatically calculated
               </p>
             </div>
           </div>

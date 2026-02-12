@@ -51,17 +51,17 @@ export const ContractPdfEditorPage = () => {
           pdfContent: htmlContent,
         },
       });
-      alert('Гэрээний PDF амжилттай хадгалагдлаа!');
+      alert('Contract PDF saved successfully!');
     } catch (error) {
       console.error('Error saving contract PDF:', error);
-      alert('PDF хадгалахад алдаа гарлаа');
+      alert('Error saving PDF');
     }
   };
 
   const handlePreview = () => {
     const previewWindow = window.open('', '_blank');
     if (!previewWindow) {
-      alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
+      alert('Popup blocked. Please allow popups.');
       return;
     }
     previewWindow.document.write(htmlContent);
@@ -71,7 +71,7 @@ export const ContractPdfEditorPage = () => {
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
+      alert('Popup blocked. Please allow popups.');
       return;
     }
     printWindow.document.write(htmlContent);
@@ -168,7 +168,7 @@ export const ContractPdfEditorPage = () => {
           </Button>
           <Button onClick={handleSaveContractPDF} disabled={saving}>
             <IconDeviceFloppy size={16} />
-            {saving ? 'Хадгалж байна...' : 'Save Contract PDF'}
+            {saving ? 'Saving...' : 'Save Contract PDF'}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -185,7 +185,7 @@ export const ContractPdfEditorPage = () => {
                   <div>
                     <h2 className="text-xl font-bold">HTML Template Editor</h2>
                     <p className="text-sm text-muted-foreground">
-                      Гэрээний дугаар: {contract.contractNumber}
+                      Contract Number: {contract.contractNumber}
                     </p>
                   </div>
                 </div>
@@ -210,8 +210,8 @@ export const ContractPdfEditorPage = () => {
                       spellCheck={false}
                     />
                     <p className="text-xs text-muted-foreground mt-2">
-                      💡 Tip: HTML болон CSS-ийг шууд засаж болно. Preview дарж
-                      үр дүнг харна уу.
+                      💡 Tip: You can edit HTML and CSS directly. Click Preview
+                      to see the result.
                     </p>
                   </div>
                 ) : (
@@ -231,22 +231,24 @@ export const ContractPdfEditorPage = () => {
               </div>
 
               <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold text-blue-800 mb-2">📝 Заавар:</h3>
+                <h3 className="font-semibold text-blue-800 mb-2">
+                  📝 Instructions:
+                </h3>
                 <ul className="text-sm text-blue-700 space-y-1">
                   <li>
-                    • <strong>Edit Mode:</strong> HTML template-ийг шууд засна
+                    • <strong>Edit Mode:</strong> Edit HTML template directly
                   </li>
                   <li>
-                    • <strong>Preview:</strong> Шинэ цонхонд харуулна
+                    • <strong>Preview:</strong> Opens in new window
                   </li>
                   <li>
-                    • <strong>Print:</strong> Print dialog нээж PDF болгоно
+                    • <strong>Print:</strong> Opens print dialog for PDF
                   </li>
                   <li>
-                    • <strong>Download HTML:</strong> HTML файл татна
+                    • <strong>Download HTML:</strong> Downloads HTML file
                   </li>
                   <li>
-                    • <strong>Reset:</strong> Анхны template руу буцаана
+                    • <strong>Reset:</strong> Reverts to original template
                   </li>
                 </ul>
               </div>

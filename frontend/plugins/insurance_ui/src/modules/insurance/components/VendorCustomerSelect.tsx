@@ -32,11 +32,11 @@ export const VendorCustomerSelect = ({
     <div className="grid grid-cols-2 gap-4">
       <div>
         <label className="block text-sm font-medium mb-2">
-          Даатгалын компани *
+          Insurance Company *
         </label>
         <Select value={vendorId} onValueChange={onVendorChange}>
           <Select.Trigger>
-            <Select.Value placeholder="Сонгох" />
+            <Select.Value placeholder="Select" />
           </Select.Trigger>
           <Select.Content>
             {vendors.map((vendor) => (
@@ -49,10 +49,10 @@ export const VendorCustomerSelect = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Даатгуулагч *</label>
+        <label className="block text-sm font-medium mb-2">Customer *</label>
         <Select value={customerId} onValueChange={onCustomerChange}>
           <Select.Trigger>
-            <Select.Value placeholder="Сонгох" />
+            <Select.Value placeholder="Select" />
           </Select.Trigger>
           <Select.Content>
             {customers.map((customer) => (

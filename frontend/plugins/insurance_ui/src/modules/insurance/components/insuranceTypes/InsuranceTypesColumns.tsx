@@ -1,8 +1,4 @@
-import {
-  IconShieldCheck,
-  IconCalendar,
-  IconList,
-} from '@tabler/icons-react';
+import { IconShieldCheck, IconCalendar, IconList } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
@@ -12,10 +8,7 @@ import {
 } from 'erxes-ui';
 import { InsuranceType } from '~/modules/insurance/types';
 import { InsuranceTypesMoreColumn } from './InsuranceTypesMoreColumn';
-
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('mn-MN');
-};
+import { formatDate } from '../shared';
 
 export const insuranceTypesColumns: ColumnDef<InsuranceType>[] = [
   {
@@ -48,7 +41,9 @@ export const insuranceTypesColumns: ColumnDef<InsuranceType>[] = [
       const attributes = cell.getValue() as any[];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{attributes?.length || 0} attributes</Badge>
+          <Badge variant="secondary">
+            {attributes?.length || 0} attributes
+          </Badge>
         </RecordTableInlineCell>
       );
     },

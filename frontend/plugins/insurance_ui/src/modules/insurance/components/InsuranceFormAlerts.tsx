@@ -7,7 +7,7 @@ interface InsuranceFormAlertsProps {
 export const InsuranceFormAlerts = ({
   error,
   success,
-  successMessage = 'Гэрээ амжилттай үүсгэгдлээ! Гэрээний жагсаалт руу шилжиж байна...',
+  successMessage = 'Contract created successfully! Redirecting to contracts list...',
 }: InsuranceFormAlertsProps) => {
   return (
     <>

@@ -154,9 +154,9 @@ export const IndexPage = () => {
                       <IconUsers className="text-cyan-600" size={20} />
                     </div>
                     <div>
-                      <h3 className="font-semibold">Харилцагчид</h3>
+                      <h3 className="font-semibold">Customers</h3>
                       <p className="text-sm text-muted-foreground">
-                        Харилцагчдыг удирдах
+                        Manage customers
                       </p>
                     </div>
                   </div>

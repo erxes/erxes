@@ -2,7 +2,7 @@ import { IconEye, IconEdit, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
-export const ContractsMoreColumn = ({ cell }: { cell: any }) => {
+export const ContractMoreColumn = ({ cell }: { cell: any }) => {
   const contractId = cell.row.original.id;
 
   return (

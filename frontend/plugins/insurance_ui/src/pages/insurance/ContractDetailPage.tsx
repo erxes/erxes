@@ -89,15 +89,13 @@ export const ContractDetailPage = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800">Идэвхтэй</Badge>;
+        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
       case 'expired':
-        return <Badge className="bg-red-100 text-red-800">Дууссан</Badge>;
+        return <Badge className="bg-red-100 text-red-800">Expired</Badge>;
       case 'cancelled':
-        return <Badge className="bg-gray-100 text-gray-800">Цуцлагдсан</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800">Cancelled</Badge>;
       default:
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800">Хүлээгдэж буй</Badge>
-        );
+        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
     }
   };
 
@@ -173,7 +171,7 @@ export const ContractDetailPage = () => {
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <IconUser className="text-blue-600" size={20} />
                   </div>
-                  <h3 className="font-semibold">Даатгуулагч</h3>
+                  <h3 className="font-semibold">Customer</h3>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">
@@ -193,7 +191,7 @@ export const ContractDetailPage = () => {
                   <div className="p-2 bg-green-100 rounded-lg">
                     <IconBuilding className="text-green-600" size={20} />
                   </div>
-                  <h3 className="font-semibold">Даатгалын компани</h3>
+                  <h3 className="font-semibold">Insurance Company</h3>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">{contract.vendor?.name}</p>
@@ -207,7 +205,7 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <IconPackage className="text-purple-600" size={20} />
                 </div>
-                <h3 className="font-semibold">Бүтээгдэхүүн</h3>
+                <h3 className="font-semibold">Product</h3>
               </div>
               <p className="font-medium">{contract.insuranceProduct?.name}</p>
             </Card>
@@ -218,17 +216,17 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <IconCalendar className="text-orange-600" size={20} />
                 </div>
-                <h3 className="font-semibold">Даатгалын хугацаа</h3>
+                <h3 className="font-semibold">Insurance Period</h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Эхлэх огноо</p>
+                  <p className="text-sm text-muted-foreground">Start Date</p>
                   <p className="font-medium">
                     {new Date(contract.startDate).toLocaleDateString('mn-MN')}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Дуусах огноо</p>
+                  <p className="text-sm text-muted-foreground">End Date</p>
                   <p className="font-medium">
                     {new Date(contract.endDate).toLocaleDateString('mn-MN')}
                   </p>
@@ -242,25 +240,23 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-cyan-100 rounded-lg">
                   <IconCurrencyTugrik className="text-cyan-600" size={20} />
                 </div>
-                <h3 className="font-semibold">Төлбөрийн мэдээлэл</h3>
+                <h3 className="font-semibold">Payment Information</h3>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Хураамж:</span>
+                  <span className="text-muted-foreground">Premium:</span>
                   <span className="font-medium">
                     {contract.chargedAmount?.toLocaleString()} ₮
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Төлбөрийн хэлбэр:
-                  </span>
+                  <span className="text-muted-foreground">Payment Method:</span>
                   <span className="font-medium">
-                    {contract.paymentKind === 'cash' ? 'Бэлэн мөнгө' : 'QPay'}
+                    {contract.paymentKind === 'cash' ? 'Cash' : 'QPay'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Төлөв:</span>
+                  <span className="text-muted-foreground">Status:</span>
                   {getStatusBadge(contract.paymentStatus)}
                 </div>
               </div>
@@ -269,7 +265,7 @@ export const ContractDetailPage = () => {
             {/* Insured Object */}
             {contract.insuredObject && (
               <Card className="p-6">
-                <h3 className="font-semibold mb-4">Даатгуулсан объект</h3>
+                <h3 className="font-semibold mb-4">Insured Object</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {Object.entries(contract.insuredObject).map(
                     ([key, value]) => (
@@ -280,8 +276,8 @@ export const ContractDetailPage = () => {
                         <p className="font-medium">
                           {typeof value === 'boolean'
                             ? value
-                              ? 'Тийм'
-                              : 'Үгүй'
+                              ? 'Yes'
+                              : 'No'
                             : String(value)}
                         </p>
                       </div>

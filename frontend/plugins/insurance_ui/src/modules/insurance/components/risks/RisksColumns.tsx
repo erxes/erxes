@@ -11,10 +11,7 @@ import {
 } from 'erxes-ui';
 import { RiskType } from '~/modules/insurance/types';
 import { RisksMoreColumn } from './RisksMoreColumn';
-
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('mn-MN');
-};
+import { formatDate } from '../shared';
 
 export const risksColumns: ColumnDef<RiskType>[] = [
   {

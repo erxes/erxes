@@ -32,7 +32,7 @@ export const customersColumns: ColumnDef<InsuranceCustomer>[] = [
   {
     id: 'fullName',
     accessorKey: 'firstName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Нэр" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
     cell: ({ cell }) => {
       const customer = cell.row.original;
       return (
@@ -47,15 +47,15 @@ export const customersColumns: ColumnDef<InsuranceCustomer>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => <RecordTable.InlineHead icon={IconBuilding} label="Төрөл" />,
+    header: () => <RecordTable.InlineHead icon={IconBuilding} label="Type" />,
     cell: ({ cell }) => {
       const type = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
           {type === 'company' ? (
-            <Badge className="bg-blue-100 text-blue-800">Байгууллага</Badge>
+            <Badge className="bg-blue-100 text-blue-800">Company</Badge>
           ) : (
-            <Badge className="bg-green-100 text-green-800">Хувь хүн</Badge>
+            <Badge className="bg-green-100 text-green-800">Individual</Badge>
           )}
         </RecordTableInlineCell>
       );
@@ -65,7 +65,7 @@ export const customersColumns: ColumnDef<InsuranceCustomer>[] = [
     id: 'registrationNumber',
     accessorKey: 'registrationNumber',
     header: () => (
-      <RecordTable.InlineHead icon={IconId} label="Регистрийн дугаар" />
+      <RecordTable.InlineHead icon={IconId} label="Registration No." />
     ),
     cell: ({ cell }) => {
       return (
@@ -78,7 +78,7 @@ export const customersColumns: ColumnDef<InsuranceCustomer>[] = [
   {
     id: 'email',
     accessorKey: 'email',
-    header: () => <RecordTable.InlineHead icon={IconMail} label="И-мэйл" />,
+    header: () => <RecordTable.InlineHead icon={IconMail} label="Email" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -90,7 +90,7 @@ export const customersColumns: ColumnDef<InsuranceCustomer>[] = [
   {
     id: 'phone',
     accessorKey: 'phone',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label="Утас" />,
+    header: () => <RecordTable.InlineHead icon={IconPhone} label="Phone" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -103,7 +103,7 @@ export const customersColumns: ColumnDef<InsuranceCustomer>[] = [
     id: 'companyName',
     accessorKey: 'companyName',
     header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="Байгууллагын нэр" />
+      <RecordTable.InlineHead icon={IconBuilding} label="Company Name" />
     ),
     cell: ({ cell }) => {
       return (
@@ -117,7 +117,7 @@ export const customersColumns: ColumnDef<InsuranceCustomer>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Үүсгэсэн огноо" />
+      <RecordTable.InlineHead icon={IconCalendar} label="Created Date" />
     ),
     cell: ({ cell }) => {
       return (

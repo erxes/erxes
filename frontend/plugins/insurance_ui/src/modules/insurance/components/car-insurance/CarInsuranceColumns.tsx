@@ -14,22 +14,14 @@ import {
   Badge,
 } from 'erxes-ui';
 import { InsuranceContract } from '~/modules/insurance/types';
-import { CarInsuranceMoreColumn } from './CarInsuranceMoreColumn';
-
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('mn-MN');
-};
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('mn-MN').format(amount) + '₮';
-};
+import { ContractMoreColumn, formatDate, formatCurrency } from '../shared';
 
 export const carInsuranceColumns: ColumnDef<InsuranceContract>[] = [
   {
     id: 'more',
     accessorKey: 'more',
     header: '',
-    cell: ({ cell }) => <CarInsuranceMoreColumn cell={cell} />,
+    cell: ({ cell }) => <ContractMoreColumn cell={cell} />,
     size: 33,
   },
   RecordTable.checkboxColumn as ColumnDef<InsuranceContract>,
@@ -97,7 +89,9 @@ export const carInsuranceColumns: ColumnDef<InsuranceContract>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatCurrency(cell.getValue() as number)} />
+          <TextOverflowTooltip
+            value={formatCurrency(cell.getValue() as number)}
+          />
         </RecordTableInlineCell>
       );
     },

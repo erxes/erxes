@@ -16,13 +16,13 @@ export const CustomersMoreColumn = ({ cell }: { cell: any }) => {
         <DropdownMenu.Item asChild>
           <Link to={`/insurance/customers/${customerId}`}>
             <IconEye size={16} />
-            Дэлгэрэнгүй
+            View Details
           </Link>
         </DropdownMenu.Item>
         <DropdownMenu.Item asChild>
           <Link to={`/insurance/customers/${customerId}/edit`}>
             <IconEdit size={16} />
-            Засах
+            Edit
           </Link>
         </DropdownMenu.Item>
       </DropdownMenu.Content>

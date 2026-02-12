@@ -21,7 +21,7 @@ export const CustomersHeader = () => {
             <Breadcrumb.Item>
               <Button variant="ghost">
                 <IconUsers />
-                Харилцагчид
+                Customers
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>
