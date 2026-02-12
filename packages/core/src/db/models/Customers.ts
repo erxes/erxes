@@ -601,6 +601,18 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
             ...(customerObj.customFieldsData || []),
           ];
 
+          if (customerFields?.customFieldsData?.length) {
+            for (const customFieldData of (customerFields.customFieldsData || [])) {
+              customFieldsData = customFieldsData.filter(item => {
+                if (item.field !== customFieldData.field) {
+                  return true;
+                }
+
+                return item.value === customFieldData.value;
+              });
+            }
+          }
+
           // Merging scopeBrandIds
           scopeBrandIds = [
             ...scopeBrandIds,
