@@ -132,7 +132,7 @@ export const CitizenInsurancePage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance">
+                  <Link to="/insurance/products">
                     <IconUser />
                     Insurance
                   </Link>
@@ -576,7 +576,7 @@ export const CitizenInsurancePage = () => {
                     asChild
                     disabled={creating}
                   >
-                    <Link to="/insurance">Болих</Link>
+                    <Link to="/insurance/products">Болих</Link>
                   </Button>
                   <Button type="submit" disabled={creating || success}>
                     <IconPlus size={16} />

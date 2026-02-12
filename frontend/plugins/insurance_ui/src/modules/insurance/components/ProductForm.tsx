@@ -39,6 +39,13 @@ export const ProductForm = ({
       string,
       number | Record<string, number>
     >,
+    additionalCoverages: [] as {
+      name: string;
+      limits: number[];
+      appliesTo: string[];
+    }[],
+    compensationCalculations: [] as { name: string; methodologies: string[] }[],
+    deductibleConfig: { levels: [] as string[] },
   });
   const [showPdfEditor, setShowPdfEditor] = useState(false);
 
@@ -57,6 +64,9 @@ export const ProductForm = ({
           coveragePercentage: cr.coveragePercentage,
         })),
         pricingConfig: product.pricingConfig || { percentage: 3 },
+        additionalCoverages: product.additionalCoverages || [],
+        compensationCalculations: product.compensationCalculations || [],
+        deductibleConfig: product.deductibleConfig || { levels: [] },
       });
 
       const percentageByDuration = (product.pricingConfig as any)
@@ -79,6 +89,9 @@ export const ProductForm = ({
         pdfContent: '',
         coveredRisks: [],
         pricingConfig: { percentage: 3 },
+        additionalCoverages: [],
+        compensationCalculations: [],
+        deductibleConfig: { levels: [] },
       });
       setDurationFields([]);
     }
@@ -123,6 +136,18 @@ export const ProductForm = ({
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
             pdfContent: formData.pdfContent || null,
+            additionalCoverages:
+              formData.additionalCoverages.length > 0
+                ? formData.additionalCoverages
+                : null,
+            compensationCalculations:
+              formData.compensationCalculations.length > 0
+                ? formData.compensationCalculations
+                : null,
+            deductibleConfig:
+              formData.deductibleConfig.levels.length > 0
+                ? formData.deductibleConfig
+                : null,
           },
         });
       } else {
@@ -133,6 +158,18 @@ export const ProductForm = ({
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
             pdfContent: formData.pdfContent || null,
+            additionalCoverages:
+              formData.additionalCoverages.length > 0
+                ? formData.additionalCoverages
+                : null,
+            compensationCalculations:
+              formData.compensationCalculations.length > 0
+                ? formData.compensationCalculations
+                : null,
+            deductibleConfig:
+              formData.deductibleConfig.levels.length > 0
+                ? formData.deductibleConfig
+                : null,
           },
         });
       }
@@ -143,6 +180,9 @@ export const ProductForm = ({
         pdfContent: '',
         coveredRisks: [],
         pricingConfig: { percentage: 3 },
+        additionalCoverages: [],
+        compensationCalculations: [],
+        deductibleConfig: { levels: [] },
       });
       onOpenChange(false);
       onSuccess?.();
@@ -517,6 +557,413 @@ export const ProductForm = ({
               <p className="text-xs text-muted-foreground">
                 Жишээ: "12months", "24months", "36months" гэх мэт
               </p>
+            </div>
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <h3 className="font-semibold">
+              Нэмэлт хамгаалалт (Additional Coverage)
+            </h3>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Нэмэлт хамгаалалт</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      additionalCoverages: [
+                        ...formData.additionalCoverages,
+                        { name: '', limits: [], appliesTo: [] },
+                      ],
+                    });
+                  }}
+                >
+                  Нэмэх
+                </Button>
+              </div>
+
+              {formData.additionalCoverages.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Нэмэлт хамгаалалт нэмэгдээгүй байна
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {formData.additionalCoverages.map((coverage, index) => (
+                    <div
+                      key={index}
+                      className="border p-3 rounded-md space-y-2"
+                    >
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Label className="text-xs">Нэр</Label>
+                          <Input
+                            value={coverage.name}
+                            onChange={(e) => {
+                              const newCoverages = [
+                                ...formData.additionalCoverages,
+                              ];
+                              newCoverages[index] = {
+                                ...newCoverages[index],
+                                name: e.target.value,
+                              };
+                              setFormData({
+                                ...formData,
+                                additionalCoverages: newCoverages,
+                              });
+                            }}
+                            placeholder="Даатгалын хохирол үнэлгээний зардал"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              additionalCoverages:
+                                formData.additionalCoverages.filter(
+                                  (_, i) => i !== index,
+                                ),
+                            });
+                          }}
+                        >
+                          Устгах
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Хязгаарууд</Label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newCoverages = [
+                                ...formData.additionalCoverages,
+                              ];
+                              newCoverages[index] = {
+                                ...newCoverages[index],
+                                limits: [...newCoverages[index].limits, 0],
+                                appliesTo: [
+                                  ...newCoverages[index].appliesTo,
+                                  '',
+                                ],
+                              };
+                              setFormData({
+                                ...formData,
+                                additionalCoverages: newCoverages,
+                              });
+                            }}
+                          >
+                            + Түвшин нэмэх
+                          </Button>
+                        </div>
+                        {coverage.limits.map((limit, limitIndex) => (
+                          <div key={limitIndex} className="flex gap-2">
+                            <div className="flex-1">
+                              <Input
+                                placeholder="Түвшин (PLATINUM, GOLD...)"
+                                value={coverage.appliesTo[limitIndex] || ''}
+                                onChange={(e) => {
+                                  const newCoverages = [
+                                    ...formData.additionalCoverages,
+                                  ];
+                                  const newAppliesTo = [
+                                    ...newCoverages[index].appliesTo,
+                                  ];
+                                  newAppliesTo[limitIndex] = e.target.value;
+                                  newCoverages[index] = {
+                                    ...newCoverages[index],
+                                    appliesTo: newAppliesTo,
+                                  };
+                                  setFormData({
+                                    ...formData,
+                                    additionalCoverages: newCoverages,
+                                  });
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <Input
+                                type="number"
+                                placeholder="Хязгаар (200000)"
+                                value={limit || ''}
+                                onChange={(e) => {
+                                  const newCoverages = [
+                                    ...formData.additionalCoverages,
+                                  ];
+                                  const newLimits = [
+                                    ...newCoverages[index].limits,
+                                  ];
+                                  newLimits[limitIndex] =
+                                    parseFloat(e.target.value) || 0;
+                                  newCoverages[index] = {
+                                    ...newCoverages[index],
+                                    limits: newLimits,
+                                  };
+                                  setFormData({
+                                    ...formData,
+                                    additionalCoverages: newCoverages,
+                                  });
+                                }}
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newCoverages = [
+                                  ...formData.additionalCoverages,
+                                ];
+                                newCoverages[index] = {
+                                  ...newCoverages[index],
+                                  limits: newCoverages[index].limits.filter(
+                                    (_, i) => i !== limitIndex,
+                                  ),
+                                  appliesTo: newCoverages[
+                                    index
+                                  ].appliesTo.filter(
+                                    (_, i) => i !== limitIndex,
+                                  ),
+                                };
+                                setFormData({
+                                  ...formData,
+                                  additionalCoverages: newCoverages,
+                                });
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Нөхөн төлбөрийн тооцооллын аргачлал</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      compensationCalculations: [
+                        ...formData.compensationCalculations,
+                        { name: '', methodologies: [] },
+                      ],
+                    });
+                  }}
+                >
+                  Нэмэх
+                </Button>
+              </div>
+
+              {formData.compensationCalculations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Тооцооллын аргачлал нэмэгдээгүй байна
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {formData.compensationCalculations.map((calc, index) => (
+                    <div
+                      key={index}
+                      className="border p-3 rounded-md space-y-2"
+                    >
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Label className="text-xs">Нэр</Label>
+                          <Input
+                            value={calc.name}
+                            onChange={(e) => {
+                              const newCalcs = [
+                                ...formData.compensationCalculations,
+                              ];
+                              newCalcs[index] = {
+                                ...newCalcs[index],
+                                name: e.target.value,
+                              };
+                              setFormData({
+                                ...formData,
+                                compensationCalculations: newCalcs,
+                              });
+                            }}
+                            placeholder="Солих эд ангийн үнэлгээг тооцох аргачлал"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              compensationCalculations:
+                                formData.compensationCalculations.filter(
+                                  (_, i) => i !== index,
+                                ),
+                            });
+                          }}
+                        >
+                          Устгах
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Аргачлалууд</Label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newCalcs = [
+                                ...formData.compensationCalculations,
+                              ];
+                              newCalcs[index] = {
+                                ...newCalcs[index],
+                                methodologies: [
+                                  ...newCalcs[index].methodologies,
+                                  '',
+                                ],
+                              };
+                              setFormData({
+                                ...formData,
+                                compensationCalculations: newCalcs,
+                              });
+                            }}
+                          >
+                            + Аргачлал нэмэх
+                          </Button>
+                        </div>
+                        {calc.methodologies.map((methodology, methodIndex) => (
+                          <div key={methodIndex} className="flex gap-2">
+                            <Input
+                              placeholder="Аргачлал (Элэгдэл тооцохгүй)"
+                              value={methodology}
+                              onChange={(e) => {
+                                const newCalcs = [
+                                  ...formData.compensationCalculations,
+                                ];
+                                const newMethodologies = [
+                                  ...newCalcs[index].methodologies,
+                                ];
+                                newMethodologies[methodIndex] = e.target.value;
+                                newCalcs[index] = {
+                                  ...newCalcs[index],
+                                  methodologies: newMethodologies,
+                                };
+                                setFormData({
+                                  ...formData,
+                                  compensationCalculations: newCalcs,
+                                });
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newCalcs = [
+                                  ...formData.compensationCalculations,
+                                ];
+                                newCalcs[index] = {
+                                  ...newCalcs[index],
+                                  methodologies: newCalcs[
+                                    index
+                                  ].methodologies.filter(
+                                    (_, i) => i !== methodIndex,
+                                  ),
+                                };
+                                setFormData({
+                                  ...formData,
+                                  compensationCalculations: newCalcs,
+                                });
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Даатгуулагчийн өөрийн хүлээх хариуцлага</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      deductibleConfig: {
+                        levels: [...formData.deductibleConfig.levels, ''],
+                      },
+                    });
+                  }}
+                >
+                  + Түвшин нэмэх
+                </Button>
+              </div>
+              {formData.deductibleConfig.levels.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Хариуцлагын түвшин нэмэгдээгүй байна
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {formData.deductibleConfig.levels.map((level, levelIndex) => (
+                    <div key={levelIndex} className="flex gap-2">
+                      <Input
+                        placeholder="Хариуцлага (Байхгүй, Учирсан хохирлын 20%)"
+                        value={level}
+                        onChange={(e) => {
+                          const newLevels = [
+                            ...formData.deductibleConfig.levels,
+                          ];
+                          newLevels[levelIndex] = e.target.value;
+                          setFormData({
+                            ...formData,
+                            deductibleConfig: { levels: newLevels },
+                          });
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            deductibleConfig: {
+                              levels: formData.deductibleConfig.levels.filter(
+                                (_, i) => i !== levelIndex,
+                              ),
+                            },
+                          });
+                        }}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

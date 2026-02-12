@@ -80,7 +80,7 @@ export default function ContractTemplatesPage() {
       <PageHeader>
         <Breadcrumb>
           <Breadcrumb.Item>
-            <Link to="/insurance">Insurance</Link>
+            <Link to="/insurance/products">Insurance</Link>
           </Breadcrumb.Item>
           <Breadcrumb.Item>Contract Templates</Breadcrumb.Item>
         </Breadcrumb>

@@ -10,7 +10,7 @@ import {
   IconAlertTriangle,
   IconArrowRight,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator, Card, Badge } from 'erxes-ui';
+import { Breadcrumb, Button, Separator, Card, Badge, Skeleton } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import {
@@ -41,7 +41,7 @@ export const IndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance">
+                  <Link to="/insurance/products">
                     <IconSandbox />
                     Insurance
                   </Link>
@@ -76,7 +76,11 @@ export const IndexPage = () => {
                       Insurance Types
                     </p>
                     <p className="text-2xl font-bold">
-                      {typesLoading ? '...' : insuranceTypes.length}
+                      {typesLoading ? (
+                        <Skeleton className="h-8 w-8" />
+                      ) : (
+                        insuranceTypes.length
+                      )}
                     </p>
                   </div>
                 </div>
@@ -109,7 +113,11 @@ export const IndexPage = () => {
                     <div>
                       <h3 className="font-semibold">Vendors</h3>
                       <p className="text-sm text-muted-foreground">
-                        {vendorsLoading ? '...' : `${vendors.length} vendors`}
+                        {vendorsLoading ? (
+                          <Skeleton className="h-4 w-16" />
+                        ) : (
+                          `${vendors.length} vendors`
+                        )}
                       </p>
                     </div>
                   </div>
@@ -128,7 +136,11 @@ export const IndexPage = () => {
                       Vendor Users
                     </p>
                     <p className="text-2xl font-bold">
-                      {vendorUsersLoading ? '...' : vendorUsers.length}
+                      {vendorUsersLoading ? (
+                        <Skeleton className="h-8 w-8" />
+                      ) : (
+                        vendorUsers.length
+                      )}
                     </p>
                   </div>
                 </div>
@@ -204,9 +216,11 @@ export const IndexPage = () => {
                     <div>
                       <h3 className="font-semibold">Products</h3>
                       <p className="text-sm text-muted-foreground">
-                        {productsLoading
-                          ? '...'
-                          : `${insuranceProducts.length} products`}
+                        {productsLoading ? (
+                          <Skeleton className="h-4 w-20" />
+                        ) : (
+                          `${insuranceProducts.length} products`
+                        )}
                       </p>
                     </div>
                   </div>
@@ -228,7 +242,11 @@ export const IndexPage = () => {
                     <div>
                       <h3 className="font-semibold">Risk Types</h3>
                       <p className="text-sm text-muted-foreground">
-                        {risksLoading ? '...' : `${riskTypes.length} risks`}
+                        {risksLoading ? (
+                          <Skeleton className="h-4 w-16" />
+                        ) : (
+                          `${riskTypes.length} risks`
+                        )}
                       </p>
                     </div>
                   </div>
@@ -247,7 +265,23 @@ export const IndexPage = () => {
               </Button>
             </div>
             {contractsLoading ? (
-              <p className="text-muted-foreground">Loading contracts...</p>
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-5 w-40" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-6 w-24" />
+                      <Skeleton className="h-8 w-16" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : contracts.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <IconFileText size={48} className="mx-auto mb-2 opacity-50" />

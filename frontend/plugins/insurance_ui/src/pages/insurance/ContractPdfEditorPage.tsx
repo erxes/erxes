@@ -8,7 +8,7 @@ import {
   IconCode,
   IconDeviceFloppy,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator, Card } from 'erxes-ui';
+import { Breadcrumb, Button, Separator, Card, Skeleton } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
 import { generateContractHTML } from '~/utils/contractPdfGenerator';
@@ -105,8 +105,22 @@ export const ContractPdfEditorPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p>Loading...</p>
+      <div className="flex flex-col h-full p-6">
+        <div className="max-w-7xl mx-auto w-full">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-lg" />
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+              <Skeleton className="h-9 w-24" />
+            </div>
+            <Skeleton className="h-[600px] w-full" />
+          </Card>
+        </div>
       </div>
     );
   }

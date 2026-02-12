@@ -5,3 +5,8 @@ export * from './VendorForm';
 export * from './VendorUserForm';
 export * from './InsuranceTypeForm';
 export * from './CustomerForm';
+export * from './vendors';
+export * from './products';
+export * from './risks';
+export * from './vendorUsers';
+export * from './insuranceTypes';

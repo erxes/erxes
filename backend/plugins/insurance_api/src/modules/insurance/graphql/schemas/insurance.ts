@@ -59,6 +59,30 @@ export const types = `
   }
 
   """
+  Нэмэлт хамгаалалт (даатгалын нэг удаагийн тохиолдолд)
+  """
+  type AdditionalCoverage {
+    name: String!
+    limits: [Float!]!
+    appliesTo: [String!]
+  }
+
+  """
+  Нөхөн төлбөрийн тооцооллын аргачлал
+  """
+  type CompensationCalculation {
+    name: String!
+    methodologies: [String!]!
+  }
+
+  """
+  Даатгуулагчийн өөрийн хүлээх хариуцлага
+  """
+  type DeductibleConfig {
+    levels: [String!]
+  }
+
+  """
   Даатгалын бүтээгдэхүүн
   """
   type InsuranceProduct {
@@ -69,6 +93,9 @@ export const types = `
     pricingConfig: JSON!
     pdfContent: String
     templateId: ID
+    additionalCoverages: [AdditionalCoverage!]
+    compensationCalculations: [CompensationCalculation!]
+    deductibleConfig: DeductibleConfig
     createdAt: Date!
     updatedAt: Date!
   }
@@ -216,6 +243,21 @@ export const inputs = `
     riskId: ID!
     coveragePercentage: Int!
   }
+
+  input AdditionalCoverageInput {
+    name: String!
+    limits: [Float!]!
+    appliesTo: [String!]
+  }
+
+  input CompensationCalculationInput {
+    name: String!
+    methodologies: [String!]!
+  }
+
+  input DeductibleConfigInput {
+    levels: [String!]!
+  }
 `;
 
 export const queries = `
@@ -260,8 +302,8 @@ export const mutations = `
   updateInsuranceType(id: ID!, name: String, attributes: [AttributeInput!]): InsuranceType!
   deleteInsuranceType(id: ID!): Boolean!
 
-  createInsuranceProduct(name: String!, insuranceTypeId: ID!, coveredRisks: [CoveredRiskInput!]!, pricingConfig: JSON!, pdfContent: String, templateId: ID): InsuranceProduct!
-  updateInsuranceProduct(id: ID!, name: String, coveredRisks: [CoveredRiskInput!], pricingConfig: JSON, pdfContent: String, templateId: ID): InsuranceProduct!
+  createInsuranceProduct(name: String!, insuranceTypeId: ID!, coveredRisks: [CoveredRiskInput!]!, pricingConfig: JSON!, pdfContent: String, templateId: ID, additionalCoverages: [AdditionalCoverageInput!], compensationCalculations: [CompensationCalculationInput!], deductibleConfig: DeductibleConfigInput): InsuranceProduct!
+  updateInsuranceProduct(id: ID!, name: String, coveredRisks: [CoveredRiskInput!], pricingConfig: JSON, pdfContent: String, templateId: ID, additionalCoverages: [AdditionalCoverageInput!], compensationCalculations: [CompensationCalculationInput!], deductibleConfig: DeductibleConfigInput): InsuranceProduct!
   deleteInsuranceProduct(id: ID!): Boolean!
 
   createVendor(name: String!): InsuranceVendor!

@@ -12,7 +12,7 @@ import {
   IconPrinter,
   IconEdit,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator, Card, Badge } from 'erxes-ui';
+import { Breadcrumb, Button, Separator, Card, Badge, Skeleton } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
 import {
@@ -36,8 +36,44 @@ export const ContractDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p>Loading...</p>
+      <div className="flex flex-col h-full">
+        <div className="p-6 space-y-6 max-w-4xl mx-auto w-full">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <Skeleton className="h-6 w-20" />
+            </div>
+          </Card>
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Skeleton className="h-10 w-10 rounded-lg" />
+                <Skeleton className="h-5 w-24" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </Card>
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Skeleton className="h-10 w-10 rounded-lg" />
+                <Skeleton className="h-5 w-32" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-40" />
+              </div>
+            </Card>
+          </div>
+          <Card className="p-6">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <Skeleton className="h-5 w-48" />
+          </Card>
+        </div>
       </div>
     );
   }
@@ -73,7 +109,7 @@ export const ContractDetailPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance">
+                  <Link to="/insurance/products">
                     <IconFileText />
                     Insurance
                   </Link>

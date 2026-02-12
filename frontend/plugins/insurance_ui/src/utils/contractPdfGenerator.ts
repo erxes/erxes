@@ -44,6 +44,7 @@ function generateContractHTML(contract: Contract): string {
 
   if (productTemplate) {
     // Use product's PDF template and replace placeholders
+    const insuredObject = contract.insuredObject || {};
     return productTemplate
       .replace(/\{\{contractNumber\}\}/g, contract.contractNumber)
       .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
@@ -61,9 +62,64 @@ function generateContractHTML(contract: Contract): string {
       .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
       .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
       .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
+      .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
       .replace(
-        /\{\{chargedAmount\}\}/g,
-        formatCurrency(contract.chargedAmount),
+        /\{\{carBrand\}\}/g,
+        insuredObject.carBrand ||
+          insuredObject.brand ||
+          insuredObject.mark ||
+          'N/A',
+      )
+      .replace(
+        /\{\{carModel\}\}/g,
+        insuredObject.carModel ||
+          insuredObject.model ||
+          insuredObject.zagvar ||
+          'N/A',
+      )
+      .replace(
+        /\{\{carYear\}\}/g,
+        insuredObject.carYear ||
+          insuredObject.year ||
+          insuredObject.manufacturingYear ||
+          'N/A',
+      )
+      .replace(
+        /\{\{plateNumber\}\}/g,
+        insuredObject.plateNumber ||
+          insuredObject.ulsNumber ||
+          insuredObject.licensePlate ||
+          'N/A',
+      )
+      .replace(
+        /\{\{vinNumber\}\}/g,
+        insuredObject.vinNumber ||
+          insuredObject.vin ||
+          insuredObject.chassisNumber ||
+          'N/A',
+      )
+      .replace(
+        /\{\{engineNumber\}\}/g,
+        insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
+      )
+      .replace(
+        /\{\{carColor\}\}/g,
+        insuredObject.carColor ||
+          insuredObject.color ||
+          insuredObject.ongo ||
+          'N/A',
+      )
+      .replace(
+        /\{\{carValuation\}\}/g,
+        insuredObject.carValuation ||
+          insuredObject.valuation ||
+          insuredObject.price
+          ? formatCurrency(
+              insuredObject.carValuation ||
+                insuredObject.valuation ||
+                insuredObject.price,
+            )
+          : 'N/A',
       );
   }
 
@@ -72,6 +128,7 @@ function generateContractHTML(contract: Contract): string {
 
   if (savedTemplate) {
     // Use saved template and replace placeholders
+    const insuredObject = contract.insuredObject || {};
     return savedTemplate
       .replace(/\{\{contractNumber\}\}/g, contract.contractNumber)
       .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
@@ -89,9 +146,64 @@ function generateContractHTML(contract: Contract): string {
       .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
       .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
       .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
+      .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
       .replace(
-        /\{\{chargedAmount\}\}/g,
-        formatCurrency(contract.chargedAmount),
+        /\{\{carBrand\}\}/g,
+        insuredObject.carBrand ||
+          insuredObject.brand ||
+          insuredObject.mark ||
+          'N/A',
+      )
+      .replace(
+        /\{\{carModel\}\}/g,
+        insuredObject.carModel ||
+          insuredObject.model ||
+          insuredObject.zagvar ||
+          'N/A',
+      )
+      .replace(
+        /\{\{carYear\}\}/g,
+        insuredObject.carYear ||
+          insuredObject.year ||
+          insuredObject.manufacturingYear ||
+          'N/A',
+      )
+      .replace(
+        /\{\{plateNumber\}\}/g,
+        insuredObject.plateNumber ||
+          insuredObject.ulsNumber ||
+          insuredObject.licensePlate ||
+          'N/A',
+      )
+      .replace(
+        /\{\{vinNumber\}\}/g,
+        insuredObject.vinNumber ||
+          insuredObject.vin ||
+          insuredObject.chassisNumber ||
+          'N/A',
+      )
+      .replace(
+        /\{\{engineNumber\}\}/g,
+        insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
+      )
+      .replace(
+        /\{\{carColor\}\}/g,
+        insuredObject.carColor ||
+          insuredObject.color ||
+          insuredObject.ongo ||
+          'N/A',
+      )
+      .replace(
+        /\{\{carValuation\}\}/g,
+        insuredObject.carValuation ||
+          insuredObject.valuation ||
+          insuredObject.price
+          ? formatCurrency(
+              insuredObject.carValuation ||
+                insuredObject.valuation ||
+                insuredObject.price,
+            )
+          : 'N/A',
       );
   }
 
@@ -504,6 +616,7 @@ export function generatePdfFromProductTemplate(
   pdfContent: string,
   contract: Contract,
 ): string {
+  const insuredObject = contract.insuredObject || {};
   return pdfContent
     .replace(/\{\{contractNumber\}\}/g, contract.contractNumber || '')
     .replace(/\{\{vendorName\}\}/g, contract.vendor?.name || 'N/A')
@@ -521,7 +634,65 @@ export function generatePdfFromProductTemplate(
     .replace(/\{\{productName\}\}/g, contract.insuranceProduct?.name || 'N/A')
     .replace(/\{\{startDate\}\}/g, formatDate(contract.startDate))
     .replace(/\{\{endDate\}\}/g, formatDate(contract.endDate))
-    .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount));
+    .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
+    .replace(
+      /\{\{carBrand\}\}/g,
+      insuredObject.carBrand ||
+        insuredObject.brand ||
+        insuredObject.mark ||
+        'N/A',
+    )
+    .replace(
+      /\{\{carModel\}\}/g,
+      insuredObject.carModel ||
+        insuredObject.model ||
+        insuredObject.zagvar ||
+        'N/A',
+    )
+    .replace(
+      /\{\{carYear\}\}/g,
+      insuredObject.carYear ||
+        insuredObject.year ||
+        insuredObject.manufacturingYear ||
+        'N/A',
+    )
+    .replace(
+      /\{\{plateNumber\}\}/g,
+      insuredObject.plateNumber ||
+        insuredObject.ulsNumber ||
+        insuredObject.licensePlate ||
+        'N/A',
+    )
+    .replace(
+      /\{\{vinNumber\}\}/g,
+      insuredObject.vinNumber ||
+        insuredObject.vin ||
+        insuredObject.chassisNumber ||
+        'N/A',
+    )
+    .replace(
+      /\{\{engineNumber\}\}/g,
+      insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
+    )
+    .replace(
+      /\{\{carColor\}\}/g,
+      insuredObject.carColor ||
+        insuredObject.color ||
+        insuredObject.ongo ||
+        'N/A',
+    )
+    .replace(
+      /\{\{carValuation\}\}/g,
+      insuredObject.carValuation ||
+        insuredObject.valuation ||
+        insuredObject.price
+        ? formatCurrency(
+            insuredObject.carValuation ||
+              insuredObject.valuation ||
+              insuredObject.price,
+          )
+        : 'N/A',
+    );
 }
 
 export function getDefaultPdfTemplate(): string {
@@ -600,6 +771,44 @@ export function getDefaultPdfTemplate(): string {
       <div class="info-item">
         <div class="info-label">Дуусах огноо</div>
         <div class="info-value">{{endDate}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Даатгалын зүйлийн мэдээлэл (Автомашин)</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Марк</div>
+        <div class="info-value">{{carBrand}}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Загвар</div>
+        <div class="info-value">{{carModel}}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Үйлдвэрлэсэн он</div>
+        <div class="info-value">{{carYear}}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Улсын дугаар</div>
+        <div class="info-value">{{plateNumber}}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Арлын дугаар (VIN)</div>
+        <div class="info-value">{{vinNumber}}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Мотор дугаар</div>
+        <div class="info-value">{{engineNumber}}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Өнгө</div>
+        <div class="info-value">{{carColor}}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Үнэлгээний дүн</div>
+        <div class="info-value">{{carValuation}}</div>
       </div>
     </div>
   </div>
