@@ -13,7 +13,10 @@ export const hmac256 = (key: string, message: string): string =>
   crypto.createHmac('sha256', key).update(message).digest('hex');
 
 
-export const socialpayCallbackHandler = async (models: IModels, data: any) => {
+export const socialpayCallbackHandler = async (
+  models: IModels,
+  data: any,
+) => {
   const { resp_code, amount, checksum, invoice, terminal } = data;
 
   const transaction = await models.Transactions.getTransaction({
@@ -21,28 +24,29 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
   });
 
   const payment = await models.PaymentMethods.getPayment(
-    transaction.paymentId
+    transaction.paymentId,
   );
 
   try {
     if (resp_code !== '00') {
-  transaction.status = PAYMENT_STATUS.FAILED;
-  transaction.updatedAt = new Date();
+      transaction.status = PAYMENT_STATUS.FAILED;
+      transaction.updatedAt = new Date();
 
-  // Optional: store failure reason if your schema supports it
-  transaction.response = {
-    ...(transaction.response || {}),
-    resp_code,
-    error: 'SocialPay callback failed',
-  };
+      // Ensure response object exists
+      if (!transaction.response) {
+        transaction.response = {};
+      }
 
-  await transaction.save();
+      transaction.response.resp_code = resp_code;
+      transaction.response.error = 'SocialPay callback failed';
 
-  return transaction;
+      await transaction.save();
+
+      return transaction;
     }
 
-
     const api = new SocialPayAPI(payment.config);
+
     const status = await api.checkInvoice({
       amount,
       checksum,
@@ -63,6 +67,7 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
     throw new Error(extractErrorMessage(e));
   }
 };
+
 
 export interface ISocialPayParams {
   inStoreSPTerminal: string;
