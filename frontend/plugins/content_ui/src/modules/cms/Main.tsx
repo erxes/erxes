@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
+import { useParams } from 'react-router-dom';
 
 const CmsIndex = lazy(() =>
   import('~/pages/cms/IndexPage').then((module) => ({
@@ -8,52 +9,59 @@ const CmsIndex = lazy(() =>
 );
 
 const Posts = lazy(() =>
-  import('~/modules/cms/components/pages/Posts').then((module) => ({
-    default: module.Posts,
+  import('~/pages/cms/PostsPage').then((module) => ({
+    default: module.PostsIndexPage,
   })),
 );
-
-const AddPost = lazy(() =>
-  import('~/modules/cms/components/posts/AddPost').then((module) => ({
-    default: module.AddPost,
+const PostsAdd = lazy(() =>
+  import('~/pages/cms/PostsAddPage').then((module) => ({
+    default: module.PostsAddPage,
   })),
 );
-
 const Categories = lazy(() =>
-  import('~/modules/cms/components/categories/Category').then((module) => ({
+  import('~/modules/cms/categories/Category').then((module) => ({
     default: module.Category,
   })),
 );
 
 const Tags = lazy(() =>
-  import('~/modules/cms/components/shared/Tag').then((module) => ({
+  import('~/modules/cms/shared/Tag').then((module) => ({
     default: module.Tag,
   })),
 );
 
 const Pages = lazy(() =>
-  import('~/modules/cms/components/pages/Page').then((module) => ({
+  import('~/modules/cms/pages/Page').then((module) => ({
     default: module.Page,
   })),
 );
 
-const Menus = lazy(() =>
-  import('~/modules/cms/components/menus/Menus').then((module) => ({
-    default: module.Menus,
-  })),
-);
-
 const CustomTypes = lazy(() =>
-  import('~/modules/cms/components/shared/CustomTypes').then((module) => ({
+  import('~/modules/cms/shared/CustomTypes').then((module) => ({
     default: module.CustomTypes,
   })),
 );
 
 const CustomFields = lazy(() =>
-  import('~/modules/cms/components/shared/CustomFields').then((module) => ({
+  import('~/modules/cms/shared/CustomFields').then((module) => ({
     default: module.CustomFields,
   })),
 );
+
+const PostsWrapper = () => {
+  const { websiteId } = useParams();
+  return <Posts clientPortalId={websiteId || ''} />;
+};
+
+const PostsAddWrapper = () => {
+  const { websiteId } = useParams();
+  return <PostsAdd clientPortalId={websiteId || ''} />;
+};
+
+const PostsEditWrapper = () => {
+  const { websiteId, id } = useParams();
+  return <PostsAdd clientPortalId={websiteId || ''} postId={id} />;
+};
 
 const CmsMain = () => {
   return (
@@ -61,8 +69,9 @@ const CmsMain = () => {
       <Routes>
         <Route index path="/" element={<Navigate to="cms" replace />} />
         <Route path="cms" element={<CmsIndex />} />
-        <Route path="cms/:websiteId/posts" element={<Posts />} />
-        <Route path="cms/:websiteId/posts/add" element={<AddPost />} />
+        <Route path="cms/:websiteId/posts/add" element={<PostsAddWrapper />} />
+        <Route path="cms/:websiteId/posts/:id" element={<PostsEditWrapper />} />
+        <Route path="cms/:websiteId/posts" element={<PostsWrapper />} />
         <Route path="cms/:websiteId/categories" element={<Categories />} />
         <Route path="cms/:websiteId/tags" element={<Tags />} />
         <Route path="cms/:websiteId/pages" element={<Pages />} />

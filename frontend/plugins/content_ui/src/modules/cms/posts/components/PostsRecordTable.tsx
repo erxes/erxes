@@ -1,0 +1,55 @@
+import { RecordTable } from 'erxes-ui';
+import { postsColumns } from './PostsColumn';
+
+import { PostsCommandbar } from './posts-command-bar/PostsCommandbar';
+import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
+import { usePosts } from '../hooks/usePosts';
+
+interface PostsRecordTableProps {
+  clientPortalId: string;
+  onEditPost?: (post: any) => void;
+}
+
+export const PostsRecordTable = ({
+  clientPortalId,
+  onEditPost,
+}: PostsRecordTableProps) => {
+  const { posts, loading, refetch, pageInfo, handleFetchMore } = usePosts({
+    variables: {
+      clientPortalId,
+    },
+  });
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const columns = postsColumns(onEditPost, refetch);
+
+  return (
+    <RecordTable.Provider
+      columns={columns}
+      data={posts || []}
+      className="h-full m-3"
+      stickyColumns={['more', 'checkbox', 'name']}
+    >
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={posts?.length}
+        sessionKey={POSTS_CURSOR_SESSION_KEY}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
+      <PostsCommandbar refetch={refetch} />
+    </RecordTable.Provider>
+  );
+};
