@@ -1,32 +1,62 @@
 import { generateModels } from '~/connectionResolvers';
-import { getConfig } from './utils';
 import { customerToDynamic } from './utilsCustomer';
 
+const getDynamicConfigsMap = async (models: any) => {
+  const configs = await models.Configs.getConfigs('DYNAMIC');
+
+  if (!configs?.length) {
+    return null;
+  }
+
+  return configs.reduce((acc: any, conf: any) => {
+    acc[conf.subId || 'noBrand'] = conf.value;
+    return acc;
+  }, {});
+};
+
 export default {
-  cpCustomerHandle: async ({ subdomain, data }) => {
-    if (!data) {
+  cpCustomerHandle: async ({
+    subdomain,
+    data,
+  }: {
+    subdomain: string;
+    data: any;
+  }) => {
+    if (!data?.customer && !data?.company) {
       return;
     }
-
-    let configs;
-
-    try {
-      configs = await getConfig(subdomain, 'DYNAMIC', {});
-      if (!configs || !Object.keys(configs).length) {
-        return;
-      }
-    } catch (e) {
-      return;
-    }
-
-    console.log('cpCustomerHandle:', 'customer:', data.customer?._id, 'company:', data.company?._id)
 
     const models = await generateModels(subdomain);
 
+    const configsMap = await getDynamicConfigsMap(models);
+
+    if (!configsMap) {
+      return;
+    }
+
+    const contentType = data.customer
+      ? 'core:customer'
+      : 'core:company';
+
+    const entity = data.customer || data.company;
+    const brandId = entity?.scopeBrandIds?.[0];
+
+    const config = configsMap[brandId || 'noBrand'];
+
+    if (!config) {
+      return;
+    }
+
+    console.log(
+      'cpCustomerHandle:',
+      contentType,
+      entity?._id,
+    );
+
     const syncLogDoc = {
       type: '',
-      contentType: data.customer ? 'core:customer' : 'core:company',
-      contentId: data.customer ? data.customer?._id : data.company?._id,
+      contentType,
+      contentId: entity?._id,
       createdAt: new Date(),
       consumeData: data,
       consumeStr: JSON.stringify(data),
@@ -35,35 +65,24 @@ export default {
     let syncLog;
 
     try {
-      if (data.customer) {
-        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-        await customerToDynamic(
-          subdomain,
-          syncLog,
-          data.customer,
-          'customer',
-          models,
-          configs
+      await customerToDynamic(
+        subdomain,
+        syncLog,
+        entity,
+        data.customer ? 'customer' : 'company',
+        models,
+        config,
+      );
+    } catch (e: any) {
+      console.log(e?.message || e);
+      if (syncLog?._id) {
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          { $set: { error: e?.message || 'Unknown error' } },
         );
-        return;
       }
-
-      if (data.company) {
-        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-        await customerToDynamic(
-          subdomain,
-          syncLog,
-          data.company,
-          'company',
-          models,
-          configs
-        );
-        return;
-      }
-    } catch (e) {
-      console.log(e.message);
     }
   },
 };

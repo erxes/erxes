@@ -1,120 +1,133 @@
 import { generateModels } from '~/connectionResolvers';
 import { customerToDynamic } from './utilsCustomer';
-import { dealToDynamic, getConfig, orderToDynamic } from './utils';
+import { dealToDynamic, orderToDynamic } from './utils';
 
-const allowTypes = {
+const allowTypes: Record<string, string[]> = {
   'core:customer': ['create'],
   'core:company': ['create'],
   'pos:order': ['synced'],
   'sales:deal': ['update'],
 };
 
-export const afterMutationHandlers = async (subdomain, params) => {
-  const { type, action, user } = params;
+export const afterMutationHandlers = async (
+  subdomain: string,
+  params: any,
+) => {
+  const { type, action, user, object, updatedDocument } = params;
 
-  if (!Object.keys(allowTypes).includes(type)) {
+  if (!allowTypes[type]?.includes(action)) {
     return;
   }
-
-  if (!allowTypes[type].includes(action)) {
-    return;
-  }
-
-  let configs;
-
-  try {
-    configs = await getConfig(subdomain, 'DYNAMIC', {});
-    if (!configs || !Object.keys(configs).length) {
-      return;
-    }
-  } catch (e) {
-    return;
-  }
-
-  console.log('afterMutationHandlers:', subdomain, type, action, params.object?._id)
 
   const models = await generateModels(subdomain);
+
+  // ✅ NEW: Load configs from MNConfig system
+  const dynamicConfigs = await models.Configs.getConfigs('DYNAMIC');
+
+  if (!dynamicConfigs?.length) {
+    return;
+  }
+
+  const configsMap = dynamicConfigs.reduce((acc, conf) => {
+    acc[conf.subId || 'noBrand'] = conf.value;
+    return acc;
+  }, {} as Record<string, any>);
+
+  const contentId = updatedDocument?._id || object?._id;
 
   const syncLogDoc = {
     type: '',
     contentType: type,
-    contentId: params.object?._id,
+    contentId,
     createdAt: new Date(),
     createdBy: user?._id,
     consumeData: params,
     consumeStr: JSON.stringify(params),
   };
 
-  let syncLog;
+  let syncLog: any;
 
   try {
-    if (type === 'core:customer' && action === 'create') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-      await customerToDynamic(
-        subdomain,
-        syncLog,
-        params.updatedDocument || params.object,
-        'customer',
-        models,
-        configs
-      );
-      return;
-    }
-
-    if (type === 'core:company' && action === 'create') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-      await customerToDynamic(
-        subdomain,
-        syncLog,
-        params.updatedDocument || params.object,
-        'company',
-        models,
-        configs
-      );
-      return;
-    }
-
-    if (type === 'sales:deal' && action === 'update') {
-      const deal = params.updatedDocument || params.object;
-      const oldDeal = params.object;
-      const destinationStageId = deal.stageId || '';
-
-      if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
-        return;
-      }
-
-      const configsArray = Object.values(configs) as any[];
-
-      const foundConfig = configsArray.find(
-        (config) => config.useBoard && config.stageId === destinationStageId
-      );
-
-      if (foundConfig) {
+    switch (type) {
+      case 'core:customer':
+      case 'core:company': {
         syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-        await dealToDynamic(subdomain, models, syncLog, deal, foundConfig);
-      }
-      return;
-    }
+        await customerToDynamic(
+          subdomain,
+          syncLog,
+          updatedDocument || object,
+          type === 'core:customer' ? 'customer' : 'company',
+          models,
+          configsMap,
+        );
 
-    if (type === 'pos:order' && action === 'synced') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-      const updatedDoc = params.updatedDocument || params.object;
-      const brandId = updatedDoc?.scopeBrandIds?.[0];
-      const config = configs[brandId || 'noBrand'];
-      if (!config.useBoard) {
-        await orderToDynamic(subdomain, models, syncLog, updatedDoc, config);
+        break;
       }
-      return;
+
+      case 'sales:deal': {
+        const deal = updatedDocument || object;
+        const oldDeal = object;
+
+        const destinationStageId = deal?.stageId;
+
+        if (!destinationStageId || destinationStageId === oldDeal?.stageId) {
+          return;
+        }
+
+        const foundConfig = Object.values(configsMap).find(
+          (config: any) =>
+            config?.useBoard && config?.stageId === destinationStageId,
+        );
+
+        if (!foundConfig) {
+          return;
+        }
+
+        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+
+        await dealToDynamic(
+          subdomain,
+          models,
+          syncLog,
+          deal,
+          foundConfig,
+        );
+
+        break;
+      }
+
+      case 'pos:order': {
+        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+
+        const updatedDoc = updatedDocument || object;
+        const brandId = updatedDoc?.scopeBrandIds?.[0];
+
+        const config = configsMap[brandId || 'noBrand'];
+
+        if (config && !config.useBoard) {
+          await orderToDynamic(
+            subdomain,
+            models,
+            syncLog,
+            updatedDoc,
+            config,
+          );
+        }
+
+        break;
+      }
+
+      default:
+        break;
     }
-  } catch (e) {
-    await models.SyncLogs.updateOne(
-      { _id: syncLog?._id },
-      { $set: { error: e.message } }
-    );
+  } catch (e: any) {
+    if (syncLog?._id) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e?.message || 'Unknown error' } },
+      );
+    }
   }
 };
 

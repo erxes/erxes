@@ -28,131 +28,93 @@ export const getConfig = async (
 };
 
 export const consumeInventory = async (
-  subdomain,
-  config,
-  doc,
-  action,
-  user,
+  subdomain: string,
+  config: any,
+  doc: any,
+  action: string,
+  user: any,
 ) => {
-  const updateCode = action === 'delete' ? doc.code : doc.No;
-  
+  const productCode = action === 'delete' ? doc.code : doc.No;
+
   const product = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'config',
-    action: 'getConfig',
-    input: { code:'msdynamic' },
-    defaultValue: {},
+    module: 'products',
+    action: 'findOne',
+    input: { code: productCode },
+    defaultValue: null,
   });
 
-  const brandIds = (product || {}).scopeBrandIds || [];
+  const brandIds = product?.scopeBrandIds || [];
 
-  if ((action === 'update' && doc.No) || action === 'create') {
+  if (action === 'create' || action === 'update') {
     const productCategory = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'categories',
       action: 'findOne',
-      method: 'query',
       input: { code: doc.Item_Category_Code },
       defaultValue: null,
     });
 
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+    if (
+      config.brandId &&
+      config.brandId !== 'noBrand' &&
+      !brandIds.includes(config.brandId)
+    ) {
       brandIds.push(config.brandId);
     }
 
-    const document: any = {
+    const document = {
       name: doc?.Description || 'default',
       shortName: doc?.Description_2 || '',
       type: doc.Type === 'Inventory' ? 'product' : 'service',
       unitPrice: doc?.Unit_Price || 0,
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
-      categoryId: productCategory?._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
+      categoryId: productCategory?._id || null,
       scopeBrandIds: brandIds,
       status: 'active',
     };
 
     if (product) {
-      const updated = await sendTRPCMessage({
+      await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         module: 'products',
         action: 'updateProduct',
-        input: { _id: product._id, doc: { ...document } },
+        input: { _id: product._id, doc: document },
         defaultValue: {},
       });
-
-      //   await putUpdateLog(
-      //     subdomain,
-      //     {
-      //       type: 'product',
-      //       object: product,
-      //       newData: {
-      //         ...doc,
-      //         status: 'active',
-      //       },
-      //       updatedDocument: updated,
-      //     },
-      //     user
-      //   );
     } else {
-      const create = await sendTRPCMessage({
+      await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         module: 'products',
-        action: 'updateProduct',
-        input: { _id: product._id, doc: { ...document } },
+        action: 'createProduct',
+        input: { doc: document },
         defaultValue: {},
-        // action: 'products.createProduct',
-        // data: { doc: { ...document } },
-        // isRPC: true,
       });
-
-      //   await putCreateLog(
-      //     subdomain,
-      //     {
-      //       type: 'product',
-      //       newData: {
-      //         ...doc,
-      //       },
-      //       object: create,
-      //     },
-      //     user
-      //   );
     }
-  } else if (action === 'delete' && product) {
-    const anotherBrandIds = brandIds.filter((b) => b && b !== config.brandId);
-    if (anotherBrandIds.length) {
-      const updated = await sendTRPCMessage({
+  }
+
+  if (action === 'delete' && product) {
+    const remainingBrands = brandIds.filter(
+      (b: string) => b !== config.brandId,
+    );
+
+    if (remainingBrands.length) {
+      await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         module: 'products',
         action: 'updateProduct',
-        input: { _id: product._id, doc: { ...document } },
+        input: {
+          _id: product._id,
+          doc: { scopeBrandIds: remainingBrands },
+        },
         defaultValue: {},
-        // action: 'products.updateProduct',
-        // data: {
-        //   _id: product._id,
-        //   doc: { ...product, scopeBrandIds: anotherBrandIds },
-        // },
-        // isRPC: true,
       });
-
-      //   await putUpdateLog(
-      //     subdomain,
-      //     {
-      //       type: 'product',
-      //       object: product,
-      //       newData: {
-      //         ...doc,
-      //         status: 'active',
-      //       },
-      //       updatedDocument: updated,
-      //     },
-      //     user
-      //   );
     } else {
       await sendTRPCMessage({
         subdomain,
@@ -162,11 +124,10 @@ export const consumeInventory = async (
         input: { _ids: [product._id] },
         defaultValue: {},
       });
-
-      //   await putDeleteLog(subdomain, { type: 'product', object: product }, user);
     }
   }
 };
+
 
 export const consumeCategory = async (
   subdomain,
