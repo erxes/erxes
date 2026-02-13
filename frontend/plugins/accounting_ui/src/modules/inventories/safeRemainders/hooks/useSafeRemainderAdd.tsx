@@ -45,7 +45,7 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
         const newId = data?.safeRemainderAdd[0]?.id;
 
         const pathname = newId
-          ? `/accounting/inventories/safe-remainders/edit?id=${newId}`
+          ? `/accounting/inventories/safe-remainders/detail?id=${newId}`
           : "/accounting/inventories/safe-remainders";
 
         navigate(pathname);

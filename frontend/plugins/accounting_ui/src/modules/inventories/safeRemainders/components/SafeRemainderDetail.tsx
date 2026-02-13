@@ -129,7 +129,7 @@ export const SafeRemainderDetail = () => {
     <>
       <div className="m-3 flex-auto">
         <h3 className="text-lg font-bold">
-          Inventory Adjustment Detail
+          Inventory Census Detail
         </h3>
         <div>
           {safeRemainder && <StatusBar safeRemainder={safeRemainder} />}

@@ -61,6 +61,11 @@ const InventorySafeRemainders = lazy(() =>
     default: module.SafeRemaindersPage,
   })),
 );
+const InventorySafeRemainderDetail = lazy(() =>
+  import('~/pages/inventories/SafeRemainderDetailPage').then((module) => ({
+    default: module.SafeRemainderDetailPage,
+  })),
+);
 const InventoryReserveRemainders = lazy(() =>
   import('~/pages/inventories/ReserveRemaindersPage').then((module) => ({
     default: module.ReserveRemaindersPage,
@@ -94,6 +99,7 @@ const PluginAccounting = () => {
 
         <Route path="/inventories/remainders" element={<InventoryRemainders />} />
         <Route path="/inventories/safe-remainders" element={<InventorySafeRemainders />} />
+        <Route path="/inventories/safe-remainder/detail" element={<InventorySafeRemainderDetail />} />
         <Route path="/inventories/reserve-remainders" element={<InventoryReserveRemainders />} />
       </Routes>
       <PageChangeEffect />
