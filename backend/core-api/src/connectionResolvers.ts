@@ -543,6 +543,7 @@ export const loadClasses = (
     IActivityLogDocument,
     Model<IActivityLogDocument>
   >('activity_logs', activityLogsSchema);
+
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
     'broadcast_engage_messages',
     loadEngageMessageClass(models, subdomain),
