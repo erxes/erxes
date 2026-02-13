@@ -1,0 +1,356 @@
+name: Scheduled - Dependency Audit
+
+on:
+  schedule:
+    # Run every 2 weeks (1st and 15th of each month) at 10 AM UTC
+    - cron: '0 10 1,15 * *'
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Audit scope (all, root, backend, frontend)'
+        required: false
+        default: 'all'
+      auto_fix:
+        description: 'Automatically fix security vulnerabilities'
+        required: false
+        default: 'true'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.12.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for outdated dependencies
+        id: check-outdated
+        run: |
+          SCOPE="${{ github.event.inputs.scope || 'all' }}"
+          echo "Checking for outdated dependencies (scope: $SCOPE)..."
+
+          # Run pnpm outdated and capture output
+          pnpm outdated --format json > /tmp/outdated.json 2>/dev/null || true
+
+          if [ ! -s /tmp/outdated.json ] || [ "$(cat /tmp/outdated.json)" = "{}" ] || [ "$(cat /tmp/outdated.json)" = "[]" ]; then
+            echo "has_outdated=false" >> $GITHUB_OUTPUT
+            echo "No outdated dependencies found"
+          else
+            echo "has_outdated=true" >> $GITHUB_OUTPUT
+            echo "Found outdated dependencies:"
+            cat /tmp/outdated.json | head -50
+          fi
+
+          echo "scope=$SCOPE" >> $GITHUB_OUTPUT
+
+      - name: Run security audit
+        id: security-audit
+        run: |
+          echo "Running pnpm security audit..."
+
+          # Run pnpm audit
+          pnpm audit --json > /tmp/audit.json 2>/dev/null || true
+
+          if [ -s /tmp/audit.json ]; then
+            # Count vulnerabilities by severity
+            CRITICAL=$(cat /tmp/audit.json | grep -o '"severity":"critical"' | wc -l || echo "0")
+            HIGH=$(cat /tmp/audit.json | grep -o '"severity":"high"' | wc -l || echo "0")
+            MODERATE=$(cat /tmp/audit.json | grep -o '"severity":"moderate"' | wc -l || echo "0")
+            LOW=$(cat /tmp/audit.json | grep -o '"severity":"low"' | wc -l || echo "0")
+            TOTAL=$((CRITICAL + HIGH + MODERATE + LOW))
+
+            echo "vulnerabilities=$TOTAL" >> $GITHUB_OUTPUT
+            echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+            echo "high=$HIGH" >> $GITHUB_OUTPUT
+            echo "moderate=$MODERATE" >> $GITHUB_OUTPUT
+            echo "low=$LOW" >> $GITHUB_OUTPUT
+
+            echo "Found $TOTAL vulnerabilities:"
+            echo "  Critical: $CRITICAL"
+            echo "  High: $HIGH"
+            echo "  Moderate: $MODERATE"
+            echo "  Low: $LOW"
+          else
+            echo "vulnerabilities=0" >> $GITHUB_OUTPUT
+            echo "critical=0" >> $GITHUB_OUTPUT
+            echo "high=0" >> $GITHUB_OUTPUT
+            echo "moderate=0" >> $GITHUB_OUTPUT
+            echo "low=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Collect dependency context
+        id: context
+        run: |
+          echo "Collecting dependency information..."
+
+          # Get workspace structure
+          pnpm list --depth 0 --json > /tmp/workspace.json 2>/dev/null || echo "[]" > /tmp/workspace.json
+
+          # Get current Node and pnpm versions
+          NODE_VERSION=$(node --version)
+          PNPM_VERSION=$(pnpm --version)
+
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "pnpm_version=$PNPM_VERSION" >> $GITHUB_OUTPUT
+
+          echo "Environment:"
+          echo "  Node: $NODE_VERSION"
+          echo "  pnpm: $PNPM_VERSION"
+
+      - name: Claude Dependency Analysis & Update
+        if: steps.check-outdated.outputs.has_outdated == 'true' || steps.security-audit.outputs.vulnerabilities != '0'
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-opus-4-5-20251101
+          timeout_minutes: 60
+          base_branch: main
+          branch_prefix: claude/deps-audit-
+          track_progress: true
+          prompt: |
+            # Bi-Weekly Dependency Audit - erxes
+
+            You are running a scheduled dependency audit for the erxes XOS monorepo.
+
+            ## Context
+            - **Repository**: erxes (Experience Operating System)
+            - **Architecture**: Nx monorepo with pnpm workspaces
+            - **Package Manager**: pnpm v${{ steps.context.outputs.pnpm_version }} (REQUIRED - never use npm)
+            - **Node Version**: ${{ steps.context.outputs.node_version }}
+            - **Audit Scope**: ${{ steps.check-outdated.outputs.scope }}
+
+            ## Current Status
+            - **Outdated Dependencies**: ${{ steps.check-outdated.outputs.has_outdated == 'true' && 'Yes' || 'No' }}
+            - **Security Vulnerabilities**: ${{ steps.security-audit.outputs.vulnerabilities }} total
+              - Critical: ${{ steps.security-audit.outputs.critical }}
+              - High: ${{ steps.security-audit.outputs.high }}
+              - Moderate: ${{ steps.security-audit.outputs.moderate }}
+              - Low: ${{ steps.security-audit.outputs.low }}
+
+            ## Your Mission
+
+            **Goal**: Analyze dependencies, fix security issues, and safely update packages.
+
+            ### Step 1: Read Project Context
+            1. Read `CLAUDE.md` to understand:
+               - erxes technology stack and versions
+               - Critical dependencies (TypeScript, React, Node, etc.)
+               - Plugin architecture requirements
+            2. Read `package.json` in root to see workspace structure
+
+            ### Step 2: Analyze Current State
+            Run these commands to gather information:
+            ```bash
+            # Check outdated dependencies
+            pnpm outdated
+
+            # Check security vulnerabilities
+            pnpm audit
+
+            # List workspace packages
+            pnpm list --depth 0
+            ```
+
+            ### Step 3: Prioritize Updates
+
+            **CRITICAL PRIORITY (Must Fix):**
+            - Critical and High severity security vulnerabilities
+            - Known CVEs with exploits
+            - Dependencies blocking security patches
+
+            **HIGH PRIORITY (Should Fix):**
+            - Moderate severity vulnerabilities
+            - Major version updates for core dependencies (TypeScript, React, Node types)
+            - Deprecated packages with maintained alternatives
+
+            **MEDIUM PRIORITY (Nice to Have):**
+            - Low severity vulnerabilities
+            - Minor/patch version updates for stability
+            - Dependencies with important bug fixes
+
+            **LOW PRIORITY (Skip for Now):**
+            - Cosmetic updates
+            - Major version jumps requiring code changes
+            - Breaking changes without clear benefits
+
+            ### Step 4: Update Strategy
+
+            **For Security Vulnerabilities:**
+            ```bash
+            # Let pnpm attempt automatic fixes (if auto_fix enabled)
+            pnpm audit --fix
+
+            # For unfixable issues, check if manual update helps
+            pnpm update {package-name}
+
+            # If still unfixed, document in PR for manual review
+            ```
+
+            **For Outdated Dependencies:**
+
+            Use **CONSERVATIVE** approach:
+            - ✅ Patch updates (1.2.3 → 1.2.4): Usually safe
+            - ✅ Minor updates (1.2.3 → 1.3.0): Safe if no breaking changes noted
+            - ⚠️ Major updates (1.2.3 → 2.0.0): ONLY if critical or well-tested
+            - ❌ Skip: Beta, RC, or experimental versions
+
+            ```bash
+            # Update to latest patch/minor versions
+            pnpm update {package-name}
+
+            # Update to specific version if needed
+            pnpm add {package-name}@{version}
+
+            # Update in specific workspace package
+            pnpm --filter {workspace} add {package-name}@{version}
+            ```
+
+            **Special Considerations for erxes:**
+            - **TypeScript**: Currently 5.7.3 - only update for security/critical bugs
+            - **React**: Currently 18.3.1 - only update within 18.x range
+            - **Nx**: Currently 20.0.8 - check migration guides for major updates
+            - **Rspack**: Currently 1.0.5 - important for build performance
+            - **Apollo**: Federation setup - ensure compatibility across services
+            - **Module Federation**: Frontend plugins depend on specific versions
+
+            ### Step 5: Verification
+
+            After ANY update, run these checks:
+            ```bash
+            # Type check critical projects
+            pnpm nx type-check core-api
+            pnpm nx type-check core-ui
+
+            # Build verification
+            pnpm nx build core-api
+            pnpm nx build core-ui
+
+            # Lint check
+            pnpm nx lint core-api
+            pnpm nx lint core-ui
+
+            # Run tests (if time permits)
+            pnpm nx test core-api --skip-nx-cache
+            ```
+
+            If ANY check fails:
+            - Revert that specific update
+            - Document the issue
+            - Note in PR that manual intervention needed
+
+            ### Step 6: Create Pull Request
+
+            If any updates were made:
+
+            1. **Review changes**: Check `package.json` and `pnpm-lock.yaml`
+            2. **Commit changes**:
+               ```
+               chore(deps): update dependencies and fix security vulnerabilities
+
+               Security fixes:
+               - [list packages fixed]
+
+               Dependency updates:
+               - [package-name]: old-version → new-version
+
+               Verified:
+               - Type checks pass
+               - Builds succeed
+               - Lint passes
+               ```
+
+            3. **Create PR** with this structure:
+               ```markdown
+               ## Dependency Audit - [Date]
+
+               ### 🔒 Security Fixes
+               - **Critical**: [count] vulnerabilities fixed
+               - **High**: [count] vulnerabilities fixed
+               - **Moderate**: [count] vulnerabilities fixed
+               - **Low**: [count] vulnerabilities fixed
+
+               **Fixed Packages:**
+               - `package-name`: version (severity: issue description)
+
+               ### 📦 Dependency Updates
+               **Updated Packages:**
+               - `package-name`: old-version → new-version (reason)
+
+               ### ✅ Verification
+               - [x] pnpm install successful
+               - [x] Type checks pass (core-api, core-ui)
+               - [x] Builds succeed (core-api, core-ui)
+               - [x] Lint checks pass
+               - [x] No breaking changes detected
+
+               ### ⚠️ Manual Review Needed (if any)
+               - [List any issues that need manual intervention]
+
+               ### 📊 Remaining Issues (if any)
+               - [List any vulnerabilities that couldn't be fixed automatically]
+
+               ---
+               *Automated dependency audit - erxes monorepo*
+               ```
+
+            If NO updates possible or needed:
+            - Report: "✅ Dependency audit complete. All dependencies are up-to-date and secure."
+            - Do NOT create a PR
+
+            ## Important Guidelines
+
+            - **ALWAYS use pnpm** - never npm or yarn
+            - **Test thoroughly** - erxes is production software
+            - **Be conservative** - stability > latest versions
+            - **Document everything** - clear PR descriptions
+            - **Respect workspace** - pnpm workspace dependencies
+            - **Check compatibility** - especially for federated GraphQL and Module Federation
+            - **Prioritize security** - fix vulnerabilities first
+            - **Don't break builds** - revert if verification fails
+
+            ## Critical Files to Monitor
+            - `/package.json` - Root workspace
+            - `/pnpm-lock.yaml` - Lock file (will change significantly)
+            - `/backend/core-api/package.json` - Core API deps
+            - `/frontend/core-ui/package.json` - Core UI deps
+            - `/backend/erxes-api-shared/package.json` - Shared backend lib
+
+            ## Auto-fix Enabled
+            ${{ github.event.inputs.auto_fix == 'true' && 'Yes - attempt automatic security fixes' || 'No - manual review only' }}
+          claude_args: |
+            --max-turns 50
+            --allowedTools "Read,Write,Edit,Glob,Grep,Task,Bash(git:*),Bash(gh:*),Bash(pnpm:*)"
+
+      - name: Report no updates needed
+        if: steps.check-outdated.outputs.has_outdated == 'false' && steps.security-audit.outputs.vulnerabilities == '0'
+        run: |
+          echo "✅ All dependencies are up to date and secure!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:**" >> $GITHUB_STEP_SUMMARY
+          echo "- No outdated dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- No security vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Next audit: $(date -d '+14 days' '+%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
