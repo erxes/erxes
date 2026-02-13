@@ -31,9 +31,6 @@ export const knowledgeBaseMutations = {
       doc,
       user._id
     );
-
-;
-
     return updated;
   },
 
