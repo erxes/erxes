@@ -1,6 +1,7 @@
 import { IContext } from '../../../../../connectionResolvers';
 import { ITemplateInput } from '../../../db/definitions/template';
 import { sendTRPCMessage, getSubdomain } from 'erxes-api-shared/utils';
+import { templatesRouter } from '~/modules/products/trpc/template';
 
 interface ITemplateAddInput extends Partial<ITemplateInput> {
   name: string;
@@ -36,38 +37,58 @@ export const templateMutations = {
 
       if (sourceIds && sourceIds.length > 0) {
         // Multiple sources
-        result = await sendTRPCMessage({
-          subdomain,
-          pluginName,
-          method: 'mutation',
-          module: 'templates',
-          action: 'saveAsTemplateMulti',
-          input: {
+        if (pluginName === 'core') {
+          const caller = templatesRouter.createCaller({ models, subdomain });
+          result = await caller.saveAsTemplateMulti({
             sourceIds,
             contentType,
             name: templateDoc.name,
             description: templateDoc.description,
-            status: templateDoc.status,
-            currentUser: user,
-          },
-        });
+          });
+        } else {
+          result = await sendTRPCMessage({
+            subdomain,
+            pluginName,
+            method: 'mutation',
+            module: 'templates',
+            action: 'saveAsTemplateMulti',
+            input: {
+              sourceIds,
+              contentType,
+              name: templateDoc.name,
+              description: templateDoc.description,
+              status: templateDoc.status,
+              currentUser: user,
+            },
+          });
+        }
       } else if (sourceId) {
         // Single source
-        result = await sendTRPCMessage({
-          subdomain,
-          pluginName,
-          method: 'mutation',
-          module: 'templates',
-          action: 'saveAsTemplate',
-          input: {
+        if (pluginName === 'core') {
+          const caller = templatesRouter.createCaller({ models, subdomain });
+          result = await caller.saveAsTemplate({
             sourceId,
             contentType,
             name: templateDoc.name,
             description: templateDoc.description,
-            status: templateDoc.status,
-            currentUser: user,
-          },
-        });
+          });
+        } else {
+          result = await sendTRPCMessage({
+            subdomain,
+            pluginName,
+            method: 'mutation',
+            module: 'templates',
+            action: 'saveAsTemplate',
+            input: {
+              sourceId,
+              contentType,
+              name: templateDoc.name,
+              description: templateDoc.description,
+              status: templateDoc.status,
+              currentUser: user,
+            },
+          });
+        }
       }
 
       if (!result || result.status === 'error') {
@@ -151,31 +172,42 @@ export const templateMutations = {
       };
     }
 
-    // Try to send TRPC message, fallback to template if fails
-    try {
-      const result = await sendTRPCMessage({
+    const templateData = template.toObject
+      ? template.toObject()
+      : { ...template };
+
+    const trpcInput = {
+      template: {
+        content: templateData.content,
+        contentType: templateData.contentType,
+        description: templateData.description,
+      },
+      contentType: fullContentType,
+      currentUser: user ? { _id: user._id } : undefined,
+      relTypeId,
+    };
+
+    let result;
+
+    // If serviceName is 'core', call the templates router directly instead of HTTP
+    if (serviceName === 'core') {
+      const caller = templatesRouter.createCaller({ models, subdomain });
+      result = await caller.useTemplate(trpcInput);
+    } else {
+      result = await sendTRPCMessage({
         subdomain,
         pluginName: serviceName,
         method: 'mutation',
         module: 'templates',
         action: 'useTemplate',
-        input: {
-          template,
-          contentType: fullContentType,
-          currentUser: user,
-          relTypeId,
-        },
-        defaultValue: null,
+        input: trpcInput,
       });
-
-      return result || template;
-    } catch (error) {
-      return {
-        _id: template._id,
-        name: template.name,
-        content: template.content,
-        contentType: template.contentType,
-      };
     }
+
+    if (!result || result.status === 'error') {
+      throw new Error(result?.errorMessage || 'Failed to use template');
+    }
+
+    return result;
   },
 };

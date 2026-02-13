@@ -72,11 +72,7 @@ const TemplatesList: React.FC<IProps> = ({
   }
 
   if (!templates || templates.length === 0) {
-    return (
-      <div className="flex items-center justify-center flex-1">
-        <p className="text-muted-foreground">No templates found</p>
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -25,13 +25,8 @@ interface ITemplateProduct {
 
 const ensureUomExists = async (models: any, uomCode?: string) => {
   if (!uomCode) return undefined;
-
-  const existingUom = await models.Uoms.findOne({ code: uomCode }).lean();
-  if (existingUom) {
-    return uomCode;
-  }
-
-  await models.Uoms.createUom({ code: uomCode, name: uomCode });
+  const existing = await models.Uoms.findOne({ code: uomCode }).lean();
+  if (!existing) await models.Uoms.createUom({ code: uomCode, name: uomCode });
   return uomCode;
 };
 
@@ -42,24 +37,14 @@ const ensureCategoryExists = async (
 ) => {
   if (!categoryCode && !categoryName) return undefined;
 
-  if (categoryCode) {
-    const existingByCode = await models.ProductCategories.findOne({
-      code: categoryCode,
-    }).lean();
-    if (existingByCode) {
-      return existingByCode._id;
-    }
-  }
+  // Find existing by code or name
+  const existing = categoryCode
+    ? await models.ProductCategories.findOne({ code: categoryCode }).lean()
+    : await models.ProductCategories.findOne({ name: categoryName }).lean();
 
-  if (categoryName) {
-    const existingByName = await models.ProductCategories.findOne({
-      name: categoryName,
-    }).lean();
-    if (existingByName) {
-      return existingByName._id;
-    }
-  }
+  if (existing) return existing._id;
 
+  // Create new
   const newCategory = await models.ProductCategories.createProductCategory({
     name: categoryName || categoryCode || 'Default Category',
     code: categoryCode || categoryName || `CAT_${Date.now()}`,
@@ -70,49 +55,76 @@ const ensureCategoryExists = async (
 
 const ensureBrandsExist = async (
   models: any,
-  brandNames?: string[],
-  brandCodes?: string[],
-) => {
-  if (
-    (!brandNames || brandNames.length === 0) &&
-    (!brandCodes || brandCodes.length === 0)
-  ) {
-    return [];
-  }
+  brandNames: string[] = [],
+  brandCodes: string[] = [],
+): Promise<string[]> => {
+  if (!brandNames.length && !brandCodes.length) return [];
 
   const brandIds: string[] = [];
-  const names = brandNames || [];
-  const codes = brandCodes || [];
+  const maxLen = Math.max(brandNames.length, brandCodes.length);
 
-  for (let i = 0; i < Math.max(names.length, codes.length); i++) {
-    const name = names[i];
-    const code = codes[i];
+  for (let i = 0; i < maxLen; i++) {
+    const [name, code] = [brandNames[i], brandCodes[i]];
 
-    if (code) {
-      const existingByCode = await models.Brands.findOne({ code }).lean();
-      if (existingByCode) {
-        brandIds.push(existingByCode._id);
-        continue;
-      }
+    // Find by code or name
+    const existing = code
+      ? await models.Brands.findOne({ code }).lean()
+      : name
+      ? await models.Brands.findOne({ name }).lean()
+      : null;
+
+    if (existing) {
+      brandIds.push(existing._id);
+      continue;
     }
 
-    if (name) {
-      const existingByName = await models.Brands.findOne({ name }).lean();
-      if (existingByName) {
-        brandIds.push(existingByName._id);
-        continue;
-      }
-    }
-
+    // Create new brand
     if (name || code) {
-      const newBrand = await models.Brands.createBrand({
-        name: name || code || `Brand_${Date.now()}`,
-      });
+      const newBrand = await models.Brands.createBrand({ name: name || code });
       brandIds.push(newBrand._id);
     }
   }
 
   return brandIds;
+};
+
+// Template-д орох product field-үүд
+const PRODUCT_TEMPLATE_FIELDS = [
+  'name',
+  'code',
+  'shortName',
+  'type',
+  'description',
+  'unitPrice',
+  'barcodes',
+  'barcodeDescription',
+  'uom',
+] as const;
+
+const pick = <T extends object>(obj: T, keys: readonly (keyof T)[]) =>
+  Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
+
+const resolveProductTemplate = async (
+  models: any,
+  product: any,
+): Promise<ITemplateProduct> => {
+  // Category resolve
+  const category = product.categoryId
+    ? await models.ProductCategories.findOne({ _id: product.categoryId }).lean()
+    : null;
+
+  // Brands resolve
+  const brands = product.scopeBrandIds?.length
+    ? await models.Brands.find({ _id: { $in: product.scopeBrandIds } }).lean()
+    : [];
+
+  return {
+    ...pick(product, PRODUCT_TEMPLATE_FIELDS),
+    categoryName: category?.name || '',
+    categoryCode: category?.code || '',
+    brandNames: brands.map((b: any) => b.name || ''),
+    brandCodes: brands.map((b: any) => b.code || ''),
+  } as ITemplateProduct;
 };
 
 const convertProductsToTemplate = async (
@@ -123,35 +135,7 @@ const convertProductsToTemplate = async (
   const templateProducts: ITemplateProduct[] = [];
 
   for (const product of products) {
-    let categoryName = '';
-    let categoryCode = '';
-    if (product.categoryId) {
-      const category = await models.ProductCategories.findOne({
-        _id: product.categoryId,
-      }).lean();
-      if (category) {
-        categoryName = category.name || '';
-        categoryCode = category.code || '';
-      }
-    }
-
-    let brandNames: string[] = [];
-    let brandCodes: string[] = [];
-    if (product.scopeBrandIds && product.scopeBrandIds.length > 0) {
-      const brands = await models.Brands.find({
-        _id: { $in: product.scopeBrandIds },
-      }).lean();
-      brandNames = brands.map((b: any) => b.name || '');
-      brandCodes = brands.map((b: any) => b.code || '');
-    }
-
-    templateProducts.push({
-      ...product,
-      categoryName,
-      categoryCode,
-      brandNames,
-      brandCodes,
-    });
+    templateProducts.push(await resolveProductTemplate(models, product));
   }
 
   return {
@@ -185,14 +169,163 @@ interface ITemplateCategory {
   scopeBrandIds?: string[];
 }
 
+interface ITemplateCategoryNode {
+  _id: string;
+  name: string;
+  code: string;
+  parentId?: string;
+  order?: string;
+  isLeaf: boolean;
+  products: ITemplateProduct[];
+  children: ITemplateCategoryNode[];
+}
+
+const getCategoryLevel = async (
+  models: any,
+  category: any,
+): Promise<'root' | 'mid' | 'leaf'> => {
+  const hasParent = !!category.parentId;
+  const childrenCount = await models.ProductCategories.countDocuments({
+    parentId: category._id,
+    status: { $nin: ['disabled', 'archived'] },
+  });
+  const hasChildren = childrenCount > 0;
+
+  if (!hasParent && hasChildren) return 'root';
+  if (hasParent && hasChildren) return 'mid';
+  return 'leaf';
+};
+
+const buildCategoryTreeWithProducts = async (
+  models: any,
+  categories: any[],
+  allProducts: any[],
+): Promise<ITemplateCategoryNode[]> => {
+  const productsByCategory: Record<string, ITemplateProduct[]> = {};
+
+  for (const product of allProducts) {
+    if (product.categoryId) {
+      if (!productsByCategory[product.categoryId]) {
+        productsByCategory[product.categoryId] = [];
+      }
+      productsByCategory[product.categoryId].push(
+        await resolveProductTemplate(models, product),
+      );
+    }
+  }
+
+  const categoryNodes: Record<string, ITemplateCategoryNode> = {};
+  const rootNodes: ITemplateCategoryNode[] = [];
+
+  for (const category of categories) {
+    const hasChildren = categories.some((c) => c.parentId === category._id);
+
+    categoryNodes[category._id] = {
+      _id: category._id,
+      name: category.name,
+      code: category.code,
+      parentId: category.parentId,
+      order: category.order,
+      isLeaf: !hasChildren,
+      products: productsByCategory[category._id] || [],
+      children: [],
+    };
+  }
+
+  for (const category of categories) {
+    const node = categoryNodes[category._id];
+
+    if (category.parentId && categoryNodes[category.parentId]) {
+      categoryNodes[category.parentId].children.push(node);
+    } else {
+      rootNodes.push(node);
+    }
+  }
+
+  const sortChildren = (nodes: ITemplateCategoryNode[]) => {
+    nodes.sort((a, b) => (a.order || '').localeCompare(b.order || ''));
+    for (const node of nodes) {
+      if (node.children.length > 0) {
+        sortChildren(node.children);
+      }
+    }
+  };
+
+  sortChildren(rootNodes);
+
+  return rootNodes;
+};
+
+const getChildCategoriesRecursive = async (
+  models: any,
+  categoryIds: string[],
+): Promise<any[]> => {
+  if (!categoryIds.length) return [];
+
+  const categories = await models.ProductCategories.find({
+    _id: { $in: categoryIds },
+  }).lean();
+
+  if (!categories.length) return [];
+
+  const orderQry: any[] = [];
+  for (const category of categories) {
+    if (category.order) {
+      orderQry.push({
+        order: {
+          $regex: new RegExp(
+            `^${category.order.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+          ),
+        },
+      });
+    }
+  }
+
+  if (!orderQry.length) return categories;
+
+  return models.ProductCategories.find({
+    status: { $nin: ['disabled', 'archived'] },
+    $or: orderQry,
+  })
+    .sort({ order: 1 })
+    .lean();
+};
+
+const getProductsByCategoryIds = async (
+  models: any,
+  categoryIds: string[],
+): Promise<any[]> => {
+  if (!categoryIds.length) return [];
+
+  return models.Products.find({
+    categoryId: { $in: categoryIds },
+    status: { $nin: ['deleted', 'archived'] },
+  }).lean();
+};
+
 const convertCategoriesToTemplate = async (
   models: any,
   categories: any[],
   templateName: string,
+  includeChildren: boolean = true,
 ) => {
+  let allCategories = categories;
+  if (includeChildren) {
+    const categoryIds = categories.map((c: any) => c._id);
+    allCategories = await getChildCategoriesRecursive(models, categoryIds);
+
+    const seen = new Set<string>();
+    allCategories = allCategories.filter((c: any) => {
+      if (seen.has(c._id)) return false;
+      seen.add(c._id);
+      return true;
+    });
+  }
+
+  // Step 2: Convert categories
   const templateCategories: ITemplateCategory[] = [];
 
-  for (const category of categories) {
+  for (const category of allCategories) {
     let parentName = '';
     let parentCode = '';
     if (category.parentId) {
@@ -215,9 +348,41 @@ const convertCategoriesToTemplate = async (
     });
   }
 
+  const allCategoryIds = allCategories.map((c: any) => c._id);
+  const products = await getProductsByCategoryIds(models, allCategoryIds);
+
+  const templateProducts: ITemplateProduct[] = [];
+  const productsByCategory: Record<string, ITemplateProduct[]> = {};
+
+  for (const product of products) {
+    const templateProduct = await resolveProductTemplate(models, product);
+    templateProducts.push(templateProduct);
+
+    if (product.categoryId) {
+      if (!productsByCategory[product.categoryId]) {
+        productsByCategory[product.categoryId] = [];
+      }
+
+      productsByCategory[product.categoryId].push(templateProduct);
+    }
+  }
+
+  // Build hierarchical tree structure using helper function
+  const categoryTree = await buildCategoryTreeWithProducts(
+    models,
+    allCategories,
+    products,
+  );
+
+  const templateContent = {
+    categories: templateCategories,
+    products: templateProducts,
+    categoryTree,
+  };
+
   return {
     name: templateName,
-    content: JSON.stringify(templateCategories),
+    content: JSON.stringify(templateContent),
     contentType: 'core:productCategory',
     pluginType: 'core',
     status: 'active' as const,
@@ -232,6 +397,83 @@ const parseTemplateToProducts = (
   } catch (error) {
     throw new Error('Invalid template content');
   }
+};
+
+const resolveCategoryId = async (
+  models: any,
+  product: ITemplateProduct,
+  prefix: string,
+  categoryId?: string,
+  codeToIdMap?: Record<string, string>,
+): Promise<string | undefined> => {
+  if (categoryId) return categoryId;
+
+  // By code from map or DB
+  if (product.categoryCode) {
+    if (codeToIdMap?.[product.categoryCode])
+      return codeToIdMap[product.categoryCode];
+    const cat = await models.ProductCategories.findOne({
+      code: prefix + product.categoryCode,
+    }).lean();
+    if (cat) return cat._id;
+  }
+
+  // By name
+  if (product.categoryName) {
+    const cat = await models.ProductCategories.findOne({
+      name: product.categoryName,
+    }).lean();
+    if (cat) return cat._id;
+  }
+
+  // Create new if needed
+  return ensureCategoryExists(
+    models,
+    product.categoryName,
+    product.categoryCode,
+  );
+};
+
+const createProductFromTemplate = async (
+  models: any,
+  product: ITemplateProduct,
+  prefix: string,
+  categoryId?: string,
+  codeToIdMap?: Record<string, string>,
+) => {
+  const newCode = prefix + product.code;
+
+  // Check existing
+  const existing = await models.Products.findOne({ code: newCode }).lean();
+  if (existing) return existing;
+
+  // Resolve dependencies
+  const [uom, productCategoryId, scopeBrandIds] = await Promise.all([
+    ensureUomExists(models, product.uom),
+    resolveCategoryId(models, product, prefix, categoryId, codeToIdMap),
+    ensureBrandsExist(models, product.brandNames, product.brandCodes),
+  ]);
+
+  // Create product with template fields + resolved refs
+  const {
+    categoryName,
+    categoryCode,
+    brandNames,
+    brandCodes,
+    code,
+    ...templateFields
+  } = product;
+
+  const newProduct = await models.Products.createProduct({
+    ...templateFields,
+    code: newCode,
+    uom,
+    categoryId: productCategoryId,
+    scopeBrandIds: scopeBrandIds.length ? scopeBrandIds : undefined,
+    variants: {},
+  });
+
+  return newProduct.toObject?.() ?? newProduct;
 };
 
 export const templatesRouter = router({
@@ -262,17 +504,32 @@ export const templatesRouter = router({
           };
         }
 
+        // Determine category level (root/mid/leaf) for template structure
+        const categoryLevel = await getCategoryLevel(models, category);
+
+        // Recursively include child categories and their products
         const templateData = await convertCategoriesToTemplate(
           models,
           [category],
           name || category.name,
+          true, // includeChildren = true
         );
+
+        const parsedContent = JSON.parse(templateData.content);
 
         return {
           status: 'success',
           data: {
             content: templateData.content,
-            description: description || category.description,
+            categoryLevel, // 'root' | 'mid' | 'leaf'
+            categoryId: category._id,
+            categoryName: category.name,
+            categoryCode: category.code,
+            description:
+              description ||
+              `${category.name} - ${
+                parsedContent.categories?.length || 0
+              } categories, ${parsedContent.products?.length || 0} products`,
           },
         };
       }
@@ -342,11 +599,15 @@ export const templatesRouter = router({
           };
         }
 
+        // Recursively include child categories and their products
         const templateData = await convertCategoriesToTemplate(
           models,
           categories,
           name || `${categories.length} categories template`,
+          true, // includeChildren = true
         );
+
+        const parsedContent = JSON.parse(templateData.content);
 
         return {
           status: 'success',
@@ -354,7 +615,9 @@ export const templatesRouter = router({
             content: templateData.content,
             description:
               description ||
-              `Template with ${categories.length} product categories`,
+              `Template with ${
+                parsedContent.categories?.length || 0
+              } categories and ${parsedContent.products?.length || 0} products`,
           },
         };
       }
@@ -418,7 +681,6 @@ export const templatesRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { models } = ctx;
 
-      // Support both direct templateContent and template object from templateUse mutation
       const content = input.templateContent || input.template?.content || '';
       const resolvedContentType =
         input.contentType || input.template?.contentType || '';
@@ -435,22 +697,56 @@ export const templatesRouter = router({
         ? resolvedContentType.split(':')
         : ['', ''];
 
-      // productCategory template -> create categories
       if (type === 'productCategory') {
         try {
-          const templateCategories: ITemplateCategory[] = JSON.parse(content);
+          const parsed = JSON.parse(content);
+
+          let templateCategories: ITemplateCategory[] = [];
+          let templateProducts: ITemplateProduct[] = [];
+
+          if (Array.isArray(parsed)) {
+            templateCategories = parsed;
+          } else {
+            templateCategories = parsed.categories || [];
+            templateProducts = parsed.products || [];
+          }
+
           const createdCategories: any[] = [];
+          const codeToIdMap: Record<string, string> = {};
+
+          templateCategories.sort((a, b) =>
+            (a.order || '').localeCompare(b.order || ''),
+          );
 
           for (const catData of templateCategories) {
+            const newCode = prefix + catData.code;
+
+            const existing = await models.ProductCategories.findOne({
+              code: newCode,
+            }).lean();
+
+            if (existing) {
+              createdCategories.push(existing);
+              codeToIdMap[catData.code] = existing._id;
+              continue;
+            }
+
             let parentId: string | undefined;
+
             if (catData.parentCode) {
-              const parent = await models.ProductCategories.findOne({
-                code: catData.parentCode,
-              }).lean();
-              if (parent) {
-                parentId = parent._id;
+              if (codeToIdMap[catData.parentCode]) {
+                parentId = codeToIdMap[catData.parentCode];
+              } else {
+                const parent = await models.ProductCategories.findOne({
+                  code: prefix + catData.parentCode,
+                }).lean();
+                if (parent) {
+                  parentId = parent._id;
+                  codeToIdMap[catData.parentCode] = parent._id;
+                }
               }
             }
+
             if (!parentId && catData.parentName) {
               const parent = await models.ProductCategories.findOne({
                 name: catData.parentName,
@@ -460,21 +756,10 @@ export const templatesRouter = router({
               }
             }
 
-            // Check if category with same code already exists
-            const existing = await models.ProductCategories.findOne({
-              code: catData.code,
-            }).lean();
-
-            if (existing) {
-              createdCategories.push(existing);
-              continue;
-            }
-
             const newCategory =
               await models.ProductCategories.createProductCategory({
-                name: prefix + catData.name,
-                code: prefix + catData.code,
-                order: catData.order || '',
+                name: catData.name,
+                code: newCode,
                 description: catData.description,
                 meta: catData.meta,
                 parentId,
@@ -487,108 +772,86 @@ export const templatesRouter = router({
                 scopeBrandIds: catData.scopeBrandIds,
               } as any);
 
-            createdCategories.push(newCategory);
+            const categoryObj = newCategory.toObject
+              ? newCategory.toObject()
+              : newCategory;
+            createdCategories.push(categoryObj);
+            codeToIdMap[catData.code] = categoryObj._id;
+          }
+
+          const createdProducts: any[] = [];
+
+          for (const product of templateProducts) {
+            const created = await createProductFromTemplate(
+              models,
+              product,
+              prefix,
+              undefined,
+              codeToIdMap,
+            );
+            createdProducts.push(created);
           }
 
           return {
             status: 'success',
             categories: createdCategories,
+            products: createdProducts,
             summary: {
               totalCategories: createdCategories.length,
+              totalProducts: createdProducts.length,
             },
           };
         } catch (error: any) {
+          console.error(
+            'useTemplate productCategory error:',
+            error.message,
+            error.stack,
+          );
           return {
             status: 'error',
             errorMessage:
-              error.message || 'Failed to create categories from template',
+              error.message ||
+              'Failed to create categories and products from template',
           };
         }
       }
 
-      // =============================================
-      // product template -> create products (commented out)
-      // =============================================
-      /*
-      if (type === 'product' || !type) {
-        const templateProducts = parseTemplateToProducts(content);
+      if (type === 'product') {
+        try {
+          const templateProducts = parseTemplateToProducts(content);
+          const createdProducts: any[] = [];
 
-        const createdProducts: any[] = [];
-        const createdRelatedItems = {
-          uoms: [] as string[],
-          categories: [] as string[],
-          brands: [] as string[],
-        };
-
-        for (const product of templateProducts) {
-          const uom = await ensureUomExists(models, product.uom);
-          if (product.uom && !createdRelatedItems.uoms.includes(product.uom)) {
-            const existingUom = await models.Uoms.findOne({
-              code: product.uom,
-            }).lean();
-            if (!existingUom) {
-              createdRelatedItems.uoms.push(product.uom);
-            }
-          }
-
-          let productCategoryId = input.categoryId;
-          if (!productCategoryId) {
-            productCategoryId = await ensureCategoryExists(
+          for (const product of templateProducts) {
+            const created = await createProductFromTemplate(
               models,
-              product.categoryName,
-              product.categoryCode,
+              product,
+              prefix,
+              input.categoryId,
             );
-            if (
-              product.categoryName &&
-              !createdRelatedItems.categories.includes(product.categoryName)
-            ) {
-              createdRelatedItems.categories.push(product.categoryName);
-            }
+            createdProducts.push(created);
           }
 
-          const scopeBrandIds = await ensureBrandsExist(
-            models,
-            product.brandNames,
-            product.brandCodes,
+          return {
+            status: 'success',
+            products: createdProducts,
+            summary: {
+              totalProducts: createdProducts.length,
+            },
+          };
+        } catch (error: any) {
+          console.error(
+            'useTemplate product error:',
+            error.message,
+            error.stack,
           );
-          if (product.brandNames) {
-            for (const brandName of product.brandNames) {
-              if (!createdRelatedItems.brands.includes(brandName)) {
-                createdRelatedItems.brands.push(brandName);
-              }
-            }
-          }
-
-          const newProduct = await models.Products.createProduct({
-            name: prefix + product.name,
-            code: prefix + product.code,
-            shortName: product.shortName ? prefix + product.shortName : undefined,
-            type: product.type,
-            description: product.description,
-            unitPrice: product.unitPrice,
-            barcodes: product.barcodes,
-            barcodeDescription: product.barcodeDescription,
-            uom,
-            categoryId: productCategoryId,
-            scopeBrandIds: scopeBrandIds.length > 0 ? scopeBrandIds : undefined,
-            variants: {},
-          });
-
-          createdProducts.push(newProduct);
+          return {
+            status: 'error',
+            errorMessage:
+              error.message || 'Failed to create products from template',
+          };
         }
-
-        return {
-          products: createdProducts,
-          createdRelatedItems,
-          summary: {
-            totalProducts: createdProducts.length,
-            newUoms: createdRelatedItems.uoms.length,
-            newCategories: createdRelatedItems.categories.length,
-            newBrands: createdRelatedItems.brands.length,
-          },
-        };
       }
-      */
+
       return {
         status: 'error',
         errorMessage: `Unsupported content type for useTemplate: ${resolvedContentType}`,

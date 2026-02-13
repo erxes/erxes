@@ -173,11 +173,11 @@ export const Templates: React.FC = () => {
                 </Filter.View>
               </Combobox.Content>
             </Filter.Popover>
+            <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
+              {totalCount || 0} templates found
+            </div>
           </Filter.Bar>
         </Filter>
-        <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
-          {totalCount} templates found
-        </div>
       </PageSubHeader>
       <TemplatesList
         templates={templates}

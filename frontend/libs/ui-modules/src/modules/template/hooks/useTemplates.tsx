@@ -164,17 +164,41 @@ export const useTemplateUse = (options?: MutationHookOptions) => {
       const result = data?.templateUse;
 
       if (result && typeof result === 'object' && result.summary) {
-        const { totalProducts, newUoms, newCategories, newBrands, newVendors } =
-          result.summary;
+        const {
+          totalProducts,
+          totalCategories,
+          newUoms,
+          newCategories,
+          newBrands,
+          newVendors,
+        } = result.summary;
+
+        const parts: string[] = [];
+        if (totalCategories) parts.push(`${totalCategories} categories`);
+        if (totalProducts) parts.push(`${totalProducts} products`);
+        if (newUoms) parts.push(`${newUoms} UOMs`);
+        if (newCategories) parts.push(`${newCategories} new categories`);
+        if (newBrands) parts.push(`${newBrands} brands`);
+        if (newVendors) parts.push(`${newVendors} vendors`);
 
         toast({
-          title: 'Template Used Successfully',
-          description: `Created ${totalProducts} products with ${newUoms} UOMs, ${newCategories} categories, ${newBrands} brands, ${newVendors} vendors`,
+          title: 'Template used Successfully',
+          description: parts.length
+            ? `Created ${parts.join(', ')}`
+            : 'Template applied successfully',
         });
 
-        if (result.products && result.products.length > 0) {
+        if (
+          (result.products && result.products.length > 0) ||
+          (result.categories && result.categories.length > 0)
+        ) {
+          const redirectPath =
+            result.categories && result.categories.length > 0
+              ? '/products/categories'
+              : '/products';
+
           setTimeout(() => {
-            window.location.href = '/products';
+            window.location.href = redirectPath;
           }, 1500);
         }
       } else {
