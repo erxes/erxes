@@ -86,20 +86,12 @@ export const scoreCampaignQueries = {
   async scoreCampaignServices() {
     const services = await getPlugins();
 
-    const searviceNames: any[] = [];
-
-    for (const serviceName of services) {
-      const service = await getPlugin(serviceName);
-      const meta = service.config?.meta || {};
-
-      if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
-        const { name, label, isAviableAdditionalConfig, icon } =
-          meta?.loyalties || {};
-        searviceNames.push({ name, label, isAviableAdditionalConfig, icon });
-      }
-    }
-
-    return searviceNames;
+    return services.map((name: string) => ({
+      name,
+      label: name.charAt(0).toUpperCase() + name.slice(1),
+      isAviableAdditionalConfig: false,
+      icon: 'IconSettings',
+    }));
   },
 
   async checkOwnerScore(

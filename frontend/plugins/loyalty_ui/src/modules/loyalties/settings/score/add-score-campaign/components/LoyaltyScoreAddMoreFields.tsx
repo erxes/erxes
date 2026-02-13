@@ -15,8 +15,20 @@ export const LoyaltyScoreAddMoreFields = ({
 }) => {
   return (
     <div className="grid grid-cols-2 gap-4 mt-4">
-      <Button>Sales pipeline</Button>
-      <Button>POS order</Button>
+      <Button
+  type="button"
+  onClick={() => form.setValue('conditions.serviceName', 'sales')}
+>
+  Sales pipeline
+</Button>
+
+<Button
+  type="button"
+  onClick={() => form.setValue('conditions.serviceName', 'pos')}
+>
+  POS order
+</Button>
+
     </div>
   );
 };
