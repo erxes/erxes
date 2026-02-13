@@ -8,11 +8,13 @@ export const AccountingHeader = ({
   leftChildren,
   returnLink,
   returnText,
+  skipSettings
 }: {
   children?: React.ReactNode;
   leftChildren?: React.ReactNode;
   returnLink?: string;
   returnText?: string;
+  skipSettings?: boolean;
 }) => {
   const to = returnLink || "/accounting/main"
   return (
@@ -37,12 +39,12 @@ export const AccountingHeader = ({
         <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
       <PageHeader.End>
-        <Button variant="outline" asChild>
+        {!skipSettings && <Button variant="outline" asChild>
           <Link to="/settings/accounting">
             <IconSettings />
             Go to settings
           </Link>
-        </Button>
+        </Button>}
         {children}
       </PageHeader.End>
     </PageHeader>

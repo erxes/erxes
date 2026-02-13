@@ -55,10 +55,15 @@ const safeRemainderQueries = {
       query._id = { $in: lastRemIds };
     }
 
+    let sort: any = { 'date': -1 };
+    if (params.sortField) {
+      sort = { [params.sortField]: params.sortDirection ?? '1' }
+    }
+
     return {
       totalCount: await models.SafeRemainders.find(query).countDocuments(),
       remainders: await paginate(
-        models.SafeRemainders.find(query).sort({ modifiedAt: -1 }),
+        models.SafeRemainders.find(query).sort(sort),
         {
           ...params
         }

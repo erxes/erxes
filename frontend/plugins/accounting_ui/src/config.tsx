@@ -14,6 +14,12 @@ const AdjustmentNavigation = lazy(() =>
   })),
 );
 
+const InventoriesNavigation = lazy(() =>
+  import('./modules/InventoriesNavigation').then((mod) => ({
+    default: mod.InventoriesNavigation,
+  })),
+);
+
 const SettingsNavigation = lazy(() =>
   import('./modules/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
@@ -39,6 +45,7 @@ export const CONFIG: IUIConfig = {
     subGroup: () => (
       <Suspense fallback={<div />}>
         <AdjustmentNavigation />
+        <InventoriesNavigation />
       </Suspense>
     ),
   },

@@ -51,6 +51,23 @@ const AccountingGenJournalReport = lazy(() =>
   })),
 );
 
+const InventoryRemainders = lazy(() =>
+  import('~/pages/inventories/RemaindersPage').then((module) => ({
+    default: module.RemaindersPage,
+  })),
+);
+const InventorySafeRemainders = lazy(() =>
+  import('~/pages/inventories/SafeRemaindersPage').then((module) => ({
+    default: module.SafeRemaindersPage,
+  })),
+);
+const InventoryReserveRemainders = lazy(() =>
+  import('~/pages/inventories/ReserveRemaindersPage').then((module) => ({
+    default: module.ReserveRemaindersPage,
+  })),
+);
+
+
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -75,6 +92,9 @@ const PluginAccounting = () => {
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
         <Route path="/gen-journal-report" element={<AccountingGenJournalReport />} />
 
+        <Route path="/inventories/remainders" element={<InventoryRemainders />} />
+        <Route path="/inventories/safe-remainders" element={<InventorySafeRemainders />} />
+        <Route path="/inventories/reserve-remainders" element={<InventoryReserveRemainders />} />
       </Routes>
       <PageChangeEffect />
     </Suspense>
