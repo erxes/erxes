@@ -19,7 +19,7 @@ export const risksColumns: ColumnDef<RiskType>[] = [
     accessorKey: 'more',
     header: '',
     cell: ({ cell }) => <RisksMoreColumn cell={cell} />,
-    size: 20,
+    size: 18,
   },
   RecordTable.checkboxColumn as ColumnDef<RiskType>,
   {
