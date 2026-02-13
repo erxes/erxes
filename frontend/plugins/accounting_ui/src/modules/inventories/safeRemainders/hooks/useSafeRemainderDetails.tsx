@@ -1,5 +1,5 @@
 import { useQuery, OperationVariables } from '@apollo/client';
-import { SAFE_REMAINDERS_QUERY } from '../graphql/safeRemainderQueries';
+import { SAFE_REMAINDER_DETAILS_QUERY } from '../graphql/safeRemainderQueries';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
@@ -7,7 +7,7 @@ export const useSafeRemainderDetails = (options?: OperationVariables) => {
   const { data, loading, error, fetchMore } = useQuery<
     { safeRemainderDetails: ISafeRemainderItem[], safeRemainderDetailsCount: number },
     OperationVariables
-  >(SAFE_REMAINDERS_QUERY, {
+  >(SAFE_REMAINDER_DETAILS_QUERY, {
     ...options,
     variables: {
       ...options?.variables,

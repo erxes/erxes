@@ -106,16 +106,38 @@ export const SAFE_REMAINDERS_QUERY = gql`
 export const SAFE_REMAINDER_DETAIL_QUERY = gql`
   query SafeRemainderDetail($_id: String!) {
     safeRemainderDetail(_id: $_id) {
-      ${safeRemainderItemFields}
+      ${safeRemainderFields}
     }
   }
 `;
 
 export const SAFE_REMAINDER_DETAILS_QUERY = gql`
-  query SafeRemainderItems($_id: String!) {
-    safeRemainderItems(_id: $_id) {
+  query SafeRemainderItems(
+    $remainderId: String!
+    $status: String
+    $productCategoryIds: [String]
+    $diffType: String
+    $searchValue: String
+    $page: Int
+    $perPage: Int
+  ) {
+    safeRemainderItems(
+      remainderId: $remainderId,
+      status: $status,
+      productCategoryIds: $productCategoryIds,
+      diffType: $diffType,
+      searchValue: $searchValue
+      page: $page
+      perPage: $perPage
+    ) {
       ${safeRemainderItemFields}
     }
-    safeRemainderItemsCount(_id: $_id)
+    safeRemainderItemsCount(
+      remainderId: $remainderId,
+      status: $status,
+      productCategoryIds: $productCategoryIds,
+      diffType: $diffType,
+      searchValue: $searchValue
+    )
   }
 `;

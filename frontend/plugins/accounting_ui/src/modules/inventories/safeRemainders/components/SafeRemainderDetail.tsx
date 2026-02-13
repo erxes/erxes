@@ -1,39 +1,18 @@
+import dayjs from 'dayjs';
 import {
-  IconBinoculars,
-  IconCircleCheck,
-  IconClockEdit,
-  IconCrane,
-  IconGavel,
-  IconHelpSquareRounded,
-  IconRotateClockwise2,
-  IconStopwatch,
-  IconTrashX
-} from '@tabler/icons-react';
-import {
-  eachDayOfInterval,
-  format,
-  isAfter,
-  isBefore,
-  isSameDay
-} from 'date-fns';
-import {
-  Button,
-  DatePicker,
+  Label,
   RecordTable,
   Spinner,
-  Tooltip,
   useQueryState
 } from 'erxes-ui';
-
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
-import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
-import { SAFE_REMAINDER_STATUSES, ISafeRemainder } from '../types/SafeRemainder';
-import { adjustDetailTableColumns } from './SafeRemainderDetailColumns';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
+import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
+import { ISafeRemainder } from '../types/SafeRemainder';
+import { adjustDetailTableColumns } from './SafeRemainderDetailColumns';
 
 export const SafeRemainderDetail = () => {
-  // const parentId = useParams().parentId;
   const [id] = useQueryState<string>('id');
 
   const { safeRemainder, loading } = useSafeRemainderDetail({
@@ -42,7 +21,7 @@ export const SafeRemainderDetail = () => {
   });
 
   const { safeRemainderDetails, safeRemainderDetailsCount, loading: detailsLoading, handleFetchMore } = useSafeRemainderDetails({
-    variables: { _id: id },
+    variables: { remainderId: id },
     skip: !id,
   });
 
@@ -64,66 +43,6 @@ export const SafeRemainderDetail = () => {
   const handleDelete = () => {
     removeSafeRemainder()
   }
-
-  // const renderEvents = () => {
-  //   const status = safeRemainder?.status || SAFE_REMAINDER_STATUSES.DRAFT;
-  //   switch (status) {
-  //     case SAFE_REMAINDER_STATUSES.DRAFT:
-  //     case SAFE_REMAINDER_STATUSES.PROCESS:
-  //       return (
-  //         <>
-  //           <Button
-  //             onClick={handleRun}
-  //           >
-  //             <IconCrane />
-  //             RUN
-  //           </Button>
-  //           <Button
-  //             variant="secondary"
-  //             className="text-destructive"
-  //             onClick={handleDelete}
-  //           >
-  //             <IconTrashX />
-  //             Delete
-  //           </Button>
-  //         </>
-  //       )
-  //     case SAFE_REMAINDER_STATUSES.PUBLISH:
-  //       return (
-  //         <Button
-  //           variant="secondary"
-  //           className="text-destructive"
-  //           onClick={handleCancel}
-  //         >
-  //           <IconTrashX />
-  //           Draft
-  //         </Button>
-  //       )
-  //     case SAFE_REMAINDER_STATUSES.COMPLETE:
-  //       return (
-  //         <Button
-  //           onClick={handleSubmit}
-  //         >
-  //           <IconGavel />
-  //           PUBLISH
-  //         </Button>
-  //       )
-  //     case SAFE_REMAINDER_STATUSES.RUNNING:
-  //       return (
-  //         <Button
-  //           // disabled={true}
-  //           onClick={handleRun}
-  //         >
-  //           <IconStopwatch />
-  //           Stop
-  //         </Button>
-
-  //       )
-
-  //     default:
-  //       return null;
-  //   }
-  // }
 
   return (
     <>
@@ -167,37 +86,33 @@ export const SafeRemainderDetail = () => {
 };
 
 const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
-  const { date, status } = safeRemainder;
-
-  const renderIcon = (day: Date) => {
-
-    return undefined;
-  }
-
-
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={safeRemainder?.date}
-            onChange={() => null}
-            className="h-8 flex w-full"
-            disabled={true}
-          />
-        </span>
-        <span className="text-accent-foreground">{'->'}</span>
+        <Label>Date:</Label>
+        <span>{dayjs(safeRemainder.date).format('YYYY-MM-DD HH:mm:ss')}</span>
+        <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">{'->'}</span>
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={safeRemainder?.date}
-            onChange={() => null}
-            className="h-8 flex w-full"
-            disabled={true}
-          />
-        </span>
+        <Label>Branch:</Label>
+        <span>{`${safeRemainder.branch?.code} - ${safeRemainder.branch?.title}`}</span>
+        <span className="text-accent-foreground">{'|'}</span>
+      </div>
+      <div className="flex items-center gap-2 text-sm">
+        <Label>Department:</Label>
+        <span>{`${safeRemainder.department?.code} - ${safeRemainder.department?.title}`}</span>
+        <span className="text-accent-foreground">{'|'}</span>
+      </div>
+      {safeRemainder.productCategoryId && (
+        <div className="flex items-center gap-2 text-sm">
+          <Label>Product Category:</Label>
+          <span>{`${safeRemainder.productCategory?.code} - ${safeRemainder.productCategory?.name}`}</span>
+          <span className="text-accent-foreground">{'|'}</span>
+        </div>
+      )}
+      <div className="flex items-center gap-2 text-sm">
+        <Label>Description:</Label>
+        <span>{safeRemainder.description}</span>
       </div>
     </div>
   );

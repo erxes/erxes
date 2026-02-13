@@ -68,7 +68,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         modifiedBy: userId
       });
 
-      let productFilter = {};
+      let productFilter: any = {};
       const attachDatas: any = {};
       let attachFieldId = "";
 
@@ -78,11 +78,14 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         productFilter = { query: { code: { $in: codes } } }
       } else {
         productFilter = {
-          categoryId: productCategoryId,
           query: { status: { $ne: "deleted" } }
         };
-      }
 
+        if (productCategoryId) {
+          productFilter.categoryId = productCategoryId
+        }
+      }
+      console.log(productFilter, 'rrrrrrrrrrrrrrrrrr')
       // Get products related to product category
       const products = await sendTRPCMessage({
         subdomain,
@@ -96,6 +99,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         defaultValue: []
       });
 
+      console.log(products)
       // Create remainder items for every product
       const productIds = products.map((item: any) => item._id);
 

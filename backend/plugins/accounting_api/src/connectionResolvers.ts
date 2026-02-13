@@ -135,19 +135,19 @@ export const loadClasses = (
   );
 
   models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
-    'Remainders',
+    'remainders',
     loadRemainderClass(models, subdomain)
   )
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
-    'ReserveRems',
+    'inventories_reserverems',
     loadReserveRemClass(models, subdomain)
   )
   models.SafeRemainderItems = db.model<ISafeRemainderItemDocument, ISafeRemainderItemModel>(
-    'SafeRemainderItems',
+    'safe_remainder_items',
     loadSafeRemainderItemClass(models, subdomain)
   )
   models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
-    'SafeRemainders',
+    'safe_remainders',
     loadSafeRemainderClass(models, subdomain)
   )
 
