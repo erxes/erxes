@@ -90,7 +90,51 @@ export const internalNoteMutations = {
       //   });
     }
 
-    return models.InternalNotes.createInternalNote(args, user);
+    const note = await models.InternalNotes.createInternalNote(args, user);
+
+    if (contentTypeId) {
+      try {
+        const actorData = {
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+          details: user.details,
+          role: user.role,
+        };
+
+        const activityLog = await models.ActivityLogs.create({
+          activityType: 'internalNote',
+          targetId: contentTypeId,
+          targetType: contentType,
+          target: { _id: contentTypeId },
+          action: {
+            type: 'create',
+            description: 'added a note',
+          },
+          metadata: {
+            noteId: note._id.toString(),
+            content: note.content,
+          },
+          changes: {},
+          actorType: user.role || 'user',
+          actor: actorData,
+        });
+
+        graphqlPubsub.publish(
+          `activityLogInserted:${subdomain}:${contentTypeId}`,
+          {
+            activityLogInserted: activityLog.toObject(),
+          },
+        );
+      } catch (e) {
+        console.error('Failed to create activity log for internal note', e, {
+          contentTypeId,
+          contentType,
+        });
+      }
+    }
+
+    return note;
   },
 
   /**
