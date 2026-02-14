@@ -22,7 +22,7 @@ import {
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 
 export const FormPreview = () => {
@@ -31,6 +31,12 @@ export const FormPreview = () => {
   const formConfirmation = useAtomValue(formSetupConfirmationAtom);
   const [activeStep, setActiveStep] = useState<number>(1);
   const activeFormStep = useAtomValue(formSetupStepAtom);
+
+  useEffect(() => {
+    if (formContent.steps) {
+      setActiveStep(1);
+    }
+  }, [formContent.steps]);
 
   if (!formContent || !formContent.steps) {
     return (

@@ -1,12 +1,11 @@
 import { FormsBreadCrumb } from '@/forms/components/FormsBreadCrumb';
 import { FormsList } from '@/forms/components/FormsList';
 import { IconPlus } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageContainer, Separator } from 'erxes-ui';
-import { Link, useParams } from 'react-router-dom';
+import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
+import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 
 export const FormsPage = () => {
-  const { channelId } = useParams<{ channelId: string }>();
   return (
     <PageContainer>
       <PageHeader>
@@ -20,7 +19,7 @@ export const FormsPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
         <Button className="ml-auto" asChild>
-          <Link to={`/settings/frontline/forms/${channelId}/create`}>
+          <Link to={`/frontline/forms/create`}>
             <IconPlus />
             Create form
           </Link>
