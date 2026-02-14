@@ -59,12 +59,6 @@ const KnowledgeBase = lazy(() =>
   })),
 );
 
-const Forms = lazy(() =>
-  import('~/pages/FormsIndexPage').then((module) => ({
-    default: module.default,
-  })),
-);
-
 const IntegrationsMain = () => {
   return (
     <Suspense fallback={<div />}>
