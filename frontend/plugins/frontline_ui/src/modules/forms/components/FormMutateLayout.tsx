@@ -27,15 +27,10 @@ export const FormMutateLayout = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(
-          (values) => {
-            onSubmit?.(values);
-            setStep((prev) => (prev === 3 ? prev : prev + 1));
-          },
-          (errors) => {
-            console.log(errors);
-          },
-        )}
+        onSubmit={form.handleSubmit((values) => {
+          onSubmit?.(values);
+          setStep((prev) => (prev === 3 ? prev : prev + 1));
+        })}
         className="flex-auto flex flex-col h-full overflow-hidden bg-sidebar"
       >
         <Sheet.Content className="grow overflow-hidden flex flex-col">

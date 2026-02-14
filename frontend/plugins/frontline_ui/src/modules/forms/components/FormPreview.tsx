@@ -263,7 +263,6 @@ export const FormPreviewContent = ({
                       }
 
                       if (erxesField.type === 'select') {
-                        console.log('erxesField', erxesField);
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>

@@ -21,9 +21,7 @@ export const FormGeneral = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof FORM_GENERAL_SCHEMA>) => {
-    console.log(values);
-  };
+  const onSubmit = (values: z.infer<typeof FORM_GENERAL_SCHEMA>) => null;
 
   return (
     <FormMutateLayout

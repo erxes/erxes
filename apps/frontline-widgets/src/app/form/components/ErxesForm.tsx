@@ -37,8 +37,8 @@ export const ErxesForm = ({
 }) => {
   const formData = useErxesForm();
   const [activeStep, setActiveStep] = useAtom(activeStepAtom);
-  const [showConfirmation, setShowConfirmation] = useAtom(showConfirmationAtom);
-  const [formValues, setFormValues] = useAtom(formValuesAtom);
+  const setShowConfirmation = useSetAtom(showConfirmationAtom);
+  const setFormValues = useSetAtom(formValuesAtom);
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
@@ -46,8 +46,6 @@ export const ErxesForm = ({
     defaultValues: defaultValue,
     resolver: zodResolver(schema),
   });
-
-  console.log(formValues, 'formValues');
 
   const handleSubmit = (values: any) => {
     setFormValues((prev) => ({ ...(prev || {}), [step.order]: values }));
@@ -59,12 +57,7 @@ export const ErxesForm = ({
 
   return (
     <Form {...form}>
-      <form
-        className="text-sm"
-        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.log(errors);
-        })}
-      >
+      <form className="text-sm" onSubmit={form.handleSubmit(handleSubmit)}>
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}
