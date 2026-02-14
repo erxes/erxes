@@ -27,6 +27,21 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   const showLotteryTab = selectedType === 'lottery';
   const showSpinTab = selectedType === 'spin';
 
+  const toNumber = (value: any): number | undefined => {
+    if (value === '' || value === undefined || value === null) {
+      return undefined;
+    }
+    return Number(value);
+  };
+
+  const formatDate = (
+    date: string | Date | undefined,
+  ): string | undefined => {
+    if (!date) return undefined;
+    if (date instanceof Date) return date.toISOString();
+    return date;
+  };
+
   const getNextTab = (currentTab: string) => {
     const tabOrder = ['campaign', 'restriction'];
     if (showProductBonusTab) tabOrder.push('productBonus');
@@ -50,9 +65,7 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
 
   const handleNext = () => {
     const nextTab = getNextTab(activeTab);
-    if (nextTab) {
-      setActiveTab(nextTab);
-    }
+    if (nextTab) setActiveTab(nextTab);
   };
 
   const handleSubmit = async () => {
@@ -60,41 +73,52 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
 
     const data = form.getValues();
 
-    const formatDate = (date: string | Date | undefined): string => {
-      if (!date) return '';
-      if (date instanceof Date) {
-        return date.toISOString();
-      }
-      return date;
-    };
-
-    const variables: any = {
+    const variables = {
       _id: voucherDetail._id,
+
       title: data.title || '',
-      kind: data.kind,
-      value: data.value,
       description: data.description || '',
       status: data.status || 'active',
-      type: data.type || 'Product Discount',
+
+      voucherType: data.type,
+      kind: data.kind,
+
+      value: toNumber(data.value),         
+      buyScore: toNumber(data.buyScore),   
+
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
+
       restrictions: {
-        minimumSpend: data.minimumSpend,
-        maximumSpend: data.maximumSpend,
-        categoryIds: data.categoryIds,
-        excludeCategoryIds: data.excludeCategoryIds,
-        productIds: data.productIds,
-        excludeProductIds: data.excludeProductIds,
-        tag: data.tag,
-        orExcludeTag: data.orExcludeTag,
+        minimumSpend: toNumber(data.minimumSpend),
+        maximumSpend: toNumber(data.maximumSpend),
+        categoryIds: data.categoryIds || [],
+        excludeCategoryIds: data.excludeCategoryIds || [],
+        productIds: data.productIds || [],
+        excludeProductIds: data.excludeProductIds || [],
+        tag: data.tag || '',
+        orExcludeTag: data.orExcludeTag || '',
       },
-      buyScore: data.buyScore,
-      ...(data.bonusProduct && { bonusProductId: data.bonusProduct }),
-      ...(data.bonusCount && { bonusCount: Number(data.bonusCount) }),
-      ...(data.spinCount && { spinCount: data.spinCount }),
-      ...(data.spinCampaignId && { spinCampaignId: data.spinCampaignId }),
-      ...(data.lottery && { lottery: data.lottery }),
-      ...(data.lotteryCount && { lotteryCount: data.lotteryCount }),
+
+      ...(data.bonusProduct && {
+        bonusProductId: data.bonusProduct,
+      }),
+
+      ...(data.bonusCount && {
+        bonusCount: toNumber(data.bonusCount),
+      }),
+
+      ...(data.spinCampaignId && {
+        spinCampaignId: data.spinCampaignId,
+      }),
+
+      ...(data.spinCount && {
+        spinCount: toNumber(data.spinCount),
+      }),
+
+      ...(data.lotteryCount && {
+        lotteryCount: toNumber(data.lotteryCount),
+      }),
     };
 
     voucherEdit({
@@ -122,6 +146,7 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
       >
         Cancel
       </Button>
+
       {isLastTab() ? (
         <Button
           type="button"
@@ -151,114 +176,69 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
     >
       <Tabs.List className="flex justify-center">
         <Tabs.Trigger asChild value="campaign">
-          <Button
-            variant={'outline'}
-            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-          >
-            Campaign
-          </Button>
+          <Button variant="outline">Campaign</Button>
         </Tabs.Trigger>
+
         <Tabs.Trigger asChild value="restriction">
-          <Button
-            variant={'outline'}
-            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-          >
-            Restriction
-          </Button>
+          <Button variant="outline">Restriction</Button>
         </Tabs.Trigger>
+
         {showProductBonusTab && (
           <Tabs.Trigger asChild value="productBonus">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Product Bonus
-            </Button>
+            <Button variant="outline">Product Bonus</Button>
           </Tabs.Trigger>
         )}
+
         {showLotteryTab && (
           <Tabs.Trigger asChild value="lottery">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Lottery Campaign
-            </Button>
+            <Button variant="outline">Lottery Campaign</Button>
           </Tabs.Trigger>
         )}
+
         {showSpinTab && (
           <Tabs.Trigger asChild value="spin">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Spin Campaign
-            </Button>
+            <Button variant="outline">Spin Campaign</Button>
           </Tabs.Trigger>
         )}
       </Tabs.List>
+
       <Tabs.Content value="campaign" className="h-full py-4 px-5 overflow-auto">
         <Form {...form}>
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-auto overflow-hidden">
-              <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
-            </div>
-            {renderFooter()}
-          </div>
+          <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
+          {renderFooter()}
         </Form>
       </Tabs.Content>
-      <Tabs.Content
-        value="restriction"
-        className="h-full py-4 px-5 overflow-auto"
-      >
+
+      <Tabs.Content value="restriction" className="h-full py-4 px-5 overflow-auto">
         <Form {...form}>
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-auto overflow-hidden">
-              <AddVoucherRestrictionForm onOpenChange={onOpenChange} />
-            </div>
-            {renderFooter()}
-          </div>
+          <AddVoucherRestrictionForm onOpenChange={onOpenChange} />
+          {renderFooter()}
         </Form>
       </Tabs.Content>
+
       {showProductBonusTab && (
-        <Tabs.Content
-          value="productBonus"
-          className="h-full py-4 px-5 overflow-auto"
-        >
+        <Tabs.Content value="productBonus" className="h-full py-4 px-5 overflow-auto">
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherProductBonusForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherProductBonusForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
+
       {showLotteryTab && (
-        <Tabs.Content
-          value="lottery"
-          className="h-full py-4 px-5 overflow-auto"
-        >
+        <Tabs.Content value="lottery" className="h-full py-4 px-5 overflow-auto">
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherLotteryForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherLotteryForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
+
       {showSpinTab && (
         <Tabs.Content value="spin" className="h-full py-4 px-5 overflow-auto">
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherSpinForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherSpinForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}

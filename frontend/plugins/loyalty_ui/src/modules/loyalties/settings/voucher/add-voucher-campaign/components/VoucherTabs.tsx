@@ -56,40 +56,64 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
   const handleSubmit = async () => {
     const data = form.getValues();
 
-    const formatDate = (date: string | Date | undefined): string => {
-      if (!date) return '';
-      if (date instanceof Date) {
-        return date.toISOString();
+    const toNumber = (value: any) => {
+      if (value === '' || value === undefined || value === null) {
+        return undefined;
       }
+      return Number(value);
+    };
+
+    const formatDate = (
+      date: string | Date | undefined,
+    ): string | undefined => {
+      if (!date) return undefined;
+      if (date instanceof Date) return date.toISOString();
       return date;
     };
 
-    const variables: any = {
+    const variables = {
       title: data.title || '',
       description: data.description || '',
       status: data.status || 'active',
-      type: data.type || 'Product Discount',
+      voucherType: data.type,
+
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
+
       kind: data.kind,
-      value: data.value,
+      value: toNumber(data.value),
+      buyScore: toNumber(data.buyScore),
+
       restrictions: {
-        minimumSpend: data.minimumSpend,
-        maximumSpend: data.maximumSpend,
-        categoryIds: data.categoryIds,
-        excludeCategoryIds: data.excludeCategoryIds,
-        productIds: data.productIds,
-        excludeProductIds: data.excludeProductIds,
-        tag: data.tag,
-        orExcludeTag: data.orExcludeTag,
+        minimumSpend: toNumber(data.minimumSpend),
+        maximumSpend: toNumber(data.maximumSpend),
+        categoryIds: data.categoryIds || [],
+        excludeCategoryIds: data.excludeCategoryIds || [],
+        productIds: data.productIds || [],
+        excludeProductIds: data.excludeProductIds || [],
+        tag: data.tag || '',
+        orExcludeTag: data.orExcludeTag || '',
       },
-      buyScore: data.buyScore,
-      ...(data.bonusProduct && { bonusProductId: data.bonusProduct }),
-      ...(data.bonusCount && { bonusCount: Number(data.bonusCount) }),
-      ...(data.spinCount && { spinCount: data.spinCount }),
-      ...(data.spinCampaignId && { spinCampaignId: data.spinCampaignId }),
-      ...(data.lottery && { lottery: data.lottery }),
-      ...(data.lotteryCount && { lotteryCount: data.lotteryCount }),
+
+      ...(data.bonusProduct && {
+        bonusProductId: data.bonusProduct,
+      }),
+
+      ...(data.bonusCount && {
+        bonusCount: toNumber(data.bonusCount),
+      }),
+
+      ...(data.spinCampaignId && {
+        spinCampaignId: data.spinCampaignId,
+      }),
+
+      ...(data.spinCount && {
+        spinCount: toNumber(data.spinCount),
+      }),
+
+      ...(data.lotteryCount && {
+        lotteryCount: toNumber(data.lotteryCount),
+      }),
     };
 
     voucherAdd({
@@ -107,6 +131,7 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
       },
     });
   };
+
 
   const renderFooter = () => (
     <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted border-t">
