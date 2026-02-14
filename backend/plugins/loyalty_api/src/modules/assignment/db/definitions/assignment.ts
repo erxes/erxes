@@ -1,31 +1,25 @@
 import { Schema } from 'mongoose';
 
+import { ASSIGNMENT_STATUS } from '@/assignment/constants';
 import { schemaWrapper } from 'erxes-api-shared/utils';
-import { LOYALTY_STATUSES, OWNER_TYPES } from '~/constants';
+import { commonSchema } from '~/utils';
 
 export const assignmentSchema = schemaWrapper(
   new Schema(
     {
-      ownerId: { type: String, label: 'Owner ID' },
-      ownerType: {
-        type: String,
-        label: 'Owner Type',
-        enum: OWNER_TYPES.ALL,
-      },
-
+      ...commonSchema,
       status: {
         type: String,
-        label: 'Status',
-        enum: LOYALTY_STATUSES.ALL,
-        default: 'new',
+        enum: ASSIGNMENT_STATUS.ALL,
+        default: ASSIGNMENT_STATUS.NEW,
       },
-
-      campaignId: { type: String, label: 'Campaign ID' },
-
-      conditions: { type: Schema.Types.Mixed, label: 'Conditions' },
-
-      createdBy: { type: String, label: 'Created By' },
-      updatedBy: { type: String, label: 'Updated By' },
+      segmentIds: { type: [String], label: 'Segment Data' },
+      voucherCampaignId: {
+        type: String,
+        label: 'Source Voucher Campaign',
+        optional: true,
+      },
+      voucherId: { type: String, label: 'Won Voucher', optional: true },
     },
     {
       timestamps: true,

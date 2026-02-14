@@ -32,7 +32,9 @@ import { Link } from 'react-router-dom';
 export const FormsList = () => {
   const { channelId } = useParams();
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
-    channelId: channelId || '',
+    variables: {
+      channelId: channelId || '',
+    },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -214,7 +216,7 @@ export const RemoveForm = ({
         confirm({
           message: `Are you sure you want to remove "${title}" form?`,
         }).then(() => {
-          removeForm({ variables: { id: formId } });
+          removeForm({ variables: { _ids: [formId] } });
         });
       }}
       disabled={loading}

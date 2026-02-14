@@ -2,6 +2,7 @@ import {
   ICursorPaginateParams,
   ICustomField,
   IListParams,
+  IPropertyField,
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
@@ -71,6 +72,7 @@ export interface IDeal {
     startDate?: string;
   };
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField[];
   score?: number;
   number?: string;
   data?: any;
@@ -89,7 +91,7 @@ export interface IDealDocument extends IDeal, Document {
   createdAt?: Date;
   updatedAt?: Date;
 
-  customProperties?: Record<string, any>[];
+  customProperties?: Record<string, any>;
 }
 
 export interface IDate {

@@ -53,6 +53,18 @@ const FormPreviewPage = lazy(() =>
   })),
 );
 
+const KnowledgeBase = lazy(() =>
+  import('~/pages/knowledgebase/IndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
+
+const Forms = lazy(() =>
+  import('~/pages/FormsIndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
+
 const IntegrationsMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -66,6 +78,7 @@ const IntegrationsMain = () => {
         <Route path="/forms/:id" element={<FormDetailPage />} />
         <Route path="/forms/create" element={<FormCreatePage />} />
         <Route path="/forms/preview" element={<FormPreviewPage />} />
+        <Route path="/knowledgebase" element={<KnowledgeBase />} />
       </Routes>
     </Suspense>
   );

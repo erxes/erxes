@@ -26,7 +26,7 @@ export const NodeLibraryRow = ({
     <Command.Item value={label} asChild>
       <Card
         className={cn(
-          `cursor-pointer border-accent cursor-grab hover:bg-accent transition-colors h-16 mb-2 w-[350px] sm:w-[500px]`,
+          `cursor-pointer border-accent cursor-grab hover:bg-accent transition-colors w-[350px] h-fit sm:w-[400px] m-1 bg-background`,
           {
             'hover:border-success': nodeType === AutomationNodeType.Action,
             'hover:border-primary': nodeType === AutomationNodeType.Trigger,
@@ -35,8 +35,8 @@ export const NodeLibraryRow = ({
         draggable
         onDragStart={(event) => onDragStart(event, { nodeType, ...item })}
       >
-        <Card.Content className="p-3">
-          <div className="flex items-center gap-4">
+        <Card.Content className="p-1">
+          <div className="flex items-start gap-4">
             <div
               className={cn(`p-3 rounded-lg`, {
                 'bg-success/10 text-success border-success':
@@ -47,7 +47,7 @@ export const NodeLibraryRow = ({
             >
               <IconComponent name={iconName} />
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1">
               <div className="flex items-center gap-4">
                 <h3 className="font-semibold text-foreground text-sm">
                   {label || ''}

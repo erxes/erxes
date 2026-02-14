@@ -29,6 +29,12 @@ export const GET_FORMS_LIST = gql`
       list {
         _id
         code
+        channelId
+        channel {
+          _id
+          name
+          icon
+        }
         createdDate
         createdUserId
         channelId

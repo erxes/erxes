@@ -51,7 +51,6 @@ export const AddProperty = () => {
           code: '',
           validation: '',
           options: [],
-          multiple: false,
         }}
       />
     </div>

@@ -1,12 +1,5 @@
-import { useAtomValue } from 'jotai';
-import { z } from 'zod';
-import {
-  formSetupConfirmationAtom,
-  formSetupContentAtom,
-  formSetupGeneralAtom,
-  formSetupStepAtom,
-} from '../states/formSetupStates';
-import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
+import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Checkbox,
@@ -20,6 +13,8 @@ import {
   Textarea,
   toast,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useEffect, useState } from 'react';
@@ -268,6 +263,7 @@ export const FormPreviewContent = ({
                       }
 
                       if (erxesField.type === 'select') {
+                        console.log('erxesField', erxesField);
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
@@ -283,11 +279,15 @@ export const FormPreviewContent = ({
                                 </Select.Trigger>
                               </Form.Control>
                               <Select.Content>
-                                {erxesField.options.map((option) => (
-                                  <Select.Item key={option} value={option}>
-                                    {option}
-                                  </Select.Item>
-                                ))}
+                                {erxesField.options.map((option) => {
+                                  if (!option) return null;
+
+                                  return (
+                                    <Select.Item key={option} value={option}>
+                                      {option}
+                                    </Select.Item>
+                                  );
+                                })}
                               </Select.Content>
                             </Select>
                             {erxesField.description && (
@@ -367,5 +367,8 @@ export const ErxesFormItem = ({
   span,
   ...props
 }: React.ComponentProps<typeof Form.Item> & { span: number }) => (
-  <Form.Item {...props} className={cn(props.className, span && `col-span-2`)} />
+  <Form.Item
+    {...props}
+    className={cn(props.className, span && `col-span-${span}`)}
+  />
 );

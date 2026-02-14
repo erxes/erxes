@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 
 import { mongooseStringRandomId } from '../../../utils';
-export const cpNotificationConfigSchema = new Schema(
+export const cpNotificationConfigUserSchema = new Schema(
   {
     notificationType: {
       type: String,
@@ -47,7 +47,7 @@ export const cpNotificationSettingsSchema = new Schema(
       required: true,
     },
     configs: {
-      type: [cpNotificationConfigSchema],
+      type: [cpNotificationConfigUserSchema],
       required: true,
     },
   },
@@ -76,6 +76,19 @@ export const socialAuthProviderSchema = new Schema(
     providerId: { type: String, required: true },
     email: { type: String },
     linkedAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
+export const fcmDeviceSchema = new Schema(
+  {
+    deviceId: { type: String, required: true },
+    token: { type: String, required: true },
+    platform: {
+      type: String,
+      required: true,
+      enum: ['ios', 'android', 'web'],
+    },
   },
   { _id: false },
 );
@@ -167,7 +180,7 @@ export const cpUserSchema = new Schema(
       default: false,
     },
     fcmTokens: {
-      type: [String],
+      type: [fcmDeviceSchema],
       default: [],
     },
     actionCode: {
@@ -208,3 +221,12 @@ export const cpUserSchema = new Schema(
 cpUserSchema.index({ clientPortalId: 1 });
 cpUserSchema.index({ email: 1 });
 cpUserSchema.index({ phone: 1 });
+cpUserSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 24 * 60 * 60,
+    partialFilterExpression: {
+      $and: [{ isPhoneVerified: false }, { isEmailVerified: false }],
+    },
+  },
+);
