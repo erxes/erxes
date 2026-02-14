@@ -6,6 +6,7 @@ import { FORM_GENERAL_SCHEMA } from '../constants/formSchema';
 import { FormMutateLayout } from './FormMutateLayout';
 import { ColorPicker, Form, Input, Textarea, ToggleGroup } from 'erxes-ui';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 
 export const FormGeneral = () => {
   const form = useForm<z.infer<typeof FORM_GENERAL_SCHEMA>>({
@@ -15,12 +16,12 @@ export const FormGeneral = () => {
       appearance: 'iframe',
       title: 'title',
       description: '',
+      channelId: '',
+      buttonText: 'Submit',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof FORM_GENERAL_SCHEMA>) => {
-    console.log(values);
-  };
+  const onSubmit = (values: z.infer<typeof FORM_GENERAL_SCHEMA>) => null;
 
   return (
     <FormMutateLayout
@@ -95,6 +96,32 @@ export const FormGeneral = () => {
                   </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="buttonText"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Button text</Form.Label>
+              <Form.Control>
+                <Input {...field} />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="channelId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Channel</Form.Label>
+              <SelectChannel.FormItem
+                value={field.value}
+                mode="single"
+                onValueChange={field.onChange}
+              />
               <Form.Message />
             </Form.Item>
           )}
