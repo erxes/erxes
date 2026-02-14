@@ -14,11 +14,16 @@ import {
   toast,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useEffect, useState } from 'react';
-import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
+import {
+  formSetupConfirmationAtom,
+  formSetupContentAtom,
+  formSetupGeneralAtom,
+  formSetupStepAtom,
+} from '../states/formSetupStates';
 
 export const FormPreview = () => {
   const formContent = useAtomValue(formSetupContentAtom);
