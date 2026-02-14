@@ -22,12 +22,34 @@ export const brandMutations = {
 
   /**
    * Delete brand
+   * @throws {Error} If brands are not found or deletion fails
    */
   async brandsRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    return await models.Brands.removeBrands(_ids);
+    // Validate that brands exist before attempting deletion
+    const brands = await models.Brands.find({ _id: { $in: _ids } });
+    if (brands.length === 0) {
+      throw new Error('No brands found to delete.');
+    }
+
+    // Attempt to remove brands
+    try {
+      const result = await models.Brands.removeBrands(_ids);
+      
+      if (result.deletedCount === 0) {
+        throw new Error('No brands found to delete.');
+      }
+
+      return result;
+    } catch (error: any) {
+      // Re-throw with original message if it's already an Error
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to delete brands');
+    }
   },
 };
