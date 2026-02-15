@@ -88,7 +88,7 @@ const ActivityLogsRoot = ({
 };
 
 const ActivityLogsWrapper = ({ children }: { children: React.ReactNode }) => {
-  return <div className="flex flex-col w-full flex-auto px-6 py-4">{children}</div>;
+  return <div className="flex flex-col w-full flex-auto px-6">{children}</div>;
 };
 
 const ActivityLogsHeader = ({ children }: { children?: React.ReactNode }) => {
