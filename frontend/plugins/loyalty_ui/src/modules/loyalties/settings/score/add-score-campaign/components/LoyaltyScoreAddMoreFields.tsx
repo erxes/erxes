@@ -13,22 +13,35 @@ export const LoyaltyScoreAddMoreFields = ({
 }: {
   form: UseFormReturn<LoyaltyScoreFormValues>;
 }) => {
+  const selectedService = form.watch('conditions.serviceName');
+
   return (
     <div className="grid grid-cols-2 gap-4 mt-4">
       <Button
-  type="button"
-  onClick={() => form.setValue('conditions.serviceName', 'sales')}
->
-  Sales pipeline
-</Button>
+        type="button"
+        variant={selectedService === 'sales' ? 'default' : 'outline'}
+        onClick={() =>
+          form.setValue('conditions.serviceName', 'sales', {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      >
+        Sales pipeline
+      </Button>
 
-<Button
-  type="button"
-  onClick={() => form.setValue('conditions.serviceName', 'pos')}
->
-  POS order
-</Button>
-
+      <Button
+        type="button"
+        variant={selectedService === 'pos' ? 'default' : 'outline'}
+        onClick={() =>
+          form.setValue('conditions.serviceName', 'pos', {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      >
+        POS order
+      </Button>
     </div>
   );
 };

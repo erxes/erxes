@@ -85,15 +85,27 @@ export const scoreCampaignQueries = {
 
   async scoreCampaignServices() {
     const services = await getPlugins();
+    const result: any[] = [];
 
-    return services.map((name: string) => ({
-      name,
-      label: name.charAt(0).toUpperCase() + name.slice(1),
-      isAviableAdditionalConfig: false,
-      icon: 'IconSettings',
-    }));
+    for (const name of services) {
+      const service = await getPlugin(name);
+      const meta = service?.config?.meta || {};
+
+      if (meta?.loyalties?.aviableAttributes) {
+        result.push({
+          name,
+          label:
+            meta?.loyalties?.label ||
+            name.charAt(0).toUpperCase() + name.slice(1),
+          isAviableAdditionalConfig:
+            meta?.loyalties?.isAviableAdditionalConfig || false,
+          icon: meta?.loyalties?.icon || 'IconSettings',
+        });
+      }
+    }
+
+    return result;
   },
-
   async checkOwnerScore(
     _root: undefined,
     {

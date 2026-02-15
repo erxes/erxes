@@ -18,71 +18,78 @@ type Props = {
 export const VoucherTabs = ({ onOpenChange, form }: Props) => {
   const [activeTab, setActiveTab] = useState('campaign');
   const selectedType = form.watch('type');
-  const { voucherAdd, loading: editLoading } = useAddVoucher();
+
+  const { voucherAdd, loading } = useAddVoucher();
   const { toast } = useToast();
 
   const showProductBonusTab = selectedType === 'bonus';
   const showLotteryTab = selectedType === 'lottery';
   const showSpinTab = selectedType === 'spin';
 
-  const getNextTab = (currentTab: string) => {
-    const tabOrder = ['campaign', 'restriction'];
-    if (showProductBonusTab) tabOrder.push('productBonus');
-    if (showLotteryTab) tabOrder.push('lottery');
-    if (showSpinTab) tabOrder.push('spin');
+  // ---------- helpers ----------
 
-    const currentIndex = tabOrder.indexOf(currentTab);
-    return currentIndex < tabOrder.length - 1
-      ? tabOrder[currentIndex + 1]
+  const toNumber = (value: any): number | undefined => {
+    if (value === '' || value === undefined || value === null) {
+      return undefined;
+    }
+    return Number(value);
+  };
+
+  const formatDate = (
+    date: string | Date | undefined,
+  ): string | undefined => {
+    if (!date) return undefined;
+    if (date instanceof Date) return date.toISOString();
+    return date;
+  };
+
+  const buildTabOrder = () => {
+    const tabs = ['campaign', 'restriction'];
+
+    if (showProductBonusTab) tabs.push('productBonus');
+    if (showLotteryTab) tabs.push('lottery');
+    if (showSpinTab) tabs.push('spin');
+
+    return tabs;
+  };
+
+  const getNextTab = () => {
+    const tabs = buildTabOrder();
+    const currentIndex = tabs.indexOf(activeTab);
+
+    return currentIndex < tabs.length - 1
+      ? tabs[currentIndex + 1]
       : null;
   };
 
   const isLastTab = () => {
-    const tabOrder = ['campaign', 'restriction'];
-    if (showProductBonusTab) tabOrder.push('productBonus');
-    if (showLotteryTab) tabOrder.push('lottery');
-    if (showSpinTab) tabOrder.push('spin');
-
-    return activeTab === tabOrder[tabOrder.length - 1];
+    const tabs = buildTabOrder();
+    return activeTab === tabs[tabs.length - 1];
   };
 
+  // ---------- handlers ----------
+
   const handleNext = () => {
-    const nextTab = getNextTab(activeTab);
-    if (nextTab) {
-      setActiveTab(nextTab);
-    }
+    const next = getNextTab();
+    if (next) setActiveTab(next);
   };
 
   const handleSubmit = async () => {
     const data = form.getValues();
 
-    const toNumber = (value: any) => {
-      if (value === '' || value === undefined || value === null) {
-        return undefined;
-      }
-      return Number(value);
-    };
-
-    const formatDate = (
-      date: string | Date | undefined,
-    ): string | undefined => {
-      if (!date) return undefined;
-      if (date instanceof Date) return date.toISOString();
-      return date;
-    };
-
     const variables = {
       title: data.title || '',
       description: data.description || '',
       status: data.status || 'active',
+
       voucherType: data.type,
+      kind: data.kind,
+
+      value: toNumber(data.value),       
+      buyScore: toNumber(data.buyScore), 
 
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
-
-      kind: data.kind,
-      value: toNumber(data.value),
-      buyScore: toNumber(data.buyScore),
 
       restrictions: {
         minimumSpend: toNumber(data.minimumSpend),
@@ -132,30 +139,29 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
     });
   };
 
+  // ---------- footer ----------
 
   const renderFooter = () => (
     <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted border-t">
       <Button
         type="button"
         variant="ghost"
-        className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
         Cancel
       </Button>
+
       {isLastTab() ? (
         <Button
           type="button"
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleSubmit}
-          disabled={editLoading}
+          disabled={loading}
         >
-          {editLoading ? 'Saving...' : 'Save'}
+          {loading ? 'Saving...' : 'Save'}
         </Button>
       ) : (
         <Button
           type="button"
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleNext}
         >
           Next
@@ -164,122 +170,84 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
     </Sheet.Footer>
   );
 
+  // ---------- render ----------
+
   return (
     <Tabs
       value={activeTab}
       onValueChange={setActiveTab}
-      className="flex flex-col h-full shadow-none"
+      className="flex flex-col h-full"
     >
       <Tabs.List className="flex justify-center">
         <Tabs.Trigger asChild value="campaign">
-          <Button
-            variant={'outline'}
-            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-          >
-            Campaign
-          </Button>
+          <Button variant="outline">Campaign</Button>
         </Tabs.Trigger>
+
         <Tabs.Trigger asChild value="restriction">
-          <Button
-            variant={'outline'}
-            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-          >
-            Restriction
-          </Button>
+          <Button variant="outline">Restriction</Button>
         </Tabs.Trigger>
+
         {showProductBonusTab && (
           <Tabs.Trigger asChild value="productBonus">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Product Bonus
-            </Button>
+            <Button variant="outline">Product Bonus</Button>
           </Tabs.Trigger>
         )}
+
         {showLotteryTab && (
           <Tabs.Trigger asChild value="lottery">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Lottery Campaign
-            </Button>
+            <Button variant="outline">Lottery Campaign</Button>
           </Tabs.Trigger>
         )}
+
         {showSpinTab && (
           <Tabs.Trigger asChild value="spin">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Spin Campaign
-            </Button>
+            <Button variant="outline">Spin Campaign</Button>
           </Tabs.Trigger>
         )}
       </Tabs.List>
-      <Tabs.Content value="campaign" className="h-full py-4 px-5 overflow-auto">
+
+      <Tabs.Content value="campaign">
         <Form {...form}>
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-auto overflow-hidden">
-              <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
-            </div>
-            {renderFooter()}
-          </div>
+          <AddVoucherCampaignForm
+            onOpenChange={onOpenChange}
+            form={form}
+          />
+          {renderFooter()}
         </Form>
       </Tabs.Content>
-      <Tabs.Content
-        value="restriction"
-        className="h-full py-4 px-5 overflow-auto"
-      >
+
+      <Tabs.Content value="restriction">
         <Form {...form}>
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-auto overflow-hidden">
-              <AddVoucherRestrictionForm onOpenChange={onOpenChange} />
-            </div>
-            {renderFooter()}
-          </div>
+          <AddVoucherRestrictionForm
+            onOpenChange={onOpenChange}
+          />
+          {renderFooter()}
         </Form>
       </Tabs.Content>
+
       {showProductBonusTab && (
-        <Tabs.Content
-          value="productBonus"
-          className="h-full py-4 px-5 overflow-auto"
-        >
+        <Tabs.Content value="productBonus">
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherProductBonusForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherProductBonusForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
+
       {showLotteryTab && (
-        <Tabs.Content
-          value="lottery"
-          className="h-full py-4 px-5 overflow-auto"
-        >
+        <Tabs.Content value="lottery">
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherLotteryForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherLotteryForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
+
       {showSpinTab && (
-        <Tabs.Content value="spin" className="h-full py-4 px-5 overflow-auto">
+        <Tabs.Content value="spin">
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherSpinForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherSpinForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
