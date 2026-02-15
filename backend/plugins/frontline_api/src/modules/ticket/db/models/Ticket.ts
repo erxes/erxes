@@ -44,7 +44,6 @@ export const loadTicketClass = (models: IModels) => {
       params: ITicketFilter,
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
-      console.log('params:', params);
       if (params.name) query.name = { $regex: params.name, $options: 'i' };
       if (params.assigneeId) query.assigneeId = params.assigneeId;
       if (params.channelId) query.channelId = params.channelId;

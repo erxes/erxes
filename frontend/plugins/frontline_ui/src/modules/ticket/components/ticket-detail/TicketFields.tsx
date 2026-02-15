@@ -147,12 +147,31 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const handleArchiveToggle = () => {
     const newState = state === 'active' ? 'archived' : 'active';
+    const previousState = state;
+
+    // Optimistically update the UI
     setState(newState);
 
     updateTicket({
       variables: {
         _id: ticketId,
         state: newState,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: `Ticket ${
+            newState === 'archived' ? 'archived' : 'restored'
+          } successfully`,
+        });
+      },
+      onError: (error) => {
+        setState(previousState);
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   };

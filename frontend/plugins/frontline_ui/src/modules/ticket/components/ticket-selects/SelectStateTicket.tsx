@@ -132,7 +132,6 @@ const SelectStateTicketRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
-  console.log(value, onValueChange, scope, variant, id);
 
   const handleChange = (val: string) => {
     if (id) {
