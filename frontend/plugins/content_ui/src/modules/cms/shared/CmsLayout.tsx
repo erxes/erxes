@@ -231,7 +231,7 @@ export function CmsLayout({
             </Sidebar>
           )}
 
-          <div className="">{children}</div>
+          <div className="w-full py-2 px-4">{children}</div>
         </div>
       </div>
     </div>
