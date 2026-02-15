@@ -5,30 +5,39 @@ export type VoucherTab =
   | 'lottery'
   | 'spin';
 
-export const getVoucherTabOrder = (type?: string): VoucherTab[] => {
+interface VoucherTabConfig {
+  activeTab: VoucherTab;
+  showProductBonusTab: boolean;
+  showLotteryTab: boolean;
+  showSpinTab: boolean;
+}
+
+export const getVoucherTabOrder = ({
+  showProductBonusTab,
+  showLotteryTab,
+  showSpinTab,
+}: Omit<VoucherTabConfig, 'activeTab'>): VoucherTab[] => {
   const tabs: VoucherTab[] = ['campaign', 'restriction'];
 
-  if (type === 'bonus') tabs.push('productBonus');
-  if (type === 'lottery') tabs.push('lottery');
-  if (type === 'spin') tabs.push('spin');
+  if (showProductBonusTab) tabs.push('productBonus');
+  if (showLotteryTab) tabs.push('lottery');
+  if (showSpinTab) tabs.push('spin');
 
   return tabs;
 };
 
 export const getNextVoucherTab = (
-  current: VoucherTab,
-  type?: string,
+  config: VoucherTabConfig,
 ): VoucherTab | null => {
-  const tabs = getVoucherTabOrder(type);
-  const index = tabs.indexOf(current);
+  const tabs = getVoucherTabOrder(config);
+  const currentIndex = tabs.indexOf(config.activeTab);
 
-  return index < tabs.length - 1 ? tabs[index + 1] : null;
+  return currentIndex < tabs.length - 1
+    ? tabs[currentIndex + 1]
+    : null;
 };
 
-export const isLastVoucherTab = (
-  current: VoucherTab,
-  type?: string,
-): boolean => {
-  const tabs = getVoucherTabOrder(type);
-  return current === tabs[tabs.length - 1];
+export const isLastVoucherTab = (config: VoucherTabConfig): boolean => {
+  const tabs = getVoucherTabOrder(config);
+  return config.activeTab === tabs[tabs.length - 1];
 };

@@ -2,8 +2,16 @@ import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, Tabs, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { useAddVoucher } from '../../hooks/useAddVoucher';
+
+import {
+  VoucherTab,
+  getNextVoucherTab,
+  isLastVoucherTab,
+} from '../../utils/getVoucherTabs';
+
 import { AddVoucherCampaignForm } from './AddVoucherCampaignForm';
 import { AddVoucherLotteryForm } from './AddVoucherLotteryForm';
 import { AddVoucherProductBonusForm } from './AddVoucherProductBonusForm';
@@ -16,9 +24,10 @@ type Props = {
 };
 
 export const VoucherTabs = ({ onOpenChange, form }: Props) => {
-  const [activeTab, setActiveTab] = useState('campaign');
-  const selectedType = form.watch('type');
+  const [activeTab, setActiveTab] =
+    useState<VoucherTab>('campaign');
 
+  const selectedType = form.watch('type');
   const { voucherAdd, loading } = useAddVoucher();
   const { toast } = useToast();
 
@@ -26,67 +35,35 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
   const showLotteryTab = selectedType === 'lottery';
   const showSpinTab = selectedType === 'spin';
 
-  // ---------- helpers ----------
-
-  const toNumber = (value: any): number | undefined => {
-    if (value === '' || value === undefined || value === null) {
-      return undefined;
-    }
-    return Number(value);
-  };
-
-  const formatDate = (
-    date: string | Date | undefined,
-  ): string | undefined => {
-    if (!date) return undefined;
-    if (date instanceof Date) return date.toISOString();
-    return date;
-  };
-
-  const buildTabOrder = () => {
-    const tabs = ['campaign', 'restriction'];
-
-    if (showProductBonusTab) tabs.push('productBonus');
-    if (showLotteryTab) tabs.push('lottery');
-    if (showSpinTab) tabs.push('spin');
-
-    return tabs;
-  };
-
-  const getNextTab = () => {
-    const tabs = buildTabOrder();
-    const currentIndex = tabs.indexOf(activeTab);
-
-    return currentIndex < tabs.length - 1
-      ? tabs[currentIndex + 1]
-      : null;
-  };
-
-  const isLastTab = () => {
-    const tabs = buildTabOrder();
-    return activeTab === tabs[tabs.length - 1];
-  };
-
-  // ---------- handlers ----------
-
   const handleNext = () => {
-    const next = getNextTab();
+    const next = getNextVoucherTab({
+      activeTab,
+      showProductBonusTab,
+      showLotteryTab,
+      showSpinTab,
+    });
+
     if (next) setActiveTab(next);
   };
 
   const handleSubmit = async () => {
     const data = form.getValues();
 
+    const toNumber = (value: any) =>
+      value === '' || value == null ? undefined : Number(value);
+
+    const formatDate = (date: any) =>
+      date instanceof Date ? date.toISOString() : date;
+
     const variables = {
       title: data.title || '',
       description: data.description || '',
       status: data.status || 'active',
-
       voucherType: data.type,
       kind: data.kind,
 
-      value: toNumber(data.value),       
-      buyScore: toNumber(data.buyScore), 
+      value: toNumber(data.value),
+      buyScore: toNumber(data.buyScore),
 
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
@@ -125,13 +102,12 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
 
     voucherAdd({
       variables,
-      onError: (e: ApolloError) => {
+      onError: (e: ApolloError) =>
         toast({
           title: 'Error',
           description: e.message,
           variant: 'destructive',
-        });
-      },
+        }),
       onCompleted: () => {
         form.reset();
         onOpenChange(false);
@@ -139,43 +115,20 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
     });
   };
 
-  // ---------- footer ----------
 
-  const renderFooter = () => (
-    <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted border-t">
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => onOpenChange(false)}
-      >
-        Cancel
-      </Button>
-
-      {isLastTab() ? (
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? 'Saving...' : 'Save'}
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          onClick={handleNext}
-        >
-          Next
-        </Button>
-      )}
-    </Sheet.Footer>
-  );
-
-  // ---------- render ----------
+  const isLast = isLastVoucherTab({
+    activeTab,
+    showProductBonusTab,
+    showLotteryTab,
+    showSpinTab,
+  });
 
   return (
     <Tabs
       value={activeTab}
-      onValueChange={setActiveTab}
+      onValueChange={(value) =>
+        setActiveTab(value as VoucherTab)
+      }
       className="flex flex-col h-full"
     >
       <Tabs.List className="flex justify-center">
@@ -212,45 +165,22 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
             onOpenChange={onOpenChange}
             form={form}
           />
-          {renderFooter()}
         </Form>
       </Tabs.Content>
 
-      <Tabs.Content value="restriction">
-        <Form {...form}>
-          <AddVoucherRestrictionForm
-            onOpenChange={onOpenChange}
-          />
-          {renderFooter()}
-        </Form>
-      </Tabs.Content>
+      <Sheet.Footer className="flex justify-end gap-2 p-2">
+        <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          Cancel
+        </Button>
 
-      {showProductBonusTab && (
-        <Tabs.Content value="productBonus">
-          <Form {...form}>
-            <AddVoucherProductBonusForm form={form} />
-            {renderFooter()}
-          </Form>
-        </Tabs.Content>
-      )}
-
-      {showLotteryTab && (
-        <Tabs.Content value="lottery">
-          <Form {...form}>
-            <AddVoucherLotteryForm form={form} />
-            {renderFooter()}
-          </Form>
-        </Tabs.Content>
-      )}
-
-      {showSpinTab && (
-        <Tabs.Content value="spin">
-          <Form {...form}>
-            <AddVoucherSpinForm form={form} />
-            {renderFooter()}
-          </Form>
-        </Tabs.Content>
-      )}
+        {isLast ? (
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? 'Saving...' : 'Save'}
+          </Button>
+        ) : (
+          <Button onClick={handleNext}>Next</Button>
+        )}
+      </Sheet.Footer>
     </Tabs>
   );
 };
