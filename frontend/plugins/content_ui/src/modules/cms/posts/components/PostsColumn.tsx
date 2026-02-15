@@ -11,8 +11,13 @@ import {
   IconCalendarPlus,
   IconCalendarUp,
   IconFile,
+  IconClock,
+  IconTag,
+  IconFolder,
+  IconHash,
 } from '@tabler/icons-react';
 import { postMoreColumn } from './PostMoreColumn';
+import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
 
 export const postsColumns = (
   onEditPost?: (post: any) => void,
@@ -36,23 +41,78 @@ export const postsColumns = (
         </RecordTableInlineCell>
       );
     },
-    size: 300,
+    size: 200,
   },
-
   {
-    id: 'excerpt',
-    header: () => (
-      <RecordTable.InlineHead label="Description" icon={IconFile} />
-    ),
-    accessorKey: 'excerpt',
+    id: 'status',
+    accessorKey: 'status',
+    header: () => <RecordTable.InlineHead label="Status" icon={IconClock} />,
     cell: ({ cell }) => {
+      return <PostsRecordTableStatusInlineCell cell={cell} />;
+    },
+    size: 100,
+  },
+  // {
+  //   id: 'excerpt',
+  //   header: () => (
+  //     <RecordTable.InlineHead label="Description" icon={IconFile} />
+  //   ),
+  //   accessorKey: 'excerpt',
+  //   cell: ({ cell }) => {
+  //     return (
+  //       <RecordTableInlineCell>
+  //         <TextOverflowTooltip value={cell.getValue() as string} />
+  //       </RecordTableInlineCell>
+  //     );
+  //   },
+  //   size: 300,
+  // },
+  {
+    id: 'categories',
+    accessorKey: 'categories',
+    header: () => (
+      <RecordTable.InlineHead icon={IconFolder} label="Categories" />
+    ),
+    cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip
+            value={
+              row.original.categories?.map((c: any) => c.name).join(', ') || ''
+            }
+          />
         </RecordTableInlineCell>
       );
     },
-    size: 300,
+  },
+  {
+    id: 'tags',
+    accessorKey: 'tags',
+    header: () => <RecordTable.InlineHead icon={IconHash} label="Tags" />,
+    cell: ({ row }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={row.original.tags?.map((c: any) => c.name).join(', ') || ''}
+          />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+
+  {
+    id: 'type',
+    accessorKey: 'type',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+    cell: ({ row }) => {
+      const post = row.original;
+      const typeLabel = post.customPostType?.label || post.type;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={typeLabel} />
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'scheduledDate',

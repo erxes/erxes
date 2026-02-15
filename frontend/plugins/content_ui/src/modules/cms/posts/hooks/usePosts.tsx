@@ -9,48 +9,12 @@ import {
 } from 'erxes-ui';
 import { POSTS_LIST } from '../graphql/queries/postsListQueries';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
+import { Posts } from '../types/postsType';
+import { useSetAtom } from 'jotai';
+import { postsTotalCountAtom } from '../states/postsCounts';
+import { useEffect } from 'react';
 
 export const POSTS_PER_PAGE = 30;
-
-interface Posts {
-  _id: string;
-  title: string;
-  status: string;
-  type: string;
-  featured: boolean;
-  tagIds: string[];
-  authorId: string;
-  createdAt: string;
-  updatedAt: string;
-  scheduledDate?: string;
-  autoArchiveDate?: string;
-  excerpt?: string;
-  thumbnail?: {
-    url: string;
-    __typename: string;
-  };
-  customPostType?: {
-    _id: string;
-    code: string;
-    label: string;
-    __typename: string;
-  };
-  author?: {
-    __typename: string;
-    username?: string;
-    email?: string;
-    details?: {
-      __typename: string;
-      fullName?: string;
-      shortName?: string;
-      avatar?: string;
-      firstName?: string;
-      lastName?: string;
-      middleName?: string;
-    };
-  };
-  __typename: string;
-}
 
 export const usePostsVariables = (
   variables?: QueryHookOptions<{
@@ -63,36 +27,33 @@ export const usePostsVariables = (
 ) => {
   const [
     {
+      tags,
       searchValue,
       status,
       type,
-      featured,
-      tagIds,
-      categoryIds,
-      sortField,
-      sortDirection,
-      dateRange,
+      categories,
+      createdAt,
+      updatedAt,
+      publishedDate,
     },
   ] = useMultiQueryState<{
+    tags: string[];
     searchValue: string;
     status: string;
     type: string;
-    featured: string;
-    tagIds: string;
-    categoryIds: string;
-    sortField: string;
-    sortDirection: string;
-    dateRange: string;
+    categories: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedDate: string;
   }>([
+    'tags',
     'searchValue',
     'status',
     'type',
-    'featured',
-    'tagIds',
-    'categoryIds',
-    'sortField',
-    'sortDirection',
-    'dateRange',
+    'categories',
+    'createdAt',
+    'updatedAt',
+    'publishedDate',
   ]);
 
   const { cursor } = useRecordTableCursor({
@@ -102,22 +63,32 @@ export const usePostsVariables = (
   return {
     limit: POSTS_PER_PAGE,
     cursor,
+    tags: tags || undefined,
     searchValue: searchValue || undefined,
     status: status && status !== 'all' ? status : undefined,
     type: type && type !== 'all' ? type : undefined,
-    featured:
-      featured === 'true' ? true : featured === 'false' ? false : undefined,
-    tagIds: tagIds ? tagIds.split(',') : undefined,
-    categoryIds: categoryIds ? categoryIds.split(',') : undefined,
-    sortField: sortField || 'createdAt',
-    sortDirection: sortDirection || 'desc',
-    createdStartDate: parseDateRangeFromString(dateRange)?.from,
-    createdEndDate: parseDateRangeFromString(dateRange)?.to,
+    tagIds: tags || undefined,
+    categoryIds: categories || undefined,
+    dateFilters: {
+      createdAt: {
+        gte: parseDateRangeFromString(createdAt)?.from,
+        lte: parseDateRangeFromString(createdAt)?.to,
+      },
+      updatedAt: {
+        gte: parseDateRangeFromString(updatedAt)?.from,
+        lte: parseDateRangeFromString(updatedAt)?.to,
+      },
+      publishedDate: {
+        gte: parseDateRangeFromString(publishedDate)?.from,
+        lte: parseDateRangeFromString(publishedDate)?.to,
+      },
+    },
     ...variables,
   };
 };
 
 export const usePosts = (options?: QueryHookOptions) => {
+  const setPostsTotalCount = useSetAtom(postsTotalCountAtom);
   const variables = usePostsVariables(options?.variables);
   const { data, loading, fetchMore, refetch } = useQuery<{
     cmsPostList: {
@@ -134,6 +105,10 @@ export const usePosts = (options?: QueryHookOptions) => {
   });
 
   const { posts = [], totalCount = 0, pageInfo } = data?.cmsPostList || {};
+  useEffect(() => {
+    if (!totalCount) return;
+    setPostsTotalCount(totalCount);
+  }, [totalCount, setPostsTotalCount]);
 
   const handleFetchMore = ({
     direction,

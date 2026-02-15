@@ -25,6 +25,7 @@ export default {
   },
 
   async categories(post: any, _params, { models }: IContext) {
+    console.log(post.categoryIds);
     return models.Categories.find({ _id: { $in: post.categoryIds } }).lean();
   },
 

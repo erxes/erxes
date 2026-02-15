@@ -1,4 +1,4 @@
-import { PageContainer } from 'erxes-ui';
+import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { PostsRecordTable } from '~/modules/cms/posts/components/PostsRecordTable';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
@@ -7,6 +7,7 @@ import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
 import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
 
 export const PostsIndexPage = ({
   clientPortalId,
@@ -86,6 +87,9 @@ const PostsPageContent = ({
   return (
     <div className="overflow-hidden flex-auto">
       <div className="h-full">
+        <PageSubHeader>
+          <PostsFilter />
+        </PageSubHeader>
         <PostsRecordTable
           clientPortalId={clientPortalId}
           onEditPost={onEditPost}

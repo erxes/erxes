@@ -11,6 +11,7 @@ const CustomFieldGroup = {
       module: 'core',
       action: 'fields.find',
       input: { query: { groupId: group._id } },
+      defaultValue: [],
     });
 
     return fields.map((field: any) => {

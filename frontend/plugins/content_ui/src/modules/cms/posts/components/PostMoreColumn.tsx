@@ -1,17 +1,20 @@
 import { CellContext } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
-import { Button, Popover, Combobox, Command } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Button, Popover, Combobox, Command, Badge } from 'erxes-ui';
+import { IconEdit, IconTrash, IconClock, IconTag } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useRemovePosts } from '../hooks/useRemovePosts';
-import { ApolloError } from '@apollo/client';
+import { ApolloError, useMutation } from '@apollo/client';
 import { useConfirm, useToast } from 'erxes-ui';
+import { POSTS_EDIT } from '../graphql/mutations/postsEditMutation';
+import { useMemo } from 'react';
 
 interface PostMoreColumnCellProps {
   cell: CellContext<any, unknown>;
   onEdit?: (post: any) => void;
   onDelete?: (postId: string) => void;
   onRefetch?: () => void;
+  onUpdateStatus?: (postId: string, newStatus: string) => void;
 }
 
 export const PostMoreColumnCell = ({
@@ -19,12 +22,51 @@ export const PostMoreColumnCell = ({
   onEdit,
   onDelete,
   onRefetch,
+  onUpdateStatus,
 }: PostMoreColumnCellProps) => {
-  const { _id } = cell.row.original;
+  const { _id, status, customPostType, type } = cell.row.original;
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removePosts, loading } = useRemovePosts();
+  const [editPost, { loading: editLoading }] = useMutation(POSTS_EDIT);
+
+  const availableStatuses = useMemo(() => {
+    if (status === 'draft') {
+      return ['published'];
+    } else if (status === 'published') {
+      return ['draft'];
+    } else {
+      return [];
+    }
+  }, [status]);
+
+  const handleStatusChange = (newStatus: string) => {
+    editPost({
+      variables: {
+        id: _id,
+        input: {
+          status: newStatus,
+        },
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Post status updated successfully',
+          variant: 'success',
+        });
+        onUpdateStatus?.(_id, newStatus);
+        onRefetch?.();
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
 
   const handleEdit = () => {
     const post = cell.row.original;
@@ -74,6 +116,28 @@ export const PostMoreColumnCell = ({
       >
         <Command>
           <Command.List>
+            {availableStatuses.map((statusOption) => (
+              <Command.Item
+                key={statusOption}
+                onSelect={() => handleStatusChange(statusOption)}
+                disabled={editLoading}
+                className="w-full flex items-center gap-2 px-2 py-1"
+              >
+                <IconClock className="size-4" />
+                {statusOption}
+              </Command.Item>
+            ))}
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start h-8 gap-2"
+              >
+                <IconTag className="size-4" />
+
+                {customPostType?.label || type || 'Post'}
+              </Button>
+            </Command.Item>
             <Command.Item asChild>
               <Button
                 variant="ghost"
@@ -108,6 +172,7 @@ export const postMoreColumn = (
   onEdit?: (post: any) => void,
   onDelete?: (postId: string) => void,
   onRefetch?: () => void,
+  onUpdateStatus?: (postId: string, newStatus: string) => void,
 ) => ({
   id: 'more',
   cell: (cell: CellContext<any, unknown>) => (
@@ -116,6 +181,7 @@ export const postMoreColumn = (
       onEdit={onEdit}
       onDelete={onDelete}
       onRefetch={onRefetch}
+      onUpdateStatus={onUpdateStatus}
     />
   ),
   size: 33,

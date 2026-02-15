@@ -1,83 +1,160 @@
 import { gql } from '@apollo/client';
 
 export const POSTS_LIST = gql`
-  query PostList(
-    $clientPortalId: String!
-    $type: String
-    $featured: Boolean
-    $searchValue: String
-    $status: PostStatus
+  query CmsPostList(
+    $clientPortalId: String
     $limit: Int
     $cursor: String
+    $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
+    $orderBy: JSON
+    $sortMode: String
+    $aggregationPipeline: [JSON]
+    $featured: Boolean
+    $type: String
+    $categoryIds: [String]
+    $searchValue: String
+    $status: PostStatus
     $tagIds: [String]
     $sortField: String
     $sortDirection: String
+    $language: String
+    
   ) {
     cmsPostList(
       clientPortalId: $clientPortalId
-      featured: $featured
-      type: $type
-      searchValue: $searchValue
-      status: $status
       limit: $limit
       cursor: $cursor
+      cursorMode: $cursorMode
       direction: $direction
+      orderBy: $orderBy
+      sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
+      featured: $featured
+      type: $type
+      categoryIds: $categoryIds
+      searchValue: $searchValue
+      status: $status
       tagIds: $tagIds
       sortField: $sortField
       sortDirection: $sortDirection
+      language: $language
     ) {
-      totalCount
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        endCursor
-        startCursor
-      }
       posts {
         _id
         type
         customPostType {
           _id
+          clientPortalId
           code
           label
-          __typename
+          pluralLabel
+          description
+          createdAt
         }
         authorKind
-        author {
-          ... on User {
-            username
-            email
-            details {
-              fullName
-              shortName
-              avatar
-              firstName
-              lastName
-              middleName
-              __typename
-            }
-            __typename
+        authorId
+        clientPortalId
+        title
+        slug
+        content
+        excerpt
+        categoryIds
+        categories {
+          _id
+          clientPortalId
+          name
+          slug
+          description
+          parentId
+          status
+          parent {
+            _id
+            clientPortalId
+            name
+            slug
+            description
+            parentId
+            status
+            createdAt
+            updatedAt
+            customFieldsData
+            customFieldsMap
           }
-          __typename
+          createdAt
+          updatedAt
+          customFieldsData
+          customFieldsMap
         }
-        featured
         status
         tagIds
-        authorId
-        createdAt
-        autoArchiveDate
-        scheduledDate
-        excerpt
-        thumbnail {
-          url
-          __typename
+        tags {
+          _id
+          name
         }
-        title
+        featured
+        featuredDate
+        scheduledDate
+        publishedDate
+        autoArchiveDate
+        reactions
+        reactionCounts
+
+        images {
+          url
+          name
+          type
+          size
+          duration
+        }
+        video {
+          url
+          name
+          type
+          size
+          duration
+        }
+        videoUrl
+        createdAt
         updatedAt
-        __typename
+        customFieldsData
+        customFieldsMap
+        author {
+          ... on User {
+            _id
+            createdAt
+            username
+            email
+            isActive
+
+            links
+            status
+            chatStatus
+            emailSignatures
+            getNotificationByEmail
+            onboardedPlugins
+            groupIds
+            isSubscribed
+            isShowNotification
+            propertiesData
+            isOwner
+            role
+            permissionActions
+            configs
+            configsConstants
+            departmentIds
+            brandIds
+            branchIds
+            positionIds
+            score
+            leaderBoardPosition
+            employeeId
+            isOnboarded
+            cursor
+          }
+        }
       }
-      __typename
+      totalCount
     }
   }
 `;
