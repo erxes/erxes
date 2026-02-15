@@ -12,7 +12,8 @@ const generateCode = (name: string): string => {
 const processAttributes = (attributes: any[] = []): any[] => {
   return attributes.map((attr) => ({
     ...attr,
-    key: attr.key || generateCode(attr.name),
+    key:
+      attr.key && attr.key.trim() !== '' ? attr.key : generateCode(attr.name),
     subAttributes: attr.subAttributes
       ? processAttributes(attr.subAttributes)
       : undefined,
@@ -20,45 +21,58 @@ const processAttributes = (attributes: any[] = []): any[] => {
 };
 
 export const insuranceTypeMutations = {
-  createInsuranceType: async (
-    _parent: undefined,
-    { name, attributes }: { name: string; attributes: any[] },
-    { models, user }: IContext,
-  ) => {
-    // Add role check: if (user.role !== 'admin') throw ForbiddenError
-    const code = generateCode(name);
-    const processedAttributes = processAttributes(attributes);
-    return models.InsuranceType.create({
-      name,
-      code,
-      attributes: processedAttributes,
-    });
-  },
+  createInsuranceType: Object.assign(
+    async (
+      _parent: undefined,
+      { name, attributes }: { name: string; attributes: any[] },
+      { models, user }: IContext,
+    ) => {
+      // Add role check: if (user.role !== 'admin') throw ForbiddenError
+      const code = generateCode(name);
+      const processedAttributes = processAttributes(attributes);
+      return models.InsuranceType.create({
+        name,
+        code,
+        attributes: processedAttributes,
+      });
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
-  updateInsuranceType: async (
-    _parent: undefined,
-    { id, name, attributes }: { id: string; name?: string; attributes?: any[] },
-    { models }: IContext,
-  ) => {
-    const updateData: any = {};
-    if (name) {
-      updateData.name = name;
-      updateData.code = generateCode(name);
-    }
-    if (attributes) {
-      updateData.attributes = processAttributes(attributes);
-    }
-    return models.InsuranceType.findByIdAndUpdate(id, updateData, {
-      new: true,
-    });
-  },
+  updateInsuranceType: Object.assign(
+    async (
+      _parent: undefined,
+      {
+        id,
+        name,
+        attributes,
+      }: { id: string; name?: string; attributes?: any[] },
+      { models }: IContext,
+    ) => {
+      const updateData: any = {};
+      if (name) {
+        updateData.name = name;
+        updateData.code = generateCode(name);
+      }
+      if (attributes) {
+        updateData.attributes = processAttributes(attributes);
+      }
+      return models.InsuranceType.findByIdAndUpdate(id, updateData, {
+        new: true,
+      });
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
-  deleteInsuranceType: async (
-    _parent: undefined,
-    { id }: { id: string },
-    { models }: IContext,
-  ) => {
-    await models.InsuranceType.findByIdAndDelete(id);
-    return true;
-  },
+  deleteInsuranceType: Object.assign(
+    async (
+      _parent: undefined,
+      { id }: { id: string },
+      { models }: IContext,
+    ) => {
+      await models.InsuranceType.findByIdAndDelete(id);
+      return true;
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 };

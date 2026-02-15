@@ -8,22 +8,8 @@ import {
   StringArrayInput,
 } from 'erxes-ui';
 import { IFieldData, useFormDnd } from './FormDndProvider';
-import { useState } from 'react';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { IconTrash } from '@tabler/icons-react';
-
-// export interface IFieldData {
-//     id: string;
-//     type: string;
-//     label: string;
-//     description: string;
-//     placeholder: string;
-//     required: boolean;
-//     options: string[];
-//     span: number;
-//     order: number;
-//     stepId: string;
-//   }
 
 export const FormFieldDetail = ({
   fieldData,

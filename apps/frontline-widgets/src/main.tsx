@@ -2,9 +2,9 @@ import * as ReactDOM from 'react-dom/client';
 import { ApolloProvider } from '@apollo/client';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Toaster, Tooltip } from 'erxes-ui';
+import { Toaster } from 'erxes-ui';
 
-import App from './app/app';
+import { AppRoutes } from './app/routes';
 import { apolloClient } from './lib/apollo-client';
 import './styles.css';
 
@@ -14,10 +14,8 @@ const root = ReactDOM.createRoot(
 root.render(
   <ApolloProvider client={apolloClient}>
     <BrowserRouter>
-      <Tooltip.Provider>
-        <App />
-        <Toaster />
-      </Tooltip.Provider>
+      <AppRoutes />
+      <Toaster />
     </BrowserRouter>
   </ApolloProvider>,
 );

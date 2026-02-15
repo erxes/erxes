@@ -520,7 +520,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded p-2 text-left text-sm font-semibold outline-hidden transition-[width,height,padding] hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary [&>svg]:data-[active=true]:text-primary data-[state=open]:hover:bg-accent data-[state=active]:bg-primary/10 data-[state=active]:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded p-2 text-left font-medium outline-hidden transition-[width,height,padding] hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary [&>svg]:data-[active=true]:text-primary data-[state=open]:hover:bg-accent data-[state=active]:bg-primary/10 data-[state=active]:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
       variant: {

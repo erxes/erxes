@@ -14,7 +14,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
@@ -31,6 +31,12 @@ export const FormPreview = () => {
   const formConfirmation = useAtomValue(formSetupConfirmationAtom);
   const [activeStep, setActiveStep] = useState<number>(1);
   const activeFormStep = useAtomValue(formSetupStepAtom);
+
+  useEffect(() => {
+    if (formContent.steps) {
+      setActiveStep(1);
+    }
+  }, [formContent.steps]);
 
   if (!formContent || !formContent.steps) {
     return (
@@ -262,7 +268,6 @@ export const FormPreviewContent = ({
                       }
 
                       if (erxesField.type === 'select') {
-                        console.log('erxesField', erxesField);
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
