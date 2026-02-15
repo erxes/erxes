@@ -152,9 +152,6 @@ const commonPostQuerySelectorPagination = `
     tagIds: [String]
     language: String
 
-    dateField: PostDateField
-    dateFrom: Date
-    dateTo: Date
 `;
 
 export const queries = `
