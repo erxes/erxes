@@ -2,7 +2,7 @@ import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { CreateBrand } from './CreateBrand';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { IconChessKnightFilled } from '@tabler/icons-react';
+import { IconChessKnightFilled, IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export function BrandsHeader() {
@@ -21,6 +21,7 @@ export function BrandsHeader() {
                   {t('_')}
                 </Link>
               </Button>
+              <IconInfoCircle className="size-4 text-accent-foreground" />
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>

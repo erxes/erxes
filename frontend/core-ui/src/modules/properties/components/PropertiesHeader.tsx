@@ -1,7 +1,7 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
-import { IconHierarchy2 } from '@tabler/icons-react';
+import { IconHierarchy2, IconInfoCircle } from '@tabler/icons-react';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 
 export function PropertiesHeader() {
@@ -18,6 +18,7 @@ export function PropertiesHeader() {
                   Properties
                 </Link>
               </Button>
+              <IconInfoCircle className="size-4 text-accent-foreground" />
             </Breadcrumb.Item>
             {type && <Breadcrumb.Separator />}
             {type && (
