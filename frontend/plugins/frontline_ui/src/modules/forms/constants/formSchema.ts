@@ -7,6 +7,7 @@ export const FORM_GENERAL_SCHEMA = z.object({
   title: z.string(),
   description: z.string(),
   buttonText: z.string(),
+  channelId: z.string(),
 });
 
 export const FORM_CONFIRMATION_SCHEMA = z.object({
