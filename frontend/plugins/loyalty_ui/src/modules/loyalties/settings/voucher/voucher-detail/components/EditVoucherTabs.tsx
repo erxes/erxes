@@ -10,6 +10,12 @@ import { AddVoucherSpinForm } from '../../add-voucher-campaign/components/AddVou
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { useVoucherDetailWithQuery } from '../hooks/useVoucherDetailWithQuery';
 import { useVoucherEdit } from '../hooks/useVoucherEdit';
+import {
+  getNextVoucherTab,
+  isLastVoucherTab,
+  getVoucherTabOrder,
+  VoucherTab,
+} from '../../utils/getVoucherTabs';
 
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -17,42 +23,33 @@ type Props = {
 };
 
 export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
-  const [activeTab, setActiveTab] = useState('campaign');
+  const [activeTab, setActiveTab] = useState<VoucherTab>('campaign');
   const selectedType = form.watch('type');
+
   const { voucherEdit, loading: editLoading } = useVoucherEdit();
   const { voucherDetail } = useVoucherDetailWithQuery();
   const { toast } = useToast();
 
-  const showProductBonusTab = selectedType === 'bonus';
-  const showLotteryTab = selectedType === 'lottery';
-  const showSpinTab = selectedType === 'spin';
+  const tabOrder = getVoucherTabOrder(selectedType);
 
-  const getNextTab = (currentTab: string) => {
-    const tabOrder = ['campaign', 'restriction'];
-    if (showProductBonusTab) tabOrder.push('productBonus');
-    if (showLotteryTab) tabOrder.push('lottery');
-    if (showSpinTab) tabOrder.push('spin');
-
-    const currentIndex = tabOrder.indexOf(currentTab);
-    return currentIndex < tabOrder.length - 1
-      ? tabOrder[currentIndex + 1]
-      : null;
+  const toNumber = (value: any): number | undefined => {
+    if (value === '' || value === undefined || value === null) {
+      return undefined;
+    }
+    return Number(value);
   };
 
-  const isLastTab = () => {
-    const tabOrder = ['campaign', 'restriction'];
-    if (showProductBonusTab) tabOrder.push('productBonus');
-    if (showLotteryTab) tabOrder.push('lottery');
-    if (showSpinTab) tabOrder.push('spin');
-
-    return activeTab === tabOrder[tabOrder.length - 1];
+  const formatDate = (
+    date: string | Date | undefined,
+  ): string | undefined => {
+    if (!date) return undefined;
+    if (date instanceof Date) return date.toISOString();
+    return date;
   };
 
   const handleNext = () => {
-    const nextTab = getNextTab(activeTab);
-    if (nextTab) {
-      setActiveTab(nextTab);
-    }
+    const nextTab = getNextVoucherTab(activeTab, selectedType);
+    if (nextTab) setActiveTab(nextTab);
   };
 
   const handleSubmit = async () => {
@@ -60,41 +57,42 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
 
     const data = form.getValues();
 
-    const formatDate = (date: string | Date | undefined): string => {
-      if (!date) return '';
-      if (date instanceof Date) {
-        return date.toISOString();
-      }
-      return date;
-    };
-
-    const variables: any = {
+    const variables = {
       _id: voucherDetail._id,
       title: data.title || '',
-      kind: data.kind,
-      value: data.value,
       description: data.description || '',
       status: data.status || 'active',
-      type: data.type || 'Product Discount',
+      voucherType: data.type,
+      kind: data.kind,
+      value: toNumber(data.value),
+      buyScore: toNumber(data.buyScore),
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
       restrictions: {
-        minimumSpend: data.minimumSpend,
-        maximumSpend: data.maximumSpend,
-        categoryIds: data.categoryIds,
-        excludeCategoryIds: data.excludeCategoryIds,
-        productIds: data.productIds,
-        excludeProductIds: data.excludeProductIds,
-        tag: data.tag,
-        orExcludeTag: data.orExcludeTag,
+        minimumSpend: toNumber(data.minimumSpend),
+        maximumSpend: toNumber(data.maximumSpend),
+        categoryIds: data.categoryIds || [],
+        excludeCategoryIds: data.excludeCategoryIds || [],
+        productIds: data.productIds || [],
+        excludeProductIds: data.excludeProductIds || [],
+        tag: data.tag || '',
+        orExcludeTag: data.orExcludeTag || '',
       },
-      buyScore: data.buyScore,
-      ...(data.bonusProduct && { bonusProductId: data.bonusProduct }),
-      ...(data.bonusCount && { bonusCount: Number(data.bonusCount) }),
-      ...(data.spinCount && { spinCount: data.spinCount }),
-      ...(data.spinCampaignId && { spinCampaignId: data.spinCampaignId }),
-      ...(data.lottery && { lottery: data.lottery }),
-      ...(data.lotteryCount && { lotteryCount: data.lotteryCount }),
+      ...(data.bonusProduct && {
+        bonusProductId: data.bonusProduct,
+      }),
+      ...(data.bonusCount && {
+        bonusCount: toNumber(data.bonusCount),
+      }),
+      ...(data.spinCampaignId && {
+        spinCampaignId: data.spinCampaignId,
+      }),
+      ...(data.spinCount && {
+        spinCount: toNumber(data.spinCount),
+      }),
+      ...(data.lotteryCount && {
+        lotteryCount: toNumber(data.lotteryCount),
+      }),
     };
 
     voucherEdit({
@@ -117,26 +115,21 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
       <Button
         type="button"
         variant="ghost"
-        className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
         Cancel
       </Button>
-      {isLastTab() ? (
+
+      {isLastVoucherTab(activeTab, selectedType) ? (
         <Button
           type="button"
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleSubmit}
           disabled={editLoading}
         >
           {editLoading ? 'Updating...' : 'Update'}
         </Button>
       ) : (
-        <Button
-          type="button"
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-          onClick={handleNext}
-        >
+        <Button type="button" onClick={handleNext}>
           Next
         </Button>
       )}
@@ -146,119 +139,87 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   return (
     <Tabs
       value={activeTab}
-      onValueChange={setActiveTab}
+      onValueChange={(val) => setActiveTab(val as VoucherTab)}
       className="flex flex-col h-full shadow-none"
     >
       <Tabs.List className="flex justify-center">
-        <Tabs.Trigger asChild value="campaign">
-          <Button
-            variant={'outline'}
-            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-          >
-            Campaign
-          </Button>
-        </Tabs.Trigger>
-        <Tabs.Trigger asChild value="restriction">
-          <Button
-            variant={'outline'}
-            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-          >
-            Restriction
-          </Button>
-        </Tabs.Trigger>
-        {showProductBonusTab && (
+        {tabOrder.includes('campaign') && (
+          <Tabs.Trigger asChild value="campaign">
+            <Button variant="outline">Campaign</Button>
+          </Tabs.Trigger>
+        )}
+
+        {tabOrder.includes('restriction') && (
+          <Tabs.Trigger asChild value="restriction">
+            <Button variant="outline">Restriction</Button>
+          </Tabs.Trigger>
+        )}
+
+        {tabOrder.includes('productBonus') && (
           <Tabs.Trigger asChild value="productBonus">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Product Bonus
-            </Button>
+            <Button variant="outline">Product Bonus</Button>
           </Tabs.Trigger>
         )}
-        {showLotteryTab && (
+
+        {tabOrder.includes('lottery') && (
           <Tabs.Trigger asChild value="lottery">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Lottery Campaign
-            </Button>
+            <Button variant="outline">Lottery Campaign</Button>
           </Tabs.Trigger>
         )}
-        {showSpinTab && (
+
+        {tabOrder.includes('spin') && (
           <Tabs.Trigger asChild value="spin">
-            <Button
-              variant={'outline'}
-              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
-            >
-              Spin Campaign
-            </Button>
+            <Button variant="outline">Spin Campaign</Button>
           </Tabs.Trigger>
         )}
       </Tabs.List>
+
       <Tabs.Content value="campaign" className="h-full py-4 px-5 overflow-auto">
         <Form {...form}>
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-auto overflow-hidden">
-              <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
-            </div>
-            {renderFooter()}
-          </div>
+          <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
+          {renderFooter()}
         </Form>
       </Tabs.Content>
+
       <Tabs.Content
         value="restriction"
         className="h-full py-4 px-5 overflow-auto"
       >
         <Form {...form}>
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-auto overflow-hidden">
-              <AddVoucherRestrictionForm onOpenChange={onOpenChange} />
-            </div>
-            {renderFooter()}
-          </div>
+          <AddVoucherRestrictionForm onOpenChange={onOpenChange} />
+          {renderFooter()}
         </Form>
       </Tabs.Content>
-      {showProductBonusTab && (
+
+      {tabOrder.includes('productBonus') && (
         <Tabs.Content
           value="productBonus"
           className="h-full py-4 px-5 overflow-auto"
         >
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherProductBonusForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherProductBonusForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
-      {showLotteryTab && (
+
+      {tabOrder.includes('lottery') && (
         <Tabs.Content
           value="lottery"
           className="h-full py-4 px-5 overflow-auto"
         >
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherLotteryForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherLotteryForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
-      {showSpinTab && (
+
+      {tabOrder.includes('spin') && (
         <Tabs.Content value="spin" className="h-full py-4 px-5 overflow-auto">
           <Form {...form}>
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="flex-auto overflow-hidden">
-                <AddVoucherSpinForm form={form} />
-              </div>
-              {renderFooter()}
-            </div>
+            <AddVoucherSpinForm form={form} />
+            {renderFooter()}
           </Form>
         </Tabs.Content>
       )}
