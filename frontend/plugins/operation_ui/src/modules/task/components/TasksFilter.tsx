@@ -42,12 +42,22 @@ import { useParams } from 'react-router-dom';
 import { SelectMilestone } from './task-selects/SelectMilestone';
 import { TagsFilter } from 'ui-modules';
 import { useGetTeam } from '@/team/hooks/useGetTeam';
+import { useGetProject } from '@/project/hooks/useGetProject';
 import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
 import { TeamEstimateTypes } from '@/team/types';
 
 const TasksFilterPopover = () => {
   const { teamId, projectId } = useParams();
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
+  const { project } = useGetProject({
+    variables: { _id: projectId },
+    skip: !projectId || !!teamId,
+  });
+  const resolvedTeamIds = teamId
+    ? [teamId]
+    : project?.teamIds?.length
+      ? project.teamIds
+      : undefined;
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -215,7 +225,7 @@ const TasksFilterPopover = () => {
           <SelectStatus.FilterView queryKey="projectStatus" />
           <SelectPriority.FilterView queryKey="projectPriority" />
           <SelectLead.FilterView queryKey="projectLeadId" />
-          <SelectAssigneeTask.FilterView teamIds={[teamId || '']} />
+          <SelectAssigneeTask.FilterView teamIds={resolvedTeamIds} />
           <SelectCreatorTask.FilterView />
           {!teamId && <SelectTeam.FilterView />}
           <SelectPriority.FilterView />
@@ -252,6 +262,15 @@ const TasksFilterPopover = () => {
 export const TasksFilter = () => {
   const { teamId, projectId } = useParams();
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
+  const { project } = useGetProject({
+    variables: { _id: projectId },
+    skip: !projectId || !!teamId,
+  });
+  const resolvedTeamIds = teamId
+    ? [teamId]
+    : project?.teamIds?.length
+      ? project.teamIds
+      : undefined;
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -381,7 +400,7 @@ export const TasksFilter = () => {
             <IconUser />
             Assignee
           </Filter.BarName>
-          <SelectAssigneeTask.FilterBar />
+          <SelectAssigneeTask.FilterBar teamIds={resolvedTeamIds} />
         </Filter.BarItem>
         {(!teamId || (teamId && team?.cycleEnabled && cycleFilter)) && (
           <Filter.BarItem queryKey="cycleFilter">
