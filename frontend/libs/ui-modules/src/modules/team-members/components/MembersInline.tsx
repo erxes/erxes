@@ -222,9 +222,13 @@ export const MembersInlineAvatar = ({
 };
 
 export const MembersInlineTitle = ({ className }: { className?: string }) => {
-  const { members, loading, placeholder, allowUnassigned } =
+  const { members: allMembers, loading, placeholder, allowUnassigned, memberIds } =
     useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
+
+  const members = memberIds?.length
+    ? allMembers.filter((m) => memberIds.includes(m._id))
+    : allMembers;
   const isCurrentUser = members.some((m) => m._id === currentUser._id);
 
   const getDisplayValue = () => {
