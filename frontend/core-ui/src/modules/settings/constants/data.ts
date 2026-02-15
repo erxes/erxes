@@ -106,7 +106,7 @@ export const KEY_LABELS = {
 };
 
 export const SETTINGS_PATH_DATA = (
-  t: TFunction = ((key: string) => key) as TFunction
+  t: TFunction = ((key: string) => key) as TFunction,
 ): { [key: string]: TSettingPath[] } => ({
   account: [
     {
@@ -183,11 +183,13 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
         name: 'File upload',
         icon: IconFile,
         path: SettingsWorkspacePath.FileUpload,
+        helpUrl: 'https://www.youtube.com',
       },
       {
         name: 'Mail config',
         icon: IconMail,
         path: SettingsWorkspacePath.MailConfig,
+        helpUrl: 'https://www.youtube.com',
       },
     );
   }

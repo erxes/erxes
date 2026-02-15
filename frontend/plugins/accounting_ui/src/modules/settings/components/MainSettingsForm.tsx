@@ -1,9 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Collapsible,
-  Form,
-} from 'erxes-ui';
+import { Button, Checkbox, Collapsible, Form } from 'erxes-ui';
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import {
   mainSettingsSchema,
@@ -65,9 +60,7 @@ export const MainSettingsForm = () => {
             General settings
           </Collapsible.TriggerButton>
 
-          <Collapsible.Content className="pt-4 grid grid-cols-2 gap-4">
-
-          </Collapsible.Content>
+          <Collapsible.Content className="pt-4 grid grid-cols-2 gap-4"></Collapsible.Content>
         </Collapsible>
         <Collapsible defaultOpen>
           <Collapsible.TriggerButton className="h-8 w-auto text-base">
@@ -130,7 +123,7 @@ export const VatFormFields = ({
                 <SelectAccount
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ["tax"] }}
+                  defaultFilter={{ journals: ['tax'] }}
                 />
               </Form.Item>
             )}
@@ -146,7 +139,7 @@ export const VatFormFields = ({
                 <SelectAccount
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ["tax"] }}
+                  defaultFilter={{ journals: ['tax'] }}
                 />
               </Form.Item>
             )}
@@ -162,7 +155,7 @@ export const VatFormFields = ({
                 <SelectAccount
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ["tax"] }}
+                  defaultFilter={{ journals: ['tax'] }}
                 />
               </Form.Item>
             )}
@@ -178,7 +171,7 @@ export const VatFormFields = ({
                 <SelectAccount
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ["tax"] }}
+                  defaultFilter={{ journals: ['tax'] }}
                 />
               </Form.Item>
             )}
@@ -222,7 +215,7 @@ export const CtaxFormFields = ({
               <SelectAccount
                 value={field.value}
                 onValueChange={field.onChange}
-                defaultFilter={{ journals: ["tax"] }}
+                defaultFilter={{ journals: ['tax'] }}
               />
             </Form.Item>
           )}

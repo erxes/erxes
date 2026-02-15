@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconKey } from '@tabler/icons-react';
+import { IconInfoCircle, IconKey } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router';
 import { PageHeader, PageHeaderStart } from 'ui-modules';
@@ -23,6 +23,7 @@ export const ChangePasswordHeader = () => {
                   {t('_')}
                 </Link>
               </Button>
+              <IconInfoCircle className="size-4 text-accent-foreground" />
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>
