@@ -84,7 +84,6 @@ const TemplateRowActions = ({
             <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
             <AlertDialog.Action
               onClick={() => onRemove(template._id)}
-              className="bg-destructive text-destructive hover:bg-destructive/90"
             >
               Delete
             </AlertDialog.Action>
