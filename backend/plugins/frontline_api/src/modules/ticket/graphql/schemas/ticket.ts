@@ -27,6 +27,7 @@ export const types = `
     status: TicketStatus
     assignee: User
     isSubscribed: Boolean
+    state: String
   }
 
   type TicketListResponse {
@@ -50,7 +51,7 @@ export const types = `
     userId: String
     name: String
     statusType: Int
-
+    state: String
     ${GQL_CURSOR_PARAM_DEFS}
   }
 
@@ -69,7 +70,7 @@ export const types = `
     userId: String
     name: String
     statusType: Int
-
+    state: String
     ${GQL_OFFSET_PARAM_DEFS}
   }
 
@@ -91,6 +92,7 @@ const createTicketParams = `
   startDate: Date
   targetDate: Date
   assigneeId: String
+  state: String
 `;
 
 const updateTicketParams = `
@@ -107,6 +109,7 @@ const updateTicketParams = `
   startDate: Date
   targetDate: Date
   isSubscribed: Boolean
+  state: String
 `;
 
 export const queries = `
