@@ -13,6 +13,12 @@ export const types = `
         clientPortalUser
     }
 
+    enum PostDateField {
+        createdAt
+        updatedAt
+        scheduledDate
+    }
+
     union Author = User 
 
     type Post @key(fields: "_id") @cacheControl(maxAge: 3){
@@ -131,6 +137,9 @@ const commonPostQuerySelector = `
     sortField: String
     sortDirection: String
     language: String
+    dateField: PostDateField
+    dateFrom: Date
+    dateTo: Date
 `;
 
 const commonPostQuerySelectorPagination = `
@@ -142,6 +151,7 @@ const commonPostQuerySelectorPagination = `
     status: PostStatus
     tagIds: [String]
     language: String
+
 `;
 
 export const queries = `

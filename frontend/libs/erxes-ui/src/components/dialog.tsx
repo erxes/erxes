@@ -85,7 +85,7 @@ const DialogCombinedHeader = ({
 const DialogContentCombined = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
-    React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>
+  React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>
 >(({ className, children, title, description, hideClose, ...props }, ref) => (
   <DialogContent ref={ref} className={cn(className)} {...props}>
     <DialogCombinedHeader
