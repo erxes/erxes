@@ -31,56 +31,71 @@ fi
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then
     echo -e "${RED}Error: GitHub CLI (gh) not installed${NC}"
-    echo "Install from: https://cli.github.com/"
+    echo ""
+    echo "Install with:"
+    echo "  brew install gh"
+    echo ""
+    echo "Then authenticate:"
+    echo "  gh auth login"
     exit 1
 fi
 
 # Check if user is authenticated with gh
 if ! gh auth status &> /dev/null; then
     echo -e "${RED}Error: Not authenticated with GitHub CLI${NC}"
+    echo ""
     echo "Run: gh auth login"
     exit 1
 fi
 
+# Check for remote
+REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if [ -z "$REMOTE_URL" ]; then
+    echo -e "${YELLOW}No remote repository configured.${NC}"
+    echo ""
+    echo "To add your GitHub repository, run:"
+    echo "  git remote add origin https://github.com/YOUR_USERNAME/erxes.git"
+    echo ""
+    echo "Or for SSH:"
+    echo "  git remote add origin git@github.com:YOUR_USERNAME/erxes.git"
+    echo ""
+    
+    # Ask for remote URL
+    echo -n "Enter your GitHub repository URL (or press Enter to skip): "
+    read -r REPO_URL
+    
+    if [ -n "$REPO_URL" ]; then
+        git remote add origin "$REPO_URL"
+        echo -e "${GREEN}Remote added: $REPO_URL${NC}"
+    else
+        echo -e "${YELLOW}Skipping remote setup. You can add it later.${NC}"
+    fi
+fi
+
 echo -e "${BLUE}Step 1: Checking git status...${NC}"
-git status
+git status --short
 
 echo ""
 echo -e "${BLUE}Step 2: Creating new branch: $BRANCH_NAME${NC}"
-git checkout -b "$BRANCH_NAME" || {
-    echo -e "${YELLOW}Branch creation failed, trying to use unique name...${NC}"
-    TIMESTAMP=$(date +%Y%m%d-%H%M%S-%N)
-    BRANCH_NAME="fix/security-stability-bugs-${TIMESTAMP}"
-    git checkout -b "$BRANCH_NAME"
-}
+git checkout -b "$BRANCH_NAME"
 
 echo ""
 echo -e "${BLUE}Step 3: Staging analysis documents...${NC}"
 
 # Add the analysis documents if they exist
-if [ -f BUG_ANALYSIS_REPORT.md ]; then
-    git add BUG_ANALYSIS_REPORT.md
-    echo "  ✓ BUG_ANALYSIS_REPORT.md"
-fi
+STAGED_COUNT=0
 
-if [ -f PR_DESCRIPTION.md ]; then
-    git add PR_DESCRIPTION.md
-    echo "  ✓ PR_DESCRIPTION.md"
-fi
+for file in BUG_ANALYSIS_REPORT.md PR_DESCRIPTION.md BUG_FIX_TRACKING.md AGENT_SWARM_SUMMARY.md create-github-pr.sh; do
+    if [ -f "$file" ]; then
+        git add "$file"
+        echo "  ✓ $file"
+        STAGED_COUNT=$((STAGED_COUNT + 1))
+    fi
+done
 
-if [ -f BUG_FIX_TRACKING.md ]; then
-    git add BUG_FIX_TRACKING.md
-    echo "  ✓ BUG_FIX_TRACKING.md"
-fi
-
-if [ -f AGENT_SWARM_SUMMARY.md ]; then
-    git add AGENT_SWARM_SUMMARY.md
-    echo "  ✓ AGENT_SWARM_SUMMARY.md"
-fi
-
-if [ -f create-github-pr.sh ]; then
-    git add create-github-pr.sh
-    echo "  ✓ create-github-pr.sh"
+if [ $STAGED_COUNT -eq 0 ]; then
+    echo -e "${YELLOW}No analysis documents found to stage.${NC}"
+    exit 1
 fi
 
 echo ""
@@ -94,7 +109,7 @@ Agent Swarm Analysis Results:
 - 100+ high severity bugs
 
 Documents Added:
-- BUG_ANALYSIS_REPORT.md: Comprehensive bug analysis
+- BUG_ANALYSIS_REPORT.md: Comprehensive bug analysis (378 bugs)
 - PR_DESCRIPTION.md: Detailed PR description
 - BUG_FIX_TRACKING.md: Fix tracking and sprint planning
 - AGENT_SWARM_SUMMARY.md: Executive summary
@@ -103,60 +118,65 @@ Categories:
 - Security vulnerabilities (XSS, auth, permissions)
 - Data integrity issues (transactions, migrations)
 - Performance issues (N+1 queries, missing indexes)
-- Stability issues (memory leaks, error handling)" || {
-    echo -e "${YELLOW}Nothing to commit or commit failed. Continuing...${NC}"
-}
+- Stability issues (memory leaks, error handling)"
 
 echo ""
-echo -e "${BLUE}Step 5: Pushing branch to origin...${NC}"
-git push -u origin "$BRANCH_NAME" || {
-    echo -e "${RED}Failed to push branch. Checking remote...${NC}"
-    git remote -v
-    exit 1
-}
 
-echo ""
-echo -e "${BLUE}Step 6: Creating Pull Request...${NC}"
-
-# Read PR description from file
-if [ -f PR_DESCRIPTION.md ]; then
-    PR_BODY=$(cat PR_DESCRIPTION.md)
+# Check if we have a remote to push to
+if git remote get-url origin &> /dev/null; then
+    echo -e "${BLUE}Step 5: Pushing branch to origin...${NC}"
+    
+    # Try to push, if it fails, show instructions
+    if git push -u origin "$BRANCH_NAME"; then
+        echo -e "${GREEN}Branch pushed successfully!${NC}"
+        
+        echo ""
+        echo -e "${BLUE}Step 6: Creating Pull Request...${NC}"
+        
+        # Read PR description from file
+        if [ -f PR_DESCRIPTION.md ]; then
+            PR_BODY=$(cat PR_DESCRIPTION.md)
+        else
+            PR_BODY="This PR addresses security and stability bugs identified through comprehensive analysis using 15 specialized agents."
+        fi
+        
+        # Create the PR
+        if gh pr create \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
+            --base "$BASE_BRANCH" \
+            --head "$BRANCH_NAME" \
+            --draft 2>/dev/null; then
+            
+            echo ""
+            echo -e "${GREEN}✅ Pull Request created successfully!${NC}"
+        else
+            echo -e "${YELLOW}Could not create PR automatically.${NC}"
+            echo "Create it manually at:"
+            echo "  https://github.com/$(gh repo view --json owner,name -q '.owner.login + "/" + .name')/compare/$BASE_BRANCH...$BRANCH_NAME"
+        fi
+    else
+        echo -e "${RED}Failed to push branch.${NC}"
+        echo ""
+        echo "To push manually, run:"
+        echo "  git push -u origin $BRANCH_NAME"
+    fi
 else
-    PR_BODY="This PR addresses security and stability bugs identified through comprehensive analysis."
+    echo -e "${YELLOW}No remote configured. Cannot push.${NC}"
+    echo ""
+    echo "To add a remote and push:"
+    echo "  git remote add origin https://github.com/YOUR_USERNAME/erxes.git"
+    echo "  git push -u origin $BRANCH_NAME"
 fi
 
-# Create the PR
-gh pr create \
-    --title "$PR_TITLE" \
-    --body "$PR_BODY" \
-    --base "$BASE_BRANCH" \
-    --head "$BRANCH_NAME" \
-    --label "security,bug,critical" \
-    --draft || {
-    echo -e "${RED}Failed to create PR. Trying without labels...${NC}"
-    gh pr create \
-        --title "$PR_TITLE" \
-        --body "$PR_BODY" \
-        --base "$BASE_BRANCH" \
-        --head "$BRANCH_NAME" \
-        --draft
-}
-
 echo ""
-echo -e "${GREEN}✅ Pull Request created successfully!${NC}"
-echo ""
-echo -e "${YELLOW}Next Steps:${NC}"
-echo "1. Review the PR on GitHub"
-echo "2. Apply the actual code fixes"
-echo "3. Add tests for critical bugs"
-echo "4. Request reviews from team members"
-echo "5. Merge after approval"
+echo "=========================================="
+echo -e "${GREEN}🎉 Setup Complete!${NC}"
+echo "=========================================="
 echo ""
 echo -e "${BLUE}Branch: ${NC}$BRANCH_NAME"
 echo -e "${BLUE}Base: ${NC}$BASE_BRANCH"
 echo ""
-
-# Show summary
 echo "📊 Bug Fix Summary"
 echo "=================="
 echo "Critical: 22 bugs"
@@ -166,7 +186,6 @@ echo "Low: 90 bugs"
 echo "Total: 378+ bugs"
 echo ""
 
-# Show top priority fixes
 echo "🚨 Top Priority Fixes"
 echo "===================="
 echo "1. XSS vulnerabilities (2 files)"
@@ -174,8 +193,19 @@ echo "2. Permission system disabled"
 echo "3. JWT silent failures"
 echo "4. Unauthenticated file uploads"
 echo "5. z.any() in tRPC (all procedures)"
-echo "6. Date.now() defaults (20+ files)"
-echo "7. Missing transactions"
 echo ""
 
-echo -e "${GREEN}Done! Check the PR on GitHub.${NC}"
+echo -e "${YELLOW}Next Steps:${NC}"
+echo "1. Review the analysis documents"
+echo "2. Apply the actual code fixes"
+echo "3. Add tests for critical bugs"
+echo "4. Push to GitHub and create PR"
+echo "5. Request reviews from team"
+echo ""
+
+echo "📁 Analysis Documents"
+echo "===================="
+ls -la *.md 2>/dev/null || echo "Documents committed to branch"
+echo ""
+
+echo -e "${GREEN}Done!${NC}"
