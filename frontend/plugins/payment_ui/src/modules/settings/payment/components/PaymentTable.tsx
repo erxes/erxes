@@ -25,8 +25,11 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
               <Table.Head>Actions</Table.Head>
             </Table.Row>
           </Table.Header>
+
           <tbody className="divide-y divide-gray-200">
             {payments.map((payment) => {
+              const logoUrl = `${REACT_APP_API_URL}/pl:payment/images/payments/${payment.kind}.png`;
+
               return (
                 <Table.Row key={payment._id} className="hover:bg-gray-50">
                   <Table.Cell className="px-6 py-4 whitespace-nowrap">
@@ -34,18 +37,21 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
                       <div className="p-2 rounded-full text-white">
                         <img
                           className="w-6 h-6 object-contain rounded-md"
-                          src={`${REACT_APP_API_URL}/pl:payment/static/images/payments/${payment.kind}.png`}
+                          src={logoUrl}
                           alt={paymentKind(payment.kind)?.name}
                         />
                       </div>
+
                       <span className="font-medium text-gray-900">
                         {paymentKind(payment.kind)?.name}
                       </span>
                     </div>
                   </Table.Cell>
+
                   <Table.Cell className="px-6 py-4 whitespace-nowrap text-gray-900">
                     {payment.name}
                   </Table.Cell>
+
                   <Table.Cell className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
@@ -57,12 +63,15 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
                       {payment.status || 'active'}
                     </span>
                   </Table.Cell>
+
                   <Table.Cell className="px-6 py-4 whitespace-nowrap text-gray-500">
                     {'******'}
                   </Table.Cell>
+
                   <Table.Cell className="px-6 py-4 whitespace-nowrap text-gray-500">
                     {dayjs(payment.createdAt).format('YYYY-MM-DD')}
                   </Table.Cell>
+
                   <Table.Cell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
                       <Button
@@ -72,6 +81,7 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
                       >
                         <IconEdit className="w-4 h-4" />
                       </Button>
+
                       <Button
                         variant="ghost"
                         size="sm"
@@ -87,6 +97,7 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
           </tbody>
         </Table>
       </div>
+
       {payments.length === 0 && (
         <div className="text-center py-12">
           <IconCreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
