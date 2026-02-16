@@ -2,39 +2,39 @@ import { IContext } from '~/connectionResolvers';
 
 export const templateMutations = {
   // Temporary migration mutation - remove after use
-  _migrateTemplateCollection: async (
-    _parent: undefined,
-    _args: any,
-    { models }: IContext,
-  ) => {
-    try {
-      // Drop the old index
-      await models.Template.collection.dropIndex('insuranceType_1');
-      return { success: true, message: 'Index dropped successfully' };
-    } catch (err: any) {
-      if (err.code === 27) {
-        return { success: true, message: 'Index does not exist' };
+  _migrateTemplateCollection: Object.assign(
+    async (_parent: undefined, _args: any, { models }: IContext) => {
+      try {
+        // Drop the old index
+        await models.Template.collection.dropIndex('insuranceType_1');
+        return { success: true, message: 'Index dropped successfully' };
+      } catch (err: any) {
+        if (err.code === 27) {
+          return { success: true, message: 'Index does not exist' };
+        }
+        throw err;
       }
-      throw err;
-    }
-  },
-
-  createContractTemplate: async (
-    _parent: undefined,
-    {
-      name,
-      description,
-      htmlContent,
-      cssContent,
-    }: {
-      name: string;
-      description?: string;
-      htmlContent?: string;
-      cssContent?: string;
     },
-    { models }: IContext,
-  ) => {
-    const defaultHtmlContent = `<!DOCTYPE html>
+    { wrapperConfig: { skipPermission: true } },
+  ),
+
+  createContractTemplate: Object.assign(
+    async (
+      _parent: undefined,
+      {
+        name,
+        description,
+        htmlContent,
+        cssContent,
+      }: {
+        name: string;
+        description?: string;
+        htmlContent?: string;
+        cssContent?: string;
+      },
+      { models }: IContext,
+    ) => {
+      const defaultHtmlContent = `<!DOCTYPE html>
 <html lang="mn">
 <head>
   <meta charset="UTF-8">
@@ -48,51 +48,59 @@ export const templateMutations = {
 </body>
 </html>`;
 
-    return models.Template.create({
-      name,
-      description: description || '',
-      htmlContent: htmlContent || defaultHtmlContent,
-      cssContent: cssContent || '',
-      status: 'draft',
-      version: 1,
-    });
-  },
-
-  updateContractTemplate: async (
-    _parent: undefined,
-    {
-      id,
-      name,
-      description,
-      htmlContent,
-      cssContent,
-      status,
-    }: {
-      id: string;
-      name?: string;
-      description?: string;
-      htmlContent?: string;
-      cssContent?: string;
-      status?: string;
+      return models.Template.create({
+        name,
+        description: description || '',
+        htmlContent: htmlContent || defaultHtmlContent,
+        cssContent: cssContent || '',
+        status: 'draft',
+        version: 1,
+      });
     },
-    { models }: IContext,
-  ) => {
-    const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (description !== undefined) updateData.description = description;
-    if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
-    if (cssContent !== undefined) updateData.cssContent = cssContent;
-    if (status !== undefined) updateData.status = status;
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
-    return models.Template.findByIdAndUpdate(id, updateData, { new: true });
-  },
+  updateContractTemplate: Object.assign(
+    async (
+      _parent: undefined,
+      {
+        id,
+        name,
+        description,
+        htmlContent,
+        cssContent,
+        status,
+      }: {
+        id: string;
+        name?: string;
+        description?: string;
+        htmlContent?: string;
+        cssContent?: string;
+        status?: string;
+      },
+      { models }: IContext,
+    ) => {
+      const updateData: any = {};
+      if (name !== undefined) updateData.name = name;
+      if (description !== undefined) updateData.description = description;
+      if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
+      if (cssContent !== undefined) updateData.cssContent = cssContent;
+      if (status !== undefined) updateData.status = status;
 
-  deleteContractTemplate: async (
-    _parent: undefined,
-    { id }: { id: string },
-    { models }: IContext,
-  ) => {
-    await models.Template.findByIdAndDelete(id);
-    return { success: true };
-  },
+      return models.Template.findByIdAndUpdate(id, updateData, { new: true });
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
+
+  deleteContractTemplate: Object.assign(
+    async (
+      _parent: undefined,
+      { id }: { id: string },
+      { models }: IContext,
+    ) => {
+      await models.Template.findByIdAndDelete(id);
+      return { success: true };
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 };

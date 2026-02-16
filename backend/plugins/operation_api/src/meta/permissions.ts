@@ -13,11 +13,11 @@ export const permissions: IPermissionConfig = {
       scopes: [
         {
           name: 'own',
-          description: 'Records you created or assigned to you',
+          description: 'Records user created or assigned to user',
         },
         {
           name: 'group',
-          description: 'Records in your teams',
+          description: 'Records in user teams',
         },
         { name: 'all', description: 'All records' },
       ],
@@ -61,11 +61,11 @@ export const permissions: IPermissionConfig = {
       scopes: [
         {
           name: 'own',
-          description: 'Records you created or assigned to you',
+          description: 'Records user created or assigned to user',
         },
         {
           name: 'group',
-          description: 'Records in your teams',
+          description: 'Records in user teams',
         },
         { name: 'all', description: 'All records' },
       ],
@@ -103,7 +103,7 @@ export const permissions: IPermissionConfig = {
       scopes: [
         {
           name: 'own',
-          description: 'Records you created or assigned to you',
+          description: 'Records user created or assigned to user',
         },
         {
           name: 'group',

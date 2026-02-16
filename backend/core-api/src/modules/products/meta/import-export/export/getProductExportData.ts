@@ -23,9 +23,9 @@ export async function getProductExportData(
     const processedCount = cursor ? Number.parseInt(cursor, 10) || 0 : 0;
     const remainingIds = ids.slice(processedCount);
 
-    if (remainingIds.length === 0) {
-      return [];
-    }
+    // if (remainingIds.length === 0) {
+    //   return [];
+    // }
 
     query._id = { $in: remainingIds.slice(0, limit) };
   } else {

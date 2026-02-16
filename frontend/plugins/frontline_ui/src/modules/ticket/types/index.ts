@@ -22,6 +22,7 @@ export interface ITicket {
   createdBy: string;
   isSubscribed?: boolean;
   propertiesData?: Record<string, any>;
+  state?: string;
 }
 
 export type TAddTicket = z.infer<typeof addTicketSchema>;
