@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router';
-import { Breadcrumb, Button } from 'erxes-ui';
-import { IconMinusVertical, IconSettings } from '@tabler/icons-react';
+import { Breadcrumb, Button, Tooltip } from 'erxes-ui';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { GET_SETTINGS_PATH_DATA } from '../constants/data';
 import { PageHeader, PageHeaderStart, useVersion } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +29,20 @@ export function SettingsBreadcrumbs() {
               <Button variant="ghost" asChild>
                 <Link to={pathname}>{currentPath?.name}</Link>
               </Button>
+              {currentPath?.shortDescription && (
+                <Tooltip>
+                  <Tooltip.Trigger>
+                    {currentPath?.helpUrl && (
+                      <Link to={currentPath.helpUrl} target="_blank">
+                        <IconInfoCircle className="size-4 text-accent-foreground" />
+                      </Link>
+                    )}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <p>{currentPath.shortDescription}</p>
+                  </Tooltip.Content>
+                </Tooltip>
+              )}
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>

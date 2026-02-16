@@ -90,7 +90,7 @@ const GeneralSettings = () => {
             languages.some((lng) => lang.value === lng),
           )}
           placeholder="Languages"
-          label= {t('language')}
+          label={t('language')}
         />
         <SelectMainCurrency />
         <SelectCurrency />
