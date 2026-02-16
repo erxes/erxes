@@ -1,8 +1,8 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Form, Input } from 'erxes-ui';
+import { Form, Input, Select } from 'erxes-ui';
 import { CouponFormValues } from '../../../constants/couponFormSchema';
-import { SelectProduct } from 'ui-modules';
+import { CHARACTER_SET_OPTIONS } from '../../constants/characterSets';
 
 interface CouponDefaultCodeRuleFieldProps {
   form: UseFormReturn<CouponFormValues>;
@@ -91,24 +91,36 @@ export const CouponDefaultCodeRuleField: React.FC<
       </div>
       <div className="flex flex-col gap-4">
         <Form.Field
-          control={form.control}
-          name="characterSet"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Character Set</Form.Label>
-              <Form.Control>
-                <SelectProduct
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={(value) =>
-                    field.onChange(Array.isArray(value) ? value : [value])
-                  }
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+  control={form.control}
+  name="characterSet"
+  render={({ field }) => (
+    <Form.Item>
+      <Form.Label>Character Set</Form.Label>
+      <Form.Control>
+        <Select
+          value={field.value}
+          onValueChange={field.onChange}
+        >
+          <Select.Trigger className="w-full">
+            <Select.Value placeholder="Select character set" />
+          </Select.Trigger>
+
+          <Select.Content>
+            {CHARACTER_SET_OPTIONS.map(option => (
+              <Select.Item
+                key={option.value}
+                value={option.value}
+              >
+                {option.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      </Form.Control>
+      <Form.Message />
+    </Form.Item>
+  )}
+/>
         <Form.Field
           control={form.control}
           name="usageLimit"

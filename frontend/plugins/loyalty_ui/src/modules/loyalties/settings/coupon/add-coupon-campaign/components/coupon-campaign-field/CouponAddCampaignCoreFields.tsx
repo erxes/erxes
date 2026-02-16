@@ -28,42 +28,51 @@ export const CouponAddCampaignCoreFields: React.FC<
           )}
         />
         <Form.Field
-          control={form.control}
-          name="count"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Count</Form.Label>
-              <Form.Control>
-                <Input
-                  type="text"
-                  placeholder="Enter count"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value)}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
+  control={form.control}
+  name="count"
+  render={({ field }) => (
+    <Form.Item>
+      <Form.Label>Count</Form.Label>
+      <Form.Control>
+        <Input
+          type="number"
+          value={field.value ?? ''}
+          onChange={(e) => {
+            const val = e.target.value;
+            field.onChange(val === '' ? undefined : Number(val));
+          }}
         />
+      </Form.Control>
+      <Form.Message />
+    </Form.Item>
+  )}
+/>
+
       </div>
       <div className="flex flex-col gap-2">
         <Form.Field
-          control={form.control}
-          name="buyScore"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Buy Score</Form.Label>
-              <Form.Control>
-                <Input
-                  type="text"
-                  placeholder="Enter coupon buy score"
-                  {...field}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
+  control={form.control}
+  name="buyScore"
+  render={({ field }) => (
+    <Form.Item>
+      <Form.Label>Buy Score</Form.Label>
+      <Form.Control>
+        <Input
+          type="number"
+          placeholder="Enter coupon buy score"
+          value={field.value ?? ''}
+          onChange={(e) =>
+            field.onChange(
+              e.target.value === '' ? undefined : Number(e.target.value)
+            )
+          }
         />
+      </Form.Control>
+      <Form.Message />
+    </Form.Item>
+  )}
+/>
+
         <Form.Field
           control={form.control}
           name="kind"

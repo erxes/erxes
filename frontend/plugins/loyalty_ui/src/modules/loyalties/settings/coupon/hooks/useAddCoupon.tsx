@@ -10,8 +10,8 @@ export interface AddCouponResult {
 }
 
 export interface AddCouponVariables {
-  name: string;
-  kind: string;
+  kind?: string;
+  value?: number;
   description?: string;
   status?: string;
   type?: string;

@@ -10,6 +10,7 @@ export const loyaltyScoreFormSchema = z.object({
     excludeProductCategoryIds: z.array(z.string()).optional(),
     excludeProductIds: z.array(z.string()).optional(),
     excludeTagIds: z.array(z.string()).optional(),
+    serviceName: z.string().min(1, 'Service is required'),
   }),
 });
 
