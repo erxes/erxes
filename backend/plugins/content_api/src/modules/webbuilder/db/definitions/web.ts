@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
 import { IWebDocument } from '../../@types/web';

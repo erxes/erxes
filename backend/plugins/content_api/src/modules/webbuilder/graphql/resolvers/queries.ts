@@ -1,5 +1,4 @@
 import { IContext } from "~/connectionResolvers"
-import { BaseQueryResolver } from "~/modules/cms/utils/base-resolvers";
 import { Resolver } from 'erxes-api-shared/core-types';
 
 export const webQueries: Record<string, Resolver> = {
