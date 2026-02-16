@@ -200,9 +200,18 @@ export const knowledgeBaseQueries = {
     { models }: IContext
   ) {
     return models.Topic.countDocuments({});
-  }
+  },
   
+  async cpknowledgeBaseTopics(_root:any, args:any, context: IContext ){
+    const { models, clientPortal } = context;
+    const clientPortalId = clientPortal._id;
+
+    const query : any = buildQuery(args);
+
+    const topics = models.Topic.find(query, clientPortalId).sort({ modifiedDate: -1 });
+
+    return defaultPaginate(topics, args);
+  },
+
 };
-
-
 export default knowledgeBaseQueries;
