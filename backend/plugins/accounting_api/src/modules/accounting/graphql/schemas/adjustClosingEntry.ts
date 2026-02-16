@@ -17,7 +17,11 @@ export const types = `
       modifiedBy: String
     }
 
-  
+    type AdjustClosingPreviewItem {
+        accountId: String!
+        side: String!  
+        amount: Float!
+    }
     `;
 
 const adjustClosingEntryQueryParams = `
@@ -28,9 +32,9 @@ const adjustClosingEntryQueryParams = `
     `;
 
 export const queries = `
-    adjustClosingEntries(
+    adjustClosingEntry(
         ${adjustClosingEntryQueryParams}
-    ): [AdjustClosingEntry]
+    ): AdjustClosingEntry
 
     adjustClosingEntriesCount(
         ${adjustClosingEntryQueryParams}
@@ -39,6 +43,17 @@ export const queries = `
     adjustClosingEntryDetail(
         _id: String!
     ): AdjustClosingEntry
+
+    adjustClosingEntries(
+        ${adjustClosingEntryQueryParams}
+    ): [AdjustClosingEntry]
+    
+      previewAdjustClosingEntries(
+        beginDate: Date!
+        date: Date!
+        accountIds: [String!]!
+    ): [AdjustClosingPreviewItem!]!
+
     `;
 
 export const mutations = `

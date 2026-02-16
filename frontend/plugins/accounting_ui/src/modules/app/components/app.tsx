@@ -57,6 +57,12 @@ const AdjustClosingList = lazy(() =>
   })),
 );
 
+const AdjustClosingDetail = lazy(() =>
+  import('~/pages/AdjustClosingDetailPage').then((module) => ({
+    default: module.AdjustClosingDetailPage,
+  })),
+);
+
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -84,6 +90,10 @@ const PluginAccounting = () => {
           element={<AccountingGenJournalReport />}
         />
         <Route path="/adjustment/closing" element={<AdjustClosingList />} />
+        {/* <Route
+          path="/adjustment/closing/detail"
+          element={<AdjustClosingDetail />}
+        /> */}
       </Routes>
       <PageChangeEffect />
     </Suspense>

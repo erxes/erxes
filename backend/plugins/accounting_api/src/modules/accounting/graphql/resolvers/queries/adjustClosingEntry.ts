@@ -61,6 +61,32 @@ const adjustClosingEntryQueries = {
   ) {
     return await models.AdjustClosingEntries.findOne({ _id }).lean();
   },
+
+  async previewAdjustClosingEntries(
+    _root: undefined,
+    {
+      beginDate,
+      date,
+      accountIds,
+    }: {
+      beginDate: Date;
+      date: Date;
+      accountIds: string[];
+    },
+    { models }: IContext,
+  ) {
+    if (!models.AdjustClosingEntries?.getAdjustClosingEntries) {
+      throw new Error(
+        'previewAdjustClosing method not found on AdjustClosingEntries model',
+      );
+    }
+
+    return models.AdjustClosingEntries.getAdjustClosingEntries({
+      beginDate,
+      date,
+      accountIds,
+    });
+  },
 };
 
 export default adjustClosingEntryQueries;

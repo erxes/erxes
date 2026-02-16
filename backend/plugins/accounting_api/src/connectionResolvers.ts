@@ -3,22 +3,34 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IAccountCategoryDocument } from './modules/accounting/@types/accountCategory';
 import { IAccountDocument } from './modules/accounting/@types/account';
-import { IAdjustInvDetailDocument, IAdjustInventoryDocument } from './modules/accounting/@types/adjustInventory';
+import {
+  IAdjustInvDetailDocument,
+  IAdjustInventoryDocument,
+} from './modules/accounting/@types/adjustInventory';
 import {
   IAdjustInvDetailsModel,
   IAdjustInventoriesModel,
   loadAdjustInvDetailsClass,
-  loadAdjustInventoriesClass
+  loadAdjustInventoriesClass,
 } from './modules/accounting/db/models/AdjustInventories';
 import { IConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
-import { ICtaxRowModel, loadCtaxRowClass } from './modules/accounting/db/models/CtaxRows';
+import {
+  ICtaxRowModel,
+  loadCtaxRowClass,
+} from './modules/accounting/db/models/CtaxRows';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
-import { IPermissionModel, loadPermissionClass } from './modules/accounting/db/models/Permissions';
+import {
+  IPermissionModel,
+  loadPermissionClass,
+} from './modules/accounting/db/models/Permissions';
 import { ITransactionDocument } from './modules/accounting/@types/transaction';
 import { IVatRowDocument } from './modules/accounting/@types/vatRow';
-import { IVatRowModel, loadVatRowClass } from './modules/accounting/db/models/VatRows';
+import {
+  IVatRowModel,
+  loadVatRowClass,
+} from './modules/accounting/db/models/VatRows';
 import {
   IAccountCategoryModel,
   loadAccountCategoryClass,
@@ -35,6 +47,11 @@ import {
   ITransactionModel,
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
+import {
+  IAdjustClosingEntryModel,
+  loadAdjustClosingEntryClass,
+} from './modules/accounting/db/models/AdjustClosingEntry';
+import { IAdjustClosingDocument } from './modules/accounting/@types/adjustClosingEntry';
 
 export interface IModels {
   Accounts: IAccountModel;
@@ -46,6 +63,7 @@ export interface IModels {
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
+  AdjustClosingEntries: IAdjustClosingEntryModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -64,32 +82,35 @@ export const loadClasses = (
 ): IModels => {
   const models = {} as IModels;
 
-  models.Configs = db.model<
-    IConfigDocument,
-    IConfigModel
-  >('accountings_configs', loadConfigClass(
-    models,
-    subdomain,
-    eventDispatcher('accounting', 'accounting', 'accountings_configs')
-  ));
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'accountings_configs',
+    loadConfigClass(
+      models,
+      subdomain,
+      eventDispatcher('accounting', 'accounting', 'accountings_configs'),
+    ),
+  );
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'accounts',
     loadConfigClass(
       models,
       subdomain,
-      eventDispatcher('accounting', 'accounting', 'accounts')
+      eventDispatcher('accounting', 'accounting', 'accounts'),
     ),
   );
 
   models.AccountCategories = db.model<
     IAccountCategoryDocument,
     IAccountCategoryModel
-  >('account_categories',  loadConfigClass(
-    models,
-    subdomain,
-    eventDispatcher('accounting', 'accounting', 'account_categories')
-  ));
+  >(
+    'account_categories',
+    loadConfigClass(
+      models,
+      subdomain,
+      eventDispatcher('accounting', 'accounting', 'account_categories'),
+    ),
+  );
 
   models.AdjustInventories = db.model<
     IAdjustInventoryDocument,
@@ -119,6 +140,11 @@ export const loadClasses = (
     'ctax_rows',
     loadCtaxRowClass(models, subdomain),
   );
+
+  models.AdjustClosingEntries = db.model<
+    IAdjustClosingDocument,
+    IAdjustClosingEntryModel
+  >('adjust_closing_entries', loadAdjustClosingEntryClass(models, subdomain));
 
   return models;
 };

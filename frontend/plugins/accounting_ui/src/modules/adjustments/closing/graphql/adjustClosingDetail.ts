@@ -23,3 +23,19 @@ export const ADJUST_CLOSING_DETAIL_QUERY = gql`
     }
   }
 `;
+
+export const ADJUST_CLOSING_DETAILS = gql`
+  query AdjustClosingDetails($_id: String!) {
+    adjustClosingDetails(_id: $_id) {
+      _id
+      branchId
+      departmentId
+      entries
+      closeIntegrateId
+      periodGLTrId
+      createdAt
+      updatedAt
+    }
+    adjustClosingDetailsCount(_id: $_id)
+  }
+`;

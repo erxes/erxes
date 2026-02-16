@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Spinner } from 'erxes-ui';
 import { PageChangeEffect } from './app/effect-components/AccountingPageChangeEffect';
+import { AdjustClosingRoutes } from './app/components/AdjustClosingRoutes';
 
 const TransactionList = lazy(() =>
   import('~/pages/TransactionListPage').then((module) => ({
@@ -51,6 +52,18 @@ const AccountingGenJournalReport = lazy(() =>
   })),
 );
 
+const AdjustClosingList = lazy(() =>
+  import('~/pages/AdjustClosingPage').then((module) => ({
+    default: module.AdjustClosingListPage,
+  })),
+);
+
+const AdjustClosingDetail = lazy(() =>
+  import('~/pages/AdjustClosingDetailPage').then((module) => ({
+    default: module.AdjustClosingDetailPage,
+  })),
+);
+
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -73,8 +86,16 @@ const PluginAccounting = () => {
           element={<AdjustInventoryDetail />}
         />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
-        <Route path="/gen-journal-report" element={<AccountingGenJournalReport />} />
-
+        <Route
+          path="/gen-journal-report"
+          element={<AccountingGenJournalReport />}
+        />
+        <Route path={'adjustment/closing'} element={<AdjustClosingList />} />
+        <Route
+          path={'adjustment/closing/detail'}
+          element={<AdjustClosingDetail />}
+        />
+        <Route path="/adjustment/closing/*" element={<AdjustClosingRoutes />} />
       </Routes>
       <PageChangeEffect />
     </Suspense>

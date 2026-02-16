@@ -9,7 +9,7 @@ import {
   Textarea,
   useQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TAdjustClosingForm } from '../types/adjustClosingForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,9 @@ import { adjustClosingSchema } from '../types/adjustClosingSchema';
 import { AccountingDialog } from '~/modules/layout/components/Dialog';
 import { useAdjustClosingAdd } from '../hooks/useAdjustClosingAdd';
 import { SelectAccountFormItem } from '~/modules/settings/account/components/SelectAccount';
+import { TAdjustClosingPreviewItem } from '../types/AdjustClosing';
+import { useLazyQuery } from '@apollo/client';
+import { PREVIEW_ADJUST_CLOSING } from '../graphql/adjustClosingPreview';
 
 export const AddAdjustClosing = () => {
   const [open, setOpen] = useState(false);
@@ -45,6 +48,33 @@ const AddAdjustClosingForm = ({
     defaultValues: { date: new Date() },
   });
   const { addAdjustClosing, loading } = useAdjustClosingAdd();
+
+  const beginDate = form.watch('beginDate');
+  const date = form.watch('date');
+  const integrateAccountId = form.watch('integrateAccountId');
+
+  const beginDateValue = beginDate === null ? undefined : beginDate;
+
+  const dateValue = date === null ? undefined : date;
+
+  const [loadPreview, { data, loading: previewLoading }] = useLazyQuery(
+    PREVIEW_ADJUST_CLOSING,
+    {
+      variables: {
+        beginDate: beginDateValue,
+        date: dateValue,
+        accountIds: integrateAccountId ? [integrateAccountId] : [],
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  useEffect(() => {
+    if (integrateAccountId && beginDate && date) {
+      loadPreview();
+    }
+  }, [integrateAccountId, beginDate, date, loadPreview]);
+
   const [id] = useQueryState<string>('id');
   const onSubmit = (data: TAdjustClosingForm) => {
     addAdjustClosing({
@@ -176,6 +206,39 @@ const AddAdjustClosingForm = ({
             )}
           />
         </div>
+        {integrateAccountId && beginDate && date && (
+          <div className="mt-6 rounded-md border p-4">
+            <h4 className="font-semibold mb-3">Adjust Closing Preview</h4>
+
+            {previewLoading && (
+              <div className="text-sm text-muted-foreground">
+                Calculating...
+              </div>
+            )}
+
+            {!previewLoading &&
+              data?.previewAdjustClosingEntries?.length === 0 && (
+                <div className="text-sm text-muted-foreground">
+                  No entries found
+                </div>
+              )}
+
+            {!previewLoading &&
+              data?.previewAdjustClosingEntries?.map(
+                (item: TAdjustClosingPreviewItem) => (
+                  <div
+                    key={item.accountId}
+                    className="flex justify-between border-b py-2 text-sm"
+                  >
+                    <span>{item.accountId}</span>
+                    <span className="font-medium">
+                      {item.side.toUpperCase()} · {item.amount.toLocaleString()}
+                    </span>
+                  </div>
+                ),
+              )}
+          </div>
+        )}
         <Form.Field
           control={form.control}
           name="description"

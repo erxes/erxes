@@ -1,49 +1,54 @@
 import { RecordTable } from 'erxes-ui';
 import { useAdjustClosing } from '../hooks/useAdjustClosing';
 import { adjustClosingTableColumns } from './AdjustClosingColumns';
-import { useFields, useFieldsColumns } from 'ui-modules';
-import { ColumnDef } from '@tanstack/table-core';
-import { IAdjustClosingDetail } from '../types/AdjustClosing';
-import { useAdjustCustomeFieldsEdit } from '../hooks/useAdjustClosingCustomFields';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useIsAdjustClosingLeadSessionKey } from '../hooks/useAdjustClosingSessionKey';
+import { AdjustClosingCommandBar } from './adjust-closing-command-bar/AdjustClosingCommandBar';
 
 export const AdjustClosingTable = () => {
-  const { adjustClosing, loading, totalCount, handleFetchMore } =
+  const { adjustClosing, loading, handleFetchMore, pageInfo } =
     useAdjustClosing();
-  const { fields, loading: fieldsLoading } = useFields({
-    contentType: 'accountig:adjust',
-  });
 
-  const columns = useFieldsColumns({
-    fields,
-    mutateHook: useAdjustCustomeFieldsEdit,
-  });
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { sessionKey } = useIsAdjustClosingLeadSessionKey();
+
+  const { t } = useTranslation('Adjust', { keyPrefix: 'Closing' });
+
+  const columns = useMemo(() => adjustClosingTableColumns(t), [t]);
 
   return (
     <RecordTable.Provider
-      columns={
-        [
-          ...adjustClosingTableColumns,
-          ...columns,
-        ] as ColumnDef<IAdjustClosingDetail>[]
-      }
+      columns={columns}
       data={adjustClosing || []}
-      stickyColumns={['checkbox']}
+      stickyColumns={['more', 'checkbox', 'avatar']}
       className="m-3"
     >
-      <RecordTable.Scroll>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={adjustClosing?.length}
+        sessionKey={sessionKey}
+      >
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            <RecordTable.RowList />
-            {!loading && totalCount > adjustClosing?.length && (
-              <RecordTable.RowSkeleton
-                rows={4}
-                handleInView={handleFetchMore}
-              />
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
             )}
+
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
           </RecordTable.Body>
         </RecordTable>
-      </RecordTable.Scroll>
+      </RecordTable.CursorProvider>
+      <AdjustClosingCommandBar />
     </RecordTable.Provider>
   );
 };

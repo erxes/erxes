@@ -18,9 +18,9 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { renderingAdjustClosingDetailAtom } from '../types/adjustClosingDetailStates';
 import { useSetAtom } from 'jotai';
-import { AdjustClosingEntryDetail } from './AdjustClosingDetail';
-import { AdjustClosingDetailSheet } from './AdjustClosingDetailSheet';
 import { useTranslation } from 'react-i18next';
+import { AdjustClosingDetail } from './AdjustClosingDetail';
+import { TFunction } from 'i18next';
 
 const StatusCell = ({ row }: { row: any }) => {
   const [, setDetailOpen] = useQueryState('_id');
@@ -45,9 +45,7 @@ const StatusCell = ({ row }: { row: any }) => {
         </RecordTableInlineCell.Anchor>
       </Popover.Trigger>
       <Popover.Content>
-        <AdjustClosingDetailSheet queryKey="_id" title={t('Entry detail')}>
-          <AdjustClosingEntryDetail />
-        </AdjustClosingDetailSheet>
+        <AdjustClosingDetail />
       </Popover.Content>
     </Popover>
   );
@@ -88,81 +86,90 @@ const TextCell = ({ getValue }: any) => {
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IAdjustClosing>;
 
-export const adjustClosingTableColumns: ColumnDef<IAdjustClosing>[] = [
-  checkBoxColumn,
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconFlag} label="Status" />,
-    cell: ({ cell }) => <StatusCell row={cell.row} />,
-    size: 100,
-  },
-  {
-    id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
-    accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
-  },
-  {
-    id: 'beginDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Begin date" />
-    ),
-    accessorKey: 'beginDate',
-    cell: ({ getValue }) => <DateCell getValue={getValue} />,
-  },
-  {
-    id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
-    accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
-  },
-  {
-    id: 'integrateAccountId',
-    header: () => (
-      <RecordTable.InlineHead
-        icon={IconBuildingBank}
-        label="Integrate account"
-      />
-    ),
-    accessorKey: 'integrateAccountId',
-    cell: ({ getValue }) => <TextCell getValue={getValue} />,
-  },
+export const adjustClosingTableColumns: (
+  t: TFunction,
+) => ColumnDef<IAdjustClosing>[] = (t) => {
+  return [
+    checkBoxColumn,
+    {
+      id: 'status',
+      accessorKey: 'status',
+      header: () => <RecordTable.InlineHead icon={IconFlag} label="Status" />,
+      cell: ({ cell }) => <StatusCell row={cell.row} />,
+      size: 120,
+    },
+    {
+      id: 'date',
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendar} label={t('Date')} />
+      ),
+      accessorKey: 'date',
+      cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+    },
+    {
+      id: 'beginDate',
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendar} label={t('Begin date')} />
+      ),
+      accessorKey: 'beginDate',
+      cell: ({ getValue }) => <DateCell getValue={getValue} />,
+    },
+    {
+      id: 'description',
+      header: () => (
+        <RecordTable.InlineHead icon={IconFile} label={t('Description')} />
+      ),
+      accessorKey: 'description',
+      cell: ({ getValue, row }) => (
+        <DescriptionCell getValue={getValue} row={row} />
+      ),
+    },
+    {
+      id: 'integrateAccountId',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconBuildingBank}
+          label={t('Integrate account')}
+        />
+      ),
+      accessorKey: 'integrateAccountId',
+      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    },
 
-  {
-    id: 'periodGLAccountId',
-    header: () => (
-      <RecordTable.InlineHead
-        icon={IconBuildingBank}
-        label="Period GL account"
-      />
-    ),
-    accessorKey: 'periodGLAccountId',
-    cell: ({ getValue }) => <TextCell getValue={getValue} />,
-  },
+    {
+      id: 'periodGLAccountId',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconBuildingBank}
+          label={t('Period GL account')}
+        />
+      ),
+      accessorKey: 'periodGLAccountId',
+      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    },
 
-  {
-    id: 'earningAccountId',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuildingBank} label="Earning account" />
-    ),
-    accessorKey: 'earningAccountId',
-    cell: ({ getValue }) => <TextCell getValue={getValue} />,
-  },
+    {
+      id: 'earningAccountId',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconBuildingBank}
+          label={t('Earning account')}
+        />
+      ),
+      accessorKey: 'earningAccountId',
+      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    },
 
-  {
-    id: 'taxPayableAccountId',
-    header: () => (
-      <RecordTable.InlineHead
-        icon={IconBuildingBank}
-        label="Tax payable account"
-      />
-    ),
-    accessorKey: 'taxPayableAccountId',
-    cell: ({ getValue }) => <TextCell getValue={getValue} />,
-  },
-];
+    {
+      id: 'taxPayableAccountId',
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconBuildingBank}
+          label={t('Tax payable account')}
+        />
+      ),
+      accessorKey: 'taxPayableAccountId',
+      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    },
+  ];
+};
