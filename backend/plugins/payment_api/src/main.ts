@@ -66,20 +66,10 @@ startPlugin({
 
   const publicPath = path.resolve(__dirname, 'public');
   const widgetPath = path.resolve(publicPath, 'widget');
-
-  console.log('==== PAYMENT STATIC DEBUG ====');
-  console.log('__dirname:', __dirname);
-  console.log('publicPath:', publicPath);
-  console.log('public exists:', fs.existsSync(publicPath));
-
   const imagesPath = path.resolve(publicPath, 'images/payments');
-  console.log('images exist:', fs.existsSync(imagesPath));
 
   if (fs.existsSync(imagesPath)) {
-    console.log('payment logos:', fs.readdirSync(imagesPath));
   }
-
-  console.log('==============================');
 
   /**
    * CRITICAL:
