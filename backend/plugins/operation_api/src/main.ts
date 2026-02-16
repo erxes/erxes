@@ -5,6 +5,7 @@ import { initMQWorkers } from '~/worker';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import * as trpc from './trpc/init-trpc';
+import { notifications } from './meta/notifications';
 import { permissions } from './meta/permissions';
 
 export const router: Router = Router();
@@ -47,32 +48,7 @@ startPlugin({
 
   meta: {
     permissions,
-    notificationModules: [
-      {
-        name: 'tasks',
-        description: 'Tasks',
-        icon: 'IconChecklist',
-        types: [
-          { name: 'taskAssignee', text: 'Task assignee' },
-          { name: 'taskStatus', text: 'Task status changed' },
-        ],
-      },
-      {
-        name: 'projects',
-        description: 'Projects',
-        icon: 'IconClipboard',
-        types: [
-          { name: 'projectAssignee', text: 'Project assignee' },
-          { name: 'projectStatus', text: 'Project status changed' },
-        ],
-      },
-      {
-        name: 'note',
-        description: 'Note',
-        icon: 'IconNote',
-        types: [{ name: 'note', text: 'Mentioned in note' }],
-      },
-    ],
+    notifications,
     tags: {
       types: [
         {

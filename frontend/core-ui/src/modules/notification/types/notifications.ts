@@ -52,3 +52,31 @@ export enum MyInboxHotkeyScope {
 export enum NotificationsPaths {
   MainPage = '/my-inbox',
 }
+
+export type PluginsNotificationConfig = {
+  pluginName: string;
+  modules: {
+    name: string;
+    description: string;
+    icon: string;
+    events: {
+      title: string;
+      name: string;
+      description: string;
+    }[];
+  }[];
+};
+
+export type NotificationChannel = {
+  isEnabled: boolean;
+  [key: string]: any;
+};
+
+export type NotificationSetting = {
+  _id: string;
+  userId: string;
+  event: string;
+  channels: NotificationChannel;
+  createdAt: string;
+  updatedAt?: string;
+};

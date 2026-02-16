@@ -96,7 +96,9 @@ import {
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
   INotificationDocument,
+  INotificationSettingsDocument,
   notificationSchema,
+  notificationSettingsSchema,
 } from 'erxes-api-shared/core-modules';
 import {
   IAppDocument,
@@ -271,6 +273,7 @@ export interface IModels {
   Imports: IImportModel;
   Exports: IExportModel;
   Notifications: Model<INotificationDocument>;
+  NotificationSettings: Model<INotificationSettingsDocument>;
   EmailDeliveries: IEmailDeliveryModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
@@ -514,6 +517,11 @@ export const loadClasses = (
     INotificationDocument,
     Model<INotificationDocument>
   >('notifications', notificationSchema);
+
+  models.NotificationSettings = db.model<
+    INotificationSettingsDocument,
+    Model<INotificationSettingsDocument>
+  >('notification_settings', notificationSettingsSchema);
 
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,

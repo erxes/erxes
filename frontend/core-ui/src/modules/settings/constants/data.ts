@@ -10,6 +10,7 @@ import {
   IconFile,
   IconHierarchy2,
   IconMail,
+  IconNotification,
   IconPassword,
   IconShoppingCart,
   IconTag,
@@ -115,6 +116,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsPath.Profile,
     },
     {
+      name: t('notification'),
+      icon: IconNotification,
+      path: SettingsPath.Notification,
+    },
+    {
       name: t('change-password'),
       icon: IconPassword,
       path: SettingsPath.ChangePassword,
@@ -173,6 +179,7 @@ export const SETTINGS_PATH_DATA = (
 
 export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
   const settingsData = SETTINGS_PATH_DATA(t);
+
   const account = [...settingsData.account];
   const nav = [...settingsData.nav];
   const developer = [...settingsData.developer];

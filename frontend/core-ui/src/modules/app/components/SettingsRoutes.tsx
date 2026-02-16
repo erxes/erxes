@@ -1,16 +1,16 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router';
 import { getPluginsSettingsRoutes } from '@/app/hooks/usePluginsRouter';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
+import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
 import {
   SettingsPath,
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { Skeleton } from 'erxes-ui';
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router';
 import { useVersion } from 'ui-modules';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
-import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -91,6 +91,14 @@ const BroadcastSettings = lazy(() =>
   })),
 );
 
+const SettingsNotificationRoutes = lazy(() =>
+  import('@/notification/settings/components/NotificationSettingsRoutes').then(
+    (module) => ({
+      default: module.NotificationSettingsRoutes,
+    }),
+  ),
+);
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -102,6 +110,10 @@ export function SettingsRoutes() {
           element={<Navigate to={`${SettingsPath.Profile}`} replace />}
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
+        <Route
+          path={SettingsPath.NotificationCatchAll}
+          element={<SettingsNotificationRoutes />}
+        />
         <Route
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}

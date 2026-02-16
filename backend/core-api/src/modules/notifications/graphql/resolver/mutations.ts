@@ -12,7 +12,8 @@ export const notificationMutations = {
 
     if (!notification) throw new Error('Not found notification');
 
-    if (notification.userId !== user._id) throw new Error('Not found notification');
+    if (notification.userId !== user._id)
+      throw new Error('Not found notification');
 
     await models.Notifications.updateOne(
       { _id, userId: user._id },
@@ -99,6 +100,37 @@ export const notificationMutations = {
     graphqlPubsub.publish(`notificationRead:${user._id}`, {
       notificationRead: { userId: user._id, notificationIds },
     });
+
+    return { success: true };
+  },
+
+  async updateNotificationSettings(
+    _root: undefined,
+    {
+      input,
+    }: {
+      input: {
+        event: string;
+        enabled: boolean;
+        channel: string;
+        config?: { [key: string]: any };
+      };
+    },
+    { models, user }: IContext,
+  ) {
+    const { event, channel, enabled, config } = input || {};
+
+    const [pluginName, moduleName, eventName] = event.split(':');
+
+    if (!pluginName || !moduleName || !eventName) {
+      throw new Error('Invalid event format');
+    }
+
+    await models.NotificationSettings.findOneAndUpdate(
+      { userId: user._id, event },
+      { $set: { [`channels.${channel}`]: { enabled, ...config } } },
+      { upsert: true },
+    );
 
     return { success: true };
   },

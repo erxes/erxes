@@ -36,6 +36,13 @@
     "firstname-placeholder": "Нэр оруулна уу",
     "username-placeholder": "Нэвтрэх нэр оруулна уу"
   },
+
+  "notification": {
+    "_": "Мэдэгдэл",
+    "channels": "Мэдэгдлийн сувгууд",
+    "channel-description": "Мэдэгдлийг хэрхэн хүлээн авахыг сонгоно уу. Мэдэгдлүүд үргэлж таны Inbox-д очно."
+  },
+
   "change-password": {
     "_": "Нууц үг солих",
     "current-password": "Одоогийн нууц үг",

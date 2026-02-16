@@ -4,13 +4,18 @@ export const CORE_NOTIFICATION_MODULES = [
     modules: [
       {
         name: 'structure',
-        description: 'Structure',
+        description: 'Structure management',
         icon: 'IconBuilding',
-        types: [
-          { name: 'branchAssigneeChanged', text: 'Branch assignee changed' },
+        events: [
           {
+            title: 'Branch assignee changed',
+            name: 'branchAssigneeChanged',
+            description: 'Branch assignee changed',
+          },
+          {
+            title: 'Department assignee changed',
             name: 'departmentAssigneeChanged',
-            text: 'Department assignee changed',
+            description: 'Department assignee changed',
           },
         ],
       },

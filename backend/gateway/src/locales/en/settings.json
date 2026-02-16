@@ -38,6 +38,12 @@
     "username-placeholder": "Enter Username"
   },
 
+  "notification": {
+    "_": "Notification",
+    "channels": "Notification Channels",
+    "channel-description": "Choose how you want to receive notifications. Notifications will always go to your Inbox."
+  },
+
   "change-password": {
     "_": "Change Password",
     "current-password": "Current password",

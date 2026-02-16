@@ -87,3 +87,33 @@ export const UNREAD_NOTIFICATIONS_COUNT = gql`
     unreadNotificationsCount
   }
 `;
+
+export const NOTIFICATION_PLUGINS_TYPES = gql`
+  query PluginsNotifications {
+    pluginsNotifications {
+      pluginName
+      modules {
+        name
+        description
+        icon
+        events {
+          name
+          title
+          description
+        }
+      }
+    }
+  }
+`;
+
+export const NOTIFICATION_SETTINGS = gql`
+  query NotificationSettings {
+    notificationSettings {
+      _id
+      event
+      channels
+      createdAt
+      updatedAt
+    }
+  }
+`;

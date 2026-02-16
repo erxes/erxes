@@ -1,16 +1,17 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  type NotificationModuleType {
-    name:String,
-    text:String
+  type NotificationModuleEvent {
+    name: String
+    title: String
+    description: String
   }
 
   type NotificationModule {
     name:String,
     description:String,
     icon:String,
-    types:[NotificationModuleType]
+    events:[NotificationModuleEvent]
   }
 
   type NotificationPluginType {
@@ -18,24 +19,12 @@ export const types = `
     modules:[NotificationModule]
   }
 
-  type NotificationConfig {
+  type NotificationSettings {
     _id: String!
-    contentType: String!
-    action: String!
-    enabled: Boolean!
-    inAppEnabled: Boolean!
-    emailEnabled: Boolean!
-    emailTemplateId: String
-    emailSubject: String
-    expiresAfterDays: Int
+    event: String!
+    channels: JSON
     createdAt: Date
     updatedAt: Date
-    createdBy: String!
-  }
-
-  type NotificationConfigListResponse {
-    list: [NotificationConfig]
-    totalCount: Int
   }
 
   type EmailDelivery {
@@ -108,6 +97,13 @@ export const types = `
     endDate:String,
     fromUserId:String
   }
+
+  input NotificationSettingsInput {
+    event: String!
+    channel: String!
+    enabled: Boolean!
+    config: JSON
+  }
 `;
 
 const NOTIFICATIONS_QUERIES_PARAMS = `
@@ -121,9 +117,11 @@ const NOTIFICATIONS_QUERIES_PARAMS = `
 `;
 
 export const queries = `
+  pluginsNotifications: [NotificationPluginType]
   notifications(${GQL_CURSOR_PARAM_DEFS},${NOTIFICATIONS_QUERIES_PARAMS}):NotificationsList
   notificationDetail(_id:String!):Notification
   unreadNotificationsCount:Int
+  notificationSettings: [NotificationSettings]
 `;
 
 export const mutations = `
@@ -131,6 +129,7 @@ export const mutations = `
   archiveNotifications(ids:[String], archiveAll:Boolean, filters:NotificationFilters):String
   markNotificationAsRead(_id:String!):JSON
   markAsReadNotifications(${NOTIFICATIONS_QUERIES_PARAMS}):JSON
+  updateNotificationSettings(input: NotificationSettingsInput):JSON
 `;
 
 export default { queries, mutations, types };

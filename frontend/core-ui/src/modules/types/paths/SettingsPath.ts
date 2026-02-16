@@ -3,6 +3,8 @@ import { Icon } from '@tabler/icons-react';
 export enum SettingsPath {
   Index = 'settings/',
   Profile = 'profile',
+  Notification = 'notification',
+  NotificationCatchAll = 'notification/*',
   ChangePassword = 'change-password',
   // Experience = 'experience',
 }
