@@ -1,48 +1,12 @@
-
 import { defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import {
+  getQueryBuilder,
+  QueryBuilderArgs,
+} from '@/knowledgebase/utils/query-builders';
 
 const findDetail = async (model, _id) => {
   return await model.findOne({ $or: [{ _id }, { code: _id }] });
-};
-
-const buildQuery = (args: any) => {
-  const qry: any = {};
-
-  const keys = ['codes', 'categoryIds', 'articleIds', 'topicIds'];
-
-  keys.forEach((key) => {
-    if (args[key] && args[key].length > 0) {
-      const field = key.replace('s', '');
-      qry[field] = { $in: args[key] };
-    }
-  });
-
-  if (args.searchValue && args.searchValue.trim()) {
-    qry.$or = [
-      { title: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { content: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { summary: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-    ];
-  }
-
-  if (args.brandId) {
-    qry.brandId = args.brandId;
-  }
-
-  if (args.icon) {
-    qry.icon = args.icon;
-  }
-
-  if (args?.ids?.length) {
-    qry._id = { $in: args.ids };
-  }
-
-  if (args?.status) {
-    qry.status = args.status;
-  }
-
-  return qry;
 };
 
 export const knowledgeBaseQueries = {
@@ -63,20 +27,11 @@ export const knowledgeBaseQueries = {
     },
     { models }: IContext
   ) {
-    const selector: any = buildQuery(args);
+    const queryBuilder = getQueryBuilder('article', models);
+    const selector: any = await queryBuilder.buildQuery(args);
     let sort: any = { createdDate: -1 };
 
     const pageArgs = { page: args.page, perPage: args.perPage };
-
-    if (args.topicIds && args.topicIds.length > 0) {
-      const categoryIds = await models.Category.find({
-        topicId: { $in: args.topicIds },
-      }).distinct('_id');
-
-      selector.categoryId = { $in: categoryIds };
-
-      delete selector.topicId;
-    }
 
     if (args.sortField) {
       sort = { [args.sortField]: args.sortDirection };
@@ -109,10 +64,11 @@ export const knowledgeBaseQueries = {
 
   async knowledgeBaseArticlesTotalCount(
     _root,
-    args,
+    args: QueryBuilderArgs,
     { models }: IContext
   ) {
-    const qry: any = buildQuery(args);
+    const queryBuilder = getQueryBuilder('article', models);
+    const qry: any = await queryBuilder.buildQuery(args);
 
     return models.Article.find(qry).countDocuments();
   },
@@ -129,7 +85,8 @@ export const knowledgeBaseQueries = {
     },
     { models }: IContext
   ) {
-    const qry: any = buildQuery(args);
+    const queryBuilder = getQueryBuilder('category', models);
+    const qry: any = queryBuilder.buildQuery(args);
 
     const categories = models.Category.find(qry).sort({
       title: 1,
@@ -157,7 +114,8 @@ export const knowledgeBaseQueries = {
     args: { topicIds: string[]; codes: string[] },
     { models }: IContext
   ) {
-    const qry: any = buildQuery(args);
+    const queryBuilder = getQueryBuilder('category', models);
+    const qry: any = queryBuilder.buildQuery(args);
 
     return models.Category.find(qry).countDocuments();
   },
@@ -175,10 +133,11 @@ export const knowledgeBaseQueries = {
 
   async knowledgeBaseTopics(
     _root,
-    args,
+    args: QueryBuilderArgs,
     { models }: IContext
   ) {
-    const qry: any = buildQuery(args);
+    const queryBuilder = getQueryBuilder('topic', models);
+    const qry: any = queryBuilder.buildQuery(args);
   
     const topics = models.Topic.find(qry)
       .sort({ modifiedDate: -1 });
@@ -201,17 +160,25 @@ export const knowledgeBaseQueries = {
   ) {
     return models.Topic.countDocuments({});
   },
-  
-  async cpknowledgeBaseTopics(_root:any, args:any, context: IContext ){
+
+  async cpknowledgeBaseTopics(_root: any, args: QueryBuilderArgs, context: IContext) {
     const { models, clientPortal } = context;
-    const clientPortalId = clientPortal._id;
 
-    const query : any = buildQuery(args);
+    const queryBuilder = getQueryBuilder('topic', models);
+    const query: any = queryBuilder.buildQuery({
+      ...args,
+      clientPortalId: clientPortal._id,
+    });
 
-    const topics = models.Topic.find(query, clientPortalId).sort({ modifiedDate: -1 });
+    const topics = models.Topic.find(query).sort({ modifiedDate: -1 });
 
     return defaultPaginate(topics, args);
   },
 
 };
+
+(knowledgeBaseQueries as any).cpknowledgeBaseTopics.wrapperConfig = {
+  forClientPortal: true,
+};
+
 export default knowledgeBaseQueries;
