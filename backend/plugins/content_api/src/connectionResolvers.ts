@@ -29,9 +29,13 @@ import { IPostTagModel, loadPostTagClass } from '@/cms/db/models/Tag';
 import { ICMSMenuItemModel, loadMenuItemClass } from '@/cms/db/models/Menu';
 import { ICMSPageModel, loadPageClass } from '@/cms/db/models/Page';
 import { ICustomFieldGroupModel, loadCustomFieldGroupClass } from '@/cms/db/models/FieldGroups';
+import { IWebModel, loadWebClass } from '@/webbuilder/db/models/Web';
+import { IWebDocument } from '@/webbuilder/@types/web';
 
 export interface IModels {
   CMS: ICMSModel;
+  Web: IWebModel;
+
   Posts: IPostModel;
   Translations: ITranslationModel;
   
@@ -94,6 +98,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Pages = db.model<ICMSPageDocument, ICMSPageModel>(
     'cms_pages',
     loadPageClass(models),
+  );
+
+  models.Web = db.model<IWebDocument, IWebModel>(
+    'web_builder',
+    loadWebClass(models),
   );
 
   return models;
