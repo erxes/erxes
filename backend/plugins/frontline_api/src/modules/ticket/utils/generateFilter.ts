@@ -45,5 +45,20 @@ export const generateFilter = (filter: any) => {
     filterQuery.assigneeId = filter.userId;
   }
 
+  switch (filter.state) {
+    case 'active':
+      filterQuery.$or = [{ state: 'active' }, { state: { $exists: false } }];
+      break;
+    case 'archived':
+      filterQuery.state = 'archived';
+      break;
+    case 'deleted':
+      filterQuery.state = 'deleted';
+      break;
+    default:
+      filterQuery.$or = [{ state: 'active' }, { state: { $exists: false } }];
+      break;
+  }
+
   return filterQuery;
 };

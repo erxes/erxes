@@ -10,9 +10,10 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { RelationWidgetSideTabs } from 'ui-modules';
+import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
 import { TicketSidebar } from './TicketSidebar';
 import { IconAlertCircle } from '@tabler/icons-react';
+import { useTicketCustomFieldEdit } from '@/ticket/hooks/useTicketCustomFieldEdit';
 
 export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs = false,
@@ -66,6 +67,15 @@ export const TicketDetailSheet = ({
               >
                 <Tabs.Content value="overview">
                   {activeTicket && <TicketDetails ticketId={activeTicket} />}
+                </Tabs.Content>
+
+                <Tabs.Content value="properties" className="p-6">
+                  <FieldsInDetail
+                    fieldContentType="frontline:ticket"
+                    propertiesData={ticket?.propertiesData || {}}
+                    mutateHook={useTicketCustomFieldEdit}
+                    id={ticket?._id || ''}
+                  />
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

@@ -75,7 +75,7 @@ export const MembersInlineProvider = ({
       value={{
         members: members || _members,
         loading: false,
-        memberIds: memberIds || [],
+        memberIds: memberIds,
         placeholder: isUndefinedOrNull(placeholder)
           ? 'Select members'
           : placeholder,
@@ -136,7 +136,9 @@ export const MembersInlineAvatar = ({
     useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
 
-  const activeMembers = members.filter((m) => memberIds?.includes(m._id));
+  const activeMembers = memberIds
+    ? members.filter((m) => memberIds.includes(m._id))
+    : members;
 
   const sortedMembers = [...activeMembers].sort((a, b) => {
     if (a._id === currentUser?._id) return -1;
@@ -165,7 +167,7 @@ export const MembersInlineAvatar = ({
           <Avatar
             className={cn(
               'bg-background',
-              members.length > 1 && 'ring-2 ring-background',
+              activeMembers.length > 1 && 'ring-2 ring-background',
               className,
             )}
             size={size || 'lg'}
@@ -182,7 +184,7 @@ export const MembersInlineAvatar = ({
     );
   };
 
-  if (members.length === 0) {
+  if (activeMembers.length === 0) {
     if (allowUnassigned) {
       return (
         <IconUserCancel className="text-muted-foreground flex-none size-4" />
@@ -191,7 +193,7 @@ export const MembersInlineAvatar = ({
     return null;
   }
 
-  if (members.length === 1) return renderAvatar(members[0]);
+  if (activeMembers.length === 1) return renderAvatar(activeMembers[0]);
 
   const withAvatar = sortedMembers.slice(0, sortedMembers.length > 3 ? 2 : 3);
   const restMembers = sortedMembers.slice(withAvatar.length);
@@ -222,13 +224,17 @@ export const MembersInlineAvatar = ({
 };
 
 export const MembersInlineTitle = ({ className }: { className?: string }) => {
-  const { members, loading, placeholder, allowUnassigned } =
+  const { members, loading, placeholder, allowUnassigned, memberIds } =
     useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
-  const isCurrentUser = members.some((m) => m._id === currentUser._id);
+
+  const activeMembers = memberIds
+    ? members.filter((m) => memberIds.includes(m._id))
+    : members;
+  const isCurrentUser = activeMembers.some((m) => m._id === currentUser._id);
 
   const getDisplayValue = () => {
-    if (!members || members.length === 0) {
+    if (!activeMembers || activeMembers.length === 0) {
       if (allowUnassigned) {
         return (
           <span className="capitalize text-muted-foreground/80">
@@ -239,21 +245,21 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
       return undefined;
     }
 
-    if (members.length === 1) {
-      return members?.[0].details?.fullName;
+    if (activeMembers.length === 1) {
+      return activeMembers?.[0].details?.fullName;
     }
 
     if (isCurrentUser) {
-      const otherMembersCount = members.length - 1;
+      const otherMembersCount = activeMembers.length - 1;
       if (otherMembersCount > 1) {
         return `You and ${otherMembersCount} others`;
       }
 
-      const otherMember = members.find((m) => m._id !== currentUser._id);
+      const otherMember = activeMembers.find((m) => m._id !== currentUser._id);
       return `You and ${otherMember?.details?.fullName}`;
     }
 
-    return `${members.length} members`;
+    return `${activeMembers.length} members`;
   };
 
   return (
