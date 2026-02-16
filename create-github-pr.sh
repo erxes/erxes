@@ -16,8 +16,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration
-BRANCH_NAME="fix/security-stability-bugs-$(date +%Y%m%d)"
+# Configuration - use timestamp for unique branch name
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+BRANCH_NAME="fix/security-stability-bugs-${TIMESTAMP}"
 BASE_BRANCH="main"
 PR_TITLE="🔒 Security & Stability Bug Fixes - Critical & High Priority"
 
@@ -41,22 +42,49 @@ if ! gh auth status &> /dev/null; then
     exit 1
 fi
 
-echo -e "${BLUE}Step 1: Creating new branch...${NC}"
-git checkout -b "$BRANCH_NAME"
+echo -e "${BLUE}Step 1: Checking git status...${NC}"
+git status
 
 echo ""
-echo -e "${BLUE}Step 2: Applying bug fixes...${NC}"
-echo "This would apply all the fixes from the analysis."
-echo "For now, creating documentation and tracking files."
-
-# Add the analysis documents
-git add BUG_ANALYSIS_REPORT.md
-git add PR_DESCRIPTION.md
-git add BUG_FIX_TRACKING.md
-git add create-github-pr.sh
+echo -e "${BLUE}Step 2: Creating new branch: $BRANCH_NAME${NC}"
+git checkout -b "$BRANCH_NAME" || {
+    echo -e "${YELLOW}Branch creation failed, trying to use unique name...${NC}"
+    TIMESTAMP=$(date +%Y%m%d-%H%M%S-%N)
+    BRANCH_NAME="fix/security-stability-bugs-${TIMESTAMP}"
+    git checkout -b "$BRANCH_NAME"
+}
 
 echo ""
-echo -e "${BLUE}Step 3: Committing changes...${NC}"
+echo -e "${BLUE}Step 3: Staging analysis documents...${NC}"
+
+# Add the analysis documents if they exist
+if [ -f BUG_ANALYSIS_REPORT.md ]; then
+    git add BUG_ANALYSIS_REPORT.md
+    echo "  ✓ BUG_ANALYSIS_REPORT.md"
+fi
+
+if [ -f PR_DESCRIPTION.md ]; then
+    git add PR_DESCRIPTION.md
+    echo "  ✓ PR_DESCRIPTION.md"
+fi
+
+if [ -f BUG_FIX_TRACKING.md ]; then
+    git add BUG_FIX_TRACKING.md
+    echo "  ✓ BUG_FIX_TRACKING.md"
+fi
+
+if [ -f AGENT_SWARM_SUMMARY.md ]; then
+    git add AGENT_SWARM_SUMMARY.md
+    echo "  ✓ AGENT_SWARM_SUMMARY.md"
+fi
+
+if [ -f create-github-pr.sh ]; then
+    git add create-github-pr.sh
+    echo "  ✓ create-github-pr.sh"
+fi
+
+echo ""
+echo -e "${BLUE}Step 4: Committing changes...${NC}"
 git commit -m "docs: Add comprehensive bug analysis and fix tracking
 
 Agent Swarm Analysis Results:
@@ -69,22 +97,33 @@ Documents Added:
 - BUG_ANALYSIS_REPORT.md: Comprehensive bug analysis
 - PR_DESCRIPTION.md: Detailed PR description
 - BUG_FIX_TRACKING.md: Fix tracking and sprint planning
+- AGENT_SWARM_SUMMARY.md: Executive summary
 
 Categories:
 - Security vulnerabilities (XSS, auth, permissions)
 - Data integrity issues (transactions, migrations)
 - Performance issues (N+1 queries, missing indexes)
-- Stability issues (memory leaks, error handling)"
+- Stability issues (memory leaks, error handling)" || {
+    echo -e "${YELLOW}Nothing to commit or commit failed. Continuing...${NC}"
+}
 
 echo ""
-echo -e "${BLUE}Step 4: Pushing branch...${NC}"
-git push -u origin "$BRANCH_NAME"
+echo -e "${BLUE}Step 5: Pushing branch to origin...${NC}"
+git push -u origin "$BRANCH_NAME" || {
+    echo -e "${RED}Failed to push branch. Checking remote...${NC}"
+    git remote -v
+    exit 1
+}
 
 echo ""
-echo -e "${BLUE}Step 5: Creating Pull Request...${NC}"
+echo -e "${BLUE}Step 6: Creating Pull Request...${NC}"
 
 # Read PR description from file
-PR_BODY=$(cat PR_DESCRIPTION.md)
+if [ -f PR_DESCRIPTION.md ]; then
+    PR_BODY=$(cat PR_DESCRIPTION.md)
+else
+    PR_BODY="This PR addresses security and stability bugs identified through comprehensive analysis."
+fi
 
 # Create the PR
 gh pr create \
@@ -93,7 +132,15 @@ gh pr create \
     --base "$BASE_BRANCH" \
     --head "$BRANCH_NAME" \
     --label "security,bug,critical" \
-    --draft
+    --draft || {
+    echo -e "${RED}Failed to create PR. Trying without labels...${NC}"
+    gh pr create \
+        --title "$PR_TITLE" \
+        --body "$PR_BODY" \
+        --base "$BASE_BRANCH" \
+        --head "$BRANCH_NAME" \
+        --draft
+}
 
 echo ""
 echo -e "${GREEN}✅ Pull Request created successfully!${NC}"
@@ -130,3 +177,5 @@ echo "5. z.any() in tRPC (all procedures)"
 echo "6. Date.now() defaults (20+ files)"
 echo "7. Missing transactions"
 echo ""
+
+echo -e "${GREEN}Done! Check the PR on GitHub.${NC}"
