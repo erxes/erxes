@@ -175,6 +175,7 @@ export const loadConfigClass = (
      */
     public static async updateSingleByCode(code: string, value: any) {
       const oldConf = await models.Configs.getConfig(code);
+
       if (oldConf) {
         await models.Configs.updateOne({ _id: oldConf._id }, { $set: { value } });
         sendDbEventLog({
@@ -184,7 +185,7 @@ export const loadConfigClass = (
           prevDocument: oldConf
         });
       } else {
-        const newConf = await models.Configs.create({ $set: { value, subId: '' } });
+        const newConf = await models.Configs.create({ code, value, subId: '' });
         sendDbEventLog({
           action: 'create',
           docId: newConf._id,

@@ -1,7 +1,8 @@
-import { Button, Sheet, Spinner } from 'erxes-ui';
+import { Button, FocusSheet, Sheet, Spinner } from 'erxes-ui';
 import { Suspense, useState, lazy } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { MutationHookOptions } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 const AddProductForm = lazy(() =>
   import('./AddProductForm').then((module) => ({
@@ -17,8 +18,11 @@ export const AddProduct = ({
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
+  const [showMoreInfo, setShowMoreInfo] = useState<boolean>(false);
+  const { t } = useTranslation('product', { keyPrefix: 'add' });
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <FocusSheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         {children || (
           <Button variant="outline">
@@ -27,11 +31,26 @@ export const AddProduct = ({
           </Button>
         )}
       </Sheet.Trigger>
-      <Sheet.View className="p-0">
-        <Suspense fallback={<Spinner />}>
-          {open && <AddProductForm onOpenChange={setOpen} options={options} />}
-        </Suspense>
-      </Sheet.View>
-    </Sheet>
+      <FocusSheet.View
+        className={showMoreInfo ? 'w-[70%] md:w-[70%]' : 'w-[30%] md:w-[30%]'}
+      >
+        <FocusSheet.Header title={t('create-product') || 'Create product'} />
+        <FocusSheet.Content className="flex-1 min-h-0">
+          <div className="flex overflow-hidden flex-col flex-1">
+            <Suspense fallback={<Spinner />}>
+              {open && (
+                <AddProductForm
+                  embed
+                  onOpenChange={setOpen}
+                  showMoreInfo={showMoreInfo}
+                  onShowMoreInfoChange={setShowMoreInfo}
+                  options={options}
+                />
+              )}
+            </Suspense>
+          </div>
+        </FocusSheet.Content>
+      </FocusSheet.View>
+    </FocusSheet>
   );
 };

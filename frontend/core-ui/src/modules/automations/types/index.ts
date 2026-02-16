@@ -111,6 +111,9 @@ export type StatusBadgeValue =
   (typeof STATUSES_BADGE_VARIABLES)[keyof typeof STATUSES_BADGE_VARIABLES];
 
 export enum AutomationsHotKeyScope {
+  AutomationsPage = 'automations-page',
+  AutomationCreatePage = 'automation-create-page',
+  AutomationsTableInlinePopover = 'automations-table-inline-popover',
   Builder = 'automation-builder',
   BuilderSideBar = 'automation-builder-sidebar',
   BuilderPanel = 'automation-builder-panel',
@@ -121,6 +124,7 @@ export enum AutomationsHotKeyScope {
 export enum AutomationsPath {
   Index = '/automations',
   Detail = '/edit/:id',
+  Create = '/create',
 }
 
 export enum AutomationNodeType {

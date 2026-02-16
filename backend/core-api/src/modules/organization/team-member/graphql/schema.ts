@@ -86,13 +86,13 @@ export const types = `
     organizations: [CookieOrganization]
     onboardedPlugins: [String]
     groupIds: [String]
+    permissionGroupIds: [String]
+    customPermissions: [CustomPermission]
     isSubscribed: String
     isShowNotification: Boolean
-    customFieldsData: JSON
+    propertiesData: JSON
 
     isOwner: Boolean
-    role: String
-    permissionActions: JSON
     configs: JSON
     configsConstants: [JSON]
   
@@ -144,7 +144,7 @@ const commonParams = `
   branchIds: [String]
   positionIds: [String]
   departmentIds: [String]
-  customFieldsData: JSON
+  propertiesData: JSON
   employeeId: String
   password: String
   isOnboarded: Boolean

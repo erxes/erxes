@@ -12,9 +12,6 @@ export const types = `
 
     createdAt: Date
     updatedAt: Date
-
-    createdBy: String
-    updatedBy: String
   }
 
   type DonateListResponse {
@@ -33,17 +30,20 @@ const queryParams = `
 `;
 
 export const queries = `
-  getDonates(params: ${queryParams}): DonateListResponse
+  donates(${queryParams}): DonateListResponse
 `;
 
 const mutationParams = `
-  donateScore: Float,
-  campaignId: String,
-  ownerId: String,
+  donateScore: Float
+  campaignId: String
+  ownerId: String
   ownerType: String
+  usedAt: Date
 `;
 
 export const mutations = `
-  createDonate(${mutationParams}): Donate
-  removeDonate(_id: String!): Donate
+  donatesAdd(${mutationParams}): Donate
+  donatesRemove(_ids: [String]): JSON
+  cpDonatesAdd(${mutationParams}): Donate
+  cpDonatesRemove(_ids: [String]): JSON
 `;

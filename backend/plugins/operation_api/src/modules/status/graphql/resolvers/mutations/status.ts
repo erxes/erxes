@@ -1,6 +1,4 @@
 import { IStatus, IStatusEditInput } from '@/status/@types/status';
-import { TeamMemberRoles } from '@/team/@types/team';
-import { checkUserRole } from '@/utils';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
@@ -8,14 +6,15 @@ export const statusMutations = {
   addStatus: async (
     _parent: undefined,
     params: IStatus,
-    { models, user }: IContext,
+    { models }: IContext,
   ) => {
-    await checkUserRole({
-      models,
-      teamId: params.teamId,
-      userId: user._id,
-      allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    });
+    // ** Deprecated
+    // await checkUserRole({
+    //   models,
+    //   teamId: params.teamId,
+    //   userId: user._id,
+    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
+    // });
 
     return models.Status.addStatus(params);
   },
@@ -23,16 +22,15 @@ export const statusMutations = {
   updateStatus: async (
     _parent: undefined,
     { _id, ...params }: IStatusEditInput,
-    { models, user }: IContext,
+    { models }: IContext,
   ) => {
-    const status = await models.Status.getStatus(_id);
-
-    await checkUserRole({
-      models,
-      teamId: status.teamId,
-      userId: user._id,
-      allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    });
+    // ** Deprecated
+    // await checkUserRole({
+    //   models,
+    //   teamId: status.teamId,
+    //   userId: user._id,
+    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
+    // });
 
     return models.Status.updateStatus(_id, params);
   },
@@ -40,16 +38,15 @@ export const statusMutations = {
   deleteStatus: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models }: IContext,
   ) => {
-    const status = await models.Status.getStatus(_id);
-
-    await checkUserRole({
-      models,
-      teamId: status.teamId,
-      userId: user._id,
-      allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    });
+    // ** Deprecated
+    // await checkUserRole({
+    //   models,
+    //   teamId: status.teamId,
+    //   userId: user._id,
+    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
+    // });
 
     return models.Status.removeStatus(_id);
   },

@@ -27,6 +27,8 @@ export interface IField {
 }
 
 export interface IFieldDocument extends IField, Document {
+  _id: string;
+
   createdBy: string;
   updatedBy: string;
 }

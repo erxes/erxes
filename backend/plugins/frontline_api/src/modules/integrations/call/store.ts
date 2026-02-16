@@ -94,12 +94,12 @@ export const getOrCreateCustomer = async (
         query: { _id: customer.erxesApiId },
       },
     });
-    if (coreCustomer) {
+    if (coreCustomer && coreCustomer._id) {
       await sendTRPCMessage({
         subdomain,
 
         pluginName: 'core',
-        method: 'mutation', // this is a mutation, not a query
+        method: 'mutation',
         module: 'customers',
         action: 'updateCustomer',
         input: {
@@ -125,7 +125,7 @@ export const getOrCreateCustomer = async (
           },
         },
       });
-      if (newCustomer) {
+      if (newCustomer && newCustomer._id) {
         customer.erxesApiId = newCustomer._id;
         await customer.save();
       }

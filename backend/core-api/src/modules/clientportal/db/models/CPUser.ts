@@ -2,14 +2,20 @@ import * as bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
 import sha256 from 'sha256';
 import { IModels } from '~/connectionResolvers';
-import { cpUserSchema, EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  cpUserSchema,
+  EventDispatcherReturn,
+} from 'erxes-api-shared/core-modules';
 import {
   ICPUserDocument,
   ICPUserRegisterParams,
 } from '@/clientportal/types/cpUser';
 import { SALT_WORK_FACTOR } from '../../constants';
 import { buildUserQuery } from '@/clientportal/services/helpers/queryBuilders';
-import { handleCPContacts, updateCustomerStateToCustomer } from '@/clientportal/services/user/contactService';
+import {
+  handleCPContacts,
+  updateCustomerStateToCustomer,
+} from '@/clientportal/services/user/contactService';
 import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
 import { ValidationError } from '@/clientportal/services/errorHandler';
 import { cpUserService } from '@/clientportal/services';
@@ -32,20 +38,17 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     params: ICPUserRegisterParams,
     models: IModels,
   ): Promise<ICPUserDocument>;
-  updateUser(
-    userId: string,
-    params: {
-      email?: string;
-      phone?: string;
-      firstName?: string;
-      lastName?: string;
-      avatar?: string;
-      username?: string;
-      companyName?: string;
-      companyRegistrationNumber?: string;
-    },
-    models: IModels,
-  ): Promise<ICPUserDocument>;
+  updateUser(userId: string, params: {
+    email?: string;
+    phone?: string;
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+    username?: string;
+    companyName?: string;
+    companyRegistrationNumber?: string;
+    erxesCustomerId?: string;
+  }, models: IModels): Promise<ICPUserDocument>;
   removeUser(userId: string, models: IModels): Promise<void>;
 }
 
@@ -112,7 +115,12 @@ export const loadCPUserClass = (
       );
 
       await CPUser.autoVerifyUserForAdmin(user, models);
+
       const resultUser = await getCPUserByIdOrThrow(user._id, models);
+
+      if (resultUser.erxesCustomerId) {
+        await updateCustomerStateToCustomer(resultUser.erxesCustomerId, models);
+      }
 
       try {
         createActivityLog(generateCPUserCreatedActivityLog(resultUser));
@@ -142,22 +150,23 @@ export const loadCPUserClass = (
       }
     }
 
-    public static async updateUser(
-      userId: string,
-      params: {
-        email?: string;
-        phone?: string;
-        firstName?: string;
-        lastName?: string;
-        avatar?: string;
-        username?: string;
-        companyName?: string;
-        companyRegistrationNumber?: string;
-      },
-      models: IModels,
-    ): Promise<ICPUserDocument> {
+    public static async updateUser(userId: string, params: {
+      email?: string;
+      phone?: string;
+      firstName?: string;
+      lastName?: string;
+      avatar?: string;
+      username?: string;
+      companyName?: string;
+      companyRegistrationNumber?: string;
+      erxesCustomerId?: string;
+    }, models: IModels): Promise<ICPUserDocument> {
       const prevUser = await models.CPUser.findOne({ _id: userId }).lean();
-      const updatedUser = await cpUserService.updateUser(userId, params, models);
+      const updatedUser = await cpUserService.updateUser(
+        userId,
+        params,
+        models,
+      );
       try {
         await generateCPUserActivityLogs(
           prevUser || updatedUser,

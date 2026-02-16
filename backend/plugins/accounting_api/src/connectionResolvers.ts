@@ -75,7 +75,7 @@ export const loadClasses = (
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'accounts',
-    loadConfigClass(
+    loadAccountClass(
       models,
       subdomain,
       eventDispatcher('accounting', 'accounting', 'accounts')
@@ -85,7 +85,7 @@ export const loadClasses = (
   models.AccountCategories = db.model<
     IAccountCategoryDocument,
     IAccountCategoryModel
-  >('account_categories',  loadConfigClass(
+  >('account_categories',  loadAccountCategoryClass(
     models,
     subdomain,
     eventDispatcher('accounting', 'accounting', 'account_categories')

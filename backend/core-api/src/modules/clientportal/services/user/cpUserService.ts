@@ -147,7 +147,7 @@ export async function registerUser(
     }
   }
 
-  return resultUser;
+  return (await models.CPUser.findOne({ _id: resultUser._id })) || resultUser;
 }
 
 export async function verifyUser(
@@ -205,6 +205,7 @@ export async function updateUser(
     username?: string;
     companyName?: string;
     companyRegistrationNumber?: string;
+    erxesCustomerId?: string;
   },
   models: IModels,
 ): Promise<ICPUserDocument> {
@@ -244,6 +245,16 @@ export async function updateUser(
   }
   if (params.phone !== undefined && !(params.phone || '').trim()) {
     unsetData.phone = '';
+  }
+
+  if (params.erxesCustomerId !== undefined) {
+    const trimmedCustomerId = params.erxesCustomerId.trim();
+    if (trimmedCustomerId) {
+      setData.erxesCustomerId = trimmedCustomerId;
+      await updateCustomerStateToCustomer(trimmedCustomerId, models);
+    } else {
+      unsetData.erxesCustomerId = '';
+    }
   }
 
   if (

@@ -5,7 +5,7 @@ import {
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ColumnPaginationState } from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
@@ -33,6 +33,7 @@ export const DealsBoard = () => {
   const [fetchMoreTriggers, setFetchMoreTriggers] = useState<
     Record<string, number>
   >({});
+  const locallyMovedIdsRef = useRef<Record<string, string>>({});
 
   const { pagination, initColumn, setLoading, updateAfterFetch } =
     useColumnPagination(PAGE_SIZE);
@@ -50,6 +51,13 @@ export const DealsBoard = () => {
       } catch {
         vars[key] = value;
       }
+    }
+
+    if (vars.productId) {
+      vars.productIds = Array.isArray(vars.productId)
+        ? vars.productId
+        : [vars.productId];
+      delete vars.productId;
     }
 
     if (searchParams.get('archivedOnly') === 'true') {
@@ -75,13 +83,14 @@ export const DealsBoard = () => {
     const resetState: DealsBoardState = {
       columns,
       items: {},
-      columnItems: Object.fromEntries(columns.map((col) => [col.id, []])),
+      columnItems: Object.fromEntries(columns.map((col) => [col._id, []])),
     };
     setBoardState(resetState);
     setAllDealsMap({});
+    locallyMovedIdsRef.current = {};
 
     columns.forEach((col) => {
-      initColumn(col.id, col.itemsTotalCount);
+      initColumn(col._id, col.itemsTotalCount);
     });
 
     setFetchMoreTriggers({});
@@ -171,6 +180,10 @@ export const DealsBoard = () => {
       const orderChanged = !columnChanged && newIndex !== oldIndex;
 
       if (columnChanged || orderChanged) {
+        if (columnChanged) {
+          locallyMovedIdsRef.current[draggedItemId] = newItem.columnId || '';
+        }
+
         const aboveItemId =
           newIndex > 0 ? newColumnItems[newIndex - 1] : undefined;
 
@@ -226,6 +239,7 @@ export const DealsBoard = () => {
           queryVariables={queryVariables}
           fetchMoreTrigger={fetchMoreTriggers[column._id] || 0}
           onFetchComplete={handleFetchComplete}
+          locallyMovedIdsRef={locallyMovedIdsRef}
         />
       )}
       columnPagination={columnPaginationState}

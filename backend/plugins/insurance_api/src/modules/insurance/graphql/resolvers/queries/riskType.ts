@@ -1,11 +1,21 @@
 import { IContext } from '~/connectionResolvers';
 
 export const riskTypeQueries = {
-  riskTypes: async (_parent: undefined, _args: any, { models }: IContext) => {
-    return models.RiskType.find({});
-  },
+  riskTypes: Object.assign(
+    async (_parent: undefined, _args: any, { models }: IContext) => {
+      return models.RiskType.find({});
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
-  riskType: async (_parent: undefined, { id }: { id: string }, { models }: IContext) => {
-    return models.RiskType.findById(id);
-  },
+  riskType: Object.assign(
+    async (
+      _parent: undefined,
+      { id }: { id: string },
+      { models }: IContext,
+    ) => {
+      return models.RiskType.findById(id);
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 };

@@ -3,7 +3,7 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
   ICompany,
   ICompanyDocument,
-  ICustomField,
+  IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { validSearchText } from 'erxes-api-shared/utils';
@@ -88,9 +88,9 @@ export const loadCompanyClass = (
 
       this.fixListFields(doc, doc.trackedData);
 
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.validateFieldValues(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        doc.propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
       }
 
@@ -132,10 +132,12 @@ export const loadCompanyClass = (
       this.fixListFields(doc, doc.trackedData, company);
 
       // clean custom field values
-      if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.validateFieldValues(
-          doc.customFieldsData,
+      if (doc.propertiesData) {
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
         );
+        
+        doc.propertiesData = propertiesData;
       }
 
       const searchText = this.fillSearchText(
@@ -190,7 +192,7 @@ export const loadCompanyClass = (
       await this.checkDuplication(companyFields, companyIds);
 
       let scopeBrandIds: string[] = [];
-      let customFieldsData: ICustomField[] = [];
+      let propertiesData: IPropertyField = {};
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -210,10 +212,12 @@ export const loadCompanyClass = (
         scopeBrandIds = scopeBrandIds.concat(companyScopeBrandIds);
 
         // merge custom fields data
-        customFieldsData = [
-          ...customFieldsData,
-          ...(companyObj.customFieldsData || []),
-        ];
+
+        // property note: prepare mergeProperties method
+        propertiesData = {
+          ...propertiesData,
+          ...(companyObj.propertiesData || {}),
+        };
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
@@ -244,7 +248,7 @@ export const loadCompanyClass = (
       const company = await models.Companies.createCompany({
         ...companyFields,
         scopeBrandIds,
-        customFieldsData,
+        propertiesData,
         tagIds,
         mergedIds: companyIds,
         names,
