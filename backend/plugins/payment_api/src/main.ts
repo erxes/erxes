@@ -57,17 +57,53 @@ startPlugin({
   ]),
 
   onServerInit: async (app) => {
-    app.get('/widget/config.js', (req, res) => {
-      res.type('application/javascript');
-      res.send(`window.WIDGET_CONFIG = {
-        API_URL: "${process.env.REACT_APP_API_URL}"
-      };`);
-    });
+  const fs = require('fs');
 
-    app.use('/static', express.static(path.join(__dirname, '/public')));
-    app.use('/widget', express.static(path.join(__dirname, '/public/widget')));
+  // IMPORTANT:
+  // In dev (__dirname = src)
+  // In prod (__dirname = dist/src)
+  // So public must be relative to current folder
+
+  const publicPath = path.resolve(__dirname, 'public');
+  const widgetPath = path.resolve(publicPath, 'widget');
+
+  console.log('==== PAYMENT STATIC DEBUG ====');
+  console.log('__dirname:', __dirname);
+  console.log('publicPath:', publicPath);
+  console.log('public exists:', fs.existsSync(publicPath));
+
+  const imagesPath = path.resolve(publicPath, 'images/payments');
+  console.log('images exist:', fs.existsSync(imagesPath));
+
+  if (fs.existsSync(imagesPath)) {
+    console.log('payment logos:', fs.readdirSync(imagesPath));
+  }
+
+  console.log('==============================');
+
+  /**
+   * CRITICAL:
+   * Serve static BEFORE any route conflicts.
+   * No /static prefix.
+   *
+   * Gateway mounts plugin at:
+   *   /pl:payment/
+   *
+   * So this becomes:
+   *   /pl:payment/images/payments/*.png
+   */
+  app.use('/', express.static(publicPath));
+
+  /**
+   * Optional widget
+   */
+  if (fs.existsSync(widgetPath)) {
+    app.use('/widget', express.static(widgetPath));
+
     app.get('/widget/*', (req, res) => {
-      res.sendFile(path.join(__dirname, '/public/widget/index.html'));
+      res.sendFile(path.resolve(widgetPath, 'index.html'));
     });
-  },
+  }
+},
+
 });
