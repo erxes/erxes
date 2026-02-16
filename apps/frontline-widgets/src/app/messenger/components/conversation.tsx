@@ -216,106 +216,108 @@ export function OperatorMessage({
   };
 
   return (
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <Button
-          variant="ghost"
-          className="flex group/operator-message items-end justify-start gap-2 p-0 mr-auto size-auto hover:bg-transparent"
-        >
-          {showAvatar ? (
-            <Avatar className="size-8">
-              <Avatar.Image
-                src={readImage(src || 'assets/user.webp')}
-                className="shrink-0 object-cover"
-                alt="Erxes"
-              />
-              <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
-            </Avatar>
-          ) : (
-            <div className="size-8" />
-          )}
-          <div className="flex flex-col gap-2 max-w-[80%] flex-1">
-            {content && content !== '<p></p>' && (
-              <div
-                className={cn(
-                  'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all',
-                  isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
-                  isLastMessage &&
-                  !attachments?.length &&
-                  'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
-                  isMiddleMessage && 'rounded-r-md rounded-l-sm',
-                  isSingleMessage &&
-                  !attachments?.length &&
-                  'rounded-md shadow-2xs',
-                  attachments?.length && 'rounded-t-md rounded-bl-sm',
-                )}
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(content as string),
-                }}
-              />
+    <Tooltip.Provider>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <Button
+            variant="ghost"
+            className="flex group/operator-message items-end justify-start gap-2 p-0 mr-auto size-auto hover:bg-transparent"
+          >
+            {showAvatar ? (
+              <Avatar className="size-8">
+                <Avatar.Image
+                  src={readImage(src || 'assets/user.webp')}
+                  className="shrink-0 object-cover"
+                  alt="Erxes"
+                />
+                <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
+              </Avatar>
+            ) : (
+              <div className="size-8" />
             )}
-            {attachments && attachments.length > 0 && (
-              <div className="flex flex-col gap-2">
-                {attachments.map((attachment, index) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      'overflow-hidden bg-background',
-                      content && index === 0 && 'rounded-b-md rounded-tl-sm',
-                      !content &&
-                      isFirstMessage &&
-                      index === 0 &&
-                      'rounded-t-md rounded-bl-sm',
-                      !content &&
-                      isLastMessage &&
-                      index === attachments.length - 1 &&
-                      'rounded-b-md rounded-tl-sm',
-                      !content &&
-                      isSingleMessage &&
-                      attachments.length === 1 &&
-                      'rounded-md',
-                      content &&
-                      index === attachments.length - 1 &&
-                      'rounded-b-md rounded-tl-sm',
-                    )}
-                  >
-                    {isImageAttachment(attachment.url) ? (
-                      <a
-                        href={readImage(attachment.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
-                      >
-                        <img
-                          src={readImage(attachment.url)}
-                          alt={attachment.name}
-                          className="max-w-full h-auto rounded"
-                        />
-                      </a>
-                    ) : (
-                      <a
-                        href={readImage(attachment.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 hover:bg-accent/50 transition-colors truncate"
-                      >
-                        <IconFile />
-                        <span className="text-[13px] text-foreground truncate">
-                          {attachment.name}
-                        </span>
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </Button>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
-      </Tooltip.Content>
-    </Tooltip>
+            <div className="flex flex-col gap-2 max-w-[80%] flex-1">
+              {content && content !== '<p></p>' && (
+                <div
+                  className={cn(
+                    'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all',
+                    isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
+                    isLastMessage &&
+                    !attachments?.length &&
+                    'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
+                    isMiddleMessage && 'rounded-r-md rounded-l-sm',
+                    isSingleMessage &&
+                    !attachments?.length &&
+                    'rounded-md shadow-2xs',
+                    attachments?.length && 'rounded-t-md rounded-bl-sm',
+                  )}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(content as string),
+                  }}
+                />
+              )}
+              {attachments && attachments.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {attachments.map((attachment, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        'overflow-hidden bg-background',
+                        content && index === 0 && 'rounded-b-md rounded-tl-sm',
+                        !content &&
+                        isFirstMessage &&
+                        index === 0 &&
+                        'rounded-t-md rounded-bl-sm',
+                        !content &&
+                        isLastMessage &&
+                        index === attachments.length - 1 &&
+                        'rounded-b-md rounded-tl-sm',
+                        !content &&
+                        isSingleMessage &&
+                        attachments.length === 1 &&
+                        'rounded-md',
+                        content &&
+                        index === attachments.length - 1 &&
+                        'rounded-b-md rounded-tl-sm',
+                      )}
+                    >
+                      {isImageAttachment(attachment.url) ? (
+                        <a
+                          href={readImage(attachment.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <img
+                            src={readImage(attachment.url)}
+                            alt={attachment.name}
+                            className="max-w-full h-auto rounded"
+                          />
+                        </a>
+                      ) : (
+                        <a
+                          href={readImage(attachment.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-2 hover:bg-accent/50 transition-colors truncate"
+                        >
+                          <IconFile />
+                          <span className="text-[13px] text-foreground truncate">
+                            {attachment.name}
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 }
 

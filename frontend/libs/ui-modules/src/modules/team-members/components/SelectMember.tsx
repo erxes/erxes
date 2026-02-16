@@ -101,6 +101,7 @@ const SelectMemberValue = ({
 }) => {
   const { memberIds, members, setMembers, allowUnassigned } =
     useSelectMemberContext();
+
   return (
     <MembersInline
       memberIds={memberIds}
