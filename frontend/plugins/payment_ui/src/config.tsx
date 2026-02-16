@@ -16,14 +16,5 @@ export const CONFIG: IUIConfig = {
     <Suspense fallback={<div />}>
       <PaymentSettingsNavigation />
     </Suspense>
-  ),
-  modules: [
-    {
-      name: 'payment',
-      icon: IconCurrencyDollar,
-      path: 'payment',
-      // hasRelationWidget: false,
-      // hasFloatingWidget: false,
-    },
-  ],
+  )
 };

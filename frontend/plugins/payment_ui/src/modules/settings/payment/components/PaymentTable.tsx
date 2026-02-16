@@ -31,7 +31,7 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
                 <Table.Row key={payment._id} className="hover:bg-gray-50">
                   <Table.Cell className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full text-white">
+                      <div className="p-2 rounded-full text-white shrink-0">
                         <img
                           className="w-6 h-6 object-contain rounded-md"
                           src={`${REACT_APP_API_URL}/pl:payment/static/images/payments/${payment.kind}.png`}

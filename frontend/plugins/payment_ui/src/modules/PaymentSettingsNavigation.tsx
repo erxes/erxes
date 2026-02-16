@@ -9,7 +9,7 @@ export const PaymentSettingsNavigation = () => {
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
             path="/"
-            name="Payment Settings"
+            name="Payment"
           />
            <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
