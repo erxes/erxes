@@ -20,7 +20,6 @@ export interface ICouponCampaign extends ICommonCampaignFields {
   codeRule: ICouponCodeRule;
   restrictions: any;
   redemptionLimitPerUser: number;
-
   buyScore: number;
 }
 

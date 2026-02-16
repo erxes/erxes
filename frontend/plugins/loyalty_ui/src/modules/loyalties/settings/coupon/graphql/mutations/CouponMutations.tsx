@@ -15,7 +15,7 @@ export const CREATE_COUPON_CAMPAIGN = gql`
     $codeRule: JSON
     $restrictions: JSON
     $redemptionLimitPerUser: Int
-    $buyScore: Float
+    $buyScore: Int
     $charSet: [String]
   ) {
     couponCampaignAdd(
