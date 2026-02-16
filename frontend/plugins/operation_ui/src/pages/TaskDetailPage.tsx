@@ -1,6 +1,6 @@
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { TaskDetailBreadCrump } from '@/task/components/breadcrump/TaskDetailBreadCrump';
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
@@ -31,9 +31,8 @@ export const TaskDetailPage = () => {
               )}
               <Separator.Inline />
               <TaskDetailBreadCrump />
-              <TaskDetailActions
-                taskId={taskId}
-              />
+              <TaskDetailActions taskId={taskId} />
+              <FavoriteToggleIconButton />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
