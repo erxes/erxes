@@ -10,23 +10,13 @@ interface ProductsBreadcrumbProps {
   currentPage: IProductNavigationItem;
 }
 
-const HELP_URLS: Partial<Record<ProductsPath, string>> = {
-  [ProductsPath.Products]: 'https://www.youtube.com/1',
-  [ProductsPath.Categories]: 'https://www.youtube.com/2',
-  [ProductsPath.Uoms]: 'https://www.youtube.com/3',
-  [ProductsPath.GeneralConfig]: 'https://www.youtube.com/4',
-  [ProductsPath.SimilarityGroup]: 'https://www.youtube.com/5',
-  [ProductsPath.BundleCondition]: 'https://www.youtube.com/6',
-  [ProductsPath.BundleRule]: 'https://www.youtube.com/7',
-  [ProductsPath.ProductRule]: 'https://www.youtube.com/8',
-};
-
 export function ProductsBreadcrumb({
   currentPage,
 }: Readonly<ProductsBreadcrumbProps>) {
   const { t } = useTranslation('common');
   const Icon = currentPage.icon;
-  const helpUrl = HELP_URLS[currentPage.path as ProductsPath];
+  const helpUrl =
+    'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b2175cac46b2ff76b09a';
 
   return (
     <PageHeader.Start>
@@ -57,7 +47,7 @@ export function ProductsBreadcrumb({
                 </Link>
               </Tooltip.Trigger>
               <Tooltip.Content>
-                <p>{t('Help')}</p>
+                <p>Manage your service or product catalog</p>
               </Tooltip.Content>
             </Tooltip>
           )}

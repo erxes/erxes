@@ -8,7 +8,8 @@ export const TagsBreadcrumb = () => {
   const { t } = useTranslation('settings');
   const [type] = useQueryState<string>('tagType');
   const { types } = useTagTypes();
-  const helpUrl = 'https://www.youtube.com';
+  const helpUrl =
+    'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b1df5cac46b2ff76afbb';
   return (
     <div className="flex gap-1 items-center">
       <Button variant="ghost" className="font-semibold">
@@ -23,7 +24,7 @@ export const TagsBreadcrumb = () => {
           </Link>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          <p>{t('tags.workspace-description')}</p>
+          <p>Create and organize labels for categorization</p>
         </Tooltip.Content>
       </Tooltip>
     </div>

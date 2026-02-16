@@ -36,4 +36,5 @@ export type TSettingPath = {
   icon: Icon;
   path: string;
   helpUrl?: string;
+  shortDescription?: string;
 };

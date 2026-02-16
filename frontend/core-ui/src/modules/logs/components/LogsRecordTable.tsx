@@ -1,4 +1,4 @@
-import { IconArchive, IconChartPie } from '@tabler/icons-react';
+import { IconArchive, IconChartPie, IconInfoCircle } from '@tabler/icons-react';
 import {
   Label,
   PageSubHeader,
@@ -7,6 +7,7 @@ import {
   Breadcrumb,
   Button,
   Separator,
+  Tooltip,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 
@@ -15,8 +16,11 @@ import { useLogs } from '../hooks/useLogs';
 import { logColumns } from './LogColumns';
 import { LogsRecordTableFilter } from './filters/LogsRecordTableFilter';
 import { LogDetailSheet } from '@/logs/components/LogDetailSheet';
+import { Link } from 'react-router';
 
 export const LogsRecordTable = () => {
+  const guideUrl =
+    'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b26b5cac46b2ff76b1c6';
   const {
     loading,
     totalCount,
@@ -39,6 +43,16 @@ export const LogsRecordTable = () => {
                   System Logs
                 </Button>
               </Breadcrumb.Item>
+              <Tooltip>
+                <Tooltip.Trigger>
+                  <Link to={guideUrl} target="_blank">
+                    <IconInfoCircle className="size-4 text-accent-foreground" />
+                  </Link>
+                </Tooltip.Trigger>
+                <Tooltip.Content>
+                  <p>View audit trails and system activity history</p>
+                </Tooltip.Content>
+              </Tooltip>
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />

@@ -12,7 +12,8 @@ export function TeamMemberSettingsBreadcrumb() {
 
   const isMembers =
     pathname === `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`;
-  const helpUrl = 'https://www.youtube.com';
+  const helpUrl =
+    'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b1cd5cac46b2ff76af71';
 
   return (
     <Breadcrumb.List className="gap-1">
@@ -54,11 +55,7 @@ export function TeamMemberSettingsBreadcrumb() {
             </Link>
           </Tooltip.Trigger>
           <Tooltip.Content>
-            <p>
-              {isMembers
-                ? t('team-members.description')
-                : t('team-permissions.description')}
-            </p>
+            <p>Add/manage user accounts</p>
           </Tooltip.Content>
         </Tooltip>
       </div>
