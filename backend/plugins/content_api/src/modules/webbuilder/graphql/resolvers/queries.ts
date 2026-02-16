@@ -14,7 +14,7 @@ export const webQueries: Record<string, Resolver> = {
 
     async cpGetWebDetail(
         _root,
-        args:any,
+        args:{_id: string},
         { models } : IContext
     ){
         const { _id } = args;

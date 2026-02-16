@@ -38,8 +38,6 @@ export const loadWebClass = (models: IModels) => {
 
             return models.Web.create({
                 ...docFields,
-                createdDate: new Date(),
-                modifiedDate: new Date()
             })
         }
         
@@ -56,7 +54,7 @@ export const loadWebClass = (models: IModels) => {
             
             const update = await models.Web.findOneAndUpdate(
                 { _id },
-                { $set: {...docFields, modifiedDate: new Date()} },
+                { $set: {...docFields} },
                 { new: true },
                 
             );
