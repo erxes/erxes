@@ -1,6 +1,8 @@
 import { startPlugin } from 'erxes-api-shared/utils';
 import express from 'express';
-import path from 'path';
+import path from 'node:path';
+import fs from 'node:fs';
+
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
@@ -11,34 +13,35 @@ import { callbackHandler } from '~/apis/controller';
 startPlugin({
   name: 'payment',
   port: 3310,
+
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
   }),
+
   hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(
+
+  subscriptionPluginPath: path.resolve(
     __dirname,
     'apollo',
     process.env.NODE_ENV === 'production'
       ? 'subscription.js'
       : 'subscription.ts',
   ),
+
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain, context);
-
     context.models = models;
     context.subdomain = subdomain;
-
     return context;
   },
+
   trpcAppRouter: {
     router: appRouter,
     createContext: async (subdomain, context) => {
       const models = await generateModels(subdomain);
-
       context.models = models;
       context.subdomain = subdomain;
-
       return context;
     },
   },
@@ -57,43 +60,21 @@ startPlugin({
   ]),
 
   onServerInit: async (app) => {
-  const fs = require('fs');
+    // Dev: __dirname = src
+    // Prod: __dirname = dist/src
+    const publicPath = path.resolve(__dirname, 'public');
+    const widgetPath = path.resolve(publicPath, 'widget');
 
-  // IMPORTANT:
-  // In dev (__dirname = src)
-  // In prod (__dirname = dist/src)
-  // So public must be relative to current folder
+    // Serve static files
+    app.use('/', express.static(publicPath));
 
-  const publicPath = path.resolve(__dirname, 'public');
-  const widgetPath = path.resolve(publicPath, 'widget');
-  const imagesPath = path.resolve(publicPath, 'images/payments');
+    // Optional widget
+    if (fs.existsSync(widgetPath)) {
+      app.use('/widget', express.static(widgetPath));
 
-  if (fs.existsSync(imagesPath)) {
-  }
-
-  /**
-   * CRITICAL:
-   * Serve static BEFORE any route conflicts.
-   * No /static prefix.
-   *
-   * Gateway mounts plugin at:
-   *   /pl:payment/
-   *
-   * So this becomes:
-   *   /pl:payment/images/payments/*.png
-   */
-  app.use('/', express.static(publicPath));
-
-  /**
-   * Optional widget
-   */
-  if (fs.existsSync(widgetPath)) {
-    app.use('/widget', express.static(widgetPath));
-
-    app.get('/widget/*', (req, res) => {
-      res.sendFile(path.resolve(widgetPath, 'index.html'));
-    });
-  }
-},
-
+      app.get('/widget/*', (req, res) => {
+        res.sendFile(path.resolve(widgetPath, 'index.html'));
+      });
+    }
+  },
 });
