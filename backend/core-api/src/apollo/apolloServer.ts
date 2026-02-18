@@ -17,7 +17,15 @@ import * as typeDefDetails from './schema/schema';
 // load environment variables
 dotenv.config();
 
-let apolloServer;
+let apolloServer: ApolloServer | null = null;
+
+export const getApolloServer = (): ApolloServer | null => {
+  return apolloServer;
+};
+
+export const setApolloServer = (server: ApolloServer): void => {
+  apolloServer = server;
+};
 
 export const initApolloServer = async (app, httpServer) => {
   const { types, queries, mutations } = typeDefDetails;
@@ -38,7 +46,7 @@ export const initApolloServer = async (app, httpServer) => {
     `);
   };
 
-  apolloServer = new ApolloServer({
+  const server = new ApolloServer({
     schema: buildSubgraphSchema([
       {
         typeDefs: await typeDefs(),
@@ -48,11 +56,13 @@ export const initApolloServer = async (app, httpServer) => {
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
-  await apolloServer.start();
+  setApolloServer(server);
+
+  await server.start();
 
   app.use(
     '/graphql',
-    expressMiddleware(apolloServer, {
+    expressMiddleware(server, {
       context: generateApolloContext<IMainContext>(
         async (subdomain, context) => {
           const models = await generateModels(subdomain, context);
@@ -65,7 +75,7 @@ export const initApolloServer = async (app, httpServer) => {
     }),
   );
 
-  return apolloServer;
+  return server;
 };
 
-export default apolloServer;
+export default getApolloServer();
