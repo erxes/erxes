@@ -1,3 +1,4 @@
+//packages/core/src/data/resolvers/index.ts
 import Brand from "./brand";
 import customScalars from "./customScalars";
 import Mutation from "./mutations";
@@ -33,47 +34,56 @@ import Section from "./section";
 import Insight from "./insight";
 import Client from "./client";
 import ProductRule from './productRule';
+import AutoNumbering from "./autoNumbering";
+
 
 const resolvers: any = {
-  ...customScalars,
+ ...customScalars,
 
-  Brand,
 
-  Mutation,
-  Query,
-  Subscription,
+ Brand,
 
-  Tag,
-  User,
-  Permission,
-  UsersGroup,
-  Structure,
-  Department,
-  Unit,
-  Branch,
-  App,
-  Client,
-  UserMovement,
-  Position,
-  InternalNote,
-  ActivityLog,
-  ActivityLogByAction,
-  Segment,
-  Field,
-  Form,
-  FieldsGroup,
-  Submission,
-  Customer,
-  Company,
-  Product,
-  ProductCategory,
-  Uom,
-  EmailTemplate,
-  Dashboard,
-  Report,
-  Section,
-  Insight,
-  ProductRule
+
+ Mutation,
+ Query,
+ Subscription,
+
+
+ Tag,
+ User,
+ Permission,
+ UsersGroup,
+ Structure,
+ Department,
+ Unit,
+ Branch,
+ App,
+ Client,
+ UserMovement,
+ Position,
+ InternalNote,
+ ActivityLog,
+ ActivityLogByAction,
+ Segment,
+ Field,
+ Form,
+ FieldsGroup,
+ Submission,
+ Customer,
+ Company,
+ Product,
+ ProductCategory,
+ Uom,
+ EmailTemplate,
+ Dashboard,
+ Report,
+ Section,
+ Insight,
+ ProductRule,
+ AutoNumbering,
 };
 
+
 export default resolvers;
+
+

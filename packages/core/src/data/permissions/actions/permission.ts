@@ -1,3 +1,4 @@
+//packages/core/src/data/permissions/actions/permission.ts
 export const moduleObjects = {
   brands: {
     name: 'brands',
@@ -543,6 +544,34 @@ export const moduleObjects = {
       {
         name: 'showClients',
         description: 'Show clients',
+      },
+    ],
+  },
+
+   autoNumbering: {
+    name: 'autoNumbering',
+    description: 'Auto Numbering',
+    actions: [
+      {
+        name: 'autoNumberingsAll',
+        description: 'All',
+        use: [
+          'showAutoNumberings', 
+          'manageAutoNumberings', 
+          'generateAutoNumbers'
+        ],
+      },
+      {
+        name: 'showAutoNumberings',
+        description: 'Show auto numbering configurations',
+      },
+      {
+        name: 'manageAutoNumberings',
+        description: 'Manage auto numbering configurations',
+      },
+      {
+        name: 'generateAutoNumbers',
+        description: 'Generate auto numbers',
       },
     ],
   },
