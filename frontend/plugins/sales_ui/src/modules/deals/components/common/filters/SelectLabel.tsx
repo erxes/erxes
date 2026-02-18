@@ -68,14 +68,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== label._id)
-        : [...multipleValue, label._id];
+      ? multipleValue.filter((p) => p !== label._id)
+      : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-        ? selectedLabels.filter((p) => p._id !== label._id)
-        : [...selectedLabels, label];
+      ? selectedLabels.filter((p) => p._id !== label._id)
+      : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -100,50 +100,63 @@ export const SelectLabelsProvider = ({
 };
 
 export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
-  const { labelPipelineLabel } = usePipelineLabelLabel();
+  const { labelPipelineLabel, loading: labelPipelineLabelLoading } =
+    usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
+  const [loadingLabelId, setLoadingLabelId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<'add' | 'remove' | null>(
+    null,
+  );
 
   const [pipelineId] = useQueryState('pipelineId');
 
   const {
     pipelineLabels = [],
-    loading,
+    loading: pipelineLabelsLoading,
     error,
   } = usePipelineLabels({
     variables: { pipelineId },
     skip: !pipelineId,
   });
 
-  const toggleLabel = (label: IPipelineLabel) => {
-    if (!label._id) {
-      return;
-    }
+  const toggleLabel = async (label: IPipelineLabel) => {
+    if (!label._id) return;
 
+    const isSelected = labelIds?.includes(label._id);
     let newLabelIds = Array.isArray(labelIds) ? [...labelIds] : [];
 
-    if (newLabelIds.includes(label._id)) {
+    if (isSelected) {
       newLabelIds = newLabelIds.filter((id) => id !== label._id);
+      setPendingAction('remove');
     } else {
       newLabelIds.push(label._id);
+      setPendingAction('add');
     }
 
     if (targetId) {
-      labelPipelineLabel({
-        variables: {
-          targetId: targetId,
-          labelIds: newLabelIds,
-        },
-        refetchQueries: [
-          {
-            query: GET_PIPELINE_LABELS,
-            variables: { pipelineId },
+      setLoadingLabelId(label._id);
+
+      try {
+        await labelPipelineLabel({
+          variables: {
+            targetId,
+            labelIds: newLabelIds,
           },
-          {
-            query: GET_DEALS,
-            variables: { pipelineId },
-          },
-        ],
-      });
+          refetchQueries: [
+            {
+              query: GET_PIPELINE_LABELS,
+              variables: { pipelineId },
+            },
+            {
+              query: GET_DEALS,
+              variables: { pipelineId },
+            },
+          ],
+        });
+      } finally {
+        setLoadingLabelId(null);
+        setPendingAction(null);
+      }
     } else {
       onSelect(label);
     }
@@ -181,8 +194,14 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     return (
       <Command>
         <div className="flex relative items-center justify-center -mb-5">
-          <IconTagMinus className="mb-10 absolute" />
-          <Combobox.Empty loading={loading} error={error} />
+          {pipelineLabelsLoading ? (
+            <Combobox.Empty loading />
+          ) : pipelineLabels.length === 0 ? (
+            <>
+              <IconTagMinus className="mb-10 absolute" />
+              <Combobox.Empty />
+            </>
+          ) : null}
         </div>
 
         <Button
@@ -199,70 +218,63 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
       </Command>
     );
   }
-  if (loading) {
-    return (
-      <Command>
-        <Command.Input placeholder="Search label" />
-        <div className="flex items-center gap-2">
-          <IconLoader className="animate-spin" />
-        </div>
-      </Command>
-    );
-  } else
-    return (
-      <Command>
-        <Command.Input placeholder="Search label" />
-        <Command.List className="px-1">
-          {pipelineLabels.map((label) => {
-            return (
-              <Command.Item
-                key={label._id}
-                className={cn(
-                  'flex items-center justify-between p-2 cursor-pointer my-1  ',
-                  labelIds?.includes(label._id || '')
-                    ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
-                    : '',
-                )}
-                onSelect={() => toggleLabel(label)}
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className="inline-block w-3 h-3 rounded-full"
-                    style={{ backgroundColor: label.colorCode }}
-                  />
-                  <span className="text-sm">{label.name}</span>
-                </div>
+  return (
+    <Command>
+      <Command.Input placeholder="Search label" />
+      <Command.List className="px-1">
+        {pipelineLabels.map((label) => {
+          return (
+            <Command.Item
+              key={label._id}
+              className={cn(
+                'flex items-center justify-between p-2 cursor-pointer my-1  ',
+                labelIds?.includes(label._id || '')
+                  ? 'bg-blue-50 border-blue-300 rounded-md w-[100%]'
+                  : '',
+              )}
+              onSelect={() => toggleLabel(label)}
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block w-3 h-3 rounded-full"
+                  style={{ backgroundColor: label.colorCode }}
+                />
+                <span className="text-sm">{label.name}</span>
+              </div>
 
-                <div className="flex items-center gap-2">
-                  {labelIds?.includes(label._id || '') && (
-                    <IconCheck className="w-4 h-4 text-green-600" />
-                  )}
-                  <IconPencil
-                    className="w-5 h-5 cursor-pointer text-gray-400"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditLabelId(label._id || '');
-                      setShowForm(true);
-                    }}
-                  />
-                </div>
-              </Command.Item>
-            );
-          })}
-        </Command.List>
-        <Button
-          type="button"
-          className="w-[90%] mx-auto mb-2"
-          onClick={() => {
-            setEditLabelId(null);
-            setShowForm(true);
-          }}
-        >
-          <IconPlus size={16} />
-          Create a new label
-        </Button>
-      </Command>
-    );
+              <div className="flex items-center gap-2">
+                {loadingLabelId === label._id ? (
+                  <IconLoader className="w-4 h-4 text-green-600 animate-spin" />
+                ) : labelIds?.includes(label._id || '') ? (
+                  <IconCheck className="w-4 h-4 text-green-600" />
+                ) : null}
+
+                <IconPencil
+                  className="w-5 h-5 cursor-pointer text-gray-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditLabelId(label._id || '');
+                    setShowForm(true);
+                  }}
+                />
+              </div>
+            </Command.Item>
+          );
+        })}
+      </Command.List>
+      <Button
+        type="button"
+        className="w-[90%] mx-auto mb-2"
+        onClick={() => {
+          setEditLabelId(null);
+          setShowForm(true);
+        }}
+      >
+        <IconPlus size={16} />
+        Create a new label
+      </Button>
+    </Command>
+  );
 };
 
 export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
@@ -337,12 +349,12 @@ export const SelectLabelsInlineCell = ({
 export const SelectLabelsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
   const [open, setOpen] = useState(false);
   return (
