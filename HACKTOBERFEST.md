@@ -11,7 +11,7 @@ Open source thrives on collaboration and learning.
 We believe that contributing should be a rewarding experience for both new and experienced developers.  
 If you are participating in Hacktoberfest, we encourage quality over quantity - focus on meaningful contributions that improve clarity, usability, or functionality.
 
----
+--
 
 ## 🧭 Getting Started
 
