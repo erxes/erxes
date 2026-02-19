@@ -31,10 +31,6 @@ export const InvoicesPage = () => {
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
-
-        <PageHeader.End>
-          <></>
-        </PageHeader.End>
       </PageHeader>
 
       <div className="flex h-full overflow-hidden">
