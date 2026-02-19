@@ -8,33 +8,32 @@ export const InvoicesPage = () => {
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
-  <PageHeader.Start>
-    <Breadcrumb>
-      <Breadcrumb.List className="gap-1">
-        <Breadcrumb.Item>
-          <Button variant="ghost" asChild>
-            <Link to="/settings/payment">
-              <IconCurrencyDollar />
-              Payment
-            </Link>
-          </Button>
-        </Breadcrumb.Item>
+        <PageHeader.Start>
+          <Breadcrumb>
+            <Breadcrumb.List className="gap-1">
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to="/settings/payment">
+                    <IconCurrencyDollar />
+                    Payment
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
 
-        <Breadcrumb.Item>
-          <Breadcrumb.Page>Invoices</Breadcrumb.Page>
-        </Breadcrumb.Item>
-      </Breadcrumb.List>
-    </Breadcrumb>
+              <Breadcrumb.Separator />
 
-    <Separator.Inline />
-    <PageHeader.FavoriteToggleButton />
-  </PageHeader.Start>
+              <Breadcrumb.Item>
+                <Breadcrumb.Page>Invoices</Breadcrumb.Page>
+              </Breadcrumb.Item>
+            </Breadcrumb.List>
+          </Breadcrumb>
 
-  <PageHeader.End>
-    <></>
-  </PageHeader.End>
-</PageHeader>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton />
+        </PageHeader.Start>
 
+        <PageHeader.End />
+      </PageHeader>
 
       <div className="flex h-full overflow-hidden">
         <div className="flex flex-col h-full overflow-hidden flex-auto">

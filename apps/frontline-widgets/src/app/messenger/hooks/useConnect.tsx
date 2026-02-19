@@ -1,6 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
-import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
+import {
+  getLocalStorageItem,
+  getVisitorId,
+  setLocalStorageItem,
+} from '@libs/utils';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { connect } from '../graphql';
@@ -46,6 +50,13 @@ export const useConnect = ({ integrationId }: connectionProps) => {
       isConnectingRef.current = false;
       const connectionData = response?.widgetsMessengerConnect;
       if (connectionData) {
+        const uiOptions = connectionData.uiOptions || {
+          primary: {
+            DEFAULT: '#5629B6',
+            foreground: '#FFF',
+          },
+        };
+
         setConnection((prev: IConnectionInfo) => ({
           ...prev,
           widgetsMessengerConnect: {
@@ -53,7 +64,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
             visitorId: connectionData.visitorId,
             customerId: connectionData.customerId,
             messengerData: connectionData.messengerData,
-            uiOptions: connectionData.uiOptions,
+            uiOptions,
           },
         }));
         if (connectionData.customerId) {
@@ -61,12 +72,12 @@ export const useConnect = ({ integrationId }: connectionProps) => {
           setCustomerId(connectionData.customerId);
         }
         setIntegrationId(connectionData.integrationId);
-        setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
+        setUiOptions(uiOptions as IWidgetUiOptions);
         setTicketConfig(connectionData.ticketConfig as ITicketConfig);
         setHasTicketConfig(!!connectionData.ticketConfig);
         // Apply uiOptions to Tailwind CSS
-        if (connectionData.uiOptions) {
-          applyUiOptionsToTailwind(connectionData.uiOptions);
+        if (uiOptions) {
+          applyUiOptionsToTailwind(uiOptions);
         }
         if (connectionData.customer) {
           setCustomerData(connectionData.customer as ICustomerData);
@@ -101,29 +112,26 @@ export const useConnect = ({ integrationId }: connectionProps) => {
       const customData = messengerData?.data;
       const companyData = messengerData?.companyData;
 
-      let visitorId;
-
-      const { getVisitorId } = await import('@libs/utils');
-      visitorId = await getVisitorId();
+      const visitorId = await getVisitorId();
 
       const variables = email
         ? {
-          integrationId,
-          visitorId: visitorId || null,
-          cachedCustomerId: currentCachedCustomerId || undefined,
-          isUser: true,
-          email,
-          phone,
-          code,
-          data: customData,
-          companyData,
-        }
+            integrationId,
+            visitorId: visitorId || null,
+            cachedCustomerId: currentCachedCustomerId || undefined,
+            isUser: true,
+            email,
+            phone,
+            code,
+            data: customData,
+            companyData,
+          }
         : {
-          integrationId,
-          visitorId,
-          cachedCustomerId: currentCachedCustomerId || undefined,
-          isUser: false,
-        };
+            integrationId,
+            visitorId,
+            cachedCustomerId: currentCachedCustomerId || undefined,
+            isUser: false,
+          };
 
       await connectMutation({ variables });
     };

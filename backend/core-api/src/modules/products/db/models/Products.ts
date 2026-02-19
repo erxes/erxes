@@ -1,7 +1,7 @@
 import {
-  ICustomField,
   IProduct,
   IProductDocument,
+  IPropertyField,
 } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
@@ -92,12 +92,12 @@ export const loadProductClass = (
 
       doc.uom = await models.Uoms.checkUOM(doc);
 
-      doc.customFieldsData = await initCustomField(
+      doc.propertiesData = await initCustomField(
         models,
         category,
         doc.code,
-        [],
-        doc.customFieldsData,
+        {},
+        doc.propertiesData,
       );
 
       const product = await models.Products.create({
@@ -147,12 +147,12 @@ export const loadProductClass = (
         }
       }
 
-      doc.customFieldsData = await initCustomField(
+      doc.propertiesData = await initCustomField(
         models,
         category,
         doc.code || product.code,
-        product.customFieldsData,
-        doc.customFieldsData,
+        product.propertiesData,
+        doc.propertiesData,
       );
 
       doc.sameMasks = await checkSameMaskConfig(models, {
@@ -254,7 +254,7 @@ export const loadProductClass = (
         }
       }
 
-      let customFieldsData: ICustomField[] = [];
+      let propertiesData: IPropertyField = {};
       let tagIds: string[] = [];
       let barcodes: string[] = [];
       const name: string = productFields.name || '';
@@ -273,10 +273,11 @@ export const loadProductClass = (
         const productBarcodes = productObj.barcodes || [];
 
         // merge custom fields data
-        customFieldsData = [
-          ...customFieldsData,
-          ...(productObj.customFieldsData || []),
-        ];
+        // property note: prepare mergeProperties method
+        propertiesData = {
+          ...propertiesData,
+          ...(productObj.propertiesData || {}),
+        };
 
         // Merging products tagIds
         tagIds = tagIds.concat(productTags);
@@ -311,7 +312,7 @@ export const loadProductClass = (
       // Creating product with properties
       const product = await models.Products.createProduct({
         ...productFields,
-        customFieldsData,
+        propertiesData,
         tagIds,
         barcodes,
         barcodeDescription,

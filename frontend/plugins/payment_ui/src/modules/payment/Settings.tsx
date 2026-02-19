@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
 export const PaymentSettingsPage = lazy(() =>
   import('~/pages/payment/PaymentSettingsPage').then((module) => ({
@@ -12,23 +12,26 @@ export const InvoicesPage = lazy(() =>
     default: module.InvoicesPage,
   })),
 );
+
 export const CorporateGatewayPage = lazy(() =>
   import('~/pages/payment/CorporateGatewayPage').then((module) => ({
     default: module.default,
   })),
 );
 
-const paymentSettings = () => {
+const PaymentSettings = () => {
   return (
-    <Routes>
-    <Route path="/" element={<PaymentSettingsPage />} />
-    <Route path="invoices" element={<InvoicesPage />} />
-    <Route
-        path="corporate-gateway"
-        element={<CorporateGatewayPage />}
-    />
-    </Routes>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route path="/" element={<PaymentSettingsPage />} />
+        <Route path="invoices" element={<InvoicesPage />} />
+        <Route
+          path="corporate-gateway"
+          element={<CorporateGatewayPage />}
+        />
+      </Routes>
+    </Suspense>
   );
 };
 
-export default paymentSettings;
+export default PaymentSettings;

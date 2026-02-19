@@ -36,18 +36,20 @@ export interface IUser extends IUserInline {
   status: EStatus;
   employeeId: string;
   isActive: boolean;
+  isOwner?: boolean;
   positionIds: string[];
 
   links?: object;
   isSubscribed?: string;
   score?: number;
   username?: string;
-  customFieldsData?: Record<string, unknown>;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface IUserDetail extends IUser {
   branchIds?: string[];
   departmentIds?: string[];
+  permissionGroupIds?: string[];
 }
 
 export interface IUserEntry {

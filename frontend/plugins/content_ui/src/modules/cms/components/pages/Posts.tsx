@@ -1,11 +1,4 @@
-import {
-  Button,
-  RecordTable,
-  CommandBar,
-  Separator,
-  toast,
-  Filter,
-} from 'erxes-ui';
+import { Button, RecordTable, CommandBar, Separator, toast } from 'erxes-ui';
 import { Popover, Combobox, Command } from 'erxes-ui';
 import { MultipleSelector, Spinner } from 'erxes-ui';
 import { PopoverScoped } from 'erxes-ui';
@@ -23,6 +16,10 @@ import {
   IconCalendarUp,
   IconFilter,
   IconDots,
+  IconArrowsSort,
+  IconCalendarEvent,
+  IconChevronLeft,
+  IconChevronRight,
 } from '@tabler/icons-react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -54,6 +51,28 @@ export function Posts() {
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [tagFilters, setTagFilters] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [direction, setDirection] = useState<string | undefined>(undefined);
+  const [sortField, setSortField] = useState<string | undefined>(
+    'scheduledDate',
+  );
+  const [sortDirection, setSortDirection] = useState<string | undefined>(
+    'desc',
+  );
+  const perPage = 20;
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+    setCursor(undefined);
+    setDirection(undefined);
+    setCurrentPage(1);
+  };
 
   const sessionKey = `posts-filter-${websiteId}`;
 
@@ -62,17 +81,63 @@ export function Posts() {
     loading,
     error,
     totalCount,
+    hasNextPage,
+    hasPreviousPage,
+    endCursor,
+    startCursor,
     refetch: refetchPosts,
   } = usePosts({
     clientPortalId: websiteId || '',
-    type: typeFilter, // Filter by selected custom type or show all
-    perPage: 20,
-    page: 1,
+    type: typeFilter,
+    perPage,
+    page: currentPage,
     searchValue,
     status: statusFilter as any,
     categoryIds: categoryFilters.length ? categoryFilters : undefined,
     tagIds: tagFilters.length ? tagFilters : undefined,
+    cursor,
+    sortField,
+    sortDirection,
   });
+
+  const sortedPosts = useMemo(() => {
+    if (!posts || posts.length === 0) return posts;
+    const sorted = [...posts].sort((a: any, b: any) => {
+      const field = sortField || 'scheduledDate';
+      let aVal: string;
+      let bVal: string;
+      if (field === 'scheduledDate') {
+        aVal = a.scheduledDate || a.createdAt;
+        bVal = b.scheduledDate || b.createdAt;
+      } else {
+        aVal = a[field] || '';
+        bVal = b[field] || '';
+      }
+      const aTime = new Date(aVal).getTime();
+      const bTime = new Date(bVal).getTime();
+      return sortDirection === 'asc' ? aTime - bTime : bTime - aTime;
+    });
+    return sorted;
+  }, [posts, sortField, sortDirection]);
+
+  const handlePageChange = (action: 'first' | 'prev' | 'next' | 'last') => {
+    if (action === 'first') {
+      setCursor(undefined);
+      setDirection(undefined);
+      setCurrentPage(1);
+    } else if (action === 'prev' && hasPreviousPage) {
+      setCursor(startCursor);
+      setDirection('BACKWARD');
+      setCurrentPage(Math.max(1, currentPage - 1));
+    } else if (action === 'next' && hasNextPage) {
+      setCursor(endCursor);
+      setDirection('FORWARD');
+      setCurrentPage(currentPage + 1);
+    } else if (action === 'last') {
+      const totalPages = Math.ceil(totalCount / perPage);
+      setCurrentPage(totalPages);
+    }
+  };
 
   const { removePost } = usePostMutations({ websiteId });
 
@@ -146,14 +211,15 @@ export function Posts() {
       accessorKey: 'title',
       cell: ({ cell, row }) => (
         <div
-          className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent"
+          className="mx-2 my-1 p-1 flex items-center rounded-sm px-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium h-6 text-xs border gap-1 bg-accent overflow-hidden"
           onClick={() =>
             navigate(`/content/cms/${websiteId}/posts/add`, {
               state: { post: row.original },
             })
           }
+          title={cell.getValue() as string}
         >
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium truncate">
             {cell.getValue() as string}
           </span>
         </div>
@@ -170,8 +236,8 @@ export function Posts() {
       cell: ({ row }) => {
         const excerpt = row.original.excerpt || t('No Description');
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            <span className="text-sm font-medium line-clamp-1" title={excerpt}>
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium h-6 text-xs border gap-1 bg-accent max-w-[280px]">
+            <span className="text-sm font-medium truncate" title={excerpt}>
               {excerpt}
             </span>
           </div>
@@ -212,15 +278,54 @@ export function Posts() {
     //   size: 240,
     // },
     {
+      id: 'scheduledDate',
+      header: () => (
+        <div
+          className="flex items-center gap-1 cursor-pointer select-none"
+          onClick={() => handleSort('scheduledDate')}
+        >
+          <RecordTable.InlineHead
+            label={t('publishDate')}
+            icon={IconCalendarEvent}
+          />
+        </div>
+      ),
+      accessorFn: (row: any) => row.scheduledDate || row.createdAt,
+      cell: ({ row }) => {
+        const date = row.original.scheduledDate;
+        return (
+          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1">
+            <IconCalendarEvent className="h-3 w-3" />
+            {date
+              ? new Date(date).toLocaleDateString('mn-MN', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })
+              : 'Publish date not selected'}
+          </div>
+        );
+      },
+      size: 180,
+    },
+    {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead label={t('Created Date')} icon={IconList} />
+        <div
+          className="flex items-center gap-1 cursor-pointer select-none"
+          onClick={() => handleSort('createdAt')}
+        >
+          <RecordTable.InlineHead
+            label={t('Created At')}
+            icon={IconCalendarPlus}
+          />
+        </div>
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
         <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 ">
           <IconCalendarPlus className="h-3 w-3" />
-          {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
+          {new Date(cell.getValue() as string).toLocaleDateString('mn-MN', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -232,13 +337,21 @@ export function Posts() {
     {
       id: 'updatedAt',
       header: () => (
-        <RecordTable.InlineHead label={t('Modified Date')} icon={IconList} />
+        <div
+          className="flex items-center gap-1 cursor-pointer select-none"
+          onClick={() => handleSort('updatedAt')}
+        >
+          <RecordTable.InlineHead
+            label={t('Updated At')}
+            icon={IconCalendarUp}
+          />
+        </div>
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (
         <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1">
           <IconCalendarUp className="h-3 w-3" />
-          {new Date(cell.getValue() as string).toLocaleDateString('en-US', {
+          {new Date(cell.getValue() as string).toLocaleDateString('mn-MN', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -255,9 +368,9 @@ export function Posts() {
       cell: ({ row }) => (
         <div className="flex px-2 items-center gap-1">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer shadow-sm bg-background shadow-button-outline hover:bg-accent h-7 w-7"
+            className="h-7 w-7"
             onClick={() =>
               navigate(`/content/cms/${websiteId}/posts/add`, {
                 state: { post: row.original },
@@ -269,7 +382,7 @@ export function Posts() {
           <Button
             variant="ghost"
             size="icon"
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
+            className="h-7 w-7 text-destructive bg-destructive/10 hover:bg-destructive/20"
             onClick={() =>
               confirm({ message: 'Delete this post?' })
                 .then(async () => {
@@ -329,6 +442,11 @@ export function Posts() {
               setTypeFilter(undefined);
               setCategoryFilters([]);
               setTagFilters([]);
+              setCursor(undefined);
+              setDirection(undefined);
+              setSortField('scheduledDate');
+              setSortDirection('desc');
+              setCurrentPage(1);
             }}
             className="ml-auto"
           >
@@ -337,8 +455,8 @@ export function Posts() {
         </div>
       </div>
 
-      {!loading && (posts || []).length === 0 ? (
-        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+      {!loading && (sortedPosts || []).length === 0 ? (
+        <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
           <div className="p-12">
             <EmptyState
               icon={IconFile}
@@ -350,39 +468,89 @@ export function Posts() {
           </div>
         </div>
       ) : (
-        <div className="h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
-          <RecordTable.Provider
-            columns={columns}
-            data={posts}
-            className="h-full"
-            stickyColumns={['more', 'checkbox', 'title']}
-          >
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList />
-              </RecordTable.Body>
-            </RecordTable>
+        <div className="flex flex-col rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+          <div className="overflow-hidden">
+            <RecordTable.Provider
+              columns={columns}
+              data={sortedPosts}
+              className="h-full"
+              stickyColumns={['more', 'checkbox', 'title']}
+            >
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                </RecordTable.Body>
+              </RecordTable>
 
-            {/* Bulk actions command bar */}
-            <PostsCommandBar
-              onBulkDelete={async (ids: string[]) => {
-                await confirm({
-                  message: `Delete ${ids.length} selected posts?`,
-                });
-                const results = await Promise.allSettled(
-                  ids.map((id) => removePost(id)),
-                );
-                await refetchPosts();
-                const failed = results.filter((r) => r.status === 'rejected');
-                if (failed.length) {
-                  throw new Error(
-                    `Failed to delete ${failed.length}/${ids.length} posts`,
+              {/* Bulk actions command bar */}
+              <PostsCommandBar
+                onBulkDelete={async (ids: string[]) => {
+                  await confirm({
+                    message: `Delete ${ids.length} selected posts?`,
+                  });
+                  const results = await Promise.allSettled(
+                    ids.map((id) => removePost(id)),
                   );
+                  await refetchPosts();
+                  const failed = results.filter((r) => r.status === 'rejected');
+                  if (failed.length) {
+                    throw new Error(
+                      `Failed to delete ${failed.length}/${ids.length} posts`,
+                    );
+                  }
+                }}
+              />
+            </RecordTable.Provider>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-background">
+            <div className="text-sm text-muted-foreground">
+              {t('Showing')} {(currentPage - 1) * perPage + 1} {t('to')}{' '}
+              {Math.min(currentPage * perPage, totalCount)} {t('of')}{' '}
+              {totalCount} {t('results')}
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handlePageChange('prev')}
+                disabled={!hasPreviousPage || currentPage === 1 || loading}
+              >
+                <IconChevronLeft className="h-4 w-4" />
+              </Button>
+
+              <PaginationPageNumbers
+                currentPage={currentPage}
+                totalPages={Math.ceil(totalCount / perPage)}
+                onPageChange={(page) => {
+                  // Cursor pagination only supports sequential navigation
+                  // Direct page jumping is disabled
+                  if (page === 1) {
+                    setCurrentPage(1);
+                    setCursor(undefined);
+                    setDirection(undefined);
+                  }
+                }}
+              />
+
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handlePageChange('next')}
+                disabled={
+                  !hasNextPage ||
+                  currentPage === Math.ceil(totalCount / perPage) ||
+                  loading
                 }
-              }}
-            />
-          </RecordTable.Provider>
+              >
+                <IconChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </CmsLayout>
@@ -405,7 +573,6 @@ const InlineTagsEditor = ({
 
   const { tags, loading } = useTags({
     clientPortalId: websiteId || '',
-    type: 'cms',
     limit: 100,
   });
 
@@ -738,6 +905,71 @@ const TagsFilterButton = ({
         </div>
       </Popover.Content>
     </Popover>
+  );
+};
+
+const PaginationPageNumbers = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) => {
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    pages.push(1);
+
+    if (currentPage > 3) {
+      pages.push('ellipsis');
+    }
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    if (currentPage < totalPages - 2) {
+      pages.push('ellipsis');
+    }
+
+    pages.push(totalPages);
+    return pages;
+  };
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center gap-1">
+      {getPageNumbers().map((page, idx) =>
+        page === 'ellipsis' ? (
+          <span
+            key={`ellipsis-${idx}`}
+            className="w-8 text-center text-sm text-muted-foreground select-none"
+          >
+            ...
+          </span>
+        ) : (
+          <Button
+            key={page}
+            variant={currentPage === page ? 'default' : 'outline'}
+            size="icon"
+            className="h-8 w-8 text-xs"
+            onClick={() => onPageChange(page)}
+          >
+            {page}
+          </Button>
+        ),
+      )}
+    </div>
   );
 };
 

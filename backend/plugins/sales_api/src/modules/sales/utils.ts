@@ -112,10 +112,8 @@ export const boardNumberGenerator = async (
 };
 
 export const fillSearchTextItem = (doc: IDeal, item?: IDealDocument) => {
-  const document = item || { name: '', description: '' };
-  Object.assign(document, doc);
-
-  return validSearchText([document.name || '', document.description || '']);
+  const { name = '', description = '' } = item || {};
+  return validSearchText([doc.name ?? name, doc.description ?? description]);
 };
 
 export const generateBoardNumber = async (models: IModels, doc: IDeal) => {
@@ -533,28 +531,26 @@ export const getItemList = async (
     action: 'find',
     input: {
       query: {
-        showInCard: true,
-        contentType: `sales:sales.deal`,
+        "configs.showInCard": true,
+        contentType: `sales:deal`,
       },
     },
     defaultValue: [],
   });
 
   for (const item of list) {
-    if (item.customFieldsData?.length && fields?.length) {
+    if (Object.keys(item.propertiesData || {}).length && fields?.length) {
       item.customProperties = [];
 
-      fields.forEach((field) => {
-        const fieldData = (item.customFieldsData || []).find(
-          (f) => f.field === field._id,
-        );
+      for (const field of fields) {
+        const fieldData = item.propertiesData?.[field._id];
 
         if (item.customProperties && fieldData) {
           item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
+            name: `${field.name} - ${fieldData}`,
           });
         }
-      });
+      };
     }
 
     updatedList.push({
@@ -620,14 +616,11 @@ export const generateProducts = async (
       continue;
     }
 
-    const { customFieldsData } = product;
+    const { propertiesData } = product;
 
-    const customFields: any[] = [];
+    const properties: any = {};
 
-    const fieldIds: string[] = [];
-    for (const customFieldData of customFieldsData || []) {
-      fieldIds.push(customFieldData.field);
-    }
+    const fieldIds: string[] = Object.keys(propertiesData || {});
 
     const fields = await sendTRPCMessage({
       subdomain,
@@ -643,18 +636,18 @@ export const generateProducts = async (
       defaultValue: []
     });
 
-    for (const customFieldData of customFieldsData || []) {
-      const field = fields.find(f => f._id === customFieldData.field);
+    for (const fieldId of fieldIds || []) {
+      const field = fields.find(f => f._id === fieldId);
 
       if (field) {
-        customFields[customFieldData.field] = {
+        properties[fieldId] = {
           text: field.text,
-          data: customFieldData.value
+          data: propertiesData[fieldId]
         };
       }
     }
 
-    product.customFieldsData = customFields;
+    product.propertiesData = properties;
 
     products.push({
       ...(typeof data.toJSON === "function" ? data.toJSON() : data),
@@ -1185,15 +1178,15 @@ export const itemsAdd = async (
     }),
   };
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: extendedDoc.customFieldsData,
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: extendedDoc.propertiesData,
+      defaultValue: {},
     });
   }
 

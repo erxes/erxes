@@ -1,20 +1,28 @@
+import { IDonate } from '@/donate/@types/donate';
 import { IContext } from '~/connectionResolvers';
-import { IDonate } from '~/modules/donate/@types/donate';
 
 export const donateMutations = {
-  async createDonate(
-    _root: undefined,
-    doc: IDonate,
-    { models, user }: IContext,
-  ) {
-    return models.Donate.createDonate(doc, user);
+  async donatesAdd(_root: undefined, doc: IDonate, { models }: IContext) {
+    return models.Donates.createDonate(doc);
   },
 
-  async removeDonate(
+  async donatesRemove(
     _root: undefined,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    return models.Donate.removeDonate(_id);
+    return models.Donates.removeDonates(_ids);
+  },
+
+  async cpDonatesAdd(_root: undefined, doc: IDonate, { models }: IContext) {
+    return models.Donates.createDonate({ ...doc });
+  },
+
+  async cpDonatesRemove(
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models }: IContext,
+  ) {
+    return models.Donates.removeDonates(_ids);
   },
 };

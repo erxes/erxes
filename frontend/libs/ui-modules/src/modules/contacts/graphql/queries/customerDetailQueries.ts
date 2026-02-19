@@ -5,7 +5,7 @@ export const CUSTOMER_DETAIL = gql`
     customerDetail(_id: $_id) {
       _id
       avatar
-      customFieldsData
+      propertiesData
       firstName
       lastName
       middleName

@@ -13,7 +13,6 @@ export const PaymentSettingsNavigation = () => {
 
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
-
           {/* Payment Settings */}
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
@@ -24,17 +23,16 @@ export const PaymentSettingsNavigation = () => {
           {/* Invoices */}
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
-            path="invoices" 
+            path="invoices"
             name="Invoices"
           />
 
           {/* Corporate Gateway */}
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
-            path="/corporate-gateway"
+            path="corporate-gateway"
             name="Corporate Gateway"
           />
-
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

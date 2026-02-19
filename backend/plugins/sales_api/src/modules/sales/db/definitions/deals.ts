@@ -112,6 +112,11 @@ export const dealSchema = schemaWrapper(
         optional: true,
         label: 'Custom fields data',
       },
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
+      },
       score: {
         type: Number,
         optional: true,

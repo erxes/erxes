@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type Lottery {
     _id: String
@@ -11,8 +13,12 @@ export const types = `
     voucherId: String
     createdAt: String
     updatedAt: String
-    createdBy: String
-    updatedBy: String
+  }
+
+  type LotteryListResponse {
+    list: [Lottery]
+    pageInfo: PageInfo
+    totalCount: Int
   }
 `;
 
@@ -22,27 +28,25 @@ const queryParams = `
   ownerType: String
   ownerId: String
   voucherCampaignId: String
+
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
-  getLotteries(${queryParams}): [Lottery]
+  lotteries(${queryParams}): LotteryListResponse
 `;
 
 const mutationParams = `
   ownerId: String
   ownerType: String
   campaignId: String
-  voucherCampaignId: String
-  count: Int
+  usedAt: Date
+  status: String
 `;
 
 export const mutations = `
-  createLottery(${mutationParams}): Lottery
-  updateLottery(_id: String!, ${mutationParams}): Lottery
-  removeLottery(_id: String!): Lottery
-
+  lotteriesAdd(${mutationParams}): Lottery
+  lotteriesEdit(_id: String!, ${mutationParams}): Lottery
+  lotteriesRemove(_ids: [String]): JSON
   buyLottery(campaignId: String, ownerType: String, ownerId: String, count: Int): Lottery
-  doLottery(campaignId: String, awardId: String ): JSON
-  doLotteryMultiple(campaignId: String, awardId: String,multiple: Int): String
-  getNextChar(campaignId: String, awardId: String, prevChars: String):JSON
 `;

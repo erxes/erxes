@@ -30,10 +30,3 @@ export interface IUserGroupContext {
   loading: boolean;
   error: string | null;
 }
-
-export interface MentionMenuProps extends SlashMenuProps {
-  loading: boolean;
-  users: IUser[];
-  handleFetchMore: () => void;
-  totalCount: number;
-}

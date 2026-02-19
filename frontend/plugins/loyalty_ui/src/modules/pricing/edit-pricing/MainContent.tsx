@@ -28,7 +28,7 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
   const navigate = useNavigate();
 
   const handleDeleteSuccess = () => {
-    navigate('/settings/pricing/');
+    navigate('/settings/loyalty/pricing/');
   };
   const renderContent = (): React.ReactNode => {
     switch (activeStep) {

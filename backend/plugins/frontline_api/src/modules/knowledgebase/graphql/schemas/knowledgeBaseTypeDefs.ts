@@ -145,7 +145,7 @@ export const types = `
   `;
 
 export const queries = `
-    knowledgeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String]): [KnowledgeBaseTopic]
+    knowledgeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String], searchValue: String): [KnowledgeBaseTopic]
     knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     knowledgeBaseTopicsTotalCount: Int
 

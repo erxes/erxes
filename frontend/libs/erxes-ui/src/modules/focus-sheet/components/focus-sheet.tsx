@@ -80,9 +80,8 @@ const FocusSheetView = ({
   return (
     <Sheet.View
       className={cn(
-        'p-0 transition-[width] flex flex-col gap-0 overflow-hidden sm:max-w-screen-2xl',
-        !!activeSideTab &&
-          'w-[calc(100vw-(--spacing(4)))] md:w-[calc(100vw-(--spacing(4)))]',
+        'p-0 transition-[width] flex flex-col gap-0 overflow-hidden sm:max-w-screen-2xl md:w-[calc(100vw-(--spacing(4)))] lg:w-3/4',
+        !!activeSideTab && 'lg:w-[calc(100vw-(--spacing(4)))]',
         className,
       )}
       {...props}
@@ -101,7 +100,10 @@ const FocusSheetContent = ({
 }: React.ComponentProps<typeof Sheet.Content>) => {
   return (
     <Sheet.Content
-      className={cn('flex border-b-0 rounded-b-none', className)}
+      className={cn(
+        'flex border-b-0 rounded-b-none overflow-y-hidden',
+        className,
+      )}
       {...props}
     />
   );
@@ -211,7 +213,9 @@ const FocusSheetSideContentHeader = forwardRef<
         {!!Icon && (
           <Icon className="size-4 flex-none text-primary" strokeWidth={3} />
         )}
-        <div className="mr-auto font-medium text-primary">{label}</div>
+        <div className="mr-auto font-medium text-primary capitalize">
+          {label}
+        </div>
         {children}
       </div>
       {!hideSeparator && <Separator />}

@@ -17,8 +17,7 @@ export const types = `
 
     size: Int
     website: String
-    industry: String
-    plan: String
+    industry: [String]
     parentCompanyId: String
     ownerId: String
     mergedIds: [String]
@@ -41,9 +40,8 @@ export const types = `
 
     tagIds: [String]
 
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
     trackedData: JSON
+    propertiesData: JSON
 
     customers: [Customer]
     getTags: [Tag]
@@ -104,7 +102,7 @@ const mutationParams = `
 
   size: Int,
   website: String,
-  industry: String,
+  industry: [String],
 
   parentCompanyId: String,
   email: String,
@@ -115,7 +113,7 @@ const mutationParams = `
   links: JSON,
 
   tagIds: [String]
-  customFieldsData: JSON
+  propertiesData: JSON
   code: String
   location: String
 `;
