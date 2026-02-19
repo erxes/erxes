@@ -1,16 +1,11 @@
 import { useState } from 'react';
-
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Dialog } from 'erxes-ui/components/dialog';
-import { golomtLogo } from ''
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 
 import ConfigFormContainer from './configs/containers/Form';
-
-const API_URL =
-  (window as any)?.WIDGET_CONFIG?.API_URL || '';
 
 const GOLOMT_PAYMENT = PAYMENT_KINDS[PaymentKind.GOLOMT];
 
@@ -20,11 +15,10 @@ const GolomtBankCard = () => {
   return (
     <>
       <Card className="p-4 space-y-3">
-        {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <img
-              src={`${API_URL}/static/images/payments/golomt.png`}
+              src="http://localhost:3310/images/payments/golomt.png"
               alt="Golomt Bank"
               className="h-10 w-10 rounded-md object-contain"
             />
@@ -34,7 +28,7 @@ const GolomtBankCard = () => {
                 {GOLOMT_PAYMENT.name}
               </p>
               <p className="text-xs text-muted-foreground">
-                ( Accepts MNT )
+                (Accepts MNT)
               </p>
             </div>
           </div>
@@ -48,13 +42,11 @@ const GolomtBankCard = () => {
           </Button>
         </div>
 
-        {/* Description */}
         <p className="text-sm text-muted-foreground">
           {GOLOMT_PAYMENT.description}
         </p>
       </Card>
 
-      {/* Add Config Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
@@ -70,4 +62,4 @@ const GolomtBankCard = () => {
   );
 };
 
-export default GolomtBankCard;   
+export default GolomtBankCard;

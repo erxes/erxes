@@ -1,20 +1,20 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 
-const InvoicesPage = lazy(() =>
+const IndexPage = lazy(() =>
   import('~/pages/payment/InvoicesPage').then((module) => ({
     default: module.InvoicesPage,
   })),
 );
 
-const PaymentMain = () => {
+const paymentMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="invoices" element={<InvoicesPage />} />
+        <Route path="/" element={<IndexPage />} />       
       </Routes>
     </Suspense>
   );
 };
 
-export default PaymentMain;
+export default paymentMain;
