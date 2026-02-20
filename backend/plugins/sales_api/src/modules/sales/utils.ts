@@ -152,7 +152,6 @@ export const createBoardItem = async (models: IModels, doc: IDeal) => {
     });
   } catch (e) {
     if (e.message.includes(`E11000 duplicate key error`)) {
-      console.log(doc.number, doc.stageId);
       await createBoardItem(models, doc);
     } else {
       throw new Error(e.message);

@@ -173,7 +173,6 @@ export const actionCreate = async ({
       boardId: newData.boardId,
     };
   } catch (e) {
-    console.log(e);
     throw e;
   }
 };
