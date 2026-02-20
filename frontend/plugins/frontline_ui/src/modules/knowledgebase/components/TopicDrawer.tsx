@@ -54,10 +54,10 @@ export function TopicDrawer({ topic, isOpen, onClose, onSaved }: TopicDrawerProp
   };
 
   (function () {
-    var script = document.createElement("script");
+    const script = document.createElement("script");
     script.src = "${API}/knowledgeBaseBundle.js";
     script.async = true;
-    var entry = document.getElementsByTagName("script")[0];
+    const entry = document.getElementsByTagName("script")[0];
     entry.parentNode.insertBefore(script, entry);
   })();
 </script>`;
