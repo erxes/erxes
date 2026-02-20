@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { getPluginsSettingsRoutes } from '@/app/hooks/usePluginsRouter';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
 import {

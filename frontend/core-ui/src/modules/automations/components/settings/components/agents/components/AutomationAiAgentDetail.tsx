@@ -93,7 +93,7 @@ export const AutomationAiAgentDetail = ({
                 render={({ field }) => (
                   <Form.Item className="pt-4">
                     <Form.Label>Uploaded Files</Form.Label>
-                    <Form.Control className="">
+                    <Form.Control>
                       <FileGrid
                         files={field.value}
                         onFileDelete={(fileId) =>

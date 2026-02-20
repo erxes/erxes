@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes, Navigate } from 'react-router';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
 import { ContactsPath } from '@/types/paths/ContactsPath';
 import { ContactsPageEffect } from '@/contacts/components/ContactsPageEffect';

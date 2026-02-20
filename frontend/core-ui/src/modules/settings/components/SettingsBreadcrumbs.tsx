@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { IconMinusVertical, IconSettings } from '@tabler/icons-react';
 import { GET_SETTINGS_PATH_DATA } from '../constants/data';

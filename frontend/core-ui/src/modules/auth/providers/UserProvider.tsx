@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import { currentUserState, isCurrentUserLoadedState } from 'ui-modules';
 import { isDefined } from 'erxes-ui';

@@ -3,7 +3,7 @@ import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { Sidebar, useQueryState } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
-import { Outlet, useLocation } from 'react-router';
+import { Outlet, useLocation } from 'react-router-dom';
 import { mainSidebarOpenState } from '../states/mainSidebarState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 
