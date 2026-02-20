@@ -90,7 +90,9 @@ export const formatInitialContent = (content?: string): string | undefined => {
     try {
       const parsed = JSON.parse(content);
       if (Array.isArray(parsed)) return content;
-    } catch {}
+    } catch {
+      // Invalid JSON, continue to HTML conversion
+    }
   }
   if (content.includes('<') && content.includes('>')) {
     const blocks = convertHTMLToBlocks(content);

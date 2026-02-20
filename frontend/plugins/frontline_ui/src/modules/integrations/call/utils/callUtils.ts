@@ -20,20 +20,7 @@ export function parseCallDirection(
   return direction.toLowerCase() as CallDirectionEnum;
 }
 
-export const logger = {
-  log: (a: any) => {
-    console.log(a, 'log a***');
-  },
-  error: (e: any) => {
-    console.error(e, 'error');
-  },
-  warn: (w: any) => {
-    console.warn(w, 'warn');
-  },
-  debug: (d: any, e?: any) => {
-    console.debug(d, 'debug', e);
-  },
-};
+
 
 export function formatSeconds(seconds: number): string {
   const hrs = Math.floor(seconds / 3600);

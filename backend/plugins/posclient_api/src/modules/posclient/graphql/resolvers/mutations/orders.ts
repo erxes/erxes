@@ -540,7 +540,9 @@ const orderMutations: Record<string, any> = {
           },
           defaultValue: {},
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error confirming covers:', e);
+      }
     }
     return await models.Orders.getOrder(_id);
   },
