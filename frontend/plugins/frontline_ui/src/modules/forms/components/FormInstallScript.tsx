@@ -24,11 +24,11 @@ export function FormInstallScript({
       };
 
       (function () {
-        var script = document.createElement('script');
+        const script = document.createElement('script');
         script.src = '${API}/formBundle.js';
         script.async = true;
 
-        var entry = document.getElementsByTagName('script')[0];
+        const entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
       })();
     </script>`;

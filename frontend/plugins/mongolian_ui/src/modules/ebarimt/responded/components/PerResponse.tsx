@@ -145,12 +145,12 @@ export const PerResponse = (response: any, counter: number) => {
       ${response.qrData
       ? `
         // QRCODE
-        var canvas = document.getElementById("qrcode${response._id || ''}");
-        var ecl = qrcodegen.QrCode.Ecc.LOW;
-        var text = '${response.qrData}';
-        var segs = qrcodegen.QrSegment.makeSegments(text);
+        const canvas = document.getElementById("qrcode${response._id || ''}");
+        const ecl = qrcodegen.QrCode.Ecc.LOW;
+        const text = '${response.qrData}';
+        const segs = qrcodegen.QrSegment.makeSegments(text);
         // 1=min, 40=max, mask=7
-        var qr = qrcodegen.QrCode.encodeSegments(segs, ecl, 1, 40, 2, false);
+        const qr = qrcodegen.QrCode.encodeSegments(segs, ecl, 1, 40, 2, false);
         // 4=Scale, 1=border
         qr.drawCanvas(4, 0, canvas);
 
