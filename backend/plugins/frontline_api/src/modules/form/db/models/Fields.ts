@@ -97,7 +97,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && fieldObj.isDefinedByErxes) {
-        throw new Error('Cant update this field');
+        throw new Error("Can't update this field");
       }
     }
 
@@ -106,7 +106,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && !fieldObj.canHide) {
-        throw new Error('You cant update this field');
+        throw new Error("You can't update this field");
       }
     }
 
