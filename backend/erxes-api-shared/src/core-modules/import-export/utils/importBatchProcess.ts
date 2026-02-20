@@ -362,7 +362,9 @@ export const createImportBatchProcessor = (
           if (errorFilePath) {
             await fs.promises.unlink(errorFilePath);
           }
-        } catch {}
+        } catch {
+          // Ignore cleanup errors
+        }
       }
 
       await coreClient.updateImportProgress(subdomain, importId, {
@@ -379,7 +381,9 @@ export const createImportBatchProcessor = (
       if (errorFilePath) {
         try {
           await fs.promises.unlink(errorFilePath);
-        } catch {}
+        } catch {
+          // Ignore cleanup errors
+        }
       }
 
       await coreClient.updateImportProgress(subdomain, importId, {

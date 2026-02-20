@@ -29,7 +29,9 @@ export async function loadSubscriptions(wsServer: ws.Server) {
   if (disposable) {
     try {
       await disposable.dispose();
-    } catch (e) {}
+    } catch (e) {
+      console.error('Error disposing subscription server:', e);
+    }
   }
 
   disposable = useServer(
