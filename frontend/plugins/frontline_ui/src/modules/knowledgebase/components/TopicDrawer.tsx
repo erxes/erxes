@@ -7,7 +7,7 @@ import { ADD_TOPIC, EDIT_TOPIC } from '../graphql/mutations';
 import { TOPICS } from '../graphql/queries';
 import { SelectBrand } from 'ui-modules';
 import { LANGUAGES } from '../constants';
-import { REACT_APP_WIDGETS_URL } from '@/utils'; 
+import { REACT_APP_WIDGETS_URL } from '@/utils';
 
 interface Topic {
   _id: string;
