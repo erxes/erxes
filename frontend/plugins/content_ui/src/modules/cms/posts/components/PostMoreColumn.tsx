@@ -1,7 +1,7 @@
 import { CellContext } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
-import { Button, Popover, Combobox, Command, Badge } from 'erxes-ui';
-import { IconEdit, IconTrash, IconClock, IconTag } from '@tabler/icons-react';
+import { Button, Popover, Combobox, Command } from 'erxes-ui';
+import { IconEdit, IconTrash, IconClock } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useRemovePosts } from '../hooks/useRemovePosts';
 import { ApolloError, useMutation } from '@apollo/client';
@@ -24,7 +24,7 @@ export const PostMoreColumnCell = ({
   onRefetch,
   onUpdateStatus,
 }: PostMoreColumnCellProps) => {
-  const { _id, status, customPostType, type } = cell.row.original;
+  const { _id, status } = cell.row.original;
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -127,17 +127,7 @@ export const PostMoreColumnCell = ({
                 {statusOption}
               </Command.Item>
             ))}
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start h-8 gap-2"
-              >
-                <IconTag className="size-4" />
 
-                {customPostType?.label || type || 'Post'}
-              </Button>
-            </Command.Item>
             <Command.Item asChild>
               <Button
                 variant="ghost"

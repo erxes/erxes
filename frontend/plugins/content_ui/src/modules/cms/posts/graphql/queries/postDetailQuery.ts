@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const POST_DETAIL = gql`
   query PostDetail($id: String!) {
-    cmsPostDetail(_id: $id) {
+    cmsPost(_id: $id) {
       _id
       title
       slug
@@ -43,9 +43,6 @@ export const POST_DETAIL = gql`
       scheduledDate
       autoArchiveDate
       excerpt
-      description
-      seoTitle
-      seoDescription
       thumbnail {
         url
         name
@@ -84,11 +81,7 @@ export const POST_DETAIL = gql`
         }
         __typename
       }
-      customFieldsData {
-        field
-        value
-        __typename
-      }
+      customFieldsData
       __typename
     }
   }

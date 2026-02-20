@@ -32,8 +32,8 @@ export const usePostsVariables = (
       status,
       type,
       categories,
-      createdAt,
-      updatedAt,
+      created,
+      updated,
       publishedDate,
     },
   ] = useMultiQueryState<{
@@ -42,8 +42,8 @@ export const usePostsVariables = (
     status: string;
     type: string;
     categories: string;
-    createdAt: string;
-    updatedAt: string;
+    created: string;
+    updated: string;
     publishedDate: string;
   }>([
     'tags',
@@ -51,8 +51,8 @@ export const usePostsVariables = (
     'status',
     'type',
     'categories',
-    'createdAt',
-    'updatedAt',
+    'created',
+    'updated',
     'publishedDate',
   ]);
 
@@ -60,29 +60,36 @@ export const usePostsVariables = (
     sessionKey: POSTS_CURSOR_SESSION_KEY,
   });
 
+  let dateField: string | undefined;
+  let dateFrom: Date | undefined;
+  let dateTo: Date | undefined;
+
+  if (created) {
+    dateField = 'createdAt';
+    dateFrom = parseDateRangeFromString(created)?.from;
+    dateTo = parseDateRangeFromString(created)?.to;
+  } else if (updated) {
+    dateField = 'updatedAt';
+    dateFrom = parseDateRangeFromString(updated)?.from;
+    dateTo = parseDateRangeFromString(updated)?.to;
+  } else if (publishedDate) {
+    dateField = 'scheduledDate';
+    dateFrom = parseDateRangeFromString(publishedDate)?.from;
+    dateTo = parseDateRangeFromString(publishedDate)?.to;
+  }
+
   return {
     limit: POSTS_PER_PAGE,
     cursor,
-    tags: tags || undefined,
+
     searchValue: searchValue || undefined,
     status: status && status !== 'all' ? status : undefined,
-    type: type && type !== 'all' ? type : undefined,
+    type: type || undefined,
     tagIds: tags || undefined,
     categoryIds: categories || undefined,
-    dateFilters: {
-      createdAt: {
-        gte: parseDateRangeFromString(createdAt)?.from,
-        lte: parseDateRangeFromString(createdAt)?.to,
-      },
-      updatedAt: {
-        gte: parseDateRangeFromString(updatedAt)?.from,
-        lte: parseDateRangeFromString(updatedAt)?.to,
-      },
-      publishedDate: {
-        gte: parseDateRangeFromString(publishedDate)?.from,
-        lte: parseDateRangeFromString(publishedDate)?.to,
-      },
-    },
+    dateField,
+    dateFrom,
+    dateTo,
     ...variables,
   };
 };

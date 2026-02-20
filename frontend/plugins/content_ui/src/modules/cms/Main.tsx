@@ -18,6 +18,12 @@ const PostsAdd = lazy(() =>
     default: module.PostsAddPage,
   })),
 );
+const PostsDetail = lazy(() =>
+  import('~/pages/cms/posts-detail/PostsDetailPage').then((module) => ({
+    default: module.PostsDetailPage,
+  })),
+);
+
 const Categories = lazy(() =>
   import('~/modules/cms/categories/Category').then((module) => ({
     default: module.Category,
@@ -62,7 +68,10 @@ const PostsEditWrapper = () => {
   const { websiteId, id } = useParams();
   return <PostsAdd clientPortalId={websiteId || ''} postId={id} />;
 };
-
+const PostsDetailWrapper = () => {
+  const { websiteId, postId } = useParams();
+  return <PostsDetail clientPortalId={websiteId || ''} postId={postId} />;
+};
 const CmsMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -70,6 +79,10 @@ const CmsMain = () => {
         <Route index path="/" element={<Navigate to="cms" replace />} />
         <Route path="cms" element={<CmsIndex />} />
         <Route path="cms/:websiteId/posts/add" element={<PostsAddWrapper />} />
+        <Route
+          path="cms/:websiteId/posts/detail/:postId"
+          element={<PostsDetailWrapper />}
+        />
         <Route path="cms/:websiteId/posts/:id" element={<PostsEditWrapper />} />
         <Route path="cms/:websiteId/posts" element={<PostsWrapper />} />
         <Route path="cms/:websiteId/categories" element={<Categories />} />

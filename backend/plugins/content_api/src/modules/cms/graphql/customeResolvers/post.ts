@@ -36,6 +36,7 @@ export default {
         code: 'post',
         label: 'Post',
         pluralLabel: 'Posts',
+        clientPortalId: post.clientPortalId,
         __typename: 'CustomPostType',
       };
     }

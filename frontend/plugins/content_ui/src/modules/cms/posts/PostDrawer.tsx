@@ -3,7 +3,8 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { POSTS_ADD, POST_LIST } from '../graphql/queries';
+import { POSTS_ADD } from '../graphql/queries';
+import { POSTS_LIST } from './graphql/queries/postsListQueries';
 
 interface Post {
   _id: string;
@@ -73,7 +74,7 @@ export function PostDrawer({
   const [addPost, { loading: saving }] = useMutation(POSTS_ADD, {
     refetchQueries: [
       {
-        query: POST_LIST,
+        query: POSTS_LIST,
         variables: {
           clientPortalId,
           type: 'post',

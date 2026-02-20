@@ -10,11 +10,11 @@ export const PostsNavigation = () => {
   const { pathname } = useLocation();
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
   });
 
   const { data: websitesData } = useQuery(GET_CLIENT_PORTALS, {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
   });
 
   const { basePath, websiteId } = useMemo(() => {

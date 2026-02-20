@@ -8,7 +8,7 @@ export const usePostDetail = (postId?: string) => {
   );
 
   return {
-    post: data?.cmsPostDetail,
+    post: data?.cmsPost,
     loading,
     error,
   };

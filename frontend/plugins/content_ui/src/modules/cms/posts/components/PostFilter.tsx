@@ -2,9 +2,9 @@ import {
   IconCalendarPlus,
   IconCalendarUp,
   IconCategory,
-  IconHash,
   IconLabel,
   IconSearch,
+  IconTag,
 } from '@tabler/icons-react';
 
 import {
@@ -14,10 +14,10 @@ import {
   useFilterQueryState,
   useMultiQueryState,
 } from 'erxes-ui';
-import { TagsFilter } from 'ui-modules';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { PostsTotalCount } from './PostsTotalCount';
 import { useIsPostsLeadSessionKey } from '../hooks/usePostsLeadSessionKey';
+import { SelectStatus } from './selects/SelectStatus';
 
 const PostsFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -26,8 +26,8 @@ const PostsFilterPopover = () => {
     status: string;
     type: string;
     categories: string;
-    createdAt: string;
-    updatedAt: string;
+    created: string;
+    updated: string;
     publishedDate: string;
   }>([
     'tags',
@@ -35,8 +35,8 @@ const PostsFilterPopover = () => {
     'status',
     'type',
     'categories',
-    'createdAt',
-    'updatedAt',
+    'created',
+    'updated',
     'publishedDate',
   ]);
 
@@ -52,7 +52,7 @@ const PostsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Search ..."
+                placeholder="Filter"
                 variant="secondary"
                 className="bg-background"
               />
@@ -61,25 +61,25 @@ const PostsFilterPopover = () => {
                   <IconSearch />
                   Search
                 </Filter.Item>
-                <Filter.Item value="status">
-                  <IconHash />
-                  Status
-                </Filter.Item>
-                <Filter.Item value="type">
+                <SelectStatus.FilterItem />
+                <Filter.Item value="type" inDialog>
                   <IconLabel />
                   Type
                 </Filter.Item>
-                <TagsFilter />
-                <Filter.Item value="categories">
+                <Filter.Item value="categories" inDialog>
                   <IconCategory />
                   Categories
                 </Filter.Item>
+                <Filter.Item value="tags" inDialog>
+                  <IconTag />
+                  Tags
+                </Filter.Item>
                 <Command.Separator className="my-1" />
-                <Filter.Item value="createdAt">
+                <Filter.Item value="created">
                   <IconCalendarPlus />
                   Created At
                 </Filter.Item>
-                <Filter.Item value="updatedAt">
+                <Filter.Item value="updated">
                   <IconCalendarUp />
                   Updated At
                 </Filter.Item>
@@ -90,12 +90,12 @@ const PostsFilterPopover = () => {
               </Command.List>
             </Command>
           </Filter.View>
-          <TagsFilter.View tagType="core:posts" />
-          <Filter.View filterKey="createdAt">
-            <Filter.DateView filterKey="createdAt" />
+          <SelectStatus.FilterView />
+          <Filter.View filterKey="created">
+            <Filter.DateView filterKey="created" />
           </Filter.View>
-          <Filter.View filterKey="updatedAt">
-            <Filter.DateView filterKey="updatedAt" />
+          <Filter.View filterKey="updated">
+            <Filter.DateView filterKey="updated" />
           </Filter.View>
           <Filter.View filterKey="publishedDate">
             <Filter.DateView filterKey="publishedDate" />
@@ -107,7 +107,7 @@ const PostsFilterPopover = () => {
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
         <Filter.View filterKey="status" inDialog>
-          <Filter.DialogStringView filterKey="status" />
+          <SelectStatus.FilterView />
         </Filter.View>
         <Filter.View filterKey="type" inDialog>
           <Filter.DialogStringView filterKey="type" />
@@ -115,11 +115,14 @@ const PostsFilterPopover = () => {
         <Filter.View filterKey="categories" inDialog>
           <Filter.DialogStringView filterKey="categories" />
         </Filter.View>
-        <Filter.View filterKey="createdAt" inDialog>
-          <Filter.DialogDateView filterKey="createdAt" />
+        <Filter.View filterKey="tags" inDialog>
+          <Filter.DialogStringView filterKey="tags" />
         </Filter.View>
-        <Filter.View filterKey="updatedAt" inDialog>
-          <Filter.DialogDateView filterKey="updatedAt" />
+        <Filter.View filterKey="created" inDialog>
+          <Filter.DialogDateView filterKey="created" />
+        </Filter.View>
+        <Filter.View filterKey="updated" inDialog>
+          <Filter.DialogDateView filterKey="updated" />
         </Filter.View>
         <Filter.View filterKey="publishedDate" inDialog>
           <Filter.DialogDateView filterKey="publishedDate" />
@@ -131,9 +134,10 @@ const PostsFilterPopover = () => {
 
 export const PostsFilter = () => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
-  const [status] = useFilterQueryState<string>('status');
   const [type] = useFilterQueryState<string>('type');
   const { sessionKey } = useIsPostsLeadSessionKey();
+  const [tags] = useFilterQueryState<string[]>('tags');
+  const [categories] = useFilterQueryState<string[]>('categories');
 
   return (
     <Filter id="posts-filter" sessionKey={sessionKey}>
@@ -147,15 +151,7 @@ export const PostsFilter = () => {
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
-        <Filter.BarItem queryKey="status">
-          <Filter.BarName>
-            <IconHash />
-            Status
-          </Filter.BarName>
-          <Filter.BarButton filterKey="status" inDialog>
-            {status}
-          </Filter.BarButton>
-        </Filter.BarItem>
+        <SelectStatus.FilterBar />
         <Filter.BarItem queryKey="type">
           <Filter.BarName>
             <IconLabel />
@@ -165,20 +161,31 @@ export const PostsFilter = () => {
             {type}
           </Filter.BarButton>
         </Filter.BarItem>
-        <TagsFilter.Bar tagType="core:posts" />
-        <Filter.BarItem queryKey="createdAt">
+        <Filter.BarItem queryKey="tags">
+          <Filter.BarName>Tags</Filter.BarName>
+          <Filter.BarButton filterKey="tags" inDialog>
+            {tags}
+          </Filter.BarButton>
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="categories">
+          <Filter.BarName>Categories</Filter.BarName>
+          <Filter.BarButton filterKey="categories" inDialog>
+            {categories}
+          </Filter.BarButton>
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
             Created At
           </Filter.BarName>
-          <Filter.Date filterKey="createdAt" />
+          <Filter.Date filterKey="created" />
         </Filter.BarItem>
-        <Filter.BarItem queryKey="updatedAt">
+        <Filter.BarItem queryKey="updated">
           <Filter.BarName>
             <IconCalendarUp />
             Updated At
           </Filter.BarName>
-          <Filter.Date filterKey="updatedAt" />
+          <Filter.Date filterKey="updated" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="publishedDate">
           <Filter.BarName>

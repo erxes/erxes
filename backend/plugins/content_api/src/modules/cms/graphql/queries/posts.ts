@@ -60,6 +60,25 @@ class PostQueryResolver extends BaseQueryResolver {
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
 
+    const { dateField, dateFrom, dateTo } = args;
+
+    if (dateField && (dateFrom || dateTo)) {
+      if (
+        dateField === 'createdAt' ||
+        dateField === 'updatedAt' ||
+        dateField === 'scheduledDate'
+      ) {
+        const existingConditions =
+          query[dateField] && typeof query[dateField] === 'object'
+            ? query[dateField]
+            : {};
+        query[dateField] = {
+          ...existingConditions,
+          ...(dateFrom ? { $gte: dateFrom } : {}),
+          ...(dateTo ? { $lte: dateTo } : {}),
+        };
+      }
+    }
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
       query,

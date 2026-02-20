@@ -253,7 +253,7 @@ export const AddPostForm = ({
                                     <Select.Value placeholder="Choose type" />
                                   </Select.Trigger>
                                   <Select.Content>
-                                    <Select.Item value="Post">Post</Select.Item>
+                                    <Select.Item value="post">post</Select.Item>
                                     {customTypes.map((type: any) => (
                                       <Select.Item
                                         key={type._id}

@@ -1,5 +1,5 @@
 import { RecordTable } from 'erxes-ui';
-import { postsColumns } from './PostsColumn';
+import { usePostsColumns } from './PostsColumn';
 
 import { PostsCommandbar } from './posts-command-bar/PostsCommandbar';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
@@ -20,14 +20,14 @@ export const PostsRecordTable = ({
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const columns = postsColumns(onEditPost, refetch);
+  const columns = usePostsColumns(onEditPost, refetch);
 
   return (
     <RecordTable.Provider
       columns={columns}
       data={posts || []}
       className="h-full m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

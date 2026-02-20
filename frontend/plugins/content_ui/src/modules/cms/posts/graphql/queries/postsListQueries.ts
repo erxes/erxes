@@ -2,6 +2,9 @@ import { gql } from '@apollo/client';
 
 export const POSTS_LIST = gql`
   query CmsPostList(
+    $dateField: PostDateField
+    $dateFrom: Date
+    $dateTo: Date
     $clientPortalId: String
     $limit: Int
     $cursor: String
@@ -19,9 +22,11 @@ export const POSTS_LIST = gql`
     $sortField: String
     $sortDirection: String
     $language: String
-    
   ) {
     cmsPostList(
+      dateField: $dateField
+      dateFrom: $dateFrom
+      dateTo: $dateTo
       clientPortalId: $clientPortalId
       limit: $limit
       cursor: $cursor

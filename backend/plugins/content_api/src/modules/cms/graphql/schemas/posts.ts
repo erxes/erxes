@@ -12,6 +12,11 @@ export const types = `
         user
         clientPortalUser
     }
+    enum PostDateField {
+        createdAt
+        updatedAt
+        scheduledDate
+    }
 
     union Author = User 
 
@@ -126,6 +131,9 @@ const commonPostQuerySelector = `
     sortField: String
     sortDirection: String
     language: String
+    dateField: PostDateField
+    dateFrom: Date
+    dateTo: Date
 `;
 
 export const queries = `
