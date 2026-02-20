@@ -161,7 +161,7 @@ const ProductsList = ({
     editDeals({
       variables: {
         productsData: formattedProductsData,
-        proccessId: processId,
+        processId: processId,
         _id: dealId,
       },
     });

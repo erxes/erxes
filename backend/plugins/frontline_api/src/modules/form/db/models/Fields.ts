@@ -354,7 +354,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           fixedValues[_id] = await this.clean(_id, data[_id]);
         } catch (e) {
           console.log(
-            `An error occured in CLEAN while cleanMulti: ${
+            `An error occurred in CLEAN while cleanMulti: ${
               e.message
             } ::: customFieldData ::: ${JSON.stringify(data)}`,
           );
