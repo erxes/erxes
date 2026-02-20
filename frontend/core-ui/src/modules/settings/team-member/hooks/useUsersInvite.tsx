@@ -13,7 +13,7 @@ const useUsersInvite = () => {
         ...options,
       });
     } catch (error) {
-      console.error('Error occured', error);
+      console.error('Error occurred', error);
     }
   };
 
