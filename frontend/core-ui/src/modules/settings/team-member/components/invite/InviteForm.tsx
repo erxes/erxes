@@ -122,7 +122,7 @@ export function InviteForm({
           {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
           {!error && (
             <p className="text-sm text-muted-foreground mt-1.5">
-              {t('seperate-emails')}
+              {t('separate-emails')}
             </p>
           )}
         </div>
