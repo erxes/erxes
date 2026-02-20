@@ -29,7 +29,7 @@ export const NotificationContent = () => {
 const NotificationContentWrapper = ({ notification }: { notification: INotification }) => {
   const contentType = notification?.contentType ?? '';
 
-  const normalized = contentType.replace(':', '.'); 
+  const normalized = contentType.replace(':', '.');
   const parts = normalized.split('.');
   const plugin = parts[0] || 'core';
 
