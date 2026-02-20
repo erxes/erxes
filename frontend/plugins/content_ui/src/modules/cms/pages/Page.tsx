@@ -220,7 +220,7 @@ export function Page() {
   if (loading) {
     return (
       <CmsLayout headerActions={headerActions}>
-        <div className="flex w-full h-screen justify-center items-centerß">
+        <div className="flex w-full h-screen justify-center items-center">
           <div className="text-gray-500">
             <Spinner />
           </div>
@@ -230,8 +230,8 @@ export function Page() {
   }
 
   return (
-    <div>
-      <CmsLayout headerActions={headerActions}>
+    <CmsLayout headerActions={headerActions}>
+      <div className="flex flex-col h-full">
         <div className="flex justify-between items-center mb-6">
           <div className="text-sm text-gray-600">Found {totalCount} pages</div>
         </div>
@@ -246,7 +246,7 @@ export function Page() {
             />
           </div>
         ) : (
-          <div className="h-full rounded-lg shadow-sm border overflow-hidden">
+          <div className="flex-1 rounded-lg shadow-sm border overflow-hidden">
             <RecordTable.Provider
               columns={columns}
               data={pages || []}
@@ -270,7 +270,7 @@ export function Page() {
             </RecordTable.Provider>
           </div>
         )}
-      </CmsLayout>
+      </div>
 
       <PageDrawer
         page={selectedPage}
@@ -281,7 +281,7 @@ export function Page() {
         }}
         clientPortalId={websiteId || ''}
       />
-    </div>
+    </CmsLayout>
   );
 }
 
