@@ -31,9 +31,7 @@ const columns: (
       const [_name, setName] = useState<string>(name);
 
       const onSave = () => {
-        if (name !== _name) {
-          console.log('Saving segment:', _id, _name);
-        }
+        // TODO: Implement segment name update
       };
 
       const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
