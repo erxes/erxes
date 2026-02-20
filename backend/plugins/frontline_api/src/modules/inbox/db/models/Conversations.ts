@@ -76,7 +76,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
 export const loadClass = (models: IModels) => {
   class Conversation {
     /**
-     * Retreives conversation
+     * Retrieves conversation
      */
     public static async getConversation(_id: string) {
       const conversation = await models.Conversations.findOne({ _id });
