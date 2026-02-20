@@ -61,7 +61,7 @@ function ExportHistoriesByType({
   const list = React.useMemo(() => raw?.list ?? [], [raw?.list]);
   const totalCount = raw?.totalCount ?? 0;
   const pageInfo = raw?.pageInfo;
-  
+
   React.useEffect(() => {
     onState({
       entityType,
@@ -83,7 +83,7 @@ export function useExportHistories({ entityTypes }: { entityTypes: string[] }) {
 
   const types = React.useMemo(() => {
     return uniqStable(entityTypes);
-  }, [typesKey]); 
+  }, [typesKey]);
 
   const [perType, setPerType] = React.useState<Record<string, PerTypeState>>({});
 

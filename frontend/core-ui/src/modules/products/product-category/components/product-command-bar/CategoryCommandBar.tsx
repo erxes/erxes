@@ -6,7 +6,7 @@ import { useState } from 'react';
 export const CategoryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const [refreshKey, setRefreshKey] = useState(0);
-  
+
   const resetSelection = () => {
     table.resetRowSelection(true);
     setRefreshKey(prev => prev + 1);

@@ -12,7 +12,7 @@ export const PropertySelectRelationType = ({
   const { id } = useParams<{ id: string }>();
 
   const type = form.watch('type');
-  
+
   if (type !== 'relation') {
     return <></>;
   }

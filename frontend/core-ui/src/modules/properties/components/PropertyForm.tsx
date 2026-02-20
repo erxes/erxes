@@ -31,7 +31,7 @@ export const PropertyForm = ({
   isEdit?: boolean;
 }) => {
   const { id } = useParams<{ id: string }>();
-  
+
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
     defaultValues,

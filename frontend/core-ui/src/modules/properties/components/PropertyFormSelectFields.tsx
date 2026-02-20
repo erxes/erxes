@@ -12,7 +12,7 @@ export const PropertyFormSelectFields = ({
   const { id } = useParams<{ id: string }>();
 
   const type = form.watch('type');
-  
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'options' as never,

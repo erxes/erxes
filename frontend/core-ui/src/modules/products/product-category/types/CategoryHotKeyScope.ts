@@ -5,4 +5,3 @@ export enum CategoryHotKeyScope {
     CategoryAddSheetDescriptionField = 'category-add-sheet-description-field',
     CategoryAddSheetBarcodeDescriptionField = 'category-add-sheet-barcode-description-field',
   }
-  

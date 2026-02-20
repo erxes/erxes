@@ -11,7 +11,6 @@ type Props = {
 export function SegmentDetail({ onRefresh }: Props) {
   const [selectedContentType] = useQueryState<string>('contentType');
 
-  
   const [segmentId, setOpen] = useQueryState<string>('segmentId');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const { t } = useTranslation('segment');
