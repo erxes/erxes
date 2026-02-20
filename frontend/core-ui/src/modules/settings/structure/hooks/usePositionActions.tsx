@@ -50,7 +50,7 @@ export function usePositionAdd(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Error handled silently
       }
     },
     refetchQueries: ['Positions'],
@@ -92,7 +92,7 @@ export function usePositionEdit(
           },
         });
       } catch (e) {
-        console.log('error', e);
+        // Error handled silently
       }
     },
   });
