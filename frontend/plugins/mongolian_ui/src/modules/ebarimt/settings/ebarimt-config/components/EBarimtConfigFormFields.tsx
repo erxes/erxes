@@ -30,10 +30,7 @@ export const EBarimtMainSettingsForm = () => {
     return 'Select bill type';
   })();
 
-  useEffect(() => {
-    console.log('Current FieldGroup:', selectedFieldGroup);
-    console.log('Current BillTypeChooser:', billTypeValue);
-  }, [selectedFieldGroup, billTypeValue]);
+
 
   return (
     <Form {...form}>
@@ -119,7 +116,6 @@ export const EBarimtMainSettingsForm = () => {
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
-                      console.log('FieldGroup selected:', value);
                       field.onChange(value);
                       handleFieldGroupChange(value);
                     }}

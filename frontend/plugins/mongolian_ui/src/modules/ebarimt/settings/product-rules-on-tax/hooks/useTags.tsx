@@ -5,7 +5,7 @@ export const useGetTags = (options?: QueryHookOptions) => {
   const { data, loading, error } = useQuery(GET_TAGS, {
     ...options,
   });
-  console.log(data);
+
   const tags = data?.tags.list || [];
 
   return {
