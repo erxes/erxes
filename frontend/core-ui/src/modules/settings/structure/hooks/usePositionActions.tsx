@@ -13,7 +13,6 @@ import {
   GET_POSITIONS_LIST,
   REMOVE_POSITIONS,
 } from '../graphql';
-import { data } from 'react-router';
 
 interface PositionData {
   positionsMain: {
