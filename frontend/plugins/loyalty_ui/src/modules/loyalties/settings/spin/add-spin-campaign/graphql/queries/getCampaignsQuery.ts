@@ -5,13 +5,13 @@ export const QUERY_SPIN_CAMPAIGNS = gql`
   query GetSpinCampaigns(
     $searchValue: String
     $status: String
- 
+
   ${GQL_CURSOR_PARAM_DEFS}
   ) {
     spinCampaigns(
       searchValue: $searchValue
       status: $status
-    
+
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
