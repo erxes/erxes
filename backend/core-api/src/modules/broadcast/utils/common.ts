@@ -409,7 +409,7 @@ export const getNumberOfVisits = async (params: {
 
     return firstHit._source.count;
   } catch (e) {
-    console.log(`Error occured during getNumberOfVisits ${e.message}`);
+    console.log(`Error occurred during getNumberOfVisits ${e.message}`);
     return 0;
   }
 };
