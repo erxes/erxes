@@ -1,0 +1,121 @@
+version = 1
+
+# ============================================
+# CODE REVIEW ANALYZERS
+# These provide static analysis, bug detection, 
+# security checks, and style issues
+# ============================================
+
+# JavaScript/TypeScript Code Review
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  # erxes uses TypeScript
+  dialect = "typescript"
+  
+  # Environment: Node.js backend + Browser frontend
+  environment = ["nodejs", "browser"]
+  
+  # Frameworks used in erxes
+  plugins = ["react"]
+  
+  # Module system
+  module_system = "es-modules"
+  
+  # Style guide enforcement (optional)
+  style_guide = "standard"
+  
+  # Complexity threshold (optional)
+  cyclomatic_complexity_threshold = "high"
+  
+  # Skip documentation coverage for certain types
+  skip_doc_coverage = ["class-expression", "method-definition"]
+
+# Secrets Detection (Security)
+[[analyzers]]
+name = "secrets"
+enabled = true
+
+# Docker Code Review
+[[analyzers]]
+name = "docker"
+enabled = true
+
+# ============================================
+# CODE COVERAGE ANALYZER
+# This tracks test coverage metrics
+# ============================================
+
+[[analyzers]]
+name = "test-coverage"
+enabled = true
+
+  [analyzers.meta]
+  # Minimum coverage thresholds (optional)
+  line_coverage_threshold = 80
+  branch_coverage_threshold = 70
+  condition_coverage_threshold = 60
+  composite_coverage_threshold = 75
+
+# ============================================
+# CODE FORMATTERS (Optional - Autofix)
+# ============================================
+
+[[code_formatters]]
+name = "prettier"
+enabled = true
+
+# ============================================
+# EXCLUSIONS (erxes-specific)
+# ============================================
+
+[[exclude]]
+path = "**/node_modules/**"
+
+[[exclude]]
+path = "**/.pnpm/**"
+
+[[exclude]]
+path = "**/dist/**"
+
+[[exclude]]
+path = "**/build/**"
+
+[[exclude]]
+path = "**/.nx/**"
+
+[[exclude]]
+path = "**/coverage/**"
+
+[[exclude]]
+path = "**/*.spec.ts"
+type = "test"
+
+[[exclude]]
+path = "**/*.test.ts"
+type = "test"
+
+[[exclude]]
+path = "**/*.spec.tsx"
+type = "test"
+
+[[exclude]]
+path = "**/*.test.tsx"
+type = "test"
+
+[[exclude]]
+path = "**/migrations/**"
+
+[[exclude]]
+path = "**/scripts/**"
+
+# ============================================
+# GLOBAL SETTINGS
+# ============================================
+
+[global]
+default_branch = "main"
+pr_comments = true
+report_issues = true
