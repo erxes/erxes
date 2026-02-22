@@ -1,8 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
-import {
-  IconPlus,
-  IconSettings
-} from '@tabler/icons-react';
+import { IconPlus, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, Sheet, useConfirm, useToast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
