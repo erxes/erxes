@@ -40,7 +40,7 @@ const Capitron = () => {
         if (res?.ecrResult?.RespCode === "00") {
           setCapitronResponse(JSON.stringify(res.ecrResult))
         } else {
-          onError(`${res.ecrResult.RespCode} - Unexpected error occured`)
+          onError(`${res.ecrResult.RespCode} - Unexpected error occurred`)
         }
         setLoading(false)
       })
