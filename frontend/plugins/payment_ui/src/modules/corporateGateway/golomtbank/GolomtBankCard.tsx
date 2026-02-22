@@ -24,20 +24,12 @@ const GolomtBankCard = () => {
             />
 
             <div>
-              <p className="font-semibold">
-                {GOLOMT_PAYMENT.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                (Accepts MNT)
-              </p>
+              <p className="font-semibold">{GOLOMT_PAYMENT.name}</p>
+              <p className="text-xs text-muted-foreground">(Accepts MNT)</p>
             </div>
           </div>
 
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
+          <Button variant="link" size="sm" onClick={() => setOpen(true)}>
             + Add
           </Button>
         </div>
@@ -50,9 +42,7 @@ const GolomtBankCard = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>
-              Add {GOLOMT_PAYMENT.name}
-            </Dialog.Title>
+            <Dialog.Title>Add {GOLOMT_PAYMENT.name}</Dialog.Title>
           </Dialog.Header>
 
           <ConfigFormContainer closeModal={() => setOpen(false)} />

@@ -1,4 +1,4 @@
-import { Document, Schema } from "mongoose";
+import { Document, Schema } from 'mongoose';
 
 // export interface IGolomtBankConfig {
 //   registerId: string;
@@ -65,5 +65,5 @@ export const golomtBankConfigSchema = new Schema(
   },
   {
     collection: 'golomt_bank_configs',
-  }
+  },
 );

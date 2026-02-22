@@ -89,5 +89,5 @@ mutation GolomtBankConfigsRemove($_id: String) {
 export default {
   addMutation,
   editMutation,
-  removeMutation
+  removeMutation,
 };

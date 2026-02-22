@@ -15,13 +15,7 @@ type Props = {
   refetch?: () => void;
 };
 
-const List = ({
-  configs,
-  totalCount,
-  loading,
-  remove,
-  refetch,
-}: Props) => {
+const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async (values: any) => {
@@ -42,9 +36,7 @@ const List = ({
           </p>
         </div>
 
-        <Button onClick={() => setOpen(true)}>
-          + Add Config
-        </Button>
+        <Button onClick={() => setOpen(true)}>+ Add Config</Button>
       </div>
 
       {/* Table */}
@@ -65,11 +57,7 @@ const List = ({
             </thead>
             <tbody>
               {configs.map((config) => (
-                <Row
-                  key={config._id}
-                  config={config}
-                  remove={remove}
-                />
+                <Row key={config._id} config={config} remove={remove} />
               ))}
             </tbody>
           </table>
@@ -80,9 +68,7 @@ const List = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>
-              Add Golomt Bank Config
-            </Dialog.Title>
+            <Dialog.Title>Add Golomt Bank Config</Dialog.Title>
           </Dialog.Header>
 
           <ConfigForm

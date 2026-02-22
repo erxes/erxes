@@ -6,9 +6,7 @@ type Props = {
 };
 
 const List = ({ rates }: Props) => {
-  const filteredRates = rates.filter(
-    (rate) => rate.currency !== 'MNT',
-  );
+  const filteredRates = rates.filter((rate) => rate.currency !== 'MNT');
 
   if (filteredRates.length === 0) {
     return (
@@ -32,19 +30,10 @@ const List = ({ rates }: Props) => {
 
           <tbody>
             {filteredRates.map((rate) => (
-              <tr
-                key={rate.number}
-                className="border-b last:border-0"
-              >
-                <td className="py-2 font-medium">
-                  {rate.currency}
-                </td>
-                <td className="py-2">
-                  {rate.buyRate.toLocaleString()}
-                </td>
-                <td className="py-2">
-                  {rate.sellRate.toLocaleString()}
-                </td>
+              <tr key={rate.number} className="border-b last:border-0">
+                <td className="py-2 font-medium">{rate.currency}</td>
+                <td className="py-2">{rate.buyRate.toLocaleString()}</td>
+                <td className="py-2">{rate.sellRate.toLocaleString()}</td>
               </tr>
             ))}
           </tbody>

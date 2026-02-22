@@ -16,7 +16,7 @@ export async function toPreferTransferfTemp(params, registerId) {
     genericType: null,
     registerNumber: registerId,
     type: type,
-    refCode: refCode || "123",
+    refCode: refCode || '123',
     initiator: {
       genericType: null,
       acctName: fromAccountName,
@@ -26,7 +26,7 @@ export async function toPreferTransferfTemp(params, registerId) {
         currency: fromCurrency,
       },
       particulars: description,
-      bank: "15",
+      bank: '15',
     },
     receives: [
       {

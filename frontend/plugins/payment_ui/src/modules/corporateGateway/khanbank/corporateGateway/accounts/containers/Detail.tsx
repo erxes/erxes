@@ -12,17 +12,16 @@ type Props = {
 const DetailContainer = ({ queryParams }: Props) => {
   const { _id, account } = queryParams;
 
-  const { data, loading, error } =
-    useQuery<AccountDetailQueryResponse>(
-      gql(queries.detailQuery),
-      {
-        variables: {
-          configId: _id,
-          accountNumber: getRawAccountNumber(account),
-        },
-        fetchPolicy: 'network-only',
+  const { data, loading, error } = useQuery<AccountDetailQueryResponse>(
+    gql(queries.detailQuery),
+    {
+      variables: {
+        configId: _id,
+        accountNumber: getRawAccountNumber(account),
       },
-    );
+      fetchPolicy: 'network-only',
+    },
+  );
 
   if (loading) {
     return (
@@ -42,17 +41,11 @@ const DetailContainer = ({ queryParams }: Props) => {
     );
   }
 
-  const accountDetail =
-    data?.khanbankAccountDetail;
+  const accountDetail = data?.khanbankAccountDetail;
 
   if (!accountDetail) return null;
 
-  return (
-    <Detail
-      queryParams={queryParams}
-      account={accountDetail}
-    />
-  );
+  return <Detail queryParams={queryParams} account={accountDetail} />;
 };
 
 export default DetailContainer;

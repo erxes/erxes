@@ -1,7 +1,4 @@
-import {
-  SettingsNavigationMenuLinkItem,
-  Sidebar,
-} from 'erxes-ui';
+import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 
 export const PaymentSettingsNavigation = () => {

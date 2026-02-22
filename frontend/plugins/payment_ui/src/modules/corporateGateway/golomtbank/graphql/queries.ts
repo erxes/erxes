@@ -20,5 +20,5 @@ query GolomtBankConfigsList($page: Int, $perPage: Int) {
 `;
 
 export default {
-  listQuery
+  listQuery,
 };

@@ -6,12 +6,12 @@ const mutations = {
   khanbankTransfer: async (
     _root,
     args: { configId: string; transfer: any },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const { transfer } = args;
 
     const config = await models.KhanbankConfigs.getConfig({
-      _id: args.configId
+      _id: args.configId,
     });
 
     const khanbank = new Khanbank(config);
@@ -21,7 +21,7 @@ const mutations = {
     }
 
     return khanbank.transfer.domestic(transfer);
-  }
+  },
 };
 requireLogin(mutations, 'khanbankTransfer');
 checkPermission(mutations, 'khanbankTransfer', 'khanbankTransfer', []);

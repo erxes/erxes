@@ -8,14 +8,15 @@ import {
   IInvoiceModel,
   loadInvoiceClass,
 } from '~/modules/payment/db/models/Invoices';
-import { IPaymentModel, loadPaymentClass } from '~/modules/payment/db/models/Payment';
+import {
+  IPaymentModel,
+  loadPaymentClass,
+} from '~/modules/payment/db/models/Payment';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from '~/modules/payment/db/models/Transactions';
-import {
-  IGolomtBankConfigDocument,
-} from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
+import { IGolomtBankConfigDocument } from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
 
 import {
   IGolomtBankConfigModel,
@@ -60,13 +61,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.GolomtBankConfigs = db.model<
-  IGolomtBankConfigDocument,
-  IGolomtBankConfigModel
->(
-  'golomt_bank_configs',
-  loadGolomtBankConfigClass(models),
-);
- models.KhanbankConfigs = db.model<
+    IGolomtBankConfigDocument,
+    IGolomtBankConfigModel
+  >('golomt_bank_configs', loadGolomtBankConfigClass(models));
+  models.KhanbankConfigs = db.model<
     IKhanbankConfigDocument,
     IKhanbankConfigModel
   >('khanbank_configs', loadKhanbankConfigClass(models));

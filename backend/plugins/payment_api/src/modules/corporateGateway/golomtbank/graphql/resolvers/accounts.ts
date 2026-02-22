@@ -1,4 +1,3 @@
-
 const GolomtBankAccount = {
   async type(account: any, _params) {
     switch (account.type) {

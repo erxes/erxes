@@ -56,29 +56,21 @@ const Detail = ({ account, queryParams }: Props) => {
     <div className="space-y-6">
       {/* Account Info */}
       <Card className="p-6 space-y-6">
-        <h3 className="text-lg font-semibold">
-          Account Detail
-        </h3>
+        <h3 className="text-lg font-semibold">Account Detail</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <p className="text-sm text-muted-foreground">
-              Account
-            </p>
+            <p className="text-sm text-muted-foreground">Account</p>
             <p className="font-medium">{accountNumber}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Account Holder
-            </p>
+            <p className="text-sm text-muted-foreground">Account Holder</p>
             <p className="font-medium">{holderInfo}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Balance
-            </p>
+            <p className="text-sm text-muted-foreground">Balance</p>
             <p className="font-medium">
               {account.balance.toLocaleString()}{' '}
               {getCurrencySymbol(account.currency || 'MNT')}
@@ -88,41 +80,26 @@ const Detail = ({ account, queryParams }: Props) => {
 
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center gap-3">
-            <span className="text-sm">
-              Default account
-            </span>
-            <Switch
-              checked={isChecked}
-              onCheckedChange={toggleChange}
-            />
+            <span className="text-sm">Default account</span>
+            <Switch checked={isChecked} onCheckedChange={toggleChange} />
           </div>
 
-          <Button onClick={() => setOpen(true)}>
-            Transfer
-          </Button>
+          <Button onClick={() => setOpen(true)}>Transfer</Button>
         </div>
       </Card>
 
       {/* Latest Transactions */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          Latest Transactions
-        </h3>
+        <h3 className="text-lg font-semibold mb-4">Latest Transactions</h3>
 
-        <Transactions
-          queryParams={queryParams}
-          account={account}
-          showLatest
-        />
+        <Transactions queryParams={queryParams} account={account} showLatest />
       </Card>
 
       {/* Transfer Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>
-              Transfer
-            </Dialog.Title>
+            <Dialog.Title>Transfer</Dialog.Title>
           </Dialog.Header>
 
           <TransactionForm

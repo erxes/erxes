@@ -13,14 +13,7 @@ export const getAuthHeaders = async (args: {
   golomtCode?: string;
   apiUrl: string;
 }) => {
-  const {
-    name,
-    ivKey,
-    clientId,
-    configPassword,
-    sessionKey,
-    apiUrl,
-  } = args;
+  const { name, ivKey, clientId, configPassword, sessionKey, apiUrl } = args;
 
   if (!apiUrl) {
     throw new Error('Not found apiUrl');
@@ -38,11 +31,7 @@ export const getAuthHeaders = async (args: {
   }
 
   try {
-    const encrypted = encryptPassword(
-      configPassword,
-      sessionKey,
-      ivKey,
-    );
+    const encrypted = encryptPassword(configPassword, sessionKey, ivKey);
 
     const response = await fetch(`${apiUrl}/v1/auth/login`, {
       method: 'POST',
@@ -60,12 +49,7 @@ export const getAuthHeaders = async (args: {
     }
 
     // 🔹 Cache token in Redis (expires a bit earlier than server)
-    await redis.set(
-      cacheKey,
-      response.token,
-      'EX',
-      response.expiresIn - 60,
-    );
+    await redis.set(cacheKey, response.token, 'EX', response.expiresIn - 60);
 
     return {
       'Content-Type': 'application/json',

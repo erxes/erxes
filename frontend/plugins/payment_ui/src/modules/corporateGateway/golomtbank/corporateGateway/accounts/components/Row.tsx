@@ -36,10 +36,7 @@ export default function AccountRow({
 
   return (
     <Sidebar.MenuItem>
-      <Sidebar.MenuButton
-        isActive={isActive}
-        onClick={handleClick}
-      >
+      <Sidebar.MenuButton isActive={isActive} onClick={handleClick}>
         <span className="truncate">{account.accountId}</span>
         <span className="ml-auto text-xs text-muted-foreground truncate">
           {account.accountName}

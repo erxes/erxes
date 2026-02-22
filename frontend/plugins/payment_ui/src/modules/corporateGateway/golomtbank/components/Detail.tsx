@@ -15,8 +15,8 @@ const Detail = () => {
   return (
     <Tabs defaultValue="account" className="w-full">
       <Tabs.List>
-        <Tabs.Trigger value="account">{('account')}</Tabs.Trigger>
-        <Tabs.Trigger value="transactions">{('transactions')}</Tabs.Trigger>
+        <Tabs.Trigger value="account">{'account'}</Tabs.Trigger>
+        <Tabs.Trigger value="transactions">{'transactions'}</Tabs.Trigger>
       </Tabs.List>
 
       <Tabs.Content value="account">

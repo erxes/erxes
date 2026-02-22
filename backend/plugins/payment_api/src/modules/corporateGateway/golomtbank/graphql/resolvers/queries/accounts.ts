@@ -1,20 +1,19 @@
 import { IContext } from '~/connectionResolvers';
-import GolomtBank from "../../../golomtBank/golomtBank";
+import GolomtBank from '../../../golomtBank/golomtBank';
 
 const queries = {
   async golomtBankAccounts(
     _root,
     { configId }: { configId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
 
     if (!config) {
-  throw new Error("Not found config");
+      throw new Error('Not found config');
     }
 
-const golomtBank = new GolomtBank(config);
-
+    const golomtBank = new GolomtBank(config);
 
     try {
       const res = await golomtBank.accounts.list();
@@ -27,16 +26,15 @@ const golomtBank = new GolomtBank(config);
   async golomtBankAccountDetail(
     _root,
     { configId, accountId }: { configId: string; accountId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
 
     if (!config) {
-  throw new Error("Not found config");
+      throw new Error('Not found config');
     }
 
-const golomtBank = new GolomtBank(config);
-
+    const golomtBank = new GolomtBank(config);
 
     const res = await golomtBank.accounts.get(accountId);
     return JSON.parse(res);
@@ -51,7 +49,7 @@ const golomtBank = new GolomtBank(config);
       page?: number;
       perPage?: number;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { configId } = args;
 
@@ -60,7 +58,7 @@ const golomtBank = new GolomtBank(config);
         _id: configId,
       });
       if (!config) {
-        throw new Error("Not found config");
+        throw new Error('Not found config');
       }
 
       const golomtBank = new GolomtBank(config);
@@ -74,12 +72,12 @@ const golomtBank = new GolomtBank(config);
   async golomtBankAccountBalance(
     _root,
     { configId, accountId }: { configId: string; accountId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
 
     if (!config) {
-      throw new Error("Not found config");
+      throw new Error('Not found config');
     }
     const golomtBank = new GolomtBank(config);
 

@@ -28,10 +28,10 @@ export class TransferApi extends BaseApi {
         path: 'transfer/domestic',
         data: {
           ...args,
-          tranPassword: this.params.configPassword
-        }
+          tranPassword: this.params.configPassword,
+        },
       });
-      
+
       return res;
     } catch (e) {
       console.error(e);
@@ -59,7 +59,7 @@ export class TransferApi extends BaseApi {
       toCurrency: string;
       toAccountName: string;
       toBank: string;
-    }
+    },
   ) {
     try {
       const res = await this.request({
@@ -67,8 +67,8 @@ export class TransferApi extends BaseApi {
         path: 'transfer/interbank',
         data: {
           ...args,
-          tranPassword: this.params.configPassword
-        }
+          tranPassword: this.params.configPassword,
+        },
       });
 
       return res;

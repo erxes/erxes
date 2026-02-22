@@ -41,5 +41,5 @@ query KhanbankAccountDetail($accountNumber: String!, $configId: String!) {
 
 export default {
   listQuery,
-  detailQuery
+  detailQuery,
 };

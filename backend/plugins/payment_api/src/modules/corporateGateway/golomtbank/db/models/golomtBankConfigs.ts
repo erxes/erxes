@@ -1,14 +1,13 @@
-import { Model } from "mongoose";
+import { Model } from 'mongoose';
 
 import { IModels } from '~/connectionResolvers';
 import {
   IGolomtBankConfig,
   IGolomtBankConfigDocument,
 } from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
-import { golomtBankConfigSchema } from '~/modules/corporateGateway/golomtbank/db/definitions/golomtBankConfigs'; 
+import { golomtBankConfigSchema } from '~/modules/corporateGateway/golomtbank/db/definitions/golomtBankConfigs';
 
-export interface IGolomtBankConfigModel
-  extends Model<IGolomtBankConfigDocument> {
+export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> {
   createConfig(doc: IGolomtBankConfig): Promise<IGolomtBankConfigDocument>;
   updateConfig(_id: string, doc: any): Promise<IGolomtBankConfigDocument>;
   getConfig(doc: any): Promise<IGolomtBankConfigDocument>;
@@ -23,7 +22,7 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
         accountId: doc.accountId,
       });
       if (golomtBankConfig) {
-        throw new Error("Config already exists");
+        throw new Error('Config already exists');
       }
       return models.GolomtBankConfigs.create(doc);
     }
@@ -42,7 +41,7 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
       const golomtBankConfig = await models.GolomtBankConfigs.findOne(doc);
 
       if (!golomtBankConfig) {
-        throw new Error("Config not found");
+        throw new Error('Config not found');
       }
 
       return golomtBankConfig;

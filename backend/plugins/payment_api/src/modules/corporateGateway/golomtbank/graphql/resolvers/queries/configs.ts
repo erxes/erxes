@@ -11,7 +11,7 @@ const queries = {
   async golomtBankConfigsList(
     _root,
     { limit, cursor, direction }: CursorArgs,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return cursorPaginate({
       model: models.GolomtBankConfigs,
@@ -28,7 +28,7 @@ const queries = {
   async golomtBankConfigs(
     _root,
     { limit, cursor, direction }: CursorArgs,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return cursorPaginate({
       model: models.GolomtBankConfigs,
@@ -45,7 +45,7 @@ const queries = {
   async golomtBankConfigsDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.GolomtBankConfigs.getConfig({ _id });
   },

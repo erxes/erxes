@@ -34,8 +34,7 @@ const List = ({ statement, queryParams, loading, showLatest }: Props) => {
 
   const totalCount = transactions.length;
 
-  const headingText =
-    totalCount > 0 ? statement.accountId :('No transactions');
+  const headingText = totalCount > 0 ? statement.accountId : 'No transactions';
 
   const setParam = (params: Record<string, string | undefined>) => {
     const search = new URLSearchParams(location.search);
@@ -56,19 +55,16 @@ const List = ({ statement, queryParams, loading, showLatest }: Props) => {
       <table className="w-full text-sm whitespace-nowrap">
         <thead className="border-b">
           <tr className="text-left">
-            <th className="py-2 pr-4">{('Date')}</th>
-            <th className="py-2 pr-4">{('Description')}</th>
-            <th className="py-2 pr-4">{('Begin balance')}</th>
-            <th className="py-2 pr-4">{('End balance')}</th>
-            <th className="py-2 pr-4 text-right">{('Amount')}</th>
+            <th className="py-2 pr-4">{'Date'}</th>
+            <th className="py-2 pr-4">{'Description'}</th>
+            <th className="py-2 pr-4">{'Begin balance'}</th>
+            <th className="py-2 pr-4">{'End balance'}</th>
+            <th className="py-2 pr-4 text-right">{'Amount'}</th>
           </tr>
         </thead>
         <tbody>
           {transactions.map((transaction) => (
-            <Row
-              key={transaction.requestId}
-              transaction={transaction}
-            />
+            <Row key={transaction.requestId} transaction={transaction} />
           ))}
         </tbody>
       </table>
@@ -77,19 +73,14 @@ const List = ({ statement, queryParams, loading, showLatest }: Props) => {
 
   const filterBar = (
     <div className="flex flex-wrap gap-2 items-end">
-      <Select
-        value={type}
-        onValueChange={(value) =>
-          setParam({ type: value })
-        }
-      >
+      <Select value={type} onValueChange={(value) => setParam({ type: value })}>
         <Select.Trigger className="w-32">
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
           {['all', 'income', 'outcome'].map((t) => (
             <Select.Item key={t} value={t}>
-              {(t)}
+              {t}
             </Select.Item>
           ))}
         </Select.Content>
@@ -129,9 +120,7 @@ const List = ({ statement, queryParams, loading, showLatest }: Props) => {
     <div className="space-y-4">
       {!showLatest && (
         <div className="flex items-center justify-between gap-4">
-          <h3 className="text-sm font-semibold">
-            {headingText}
-          </h3>
+          <h3 className="text-sm font-semibold">{headingText}</h3>
           {filterBar}
         </div>
       )}
@@ -141,9 +130,9 @@ const List = ({ statement, queryParams, loading, showLatest }: Props) => {
       ) : (
         <Empty>
           <Empty.Header>
-            <Empty.Title>{('No data found')}</Empty.Title>
+            <Empty.Title>{'No data found'}</Empty.Title>
             <Empty.Description>
-              {('No transactions found for this period')}
+              {'No transactions found for this period'}
             </Empty.Description>
           </Empty.Header>
         </Empty>
@@ -151,7 +140,7 @@ const List = ({ statement, queryParams, loading, showLatest }: Props) => {
 
       {!showLatest && totalCount > 0 && (
         <div className="text-xs text-muted-foreground">
-          {('Total')}: {totalCount}
+          {'Total'}: {totalCount}
         </div>
       )}
     </div>

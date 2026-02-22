@@ -16,7 +16,7 @@ class Khanbank {
   constructor(config: IKhanbankConfigDocument) {
     const auth = {
       consumerKey: config.consumerKey,
-      secretKey: config.secretKey
+      secretKey: config.secretKey,
     };
 
     if (!auth.consumerKey || !auth.secretKey) {

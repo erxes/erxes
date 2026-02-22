@@ -11,11 +11,11 @@ const resolvers: any = async () => ({
   // KhanbankStatement,
 
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

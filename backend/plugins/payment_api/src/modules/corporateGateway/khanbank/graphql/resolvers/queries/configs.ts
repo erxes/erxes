@@ -6,7 +6,7 @@ const queries = {
   async khanbankConfigsList(
     _root,
     { limit, cursor }: { limit?: number; cursor?: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const result = await cursorPaginate({
       model: models.KhanbankConfigs,
@@ -28,7 +28,7 @@ const queries = {
   async khanbankConfigs(
     _root,
     { limit, cursor }: { limit?: number; cursor?: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const result = await cursorPaginate({
       model: models.KhanbankConfigs,
@@ -46,7 +46,7 @@ const queries = {
   async khanbankConfigsDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const config = await models.KhanbankConfigs.getConfig({ _id });
     return config.toJSON();

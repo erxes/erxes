@@ -27,55 +27,39 @@ const ConfigsList = ({
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
-  const [currentConfig, setCurrentConfig] =
-    useState<string | undefined>(queryParams._id);
+  const [currentConfig, setCurrentConfig] = useState<string | undefined>(
+    queryParams._id,
+  );
 
   useEffect(() => {
     const defaultAccount = JSON.parse(
       localStorage.getItem('khanbankDefaultAccount') || '{}',
     );
 
-    if (
-      defaultAccount.configId &&
-      defaultAccount.accountNumber
-    ) {
-      const searchParams = new URLSearchParams(
-        location.search,
-      );
+    if (defaultAccount.configId && defaultAccount.accountNumber) {
+      const searchParams = new URLSearchParams(location.search);
 
       searchParams.set('_id', defaultAccount.configId);
-      searchParams.set(
-        'account',
-        defaultAccount.accountNumber,
-      );
+      searchParams.set('account', defaultAccount.accountNumber);
 
-      navigate(
-        `${location.pathname}?${searchParams.toString()}`,
-      );
+      navigate(`${location.pathname}?${searchParams.toString()}`);
     }
   }, []);
 
   const onClickConfig = (configId: string) => {
     setCurrentConfig(configId);
 
-    const searchParams = new URLSearchParams(
-      location.search,
-    );
+    const searchParams = new URLSearchParams(location.search);
     searchParams.set('_id', configId);
 
-    navigate(
-      `${location.pathname}?${searchParams.toString()}`,
-    );
+    navigate(`${location.pathname}?${searchParams.toString()}`);
   };
 
   return (
     <div className="flex gap-6">
       {/* Sidebar */}
       <div className="w-80 space-y-4">
-        <Button
-          className="w-full"
-          onClick={() => setOpen(true)}
-        >
+        <Button className="w-full" onClick={() => setOpen(true)}>
           + Add New Config
         </Button>
 
@@ -86,24 +70,17 @@ const ConfigsList = ({
         )}
 
         {configs.map((config) => {
-          const isActive =
-            currentConfig === config._id;
+          const isActive = currentConfig === config._id;
 
           return (
             <Card
               key={config._id}
               className={`p-4 cursor-pointer transition ${
-                isActive
-                  ? 'border-primary bg-primary/10'
-                  : 'hover:bg-muted'
+                isActive ? 'border-primary bg-primary/10' : 'hover:bg-muted'
               }`}
-              onClick={() =>
-                onClickConfig(config._id)
-              }
+              onClick={() => onClickConfig(config._id)}
             >
-              <div className="font-medium">
-                {config.name}
-              </div>
+              <div className="font-medium">{config.name}</div>
 
               <div className="text-xs text-muted-foreground mt-1">
                 Click to view accounts
@@ -125,23 +102,17 @@ const ConfigsList = ({
       {/* Right side content placeholder (optional future expansion) */}
       <div className="flex-1">
         {loading && (
-          <div className="text-sm text-muted-foreground">
-            Loading...
-          </div>
+          <div className="text-sm text-muted-foreground">Loading...</div>
         )}
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>
-              Add Khan Bank Config
-            </Dialog.Title>
+            <Dialog.Title>Add Khan Bank Config</Dialog.Title>
           </Dialog.Header>
 
-          <Form
-            closeModal={() => setOpen(false)}
-          />
+          <Form closeModal={() => setOpen(false)} />
         </Dialog.Content>
       </Dialog>
     </div>

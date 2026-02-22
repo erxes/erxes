@@ -1,4 +1,4 @@
-import { BaseApi } from "./base";
+import { BaseApi } from './base';
 export class StatementsApi extends BaseApi {
   public params;
 
@@ -42,10 +42,10 @@ export class StatementsApi extends BaseApi {
 
     try {
       return await this.request({
-        method: "POST",
+        method: 'POST',
         path: `v1/account/operative/statement`,
         params: queryParams,
-        type: "OPERACCTSTA",
+        type: 'OPERACCTSTA',
         data: data,
       });
     } catch (e) {

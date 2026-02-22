@@ -1,4 +1,4 @@
-import { BaseApi } from "./base";
+import { BaseApi } from './base';
 export class AccountsApi extends BaseApi {
   public params;
   constructor(args) {
@@ -12,9 +12,9 @@ export class AccountsApi extends BaseApi {
   async list() {
     try {
       return await this.request({
-        method: "POST",
-        path: "v1/account/list",
-        type: "ACCTLST",
+        method: 'POST',
+        path: 'v1/account/list',
+        type: 'ACCTLST',
         data: {
           registerNo: this.params.registerId,
         },
@@ -36,9 +36,9 @@ export class AccountsApi extends BaseApi {
   async get(accountId: string) {
     try {
       return await this.request({
-        method: "POST",
-        path: "v1/account/operative/details",
-        type: "OPERACCTDET",
+        method: 'POST',
+        path: 'v1/account/operative/details',
+        type: 'OPERACCTDET',
         data: {
           registerNo: this.params.registerId,
           accountId: accountId,
@@ -56,9 +56,9 @@ export class AccountsApi extends BaseApi {
   async getBalance(accountId: string) {
     try {
       return await this.request({
-        method: "POST",
-        path: "v1/account/balance/inq",
-        type: "ACCTBALINQ",
+        method: 'POST',
+        path: 'v1/account/balance/inq',
+        type: 'ACCTBALINQ',
         data: {
           registerNo: this.params.registerId,
           accountId: accountId,

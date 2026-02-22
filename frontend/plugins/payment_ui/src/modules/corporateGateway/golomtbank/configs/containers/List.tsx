@@ -69,7 +69,7 @@ export default function ListContainer({ loading: externalLoading }: Props) {
     totalCount,
     refetch,
     remove,
-    queryParams, 
+    queryParams,
   };
 
   return isSettings ? (

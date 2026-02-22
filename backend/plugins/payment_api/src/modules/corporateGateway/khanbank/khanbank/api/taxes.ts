@@ -21,8 +21,8 @@ export class TaxesApi extends BaseApi {
         method: 'GET',
         path: 'tax/inquiry/register',
         params: {
-          pin: registrationNumber
-        }
+          pin: registrationNumber,
+        },
       });
 
       return res;
@@ -50,8 +50,8 @@ export class TaxesApi extends BaseApi {
         method: 'GET',
         path,
         params: {
-          value
-        }
+          value,
+        },
       });
 
       return res;

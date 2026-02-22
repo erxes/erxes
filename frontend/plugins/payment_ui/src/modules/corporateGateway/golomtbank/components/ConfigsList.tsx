@@ -4,7 +4,6 @@ import { Button, Sidebar, Empty } from 'erxes-ui';
 import { IGolomtBankConfigsItem } from '../types/IConfigs';
 import AccountRow from '../corporateGateway/accounts/components/Row';
 
-
 type Props = {
   configs: IGolomtBankConfigsItem[];
   totalCount: number;
@@ -13,12 +12,7 @@ type Props = {
   refetch?: () => void;
 };
 
-const ConfigsList = ({
-  configs,
-  totalCount,
-  queryParams,
-  loading,
-}: Props) => {
+const ConfigsList = ({ configs, totalCount, queryParams, loading }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
 

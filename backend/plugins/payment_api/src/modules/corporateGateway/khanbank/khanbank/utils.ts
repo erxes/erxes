@@ -8,7 +8,7 @@ export const getAuthHeaders = async (args: {
   const { consumerKey, secretKey } = args;
 
   const accessToken = await redis.get(
-    `khanbank_token_${consumerKey}:${secretKey}`
+    `khanbank_token_${consumerKey}:${secretKey}`,
   );
 
   if (accessToken) {
@@ -28,17 +28,17 @@ export const getAuthHeaders = async (args: {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Authorization: `Basic ${Buffer.from(
-            `${consumerKey}:${secretKey}`
+            `${consumerKey}:${secretKey}`,
           ).toString('base64')}`,
         },
-      }
+      },
     ).then((res) => res.json());
 
     await redis.set(
       `khanbank_token_${consumerKey}:${secretKey}`,
       response.access_token,
       'EX',
-      response.access_token_expires_in - 60
+      response.access_token_expires_in - 60,
     );
 
     return {

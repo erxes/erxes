@@ -1,11 +1,10 @@
 import { Model } from 'mongoose';
-import { IKhanbankConfig,
-  IKhanbankConfigDocument
+import {
+  IKhanbankConfig,
+  IKhanbankConfigDocument,
 } from '~/modules/corporateGateway/khanbank/@types/khanbank';
 import { IModels } from '~/connectionResolvers';
-import {
-  khanbankConfigSchema
-} from '../definitions/khanbankConfigs';
+import { khanbankConfigSchema } from '../definitions/khanbankConfigs';
 
 export interface IKhanbankConfigModel extends Model<IKhanbankConfigDocument> {
   createConfig(doc: IKhanbankConfig): Promise<IKhanbankConfigDocument>;
@@ -19,7 +18,7 @@ export const loadKhanbankConfigClass = (models: IModels) => {
     public static async createConfig(doc: IKhanbankConfig) {
       const khanbankConfig = await models.KhanbankConfigs.findOne({
         consumerKey: doc.consumerKey,
-        secretKey: doc.secretKey
+        secretKey: doc.secretKey,
       });
 
       if (khanbankConfig) {
@@ -32,7 +31,7 @@ export const loadKhanbankConfigClass = (models: IModels) => {
     public static async updateConfig(_id: string, doc: any) {
       const khanbankConfig = await models.KhanbankConfigs.findOne({
         consumerKey: doc.consumerKey,
-        secretKey: doc.secretKey
+        secretKey: doc.secretKey,
       });
 
       if (khanbankConfig && khanbankConfig._id !== _id) {

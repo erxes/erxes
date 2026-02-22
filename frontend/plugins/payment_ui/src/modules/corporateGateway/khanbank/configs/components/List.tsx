@@ -15,13 +15,7 @@ type Props = {
   refetch?: () => void;
 };
 
-const List = ({
-  configs,
-  totalCount,
-  loading,
-  remove,
-  refetch,
-}: Props) => {
+const List = ({ configs, totalCount, loading, remove, refetch }: Props) => {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async () => {
@@ -34,17 +28,13 @@ const List = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold">
-            Khan Bank Corporate Gateway
-          </h2>
+          <h2 className="text-xl font-semibold">Khan Bank Corporate Gateway</h2>
           <p className="text-sm text-muted-foreground">
             Manage your Khan Bank integration settings.
           </p>
         </div>
 
-        <Button onClick={() => setOpen(true)}>
-          + Add Config
-        </Button>
+        <Button onClick={() => setOpen(true)}>+ Add Config</Button>
       </div>
 
       {/* Table */}
@@ -65,11 +55,7 @@ const List = ({
             </thead>
             <tbody>
               {configs.map((config) => (
-                <Row
-                  key={config._id}
-                  config={config}
-                  remove={remove}
-                />
+                <Row key={config._id} config={config} remove={remove} />
               ))}
             </tbody>
           </table>
@@ -80,9 +66,7 @@ const List = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>
-              Add Khan Bank Config
-            </Dialog.Title>
+            <Dialog.Title>Add Khan Bank Config</Dialog.Title>
           </Dialog.Header>
 
           <ConfigForm

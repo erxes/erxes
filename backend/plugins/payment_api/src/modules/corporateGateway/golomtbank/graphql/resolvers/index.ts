@@ -8,11 +8,11 @@ const resolvers: any = async () => ({
   GolomtBankAccount,
 
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

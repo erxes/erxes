@@ -27,18 +27,12 @@ const Row = ({ config, remove, refetch }: Props) => {
     <>
       <tr className="border-b">
         <td className="py-3">
-          <span className="font-medium">
-            {config.name || '-'}
-          </span>
+          <span className="font-medium">{config.name || '-'}</span>
         </td>
 
         <td className="py-3 text-right">
           <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setOpen(true)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
               Edit
             </Button>
 
@@ -57,9 +51,7 @@ const Row = ({ config, remove, refetch }: Props) => {
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>
-              Edit Khan Bank Config
-            </Dialog.Title>
+            <Dialog.Title>Edit Khan Bank Config</Dialog.Title>
           </Dialog.Header>
 
           <ConfigForm

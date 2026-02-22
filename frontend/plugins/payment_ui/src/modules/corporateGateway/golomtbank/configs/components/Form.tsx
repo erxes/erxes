@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Input, Label} from 'erxes-ui';
+import { Button, Input, Label } from 'erxes-ui';
 import { IGolomtBankConfigsItem } from '../../types/IConfigs';
 
 type Props = {

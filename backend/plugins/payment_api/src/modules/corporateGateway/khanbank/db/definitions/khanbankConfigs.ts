@@ -1,6 +1,5 @@
 import { Schema } from 'mongoose';
 
-
 export const khanbankConfigSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -25,5 +24,5 @@ export const khanbankConfigSchema = new Schema(
         return ret;
       },
     },
-  }
+  },
 );

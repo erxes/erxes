@@ -4,7 +4,7 @@ const KhanbankStatement = {
     // const total = statement.total ? statement.total.count : 0;
 
     return tmpTransactions.reverse();
-  }
+  },
 };
 
 export { KhanbankStatement };

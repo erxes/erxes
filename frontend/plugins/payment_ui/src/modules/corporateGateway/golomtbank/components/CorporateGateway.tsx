@@ -1,4 +1,3 @@
-
 import { useQueryState } from 'erxes-ui/hooks/use-query-state';
 import { Empty } from 'erxes-ui';
 
@@ -30,8 +29,8 @@ const CorporateGateway = ({ loading = false }: Props) => {
                 Getting Started with GolomtBank Corporate Gateway
               </Empty.Title>
               <Empty.Description>
-                Corporate Gateway enables you to access banking services
-                through erxes.
+                Corporate Gateway enables you to access banking services through
+                erxes.
               </Empty.Description>
             </Empty.Header>
 

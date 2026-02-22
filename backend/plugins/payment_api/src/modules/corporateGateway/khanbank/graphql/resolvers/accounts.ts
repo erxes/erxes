@@ -35,7 +35,7 @@ const KhanbankAccount = {
     } catch (_e) {
       return null;
     }
-  }
+  },
 };
 
 export { KhanbankAccount };

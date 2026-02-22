@@ -7,22 +7,17 @@ type Props = {
   loading?: boolean;
 };
 
-const CorporateGateway = ({
-  queryParams,
-  loading = false,
-}: Props) => {
+const CorporateGateway = ({ queryParams, loading = false }: Props) => {
   const hasSelectedConfig = Boolean(queryParams._id);
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-semibold">
-          Khan Bank Corporate Gateway
-        </h1>
+        <h1 className="text-2xl font-semibold">Khan Bank Corporate Gateway</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Corporate Gateway enables you to access
-          banking services through erxes.
+          Corporate Gateway enables you to access banking services through
+          erxes.
         </p>
       </div>
 
@@ -38,14 +33,12 @@ const CorporateGateway = ({
           {!hasSelectedConfig ? (
             <Card className="p-8 text-center space-y-4">
               <h3 className="text-lg font-semibold">
-                Getting Started with Khan Bank
-                Corporate Gateway
+                Getting Started with Khan Bank Corporate Gateway
               </h3>
 
               <p className="text-sm text-muted-foreground">
-                Register at Khan Bank and become a
-                customer to start using Corporate
-                Gateway.
+                Register at Khan Bank and become a customer to start using
+                Corporate Gateway.
               </p>
 
               <a
@@ -59,9 +52,7 @@ const CorporateGateway = ({
             </Card>
           ) : loading ? (
             <div className="flex justify-center py-12">
-              <span className="text-sm text-muted-foreground">
-                Loading...
-              </span>
+              <span className="text-sm text-muted-foreground">Loading...</span>
             </div>
           ) : (
             <Detail queryParams={queryParams} />

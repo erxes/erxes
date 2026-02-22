@@ -23,5 +23,5 @@ mutation KhanbankConfigsRemove($_id: String) {
 export default {
   addMutation,
   editMutation,
-  removeMutation
+  removeMutation,
 };

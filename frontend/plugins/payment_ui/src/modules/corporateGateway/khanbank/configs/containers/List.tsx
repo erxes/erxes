@@ -13,17 +13,14 @@ export default function ListContainer({ queryParams }: Props) {
   const location = useLocation();
   const isSettings = location.pathname === '/settings/khanbank';
 
-  const { data, loading, refetch } =
-    useQuery<ConfigsListQueryResponse>(
-      gql(queries.listQuery),
-      {
-        fetchPolicy: 'network-only',
-      },
-    );
-
-  const [removeMutation] = useMutation(
-    gql(mutations.removeMutation),
+  const { data, loading, refetch } = useQuery<ConfigsListQueryResponse>(
+    gql(queries.listQuery),
+    {
+      fetchPolicy: 'network-only',
+    },
   );
+
+  const [removeMutation] = useMutation(gql(mutations.removeMutation));
 
   const remove = async (_id: string) => {
     const confirmed = window.confirm(
@@ -46,18 +43,14 @@ export default function ListContainer({ queryParams }: Props) {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <span className="text-sm text-muted-foreground">
-          Loading...
-        </span>
+        <span className="text-sm text-muted-foreground">Loading...</span>
       </div>
     );
   }
 
-  const configs =
-    data?.khanbankConfigsList?.list ?? [];
+  const configs = data?.khanbankConfigsList?.list ?? [];
 
-  const totalCount =
-    data?.khanbankConfigsList?.totalCount ?? 0;
+  const totalCount = data?.khanbankConfigsList?.totalCount ?? 0;
 
   return (
     <List

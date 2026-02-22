@@ -1,5 +1,5 @@
-import { TransferParams } from "../types";
-import { BaseApi } from "./base";
+import { TransferParams } from '../types';
+import { BaseApi } from './base';
 
 export class TransferApi extends BaseApi {
   public params;
@@ -29,24 +29,24 @@ export class TransferApi extends BaseApi {
   async transfer(transfer: TransferParams, registerId: string) {
     try {
       return await this.request({
-        method: "POST",
-        path: "v1/transaction/cgw/transfer",
-        type: "CGWTXNADD",
+        method: 'POST',
+        path: 'v1/transaction/cgw/transfer',
+        type: 'CGWTXNADD',
         data: {
           genericType: null,
           registerNumber: registerId,
           type: transfer.type,
-          refCode: transfer.refCode || "123",
+          refCode: transfer.refCode || '123',
           initiator: {
             genericType: null,
             acctName: transfer.fromAccountName,
             acctNo: transfer.fromAccount,
             amount: {
               value: transfer.amount,
-              currency: transfer.fromCurrency
+              currency: transfer.fromCurrency,
             },
             particulars: transfer.description,
-            bank: "15"
+            bank: '15',
           },
           receives: [
             {
@@ -55,14 +55,14 @@ export class TransferApi extends BaseApi {
               acctNo: transfer.toAccount,
               amount: {
                 value: transfer.amount,
-                currency: transfer.toCurrency
+                currency: transfer.toCurrency,
               },
               particulars: transfer.description,
-              bank: transfer.toBank
-            }
+              bank: transfer.toBank,
+            },
           ],
-          remarks: transfer.description
-        }
+          remarks: transfer.description,
+        },
       });
     } catch (e) {
       console.error(e);
@@ -90,16 +90,16 @@ export class TransferApi extends BaseApi {
       toCurrency: string;
       toAccountName: string;
       toBank: string;
-    }
+    },
   ) {
     try {
       return await this.request({
-        method: "POST",
-        path: "transfer/interbank",
+        method: 'POST',
+        path: 'transfer/interbank',
         data: {
           ...args,
-          tranPassword: args
-        }
+          tranPassword: args,
+        },
       });
     } catch (e) {
       console.error(e);

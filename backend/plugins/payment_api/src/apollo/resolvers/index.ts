@@ -4,7 +4,7 @@ import { mutations } from './mutations';
 import { queries } from './queries';
 import golomtResolvers from '@/corporateGateway/golomtbank/graphql/resolvers';
 const resolvers: any = {
-  ...golomtResolvers, 
+  ...golomtResolvers,
   Mutation: {
     ...mutations,
     ...(golomtResolvers.Mutation || {}),

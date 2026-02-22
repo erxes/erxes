@@ -62,7 +62,7 @@ export class StatementsApi extends BaseApi {
       return await this.request({
         method: 'GET',
         path: `statements/${accountNumber}`,
-        params: queryParams
+        params: queryParams,
       });
     } catch (e) {
       console.error(e);
@@ -75,7 +75,7 @@ export class StatementsApi extends BaseApi {
       return await this.request({
         method: 'GET',
         path: `statements/${accountNumber}/record`,
-        params: { record }
+        params: { record },
       });
     } catch (e) {
       console.error(e);

@@ -15,16 +15,15 @@ export default function ListContainer({
   queryParams,
   fetchPolicy = 'network-only',
 }: Props) {
-  const { data, loading, error } =
-    useQuery<AccountsListQueryResponse>(
-      gql(queries.listQuery),
-      {
-        variables: {
-          configId,
-        },
-        fetchPolicy,
+  const { data, loading, error } = useQuery<AccountsListQueryResponse>(
+    gql(queries.listQuery),
+    {
+      variables: {
+        configId,
       },
-    );
+      fetchPolicy,
+    },
+  );
 
   if (loading) {
     return (

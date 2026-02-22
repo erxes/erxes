@@ -1,5 +1,3 @@
-
-
 export interface IGolomtBankConfigsItem {
   _id: string;
   name: string;

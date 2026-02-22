@@ -3,5 +3,5 @@ import transferMutations from './transfer';
 
 export default {
   ...configMutations,
-  ...transferMutations
+  ...transferMutations,
 };

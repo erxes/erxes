@@ -6,7 +6,7 @@ const queries = {
   async khanbankAccounts(
     _root,
     { configId }: { configId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const config = await models.KhanbankConfigs.getConfig({ _id: configId });
 
@@ -22,7 +22,7 @@ const queries = {
   async khanbankAccountDetail(
     _root,
     { configId, accountNumber }: { configId: string; accountNumber: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const config = await models.KhanbankConfigs.getConfig({ _id: configId });
 
@@ -40,9 +40,9 @@ const queries = {
     {
       configId,
       accountNumber,
-      bankCode
+      bankCode,
     }: { configId: string; accountNumber: string; bankCode?: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     try {
       const config = await models.KhanbankConfigs.getConfig({ _id: configId });
@@ -64,7 +64,7 @@ const queries = {
       page?: number;
       perPage?: number;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { configId } = args;
 
@@ -87,7 +87,7 @@ const queries = {
       page?: number;
       perPage?: number;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { configId } = args;
 
@@ -99,7 +99,7 @@ const queries = {
     } catch (e) {
       throw new Error(e.message);
     }
-  }
+  },
 };
 requireLogin(queries, 'khanbankAccounts');
 requireLogin(queries, 'khanbankAccountDetail');
@@ -112,26 +112,25 @@ checkPermission(
   queries,
   'khanbankAccountDetail',
   'khanbankAccountDetail',
-  null
+  null,
 );
 checkPermission(
   queries,
   'khanbankAccountHolder',
   'khanbankAccountDetail',
-  null
+  null,
 );
 checkPermission(
   queries,
   'khanbankStatements',
   'khanbankTransactionsShow',
-  null
+  null,
 );
 checkPermission(
   queries,
   'khanbankStatementsAfterRecord',
   'khanbankTransactionsShow',
-  null
+  null,
 );
-
 
 export default queries;

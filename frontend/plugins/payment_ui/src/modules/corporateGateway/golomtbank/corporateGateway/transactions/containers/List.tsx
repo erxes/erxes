@@ -35,7 +35,7 @@ export default function ListContainer({
   }
 
   const { data, loading, error } = useQuery<StatementQueryResponse>(
-    gql(queries.listQuery), 
+    gql(queries.listQuery),
     {
       variables: {
         accountId,
@@ -52,11 +52,7 @@ export default function ListContainer({
   }
 
   if (error) {
-    return (
-      <div className="text-sm text-destructive">
-        {error.message}
-      </div>
-    );
+    return <div className="text-sm text-destructive">{error.message}</div>;
   }
 
   const statement = data?.golomtBankStatements;

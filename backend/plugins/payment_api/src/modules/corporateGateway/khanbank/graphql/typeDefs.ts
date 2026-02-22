@@ -3,23 +3,23 @@ import gql from 'graphql-tag';
 import {
   mutations as configMutations,
   queries as configQueries,
-  types as configTypes
+  types as configTypes,
 } from './schema/configs';
 
 import {
   queries as accountQueries,
-  types as accountTypes
+  types as accountTypes,
 } from './schema/accounts';
 
 import {
   mutations as transferMutations,
-  types as transferTypes
+  types as transferTypes,
 } from './schema/transfer';
 
 import {
   mutations as taxMutations,
   queries as taxQueries,
-  types as taxTypes
+  types as taxTypes,
 } from './schema/taxes';
 
 const typeDefs = async () => {

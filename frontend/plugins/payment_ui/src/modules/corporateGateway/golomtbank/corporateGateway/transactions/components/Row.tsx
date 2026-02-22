@@ -6,8 +6,9 @@ type Props = {
 };
 
 const Row = ({ transaction }: Props) => {
-  const beginBalance =
-    Number(transaction.balance - transaction.tranAmount).toLocaleString();
+  const beginBalance = Number(
+    transaction.balance - transaction.tranAmount,
+  ).toLocaleString();
 
   const amount = transaction.tranAmount;
   const isIncome = amount > 0;
@@ -15,18 +16,12 @@ const Row = ({ transaction }: Props) => {
   return (
     <tr className="border-b last:border-0">
       <td className="py-2 pr-4 text-xs text-muted-foreground">
-        {dayjs(transaction.tranPostedDate).format(
-          'YYYY-MM-DD HH:mm:ss',
-        )}
+        {dayjs(transaction.tranPostedDate).format('YYYY-MM-DD HH:mm:ss')}
       </td>
 
-      <td className="py-2 pr-4">
-        {transaction.tranDesc}
-      </td>
+      <td className="py-2 pr-4">{transaction.tranDesc}</td>
 
-      <td className="py-2 pr-4 text-right">
-        {beginBalance}
-      </td>
+      <td className="py-2 pr-4 text-right">{beginBalance}</td>
 
       <td className="py-2 pr-4 text-right">
         {transaction.balance.toLocaleString()}

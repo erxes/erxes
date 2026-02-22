@@ -14,5 +14,5 @@ query KhanbankConfigsList($page: Int, $perPage: Int) {
 `;
 
 export default {
-  listQuery
+  listQuery,
 };

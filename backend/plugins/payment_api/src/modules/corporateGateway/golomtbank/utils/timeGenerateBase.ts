@@ -1,21 +1,21 @@
-import { createHmac } from "crypto";
+import { createHmac } from 'crypto';
 
 const DEFAULT_TIME_STEP_SECONDS = 30;
 let NUM_DIGITS_OUTPUT = 6;
-const blockOfZeros = "000000";
+const blockOfZeros = '000000';
 
 export function generateCurrentNumberString(base32Secret: string): string {
   return generateNumberString(
     base32Secret,
     Date.now(),
-    DEFAULT_TIME_STEP_SECONDS
+    DEFAULT_TIME_STEP_SECONDS,
   );
 }
 
 function generateNumberString(
   base32Secret: string,
   timeMillis: number,
-  timeStepSeconds: number
+  timeStepSeconds: number,
 ): string {
   const number = generateNumber(base32Secret, timeMillis, timeStepSeconds);
   return zeroPrepend(number, NUM_DIGITS_OUTPUT);
@@ -24,7 +24,7 @@ function generateNumberString(
 function generateNumber(
   base32Secret: string,
   timeMillis: number,
-  timeStepSeconds: number
+  timeStepSeconds: number,
 ): number {
   const key = decodeBase32(base32Secret);
   const data = Buffer.alloc(8);
@@ -37,7 +37,7 @@ function generateNumber(
     i--;
   }
   const signKey = Buffer.from(key);
-  const hmac = createHmac("sha1", signKey);
+  const hmac = createHmac('sha1', signKey);
   hmac.update(data);
   const hash = hmac.digest();
 
@@ -65,7 +65,7 @@ function zeroPrepend(num: number, digits: number): string {
 }
 
 function decodeBase32(str: string): Uint8Array {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
   const charmap = new Map(Array.from(alphabet).map((c, i) => [c, i]));
 
   const numBytes = Math.ceil((str.length * 5) / 8);

@@ -25,10 +25,7 @@ const PaymentSettings = () => {
       <Routes>
         <Route path="/" element={<PaymentSettingsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
-        <Route
-          path="corporate-gateway"
-          element={<CorporateGatewayPage />}
-        />
+        <Route path="corporate-gateway" element={<CorporateGatewayPage />} />
       </Routes>
     </Suspense>
   );

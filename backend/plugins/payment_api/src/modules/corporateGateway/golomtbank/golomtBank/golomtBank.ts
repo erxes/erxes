@@ -1,7 +1,7 @@
-import { IGolomtBankConfigDocument } from "~/modules/corporateGateway/golomtbank/@types/golomtBank";
-import { AccountsApi } from "./api/accounts";
-import { StatementsApi } from "./api/statements";
-import { TransferApi } from "./api/transfer";
+import { IGolomtBankConfigDocument } from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
+import { AccountsApi } from './api/accounts';
+import { StatementsApi } from './api/statements';
+import { TransferApi } from './api/transfer';
 
 class GolomtBank {
   public apiUrl: string;
@@ -33,7 +33,7 @@ class GolomtBank {
     };
     if (!auth.registerId || !auth.configPassword || !auth.apiUrl) {
       throw new Error(
-        "Consumer register, url  and secret password are required"
+        'Consumer register, url  and secret password are required',
       );
     }
     this.registerId = config.registerId;

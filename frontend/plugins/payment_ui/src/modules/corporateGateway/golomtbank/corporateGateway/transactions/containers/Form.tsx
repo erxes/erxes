@@ -22,11 +22,11 @@ const TransactionFormContainer = ({
   closeModal,
 }: Props) => {
   const [transferMutation, { loading }] = useMutation(
-    gql(mutations.addMutation), 
+    gql(mutations.addMutation),
     {
       refetchQueries: [
         {
-          query: gql(queries.listQuery), 
+          query: gql(queries.listQuery),
           variables: {
             accountId: accountNumber,
             configId,
@@ -36,9 +36,7 @@ const TransactionFormContainer = ({
     },
   );
 
-  const onSubmit = async (
-    transfer: IGolomtBankTransactionInput,
-  ) => {
+  const onSubmit = async (transfer: IGolomtBankTransactionInput) => {
     try {
       await transferMutation({
         variables: {
@@ -67,7 +65,7 @@ const TransactionFormContainer = ({
     <TransactionForm
       configId={configId}
       accountNumber={accountNumber}
-      accounts={accountList}  
+      accounts={accountList}
       accountName={accountName}
       onSubmit={onSubmit}
       loading={loading}

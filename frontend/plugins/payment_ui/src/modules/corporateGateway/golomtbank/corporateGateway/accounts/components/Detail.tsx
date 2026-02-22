@@ -106,10 +106,7 @@ const Detail = ({ account, balances, queryParams }: Props) => {
     <section className="space-y-4 pt-6">
       <h4 className="text-sm font-semibold">Latest transactions</h4>
 
-      <Transactions
-        queryParams={queryParams}
-        showLatest
-      />
+      <Transactions queryParams={queryParams} showLatest />
     </section>
   );
 

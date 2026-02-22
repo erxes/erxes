@@ -11,8 +11,7 @@ type Props = {
 };
 
 const Detail = ({ queryParams }: Props) => {
-  const [currentTab, setCurrentTab] =
-    useState<string>('account');
+  const [currentTab, setCurrentTab] = useState<string>('account');
 
   const hasConfig = Boolean(queryParams._id);
   const hasAccount = Boolean(queryParams.account);
@@ -35,17 +34,10 @@ const Detail = ({ queryParams }: Props) => {
 
   return (
     <div className="space-y-6">
-      <Tabs
-        value={currentTab}
-        onValueChange={setCurrentTab}
-      >
+      <Tabs value={currentTab} onValueChange={setCurrentTab}>
         <TabsList>
-          <TabsTrigger value="account">
-            Account
-          </TabsTrigger>
-          <TabsTrigger value="transactions">
-            Transactions
-          </TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="transactions">Transactions</TabsTrigger>
         </TabsList>
 
         <TabsContent value="account">
@@ -53,9 +45,7 @@ const Detail = ({ queryParams }: Props) => {
         </TabsContent>
 
         <TabsContent value="transactions">
-          <TransactionsContainer
-            queryParams={queryParams}
-          />
+          <TransactionsContainer queryParams={queryParams} />
         </TabsContent>
       </Tabs>
     </div>
