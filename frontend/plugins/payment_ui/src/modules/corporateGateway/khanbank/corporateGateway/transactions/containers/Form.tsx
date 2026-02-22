@@ -16,24 +16,20 @@ const TransactionFormContainer = ({
   accountNumber,
   closeModal,
 }: Props) => {
-  const { data, loading, error } = useQuery(
-    gql(queries.accountsQuery),
-    {
-      fetchPolicy: 'network-only',
-      variables: { perPage: 9999, configId },
-    },
+  const { data, loading, error } = useQuery(gql(queries.accountsQuery), {
+    fetchPolicy: 'network-only',
+    variables: { perPage: 9999, configId },
+  });
+
+  const [transferMutation, { loading: transferLoading }] = useMutation(
+    gql(mutations.transferMutation),
   );
 
-  const [transferMutation, { loading: transferLoading }] =
-    useMutation(gql(mutations.transferMutation));
+  const [getHolderInfo, holderQuery] = useLazyQuery(
+    gql(queries.accountHolderQuery),
+  );
 
-  const [getHolderInfo, holderQuery] =
-    useLazyQuery(gql(queries.accountHolderQuery));
-
-  const getAccountHolder = (
-    accountNumber: string,
-    bankCode?: string,
-  ) => {
+  const getAccountHolder = (accountNumber: string, bankCode?: string) => {
     getHolderInfo({
       variables: {
         accountNumber,
@@ -43,9 +39,7 @@ const TransactionFormContainer = ({
     });
   };
 
-  const submit = async (
-    transfer: IKhanbankTransactionInput,
-  ) => {
+  const submit = async (transfer: IKhanbankTransactionInput) => {
     try {
       await transferMutation({
         variables: {
@@ -61,19 +55,16 @@ const TransactionFormContainer = ({
     }
   };
 
-  const accountHolder =
-    holderQuery.data?.khanbankAccountHolder ?? {
-      number: '',
-      custLastName: '',
-      custFirstName: '',
-      currency: '',
-    };
+  const accountHolder = holderQuery.data?.khanbankAccountHolder ?? {
+    number: '',
+    custLastName: '',
+    custFirstName: '',
+    currency: '',
+  };
 
   useEffect(() => {
     if (holderQuery.error) {
-      console.error(
-        holderQuery.error.message,
-      );
+      console.error(holderQuery.error.message);
     }
   }, [holderQuery.error]);
 
@@ -86,11 +77,7 @@ const TransactionFormContainer = ({
   }
 
   if (error) {
-    return (
-      <div className="text-sm text-destructive p-4">
-        {error.message}
-      </div>
-    );
+    return <div className="text-sm text-destructive p-4">{error.message}</div>;
   }
 
   return (

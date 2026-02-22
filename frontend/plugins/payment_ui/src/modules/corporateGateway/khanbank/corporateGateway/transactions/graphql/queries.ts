@@ -64,5 +64,5 @@ query KhanbankAccountHolder($accountNumber: String!, $configId: String!, $bankCo
 export default {
   transactionsQuery,
   accountsQuery,
-  accountHolderQuery
+  accountHolderQuery,
 };
