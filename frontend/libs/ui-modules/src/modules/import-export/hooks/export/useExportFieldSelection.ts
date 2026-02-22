@@ -36,11 +36,6 @@ export const useExportFieldSelection = ({
     );
   };
 
-  console.log('[ExportFieldSelection] entityType:', entityType);
-  console.log('[ExportFieldSelection] loading:', loading);
-  console.log('[ExportFieldSelection] headers:', headers);
-
-
   const handleSelectAll = () => {
     const allKeys = headers.map((h) => h.key);
     setSelectedFields(allKeys);
@@ -56,8 +51,6 @@ export const useExportFieldSelection = ({
   };
 
   const handleConfirm = () => {
-    console.log('[ExportFieldSelection] selectedFields:', selectedFields);
-    console.log('[ExportFieldSelection] headers:', headers);
     if (selectedFields.length === 0) {
       // If nothing selected, use defaults
       const defaultFields = headers
