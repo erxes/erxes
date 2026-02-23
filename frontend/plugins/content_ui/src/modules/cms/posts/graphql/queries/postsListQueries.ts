@@ -50,7 +50,6 @@ export const POSTS_LIST = gql`
         type
         customPostType {
           _id
-          clientPortalId
           code
           label
           pluralLabel

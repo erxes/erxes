@@ -94,7 +94,7 @@ export function Cms() {
       headerActions={headerActions}
     >
       {loading ? (
-        <div className="flex items-center justify-center min-h-[400px] bg-amber-300">
+        <div className="flex items-center justify-center min-h-[400px]">
           <Spinner size="lg" />
         </div>
       ) : (

@@ -613,30 +613,6 @@ export const CLIENT_PORTAL_GET_CONFIGS = gql`
   }
 `;
 
-export const PAGES_ADD = gql`
-  mutation PagesAdd($input: PageInput!) {
-    cmsPagesAdd(input: $input) {
-      _id
-      __typename
-    }
-  }
-`;
-
-export const PAGES_EDIT = gql`
-  mutation PagesEdit($_id: String!, $input: PageInput!) {
-    cmsPagesEdit(_id: $_id, input: $input) {
-      _id
-      __typename
-    }
-  }
-`;
-
-export const PAGES_REMOVE = gql`
-  mutation PagesRemove($id: String!) {
-    cmsPagesRemove(_id: $id)
-  }
-`;
-
 export const CMS_MENU_LIST = gql`
   query cmsMenuList(
     $clientPortalId: String

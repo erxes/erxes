@@ -1,26 +1,16 @@
 import { useMutation, useQuery, useApolloClient } from '@apollo/client';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   CMS_CATEGORIES,
   CMS_CATEGORIES_ADD,
   CMS_CATEGORIES_EDIT,
-} from '../graphql/queries';
-
-interface Category {
-  _id: string;
-  name: string;
-  slug: string;
-  clientPortalId: string;
-  createdAt: string;
-  description?: string;
-  parentId?: string;
-  status?: 'active' | 'inactive';
-}
+} from './graphql';
+import { ICategory, PostCategoryInput } from './types';
 
 interface CmsCategoryDrawerProps {
-  category?: Partial<Category>;
+  category?: Partial<ICategory>;
   isOpen: boolean;
   onClose: () => void;
   clientPortalId: string;
@@ -29,10 +19,10 @@ interface CmsCategoryDrawerProps {
 
 interface CategoryFormData {
   name: string;
-  slug: string;
   description?: string;
+  slug?: string;
+  status?: string;
   parentId?: string;
-  status: 'active' | 'inactive';
 }
 
 export function CmsCategoryDrawer({
@@ -44,26 +34,14 @@ export function CmsCategoryDrawer({
 }: CmsCategoryDrawerProps) {
   const isEditing = !!category?._id;
   const client = useApolloClient();
-  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
-
-  // Function to convert name to slug format
-  const generateSlug = (name: string): string => {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-  };
 
   const form = useForm<CategoryFormData>({
     defaultValues: {
       name: '',
-      slug: '',
       description: '',
-      parentId: undefined,
+      slug: '',
       status: 'active',
+      parentId: undefined,
     },
   });
 
@@ -71,36 +49,21 @@ export function CmsCategoryDrawer({
     if (category && isOpen) {
       form.reset({
         name: category.name || '',
-        slug: category.slug || '',
         description: category.description || '',
+        slug: category.slug || '',
+        status: category.status || 'active',
         parentId: category.parentId || undefined,
-        status: (category.status as any) || 'active',
       });
-      setIsSlugManuallyEdited(false);
     } else if (isOpen) {
       form.reset({
         name: '',
-        slug: '',
         description: '',
-        parentId: undefined,
+        slug: '',
         status: 'active',
+        parentId: undefined,
       });
-      setIsSlugManuallyEdited(false);
     }
   }, [category, isOpen, form]);
-
-  // Watch for name changes and update slug accordingly
-  const nameValue = form.watch('name');
-  const slugValue = form.watch('slug');
-
-  useEffect(() => {
-    if (nameValue && !isSlugManuallyEdited && isOpen) {
-      const generatedSlug = generateSlug(nameValue);
-      if (generatedSlug !== slugValue) {
-        form.setValue('slug', generatedSlug);
-      }
-    }
-  }, [nameValue, isSlugManuallyEdited, form, slugValue, isOpen]);
 
   // Fetch categories for Parent Category select
   const { data: catsData } = useQuery(CMS_CATEGORIES, {
@@ -111,9 +74,9 @@ export function CmsCategoryDrawer({
     fetchPolicy: 'cache-first',
     skip: !isOpen,
   });
-  const parentOptions: Category[] = (
+  const parentOptions: ICategory[] = (
     catsData?.cmsCategories?.list || []
-  ).filter((c: Category) => c._id !== category?._id);
+  ).filter((c: ICategory) => c._id !== category?._id);
 
   const [addCategory, { loading: adding }] = useMutation(CMS_CATEGORIES_ADD, {
     onCompleted: (data) => {
@@ -201,7 +164,7 @@ export function CmsCategoryDrawer({
   );
 
   const onSubmit = (data: CategoryFormData) => {
-    const input = { ...data, clientPortalId } as any;
+    const input = { ...data, clientPortalId } as PostCategoryInput;
     if (isEditing && category?._id) {
       editCategory({ variables: { _id: category._id, input } });
     } else {
@@ -244,28 +207,6 @@ export function CmsCategoryDrawer({
 
             <Form.Field
               control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Slug</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder="category-slug"
-                      required
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setIsSlugManuallyEdited(true);
-                      }}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
               name="description"
               render={({ field }) => (
                 <Form.Item>
@@ -276,6 +217,20 @@ export function CmsCategoryDrawer({
                       placeholder="Enter description"
                       rows={3}
                     />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="slug"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Slug</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder="Enter category slug" />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -319,8 +274,8 @@ export function CmsCategoryDrawer({
                         <Select.Value placeholder="Select status" />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="active">active</Select.Item>
-                        <Select.Item value="inactive">inactive</Select.Item>
+                        <Select.Item value="active">Active</Select.Item>
+                        <Select.Item value="inactive">Inactive</Select.Item>
                       </Select.Content>
                     </Select>
                   </Form.Control>

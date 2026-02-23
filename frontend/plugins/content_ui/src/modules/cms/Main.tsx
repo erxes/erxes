@@ -25,8 +25,8 @@ const PostsDetail = lazy(() =>
 );
 
 const Categories = lazy(() =>
-  import('~/modules/cms/categories/Category').then((module) => ({
-    default: module.Category,
+  import('~/modules/cms/categories/Categories').then((module) => ({
+    default: module.Categories,
   })),
 );
 

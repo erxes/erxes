@@ -1,35 +1,21 @@
-import { useMutation } from '@apollo/client';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { PAGES_ADD, PAGE_LIST, PAGES_EDIT } from '../graphql/queries';
-
-interface PageDrawerProps {
-  page?: any;
-  isOpen: boolean;
-  onClose: () => void;
-  clientPortalId: string;
-}
-
-interface PageFormData {
-  name: string;
-  path: string;
-  description?: string;
-  status: string;
-  clientPortalId: string;
-}
+import { useAddPage } from './hooks/useAddPage';
+import { useEditPage } from './hooks/useEditPage';
+import { IPageDrawerProps, IPageFormData } from './types/pageTypes';
 
 export function PageDrawer({
   page,
   isOpen,
   onClose,
   clientPortalId,
-}: PageDrawerProps) {
+}: IPageDrawerProps) {
   const isEditing = !!page;
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
-  const form = useForm<PageFormData>({
+  const form = useForm<IPageFormData>({
     defaultValues: {
       name: '',
       path: '',
@@ -39,44 +25,17 @@ export function PageDrawer({
     },
   });
 
-  const [editPage, { loading: savingEdit }] = useMutation(PAGES_EDIT, {
-    refetchQueries: [
-      {
-        query: PAGE_LIST,
-        variables: {
-          clientPortalId,
-          limit: 20,
-        },
-      },
-    ],
-    onCompleted: () => {
-      onClose();
-      form.reset();
-      toast({
-        title: 'Success',
-        description: 'Page updated successfully',
-        variant: 'default',
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description:
-          error.message || 'Failed to update page. Please try again.',
-        variant: 'destructive',
-        duration: 5000,
-      });
-    },
-  });
+  const { editPage, loading: savingEdit } = useEditPage();
+  const { addPage, loading: savingAdd } = useAddPage();
 
   useEffect(() => {
-    if (page) {
+    if (isEditing && page) {
       form.reset({
         name: page.name || '',
         path: page.slug || '',
         description: page.description || '',
         status: page.status || 'active',
-        clientPortalId: page.clientPortalId || clientPortalId,
+        clientPortalId,
       });
     } else {
       form.reset({
@@ -87,57 +46,48 @@ export function PageDrawer({
         clientPortalId,
       });
     }
-    setHasPermissionError(false);
-  }, [page, form, isOpen, clientPortalId]);
+  }, [page, isEditing, clientPortalId]);
 
-  const [addPage, { loading: savingAdd }] = useMutation(PAGES_ADD, {
-    refetchQueries: [
-      {
-        query: PAGE_LIST,
-        variables: {
-          clientPortalId,
-          limit: 20,
-        },
-      },
-    ],
-    onCompleted: () => {
-      onClose();
-      form.reset();
+  const onCompleted = () => {
+    onClose();
+    form.reset();
+    toast({
+      title: 'Success',
+      description: isEditing
+        ? 'Page updated successfully.'
+        : 'Page created successfully.',
+      variant: 'default',
+      duration: 3000,
+    });
+  };
+
+  const onError = (error: any) => {
+    const permissionError = error.graphQLErrors?.some(
+      (e: any) =>
+        e.message === 'Permission required' ||
+        e.extensions?.code === 'INTERNAL_SERVER_ERROR',
+    );
+
+    if (permissionError) {
+      setHasPermissionError(true);
       toast({
-        title: 'Success',
-        description: 'Page created successfully',
-        variant: 'default',
+        title: 'Permission Required',
+        description:
+          'You do not have permission to perform this action. Please contact your administrator.',
+        variant: 'destructive',
+        duration: 8000,
       });
-    },
-    onError: (error) => {
-      const permissionError = error.graphQLErrors?.some(
-        (e) =>
-          e.message === 'Permission required' ||
-          e.extensions?.code === 'INTERNAL_SERVER_ERROR',
-      );
+    } else {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save page. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
+      });
+    }
+  };
 
-      if (permissionError) {
-        setHasPermissionError(true);
-        toast({
-          title: 'Permission Required',
-          description:
-            'You do not have permission to create pages. Please contact your administrator to grant the necessary permissions.',
-          variant: 'destructive',
-          duration: 8000,
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description:
-            error.message || 'Failed to create page. Please try again.',
-          variant: 'destructive',
-          duration: 5000,
-        });
-      }
-    },
-  });
-
-  const onSubmit = (data: PageFormData) => {
+  const onSubmit = (data: IPageFormData) => {
     const input = {
       clientPortalId: data.clientPortalId,
       name: data.name,
@@ -147,9 +97,9 @@ export function PageDrawer({
     };
 
     if (isEditing && page?._id) {
-      editPage({ variables: { _id: page._id, input } });
+      editPage({ variables: { _id: page._id, input }, onCompleted, onError });
     } else {
-      addPage({ variables: { input } });
+      addPage({ variables: { input }, onCompleted, onError });
     }
   };
 

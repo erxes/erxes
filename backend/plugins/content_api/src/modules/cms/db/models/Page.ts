@@ -44,33 +44,42 @@ export const loadPageClass = (models: IModels) => {
       return models.Pages.create(doc);
     };
 
-    public static updatePage = async (_id: string, doc: ICMSPage) => {
-      if (doc.name) {
-        const baseSlug = doc.slug || slugify(doc.name, { lower: true });
-        doc.slug = await generateUniqueSlug(
+    public static updatePage = async (_id: string, doc: Partial<ICMSPage>) => {
+      const current = await models.Pages.findById(_id).lean();
+      if (!current) throw new Error('Page not found');
+
+      const hasSlugField = Object.prototype.hasOwnProperty.call(doc, 'slug');
+      const incomingSlugRaw =
+        typeof (doc as any).slug === 'string' ? (doc as any).slug.trim() : '';
+
+      const slugHasValue = hasSlugField && incomingSlugRaw !== '';
+
+      if (!slugHasValue) {
+        delete (doc as any).slug;
+      } else if (incomingSlugRaw === current.slug) {
+        delete (doc as any).slug;
+      } else {
+        const baseSlug = slugify(incomingSlugRaw, { lower: true });
+        (doc as any).slug = await generateUniqueSlug(
           models.Pages,
-          doc.clientPortalId,
+          current.clientPortalId,
           'slug',
           baseSlug,
         );
+
+        const existingPage = await models.Pages.countDocuments({
+          slug: (doc as any).slug,
+          clientPortalId: current.clientPortalId,
+          _id: { $ne: _id },
+        });
+        if (existingPage > 0) throw new Error('Page already exists');
       }
 
-      const existingPage = await models.Pages.countDocuments({
-        slug: doc.slug,
-        clientPortalId: doc.clientPortalId,
-        _id: { $ne: _id },
-      });
-
-      if (existingPage > 0) {
-        throw new Error('Page already exists');
-      }
-
-      const page = await models.Pages.findOneAndUpdate(
-        { _id: _id },
+      return models.Pages.findOneAndUpdate(
+        { _id },
         { $set: doc },
         { new: true },
       );
-      return page;
     };
 
     public static deletePage = async (_id: string) => {
