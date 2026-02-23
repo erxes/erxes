@@ -17,9 +17,9 @@ export const SettingsNavigation = () => {
             name="Erkhet"
           />
           <SettingsNavigationMenuLinkItem
-            pathPrefix="mongolian"
-            path="/product-places"
-            name="ProductPlace"
+            pathPrefix='mongolian'
+            path='/product-places'
+            name="Product Places"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
