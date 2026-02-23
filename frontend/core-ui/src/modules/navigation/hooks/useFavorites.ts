@@ -27,8 +27,6 @@ export function useFavorites(): FavoriteModule[] {
   const { data } = useQuery<GetFavoritesResponse>(GET_FAVORITES, {
     skip: !currentUser?._id,
   });
-  console.log(data, 'data');
-
   const favorites = data?.getFavoritesByCurrentUser ?? [];
 
   return favorites.reduce<FavoriteModule[]>((acc, favorite) => {

@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 export function SidebarNavigationFavorites() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const favorites = useFavorites();
-  console.log(favorites, '-------');
 
   return (
     <NavigationMenuGroup name={t('favorites')} separate={false}>
