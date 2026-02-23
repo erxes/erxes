@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 
 export const contentCmsQueries = {
   contentCMSList: async (_parent: any, _args: any, { models }: IContext) => {
+    console.log('aaaa');
     return models.CMS.getContentCMSs();
   },
   contentCMS: async (
