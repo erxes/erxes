@@ -1,9 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { PageContainer, Spinner, useQueryState } from 'erxes-ui';
+import { PageContainer, Separator, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { SegmentsRecordTable } from '@/segments/components/SegmentRecordTable';
 import { SegmentListSidebar } from '@/segments/components/SegmentsSidebar';
-import { PageHeader, SEGMENTS_GET_TYPES } from 'ui-modules';
+import {
+  FavoriteToggleIconButton,
+  PageHeader,
+  SEGMENTS_GET_TYPES,
+} from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { IconChartPie } from '@tabler/icons-react';
 import { SegmentDetail } from '@/segments/components/SegmentDetail';
@@ -35,7 +39,10 @@ export default function SegmentsIndexPage() {
         <PageHeader.Start>
           <IconChartPie className="size-4" />
           <span className="font-medium">{t('segment')}</span>
+          <Separator.Inline />
+          <FavoriteToggleIconButton />
         </PageHeader.Start>
+
         <PageHeader.End>
           <SegmentDetail onRefresh={handleRefresh} />
         </PageHeader.End>

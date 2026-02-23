@@ -27,7 +27,6 @@ export const TaskBreadCrump = ({ link }: { link: string }) => {
           <ToggleGroup.Item value="/operation/tasks/created" asChild>
             <Link to="/operation/tasks/created">Created</Link>
           </ToggleGroup.Item>
-          <FavoriteToggleIconButton />
         </ToggleGroup>
       </>
     );
