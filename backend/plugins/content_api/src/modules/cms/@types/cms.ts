@@ -36,7 +36,7 @@ export interface ICMSMenu {
 }
 
 export interface ICMSMenuDocument extends ICMSMenu, Document {
-   _id: string;
+  _id: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,4 +70,3 @@ export interface ICMSPageDocument extends ICMSPage, Document {
   createdAt: Date;
   updatedAt: Date;
 }
-
