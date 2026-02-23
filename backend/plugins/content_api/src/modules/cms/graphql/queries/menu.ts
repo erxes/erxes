@@ -39,14 +39,14 @@ class MenuQueryResolver extends BaseQueryResolver {
       query.kind = kind;
     }
 
-    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+    const { list } = await this.getListWithTranslations(
       models.MenuItems,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.MENU,
     );
 
-    return { menus: list, totalCount, pageInfo };
+    return list;
   }
 
   async cmsMenu(_parent: any, args: any, context: IContext) {

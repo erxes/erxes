@@ -55,6 +55,12 @@ const CustomFields = lazy(() =>
   })),
 );
 
+const WebBuilderPage = lazy(() =>
+  import('~/modules/web-builder/WebBuilderPage').then((module) => ({
+    default: module.WebBuilderPage,
+  })),
+);
+
 const CmsMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -66,9 +72,10 @@ const CmsMain = () => {
         <Route path="cms/:websiteId/categories" element={<Categories />} />
         <Route path="cms/:websiteId/tags" element={<Tags />} />
         <Route path="cms/:websiteId/pages" element={<Pages />} />
-        {/* <Route path="/:websiteId/menus" element={<Menus />} /> */}
+        <Route path="cms/:websiteId/menus" element={<Menus />} />
         <Route path="cms/:websiteId/custom-types" element={<CustomTypes />} />
         <Route path="cms/:websiteId/custom-fields" element={<CustomFields />} />
+        <Route path="web-builder/*" element={<WebBuilderPage />} />
       </Routes>
     </Suspense>
   );

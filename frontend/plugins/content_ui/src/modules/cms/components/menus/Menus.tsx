@@ -11,6 +11,7 @@ import {
   toast,
   CommandBar,
   Separator,
+  Spinner,
 } from 'erxes-ui';
 import {
   IconPlus,
@@ -20,6 +21,10 @@ import {
   IconList,
   IconSortAscending,
   IconExternalLink,
+  IconEdit,
+  IconTrash,
+  IconCheck,
+  IconLayoutGrid,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -31,39 +36,28 @@ import {
   CMS_MENU_EDIT,
 } from '../../graphql/queries';
 import { MenuDrawer } from './MenuDrawer';
+import { buildFlatTree, getDepthPrefix } from './menuUtils';
 import { useMutation } from '@apollo/client';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 
 export function Menus() {
   const { websiteId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editingMenu, setEditingMenu] = useState<any>(null);
+  const [kindFilter, setKindFilter] = useState<string>('header');
 
-  const { data, loading, error } = useQuery(CMS_MENU_LIST, {
-    variables: { clientPortalId: websiteId || '', limit: 50 },
+  const { data, loading, error, refetch } = useQuery(CMS_MENU_LIST, {
+    variables: { clientPortalId: websiteId || '', limit: 50, kind: kindFilter },
     skip: !websiteId,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: 'cache-first',
   });
 
-  const menus = data?.cmsMenuList || [];
+  const menus = buildFlatTree(data?.cmsMenuList || []);
   const totalCount = menus.length;
 
-  const [removeMenu] = useMutation(CMS_MENU_REMOVE, {
-    refetchQueries: [
-      {
-        query: CMS_MENU_LIST,
-        variables: { clientPortalId: websiteId || '', limit: 50 },
-      },
-    ],
-  });
-  const [editMenu] = useMutation(CMS_MENU_EDIT, {
-    refetchQueries: [
-      {
-        query: CMS_MENU_LIST,
-        variables: { clientPortalId: websiteId || '', limit: 50 },
-      },
-    ],
-  });
+  const [removeMenu] = useMutation(CMS_MENU_REMOVE);
+  const [editMenu] = useMutation(CMS_MENU_EDIT);
 
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<any>;
 
@@ -73,11 +67,16 @@ export function Menus() {
       header: () => <span className="sr-only">More</span>,
       cell: ({ row }) => {
         const { confirm } = useConfirm();
+        const onEdit = () => {
+          setEditingMenu(row.original);
+          setIsDrawerOpen(true);
+        };
         const onRemove = () => {
           confirm({
             message: 'Are you sure you want to delete this menu?',
           }).then(async () => {
             await removeMenu({ variables: { _id: row.original._id } });
+            refetch();
           });
         };
         return (
@@ -88,9 +87,11 @@ export function Menus() {
             <Combobox.Content>
               <Command shouldFilter={false}>
                 <Command.List>
-                  {/* Placeholder for opening edit drawer later */}
+                  <Command.Item value="edit" onSelect={onEdit}>
+                    <IconEdit /> Edit
+                  </Command.Item>
                   <Command.Item value="remove" onSelect={onRemove}>
-                    Remove
+                    <IconTrash /> Remove
                   </Command.Item>
                 </Command.List>
               </Command>
@@ -115,6 +116,7 @@ export function Menus() {
             await editMenu({
               variables: { _id: original._id, input: { label: _label } },
             });
+            refetch();
           }
         };
 
@@ -127,7 +129,9 @@ export function Menus() {
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <span>{cell.getValue() as string}</span>
+              <span>
+                {getDepthPrefix(original.depth) + (cell.getValue() as string)}
+              </span>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input
@@ -158,9 +162,11 @@ export function Menus() {
       header: () => <RecordTable.InlineHead icon={IconArticle} label="Kind" />,
       accessorKey: 'kind',
       cell: ({ cell }) => (
-        <span className="text-sm text-gray-700">
-          {(cell.getValue() as string) || ''}
-        </span>
+        <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
+          <span className="text-sm text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </span>
+        </div>
       ),
       size: 140,
     },
@@ -168,7 +174,12 @@ export function Menus() {
 
   const headerActions = (
     <>
-      <Button onClick={() => setIsDrawerOpen(true)}>
+      <Button
+        onClick={() => {
+          setEditingMenu(null);
+          setIsDrawerOpen(true);
+        }}
+      >
         <IconPlus className="mr-2 h-4 w-4" />
         Add Menu
       </Button>
@@ -179,7 +190,10 @@ export function Menus() {
     return (
       <CmsLayout headerActions={headerActions}>
         <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500">Loading menus...</div>
+          <div className="text-gray-500 text-center items-center flex gap-2">
+            <Spinner size="md" className="ml-2" />
+            Loading menus...
+          </div>
         </div>
       </CmsLayout>
     );
@@ -199,8 +213,45 @@ export function Menus() {
 
   return (
     <CmsLayout headerActions={headerActions}>
-      <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-gray-600">Found {totalCount} menus</div>
+      <div className="border rounded-lg mb-4">
+        <div className="p-2 flex items-center gap-3 flex-wrap">
+          <Popover>
+            <Popover.Trigger asChild>
+              <Button variant="outline" size="sm">
+                <IconLayoutGrid className="mr-2 h-4 w-4" />
+                Kind: {kindFilter.charAt(0).toUpperCase() + kindFilter.slice(1)}
+              </Button>
+            </Popover.Trigger>
+            <Popover.Content className="w-44 p-2">
+              <Command shouldFilter={false}>
+                <Command.List>
+                  <Command.Item
+                    value="header"
+                    onSelect={() => setKindFilter('header')}
+                  >
+                    Header
+                    {kindFilter === 'header' && (
+                      <IconCheck className="ml-auto h-4 w-4" />
+                    )}
+                  </Command.Item>
+                  <Command.Item
+                    value="footer"
+                    onSelect={() => setKindFilter('footer')}
+                  >
+                    Footer
+                    {kindFilter === 'footer' && (
+                      <IconCheck className="ml-auto h-4 w-4" />
+                    )}
+                  </Command.Item>
+                </Command.List>
+              </Command>
+            </Popover.Content>
+          </Popover>
+
+          <div className="text-sm text-gray-600 ml-auto">
+            Found {totalCount} menus
+          </div>
+        </div>
       </div>
 
       {!menus || menus.length === 0 ? (
@@ -233,6 +284,7 @@ export function Menus() {
                 for (const id of ids) {
                   await removeMenu({ variables: { _id: id } });
                 }
+                refetch();
               }}
             />
           </RecordTable.Provider>
@@ -241,8 +293,13 @@ export function Menus() {
 
       <MenuDrawer
         isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setEditingMenu(null);
+        }}
+        onSuccess={refetch}
         clientPortalId={websiteId || ''}
+        menu={editingMenu}
       />
     </CmsLayout>
   );

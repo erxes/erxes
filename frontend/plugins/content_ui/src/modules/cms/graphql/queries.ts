@@ -38,8 +38,8 @@ export const CMS_MENU_ADD = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -56,8 +56,8 @@ export const CMS_MENU_EDIT = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
+      # contentType
+      # contentTypeID
       kind
       icon
       url
@@ -741,8 +741,6 @@ export const CMS_MENU_LIST = gql`
       _id
       parentId
       label
-      contentType
-      contentTypeID
       kind
       icon
       url
