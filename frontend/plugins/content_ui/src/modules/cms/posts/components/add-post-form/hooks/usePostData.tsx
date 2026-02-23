@@ -1,11 +1,8 @@
 import { useQuery } from '@apollo/client';
 import { useTags } from '../../../../hooks/useTags';
-import {
-  CMS_CATEGORIES,
-  CMS_CUSTOM_POST_TYPES,
-  CMS_CUSTOM_FIELD_GROUPS,
-  CONTENT_CMS_LIST,
-} from '../../../../graphql/queries';
+import { CMS_CATEGORIES, CONTENT_CMS_LIST } from '../../../../graphql/queries';
+import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
+import { CMS_CUSTOM_POST_TYPES } from '../../../../custom-types/graphql/queries';
 
 export const usePostData = (websiteId: string, selectedType?: string) => {
   const { data: catData } = useQuery(CMS_CATEGORIES, {

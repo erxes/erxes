@@ -1,5 +1,5 @@
 import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
-import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '../graphql/queries';
+import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from './graphql/mutations';
 import { useEffect, useState } from 'react';
 
 import { IconAlertCircle } from '@tabler/icons-react';

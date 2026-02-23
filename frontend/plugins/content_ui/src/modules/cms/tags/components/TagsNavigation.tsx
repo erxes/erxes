@@ -1,8 +1,8 @@
 import {
   IconCategory,
-  IconListDetails,
   IconCube,
   IconRulerMeasure,
+  IconTags,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
 
-export const CategoriesNavigation = () => {
+export const TagsNavigation = () => {
   const { pathname } = useLocation();
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
@@ -36,56 +36,18 @@ export const CategoriesNavigation = () => {
   const currentPage = useMemo(() => {
     const lastSegment = pathname.split('/').pop() || '';
 
-    if (lastSegment === 'posts' || pathname.endsWith('/posts')) {
-      return {
-        path: `${basePath}/posts`,
-        label: 'Posts',
-        icon: IconCategory,
-      };
-    }
-    if (lastSegment === 'pages' || pathname.endsWith('/pages')) {
-      return {
-        path: `${basePath}/pages`,
-        label: 'Pages',
-        icon: IconRulerMeasure,
-      };
-    }
-    if (lastSegment === 'categories' || pathname.endsWith('/categories')) {
-      return {
-        path: `${basePath}/categories`,
-        label: 'Categories',
-        icon: IconListDetails,
-      };
-    }
     if (lastSegment === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
         label: 'Tags',
-        icon: IconRulerMeasure,
+        icon: IconTags,
       };
     }
-    if (
-      lastSegment === 'custom-fields' ||
-      pathname.endsWith('/custom-fields')
-    ) {
-      return {
-        path: `${basePath}/custom-fields`,
-        label: 'Custom Fields',
-        icon: IconRulerMeasure,
-      };
-    }
-    if (lastSegment === 'custom-types' || pathname.endsWith('/custom-types')) {
-      return {
-        path: `${basePath}/custom-types`,
-        label: 'Custom Post Types',
-        icon: IconRulerMeasure,
-      };
-    }
-
+    // Default fallback
     return {
-      path: `${basePath}/posts`,
-      label: 'Posts',
-      icon: IconCube,
+      path: `${basePath}/tags`,
+      label: 'Tags',
+      icon: IconTags,
     };
   }, [pathname, basePath]);
 

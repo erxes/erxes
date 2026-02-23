@@ -31,7 +31,7 @@ const Categories = lazy(() =>
 );
 
 const Tags = lazy(() =>
-  import('~/modules/cms/shared/Tag').then((module) => ({
+  import('~/modules/cms/tags/Tag').then((module) => ({
     default: module.Tag,
   })),
 );
@@ -43,13 +43,13 @@ const Pages = lazy(() =>
 );
 
 const CustomTypes = lazy(() =>
-  import('~/modules/cms/shared/CustomTypes').then((module) => ({
+  import('~/modules/cms/custom-types/CustomTypes').then((module) => ({
     default: module.CustomTypes,
   })),
 );
 
 const CustomFields = lazy(() =>
-  import('~/modules/cms/shared/CustomFields').then((module) => ({
+  import('~/modules/cms/custom-fields/CustomFields').then((module) => ({
     default: module.CustomFields,
   })),
 );

@@ -24,12 +24,12 @@ import { useTags } from '../hooks/useTags';
 import {
   CMS_CATEGORIES,
   CMS_POST,
-  CMS_CUSTOM_POST_TYPES,
-  CMS_CUSTOM_FIELD_GROUPS,
   CONTENT_CMS_LIST,
   CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
 } from '../graphql/queries';
+import { CMS_CUSTOM_FIELD_GROUPS } from '../custom-fields/graphql/queries';
+import { CMS_CUSTOM_POST_TYPES } from '../custom-types/graphql/queries';
 import { usePostMutations } from '../hooks/usePostMutations';
 import { CustomFieldInput } from './CustomFieldInput';
 import { GalleryUploader } from './GalleryUploader';

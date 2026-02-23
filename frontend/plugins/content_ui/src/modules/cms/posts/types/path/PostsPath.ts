@@ -4,5 +4,5 @@ export enum PostsPath {
   Categories = '/categories',
   Tags = '/tags',
   CustomFields = '/custom-fields',
-  CustomPostTypes = '/custom-post-types',
+  CustomPostTypes = '/custom-types',
 }

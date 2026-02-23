@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import {
   CMS_CUSTOM_POST_TYPE_ADD,
   CMS_CUSTOM_POST_TYPE_EDIT,
-} from '../../graphql/queries';
+} from '../../custom-types/graphql/mutations';
 
 interface CustomTypeDrawerProps {
   isOpen: boolean;

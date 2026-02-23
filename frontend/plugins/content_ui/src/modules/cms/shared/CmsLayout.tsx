@@ -129,7 +129,7 @@ export function CmsLayout({
 
   return (
     <div className="flex h-full">
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-auto">
         <PageHeader>
           <PageHeader.Start>
             <Breadcrumb>
@@ -206,7 +206,7 @@ export function CmsLayout({
           </PageHeader.End>
         </PageHeader>
 
-        <div className="flex flex-1 min-w-0 overflow-hidden">
+        <div className="flex flex-1 min-w-0 overflow-auto">
           {showSidebar && (
             <Sidebar collapsible="none" className="border-r flex-none">
               <Sidebar.Group>
