@@ -16,14 +16,10 @@ interface Props {
 const CustomerSidebar: React.FC<Props> = ({ relations = [], loading }) => {
   return (
     <div className="px-4 py-3 border-b">
-      <h4 className="text-sm font-semibold mb-2">
-        MSD Customer No
-      </h4>
+      <h4 className="text-sm font-semibold mb-2">MSD Customer No</h4>
 
       {loading ? (
-        <div className="text-sm text-muted-foreground">
-          Loading...
-        </div>
+        <div className="text-sm text-muted-foreground">Loading...</div>
       ) : relations.length === 0 ? (
         <div className="text-sm text-muted-foreground">
           No customer numbers found
