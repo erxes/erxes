@@ -58,6 +58,7 @@ export interface ICMSPage {
   content?: string;
   slug: string;
   layout?: string;
+  status?: string;
   createdUserId?: string;
   coverImage?: string;
   customFieldsData?: any[];
