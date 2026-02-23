@@ -14,7 +14,7 @@ export const PostsIndexPage = ({
   const navigate = useNavigate();
 
   const handleEditPost = (post: any) => {
-    navigate(`../posts/detail/${post._id}`);
+    navigate(`/content/cms/${clientPortalId}/posts/detail/${post._id}`);
   };
 
   return (
@@ -45,7 +45,7 @@ const PostsPageContent = ({
     <div className="overflow-hidden flex-auto">
       <div className="h-full">
         <PageSubHeader>
-          <PostsFilter />
+          <PostsFilter clientPortalId={clientPortalId}/>
         </PageSubHeader>
         <PostsRecordTable
           clientPortalId={clientPortalId}

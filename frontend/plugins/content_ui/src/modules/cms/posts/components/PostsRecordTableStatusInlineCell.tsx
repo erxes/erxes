@@ -54,9 +54,16 @@ export const PostsRecordTableStatusInlineCell = ({
       <RecordTableInlineCell.Trigger>
         <div className="w-full flex">
           <Badge
-            variant={status === 'published' ? 'success' : 'secondary'}
+            variant={
+              status === 'published'
+                ? 'success'
+                : status === 'scheduled'
+                ? 'warning'
+                : 'secondary'
+            }
             className={cn('font-bold', {
-              'text-accent-foreground': status !== 'published',
+              'text-accent-foreground':
+                status !== 'published' && status !== 'scheduled',
             })}
           >
             {status}
@@ -67,9 +74,16 @@ export const PostsRecordTableStatusInlineCell = ({
       <RecordTableInlineCell.Content className="h-cell ">
         <div className="w-full flex h-full py-1 px-2 gap-2">
           <Badge
-            variant={status === 'published' ? 'success' : 'secondary'}
+            variant={
+              status === 'published'
+                ? 'success'
+                : status === 'scheduled'
+                ? 'warning'
+                : 'secondary'
+            }
             className={cn('font-bold', {
-              'text-accent-foreground': status !== 'published',
+              'text-accent-foreground':
+                status !== 'published' && status !== 'scheduled',
             })}
           >
             {status}

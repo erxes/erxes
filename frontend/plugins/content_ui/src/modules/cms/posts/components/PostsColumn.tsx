@@ -55,7 +55,7 @@ export const usePostsColumns = (
           </RecordTableInlineCell>
         );
       },
-      size: 200,
+      size: 300,
     },
     {
       id: 'status',
@@ -64,7 +64,7 @@ export const usePostsColumns = (
       cell: ({ cell }) => {
         return <PostsRecordTableStatusInlineCell cell={cell} />;
       },
-      size: 100,
+      size: 90,
     },
     {
       id: 'categories',
@@ -156,7 +156,7 @@ export const usePostsColumns = (
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       ),
-      size: 180,
+      size: 120,
     },
     {
       id: 'updatedAt',
@@ -171,7 +171,7 @@ export const usePostsColumns = (
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       ),
-      size: 180,
+      size: 120,
     },
   ];
 };

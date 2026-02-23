@@ -7,7 +7,7 @@ import { useRemovePosts } from '../hooks/useRemovePosts';
 import { ApolloError, useMutation } from '@apollo/client';
 import { useConfirm, useToast } from 'erxes-ui';
 import { POSTS_EDIT } from '../graphql/mutations/postsEditMutation';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 interface PostMoreColumnCellProps {
   cell: CellContext<any, unknown>;
   onEdit?: (post: any) => void;
@@ -29,14 +29,17 @@ export const PostMoreColumnCell = ({
   const { toast } = useToast();
   const { removePosts, loading } = useRemovePosts();
   const [editPost, { loading: editLoading }] = useMutation(POSTS_EDIT);
+  const [isStatusPopoverOpen, setIsStatusPopoverOpen] = useState(false);
 
   const availableStatuses = useMemo(() => {
     if (status === 'draft') {
-      return ['published'];
+      return ['published', 'scheduled'];
     } else if (status === 'published') {
-      return ['draft'];
+      return ['draft', 'scheduled'];
+    } else if (status === 'scheduled') {
+      return ['draft', 'published'];
     } else {
-      return [];
+      return ['draft', 'published', 'scheduled'];
     }
   }, [status]);
 
@@ -56,6 +59,7 @@ export const PostMoreColumnCell = ({
         });
         onUpdateStatus?.(_id, newStatus);
         onRefetch?.();
+        setIsStatusPopoverOpen(false);
       },
       onError: (error) => {
         toast({
@@ -72,7 +76,7 @@ export const PostMoreColumnCell = ({
     if (onEdit) {
       onEdit(post);
     } else {
-      navigate(`/content/posts/detail/${_id}`);
+      navigate(`/content/cms/${post.clientPortalId}/posts/detail/${_id}`);
     }
   };
 
@@ -115,18 +119,6 @@ export const PostMoreColumnCell = ({
       >
         <Command>
           <Command.List>
-            {availableStatuses.map((statusOption) => (
-              <Command.Item
-                key={statusOption}
-                onSelect={() => handleStatusChange(statusOption)}
-                disabled={editLoading}
-                className="w-full flex items-center gap-2 px-2 py-1"
-              >
-                <IconClock className="size-4" />
-                {statusOption}
-              </Command.Item>
-            ))}
-
             <Command.Item asChild>
               <Button
                 variant="ghost"
@@ -139,10 +131,47 @@ export const PostMoreColumnCell = ({
               </Button>
             </Command.Item>
             <Command.Item asChild>
+              <Popover
+                open={isStatusPopoverOpen}
+                onOpenChange={setIsStatusPopoverOpen}
+              >
+                <Popover.Trigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start h-8"
+                  >
+                    <IconClock className="size-4 mr-1" />
+                    Status
+                  </Button>
+                </Popover.Trigger>
+                <Combobox.Content
+                  align="start"
+                  className="w-[200px] min-w-0 [&>button]:cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Command>
+                    <Command.List>
+                      {availableStatuses.map((statusOption) => (
+                        <Command.Item
+                          key={statusOption}
+                          onSelect={() => handleStatusChange(statusOption)}
+                          disabled={editLoading}
+                          className="w-full flex items-center gap-2 px-2 py-1"
+                        >
+                          {statusOption}
+                        </Command.Item>
+                      ))}
+                    </Command.List>
+                  </Command>
+                </Combobox.Content>
+              </Popover>
+            </Command.Item>
+            <Command.Item asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start text-destructive h-8"
+                className="w-full justify-start h-8"
                 onClick={handleDelete}
                 disabled={loading}
               >

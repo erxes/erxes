@@ -171,14 +171,14 @@ export const AddPostForm = ({
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
             <div className="rounded-lg border overflow-hidden flex flex-col">
-              <div className="px-4 pt-4 border-b">
+              <div className="px-4 pt-1 border-b">
                 <Tabs
                   value={activeTab}
                   onValueChange={(v) =>
                     setActiveTab(v as 'content' | 'media' | 'seo')
                   }
                 >
-                  <Tabs.List>
+                  <Tabs.List className="border-none">
                     <div className="flex justify-evenly items-center gap-4">
                       <Tabs.Trigger value="content" className="w-full">
                         Content

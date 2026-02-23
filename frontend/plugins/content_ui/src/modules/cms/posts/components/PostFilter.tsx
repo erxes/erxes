@@ -1,10 +1,8 @@
 import {
   IconCalendarPlus,
   IconCalendarUp,
-  IconCategory,
   IconLabel,
   IconSearch,
-  IconTag,
 } from '@tabler/icons-react';
 
 import {
@@ -18,8 +16,14 @@ import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { PostsTotalCount } from './PostsTotalCount';
 import { useIsPostsLeadSessionKey } from '../hooks/usePostsLeadSessionKey';
 import { SelectStatus } from './selects/SelectStatus';
+import { SelectTags } from './selects/SelectTags';
+import { SelectCategories } from './selects/SelectCategories';
 
-const PostsFilterPopover = () => {
+interface PostsFilterPopoverProps {
+  clientPortalId?: string;
+}
+
+const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
   const [queries] = useMultiQueryState<{
     tags: string[];
     searchValue: string;
@@ -66,14 +70,8 @@ const PostsFilterPopover = () => {
                   <IconLabel />
                   Type
                 </Filter.Item>
-                <Filter.Item value="categories" inDialog>
-                  <IconCategory />
-                  Categories
-                </Filter.Item>
-                <Filter.Item value="tags" inDialog>
-                  <IconTag />
-                  Tags
-                </Filter.Item>
+                <SelectTags.FilterItem />
+                <SelectCategories.FilterItem />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
@@ -90,6 +88,8 @@ const PostsFilterPopover = () => {
               </Command.List>
             </Command>
           </Filter.View>
+          <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
+          <SelectCategories.FilterView clientPortalId={clientPortalId || ''} />
           <SelectStatus.FilterView />
           <Filter.View filterKey="created">
             <Filter.DateView filterKey="created" />
@@ -113,10 +113,10 @@ const PostsFilterPopover = () => {
           <Filter.DialogStringView filterKey="type" />
         </Filter.View>
         <Filter.View filterKey="categories" inDialog>
-          <Filter.DialogStringView filterKey="categories" />
+          <SelectCategories.FilterView clientPortalId={clientPortalId || ''} />
         </Filter.View>
         <Filter.View filterKey="tags" inDialog>
-          <Filter.DialogStringView filterKey="tags" />
+          <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
         </Filter.View>
         <Filter.View filterKey="created" inDialog>
           <Filter.DialogDateView filterKey="created" />
@@ -132,12 +132,10 @@ const PostsFilterPopover = () => {
   );
 };
 
-export const PostsFilter = () => {
+export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
   const [type] = useFilterQueryState<string>('type');
   const { sessionKey } = useIsPostsLeadSessionKey();
-  const [tags] = useFilterQueryState<string[]>('tags');
-  const [categories] = useFilterQueryState<string[]>('categories');
 
   return (
     <Filter id="posts-filter" sessionKey={sessionKey}>
@@ -161,18 +159,10 @@ export const PostsFilter = () => {
             {type}
           </Filter.BarButton>
         </Filter.BarItem>
-        <Filter.BarItem queryKey="tags">
-          <Filter.BarName>Tags</Filter.BarName>
-          <Filter.BarButton filterKey="tags" inDialog>
-            {tags}
-          </Filter.BarButton>
-        </Filter.BarItem>
-        <Filter.BarItem queryKey="categories">
-          <Filter.BarName>Categories</Filter.BarName>
-          <Filter.BarButton filterKey="categories" inDialog>
-            {categories}
-          </Filter.BarButton>
-        </Filter.BarItem>
+        <SelectTags.FilterBar clientPortalId={clientPortalId || undefined} />
+        <SelectCategories.FilterBar
+          clientPortalId={clientPortalId || undefined}
+        />
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
@@ -194,7 +184,7 @@ export const PostsFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="publishedDate" />
         </Filter.BarItem>
-        <PostsFilterPopover />
+        <PostsFilterPopover clientPortalId={clientPortalId || undefined} />
         <PostsTotalCount />
       </Filter.Bar>
     </Filter>

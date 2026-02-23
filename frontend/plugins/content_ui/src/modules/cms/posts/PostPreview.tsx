@@ -20,8 +20,8 @@ export const PostPreview = ({
   handleEditorChange,
 }: PostPreviewProps) => {
   return (
-    <div className="rounded-lg border overflow-hidden bg-white">
-      <div className="px-4 py-3 border-b bg-gray-50">
+    <div className="rounded-lg border overflow-hidden bg-background">
+      <div className="px-4 py-3 border-b bg-background">
         <h3 className="text-sm font-semibold">
           Content Editor
           {selectedLanguage !== defaultLanguage && (
