@@ -1,19 +1,19 @@
-import { Alert, __, router } from "@erxes/ui/src/utils";
-import { CustomRangeContainer, FilterContainer } from "../../styles";
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Alert, __, router } from '@erxes/ui/src/utils';
+import { CustomRangeContainer, FilterContainer } from '../../styles';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { DateContainer } from "@erxes/ui/src/styles/main";
-import Datetime from "@nateradebaugh/react-datetime";
-import { EndDateContainer } from "@erxes/ui-forms/src/forms/styles";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { Wrapper } from "@erxes/ui/src/layout";
-import dayjs from "dayjs";
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import Datetime from '@nateradebaugh/react-datetime';
+import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { Wrapper } from '@erxes/ui/src/layout';
+import dayjs from 'dayjs';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -57,7 +57,7 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
     } = state;
 
     if (!brandId) {
-      return Alert.error("Choose brandId");
+      return Alert.error('Choose brandId');
     }
 
     router.setParams(navigate, location, {
@@ -73,7 +73,7 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
   };
 
   const onChangeRangeFilter = (kind, date) => {
-    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
+    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
     setState((prevState) => ({ ...prevState, [kind]: cDate }));
   };
 
@@ -87,7 +87,7 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
         <CustomRangeContainer>
           <DateContainer>
             <Datetime
-              inputProps={{ placeholder: __("Choose Date") }}
+              inputProps={{ placeholder: __('Choose Date') }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={state[lblStart] || null}
@@ -95,14 +95,14 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
               utc={true}
               input={true}
               onChange={(date) => onChangeRangeFilter(lblStart, date)}
-              viewMode={"days"}
-              className={"filterDate"}
+              viewMode={'days'}
+              className={'filterDate'}
             />
           </DateContainer>
           <EndDateContainer>
             <DateContainer>
               <Datetime
-                inputProps={{ placeholder: __("Choose Date") }}
+                inputProps={{ placeholder: __('Choose Date') }}
                 dateFormat="YYYY-MM-DD"
                 timeFormat="HH:mm"
                 value={state[lblEnd]}
@@ -110,8 +110,8 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
                 utc={true}
                 input={true}
                 onChange={(date) => onChangeRangeFilter(lblEnd, date)}
-                viewMode={"days"}
-                className={"filterDate"}
+                viewMode={'days'}
+                className={'filterDate'}
               />
             </DateContainer>
           </EndDateContainer>
@@ -138,19 +138,19 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
 
   return (
     <Wrapper.Sidebar hasBorder={true}>
-      <Section.Title>{__("Filters")}</Section.Title>
+      <Section.Title>{__('Filters')}</Section.Title>
       <FilterContainer>
         <FormGroup>
           <ControlLabel>Brand</ControlLabel>
           <SelectBrands
-            label={__("Choose brands")}
+            label={__('Choose brands')}
             onSelect={onBrandChange}
             initialValue={brandId}
             multi={false}
             name="selectedBrands"
             customOption={{
-              label: "No Brand (noBrand)",
-              value: "",
+              label: 'No Brand (noBrand)',
+              value: '',
             }}
           />
         </FormGroup>
@@ -158,10 +158,10 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
         <FormGroup>
           <ControlLabel>Created by</ControlLabel>
           <SelectTeamMembers
-            label={__("Choose users")}
+            label={__('Choose users')}
             name="userId"
-            customOption={{ label: "Choose user", value: "" }}
-            initialValue={userId || ""}
+            customOption={{ label: 'Choose user', value: '' }}
+            initialValue={userId || ''}
             onSelect={onUserChange}
             multi={false}
           />
@@ -177,8 +177,8 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
             autoFocus={true}
           />
         </FormGroup>
-        {renderRange("paid")}
-        {renderRange("created")}
+        {renderRange('paid')}
+        {renderRange('created')}
 
         <Button
           block={true}
@@ -187,7 +187,7 @@ const CheckerSidebar = ({ queryParams }: IProps) => {
           onClick={onFilter}
           icon="filter"
         >
-          {__("Filter")}
+          {__('Filter')}
         </Button>
       </FilterContainer>
     </Wrapper.Sidebar>

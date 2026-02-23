@@ -25,22 +25,13 @@ const Row = ({
 }: Props) => {
   const [open, setOpen] = useState(false);
 
-  const {
-    number,
-    createdAt,
-    totalAmount,
-    paidDate,
-  } = order;
+  const { number, createdAt, totalAmount, paidDate } = order;
 
-  const handleCheckboxChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     toggleBulk(order, e.target.checked);
   };
 
-  const handleSend = (
-    e: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const handleSend = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     toSend([order._id]);
   };
@@ -55,10 +46,7 @@ const Row = ({
         onClick={handleRowClick}
         className="cursor-pointer hover:bg-muted/40 transition"
       >
-        <td
-          onClick={(e) => e.stopPropagation()}
-          className="p-2"
-        >
+        <td onClick={(e) => e.stopPropagation()} className="p-2">
           <input
             type="checkbox"
             checked={isChecked}
@@ -68,47 +56,26 @@ const Row = ({
 
         <td className="p-2">{number}</td>
 
-        <td className="p-2">
-          {totalAmount?.toLocaleString()}
-        </td>
+        <td className="p-2">{totalAmount?.toLocaleString()}</td>
 
         <td className="p-2">
-          {createdAt
-            ? dayjs(createdAt).format('LLL')
-            : ''}
+          {createdAt ? dayjs(createdAt).format('LLL') : ''}
         </td>
 
-        <td className="p-2">
-          {paidDate
-            ? dayjs(paidDate).format('LLL')
-            : ''}
-        </td>
+        <td className="p-2">{paidDate ? dayjs(paidDate).format('LLL') : ''}</td>
 
         <td className="p-2">
           {syncedInfo?.syncedDate
-            ? dayjs(
-                syncedInfo.syncedDate,
-              ).format('LL')
+            ? dayjs(syncedInfo.syncedDate).format('LL')
             : ''}
         </td>
 
-        <td className="p-2">
-          {syncedInfo?.syncedBillNumber || ''}
-        </td>
+        <td className="p-2">{syncedInfo?.syncedBillNumber || ''}</td>
 
-        <td className="p-2">
-          {syncedInfo?.syncedCustomer || ''}
-        </td>
+        <td className="p-2">{syncedInfo?.syncedCustomer || ''}</td>
 
-        <td
-          className="p-2"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSend}
-          >
+        <td className="p-2" onClick={(e) => e.stopPropagation()}>
+          <Button variant="ghost" size="sm" onClick={handleSend}>
             Resend
           </Button>
         </td>
@@ -118,9 +85,7 @@ const Row = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-3xl">
           <Dialog.Header>
-            <Dialog.Title>
-              Order detail
-            </Dialog.Title>
+            <Dialog.Title>Order detail</Dialog.Title>
           </Dialog.Header>
 
           <Detail order={order} />

@@ -27,9 +27,7 @@ const PerSettings = ({
   delete: deleteConfig,
 }: Props) => {
   const [config, setConfig] = useState<any>(initialConfig);
-  const [open, setOpen] = useState(
-    currentConfigKey === 'newDYNAMIC'
-  );
+  const [open, setOpen] = useState(currentConfigKey === 'newDYNAMIC');
 
   useEffect(() => {
     setConfig(initialConfig);
@@ -61,15 +59,11 @@ const PerSettings = ({
 
   const renderInput = (key: string, type = 'text') => (
     <div className="space-y-2">
-      <label className="text-sm font-medium">
-        {KEY_LABELS[key] || key}
-      </label>
+      <label className="text-sm font-medium">{KEY_LABELS[key] || key}</label>
       <Input
         type={type}
         value={config[key] || ''}
-        onChange={(e) =>
-          handleChange(key, e.target.value)
-        }
+        onChange={(e) => handleChange(key, e.target.value)}
       />
     </div>
   );
@@ -78,13 +72,9 @@ const PerSettings = ({
     <div className="flex items-center space-x-2">
       <Checkbox
         checked={!!config[key]}
-        onCheckedChange={(checked) =>
-          handleChange(key, checked)
-        }
+        onCheckedChange={(checked) => handleChange(key, checked)}
       />
-      <label className="text-sm">
-        {KEY_LABELS[key] || key}
-      </label>
+      <label className="text-sm">{KEY_LABELS[key] || key}</label>
     </div>
   );
 
@@ -95,9 +85,7 @@ const PerSettings = ({
         className="flex items-center justify-between cursor-pointer"
         onClick={() => setOpen(!open)}
       >
-        <h3 className="text-lg font-semibold">
-          {config.title}
-        </h3>
+        <h3 className="text-lg font-semibold">{config.title}</h3>
       </div>
 
       {open && (
@@ -125,9 +113,7 @@ const PerSettings = ({
               {config.useBoard && (
                 <BoardSelect
                   boardId={config.boardId}
-                  onChange={(boardId) =>
-                    handleChange('boardId', boardId)
-                  }
+                  onChange={(boardId) => handleChange('boardId', boardId)}
                 />
               )}
             </div>
@@ -135,9 +121,7 @@ const PerSettings = ({
 
           {/* General Settings */}
           <div>
-            <h4 className="text-md font-semibold mb-4">
-              General Settings
-            </h4>
+            <h4 className="text-md font-semibold mb-4">General Settings</h4>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
@@ -165,17 +149,11 @@ const PerSettings = ({
 
           {/* Footer */}
           <div className="flex justify-between pt-4 border-t">
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-            >
+            <Button variant="destructive" onClick={handleDelete}>
               Delete
             </Button>
 
-            <Button
-              onClick={handleSave}
-              disabled={!config.brandId}
-            >
+            <Button onClick={handleSave} disabled={!config.brandId}>
               Save
             </Button>
           </div>

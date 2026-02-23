@@ -15,7 +15,7 @@ type Props = {
   emptyBulk: () => void;
   checkSynced: (
     doc: { orderIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => Promise<any>;
   toggleBulk: (order: any) => void;
   toggleAll: (targets: any[], containerId: string) => void;
@@ -39,8 +39,7 @@ const CheckSyncedOrders = ({
   syncedOrderInfos,
   toSendMsdOrders,
 }: Props) => {
-  const [contentLoading, setContentLoading] =
-    useState(false);
+  const [contentLoading, setContentLoading] = useState(false);
 
   const handleToggleAll = () => {
     toggleAll(orders, 'orders');
@@ -77,24 +76,17 @@ const CheckSyncedOrders = ({
     <div className="flex gap-6">
       {/* Sidebar */}
       <div className="w-64">
-        <CheckSyncedOrdersSidebar
-          queryParams={queryParams}
-        />
+        <CheckSyncedOrdersSidebar queryParams={queryParams} />
       </div>
 
       {/* Main */}
       <div className="flex-1 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            Check msdynamic
-          </h2>
+          <h2 className="text-xl font-semibold">Check msdynamic</h2>
 
           {bulk.length > 0 && (
-            <Button
-              onClick={handleCheck}
-              disabled={contentLoading}
-            >
+            <Button onClick={handleCheck} disabled={contentLoading}>
               Check
             </Button>
           )}
@@ -130,15 +122,9 @@ const CheckSyncedOrders = ({
                     <th className="p-2">Created At</th>
                     <th className="p-2">Paid At</th>
                     <th className="p-2">Synced Date</th>
-                    <th className="p-2">
-                      Synced bill Number
-                    </th>
-                    <th className="p-2">
-                      Synced customer
-                    </th>
-                    <th className="p-2">
-                      Sync Actions
-                    </th>
+                    <th className="p-2">Synced bill Number</th>
+                    <th className="p-2">Synced customer</th>
+                    <th className="p-2">Sync Actions</th>
                   </tr>
                 </thead>
                 <tbody>{renderRows()}</tbody>

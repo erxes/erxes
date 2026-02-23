@@ -42,8 +42,9 @@ const emptyDynamicConfig = {
 };
 
 const GeneralSettings = ({ save, configsMap }: Props) => {
-  const [localConfigs, setLocalConfigs] =
-    useState<IConfigsMap>(configsMap || {});
+  const [localConfigs, setLocalConfigs] = useState<IConfigsMap>(
+    configsMap || {},
+  );
 
   useEffect(() => {
     setLocalConfigs(configsMap || {});
@@ -60,17 +61,17 @@ const GeneralSettings = ({ save, configsMap }: Props) => {
   };
 
   const handleDelete = (currentConfigKey: string) => {
-    if (!window.confirm('This will delete this config. Are you sure?'))
-      return;
+    if (!window.confirm('This will delete this config. Are you sure?')) return;
 
-    const updatedDynamic = Object.keys(
-      localConfigs?.DYNAMIC || {},
-    ).reduce((acc: any, key) => {
-      if (key !== currentConfigKey) {
-        acc[key] = localConfigs?.DYNAMIC[key];
-      }
-      return acc;
-    }, {});
+    const updatedDynamic = Object.keys(localConfigs?.DYNAMIC || {}).reduce(
+      (acc: any, key) => {
+        if (key !== currentConfigKey) {
+          acc[key] = localConfigs?.DYNAMIC[key];
+        }
+        return acc;
+      },
+      {},
+    );
 
     const updated = {
       ...localConfigs,
@@ -108,23 +109,17 @@ const GeneralSettings = ({ save, configsMap }: Props) => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold">
-              Msdynamics config
-            </h2>
+            <h2 className="text-xl font-semibold">Msdynamics config</h2>
             <p className="text-sm text-muted-foreground">
               Manage Microsoft Dynamics integration settings.
             </p>
           </div>
 
-          <Button onClick={handleAdd}>
-            New config
-          </Button>
+          <Button onClick={handleAdd}>New config</Button>
         </div>
 
         {/* Config List */}
-        <Card className="p-6 space-y-6">
-          {renderConfigs()}
-        </Card>
+        <Card className="p-6 space-y-6">{renderConfigs()}</Card>
       </div>
     </div>
   );

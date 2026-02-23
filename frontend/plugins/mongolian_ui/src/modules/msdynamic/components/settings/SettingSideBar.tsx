@@ -4,9 +4,7 @@ const SettingSideBar = () => {
   return (
     <div className="w-64 border-r bg-background p-4">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold">
-          MS Dynamics
-        </h2>
+        <h2 className="text-lg font-semibold">MS Dynamics</h2>
       </div>
 
       <nav className="space-y-2">
