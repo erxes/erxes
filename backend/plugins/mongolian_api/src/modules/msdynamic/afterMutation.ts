@@ -9,10 +9,7 @@ const allowTypes: Record<string, string[]> = {
   'sales:deal': ['update'],
 };
 
-export const afterMutationHandlers = async (
-  subdomain: string,
-  params: any,
-) => {
+export const afterMutationHandlers = async (subdomain: string, params: any) => {
   const { type, action, user, object, updatedDocument } = params;
 
   if (!allowTypes[type]?.includes(action)) {
@@ -28,10 +25,13 @@ export const afterMutationHandlers = async (
     return;
   }
 
-  const configsMap = dynamicConfigs.reduce((acc, conf) => {
-    acc[conf.subId || 'noBrand'] = conf.value;
-    return acc;
-  }, {} as Record<string, any>);
+  const configsMap = dynamicConfigs.reduce(
+    (acc, conf) => {
+      acc[conf.subId || 'noBrand'] = conf.value;
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
 
   const contentId = updatedDocument?._id || object?._id;
 
@@ -86,13 +86,7 @@ export const afterMutationHandlers = async (
 
         syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-        await dealToDynamic(
-          subdomain,
-          models,
-          syncLog,
-          deal,
-          foundConfig,
-        );
+        await dealToDynamic(subdomain, models, syncLog, deal, foundConfig);
 
         break;
       }
@@ -106,13 +100,7 @@ export const afterMutationHandlers = async (
         const config = configsMap[brandId || 'noBrand'];
 
         if (config && !config.useBoard) {
-          await orderToDynamic(
-            subdomain,
-            models,
-            syncLog,
-            updatedDoc,
-            config,
-          );
+          await orderToDynamic(subdomain, models, syncLog, updatedDoc, config);
         }
 
         break;

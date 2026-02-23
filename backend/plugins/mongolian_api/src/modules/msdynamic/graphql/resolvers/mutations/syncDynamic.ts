@@ -117,10 +117,7 @@ export const msdynamicSyncMutations = {
       throw new Error('Order not found');
     }
 
-    const config = await getDynamicConfig(
-      models,
-      order.scopeBrandIds?.[0],
-    );
+    const config = await getDynamicConfig(models, order.scopeBrandIds?.[0]);
 
     const syncLog = await models.SyncLogs.syncLogsAdd({
       contentType: 'pos:order',

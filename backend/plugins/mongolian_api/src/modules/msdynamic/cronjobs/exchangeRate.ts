@@ -62,10 +62,10 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
+            `${username}:${password}`,
           ).toString('base64')}`,
         },
-      }
+      },
     ).then((res) => res.json());
 
     // ✅ Hardened handling of price API response
@@ -98,7 +98,7 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
         const { resPrice } = await getPrice(
           resProds,
           pricePriority,
-          exchangeRates
+          exchangeRates,
         );
 
         const foundProduct = productsByCode[Item_No];

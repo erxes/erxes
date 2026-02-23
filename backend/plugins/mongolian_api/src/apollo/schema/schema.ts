@@ -12,7 +12,7 @@ import {
   mutations as ConfigMutations,
   queries as ConfigQueries,
   types as ConfigTypes,
-} from '@/configs/graphql/schemas'
+} from '@/configs/graphql/schemas';
 import {
   types as MsdynamicTypes,
   mutations as MsdynamicMutations,

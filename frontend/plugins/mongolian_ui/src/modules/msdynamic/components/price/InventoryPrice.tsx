@@ -68,9 +68,7 @@ const InventoryPrice = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading...
-      </div>
+      <div className="py-10 text-center text-muted-foreground">Loading...</div>
     );
   }
 
@@ -78,9 +76,7 @@ const InventoryPrice = ({
     <div className="space-y-6">
       {/* Header / Action Bar */}
       <Card className="p-4 flex items-center gap-4">
-        <Button onClick={toSyncPrices}>
-          Sync
-        </Button>
+        <Button onClick={toSyncPrices}>Sync</Button>
 
         {items?.matched && (
           <span className="ml-auto text-sm text-muted-foreground">

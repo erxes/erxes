@@ -14,7 +14,7 @@ export default {
       return;
     }
 
-    console.log('handleDailyJob:', subdomain)
+    console.log('handleDailyJob:', subdomain);
 
     for (const config of Object.values(configs)) {
       await syncExchangeRate(subdomain, config);

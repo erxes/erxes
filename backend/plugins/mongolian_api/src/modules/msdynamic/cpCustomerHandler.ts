@@ -34,9 +34,7 @@ export default {
       return;
     }
 
-    const contentType = data.customer
-      ? 'core:customer'
-      : 'core:company';
+    const contentType = data.customer ? 'core:customer' : 'core:company';
 
     const entity = data.customer || data.company;
     const brandId = entity?.scopeBrandIds?.[0];
@@ -47,11 +45,7 @@ export default {
       return;
     }
 
-    console.log(
-      'cpCustomerHandle:',
-      contentType,
-      entity?._id,
-    );
+    console.log('cpCustomerHandle:', contentType, entity?._id);
 
     const syncLogDoc = {
       type: '',

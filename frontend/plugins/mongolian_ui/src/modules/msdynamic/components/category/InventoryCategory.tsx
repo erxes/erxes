@@ -37,10 +37,7 @@ const InventoryCategory = ({
     return (
       <>
         <div className="flex justify-end mb-3">
-          <Button
-            size="sm"
-            onClick={() => toSyncCategory(action, syncable)}
-          >
+          <Button size="sm" onClick={() => toSyncCategory(action, syncable)}>
             Sync
           </Button>
         </div>
@@ -86,9 +83,7 @@ const InventoryCategory = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading...
-      </div>
+      <div className="py-10 text-center text-muted-foreground">Loading...</div>
     );
   }
 
@@ -97,9 +92,7 @@ const InventoryCategory = ({
       {/* Filters */}
       <Card className="p-4 flex flex-wrap gap-4 items-end">
         <div className="space-y-1">
-          <label className="text-sm font-medium">
-            Product Category
-          </label>
+          <label className="text-sm font-medium">Product Category</label>
 
           <Select
             value={queryParams.categoryId || ''}
@@ -110,17 +103,13 @@ const InventoryCategory = ({
             </Select.Trigger>
 
             <Select.Content>
-              <Select.Item value="">
-                Clear category filter
-              </Select.Item>
+              <Select.Item value="">Clear category filter</Select.Item>
             </Select.Content>
           </Select>
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-medium">
-            Brand
-          </label>
+          <label className="text-sm font-medium">Brand</label>
 
           <Select
             value={queryParams.brandId || ''}
@@ -131,16 +120,12 @@ const InventoryCategory = ({
             </Select.Trigger>
 
             <Select.Content>
-              <Select.Item value="">
-                No brand
-              </Select.Item>
+              <Select.Item value="">No brand</Select.Item>
             </Select.Content>
           </Select>
         </div>
 
-        <Button onClick={toCheckCategory}>
-          Check
-        </Button>
+        <Button onClick={toCheckCategory}>Check</Button>
 
         {items?.matched && (
           <span className="ml-auto text-sm text-muted-foreground">

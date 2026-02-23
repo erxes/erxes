@@ -25,9 +25,7 @@ import {
 } from '@/ebarimt/db/models/ProductRule';
 
 // Erkhet
-import {
-  ISyncLogDocument as IEerkhetSyncLogDocument,
-} from '@/erkhet/@types';
+import { ISyncLogDocument as IEerkhetSyncLogDocument } from '@/erkhet/@types';
 
 import {
   ISyncLogModel as IEerkhetSyncLogModel,
@@ -35,9 +33,7 @@ import {
 } from '@/erkhet/db/model/SyncLog';
 
 // MS Dynamic
-import {
-  ICustomerRelationDocument,
-} from '@/msdynamic/@types/dynamic';
+import { ICustomerRelationDocument } from '@/msdynamic/@types/dynamic';
 
 import {
   ICustomerRelationModel,
@@ -100,10 +96,7 @@ export const loadClasses = (
     loadProductGroupClass(models),
   );
 
-  models.SyncLogs = db.model<
-    IEerkhetSyncLogDocument,
-    IEerkhetSyncLogModel
-  >(
+  models.SyncLogs = db.model<IEerkhetSyncLogDocument, IEerkhetSyncLogModel>(
     'syncerkhet_synclogs',
     loadErkhetSyncLogClass(models),
   );
@@ -111,13 +104,9 @@ export const loadClasses = (
   models.CustomerRelations = db.model<
     ICustomerRelationDocument,
     ICustomerRelationModel
-  >(
-    'msdynamics_customer_relation',
-    loadCustomerRelationClass(models),
-  );
+  >('msdynamics_customer_relation', loadCustomerRelationClass(models));
 
   return models;
 };
 
-export const generateModels =
-  createGenerateModels<IModels>(loadClasses);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

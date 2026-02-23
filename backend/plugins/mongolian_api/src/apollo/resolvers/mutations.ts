@@ -9,5 +9,5 @@ export const mutations = {
   ...ebarimtMutations,
   ...erkhetMutations,
   ...msdynamicCheckMutations,
-  ...msdynamicSyncMutations
+  ...msdynamicSyncMutations,
 };

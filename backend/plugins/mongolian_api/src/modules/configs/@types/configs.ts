@@ -13,7 +13,7 @@ export const MnConfigCodes = [
   'stageInIncomeConfig',
   'dealsProductsDefaultFilter',
   'DYNAMIC',
-]
+];
 
 export interface IConfig {
   code: string;

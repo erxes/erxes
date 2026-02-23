@@ -6,7 +6,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 const getCustomer = async (
   subdomain: string,
   customerId: string,
-  customerType: string
+  customerType: string,
 ) => {
   let customer;
 
@@ -70,7 +70,6 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
         defaultValue: {},
       });
 
-
       if (foundfield.text === 'VAT') {
         sendVAT = field.value;
       }
@@ -93,7 +92,7 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     ).then((r) => r.json());
   }
 
@@ -134,10 +133,10 @@ const checkSend = async (customer, config, filterStr) => {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
+          'base64',
         )}`,
       },
-    }
+    },
   ).then((r) => r.json());
 
   if (responseChecker.value?.length) {
@@ -152,7 +151,7 @@ const checkSend = async (customer, config, filterStr) => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
+            `${username}:${password}`,
           ).toString('base64')}`,
           'If-Match': '*',
         },
@@ -178,7 +177,7 @@ export const getMsdCustomerInfo = async (
   customerType: string,
   brandId: string,
   config,
-  syncLog?: ISyncLogDocument
+  syncLog?: ISyncLogDocument,
 ) => {
   let msdCustomer;
   let filterStr;
@@ -192,7 +191,7 @@ export const getMsdCustomerInfo = async (
 
   if (relation) {
     const dayBefore = Math.round(
-      (now.getTime() - relation.modifiedAt.getTime()) / (1000 * 3600 * 24)
+      (now.getTime() - relation.modifiedAt.getTime()) / (1000 * 3600 * 24),
     );
 
     if (dayBefore < 100) {
@@ -227,7 +226,6 @@ export const getMsdCustomerInfo = async (
         module: 'customers',
         action: 'updateCustomer',
         input: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
-
       });
     }
   }
@@ -244,7 +242,7 @@ export const getMsdCustomerInfo = async (
         filter: filterStr,
       },
     },
-    { upsert: true }
+    { upsert: true },
   );
 
   return {
@@ -262,7 +260,7 @@ export const customerToDynamic = async (
   params: any,
   customerType: string,
   models: IModels,
-  configs: any
+  configs: any,
 ) => {
   const brandIds = Object.keys(configs);
 
@@ -282,7 +280,7 @@ export const customerToDynamic = async (
       customerType,
       brandId,
       config,
-      syncLog
+      syncLog,
     );
   }
 };
@@ -313,11 +311,11 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         pluginName: 'core',
         module: 'fields',
         action: 'findOne',
-        input: { 
-            query: {
-                text: 'post code',
-                contextType: 'core:company',
-            },
+        input: {
+          query: {
+            text: 'post code',
+            contextType: 'core:company',
+          },
         },
         defaultValue: {},
       });
@@ -337,10 +335,10 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         module: 'fields',
         action: 'findOne',
         input: {
-            query: {
-                text: 'city',
-                contentType: 'core:company',
-            },
+          query: {
+            text: 'city',
+            contentType: 'core:company',
+          },
         },
         defaultValue: {},
         // action: 'fields.findOne',
@@ -368,10 +366,10 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         module: 'fields',
         action: 'findOne',
         input: {
-            query: {
-               text: 'VAT',
-               contentType: 'core:company',
-            },
+          query: {
+            text: 'VAT',
+            contentType: 'core:company',
+          },
         },
         defaultValue: {},
       });
@@ -409,10 +407,10 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     if (company) {
       await sendTRPCMessage({
         subdomain,
-        pluginName:'core',
+        pluginName: 'core',
         module: 'companies',
         action: 'updateCompany',
-        input:{ _id: company._id, doc: { ...document } },
+        input: { _id: company._id, doc: { ...document } },
         defaultValue: {},
       });
     } else {
@@ -439,7 +437,6 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     defaultValue: {},
   });
 
-
   let customFieldData = [] as any;
   let updateCustomFieldData;
 
@@ -465,7 +462,6 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         },
       });
 
-
       if (foundfield) {
         customFieldData.push({
           field: foundfield._id,
@@ -488,7 +484,6 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         },
         defaultValue: {},
       });
-
 
       if (foundfield) {
         customFieldData.push({
@@ -513,7 +508,6 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         defaultValue: {},
       });
 
-
       if (foundfield) {
         customFieldData.push({
           field: foundfield._id,
@@ -533,40 +527,39 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         defaultValue: {},
       });
 
+      const document: any = {
+        firstName: doc?.Name || 'default',
+        code: doc.No,
+        primaryPhone: doc?.Mobile_Phone_No,
+        phones: [{ phone: doc?.Mobile_Phone_No, type: 'other' }],
+        customFieldsData: updateCustomFieldData,
+        scopeBrandIds: brandIds,
+        state: 'customer',
+      };
 
-    const document: any = {
-      firstName: doc?.Name || 'default',
-      code: doc.No,
-      primaryPhone: doc?.Mobile_Phone_No,
-      phones: [{ phone: doc?.Mobile_Phone_No, type: 'other'}],
-      customFieldsData: updateCustomFieldData,
-      scopeBrandIds: brandIds,
-      state: 'customer',
-    };
-
-    if (customer) {
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'customers',
-        action: 'updateCustomer',
-        method: 'mutation',
-        input: { _id: customer._id, doc: { ...document } },
-        defaultValue: {},
-      });
-    } else {
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'customers',
-        action: 'createCustomer',
-        method: 'mutation',
-        input: { ...document },
-        defaultValue: {},
-      });
+      if (customer) {
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'customers',
+          action: 'updateCustomer',
+          method: 'mutation',
+          input: { _id: customer._id, doc: { ...document } },
+          defaultValue: {},
+        });
+      } else {
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'customers',
+          action: 'createCustomer',
+          method: 'mutation',
+          input: { ...document },
+          defaultValue: {},
+        });
+      }
     }
   }
-};
 };
 
 export const consumeCustomers = async (subdomain, config, doc, action) => {
@@ -577,7 +570,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
   }
 
   if (doc?.Partner_Type === 'Person') {
-    if ((doc.VAT_Registration_No|| '').length === 7) {
+    if ((doc.VAT_Registration_No || '').length === 7) {
       await companyRequest(subdomain, config, action, updateCode, doc);
     } else {
       await customerRequest(subdomain, config, action, updateCode, doc);
@@ -599,7 +592,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
       module: 'companies',
       action: 'findOne',
       input: { _id: doc._id },
-      defaultValue: {}, 
+      defaultValue: {},
     });
 
     const customer = await sendTRPCMessage({

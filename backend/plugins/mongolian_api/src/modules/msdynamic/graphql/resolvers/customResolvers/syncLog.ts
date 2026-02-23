@@ -4,17 +4,14 @@ import { IContext } from '~/connectionResolvers';
 
 export default {
   SyncMsdHistory: {
-    async __resolveReference(
-      { _id }: { _id: string },
-      { models }: IContext
-    ) {
+    async __resolveReference({ _id }: { _id: string }, { models }: IContext) {
       return models.SyncLogs.findOne({ _id });
     },
 
     async createdUser(
       syncLog: ISyncLogDocument,
       _args: any,
-      { subdomain }: IContext
+      { subdomain }: IContext,
     ) {
       if (!syncLog.createdBy) {
         return null;
@@ -30,11 +27,7 @@ export default {
       });
     },
 
-    async content(
-      syncLog: ISyncLogDocument,
-      _args: any,
-      _context: IContext
-    ) {
+    async content(syncLog: ISyncLogDocument, _args: any, _context: IContext) {
       const { contentType, contentId } = syncLog;
 
       if (contentType === 'sales:deal') {
@@ -54,8 +47,7 @@ export default {
 
       if (contentType === 'core:customer') {
         const info =
-          syncLog.consumeData?.object ||
-          syncLog.consumeData?.customer;
+          syncLog.consumeData?.object || syncLog.consumeData?.customer;
 
         return (
           info?.code ||
@@ -70,14 +62,9 @@ export default {
 
       if (contentType === 'core:company') {
         const info =
-          syncLog.consumeData?.object ||
-          syncLog.consumeData?.company;
+          syncLog.consumeData?.object || syncLog.consumeData?.company;
 
-        return (
-          info?.code ||
-          info?.primaryName ||
-          contentId
-        );
+        return info?.code || info?.primaryName || contentId;
       }
 
       return contentId;

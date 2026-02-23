@@ -34,10 +34,7 @@ const Customers = ({
     return (
       <>
         <div className="flex justify-end mb-3">
-          <Button
-            size="sm"
-            onClick={() => toSyncCustomers(action, syncable)}
-          >
+          <Button size="sm" onClick={() => toSyncCustomers(action, syncable)}>
             Sync
           </Button>
         </div>
@@ -82,9 +79,7 @@ const Customers = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading...
-      </div>
+      <div className="py-10 text-center text-muted-foreground">Loading...</div>
     );
   }
 
@@ -92,9 +87,7 @@ const Customers = ({
     <div className="space-y-6">
       {/* Header / Filter Bar */}
       <Card className="p-4 flex items-center gap-4">
-        <Button onClick={toCheckCustomers}>
-          Check
-        </Button>
+        <Button onClick={toCheckCustomers}>Check</Button>
 
         {items?.matched && (
           <span className="ml-auto text-sm text-muted-foreground">

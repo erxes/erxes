@@ -56,12 +56,10 @@ const generateFilter = (params: any) => {
   if (contentId) query.contentId = contentId;
   if (searchConsume)
     query.consumeStr = { $regex: `.*${escapeRegExp(searchConsume)}.*` };
-  if (searchSend)
-    query.sendStr = { $regex: `.*${escapeRegExp(searchSend)}.*` };
+  if (searchSend) query.sendStr = { $regex: `.*${escapeRegExp(searchSend)}.*` };
   if (searchResponse)
     query.responseStr = { $regex: `.*${escapeRegExp(searchResponse)}.*` };
-  if (searchError)
-    query.error = { $regex: `.*${escapeRegExp(searchError)}.*` };
+  if (searchError) query.error = { $regex: `.*${escapeRegExp(searchError)}.*` };
 
   const dateQuery: any = {};
   if (startDate) dateQuery.$gte = getPureDate(startDate);
@@ -155,9 +153,9 @@ export const msdynamicQueries = {
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(
-          `${username}:${password}`,
-        ).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
       },
     }).then((r) => r.json());
 

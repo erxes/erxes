@@ -12,9 +12,9 @@ interface ExchangeRateConfig {
 }
 
 export const getConfig = async (
-  subdomain: string, 
-  code: string, 
-  defaultValue?: any
+  subdomain: string,
+  code: string,
+  defaultValue?: any,
 ) => {
   return await sendTRPCMessage({
     subdomain,
@@ -128,7 +128,6 @@ export const consumeInventory = async (
   }
 };
 
-
 export const consumeCategory = async (
   subdomain,
   config,
@@ -166,10 +165,9 @@ export const consumeCategory = async (
       const parentCategory = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module:'categories',
+        module: 'categories',
         action: 'findOne',
-        input: { code: doc.Parent_Category}
-        
+        input: { code: doc.Parent_Category },
       });
 
       if (parentCategory) {
@@ -255,16 +253,16 @@ export const dealToDynamic = async (
     };
 
     const conformities = await sendTRPCMessage({
-  subdomain,
-  pluginName: 'core',
-  module: 'conformities',
-  action: 'findConformities',
-  input: {
-    mainType: 'deal',
-    mainTypeId: { $in: deal._id },
-  },
-  defaultValue: [],
-});
+      subdomain,
+      pluginName: 'core',
+      module: 'conformities',
+      action: 'findConformities',
+      input: {
+        mainType: 'deal',
+        mainTypeId: { $in: deal._id },
+      },
+      defaultValue: [],
+    });
 
     const customerType =
       conformities.length > 0 ? conformities[0].relType : 'customer';
@@ -995,13 +993,12 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       }
     });
 
-     return Object.fromEntries(
-          Object.entries(latestByCurrency).map(([key, value]) => [
-            key,
-            value.Special_Curr_Exch_Rate,
-          ]),
-        );
-
+    return Object.fromEntries(
+      Object.entries(latestByCurrency).map(([key, value]) => [
+        key,
+        value.Special_Curr_Exch_Rate,
+      ]),
+    );
   } catch (e) {
     console.error('Failed to fetch exchange rates:', e);
   }

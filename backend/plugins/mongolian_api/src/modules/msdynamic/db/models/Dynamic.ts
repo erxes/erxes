@@ -1,12 +1,12 @@
 import {
   customerRelationSchema,
-  syncLogSchema
+  syncLogSchema,
 } from '~/modules/msdynamic/db/definitions/dynamic';
-import {   
+import {
   ICustomerRelation,
   ICustomerRelationDocument,
   ISyncLog,
-  ISyncLogDocument
+  ISyncLogDocument,
 } from '~/modules/msdynamic/@types/dynamic';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -25,9 +25,9 @@ export const loadSyncLogClass = (models: IModels) => {
 
     public static async syncLogsEdit(_id: string, doc: ISyncLog) {
       return await models.SyncLogs.findOneAndUpdate(
-        { _id }, 
-        { $set: { ...doc }},
-        { new: true }
+        { _id },
+        { $set: { ...doc } },
+        { new: true },
       );
     }
 
@@ -42,8 +42,13 @@ export const loadSyncLogClass = (models: IModels) => {
 };
 
 export interface ICustomerRelationModel extends Model<ICustomerRelationDocument> {
-  customerRelationsAdd(doc: ICustomerRelation): Promise<ICustomerRelationDocument>;
-  customerRelationsEdit(_id: string, doc: ICustomerRelation): Promise<ICustomerRelationDocument>;
+  customerRelationsAdd(
+    doc: ICustomerRelation,
+  ): Promise<ICustomerRelationDocument>;
+  customerRelationsEdit(
+    _id: string,
+    doc: ICustomerRelation,
+  ): Promise<ICustomerRelationDocument>;
   customerRelationsRemove(_ids: string[]): Promise<JSON>;
 }
 
@@ -53,8 +58,14 @@ export const loadCustomerRelationClass = (models: IModels) => {
       return models.CustomerRelations.create({ ...doc });
     }
 
-    public static async customerRelationsEdit(_id: string, doc: ICustomerRelation) {
-      return await models.CustomerRelations.updateOne({ _id }, { $set: { ...doc } });
+    public static async customerRelationsEdit(
+      _id: string,
+      doc: ICustomerRelation,
+    ) {
+      return await models.CustomerRelations.updateOne(
+        { _id },
+        { $set: { ...doc } },
+      );
     }
 
     public static async customerRelationsRemove(_ids: string[]) {

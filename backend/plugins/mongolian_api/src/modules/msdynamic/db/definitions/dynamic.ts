@@ -51,7 +51,7 @@ export const syncLogSchema = new Schema(
   },
   {
     timestamps: false,
-  }
+  },
 );
 
 /**
@@ -83,5 +83,5 @@ export const customerRelationSchema = new Schema(
   },
   {
     timestamps: false,
-  }
+  },
 );
