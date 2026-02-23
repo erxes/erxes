@@ -40,11 +40,12 @@ export const usePostsColumns = (
         return (
           <RecordTableInlineCell>
             <div
-              onClick={() =>
+              onClick={(e) => {
+                e.stopPropagation();
                 navigate(
                   `/content/cms/${post.clientPortalId}/posts/detail/${post._id}`,
-                )
-              }
+                );
+              }}
               className="cursor-pointer "
             >
               <Badge variant="secondary">

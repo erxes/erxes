@@ -8,7 +8,6 @@ import { ApolloError, useMutation } from '@apollo/client';
 import { useConfirm, useToast } from 'erxes-ui';
 import { POSTS_EDIT } from '../graphql/mutations/postsEditMutation';
 import { useMemo } from 'react';
-
 interface PostMoreColumnCellProps {
   cell: CellContext<any, unknown>;
   onEdit?: (post: any) => void;
@@ -73,7 +72,7 @@ export const PostMoreColumnCell = ({
     if (onEdit) {
       onEdit(post);
     } else {
-      navigate(`/content/cms/posts/edit/${_id}`);
+      navigate(`/content/posts/detail/${_id}`);
     }
   };
 

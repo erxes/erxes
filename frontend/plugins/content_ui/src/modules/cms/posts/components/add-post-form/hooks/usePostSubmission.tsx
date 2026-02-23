@@ -50,13 +50,8 @@ interface UsePostSubmissionProps {
 export const usePostSubmission = ({
   websiteId,
   editingPost,
-  selectedLanguage,
-  defaultLanguage,
-  translations,
-  defaultLangData,
   onClose,
   navigate,
-  currentPath,
 }: UsePostSubmissionProps) => {
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
@@ -153,11 +148,7 @@ export const usePostSubmission = ({
         if (onClose) {
           onClose();
         } else {
-          if (currentPath?.includes('/cms/')) {
-            navigate('..');
-          } else {
-            navigate(`/content/cms/${websiteId}/posts`);
-          }
+          navigate(`/content/cms/${websiteId}/posts`);
         }
       } else {
         await createPost(input);
@@ -165,11 +156,7 @@ export const usePostSubmission = ({
         if (onClose) {
           onClose();
         } else {
-          if (currentPath?.includes('/cms/')) {
-            navigate('..');
-          } else {
-            navigate(`/content/cms/${websiteId}/posts`);
-          }
+          navigate(`/content/cms/${websiteId}/posts`);
         }
       }
     } catch (error: any) {
