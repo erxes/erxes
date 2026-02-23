@@ -9,11 +9,7 @@ const Header: React.FC<HeaderProps> = ({ title, onNew }) => {
       <h2 className="text-lg font-semibold">{title}</h2>
 
       {onNew && (
-        <button
-          type="button"
-          className="btn btn-outline"
-          onClick={onNew}
-        >
+        <button type="button" className="btn btn-outline" onClick={onNew}>
           + New config
         </button>
       )}

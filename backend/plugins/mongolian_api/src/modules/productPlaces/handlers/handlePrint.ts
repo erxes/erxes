@@ -1,7 +1,4 @@
-import {
-  graphqlPubsub,
-  sendTRPCMessage
-} from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getCustomer } from '../utils/utils';
 
 export const handlePrint = async (
@@ -10,14 +7,11 @@ export const handlePrint = async (
   user,
   productsData,
   printConfig,
-  productById
+  productById,
 ) => {
-  const { customerCode, customerName } = await getCustomer(
-    subdomain,
-    deal
-  );
+  const { customerCode, customerName } = await getCustomer(subdomain, deal);
 
-  const branchIds = productsData.map(pd => pd.branchId);
+  const branchIds = productsData.map((pd) => pd.branchId);
   const branches = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -34,7 +28,7 @@ export const handlePrint = async (
     branchById[branch._id] = branch;
   }
 
-  const departmentIds = productsData.map(pd => pd.departmentId);
+  const departmentIds = productsData.map((pd) => pd.departmentId);
   const departments = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -55,9 +49,9 @@ export const handlePrint = async (
 
   for (const condition of printConfig.conditions) {
     const filteredData = productsData.filter(
-      pd =>
+      (pd) =>
         pd.branchId === condition.branchId &&
-        pd.departmentId === condition.departmentId
+        pd.departmentId === condition.departmentId,
     );
 
     if (!filteredData.length) {
@@ -74,7 +68,7 @@ export const handlePrint = async (
       number: deal.number,
       customerCode,
       customerName,
-      pDatas: filteredData.map(fd => ({
+      pDatas: filteredData.map((fd) => ({
         ...fd,
         product: productById[fd.productId],
       })),
@@ -86,15 +80,12 @@ export const handlePrint = async (
     return;
   }
 
-  await graphqlPubsub.publish(
-    `productPlacesResponded:${user._id}`,
-    {
-      productPlacesResponded: {
-        userId: user._id,
-        responseId: deal._id,
-        sessionCode: user.sessionCode || '',
-        content,
-      },
-    }
-  );
+  await graphqlPubsub.publish(`productPlacesResponded:${user._id}`, {
+    productPlacesResponded: {
+      userId: user._id,
+      responseId: deal._id,
+      sessionCode: user.sessionCode || '',
+      content,
+    },
+  });
 };

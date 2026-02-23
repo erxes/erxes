@@ -234,7 +234,12 @@ const PrintConfig: React.FC<Props> = ({
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Print Conditions</h3>
 
-            <Button type="button" variant="outline" size="sm" onClick={addCondition}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addCondition}
+            >
               + Add condition
             </Button>
           </div>

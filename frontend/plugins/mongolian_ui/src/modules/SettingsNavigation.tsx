@@ -7,18 +7,18 @@ export const SettingsNavigation = () => {
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
-            pathPrefix='mongolian'
-            path='/ebarimt'
+            pathPrefix="mongolian"
+            path="/ebarimt"
             name="Ebarimt"
           />
           <SettingsNavigationMenuLinkItem
-            pathPrefix='mongolian'
-            path='/sync-erkhet'
+            pathPrefix="mongolian"
+            path="/sync-erkhet"
             name="Erkhet"
           />
           <SettingsNavigationMenuLinkItem
-            pathPrefix='mongolian'
-            path='/product-places'
+            pathPrefix="mongolian"
+            path="/product-places"
             name="ProductPlace"
           />
         </Sidebar.Menu>

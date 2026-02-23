@@ -22,4 +22,3 @@ const ProductPlacesSettings = () => {
 };
 
 export default ProductPlacesSettings;
-

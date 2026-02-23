@@ -5,7 +5,6 @@ import SelectUsers from '../selects/SelectUsers';
 
 const SEGMENT_CONTENT_TYPES = ['core:product.product'];
 
-
 type FilterConfig = {
   title: string;
   segmentId: string;
@@ -48,7 +47,11 @@ const DefaultFilterConfig: React.FC<Props> = ({
     setFilters((prev) => [...prev, emptyFilter(prev.length)]);
   };
 
-  const updateFilter = (index: number, field: keyof FilterConfig, value: any) => {
+  const updateFilter = (
+    index: number,
+    field: keyof FilterConfig,
+    value: any,
+  ) => {
     setFilters((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };

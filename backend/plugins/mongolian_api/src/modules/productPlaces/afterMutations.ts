@@ -1,6 +1,4 @@
-import {
-  isEnabled
-} from 'erxes-api-shared/utils';
+import { isEnabled } from 'erxes-api-shared/utils';
 
 import { handleSplit } from './handlers/handleSplit';
 import { handlePlace } from './handlers/handlePlace';
@@ -39,7 +37,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       'dealsProductsDataPlaces',
       'dealsProductsDataPrint',
     ],
-    destinationStageId
+    destinationStageId,
   );
 
   if (!splitConfig && !placeConfig && !printConfig) {
@@ -53,7 +51,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       subdomain,
       deal,
       productsData,
-      splitConfig
+      splitConfig,
     );
   }
 
@@ -64,18 +62,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
       subdomain,
       deal,
       productsData,
-      placeConfig
+      placeConfig,
     );
 
     productsData = placeResult.productsData;
     productById = placeResult.productById;
 
     if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
-      productsData = await handlePricing(
-        subdomain,
-        deal,
-        productsData
-      );
+      productsData = await handlePricing(subdomain, deal, productsData);
     }
   }
 
@@ -86,7 +80,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       user,
       productsData,
       printConfig,
-      productById
+      productById,
     );
   }
 };

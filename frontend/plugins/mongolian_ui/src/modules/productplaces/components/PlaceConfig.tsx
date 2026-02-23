@@ -94,9 +94,7 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
   const updateCondition = (id: string, updated: PlaceConditionUI) => {
     setFormData((prev) => ({
       ...prev,
-      conditions: prev.conditions.map((c) =>
-        c.id === id ? updated : c,
-      ),
+      conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),
     }));
   };
 

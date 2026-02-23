@@ -20,7 +20,6 @@ type Props = {
   delete: () => void;
 };
 
-
 const normalize = (
   config: Partial<PerSplitConfig>,
   stageId: string,
@@ -208,9 +207,7 @@ const SplitConfig: React.FC<Props> = ({
                 pipelineId={localConfig.pipelineId || ''}
                 value={localConfig.stageId || ''}
                 disabled={!localConfig.pipelineId}
-                onValueChange={(stageId: string) =>
-                  update('stageId', stageId)
-                }
+                onValueChange={(stageId: string) => update('stageId', stageId)}
               />
             </div>
           </div>

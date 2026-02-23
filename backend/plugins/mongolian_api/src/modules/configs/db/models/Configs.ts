@@ -11,10 +11,14 @@ export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(
     code: string,
     subId?: string,
-    defaultValue?: any
+    defaultValue?: any,
   ): Promise<IConfigDocument | null>;
   getConfigs(code: string): Promise<IConfigDocument[]>;
-  getConfigValue(code: string, subId?: string, defaultValue?: any): Promise<any>;
+  getConfigValue(
+    code: string,
+    subId?: string,
+    defaultValue?: any,
+  ): Promise<any>;
   getConfigValues(code: string): Promise<any[]>;
 
   createConfig(doc: {
@@ -23,14 +27,18 @@ export interface IConfigModel extends Model<IConfigDocument> {
     subId?: string;
   }): Promise<IConfigDocument>;
 
-  updateConfig(_id: string, value: any, subId?: string): Promise<IConfigDocument | null>;
+  updateConfig(
+    _id: string,
+    value: any,
+    subId?: string,
+  ): Promise<IConfigDocument | null>;
   removeConfig(_id: string): Promise<string>;
 }
 
 export const loadConfigClass = (
   models: IModels,
   _subdomain: string,
-  { sendDbEventLog }: EventDispatcherReturn
+  { sendDbEventLog }: EventDispatcherReturn,
 ) => {
   class ConfigClass {
     /*
