@@ -6,6 +6,7 @@ import { ICPNotificationDocument } from '@/clientportal/types/cpNotification';
 import { firebaseService } from './firebaseService';
 import { NetworkError } from '@/clientportal/services/errorHandler';
 import { CP_NOTIFICATION_PRIORITY_ORDER } from '@/clientportal/constants';
+import * as Handlebars from 'handlebars';
 
 type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
@@ -68,6 +69,10 @@ function parseJsonConfig<T>(configLike: unknown): T {
 }
 
 const THIRTY_DAYS_IN_MS = 30 * 24 * 60 * 60 * 1000;
+
+function normalizeLegacyOTPPlaceholders(template: string): string {
+  return template.replace(/\{code\}/g, '{{code}}');
+}
 
 export interface SendEmailOptions {
   toEmails: string[];
@@ -275,7 +280,9 @@ export async function sendOTPSMS(
     return;
   }
 
-  const message = template.replace('{code}', code);
+  const templateData = { code };
+  const normalizedTemplate = normalizeLegacyOTPPlaceholders(template);
+  const message = Handlebars.compile(normalizedTemplate)(templateData);
 
   await sendSMS(
     {
