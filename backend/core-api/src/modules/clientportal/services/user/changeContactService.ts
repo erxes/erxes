@@ -124,6 +124,13 @@ export async function confirmChangeEmail(
 
   validateActionCode(user, code, 'EMAIL_CHANGE');
 
+  await assertContactChangeUnique(
+    user.clientPortalId,
+    userId,
+    { email: user.pendingEmail },
+    models,
+  );
+
   await models.CPUser.updateOne(
     { _id: userId },
     {
@@ -234,6 +241,13 @@ export async function confirmChangePhone(
   }
 
   validateActionCode(user, code, 'PHONE_CHANGE');
+
+  await assertContactChangeUnique(
+    user.clientPortalId,
+    userId,
+    { phone: user.pendingPhone },
+    models,
+  );
 
   await models.CPUser.updateOne(
     { _id: userId },
