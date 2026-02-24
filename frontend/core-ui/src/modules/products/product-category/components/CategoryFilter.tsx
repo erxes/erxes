@@ -1,6 +1,5 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
-import { TagsFilter } from 'ui-modules';
 import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
 
 export const CategoryFilter = () => {
@@ -28,7 +27,6 @@ export const CategoriesFilterPopover = () => {
                   <IconSearch />
                   Search
                 </Filter.Item>
-                <TagsFilter />
               </Command.List>
             </Command>
           </Filter.View>

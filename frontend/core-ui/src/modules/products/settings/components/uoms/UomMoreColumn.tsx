@@ -19,6 +19,7 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { confirm } = useConfirm();
   const { removeUoms, loading } = useUomsRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleEdit = () => {
     setIsEditOpen(true);
@@ -27,6 +28,7 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${uom.name}"?`,
+      options: confirmOptions,
     }).then(() => {
       removeUoms({
         variables: { uomIds: [uom._id] },

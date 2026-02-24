@@ -3,8 +3,14 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { IProductCategory } from 'ui-modules';
 import { useToast } from 'erxes-ui';
 
-const normalizeCategoryIds = (categoryIds: string | string[]) =>
-  Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+const normalizeCategoryIds = (categoryIds: string | string[]) => {
+  const rawIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+
+  return rawIds
+    .flatMap((id) => id.split(','))
+    .map((id) => id.trim())
+    .filter(Boolean);
+};
 
 const filterOutCategories = (ids: string[]) => (category: IProductCategory) =>
   !ids.includes(category._id);
@@ -42,27 +48,39 @@ export const useRemoveCategories = () => {
   ) => {
     const ids = normalizeCategoryIds(categoryIds);
 
-    await _removeCategory({
-      ...options,
-      variables: {
-        _id: categoryIds,
-        ...options?.variables,
-      },
-      update: (cache) => applyCacheCategoryRemoval(cache, ids),
-      onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Category removed successfully',
+    const { onCompleted, onError, ...restOptions } = options || {};
+
+    try {
+      for (const id of ids) {
+        await _removeCategory({
+          ...restOptions,
+          variables: {
+            ...(restOptions as any)?.variables,
+            _id: id,
+          },
+          update: (cache) => applyCacheCategoryRemoval(cache, [id]),
         });
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Category removed successfully',
+      });
+
+      if (typeof onCompleted === 'function') {
+        onCompleted();
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+
+      if (typeof onError === 'function') {
+        onError(error);
+      }
+    }
   };
 
   return { removeCategory, loading };

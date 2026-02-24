@@ -5,7 +5,6 @@ import { ProductCommandBar } from '@/products/components/product-command-bar/Pro
 import { useProducts } from '@/products/hooks/useProducts';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '@/products/constants/productsCursorSessionKey';
 import { useTranslation } from 'react-i18next';
-
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { ProductAddSheet } from '@/products/components/ProductAddSheet';
 export const ProductsRecordTable = () => {
@@ -13,6 +12,10 @@ export const ProductsRecordTable = () => {
   const { t } = useTranslation('product');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  if (!loading && (productsMain?.length ?? 0) === 0) {
+    return <EmptyStateRow />;
+  }
 
   return (
     <RecordTable.Provider
@@ -40,27 +43,27 @@ export const ProductsRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && productsMain?.length === 0 && (
-          <div>
-            <div className="flex justify-center px-8 w-full h-full">
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="mb-6">
-                  <IconShoppingCartX
-                    size={64}
-                    className="mx-auto mb-4 text-muted-foreground"
-                  />
-                  <h3 className="mb-2 text-xl font-semibold">No product yet</h3>
-                  <p className="max-w-md text-muted-foreground">
-                    Get started by creating your first product.
-                  </p>
-                </div>
-                <ProductAddSheet />
-              </div>
-            </div>
-          </div>
-        )}
       </RecordTable.CursorProvider>
       <ProductCommandBar />
     </RecordTable.Provider>
   );
 };
+
+function EmptyStateRow() {
+  return (
+    <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
+      <IconShoppingCartX
+        size={64}
+        stroke={1.5}
+        className="text-muted-foreground"
+      />
+      <h2 className="text-lg font-semibold text-muted-foreground">
+        No product yet
+      </h2>
+      <p className="mb-4 text-md text-muted-foreground">
+        Get started by creating your first product.
+      </p>
+      <ProductAddSheet />
+    </div>
+  );
+}
