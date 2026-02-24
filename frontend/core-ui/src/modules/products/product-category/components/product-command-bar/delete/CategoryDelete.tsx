@@ -1,6 +1,5 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { ApolloError } from '@apollo/client';
 import { useRemoveCategories } from '@/products/product-category/hooks/useRemoveCategories';
 import type { ReactNode } from 'react';
 import { useCallback } from 'react';
@@ -39,10 +38,14 @@ export const CategoriesDelete = ({
     })
       .then(() => {
         removeCategory(categoryIds, {
-          onError: (e: ApolloError) => {
+          onError: ({ errors }) => {
+            const errorMessage =
+              errors.length > 0
+                ? errors.map((e) => e.message).join(', ')
+                : 'Failed to delete categories';
             toast({
               title: 'Error',
-              description: e.message,
+              description: errorMessage,
               variant: 'destructive',
             });
           },

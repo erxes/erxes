@@ -1,5 +1,5 @@
 import { productsMutations, productsQueries } from '@/products/graphql';
-import { OperationVariables, useMutation } from '@apollo/client';
+import { OperationVariables, useMutation, ApolloCache } from '@apollo/client';
 import { IProductCategory } from 'ui-modules';
 
 const normalizeCategoryIds = (categoryIds: string | string[]) => {
@@ -21,7 +21,7 @@ const getUpdatedCategories = (
   productCategories: productCategories.filter(filterOutCategories(ids)),
 });
 
-const applyCacheCategoryRemoval = (cache: any, ids: string[]) => {
+const applyCacheCategoryRemoval = (cache: ApolloCache<any>, ids: string[]) => {
   cache.updateQuery(
     {
       query: productsQueries.productCategories,
@@ -35,6 +35,21 @@ const applyCacheCategoryRemoval = (cache: any, ids: string[]) => {
   );
 };
 
+interface RemoveError {
+  message: string;
+}
+
+interface RemoveErrorResult {
+  succeededIds: string[];
+  errors: RemoveError[];
+}
+
+interface RemoveCategoryOptions {
+  variables?: OperationVariables;
+  onCompleted?: (succeededIds: string[]) => void;
+  onError?: (result: RemoveErrorResult) => void;
+}
+
 export const useRemoveCategories = () => {
   const [_removeCategory, { loading }] = useMutation(
     productsMutations.categoryRemove,
@@ -42,31 +57,29 @@ export const useRemoveCategories = () => {
 
   const removeCategory = async (
     categoryIds: string | string[],
-    options?: OperationVariables & {
-      onCompleted?: (succeededIds: string[]) => void;
-      onError?: (result: { succeededIds: string[]; errors: any[] }) => void;
-    },
+    options?: RemoveCategoryOptions,
   ) => {
     const ids = normalizeCategoryIds(categoryIds);
 
-    const { onCompleted, onError, ...restOptions } = options || {};
+    const { variables, onCompleted, onError } = options || {};
 
     const succeededIds: string[] = [];
-    const errors: any[] = [];
+    const errors: RemoveError[] = [];
 
     for (const id of ids) {
       try {
         await _removeCategory({
-          ...restOptions,
           variables: {
-            ...(restOptions.variables as OperationVariables),
+            ...(variables as OperationVariables),
             _id: id,
           },
           update: (cache) => applyCacheCategoryRemoval(cache, [id]),
         });
         succeededIds.push(id);
       } catch (error) {
-        errors.push(error);
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+        errors.push({ message: errorMessage });
       }
     }
 
