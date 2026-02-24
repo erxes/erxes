@@ -23,6 +23,7 @@ export interface ICPUserRegisterParams {
   companyName?: string;
   password?: string;
   type?: string | 'customer' | 'company';
+  sendOtp?: boolean;
 }
 
 export interface IRefreshToken {

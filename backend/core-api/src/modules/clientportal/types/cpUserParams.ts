@@ -8,6 +8,7 @@ export interface RegisterParams {
   lastName?: string;
   password?: string;
   userType?: string;
+  sendOtp?: boolean;
 }
 
 export interface EditUserParams {
@@ -21,7 +22,7 @@ export interface EditUserParams {
 
 export interface VerifyParams {
   userId: string;
-  code: number;
+  code: string;
   email: string;
   phone: string;
 }
@@ -49,7 +50,7 @@ export interface RequestOTPParams {
 
 export interface LoginOTPParams {
   identifier: string;
-  otp: number;
+  otp: string;
 }
 
 export interface SocialAuthParams {

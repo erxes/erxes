@@ -103,8 +103,9 @@ export async function registerUser(
     validateUserRegistration(params);
   }
 
+  const { sendOtp, ...documentParams } = params;
   const document = {
-    ...params,
+    ...documentParams,
     isEmailVerified: false,
     isPhoneVerified: false,
   };
@@ -119,7 +120,7 @@ export async function registerUser(
   const identifier = user.email || user.phone;
   let resultUser = user;
 
-  if (identifier) {
+  if (sendOtp && identifier) {
     const identifierType = detectIdentifierType(identifier);
 
     const shouldAutoVerify =
@@ -154,7 +155,7 @@ export async function verifyUser(
   userId: string,
   email: string,
   phone: string,
-  code: number,
+  code: string,
   clientPortal: IClientPortalDocument,
   models: IModels,
 ): Promise<ICPUserDocument> {

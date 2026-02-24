@@ -63,7 +63,7 @@ function isExceedingHourlyLimit(
 
 export async function loginWithOTP(
   identifier: string,
-  otp: number,
+  otp: string,
   clientPortal: IClientPortalDocument,
   models: IModels,
 ): Promise<ICPUserDocument> {

@@ -127,6 +127,7 @@ const userRegisterParams = `
   firstName: String,
   lastName: String,
   userType: CPUserType,
+  sendOtp: Boolean,
 `;
 
 const userEditParams = `
@@ -169,13 +170,13 @@ export const mutations = `
   cpUsersSetPassword(_id: String!, newPassword: String!): CPUser
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
-  clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser
+  clientPortalUserVerify(userId: String, code: String!, email: String, phone: String): CPUser
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): JSON
   clientPortalLogout: String
   clientPortalUserForgotPassword(identifier: String!): String
   clientPortalUserResetPassword(token: String, identifier: String, code: String, newPassword: String!): String
   clientPortalUserRequestOTP(identifier: String!): String
-  clientPortalUserLoginWithOTP(identifier: String!, otp: Int!): JSON
+  clientPortalUserLoginWithOTP(identifier: String!, otp: String!): JSON
   clientPortalUserRegisterWithSocial(provider: SocialAuthProvider!, token: String!): CPUser
   clientPortalUserLoginWithSocial(provider: SocialAuthProvider!, token: String!): String
   clientPortalUserLinkSocialAccount(provider: SocialAuthProvider!, token: String!): CPUser
