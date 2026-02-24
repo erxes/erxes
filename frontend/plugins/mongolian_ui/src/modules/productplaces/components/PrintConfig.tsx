@@ -31,6 +31,7 @@ const PrintConfig: React.FC<Props> = ({
   save,
   delete: deleteConfig,
 }) => {
+  console.log('config prop:', config);
   const form = useForm();
 
   /** UI-only saved list */
@@ -44,26 +45,46 @@ const PrintConfig: React.FC<Props> = ({
   });
 
   /** sync form */
+  // useEffect(() => {
+  //   if (activeIndex !== null) {
+  //     const selected = savedConfigs[activeIndex];
+  //     if (selected) setFormData(selected);
+  //     return;
+  //   }
+
+  //   if (!config) {
+  //     setFormData({ ...emptyForm, stageId: currentStageId });
+  //     return;
+  //   }
+
+  //   setFormData({
+  //     title: config.title ?? '',
+  //     boardId: config.boardId ?? '',
+  //     pipelineId: config.pipelineId ?? '',
+  //     stageId: config.stageId ?? currentStageId,
+  //     conditions: config.conditions ?? [],
+  //   });
+  // }, [config, activeIndex, savedConfigs, currentStageId]);
   useEffect(() => {
-    if (activeIndex !== null) {
-      const selected = savedConfigs[activeIndex];
-      if (selected) setFormData(selected);
-      return;
-    }
+  if (!config) {
+    setSavedConfigs([]);
+    setFormData({ ...emptyForm });
+    setActiveIndex(null);
+    return;
+  }
 
-    if (!config) {
-      setFormData({ ...emptyForm, stageId: currentStageId });
-      return;
-    }
+  // Backend only returns one config
+  setSavedConfigs([config]);
+  setActiveIndex(0);
 
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? currentStageId,
-      conditions: config.conditions ?? [],
-    });
-  }, [config, activeIndex, savedConfigs, currentStageId]);
+  setFormData({
+    title: config.title ?? '',
+    boardId: config.boardId ?? '',
+    pipelineId: config.pipelineId ?? '',
+    stageId: config.stageId ?? '',
+    conditions: config.conditions ?? [],
+  });
+}, [config]);
 
   /* ---------- helpers ---------- */
   const updateField = useCallback(

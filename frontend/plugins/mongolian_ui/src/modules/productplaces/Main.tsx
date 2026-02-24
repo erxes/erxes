@@ -1,4 +1,4 @@
-import ProductPlacesSettings from '../../pages/productplaces/ProductPlacesSettings';
+import ProductPlacesSettings from './components/ProductPlacesSettings';
 
 const Main = () => {
   return (
