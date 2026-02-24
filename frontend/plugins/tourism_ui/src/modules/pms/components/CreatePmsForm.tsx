@@ -1,8 +1,11 @@
-import { Form, useToast } from 'erxes-ui';
+import { Form, Spinner, useToast } from 'erxes-ui';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ApolloError } from '@apollo/client';
 import { usePmsCreateBranch } from '../hooks/usePmsCreateBranch';
+import { usePmsBranchDetail } from '../hooks/usePmsBranchDetail';
+import { usePmsEditBranch } from '../hooks/usePmsEditBranch';
 import {
   PmsBranchFormSchema,
   PmsBranchFormType,
@@ -13,15 +16,24 @@ import {
   PmsCreateSheetHeader,
 } from './CreatePmsSheet';
 import { CreatePmsFormContent } from './CreatePmsFormContent';
+import { nanoid } from 'nanoid';
 
 const CreatePmsForm = ({
   onOpenChange,
   onSuccess,
+  mode,
+  branchId,
 }: {
   onOpenChange?: (open: boolean) => void;
   onSuccess?: () => void;
+  mode: 'create' | 'edit';
+  branchId?: string;
 }) => {
-  const { createPmsBranch } = usePmsCreateBranch();
+  const { createPmsBranch, loading: createLoading } = usePmsCreateBranch();
+  const { editBranch, loading: editLoading } = usePmsEditBranch();
+  const { branch, loading: detailLoading } = usePmsBranchDetail(
+    mode === 'edit' ? branchId || '' : '',
+  );
 
   const form = useForm<PmsBranchFormType>({
     resolver: zodResolver(PmsBranchFormSchema),
@@ -36,63 +48,190 @@ const CreatePmsForm = ({
       websiteReservationLock: false,
       time: '',
       paymentIds: [],
+      paymentTypes: [],
       erxesAppToken: '',
       otherPayments: [],
-      generalManagerIds: [],
-      managerIds: [],
-      reservationManagerIds: [],
-      receptionIds: [],
-      housekeeperIds: [],
+      user1Ids: [],
+      user2Ids: [],
+      user3Ids: [],
+      user4Ids: [],
+      user5Ids: [],
+      departmentId: '',
+      permissionConfig: {},
+      uiOptions: {},
+      pipelineConfig: {},
+      extraProductCategories: [],
+      roomCategories: [],
       logo: '',
-      color: '',
+      primaryColor: '#FFFFFF',
+      secondaryColor: '#6569DF',
+      thirdColor: '#3CCC38',
       website: '',
       boardId: '',
       pipelineId: '',
       stageId: '',
       roomsCategoryId: '',
       extrasCategoryId: '',
+      discount: {},
     },
   });
 
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (mode !== 'edit') {
+      return;
+    }
+
+    if (!branch || !branchId) {
+      return;
+    }
+
+    form.reset({
+      name: branch.name || '',
+      description: branch.description || '',
+      checkInTime: branch.checkintime || '',
+      checkOutTime: branch.checkouttime || '',
+      checkInAmount: branch.checkinamount || 0,
+      checkOutAmount: branch.checkoutamount || 0,
+      discounts: Array.isArray(branch.discount) ? branch.discount : [],
+      time: branch.time || '',
+      paymentIds: branch.paymentIds || [],
+      paymentTypes: branch.paymentTypes || [],
+      erxesAppToken: branch.erxesAppToken || '',
+      user1Ids: branch.user1Ids || [],
+      user2Ids: branch.user2Ids || [],
+      user3Ids: branch.user3Ids || [],
+      user4Ids: branch.user4Ids || [],
+      user5Ids: branch.user5Ids || [],
+      departmentId: branch.departmentId || '',
+      permissionConfig: branch.permissionConfig || {},
+      uiOptions: branch.uiOptions || {},
+      pipelineConfig: branch.pipelineConfig || {},
+      extraProductCategories: branch.extraProductCategories || [],
+      roomCategories: branch.roomCategories || [],
+      logo: branch.uiOptions?.logo || '',
+      primaryColor: branch.uiOptions?.colors?.primary || '#FFFFFF',
+      secondaryColor: branch.uiOptions?.colors?.secondary || '#6569DF',
+      thirdColor: branch.uiOptions?.colors?.third || '#3CCC38',
+      boardId: branch.pipelineConfig?.boardId || '',
+      pipelineId: branch.pipelineConfig?.pipelineId || '',
+      stageId: branch.pipelineConfig?.stageId || '',
+      roomsCategoryId: branch.roomCategories?.[0] || '',
+      extrasCategoryId: branch.extraProductCategories?.[0] || '',
+      discount: branch.discount || {},
+    });
+  }, [branch, branchId, form, mode]);
+
   const onSubmit = (data: PmsBranchFormType) => {
-    createPmsBranch({
-      variables: {
-        name: data.name,
-        description: data.description || '',
-        erxesAppToken: data.erxesAppToken || '',
-        user1Ids: data.generalManagerIds || [],
-        user2Ids: data.managerIds || [],
-        user3Ids: data.reservationManagerIds || [],
-        user4Ids: data.receptionIds || [],
-        user5Ids: data.housekeeperIds || [],
-        paymentIds: data.paymentIds || [],
-        uiOptions: {
-          logo: data.logo || '',
-          colors: { primary: data.color || '' },
+    const createVariables = {
+      name: data.name,
+      description: data.description || '',
+      erxesAppToken: data.erxesAppToken || '',
+      user1Ids: data.user1Ids || [],
+      user2Ids: data.user2Ids || [],
+      user3Ids: data.user3Ids || [],
+      user4Ids: data.user4Ids || [],
+      user5Ids: data.user5Ids || [],
+      paymentIds: data.paymentIds || [],
+      paymentTypes:
+        data.otherPayments?.map((payment) => ({
+          _id: nanoid(),
+          type: payment.type || '',
+          title: payment.title || '',
+          icon: payment.icon || '',
+          config: payment.config || '',
+        })) || [],
+      uiOptions: {
+        logo: data.logo || '',
+        colors: {
+          primary: data.primaryColor || '',
+          secondary: data.secondaryColor || '',
+          third: data.thirdColor || '',
         },
-        pipelineConfig: {
-          boardId: data.boardId || '',
-          pipelineId: data.pipelineId || '',
-        },
-        extraProductCategories:
-          (data.extrasCategoryId && [data.extrasCategoryId]) || [],
-        roomCategories: (data.roomsCategoryId && [data.roomsCategoryId]) || [],
-        discount:
-          data.discounts.map((discount) => ({
-            _id: '',
-            type: discount.type || '',
-            title: discount.title || '',
-            icon: discount.icon || '',
-            config: discount.config || '',
-          })) || [],
-        time: data.time || '',
-        checkintime: data.checkInTime,
-        checkouttime: data.checkOutTime,
-        checkinamount: data.checkInAmount,
-        checkoutamount: data.checkOutAmount,
       },
+      pipelineConfig: {
+        boardId: data.boardId || '',
+        pipelineId: data.pipelineId || '',
+        stageId: data.stageId || '',
+      },
+      extraProductCategories: Array.isArray(data.extrasCategoryId)
+        ? data.extrasCategoryId
+        : data.extrasCategoryId
+        ? [data.extrasCategoryId]
+        : [],
+      roomCategories: (data.roomsCategoryId && [data.roomsCategoryId]) || [],
+      discount:
+        data.discounts.map((discount) => ({
+          _id: nanoid(),
+          type: discount.type || '',
+          title: discount.title || '',
+          icon: discount.icon || '',
+          config: discount.config || '',
+        })) || [],
+      time: data.time || '',
+      checkintime: data.checkInTime,
+      checkouttime: data.checkOutTime,
+      checkinamount: data.checkInAmount,
+      checkoutamount: data.checkOutAmount,
+    };
+
+    const editVariables = {
+      name: data.name,
+      description: data.description || '',
+      erxesAppToken: data.erxesAppToken || '',
+      user1Ids: data.user1Ids || [],
+      user2Ids: data.user2Ids || [],
+      user3Ids: data.user3Ids || [],
+      user4Ids: data.user4Ids || [],
+      user5Ids: data.user5Ids || [],
+      paymentIds: data.paymentIds || [],
+      paymentTypes: data.paymentTypes || [],
+      permissionConfig: data.permissionConfig || {},
+      uiOptions: data.uiOptions || createVariables.uiOptions,
+      pipelineConfig: data.pipelineConfig || createVariables.pipelineConfig,
+      extraProductCategories:
+        data.extraProductCategories || createVariables.extraProductCategories,
+      roomCategories: data.roomCategories || createVariables.roomCategories,
+      time: data.time || '',
+      discount: data.discount || createVariables.discount,
+      checkInTime: data.checkInTime,
+      checkOutTime: data.checkOutTime,
+      checkInAmount: data.checkInAmount,
+      checkOutAmount: data.checkOutAmount,
+    };
+
+    if (mode === 'edit') {
+      if (!branchId) {
+        toast({
+          title: 'Error',
+          description: 'Missing branchId for edit mode',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      editBranch(branchId, editVariables)
+        .then(() => {
+          toast({
+            title: 'Success',
+            description: 'PMS updated successfully',
+          });
+          onOpenChange?.(false);
+          onSuccess?.();
+        })
+        .catch((e: ApolloError) => {
+          toast({
+            title: 'Error',
+            description: e.message,
+            variant: 'destructive',
+          });
+        });
+      return;
+    }
+
+    createPmsBranch({
+      variables: createVariables as any,
       onError: (e: ApolloError) => {
         toast({
           title: 'Error',
@@ -112,17 +251,26 @@ const CreatePmsForm = ({
     });
   };
 
+  const loading =
+    mode === 'edit' ? detailLoading || editLoading : createLoading;
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col h-full"
       >
-        <PmsCreateSheetHeader />
-        <CreatePmsSheetContentLayout>
-          <CreatePmsFormContent form={form} />
+        <PmsCreateSheetHeader mode={mode} />
+        <CreatePmsSheetContentLayout form={form}>
+          {mode === 'edit' && detailLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Spinner />
+            </div>
+          ) : (
+            <CreatePmsFormContent form={form} />
+          )}
         </CreatePmsSheetContentLayout>
-        <PmsCreateSheetFooter />
+        <PmsCreateSheetFooter loading={loading} form={form} mode={mode} />
       </form>
     </Form>
   );

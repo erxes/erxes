@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { pmsMutations } from '../graphql/mutation';
+import { pmsQueries } from '../graphql/queries';
 import {
   IPmsBranch,
   IPmsDiscount,
@@ -15,6 +16,8 @@ interface PmsCreateBranchResponse {
 export interface PmsCreateBranchVariables {
   name: string;
   description?: string;
+  departmentId?: string;
+  token?: string;
   erxesAppToken?: string;
   user1Ids?: string[];
   user2Ids?: string[];
@@ -40,7 +43,18 @@ export const usePmsCreateBranch = () => {
   const [createPmsBranchMutation, { loading, error }] = useMutation<
     PmsCreateBranchResponse,
     PmsCreateBranchVariables
-  >(pmsMutations.PmsBranchAdd);
+  >(pmsMutations.PmsBranchAdd, {
+    refetchQueries: [
+      {
+        query: pmsQueries.PmsBranchList,
+        variables: {
+          page: 1,
+          perPage: 50,
+        },
+      },
+    ],
+    awaitRefetchQueries: true,
+  });
 
   const createPmsBranch = (options: {
     variables: PmsCreateBranchVariables;

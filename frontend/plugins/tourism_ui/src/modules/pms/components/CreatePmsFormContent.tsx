@@ -26,13 +26,13 @@ export const CreatePmsFormContent = ({
       case 4:
         return <Appearance control={form.control} />;
       case 5:
-        return <PipelineConfig control={form.control} />;
+        return <PipelineConfig form={form} />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="w-full flex flex-col gap-6">{renderStepContent()}</div>
+    <div className="flex flex-col gap-6 w-full">{renderStepContent()}</div>
   );
 };

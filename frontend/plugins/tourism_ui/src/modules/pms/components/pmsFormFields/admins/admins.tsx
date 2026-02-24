@@ -1,125 +1,51 @@
 import { Control } from 'react-hook-form';
-import { Button, Form, MultipleSelector, MultiSelectOption } from 'erxes-ui';
+import { Form, InfoCard } from 'erxes-ui';
+import { SelectMember } from 'ui-modules';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
-import Heading from '../../ui/heading';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
-const Admins = ({ control }: { control: Control<PmsBranchFormType> }) => {
-  const options: MultiSelectOption[] = [
-    { value: 'apple', label: 'Apple' },
-    { value: 'banana', label: 'Banana' },
-    { value: 'orange', label: 'Orange' },
-    { value: 'grape', label: 'Grape' },
-    { value: 'strawberry', label: 'Strawberry' },
-    { value: 'watermelon', label: 'Watermelon' },
-    { value: 'kiwi', label: 'Kiwi' },
-    { value: 'mango', label: 'Mango' },
-    { value: 'pineapple', label: 'Pineapple' },
-    { value: 'peach', label: 'Peach' },
-  ];
+interface Props {
+  control: Control<PmsBranchFormType>;
+}
 
+const roleFields = [
+  { name: 'user1Ids', label: 'General Managers' },
+  { name: 'user2Ids', label: 'Managers' },
+  { name: 'user3Ids', label: 'Reservation Managers' },
+  { name: 'user4Ids', label: 'Reception' },
+  { name: 'user5Ids', label: 'Housekeeper' },
+] as const;
+
+const Admins = ({ control }: Props) => {
   return (
     <PmsFormFieldsLayout>
-      <Heading>Admins</Heading>
-      <Form.Field
-        control={control}
-        name="generalManagerIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>General Managers</Form.Label>
-            <Form.Control>
-              <MultipleSelector
-                hidePlaceholderWhenSelected
-                placeholder="Choose team member"
-                defaultOptions={options}
-                onChange={(values: MultiSelectOption[]) => console.log(values)}
-                className="placeholder:text-accent-foreground/70"
-              />
-            </Form.Control>
-            <Form.Message className="text-destructive" />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="managerIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Managers</Form.Label>
-            <Form.Control>
-              <MultipleSelector
-                hidePlaceholderWhenSelected
-                placeholder="Choose team member"
-                defaultOptions={options}
-                onChange={(values: MultiSelectOption[]) => console.log(values)}
-                className="placeholder:text-accent-foreground/70"
-              />
-            </Form.Control>
-            <Form.Message className="text-destructive" />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="reservationManagerIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Reservation Managers</Form.Label>
-            <Form.Control>
-              <MultipleSelector
-                hidePlaceholderWhenSelected
-                placeholder="Choose team member"
-                defaultOptions={options}
-                onChange={(values: MultiSelectOption[]) => console.log(values)}
-                className="placeholder:text-accent-foreground/70"
-              />
-            </Form.Control>
-            <Form.Message className="text-destructive" />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="receptionIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Reception</Form.Label>
-            <Form.Control>
-              <MultipleSelector
-                hidePlaceholderWhenSelected
-                placeholder="Choose team member"
-                defaultOptions={options}
-                onChange={(values: MultiSelectOption[]) => console.log(values)}
-                className="placeholder:text-accent-foreground/70"
-              />
-            </Form.Control>
-            <Form.Message className="text-destructive" />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="housekeeperIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Housekeeper</Form.Label>
-            <Form.Control>
-              <MultipleSelector
-                hidePlaceholderWhenSelected
-                placeholder="Choose team member"
-                defaultOptions={options}
-                onChange={(values: MultiSelectOption[]) => console.log(values)}
-                className="placeholder:text-accent-foreground/70"
-              />
-            </Form.Control>
-            <Form.Message className="text-destructive" />
-          </Form.Item>
-        )}
-      />
-      <Button className="w-fit">
-        <IconPlus /> Add team member
-      </Button>
+      <InfoCard title="Users">
+        <InfoCard.Content>
+          {roleFields.map(({ name, label }) => (
+            <Form.Field
+              key={name}
+              control={control}
+              name={name}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>
+                    {label} <span className="text-destructive">*</span>
+                  </Form.Label>
+                  <Form.Control>
+                    <SelectMember
+                      mode="multiple"
+                      value={field.value || []}
+                      onValueChange={(value) => field.onChange(value)}
+                      placeholder="Choose team member"
+                    />
+                  </Form.Control>
+                  <Form.Message className="text-destructive" />
+                </Form.Item>
+              )}
+            />
+          ))}
+        </InfoCard.Content>
+      </InfoCard>
     </PmsFormFieldsLayout>
   );
 };

@@ -29,6 +29,7 @@ export interface IPmsBranch {
   createdAt: Date;
   token: string;
   erxesAppToken?: string;
+  userId: string;
   user1Ids?: string[];
   user2Ids?: string[];
   user3Ids?: string[];

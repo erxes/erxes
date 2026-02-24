@@ -1,14 +1,29 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet, Stepper } from 'erxes-ui';
-import { PropsWithChildren, useState } from 'react';
+import { Button, Sheet, Sidebar } from 'erxes-ui';
+import { FC, PropsWithChildren, useEffect } from 'react';
 import CreatePmsForm from './CreatePmsForm';
 import { steps } from '../constants/steps.constants';
 import { useAtom, useSetAtom } from 'jotai';
 import { stepState } from '../states/stepStates';
 import { sheetOpenState } from '../states/sheetStates';
+import { UseFormReturn } from 'react-hook-form';
+import { PmsBranchFormType } from '../constants/formSchema';
+
+type CreatePmsSheetContentLayoutProps = PropsWithChildren & {
+  form: UseFormReturn<PmsBranchFormType>;
+};
 
 export const PmsCreateSheet = () => {
   const [open, setOpen] = useAtom(sheetOpenState);
+  const setCurrentStep = useSetAtom(stepState);
+
+  useEffect(() => {
+    if (open) {
+      setCurrentStep(1);
+    } else {
+      setCurrentStep(1);
+    }
+  }, [open, setCurrentStep]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -24,22 +39,38 @@ export const PmsCreateSheet = () => {
           e.preventDefault();
         }}
       >
-        <CreatePmsForm onOpenChange={setOpen} />
+        <CreatePmsForm mode="create" onOpenChange={setOpen} />
       </Sheet.View>
     </Sheet>
   );
 };
 
-export const PmsCreateSheetHeader = () => {
+export const PmsCreateSheetHeader = ({
+  mode = 'create',
+}: {
+  mode?: 'create' | 'edit';
+}) => {
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>Create PMS /Property Management System/</Sheet.Title>
+      <Sheet.Title>
+        {mode === 'edit'
+          ? 'Edit PMS /Property Management System/'
+          : 'Create PMS /Property Management System/'}
+      </Sheet.Title>
       <Sheet.Close />
     </Sheet.Header>
   );
 };
 
-export const PmsCreateSheetFooter = () => {
+export const PmsCreateSheetFooter = ({
+  loading = false,
+  form,
+  mode = 'create',
+}: {
+  loading?: boolean;
+  form: UseFormReturn<PmsBranchFormType>;
+  mode?: 'create' | 'edit';
+}) => {
   const [currentStep, setCurrentStep] = useAtom(stepState);
   const setOpen = useSetAtom(sheetOpenState);
 
@@ -48,8 +79,23 @@ export const PmsCreateSheetFooter = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleNextButton = () => {
-    if (currentStep < steps.length) setCurrentStep(currentStep + 1);
+  const handleNextButton = async () => {
+    if (currentStep >= steps.length) {
+      return;
+    }
+
+    if (currentStep === 1) {
+      const isValid = await form.trigger([
+        'name',
+        'checkInTime',
+        'checkOutTime',
+      ]);
+      if (!isValid) {
+        return;
+      }
+    }
+
+    setCurrentStep(currentStep + 1);
   };
 
   return (
@@ -57,55 +103,75 @@ export const PmsCreateSheetFooter = () => {
       <Button variant={'outline'} onClick={handlePreviousButton} type="button">
         {currentStep === 1 ? 'Cancel' : 'Previous'}
       </Button>
-      <Button
-        onClick={handleNextButton}
-        type={currentStep === steps.length ? 'submit' : 'button'}
-      >
-        {currentStep === steps.length ? 'Save' : 'Next'}
-      </Button>
+      {currentStep === steps.length ? (
+        <Button disabled={loading} type="submit">
+          {loading
+            ? mode === 'edit'
+              ? 'Saving...'
+              : 'Creating...'
+            : mode === 'edit'
+            ? 'Save'
+            : 'Create'}
+        </Button>
+      ) : (
+        <Button onClick={handleNextButton} type="button">
+          Next
+        </Button>
+      )}
     </Sheet.Footer>
   );
 };
 
-export const CreatePmsSheetContentLayout = ({
-  children,
-}: PropsWithChildren) => {
+export const CreatePmsSheetContentLayout: FC<
+  CreatePmsSheetContentLayoutProps
+> = ({ children, form }) => {
   const [currentStep, setCurrentStep] = useAtom(stepState);
 
-  return (
-    <Sheet.Content className="p-5 flex gap-6 overflow-y-auto relative">
-      <div className="w-[200px] h-fit sticky top-0">
-        <Stepper
-          value={currentStep}
-          onValueChange={setCurrentStep}
-          orientation="vertical"
-        >
-          {steps.map((step, index) => (
-            <Stepper.Item
-              key={index + 1}
-              step={index + 1}
-              className="relative items-start not-last:flex-1"
-            >
-              <Stepper.Trigger
-                className="items-center rounded gap-2 pb-5 last:pb-0"
-                type="button"
-              >
-                <Stepper.Indicator className="size-8" asChild>
-                  {index + 1}
-                </Stepper.Indicator>
-                <div className="text-left">
-                  <Stepper.Title>{step}</Stepper.Title>
-                </div>
-              </Stepper.Trigger>
-              {index + 1 < steps.length && (
-                <Stepper.Separator className="absolute inset-y-0 top-[calc(2rem+0.125rem)] left-4 -order-1 m-0 -translate-x-1/2 group-data-[orientation=horizontal]/stepper:w-[calc(100%-2rem-0.25rem)] group-data-[orientation=horizontal]/stepper:flex-none group-data-[orientation=vertical]/stepper:h-[calc(100%-2rem-0.25rem)]" />
-              )}
-            </Stepper.Item>
-          ))}
-        </Stepper>
-      </div>
+  const handleStepChange = async (nextStep: number) => {
+    if (nextStep > currentStep) {
+      if (currentStep === 1) {
+        const isValid = await form.trigger([
+          'name',
+          'checkInTime',
+          'checkOutTime',
+        ]);
+        if (!isValid) {
+          return;
+        }
+      }
+    }
 
-      {children}
+    setCurrentStep(nextStep);
+  };
+
+  return (
+    <Sheet.Content className="flex overflow-hidden p-0">
+      <Sidebar collapsible="none" className="flex-none border-r">
+        <Sidebar.Group>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              {steps.map((step, index) => {
+                const stepNumber = index + 1;
+                const active = currentStep === stepNumber;
+
+                return (
+                  <Sidebar.MenuItem key={stepNumber}>
+                    <Sidebar.MenuButton
+                      type="button"
+                      isActive={active}
+                      onClick={() => void handleStepChange(stepNumber)}
+                    >
+                      {`${stepNumber}. ${step}`}
+                    </Sidebar.MenuButton>
+                  </Sidebar.MenuItem>
+                );
+              })}
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+      </Sidebar>
+
+      <div className="overflow-y-auto flex-1 p-6 bg-background">{children}</div>
     </Sheet.Content>
   );
 };

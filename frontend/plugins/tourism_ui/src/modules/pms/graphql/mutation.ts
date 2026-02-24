@@ -1,10 +1,9 @@
 import { gql } from '@apollo/client';
 
 export const PmsBranchAdd = gql`
-  mutation pmsBranchAdd(
+  mutation PmsBranchAdd(
     $name: String
     $description: String
-    $erxesAppToken: String
     $user1Ids: [String]
     $user2Ids: [String]
     $user3Ids: [String]
@@ -12,13 +11,16 @@ export const PmsBranchAdd = gql`
     $user5Ids: [String]
     $paymentIds: [String]
     $paymentTypes: [JSON]
-    $uiOptions: JSON
+    $departmentId: String
+    $token: String
+    $erxesAppToken: String
     $permissionConfig: JSON
+    $uiOptions: JSON
     $pipelineConfig: JSON
     $extraProductCategories: JSON
     $roomCategories: JSON
-    $discount: JSON
     $time: String
+    $discount: JSON
     $checkintime: String
     $checkouttime: String
     $checkinamount: Float
@@ -27,7 +29,6 @@ export const PmsBranchAdd = gql`
     pmsBranchAdd(
       name: $name
       description: $description
-      erxesAppToken: $erxesAppToken
       user1Ids: $user1Ids
       user2Ids: $user2Ids
       user3Ids: $user3Ids
@@ -35,23 +36,26 @@ export const PmsBranchAdd = gql`
       user5Ids: $user5Ids
       paymentIds: $paymentIds
       paymentTypes: $paymentTypes
-      uiOptions: $uiOptions
+      departmentId: $departmentId
+      token: $token
+      erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
+      uiOptions: $uiOptions
       pipelineConfig: $pipelineConfig
       extraProductCategories: $extraProductCategories
       roomCategories: $roomCategories
-      discount: $discount
       time: $time
+      discount: $discount
       checkintime: $checkintime
       checkouttime: $checkouttime
       checkinamount: $checkinamount
       checkoutamount: $checkoutamount
     ) {
       _id
+      createdAt
+      userId
       name
       description
-      createdAt
-      token
       erxesAppToken
       user1Ids
       user2Ids
@@ -60,20 +64,15 @@ export const PmsBranchAdd = gql`
       user5Ids
       paymentIds
       paymentTypes
-      user {
-        _id
-        details {
-          avatar
-          fullName
-        }
-      }
-      uiOptions
+      departmentId
+      token
       permissionConfig
+      uiOptions
       pipelineConfig
       extraProductCategories
       roomCategories
-      discount
       time
+      discount
       checkintime
       checkouttime
       checkinamount
@@ -167,8 +166,8 @@ export const PmsBranchEdit = gql`
 `;
 
 export const PmsBranchRemove = gql`
-  mutation tmsBranchRemove($_id: String!) {
-    tmsBranchRemove(_id: $_id)
+  mutation pmsBranchRemove($_id: String!) {
+    pmsBranchRemove(_id: $_id)
   }
 `;
 

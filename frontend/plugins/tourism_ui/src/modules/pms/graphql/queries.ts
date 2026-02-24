@@ -1,14 +1,35 @@
 import { gql } from '@apollo/client';
 
 const PmsBranchList = gql`
-  query pmsBranchList($sortField: String, $sortDirection: Int) {
-    pmsBranchList(sortField: $sortField, sortDirection: $sortDirection) {
+  query PmsBranchList(
+    $page: Int
+    $perPage: Int
+    $sortField: String
+    $sortDirection: Int
+  ) {
+    pmsBranchList(
+      page: $page
+      perPage: $perPage
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
       _id
       name
       description
       createdAt
-      token
-      erxesAppToken
+      userId
+    }
+  }
+`;
+
+const PmsBranchDetail = gql`
+  query PmsBranchDetail($id: String!) {
+    pmsBranchDetail(_id: $id) {
+      _id
+      createdAt
+      userId
+      name
+      description
       user1Ids
       user2Ids
       user3Ids
@@ -16,20 +37,16 @@ const PmsBranchList = gql`
       user5Ids
       paymentIds
       paymentTypes
-      user {
-        _id
-        details {
-          avatar
-          fullName
-        }
-      }
-      uiOptions
+      departmentId
+      token
+      erxesAppToken
       permissionConfig
+      uiOptions
       pipelineConfig
       extraProductCategories
       roomCategories
-      discount
       time
+      discount
       checkintime
       checkouttime
       checkinamount
@@ -38,4 +55,17 @@ const PmsBranchList = gql`
   }
 `;
 
-export const pmsQueries = { PmsBranchList };
+const Payments = gql`
+  query Payments($status: String, $kind: String) {
+    payments(status: $status, kind: $kind) {
+      _id
+      name
+      kind
+      status
+      config
+      createdAt
+    }
+  }
+`;
+
+export const pmsQueries = { PmsBranchList, PmsBranchDetail, Payments };

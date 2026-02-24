@@ -1,168 +1,127 @@
-import { Control } from 'react-hook-form';
-import {
-  Button,
-  Form,
-  MultipleSelector,
-  MultiSelectOption,
-  Select,
-} from 'erxes-ui';
+import { UseFormReturn, useWatch } from 'react-hook-form';
+import { Form, Label, InfoCard } from 'erxes-ui';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
-import { IconPlus } from '@tabler/icons-react';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
-import Heading from '../../ui/heading';
+import {
+  SelectBoardFormItem,
+  SelectPipelineFormItem,
+  SelectStageFormItem,
+} from './SelectSalesFlow';
+import { SelectCategory } from 'ui-modules';
 
 const PipelineConfig = ({
-  control,
+  form,
 }: {
-  control: Control<PmsBranchFormType>;
+  form: UseFormReturn<PmsBranchFormType>;
 }) => {
-  const options: MultiSelectOption[] = [
-    { value: 'apple', label: 'Apple' },
-    { value: 'banana', label: 'Banana' },
-    { value: 'orange', label: 'Orange' },
-    { value: 'grape', label: 'Grape' },
-    { value: 'strawberry', label: 'Strawberry' },
-    { value: 'watermelon', label: 'Watermelon' },
-    { value: 'kiwi', label: 'Kiwi' },
-    { value: 'mango', label: 'Mango' },
-    { value: 'pineapple', label: 'Pineapple' },
-    { value: 'peach', label: 'Peach' },
-  ];
+  const boardId = useWatch({ control: form.control, name: 'boardId' });
+  const pipelineId = useWatch({ control: form.control, name: 'pipelineId' });
 
   return (
     <PmsFormFieldsLayout>
-      <Heading>Stage</Heading>
-      <div className="grid grid-cols-3 gap-6">
-        <Form.Field
-          control={control}
-          name="boardId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Board</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Choose board" />
-                  </Select.Trigger>
-                  <Select.Content className="max-h-52">
-                    {['board1', 'board2', 'board3'].map((test, index) => (
-                      <Select.Item value={test} key={index}>
-                        {test}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message className="text-destructive" />
-            </Form.Item>
-          )}
-        />
+      <InfoCard title="Stage">
+        <InfoCard.Content>
+          <div className="grid grid-cols-3 gap-6">
+            <Form.Field
+              control={form.control}
+              name="boardId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Label>BOARD</Label>
+                  <Form.Control>
+                    <SelectBoardFormItem
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Choose a board"
+                    />
+                  </Form.Control>
+                  <Form.Message className="text-destructive" />
+                </Form.Item>
+              )}
+            />
 
-        <Form.Field
-          control={control}
-          name="pipelineId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Pipeline</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Choose pipeline" />
-                  </Select.Trigger>
-                  <Select.Content className="max-h-52">
-                    {['pipeline1', 'pipeline2', 'pipeline3'].map(
-                      (test, index) => (
-                        <Select.Item value={test} key={index}>
-                          {test}
-                        </Select.Item>
-                      ),
-                    )}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message className="text-destructive" />
-            </Form.Item>
-          )}
-        />
+            <Form.Field
+              control={form.control}
+              name="pipelineId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Label>PIPELINE</Label>
+                  <Form.Control>
+                    <SelectPipelineFormItem
+                      value={field.value}
+                      boardId={boardId || ''}
+                      onValueChange={field.onChange}
+                      placeholder="Choose a pipeline"
+                    />
+                  </Form.Control>
+                  <Form.Message className="text-destructive" />
+                </Form.Item>
+              )}
+            />
 
-        <Form.Field
-          control={control}
-          name="stageId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Stage</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Choose stage" />
-                  </Select.Trigger>
-                  <Select.Content className="max-h-52">
-                    {['stage1', 'stage2', 'stage3'].map((test, index) => (
-                      <Select.Item value={test} key={index}>
-                        {test}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message className="text-destructive" />
-            </Form.Item>
-          )}
-        />
-      </div>
+            <Form.Field
+              control={form.control}
+              name="stageId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Label>STAGE</Label>
+                  <Form.Control>
+                    <SelectStageFormItem
+                      value={field.value}
+                      pipelineId={pipelineId || ''}
+                      onValueChange={field.onChange}
+                      placeholder="Choose a stage"
+                    />
+                  </Form.Control>
+                  <Form.Message className="text-destructive" />
+                </Form.Item>
+              )}
+            />
+          </div>
+        </InfoCard.Content>
+      </InfoCard>
 
-      <Heading>Room category</Heading>
-      <Form.Field
-        control={control}
-        name="roomsCategoryId"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Control>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value placeholder="Choose room category" />
-                </Select.Trigger>
-                <Select.Content className="max-h-52">
-                  {['roomCategory1', 'roomCategory2', 'roomCategory3'].map(
-                    (test, index) => (
-                      <Select.Item value={test} key={index}>
-                        {test}
-                      </Select.Item>
-                    ),
-                  )}
-                </Select.Content>
-              </Select>
-            </Form.Control>
-            <Form.Message className="text-destructive" />
-          </Form.Item>
-        )}
-      />
-      <Button className="w-fit">
-        <IconPlus /> Add room
-      </Button>
+      <InfoCard title="Room category">
+        <InfoCard.Content>
+          <Form.Field
+            control={form.control}
+            name="roomsCategoryId"
+            render={({ field }) => (
+              <Form.Item>
+                <Label>ROOM CATEGORY</Label>
+                <Form.Control>
+                  <SelectCategory
+                    selected={field.value}
+                    onSelect={field.onChange}
+                  />
+                </Form.Control>
+                <Form.Message className="text-destructive" />
+              </Form.Item>
+            )}
+          />
+        </InfoCard.Content>
+      </InfoCard>
 
-      <Heading>Extra product categories</Heading>
-      <Form.Field
-        control={control}
-        name="extrasCategoryId"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Control>
-              <MultipleSelector
-                hidePlaceholderWhenSelected
-                placeholder="Choose product categories"
-                defaultOptions={options}
-                onChange={(values: MultiSelectOption[]) => console.log(values)}
-                className="placeholder:text-accent-foreground/70"
-              />
-            </Form.Control>
-            <Form.Message className="text-destructive" />
-          </Form.Item>
-        )}
-      />
-      <Button className="w-fit">
-        <IconPlus /> Add extra product
-      </Button>
+      <InfoCard title="Extra product categories">
+        <InfoCard.Content>
+          <Form.Field
+            control={form.control}
+            name="extrasCategoryId"
+            render={({ field }) => (
+              <Form.Item>
+                <Label>EXTRA PRODUCT CATEGORIES</Label>
+                <Form.Control>
+                  <SelectCategory
+                    selected={field.value}
+                    onSelect={field.onChange}
+                  />
+                </Form.Control>
+                <Form.Message className="text-destructive" />
+              </Form.Item>
+            )}
+          />
+        </InfoCard.Content>
+      </InfoCard>
     </PmsFormFieldsLayout>
   );
 };
