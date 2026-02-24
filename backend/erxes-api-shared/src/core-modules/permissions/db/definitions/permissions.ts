@@ -10,6 +10,7 @@ export const permissionGroupSchema = schemaWrapper(
       permissions: mongooseField({
         type: [
           {
+            plugin: { type: String },
             module: { type: String },
             actions: { type: [String] },
             scope: { type: String, enum: ['own', 'group', 'all'] },
@@ -46,6 +47,7 @@ export const userGroupSchema = schemaWrapper(
 export const permissionSchema = schemaWrapper(
   new Schema({
     _id: mongooseField({ pkey: true }),
+    plugin: mongooseField({ type: String, label: 'Plugin' }),
     module: mongooseField({ type: String, label: 'Module' }),
     action: mongooseField({ type: String, label: 'Action' }),
     userId: mongooseField({ type: String, label: 'User' }),

@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { saveErrorFile } from '~/modules/import-export/workers/utils/errorFileHandler';
+import { importTemplates } from './templates';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -98,5 +99,20 @@ export const importRouter = t.router({
 
         return fileKey;
       }),
+
+      getTemplate: t.procedure
+        .input(
+          z.object({
+            entityType: z.string(),
+          }),
+        )
+        .query(({ input }) => {
+          return (
+            importTemplates[input.entityType] ?? {
+              filename: 'import-template.csv',
+              headers: [],
+            }
+          );
+        }),
   }),
 });

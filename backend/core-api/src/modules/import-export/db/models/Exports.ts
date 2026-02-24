@@ -59,7 +59,16 @@ const buildNotificationMessage = (exportDoc: IExportDocument): string => {
       exportDoc.totalRows > 0
         ? ` ${exportDoc.totalRows.toLocaleString()} records exported.`
         : '';
-    return `Your export "${exportDoc.fileName}" has been completed successfully.${recordsText}`;
+        const derivedLabel = exportDoc.entityType
+          ? exportDoc.entityType
+              .toUpperCase()
+              .split(':')
+              .pop()
+              ?.split('.')
+              .pop()
+          : undefined;
+        const typeLabel = derivedLabel?.trim() ? derivedLabel : exportDoc.fileName;
+      return `Your export "${typeLabel}" has been completed successfully.${recordsText}`;
   }
 
   if (exportDoc.errorMessage) {

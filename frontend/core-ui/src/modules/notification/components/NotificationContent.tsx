@@ -26,30 +26,28 @@ export const NotificationContent = () => {
   );
 };
 
-const NotificationContentWrapper = ({
-  notification,
-}: {
-  notification: INotification;
-}) => {
-  const [pluginName = 'core', collectionType = ''] = (
-    notification?.contentType ?? ''
-  )
-    .replace(':', '.')
-    .split('.', 2);
+const NotificationContentWrapper = ({ notification }: { notification: INotification }) => {
+  const contentType = notification?.contentType ?? '';
 
-  if (pluginName === 'core') {
+  const normalized = contentType.replace(':', '.'); 
+  const parts = normalized.split('.');
+  const plugin = parts[0] || 'core';
+
+  if (plugin === 'core') {
+    const key = parts[parts.length - 1] || '';
+
     const CoreNotificationComponent =
-      CoreNotificationContent[
-        collectionType as keyof typeof CoreNotificationContent
-      ] ?? (() => <></>);
+      CoreNotificationContent[key as keyof typeof CoreNotificationContent] ??
+      (() => <></>);
+
     return <CoreNotificationComponent {...notification} />;
   }
-
   return (
     <RenderPluginsComponent
-      pluginName={`${pluginName}_ui`}
+      pluginName={`${plugin}_ui`}
       remoteModuleName="notificationWidget"
       props={notification}
     />
   );
 };
+
