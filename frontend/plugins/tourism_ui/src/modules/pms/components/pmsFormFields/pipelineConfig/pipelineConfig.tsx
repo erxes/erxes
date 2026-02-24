@@ -94,7 +94,13 @@ const PipelineConfig = ({
                     mode="multiple"
                     value={field.value}
                     onValueChange={(value) =>
-                      field.onChange(Array.isArray(value) ? value : [value])
+                      field.onChange(
+                        Array.isArray(value)
+                          ? value
+                          : value == null
+                          ? []
+                          : [value],
+                      )
                     }
                   />
                 </Form.Control>
@@ -118,7 +124,13 @@ const PipelineConfig = ({
                     mode="multiple"
                     value={field.value}
                     onValueChange={(value) =>
-                      field.onChange(Array.isArray(value) ? value : [value])
+                      field.onChange(
+                        Array.isArray(value)
+                          ? value
+                          : value == null
+                          ? []
+                          : [value],
+                      )
                     }
                   />
                 </Form.Control>

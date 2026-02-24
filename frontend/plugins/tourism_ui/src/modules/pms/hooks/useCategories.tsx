@@ -1,4 +1,4 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
 import { pmsQueries } from '@/pms/graphql/queries';
 import {
   ProductCategoriesResponse,
@@ -6,12 +6,12 @@ import {
 } from '@/pms/types/types';
 
 export const useProductCategories = (
-  options?: OperationVariables,
+  options?: QueryHookOptions<ProductCategoriesResponse, OperationVariables>,
 ): UseProductCategoriesResult => {
-  const { data, loading, error } = useQuery<ProductCategoriesResponse>(
-    pmsQueries.ProductCategories,
-    options,
-  );
+  const { data, loading, error } = useQuery<
+    ProductCategoriesResponse,
+    OperationVariables
+  >(pmsQueries.ProductCategories, options);
 
   return {
     productCategories: data?.productCategories,

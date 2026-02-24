@@ -73,7 +73,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
             </Button>
 
             {fields.map((field, index) => (
-              <div className="flex gap-6 items-end">
+              <div key={field.id} className="flex gap-6 items-end">
                 <div className="grid grid-cols-3 gap-6 w-full">
                   <Form.Field
                     control={control}

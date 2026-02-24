@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const PmsBranchAdd = gql`
-  mutation PmsBranchAdd(
+export const pmsBranchAdd = gql`
+  mutation pmsBranchAdd(
     $name: String
     $description: String
     $user1Ids: [String]
@@ -135,6 +135,7 @@ export const PmsBranchEdit = gql`
       description
       createdAt
       token
+      userId
       erxesAppToken
       user1Ids
       user2Ids
@@ -171,4 +172,4 @@ export const PmsBranchRemove = gql`
   }
 `;
 
-export const pmsMutations = { PmsBranchRemove, PmsBranchAdd, PmsBranchEdit };
+export const pmsMutations = { PmsBranchRemove, pmsBranchAdd, PmsBranchEdit };

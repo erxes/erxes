@@ -7,7 +7,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { stepState } from '../states/stepStates';
 import { sheetOpenState } from '../states/sheetStates';
 import { UseFormReturn } from 'react-hook-form';
-import { PmsBranchFormType } from '../constants/formSchema';
+import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
 type CreatePmsSheetContentLayoutProps = PropsWithChildren & {
   form: UseFormReturn<PmsBranchFormType>;
@@ -108,7 +108,9 @@ export const PmsCreateSheetFooter = ({
       <Button
         disabled={currentStep === steps.length && loading}
         type="button"
-        onClick={currentStep === steps.length ? onSave : handleNextButton}
+        onClick={() =>
+          currentStep === steps.length ? onSave?.() : handleNextButton()
+        }
       >
         {currentStep === steps.length
           ? loading

@@ -39,17 +39,25 @@ export interface PmsCreateBranchVariables {
   checkoutamount?: number;
 }
 
-export const usePmsCreateBranch = () => {
+interface UsePmsCreateBranchParams {
+  page?: number;
+  perPage?: number;
+}
+
+export const usePmsCreateBranch = ({
+  page = 1,
+  perPage = 20,
+}: UsePmsCreateBranchParams = {}) => {
   const [createPmsBranchMutation, { loading, error }] = useMutation<
     PmsCreateBranchResponse,
     PmsCreateBranchVariables
-  >(pmsMutations.PmsBranchAdd, {
+  >(pmsMutations.pmsBranchAdd, {
     refetchQueries: [
       {
         query: pmsQueries.PmsBranchList,
         variables: {
-          page: 1,
-          perPage: 50,
+          page,
+          perPage,
         },
       },
     ],

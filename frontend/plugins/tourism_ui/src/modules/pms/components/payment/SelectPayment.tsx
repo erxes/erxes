@@ -96,14 +96,20 @@ const PaymentInline = ({
   });
 
   React.useEffect(() => {
-    if (!paymentIds?.length || !fetchedPayments.length || payments?.length)
-      return;
+    if (!paymentIds?.length || !fetchedPayments.length) return;
 
-    const matchedPayments = fetchedPayments.filter((p) =>
-      paymentIds.includes(p._id),
-    );
-    if (matchedPayments.length > 0) {
-      updatePayments?.(matchedPayments);
+    const paymentsOutOfSync =
+      !payments?.length ||
+      payments.length !== paymentIds.length ||
+      !paymentIds.every((id) => payments.some((p) => p._id === id));
+
+    if (paymentsOutOfSync) {
+      const matchedPayments = fetchedPayments.filter((p) =>
+        paymentIds.includes(p._id),
+      );
+      if (matchedPayments.length > 0) {
+        updatePayments?.(matchedPayments);
+      }
     }
   }, [paymentIds, fetchedPayments, payments, updatePayments]);
 

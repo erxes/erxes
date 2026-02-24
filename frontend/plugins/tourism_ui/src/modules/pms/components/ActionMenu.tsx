@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { IconChevronDown, IconEdit, IconTrash } from '@tabler/icons-react';
 import { Popover } from 'erxes-ui';
 
@@ -8,7 +9,7 @@ interface ActionMenuProps {
 
 interface DropdownItem {
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   onClick: () => void;
 }
 

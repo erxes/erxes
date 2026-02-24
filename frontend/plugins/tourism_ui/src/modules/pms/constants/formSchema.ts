@@ -4,9 +4,9 @@ export const PmsBranchFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().max(500).optional(),
   checkInTime: z.string().min(1, 'Check in time is required'),
-  checkInAmount: z.coerce.number(),
+  checkInAmount: z.coerce.number().min(0, 'Amount must be non-negative'),
   checkOutTime: z.string().min(1, 'Check out time is required'),
-  checkOutAmount: z.coerce.number(),
+  checkOutAmount: z.coerce.number().min(0, 'Amount must be non-negative'),
   discounts: z.array(
     z
       .object({
@@ -55,7 +55,6 @@ export const PmsBranchFormSchema = z.object({
   stageId: z.string().optional(),
   roomsCategoryIds: z.array(z.string()).optional(),
   extrasCategoryIds: z.array(z.string()).optional(),
-  discount: z.any().optional(),
 });
 
 export type PmsBranchFormType = z.infer<typeof PmsBranchFormSchema>;

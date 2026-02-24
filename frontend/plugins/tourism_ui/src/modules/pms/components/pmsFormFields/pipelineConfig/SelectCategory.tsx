@@ -197,13 +197,28 @@ const SelectCategoryValue = ({ placeholder }: { placeholder?: string }) => {
   const { productCategories } = useProductCategories();
 
   React.useEffect(() => {
-    if (categoryIds.length > 0 && productCategories) {
+    if (!categoryIds.length || !productCategories) return;
+
+    const currentCategoryIds = new Set(categories.map((c) => c._id));
+    const requestedIds = new Set(categoryIds);
+
+    const isSynced =
+      currentCategoryIds.size === requestedIds.size &&
+      Array.from(requestedIds).every((id) => currentCategoryIds.has(id));
+
+    if (isSynced) return;
+
+    const allIdsAvailable = categoryIds.every((id) =>
+      productCategories.some((cat) => cat._id === id),
+    );
+
+    if (allIdsAvailable) {
       const selectedCategories = productCategories.filter((cat) =>
         categoryIds.includes(cat._id),
       );
       setCategories(selectedCategories);
     }
-  }, [categoryIds, productCategories, setCategories]);
+  }, [categoryIds, productCategories, categories, setCategories]);
 
   if (categories.length === 0) {
     return <Combobox.Value placeholder={placeholder || 'Select category'} />;

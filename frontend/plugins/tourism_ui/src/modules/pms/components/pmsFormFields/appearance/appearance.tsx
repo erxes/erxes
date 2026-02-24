@@ -120,7 +120,7 @@ const LogoField = ({
 const Appearance = ({ control }: { control: Control<PmsBranchFormType> }) => {
   return (
     <PmsFormFieldsLayout>
-      <div className="grid grid-cols-[auto_auto] gap-6">
+      <div className="grid grid-cols-2 gap-4">
         <InfoCard title="Logo and favicon">
           <InfoCard.Content>
             <LogoField control={control} name="logo" label="Main logo" />

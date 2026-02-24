@@ -1,16 +1,24 @@
 import { useMutation } from '@apollo/client';
-import { pmsMutations } from '../graphql/mutation';
-import { pmsQueries } from '../graphql/queries';
-import { PmsBranchFormType } from '../constants/formSchema';
+import { pmsMutations } from '@/pms/graphql/mutation';
+import { pmsQueries } from '@/pms/graphql/queries';
+import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
-export const usePmsEditBranch = () => {
+interface UsePmsEditBranchParams {
+  page?: number;
+  perPage?: number;
+}
+
+export const usePmsEditBranch = ({
+  page = 1,
+  perPage = 20,
+}: UsePmsEditBranchParams = {}) => {
   const [editBranch, { loading, error }] = useMutation(
     pmsMutations.PmsBranchEdit,
     {
       refetchQueries: [
         {
           query: pmsQueries.PmsBranchList,
-          variables: { page: 1, perPage: 50 },
+          variables: { page, perPage },
         },
       ],
       awaitRefetchQueries: true,
@@ -48,7 +56,7 @@ export const usePmsEditBranch = () => {
           extraProductCategories: data.extraProductCategories,
           roomCategories: data.roomCategories,
           time: data.time,
-          discount: data.discount,
+          discounts: data.discounts,
           checkintime: data.checkintime ?? data.checkInTime,
           checkouttime: data.checkouttime ?? data.checkOutTime,
           checkinamount: data.checkinamount ?? data.checkInAmount,
