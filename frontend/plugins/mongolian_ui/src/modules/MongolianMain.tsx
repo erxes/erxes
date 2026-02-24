@@ -35,18 +35,18 @@ const MongolianMain = () => {
           <Route path="pos-order" element={<CheckPosOrdersPage />}></Route>
         </Route>
         <Route path="msdynamic">
-  <Route index element={<Navigate to="customers" replace />} />
+          <Route index element={<Navigate to="customers" replace />} />
 
-  <Route path="customers" element={<CustomersPage />} />
-  <Route path="products" element={<InventoryProductsPage />} />
-  <Route path="category" element={<InventoryCategoryPage />} />
-  <Route path="price" element={<InventoryPricePage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="products" element={<InventoryProductsPage />} />
+          <Route path="category" element={<InventoryCategoryPage />} />
+          <Route path="price" element={<InventoryPricePage />} />
 
-  <Route path="synced-orders" element={<CheckSyncedOrdersPage />} />
-  <Route path="synced-orders/:id" element={<PosOrderDetailsPage />} />
+          <Route path="synced-orders" element={<CheckSyncedOrdersPage />} />
+          <Route path="synced-orders/:id" element={<PosOrderDetailsPage />} />
 
-  <Route path="sync-history" element={<SyncHistoryListPage />} />
-</Route>
+          <Route path="sync-history" element={<SyncHistoryListPage />} />
+        </Route>
       </Routes>
     </Suspense>
   );

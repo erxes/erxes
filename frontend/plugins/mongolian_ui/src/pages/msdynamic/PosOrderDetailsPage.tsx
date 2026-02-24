@@ -1,5 +1,5 @@
-import { useParams } from "react-router-dom";
-import PosOrderDetailContainer from "@/msdynamic/containers/PosOrderDetail";
+import { useParams } from 'react-router-dom';
+import PosOrderDetailContainer from '@/msdynamic/containers/PosOrderDetail';
 
 export const PosOrderDetailsPage = () => {
   const { id } = useParams();

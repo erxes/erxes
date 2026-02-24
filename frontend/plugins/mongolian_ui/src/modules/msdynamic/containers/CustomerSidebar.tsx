@@ -3,13 +3,10 @@ import { useQuery, gql } from '@apollo/client';
 import { queries } from '../graphql';
 
 const CustomerSection = ({ id }: { id: string }) => {
-  const { data, loading, error } = useQuery(
-    gql(queries.msdCustomerRelations),
-    {
-      variables: { customerId: id },
-      skip: !id,
-    }
-  );
+  const { data, loading, error } = useQuery(gql(queries.msdCustomerRelations), {
+    variables: { customerId: id },
+    skip: !id,
+  });
 
   if (error) {
     return (

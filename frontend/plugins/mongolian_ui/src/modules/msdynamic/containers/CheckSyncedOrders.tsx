@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import React, { useState } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 
-import CheckSyncedOrders from "../components/syncedOrders/CheckSyncedOrders";
-import { queries, mutations } from "../graphql";
+import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
+import { queries, mutations } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -45,31 +45,24 @@ const CheckSyncedOrdersContainer = ({ queryParams }: Props) => {
     refetch,
   } = useQuery(gql(queries.checkSyncOrders), {
     variables,
-    fetchPolicy: "network-only",
+    fetchPolicy: 'network-only',
   });
 
-  const { data: totalData } = useQuery(
-    gql(queries.checkSyncOrdersTotalCount),
-    {
-      variables,
-      fetchPolicy: "network-only",
-    }
-  );
+  const { data: totalData } = useQuery(gql(queries.checkSyncOrdersTotalCount), {
+    variables,
+    fetchPolicy: 'network-only',
+  });
 
   const { data: posListData } = useQuery(POS_LIST_QUERY);
 
   // mutations
-  const [toCheckMsdSynced] = useMutation(
-    gql(mutations.toCheckMsdSynced)
-  );
+  const [toCheckMsdSynced] = useMutation(gql(mutations.toCheckMsdSynced));
 
-  const [toSendMsdOrdersMutation] = useMutation(
-    gql(mutations.toSendMsdOrders)
-  );
+  const [toSendMsdOrdersMutation] = useMutation(gql(mutations.toSendMsdOrders));
 
   const checkSynced = async (
     { orderIds }: { orderIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => {
     try {
       const response = await toCheckMsdSynced({
@@ -93,16 +86,16 @@ const CheckSyncedOrdersContainer = ({ queryParams }: Props) => {
         .filter((s: any) => s.isSynced)
         .forEach((item: any) => {
           syncedInfos[item._id] = {
-            syncedBillNumber: item.syncedBillNumber || "",
-            syncedDate: item.syncedDate || "",
-            syncedCustomer: item.syncedCustomer || "",
+            syncedBillNumber: item.syncedBillNumber || '',
+            syncedDate: item.syncedDate || '',
+            syncedCustomer: item.syncedCustomer || '',
           };
         });
 
       setUnSyncedOrderIds(unSynced);
       setSyncedOrderInfos(syncedInfos);
 
-      console.log("Check finished");
+      console.log('Check finished');
     } catch (e: any) {
       console.error(e.message);
     }
@@ -114,22 +107,18 @@ const CheckSyncedOrdersContainer = ({ queryParams }: Props) => {
         variables: { orderIds },
       });
 
-      const {
-        _id,
-        syncedBillNumber,
-        syncedDate,
-        syncedCustomer,
-      } = response.data.toSendMsdOrders;
+      const { _id, syncedBillNumber, syncedDate, syncedCustomer } =
+        response.data.toSendMsdOrders;
 
       setSyncedOrderInfos({
         [_id]: {
-          syncedBillNumber: syncedBillNumber || "",
-          syncedDate: syncedDate || "",
-          syncedCustomer: syncedCustomer || "",
+          syncedBillNumber: syncedBillNumber || '',
+          syncedDate: syncedDate || '',
+          syncedCustomer: syncedCustomer || '',
         },
       });
 
-      console.log("Successful");
+      console.log('Successful');
     } catch (e: any) {
       console.error(e.message);
     }

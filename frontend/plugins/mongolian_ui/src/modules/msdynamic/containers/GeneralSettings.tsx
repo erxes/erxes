@@ -9,47 +9,36 @@ type Props = {};
 const GeneralSettingsContainer = (_props: Props) => {
   const { data, loading, refetch } = useQuery(gql(queries.configs), {
     variables: { code: 'DYNAMIC' },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   const [updateConfigs] = useMutation(gql(mutations.updateConfigs));
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading...
-      </div>
+      <div className="py-10 text-center text-muted-foreground">Loading...</div>
     );
   }
 
   const config = data?.configsGetValue || [];
 
-  const configsMap = config?.code
-    ? { [config.code]: config.value }
-    : {};
+  const configsMap = config?.code ? { [config.code]: config.value } : {};
 
   const save = async (map: Record<string, any>) => {
     try {
       await updateConfigs({
-        variables: { configsMap: map }
+        variables: { configsMap: map },
       });
 
       await refetch();
 
-      console.log(
-        'You successfully updated stage in sync msdynamic settings'
-      );
+      console.log('You successfully updated stage in sync msdynamic settings');
     } catch (error: any) {
       console.error(error.message);
     }
   };
 
-  return (
-    <List
-      configsMap={configsMap}
-      save={save}
-    />
-  );
+  return <List configsMap={configsMap} save={save} />;
 };
 
 export default GeneralSettingsContainer;

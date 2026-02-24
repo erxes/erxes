@@ -14,7 +14,7 @@ export const MainNavigation = () => {
         path="mongolian/sync-erkhet"
         icon={IconSandbox}
       />
-       <NavigationMenuLinkItem
+      <NavigationMenuLinkItem
         name="MSDynamic"
         path="mongolian/msdynamic/customers"
         icon={IconSandbox}

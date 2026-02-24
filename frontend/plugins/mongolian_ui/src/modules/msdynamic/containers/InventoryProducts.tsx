@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { gql, useMutation } from "@apollo/client";
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { gql, useMutation } from '@apollo/client';
 
 import InventoryProducts from '../components/products/InventoryProducts';
-import { mutations } from "../graphql";
+import { mutations } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -16,19 +16,15 @@ const InventoryProductsContainer = ({ queryParams }: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const brandId = queryParams.brandId || "noBrand";
+  const brandId = queryParams.brandId || 'noBrand';
 
-  const [toCheckMsdProducts] = useMutation(
-    gql(mutations.toCheckProducts)
-  );
+  const [toCheckMsdProducts] = useMutation(gql(mutations.toCheckProducts));
 
-  const [toSyncMsdProducts] = useMutation(
-    gql(mutations.toSyncProducts)
-  );
+  const [toSyncMsdProducts] = useMutation(gql(mutations.toSyncProducts));
 
   const setBrand = (brandId: string) => {
     const params = new URLSearchParams(location.search);
-    params.set("brandId", brandId);
+    params.set('brandId', brandId);
     navigate(`${location.pathname}?${params.toString()}`);
   };
 
@@ -47,7 +43,7 @@ const InventoryProductsContainer = ({ queryParams }: Props) => {
     data[action].items = data[action].items.map((i: any) =>
       products.find((p) => p.Common_Item_No === i.Common_Item_No)
         ? { ...i, syncStatus: true }
-        : i
+        : i,
     );
   };
 
@@ -61,9 +57,9 @@ const InventoryProductsContainer = ({ queryParams }: Props) => {
 
       const data = response.data.toCheckMsdProducts;
 
-      setSyncStatus(data, "create");
-      setSyncStatus(data, "update");
-      setSyncStatus(data, "delete");
+      setSyncStatus(data, 'create');
+      setSyncStatus(data, 'update');
+      setSyncStatus(data, 'delete');
 
       setItems(data);
     } catch (e: any) {

@@ -88,29 +88,23 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
         <Label>Paid Date Start</Label>
         <DatePicker
           value={
-            state.paidStartDate
-              ? new Date(state.paidStartDate)
-              : undefined
+            state.paidStartDate ? new Date(state.paidStartDate) : undefined
           }
           onChange={(date) =>
             updateParam(
               'paidStartDate',
-              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : '',
             )
           }
         />
 
         <Label>Paid Date End</Label>
         <DatePicker
-          value={
-            state.paidEndDate
-              ? new Date(state.paidEndDate)
-              : undefined
-          }
+          value={state.paidEndDate ? new Date(state.paidEndDate) : undefined}
           onChange={(date) =>
             updateParam(
               'paidEndDate',
-              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : '',
             )
           }
         />
@@ -128,7 +122,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
           onChange={(date) =>
             updateParam(
               'createdStartDate',
-              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : '',
             )
           }
         />
@@ -136,14 +130,12 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
         <Label>Created Date End</Label>
         <DatePicker
           value={
-            state.createdEndDate
-              ? new Date(state.createdEndDate)
-              : undefined
+            state.createdEndDate ? new Date(state.createdEndDate) : undefined
           }
           onChange={(date) =>
             updateParam(
               'createdEndDate',
-              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : '',
             )
           }
         />

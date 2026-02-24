@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { gql, useMutation } from "@apollo/client";
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { gql, useMutation } from '@apollo/client';
 
-import InventoryCategory from "../components/category/InventoryCategory";
-import { mutations } from "../graphql";
+import InventoryCategory from '../components/category/InventoryCategory';
+import { mutations } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -16,26 +16,26 @@ const InventoryCategoryContainer = ({ queryParams }: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const brandId = queryParams.brandId || "noBrand";
-  const categoryId = queryParams.categoryId || "noCategory";
+  const brandId = queryParams.brandId || 'noBrand';
+  const categoryId = queryParams.categoryId || 'noCategory';
 
   const [toCheckMsdProductCategories] = useMutation(
-    gql(mutations.toCheckCategories)
+    gql(mutations.toCheckCategories),
   );
 
   const [toSyncMsdProductCategories] = useMutation(
-    gql(mutations.toSyncCategories)
+    gql(mutations.toSyncCategories),
   );
 
   const setBrand = (brandId: string) => {
     const params = new URLSearchParams(location.search);
-    params.set("brandId", brandId);
+    params.set('brandId', brandId);
     navigate(`${location.pathname}?${params.toString()}`);
   };
 
   const setCategory = (categoryId: string) => {
     const params = new URLSearchParams(location.search);
-    params.set("categoryId", categoryId);
+    params.set('categoryId', categoryId);
     navigate(`${location.pathname}?${params.toString()}`);
   };
 
@@ -50,7 +50,7 @@ const InventoryCategoryContainer = ({ queryParams }: Props) => {
     data[action].items = data[action].items.map((i: any) =>
       categories.find((c) => c.Code === i.Code)
         ? { ...i, syncStatus: true }
-        : i
+        : i,
     );
   };
 
@@ -64,9 +64,9 @@ const InventoryCategoryContainer = ({ queryParams }: Props) => {
 
       const data = response.data.toCheckMsdProductCategories;
 
-      setSyncStatus(data, "create");
-      setSyncStatus(data, "update");
-      setSyncStatus(data, "delete");
+      setSyncStatus(data, 'create');
+      setSyncStatus(data, 'update');
+      setSyncStatus(data, 'delete');
 
       setItems(data);
     } catch (e: any) {

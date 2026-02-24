@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { gql, useMutation } from "@apollo/client";
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { gql, useMutation } from '@apollo/client';
 
-import InventoryPrices from "../components/price/InventoryPrice";
-import { mutations } from "../graphql";
+import InventoryPrices from '../components/price/InventoryPrice';
+import { mutations } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -16,15 +16,13 @@ const InventoryPriceContainer = ({ queryParams }: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const brandId = queryParams.brandId || "noBrand";
+  const brandId = queryParams.brandId || 'noBrand';
 
-  const [toSyncMsdPrices] = useMutation(
-    gql(mutations.toSyncPrices)
-  );
+  const [toSyncMsdPrices] = useMutation(gql(mutations.toSyncPrices));
 
   const setBrand = (brandId: string) => {
     const params = new URLSearchParams(location.search);
-    params.set("brandId", brandId);
+    params.set('brandId', brandId);
     navigate(`${location.pathname}?${params.toString()}`);
   };
 
@@ -47,11 +45,11 @@ const InventoryPriceContainer = ({ queryParams }: Props) => {
 
       const data = response.data.toSyncMsdPrices;
 
-      setSyncStatus(data, "create");
-      setSyncStatus(data, "update");
-      setSyncStatus(data, "match");
-      setSyncStatus(data, "delete");
-      setSyncStatus(data, "error");
+      setSyncStatus(data, 'create');
+      setSyncStatus(data, 'update');
+      setSyncStatus(data, 'match');
+      setSyncStatus(data, 'delete');
+      setSyncStatus(data, 'error');
 
       setItems(data);
     } catch (e: any) {

@@ -1,28 +1,23 @@
-import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import React from 'react';
+import { gql, useQuery } from '@apollo/client';
 
-import Detail from "../components/syncedOrders/PosOrderDetail";
-import { queries } from "../graphql";
+import Detail from '../components/syncedOrders/PosOrderDetail';
+import { queries } from '../graphql';
 
 type Props = {
   order: any;
 };
 
 const OrdersDetailContainer = ({ order }: Props) => {
-  const { data, loading, error } = useQuery(
-    gql(queries.posOrderDetail),
-    {
-      variables: { _id: order?._id },
-      fetchPolicy: "network-only",
-      skip: !order?._id,
-    }
-  );
+  const { data, loading, error } = useQuery(gql(queries.posOrderDetail), {
+    variables: { _id: order?._id },
+    fetchPolicy: 'network-only',
+    skip: !order?._id,
+  });
 
   if (loading) {
     return (
-      <div className="py-6 text-center text-muted-foreground">
-        Loading...
-      </div>
+      <div className="py-6 text-center text-muted-foreground">Loading...</div>
     );
   }
 

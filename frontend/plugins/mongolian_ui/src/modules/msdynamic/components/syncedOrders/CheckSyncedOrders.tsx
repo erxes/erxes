@@ -33,14 +33,11 @@ const CheckSyncedOrders = ({
   const [contentLoading, setContentLoading] = useState(false);
   const [bulk, setBulk] = useState<any[]>([]);
 
-  const isAllSelected =
-    orders.length > 0 && bulk.length === orders.length;
+  const isAllSelected = orders.length > 0 && bulk.length === orders.length;
 
   const toggleBulk = (order: any) => {
     setBulk((prev) =>
-      prev.includes(order)
-        ? prev.filter((o) => o !== order)
-        : [...prev, order]
+      prev.includes(order) ? prev.filter((o) => o !== order) : [...prev, order],
     );
   };
 

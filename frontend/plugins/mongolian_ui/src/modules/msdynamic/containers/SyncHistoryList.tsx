@@ -1,7 +1,7 @@
-import React from "react";
-import { gql, useQuery } from "@apollo/client";
-import SyncHistoryList from "../components/SyncHistoryList";
-import { queries } from "../graphql";
+import React from 'react';
+import { gql, useQuery } from '@apollo/client';
+import SyncHistoryList from '../components/SyncHistoryList';
+import { queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -28,29 +28,27 @@ const generateParams = (queryParams: any) => {
 const SyncHistoryListContainer = ({ queryParams }: Props) => {
   const variables = generateParams(queryParams);
 
-  const {
-    data: historiesData,
-    loading: historiesLoading,
-  } = useQuery(gql(queries.syncMsdHistories), {
-    variables,
-    fetchPolicy: "network-only",
-  });
+  const { data: historiesData, loading: historiesLoading } = useQuery(
+    gql(queries.syncMsdHistories),
+    {
+      variables,
+      fetchPolicy: 'network-only',
+    },
+  );
 
-  const {
-    data: countData,
-    loading: countLoading,
-  } = useQuery(gql(queries.syncMsdHistoriesCount), {
-    variables,
-    fetchPolicy: "network-only",
-  });
+  const { data: countData, loading: countLoading } = useQuery(
+    gql(queries.syncMsdHistoriesCount),
+    {
+      variables,
+      fetchPolicy: 'network-only',
+    },
+  );
 
   const loading = historiesLoading || countLoading;
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading...
-      </div>
+      <div className="py-10 text-center text-muted-foreground">Loading...</div>
     );
   }
 

@@ -1,10 +1,10 @@
-import React from "react";
-import dayjs from "dayjs";
+import React from 'react';
+import dayjs from 'dayjs';
 
-import { Sidebar } from "erxes-ui/components/sidebar";
-import { Table } from "erxes-ui/components/table";
-import { Dialog } from "erxes-ui/components/dialog";
-import { Button } from "erxes-ui/components/button";
+import { Sidebar } from 'erxes-ui/components/sidebar';
+import { Table } from 'erxes-ui/components/table';
+import { Dialog } from 'erxes-ui/components/dialog';
+import { Button } from 'erxes-ui/components/button';
 
 import SideBar from './Sidebar';
 
@@ -50,11 +50,11 @@ const SyncHistoryList = ({
             <tbody>
               {(syncHistories || []).map((item) => (
                 <tr key={item._id} className="hover:bg-muted cursor-pointer">
-                  <td>{dayjs(item.createdAt).format("lll")}</td>
+                  <td>{dayjs(item.createdAt).format('lll')}</td>
                   <td>{item.createdUser?.email}</td>
                   <td>{item.contentType}</td>
                   <td>{item.content}</td>
-                  <td>{item.error || ""}</td>
+                  <td>{item.error || ''}</td>
                 </tr>
               ))}
             </tbody>
@@ -62,9 +62,7 @@ const SyncHistoryList = ({
         </div>
 
         {loading && (
-          <div className="text-sm text-muted-foreground">
-            Loading...
-          </div>
+          <div className="text-sm text-muted-foreground">Loading...</div>
         )}
       </div>
     </div>

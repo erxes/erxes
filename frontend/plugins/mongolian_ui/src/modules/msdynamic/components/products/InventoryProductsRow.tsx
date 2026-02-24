@@ -4,15 +4,8 @@ type Props = {
 };
 
 const Row = ({ product, action }: Props) => {
-  const {
-    Description,
-    No,
-    name,
-    code,
-    unitPrice,
-    Unit_Price,
-    syncStatus
-  } = product;
+  const { Description, No, name, code, unitPrice, Unit_Price, syncStatus } =
+    product;
 
   return (
     <tr>
