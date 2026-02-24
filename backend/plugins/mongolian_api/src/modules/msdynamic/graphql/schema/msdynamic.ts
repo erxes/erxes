@@ -43,7 +43,7 @@ export const types = `
     brand: JSON
   }
 
-  type CheckResponse {
+  type MsdCheckResponse {
     _id: String
     isSynced: Boolean
     syncedDate: String
@@ -68,5 +68,5 @@ export const mutations = `
   toCheckMsdProducts(brandId: String): JSON
   toSyncMsdProducts(brandId: String, action: String, products: [JSON]): JSON
   toSyncMsdCustomers(brandId: String, action: String, customers: [JSON]): JSON
-  toSendMsdOrders(orderIds: [String]): CheckResponse
+  toSendMsdOrders(orderIds: [String]): MsdCheckResponse
 `;

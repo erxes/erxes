@@ -1,197 +1,159 @@
-import { Alert, __, router } from '@erxes/ui/src/utils';
-import { CustomRangeContainer, FilterContainer } from '../../styles';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import Datetime from '@nateradebaugh/react-datetime';
-import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { Wrapper } from '@erxes/ui/src/layout';
 import dayjs from 'dayjs';
 
-const { Section } = Wrapper.Sidebar;
+import { Card } from 'erxes-ui/components/card';
+import { Button } from 'erxes-ui/components/button';
+import { Input } from 'erxes-ui/components/input';
+import { Label } from 'erxes-ui/components/label';
+import { DatePicker } from 'erxes-ui/components/date-picker';
 
-interface IProps {
+type Props = {
   queryParams: any;
-  posList?: any[];
-}
+};
 
-interface State {
-  paidStartDate: Date;
-  paidEndDate: Date;
-  createdStartDate: Date;
-  createdEndDate: Date;
-  search: string;
-  userId: string;
-  brandId: string;
-}
-
-const CheckerSidebar = ({ queryParams }: IProps) => {
-  const [state, setState] = useState<State>({
-    search: queryParams.search,
-    paidStartDate: queryParams.paidStartDate,
-    paidEndDate: queryParams.paidEndDate,
-    createdStartDate: queryParams.createdStartDate,
-    createdEndDate: queryParams.createdEndDate,
-    userId: queryParams.user,
-    brandId: queryParams.brandId,
-  });
+const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const onFilter = () => {
-    const {
-      search,
-      userId,
-      paidStartDate,
-      paidEndDate,
-      createdStartDate,
-      createdEndDate,
-      brandId,
-    } = state;
+  const [state, setState] = useState({
+    search: queryParams.search || '',
+    paidStartDate: queryParams.paidStartDate || '',
+    paidEndDate: queryParams.paidEndDate || '',
+    createdStartDate: queryParams.createdStartDate || '',
+    createdEndDate: queryParams.createdEndDate || '',
+    userId: queryParams.user || '',
+    brandId: queryParams.brandId || '',
+  });
 
-    if (!brandId) {
-      return Alert.error('Choose brandId');
+  const updateParam = (key: string, value: string) => {
+    setState((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const applyFilter = () => {
+    if (!state.brandId) {
+      alert('Choose brand');
+      return;
     }
 
-    router.setParams(navigate, location, {
-      page: 1,
-      search,
-      user: userId,
-      paidStartDate,
-      paidEndDate,
-      createdStartDate,
-      createdEndDate,
-      brandId,
+    const params = new URLSearchParams();
+
+    Object.entries(state).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, String(value));
+      }
     });
+
+    params.set('page', '1');
+
+    navigate(`${location.pathname}?${params.toString()}`);
   };
-
-  const onChangeRangeFilter = (kind, date) => {
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    setState((prevState) => ({ ...prevState, [kind]: cDate }));
-  };
-
-  const renderRange = (dateType) => {
-    const lblStart = `${dateType}StartDate`;
-    const lblEnd = `${dateType}EndDate`;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
-        <CustomRangeContainer>
-          <DateContainer>
-            <Datetime
-              inputProps={{ placeholder: __('Choose Date') }}
-              dateFormat="YYYY-MM-DD"
-              timeFormat="HH:mm"
-              value={state[lblStart] || null}
-              closeOnSelect={true}
-              utc={true}
-              input={true}
-              onChange={(date) => onChangeRangeFilter(lblStart, date)}
-              viewMode={'days'}
-              className={'filterDate'}
-            />
-          </DateContainer>
-          <EndDateContainer>
-            <DateContainer>
-              <Datetime
-                inputProps={{ placeholder: __('Choose Date') }}
-                dateFormat="YYYY-MM-DD"
-                timeFormat="HH:mm"
-                value={state[lblEnd]}
-                closeOnSelect={true}
-                utc={true}
-                input={true}
-                onChange={(date) => onChangeRangeFilter(lblEnd, date)}
-                viewMode={'days'}
-                className={'filterDate'}
-              />
-            </DateContainer>
-          </EndDateContainer>
-        </CustomRangeContainer>
-      </FormGroup>
-    );
-  };
-
-  const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
-    const value = (e.currentTarget as HTMLInputElement).value;
-    const name = (e.currentTarget as HTMLInputElement).name;
-    setState((prevState) => ({ ...prevState, [name]: value }) as any);
-  };
-
-  const onUserChange = (userId) => {
-    setState((prevState) => ({ ...prevState, userId }));
-  };
-
-  const onBrandChange = (brandId) => {
-    setState((prevState) => ({ ...prevState, brandId }));
-  };
-
-  const { search, userId, brandId } = state;
 
   return (
-    <Wrapper.Sidebar hasBorder={true}>
-      <Section.Title>{__('Filters')}</Section.Title>
-      <FilterContainer>
-        <FormGroup>
-          <ControlLabel>Brand</ControlLabel>
-          <SelectBrands
-            label={__('Choose brands')}
-            onSelect={onBrandChange}
-            initialValue={brandId}
-            multi={false}
-            name="selectedBrands"
-            customOption={{
-              label: 'No Brand (noBrand)',
-              value: '',
-            }}
-          />
-        </FormGroup>
+    <Card className="p-4 space-y-6">
+      <div className="text-lg font-semibold">Filters</div>
 
-        <FormGroup>
-          <ControlLabel>Created by</ControlLabel>
-          <SelectTeamMembers
-            label={__('Choose users')}
-            name="userId"
-            customOption={{ label: 'Choose user', value: '' }}
-            initialValue={userId || ''}
-            onSelect={onUserChange}
-            multi={false}
-          />
-        </FormGroup>
+      {/* Brand */}
+      <div className="space-y-2">
+        <Label>Brand</Label>
+        <Input
+          value={state.brandId}
+          onChange={(e) => updateParam('brandId', e.target.value)}
+          placeholder="Brand ID"
+        />
+      </div>
 
-        <FormGroup>
-          <ControlLabel>Number</ControlLabel>
-          <FormControl
-            type="text"
-            name="search"
-            onChange={onChangeInput}
-            value={search}
-            autoFocus={true}
-          />
-        </FormGroup>
-        {renderRange('paid')}
-        {renderRange('created')}
+      {/* User */}
+      <div className="space-y-2">
+        <Label>User</Label>
+        <Input
+          value={state.userId}
+          onChange={(e) => updateParam('userId', e.target.value)}
+          placeholder="User ID"
+        />
+      </div>
 
-        <Button
-          block={true}
-          btnStyle="success"
-          uppercase={false}
-          onClick={onFilter}
-          icon="filter"
-        >
-          {__('Filter')}
-        </Button>
-      </FilterContainer>
-    </Wrapper.Sidebar>
+      {/* Search */}
+      <div className="space-y-2">
+        <Label>Number</Label>
+        <Input
+          value={state.search}
+          onChange={(e) => updateParam('search', e.target.value)}
+          placeholder="Search number"
+        />
+      </div>
+
+      {/* Paid Date Range */}
+      <div className="space-y-2">
+        <Label>Paid Date Start</Label>
+        <DatePicker
+          value={
+            state.paidStartDate
+              ? new Date(state.paidStartDate)
+              : undefined
+          }
+          onChange={(date) =>
+            updateParam(
+              'paidStartDate',
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+            )
+          }
+        />
+
+        <Label>Paid Date End</Label>
+        <DatePicker
+          value={
+            state.paidEndDate
+              ? new Date(state.paidEndDate)
+              : undefined
+          }
+          onChange={(date) =>
+            updateParam(
+              'paidEndDate',
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+            )
+          }
+        />
+      </div>
+
+      {/* Created Date Range */}
+      <div className="space-y-2">
+        <Label>Created Date Start</Label>
+        <DatePicker
+          value={
+            state.createdStartDate
+              ? new Date(state.createdStartDate)
+              : undefined
+          }
+          onChange={(date) =>
+            updateParam(
+              'createdStartDate',
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+            )
+          }
+        />
+
+        <Label>Created Date End</Label>
+        <DatePicker
+          value={
+            state.createdEndDate
+              ? new Date(state.createdEndDate)
+              : undefined
+          }
+          onChange={(date) =>
+            updateParam(
+              'createdEndDate',
+              date ? dayjs(date as Date).format('YYYY-MM-DD HH:mm') : ''
+            )
+          }
+        />
+      </div>
+
+      <Button onClick={applyFilter} className="w-full">
+        Apply Filter
+      </Button>
+    </Card>
   );
 };
 
-export default CheckerSidebar;
+export default CheckSyncedOrdersSidebar;

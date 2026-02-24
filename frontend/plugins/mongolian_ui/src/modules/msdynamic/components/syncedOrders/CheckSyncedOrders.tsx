@@ -10,18 +10,14 @@ type Props = {
   loading: boolean;
   orders: any[];
   queryParams: any;
-  isAllSelected: boolean;
-  bulk: any[];
-  emptyBulk: () => void;
   checkSynced: (
     doc: { orderIds: string[] },
     emptyBulk: () => void,
   ) => Promise<any>;
-  toggleBulk: (order: any) => void;
-  toggleAll: (targets: any[], containerId: string) => void;
   unSyncedOrderIds: string[];
   syncedOrderInfos: any;
   toSendMsdOrders: (orderIds: string[]) => void;
+  posList: any[];
 };
 
 const CheckSyncedOrders = ({
@@ -29,21 +25,34 @@ const CheckSyncedOrders = ({
   loading,
   orders,
   queryParams,
-  isAllSelected,
-  bulk,
-  emptyBulk,
   checkSynced,
-  toggleBulk,
-  toggleAll,
   unSyncedOrderIds,
   syncedOrderInfos,
   toSendMsdOrders,
 }: Props) => {
   const [contentLoading, setContentLoading] = useState(false);
+  const [bulk, setBulk] = useState<any[]>([]);
 
-  const handleToggleAll = () => {
-    toggleAll(orders, 'orders');
+  const isAllSelected =
+    orders.length > 0 && bulk.length === orders.length;
+
+  const toggleBulk = (order: any) => {
+    setBulk((prev) =>
+      prev.includes(order)
+        ? prev.filter((o) => o !== order)
+        : [...prev, order]
+    );
   };
+
+  const toggleAll = () => {
+    if (isAllSelected) {
+      setBulk([]);
+    } else {
+      setBulk(orders);
+    }
+  };
+
+  const emptyBulk = () => setBulk([]);
 
   const handleCheck = async () => {
     if (!window.confirm('Are you sure?')) return;
@@ -114,7 +123,7 @@ const CheckSyncedOrders = ({
                       <input
                         type="checkbox"
                         checked={isAllSelected}
-                        onChange={handleToggleAll}
+                        onChange={toggleAll}
                       />
                     </th>
                     <th className="p-2">Number</th>
