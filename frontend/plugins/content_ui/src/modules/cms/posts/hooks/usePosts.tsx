@@ -143,12 +143,16 @@ export const usePosts = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+
+        const prevPosts = prev.cmsPostList.posts;
+        const newPosts = fetchMoreResult.cmsPostList.posts;
+
         return Object.assign({}, prev, {
           cmsPostList: {
-            posts: [
-              ...(prev.cmsPostList?.posts || []),
-              ...fetchMoreResult.cmsPostList.posts,
-            ],
+            posts:
+              direction === EnumCursorDirection.FORWARD
+                ? [...prevPosts, ...newPosts]
+                : [...newPosts, ...prevPosts],
             totalCount: fetchMoreResult.cmsPostList.totalCount,
             pageInfo: fetchMoreResult.cmsPostList.pageInfo,
           },

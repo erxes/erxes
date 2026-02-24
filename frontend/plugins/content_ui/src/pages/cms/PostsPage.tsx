@@ -3,8 +3,8 @@ import { PostsRecordTable } from '~/modules/cms/posts/components/PostsRecordTabl
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsSidebar } from '~/modules/cms/posts/components/PostsSidebar';
-import { useNavigate } from 'react-router-dom';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
+import { useNavigate, useParams } from 'react-router';
 
 export const PostsIndexPage = ({
   clientPortalId,
@@ -12,9 +12,10 @@ export const PostsIndexPage = ({
   clientPortalId: string;
 }) => {
   const navigate = useNavigate();
+  const { websiteId } = useParams();
 
   const handleEditPost = (post: any) => {
-    navigate(`/content/cms/${clientPortalId}/posts/detail/${post._id}`);
+    navigate(`/content/cms/${websiteId}/posts/detail/${post._id}`);
   };
 
   return (
@@ -22,36 +23,18 @@ export const PostsIndexPage = ({
       <PostsHeader>
         <PostsAdd clientPortalId={clientPortalId} />
       </PostsHeader>
-      <div className="flex overflow-hidden flex-auto">
+      <div className="flex h-full">
         <PostsSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
-          <PostsPageContent
+        <div className="flex flex-col w-full">
+          <PageSubHeader>
+            <PostsFilter clientPortalId={clientPortalId} />
+          </PageSubHeader>
+          <PostsRecordTable
             clientPortalId={clientPortalId}
             onEditPost={handleEditPost}
           />
         </div>
       </div>
     </PageContainer>
-  );
-};
-const PostsPageContent = ({
-  clientPortalId,
-  onEditPost,
-}: {
-  clientPortalId: string;
-  onEditPost: (post: any) => void;
-}) => {
-  return (
-    <div className="overflow-hidden flex-auto">
-      <div className="h-full">
-        <PageSubHeader>
-          <PostsFilter clientPortalId={clientPortalId}/>
-        </PageSubHeader>
-        <PostsRecordTable
-          clientPortalId={clientPortalId}
-          onEditPost={onEditPost}
-        />
-      </div>
-    </div>
   );
 };

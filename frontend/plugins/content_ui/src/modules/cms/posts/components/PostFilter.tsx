@@ -89,7 +89,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
             </Command>
           </Filter.View>
           <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
-          <SelectCategories.FilterView clientPortalId={clientPortalId || ''} />
+          <SelectCategories.FilterView clientPortalId={clientPortalId} />
           <SelectStatus.FilterView />
           <Filter.View filterKey="created">
             <Filter.DateView filterKey="created" />
@@ -113,7 +113,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
           <Filter.DialogStringView filterKey="type" />
         </Filter.View>
         <Filter.View filterKey="categories" inDialog>
-          <SelectCategories.FilterView clientPortalId={clientPortalId || ''} />
+          <SelectCategories.FilterView clientPortalId={clientPortalId} />
         </Filter.View>
         <Filter.View filterKey="tags" inDialog>
           <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
@@ -159,10 +159,8 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
             {type}
           </Filter.BarButton>
         </Filter.BarItem>
-        <SelectTags.FilterBar clientPortalId={clientPortalId || undefined} />
-        <SelectCategories.FilterBar
-          clientPortalId={clientPortalId || undefined}
-        />
+        <SelectTags.FilterBar clientPortalId={clientPortalId} />
+        <SelectCategories.FilterBar clientPortalId={clientPortalId} />
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />

@@ -29,51 +29,47 @@ export const PostsNavigation = () => {
   }, [pathname]);
 
   const currentPage = useMemo(() => {
-    const lastSegment = pathname.split('/').pop() || '';
-
-    if (lastSegment === 'posts' || pathname.endsWith('/posts')) {
-      return {
-        path: `${basePath}/posts`,
-        label: 'Posts',
-        icon: IconCategory,
-      };
-    }
-    if (lastSegment === 'pages' || pathname.endsWith('/pages')) {
+    console.log('ppp', pathname)
+    if (pathname.includes('/pages')) {
       return {
         path: `${basePath}/pages`,
         label: 'Pages',
         icon: IconRulerMeasure,
       };
     }
-    if (lastSegment === 'categories' || pathname.endsWith('/categories')) {
+    if (pathname.includes('/categories')) {
       return {
         path: `${basePath}/categories`,
         label: 'Categories',
         icon: IconRulerMeasure,
       };
     }
-    if (lastSegment === 'tags' || pathname.endsWith('/tags')) {
+    if (pathname.includes('/tags')) {
       return {
         path: `${basePath}/tags`,
         label: 'Tags',
         icon: IconRulerMeasure,
       };
     }
-    if (
-      lastSegment === 'custom-fields' ||
-      pathname.endsWith('/custom-fields')
-    ) {
+    if (pathname.includes('/custom-fields')) {
       return {
         path: `${basePath}/custom-fields`,
         label: 'Custom Fields',
         icon: IconRulerMeasure,
       };
     }
-    if (lastSegment === 'custom-types' || pathname.endsWith('/custom-types')) {
+    if (pathname.includes('/custom-types')) {
       return {
         path: `${basePath}/custom-types`,
         label: 'Custom Post Types',
         icon: IconRulerMeasure,
+      };
+    }
+    if (pathname.includes('/posts')) {
+      return {
+        path: `${basePath}/posts`,
+        label: 'Posts',
+        icon: IconCategory,
       };
     }
 

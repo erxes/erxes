@@ -156,7 +156,7 @@ export const usePostsColumns = (
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       ),
-      size: 120,
+      size: 140,
     },
     {
       id: 'updatedAt',
@@ -171,7 +171,7 @@ export const usePostsColumns = (
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       ),
-      size: 120,
+      size: 140,
     },
   ];
 };

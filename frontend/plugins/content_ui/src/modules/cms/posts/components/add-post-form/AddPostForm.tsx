@@ -13,8 +13,8 @@ import {
 } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { CustomFieldInput } from '../../CustomFieldInput';
 import { GalleryUploader } from '../../GalleryUploader';
 import { VideoUploader } from '../../VideoUploader';
@@ -45,7 +45,6 @@ export const AddPostForm = ({
   onClose,
   onFormReady,
 }: AddPostFormProps) => {
-  const navigate = useNavigate();
   const location = useLocation() as any;
   const editingPostFromLocation = location?.state?.post as any;
   const currentEditingPost = editingPost || editingPostFromLocation;
@@ -88,18 +87,20 @@ export const AddPostForm = ({
     translations,
     defaultLangData,
     onClose,
-    navigate,
     currentPath: location.pathname,
   });
 
+  const formInitializedRef = useRef(false);
+
   useEffect(() => {
-    if (onFormReady && form) {
+    if (onFormReady && form && !formInitializedRef.current) {
       onFormReady({
         form,
         onSubmit,
         creating,
         saving,
       });
+      formInitializedRef.current = true;
     }
   }, [form, onSubmit, creating, saving, onFormReady]);
 
@@ -192,10 +193,7 @@ export const AddPostForm = ({
               </div>
 
               <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="p-4 space-y-4 flex-1 overflow-y-auto"
-                >
+                <form className="p-4 space-y-4 flex-1 overflow-y-auto">
                   {activeTab === 'content' && (
                     <>
                       {currentEditingPost?._id &&

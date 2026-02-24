@@ -38,6 +38,7 @@ interface SelectTagsContextType {
   value: string;
   onValueChange: (tag: string) => void;
   tags?: ITag[];
+  loading?: boolean;
 }
 
 const SelectTagsContext = createContext<SelectTagsContextType | null>(null);
@@ -65,7 +66,7 @@ export const SelectTagsProvider = ({
   mode?: 'single' | 'multiple';
   clientPortalId?: string;
 }) => {
-  const { data } = useQuery(POST_CMS_TAGS, {
+  const { data, loading } = useQuery(POST_CMS_TAGS, {
     variables: {
       clientPortalId,
       limit: 100,
@@ -91,8 +92,9 @@ export const SelectTagsProvider = ({
           : (value as string[]).join(','),
       onValueChange: handleValueChange,
       tags,
+      loading,
     }),
-    [value, handleValueChange, tags, mode],
+    [value, handleValueChange, tags, loading, mode],
   );
 
   return (
@@ -160,7 +162,20 @@ const SelectTagsCommandItem = ({ tag }: { tag: ITag }) => {
 };
 
 const SelectTagsContent = () => {
-  const { tags } = useSelectTagsContext();
+  const { tags, loading } = useSelectTagsContext();
+
+  if (loading) {
+    return (
+      <Command>
+        <Command.Input placeholder="Search tags" />
+        <Command.List>
+          <div className="flex items-center justify-center py-4 h-32">
+            <span className="text-muted-foreground">Loading tags...</span>
+          </div>
+        </Command.List>
+      </Command>
+    );
+  }
 
   return (
     <Command>

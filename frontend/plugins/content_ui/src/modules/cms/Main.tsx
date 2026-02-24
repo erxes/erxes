@@ -13,11 +13,13 @@ const Posts = lazy(() =>
     default: module.PostsIndexPage,
   })),
 );
-const PostsAdd = lazy(() =>
+
+const PostsAddPage = lazy(() =>
   import('~/pages/cms/PostsAddPage').then((module) => ({
     default: module.PostsAddPage,
   })),
 );
+
 const PostsDetail = lazy(() =>
   import('~/pages/cms/posts-detail/PostsDetailPage').then((module) => ({
     default: module.PostsDetailPage,
@@ -61,36 +63,33 @@ const PostsWrapper = () => {
 
 const PostsAddWrapper = () => {
   const { websiteId } = useParams();
-  return <PostsAdd clientPortalId={websiteId || ''} />;
+  return <PostsAddPage clientPortalId={websiteId || ''} />;
 };
 
-const PostsEditWrapper = () => {
-  const { websiteId, id } = useParams();
-  return <PostsAdd clientPortalId={websiteId || ''} postId={id} />;
-};
 const PostsDetailWrapper = () => {
   const { websiteId, postId } = useParams();
   return <PostsDetail clientPortalId={websiteId || ''} postId={postId} />;
 };
+
 const CmsMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route index path="/" element={<Navigate to="cms" replace />} />
         <Route path="cms" element={<CmsIndex />} />
-        <Route path="cms/:websiteId/posts/add" element={<PostsAddWrapper />} />
-        <Route
-          path="cms/:websiteId/posts/detail/:postId"
-          element={<PostsDetailWrapper />}
-        />
-        <Route path="cms/:websiteId/posts/:id" element={<PostsEditWrapper />} />
-        <Route path="cms/:websiteId/posts" element={<PostsWrapper />} />
-        <Route path="cms/:websiteId/categories" element={<Categories />} />
-        <Route path="cms/:websiteId/tags" element={<Tags />} />
-        <Route path="cms/:websiteId/pages" element={<Pages />} />
-        {/* <Route path="/:websiteId/menus" element={<Menus />} /> */}
-        <Route path="cms/:websiteId/custom-types" element={<CustomTypes />} />
-        <Route path="cms/:websiteId/custom-fields" element={<CustomFields />} />
+        <Route path="cms/:websiteId">
+          <Route path="posts" element={<PostsWrapper />} />
+          <Route path="posts/add" element={<PostsAddWrapper />} />
+          <Route
+            path="posts/detail/:postId"
+            element={<PostsDetailWrapper />}
+          />
+          <Route path="categories" element={<Categories />} />
+          <Route path="tags" element={<Tags />} />
+          <Route path="pages" element={<Pages />} />
+          <Route path="custom-types" element={<CustomTypes />} />
+          <Route path="custom-fields" element={<CustomFields />} />
+        </Route>
       </Routes>
     </Suspense>
   );

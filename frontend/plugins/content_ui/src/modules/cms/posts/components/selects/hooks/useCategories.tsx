@@ -6,17 +6,28 @@ import { POST_CMS_CATEGORIES } from '../../../graphql/queries/postCmsCategoriesQ
 const CATEGORIES_PER_PAGE = 20;
 
 export const useCategories = (
-  options?: QueryHookOptions<ICursorListResponse<ICategory>>,
+  options?: QueryHookOptions<ICursorListResponse<ICategory>> & {
+    clientPortalId?: string;
+  },
 ) => {
+  const { clientPortalId, ...queryOptions } = options || {};
+
   const { data, loading, error, fetchMore } = useQuery<
     ICursorListResponse<ICategory>
-  >(POST_CMS_CATEGORIES, { ...options });
+  >(POST_CMS_CATEGORIES, {
+    ...queryOptions,
+    variables: {
+      clientPortalId: clientPortalId || '',
+      ...queryOptions?.variables,
+    },
+    skip: !clientPortalId || queryOptions?.skip,
+  });
 
   const {
     list: categories,
     totalCount = 0,
     pageInfo,
-  } = data?.categoriesMain ?? {};
+  } = data?.cmsCategories ?? {};
 
   const handleFetchMore = () => {
     if (totalCount <= (categories?.length || 0)) return;
@@ -30,13 +41,13 @@ export const useCategories = (
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          categoriesMain: {
+          cmsCategories: {
             list: [
-              ...(prev.categoriesMain?.list || []),
-              ...fetchMoreResult.categoriesMain.list,
+              ...(prev.cmsCategories?.list || []),
+              ...fetchMoreResult.cmsCategories.list,
             ],
-            totalCount: fetchMoreResult.categoriesMain.totalCount,
-            pageInfo: fetchMoreResult.categoriesMain.pageInfo,
+            totalCount: fetchMoreResult.cmsCategories.totalCount,
+            pageInfo: fetchMoreResult.cmsCategories.pageInfo,
           },
         });
       },

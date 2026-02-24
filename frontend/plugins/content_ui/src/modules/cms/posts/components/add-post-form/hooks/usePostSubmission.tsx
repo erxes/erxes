@@ -4,6 +4,7 @@ import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
+import { useNavigate } from 'react-router-dom';
 
 interface PostFormData {
   title: string;
@@ -43,7 +44,6 @@ interface UsePostSubmissionProps {
     customFieldsData: any[];
   } | null;
   onClose?: () => void;
-  navigate: (path: string, options?: any) => void;
   currentPath?: string;
 }
 
@@ -51,8 +51,8 @@ export const usePostSubmission = ({
   websiteId,
   editingPost,
   onClose,
-  navigate,
 }: UsePostSubmissionProps) => {
+  const navigate = useNavigate();
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
   });
@@ -88,7 +88,6 @@ export const usePostSubmission = ({
         .replace(/^-+|-+$/g, '');
 
       const timestamp = Date.now().toString(36).slice(-6);
-
       const finalSlug = baseSlug || 'post';
       return `${finalSlug}-${timestamp}`;
     };

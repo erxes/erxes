@@ -1,455 +1,231 @@
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import {
-  Button,
   cn,
   Combobox,
   Command,
   Filter,
-  Form,
   Popover,
   PopoverScoped,
-  RecordTableInlineCell,
-  SelectTree,
-  TextOverflowTooltip,
+  Form,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
-import { useDebounce } from 'use-debounce';
-import { SelectCategoriesContext } from './context/SelectCategoriesContext';
-import { useSelectCategoriesContext } from './context/useSelectCategoriesContext';
-import { ICategory, ISelectCategoriesProviderProps } from './types/category';
+
+import { IconFolder } from '@tabler/icons-react';
+import { POST_CMS_CATEGORIES } from '../../graphql/queries/postCmsCategoriesQuery';
+import { useQuery } from '@apollo/client';
 import {
-  CreateCategoryForm,
-  SelectCategoryCreateContainer,
-} from './CreateForm';
-import { useCategories } from './hooks/useCategories';
+  SelectContent,
+  SelectTrigger,
+  SelectTriggerVariantType,
+} from './SelectShared';
+
+interface ICategory {
+  _id: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  status?: string;
+  clientPortalId?: string;
+  parentId?: string;
+  parent?: ICategory;
+}
+
+interface SelectCategoriesContextType {
+  value: string;
+  onValueChange: (category: string) => void;
+  categories?: ICategory[];
+  loading?: boolean;
+}
+
+const SelectCategoriesContext =
+  createContext<SelectCategoriesContextType | null>(null);
+
+const useSelectCategoriesContext = () => {
+  const context = useContext(SelectCategoriesContext);
+  if (!context) {
+    throw new Error(
+      'useSelectCategoriesContext must be used within SelectCategoriesProvider',
+    );
+  }
+  return context;
+};
 
 export const SelectCategoriesProvider = ({
-  children,
   value,
   onValueChange,
+  children,
   mode = 'single',
-}: ISelectCategoriesProviderProps) => {
-  const [newCategoryName, setNewCategoryName] = useState<string>('');
-  const [selectedCategories, setSelectedCategories] = useState<ICategory[]>([]);
-  const categoryIds = !value ? [] : Array.isArray(value) ? value : [value];
+  clientPortalId,
+}: {
+  value: string | string[];
+  onValueChange: (category: string) => void;
+  children: React.ReactNode;
+  mode?: 'single' | 'multiple';
+  clientPortalId?: string;
+}) => {
+  const { data, loading } = useQuery(POST_CMS_CATEGORIES, {
+    variables: {
+      clientPortalId,
+      limit: 100,
+    },
+    skip: clientPortalId == null,
+  });
 
-  const handleSelectCallback = (category: ICategory) => {
-    if (!category) return;
+  const categories = useMemo(
+    () => data?.cmsCategories?.list || [],
+    [data?.cmsCategories?.list],
+  );
 
-    const isSingleMode = mode === 'single';
-    const multipleValue = (value as string[]) || [];
-    const isSelected = !isSingleMode && multipleValue.includes(category._id);
+  const handleValueChange = useCallback(
+    (category: string) => {
+      if (!category) return;
+      onValueChange?.(category);
+    },
+    [onValueChange],
+  );
 
-    const newSelectedCategoryIds = isSingleMode
-      ? [category._id]
-      : isSelected
-      ? multipleValue.filter((p) => p !== category._id)
-      : [...multipleValue, category._id];
-
-    const newSelectedCategories = isSingleMode
-      ? [category]
-      : isSelected
-      ? selectedCategories.filter((p) => p._id !== category._id)
-      : [...selectedCategories, category];
-
-    setSelectedCategories(newSelectedCategories);
-    onValueChange?.(isSingleMode ? category._id : newSelectedCategories);
-  };
+  const contextValue = useMemo(
+    () => ({
+      value:
+        mode === 'single'
+          ? (value as string) || ''
+          : (value as string[]).join(','),
+      onValueChange: handleValueChange,
+      categories,
+      loading,
+    }),
+    [value, handleValueChange, categories, loading, mode],
+  );
 
   return (
-    <SelectCategoriesContext.Provider
-      value={{
-        onSelect: handleSelectCallback,
-        value,
-        selectedCategories,
-        setSelectedCategories,
-        newCategoryName,
-        setNewCategoryName,
-        mode,
-        categoryIds,
-      }}
-    >
+    <SelectCategoriesContext.Provider value={contextValue}>
       {children}
     </SelectCategoriesContext.Provider>
   );
 };
 
-export const SelectCategoriesCommand = ({
-  disableCreateOption,
+const SelectCategoriesValue = ({
+  placeholder,
+  className,
 }: {
-  disableCreateOption?: boolean;
+  placeholder?: string;
+  className?: string;
 }) => {
-  const [search, setSearch] = useState<string>('');
-  const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedCategories, categoryIds } = useSelectCategoriesContext();
-  const [noBranchesSearchValue, setNoBranchesSearchValue] =
-    useState<string>('');
+  const { value, categories } = useSelectCategoriesContext();
+  const selectedCategory = categories?.find(
+    (category) => category._id === value,
+  );
 
-  const {
-    sortedCategories: categories,
-    loading,
-    error,
-    handleFetchMore,
-    totalCount,
-  } = useCategories({
-    variables: {
-      searchValue: debouncedSearch,
-    },
-    skip:
-      !!noBranchesSearchValue &&
-      debouncedSearch.includes(noBranchesSearchValue),
-    onCompleted(data) {
-      const { totalCount } = data?.categoriesMain || {};
-      setNoBranchesSearchValue(totalCount === 0 ? debouncedSearch : '');
-    },
-  });
+  if (!selectedCategory) {
+    return (
+      <span className="text-accent-foreground/80">
+        {placeholder || 'Select category'}
+      </span>
+    );
+  }
+
   return (
-    <Command shouldFilter={false}>
-      <Command.Input
-        value={search}
-        onValueChange={setSearch}
-        placeholder="Search categories"
-        focusOnMount
-      />
+    <div className="flex items-center gap-2">
+      <p className={cn('font-medium text-sm', className)}>
+        {selectedCategory.name}
+      </p>
+    </div>
+  );
+};
+
+const SelectCategoriesCommandItem = ({ category }: { category: ICategory }) => {
+  const { onValueChange, value } = useSelectCategoriesContext();
+  const { _id, name } = category || {};
+  const isChecked = value.split(',').includes(_id);
+
+  return (
+    <Command.Item
+      value={_id}
+      onSelect={() => {
+        onValueChange(_id);
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <span className="font-medium">{name}</span>
+      </div>
+      <Combobox.Check checked={isChecked} />
+    </Command.Item>
+  );
+};
+
+const SelectCategoriesContent = () => {
+  const { categories, loading } = useSelectCategoriesContext();
+
+  if (loading) {
+    return (
+      <Command>
+        <Command.Input placeholder="Search categories" />
+        <Command.List>
+          <div className="flex items-center justify-center py-4 h-32">
+            <span className="text-muted-foreground">Loading categories...</span>
+          </div>
+        </Command.List>
+      </Command>
+    );
+  }
+
+  return (
+    <Command>
+      <Command.Input placeholder="Search categories" />
+      <Command.Empty>
+        <span className="text-muted-foreground">No categories found</span>
+      </Command.Empty>
       <Command.List>
-        {selectedCategories?.length > 0 && (
-          <>
-            <div className="flex flex-wrap justify-start p-2 gap-2">
-              <CategoriesList />
-            </div>
-            <Command.Separator />
-          </>
-        )}
-        <SelectTree.Provider id={'select-branches'} ordered={!search}>
-          <SelectCategoryCreate
-            search={search}
-            show={!disableCreateOption && !loading && !categories?.length}
-          />
-          <Combobox.Empty loading={loading} error={error} />
-          {categories
-            ?.filter((b) => !categoryIds?.find((bId) => bId === b._id))
-            .map((category) => (
-              <SelectCategoriesItem
-                key={category._id}
-                category={{
-                  ...category,
-                  hasChildren: categories.some(
-                    (b) => b.parentId === category._id,
-                  ),
-                }}
-              />
-            ))}
-          <Combobox.FetchMore
-            fetchMore={handleFetchMore}
-            currentLength={categories?.length || 0}
-            totalCount={totalCount}
-          />
-        </SelectTree.Provider>
+        {categories?.map((category) => (
+          <SelectCategoriesCommandItem key={category._id} category={category} />
+        ))}
       </Command.List>
     </Command>
   );
 };
 
-export const SelectCategoriesCreate = ({
-  search,
-  show,
-}: {
-  search: string;
-  show: boolean;
-}) => {
-  const { setNewCategoryName } = useSelectCategoriesContext();
-
-  if (!search || !show) return null;
-
+export const SelectCategoriesFilterItem = () => {
   return (
-    <Command.Item
-      onSelect={() => setNewCategoryName(search)}
-      className="font-medium"
-    >
-      <IconPlus />
-      Create new category: "{search}"
-    </Command.Item>
-  );
-};
-
-export const SelectCategoriesItem = ({
-  category,
-}: {
-  category: ICategory & { hasChildren: boolean };
-}) => {
-  const { onSelect, categoryIds } = useSelectCategoriesContext();
-  const isSelected = categoryIds?.some((b) => b === category._id);
-  return (
-    <SelectTree.Item
-      key={category._id}
-      _id={category._id}
-      name={category.title}
-      order={category.order}
-      hasChildren={category.hasChildren}
-      selected={isSelected}
-      onSelect={() => onSelect(category)}
-    >
-      <TextOverflowTooltip
-        value={category.title}
-        className="flex-auto w-auto font-medium"
-      />
-    </SelectTree.Item>
-  );
-};
-
-export const CategoriesList = ({
-  placeholder,
-  renderAsPlainText,
-  ...props
-}: {
-  placeholder?: string;
-  renderAsPlainText?: boolean;
-}) => {
-  const { value } = useSelectCategoriesContext();
-
-  if (!value || !value.length) {
-    return <Combobox.Value placeholder={placeholder || ''} />;
-  }
-
-  return <></>;
-};
-
-export const SelectCategoriesValue = () => {
-  const { selectedCategories, mode } = useSelectCategoriesContext();
-
-  if (selectedCategories?.length > 1)
-    return (
-      <span className="text-muted-foreground">
-        {selectedCategories.length} categories selected
-      </span>
-    );
-
-  return (
-    <CategoriesList
-      placeholder="Select categories"
-      renderAsPlainText={mode === 'single'}
-    />
-  );
-};
-
-export const SelectCategoriesContent = () => {
-  const { newCategoryName } = useSelectCategoriesContext();
-
-  if (newCategoryName) {
-    return (
-      <SelectCategoriesCreateContainer>
-        <CreateCategoryForm />
-      </SelectCategoriesCreateContainer>
-    );
-  }
-  return <SelectCategoriesCommand />;
-};
-
-export const SelectCategoriesInlineCell = ({
-  onValueChange,
-  scope,
-  ...props
-}: Omit<React.ComponentProps<typeof SelectCategoriesProvider>, 'children'> & {
-  scope?: string;
-}) => {
-  const [open, setOpen] = useState<boolean>(false);
-
-  return (
-    <SelectCategoriesProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
-        setOpen(false);
-      }}
-      {...props}
-    >
-      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <RecordTableInlineCell.Trigger>
-          <SelectCategoriesValue />
-        </RecordTableInlineCell.Trigger>
-        <RecordTableInlineCell.Content className="min-w-72">
-          <SelectCategoriesContent />
-        </RecordTableInlineCell.Content>
-      </PopoverScoped>
-    </SelectCategoriesProvider>
-  );
-};
-
-const SelectCategoriesBadgesView = () => {
-  const { categoryIds, selectedCategories, setSelectedCategories, onSelect } =
-    useSelectCategoriesContext();
-
-  return (
-    <div className="flex gap-2 flex-wrap">
-      {categoryIds?.map((cId) => (
-        <CategoryBadge
-          key={cId}
-          categoryId={cId}
-          onCompleted={(category) => {
-            if (!category) return;
-            if (categoryIds.includes(category._id)) {
-              setSelectedCategories([...selectedCategories, category]);
-            }
-          }}
-          onClose={() =>
-            onSelect?.(
-              selectedCategories.find((p) => p._id === cId) as ICategory,
-            )
-          }
-        />
-      ))}
-    </div>
-  );
-};
-
-export const SelectCategoriesDetail = React.forwardRef<
-  React.ElementRef<typeof Combobox.Trigger>,
-  Omit<React.ComponentProps<typeof SelectCategoriesProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
->(
-  (
-    { onValueChange, scope, value, mode, options, className, ...props },
-    ref,
-  ) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <SelectCategoriesProvider
-        onValueChange={(value) => {
-          if (mode === 'single') {
-            setOpen(false);
-          }
-          onValueChange?.(value);
-        }}
-        value={value}
-        {...props}
-        mode={mode}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Button
-              className={cn(
-                'w-min inline-flex text-sm font-medium shadow-xs',
-                className,
-              )}
-              variant="outline"
-            >
-              Add Categories
-              <IconPlus className="text-lg" />
-            </Button>
-          </Popover.Trigger>
-          <Combobox.Content className="mt-2">
-            <SelectCategoriesContent />
-          </Combobox.Content>
-        </Popover>
-        <SelectCategoriesBadgesView />
-      </SelectCategoriesProvider>
-    );
-  },
-);
-
-SelectCategoriesDetail.displayName = 'SelectCategoriesDetail';
-
-export const SelectCategoriesCommandbarItem = ({
-  onValueChange,
-  ...props
-}: Omit<React.ComponentProps<typeof SelectCategoriesProvider>, 'children'>) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <SelectCategoriesProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
-        setOpen(false);
-      }}
-      {...props}
-    >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Button variant={'secondary'} asChild>
-          <RecordTableInlineCell.Trigger>
-            <IconGitBranch />
-            Branch
-          </RecordTableInlineCell.Trigger>
-        </Button>
-        <RecordTableInlineCell.Content className="w-96">
-          <SelectCategoriesContent />
-        </RecordTableInlineCell.Content>
-      </Popover>
-    </SelectCategoriesProvider>
-  );
-};
-
-export const SelectCategoriesFormItem = ({
-  onValueChange,
-  className,
-  ...props
-}: Omit<React.ComponentProps<typeof SelectCategoriesProvider>, 'children'> & {
-  className?: string;
-}) => {
-  const [open, setOpen] = useState<boolean>(false);
-  return (
-    <SelectCategoriesProvider
-      onValueChange={(value) => {
-        onValueChange?.(value);
-        setOpen(false);
-      }}
-      {...props}
-    >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Form.Control>
-          <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
-            <SelectCategoriesValue />
-          </Combobox.Trigger>
-        </Form.Control>
-
-        <Combobox.Content>
-          <SelectCategoriesContent />
-        </Combobox.Content>
-      </Popover>
-    </SelectCategoriesProvider>
-  );
-};
-
-export const SelectCategoriesFilterItem = ({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}) => {
-  return (
-    <Filter.Item value={value}>
-      <IconGitBranch />
-      {label}
+    <Filter.Item value="categories">
+      <IconFolder />
+      Categories
     </Filter.Item>
   );
 };
 
 export const SelectCategoriesFilterView = ({
-  mode,
-  filterKey,
+  onValueChange,
+  queryKey,
+  mode = 'single',
+  clientPortalId,
 }: {
-  mode: 'single' | 'multiple';
-  filterKey: string;
+  onValueChange?: (value: string[] | string) => void;
+  queryKey?: string;
+  mode?: 'single' | 'multiple';
+  clientPortalId?: string;
 }) => {
-  const [query, setQuery] = useQueryState<string[] | string | undefined>(
-    filterKey,
+  const [categories, setCategories] = useQueryState<string[] | string>(
+    queryKey || 'categories',
   );
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={filterKey}>
+    <Filter.View filterKey={queryKey || 'categories'}>
       <SelectCategoriesProvider
         mode={mode}
-        value={query || []}
+        value={categories || (mode === 'single' ? '' : [])}
+        clientPortalId={clientPortalId}
         onValueChange={(value) => {
-          setQuery(value);
+          setCategories(value as string[] | string);
           resetFilterState();
+          onValueChange?.(value);
         }}
       >
         <SelectCategoriesContent />
@@ -459,42 +235,41 @@ export const SelectCategoriesFilterView = ({
 };
 
 export const SelectCategoriesFilterBar = ({
-  mode = 'multiple',
-  filterKey,
-  label,
+  iconOnly,
+  onValueChange,
+  mode = 'single',
+  clientPortalId,
 }: {
-  mode: 'single' | 'multiple';
-  filterKey: string;
-  label: string;
+  iconOnly?: boolean;
+  onValueChange?: (value: string[] | string) => void;
+  mode?: 'single' | 'multiple';
+  clientPortalId?: string;
 }) => {
-  const [query, setQuery] = useQueryState<string[]>(filterKey);
-  const [open, setOpen] = useState<boolean>(false);
-
-  if (!query) {
-    return null;
-  }
+  const [categories, setCategories] = useQueryState<string[] | string>(
+    'categories',
+  );
+  const [open, setOpen] = useState(false);
 
   return (
-    <Filter.BarItem queryKey={filterKey}>
-      <Filter.BarName>
-        <IconGitBranch />
-        {label}
-      </Filter.BarName>
+    <Filter.BarItem queryKey={'categories'}>
+      <Filter.BarName>Categories</Filter.BarName>
       <SelectCategoriesProvider
         mode={mode}
-        value={query || []}
+        value={categories || (mode === 'single' ? '' : [])}
+        clientPortalId={clientPortalId}
         onValueChange={(value) => {
-          if (value && value.length > 0) {
-            setQuery(value as string[]);
+          if (value.length > 0) {
+            setCategories(value as string[] | string);
           } else {
-            setQuery(null);
+            setCategories(null);
           }
           setOpen(false);
+          onValueChange?.(value);
         }}
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={filterKey}>
+            <Filter.BarButton filterKey={'categories'}>
               <SelectCategoriesValue />
             </Filter.BarButton>
           </Popover.Trigger>
@@ -507,17 +282,93 @@ export const SelectCategoriesFilterBar = ({
   );
 };
 
-export const SelectCategories = Object.assign(SelectCategoriesProvider, {
-  CommandBarItem: SelectCategoriesCommandbarItem,
-  Content: SelectCategoriesContent,
-  Command: SelectCategoriesCommand,
-  Item: SelectCategoriesItem,
+export const SelectCategoriesFormItem = ({
+  onValueChange,
+  className,
+  placeholder,
+  clientPortalId,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectCategoriesProvider>, 'children'> & {
+  className?: string;
+  placeholder?: string;
+  clientPortalId?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <SelectCategoriesProvider
+      clientPortalId={clientPortalId}
+      onValueChange={(value: string) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Form.Control>
+          <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+            <SelectCategoriesValue placeholder={placeholder} />
+          </Combobox.Trigger>
+        </Form.Control>
+
+        <Combobox.Content>
+          <SelectCategoriesContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectCategoriesProvider>
+  );
+};
+
+SelectCategoriesFormItem.displayName = 'SelectCategoriesFormItem';
+
+const SelectCategoriesRoot = ({
+  value,
+  variant = 'form',
+  scope,
+  onValueChange,
+  disabled,
+  clientPortalId,
+}: {
+  value: string;
+  variant?: `${SelectTriggerVariantType}`;
+  scope?: string;
+  onValueChange?: (value: string) => void;
+  disabled?: boolean;
+  clientPortalId?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const handleValueChange = useCallback(
+    (value: string) => {
+      onValueChange?.(value);
+      setOpen(false);
+    },
+    [onValueChange],
+  );
+
+  return (
+    <SelectCategoriesProvider
+      value={value}
+      clientPortalId={clientPortalId}
+      onValueChange={handleValueChange}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+        <SelectTrigger variant={variant} disabled={disabled}>
+          <SelectCategoriesValue />
+        </SelectTrigger>
+        <SelectContent variant={variant}>
+          <SelectCategoriesContent />
+        </SelectContent>
+      </PopoverScoped>
+    </SelectCategoriesProvider>
+  );
+};
+
+export const SelectCategories = Object.assign(SelectCategoriesRoot, {
+  Provider: SelectCategoriesProvider,
   Value: SelectCategoriesValue,
-  List: CategoriesList,
-  InlineCell: SelectCategoriesInlineCell,
-  FormItem: SelectCategoriesFormItem,
+  Content: SelectCategoriesContent,
   FilterItem: SelectCategoriesFilterItem,
   FilterView: SelectCategoriesFilterView,
   FilterBar: SelectCategoriesFilterBar,
-  Detail: SelectCategoriesDetail,
+  FormItem: SelectCategoriesFormItem,
 });

@@ -9,12 +9,13 @@ export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
   const location = useLocation();
 
   const onOpen = () => {
-    // Check if current path already has /cms/ prefix
-    if (location.pathname.includes('/cms/')) {
-      navigate('add');
-    } else {
-      navigate(`/cms/${clientPortalId}/posts/add`);
-    }
+    const pathSegments = location.pathname.split('/');
+    const cmsIndex = pathSegments.findIndex((segment) => segment === 'cms');
+    const websiteId =
+      cmsIndex > 0 && cmsIndex < pathSegments.length - 1
+        ? pathSegments[cmsIndex + 1]
+        : clientPortalId;
+    navigate(`/content/cms/${websiteId}/posts/add`);
   };
 
   useScopedHotkeys(`c`, () => onOpen(), PostsHotKeyScope.PostsPage);

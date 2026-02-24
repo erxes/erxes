@@ -3,7 +3,7 @@ import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
 import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export const PostsDetailPage = ({
   clientPortalId,
@@ -19,6 +19,10 @@ export const PostsDetailPage = ({
     creating: boolean;
     saving: boolean;
   } | null>(null);
+
+  const handleFormReady = useCallback((formState: any) => {
+    setFormState(formState);
+  }, []);
 
   useEffect(() => {
     if (!postId) {
@@ -42,7 +46,7 @@ export const PostsDetailPage = ({
         <AddPostForm
           websiteId={clientPortalId}
           editingPost={post}
-          onFormReady={setFormState}
+          onFormReady={handleFormReady}
           key={postId}
         />
       </div>

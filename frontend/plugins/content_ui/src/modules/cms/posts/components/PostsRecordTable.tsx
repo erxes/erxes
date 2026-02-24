@@ -1,4 +1,4 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import { usePostsColumns } from './PostsColumn';
 
 import { PostsCommandbar } from './posts-command-bar/PostsCommandbar';
@@ -21,12 +21,12 @@ export const PostsRecordTable = ({
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const columns = usePostsColumns(onEditPost, refetch);
-
+  if (loading) return <Spinner />;
   return (
     <RecordTable.Provider
       columns={columns}
       data={posts || []}
-      className="h-full m-3"
+      className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
@@ -41,8 +41,11 @@ export const PostsRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
+            )}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

@@ -18,6 +18,7 @@ export interface ISelectCategoriesContext {
   setNewCategoryName: (CategoryName: string) => void;
   mode: 'single' | 'multiple';
   categoryIds?: string[];
+  clientPortalId?: string;
 }
 export type ISelectCategoriesProviderProps = {
   targetIds?: string[];
@@ -25,6 +26,7 @@ export type ISelectCategoriesProviderProps = {
   onValueChange?: (Categories?: string[] | string) => void;
   mode?: 'single' | 'multiple';
   categoryIds?: string[];
+  clientPortalId?: string;
   children?: React.ReactNode;
   options?: (newSelectedCategoryIds: string[]) => MutationHookOptions<
     {

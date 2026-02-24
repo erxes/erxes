@@ -2,11 +2,9 @@ import { PageContainer } from 'erxes-ui';
 import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
-import { useState } from 'react';
-import { usePreviousHotkeyScope } from 'erxes-ui';
-import { PostsHotKeyScope } from '~/modules/cms/posts/types/PostsHotKeyScope';
-import { useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const PostsAddPage = ({
   clientPortalId,
@@ -17,18 +15,16 @@ export const PostsAddPage = ({
 }) => {
   const [formState, setFormState] = useState<any>(null);
   const { post, loading } = usePostDetail(postId);
-  const {
-    setHotkeyScopeAndMemorizePreviousScope,
-    goBackToPreviousHotkeyScope,
-  } = usePreviousHotkeyScope();
+  const navigate = useNavigate();
+  const { websiteId } = useParams();
 
-  useEffect(() => {
-    setHotkeyScopeAndMemorizePreviousScope(PostsHotKeyScope.PostsAddSheet);
-  }, [setHotkeyScopeAndMemorizePreviousScope]);
+  const handleFormReady = useCallback((formState: any) => {
+    setFormState(formState);
+  }, []);
 
-  const onClose = () => {
-    goBackToPreviousHotkeyScope();
-  };
+  const handleClose = useCallback(() => {
+    navigate(`/content/cms/${websiteId}/posts`);
+  }, [navigate, websiteId]);
 
   return (
     <PageContainer>
@@ -36,7 +32,7 @@ export const PostsAddPage = ({
         {formState && (
           <AddPostHeaderActions
             form={formState.form}
-            onSubmit={() => formState.form.handleSubmit(formState.onSubmit)()}
+            onSubmit={formState.onSubmit}
             creating={formState.creating}
             saving={formState.saving}
           />
@@ -47,8 +43,8 @@ export const PostsAddPage = ({
           <AddPostForm
             websiteId={clientPortalId}
             editingPost={post}
-            onClose={onClose}
-            onFormReady={setFormState}
+            onFormReady={handleFormReady}
+            onClose={handleClose}
           />
         )}
       </div>
