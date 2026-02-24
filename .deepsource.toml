@@ -23,3 +23,6 @@ name = "docker"
 
 [[code_formatters]]
 name = "prettier"
+
+[analyzers.meta]
+skip_doc_coverage = ["arrow-function"]
