@@ -252,15 +252,17 @@ export async function sendOTPEmail(
   subject: string,
   template: string,
   models: IModels,
+  overrideEmail?: string,
 ): Promise<void> {
-  if (!user.email || !user._id) {
+  const toEmail = overrideEmail ?? user.email;
+  if (!toEmail || !user._id) {
     return;
   }
 
   await sendEmail(
     subdomain,
     {
-      toEmails: [user.email],
+      toEmails: [toEmail],
       title: subject,
       customHtml: template,
       customHtmlData: { code },
@@ -275,8 +277,10 @@ export async function sendOTPSMS(
   code: string,
   template: string,
   clientPortal: IClientPortalDocument,
+  overridePhone?: string,
 ): Promise<void> {
-  if (!user.phone) {
+  const toPhone = overridePhone ?? user.phone;
+  if (!toPhone) {
     return;
   }
 
@@ -286,12 +290,17 @@ export async function sendOTPSMS(
 
   await sendSMS(
     {
-      toPhone: user.phone,
+      toPhone,
       message,
       userId: user._id,
     },
     clientPortal,
   );
+}
+
+export interface SendOTPRecipientOverride {
+  email?: string;
+  phone?: string;
 }
 
 export async function sendOTP(
@@ -302,8 +311,12 @@ export async function sendOTP(
   options: { emailSubject: string; messageTemplate: string },
   clientPortal: IClientPortalDocument,
   models: IModels,
+  recipientOverride?: SendOTPRecipientOverride,
 ): Promise<void> {
-  if (identifierType === 'email' && user.email) {
+  const email = recipientOverride?.email ?? user.email;
+  const phone = recipientOverride?.phone ?? user.phone;
+
+  if (identifierType === 'email' && email) {
     await sendOTPEmail(
       subdomain,
       user,
@@ -311,9 +324,10 @@ export async function sendOTP(
       options.emailSubject,
       options.messageTemplate,
       models,
+      email,
     );
-  } else if (identifierType === 'phone' && user.phone) {
-    await sendOTPSMS(user, code, options.messageTemplate, clientPortal);
+  } else if (identifierType === 'phone' && phone) {
+    await sendOTPSMS(user, code, options.messageTemplate, clientPortal, phone);
   }
 }
 

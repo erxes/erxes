@@ -105,6 +105,8 @@ const actionCodeSchema = new Schema(
         'PHONE_VERIFICATION',
         'PASSWORD_RESET',
         'TWO_FACTOR_VERIFICATION',
+        'EMAIL_CHANGE',
+        'PHONE_CHANGE',
       ],
     },
   },
@@ -139,6 +141,8 @@ export const cpUserSchema = new Schema(
       sparse: true,
     },
     phone: { type: String, sparse: true },
+    pendingEmail: { type: String },
+    pendingPhone: { type: String },
     username: {
       type: String,
       unique: true,

@@ -53,6 +53,8 @@ export const types = `
     PHONE_VERIFICATION
     PASSWORD_RESET
     TWO_FACTOR_VERIFICATION
+    EMAIL_CHANGE
+    PHONE_CHANGE
   }
 
   type RefreshToken {
@@ -130,6 +132,8 @@ const userRegisterParams = `
 `;
 
 const userEditParams = `
+  email: String,
+  phone: String,
   firstName: String,
   lastName: String,
   avatar: String,
@@ -183,6 +187,10 @@ export const mutations = `
   clientPortalUserRefreshToken(refreshToken: String!): String
   clientPortalUserAddFcmToken(deviceId: String!, token: String!, platform: FcmPlatform!): CPUser
   clientPortalUserRemoveFcmToken(deviceId: String!): CPUser
+  clientPortalUserRequestChangeEmail(newEmail: String!): String
+  clientPortalUserConfirmChangeEmail(code: String!): CPUser
+  clientPortalUserRequestChangePhone(newPhone: String!): String
+  clientPortalUserConfirmChangePhone(code: String!): CPUser
 `;
 
 export const queries = `

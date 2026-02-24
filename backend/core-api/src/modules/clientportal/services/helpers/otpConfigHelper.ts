@@ -8,12 +8,19 @@ export interface OTPConfig {
   messageTemplate: string;
 }
 
-type OTPContext = 'registration' | 'login' | 'passwordReset';
+type OTPContext =
+  | 'registration'
+  | 'login'
+  | 'passwordReset'
+  | 'emailChange'
+  | 'phoneChange';
 
 const CONTEXT_SUBJECTS: Record<OTPContext, string> = {
   registration: 'Registration verification',
   login: 'Login OTP',
   passwordReset: 'Password Reset',
+  emailChange: 'Confirm new email',
+  phoneChange: 'Confirm new phone',
 };
 
 export function getOTPConfig(

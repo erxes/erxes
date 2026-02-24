@@ -11,6 +11,8 @@ export interface RegisterParams {
 }
 
 export interface EditUserParams {
+  email?: string;
+  phone?: string;
   firstName?: string;
   lastName?: string;
   avatar?: string;
@@ -104,4 +106,20 @@ export interface CpUsersEditParams {
 export interface CpUsersSetPasswordParams {
   _id: string;
   newPassword: string;
+}
+
+export interface RequestChangeEmailParams {
+  newEmail: string;
+}
+
+export interface ConfirmChangeEmailParams {
+  code: string;
+}
+
+export interface RequestChangePhoneParams {
+  newPhone: string;
+}
+
+export interface ConfirmChangePhoneParams {
+  code: string;
 }
