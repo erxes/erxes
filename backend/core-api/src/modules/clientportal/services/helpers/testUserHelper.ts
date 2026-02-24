@@ -14,7 +14,7 @@ function normalizePhone(phone?: string | null): string | null {
     return null;
   }
 
-  const digitsOnly = phone.replace(/\D/g, '');
+  const digitsOnly = phone?.trim()?.replace(/\D/g, '');
 
   return digitsOnly || null;
 }
@@ -25,15 +25,15 @@ export function isTestAccountMatch(
 ): boolean {
   const testUser = clientPortal.testUser;
 
-  if (!testUser || !testUser.enableTestUser) {
+  if (!testUser?.enableTestUser) {
     return false;
   }
 
   const testEmail = normalizeEmail(testUser.email);
   const testPhone = normalizePhone(testUser.phone);
 
-  const userEmail = normalizeEmail((user as any).email);
-  const userPhone = normalizePhone((user as any).phone);
+  const userEmail = normalizeEmail(user.email);
+  const userPhone = normalizePhone(user.phone);
 
   if (testEmail && userEmail && testEmail === userEmail) {
     return true;

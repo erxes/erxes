@@ -98,9 +98,7 @@ export async function loginWithOTP(
   const isMatchingTestOtp =
     hasTestOtp &&
     String(otp).trim() === String(clientPortal.testUser?.otp ?? '');
-  console.log('hasTestOtp', hasTestOtp);
-  console.log('isTestAccount', isTestAccount);
-  console.log('isMatchingTestOtp', isMatchingTestOtp);
+
   if (!(hasTestOtp && isTestAccount && isMatchingTestOtp)) {
     validateActionCode(user, otp, expectedType);
   }
