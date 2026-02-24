@@ -120,71 +120,74 @@ const LogoField = ({
 const Appearance = ({ control }: { control: Control<PmsBranchFormType> }) => {
   return (
     <PmsFormFieldsLayout>
-      <InfoCard title="Logo and favicon">
-        <InfoCard.Content>
-          <LogoField control={control} name="logo" label="Main logo" />
-        </InfoCard.Content>
-      </InfoCard>
+      <div className="grid grid-cols-[auto_auto] gap-6">
+        <InfoCard title="Logo and favicon">
+          <InfoCard.Content>
+            <LogoField control={control} name="logo" label="Main logo" />
+          </InfoCard.Content>
+        </InfoCard>
 
-      <InfoCard title="Main color">
-        <InfoCard.Content>
-          <div className="flex gap-6">
-            <Form.Field
-              control={control}
-              name="primaryColor"
-              render={({ field }) => (
-                <Form.Item className="space-y-2">
-                  <Label>PRIMARY</Label>
-                  <Form.Control>
-                    <ColorPicker
-                      className="w-20 h-8"
-                      value={field.value || ''}
-                      onValueChange={(value: string) => field.onChange(value)}
-                    />
-                  </Form.Control>
-                  <Form.Message className="text-destructive" />
-                </Form.Item>
-              )}
-            />
+        <InfoCard title="Main colors">
+          <InfoCard.Content>
+            <Label>Colors</Label>
+            <div className="flex gap-6">
+              <Form.Field
+                control={control}
+                name="primaryColor"
+                render={({ field }) => (
+                  <Form.Item className="space-y-2">
+                    <Label>PRIMARY</Label>
+                    <Form.Control>
+                      <ColorPicker
+                        className="w-20 h-8"
+                        value={field.value || ''}
+                        onValueChange={(value: string) => field.onChange(value)}
+                      />
+                    </Form.Control>
+                    <Form.Message className="text-destructive" />
+                  </Form.Item>
+                )}
+              />
 
-            <Form.Field
-              control={control}
-              name="secondaryColor"
-              render={({ field }) => (
-                <Form.Item className="space-y-2">
-                  <Label>SECONDARY</Label>
-                  <Form.Control>
-                    <ColorPicker
-                      className="w-20 h-8"
-                      value={field.value || ''}
-                      onValueChange={(value: string) => field.onChange(value)}
-                    />
-                  </Form.Control>
-                  <Form.Message className="text-destructive" />
-                </Form.Item>
-              )}
-            />
+              <Form.Field
+                control={control}
+                name="secondaryColor"
+                render={({ field }) => (
+                  <Form.Item className="space-y-2">
+                    <Label>SECONDARY</Label>
+                    <Form.Control>
+                      <ColorPicker
+                        className="w-20 h-8"
+                        value={field.value || ''}
+                        onValueChange={(value: string) => field.onChange(value)}
+                      />
+                    </Form.Control>
+                    <Form.Message className="text-destructive" />
+                  </Form.Item>
+                )}
+              />
 
-            <Form.Field
-              control={control}
-              name="thirdColor"
-              render={({ field }) => (
-                <Form.Item className="space-y-2">
-                  <Label>THIRD</Label>
-                  <Form.Control>
-                    <ColorPicker
-                      className="w-20 h-8"
-                      value={field.value || ''}
-                      onValueChange={(value: string) => field.onChange(value)}
-                    />
-                  </Form.Control>
-                  <Form.Message className="text-destructive" />
-                </Form.Item>
-              )}
-            />
-          </div>
-        </InfoCard.Content>
-      </InfoCard>
+              <Form.Field
+                control={control}
+                name="thirdColor"
+                render={({ field }) => (
+                  <Form.Item className="space-y-2">
+                    <Label>THIRD</Label>
+                    <Form.Control>
+                      <ColorPicker
+                        className="w-20 h-8"
+                        value={field.value || ''}
+                        onValueChange={(value: string) => field.onChange(value)}
+                      />
+                    </Form.Control>
+                    <Form.Message className="text-destructive" />
+                  </Form.Item>
+                )}
+              />
+            </div>
+          </InfoCard.Content>
+        </InfoCard>
+      </div>
 
       <InfoCard title="Infos">
         <InfoCard.Content>

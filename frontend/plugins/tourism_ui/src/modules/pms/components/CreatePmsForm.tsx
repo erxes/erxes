@@ -70,8 +70,8 @@ const CreatePmsForm = ({
       boardId: '',
       pipelineId: '',
       stageId: '',
-      roomsCategoryId: '',
-      extrasCategoryId: '',
+      roomsCategoryIds: [],
+      extrasCategoryIds: [],
       discount: {},
     },
   });
@@ -94,10 +94,16 @@ const CreatePmsForm = ({
       checkOutTime: branch.checkouttime || '',
       checkInAmount: branch.checkinamount || 0,
       checkOutAmount: branch.checkoutamount || 0,
-      discounts: Array.isArray(branch.discount) ? branch.discount : [],
+      discounts: Array.isArray(branch.discount)
+        ? branch.discount.map(({ __typename, ...rest }: any) => rest)
+        : [],
+      websiteReservationLock: branch.websiteReservationLock ?? false,
       time: branch.time || '',
       paymentIds: branch.paymentIds || [],
       paymentTypes: branch.paymentTypes || [],
+      otherPayments: Array.isArray(branch.paymentTypes)
+        ? branch.paymentTypes.map(({ __typename, ...rest }: any) => rest)
+        : [],
       erxesAppToken: branch.erxesAppToken || '',
       user1Ids: branch.user1Ids || [],
       user2Ids: branch.user2Ids || [],
@@ -114,11 +120,12 @@ const CreatePmsForm = ({
       primaryColor: branch.uiOptions?.colors?.primary || '#FFFFFF',
       secondaryColor: branch.uiOptions?.colors?.secondary || '#6569DF',
       thirdColor: branch.uiOptions?.colors?.third || '#3CCC38',
+      website: branch.uiOptions?.website || '',
       boardId: branch.pipelineConfig?.boardId || '',
       pipelineId: branch.pipelineConfig?.pipelineId || '',
       stageId: branch.pipelineConfig?.stageId || '',
-      roomsCategoryId: branch.roomCategories?.[0] || '',
-      extrasCategoryId: branch.extraProductCategories?.[0] || '',
+      roomsCategoryIds: branch.roomCategories || [],
+      extrasCategoryIds: branch.extraProductCategories || [],
       discount: branch.discount || {},
     });
   }, [branch, branchId, form, mode]);
@@ -139,7 +146,6 @@ const CreatePmsForm = ({
           _id: nanoid(),
           type: payment.type || '',
           title: payment.title || '',
-          icon: payment.icon || '',
           config: payment.config || '',
         })) || [],
       uiOptions: {
@@ -149,24 +155,20 @@ const CreatePmsForm = ({
           secondary: data.secondaryColor || '',
           third: data.thirdColor || '',
         },
+        website: data.website || '',
       },
       pipelineConfig: {
         boardId: data.boardId || '',
         pipelineId: data.pipelineId || '',
         stageId: data.stageId || '',
       },
-      extraProductCategories: Array.isArray(data.extrasCategoryId)
-        ? data.extrasCategoryId
-        : data.extrasCategoryId
-        ? [data.extrasCategoryId]
-        : [],
-      roomCategories: (data.roomsCategoryId && [data.roomsCategoryId]) || [],
+      extraProductCategories: data.extrasCategoryIds || [],
+      roomCategories: data.roomsCategoryIds || [],
       discount:
         data.discounts.map((discount) => ({
           _id: nanoid(),
           type: discount.type || '',
           title: discount.title || '',
-          icon: discount.icon || '',
           config: discount.config || '',
         })) || [],
       time: data.time || '',
@@ -186,19 +188,18 @@ const CreatePmsForm = ({
       user4Ids: data.user4Ids || [],
       user5Ids: data.user5Ids || [],
       paymentIds: data.paymentIds || [],
-      paymentTypes: data.paymentTypes || [],
+      paymentTypes: createVariables.paymentTypes,
       permissionConfig: data.permissionConfig || {},
-      uiOptions: data.uiOptions || createVariables.uiOptions,
-      pipelineConfig: data.pipelineConfig || createVariables.pipelineConfig,
-      extraProductCategories:
-        data.extraProductCategories || createVariables.extraProductCategories,
-      roomCategories: data.roomCategories || createVariables.roomCategories,
+      uiOptions: createVariables.uiOptions,
+      pipelineConfig: createVariables.pipelineConfig,
+      extraProductCategories: createVariables.extraProductCategories,
+      roomCategories: createVariables.roomCategories,
       time: data.time || '',
-      discount: data.discount || createVariables.discount,
-      checkInTime: data.checkInTime,
-      checkOutTime: data.checkOutTime,
-      checkInAmount: data.checkInAmount,
-      checkOutAmount: data.checkOutAmount,
+      discount: createVariables.discount,
+      checkintime: data.checkInTime,
+      checkouttime: data.checkOutTime,
+      checkinamount: data.checkInAmount,
+      checkoutamount: data.checkOutAmount,
     };
 
     if (mode === 'edit') {
@@ -256,21 +257,23 @@ const CreatePmsForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full"
-      >
+      <form className="flex flex-col h-full">
         <PmsCreateSheetHeader mode={mode} />
         <CreatePmsSheetContentLayout form={form}>
           {mode === 'edit' && detailLoading ? (
-            <div className="flex justify-center items-center py-8">
+            <div className="flex justify-center items-center w-full h-full">
               <Spinner />
             </div>
           ) : (
             <CreatePmsFormContent form={form} />
           )}
         </CreatePmsSheetContentLayout>
-        <PmsCreateSheetFooter loading={loading} form={form} mode={mode} />
+        <PmsCreateSheetFooter
+          loading={loading}
+          form={form}
+          mode={mode}
+          onSave={form.handleSubmit(onSubmit)}
+        />
       </form>
     </Form>
   );

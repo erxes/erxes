@@ -66,10 +66,12 @@ export const PmsCreateSheetFooter = ({
   loading = false,
   form,
   mode = 'create',
+  onSave,
 }: {
   loading?: boolean;
   form: UseFormReturn<PmsBranchFormType>;
   mode?: 'create' | 'edit';
+  onSave?: () => void;
 }) => {
   const [currentStep, setCurrentStep] = useAtom(stepState);
   const setOpen = useSetAtom(sheetOpenState);
@@ -103,21 +105,21 @@ export const PmsCreateSheetFooter = ({
       <Button variant={'outline'} onClick={handlePreviousButton} type="button">
         {currentStep === 1 ? 'Cancel' : 'Previous'}
       </Button>
-      {currentStep === steps.length ? (
-        <Button disabled={loading} type="submit">
-          {loading
+      <Button
+        disabled={currentStep === steps.length && loading}
+        type="button"
+        onClick={currentStep === steps.length ? onSave : handleNextButton}
+      >
+        {currentStep === steps.length
+          ? loading
             ? mode === 'edit'
               ? 'Saving...'
               : 'Creating...'
             : mode === 'edit'
             ? 'Save'
-            : 'Create'}
-        </Button>
-      ) : (
-        <Button onClick={handleNextButton} type="button">
-          Next
-        </Button>
-      )}
+            : 'Create'
+          : 'Next'}
+      </Button>
     </Sheet.Footer>
   );
 };

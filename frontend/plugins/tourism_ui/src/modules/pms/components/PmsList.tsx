@@ -14,7 +14,9 @@ import { PmsCreateSheet } from './CreatePmsSheet';
 import { usePmsRemoveBranch } from '@/pms/hooks/usePmsRemoveBranch';
 import { ActionMenu } from '@/pms/components/ActionMenu';
 import { Sheet } from 'erxes-ui';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSetAtom } from 'jotai';
+import { stepState } from '@/pms/states/stepStates';
 import CreatePmsForm from './CreatePmsForm';
 
 function PmsListEmpty() {
@@ -125,6 +127,13 @@ export function PmsList() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [editingBranchId, setEditingBranchId] = useState<string>('');
+  const setCurrentStep = useSetAtom(stepState);
+
+  useEffect(() => {
+    if (editOpen) {
+      setCurrentStep(1);
+    }
+  }, [editOpen, setCurrentStep]);
 
   const { removeBranch } = usePmsRemoveBranch();
 
@@ -200,7 +209,7 @@ export function PmsList() {
       </Sheet>
 
       <div className="w-full p-2 sm:p-3 md:p-4 flex flex-col min-h-[calc(100vh-200px)]">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {list.map((branch) => (
             <PmsBranchCard
               key={branch._id}

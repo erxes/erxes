@@ -7,7 +7,7 @@ import {
   SelectPipelineFormItem,
   SelectStageFormItem,
 } from './SelectSalesFlow';
-import { SelectCategory } from 'ui-modules';
+import { SelectCategory } from '@/pms/components/pmsFormFields/pipelineConfig/SelectCategory';
 
 const PipelineConfig = ({
   form,
@@ -81,18 +81,21 @@ const PipelineConfig = ({
         </InfoCard.Content>
       </InfoCard>
 
-      <InfoCard title="Room category">
+      <InfoCard title="Room categories">
         <InfoCard.Content>
           <Form.Field
             control={form.control}
-            name="roomsCategoryId"
+            name="roomsCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Label>ROOM CATEGORY</Label>
+                <Label>ROOM CATEGORIES</Label>
                 <Form.Control>
                   <SelectCategory
-                    selected={field.value}
-                    onSelect={field.onChange}
+                    mode="multiple"
+                    value={field.value}
+                    onValueChange={(value) =>
+                      field.onChange(Array.isArray(value) ? value : [value])
+                    }
                   />
                 </Form.Control>
                 <Form.Message className="text-destructive" />
@@ -106,14 +109,17 @@ const PipelineConfig = ({
         <InfoCard.Content>
           <Form.Field
             control={form.control}
-            name="extrasCategoryId"
+            name="extrasCategoryIds"
             render={({ field }) => (
               <Form.Item>
                 <Label>EXTRA PRODUCT CATEGORIES</Label>
                 <Form.Control>
                   <SelectCategory
-                    selected={field.value}
-                    onSelect={field.onChange}
+                    mode="multiple"
+                    value={field.value}
+                    onValueChange={(value) =>
+                      field.onChange(Array.isArray(value) ? value : [value])
+                    }
                   />
                 </Form.Control>
                 <Form.Message className="text-destructive" />

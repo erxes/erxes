@@ -2,18 +2,20 @@ import { z } from 'zod';
 
 export const PmsBranchFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  description: z.string().max(50).optional(),
+  description: z.string().max(500).optional(),
   checkInTime: z.string().min(1, 'Check in time is required'),
   checkInAmount: z.coerce.number(),
   checkOutTime: z.string().min(1, 'Check out time is required'),
   checkOutAmount: z.coerce.number(),
   discounts: z.array(
-    z.object({
-      type: z.string().optional(),
-      title: z.string().optional(),
-      icon: z.string().optional(),
-      config: z.string().optional(),
-    }),
+    z
+      .object({
+        type: z.string().optional(),
+        title: z.string().optional(),
+        icon: z.string().optional(),
+        config: z.string().optional(),
+      })
+      .passthrough(),
   ),
   websiteReservationLock: z.boolean(),
   time: z.string().optional(),
@@ -22,12 +24,14 @@ export const PmsBranchFormSchema = z.object({
   erxesAppToken: z.string().optional(),
   otherPayments: z
     .array(
-      z.object({
-        type: z.string().optional(),
-        title: z.string().optional(),
-        icon: z.string().optional(),
-        config: z.string().optional(),
-      }),
+      z
+        .object({
+          type: z.string().optional(),
+          title: z.string().optional(),
+          icon: z.string().optional(),
+          config: z.string().optional(),
+        })
+        .passthrough(),
     )
     .optional(),
   user1Ids: z.array(z.string()).optional(),
@@ -49,8 +53,8 @@ export const PmsBranchFormSchema = z.object({
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string().optional(),
-  roomsCategoryId: z.string().optional(),
-  extrasCategoryId: z.string().optional(),
+  roomsCategoryIds: z.array(z.string()).optional(),
+  extrasCategoryIds: z.array(z.string()).optional(),
   discount: z.any().optional(),
 });
 

@@ -18,6 +18,7 @@ const PmsBranchList = gql`
       description
       createdAt
       userId
+      uiOptions
     }
   }
 `;
@@ -68,4 +69,21 @@ const Payments = gql`
   }
 `;
 
-export const pmsQueries = { PmsBranchList, PmsBranchDetail, Payments };
+const ProductCategories = gql`
+  query ProductCategories {
+    productCategories {
+      _id
+      parentId
+      code
+      name
+      order
+    }
+  }
+`;
+
+export const pmsQueries = {
+  PmsBranchList,
+  PmsBranchDetail,
+  Payments,
+  ProductCategories,
+};
