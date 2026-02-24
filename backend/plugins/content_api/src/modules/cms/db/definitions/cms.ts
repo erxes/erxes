@@ -45,6 +45,7 @@ export const cmsPageSchema = new mongoose.Schema<ICMSPageDocument>(
     content: { type: String },
     slug: { type: String, required: true },
     layout: { type: String, required: false },
+    status: { type: String },
     createdUserId: { type: String, ref: 'User' },
     coverImage: { type: String },
     customFieldsData: { type: [customFieldSchema], optional: true },
