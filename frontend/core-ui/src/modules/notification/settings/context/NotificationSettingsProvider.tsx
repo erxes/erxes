@@ -1,6 +1,6 @@
 import {
-    PluginsNotificationConfigEvents,
-    PluginsNotificationConfigModules,
+  PluginsNotificationConfigEvents,
+  PluginsNotificationConfigModules,
 } from '@/notification/types/notifications';
 import { createContext, useContext } from 'react';
 import { useParams } from 'react-router';
@@ -18,7 +18,9 @@ interface NotificationSettingsContext {
   plugin: NotificationSettingsPlugin;
 
   module: PluginsNotificationConfigModules & { enabled?: boolean };
-  events: Array<PluginsNotificationConfigEvents & { enabled?: boolean, channels?: string[]}>;
+  events: Array<
+    PluginsNotificationConfigEvents & { enabled?: boolean; channels?: string[] }
+  >;
 
   toggleChannel: (channel: string) => void;
   togglePlugin: (enabled: boolean) => void;
@@ -41,37 +43,49 @@ export const NotificationSettingsProvider = ({
 
   const { pluginsNotifications } = useNotificationPluginsTypes();
   const { notificationSettings } = useNotificationSettings();
-  const { updateNotificationSettingsEvent } = useNotificationSettingsEventUpdate();
+  const { updateNotificationSettingsEvent } =
+    useNotificationSettingsEventUpdate();
 
   const pluginRecord = notificationSettings?.events?.[pluginName];
 
   const plugin: NotificationSettingsPlugin = {
-    name:     pluginName,
-    enabled:  pluginRecord?.enabled ?? true,
+    name: pluginName,
+    enabled: pluginRecord?.enabled ?? true,
     channels: pluginRecord?.channels ?? [],
   };
 
-  const currentPlugin = pluginsNotifications?.find((p) => p.pluginName === pluginName);
-  const currentModule = { ...(currentPlugin?.modules?.find((m) => m.name === moduleName) || {}), ...(notificationSettings?.events?.[`${pluginName}:${moduleName}`] || {})} as PluginsNotificationConfigModules & { enabled?: boolean };
-  const currentEvents = currentModule?.events?.map(event => ({ ...event, ...(notificationSettings?.events?.[`${pluginName}:${moduleName}:${event.name}`] || {})})) || [];
+  const currentPlugin = pluginsNotifications?.find(
+    (p) => p.pluginName === pluginName,
+  );
+  const currentModule = {
+    ...(currentPlugin?.modules?.find((m) => m.name === moduleName) || {}),
+    ...(notificationSettings?.events?.[`${pluginName}:${moduleName}`] || {}),
+  } as PluginsNotificationConfigModules & { enabled?: boolean };
+  const currentEvents =
+    currentModule?.events?.map((event) => ({
+      ...event,
+      ...(notificationSettings?.events?.[
+        `${pluginName}:${moduleName}:${event.name}`
+      ] || {}),
+    })) || [];
 
   const toggleChannel = async (channel: string) => {
-    const current  = plugin.channels;
+    const current = plugin.channels;
 
     const channels = current.includes(channel)
       ? current.filter((c) => c !== channel)
       : [...current, channel];
 
     await updateNotificationSettingsEvent({
-      event:    pluginName,
-      enabled:  plugin.enabled,
+      event: pluginName,
+      enabled: plugin.enabled,
       channels,
     });
   };
 
   const togglePlugin = async (enabled: boolean) => {
     await updateNotificationSettingsEvent({
-      event:    pluginName,
+      event: pluginName,
       enabled,
       channels: plugin.channels,
     });
@@ -79,7 +93,7 @@ export const NotificationSettingsProvider = ({
 
   const toggleModule = async (enabled: boolean) => {
     await updateNotificationSettingsEvent({
-      event:    `${pluginName}:${moduleName}`,
+      event: `${pluginName}:${moduleName}`,
       enabled,
       channels: plugin.channels,
     });
@@ -87,7 +101,7 @@ export const NotificationSettingsProvider = ({
 
   const toggleEvent = async (eventName: string, enabled: boolean) => {
     await updateNotificationSettingsEvent({
-      event:    `${pluginName}:${moduleName}:${eventName}`,
+      event: `${pluginName}:${moduleName}:${eventName}`,
       enabled,
       channels: plugin.channels,
     });

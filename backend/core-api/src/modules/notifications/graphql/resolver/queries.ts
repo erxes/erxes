@@ -32,7 +32,7 @@ export const notificationQueries = {
         name: string;
         description: string;
         icon: string;
-        events: Array<{ name: string; title: string, description: string }>;
+        events: Array<{ name: string; title: string; description: string }>;
       }>;
     }> = [...CORE_NOTIFICATION_MODULES];
 

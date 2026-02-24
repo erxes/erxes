@@ -21,8 +21,7 @@ export const CORE_NOTIFICATION_MODULES = [
           {
             name: 'positionAssigneeChanged',
             title: 'Position assignee changed',
-            description:
-              'Triggered when the assignee of a position is changed',
+            description: 'Triggered when the assignee of a position is changed',
           },
         ],
       },

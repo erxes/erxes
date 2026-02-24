@@ -69,14 +69,16 @@ export const notificationTrpcRouter = t.router({
 
         data.uid = user._id;
 
-        const userNotification = await models.Notifications.findOne({ userId: user._id }).lean();
+        const userNotification = await models.Notifications.findOne({
+          userId: user._id,
+        }).lean();
 
         if (userNotification) {
           data.notification.link = `${DOMAIN}/my-inbox/${userNotification._id}`;
         }
       };
 
-      await sendEmail(subdomain, {...input, modifier }, models);
+      await sendEmail(subdomain, { ...input, modifier }, models);
     }),
 
     settings: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
