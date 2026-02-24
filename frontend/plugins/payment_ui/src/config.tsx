@@ -17,27 +17,14 @@ const PaymentSettingsNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'payment',
   path: 'payment',
+  navigationGroup: {
+    name: 'Payment',
+    icon: IconCurrencyDollar,
+    content: () => null,
+  },
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <PaymentSettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
-    name: 'payment',
-    icon: IconCurrencyDollar,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <PaymentNavigation />
-      </Suspense>
-    ),
-  },
-  modules: [
-    {
-      name: 'payment',
-      icon: IconCurrencyDollar,
-      path: 'payment',
-      // hasRelationWidget: false,
-      // hasFloatingWidget: false,
-    },
-  ],
 };

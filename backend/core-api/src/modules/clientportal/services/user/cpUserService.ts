@@ -103,8 +103,9 @@ export async function registerUser(
     validateUserRegistration(params);
   }
 
+  const { ...documentParams } = params;
   const document = {
-    ...params,
+    ...documentParams,
     isEmailVerified: false,
     isPhoneVerified: false,
   };
@@ -130,20 +131,6 @@ export async function registerUser(
     if (shouldAutoVerify) {
       await autoVerifyUser(user, models);
       resultUser = user;
-    } else {
-      const actionCodeType = identifierTypeToActionCodeType(identifierType);
-
-      await sendAndStoreOTP({
-        user,
-        identifierType,
-        actionCodeType,
-        context: 'registration',
-        clientPortal,
-        subdomain,
-        models,
-      });
-
-      resultUser = user;
     }
   }
 
@@ -154,7 +141,7 @@ export async function verifyUser(
   userId: string,
   email: string,
   phone: string,
-  code: number,
+  code: string,
   clientPortal: IClientPortalDocument,
   models: IModels,
 ): Promise<ICPUserDocument> {

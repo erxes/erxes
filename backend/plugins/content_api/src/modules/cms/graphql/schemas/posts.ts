@@ -18,6 +18,12 @@ export const types = `
         scheduledDate
     }
 
+    enum PostDateField {
+        createdAt
+        updatedAt
+        scheduledDate
+    }
+
     union Author = User 
 
     type Post @key(fields: "_id") @cacheControl(maxAge: 3){
