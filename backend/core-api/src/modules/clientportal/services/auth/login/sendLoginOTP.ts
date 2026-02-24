@@ -7,7 +7,10 @@ import {
 import { checkOTPResendLimit } from './loginWithOTP';
 import { sendAndStoreOTP } from '@/clientportal/services/helpers/otpSenderHelper';
 import { isPasswordlessLoginEnabled } from '@/clientportal/services/helpers/otpConfigHelper';
-import { RateLimitError, ValidationError } from '@/clientportal/services/errorHandler';
+import {
+  RateLimitError,
+  ValidationError,
+} from '@/clientportal/services/errorHandler';
 
 export async function sendOTPForLogin(
   subdomain: string,
@@ -16,12 +19,6 @@ export async function sendOTPForLogin(
   models: IModels,
 ): Promise<void> {
   const identifierType = detectIdentifierType(identifier);
-
-  if (!isPasswordlessLoginEnabled(clientPortal, identifierType)) {
-    throw new ValidationError(
-      'Passwordless login is not enabled for this identifier type',
-    );
-  }
 
   const user = await models.CPUser.findByIdentifier(
     identifier,
@@ -45,21 +42,44 @@ export async function sendOTPForLogin(
     : 0;
   const oneHourAgo = Date.now() - oneHourMs;
   const currentAttempts =
-    lastAttemptMs > oneHourAgo ? (user.otpResendAttempts || 0) : 0;
+    lastAttemptMs > oneHourAgo ? user.otpResendAttempts || 0 : 0;
 
   const actionCodeType = identifierTypeToActionCodeType(identifierType);
+  if (user.isVerified) {
+    // if user is verified, send OTP for login
+    if (!isPasswordlessLoginEnabled(clientPortal, identifierType)) {
+      throw new ValidationError(
+        'Passwordless login is not enabled for this identifier type',
+      );
+    }
 
-  await sendAndStoreOTP({
-    user,
-    identifierType,
-    actionCodeType,
-    context: 'login',
-    clientPortal,
-    subdomain,
-    models,
-    resendOptions: {
-      incrementResendAttempts: true,
-      currentAttempts,
-    },
-  });
+    await sendAndStoreOTP({
+      user,
+      identifierType,
+      actionCodeType,
+      context: 'login',
+      clientPortal,
+      subdomain,
+      models,
+      resendOptions: {
+        incrementResendAttempts: true,
+        currentAttempts,
+      },
+    });
+  } else {
+    // if user is not verified, send OTP for registration
+    await sendAndStoreOTP({
+      user,
+      identifierType,
+      actionCodeType,
+      context: 'registration',
+      clientPortal,
+      subdomain,
+      models,
+      resendOptions: {
+        incrementResendAttempts: true,
+        currentAttempts,
+      },
+    });
+  }
 }
