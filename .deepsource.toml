@@ -1,0 +1,25 @@
+version = 1
+
+[[analyzers]]
+name = "javascript"
+
+  [analyzers.meta]
+  dialect = "typescript"
+  plugins = ["react"]
+  environment = [
+    "nodejs",
+    "browser"
+  ]
+  style_guide = "standard"
+  module_system = "es-modules"
+  skip_doc_coverage = [
+    "class-expression",
+    "method-definition"
+  ]
+  cyclomatic_complexity_threshold = "high"
+
+[[analyzers]]
+name = "docker"
+
+[[code_formatters]]
+name = "prettier"
