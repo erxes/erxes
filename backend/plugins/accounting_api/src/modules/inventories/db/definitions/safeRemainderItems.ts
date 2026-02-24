@@ -12,7 +12,7 @@ export const safeRemainderItemSchema = schemaWrapper(
     preCount: { type: Number, label: 'Pre count' },
     count: { type: Number, label: 'Remainder count' },
 
-    status: { type: String, label: 'Status' },
+    status: { type: String, label: 'Status', enum: ['new', 'checked'] },
     uom: { type: String, label: 'UOM' },
     modifiedAt: {
       type: Date,

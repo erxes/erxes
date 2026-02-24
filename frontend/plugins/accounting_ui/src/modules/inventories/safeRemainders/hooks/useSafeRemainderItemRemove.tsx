@@ -33,7 +33,7 @@ export const useSafeRemainderItemRemove = () => {
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['AccountsMain'],
+      refetchQueries: ['SafeRemainderItems'],
     });
   };
 

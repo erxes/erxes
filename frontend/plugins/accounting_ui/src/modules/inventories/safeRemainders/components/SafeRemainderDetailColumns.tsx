@@ -1,9 +1,11 @@
+import { Checkbox } from 'erxes-ui/components/checkbox';
 import { IconMoneybag } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
   INumberFieldContainerProps,
+  ITextFieldContainerProps,
   NumberField,
   RecordTable,
   RecordTableInlineCell,
@@ -48,7 +50,7 @@ const RemainderField = ({
       onSave={(value) => {
         editRemItem(
           {
-            variables: { ...remItem, remainder: value },
+            variables: { ...remItem, remainder: value, status: 'checked' },
           },
           ['count']
         );
@@ -72,7 +74,7 @@ const DiffField = ({
       onSave={(value) => {
         editRemItem(
           {
-            variables: { ...remItem, remainder: remItem.preCount - value },
+            variables: { ...remItem, remainder: remItem.preCount - value, status: 'checked' },
           },
           ['count']
         );
@@ -80,6 +82,27 @@ const DiffField = ({
       className={'shadow-none rounded-none px-2'}
     />
   );
+};
+
+const StatusField = ({
+  value,
+  _id,
+  remItem,
+}: ITextFieldContainerProps & { remItem: ISafeRemainderItem }) => {
+  const { editRemItem } = useSafeRemainderItemEdit();
+  return (
+    <div className="flex items-center justify-center">
+      <Checkbox
+        checked={value === 'checked'}
+        onCheckedChange={(value) => editRemItem(
+          {
+            variables: { ...remItem, status: value ? 'checked' : 'new' },
+          },
+          ['status']
+        )}
+      />
+    </div>
+  )
 };
 
 export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
@@ -109,7 +132,18 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     accessorKey: 'uom',
     cell: ({ row }) => <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>,
   },
-  RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
+  {
+    id: 'status',
+    accessorKey: 'status',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Checked" />,
+    size: 33,
+    cell: ({ row }) => <StatusField
+      value={row.original.status}
+      field="status"
+      _id={row.original._id}
+      remItem={row.original}
+    />,
+  },
   {
     id: 'remainder',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />,
