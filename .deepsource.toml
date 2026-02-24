@@ -15,6 +15,7 @@ name = "javascript"
   skip_doc_coverage = [
     "class-expression",
     "method-definition"
+    "arrow-function"
   ]
   cyclomatic_complexity_threshold = "high"
 
@@ -23,6 +24,3 @@ name = "docker"
 
 [[code_formatters]]
 name = "prettier"
-
-[analyzers.meta]
-skip_doc_coverage = ["arrow-function"]
