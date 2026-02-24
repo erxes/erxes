@@ -86,7 +86,7 @@ export function Categories() {
                     icon={IconArticle}
                     title="No categories yet"
                     description="Get started by creating your first page."
-                    actionLabel="Add page"
+                    actionLabel="Add Category"
                     onAction={() => setDrawerOpen(true)}
                   />
                 </div>

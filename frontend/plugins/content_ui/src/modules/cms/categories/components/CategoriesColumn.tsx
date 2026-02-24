@@ -2,6 +2,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   Input,
+  RelativeDateDisplay,
   Popover,
   useToast,
 } from 'erxes-ui';
@@ -11,9 +12,9 @@ import { useState } from 'react';
 import {
   IconUser,
   IconArticle,
-  IconCalendar,
   IconFolder,
   IconId,
+  IconCalendarPlus,
 } from '@tabler/icons-react';
 import { ICategory } from '../types/CategoriesType';
 import { useEditCategory } from '../hooks/useEditCategory';
@@ -23,15 +24,6 @@ const BadgeCell = ({ children }: { children: React.ReactNode }) => (
     <span className="text-sm text-gray-500">{children}</span>
   </div>
 );
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 export const createCategoriesColumns = (
   clientPortalId: string,
@@ -108,7 +100,9 @@ export const createCategoriesColumns = (
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
-        <BadgeCell>{(cell.getValue() as string) || '—'}</BadgeCell>
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
       ),
     },
     {
@@ -133,12 +127,16 @@ export const createCategoriesColumns = (
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+        <RecordTable.InlineHead icon={IconCalendarPlus} label="Created At" />
       ),
       accessorKey: 'createdAt',
       size: 120,
       cell: ({ cell }) => (
-        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       ),
     },
     {
