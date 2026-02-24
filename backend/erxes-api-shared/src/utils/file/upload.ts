@@ -418,7 +418,7 @@ const uploadToCloudflare = async (
     readConfigValue(configs, 'CLOUDFLARE_USE_CDN', ''),
   );
 
-  const detectedType = await fileTypeFromBuffer(fs.readFileSync(filePath));
+  const detectedType = { mime: mimetype };
 
   let adjustedFileName = fileName;
   if (path.extname(fileName).toLowerCase() === '.jfif') {

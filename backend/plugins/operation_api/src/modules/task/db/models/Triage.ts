@@ -64,6 +64,7 @@ export const loadTriageClass = (models: IModels) => {
           notificationType: 'triage',
           userIds,
           action: 'created',
+          models,
         });
       }
       return triageDoc;

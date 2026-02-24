@@ -1,6 +1,8 @@
 import { Types } from 'mongoose';
 import { z } from 'zod';
+import { IUserDocument } from '../../core-types';
 import { sendTRPCMessage } from '../../utils';
+
 const baseNotificationSchema = z.object({
   title: z.string(),
   message: z.string(),
@@ -9,6 +11,7 @@ const baseNotificationSchema = z.object({
   metadata: z.record(z.any()).optional(),
 
   contentType: z.string(),
+  content: z.string().optional(),
 });
 
 const systemNotificationSchema = baseNotificationSchema.extend({
@@ -36,16 +39,20 @@ export type INotificationData = z.infer<typeof notificationZTypeSchema>;
 
 export const sendNotification = async (
   subdomain: string,
-  data: { userIds: string[] } & Partial<INotificationData>,
+  data: {
+    userIds: string[];
+    notificationType?: string;
+  } & Partial<INotificationData>,
 ) => {
-  const { userIds, kind, ...notificationData } = data;
+  const { userIds, kind, notificationType, ...notificationData } = data;
 
   const parsedData = notificationZTypeSchema.parse({
     ...notificationData,
+    notificationType,
     kind: kind ?? 'user',
   });
 
-  sendTRPCMessage({
+  await sendTRPCMessage({
     subdomain,
 
     pluginName: 'core',
@@ -53,5 +60,171 @@ export const sendNotification = async (
     module: 'notifications',
     action: 'create',
     input: { data: parsedData, userIds },
+    defaultValue: [],
   });
+
+  if (notificationType) {
+    await sendNotificationChannels(subdomain, data);
+  }
+};
+
+export const sendNotificationChannels = async (
+  subdomain: string,
+  notification: {
+    userIds: string[];
+    notificationType?: string;
+    fromUserId?: string;
+  } & Partial<INotificationData>,
+) => {
+  const {
+    notificationType: eventName,
+    userIds,
+    contentType,
+    fromUserId,
+  } = notification || {};
+
+  if (!contentType) return;
+
+  const [pluginName, moduleName] = contentType.split(':');
+
+  if (!pluginName) return;
+
+  const userNotificationSettings = await sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'core',
+    method: 'query',
+    module: 'notifications',
+    action: 'settings',
+    input: { userIds },
+    defaultValue: [],
+  });
+
+  const recipientIds: Record<string, string[]> = { email: [] };
+
+  for (const userNotificationSetting of userNotificationSettings) {
+    const { userId, events } = userNotificationSetting || {};
+
+    if (fromUserId && (userIds.includes(fromUserId) || userId === fromUserId)) {
+      continue;
+    }
+
+    if (!userIds.includes(userId)) {
+      continue;
+    }
+
+    if (!events[pluginName]?.enabled) {
+      continue;
+    }
+
+    if (!events[`${pluginName}:${moduleName}`]?.enabled) {
+      continue;
+    }
+
+    if (!events[`${pluginName}:${moduleName}:${eventName}`]?.enabled) {
+      continue;
+    }
+
+    const channels = events[pluginName]?.channels || [];
+
+    if (!channels.length) {
+      continue;
+    }
+
+    if (channels.includes('email')) {
+      recipientIds['email'].push(userId);
+    }
+  }
+
+  if (recipientIds['email']?.length) {
+    await sendNotificationEmail(subdomain, {
+      ...notification,
+      userIds: recipientIds['email'],
+    });
+  }
+};
+
+export const sendNotificationEmail = async (
+  subdomain: string,
+  notification: {
+    userIds: string[];
+    notificationType?: string;
+    fromUserId?: string;
+  } & Partial<INotificationData>,
+) => {
+  const { userIds, message, fromUserId } = notification || {};
+
+  const toEmails: string[] = [];
+
+  const users: IUserDocument[] = await sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'core',
+    method: 'query',
+    module: 'users',
+    action: 'find',
+    input: { query: { _id: { $in: userIds }, isActive: true } },
+    defaultValue: [],
+  });
+
+  for (const user of users) {
+    const { _id, email, isActive } = user || {};
+
+    if (!userIds.includes(_id)) {
+      continue;
+    }
+
+    if (!email || !isActive) {
+      continue;
+    }
+
+    toEmails.push(email);
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'notifications',
+    action: 'sendEmail',
+    input: {
+      toEmails,
+      title: 'Notification',
+      template: {
+        name: 'notification',
+        data: {
+          notification,
+          action: message,
+          userName: await getUserDetail(subdomain, fromUserId),
+          date: new Date().toLocaleString(),
+        },
+      },
+      userId: fromUserId,
+    },
+    defaultValue: [],
+  });
+};
+
+export const getUserDetail = async (subdomain: string, userId?: string) => {
+  if (!userId) {
+    return;
+  }
+
+  const user: IUserDocument = await sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'core',
+    method: 'query',
+    module: 'users',
+    action: 'findOne',
+    input: { query: { _id: userId } },
+    defaultValue: {},
+  });
+
+  if (user.details) {
+    return `${user.details?.firstName || ''} ${user.details?.lastName || ''}`;
+  }
+
+  return user.email;
 };

@@ -91,6 +91,15 @@ const BroadcastSettings = lazy(() =>
   })),
 );
 
+const SettingsNotificationRoutes = lazy(() =>
+  import('@/notification/settings/components/NotificationSettingsRoutes').then(
+    (module) => ({
+      default: module.NotificationSettingsRoutes,
+    }),
+  ),
+);
+
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -102,6 +111,10 @@ export function SettingsRoutes() {
           element={<Navigate to={`${SettingsPath.Profile}`} replace />}
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
+        <Route
+          path={SettingsPath.NotificationCatchAll}
+          element={<SettingsNotificationRoutes />}
+        />
         <Route
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}

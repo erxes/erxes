@@ -32,15 +32,17 @@ export const notificationQueries = {
         name: string;
         description: string;
         icon: string;
-        types: Array<{ name: string; text: string }>;
+        events: Array<{ name: string; title: string, description: string }>;
       }>;
     }> = [...CORE_NOTIFICATION_MODULES];
+
     for (const pluginName of plugins) {
       const plugin = await getPlugin(pluginName);
       const meta = plugin.config?.meta || {};
 
-      if (meta && meta.notificationModules) {
-        const notificationModules = meta.notificationModules || [];
+      if (meta?.notifications) {
+        const notificationModules = meta.notifications?.modules || [];
+
         pluginsNotifications.push({
           pluginName,
           modules: notificationModules,
@@ -108,5 +110,13 @@ export const notificationQueries = {
       isRead: false,
       isArchived: { $ne: true },
     });
+  },
+
+  async notificationSettings(
+    _root: undefined,
+    _args: undefined,
+    { models, user }: IContext,
+  ) {
+    return models.NotificationSettings.findOne({ userId: user._id }).lean();
   },
 };
