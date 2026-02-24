@@ -19,10 +19,12 @@ import {
   ICustomerLinks,
   IVisitorContact
 } from '../../types';
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 
 type Props = {
   objects: ICustomer[];
   mergeCustomerLoading: boolean;
+  fieldsGroups: IFieldGroup[];
   save: (doc: {
     ids: string[];
     data: ICustomerDoc;
@@ -89,6 +91,35 @@ class CustomersMerge extends React.Component<Props, State> {
     this.setState({ selectedValues });
   };
 
+  handleCustomFieldsChange = (
+    type: string,
+    value: { field: string, value: any }
+  ) => {
+    const selectedValues = { ...this.state.selectedValues };
+
+    const current: Array<{field: string, value: any}> = selectedValues.customFieldsData || [];
+
+    if (type === 'plus-1') {
+     const index = current.findIndex(item => item.field === value.field);
+
+      if (index > -1) {
+         const updated = [...current];
+         
+         updated[index] = value;
+         
+         selectedValues.customFieldsData = updated;
+      } else {
+        selectedValues.customFieldsData = [...current, value];
+      }
+    } else {
+      selectedValues.customFieldsData = current.filter(
+        item => item.field !== value.field
+      );
+    }
+
+    this.setState({ selectedValues });
+  };
+
   renderCustomer = (customer: ICustomerDoc, icon: string) => {
     const properties = CUSTOMER_BASIC_INFO.ALL.concat(CUSTOMER_DATAS.ALL);
 
@@ -109,6 +140,8 @@ class CustomersMerge extends React.Component<Props, State> {
 
             return this.renderCustomerProperties(key, customer[key], icon);
           })}
+
+          {this.renderCustomerCustomFields(customer, icon)}
         </ul>
       </React.Fragment>
     );
@@ -125,8 +158,39 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
+  renderCustomerCustomFields(customer: ICustomerDoc, icon: string) {
+    const { fieldsGroups } = this.props;
+
+    const { customFieldsData } = customer || {};
+
+    return (
+      <>
+        {(fieldsGroups || []).filter(group => group.isVisible && !group.parentId).map(group => {
+          const fields = group.fields?.filter(field => field.isVisible && !field.isDisabled) || [];
+          
+          return fields.map(field => {
+            const value = (customFieldsData || []).find((customField: { field: string, value: any })  => customField.field === field._id)?.value;
+
+            if (!value) {
+              return null;
+            }
+            
+            return (
+              <li key={field._id} onClick={this.handleCustomFieldsChange.bind(this, icon, { field: field._id, value })}>
+                {this.renderTitle(field?.text || 'Unknown field')}
+                {this.renderValue(field._id, value)}
+
+                <Icon icon={icon} />
+              </li>
+            )
+          })
+        })}
+      </>
+    );
+  }
+
   renderTitle(key: string) {
-    const title = CUSTOMER_BASIC_INFO[key] || CUSTOMER_DATAS[key];
+    const title = CUSTOMER_BASIC_INFO[key] || CUSTOMER_DATAS[key] || key;
 
     return <InfoTitle>{title}:</InfoTitle>;
   }

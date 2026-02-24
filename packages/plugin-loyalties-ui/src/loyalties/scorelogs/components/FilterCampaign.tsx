@@ -76,17 +76,6 @@ const FilterCampaign = (props: Props) => {
       return clearCategoryFilter(["orderType", "order"]);
     }
 
-    if (field === "boardId") {
-      router.setParams(navigate, location, {
-        pipelineId: undefined,
-        stageId: undefined,
-      });
-    }
-
-    if (field === "pipelineId") {
-      router.setParams(navigate, location, { stageId: undefined });
-    }
-
     if (!value) {
       return clearCategoryFilter([field]);
     }
