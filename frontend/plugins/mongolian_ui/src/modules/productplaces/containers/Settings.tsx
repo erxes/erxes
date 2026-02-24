@@ -40,7 +40,7 @@ const SettingsContainer = ({
     {
       variables: {
         code: configCode,
-        subId: subId ?? "",
+        subId: subId ?? '',
       },
       fetchPolicy: 'network-only',
       errorPolicy: 'all',
@@ -114,7 +114,7 @@ const SettingsContainer = ({
       await updateConfig({
         variables: {
           _id,
-          subId: subId ?? "",
+          subId: subId ?? '',
           value,
         },
       });
@@ -122,7 +122,7 @@ const SettingsContainer = ({
       await createConfig({
         variables: {
           code: configCode,
-          subId: subId ?? "",
+          subId: subId ?? '',
           value,
         },
       });
@@ -145,13 +145,7 @@ const SettingsContainer = ({
     await refetch();
   };
 
-  return (
-    <Component
-      config={normalizedConfig}
-      save={save}
-      delete={remove}
-    />
-  );
+  return <Component config={normalizedConfig} save={save} delete={remove} />;
 };
 
 export default SettingsContainer;

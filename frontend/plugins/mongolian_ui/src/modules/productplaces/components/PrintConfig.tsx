@@ -66,25 +66,25 @@ const PrintConfig: React.FC<Props> = ({
   //   });
   // }, [config, activeIndex, savedConfigs, currentStageId]);
   useEffect(() => {
-  if (!config) {
-    setSavedConfigs([]);
-    setFormData({ ...emptyForm });
-    setActiveIndex(null);
-    return;
-  }
+    if (!config) {
+      setSavedConfigs([]);
+      setFormData({ ...emptyForm });
+      setActiveIndex(null);
+      return;
+    }
 
-  // Backend only returns one config
-  setSavedConfigs([config]);
-  setActiveIndex(0);
+    // Backend only returns one config
+    setSavedConfigs([config]);
+    setActiveIndex(0);
 
-  setFormData({
-    title: config.title ?? '',
-    boardId: config.boardId ?? '',
-    pipelineId: config.pipelineId ?? '',
-    stageId: config.stageId ?? '',
-    conditions: config.conditions ?? [],
-  });
-}, [config]);
+    setFormData({
+      title: config.title ?? '',
+      boardId: config.boardId ?? '',
+      pipelineId: config.pipelineId ?? '',
+      stageId: config.stageId ?? '',
+      conditions: config.conditions ?? [],
+    });
+  }, [config]);
 
   /* ---------- helpers ---------- */
   const updateField = useCallback(
