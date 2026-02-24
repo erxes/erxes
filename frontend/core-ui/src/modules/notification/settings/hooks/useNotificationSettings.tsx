@@ -21,11 +21,11 @@ interface NotificationSetting {
   channels: Record<string, NotificationChannel>;
   createdAt: string;
   updatedAt: string;
-};
+}
 
 interface NotificationSettingsResponse {
   notificationSettings: NotificationSetting;
-};
+}
 
 export const useNotificationSettings = () => {
   const { data, loading } = useQuery<NotificationSettingsResponse>(
