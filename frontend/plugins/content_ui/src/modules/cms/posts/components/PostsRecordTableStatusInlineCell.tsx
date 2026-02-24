@@ -58,8 +58,8 @@ export const PostsRecordTableStatusInlineCell = ({
               status === 'published'
                 ? 'success'
                 : status === 'scheduled'
-                ? 'warning'
-                : 'secondary'
+                  ? 'warning'
+                  : 'secondary'
             }
             className={cn('font-bold', {
               'text-accent-foreground':
@@ -78,8 +78,8 @@ export const PostsRecordTableStatusInlineCell = ({
               status === 'published'
                 ? 'success'
                 : status === 'scheduled'
-                ? 'warning'
-                : 'secondary'
+                  ? 'warning'
+                  : 'secondary'
             }
             className={cn('font-bold', {
               'text-accent-foreground':

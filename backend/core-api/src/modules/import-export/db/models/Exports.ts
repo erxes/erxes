@@ -161,11 +161,15 @@ export const loadExportClass = (
       fileKey: string,
       fileName: string,
     ) {
-      return models.Exports.findOneAndUpdate({ _id }, {
-        $set: { fileKey, fileName },
-      }, {
-        new: true,
-      }).lean();
+      return models.Exports.findOneAndUpdate(
+        { _id },
+        {
+          $set: { fileKey, fileName },
+        },
+        {
+          new: true,
+        },
+      ).lean();
     }
   }
 

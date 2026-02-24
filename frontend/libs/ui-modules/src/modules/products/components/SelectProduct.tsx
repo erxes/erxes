@@ -110,9 +110,7 @@ const SelectProductContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           productsData
-            ?.filter(
-              (product) => !productIds.includes(product._id)
-            )
+            ?.filter((product) => !productIds.includes(product._id))
             .map((product) => (
               <SelectProductCommandItem key={product._id} product={product} />
             ))}

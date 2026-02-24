@@ -8,7 +8,9 @@ interface ProductCategoriesAddCoreFieldsProps {
   form: UseFormReturn<ProductFormValues>;
 }
 
-export const ProductCategoriesAddCoreFields: React.FC<ProductCategoriesAddCoreFieldsProps> = ({ form }) => {
+export const ProductCategoriesAddCoreFields: React.FC<
+  ProductCategoriesAddCoreFieldsProps
+> = ({ form }) => {
   return (
     <div className="flex flex-col gap-5">
       <Form.Field
@@ -18,7 +20,10 @@ export const ProductCategoriesAddCoreFields: React.FC<ProductCategoriesAddCoreFi
           <Form.Item>
             <Form.Label>Parent Category</Form.Label>
             <Form.Control>
-              <SelectCategory selected={field.value} onSelect={field.onChange} />
+              <SelectCategory
+                selected={field.value}
+                onSelect={field.onChange}
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>

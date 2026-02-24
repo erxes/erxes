@@ -17,7 +17,7 @@ export const minupayCallbackHandler = async (models: IModels, data: any) => {
     {
       _id: identifier,
     },
-    true
+    true,
   );
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
@@ -152,7 +152,6 @@ export class MinuPayAPI extends BaseAPI {
     //       token: await this.getToken(),
     //     },
     //   });
-
 
     //   return res;
     // } catch (e) {

@@ -9,15 +9,27 @@ export default {
     return models.Deals.findOne({ _id });
   },
 
-  async customers(deal: IDealDocument & { customers: ICustomer[] }, _args: undefined, { loaders }: IContext) {
+  async customers(
+    deal: IDealDocument & { customers: ICustomer[] },
+    _args: undefined,
+    { loaders }: IContext,
+  ) {
     return await loaders.deal.customersByDealId.load(deal._id);
   },
 
-  async companies(deal: IDealDocument & { companies: ICompany[] }, _args: undefined, { loaders }: IContext) {
+  async companies(
+    deal: IDealDocument & { companies: ICompany[] },
+    _args: undefined,
+    { loaders }: IContext,
+  ) {
     return await loaders.deal.companiesByDealId.load(deal._id);
   },
 
-  async branches(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
+  async branches(
+    deal: IDealDocument,
+    _args: undefined,
+    { subdomain }: IContext,
+  ) {
     if (!deal.branchIds?.length) {
       return [];
     }
@@ -50,7 +62,11 @@ export default {
     }));
   },
 
-  async customPropertiesData(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
+  async customPropertiesData(
+    deal: IDealDocument,
+    _args: undefined,
+    { subdomain }: IContext,
+  ) {
     const customFieldsData = (deal?.customFieldsData as any[]) || [];
 
     const fieldIds = customFieldsData.map((customField) => customField.field);
@@ -150,7 +166,11 @@ export default {
     return { __typename: 'User', _id: deal.userId };
   },
 
-  async vendorCustomers(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
+  async vendorCustomers(
+    deal: IDealDocument,
+    _args: undefined,
+    { subdomain }: IContext,
+  ) {
     return await sendTRPCMessage({
       subdomain,
 

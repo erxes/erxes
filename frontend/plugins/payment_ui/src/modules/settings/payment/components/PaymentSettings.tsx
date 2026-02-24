@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import {
   IconCurrencyDollar,
   IconPlus,
-  IconSettings
+  IconSettings,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Sheet, useConfirm, useToast } from 'erxes-ui';
 import { useEffect, useState } from 'react';

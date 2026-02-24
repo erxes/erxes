@@ -1,7 +1,11 @@
 import { productsQueries } from '@/products/graphql';
 import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
 import { ApolloCache, MutationHookOptions, useMutation } from '@apollo/client';
-import { AddCategoryResult, AddCategoryVariables, CategoryData } from '../../types/CategoryType';
+import {
+  AddCategoryResult,
+  AddCategoryVariables,
+  CategoryData,
+} from '../../types/CategoryType';
 import { categoryAdd } from '../graphql/mutations';
 
 export function useAddCategory(
@@ -34,7 +38,10 @@ export function useAddCategory(
           data: {
             productCategories: {
               ...existingData.productCategories,
-              list: [...existingData.productCategories.list, data.productCategoriesAdd],
+              list: [
+                ...existingData.productCategories.list,
+                data.productCategoriesAdd,
+              ],
               totalCount: existingData.productCategories.totalCount + 1,
             },
           },

@@ -69,13 +69,13 @@ export class SocialPayAPI extends BaseAPI {
   }
 
   async authorize() {
-    const invoiceId = random('aA0',10);
+    const invoiceId = random('aA0', 10);
     try {
       const data: ISocialPayInvoice = {
         amount: '0',
         checksum: hmac256(
           this.inStoreSPKey,
-          this.inStoreSPTerminal + invoiceId + 0
+          this.inStoreSPTerminal + invoiceId + 0,
         ),
         invoice: invoiceId,
         terminal: this.inStoreSPTerminal,
@@ -117,7 +117,7 @@ export class SocialPayAPI extends BaseAPI {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount
+        this.inStoreSPTerminal + invoice._id + amount,
       ),
       invoice: invoice._id,
       terminal: this.inStoreSPTerminal,
@@ -128,7 +128,7 @@ export class SocialPayAPI extends BaseAPI {
 
       data.checksum = hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount + details.phone
+        this.inStoreSPTerminal + invoice._id + amount + details.phone,
       );
     }
 
@@ -170,7 +170,7 @@ export class SocialPayAPI extends BaseAPI {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount
+        this.inStoreSPTerminal + invoice._id + amount,
       ),
       invoice: invoice._id,
       terminal: this.inStoreSPTerminal,
@@ -214,7 +214,7 @@ export class SocialPayAPI extends BaseAPI {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice._id + amount
+        this.inStoreSPTerminal + invoice._id + amount,
       ),
       invoice: invoice._id,
       terminal: this.inStoreSPTerminal,

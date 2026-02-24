@@ -112,7 +112,7 @@ export const vendorUserMutations = {
       }
 
       const secret = process.env.JWT_TOKEN_SECRET;
-      
+
       if (!secret) {
         throw new Error('JWT token secret is not defined');
       }

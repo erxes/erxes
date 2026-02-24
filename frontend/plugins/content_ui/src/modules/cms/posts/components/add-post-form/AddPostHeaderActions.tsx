@@ -178,20 +178,20 @@ export const AddPostHeaderActions = ({
             {form.watch('status') === 'published'
               ? 'Publishing...'
               : form.watch('status') === 'draft'
-              ? 'Saving...'
-              : form.watch('status') === 'scheduled'
-              ? 'Scheduling...'
-              : 'Saving...'}
+                ? 'Saving...'
+                : form.watch('status') === 'scheduled'
+                  ? 'Scheduling...'
+                  : 'Saving...'}
           </>
         ) : (
           <div>
             {form.watch('status') === 'published'
               ? 'Publish'
               : form.watch('status') === 'draft'
-              ? 'Save Draft'
-              : form.watch('status') === 'scheduled'
-              ? 'Schedule'
-              : 'Save'}
+                ? 'Save Draft'
+                : form.watch('status') === 'scheduled'
+                  ? 'Schedule'
+                  : 'Save'}
           </div>
         )}
       </Button>

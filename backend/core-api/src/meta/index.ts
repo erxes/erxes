@@ -7,5 +7,5 @@ export default {
   permissions: moduleObjects,
   tags,
   documents,
-  properties
+  properties,
 };

@@ -294,8 +294,8 @@ export const SelectChannelInlineCell = ({
         </RecordTableInlineCell.Content>
       </PopoverScoped>
     </SelectChannelProvider>
-  )
-}
+  );
+};
 
 export const SelectChannel = {
   Provider: SelectChannelProvider,

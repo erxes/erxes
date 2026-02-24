@@ -41,7 +41,9 @@ export const vendorQueries = {
     { models, insuranceVendorUser }: IContext,
   ) => {
     if (!insuranceVendorUser) throw new Error('Must be logged in');
-    const vendorUser = await models.VendorUser.findById(insuranceVendorUser._id);
+    const vendorUser = await models.VendorUser.findById(
+      insuranceVendorUser._id,
+    );
     if (!vendorUser) throw new Error('Vendor user not found');
     const vendor = await models.Vendor.findById(vendorUser.vendor).populate({
       path: 'offeredProducts.product',

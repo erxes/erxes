@@ -71,7 +71,7 @@ export class WechatPayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
             ).toString('base64'),
         },
       }).then((r) => r.json());
@@ -79,7 +79,7 @@ export class WechatPayAPI extends BaseAPI {
       if (res.error) {
         if (res.error === 'CLIENT_NOTFOUND') {
           throw new Error(
-            'Invalid credentials!!! Please check your credentials'
+            'Invalid credentials!!! Please check your credentials',
           );
         }
 
@@ -108,7 +108,7 @@ export class WechatPayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
             ).toString('base64'),
         },
       }).then((r) => r.json());
@@ -117,7 +117,7 @@ export class WechatPayAPI extends BaseAPI {
         `wechatpay_token_${this.qpayMerchantUser}`,
         access_token,
         'EX',
-        3600
+        3600,
       );
 
       return {

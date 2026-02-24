@@ -16,7 +16,10 @@ export interface ITeamMemberModel extends Model<ITeamMemberDocument> {
   ): Promise<ITeamMemberDocument>;
 
   createTeamMembers(members: ITeamMember[]): Promise<ITeamMemberDocument[]>;
-  removeTeamMember(teamId: string, memberId: string): Promise<ITeamMemberDocument>;
+  removeTeamMember(
+    teamId: string,
+    memberId: string,
+  ): Promise<ITeamMemberDocument>;
 }
 
 export const loadTeamMemberClass = (models: IModels) => {

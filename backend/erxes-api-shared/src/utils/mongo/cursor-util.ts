@@ -83,13 +83,13 @@ const convertValue = (value: any, type: CursorFieldType) => {
     default:
       return value;
   }
-}
+};
 
 export const buildCursorQuery = (
   cursor: string,
   orderBy: Record<string, SortOrder>,
   direction: 'forward' | 'backward',
-  formatter?: Record<string, CursorFieldType>
+  formatter?: Record<string, CursorFieldType>,
 ): Record<string, any> => {
   const cursorData = decodeCursor(cursor);
 

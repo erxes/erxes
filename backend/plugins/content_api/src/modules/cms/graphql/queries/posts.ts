@@ -56,7 +56,7 @@ class PostQueryResolver extends BaseQueryResolver {
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
     const { models } = context;
-  
+
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
 
@@ -70,10 +70,9 @@ class PostQueryResolver extends BaseQueryResolver {
       { ...args, clientPortalId, language, orderBy },
       FIELD_MAPPINGS.POST,
     );
-  
+
     return { posts: list, totalCount, pageInfo };
   }
-  
 
   async cmsTranslations(
     _parent: any,

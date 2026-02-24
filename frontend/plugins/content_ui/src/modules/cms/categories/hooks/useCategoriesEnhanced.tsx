@@ -24,24 +24,12 @@ export const useCategoriesVariables = (
     };
   }>['variables'],
 ) => {
-  const [
-    {
-      searchValue,
-      status,
-      createdAt,
-      updatedAt,
-    },
-  ] = useMultiQueryState<{
+  const [{ searchValue, status, createdAt, updatedAt }] = useMultiQueryState<{
     searchValue: string;
     status: string;
     createdAt: string;
     updatedAt: string;
-  }>([
-    'searchValue',
-    'status',
-    'createdAt',
-    'updatedAt',
-  ]);
+  }>(['searchValue', 'status', 'createdAt', 'updatedAt']);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: CATEGORIES_CURSOR_SESSION_KEY,
@@ -84,7 +72,11 @@ export const useCategories = (options?: QueryHookOptions) => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const { list: categories = [], totalCount = 0, pageInfo } = data?.cmsCategories || {};
+  const {
+    list: categories = [],
+    totalCount = 0,
+    pageInfo,
+  } = data?.cmsCategories || {};
   useEffect(() => {
     if (!totalCount) return;
     setCategoriesTotalCount(totalCount);

@@ -16,7 +16,7 @@ export const stripeCallbackHandler = async (models: IModels, data: any) => {
 
   if (
     !['payment_intent.succeeded', 'payment_intent.payment_failed'].includes(
-      type
+      type,
     )
   ) {
     throw new Error('Invalid type');
@@ -104,7 +104,7 @@ export class StripeAPI {
   private async check(transaction) {
     try {
       const res = await this.client.paymentIntents.retrieve(
-        transaction.response.paymentIntent
+        transaction.response.paymentIntent,
       );
       if (res.status === 'succeeded') {
         return PAYMENT_STATUS.PAID;

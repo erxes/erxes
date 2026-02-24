@@ -5,7 +5,11 @@ export const riskTypeQueries = {
     return models.RiskType.find({});
   },
 
-  riskType: async (_parent: undefined, { id }: { id: string }, { models }: IContext) => {
+  riskType: async (
+    _parent: undefined,
+    { id }: { id: string },
+    { models }: IContext,
+  ) => {
     return models.RiskType.findById(id);
   },
 };

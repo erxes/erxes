@@ -10,14 +10,16 @@ export type ISelectProductContext = {
   error: string | null;
 };
 
-export const SelectProductContext =
-  createContext<ISelectProductContext | null>(null);
-
+export const SelectProductContext = createContext<ISelectProductContext | null>(
+  null,
+);
 
 export const useSelectProductContext = () => {
-    const context = useContext(SelectProductContext);
-    if (!context) {
-        throw new Error('useSelectProductContext must be used within a SelectProductContextProvider');
-    }
-    return context;
-}
+  const context = useContext(SelectProductContext);
+  if (!context) {
+    throw new Error(
+      'useSelectProductContext must be used within a SelectProductContextProvider',
+    );
+  }
+  return context;
+};

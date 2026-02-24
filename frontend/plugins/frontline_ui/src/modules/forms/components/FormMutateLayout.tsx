@@ -64,10 +64,10 @@ export const FormMutateLayout = ({
                 ? 'Updating form...'
                 : 'Creating form...'
               : step === 3
-              ? formId
-                ? 'Update form'
-                : 'Create form'
-              : 'Next step'}
+                ? formId
+                  ? 'Update form'
+                  : 'Create form'
+                : 'Next step'}
           </Button>
         </Sheet.Footer>
       </form>

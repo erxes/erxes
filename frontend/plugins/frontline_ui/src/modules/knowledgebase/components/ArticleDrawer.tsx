@@ -19,7 +19,11 @@ import { REACTIONS } from '../constants';
 import { ADD_ARTICLE, EDIT_ARTICLE } from '../graphql/mutations';
 import { ARTICLES } from '../graphql/queries';
 import { useArticles } from '../hooks/useArticles';
-import type { ArticleFormData, ArticleInput, IKnowledgeBaseArticle } from '../types';
+import type {
+  ArticleFormData,
+  ArticleInput,
+  IKnowledgeBaseArticle,
+} from '../types';
 
 interface ArticleDrawerProps {
   isOpen: boolean;
@@ -31,14 +35,8 @@ interface ArticleDrawerProps {
 }
 
 const toArticleInput = (data: ArticleFormData): ArticleInput => {
-  const {
-    fileUrl,
-    fileSize,
-    fileDuration,
-    fileName,
-    fileType,
-    ...clean
-  } = data;
+  const { fileUrl, fileSize, fileDuration, fileName, fileType, ...clean } =
+    data;
 
   // Ensure content is not empty
   if (!clean.content || clean.content.trim() === '') {
@@ -47,7 +45,6 @@ const toArticleInput = (data: ArticleFormData): ArticleInput => {
 
   return clean;
 };
-
 
 export function ArticleDrawer({
   isOpen,
@@ -147,28 +144,27 @@ export function ArticleDrawer({
     },
   });
 
-const onSubmit = (data: ArticleFormData) => {
-  const doc = {
-    ...toArticleInput(data),
-    categoryId,
+  const onSubmit = (data: ArticleFormData) => {
+    const doc = {
+      ...toArticleInput(data),
+      categoryId,
+    };
+
+    if (isEditing && article) {
+      editArticle({
+        variables: {
+          _id: article._id,
+          doc,
+        },
+      });
+    } else {
+      addArticle({
+        variables: {
+          doc,
+        },
+      });
+    }
   };
-
-  if (isEditing && article) {
-    editArticle({
-      variables: {
-        _id: article._id,
-        doc,
-      },
-    });
-  } else {
-    addArticle({
-      variables: {
-        doc,
-      },
-    });
-  }
-};
-
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -196,10 +192,7 @@ const onSubmit = (data: ArticleFormData) => {
                       <Form.Item>
                         <Form.Label>Title</Form.Label>
                         <Form.Control>
-                          <Input
-                            {...field}
-                            placeholder="Enter article title"                            
-                          />
+                          <Input {...field} placeholder="Enter article title" />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
@@ -357,7 +350,7 @@ const onSubmit = (data: ArticleFormData) => {
                         <Form.Message />
                       </Form.Item>
                     )}
-                  />          
+                  />
 
                   <Form.Field
                     control={form.control}
@@ -383,7 +376,9 @@ const onSubmit = (data: ArticleFormData) => {
                                         url: value.url,
                                         name: value.fileInfo?.name || '',
                                         size: value.fileInfo?.size || 0,
-                                        type: value.fileInfo?.type || 'application/octet-stream',
+                                        type:
+                                          value.fileInfo?.type ||
+                                          'application/octet-stream',
                                       };
                                       field.onChange(newAttachments);
                                     }
@@ -493,7 +488,7 @@ const onSubmit = (data: ArticleFormData) => {
                       </Form.Item>
                     )}
                   />
-                         <Button
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={() => setShowMoreInfo(!showMoreInfo)}
@@ -505,7 +500,7 @@ const onSubmit = (data: ArticleFormData) => {
                   {showMoreInfo && (
                     <div className="space-y-4 border-t pt-4">
                       <h4 className="font-medium text-sm">File Details</h4>
-                      
+
                       <Form.Field
                         control={form.control}
                         name="fileUrl"
@@ -528,12 +523,14 @@ const onSubmit = (data: ArticleFormData) => {
                             <Form.Label>File Size (byte)</Form.Label>
                             <Form.Control>
                               <Input
-                                {...field} 
+                                {...field}
                                 type="number"
                                 placeholder="Enter file size"
                                 onChange={(e) => {
                                   const value = e.target.value;
-                                  field.onChange(value === '' ? 0 : Number(value));
+                                  field.onChange(
+                                    value === '' ? 0 : Number(value),
+                                  );
                                 }}
                               />
                             </Form.Control>
@@ -550,12 +547,14 @@ const onSubmit = (data: ArticleFormData) => {
                             <Form.Label>File Duration (sec)</Form.Label>
                             <Form.Control>
                               <Input
-                                {...field} 
+                                {...field}
                                 type="number"
                                 placeholder="Enter file duration"
                                 onChange={(e) => {
                                   const value = e.target.value;
-                                  field.onChange(value === '' ? 0 : Number(value));
+                                  field.onChange(
+                                    value === '' ? 0 : Number(value),
+                                  );
                                 }}
                               />
                             </Form.Control>
@@ -585,7 +584,10 @@ const onSubmit = (data: ArticleFormData) => {
                           <Form.Item>
                             <Form.Label>File Type</Form.Label>
                             <Form.Control>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
                                 <Select.Trigger>
                                   <Select.Value placeholder="Select type" />
                                 </Select.Trigger>
@@ -593,7 +595,9 @@ const onSubmit = (data: ArticleFormData) => {
                                   <Select.Item value="image">Image</Select.Item>
                                   <Select.Item value="video">Video</Select.Item>
                                   <Select.Item value="audio">Audio</Select.Item>
-                                  <Select.Item value="document">Document</Select.Item>
+                                  <Select.Item value="document">
+                                    Document
+                                  </Select.Item>
                                   <Select.Item value="other">Other</Select.Item>
                                 </Select.Content>
                               </Select>
@@ -612,18 +616,23 @@ const onSubmit = (data: ArticleFormData) => {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => append({
-                          id: Date.now().toString(),
-                          label: '',
-                          value: '',
-                        })}
+                        onClick={() =>
+                          append({
+                            id: Date.now().toString(),
+                            label: '',
+                            value: '',
+                          })
+                        }
                       >
                         Add another form
                       </Button>
                     </div>
-                    
+
                     {fields.map((field, index) => (
-                      <div key={field.id} className="flex items-center gap-2 p-3 border rounded-lg">
+                      <div
+                        key={field.id}
+                        className="flex items-center gap-2 p-3 border rounded-lg"
+                      >
                         <div className="flex-1 space-y-2">
                           <Form.Field
                             control={form.control}
@@ -645,7 +654,10 @@ const onSubmit = (data: ArticleFormData) => {
                               <Form.Item>
                                 <Form.Label>Value</Form.Label>
                                 <Form.Control>
-                                  <Textarea {...field} placeholder="Form value" />
+                                  <Textarea
+                                    {...field}
+                                    placeholder="Form value"
+                                  />
                                 </Form.Control>
                                 <Form.Message />
                               </Form.Item>
