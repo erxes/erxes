@@ -12,7 +12,7 @@ export const NotificationSettingsEvents = () => {
         {events.map((event) => (
           <div
             key={event.name}
-            className={`flex items-start justify-between gap-4 px-3 py-2.5 rounded-lg transition-all duration-150 hover:bg-muted/50`}
+            className={`flex items-center justify-between gap-4 px-3 py-2.5 rounded-lg transition-all duration-150 hover:bg-muted/50`}
           >
             <div className="flex items-start gap-2.5 pt-1 min-w-0">
               <div className="min-w-0">
