@@ -80,15 +80,19 @@ export function getOTPConfig(
 export function isEmailVerificationEnabled(
   clientPortal: IClientPortalDocument,
 ): boolean {
-  return clientPortal.securityAuthConfig?.otpConfig?.email
-    ?.enableEmailVerification ?? false;
+  return (
+    clientPortal.securityAuthConfig?.otpConfig?.email
+      ?.enableEmailVerification ?? false
+  );
 }
 
 export function isPhoneVerificationEnabled(
   clientPortal: IClientPortalDocument,
 ): boolean {
-  return clientPortal.securityAuthConfig?.otpConfig?.sms
-    ?.enablePhoneVerification ?? false;
+  return (
+    clientPortal.securityAuthConfig?.otpConfig?.sms?.enablePhoneVerification ??
+    false
+  );
 }
 
 export function isPasswordlessLoginEnabled(

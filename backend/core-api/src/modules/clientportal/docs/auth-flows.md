@@ -151,31 +151,31 @@ Same pattern for phone: `clientPortalUserRequestChangePhone(newPhone)` then `cli
 
 ## API Summary
 
-| Flow | Mutation / usage |
-|------|-------------------|
-| Register | `clientPortalUserRegister({ email?, phone?, password?, ... })` |
-| Verify | `clientPortalUserVerify({ userId, email, phone, code })` — sets cookie on success |
-| Login (credentials) | `clientPortalUserLoginWithCredentials({ email, phone, password })` |
-| Request OTP for login | `clientPortalUserRequestOTP({ identifier })` |
-| Login with OTP | `clientPortalUserLoginWithOTP({ identifier, otp })` |
-| Forgot password | `clientPortalUserForgotPassword({ identifier })` — backend chooses link or code from portal config |
-| Reset (link) | `clientPortalUserResetPassword({ token, newPassword })` — token from reset URL |
-| Reset (code) | `clientPortalUserResetPassword({ identifier, code, newPassword })` — code is the OTP received |
-| Request change email | `clientPortalUserRequestChangeEmail({ newEmail })` — requires auth; OTP sent to new email |
-| Confirm change email | `clientPortalUserConfirmChangeEmail({ code })` — requires auth |
-| Request change phone | `clientPortalUserRequestChangePhone({ newPhone })` — requires auth; OTP sent to new phone |
-| Confirm change phone | `clientPortalUserConfirmChangePhone({ code })` — requires auth |
+| Flow                  | Mutation / usage                                                                                   |
+| --------------------- | -------------------------------------------------------------------------------------------------- |
+| Register              | `clientPortalUserRegister({ email?, phone?, password?, ... })`                                     |
+| Verify                | `clientPortalUserVerify({ userId, email, phone, code })` — sets cookie on success                  |
+| Login (credentials)   | `clientPortalUserLoginWithCredentials({ email, phone, password })`                                 |
+| Request OTP for login | `clientPortalUserRequestOTP({ identifier })`                                                       |
+| Login with OTP        | `clientPortalUserLoginWithOTP({ identifier, otp })`                                                |
+| Forgot password       | `clientPortalUserForgotPassword({ identifier })` — backend chooses link or code from portal config |
+| Reset (link)          | `clientPortalUserResetPassword({ token, newPassword })` — token from reset URL                     |
+| Reset (code)          | `clientPortalUserResetPassword({ identifier, code, newPassword })` — code is the OTP received      |
+| Request change email  | `clientPortalUserRequestChangeEmail({ newEmail })` — requires auth; OTP sent to new email          |
+| Confirm change email  | `clientPortalUserConfirmChangeEmail({ code })` — requires auth                                     |
+| Request change phone  | `clientPortalUserRequestChangePhone({ newPhone })` — requires auth; OTP sent to new phone          |
+| Confirm change phone  | `clientPortalUserConfirmChangePhone({ code })` — requires auth                                     |
 
 ---
 
 ## actionCode Types
 
-| type | Used in | Meaning |
-|------|--------|--------|
-| `EMAIL_VERIFICATION` | Registration, passwordless login (email) | OTP sent to email |
-| `PHONE_VERIFICATION` | Registration, passwordless login (phone) | OTP sent to phone |
-| `PASSWORD_RESET` | Forgot password (link or code) | Reset link token or OTP code stored in `actionCode.code` |
-| `EMAIL_CHANGE` | Change email (authenticated) | OTP sent to new email; `pendingEmail` set until confirm |
-| `PHONE_CHANGE` | Change phone (authenticated) | OTP sent to new phone; `pendingPhone` set until confirm |
+| type                 | Used in                                  | Meaning                                                  |
+| -------------------- | ---------------------------------------- | -------------------------------------------------------- |
+| `EMAIL_VERIFICATION` | Registration, passwordless login (email) | OTP sent to email                                        |
+| `PHONE_VERIFICATION` | Registration, passwordless login (phone) | OTP sent to phone                                        |
+| `PASSWORD_RESET`     | Forgot password (link or code)           | Reset link token or OTP code stored in `actionCode.code` |
+| `EMAIL_CHANGE`       | Change email (authenticated)             | OTP sent to new email; `pendingEmail` set until confirm  |
+| `PHONE_CHANGE`       | Change phone (authenticated)             | OTP sent to new phone; `pendingPhone` set until confirm  |
 
 Validation always checks: presence of actionCode, correct type, not expired, and code/token match.

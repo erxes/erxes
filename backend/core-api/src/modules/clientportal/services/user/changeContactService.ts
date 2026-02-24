@@ -2,8 +2,14 @@ import { IModels } from '~/connectionResolvers';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { normalizeEmail } from '@/clientportal/utils';
-import { validateEmail, validatePhone } from '@/clientportal/services/helpers/validators';
-import { getCPUserByIdOrThrow, assertContactChangeUnique } from '@/clientportal/services/helpers/userUtils';
+import {
+  validateEmail,
+  validatePhone,
+} from '@/clientportal/services/helpers/validators';
+import {
+  getCPUserByIdOrThrow,
+  assertContactChangeUnique,
+} from '@/clientportal/services/helpers/userUtils';
 import { checkOTPResendLimit } from '@/clientportal/services/auth/login/loginWithOTP';
 import { getOTPConfig } from '@/clientportal/services/helpers/otpConfigHelper';
 import { generateVerificationCode } from '@/clientportal/services/helpers/codeGenerator';
