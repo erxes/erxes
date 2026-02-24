@@ -53,8 +53,8 @@ export const HeaderIntro = () => {
           <div className='flex gap-1'>
             {
               Object.entries(links || {})?.map(([key, value]) => (
-                <Tooltip.Provider>
-                  <Tooltip key={key}>
+                <Tooltip.Provider key={key}>
+                  <Tooltip>
                     <Tooltip.Trigger>
                       <a href={value as string} target="_blank" rel="noopener noreferrer">
                         <LinkFavicon url={value as string} />
