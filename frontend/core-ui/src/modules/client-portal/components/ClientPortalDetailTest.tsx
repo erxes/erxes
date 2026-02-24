@@ -28,7 +28,8 @@ export const ClientPortalDetailTest = ({
       testUserPhone: clientPortal?.testUser?.phone ?? '',
       testUserPassword: clientPortal?.testUser?.password ?? '',
       testUserOTP:
-        clientPortal?.testUser?.otp && typeof clientPortal.testUser.otp === 'string'
+        clientPortal?.testUser?.otp &&
+        typeof clientPortal.testUser.otp === 'string'
           ? clientPortal.testUser.otp
           : undefined,
     },
@@ -46,7 +47,7 @@ export const ClientPortalDetailTest = ({
             email: data.testUserEmail,
             phone: data.testUserPhone,
             password: data.testUserPassword,
-              otp: data.testUserOTP,
+            otp: data.testUserOTP,
           },
         },
       },
