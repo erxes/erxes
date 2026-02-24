@@ -8,6 +8,7 @@ import {
 } from '@/clientportal/services/helpers/validators';
 import { validateActionCode } from '@/clientportal/services/helpers/actionCodeHelper';
 import { isPasswordlessLoginEnabled } from '@/clientportal/services/helpers/otpConfigHelper';
+import { isTestAccountMatch } from '@/clientportal/services/helpers/testUserHelper';
 import {
   AuthenticationError,
   ValidationError,
@@ -92,7 +93,18 @@ export async function loginWithOTP(
   }
 
   const expectedType = identifierTypeToActionCodeType(identifierType);
-  validateActionCode(user, otp, expectedType);
+  const hasTestOtp = clientPortal.testUser?.otp !== undefined;
+  const isTestAccount = isTestAccountMatch(clientPortal, user);
+  const isMatchingTestOtp =
+    hasTestOtp &&
+    String(otp).trim() === String(clientPortal.testUser?.otp ?? '');
+  console.log('hasTestOtp', hasTestOtp);
+  console.log('isTestAccount', isTestAccount);
+  console.log('isMatchingTestOtp', isMatchingTestOtp);
+  if (!(hasTestOtp && isTestAccount && isMatchingTestOtp)) {
+    validateActionCode(user, otp, expectedType);
+  }
+
   await updateLastLogin(user._id, models);
 
   return user;

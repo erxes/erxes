@@ -13,6 +13,7 @@ export const CLIENTPORTAL_AUTH_SCHEMA = z.object({
 });
 
 export const CLIENTPORTAL_TEST_SCHEMA = z.object({
+  testUserEnabled: z.boolean().optional(),
   testUserEmail: z.string().email(),
   testUserPhone: z.string().optional(),
   testUserPassword: z.string().optional(),
