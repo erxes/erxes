@@ -98,8 +98,8 @@ const PipelineConfig = ({
                         Array.isArray(value)
                           ? value
                           : value == null
-                          ? []
-                          : [value],
+                            ? []
+                            : [value],
                       )
                     }
                   />
@@ -128,8 +128,8 @@ const PipelineConfig = ({
                         Array.isArray(value)
                           ? value
                           : value == null
-                          ? []
-                          : [value],
+                            ? []
+                            : [value],
                       )
                     }
                   />
