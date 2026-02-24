@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useRemoveProducts } from '@/products/product-detail/hooks/useRemoveProduct';
 import type { ReactNode } from 'react';
+import { useCallback } from 'react';
 
 export const ProductsDelete = ({
   productIds,
@@ -18,36 +19,38 @@ export const ProductsDelete = ({
   const confirmOptions = { confirmationValue: 'delete' };
   const disabled = loading || !productIds?.length;
 
-  const handleClick = () => {
+  const handleClick = useCallback(async () => {
     if (disabled) {
       return;
     }
 
-    confirm({
-      message: `Are you sure you want to delete the ${
-        productIds.length
-      } selected product${productIds.length === 1 ? '' : 's'}?`,
-      options: confirmOptions,
-    })
-      .then(() => {
-        removeProducts(productIds, {
-          onCompleted: () => {
-            toast({
-              title: 'Products deleted successfully',
-              variant: 'success',
-            });
-          },
-          onError: (e: ApolloError) => {
-            toast({
-              title: 'Error',
-              description: e.message,
-              variant: 'destructive',
-            });
-          },
-        });
-      })
-      .catch(() => undefined);
-  };
+    try {
+      await confirm({
+        message: `Are you sure you want to delete the ${
+          productIds.length
+        } selected product${productIds.length === 1 ? '' : 's'}?`,
+        options: confirmOptions,
+      });
+
+      await removeProducts(productIds, {
+        onCompleted: () => {
+          toast({
+            title: 'Products deleted successfully',
+            variant: 'success',
+          });
+        },
+        onError: (e: ApolloError) => {
+          toast({
+            title: 'Error',
+            description: e.message,
+            variant: 'destructive',
+          });
+        },
+      });
+    } catch {
+      // User cancelled the confirmation
+    }
+  }, [disabled, confirm, confirmOptions, productIds, removeProducts, toast]);
 
   if (children) {
     return <>{children({ onClick: handleClick, disabled })}</>;

@@ -105,6 +105,11 @@ export const BundleRuleItemForm = ({
     const visibleNames = names.slice(0, 3);
     const remaining = names.length - visibleNames.length;
 
+    if (visibleNames.length === 0) {
+      const count = selectedProducts.length;
+      return count === 1 ? '1 product' : `${count} products`;
+    }
+
     return remaining > 0
       ? `${visibleNames.join(', ')} +${remaining}`
       : visibleNames.join(', ');
@@ -187,7 +192,7 @@ export const BundleRuleItemForm = ({
                           onAddProducts(selectedProducts || [])
                         }
                       >
-                        <Button variant="secondary">
+                        <Button variant="secondary" className="overflow-hidden">
                           {selectedProductsLabel}
                         </Button>
                       </SelectProductsBulk>

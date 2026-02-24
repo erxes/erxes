@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useRemoveCategories } from '@/products/product-category/hooks/useRemoveCategories';
 import type { ReactNode } from 'react';
+import { useCallback } from 'react';
 
 interface CategoriesDeleteProps {
   categoryIds: string;
@@ -27,7 +28,7 @@ export const CategoriesDelete = ({
 
   const disabled = loading || !categoryIds?.trim();
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (disabled) {
       return;
     }
@@ -61,7 +62,16 @@ export const CategoriesDelete = ({
         });
       })
       .catch(() => undefined);
-  };
+  }, [
+    disabled,
+    confirm,
+    confirmOptions,
+    categoryCount,
+    categoryIds,
+    removeCategory,
+    toast,
+    onDeleteSuccess,
+  ]);
 
   if (children) {
     return <>{children({ onClick: handleClick, disabled })}</>;

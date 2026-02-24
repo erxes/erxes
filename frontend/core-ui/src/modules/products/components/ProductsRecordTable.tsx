@@ -8,14 +8,13 @@ import { useTranslation } from 'react-i18next';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { ProductAddSheet } from '@/products/components/ProductAddSheet';
 export const ProductsRecordTable = () => {
-  const { productsMain, handleFetchMore, loading, pageInfo } = useProducts();
+  const { productsMain, handleFetchMore, loading, pageInfo, totalCount } =
+    useProducts();
   const { t } = useTranslation('product');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  if (!loading && (productsMain?.length ?? 0) === 0) {
-    return <EmptyStateRow />;
-  }
+  if (!loading && (totalCount ?? 0) === 0) return <EmptyStateRow />;
 
   return (
     <RecordTable.Provider

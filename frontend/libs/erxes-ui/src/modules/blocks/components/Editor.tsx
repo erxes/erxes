@@ -75,6 +75,7 @@ export const Editor = ({
 
     return () => {
       isActive = false;
+      return;
     };
   }, [editor, initialContent, isHTML]);
 

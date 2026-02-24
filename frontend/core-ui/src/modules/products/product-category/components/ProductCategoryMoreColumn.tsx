@@ -3,10 +3,9 @@ import { IProductCategory } from '@/products/types/productTypes';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable, Popover, Command, Combobox } from 'erxes-ui';
-import { renderingCategoryDetailAtom } from '../states/ProductCategory';
+import { renderingCategoryDetailAtom } from '@/products/product-category/states/ProductCategory';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { useRemoveCategories } from '../hooks/useRemoveCategories';
-import { CategoriesDelete } from './product-command-bar/delete/CategoryDelete';
+import { CategoriesDelete } from '@/products/product-category/components/product-command-bar/delete/CategoryDelete';
 
 export const CategoryMoreColumnCell = (
   props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>,
@@ -14,7 +13,6 @@ export const CategoryMoreColumnCell = (
   const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingCategoryDetail = useSetAtom(renderingCategoryDetailAtom);
   const { _id } = props.row.original;
-  const { loading } = useRemoveCategories();
 
   const setOpen = (categoryId: string) => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -44,7 +42,7 @@ export const CategoryMoreColumnCell = (
                 <Command.Item
                   value="delete"
                   onSelect={onClick}
-                  disabled={disabled || loading}
+                  disabled={disabled}
                 >
                   <IconTrash className="w-4 h-4" />
                   Delete
