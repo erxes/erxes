@@ -287,7 +287,7 @@ export const removeStageWithItems = async (
 };
 
 export const removeItems = async (models: IModels, stageIds: string[]) => {
-  await models.Deals.updateMany({ stageId: { $in: stageIds, status: { $ne: SALES_STATUSES.ARCHIVED } } }, { $set: { status: SALES_STATUSES.ARCHIVED } })
+  await models.Deals.updateMany({ stageId: { $in: stageIds }, status: { $ne: SALES_STATUSES.ARCHIVED } }, { $set: { status: SALES_STATUSES.ARCHIVED } })
 };
 
 export const removePipelineStagesWithItems = async (
