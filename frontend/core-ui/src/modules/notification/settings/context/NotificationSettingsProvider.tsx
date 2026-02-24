@@ -57,16 +57,18 @@ export const NotificationSettingsProvider = ({
   const currentPlugin = pluginsNotifications?.find(
     (p) => p.pluginName === pluginName,
   );
+
   const currentModule = {
-    ...(currentPlugin?.modules?.find((m) => m.name === moduleName) || {}),
-    ...(notificationSettings?.events?.[`${pluginName}:${moduleName}`] || {}),
+    ...currentPlugin?.modules?.find((m) => m.name === moduleName),
+    ...notificationSettings?.events?.[`${pluginName}:${moduleName}`],
   } as PluginsNotificationConfigModules & { enabled?: boolean };
+
   const currentEvents =
     currentModule?.events?.map((event) => ({
       ...event,
-      ...(notificationSettings?.events?.[
+      ...notificationSettings?.events?.[
         `${pluginName}:${moduleName}:${event.name}`
-      ] || {}),
+      ],
     })) || [];
 
   const toggleChannel = async (channel: string) => {

@@ -71,8 +71,8 @@ const ChannelChip = ({
 export const NotificationSettingsChannelChip = () => {
   return (
     <div className="flex flex-wrap gap-1.5 mt-2">
-      {NOTIFICATION_CHANNELS.map((channel, index) => (
-        <ChannelChip key={index} channel={channel} />
+      {NOTIFICATION_CHANNELS.map((channel) => (
+        <ChannelChip key={channel.key} channel={channel} />
       ))}
     </div>
   );

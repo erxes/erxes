@@ -73,7 +73,7 @@ export const notificationTrpcRouter = t.router({
           userId: user._id,
         }).lean();
 
-        if (userNotification) {
+        if (userNotification && data.notification) {
           data.notification.link = `${DOMAIN}/my-inbox/${userNotification._id}`;
         }
       };

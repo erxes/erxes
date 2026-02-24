@@ -15,7 +15,7 @@ interface NotificationEvent {
   channels: string[];
 }
 
-type NotificationSetting = {
+interface NotificationSetting {
   userId: string;
   events: Record<string, NotificationEvent>;
   channels: Record<string, NotificationChannel>;
@@ -23,7 +23,7 @@ type NotificationSetting = {
   updatedAt: string;
 };
 
-type NotificationSettingsResponse = {
+interface NotificationSettingsResponse {
   notificationSettings: NotificationSetting;
 };
 

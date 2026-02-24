@@ -5,12 +5,12 @@ import { useNotificationPluginsTypes } from '../hooks/useNotificationPluginsType
 export const NotificationSettingsSidebar = () => {
   const { event } = useParams<{ event: string }>();
 
-  const { pluginsNotifications: PLUGINS_NOTIFICATIONS } =
+  const { pluginsNotifications } =
     useNotificationPluginsTypes();
 
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
-      {(PLUGINS_NOTIFICATIONS || []).map(({ pluginName, modules }) => (
+      {(pluginsNotifications || []).map(({ pluginName, modules }) => (
         <Sidebar.Group key={pluginName}>
           <Sidebar.GroupLabel className="mb-1">{`${pluginName} plugin`}</Sidebar.GroupLabel>
           <Sidebar.GroupContent>

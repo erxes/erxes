@@ -12,7 +12,7 @@ export const NotificationSettingsModule = () => {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden transition-opacity duration-200 select-none">
       <div
-        className={`${!plugin.enabled ? 'pointer-events-none opacity-60' : ''}`}
+        className={`${plugin.enabled ? '' : 'pointer-events-none opacity-60'}`}
       >
         <div className="flex justify-between items-center gap-3 px-4 py-3.5">
           <div className="flex items-center gap-3">
