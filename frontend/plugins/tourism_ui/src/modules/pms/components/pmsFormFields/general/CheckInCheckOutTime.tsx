@@ -42,7 +42,9 @@ const CheckInCheckOutTime = ({
         name="checkInAmount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Check in amount</Form.Label>
+            <Form.Label>
+              Check in amount <span className="text-destructive">*</span>
+            </Form.Label>
             <Form.Control>
               <Input
                 {...field}
@@ -93,7 +95,9 @@ const CheckInCheckOutTime = ({
         name="checkOutAmount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Check out amount</Form.Label>
+            <Form.Label>
+              Check out amount <span className="text-destructive">*</span>
+            </Form.Label>
             <Form.Control>
               <Input
                 {...field}

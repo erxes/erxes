@@ -14,12 +14,13 @@ export interface IPmsUser {
 }
 export interface IPmsUiOptions {
   logo?: string;
-  texts?: string;
+  website?: string;
   colors?: { primary?: string; secondary?: string; third?: string };
 }
 export interface IPmsPipelineConfig {
   boardId: string;
   pipelineId: string;
+  stageId: string;
 }
 
 export interface IPmsBranch {

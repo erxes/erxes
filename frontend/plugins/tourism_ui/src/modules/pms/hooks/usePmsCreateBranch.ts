@@ -1,13 +1,13 @@
 import { useMutation } from '@apollo/client';
-import { pmsMutations } from '../graphql/mutation';
-import { pmsQueries } from '../graphql/queries';
+import { pmsMutations } from '@/pms/graphql/mutation';
+import { pmsQueries } from '@/pms/graphql/queries';
 import {
   IPmsBranch,
   IPmsDiscount,
   IPmsPaymentType,
   IPmsPipelineConfig,
   IPmsUiOptions,
-} from '../types/branch';
+} from '@/pms/types/branch';
 
 interface PmsCreateBranchResponse {
   pmsBranchAdd: IPmsBranch;
@@ -46,7 +46,7 @@ interface UsePmsCreateBranchParams {
 
 export const usePmsCreateBranch = ({
   page = 1,
-  perPage = 20,
+  perPage = 50,
 }: UsePmsCreateBranchParams = {}) => {
   const [createPmsBranchMutation, { loading, error }] = useMutation<
     PmsCreateBranchResponse,

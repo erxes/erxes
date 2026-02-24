@@ -7,7 +7,7 @@ export const PmsBranchFormSchema = z.object({
   checkInAmount: z.coerce.number().min(0, 'Amount must be non-negative'),
   checkOutTime: z.string().min(1, 'Check out time is required'),
   checkOutAmount: z.coerce.number().min(0, 'Amount must be non-negative'),
-  discounts: z.array(
+  discount: z.array(
     z
       .object({
         type: z.string().optional(),
@@ -17,7 +17,7 @@ export const PmsBranchFormSchema = z.object({
       })
       .passthrough(),
   ),
-  websiteReservationLock: z.boolean(),
+  // websiteReservationLock: z.boolean(),
   time: z.string().optional(),
   paymentIds: z.array(z.string()).optional(),
   paymentTypes: z.array(z.any()).optional(),

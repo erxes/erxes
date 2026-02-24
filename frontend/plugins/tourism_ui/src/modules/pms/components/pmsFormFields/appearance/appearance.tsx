@@ -121,7 +121,7 @@ const Appearance = ({ control }: { control: Control<PmsBranchFormType> }) => {
   return (
     <PmsFormFieldsLayout>
       <div className="grid grid-cols-2 gap-4">
-        <InfoCard title="Logo and favicon">
+        <InfoCard title="Logo">
           <InfoCard.Content>
             <LogoField control={control} name="logo" label="Main logo" />
           </InfoCard.Content>

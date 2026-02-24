@@ -17,6 +17,40 @@ const PipelineConfig = ({
   const boardId = useWatch({ control: form.control, name: 'boardId' });
   const pipelineId = useWatch({ control: form.control, name: 'pipelineId' });
 
+  const handleBoardChange = (value: string) => {
+    form.setValue('boardId', value, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    form.setValue('pipelineId', '', {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    form.setValue('stageId', '', { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handlePipelineChange = (value: string) => {
+    form.setValue('pipelineId', value, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    form.setValue('stageId', '', { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handleRoomsCategoryChange = (value: unknown) => {
+    form.setValue(
+      'roomsCategoryIds',
+      Array.isArray(value) ? value : value == null ? [] : [value],
+    );
+  };
+
+  const handleExtrasCategoryChange = (value: unknown) => {
+    form.setValue(
+      'extrasCategoryIds',
+      Array.isArray(value) ? value : value == null ? [] : [value],
+    );
+  };
+
   return (
     <PmsFormFieldsLayout>
       <InfoCard title="Stage">
@@ -31,7 +65,7 @@ const PipelineConfig = ({
                   <Form.Control>
                     <SelectBoardFormItem
                       value={field.value}
-                      onValueChange={field.onChange}
+                      onValueChange={handleBoardChange}
                       placeholder="Choose a board"
                     />
                   </Form.Control>
@@ -50,7 +84,7 @@ const PipelineConfig = ({
                     <SelectPipelineFormItem
                       value={field.value}
                       boardId={boardId || ''}
-                      onValueChange={field.onChange}
+                      onValueChange={handlePipelineChange}
                       placeholder="Choose a pipeline"
                     />
                   </Form.Control>
@@ -93,15 +127,7 @@ const PipelineConfig = ({
                   <SelectCategory
                     mode="multiple"
                     value={field.value}
-                    onValueChange={(value) =>
-                      field.onChange(
-                        Array.isArray(value)
-                          ? value
-                          : value == null
-                          ? []
-                          : [value],
-                      )
-                    }
+                    onValueChange={handleRoomsCategoryChange}
                   />
                 </Form.Control>
                 <Form.Message className="text-destructive" />
@@ -123,15 +149,7 @@ const PipelineConfig = ({
                   <SelectCategory
                     mode="multiple"
                     value={field.value}
-                    onValueChange={(value) =>
-                      field.onChange(
-                        Array.isArray(value)
-                          ? value
-                          : value == null
-                          ? []
-                          : [value],
-                      )
-                    }
+                    onValueChange={handleExtrasCategoryChange}
                   />
                 </Form.Control>
                 <Form.Message className="text-destructive" />

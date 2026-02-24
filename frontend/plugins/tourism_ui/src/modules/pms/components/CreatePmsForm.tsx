@@ -44,8 +44,8 @@ const CreatePmsForm = ({
       checkInAmount: 0,
       checkOutTime: '',
       checkOutAmount: 0,
-      discounts: [],
-      websiteReservationLock: false,
+      discount: [],
+      // websiteReservationLock: false,
       time: '',
       paymentIds: [],
       paymentTypes: [],
@@ -72,7 +72,6 @@ const CreatePmsForm = ({
       stageId: '',
       roomsCategoryIds: [],
       extrasCategoryIds: [],
-      discount: {},
     },
   });
 
@@ -94,10 +93,10 @@ const CreatePmsForm = ({
       checkOutTime: branch.checkouttime || '',
       checkInAmount: branch.checkinamount || 0,
       checkOutAmount: branch.checkoutamount || 0,
-      discounts: Array.isArray(branch.discount)
+      discount: Array.isArray(branch.discount)
         ? branch.discount.map(({ __typename, ...rest }: any) => rest)
         : [],
-      websiteReservationLock: branch.websiteReservationLock ?? false,
+      // websiteReservationLock: branch.websiteReservationLock ?? false,
       time: branch.time || '',
       paymentIds: branch.paymentIds || [],
       paymentTypes: branch.paymentTypes || [],
@@ -110,7 +109,7 @@ const CreatePmsForm = ({
       user3Ids: branch.user3Ids || [],
       user4Ids: branch.user4Ids || [],
       user5Ids: branch.user5Ids || [],
-      departmentId: branch.departmentId || '',
+      // departmentId: branch.departmentId || '',
       permissionConfig: branch.permissionConfig || {},
       uiOptions: branch.uiOptions || {},
       pipelineConfig: branch.pipelineConfig || {},
@@ -126,11 +125,41 @@ const CreatePmsForm = ({
       stageId: branch.pipelineConfig?.stageId || '',
       roomsCategoryIds: branch.roomCategories || [],
       extrasCategoryIds: branch.extraProductCategories || [],
-      discount: branch.discount || {},
     });
   }, [branch, branchId, form, mode]);
 
   const onSubmit = (data: PmsBranchFormType) => {
+    const paymentTypes =
+      data.otherPayments?.map((payment) => ({
+        _id: payment._id || nanoid(),
+        type: payment.type || '',
+        title: payment.title || '',
+        config: payment.config || '',
+      })) || [];
+
+    const discounts = (data.discount || []).map((discount) => ({
+      _id: discount._id || nanoid(),
+      type: discount.type || '',
+      title: discount.title || '',
+      config: discount.config || '',
+    }));
+
+    const uiOptions = {
+      logo: data.logo || '',
+      colors: {
+        primary: data.primaryColor || '',
+        secondary: data.secondaryColor || '',
+        third: data.thirdColor || '',
+      },
+      website: data.website || '',
+    };
+
+    const pipelineConfig = {
+      boardId: data.boardId || '',
+      pipelineId: data.pipelineId || '',
+      stageId: data.stageId || '',
+    };
+
     const createVariables = {
       name: data.name,
       description: data.description || '',
@@ -141,36 +170,12 @@ const CreatePmsForm = ({
       user4Ids: data.user4Ids || [],
       user5Ids: data.user5Ids || [],
       paymentIds: data.paymentIds || [],
-      paymentTypes:
-        data.otherPayments?.map((payment) => ({
-          _id: nanoid(),
-          type: payment.type || '',
-          title: payment.title || '',
-          config: payment.config || '',
-        })) || [],
-      uiOptions: {
-        logo: data.logo || '',
-        colors: {
-          primary: data.primaryColor || '',
-          secondary: data.secondaryColor || '',
-          third: data.thirdColor || '',
-        },
-        website: data.website || '',
-      },
-      pipelineConfig: {
-        boardId: data.boardId || '',
-        pipelineId: data.pipelineId || '',
-        stageId: data.stageId || '',
-      },
+      paymentTypes,
+      uiOptions,
+      pipelineConfig,
       extraProductCategories: data.extrasCategoryIds || [],
       roomCategories: data.roomsCategoryIds || [],
-      discount:
-        data.discounts.map((discount) => ({
-          _id: nanoid(),
-          type: discount.type || '',
-          title: discount.title || '',
-          config: discount.config || '',
-        })) || [],
+      discount: discounts,
       time: data.time || '',
       checkintime: data.checkInTime,
       checkouttime: data.checkOutTime,
@@ -188,14 +193,14 @@ const CreatePmsForm = ({
       user4Ids: data.user4Ids || [],
       user5Ids: data.user5Ids || [],
       paymentIds: data.paymentIds || [],
-      paymentTypes: createVariables.paymentTypes,
+      paymentTypes,
       permissionConfig: data.permissionConfig || {},
-      uiOptions: createVariables.uiOptions,
-      pipelineConfig: createVariables.pipelineConfig,
-      extraProductCategories: createVariables.extraProductCategories,
-      roomCategories: createVariables.roomCategories,
+      uiOptions,
+      pipelineConfig,
+      extraProductCategories: data.extrasCategoryIds || [],
+      roomCategories: data.roomsCategoryIds || [],
       time: data.time || '',
-      discount: createVariables.discount,
+      discount: discounts,
       checkintime: data.checkInTime,
       checkouttime: data.checkOutTime,
       checkinamount: data.checkInAmount,
@@ -272,7 +277,7 @@ const CreatePmsForm = ({
           loading={loading}
           form={form}
           mode={mode}
-          onSave={form.handleSubmit(onSubmit)}
+          onSave={() => form.handleSubmit(onSubmit)()}
         />
       </form>
     </Form>

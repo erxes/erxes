@@ -7,7 +7,6 @@ import {
   Button,
   Combobox,
   Command,
-  Form,
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
@@ -25,6 +24,7 @@ const SelectPaymentProvider = ({
   onValueChange,
   payments,
   setOpen,
+  loading = false,
 }: {
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
@@ -32,6 +32,7 @@ const SelectPaymentProvider = ({
   onValueChange?: (value: string[] | string | null) => void;
   payments?: Payment[];
   setOpen?: (open: boolean) => void;
+  loading?: boolean;
 }) => {
   const [currentPayments, setCurrentPayments] = useState<Payment[]>(
     payments || [],
@@ -72,7 +73,7 @@ const SelectPaymentProvider = ({
         onSelect,
         payments: currentPayments,
         setPayments: setCurrentPayments,
-        loading: currentPayments.length !== selectedIds.length,
+        loading,
       }}
     >
       {children}
@@ -229,20 +230,22 @@ export const SelectPaymentFormItem = ({
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { loading } = usePayments({ status: 'active' });
   return (
     <SelectPaymentProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        props.mode !== 'multiple' && setOpen(false);
+        if (props.mode !== 'multiple') {
+          setOpen(false);
+        }
       }}
+      loading={loading}
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <Form.Control>
-          <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
-            <SelectPaymentValue placeholder={placeholder} />
-          </Combobox.Trigger>
-        </Form.Control>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectPaymentValue placeholder={placeholder} />
+        </Combobox.Trigger>
 
         <Combobox.Content>
           <SelectPaymentContent />
@@ -274,6 +277,7 @@ export const SelectPaymentInlineCell = React.forwardRef<
     ref,
   ) => {
     const [open, setOpen] = useState(false);
+    const { loading } = usePayments({ status: 'active' });
     return (
       <SelectPaymentProvider
         mode={mode}
@@ -281,6 +285,7 @@ export const SelectPaymentInlineCell = React.forwardRef<
         onValueChange={onValueChange}
         payments={payments}
         setOpen={setOpen}
+        loading={loading}
       >
         <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
           <RecordTableInlineCell.Trigger
@@ -312,6 +317,7 @@ export const SelectPaymentDetail = ({
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { loading } = usePayments({ status: 'active' });
   return (
     <SelectPaymentProvider
       value={value}
@@ -319,6 +325,7 @@ export const SelectPaymentDetail = ({
         onValueChange?.(value);
         setOpen(false);
       }}
+      loading={loading}
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
@@ -353,10 +360,12 @@ export const SelectPaymentRoot = ({
   scope?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { loading } = usePayments({ status: 'active' });
   return (
     <SelectPaymentProvider
       onValueChange={onValueChange}
       setOpen={setOpen}
+      loading={loading}
       {...props}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>

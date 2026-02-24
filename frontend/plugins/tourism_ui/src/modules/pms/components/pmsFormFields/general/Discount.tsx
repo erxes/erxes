@@ -6,7 +6,7 @@ import { PmsBranchFormType } from '@/pms/constants/formSchema';
 const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'discounts',
+    name: 'discount',
   });
 
   return (
@@ -21,7 +21,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
           <div className="grid grid-cols-3 gap-4 w-full">
             <Form.Field
               control={control}
-              name={`discounts.${index}.type`}
+              name={`discount.${index}.type`}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Type</Form.Label>
@@ -34,7 +34,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
 
             <Form.Field
               control={control}
-              name={`discounts.${index}.title`}
+              name={`discount.${index}.title`}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Title</Form.Label>
@@ -47,7 +47,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
 
             <Form.Field
               control={control}
-              name={`discounts.${index}.config`}
+              name={`discount.${index}.config`}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Config</Form.Label>

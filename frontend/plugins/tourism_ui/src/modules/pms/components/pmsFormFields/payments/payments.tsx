@@ -68,7 +68,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
               бэлдэц нэхэмжлэх хэвлэх бол: "printInvoice: true"
             </p>
 
-            <Button className="w-fit" onClick={() => append({})}>
+            <Button className="w-fit" type="button" onClick={() => append({})}>
               <IconPlus /> Add payments method
             </Button>
 
@@ -118,6 +118,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                 <Button
                   variant={'destructive'}
                   size={'icon'}
+                  type="button"
                   className="w-8 h-8"
                   onClick={() => remove(index)}
                 >

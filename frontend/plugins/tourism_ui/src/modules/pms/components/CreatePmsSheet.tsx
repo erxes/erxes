@@ -13,16 +13,27 @@ type CreatePmsSheetContentLayoutProps = PropsWithChildren & {
   form: UseFormReturn<PmsBranchFormType>;
 };
 
+const STEP_VALIDATION_FIELDS: Record<number, (keyof PmsBranchFormType)[]> = {
+  1: ['name', 'checkInTime', 'checkOutTime', 'checkInAmount', 'checkOutAmount'],
+};
+
+const validateStep = async (
+  step: number,
+  form: UseFormReturn<PmsBranchFormType>,
+): Promise<boolean> => {
+  const fields = STEP_VALIDATION_FIELDS[step];
+  if (!fields) {
+    return true;
+  }
+  return form.trigger(fields);
+};
+
 export const PmsCreateSheet = () => {
   const [open, setOpen] = useAtom(sheetOpenState);
   const setCurrentStep = useSetAtom(stepState);
 
   useEffect(() => {
-    if (open) {
-      setCurrentStep(1);
-    } else {
-      setCurrentStep(1);
-    }
+    setCurrentStep(1);
   }, [open, setCurrentStep]);
 
   return (
@@ -86,18 +97,20 @@ export const PmsCreateSheetFooter = ({
       return;
     }
 
-    if (currentStep === 1) {
-      const isValid = await form.trigger([
-        'name',
-        'checkInTime',
-        'checkOutTime',
-      ]);
-      if (!isValid) {
-        return;
-      }
+    const isValid = await validateStep(currentStep, form);
+    if (!isValid) {
+      return;
     }
 
     setCurrentStep(currentStep + 1);
+  };
+
+  const handleSaveOrNext = () => {
+    if (currentStep === steps.length) {
+      onSave?.();
+    } else {
+      handleNextButton();
+    }
   };
 
   return (
@@ -108,9 +121,7 @@ export const PmsCreateSheetFooter = ({
       <Button
         disabled={currentStep === steps.length && loading}
         type="button"
-        onClick={() =>
-          currentStep === steps.length ? onSave?.() : handleNextButton()
-        }
+        onClick={handleSaveOrNext}
       >
         {currentStep === steps.length
           ? loading
@@ -118,8 +129,8 @@ export const PmsCreateSheetFooter = ({
               ? 'Saving...'
               : 'Creating...'
             : mode === 'edit'
-              ? 'Save'
-              : 'Create'
+            ? 'Save'
+            : 'Create'
           : 'Next'}
       </Button>
     </Sheet.Footer>
@@ -133,15 +144,9 @@ export const CreatePmsSheetContentLayout: FC<
 
   const handleStepChange = async (nextStep: number) => {
     if (nextStep > currentStep) {
-      if (currentStep === 1) {
-        const isValid = await form.trigger([
-          'name',
-          'checkInTime',
-          'checkOutTime',
-        ]);
-        if (!isValid) {
-          return;
-        }
+      const isValid = await validateStep(currentStep, form);
+      if (!isValid) {
+        return;
       }
     }
 

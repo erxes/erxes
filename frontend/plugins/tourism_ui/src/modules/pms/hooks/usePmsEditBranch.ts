@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { pmsMutations } from '@/pms/graphql/mutation';
 import { pmsQueries } from '@/pms/graphql/queries';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
+import { toast } from 'erxes-ui';
 
 interface UsePmsEditBranchParams {
   page?: number;
@@ -37,6 +38,13 @@ export const usePmsEditBranch = ({
     >,
   ) => {
     try {
+      const discount = (data.discount || []).map((item: any) => ({
+        _id: item._id,
+        type: item.type || '',
+        title: item.title || '',
+        config: item.config || '',
+      }));
+
       const result = await editBranch({
         variables: {
           _id: id,
@@ -56,16 +64,27 @@ export const usePmsEditBranch = ({
           extraProductCategories: data.extraProductCategories,
           roomCategories: data.roomCategories,
           time: data.time,
-          discounts: data.discounts,
+          discount,
           checkintime: data.checkintime ?? data.checkInTime,
           checkouttime: data.checkouttime ?? data.checkOutTime,
           checkinamount: data.checkinamount ?? data.checkInAmount,
           checkoutamount: data.checkoutamount ?? data.checkOutAmount,
         },
       });
+      toast({
+        title: 'Success',
+        description: 'Branch edited successfully',
+      });
+
       return result.data?.pmsBranchEdit;
-    } catch (err) {
-      console.error('Error editing PMS branch:', err);
+    } catch (err: unknown) {
+      toast({
+        title: 'Error',
+        description:
+          err instanceof Error ? err.message : 'Failed to edit branch',
+        variant: 'destructive',
+      });
+
       throw err;
     }
   };
