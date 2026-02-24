@@ -5,8 +5,7 @@ import { useNotificationPluginsTypes } from '../hooks/useNotificationPluginsType
 export const NotificationSettingsSidebar = () => {
   const { event } = useParams<{ event: string }>();
 
-  const { pluginsNotifications } =
-    useNotificationPluginsTypes();
+  const { pluginsNotifications } = useNotificationPluginsTypes();
 
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
