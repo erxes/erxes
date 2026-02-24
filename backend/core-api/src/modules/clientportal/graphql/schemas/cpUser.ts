@@ -127,7 +127,6 @@ const userRegisterParams = `
   firstName: String,
   lastName: String,
   userType: CPUserType,
-  sendOtp: Boolean,
 `;
 
 const userEditParams = `

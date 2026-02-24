@@ -8,7 +8,6 @@ export interface RegisterParams {
   lastName?: string;
   password?: string;
   userType?: string;
-  sendOtp?: boolean;
 }
 
 export interface EditUserParams {
@@ -99,7 +98,7 @@ export interface CpUsersEditParams {
   username?: string;
   companyName?: string;
   companyRegistrationNumber?: string;
-   erxesCustomerId?: string;
+  erxesCustomerId?: string;
 }
 
 export interface CpUsersSetPasswordParams {

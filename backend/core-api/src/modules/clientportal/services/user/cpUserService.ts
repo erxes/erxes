@@ -103,7 +103,7 @@ export async function registerUser(
     validateUserRegistration(params);
   }
 
-  const { sendOtp, ...documentParams } = params;
+  const { ...documentParams } = params;
   const document = {
     ...documentParams,
     isEmailVerified: false,
@@ -120,7 +120,7 @@ export async function registerUser(
   const identifier = user.email || user.phone;
   let resultUser = user;
 
-  if (sendOtp && identifier) {
+  if (identifier) {
     const identifierType = detectIdentifierType(identifier);
 
     const shouldAutoVerify =
@@ -130,20 +130,6 @@ export async function registerUser(
 
     if (shouldAutoVerify) {
       await autoVerifyUser(user, models);
-      resultUser = user;
-    } else {
-      const actionCodeType = identifierTypeToActionCodeType(identifierType);
-
-      await sendAndStoreOTP({
-        user,
-        identifierType,
-        actionCodeType,
-        context: 'registration',
-        clientPortal,
-        subdomain,
-        models,
-      });
-
       resultUser = user;
     }
   }
