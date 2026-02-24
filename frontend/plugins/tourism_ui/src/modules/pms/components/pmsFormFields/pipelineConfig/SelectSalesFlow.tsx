@@ -291,8 +291,8 @@ const SelectPipelineContent = () => {
   const emptyMessage = loading
     ? 'Loading pipelines...'
     : boardId
-    ? 'No pipelines found'
-    : 'Board not selected';
+      ? 'No pipelines found'
+      : 'Board not selected';
 
   return (
     <Command>
@@ -459,8 +459,8 @@ const SelectStageContent = () => {
   const emptyMessage = loading
     ? 'Loading stages...'
     : pipelineId
-    ? 'No stages found'
-    : 'Pipeline not selected';
+      ? 'No stages found'
+      : 'Pipeline not selected';
 
   return (
     <Command>

@@ -118,8 +118,8 @@ export const PmsCreateSheetFooter = ({
               ? 'Saving...'
               : 'Creating...'
             : mode === 'edit'
-            ? 'Save'
-            : 'Create'
+              ? 'Save'
+              : 'Create'
           : 'Next'}
       </Button>
     </Sheet.Footer>
