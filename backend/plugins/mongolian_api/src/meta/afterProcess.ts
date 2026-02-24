@@ -1,7 +1,4 @@
-import {
-  AfterProcessConfigs,
-  IAfterProcessRule,
-} from 'erxes-api-shared/utils';
+import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { afterMutationHandlers as dealAfterEbarimt } from '~/modules/ebarimt/afterMutations';
 import { afterMutationHandlers as productPlacesAfterMutation } from '~/modules/productPlaces/afterMutations';
@@ -39,17 +36,12 @@ export const afterProcess: AfterProcessConfigs = {
       ) {
         const models = await generateModels(ctx.subdomain);
 
-        await dealAfterEbarimt(
-          models,
-          ctx.subdomain,
-          ctx.processId || '',
-          {
-            sourceStageId,
-            destinationStageId,
-            deal: result,
-            userId,
-          }
-        );
+        await dealAfterEbarimt(models, ctx.subdomain, ctx.processId || '', {
+          sourceStageId,
+          destinationStageId,
+          deal: result,
+          userId,
+        });
       }
     }
 
