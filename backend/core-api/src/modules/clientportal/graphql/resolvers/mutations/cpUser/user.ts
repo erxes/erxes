@@ -1,6 +1,10 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cpUserService, socialAuthService } from '@/clientportal/services';
+import {
+  cpUserService,
+  socialAuthService,
+  changeContactService,
+} from '@/clientportal/services';
 import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
 import {
   AuthenticationError,
@@ -12,6 +16,10 @@ import type {
   UnlinkSocialParams,
   FcmTokenAddParams,
   FcmTokenRemoveParams,
+  RequestChangeEmailParams,
+  ConfirmChangeEmailParams,
+  RequestChangePhoneParams,
+  ConfirmChangePhoneParams,
 } from '@/clientportal/types/cpUserParams';
 
 export const userMutations: Record<string, Resolver> = {
@@ -132,5 +140,63 @@ export const userMutations: Record<string, Resolver> = {
     );
 
     return getCPUserByIdOrThrow(cpUser._id, models);
+  },
+
+  async clientPortalUserRequestChangeEmail(
+    _root: unknown,
+    { newEmail }: RequestChangeEmailParams,
+    { models, subdomain, clientPortal, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    await changeContactService.requestChangeEmail(
+      cpUser._id,
+      newEmail,
+      clientPortal,
+      models,
+      subdomain,
+    );
+    return 'OTP has been sent to your new email';
+  },
+
+  async clientPortalUserConfirmChangeEmail(
+    _root: unknown,
+    { code }: ConfirmChangeEmailParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    return changeContactService.confirmChangeEmail(cpUser._id, code, models);
+  },
+
+  async clientPortalUserRequestChangePhone(
+    _root: unknown,
+    { newPhone }: RequestChangePhoneParams,
+    { models, subdomain, clientPortal, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    await changeContactService.requestChangePhone(
+      cpUser._id,
+      newPhone,
+      clientPortal,
+      models,
+      subdomain,
+    );
+    return 'OTP has been sent to your new phone';
+  },
+
+  async clientPortalUserConfirmChangePhone(
+    _root: unknown,
+    { code }: ConfirmChangePhoneParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    return changeContactService.confirmChangePhone(cpUser._id, code, models);
   },
 };
