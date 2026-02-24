@@ -13,7 +13,8 @@ export const types = `
     uom: String,
 
     modifiedAt: Date,
-    modifiedBy: String
+    modifiedBy: String,
+    order: Int
   }
 `;
 

@@ -49,6 +49,7 @@ export const safeRemainderItemFields = `
   status
   remainderId
   modifiedAt
+  order
 
   product {
     _id

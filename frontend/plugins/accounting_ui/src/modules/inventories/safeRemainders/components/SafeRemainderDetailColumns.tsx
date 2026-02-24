@@ -1,72 +1,20 @@
-import { Cell, ColumnDef } from '@tanstack/react-table';
-import { IAdjustInventory } from '../types/AdjustInventory';
-import { Link } from 'react-router-dom';
+import { IconMoneybag } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
 import {
-  RecordTable,
-  Input,
-  RecordTableInlineCell,
-  CurrencyFormatedDisplay,
   CurrencyCode,
-  PopoverScoped,
+  CurrencyFormatedDisplay,
+  INumberFieldContainerProps,
+  NumberField,
+  RecordTable,
+  RecordTableInlineCell,
 } from 'erxes-ui';
-import { IconFile, IconMoneybag } from '@tabler/icons-react';
-import { useState } from 'react';
-
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`transaction-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
-
-// const DateCell = ({ getValue }: any) => {
-//   return (
-//     <RecordTableInlineCell>
-//       {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
-//     </RecordTableInlineCell>
-//   );
-// };
+import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
+import { ISafeRemainderItem } from '../types/SafeRemainder';
 
 const ProductCell = ({ row }: any) => {
   return (
     <RecordTableInlineCell>
       {`${row.original.product?.code} - ${row.original.product?.name}`}
-    </RecordTableInlineCell>
-  );
-};
-
-const AccountCell = ({ row }: any) => {
-  return (
-    <RecordTableInlineCell>
-      {`${row.original.account?.code} - ${row.original.account?.name}`}
-    </RecordTableInlineCell>
-  );
-};
-
-const BranchCell = ({ row }: any) => {
-  return (
-    <RecordTableInlineCell>
-      {`${row.original.branch?.code} - ${row.original.branch?.title}`}
-    </RecordTableInlineCell>
-  );
-};
-
-const DepartmentCell = ({ row }: any) => {
-  return (
-    <RecordTableInlineCell>
-      {`${row.original.department?.code} - ${row.original.department?.title}`}
     </RecordTableInlineCell>
   );
 };
@@ -86,34 +34,56 @@ const NumberCell = ({ getValue }: any) => {
   );
 };
 
-const TransactionMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IAdjustInventory, unknown>;
-}) => {
-  const { _id } = cell.row.original;
+const RemainderField = ({
+  value,
+  _id,
+  remItem,
+}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
+  const { editRemItem } = useSafeRemainderItemEdit();
 
   return (
-    <Link to={`/accounting/adjustment/inventory/detail?id=${_id}`}>
-      <RecordTable.MoreButton className="w-full h-full" />
-    </Link>
+    <NumberField
+      value={value}
+      scope={`remItem-${_id}-count`}
+      onSave={(value) => {
+        editRemItem(
+          {
+            variables: { ...remItem, remainder: value },
+          },
+          ['count']
+        );
+      }}
+      className={'shadow-none rounded-none px-2'}
+    />
   );
 };
 
-const transactionMoreColumn = {
-  id: 'more',
-  cell: TransactionMoreColumnCell,
-  size: 33,
+const DiffField = ({
+  value,
+  _id,
+  remItem,
+}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
+  const { editRemItem } = useSafeRemainderItemEdit();
+
+  return (
+    <NumberField
+      value={value}
+      scope={`remItem-${_id}-diff`}
+      onSave={(value) => {
+        editRemItem(
+          {
+            variables: { ...remItem, remainder: remItem.preCount - value },
+          },
+          ['count']
+        );
+      }}
+      className={'shadow-none rounded-none px-2'}
+    />
+  );
 };
 
-export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
-  transactionMoreColumn,
-  // {
-  //   id: 'date',
-  //   header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
-  //   accessorKey: 'date',
-  //   cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
-  // },
+export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
+  RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
     header: () => (
@@ -124,63 +94,43 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
     size: 300,
   },
   {
-    id: 'account',
+    id: 'preCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Live Remainder" />
     ),
-    accessorKey: 'account',
-    cell: ({ row }) => <AccountCell row={row} />,
-    size: 300,
+    accessorKey: 'preCount',
+    cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
-    id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Branch" />,
-    accessorKey: 'branch',
-    cell: ({ row }) => <BranchCell row={row} />,
-    size: 200,
-  },
-  {
-    id: 'department',
+    id: 'uom',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Department" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="UOM" />
     ),
-    accessorKey: 'department',
-    cell: ({ row }) => <DepartmentCell row={row} />,
-    size: 200,
+    accessorKey: 'uom',
+    cell: ({ row }) => <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>,
   },
+  RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'remainder',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />,
     accessorKey: 'remainder',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
+    cell: ({ row }) => <RemainderField
+      value={row.original.count}
+      field="count"
+      _id={row.original._id}
+      remItem={row.original}
+    />,
   },
   {
-    id: 'unitCost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
-    ),
-    accessorKey: 'unitCost',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
+    id: 'diff',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Diff" />,
+    accessorKey: 'diff',
+    cell: ({ row }) => <DiffField
+      value={row.original.preCount - row.original.count}
+      field="diff"
+      _id={row.original._id}
+      remItem={row.original}
+    />,
   },
-  {
-    id: 'cost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Cost" />
-    ),
-    accessorKey: 'cost',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
-  },
-  {
-    id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
-    accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
-    size: 300,
-  },
+
 ];

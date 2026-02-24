@@ -2,12 +2,9 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { SAFE_REMAINDER_ADD } from '../graphql/safeRemainderAdd';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
-import { SAFE_REMAINDERS_QUERY } from '../graphql/safeRemainderQueries';
-
 
 export const useSafeRemainderAdd = (options?: OperationVariables) => {
   const navigate = useNavigate();
-
   const [_addSafeRemainder, { loading }] = useMutation(
     SAFE_REMAINDER_ADD,
     options,
@@ -31,16 +28,7 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
         });
         options?.onCompleted()
       },
-      refetchQueries: [
-        {
-          query: SAFE_REMAINDERS_QUERY,
-          variables: {
-            "page": 1,
-            "perPage": 20
-          }
-        }
-      ],
-      awaitRefetchQueries: true,
+      refetchQueries: ['SafeRemainders'],
       update: (_cache, { data }) => {
         const newId = data?.safeRemainderAdd[0]?.id;
 

@@ -1,7 +1,5 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { SAFE_REMAINDERS_QUERY } from '../graphql/safeRemainderQueries';
-import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 import { SAFE_REMAINDER_REMOVE } from '../graphql/safeRemainderRemove';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,17 +34,7 @@ export const useSafeRemainderRemove = (_id: string, options?: OperationVariables
         options?.onCompleted?.(data)
 
       },
-      refetchQueries: [
-        {
-          query: SAFE_REMAINDERS_QUERY,
-          variables: {
-            ...options?.variables,
-            page: 1,
-            perPage: ACC_TRS__PER_PAGE,
-          },
-        },
-      ],
-      awaitRefetchQueries: true,
+      refetchQueries: ['SafeRemainders'],
       update: (cache) => {
         const pathname = "/accounting/inventories/safe-remainder";
         navigate(pathname);

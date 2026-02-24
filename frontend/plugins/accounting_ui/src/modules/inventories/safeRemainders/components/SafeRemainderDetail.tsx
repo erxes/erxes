@@ -10,7 +10,7 @@ import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
 import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
 import { ISafeRemainder } from '../types/SafeRemainder';
-import { adjustDetailTableColumns } from './SafeRemainderDetailColumns';
+import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
 
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -20,7 +20,7 @@ export const SafeRemainderDetail = () => {
     skip: !id,
   });
 
-  const { safeRemainderDetails, safeRemainderDetailsCount, loading: detailsLoading, handleFetchMore } = useSafeRemainderDetails({
+  const { safeRemainderItems, safeRemainderItemsCount, loading: detailsLoading, handleFetchMore } = useSafeRemainderDetails({
     variables: { remainderId: id },
     skip: !id,
   });
@@ -64,8 +64,8 @@ export const SafeRemainderDetail = () => {
         </div>
       </div>
       <RecordTable.Provider
-        columns={adjustDetailTableColumns}
-        data={safeRemainderDetails || []}
+        columns={safeRemDetailTableColumns}
+        data={safeRemainderItems || []}
         stickyColumns={[]}
         className='m-3'
       >
@@ -74,7 +74,7 @@ export const SafeRemainderDetail = () => {
             <RecordTable.Header />
             <RecordTable.Body>
               <RecordTable.RowList />
-              {!detailsLoading && safeRemainderDetailsCount > safeRemainderDetails?.length && (
+              {!detailsLoading && safeRemainderItemsCount > safeRemainderItems?.length && (
                 <RecordTable.RowSkeleton rows={4} handleInView={handleFetchMore} />
               )}
             </RecordTable.Body>

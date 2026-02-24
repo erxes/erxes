@@ -4,19 +4,22 @@ import { ACC_TRS__PER_PAGE } from '../../../transactions/types/constants';
 
 export const useSafeRemainderQueryParams = () => {
   return {
-    queryParams: {}
+    queryParams: {
+      page: 1,
+      perPage: ACC_TRS__PER_PAGE,
+    }
   }
 }
 
 export const useSafeRemainders = (options?: OperationVariables) => {
+  const queryParams = useSafeRemainderQueryParams();
   const { data, loading, error, fetchMore } = useQuery(
     SAFE_REMAINDERS_QUERY,
     {
       ...options,
       variables: {
         ...options?.variables,
-        page: 1,
-        perPage: ACC_TRS__PER_PAGE,
+        ...queryParams,
       },
     }
   );
