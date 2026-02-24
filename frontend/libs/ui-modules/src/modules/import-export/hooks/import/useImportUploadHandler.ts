@@ -119,54 +119,35 @@ export const useImportUploadHandler = (
   }, []);
 
   const handleDownloadTemplate = useCallback(async () => {
-    if (!entityType) {
-      toast({
-        title: 'Missing entity type',
-        description: 'Entity type is required to download template',
-        variant: 'destructive',
-      });
-      return;
-    }
-  
     try {
-      const encodedEntityType = encodeURIComponent(entityType);
-  
-      const response = await fetch(
-        `${REACT_APP_API_URL}/import-export/download-template?entityType=${encodedEntityType}`,
-        {
-          method: 'GET',
-          credentials: 'include',
-        },
-      );
-  
+      const response = await fetch(`${REACT_APP_API_URL}/download-template`, {
+        method: 'GET',
+        credentials: 'include',
+        body: JSON.stringify({ entityType }),
+      });
+
       if (!response.ok) {
         throw new Error('Failed to download template');
       }
-  
-      const disposition = response.headers.get('content-disposition') || '';
-      const match = disposition.match(/filename="(.+?)"/);
-      const filename = match?.[1] || 'import-template.csv';
-  
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-  
       const a = document.createElement('a');
       a.href = url;
-      a.download = filename;
+      a.download = 'import-template.csv';
       document.body.appendChild(a);
       a.click();
-  
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-    } catch {
+    } catch (error) {
+      // Error handling can be added here if needed
       toast({
         title: 'Failed to download template',
         description: 'An error occurred while downloading the template',
         variant: 'destructive',
       });
     }
-  }, [entityType, toast]);
-  
+  }, []);
 
   return {
     isDragOver,

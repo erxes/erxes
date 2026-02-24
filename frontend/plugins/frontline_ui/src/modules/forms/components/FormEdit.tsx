@@ -6,21 +6,20 @@ import { formSetSetupAtom } from '../states/formSetupStates';
 import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 
-export const FormEdit = ({ setName }: { setName: (name: string) => void }) => {
-  const { id } = useParams<{ id: string }>();
+export const FormEdit = () => {
+  const { formId } = useParams();
   const [loadingSetup, setLoadingSetup] = useState(true);
-  const { formDetail, loading } = useFormDetail({ formId: id || '' });
+  const { formDetail, loading } = useFormDetail({ formId: formId || '' });
   const formSetSetup = useSetAtom(formSetSetupAtom);
 
   useEffect(() => {
     if (formDetail) {
       formSetSetup(formDetail);
-      setName(formDetail.name);
       setTimeout(() => {
         setLoadingSetup(false);
       }, 1000);
     }
-  }, [formDetail, formSetSetup, setName]);
+  }, [formDetail, formSetSetup]);
 
   if (loading || loadingSetup) return <Spinner />;
 

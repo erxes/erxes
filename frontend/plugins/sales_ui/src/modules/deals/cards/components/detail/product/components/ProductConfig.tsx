@@ -1,3 +1,4 @@
+import { Form, Separator } from 'erxes-ui';
 import {
   OtherPayments,
   Payments,
@@ -6,7 +7,6 @@ import {
   Token,
 } from 'ui-modules';
 
-import { Form } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 
 interface ProductConfigFormValues {

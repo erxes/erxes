@@ -15,7 +15,6 @@ export const UPDATE_TICKET_MUTATION = gql`
     $startDate: Date
     $targetDate: Date
     $isSubscribed: Boolean
-    $state: String
   ) {
     updateTicket(
       _id: $_id
@@ -31,7 +30,6 @@ export const UPDATE_TICKET_MUTATION = gql`
       startDate: $startDate
       targetDate: $targetDate
       isSubscribed: $isSubscribed
-      state: $state
     ) {
       _id
     }

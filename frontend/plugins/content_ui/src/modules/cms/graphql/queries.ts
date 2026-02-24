@@ -216,48 +216,6 @@ export const POST_LIST = gql`
   }
 `;
 
-export const CMS_TAGS = gql`
-  query CmsTags(
-    $clientPortalId: String
-    $limit: Int
-    $cursor: String
-    $cursorMode: CURSOR_MODE
-    $direction: CURSOR_DIRECTION
-    $orderBy: JSON
-    $sortMode: String
-    $sortField: String
-    $searchValue: String
-    $language: String
-    $aggregationPipeline: [JSON]
-    $sortDirection: String
-  ) {
-    cmsTags(
-      clientPortalId: $clientPortalId
-      limit: $limit
-      cursor: $cursor
-      cursorMode: $cursorMode
-      direction: $direction
-      orderBy: $orderBy
-      sortMode: $sortMode
-      sortField: $sortField
-      searchValue: $searchValue
-      language: $language
-      aggregationPipeline: $aggregationPipeline
-      sortDirection: $sortDirection
-    ) {
-      tags {
-        _id
-        colorCode
-        clientPortalId
-        createdAt
-        name
-        slug
-        updatedAt
-      }
-    }
-  }
-`;
-
 export const POSTS_ADD = gql`
   mutation PostsAdd($input: PostInput!) {
     cmsPostsAdd(input: $input) {
@@ -488,34 +446,6 @@ export const CMS_POSTS_REMOVE = gql`
   }
 `;
 
-export const CMS_TAGS_ADD = gql`
-  mutation CmsTagsAdd($input: PostTagInput!) {
-    cmsTagsAdd(input: $input) {
-      _id
-      __typename
-    }
-  }
-`;
-
-export const CMS_TAGS_EDIT = gql`
-  mutation CmsTagsEdit($_id: String!, $input: PostTagInput!) {
-    cmsTagsEdit(_id: $_id, input: $input) {
-      _id
-      clientPortalId
-      name
-      slug
-      colorCode
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const CMS_TAGS_REMOVE = gql`
-  mutation CmsTagsRemove($id: String!) {
-    cmsTagsRemove(_id: $id)
-  }
-`;
 export const CMS_CATEGORIES = gql`
   query CmsCategories(
     $clientPortalId: String!
@@ -697,30 +627,6 @@ export const CLIENT_PORTAL_GET_CONFIGS = gql`
   }
 `;
 
-export const PAGES_ADD = gql`
-  mutation PagesAdd($input: PageInput!) {
-    cmsPagesAdd(input: $input) {
-      _id
-      __typename
-    }
-  }
-`;
-
-export const PAGES_EDIT = gql`
-  mutation PagesEdit($_id: String!, $input: PageInput!) {
-    cmsPagesEdit(_id: $_id, input: $input) {
-      _id
-      __typename
-    }
-  }
-`;
-
-export const PAGES_REMOVE = gql`
-  mutation PagesRemove($id: String!) {
-    cmsPagesRemove(_id: $id)
-  }
-`;
-
 export const CMS_MENU_LIST = gql`
   query cmsMenuList(
     $clientPortalId: String
@@ -772,119 +678,6 @@ export const GET_CLIENT_PORTALS = gql`
       }
       __typename
     }
-  }
-`;
-
-export const CMS_CUSTOM_FIELD_GROUPS = gql`
-  query cmsCustomFieldGroupList($clientPortalId: String!) {
-    cmsCustomFieldGroupList(clientPortalId: $clientPortalId) {
-      list {
-        _id
-        label
-        code
-        clientPortalId
-        customPostTypeIds
-        customPostTypes {
-          _id
-          code
-          label
-          pluralLabel
-        }
-        fields
-      }
-    }
-  }
-`;
-
-export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
-  mutation cmsCustomFieldGroupsAdd($input: CustomFieldGroupInput!) {
-    cmsCustomFieldGroupsAdd(input: $input) {
-      _id
-      label
-      code
-      clientPortalId
-      customPostTypeIds
-      customPostTypes {
-        _id
-        code
-        label
-        pluralLabel
-      }
-      fields
-    }
-  }
-`;
-
-export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
-  mutation cmsCustomFieldGroupsEdit(
-    $_id: String!
-    $input: CustomFieldGroupInput!
-  ) {
-    cmsCustomFieldGroupsEdit(_id: $_id, input: $input) {
-      _id
-      label
-      code
-      clientPortalId
-      customPostTypeIds
-      customPostTypes {
-        _id
-        code
-        label
-        pluralLabel
-      }
-      fields
-    }
-  }
-`;
-
-export const CMS_CUSTOM_FIELD_GROUP_REMOVE = gql`
-  mutation cmsCustomFieldGroupsRemove($_id: String!) {
-    cmsCustomFieldGroupsRemove(_id: $_id)
-  }
-`;
-
-export const CMS_CUSTOM_POST_TYPES = gql`
-  query cmsCustomPostTypes($clientPortalId: String) {
-    cmsCustomPostTypes(clientPortalId: $clientPortalId) {
-      _id
-      code
-      label
-      pluralLabel
-      description
-      createdAt
-    }
-  }
-`;
-
-export const CMS_CUSTOM_POST_TYPE_ADD = gql`
-  mutation cmsCustomPostTypesAdd($input: CustomPostTypeInput!) {
-    cmsCustomPostTypesAdd(input: $input) {
-      _id
-      code
-      label
-      pluralLabel
-      description
-      createdAt
-    }
-  }
-`;
-
-export const CMS_CUSTOM_POST_TYPE_EDIT = gql`
-  mutation cmsCustomPostTypesEdit($_id: String!, $input: CustomPostTypeInput!) {
-    cmsCustomPostTypesEdit(_id: $_id, input: $input) {
-      _id
-      code
-      label
-      pluralLabel
-      description
-      createdAt
-    }
-  }
-`;
-
-export const CMS_CUSTOM_POST_TYPE_REMOVE = gql`
-  mutation cmsCustomPostTypesRemove($_id: String!) {
-    cmsCustomPostTypesRemove(_id: $_id)
   }
 `;
 

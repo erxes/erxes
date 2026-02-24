@@ -10,9 +10,6 @@ export const useUomsAdd = () => {
       variables: {
         name: options?.variables?.name,
         code: options?.variables?.code,
-        isForSubscription: options?.variables?.isForSubscription,
-        subscriptionConfig: options?.variables?.subscriptionConfig,
-        timely: options?.variables?.timely,
       },
       optimisticResponse: {
         uomsAdd: {
@@ -23,7 +20,7 @@ export const useUomsAdd = () => {
           createdAt: new Date().toISOString(),
           isForSubscription: options?.variables?.isForSubscription || false,
           subscriptionConfig: options?.variables?.subscriptionConfig || null,
-          timely: options?.variables?.timely || null,
+          timely: options?.variables?.timely || false,
         },
       },
       update: (cache, { data: { uomsAdd } }) => {

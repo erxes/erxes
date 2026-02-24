@@ -12,7 +12,7 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
 
   return (
-    <div className="relative">
+    <div className="mt-3 ml-3">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)}>
         <Tabs.List className="bg-accent rounded-md mb-4 w-fit px-1 border-none !no-underline">
           <Tabs.Trigger
@@ -42,7 +42,7 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
       )}
 
       {activeTab === 'payment' && (
-        <div className="mt-3 w-[85%] min-w-0">
+        <div className="mt-3 ml-3">
           <ProductsPayment deal={deal} refetch={refetch} />
         </div>
       )}

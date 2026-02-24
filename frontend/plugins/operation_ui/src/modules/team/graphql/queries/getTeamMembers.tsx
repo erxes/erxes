@@ -6,6 +6,7 @@ export const GET_TEAM_MEMBERS = gql`
       _id
       memberId
       teamId
+      role
     }
   }
 `;

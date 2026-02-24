@@ -1,10 +1,10 @@
 import { documents } from './documents';
-import { permissions } from './permissions';
+import { moduleObjects } from './permission';
 import { tags } from './tags';
 import { properties } from './properties';
 
 export default {
-  permissions: permissions,
+  permissions: moduleObjects,
   tags,
   documents,
   properties,

@@ -5,8 +5,8 @@ export const CREATE_TICKET = gql`
     $name: String!
     $statusId: String!
     $description: String
-    $channelId: String!
-    $pipelineId: String!
+    $channelId: String
+    $pipelineId: String
     $priority: Int
     $labelIds: [String]
     $tagIds: [String]

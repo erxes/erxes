@@ -1,61 +1,61 @@
-export interface IPermissionAction {
-  title: string;
-  name: string;
-  description: string;
-  always?: boolean;
-  disabled?: boolean;
-  type?: 'resolver' | 'custom';
-}
-
-export interface IPermissionScope {
-  name: 'own' | 'group' | 'all';
-  description: string;
-}
-
-export interface IPermissionModule {
-  name: string;
-  description?: string;
-  scopes: IPermissionScope[];
-  scopeField?: string | null;
-  ownerFields?: string[];
-  actions: IPermissionAction[];
-  always?: boolean;
-}
-
-export interface IPermissionGroupPermission {
-  plugin: string;
+import { Document } from 'mongoose';
+import { IUser } from '../team-member/user';
+export interface IPermission {
   module: string;
-  actions: string[];
-  scope: 'own' | 'group' | 'all';
+  action: string;
+  userId?: string;
+  groupId?: string;
+  requiredActions: string[];
+  allowed: boolean;
 }
 
-export interface IDefaultPermissionGroup {
-  id: string;
-  name: string;
-  description: string;
-  permissions: IPermissionGroupPermission[];
-}
-
-export interface IPermissionConfig {
-  plugin: string;
-  modules: IPermissionModule[];
-
-  defaultGroups?: IDefaultPermissionGroup[];
-}
-
-export interface IPermissionGroup {
-  name: string;
-  description?: string;
-  permissions: IPermissionGroupPermission[];
-}
-
-export interface IPermissionGroupDocument extends IPermissionGroup, Document {
+export interface IPermissionDocument extends IPermission, Document {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
-export interface IPermissionInput {
+
+export interface IPermissionParams {
   module: string;
   actions: string[];
-  scope: 'own' | 'group' | 'all';
+  userIds?: string[];
+  groupIds?: string[];
+  allowed: boolean;
+}
+
+export interface IUserGroup {
+  name?: string;
+  description?: string;
+  branchIds?: string[];
+  departmentIds?: string[];
+}
+
+export interface IUserGroupDocument extends IUserGroup, Document {
+  _id: string;
+}
+export interface IActionMap {
+  [key: string]: boolean;
+}
+
+export interface IActionsMap {
+  name?: string;
+  module?: string;
+  description?: string;
+  use?: string[];
+}
+export interface IPermissionParams {
+  module: string;
+  actions: string[];
+  userIds?: string[];
+  groupIds?: string[];
+  allowed: boolean;
+}
+
+export interface IModuleMap {
+  name: string;
+  description?: string;
+  actions?: IActionsMap[];
+}
+
+export interface IPermissionContext {
+  user?: IUser;
+  [x: string]: any;
 }

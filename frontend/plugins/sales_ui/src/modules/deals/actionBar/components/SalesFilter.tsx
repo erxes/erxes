@@ -10,7 +10,6 @@ import {
   SelectCustomer,
   SelectDepartments,
   SelectMember,
-  SelectProduct,
 } from 'ui-modules';
 
 import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
@@ -22,7 +21,6 @@ import { SelectPriority } from '@/deals/components/common/filters/SelectPriority
 export const SalesFilter = () => {
   const [queries] = useMultiQueryState<SalesFilterState>([
     'companyIds',
-    'productId',
     'userIds',
     'branchIds',
     'departmentIds',
@@ -103,7 +101,6 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
     userIds,
     priority,
     labelIds,
-    productId,
   } = queries || {};
 
   return (
@@ -179,13 +176,6 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
           label="By Label"
         />
       )}
-      {productId && (
-        <SelectProduct.FilterBar
-          filterKey="productId"
-          mode="multiple"
-          label="By Product"
-        />
-      )}
     </>
   );
 };
@@ -213,7 +203,6 @@ const SalesFilterView = () => {
               value="departmentIds"
               label="By Department"
             />
-            <SelectProduct.FilterItem value="productId" label="By Product" />
             <SelectPriority.FilterItem value="priority" label="By Priority" />
             <SelectLabels.FilterItem value="labelIds" label="By Label" />
             <Command.Separator className="my-1" />
@@ -238,7 +227,6 @@ const SalesFilterView = () => {
       <SelectCustomer.FilterView mode="multiple" filterKey="customerIds" />
       <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
       <SelectDepartments.FilterView mode="multiple" filterKey="departmentIds" />
-      <SelectProduct.FilterView filterKey="productId" mode="multiple" />
       <SelectPriority.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
       <Filter.View filterKey="createdStartDate">

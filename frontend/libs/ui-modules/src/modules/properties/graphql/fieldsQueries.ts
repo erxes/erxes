@@ -30,7 +30,6 @@ export const FIELDS_QUERY = gql`
         code
         type
         order
-        groupId
         validations
         logics 
         createdAt

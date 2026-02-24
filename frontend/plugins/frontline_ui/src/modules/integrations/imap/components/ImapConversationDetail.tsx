@@ -59,6 +59,7 @@ const EmailMetaInfo: React.FC<{ mailData: MailData }> = ({ mailData }) => {
   const from = mailData.from?.[0];
   const to = mailData.to?.[0];
   const cc = mailData.cc?.[0];
+  console.log('MAIL DATA:', mailData);
 
   return (
     <div className="flex flex-col">
@@ -139,6 +140,7 @@ const ReplySection = ({ setReply }: { setReply: (reply: boolean) => void }) => {
 
   const handleSend = () => {
     if (!html.trim()) return;
+    console.log('SEND HTML:', html);
     setHtml('');
     setReply(false);
   };

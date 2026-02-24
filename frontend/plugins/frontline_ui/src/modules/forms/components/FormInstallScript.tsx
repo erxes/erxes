@@ -3,35 +3,29 @@ import { useState } from 'react';
 import { Badge, Button, Dialog, toast } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 
-export function FormInstallScript({
-  formId,
-  channelId,
-}: {
+type Props = {
   formId: string;
-  channelId: string;
-}) {
+};
+
+export function FormInstallScript({ formId }: Props) {
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
   const script = `<script>
-      window.erxesSettings = {
-        forms: [
-          {
-            form_id: ${formId},
-            channel_id: ${channelId},
-          },
-        ],
-      };
+  window.erxesSettings = {
+    form: {
+      formId: ${JSON.stringify(formId)},
+    },
+  };
 
-      (function () {
-        var script = document.createElement('script');
-        script.src = '${API}/formBundle.js';
-        script.async = true;
-
-        var entry = document.getElementsByTagName('script')[0];
-        entry.parentNode.insertBefore(script, entry);
-      })();
-    </script>`;
+  (function () {
+    var script = document.createElement("script");
+    script.src = "${API}/formBundle.js";
+    script.async = true;
+    var entry = document.getElementsByTagName("script")[0];
+    entry.parentNode.insertBefore(script, entry);
+  })();
+</script>`;
 
   const handleCopy = () => {
     navigator.clipboard
@@ -112,7 +106,6 @@ export function FormInstallScript({
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>
               Close
             </Button>
-            <Button>Preview Form</Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>

@@ -5,7 +5,6 @@ import { initMQWorkers } from '~/worker';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import * as trpc from './trpc/init-trpc';
-import { permissions } from './meta/permissions';
 
 export const router: Router = Router();
 
@@ -46,7 +45,6 @@ startPlugin({
   expressRouter: router,
 
   meta: {
-    permissions,
     notificationModules: [
       {
         name: 'tasks',

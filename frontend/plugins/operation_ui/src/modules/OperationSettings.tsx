@@ -7,8 +7,6 @@ import { TeamDetailPage } from '~/pages/TeamDetailPage';
 import { TeamMembersPage } from '~/pages/TeamMembersPage';
 import { TeamsSettingsPage } from '~/pages/TeamSettingsIndexPage';
 import { TeamStatusPage } from '~/pages/TeamStatusPage';
-import { TeamTemplatesPage } from '~/pages/TeamTemplatesPage';
-import { TemplateFormPage } from '~/pages/TemplateFormPage';
 import { OperationPaths } from '~/types/paths';
 
 const TeamsSettings = lazy(() =>
@@ -49,18 +47,6 @@ const OperationSettings = () => {
           <Route
             path={OperationPaths.TeamStatus}
             element={<TeamStatusPage />}
-          />
-          <Route
-            path={OperationPaths.TeamTemplates}
-            element={<TeamTemplatesPage />}
-          />
-          <Route
-            path="templates/:id/template-new"
-            element={<TemplateFormPage />}
-          />
-          <Route
-            path="templates/:id/edit/:templateId"
-            element={<TemplateFormPage />}
           />
         </Route>
       </Routes>

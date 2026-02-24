@@ -171,7 +171,7 @@ export const ContractForm = ({
                       <div className="flex items-center gap-2">
                         <IconFileText size={20} className="text-blue-600" />
                         <span className="text-sm font-medium text-blue-800">
-                          PDF contract available
+                          PDF гэрээ байна
                         </span>
                       </div>
                       <Button
@@ -189,7 +189,7 @@ export const ContractForm = ({
                         }}
                       >
                         <IconEye size={16} />
-                        Preview
+                        Урьдчилан харах
                       </Button>
                     </div>
                   </div>

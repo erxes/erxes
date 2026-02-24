@@ -112,7 +112,7 @@ export const types = `
     labels: [SalesPipelineLabel]
     pipeline: SalesPipeline
     createdUser: User
-    propertiesData: JSON
+    customFieldsData: JSON
     score: Float
     timeTrack: SalesTimeTrack
     number: String
@@ -209,7 +209,7 @@ const mutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
-  propertiesData: JSON,
+  customFieldsData: JSON,
   tagIds: [String],
   branchIds: [String],
   departmentIds: [String],

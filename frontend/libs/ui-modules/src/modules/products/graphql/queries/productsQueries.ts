@@ -9,14 +9,10 @@ import { gql } from '@apollo/client';
 export const GET_PRODUCTS = gql`
   query SelectProduct(
     $searchValue: String
-    $categoryIds: [String]
-    $vendorId: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     productsMain(
       searchValue: $searchValue
-      categoryIds: $categoryIds
-      vendorId: $vendorId
       ${GQL_CURSOR_PARAMS}
     ) {
       list {

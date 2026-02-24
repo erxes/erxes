@@ -4,15 +4,21 @@ import { Button, Form, Input, Upload, useToast } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import { useForm } from 'react-hook-form';
-import { currentUserState } from 'ui-modules';
+import { currentUserState, useVersion } from 'ui-modules';
 import { z } from 'zod';
-const formSchema = z.object({
+const baseSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   avatar: z.string().optional(),
 });
 
-type UserMoreInfoFormData = z.infer<typeof formSchema>;
+const saasSchema = baseSchema.extend({
+  username: z.string().min(1, 'Username is required'),
+});
+
+type BaseFormData = z.infer<typeof baseSchema>;
+type SaasFormData = z.infer<typeof saasSchema>;
+type UserMoreInfoFormData = BaseFormData | SaasFormData;
 
 export const UserMoreInfoForm = ({
   onContinue,
@@ -20,13 +26,15 @@ export const UserMoreInfoForm = ({
   onContinue: () => void;
 }) => {
   const currentUser = useAtomValue(currentUserState);
+  const isSaas = !useVersion();
   const { usersEdit } = useUserEdit();
   const { toast } = useToast();
   const form = useForm<UserMoreInfoFormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(isSaas ? saasSchema : baseSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
+      ...(isSaas && { username: '' }),
     },
   });
 
@@ -34,6 +42,7 @@ export const UserMoreInfoForm = ({
     usersEdit({
       variables: {
         _id: currentUser?._id,
+        ...(isSaas && 'username' in data && { username: data.username }),
         details: {
           firstName: data.firstName,
           lastName: data.lastName,
@@ -121,6 +130,25 @@ export const UserMoreInfoForm = ({
                 </Form.Item>
               )}
             />
+            {isSaas && (
+              <Form.Field
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <Input
+                        type="text"
+                        placeholder="Enter username"
+                        autoFocus
+                        {...field}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            )}
             <Form.Field
               control={form.control}
               name="firstName"
@@ -130,7 +158,7 @@ export const UserMoreInfoForm = ({
                     <Input
                       type="text"
                       placeholder="Enter first name"
-                      autoFocus
+                      autoFocus={!isSaas}
                       {...field}
                     />
                   </Form.Control>

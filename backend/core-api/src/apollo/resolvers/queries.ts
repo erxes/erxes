@@ -17,7 +17,9 @@ import { organizationConfigQueries } from '@/organization/settings/graphql/confi
 import { favoriteQueries } from '@/organization/settings/graphql/favorites/queries';
 import { structureQueries } from '@/organization/structure/graphql/resolvers/queries';
 import { userQueries } from '@/organization/team-member/graphql/queries';
-import { permissionQueries } from '~/modules/permissions/graphql/resolvers/queries/permission';
+import { permissionQueries } from '@/permissions/graphql/resolvers/queries/permission';
+import { roleQueries } from '@/permissions/graphql/resolvers/queries/role';
+import { usersGroupQueries } from '@/permissions/graphql/resolvers/queries/userGroup';
 import { productQueries } from '@/products/graphql/resolvers/queries';
 import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
@@ -29,7 +31,6 @@ import {
 import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries';
 import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
-import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 
 export const queries = {
   ...contactQueries,
@@ -47,11 +48,13 @@ export const queries = {
   ...organizationConfigQueries,
   ...exchangeRateQueries,
   ...permissionQueries,
+  ...usersGroupQueries,
   ...documentQueries,
   ...automationQueries,
   ...logQueries,
   ...notificationQueries,
   ...internalNoteQueries,
+  ...roleQueries,
   ...broadcastQueries,
   ...propertiesQueries,
   ...clientPortalQueries,
@@ -61,5 +64,4 @@ export const queries = {
   ...commentQueries,
   ...cpNotificationQueries,
   ...activityLogQueries,
-  ...bundleQueries
 };

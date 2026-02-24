@@ -7,7 +7,6 @@ import {
   Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
-  useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
@@ -19,7 +18,6 @@ import { ProductCreateSidebar } from './ProductCreateSidebar';
 export const ProductAddSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [showMoreInfo, setShowMoreInfo] = useState<boolean>(false);
-  const [, setSelectedTab] = useQueryState<string>('tab');
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -33,7 +31,6 @@ export const ProductAddSheet = () => {
   const onClose = () => {
     setOpen(false);
     setShowMoreInfo(false);
-    setSelectedTab(null);
     goBackToPreviousHotkeyScope();
   };
   const { t } = useTranslation('product', {

@@ -36,14 +36,7 @@ export function useExportStatus(
 
     const canDownload = isCompleted && !!exportItem?.fileKey;
 
-    const entitySuffix = exportItem?.entityType
-     ?.toUpperCase()
-     .split(':')
-     .pop()
-     ?.split('.')
-     .pop();
-    const fileName = entitySuffix ? `Export ${entitySuffix}` : 'Export';
-
+    const fileName = exportItem?.fileName || 'Export';
     const dateValue =
       exportItem?.completedAt || exportItem?.startedAt || exportItem?.createdAt;
 

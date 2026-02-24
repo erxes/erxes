@@ -39,18 +39,6 @@ export const insuranceProductFields = `
   }
   pricingConfig
   pdfContent
-  additionalCoverages {
-    name
-    limits
-    appliesTo
-  }
-  compensationCalculations {
-    name
-    methodologies
-  }
-  deductibleConfig {
-    levels
-  }
   createdAt
   updatedAt
 `;

@@ -22,7 +22,6 @@ export const TICKET_CHANGED = gql`
         statusChangedDate
         number
         pipelineId
-        state
       }
     }
   }

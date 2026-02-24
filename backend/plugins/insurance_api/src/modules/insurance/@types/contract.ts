@@ -17,7 +17,7 @@ export interface IInsuranceContract {
   endDate: Date;
   insuredObject: any;
   paymentKind: 'qpay' | 'cash';
-  paymentStatus: 'pending' | 'paid' | 'cancelled' | 'refunded';
+  paymentStatus: 'pending' | 'paid';
 }
 
 export interface IContractDocument extends IInsuranceContract, Document {

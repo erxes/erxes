@@ -11,9 +11,7 @@ const GET_USER = gql`
       _id
       username
       email
-      isOwner
       positionIds
-      permissionGroupIds
       details {
         avatar
         shortName
@@ -75,6 +73,7 @@ const GET_USERS_QUERY = gql`
         brandIds
         score
         positionIds
+        role
         details {
           avatar
           shortName

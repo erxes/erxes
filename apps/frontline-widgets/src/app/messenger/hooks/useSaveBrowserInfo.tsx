@@ -3,13 +3,10 @@ import React from 'react';
 import { requestBrowserInfo } from '@libs/utils';
 import { useAtom, useSetAtom } from 'jotai';
 import { browserInfoAtom, connectionAtom } from '../states';
-import { useMutation } from '@apollo/client';
-import { SAVE_BROWSER_INFO } from '../graphql';
 
 export const useSaveBrowserInfo = () => {
-  const [connection, setConnection] = useAtom(connectionAtom);
+  const [connection] = useAtom(connectionAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
-  const [mutate, { loading }] = useMutation(SAVE_BROWSER_INFO);
 
   React.useEffect(() => {
     try {
@@ -17,22 +14,9 @@ export const useSaveBrowserInfo = () => {
         requestBrowserInfo({
           source: 'fromMessenger',
           callback: (browserInfo: IBrowserInfo) => {
-            setConnection((prev) => ({
-              ...prev,
-              browserInfo,
-            }));
+            connection.browserInfo = browserInfo;
 
             setBrowserInfo(browserInfo);
-
-            mutate({
-              variables: {
-                customerId: connection.widgetsMessengerConnect.customerId,
-                visitorId: connection.widgetsMessengerConnect.visitorId,
-                browserInfo,
-              }
-            }).catch((error) => {
-              console.error('Error saving browser info mutation', error);
-            });
           },
         });
       };
@@ -45,7 +29,6 @@ export const useSaveBrowserInfo = () => {
     connection.widgetsMessengerConnect.visitorId,
     connection.widgetsMessengerConnect.customerId,
     setBrowserInfo,
-    setConnection,
-    mutate,
+    connection,
   ]);
 };

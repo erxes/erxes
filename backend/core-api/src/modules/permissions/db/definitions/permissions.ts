@@ -1,3 +1,3 @@
-import { permissionGroupSchema } from 'erxes-api-shared/core-modules';
+import { permissionSchema } from 'erxes-api-shared/core-modules';
 
-export { permissionGroupSchema };
+export { permissionSchema };

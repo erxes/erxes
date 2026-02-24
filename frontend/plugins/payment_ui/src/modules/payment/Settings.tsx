@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy } from 'react';
 
 export const PaymentSettingsPage = lazy(() =>
   import('~/pages/payment/PaymentSettingsPage').then((module) => ({
@@ -7,21 +7,12 @@ export const PaymentSettingsPage = lazy(() =>
   })),
 );
 
-export const InvoicesPage = lazy(() =>
-  import('~/pages/payment/InvoicesPage').then((module) => ({
-    default: module.InvoicesPage,
-  })),
-);
-
-const PaymentSettings = () => {
+const paymentSettings = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Routes>
-        <Route path="/" element={<PaymentSettingsPage />} />
-        <Route path="invoices" element={<InvoicesPage />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route path="/" element={<PaymentSettingsPage />} />
+    </Routes>
   );
 };
 
-export default PaymentSettings;
+export default paymentSettings;

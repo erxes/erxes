@@ -61,7 +61,8 @@ export const SheetPortal = ({
 SheetPortal.displayName = SheetPrimitive.Portal.displayName;
 
 interface SheetContentProps
-  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+  extends
+    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
 const SheetView = React.forwardRef<
@@ -164,7 +165,7 @@ const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}
-    className={cn('text-sm leading-none text-muted-foreground mt-2', className)}
+    className={cn('text-sm leading-none text-muted-foreground', className)}
     {...props}
   />
 ));

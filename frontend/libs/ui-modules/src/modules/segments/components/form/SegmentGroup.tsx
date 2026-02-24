@@ -23,8 +23,8 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
   });
   return (
     <Card className="bg-accent rounded-md">
-      <Card.Header className="flex flex-row gap-2 items-center px-6 py-1 group [&>div]:items-center [&>div]:flex [&>div]:m-0">
-        <div className="w-2/5 ">
+      <Card.Header className="flex flex-row gap-2 items-center px-6 py-2 group">
+        <div className="w-2/5 mt-2 ">
           <Label>{t('property')}</Label>
         </div>
         <div className="w-1/5 ">
@@ -35,10 +35,10 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
         </div>
         {onRemove && (
           <Button
-            variant="ghost"
+            variant="destructive"
             size="icon"
             onClick={() => onRemove()}
-            className={`opacity-0 group-hover:opacity-100 transition-opacity text-destructive`}
+            className={`opacity-0 group-hover:opacity-100 transition-opacity`}
           >
             <IconTrash />
           </Button>

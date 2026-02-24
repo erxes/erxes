@@ -23,7 +23,6 @@ export const GET_TICKETS = gql`
         statusChangedDate
         number
         pipelineId
-        state
       }
       ${GQL_PAGE_INFO}
       totalCount

@@ -189,12 +189,6 @@ export const userSchema = schemaWrapper(
       optional: true,
       label: 'Properties data',
     }),
-    permissionGroupIds: mongooseField({
-      type: [String],
-      default: [],
-      label: 'Permission Groups',
-    }),
-
     lastSeenAt: mongooseField({
       type: Date,
       optional: true,

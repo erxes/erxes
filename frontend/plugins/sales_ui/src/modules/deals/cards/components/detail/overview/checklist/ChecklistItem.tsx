@@ -1,4 +1,4 @@
-import { Button, Collapsible, Spinner, cn, useConfirm, toast } from 'erxes-ui';
+import { Button, Collapsible, Spinner, cn, useConfirm } from 'erxes-ui';
 import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
 import {
   useChecklistItemsAdd,
@@ -11,17 +11,9 @@ import ChecklistItemContent from './ChecklistItemContent';
 import CircularProgressbar from '@/deals/components/common/CircularProgressbar';
 import { IconTrash } from '@tabler/icons-react';
 import SortableList from '@/deals/components/common/SortableList';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-const ChecklistItem = ({
-  item,
-  stageId,
-  dealId,
-}: {
-  item: IChecklist;
-  stageId?: string;
-  dealId?: string;
-}) => {
+const ChecklistItem = ({ item }: { item: IChecklist }) => {
   const [open, setOpen] = useState(false);
 
   const [items, setItems] = useState<IChecklistItem[]>(item.items);
@@ -31,44 +23,33 @@ const ChecklistItem = ({
 
   const { salesChecklistItemsAdd } = useChecklistItemsAdd();
   const { salesChecklistItemsReorder } = useChecklistItemsReorder();
-  const { salesChecklistsRemove, salesChecklistsRemoveLoading, error } =
+  const { salesChecklistsRemove, salesChecklistsRemoveLoading } =
     useChecklistsRemove();
   const { confirm } = useConfirm();
 
   const checkedCount = items.filter((i) => i.isChecked).length;
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  }, [error]);
-
   const handleAdd = () => {
     const lines = newItem
       .split('\n')
       .map((line) => line.trim())
-      .filter((line) => line.length > 0);
+      .filter((line) => line.length > 0)
+      .map((content, i) => ({
+        _id: (Date.now() + i).toString(),
+        content,
+        isChecked: false,
+        checklistId: item._id,
+      }));
 
     if (lines.length > 0) {
+      setItems((prev) => [...prev, ...lines]);
       setNewItem('');
       setAdding(false);
-
-      lines.forEach((content, index) => {
-        salesChecklistItemsAdd({
-          variables: {
-            checklistId: item._id,
-            content,
-          },
-          onCompleted: (data) => {
-            if (data?.salesChecklistItemsAdd) {
-              setItems((prev) => [...prev, data.salesChecklistItemsAdd]);
-            }
-          },
-        });
+      salesChecklistItemsAdd({
+        variables: {
+          checklistId: item._id,
+          content: newItem,
+        },
       });
     }
   };
@@ -110,19 +91,6 @@ const ChecklistItem = ({
       salesChecklistsRemove({
         variables: {
           _id: id,
-        },
-        onError: (error) => {
-          if (
-            error.message?.includes('permission') ||
-            error.message?.includes('denied')
-          ) {
-            toast({
-              title: 'Permission Denied',
-              description:
-                'You do not have permission to delete this checklist.',
-              variant: 'destructive',
-            });
-          }
         },
       });
     });
@@ -192,8 +160,6 @@ const ChecklistItem = ({
               item={item}
               index={index}
               setItems={setItems}
-              stageId={stageId}
-              dealId={dealId}
             />
           )}
         />

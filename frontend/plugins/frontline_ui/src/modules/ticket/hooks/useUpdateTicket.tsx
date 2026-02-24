@@ -11,18 +11,11 @@ export const useUpdateTicket = () => {
     return _updateTicket({
       ...options,
       onError: (error) => {
-        options.onError?.(error);
-
-        if (!options.onError) {
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          });
-        }
-      },
-      onCompleted: (data) => {
-        options.onCompleted?.(data);
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   };

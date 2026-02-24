@@ -8,7 +8,7 @@
     "build": {
       "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
-      "dependsOn": ["compile:index", "compile:form"],
+      "dependsOn": ["compile:index"],
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
@@ -20,8 +20,7 @@
           "apps/frontline-widgets/src/favicon.ico",
           "apps/frontline-widgets/src/assets",
           "apps/frontline-widgets/src/demo.html",
-          "apps/frontline-widgets/src/messengerBundle.js",
-          "apps/frontline-widgets/src/formBundle.js"
+          "apps/frontline-widgets/src/messengerBundle.js"
         ]
       },
       "configurations": {
@@ -64,24 +63,10 @@
       }
     },
 
-    "compile:form": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "esbuild apps/frontline-widgets/src/formIndex.ts --bundle --outfile=apps/frontline-widgets/src/formBundle.js --format=iife --target=es2015 --minify --loader:.css=text"
-      }
-    },
-
     "compile:index:watch": {
       "executor": "nx:run-commands",
       "options": {
         "command": "esbuild apps/frontline-widgets/src/index.ts --bundle --outfile=apps/frontline-widgets/src/messengerBundle.js --format=iife --target=es2015 --sourcemap --loader:.css=text --watch"
-      }
-    },
-
-    "compile:form:watch": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "esbuild apps/frontline-widgets/src/formIndex.ts --bundle --outfile=apps/frontline-widgets/src/formBundle.js --format=iife --target=es2015 --sourcemap --loader:.css=text --watch"
       }
     },
 

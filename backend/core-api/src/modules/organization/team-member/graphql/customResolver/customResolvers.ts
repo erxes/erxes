@@ -21,6 +21,12 @@ export default {
     return 'Verified';
   },
 
+  async role(user: IUserDocument, _args: undefined, { models }: IContext) {
+    const { role } = await models.Roles.getRole(user._id);
+
+    return role;
+  },
+
   //   async currentOrganization(_user, _args, { subdomain, models }: IContext) {
   //     const organization = await getOrganizationDetail({ subdomain, models });
 
@@ -127,6 +133,16 @@ export default {
     return models.Brands.find({
       _id: { $in: user.brandIds },
     }).lean();
+  },
+
+  async permissionActions(
+    user: IUserDocument,
+    _args,
+    { models: { Permissions }, subdomain }: IContext,
+  ) {
+    return getUserActionsMap(subdomain, user, (query) =>
+      Permissions.find(query),
+    );
   },
 
   async departments(user: IUserDocument, _args, { models }: IContext) {

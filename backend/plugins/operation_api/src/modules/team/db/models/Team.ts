@@ -4,6 +4,7 @@ import {
   ITeamFilter,
   ITeamMember,
   TeamEstimateTypes,
+  TeamMemberRoles,
 } from '@/team/@types/team';
 import { teamSchema } from '@/team/db/definitions/team';
 import { getEnv, updateSaasOrganization } from 'erxes-api-shared/utils';
@@ -93,10 +94,11 @@ export const loadTeamClass = (models: IModels, subdomain: string) => {
       const team = await models.Team.insertOne(teamDoc);
 
       roles.push(
-        { memberId: adminId, teamId: team._id },
+        { memberId: adminId, teamId: team._id, role: TeamMemberRoles.ADMIN },
         ...memberIds.map((memberId) => ({
           memberId,
           teamId: team._id,
+          role: TeamMemberRoles.MEMBER,
         })),
       );
 

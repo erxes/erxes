@@ -117,7 +117,9 @@ export const ImapIntegrationEditForm = ({
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, (error) => {
+            console.log(error);
+          })}
           className="p-6 flex-auto overflow-auto"
         >
           <Form.Field

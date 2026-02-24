@@ -1,5 +1,5 @@
-export enum TeamMembersPath {
-  Index = '/settings/team',
-  TeamMembers = '/members',
-  TeamPermissions = '/permissions',
-}
+export const TEAM_MEMBER_SETTINGS = '/settings/team-member';
+
+export const SETTINGS_ROUTES = {
+  '/settings/team-member': 'Team members',
+};

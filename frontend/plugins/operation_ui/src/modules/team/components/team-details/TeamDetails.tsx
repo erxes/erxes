@@ -4,7 +4,6 @@ import { UpdateTeamForm } from '@/team/components/team-details/UpdateTeamForm';
 import { EstimateSection } from '@/team/components/team-details/EstimateSection';
 import { StatusSection } from '@/team/components/team-details/SatusSection';
 import { CycleSection } from '@/team/components/team-details/CycleSection';
-import { TemplateSection } from '@/team/components/team-details/TemplateSection';
 
 import { useParams } from 'react-router-dom';
 import { DeleteTeamForm } from '@/team/components/team-details/DeleteTeamForm';
@@ -32,7 +31,6 @@ export const TeamDetails = () => {
       <StatusSection team={team} />
       <CycleSection team={team} />
       <TriageSection team={team} />
-      <TemplateSection team={team} />
       <DeleteTeamForm />
     </div>
   );

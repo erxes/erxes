@@ -3,7 +3,6 @@ import { IAttachment } from 'erxes-ui';
 
 export interface IForm {
   _id: string;
-  channelId: string;
   name: string;
   title: string;
   code: string;

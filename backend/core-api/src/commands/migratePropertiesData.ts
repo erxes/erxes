@@ -35,7 +35,7 @@ const parseValue = (field, value) => {
         }
 
       case 'select':
-        return Array.isArray(value) ? value.join(',').toLowerCase() : String(value).toLowerCase();
+        return Array.isArray(value) ? value.join(',').toLowerCase() : value;
 
       case 'date':
         return typeof value === 'string' ? new Date(value) : value;
@@ -129,7 +129,7 @@ const toObject = (contentType, document, fields, groups) => {
 
             if (parsedValue !== null && parsedValue !== undefined) {
               parsedValues[field._id] = parsedValue;
-            } 
+            }
           }
 
           if (Object.keys(parsedValues).length) {
@@ -167,17 +167,17 @@ const command = async () => {
 
     // core:modules: collection
 
-    // 'core:customer': db.collection('customers'),
-    // 'core:company': db.collection('companies'),
-    // 'core:product': db.collection('products'),
-    // 'core:user': db.collection('users'),
+    'core:customer': db.collection('customers'),
+    'core:company': db.collection('companies'),
+    'core:product': db.collection('products'),
+    'core:user': db.collection('users'),
 
     // plugin:modules: collection
 
     // 'frontline:ticket': db.collection('frontline_tickets'),
     // 'frontline:conversation': db.collection('conversations'),
 
-    "sales:deal": db.collection('deals')
+    // "sales:deal": db.collection('deals')
   };
 
   try {

@@ -33,8 +33,6 @@ import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
 import { SelectTags } from 'ui-modules';
-import { SelectTemplate } from '@/template/components/SelectTemplate';
-import { IOperationTemplate } from '@/template/types';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const { teamId, projectId, cycleId } = useParams<{
@@ -120,28 +118,6 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     });
   };
 
-  const onTemplateSelect = async (template: IOperationTemplate) => {
-    if (template.defaults) {
-      if (template.defaults.description) {
-        try {
-          const content = JSON.parse(template.defaults.description);
-          editor.replaceBlocks(editor.document, content);
-          setDescriptionContent(content);
-        } catch (e) {
-          console.error('Failed to parse description', e);
-        }
-      }
-
-      const ALLOWED_FIELDS = ['name'];
-
-      Object.keys(template.defaults).forEach((key) => {
-        if (ALLOWED_FIELDS.includes(key)) {
-          form.setValue(key as any, template.defaults[key]);
-        }
-      });
-    }
-  };
-
   return (
     <Form {...form}>
       <form
@@ -176,12 +152,6 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
           />
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">New task</Sheet.Title>
-          <div className="ml-auto">
-            <SelectTemplate
-              teamId={_teamId}
-              onSelect={onTemplateSelect}
-            />
-          </div>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field

@@ -43,7 +43,7 @@ export default function ContractTemplatesPage() {
   const handleMigrate = async () => {
     try {
       await migrateMutation();
-      alert('Index deleted! You can now create templates.');
+      alert('Index устгагдлаа! Одоо template үүсгэж болно.');
     } catch (error) {
       console.error('Migration error:', error);
     }
@@ -66,7 +66,7 @@ export default function ContractTemplatesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Delete this template?')) {
+    if (confirm('Энэ загварыг устгах уу?')) {
       try {
         await deleteContractTemplate({ variables: { id } });
       } catch (error) {
@@ -80,7 +80,7 @@ export default function ContractTemplatesPage() {
       <PageHeader>
         <Breadcrumb>
           <Breadcrumb.Item>
-            <Link to="/insurance/products">Insurance</Link>
+            <Link to="/insurance">Insurance</Link>
           </Breadcrumb.Item>
           <Breadcrumb.Item>Contract Templates</Breadcrumb.Item>
         </Breadcrumb>
@@ -92,16 +92,16 @@ export default function ContractTemplatesPage() {
             <div>
               <h1 className="text-2xl font-bold">Contract Templates</h1>
               <p className="text-muted-foreground">
-                Manage contract PDF templates
+                Гэрээний PDF загваруудыг удирдах
               </p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={handleMigrate}>
-                🔧 Fix Index
+                🔧 Index засах
               </Button>
               <Button onClick={() => setIsDialogOpen(true)}>
                 <IconPlus size={20} className="mr-2" />
-                New Template
+                Шинэ загвар
               </Button>
             </div>
           </div>
@@ -109,10 +109,10 @@ export default function ContractTemplatesPage() {
           <Separator />
 
           {loading ? (
-            <div className="text-center py-8">Loading...</div>
+            <div className="text-center py-8">Уншиж байна...</div>
           ) : contractTemplates.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No templates yet. Click "New Template" to get started.
+              Одоогоор загвар байхгүй байна. "Шинэ загвар" дарж эхлээрэй.
             </div>
           ) : (
             <div className="grid gap-4">
@@ -128,10 +128,10 @@ export default function ContractTemplatesPage() {
                           {template.name}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {template.description || 'No description'}
+                          {template.description || 'Тайлбар байхгүй'}
                         </p>
                         <p className="text-xs text-muted-foreground mt-2">
-                          Created:{' '}
+                          Үүсгэсэн:{' '}
                           {new Date(template.createdAt).toLocaleDateString(
                             'mn-MN',
                           )}
@@ -144,7 +144,7 @@ export default function ContractTemplatesPage() {
                       >
                         <Button variant="outline" size="sm">
                           <IconEye size={16} className="mr-1" />
-                          View
+                          Харах
                         </Button>
                       </Link>
                       <Link
@@ -152,7 +152,7 @@ export default function ContractTemplatesPage() {
                       >
                         <Button variant="outline" size="sm">
                           <IconEdit size={16} className="mr-1" />
-                          Edit
+                          Засах
                         </Button>
                       </Link>
                       <Button
@@ -161,7 +161,7 @@ export default function ContractTemplatesPage() {
                         onClick={() => handleDelete(template.id)}
                       >
                         <IconTrash size={16} className="mr-1" />
-                        Delete
+                        Устгах
                       </Button>
                     </div>
                   </div>
@@ -175,27 +175,27 @@ export default function ContractTemplatesPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog.Content className="max-w-md">
           <Dialog.Header>
-            <Dialog.Title>New Contract Template</Dialog.Title>
+            <Dialog.Title>Шинэ гэрээний загвар</Dialog.Title>
           </Dialog.Header>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">Нэр *</Label>
               <Input
                 id="name"
                 value={templateName}
                 onChange={(e: any) => setTemplateName(e.target.value)}
-                placeholder="Example: Car Insurance Contract"
+                placeholder="Жишээ: Машины даатгалын гэрээ"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Тайлбар</Label>
               <Input
                 id="description"
                 value={templateDescription}
                 onChange={(e: any) => setTemplateDescription(e.target.value)}
-                placeholder="Brief description about this template"
+                placeholder="Энэ загварын тухай товч тайлбар"
               />
             </div>
           </div>
@@ -206,14 +206,14 @@ export default function ContractTemplatesPage() {
               variant="outline"
               onClick={() => setIsDialogOpen(false)}
             >
-              Cancel
+              Болих
             </Button>
             <Button
               type="button"
               onClick={handleCreate}
               disabled={!templateName}
             >
-              Create
+              Үүсгэх
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

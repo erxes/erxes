@@ -8,6 +8,7 @@ export const currentUser = gql`
       username
       email
       isOwner
+      role
       details {
         avatar
         fullName
@@ -21,6 +22,7 @@ export const currentUser = gql`
       links
       emailSignatures
       getNotificationByEmail
+      permissionActions
       configs
       isOnboarded
       isShowNotification

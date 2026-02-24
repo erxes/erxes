@@ -36,21 +36,6 @@ export interface CoveredRisk {
   coveragePercentage: number;
 }
 
-export interface AdditionalCoverage {
-  name: string;
-  limits: number[];
-  appliesTo: string[];
-}
-
-export interface CompensationCalculation {
-  name: string;
-  methodologies: string[];
-}
-
-export interface DeductibleConfig {
-  levels: string[];
-}
-
 export interface InsuranceProduct {
   id: string;
   name: string;
@@ -58,9 +43,6 @@ export interface InsuranceProduct {
   coveredRisks: CoveredRisk[];
   pricingConfig: any;
   pdfContent?: string;
-  additionalCoverages?: AdditionalCoverage[];
-  compensationCalculations?: CompensationCalculation[];
-  deductibleConfig?: DeductibleConfig;
   createdAt: Date;
   updatedAt: Date;
 }

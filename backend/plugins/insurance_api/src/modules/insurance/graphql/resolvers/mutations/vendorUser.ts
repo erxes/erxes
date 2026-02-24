@@ -101,8 +101,9 @@ export const vendorUserMutations = {
         throw new Error('Invalid email or password');
       }
 
+      const hashedPassword = await bcrypt.hash(password, 10);
       const isPasswordValid = await bcrypt.compare(
-        password,
+        hashedPassword,
         vendorUser.password,
       );
 
@@ -131,7 +132,6 @@ export const vendorUserMutations = {
       return {
         token,
         refreshToken,
-        user: vendorUser,
       };
     },
     { wrapperConfig: { skipPermission: true } },

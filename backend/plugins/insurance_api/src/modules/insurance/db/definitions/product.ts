@@ -39,40 +39,6 @@ export const productSchema = new Schema(
       ref: 'insurance_contract_templates',
       required: false,
     },
-    additionalCoverages: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        limits: {
-          type: [Number],
-          required: true,
-        },
-        appliesTo: {
-          type: [String],
-          required: false,
-        },
-      },
-    ],
-    compensationCalculations: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        methodologies: {
-          type: [String],
-          required: true,
-        },
-      },
-    ],
-    deductibleConfig: {
-      levels: {
-        type: [String],
-        required: false,
-      },
-    },
   },
   {
     timestamps: true,

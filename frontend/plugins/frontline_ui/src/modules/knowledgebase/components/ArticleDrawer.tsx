@@ -360,7 +360,7 @@ export function ArticleDrawer({
                         <Form.Label>Attachments</Form.Label>
                         <Form.Control>
                           <div className="space-y-2">
-                            {/* {field.value?.map((attachment, index) => (
+                            {field.value?.map((attachment, index) => (
                               <div
                                 key={index}
                                 className="flex items-center gap-2"
@@ -376,7 +376,9 @@ export function ArticleDrawer({
                                         url: value.url,
                                         name: value.fileInfo?.name || '',
                                         size: value.fileInfo?.size || 0,
-                                        type: value.fileInfo?.type || 'application/octet-stream',
+                                        type:
+                                          value.fileInfo?.type ||
+                                          'application/octet-stream',
                                       };
                                       field.onChange(newAttachments);
                                     }
@@ -409,7 +411,7 @@ export function ArticleDrawer({
                                   </div>
                                 </Upload.Root>
                               </div>
-                            ))} */}
+                            ))}
                             <Upload.Root
                               value=""
                               onChange={(value) => {

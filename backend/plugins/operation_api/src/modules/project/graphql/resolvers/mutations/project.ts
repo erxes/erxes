@@ -61,13 +61,13 @@ export const projectMutations = {
     params: IProjectUpdate,
     { models, user }: IContext,
   ) => {
-    // const project = await models.Project.getProject(params._id);
-    // await checkUserRole({
-    //   models,
-    //   teamIds: project.teamIds,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    // });
+    const project = await models.Project.getProject(params._id);
+    await checkUserRole({
+      models,
+      teamIds: project.teamIds,
+      userId: user._id,
+      allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
+    });
 
     const updatedProject = await models.Project.updateProject({
       doc: params,

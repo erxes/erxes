@@ -3,26 +3,25 @@ import { PageContainer, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { SegmentsRecordTable } from '@/segments/components/SegmentRecordTable';
 import { SegmentListSidebar } from '@/segments/components/SegmentsSidebar';
-import { PageHeader, SEGMENTS_GET_TYPES } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
-import { IconChartPie } from '@tabler/icons-react';
+import { SEGMENTS_GET_TYPES, SettingsHeader } from 'ui-modules';
 import { SegmentDetail } from '@/segments/components/SegmentDetail';
 import { useSegments } from '@/segments/hooks/useSegments';
+import { SegmentsBreadcrumb } from '@/segments/components/SegmentsBreadcrumb';
 
 export default function SegmentsIndexPage() {
-  const { handleRefresh } = useSegments();
+  const { handleRefresh, loading } = useSegments();
   const [contentType, setType] = useQueryState<string>('contentType');
-  const { data, loading } = useQuery(SEGMENTS_GET_TYPES);
+  const { data, loading: typesLoading } = useQuery(SEGMENTS_GET_TYPES);
 
   useEffect(() => {
-    if (!loading && data?.segmentsGetTypes?.length) {
+    if (!typesLoading && data?.segmentsGetTypes?.length) {
       const [type] = data.segmentsGetTypes;
       if (type && !contentType) {
         setType(type.contentType);
       }
     }
-  }, [loading, data, contentType, setType]);
-  const { t } = useTranslation('segment');
+  }, [typesLoading, data, contentType, setType]);
+
   if (loading) {
     return <Spinner />;
   }
@@ -30,17 +29,13 @@ export default function SegmentsIndexPage() {
   const { segmentsGetTypes = [] } = data || {};
 
   return (
-    <PageContainer className="flex flex-col h-full">
-      <PageHeader className="p-3 mx-0">
-        <PageHeader.Start>
-          <IconChartPie className="size-4" />
-          <span className="font-medium">{t('segment')}</span>
-        </PageHeader.Start>
-        <PageHeader.End>
+    <PageContainer>
+      <SettingsHeader breadcrumbs={<SegmentsBreadcrumb />}>
+        <div className="ml-auto hidden md:block">
           <SegmentDetail onRefresh={handleRefresh} />
-        </PageHeader.End>
-      </PageHeader>
-      <div className="flex flex-row h-full">
+        </div>
+      </SettingsHeader>
+      <div className="flex h-full overflow-hidden flex-1">
         <SegmentListSidebar types={segmentsGetTypes} />
         <SegmentsRecordTable />
       </div>

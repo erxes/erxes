@@ -144,7 +144,11 @@ export const FacebookIntegrationEditForm = ({
       <Separator />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (error) => {
+            console.log(error);
+          })}
+        >
           <div className="p-6 pb-8 space-y-6">
             <div>
               <Label htmlFor="pageName">Page Name</Label>

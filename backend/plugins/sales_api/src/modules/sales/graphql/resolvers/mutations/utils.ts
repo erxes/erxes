@@ -41,17 +41,19 @@ export const addDeal = async ({
     }),
   };
 
-  if (extendedDoc.propertiesData) {
+  if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.propertiesData = await sendTRPCMessage({
+    extendedDoc.customFieldsData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
-      defaultValue: {},
+      action: 'prepareCustomFieldsData',
+      input: {
+        customFieldsData: extendedDoc.customFieldsData,
+      },
+      defaultValue: [],
     });
   }
 
@@ -161,17 +163,19 @@ export const editDeal = async ({
     throw new Error('Permission denied');
   }
 
-  if (extendedDoc.propertiesData) {
+  if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.propertiesData = await sendTRPCMessage({
+    extendedDoc.customFieldsData = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
-      action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
-      defaultValue: {},
+      action: 'prepareCustomFieldsData',
+      input: {
+        customFieldsData: extendedDoc.customFieldsData,
+      },
+      defaultValue: [],
     });
   }
 

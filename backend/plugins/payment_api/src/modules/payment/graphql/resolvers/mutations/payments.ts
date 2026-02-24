@@ -1,3 +1,4 @@
+import { IPayment } from '~/modules/payment/@types/payment';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { getEnv } from 'erxes-api-shared/utils';
@@ -6,164 +7,109 @@ import { PocketAPI } from '~/apis/pocket/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import ErxesPayment from '~/apis/ErxesPayment';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
-import { extractErrorMessage } from '~/utils/extractErrorMessage';
-
-function resolveDomain(subdomain: string) {
-  const DOMAIN = getEnv({ name: 'DOMAIN' })
-    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-    : 'http://localhost:4000';
-
-  return DOMAIN.replace('<subdomain>', subdomain);
-}
-
-function validatePaymentKind(kind: string) {
-  const paymentConfig = PAYMENTS[kind];
-
-  if (!paymentConfig || Array.isArray(paymentConfig)) {
-    throw new Error(`Unsupported payment kind: ${kind}`);
-  }
-
-  return paymentConfig;
-}
-
-async function handleQPaySetup(input: any) {
-  if (input.kind !== 'qpayQuickqr') return;
-
-  if (input.config?.type) {
-    input.config.isCompany = input.config.type === 'company';
-    delete input.config.type;
-  }
-
-  const api = new QPayQuickQrAPI(input.config);
-  const { isCompany } = input.config;
-
-  const response = isCompany
-    ? await api.createCompany(input.config)
-    : await api.createCustomer(input.config);
-
-  if (!response?.id) {
-    throw new Error(
-      `QPay did not return merchant id: ${JSON.stringify(response)}`,
-    );
-  }
-
-  input.config.merchantId = response.id;
-}
-
-async function authorizePayment(
-  payment: any,
-  models: any,
-  subdomain: string,
-) {
-  const api = new ErxesPayment(payment, subdomain);
-
-  try {
-    await api.authorize(payment);
-  } catch (e: any) {
-    await models.PaymentMethods.removePayment(payment._id);
-    throw new Error(extractErrorMessage(e));
-  }
-}
-
-async function registerWebhookIfNeeded(
-  input: any,
-  payment: any,
-  domain: string,
-  models: any,
-) {
-  try {
-    if (input.kind === 'pocket') {
-      const api = new PocketAPI(input.config, domain);
-      await api.registerWebhook(payment._id);
-    }
-
-    if (input.kind === 'stripe') {
-      const api = new StripeAPI(input.config, domain);
-      await api.registerWebhook(payment._id);
-    }
-  } catch (e: any) {
-    await models.PaymentMethods.removePayment(payment._id);
-    throw new Error(extractErrorMessage(e));
-  }
-}
 
 const mutations = {
   async paymentAdd(
-    _root: any,
-    args: any,
+    _root,
+    args: any & { currency?: string },
     { models, subdomain }: IContext,
   ) {
     const { input } = args;
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:4000';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
 
-    if (!input?.kind) {
-      throw new Error('Payment kind is required');
+    const acceptedCurrencies = PAYMENTS[input.kind].acceptedCurrencies;
+    input.acceptedCurrencies = acceptedCurrencies;
+
+    if (input.config?.currency) {
+      input.acceptedCurrencies = [input.config.currency];
     }
 
-    const paymentConfig = validatePaymentKind(input.kind);
+    if (input.kind === 'qpayQuickqr') {
+      const api = new QPayQuickQrAPI(input.config);
+      const { isCompany } = input.config;
 
-    const domain = resolveDomain(subdomain);
+      let apiResponse;
+      try {
+        if (isCompany) {
+          apiResponse = await api.createCompany(input.config);
+        } else {
+          apiResponse = await api.createCustomer(input.config);
+        }
 
-    input.acceptedCurrencies = input.config?.currency
-      ? [input.config.currency]
-      : paymentConfig.acceptedCurrencies;
+        const { id } = apiResponse;
 
-    try {
-      await handleQPaySetup(input);
-    } catch (e: any) {
-      throw new Error(extractErrorMessage(e));
+        input.config.merchantId = id;
+      } catch (e) {
+        throw new Error(e.message);
+      }
     }
 
     const payment = await models.PaymentMethods.createPayment(input);
 
-    // 1️⃣ Authorize first (multi-tenant safe)
-    await authorizePayment(payment, models, subdomain);
+    if (input.kind === 'pocket') {
+      const pocketApi = new PocketAPI(input.config, domain);
+      try {
+        await pocketApi.registerWebhook(payment._id);
+      } catch (e) {
+        await models.PaymentMethods.removePayment(payment._id);
+        throw new Error(`Error while registering pocket webhook: ${e.message}`);
+      }
+    }
 
-    // 2️⃣ Register webhook only after successful authorization
-    await registerWebhookIfNeeded(input, payment, domain, models);
+    if (input.kind === 'stripe') {
+      const stripeApi = new StripeAPI(input.config, domain);
+      try {
+        await stripeApi.registerWebhook(payment._id);
+      } catch (e) {
+        await models.PaymentMethods.removePayment(payment._id);
+        throw new Error(`Error while registering stripe webhook: ${e.message}`);
+      }
+    }
+
+    const api = new ErxesPayment(payment);
+
+    try {
+      await api.authorize(payment);
+    } catch (e) {
+      await models.PaymentMethods.removePayment(payment._id);
+      throw new Error(`Error while authorizing payment: ${e.message}`);
+    }
 
     return payment;
   },
 
-  async paymentRemove(
-    _root: any,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  async paymentRemove(_root, { _id }: { _id: string }, { models }: IContext) {
     await models.PaymentMethods.removePayment(_id);
+
     return 'success';
   },
 
-  async paymentEdit(
-    _root: any,
-    args: any,
-    { models }: IContext,
-  ) {
+  async paymentEdit(_root, args: any, { models }: IContext) {
     const { _id, input } = args;
     const { name, status, kind, config, currency } = input;
-
-    const paymentConfig = validatePaymentKind(kind);
+    const { acceptedCurrencies } = PAYMENTS[kind];
 
     if (kind === 'qpayQuickqr') {
+      const api = new QPayQuickQrAPI(config);
+
+      const { isCompany } = config;
+
+      let apiResponse;
       try {
-        if (config?.type) {
-          config.isCompany = config.type === 'company';
-          delete config.type;
+        if (isCompany) {
+          apiResponse = await api.updateCompany(config);
+        } else {
+          apiResponse = await api.updateCustomer(config);
         }
 
-        const api = new QPayQuickQrAPI(config);
-        const { isCompany } = config;
+        const { id } = apiResponse;
 
-        const response = isCompany
-          ? await api.updateCompany(config)
-          : await api.updateCustomer(config);
-
-        if (!response?.id) {
-          throw new Error('QPay update did not return merchant id');
-        }
-
-        config.merchantId = response.id;
-      } catch (e: any) {
-        throw new Error(extractErrorMessage(e));
+        config.merchantId = id;
+      } catch (e) {
+        throw new Error(e.message);
       }
     }
 
@@ -172,15 +118,16 @@ const mutations = {
       status,
       kind,
       config,
-      acceptedCurrencies: currency
-        ? [currency]
-        : paymentConfig.acceptedCurrencies,
+      acceptedCurrencies,
     };
+
+    if (currency) {
+      doc.acceptedCurrencies = [currency];
+    }
 
     return await models.PaymentMethods.updatePayment(_id, doc);
   },
 };
-
 
 requireLogin(mutations, 'paymentAdd');
 requireLogin(mutations, 'paymentEdit');

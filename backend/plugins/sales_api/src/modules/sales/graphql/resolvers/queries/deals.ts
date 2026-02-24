@@ -77,6 +77,7 @@ export const generateFilter = async (
     branchIds,
     departmentIds,
     dateRangeFilters,
+    customFieldsDataFilters,
     resolvedDayBetween,
     productIds,
     date,
@@ -159,9 +160,9 @@ export const generateFilter = async (
       input: {
         contentType: 'core:customer',
         contentIds: customerIds,
-        relatedContentType: 'sales:deal'
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = relIds;
@@ -176,9 +177,9 @@ export const generateFilter = async (
       input: {
         contentType: 'core:company',
         contentIds: companyIds,
-        relatedContentType: 'sales:deal'
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = filterIds.length
@@ -203,8 +204,8 @@ export const generateFilter = async (
       input: {
         contentType: relationType,
         contentId: relationId,
-        relatedContentType: 'sales:deal'
-      }
+        relatedContentType: 'sales:deal',
+      },
     });
     filter._id = contains(relIds || []);
   }
@@ -285,6 +286,16 @@ export const generateFilter = async (
 
       if (to) {
         filter[name] = { ...filter[name], $lte: new Date(to) };
+      }
+    }
+  }
+
+  if (customFieldsDataFilters) {
+    for (const { value, name } of customFieldsDataFilters) {
+      if (Array.isArray(value) && value?.length) {
+        filter[`customFieldsData.${name}`] = { $in: value };
+      } else {
+        filter[`customFieldsData.${name}`] = value;
       }
     }
   }

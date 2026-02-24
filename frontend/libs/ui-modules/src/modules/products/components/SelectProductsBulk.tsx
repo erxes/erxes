@@ -17,8 +17,6 @@ import { useInView } from 'react-intersection-observer';
 import { AddProduct } from './AddProduct';
 import { useDebounce } from 'use-debounce';
 import { GET_PRODUCTS } from '../graphql/queries/productsQueries';
-import { SelectCompany } from '../../contacts/components/SelectCompany';
-import { SelectCategory } from '../categories/components/SelectCategory';
 
 interface SelectProductsProps {
   onSelect: (productIds: string[], products?: IProduct[]) => void;
@@ -92,7 +90,7 @@ const SelectProductsBulkContent = ({
 
   return (
     <>
-      <Sheet.Content className="grid overflow-hidden grid-cols-2">
+      <Sheet.Content className="grid grid-cols-2 overflow-hidden">
         <ProductsList
           selectedProducts={selectedProducts}
           selectedProductIds={selectedProductIds}
@@ -113,7 +111,7 @@ const SelectProductsBulkContent = ({
             refetchQueries: [GET_PRODUCTS],
           }}
         />
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">
               Cancel
@@ -133,14 +131,10 @@ const ProductsList = ({
 }: ProductsListProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const [companyId, setCompanyId] = useState<string>('');
-  const [categoryId, setCategoryId] = useState<string>('');
 
   const { products, handleFetchMore, totalCount } = useProducts({
     variables: {
       searchValue: debouncedSearch,
-      vendorId: companyId || undefined,
-      categoryIds: categoryId ? [categoryId] : undefined,
     },
   });
 
@@ -154,43 +148,22 @@ const ProductsList = ({
   };
 
   return (
-    <div className="flex overflow-hidden flex-col border-r">
+    <div className="border-r overflow-hidden flex flex-col">
       <div className="p-4">
-        <div className="flex gap-4 justify-between items-center">
-          <div className="flex flex-1 gap-4 items-center">
-            <Input
-              placeholder="Search products"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-2 items-center">
-            <SelectCompany
-              mode="single"
-              value={companyId || ''}
-              onValueChange={(value) => {
-                setCompanyId(value as string);
-              }}
-            />
-
-            <SelectCategory
-              selected={categoryId}
-              onSelect={
-                ((id: string) => {
-                  setCategoryId(id === categoryId ? '' : id);
-                }) as any
-              }
-              variant="outline"
-            />
-          </div>
+        <div className="flex items-center gap-4">
+          <Input
+            placeholder="Search products"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
-        <div className="mt-4 text-xs text-accent-foreground">
+        <div className="text-accent-foreground text-xs mt-4">
           {totalCount} results
         </div>
       </div>
       <Separator />
       <ScrollArea>
-        <div className="flex flex-col gap-1 p-4">
+        <div className="p-4 flex flex-col gap-1">
           <Tooltip.Provider>
             {products.map((product) => {
               const isSelected = selectedProductIds.includes(product._id);
@@ -221,9 +194,9 @@ const ProductsList = ({
             })}
 
             {products.length < totalCount && (
-              <div className="flex gap-2 items-center px-2 h-8" ref={bottomRef}>
+              <div className="flex items-center gap-2 px-2 h-8" ref={bottomRef}>
                 <Spinner containerClassName="flex-none" />
-                <span className="animate-pulse text-accent-foreground">
+                <span className="text-accent-foreground animate-pulse">
                   Loading more products...
                 </span>
               </div>
@@ -248,15 +221,15 @@ const SelectedProductsList = ({
 
   return (
     <ScrollArea className="h-full">
-      <div className="flex flex-col gap-1 p-4">
-        <div className="px-3 mb-1 text-xs text-accent-foreground">Added</div>
+      <div className="p-4 flex flex-col gap-1">
+        <div className="text-accent-foreground text-xs px-3 mb-1">Added</div>
         {selectedProductIds.map((productId) => {
           const product = selectedProducts.find((p) => p._id === productId);
           return (
             <Button
               key={productId}
               variant="ghost"
-              className="justify-start max-w-full h-auto font-normal text-left whitespace-normal min-h-9"
+              className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
               onClick={() => handleRemoveProduct(productId)}
             >
               <ProductsInline

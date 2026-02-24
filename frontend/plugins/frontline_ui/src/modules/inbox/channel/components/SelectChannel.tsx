@@ -1,7 +1,6 @@
 import {
   Combobox,
   Command,
-  DropdownMenu,
   Filter,
   Form,
   Popover,
@@ -191,7 +190,7 @@ export const SelectChannelFilterItem = () => {
   return (
     <Filter.Item value="channelId">
       <IconTopologyStar3 />
-      By Channel
+      Select Channel
     </Filter.Item>
   );
 };
@@ -295,47 +294,8 @@ export const SelectChannelInlineCell = ({
         </RecordTableInlineCell.Content>
       </PopoverScoped>
     </SelectChannelProvider>
-  )
-}
-
-const SelectChannelList = ({ channelId, onValueChange }: { channelId: string, onValueChange: (value: string) => void }) => {
-  const { channels, onSelect } = useSelectChannelContext();
-  const { channels: channelsData, loading } = useGetChannels({
-    variables: {
-      searchValue: "",
-    },
-  });
-
-  const allChannels = [...channels, ...(channelsData || []).filter((c: IChannel) => !channels.find((ch) => ch._id === c._id))];
-
-  return (
-    <DropdownMenu.RadioGroup
-      value={channelId}
-      onValueChange={(value) => {
-        const channel = allChannels.find((c) => c._id === value);
-        if (channel) {
-          onSelect(channel);
-        }
-      }}
-    >
-      {allChannels.map((channel) => (
-        <DropdownMenu.RadioItem key={channel._id} value={channel._id}>
-          {channel.name}
-        </DropdownMenu.RadioItem>
-      ))}
-    </DropdownMenu.RadioGroup>
-  )
-}
-
-export const SelectChannelDropDownContent = ({ channelId, onValueChange }: { channelId: string, onValueChange: (value: string) => void }) => {
-  return (
-    <SelectChannelProvider mode='single' value={channelId} onValueChange={(value) => {
-      onValueChange?.(value as string)
-    }}>
-      <SelectChannelList channelId={channelId} onValueChange={onValueChange} />
-    </SelectChannelProvider>
-  )
-}
+  );
+};
 
 export const SelectChannel = {
   Provider: SelectChannelProvider,
@@ -346,5 +306,4 @@ export const SelectChannel = {
   FilterView: SelectChannelFilterView,
   FilterBar: SelectChannelFilterBar,
   InlineCell: SelectChannelInlineCell,
-  DropDownContent: SelectChannelDropDownContent,
 };

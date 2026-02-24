@@ -102,7 +102,7 @@ export const CreatePipeline = () => {
         <Form {...form}>
           <form
             className="flex flex-col gap-0 size-full"
-            onSubmit={form.handleSubmit(submitHandler)}
+            onSubmit={form.handleSubmit(submitHandler, (e) => console.log(e))}
           >
             <Sheet.Header>
               <Sheet.Title>Add pipeline</Sheet.Title>

@@ -206,7 +206,7 @@ importers:
         specifier: ^20.5.0
         version: 20.5.0
       firebase-admin:
-        specifier: ^13.6.0
+        specifier: ^13.0.0
         version: 13.6.0(encoding@0.1.13)
       form-data:
         specifier: ^4.0.2

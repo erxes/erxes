@@ -14,10 +14,6 @@ export const ticketSchema = new Schema(
       type: String,
       label: 'statusId',
     },
-    state: {
-      type: String,
-      label: 'state',
-    },
     description: { type: String, label: 'Description' },
     type: {
       type: String,

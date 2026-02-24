@@ -1,5 +1,4 @@
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { SelectStateTicket } from '@/ticket/components/ticket-selects/SelectStateTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { TicketHotKeyScope } from '@/ticket/types';
 import { TicketsTotalCount } from '@/ticket/components/TicketsTotalCount';
@@ -12,7 +11,6 @@ import {
   IconProgressCheck,
   IconSearch,
   IconUser,
-  IconArchive,
 } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
@@ -26,15 +24,7 @@ const TicketsFilterPopover = () => {
     priority: string;
     statusId: string;
     pipelineId: string;
-    state: string;
-  }>([
-    'searchValue',
-    'assignee',
-    'priority',
-    'statusId',
-    'pipelineId',
-    'state',
-  ]);
+  }>(['searchValue', 'assignee', 'priority', 'statusId', 'pipelineId']);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
@@ -74,10 +64,6 @@ const TicketsFilterPopover = () => {
                   <IconAlertSquareRounded />
                   Priority
                 </Filter.Item>
-                <Filter.Item value="state">
-                  <IconArchive />
-                  Status
-                </Filter.Item>
                 {view === 'list' && (
                   <Filter.Item value="statusId">
                     <IconProgressCheck />
@@ -89,7 +75,6 @@ const TicketsFilterPopover = () => {
           </Filter.View>
           <SelectAssigneeTicket.FilterView />
           <SelectPriorityTicket.FilterView />
-          <SelectStateTicket.FilterView />
           {view === 'list' && (
             <SelectStatusTicket.FilterView
               pipelineId={queries?.pipelineId || ''}
@@ -113,15 +98,7 @@ export const TicketsFilter = () => {
     priority: string;
     statusId: string;
     pipelineId: string;
-    state: string;
-  }>([
-    'searchValue',
-    'assignee',
-    'priority',
-    'statusId',
-    'pipelineId',
-    'state',
-  ]);
+  }>(['searchValue', 'assignee', 'priority', 'statusId', 'pipelineId']);
   const { searchValue } = queries || {};
   const view = useAtomValue(ticketViewAtom);
   return (
@@ -147,13 +124,6 @@ export const TicketsFilter = () => {
             Priority
           </Filter.BarName>
           <SelectPriorityTicket.FilterBar />
-        </Filter.BarItem>
-        <Filter.BarItem queryKey="state">
-          <Filter.BarName>
-            <IconArchive />
-            Status
-          </Filter.BarName>
-          <SelectStateTicket.FilterBar />
         </Filter.BarItem>
         {view === 'list' && (
           <Filter.BarItem queryKey="statusId">

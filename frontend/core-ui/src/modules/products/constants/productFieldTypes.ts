@@ -16,25 +16,5 @@ export function useProductFieldTypes() {
       value: ProductsPath.Uoms,
       label: t('uom'),
     },
-    {
-      value: ProductsPath.GeneralConfig,
-      label: t('general-config'),
-    },
-    {
-      value: ProductsPath.SimilarityGroup,
-      label: t('similarity-group'),
-    },
-    {
-      value: ProductsPath.BundleCondition,
-      label: t('bundle-condition'),
-    },
-    {
-      value: ProductsPath.BundleRule,
-      label: t('bundle-rule'),
-    },
-    {
-      value: ProductsPath.ProductRule,
-      label: t('product-rule'),
-    },
   ];
 }

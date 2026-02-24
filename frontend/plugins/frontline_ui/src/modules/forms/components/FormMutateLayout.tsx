@@ -22,15 +22,20 @@ export const FormMutateLayout = ({
   isLoading?: boolean;
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
-  const { id } = useParams<{ id: string }>();
+  const { formId } = useParams();
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((values) => {
-          onSubmit?.(values);
-          setStep((prev) => (prev === 3 ? prev : prev + 1));
-        })}
+        onSubmit={form.handleSubmit(
+          (values) => {
+            onSubmit?.(values);
+            setStep((prev) => (prev === 3 ? prev : prev + 1));
+          },
+          (errors) => {
+            console.log(errors);
+          },
+        )}
         className="flex-auto flex flex-col h-full overflow-hidden bg-sidebar"
       >
         <Sheet.Content className="grow overflow-hidden flex flex-col">
@@ -55,14 +60,14 @@ export const FormMutateLayout = ({
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
-              ? id
+              ? formId
                 ? 'Updating form...'
                 : 'Creating form...'
               : step === 3
-              ? id
-                ? 'Update form'
-                : 'Create form'
-              : 'Next step'}
+                ? formId
+                  ? 'Update form'
+                  : 'Create form'
+                : 'Next step'}
           </Button>
         </Sheet.Footer>
       </form>

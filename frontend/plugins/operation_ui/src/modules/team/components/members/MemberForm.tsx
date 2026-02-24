@@ -64,7 +64,7 @@ export const SelectTeamMember = ({
   return (
     <SelectMember.Provider
       value={value}
-      onValueChange={(value) => onValueChange?.(value as string[] | string)}
+      onValueChange={onValueChange}
       mode={mode}
     >
       <Popover>

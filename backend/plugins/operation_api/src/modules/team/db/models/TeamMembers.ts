@@ -39,17 +39,16 @@ export const loadTeamMemberClass = (models: IModels) => {
         throw new Error('Team member not found');
       }
 
-      // ** Deprecated
+      if (teamMember.role === TeamMemberRoles.ADMIN) {
+        const adminsCount = await models.TeamMember.countDocuments({
+          teamId: teamMember.teamId,
+          role: TeamMemberRoles.ADMIN,
+        });
 
-      // if (teamMember.role === TeamMemberRoles.ADMIN) {
-      //   const adminsCount = await models.TeamMember.countDocuments({
-      //     teamId: teamMember.teamId,
-      //   });
-
-      //   if (adminsCount === 1) {
-      //     throw new Error('Admin cannot be removed');
-      //   }
-      // }
+        if (adminsCount === 1) {
+          throw new Error('Admin cannot be removed');
+        }
+      }
 
       return models.TeamMember.findOneAndUpdate({ _id }, { $set: { role } });
     }
@@ -65,11 +64,9 @@ export const loadTeamMemberClass = (models: IModels) => {
         throw new Error('Team member not found');
       }
 
-      // ** Deprecated
-
-      // if (teamMember.role === TeamMemberRoles.ADMIN) {
-      //   throw new Error('Admin cannot be removed');
-      // }
+      if (teamMember.role === TeamMemberRoles.ADMIN) {
+        throw new Error('Admin cannot be removed');
+      }
 
       return models.TeamMember.deleteOne({ teamId, memberId });
     }

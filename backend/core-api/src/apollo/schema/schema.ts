@@ -116,7 +116,13 @@ import {
   mutations as PermissionMutations,
   queries as PermissionQueries,
   types as PermissionTypes,
-} from '~/modules/permissions/graphql/schemas/permission';
+} from '@/permissions/graphql/schemas/permission';
+
+import {
+  mutations as UsersGroupMutations,
+  queries as UsersGroupQueries,
+  types as UsersGroupTypes,
+} from '@/permissions/graphql/schemas/userGroup';
 
 import {
   mutations as DocumentMutations,
@@ -145,6 +151,11 @@ import {
   queries as NotificationsQueries,
   types as NotificationsTypes,
 } from '@/notifications/graphql/schema';
+import {
+  mutations as RoleMutations,
+  queries as RoleQueries,
+  types as RoleTypes,
+} from '@/permissions/graphql/schemas/role';
 
 import {
   mutations as PropertiesMutations,
@@ -192,12 +203,6 @@ import {
   types as BroadcastTypes,
 } from '@/broadcast/graphql/schemas';
 
-import {
-  types as bundleTypes,
-  queries as bundleQueries,
-  mutations as bundleMutations,
-} from '@/bundle/graphql/schemas';
-
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -232,11 +237,13 @@ export const types = `
     ${FavoritesTypes}
     ${ExchangeRateTypes}
     ${PermissionTypes}
+    ${UsersGroupTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
+    ${RoleTypes}
     ${PropertiesTypes}
     ${ClientPortalTypes}
     ${ImportTypes}
@@ -245,7 +252,6 @@ export const types = `
     ${CommentTypes}
     ${CPNotificationTypes}
     ${BroadcastTypes}
-    ${bundleTypes}
   `;
 
 export const queries = `
@@ -269,11 +275,13 @@ export const queries = `
     ${FavoritesQueries}
     ${ExchangeRateQueries}
     ${PermissionQueries}
+    ${UsersGroupQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
     ${LogsQueries}
     ${NotificationsQueries}
-    ${InternalNoteQueries}  
+    ${InternalNoteQueries}
+    ${RoleQueries}
     ${PropertiesQueries}
     ${ClientPortalQueries}
     ${ImportQueries}
@@ -282,7 +290,6 @@ export const queries = `
     ${CommentQueries}
     ${CPNotificationQueries}
     ${BroadcastQueries}
-    ${bundleQueries}
   `;
 
 export const mutations = `
@@ -306,10 +313,12 @@ export const mutations = `
     ${FavoritesMutations}
     ${ExchangeRateMutations}
     ${PermissionMutations}
+    ${UsersGroupMutations}
     ${DocumentMutations}
     ${AutomationsMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
+    ${RoleMutations}
     ${PropertiesMutations}
     ${ClientPortalMutations}
     ${ImportMutations}
@@ -318,7 +327,6 @@ export const mutations = `
     ${CommentMutations}
     ${CPNotificationMutations}
     ${BroadcastMutations}
-    ${bundleMutations}
   `;
 
 export default { types, queries, mutations };

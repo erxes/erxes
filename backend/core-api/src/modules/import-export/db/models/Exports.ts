@@ -59,16 +59,7 @@ const buildNotificationMessage = (exportDoc: IExportDocument): string => {
       exportDoc.totalRows > 0
         ? ` ${exportDoc.totalRows.toLocaleString()} records exported.`
         : '';
-        const derivedLabel = exportDoc.entityType
-          ? exportDoc.entityType
-              .toUpperCase()
-              .split(':')
-              .pop()
-              ?.split('.')
-              .pop()
-          : undefined;
-        const typeLabel = derivedLabel?.trim() ? derivedLabel : exportDoc.fileName;
-      return `Your export "${typeLabel}" has been completed successfully.${recordsText}`;
+    return `Your export "${exportDoc.fileName}" has been completed successfully.${recordsText}`;
   }
 
   if (exportDoc.errorMessage) {
@@ -170,11 +161,15 @@ export const loadExportClass = (
       fileKey: string,
       fileName: string,
     ) {
-      return models.Exports.findOneAndUpdate({ _id }, {
-        $set: { fileKey, fileName },
-      }, {
-        new: true,
-      }).lean();
+      return models.Exports.findOneAndUpdate(
+        { _id },
+        {
+          $set: { fileKey, fileName },
+        },
+        {
+          new: true,
+        },
+      ).lean();
     }
   }
 

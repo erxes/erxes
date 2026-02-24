@@ -8,8 +8,6 @@ export type ISelectProductContext = {
   setProducts: (products: IProduct[]) => void;
   loading: boolean;
   error: string | null;
-  defaultSearchValue?: string;
-  selectedProducts?: IProduct[];
 };
 
 export const SelectProductContext = createContext<ISelectProductContext | null>(

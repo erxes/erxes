@@ -1,8 +1,4 @@
-import {
-  IconLibraryPhoto,
-  IconFileText,
-  IconWorldPlus,
-} from '@tabler/icons-react';
+import { IconFileText, IconWorldPlus } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 
 export const ContentNavigation = () => {

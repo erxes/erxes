@@ -1,20 +1,20 @@
-import { MutationHookOptions, OperationVariables } from "@apollo/client";
+import { MutationHookOptions, OperationVariables } from '@apollo/client';
 
-import { BOARD_CREATE_SCHEMA } from "@/deals/schemas/boardFormSchema";
-import { IPipeline } from "@/deals/types/pipelines";
-import { z } from "zod";
+import { BOARD_CREATE_SCHEMA } from '@/deals/schemas/boardFormSchema';
+import { IPipeline } from '@/deals/types/pipelines';
+import { z } from 'zod';
 
 export interface IBoard {
-    _id: string;
-    name: string;
-    pipelines?: IPipeline[];
-  }
-  
+  _id: string;
+  name: string;
+  pipelines?: IPipeline[];
+}
+
 export interface IBoardCount {
-    _id: string;
-    name: string;
-    count: number;
-}  
+  _id: string;
+  name: string;
+  count: number;
+}
 
 export interface BaseBoardItem {
   _id: string;
@@ -54,13 +54,15 @@ export interface DealsBoardColumnProps {
   pipelineId: string;
   queryVariables?: Record<string, unknown>;
   fetchMoreTrigger?: number;
-  onFetchComplete?: (columnId: string, result: {
-    fetchedCount: number;
-    hasMore: boolean;
-    cursor?: string | null;
-    totalCount?: number;
-  }) => void;
-  locallyMovedIdsRef?: any;
+  onFetchComplete?: (
+    columnId: string,
+    result: {
+      fetchedCount: number;
+      hasMore: boolean;
+      cursor?: string | null;
+      totalCount?: number;
+    },
+  ) => void;
 }
 
 export interface VirtualizedCardListProps<TItem extends BaseBoardItem> {
@@ -88,9 +90,9 @@ export interface GenericBoardProps<
 > {
   initialState: GenericBoardState<TItem, TColumn>;
   onStateChange?: (
-    newState: GenericBoardState<TItem, TColumn>, 
+    newState: GenericBoardState<TItem, TColumn>,
     oldState: GenericBoardState<TItem, TColumn>,
-    draggedItemId?: string
+    draggedItemId?: string,
   ) => void;
   onDragStart?: (itemId: string) => void;
   renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
@@ -125,7 +127,7 @@ export interface ISelectBoardsProviderProps {
   >;
 }
 
-export type ActiveDragItem = 
+export type ActiveDragItem =
   | { type: 'column'; column: BoardDealColumn }
   | { type: 'card'; item: any }
   | null;

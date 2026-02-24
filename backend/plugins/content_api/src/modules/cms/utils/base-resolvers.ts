@@ -1,4 +1,4 @@
-import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext, IModels } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
@@ -12,8 +12,6 @@ export interface BaseQueryArgs {
   cursor?: string;
   direction?: 'forward' | 'backward';
   orderBy?: Record<string, SortOrder>;
-  sortField?: string;
-  sortDirection?: string;
   [key: string]: any;
 }
 
@@ -43,10 +41,13 @@ export class BaseQueryResolver {
    * Build translation map for efficient lookup
    */
   protected buildTranslationMap(translations: any[]): Record<string, any> {
-    return translations.reduce((acc, translation) => {
-      acc[translation.postId.toString()] = translation;
-      return acc;
-    }, {} as Record<string, any>);
+    return translations.reduce(
+      (acc, translation) => {
+        acc[translation.postId.toString()] = translation;
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
   }
 
   /**
@@ -161,16 +162,9 @@ export class BaseQueryResolver {
     args: BaseQueryArgs,
     fieldMappings: Record<string, string>,
   ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
-    // Convert sortField/sortDirection to orderBy format
-    const params = { ...args };
-    if (args.sortField && !args.orderBy) {
-      const sortOrder: SortOrder = args.sortDirection === 'asc' ? 1 : -1;
-      params.orderBy = { [args.sortField]: sortOrder };
-    }
-
     const { list, totalCount, pageInfo } = await cursorPaginate<any>({
       model,
-      params,
+      params: args,
       query,
     });
 
@@ -202,53 +196,9 @@ export class BaseQueryResolver {
     return { list: translatedList, totalCount, pageInfo };
   }
 
-  protected async getListWithDefaultPagination<T extends {_id:string}>(
-    model: any,
-    query: any,
-    args: BaseQueryArgs,
-    fieldMappings: Record<string, string>,
-  ): Promise<T[]> {
-
-    const { sortField = 'scheduledDate', sortDirection, page = 1, perPage = 20 } = args;
-    const sortOrder: SortOrder = sortDirection === 'asc' ? 1 : -1;
-
-
-    const list = (await defaultPaginate(
-      model.find(query).sort({ [sortField]: sortOrder }).lean(),
-      { page, perPage },
-    )) as T[];
-
-  
-    if (!args.language) {
-      return list;
-    }
-  
-    if (!args.clientPortalId && !this.context.clientPortal._id) {
-      throw new Error('Client portal ID is required');
-    }
-  
-    const shouldSkip = await this.shouldSkipTranslation(
-      args.clientPortalId || this.context.clientPortal._id || '',
-      args.language || '',
-    );
-  
-    if (shouldSkip) {
-      return list;
-    }
-  
-    const itemIds = list.map((item) => item._id);
-
-    const translations = await this.getTranslations(itemIds, args.language);
-  
-    const translatedList = this.applyTranslationsToList(
-      list,
-      translations,
-      fieldMappings,
-    );
-  
-    return translatedList;
-  }
-
+  /**
+   * Generic single item query with translation support
+   */
   protected async getItemWithTranslation<T>(
     model: any,
     query: any,

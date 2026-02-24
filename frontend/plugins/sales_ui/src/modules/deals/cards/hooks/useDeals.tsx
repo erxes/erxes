@@ -26,7 +26,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { IDeal } from '@/deals/types/deals';
@@ -55,7 +55,7 @@ export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
 ) => {
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
+  const { data, loading, fetchMore, refetch, subscribeToMore } = useQuery<
     ICursorListResponse<IDeal>
   >(GET_DEALS, {
     ...options,
@@ -71,6 +71,7 @@ export const useDeals = (
     },
   });
 
+  const [dealIdToRefetch, setDealIdToRefetch] = useState<string | null>(null);
   const currentUser = useAtomValue(currentUserState);
   const [qryStrPipelineId] = useQueryState('pipelineId');
 
@@ -89,6 +90,18 @@ export const useDeals = (
   );
 
   useEffect(() => {
+    if (!dealIdToRefetch) return;
+
+    refetch({
+      ...options?.variables,
+      _ids: [dealIdToRefetch],
+    }).finally(() => {
+      setDealIdToRefetch(null);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dealIdToRefetch]);
+
+  useEffect(() => {
     if (!currentUser?._id) return;
 
     const unsubscribe = subscribeToMore<IDealChanged>({
@@ -104,14 +117,16 @@ export const useDeals = (
 
         let updatedList = currentList;
 
+        if (action === 'edit' || action === 'add') {
+          setDealIdToRefetch(deal._id);
+        }
+
         if (action === 'add') {
           const exists = currentList.some(
             (item: IDeal) => item._id === deal._id,
           );
           if (!exists) {
-            const merged = [...currentList, deal];
-            merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-            updatedList = merged;
+            updatedList = [deal, ...currentList];
           }
         }
 
@@ -119,7 +134,6 @@ export const useDeals = (
           updatedList = currentList.map((item: IDeal) =>
             item._id === deal._id ? { ...item, ...deal } : item,
           );
-          updatedList.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         }
 
         if (action === 'remove') {
@@ -137,8 +151,8 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                ? prev.deals.totalCount - 1
-                : prev.deals.totalCount,
+                  ? prev.deals.totalCount - 1
+                  : prev.deals.totalCount,
           },
         };
       },

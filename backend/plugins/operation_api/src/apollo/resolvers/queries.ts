@@ -7,7 +7,6 @@ import { statusQueries } from '@/status/graphql/resolvers/queries/status';
 import { taskQueries } from '@/task/graphql/resolvers/queries/task';
 import { teamQueries } from '@/team/graphql/resolvers/queries/team';
 import { triageQueries } from '@/task/graphql/resolvers/queries/triage';
-import { queries as templateQueries } from '@/template/graphql/resolvers';
 
 export const queries = {
   ...taskQueries,
@@ -19,5 +18,4 @@ export const queries = {
   ...cycleQueries,
   ...milestoneQueries,
   ...triageQueries,
-  ...templateQueries,
 };

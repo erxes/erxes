@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { IconUser, IconCalendar, IconShieldCheck } from '@tabler/icons-react';
+import {
+  IconUser,
+  IconPlus,
+  IconCalendar,
+  IconCurrencyTugrik,
+  IconShieldCheck,
+} from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
@@ -18,12 +24,6 @@ import {
   useInsuranceTypes,
   useCreateInsuranceContract,
 } from '~/modules/insurance/hooks';
-import {
-  InsuranceFormAlerts,
-  VendorCustomerSelect,
-  PaymentSection,
-  FormSubmitButtons,
-} from '~/modules/insurance/components';
 
 export const CitizenInsurancePage = () => {
   const navigate = useNavigate();
@@ -62,27 +62,27 @@ export const CitizenInsurancePage = () => {
   });
 
   const genderOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
+    { value: 'male', label: 'Эрэгтэй' },
+    { value: 'female', label: 'Эмэгтэй' },
   ];
 
   const healthConditionOptions = [
-    { value: 'excellent', label: 'Excellent' },
-    { value: 'good', label: 'Good' },
-    { value: 'fair', label: 'Fair' },
-    { value: 'poor', label: 'Poor' },
+    { value: 'excellent', label: 'Маш сайн' },
+    { value: 'good', label: 'Сайн' },
+    { value: 'fair', label: 'Дунд' },
+    { value: 'poor', label: 'Муу' },
   ];
 
   const occupationOptions = [
-    { value: 'office', label: 'Office Worker' },
-    { value: 'teacher', label: 'Teacher' },
-    { value: 'doctor', label: 'Doctor' },
-    { value: 'driver', label: 'Driver' },
-    { value: 'construction', label: 'Construction Worker' },
-    { value: 'business', label: 'Business Owner' },
-    { value: 'student', label: 'Student' },
-    { value: 'retired', label: 'Retired' },
-    { value: 'other', label: 'Other' },
+    { value: 'office', label: 'Оффис ажилтан' },
+    { value: 'teacher', label: 'Багш' },
+    { value: 'doctor', label: 'Эмч' },
+    { value: 'driver', label: 'Жолооч' },
+    { value: 'construction', label: 'Барилгын ажилчин' },
+    { value: 'business', label: 'Бизнес эрхлэгч' },
+    { value: 'student', label: 'Оюутан' },
+    { value: 'retired', label: 'Тэтгэвэрт' },
+    { value: 'other', label: 'Бусад' },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,7 +120,7 @@ export const CitizenInsurancePage = () => {
         navigate('/insurance/contracts');
       }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Failed to create contract');
+      setError(err.message || 'Гэрээ үүсгэхэд алдаа гарлаа');
     }
   };
 
@@ -132,7 +132,7 @@ export const CitizenInsurancePage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance/products">
+                  <Link to="/insurance">
                     <IconUser />
                     Insurance
                   </Link>
@@ -161,34 +161,80 @@ export const CitizenInsurancePage = () => {
                   <IconShieldCheck className="text-green-600" size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Citizen Insurance</h2>
+                  <h2 className="text-2xl font-bold">Иргэний даатгал</h2>
                   <p className="text-muted-foreground">
-                    Create a citizen insurance contract
+                    Иргэний даатгалын гэрээ үүсгэх
                   </p>
                 </div>
               </div>
 
-              <InsuranceFormAlerts error={error} success={success} />
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+                  Гэрээ амжилттай үүсгэгдлээ! Гэрээний жагсаалт руу шилжиж
+                  байна...
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Vendor & Customer Selection */}
-                <VendorCustomerSelect
-                  vendors={vendors}
-                  customers={customers}
-                  vendorId={formData.vendorId}
-                  customerId={formData.customerId}
-                  onVendorChange={(value) =>
-                    setFormData({ ...formData, vendorId: value })
-                  }
-                  onCustomerChange={(value) =>
-                    setFormData({ ...formData, customerId: value })
-                  }
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Даатгалын компани *
+                    </label>
+                    <Select
+                      value={formData.vendorId}
+                      onValueChange={(value: string) =>
+                        setFormData({ ...formData, vendorId: value })
+                      }
+                    >
+                      <Select.Trigger>
+                        <Select.Value placeholder="Сонгох" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {vendors.map((vendor) => (
+                          <Select.Item key={vendor.id} value={vendor.id}>
+                            {vendor.name}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Даатгуулагч *
+                    </label>
+                    <Select
+                      value={formData.customerId}
+                      onValueChange={(value: string) =>
+                        setFormData({ ...formData, customerId: value })
+                      }
+                    >
+                      <Select.Trigger>
+                        <Select.Value placeholder="Сонгох" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {customers.map((customer) => (
+                          <Select.Item key={customer.id} value={customer.id}>
+                            {customer.firstName} {customer.lastName}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                </div>
 
                 {/* Product Selection */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Insurance Product *
+                    Даатгалын бүтээгдэхүүн *
                   </label>
                   <Select
                     value={formData.productId}
@@ -197,7 +243,7 @@ export const CitizenInsurancePage = () => {
                     }
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder="Select" />
+                      <Select.Value placeholder="Сонгох" />
                     </Select.Trigger>
                     <Select.Content>
                       {products.map((product) => (
@@ -215,13 +261,13 @@ export const CitizenInsurancePage = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <IconUser size={20} />
-                    Personal Information
+                    Хувийн мэдээлэл
                   </h3>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Age *
+                        Нас *
                       </label>
                       <Input
                         type="number"
@@ -240,7 +286,7 @@ export const CitizenInsurancePage = () => {
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Gender *
+                        Хүйс *
                       </label>
                       <Select
                         value={formData.gender}
@@ -249,7 +295,7 @@ export const CitizenInsurancePage = () => {
                         }
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select" />
+                          <Select.Value placeholder="Сонгох" />
                         </Select.Trigger>
                         <Select.Content>
                           {genderOptions.map((option) => (
@@ -266,7 +312,7 @@ export const CitizenInsurancePage = () => {
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Occupation *
+                        Мэргэжил *
                       </label>
                       <Select
                         value={formData.occupation}
@@ -275,7 +321,7 @@ export const CitizenInsurancePage = () => {
                         }
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select" />
+                          <Select.Value placeholder="Сонгох" />
                         </Select.Trigger>
                         <Select.Content>
                           {occupationOptions.map((option) => (
@@ -292,7 +338,7 @@ export const CitizenInsurancePage = () => {
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Health Condition *
+                        Эрүүл мэндийн байдал *
                       </label>
                       <Select
                         value={formData.healthCondition}
@@ -301,7 +347,7 @@ export const CitizenInsurancePage = () => {
                         }
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select" />
+                          <Select.Value placeholder="Сонгох" />
                         </Select.Trigger>
                         <Select.Content>
                           {healthConditionOptions.map((option) => (
@@ -318,7 +364,7 @@ export const CitizenInsurancePage = () => {
 
                     <div className="col-span-2">
                       <label className="block text-sm font-medium mb-2">
-                        Chronic Diseases
+                        Архаг өвчин
                       </label>
                       <Input
                         value={formData.chronicDiseases}
@@ -328,7 +374,7 @@ export const CitizenInsurancePage = () => {
                             chronicDiseases: e.target.value,
                           })
                         }
-                        placeholder="High blood pressure, diabetes, etc..."
+                        placeholder="Цусны даралт, чихрийн шижин гэх мэт..."
                       />
                     </div>
                   </div>
@@ -342,7 +388,7 @@ export const CitizenInsurancePage = () => {
                           setFormData({ ...formData, smoker: e.target.checked })
                         }
                       />
-                      <span className="text-sm">Smoker</span>
+                      <span className="text-sm">Тамхи татдаг</span>
                     </label>
                   </div>
                 </div>
@@ -352,13 +398,13 @@ export const CitizenInsurancePage = () => {
                 {/* Emergency Contact */}
                 <div>
                   <h3 className="text-lg font-semibold mb-4">
-                    Emergency Contact
+                    Яаралтай холбоо барих
                   </h3>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Name *
+                        Нэр *
                       </label>
                       <Input
                         value={formData.emergencyContact}
@@ -368,14 +414,14 @@ export const CitizenInsurancePage = () => {
                             emergencyContact: e.target.value,
                           })
                         }
-                        placeholder="Full name"
+                        placeholder="Овог нэр"
                         required
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Phone *
+                        Утас *
                       </label>
                       <Input
                         value={formData.emergencyPhone}
@@ -396,12 +442,12 @@ export const CitizenInsurancePage = () => {
 
                 {/* Beneficiary */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Beneficiary</h3>
+                  <h3 className="text-lg font-semibold mb-4">Хүлээн авагч</h3>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Beneficiary Name *
+                        Хүлээн авагчийн нэр *
                       </label>
                       <Input
                         value={formData.beneficiaryName}
@@ -411,14 +457,14 @@ export const CitizenInsurancePage = () => {
                             beneficiaryName: e.target.value,
                           })
                         }
-                        placeholder="Full name"
+                        placeholder="Овог нэр"
                         required
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Relationship *
+                        Хамаарал *
                       </label>
                       <Input
                         value={formData.beneficiaryRelation}
@@ -428,14 +474,14 @@ export const CitizenInsurancePage = () => {
                             beneficiaryRelation: e.target.value,
                           })
                         }
-                        placeholder="Wife, Husband, Child, etc."
+                        placeholder="Эхнэр, Нөхөр, Хүүхэд гэх мэт"
                         required
                       />
                     </div>
 
                     <div className="col-span-2">
                       <label className="block text-sm font-medium mb-2">
-                        Coverage Amount ($) *
+                        Хамгаалалтын дүн (₮) *
                       </label>
                       <Input
                         type="number"
@@ -460,13 +506,13 @@ export const CitizenInsurancePage = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <IconCalendar size={20} />
-                    Insurance Period
+                    Даатгалын хугацаа
                   </h3>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Start Date *
+                        Эхлэх огноо *
                       </label>
                       <DatePicker
                         value={formData.startDate}
@@ -479,7 +525,7 @@ export const CitizenInsurancePage = () => {
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        End Date *
+                        Дуусах огноо *
                       </label>
                       <DatePicker
                         value={formData.endDate}
@@ -495,15 +541,48 @@ export const CitizenInsurancePage = () => {
                 <Separator />
 
                 {/* Payment */}
-                <PaymentSection
-                  paymentKind={formData.paymentKind}
-                  onPaymentKindChange={(value) =>
-                    setFormData({ ...formData, paymentKind: value })
-                  }
-                />
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <IconCurrencyTugrik size={20} />
+                    Төлбөрийн мэдээлэл
+                  </h3>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Төлбөрийн хэлбэр *
+                    </label>
+                    <Select
+                      value={formData.paymentKind}
+                      onValueChange={(value: string) =>
+                        setFormData({ ...formData, paymentKind: value })
+                      }
+                    >
+                      <Select.Trigger>
+                        <Select.Value placeholder="Сонгох" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value="cash">Бэлэн мөнгө</Select.Item>
+                        <Select.Item value="qpay">QPay</Select.Item>
+                      </Select.Content>
+                    </Select>
+                  </div>
+                </div>
 
                 {/* Submit Button */}
-                <FormSubmitButtons creating={creating} success={success} />
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    asChild
+                    disabled={creating}
+                  >
+                    <Link to="/insurance">Болих</Link>
+                  </Button>
+                  <Button type="submit" disabled={creating || success}>
+                    <IconPlus size={16} />
+                    {creating ? 'Үүсгэж байна...' : 'Гэрээ үүсгэх'}
+                  </Button>
+                </div>
               </form>
             </Card>
           </div>

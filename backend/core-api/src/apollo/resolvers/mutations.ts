@@ -11,13 +11,15 @@ import { organizationConfigMutations } from '@/organization/settings/graphql/con
 import { favoriteMutations } from '@/organization/settings/graphql/favorites/mutations';
 import { structureMutations } from '@/organization/structure/graphql/resolvers/mutations';
 import { userMutations } from '@/organization/team-member/graphql/mutations';
-import { permissionMutations } from '~/modules/permissions/graphql/resolvers/mutations/permission';
+import { permissionMutations } from '@/permissions/graphql/resolvers/mutations/permission';
+import { usersGroupMutations } from '@/permissions/graphql/resolvers/mutations/userGroup';
 import { productMutations } from '@/products/graphql/resolvers/mutations';
 import { relationsMutations } from '@/relations/graphql/mutations';
 import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
 import { tagMutations } from '@/tags/graphql/mutations';
 import { broadcastMutations } from '~/modules/broadcast/graphql/resolvers/mutations';
 import { notificationMutations } from '~/modules/notifications/graphql/resolver/mutations';
+import { roleMutations } from '~/modules/permissions/graphql/resolvers/mutations/role';
 import { propertiesMutations } from '~/modules/properties/graphql/resolvers/mutations';
 import { clientPortalMutations } from '@/clientportal/graphql/resolvers/mutations/clientPortal';
 import {
@@ -27,7 +29,6 @@ import {
 import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUser';
 import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/comment';
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
-import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
 
 export const mutations = {
   ...contactMutations,
@@ -45,10 +46,12 @@ export const mutations = {
   ...brandMutations,
   ...exchangeRateMutations,
   ...permissionMutations,
+  ...usersGroupMutations,
   ...documentMutations,
   ...automationMutations,
   ...notificationMutations,
   ...internalNoteMutations,
+  ...roleMutations,
   ...broadcastMutations,
   ...propertiesMutations,
   ...clientPortalMutations,
@@ -57,5 +60,4 @@ export const mutations = {
   ...cpUserMutations,
   ...commentMutations,
   ...cpNotificationMutations,
-  ...bundleMutations
 };

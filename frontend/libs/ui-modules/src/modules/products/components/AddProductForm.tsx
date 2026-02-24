@@ -4,7 +4,6 @@ import {
   PRODUCT_FORM_SCHEMA,
 } from '../constants/addProductFormSchema';
 import { useAddProduct } from '../hooks/useProductsAdd';
-import { useUom } from '../hooks/useUom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IProductFormValues } from '../types';
 import {
@@ -29,7 +28,7 @@ import {
   useRemoveFile,
   useQueryState,
 } from 'erxes-ui';
-import { SelectUOMWithName } from './SelectUOMWithName';
+import { SelectUOM } from './SelectUOM';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
 import { SelectCategory } from '../categories';
 import { SelectProductType } from './SelectProductType';
@@ -71,13 +70,6 @@ export function AddProductForm({
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
 }) {
   const { productsAdd, loading } = useAddProduct();
-  const { uoms } = useUom();
-
-  const uomIdToName = useMemo(() => {
-    const map = new Map<string, string>();
-    uoms.forEach((uom) => map.set(uom._id, uom.name));
-    return map;
-  }, [uoms]);
 
   const form = useForm<IProductFormValues>({
     resolver: zodResolver(PRODUCT_FORM_SCHEMA),
@@ -114,32 +106,22 @@ export function AddProductForm({
         typeof value === 'object' &&
         value !== null
       ) {
-        const customFieldsObj = Object.entries(value)
+        const customFieldsArray = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .reduce((acc, [fieldId, val]) => {
-            acc[fieldId] = val;
-            return acc;
-          }, {} as Record<string, unknown>);
-        if (Object.keys(customFieldsObj).length > 0) {
-          cleanData['propertiesData'] = customFieldsObj;
+          .map(([fieldId, val]) => ({
+            field: fieldId,
+            value: val,
+          }));
+        if (customFieldsArray.length > 0) {
+          cleanData[key] = customFieldsArray;
         }
-        return;
-      }
-
-      if (key === 'uom') {
-        const uomName = uomIdToName.get(value as string);
-        cleanData[key] = uomName || value;
         return;
       }
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
           const { _id, ...rest } = subUom;
-          const mappedUom = uomIdToName.get(rest.uom);
-          return {
-            ...rest,
-            uom: mappedUom || rest.uom,
-          };
+          return rest;
         });
         return;
       }
@@ -644,9 +626,7 @@ function AddProductFormFieldsDetail({
                 name="name"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
-                      {t('name')} <span className="text-destructive">*</span>
-                    </Form.Label>
+                    <Form.Label>{t('name')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -659,9 +639,7 @@ function AddProductFormFieldsDetail({
                 name="code"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
-                      {t('code')} <span className="text-destructive">*</span>
-                    </Form.Label>
+                    <Form.Label>{t('code')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -702,10 +680,7 @@ function AddProductFormFieldsDetail({
                 name="categoryId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
-                      {t('category')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
+                    <Form.Label>{t('category')}</Form.Label>
                     <Form.Control>
                       <SelectCategory
                         selected={field.value}
@@ -721,10 +696,7 @@ function AddProductFormFieldsDetail({
                 name="unitPrice"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
-                      {t('unit-price')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
+                    <Form.Label>{t('unit-price')}</Form.Label>
                     <Form.Control>
                       <CurrencyField.ValueInput
                         value={field.value}
@@ -740,11 +712,8 @@ function AddProductFormFieldsDetail({
                 name="uom"
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
-                    <Form.Label>
-                      {t('unit-of-measure')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <SelectUOMWithName
+                    <Form.Label>{t('unit-of-measure')}</Form.Label>
+                    <SelectUOM
                       value={field.value || ''}
                       onValueChange={field.onChange}
                       inForm

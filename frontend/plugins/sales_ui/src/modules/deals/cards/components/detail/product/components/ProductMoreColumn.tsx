@@ -1,59 +1,35 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, useConfirm } from 'erxes-ui';
+import { atom, useSetAtom } from 'jotai';
 
 import { IProductData } from 'ui-modules';
-import { IconTrash } from '@tabler/icons-react';
-import { atom } from 'jotai';
-import { useRemoveProducts } from '../hooks/useRemoveProduct';
+import { RecordTable } from 'erxes-ui';
+import { useSearchParams } from 'react-router-dom';
 
 export const renderingProductDetailAtom = atom(false);
-const confirmOptions = { confirmationValue: 'delete' };
 
 export const ProductMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IProductData, unknown>;
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const setRenderingProductDetail = useSetAtom(renderingProductDetailAtom);
   const { _id } = cell.row.original;
-  const { confirm } = useConfirm();
-  const { removeProducts, loading: removeLoading } = useRemoveProducts();
 
-  const onRemove = () => {
-    confirm({
-      message: 'Are you sure you want to remove the selected?',
-      options: confirmOptions,
-    }).then(async () => {
-      try {
-        removeProducts({
-          variables: {
-            productIds: [_id],
-          },
-        });
-      } catch (e) {
-        console.error(e.message);
-      }
-    });
+  const setOpen = (productId: string) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('product_id', productId);
+    setSearchParams(newSearchParams);
   };
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item
-              disabled={removeLoading}
-              value="remove"
-              onSelect={onRemove}
-            >
-              <IconTrash /> Delete
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <RecordTable.MoreButton
+      className="w-full h-full"
+      onClick={() => {
+        setOpen(_id);
+        setRenderingProductDetail(false);
+      }}
+    />
   );
 };
 

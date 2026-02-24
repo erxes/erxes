@@ -31,10 +31,6 @@ export const ProductDetailFooter: React.FC<ProductDetailFooterProps> = ({
     if (onSave) onSave();
   };
 
-  if (activeTab === 'properties') {
-    return null;
-  }
-
   return (
     <div className="flex justify-end p-4 space-x-2 border-t bg-background">
       <Button variant="outline" onClick={handleCancel} type="button">
@@ -46,7 +42,9 @@ export const ProductDetailFooter: React.FC<ProductDetailFooterProps> = ({
         onClick={handleSaveClick}
         variant="default"
       >
-        {editLoading ? 'Saving...' : 'Save Details'}
+        {editLoading
+          ? 'Saving...'
+          : `Save ${activeTab === 'overview' ? 'Details' : 'Properties'}`}
       </Button>
     </div>
   );

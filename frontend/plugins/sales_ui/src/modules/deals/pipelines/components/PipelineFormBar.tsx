@@ -2,13 +2,19 @@ import {
   Button,
   Form,
   Sheet,
-  useConfirm,
+  Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
   useToast,
+  Input,
+  Dialog,
 } from 'erxes-ui';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
+import {
+  IconGitBranch,
+  IconPlus,
+  IconAlertTriangle,
+} from '@tabler/icons-react';
 import { PipelineHotKeyScope, TPipelineForm } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -95,7 +101,6 @@ export function PipelineFormBar() {
 
   const { addPipeline, loading: addLoading } = usePipelineAdd();
   const { pipelineEdit, loading: editLoading } = usePipelineEdit();
-  const { confirm } = useConfirm();
 
   const submitHandler: SubmitHandler<TPipelineForm> = useCallback(
     async (data) => {
@@ -104,29 +109,24 @@ export function PipelineFormBar() {
         ? 'Pipeline updated successfully'
         : 'Pipeline added successfully';
 
-      const { paymentTypes, erxesAppToken, paymentIds, ...rest } = data;
+      const { otherPayments, token, payment, ...rest } = data;
 
       const variables = {
         ...(pipelineId && { _id: pipelineId }),
         ...rest,
-        paymentTypes: paymentTypes || [],
-        erxesAppToken: erxesAppToken || '',
-        paymentIds: paymentIds || [],
+        paymentTypes: otherPayments || [],
+        erxesAppToken: token || '',
+        paymentIds: payment ? [payment] : [],
       };
 
-      confirm({
-        message: `Are you absolutely sure to continue?`,
-      }).then(() => {
-        managePipeline({
-          variables,
-          onCompleted: () => {
-            toast({ title: successTitle });
-            onClose();
-          },
-        });
+      managePipeline({
+        variables,
+        onCompleted: () => {
+          toast({ title: successTitle });
+          onClose();
+        },
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [addPipeline, pipelineEdit, pipelineId, toast, onClose],
   );
 
@@ -149,7 +149,20 @@ export function PipelineFormBar() {
   );
 
   const title = pipelineId ? 'Edit Pipeline' : 'Add Pipeline';
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
 
+  const handleConfirm = () => {
+    setShowConfirmDialog(true);
+    setConfirmText('');
+  };
+
+  const handleConfirmSubmit = () => {
+    if (confirmText.toLowerCase() === 'update') {
+      setShowConfirmDialog(false);
+      handleSubmit(submitHandler)();
+    }
+  };
   useEffect(() => {
     if (pipelineId && pipelineDetail) {
       reset({
@@ -233,7 +246,11 @@ export function PipelineFormBar() {
                 <Button variant={'ghost'} onClick={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={addLoading || editLoading}>
+                <Button
+                  type="button"
+                  disabled={addLoading || editLoading}
+                  onClick={handleConfirm}
+                >
                   {pipelineId ? 'Update' : 'Create'}
                 </Button>
               </Sheet.Footer>
@@ -241,6 +258,52 @@ export function PipelineFormBar() {
           </Form>
         </Sheet.View>
       </Sheet>
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <Dialog.Content className="sm:max-w-[425px]">
+          <Dialog.Header>
+            <Dialog.Title className="flex items-center gap-2">
+              <IconAlertTriangle className="text-yellow-500" />
+              Confirm {pipelineId ? 'Update' : 'Create'}
+            </Dialog.Title>
+            <Dialog.Description>
+              This will permanently {pipelineId ? 'update' : 'create'} the
+              pipeline. Are you absolutely sure?
+            </Dialog.Description>
+          </Dialog.Header>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground mb-2">
+              Type "update" in the field below to confirm:
+            </p>
+            <Input
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              onKeyDown={(e) => {
+                if (
+                  e.key === 'Enter' &&
+                  confirmText.toLowerCase() === 'update'
+                ) {
+                  e.preventDefault();
+                  handleConfirmSubmit();
+                }
+              }}
+            />
+          </div>
+          <Dialog.Footer>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmSubmit}
+              disabled={confirmText.toLowerCase() !== 'update'}
+            >
+              {pipelineId ? 'Update' : 'Create'}
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </div>
   );
 }

@@ -21,7 +21,6 @@ import {
   Label,
   Select,
   Input,
-  Skeleton,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import {
@@ -54,7 +53,6 @@ export const VendorDetailPage = () => {
   const [vendorDurationFields, setVendorDurationFields] = useState<
     { duration: string; percentage: number }[]
   >([]);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
 
   const handleEdit = (user: VendorUser) => {
     setEditingUser(user);
@@ -82,49 +80,7 @@ export const VendorDetailPage = () => {
     }
   };
 
-  const handleRemoveProduct = async (productId: string) => {
-    if (confirm('Remove this product?')) {
-      try {
-        await removeProductFromVendor({
-          variables: {
-            vendorId: id!,
-            productId,
-          },
-        });
-      } catch (error) {
-        console.error('Error removing product:', error);
-      }
-    }
-  };
-
-  const handleEditProduct = (vp: any) => {
-    setEditingProduct(vp);
-    setSelectedProductId(vp.product.id);
-
-    // Load existing pricing override
-    if (vp.pricingOverride) {
-      setVendorPercentage(vp.pricingOverride.percentage);
-
-      if (vp.pricingOverride.percentageByDuration) {
-        const durationFields = Object.entries(
-          vp.pricingOverride.percentageByDuration,
-        ).map(([duration, percentage]) => ({
-          duration,
-          percentage: percentage as number,
-        }));
-        setVendorDurationFields(durationFields);
-      } else {
-        setVendorDurationFields([]);
-      }
-    } else {
-      setVendorPercentage(undefined);
-      setVendorDurationFields([]);
-    }
-
-    setIsProductDialogOpen(true);
-  };
-
-  const handleSaveProduct = async () => {
+  const handleAddProduct = async () => {
     if (!selectedProductId) return;
 
     try {
@@ -145,16 +101,6 @@ export const VendorDetailPage = () => {
         pricingOverride = { percentage: vendorPercentage };
       }
 
-      // If editing, remove old product first then add with new settings
-      if (editingProduct) {
-        await removeProductFromVendor({
-          variables: {
-            vendorId: id!,
-            productId: editingProduct.product.id,
-          },
-        });
-      }
-
       await addProductToVendor({
         variables: {
           vendorId: id!,
@@ -163,18 +109,28 @@ export const VendorDetailPage = () => {
         },
       });
 
-      closeProductDialog();
+      setIsProductDialogOpen(false);
+      setSelectedProductId('');
+      setVendorPercentage(undefined);
+      setVendorDurationFields([]);
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('Error adding product:', error);
     }
   };
 
-  const closeProductDialog = () => {
-    setIsProductDialogOpen(false);
-    setSelectedProductId('');
-    setVendorPercentage(undefined);
-    setVendorDurationFields([]);
-    setEditingProduct(null);
+  const handleRemoveProduct = async (productId: string) => {
+    if (confirm('Remove this product?')) {
+      try {
+        await removeProductFromVendor({
+          variables: {
+            vendorId: id!,
+            productId,
+          },
+        });
+      } catch (error) {
+        console.error('Error removing product:', error);
+      }
+    }
   };
 
   const availableProducts = insuranceProducts.filter(
@@ -183,23 +139,7 @@ export const VendorDetailPage = () => {
   );
 
   if (vendorLoading) {
-    return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-14 w-14 rounded-lg" />
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-        </div>
-        <Skeleton className="h-40 w-full" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
-      </div>
-    );
+    return <div className="p-6">Loading vendor...</div>;
   }
 
   if (!vendor) {
@@ -214,7 +154,7 @@ export const VendorDetailPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance/products">
+                  <Link to="/insurance">
                     <IconSandbox />
                     Insurance
                   </Link>
@@ -278,31 +218,15 @@ export const VendorDetailPage = () => {
                     >
                       <div className="flex items-center gap-3">
                         <IconPackage size={20} className="text-blue-600" />
-                        <div>
-                          <p className="font-medium">{vp.product.name}</p>
-                          {vp.pricingOverride?.percentage && (
-                            <p className="text-xs text-muted-foreground">
-                              Rate: {vp.pricingOverride.percentage}%
-                            </p>
-                          )}
-                        </div>
+                        <p className="font-medium">{vp.product.name}</p>
                       </div>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditProduct(vp)}
-                        >
-                          <IconEdit size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveProduct(vp.product.id)}
-                        >
-                          <IconTrash size={16} />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveProduct(vp.product.id)}
+                      >
+                        <IconTrash size={16} />
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -320,28 +244,7 @@ export const VendorDetailPage = () => {
             </div>
 
             {usersLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3].map((i) => (
-                  <Card key={i} className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-32" />
-                          <Skeleton className="h-5 w-16" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-40" />
-                        <Skeleton className="h-4 w-28" />
-                      </div>
-                      <div className="pt-4 border-t flex gap-2">
-                        <Skeleton className="h-8 flex-1" />
-                        <Skeleton className="h-8 w-10" />
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+              <p className="text-muted-foreground">Loading users...</p>
             ) : vendorUsers.length === 0 ? (
               <Card className="p-12 text-center">
                 <IconUsers size={64} className="mx-auto mb-4 opacity-50" />
@@ -427,44 +330,36 @@ export const VendorDetailPage = () => {
         onSuccess={handleSuccess}
       />
 
-      <Dialog open={isProductDialogOpen} onOpenChange={closeProductDialog}>
+      <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
         <Dialog.Content className="max-w-md">
           <Dialog.Header>
-            <Dialog.Title>
-              {editingProduct ? 'Edit Product' : 'Add Product'}
-            </Dialog.Title>
+            <Dialog.Title>Add Product</Dialog.Title>
           </Dialog.Header>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="product">Select Product *</Label>
-              {editingProduct ? (
-                <Input
-                  id="product"
-                  value={editingProduct.product.name}
-                  disabled
-                />
-              ) : (
-                <Select
-                  value={selectedProductId}
-                  onValueChange={setSelectedProductId}
-                >
-                  <Select.Trigger id="product">
-                    <Select.Value placeholder="Select a product" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {availableProducts.map((product) => (
-                      <Select.Item key={product.id} value={product.id}>
-                        {product.name}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              )}
+              <Select
+                value={selectedProductId}
+                onValueChange={setSelectedProductId}
+              >
+                <Select.Trigger id="product">
+                  <Select.Value placeholder="Select a product" />
+                </Select.Trigger>
+                <Select.Content>
+                  {availableProducts.map((product) => (
+                    <Select.Item key={product.id} value={product.id}>
+                      {product.name}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="vendorPercentage">Base Rate (%) - Optional</Label>
+              <Label htmlFor="vendorPercentage">
+                Үндсэн хувь (%) - Сонголттой
+              </Label>
               <Input
                 id="vendorPercentage"
                 type="number"
@@ -475,16 +370,16 @@ export const VendorDetailPage = () => {
                   const value = e.target.value;
                   setVendorPercentage(value ? parseFloat(value) : undefined);
                 }}
-                placeholder="Uses product's rate"
+                placeholder="Product-ийн хувийг ашиглана"
               />
               <p className="text-xs text-muted-foreground">
-                Leave empty to use the product's base rate.
+                Хоосон орхивол product-ийн үндсэн хувийг ашиглана.
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm">Rate by Duration (optional)</Label>
+                <Label className="text-sm">Хугацаагаар хувь (сонголттой)</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -496,21 +391,21 @@ export const VendorDetailPage = () => {
                     ]);
                   }}
                 >
-                  Add Duration
+                  Хугацаа нэмэх
                 </Button>
               </div>
 
               {vendorDurationFields.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Click "Add Duration" to set different rates by duration for
-                  this vendor
+                  Vendor-д хугацаагаар өөр хувь тохируулах бол "Хугацаа нэмэх"
+                  дарна уу
                 </p>
               ) : (
                 <div className="space-y-2">
                   {vendorDurationFields.map((field, index) => (
                     <div key={index} className="flex gap-2 items-end">
                       <div className="flex-1">
-                        <Label className="text-xs">Duration</Label>
+                        <Label className="text-xs">Хугацаа</Label>
                         <Input
                           value={field.duration}
                           onChange={(e) => {
@@ -525,7 +420,7 @@ export const VendorDetailPage = () => {
                         />
                       </div>
                       <div className="w-32">
-                        <Label className="text-xs">Rate (%)</Label>
+                        <Label className="text-xs">Хувь (%)</Label>
                         <Input
                           type="number"
                           min="0"
@@ -552,15 +447,15 @@ export const VendorDetailPage = () => {
                           );
                         }}
                       >
-                        Remove
+                        Устгах
                       </Button>
                     </div>
                   ))}
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
-                Example: "12months", "24months", etc. Duration-specific rates
-                for this vendor.
+                Жишээ: "12months", "24months" гэх мэт. Энэ vendor-д зориулсан
+                хугацаагаар хувь.
               </p>
             </div>
           </div>
@@ -569,16 +464,16 @@ export const VendorDetailPage = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={closeProductDialog}
+              onClick={() => setIsProductDialogOpen(false)}
             >
               Cancel
             </Button>
             <Button
               type="button"
-              onClick={handleSaveProduct}
+              onClick={handleAddProduct}
               disabled={!selectedProductId}
             >
-              {editingProduct ? 'Save' : 'Add'}
+              Add
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

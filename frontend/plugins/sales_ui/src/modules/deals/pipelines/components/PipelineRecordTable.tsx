@@ -11,6 +11,7 @@ import {
   RelativeDateDisplay,
   useConfirm,
   useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
@@ -228,8 +229,8 @@ export const pipelinesColumns: ColumnDef<
         status === 'active'
           ? 'success'
           : status === 'archived'
-          ? 'warning'
-          : 'default';
+            ? 'warning'
+            : 'default';
 
       return (
         <RecordTableInlineCell>

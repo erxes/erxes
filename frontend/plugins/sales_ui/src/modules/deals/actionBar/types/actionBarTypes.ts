@@ -1,4 +1,4 @@
-import { Icon } from "@tabler/icons-react";
+import { Icon } from '@tabler/icons-react';
 
 export interface FilterItem {
   key: string;
@@ -23,7 +23,6 @@ export type SalesFilterState = {
   tagIds?: string[] | null;
   awaiting?: boolean | null;
   advanced?: Record<string, any> | null;
-  productId?: string | string[] | null;
 };
 
 export type ProductFilterState = {

@@ -4,6 +4,7 @@ import {
   IconPackage,
   IconAlertTriangle,
   IconUsers,
+  IconFileText,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 
@@ -16,16 +17,6 @@ export const InsuranceNavigation = () => {
         icon={IconShieldCheck}
       />
       <NavigationMenuLinkItem
-        name="Products"
-        path="/insurance/products"
-        icon={IconPackage}
-      />
-      <NavigationMenuLinkItem
-        name="Risk Types"
-        path="/insurance/risks"
-        icon={IconAlertTriangle}
-      />
-      <NavigationMenuLinkItem
         name="Vendors"
         path="/insurance/vendors"
         icon={IconBuilding}
@@ -36,14 +27,24 @@ export const InsuranceNavigation = () => {
         icon={IconUsers}
       />
       <NavigationMenuLinkItem
-        name="Customers"
-        path="/insurance/customers"
-        icon={IconUsers}
+        name="Products"
+        path="/insurance/products"
+        icon={IconPackage}
+      />
+      <NavigationMenuLinkItem
+        name="Risk Types"
+        path="/insurance/risks"
+        icon={IconAlertTriangle}
       />
       <NavigationMenuLinkItem
         name="Contracts"
         path="/insurance/contracts"
         icon={IconPackage}
+      />
+      <NavigationMenuLinkItem
+        name="PDF"
+        path="/insurance/contract-templates"
+        icon={IconFileText}
       />
     </div>
   );

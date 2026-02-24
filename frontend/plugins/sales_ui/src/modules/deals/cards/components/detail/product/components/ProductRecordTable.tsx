@@ -54,7 +54,7 @@ export const ProductsRecordTable = ({
       key={showAdvancedView ? 'advanced' : 'basic'}
       columns={columns}
       data={products || []}
-      className="my-3"
+      className="m-3"
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.Scroll>

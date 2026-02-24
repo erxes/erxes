@@ -18,7 +18,7 @@ export const stringToHslColor = (
   return `hsl(${h}, ${saturation}%, ${lightness}%)`;
 };
 
-export const hexToOklch = (hex: string, onlyValue = false): string => {
+export const hexToOklch = (hex: string): string => {
   let cleanHex = hex.replace('#', '');
 
   if (cleanHex.length === 3) {
@@ -59,10 +59,6 @@ export const hexToOklch = (hex: string, onlyValue = false): string => {
   const C = Math.sqrt(a * a + b_ * b_);
   let h = Math.atan2(b_, a) * (180 / Math.PI);
   if (h < 0) h += 360;
-
-  if (onlyValue) {
-    return `${L} ${C} ${h}`;
-  }
 
   return `oklch(${L} ${C} ${h})`;
 };

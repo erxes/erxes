@@ -36,7 +36,6 @@ export interface IUser extends IUserInline {
   status: EStatus;
   employeeId: string;
   isActive: boolean;
-  isOwner?: boolean;
   positionIds: string[];
 
   links?: object;
@@ -49,7 +48,6 @@ export interface IUser extends IUserInline {
 export interface IUserDetail extends IUser {
   branchIds?: string[];
   departmentIds?: string[];
-  permissionGroupIds?: string[];
 }
 
 export interface IUserEntry {

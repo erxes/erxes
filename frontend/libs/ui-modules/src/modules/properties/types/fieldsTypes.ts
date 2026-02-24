@@ -5,7 +5,6 @@ export type IField = {
   options?: Array<{ label: string; value: string }>;
   type?: string;
   group?: string;
-  groupId?: string;
   logics?: Record<string, any>;
   relationType?: string;
   multiple?: boolean;

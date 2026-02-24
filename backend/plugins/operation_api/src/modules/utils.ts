@@ -1,4 +1,5 @@
 import { IModels } from '~/connectionResolvers';
+import { TeamMemberRoles } from '~/modules/team/@types/team';
 
 export const checkUserRole = async ({
   models,

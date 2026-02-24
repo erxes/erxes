@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 export const usePipelineForm = () => {
   const methods = useForm<TPipelineForm>({
-    mode: 'onSubmit',
+    mode: 'onBlur',
     defaultValues: {
       name: '',
       boardId: '',

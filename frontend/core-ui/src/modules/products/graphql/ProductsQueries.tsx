@@ -93,27 +93,9 @@ const productCategoryDetail = gql`
   query productCategoryDetail($_id: String) {
     productCategoryDetail(_id: $_id) {
       _id
-      name
-      description
-      meta
-      parentId
       code
-      order
-      scopeBrandIds
-      attachment {
-        url
-        name
-        size
-        type
-        __typename
-      }
-      status
-      isRoot
+      name
       productCount
-      maskType
-      mask
-      isSimilarity
-      similarities
       __typename
     }
   }

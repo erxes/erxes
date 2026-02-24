@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
 import {
   getSubdomain,
+  PERMISSION_ROLES,
   redis,
   setClientPortalHeader,
   setCPUserHeader,
@@ -238,6 +239,19 @@ export default async function userMiddleware(
       return next();
     }
 
+    let userRole = await models.Roles.findOne({ userId: userDoc._id }).lean();
+
+    if (!userRole) {
+      const role = userDoc.isOwner
+        ? PERMISSION_ROLES.OWNER
+        : PERMISSION_ROLES.MEMBER;
+
+      userRole = await models.Roles.create({
+        userId: userDoc._id,
+        role,
+      });
+    }
+
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
 
     // invalid token access.
@@ -246,7 +260,7 @@ export default async function userMiddleware(
     }
 
     // save user in request
-    req.user = { ...userDoc };
+    req.user = { ...userDoc, role: userRole.role };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
 

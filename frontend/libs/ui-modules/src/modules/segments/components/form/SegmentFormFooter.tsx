@@ -36,7 +36,7 @@ export const SegmentFormFooter = ({
           </div>
         </Sheet.Footer>
       )}
-      <Sheet.Footer className="px-2">
+      <Sheet.Footer>
         <Button
           variant="secondary"
           onClick={handleCalculateStats}
