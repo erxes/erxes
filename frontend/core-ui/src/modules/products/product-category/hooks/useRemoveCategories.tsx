@@ -1,6 +1,7 @@
 import { productsMutations, productsQueries } from '@/products/graphql';
 import { OperationVariables, useMutation, ApolloCache } from '@apollo/client';
 import { IProductCategory } from 'ui-modules';
+import { useState } from 'react';
 
 const normalizeCategoryIds = (categoryIds: string | string[]) => {
   const rawIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
@@ -51,9 +52,8 @@ interface RemoveCategoryOptions {
 }
 
 export const useRemoveCategories = () => {
-  const [_removeCategory, { loading }] = useMutation(
-    productsMutations.categoryRemove,
-  );
+  const [_removeCategory] = useMutation(productsMutations.categoryRemove);
+  const [isRemoving, setIsRemoving] = useState<boolean>(false);
 
   const removeCategory = async (
     categoryIds: string | string[],
@@ -63,36 +63,49 @@ export const useRemoveCategories = () => {
 
     const { variables, onCompleted, onError } = options || {};
 
-    const succeededIds: string[] = [];
-    const errors: RemoveError[] = [];
+    setIsRemoving(true);
 
-    for (const id of ids) {
-      try {
-        await _removeCategory({
-          variables: {
-            ...(variables as OperationVariables),
-            _id: id,
-          },
-          update: (cache) => applyCacheCategoryRemoval(cache, [id]),
-        });
-        succeededIds.push(id);
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        errors.push({ message: errorMessage });
-      }
-    }
+    try {
+      const results = await Promise.allSettled(
+        ids.map((id) =>
+          _removeCategory({
+            variables: {
+              ...(variables as OperationVariables),
+              _id: id,
+            },
+            update: (cache) => applyCacheCategoryRemoval(cache, [id]),
+          }),
+        ),
+      );
 
-    if (errors.length === 0) {
-      if (typeof onCompleted === 'function') {
-        onCompleted(succeededIds);
+      const succeededIds: string[] = [];
+      const errors: RemoveError[] = [];
+
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          succeededIds.push(ids[index]);
+        } else {
+          const errorMessage =
+            result.reason instanceof Error
+              ? result.reason.message
+              : 'Unknown error';
+          errors.push({ message: errorMessage });
+        }
+      });
+
+      if (errors.length === 0) {
+        if (typeof onCompleted === 'function') {
+          onCompleted(succeededIds);
+        }
+      } else {
+        if (typeof onError === 'function') {
+          onError({ succeededIds, errors });
+        }
       }
-    } else {
-      if (typeof onError === 'function') {
-        onError({ succeededIds, errors });
-      }
+    } finally {
+      setIsRemoving(false);
     }
   };
 
-  return { removeCategory, loading };
+  return { removeCategory, loading: isRemoving };
 };
