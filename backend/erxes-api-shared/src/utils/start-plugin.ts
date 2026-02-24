@@ -275,13 +275,8 @@ export async function startPlugin(
   );
 
   if (configs.meta) {
-    const {
-      automations,
-      segments,
-      afterProcess,
-      notifications,
-      payments,
-    } = configs.meta || {};
+    const { automations, segments, afterProcess, notifications, payments } =
+      configs.meta || {};
 
     if (automations) {
       await startAutomations(app, configs.name, automations);

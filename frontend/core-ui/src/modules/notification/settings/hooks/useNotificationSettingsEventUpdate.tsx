@@ -25,7 +25,7 @@ export const useNotificationSettingsEventUpdate = () => {
   ) => {
     return mutate({
       variables: { input },
-      refetchQueries: [NOTIFICATION_SETTINGS]
+      refetchQueries: [NOTIFICATION_SETTINGS],
     });
   };
 

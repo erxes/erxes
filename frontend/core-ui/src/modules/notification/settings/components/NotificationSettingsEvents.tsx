@@ -8,7 +8,9 @@ export const NotificationSettingsEvents = () => {
   return (
     <div className="space-y-0.5 px-4 pb-3 transition-opacity duration-200">
       <div className="mb-2 bg-border/60 h-px" />
-      <div className={`${plugin.enabled && !module.enabled ? 'pointer-events-none opacity-60' : ''}`}>
+      <div
+        className={`${plugin.enabled && !module.enabled ? 'pointer-events-none opacity-60' : ''}`}
+      >
         {events.map((event) => (
           <div
             key={event.name}

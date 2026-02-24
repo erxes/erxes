@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { NOTIFICATION_SETTINGS } from '../graphql/notificationSettingsQueries';
 
-
 interface NotificationChannelMetadata {
   [key: string]: unknown;
 }
@@ -29,11 +28,13 @@ type NotificationSettingsResponse = {
 };
 
 export const useNotificationSettings = () => {
-  const { data, loading } =
-    useQuery<NotificationSettingsResponse>(NOTIFICATION_SETTINGS);
+  const { data, loading } = useQuery<NotificationSettingsResponse>(
+    NOTIFICATION_SETTINGS,
+  );
 
   return {
-    notificationSettings: data?.notificationSettings ?? {} as NotificationSetting,
+    notificationSettings:
+      data?.notificationSettings ?? ({} as NotificationSetting),
     loading,
   };
 };
