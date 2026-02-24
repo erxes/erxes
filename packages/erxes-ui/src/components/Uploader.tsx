@@ -130,7 +130,7 @@ class Uploader extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      attachments: props.defaultFileList || [],
+      attachments: (props.defaultFileList || []).filter(Boolean),
       loading: false,
     };
   }
@@ -140,7 +140,7 @@ class Uploader extends React.Component<Props, State> {
       JSON.stringify(nextProps.defaultFileList) !==
       JSON.stringify(this.props.defaultFileList)
     ) {
-      this.setState({ attachments: nextProps.defaultFileList });
+      this.setState({ attachments: (nextProps.defaultFileList || []).filter(Boolean) });
     }
   }
 
