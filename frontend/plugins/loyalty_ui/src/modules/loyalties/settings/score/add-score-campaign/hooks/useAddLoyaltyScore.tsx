@@ -10,6 +10,7 @@ export interface AddScoreResult {
 
 export interface AddScoreVariables {
   name: string;
+  serviceName: string;
   restrictions: {
     productCategoryIds?: string;
     excludeProductCategoryIds?: string;
