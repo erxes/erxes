@@ -1,4 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS, GQL_OFFSET_PARAM_DEFS } from 'erxes-api-shared/utils';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
 
 export const types = `
     type FieldGroup {
