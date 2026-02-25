@@ -11,9 +11,9 @@ export const PaymentSettingsNavigation = () => {
             path="/methods"
             name="Payment"
           />
-           <SettingsNavigationMenuLinkItem
+          <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
-            path="invoices" 
+            path="invoices"
             name="Invoices"
           />
         </Sidebar.Menu>

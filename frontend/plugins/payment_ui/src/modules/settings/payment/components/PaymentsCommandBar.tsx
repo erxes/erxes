@@ -1,5 +1,3 @@
-
-
 import { usePaymentRemove } from '@/payment/hooks/usePaymentRemove';
 import { IconTrash } from '@tabler/icons-react';
 import {

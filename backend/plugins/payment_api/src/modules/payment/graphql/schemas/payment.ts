@@ -33,7 +33,7 @@ export const inputs = `
     status: PaymentMethodStatus
     config: JSON
   }
-`
+`;
 
 export const queries = `
   payments(status: String, kind: String): [Payment]
