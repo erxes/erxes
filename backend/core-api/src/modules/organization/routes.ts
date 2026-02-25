@@ -94,7 +94,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       }
     });
 
-    if (remotes.find((remote) => remote.name != 'agent_ui')) {
+    const hasAgentUi = remotes.some((remote) => remote.name === 'agent_ui');
+
+    if (!hasAgentUi) {
       remotes.push({
         name: 'agent_ui',
         entry: `https://plugins.erxes.io/latest/agent_ui/remoteEntry.js`,
