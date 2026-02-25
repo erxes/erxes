@@ -2,21 +2,14 @@ import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, Tabs, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { useAddVoucher } from '../../hooks/useAddVoucher';
-
 import {
   VoucherTab,
   getNextVoucherTab,
   isLastVoucherTab,
 } from '../../utils/getVoucherTabs';
-
 import { AddVoucherCampaignForm } from './AddVoucherCampaignForm';
-import { AddVoucherLotteryForm } from './AddVoucherLotteryForm';
-import { AddVoucherProductBonusForm } from './AddVoucherProductBonusForm';
-import { AddVoucherRestrictionForm } from './AddVoucherRestrictionForm';
-import { AddVoucherSpinForm } from './AddVoucherSpinForm';
 
 type Props = {
   onOpenChange: (open: boolean) => void;

@@ -25,7 +25,7 @@ const getSafeDate = (
   const date =
     value instanceof Date ? value : new Date(value);
 
-  return isNaN(date.getTime()) ? undefined : date;
+  return Number.isNaN(date.getTime()) ? undefined : date;
 };
 
 const DateSelectFormField = ({
