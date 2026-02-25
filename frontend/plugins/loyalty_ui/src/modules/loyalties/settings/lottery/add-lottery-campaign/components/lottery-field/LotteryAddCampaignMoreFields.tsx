@@ -14,23 +14,34 @@ interface LotteryAddCampaignMoreFieldsProps {
   form: UseFormReturn<LotteryFormValues>;
 }
 
+/**
+ * Prevents "Invalid Date" from being created
+ */
+const getSafeDate = (value?: Date | string | null): Date | undefined => {
+  if (!value) return undefined;
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
 const DateSelectFormField = ({
   value,
   onValueChange,
   placeholder,
 }: {
-  value?: Date | string | null;
+  value?: Date | string;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
 }) => {
   const [open, setOpen] = React.useState(false);
 
+  const dateValue = getSafeDate(value);
+
   const handleValueChange = (date?: Date) => {
     onValueChange?.(date);
     setOpen(false);
   };
-
-  const dateValue = value ? new Date(value) : undefined;
 
   return (
     <DateSelectProvider
@@ -41,7 +52,7 @@ const DateSelectFormField = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Form.Control>
           <Popover.Trigger asChild>
-            <Combobox.TriggerBase asChild className="w-full h-8">
+            <Combobox.TriggerBase className="w-full h-8">
               {dateValue ? (
                 <>
                   <IconCalendarTime className="size-4 text-muted-foreground" />
@@ -63,6 +74,7 @@ const DateSelectFormField = ({
             </Combobox.TriggerBase>
           </Popover.Trigger>
         </Form.Control>
+
         <Popover.Content className="w-auto p-0">
           <DateSelectTask.Content />
         </Popover.Content>
@@ -76,41 +88,39 @@ export const LotteryAddCampaignMoreFields: React.FC<
 > = ({ form }) => {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="flex flex-col gap-4">
-        <Form.Field
-          control={form.control}
-          name="startDate"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Start Date</Form.Label>
-              <DateSelectFormField
-                value={field.value}
-                onValueChange={field.onChange}
-                placeholder="Select start date"
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      </div>
+      {/* START DATE */}
+      <Form.Field
+        control={form.control}
+        name="startDate"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Start Date</Form.Label>
+            <DateSelectFormField
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder="Select start date"
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
 
-      <div className="flex flex-col gap-4">
-        <Form.Field
-          control={form.control}
-          name="endDate"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>End Date</Form.Label>
-              <DateSelectFormField
-                value={field.value}
-                onValueChange={field.onChange}
-                placeholder="Select end date"
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      </div>
+      {/* END DATE */}
+      <Form.Field
+        control={form.control}
+        name="endDate"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>End Date</Form.Label>
+            <DateSelectFormField
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder="Select end date"
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
     </div>
   );
 };
