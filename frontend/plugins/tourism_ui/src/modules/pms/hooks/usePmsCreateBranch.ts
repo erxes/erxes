@@ -3,7 +3,6 @@ import { pmsMutations } from '@/pms/graphql/mutation';
 import { pmsQueries } from '@/pms/graphql/queries';
 import {
   IPmsBranch,
-  IPmsDiscount,
   IPmsPaymentType,
   IPmsPipelineConfig,
   IPmsUiOptions,
@@ -31,7 +30,7 @@ export interface PmsCreateBranchVariables {
   pipelineConfig?: IPmsPipelineConfig;
   extraProductCategories?: string[];
   roomCategories?: string[];
-  discount?: IPmsDiscount[];
+  discount?: IPmsPaymentType[];
   time?: string;
   checkintime: string;
   checkouttime: string;

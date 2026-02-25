@@ -3,20 +3,26 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ApolloError } from '@apollo/client';
-import { usePmsCreateBranch } from '../hooks/usePmsCreateBranch';
-import { usePmsBranchDetail } from '../hooks/usePmsBranchDetail';
-import { usePmsEditBranch } from '../hooks/usePmsEditBranch';
+import { usePmsCreateBranch } from '@/pms/hooks/usePmsCreateBranch';
+import { usePmsBranchDetail } from '@/pms/hooks/usePmsBranchDetail';
+import { usePmsEditBranch } from '@/pms/hooks/usePmsEditBranch';
 import {
   PmsBranchFormSchema,
   PmsBranchFormType,
-} from '../constants/formSchema';
+} from '@/pms/constants/formSchema';
 import {
   CreatePmsSheetContentLayout,
   PmsCreateSheetFooter,
   PmsCreateSheetHeader,
-} from './CreatePmsSheet';
-import { CreatePmsFormContent } from './CreatePmsFormContent';
+} from '@/pms/components/CreatePmsSheet';
+import { CreatePmsFormContent } from '@/pms/components//CreatePmsFormContent';
 import { nanoid } from 'nanoid';
+import {
+  IPmsPaymentType,
+  IPmsUiOptions,
+  IPmsPipelineConfig,
+} from '@/pms/types/branch';
+import { PmsCreateBranchVariables } from '@/pms/hooks/usePmsCreateBranch';
 
 const CreatePmsForm = ({
   onOpenChange,
@@ -77,6 +83,123 @@ const CreatePmsForm = ({
 
   const { toast } = useToast();
 
+  const buildPaymentTypes = (
+    otherPayments: (Partial<IPmsPaymentType> | undefined)[] | undefined,
+  ): IPmsPaymentType[] => {
+    return (
+      otherPayments?.map((payment) => ({
+        _id: payment?._id || nanoid(),
+        type: payment?.type || '',
+        title: payment?.title || '',
+        config: payment?.config || '',
+      })) || []
+    );
+  };
+
+  const buildDiscounts = (
+    discounts: (Partial<IPmsPaymentType> | undefined)[] | undefined,
+  ): IPmsPaymentType[] => {
+    return (discounts || []).map((discount) => ({
+      _id: discount?._id || nanoid(),
+      type: discount?.type || '',
+      title: discount?.title || '',
+      config: discount?.config || '',
+    }));
+  };
+
+  const buildUiOptions = (data: PmsBranchFormType): IPmsUiOptions => ({
+    logo: data.logo || '',
+    colors: {
+      primary: data.primaryColor || '',
+      secondary: data.secondaryColor || '',
+      third: data.thirdColor || '',
+    },
+    website: data.website || '',
+  });
+
+  const buildPipelineConfig = (
+    data: PmsBranchFormType,
+  ): IPmsPipelineConfig => ({
+    boardId: data.boardId || '',
+    pipelineId: data.pipelineId || '',
+    stageId: data.stageId || '',
+  });
+
+  const buildBaseVariables = (
+    data: PmsBranchFormType,
+    paymentTypes: IPmsPaymentType[],
+    discounts: IPmsPaymentType[],
+    uiOptions: IPmsUiOptions,
+    pipelineConfig: IPmsPipelineConfig,
+  ): Omit<PmsCreateBranchVariables, 'permissionConfig'> => ({
+    name: data.name,
+    description: data.description || '',
+    erxesAppToken: data.erxesAppToken || '',
+    user1Ids: data.user1Ids || [],
+    user2Ids: data.user2Ids || [],
+    user3Ids: data.user3Ids || [],
+    user4Ids: data.user4Ids || [],
+    user5Ids: data.user5Ids || [],
+    paymentIds: data.paymentIds || [],
+    paymentTypes,
+    uiOptions,
+    pipelineConfig,
+    extraProductCategories: data.extrasCategoryIds || [],
+    roomCategories: data.roomsCategoryIds || [],
+    discount: discounts,
+    time: data.time || '',
+    checkintime: data.checkInTime,
+    checkouttime: data.checkOutTime,
+    checkinamount: data.checkInAmount,
+    checkoutamount: data.checkOutAmount,
+  });
+
+  const handleEditSubmit = (
+    branchId: string,
+    editVariables: PmsCreateBranchVariables,
+  ): void => {
+    editBranch(branchId, editVariables)
+      .then(() => {
+        toast({
+          title: 'Success',
+          description: 'PMS updated successfully',
+        });
+        onOpenChange?.(false);
+        onSuccess?.();
+      })
+      .catch((e: ApolloError) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      });
+  };
+
+  const handleCreateSubmit = (
+    createVariables: PmsCreateBranchVariables,
+  ): void => {
+    createPmsBranch({
+      variables: createVariables,
+      onError: (e: ApolloError) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'PMS created successfully',
+        });
+        form.reset();
+        onOpenChange?.(false);
+        onSuccess?.();
+      },
+    });
+  };
+
   useEffect(() => {
     if (mode !== 'edit') {
       return;
@@ -94,14 +217,26 @@ const CreatePmsForm = ({
       checkInAmount: branch.checkinamount || 0,
       checkOutAmount: branch.checkoutamount || 0,
       discount: Array.isArray(branch.discount)
-        ? branch.discount.map(({ __typename, ...rest }: any) => rest)
+        ? branch.discount.map((item: IPmsPaymentType) => ({
+            _id: item._id,
+            type: item.type,
+            title: item.title,
+            icon: item.icon,
+            config: item.config,
+          }))
         : [],
       // websiteReservationLock: branch.websiteReservationLock ?? false,
       time: branch.time || '',
       paymentIds: branch.paymentIds || [],
       paymentTypes: branch.paymentTypes || [],
       otherPayments: Array.isArray(branch.paymentTypes)
-        ? branch.paymentTypes.map(({ __typename, ...rest }: any) => rest)
+        ? branch.paymentTypes.map((item: IPmsPaymentType) => ({
+            _id: item._id,
+            type: item.type,
+            title: item.title,
+            icon: item.icon,
+            config: item.config,
+          }))
         : [],
       erxesAppToken: branch.erxesAppToken || '',
       user1Ids: branch.user1Ids || [],
@@ -128,84 +263,19 @@ const CreatePmsForm = ({
     });
   }, [branch, branchId, form, mode]);
 
-  const onSubmit = (data: PmsBranchFormType) => {
-    const paymentTypes =
-      data.otherPayments?.map((payment) => ({
-        _id: payment._id || nanoid(),
-        type: payment.type || '',
-        title: payment.title || '',
-        config: payment.config || '',
-      })) || [];
+  const onSubmit = (data: PmsBranchFormType): void => {
+    const paymentTypes = buildPaymentTypes(data.otherPayments);
+    const discounts = buildDiscounts(data.discount);
+    const uiOptions = buildUiOptions(data);
+    const pipelineConfig = buildPipelineConfig(data);
 
-    const discounts = (data.discount || []).map((discount) => ({
-      _id: discount._id || nanoid(),
-      type: discount.type || '',
-      title: discount.title || '',
-      config: discount.config || '',
-    }));
-
-    const uiOptions = {
-      logo: data.logo || '',
-      colors: {
-        primary: data.primaryColor || '',
-        secondary: data.secondaryColor || '',
-        third: data.thirdColor || '',
-      },
-      website: data.website || '',
-    };
-
-    const pipelineConfig = {
-      boardId: data.boardId || '',
-      pipelineId: data.pipelineId || '',
-      stageId: data.stageId || '',
-    };
-
-    const createVariables = {
-      name: data.name,
-      description: data.description || '',
-      erxesAppToken: data.erxesAppToken || '',
-      user1Ids: data.user1Ids || [],
-      user2Ids: data.user2Ids || [],
-      user3Ids: data.user3Ids || [],
-      user4Ids: data.user4Ids || [],
-      user5Ids: data.user5Ids || [],
-      paymentIds: data.paymentIds || [],
+    const baseVariables = buildBaseVariables(
+      data,
       paymentTypes,
+      discounts,
       uiOptions,
       pipelineConfig,
-      extraProductCategories: data.extrasCategoryIds || [],
-      roomCategories: data.roomsCategoryIds || [],
-      discount: discounts,
-      time: data.time || '',
-      checkintime: data.checkInTime,
-      checkouttime: data.checkOutTime,
-      checkinamount: data.checkInAmount,
-      checkoutamount: data.checkOutAmount,
-    };
-
-    const editVariables = {
-      name: data.name,
-      description: data.description || '',
-      erxesAppToken: data.erxesAppToken || '',
-      user1Ids: data.user1Ids || [],
-      user2Ids: data.user2Ids || [],
-      user3Ids: data.user3Ids || [],
-      user4Ids: data.user4Ids || [],
-      user5Ids: data.user5Ids || [],
-      paymentIds: data.paymentIds || [],
-      paymentTypes,
-      permissionConfig: data.permissionConfig || {},
-      uiOptions,
-      pipelineConfig,
-      extraProductCategories: data.extrasCategoryIds || [],
-      roomCategories: data.roomsCategoryIds || [],
-      time: data.time || '',
-      discount: discounts,
-      checkintime: data.checkInTime,
-      checkouttime: data.checkOutTime,
-      checkinamount: data.checkInAmount,
-      checkoutamount: data.checkOutAmount,
-    };
+    ) as PmsCreateBranchVariables;
 
     if (mode === 'edit') {
       if (!branchId) {
@@ -217,48 +287,19 @@ const CreatePmsForm = ({
         return;
       }
 
-      editBranch(branchId, editVariables)
-        .then(() => {
-          toast({
-            title: 'Success',
-            description: 'PMS updated successfully',
-          });
-          onOpenChange?.(false);
-          onSuccess?.();
-        })
-        .catch((e: ApolloError) => {
-          toast({
-            title: 'Error',
-            description: e.message,
-            variant: 'destructive',
-          });
-        });
+      const editVariables: PmsCreateBranchVariables = {
+        ...baseVariables,
+        permissionConfig: data.permissionConfig || {},
+      };
+
+      handleEditSubmit(branchId, editVariables);
       return;
     }
 
-    createPmsBranch({
-      variables: createVariables as any,
-      onError: (e: ApolloError) => {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
-      },
-      onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'PMS created successfully',
-        });
-        form.reset();
-        onOpenChange?.(false);
-        onSuccess?.();
-      },
-    });
+    handleCreateSubmit(baseVariables);
   };
 
-  const loading =
-    mode === 'edit' ? detailLoading || editLoading : createLoading;
+  const loading = mode === 'edit' ? editLoading : createLoading;
 
   return (
     <Form {...form}>

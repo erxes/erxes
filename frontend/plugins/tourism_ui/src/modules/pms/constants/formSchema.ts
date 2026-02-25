@@ -8,14 +8,13 @@ export const PmsBranchFormSchema = z.object({
   checkOutTime: z.string().min(1, 'Check out time is required'),
   checkOutAmount: z.coerce.number().min(0, 'Amount must be non-negative'),
   discount: z.array(
-    z
-      .object({
-        type: z.string().optional(),
-        title: z.string().optional(),
-        icon: z.string().optional(),
-        config: z.string().optional(),
-      })
-      .passthrough(),
+    z.object({
+      _id: z.string().optional(),
+      type: z.string().optional(),
+      title: z.string().optional(),
+      icon: z.string().optional(),
+      config: z.string().optional(),
+    }),
   ),
   // websiteReservationLock: z.boolean(),
   time: z.string().optional(),
@@ -26,6 +25,7 @@ export const PmsBranchFormSchema = z.object({
     .array(
       z
         .object({
+          _id: z.string().optional(),
           type: z.string().optional(),
           title: z.string().optional(),
           icon: z.string().optional(),

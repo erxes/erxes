@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import { pmsMutations } from '@/pms/graphql/mutation';
 import { pmsQueries } from '@/pms/graphql/queries';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
-import { toast } from 'erxes-ui';
+import { IPmsPaymentType } from '@/pms/types/branch';
 
 interface UsePmsEditBranchParams {
   page?: number;
@@ -37,56 +37,43 @@ export const usePmsEditBranch = ({
       }
     >,
   ) => {
-    try {
-      const discount = (data.discount || []).map((item: any) => ({
-        _id: item._id,
-        type: item.type || '',
-        title: item.title || '',
-        config: item.config || '',
-      }));
+    const discount = (data.discount || []).map(
+      (item: Partial<IPmsPaymentType> | undefined) => ({
+        _id: item?._id,
+        type: item?.type || '',
+        title: item?.title || '',
+        config: item?.config || '',
+      }),
+    );
 
-      const result = await editBranch({
-        variables: {
-          _id: id,
-          name: data.name,
-          description: data.description,
-          user1Ids: data.user1Ids,
-          user2Ids: data.user2Ids,
-          user3Ids: data.user3Ids,
-          user4Ids: data.user4Ids,
-          user5Ids: data.user5Ids,
-          paymentIds: data.paymentIds,
-          paymentTypes: data.paymentTypes,
-          erxesAppToken: data.erxesAppToken,
-          permissionConfig: data.permissionConfig,
-          uiOptions: data.uiOptions,
-          pipelineConfig: data.pipelineConfig,
-          extraProductCategories: data.extraProductCategories,
-          roomCategories: data.roomCategories,
-          time: data.time,
-          discount,
-          checkintime: data.checkintime ?? data.checkInTime,
-          checkouttime: data.checkouttime ?? data.checkOutTime,
-          checkinamount: data.checkinamount ?? data.checkInAmount,
-          checkoutamount: data.checkoutamount ?? data.checkOutAmount,
-        },
-      });
-      toast({
-        title: 'Success',
-        description: 'Branch edited successfully',
-      });
+    const result = await editBranch({
+      variables: {
+        _id: id,
+        name: data.name,
+        description: data.description,
+        user1Ids: data.user1Ids,
+        user2Ids: data.user2Ids,
+        user3Ids: data.user3Ids,
+        user4Ids: data.user4Ids,
+        user5Ids: data.user5Ids,
+        paymentIds: data.paymentIds,
+        paymentTypes: data.paymentTypes,
+        erxesAppToken: data.erxesAppToken,
+        permissionConfig: data.permissionConfig,
+        uiOptions: data.uiOptions,
+        pipelineConfig: data.pipelineConfig,
+        extraProductCategories: data.extraProductCategories,
+        roomCategories: data.roomCategories,
+        time: data.time,
+        discount,
+        checkintime: data.checkintime ?? data.checkInTime,
+        checkouttime: data.checkouttime ?? data.checkOutTime,
+        checkinamount: data.checkinamount ?? data.checkInAmount,
+        checkoutamount: data.checkoutamount ?? data.checkOutAmount,
+      },
+    });
 
-      return result.data?.pmsBranchEdit;
-    } catch (err: unknown) {
-      toast({
-        title: 'Error',
-        description:
-          err instanceof Error ? err.message : 'Failed to edit branch',
-        variant: 'destructive',
-      });
-
-      throw err;
-    }
+    return result.data?.pmsBranchEdit;
   };
 
   return {

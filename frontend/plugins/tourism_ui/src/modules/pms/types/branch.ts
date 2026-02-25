@@ -6,8 +6,6 @@ export interface IPmsPaymentType {
   config?: string;
 }
 
-export interface IPmsDiscount extends IPmsPaymentType {}
-
 export interface IPmsUser {
   _id: string;
   details: { avatar: string; fullName: string };
@@ -44,7 +42,7 @@ export interface IPmsBranch {
   pipelineConfig?: IPmsPipelineConfig;
   extraProductCategories?: string[];
   roomCategories?: string[];
-  discount?: IPmsDiscount[];
+  discount?: IPmsPaymentType[];
   time?: string;
   checkintime: string;
   checkouttime: string;

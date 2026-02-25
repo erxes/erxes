@@ -17,7 +17,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
       </Button>
 
       {fields.map((field, index) => (
-        <div className="flex gap-4 items-end">
+        <div key={field.id} className="flex gap-4 items-end">
           <div className="grid grid-cols-3 gap-4 w-full">
             <Form.Field
               control={control}
