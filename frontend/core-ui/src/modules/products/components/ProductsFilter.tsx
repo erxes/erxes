@@ -289,7 +289,7 @@ export const ProductsFilterPopover = () => {
                 <Filter.SearchValueTrigger />
                 <SelectCategoriesFilterItem
                   value="categoryIds"
-                  label="category"
+                  label="Category"
                 />
               </Command.List>
             </Command>
