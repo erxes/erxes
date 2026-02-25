@@ -32,9 +32,7 @@ export const getNextVoucherTab = (
   const tabs = getVoucherTabOrder(config);
   const currentIndex = tabs.indexOf(config.activeTab);
 
-  return currentIndex < tabs.length - 1
-    ? tabs[currentIndex + 1]
-    : null;
+  return currentIndex < tabs.length - 1 ? tabs[currentIndex + 1] : null;
 };
 
 export const isLastVoucherTab = (config: VoucherTabConfig): boolean => {

@@ -25,8 +25,7 @@ type Props = {
 };
 
 export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
-  const [activeTab, setActiveTab] =
-    useState<VoucherTab>('campaign');
+  const [activeTab, setActiveTab] = useState<VoucherTab>('campaign');
 
   const selectedType = form.watch('type');
 
@@ -130,9 +129,7 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(value) =>
-        setActiveTab(value as VoucherTab)
-      }
+      onValueChange={(value) => setActiveTab(value as VoucherTab)}
       className="flex flex-col h-full"
     >
       <Tabs.List className="flex justify-center">
@@ -165,18 +162,13 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
 
       <Tabs.Content value="campaign">
         <Form {...form}>
-          <AddVoucherCampaignForm
-            onOpenChange={onOpenChange}
-            form={form}
-          />
+          <AddVoucherCampaignForm onOpenChange={onOpenChange} form={form} />
         </Form>
       </Tabs.Content>
 
       <Tabs.Content value="restriction">
         <Form {...form}>
-          <AddVoucherRestrictionForm
-            onOpenChange={onOpenChange}
-          />
+          <AddVoucherRestrictionForm onOpenChange={onOpenChange} />
         </Form>
       </Tabs.Content>
 

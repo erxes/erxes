@@ -17,13 +17,10 @@ interface LotteryAddCampaignMoreFieldsProps {
 /**
  * Prevents "Invalid Date" from being created
  */
-const getSafeDate = (
-  value?: Date | string | null,
-): Date | undefined => {
+const getSafeDate = (value?: Date | string | null): Date | undefined => {
   if (!value) return undefined;
 
-  const date =
-    value instanceof Date ? value : new Date(value);
+  const date = value instanceof Date ? value : new Date(value);
 
   return Number.isNaN(date.getTime()) ? undefined : date;
 };

@@ -91,36 +91,30 @@ export const CouponDefaultCodeRuleField: React.FC<
       </div>
       <div className="flex flex-col gap-4">
         <Form.Field
-  control={form.control}
-  name="characterSet"
-  render={({ field }) => (
-    <Form.Item>
-      <Form.Label>Character Set</Form.Label>
-      <Form.Control>
-        <Select
-          value={field.value}
-          onValueChange={field.onChange}
-        >
-          <Select.Trigger className="w-full">
-            <Select.Value placeholder="Select character set" />
-          </Select.Trigger>
+          control={form.control}
+          name="characterSet"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Character Set</Form.Label>
+              <Form.Control>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger className="w-full">
+                    <Select.Value placeholder="Select character set" />
+                  </Select.Trigger>
 
-          <Select.Content>
-            {CHARACTER_SET_OPTIONS.map(option => (
-              <Select.Item
-                key={option.value}
-                value={option.value}
-              >
-                {option.label}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
-      </Form.Control>
-      <Form.Message />
-    </Form.Item>
-  )}
-/>
+                  <Select.Content>
+                    {CHARACTER_SET_OPTIONS.map((option) => (
+                      <Select.Item key={option.value} value={option.value}>
+                        {option.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
         <Form.Field
           control={form.control}
           name="usageLimit"

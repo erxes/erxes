@@ -44,7 +44,6 @@ export interface AddVoucherVariables {
   restrictions?: any;
 }
 
-
 export const useAddVoucher = () => {
   const { toast } = useToast();
   const { cursor } = useRecordTableCursor({

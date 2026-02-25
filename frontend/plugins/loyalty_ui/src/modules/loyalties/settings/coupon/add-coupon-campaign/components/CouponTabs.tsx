@@ -59,7 +59,7 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
       endDate: formatDate(data.endDate),
 
       kind: data.kind,
-      value: data.count, 
+      value: data.count,
       buyScore: data.buyScore,
 
       restrictions: {

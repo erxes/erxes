@@ -24,9 +24,7 @@ export interface ICouponCampaign extends ICommonCampaignFields {
 }
 
 export interface ICouponCampaignDocument
-  extends ICouponCampaign,
-    ICommonCampaignDocument,
-    Document {
+  extends ICouponCampaign, ICommonCampaignDocument, Document {
   _id: string;
 }
 
