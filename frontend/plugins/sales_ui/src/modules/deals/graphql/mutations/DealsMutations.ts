@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 const dealMutationVariables = `
   $productsData: JSON,
@@ -118,7 +118,7 @@ export const commonFields = `
     }
   }
   order
-  customFieldsData
+  propertiesData
   score
   timeTrack {
     status
@@ -163,7 +163,7 @@ export const commonMutationVariables = `
   $status: String,
   $priority: String,
   $sourceConversationIds: [String],
-  $customFieldsData: JSON,
+  $propertiesData: JSON,
   $tagIds: [String]
   $branchIds:[String],
   $departmentIds:[String]
@@ -185,11 +185,12 @@ export const commonMutationParams = `
   status: $status,
   priority: $priority,
   sourceConversationIds: $sourceConversationIds,
-  customFieldsData: $customFieldsData,
+  propertiesData: $propertiesData,
   tagIds: $tagIds
   branchIds: $branchIds
   departmentIds: $departmentIds
 `;
+
 
 export const ADD_DEALS = gql`
   mutation dealsAdd($name: String, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {

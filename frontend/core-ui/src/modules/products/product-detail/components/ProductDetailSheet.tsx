@@ -28,6 +28,7 @@ import {
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
+import { useUom } from '@/products/hooks/useUom';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
@@ -38,6 +39,7 @@ export const ProductDetailSheet = () => {
   const { productDetail, loading, error } = useProductDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { productsEdit, loading: editLoading } = useProductsEdit();
+  const { uoms } = useUom({});
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
@@ -84,7 +86,12 @@ export const ProductDetailSheet = () => {
           ratio: normalizeSubUomRatio(item?.ratio),
         }))
       : data.subUoms;
-    return { ...data, attachment, attachmentMore, subUoms };
+
+    const uomName = data.uom
+      ? uoms.find((u) => u._id === data.uom)?.name || data.uom
+      : data.uom;
+
+    return { ...data, attachment, attachmentMore, subUoms, uom: uomName };
   };
 
   const handleSave = (data: ProductFormValues) => {

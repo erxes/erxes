@@ -1,16 +1,17 @@
-import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { IconSearch } from '@tabler/icons-react';
 import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
+import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
+import { IProduct, IProductData, currentUserState } from 'ui-modules';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
-import { IProduct, IProductData, currentUserState } from 'ui-modules';
-import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
-import { useProductCalculations } from '../hooks/useProductCalculations';
-import { onLocalChangeAtom } from '../productTableAtom';
-import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
+
+import { IconSearch } from '@tabler/icons-react';
+import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import ProductFooter from './ProductFooter';
 import { ProductsRecordTable } from './ProductRecordTable';
+import { onLocalChangeAtom } from '../productTableAtom';
+import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { useProductCalculations } from '../hooks/useProductCalculations';
 
 const ProductsList = ({
   products,
@@ -160,8 +161,6 @@ const ProductsList = ({
     editDeals({
       variables: {
         productsData: formattedProductsData,
-        paymentsData: null,
-        extraData: null,
         proccessId: processId,
         _id: dealId,
       },
@@ -169,7 +168,7 @@ const ProductsList = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:w-3/5">
       <Filter id="product-filter">
         <div className="flex items-center gap-4 flex-wrap">
           <Input

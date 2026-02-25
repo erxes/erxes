@@ -21,6 +21,7 @@ export function DealsBoardColumn({
   queryVariables = {},
   fetchMoreTrigger,
   onFetchComplete,
+  locallyMovedIdsRef,
 }: DealsBoardColumnProps) {
   const isDragging = useAtomValue(isDraggingAtom);
   const [, setBoardState] = useDealsBoard();
@@ -76,12 +77,7 @@ export function DealsBoardColumn({
     if (isDragging) return;
     if (loading) return;
 
-    const dealItems: any[] = [...filteredDeals]
-      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
-      .map((deal) => ({
-        columnId: deal.stageId,
-        ...deal,
-      }));
+    const dealItems: any[] = [...filteredDeals];
 
     setBoardState((prev) => {
       if (!prev) return prev;
@@ -90,32 +86,65 @@ export function DealsBoardColumn({
       const newColumnItems = { ...prev.columnItems };
 
       const newIds: string[] = [];
-      dealItems.forEach((item) => {
-        newItems[item._id] = {
-          ...prev.items[item._id],
-          ...item,
-          products: item.products ?? prev.items[item._id]?.products,
-          productsData: item.productsData ?? prev.items[item._id]?.productsData,
-          labels: item.labels ?? prev.items[item._id]?.labels,
-          tags: item.tags ?? prev.items[item._id]?.tags,
-          companies: item.companies ?? prev.items[item._id]?.companies,
-          customers: item.customers ?? prev.items[item._id]?.customers,
-          startDate: item.startDate ?? prev.items[item._id]?.startDate,
-          closeDate: item.closeDate ?? prev.items[item._id]?.closeDate,
-          departments: item.departments ?? prev.items[item._id]?.departments,
-          customProperties:
-            item.customProperties ?? prev.items[item._id]?.customProperties,
+
+      const localMoves = (locallyMovedIdsRef?.current || {}) as Record<
+        string,
+        string
+      >;
+
+      dealItems.forEach((deal) => {
+        const prevItem = prev.items[deal._id] || {};
+
+        let columnId = localMoves[deal._id];
+
+        if (!columnId) {
+          columnId = deal.stageId || prevItem.columnId || column._id;
+        }
+
+        const mergedItem = {
+          ...prevItem,
+          ...deal,
+          columnId,
         };
-        newIds.push(item._id);
+
+        newItems[deal._id] = {
+          ...mergedItem,
+          products: deal.products ?? prev.items[deal._id]?.products,
+          productsData: deal.productsData ?? prev.items[deal._id]?.productsData,
+          labels: deal.labels ?? prev.items[deal._id]?.labels,
+          tags: deal.tags ?? prev.items[deal._id]?.tags,
+          companies: deal.companies ?? prev.items[deal._id]?.companies,
+          customers: deal.customers ?? prev.items[deal._id]?.customers,
+          startDate: deal.startDate ?? prev.items[deal._id]?.startDate,
+          closeDate: deal.closeDate ?? prev.items[deal._id]?.closeDate,
+          departments: deal.departments ?? prev.items[deal._id]?.departments,
+          customProperties:
+            deal.customProperties ?? prev.items[deal._id]?.customProperties,
+        };
+
+        if (columnId === column._id) {
+          newIds.push(deal._id);
+        }
       });
 
-      const existingIds = prev.columnItems[column._id] ?? [];
-      const incomingIds = newIds;
+      const hasLocalMoves = Object.keys(localMoves).length > 0;
 
-      const preserved = existingIds.filter((id) => incomingIds.includes(id));
-      const appended = incomingIds.filter((id) => !existingIds.includes(id));
+      if (!hasLocalMoves) {
+        newColumnItems[column._id] = newIds;
+      } else {
+        const existingIds = prev.columnItems[column._id] ?? [];
 
-      newColumnItems[column._id] = [...preserved, ...appended];
+        const filteredExisting = existingIds.filter((id) => {
+          const item = newItems[id] || prev.items[id];
+          return item?.columnId === column._id;
+        });
+
+        const existingSet = new Set(filteredExisting);
+        const addedItems = newIds.filter((id) => !existingSet.has(id));
+        const mergedIds = [...filteredExisting, ...addedItems];
+
+        newColumnItems[column._id] = mergedIds;
+      }
 
       return { ...prev, items: newItems, columnItems: newColumnItems };
     });
@@ -169,6 +198,7 @@ export function DealsBoardColumn({
     pageInfo,
     totalCount,
     loading,
+    locallyMovedIdsRef,
   ]);
 
   useEffect(() => {

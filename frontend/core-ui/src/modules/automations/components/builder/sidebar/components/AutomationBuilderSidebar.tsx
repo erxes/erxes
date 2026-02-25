@@ -57,21 +57,38 @@ export const AutomationBuilderSidebar = () => {
   useScopedHotkeys(`mod+g`, () => onOpen(), AutomationsHotKeyScope.Builder);
   useScopedHotkeys(`mod+esc`, () => onClose(), AutomationsHotKeyScope.Builder);
 
+  const hasSegmentFormContent =
+    activeNode?.nodeType === AutomationNodeType.Trigger &&
+    !activeNode?.isCustom;
+  const sidebarWidthClasses = hasSegmentFormContent
+    ? 'min-w-md max-w-4xl w-fit'
+    : 'min-w-80 max-w-2xl w-fit';
+
   return (
     <AnimatePresence>
       {isOpenSideBar && (
         <div
           key="sidebar"
-          className="
-          absolute right-0 top-0 min-w-80 max-w-2xl w-fit h-full bg-sidebar rounded-none flex flex-col z-50 border-l"
+          className={cn(
+            'absolute right-0 top-0 h-full bg-sidebar rounded-none flex flex-col z-50 border-l',
+            sidebarWidthClasses,
+          )}
         >
           <AutomationBuilderSidebarHeader
             activeNode={activeNode}
             handleBack={handleBack}
             handleClose={handleClose}
+            wide={hasSegmentFormContent}
           />
 
-          <Card.Content className="min-w-80 max-w-2xl w-full flex-1 overflow-auto p-0">
+          <Card.Content
+            className={cn(
+              'w-full flex-1 overflow-auto p-0',
+              hasSegmentFormContent
+                ? 'min-w-md max-w-4xl'
+                : 'min-w-80 max-w-2xl',
+            )}
+          >
             <AutomationBuilderSidebarContent activeNode={activeNode} />
           </Card.Content>
         </div>
@@ -84,17 +101,24 @@ const AutomationBuilderSidebarHeader = ({
   activeNode,
   handleClose,
   handleBack,
+  wide = false,
 }: {
   activeNode?: NodeData;
   handleClose: () => void;
   handleBack: () => void;
+  wide?: boolean;
 }) => {
   if (!activeNode) {
     return null;
   }
   return (
     <>
-      <Card.Header className="font-mono flex flex-row justify-between items-center min-w-80 max-w-2xl pl-2 py-4 pr-6">
+      <Card.Header
+        className={cn(
+          'font-mono flex flex-row justify-between items-center pl-2 py-4 pr-6',
+          wide ? 'min-w-md max-w-4xl' : 'min-w-80 max-w-2xl',
+        )}
+      >
         <div className="flex flex-row items-start pl-2">
           <div
             className={cn('bg-primary/10 text-primary rounded-lg p-2', {
@@ -109,7 +133,12 @@ const AutomationBuilderSidebarHeader = ({
             <IconComponent className="size-6" name={activeNode.icon} />
           </div>
 
-          <div className="px-6 flex flex-col min-w-80 max-w-96 gap-1  font-sans ">
+          <div
+            className={cn(
+              'px-6 flex flex-col gap-1 font-sans',
+              wide ? 'min-w-md max-w-4xl' : 'min-w-80 max-w-96',
+            )}
+          >
             <h2 className="font-semibold leading-none tracking-tight text-xl w-full">
               {activeNode?.label || ''}
             </h2>

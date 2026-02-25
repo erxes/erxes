@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { GET_CLIENT_PORTALS } from '../graphql/queries';
+import { CLIENT_PORTAL_GET_CONFIGS } from '../graphql/queries';
 
 export interface Website {
   _id: string;
@@ -26,14 +26,14 @@ interface UseWebsitesProps {
 export function useWebsites({
   searchValue,
 }: UseWebsitesProps = {}): UseWebsitesResult {
-  const { data, loading, refetch } = useQuery(GET_CLIENT_PORTALS, {
+  const { data, loading, refetch } = useQuery(CLIENT_PORTAL_GET_CONFIGS, {
     variables: {
-      filter: {},
+      searchValue: searchValue || '',
     },
     errorPolicy: 'all',
   });
 
-  const websites = data?.getClientPortals?.list || [];
+  const websites = data?.clientPortalGetConfigs || [];
 
   return {
     websites,

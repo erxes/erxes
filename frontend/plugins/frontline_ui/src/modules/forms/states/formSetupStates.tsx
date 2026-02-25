@@ -105,6 +105,7 @@ export const resetFormSetupAtom = atom(null, (_, set) => {
 
 export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   const general = {
+    channelId: payload.channelId,
     title: payload.title,
     name: payload.title,
     description: payload.description,

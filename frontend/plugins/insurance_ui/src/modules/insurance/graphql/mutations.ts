@@ -63,6 +63,9 @@ export const CREATE_INSURANCE_PRODUCT = gql`
     $coveredRisks: [CoveredRiskInput!]!
     $pricingConfig: JSON!
     $pdfContent: String
+    $additionalCoverages: [AdditionalCoverageInput!]
+    $compensationCalculations: [CompensationCalculationInput!]
+    $deductibleConfig: DeductibleConfigInput
   ) {
     createInsuranceProduct(
       name: $name
@@ -70,6 +73,9 @@ export const CREATE_INSURANCE_PRODUCT = gql`
       coveredRisks: $coveredRisks
       pricingConfig: $pricingConfig
       pdfContent: $pdfContent
+      additionalCoverages: $additionalCoverages
+      compensationCalculations: $compensationCalculations
+      deductibleConfig: $deductibleConfig
     ) {
       ${insuranceProductFields}
     }
@@ -83,6 +89,9 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
     $coveredRisks: [CoveredRiskInput!]
     $pricingConfig: JSON
     $pdfContent: String
+    $additionalCoverages: [AdditionalCoverageInput!]
+    $compensationCalculations: [CompensationCalculationInput!]
+    $deductibleConfig: DeductibleConfigInput
   ) {
     updateInsuranceProduct(
       id: $id
@@ -90,6 +99,9 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
       coveredRisks: $coveredRisks
       pricingConfig: $pricingConfig
       pdfContent: $pdfContent
+      additionalCoverages: $additionalCoverages
+      compensationCalculations: $compensationCalculations
+      deductibleConfig: $deductibleConfig
     ) {
       ${insuranceProductFields}
     }

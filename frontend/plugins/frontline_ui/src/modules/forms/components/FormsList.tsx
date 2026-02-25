@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useFormsList } from '../hooks/useFormsList';
 import {
   Badge,
@@ -13,9 +13,12 @@ import { ColumnDef } from '@tanstack/react-table';
 import { IForm } from '../types/formTypes';
 import {
   IconCalendarEvent,
+  IconCircles,
   IconDots,
   IconEdit,
+  IconLabel,
   IconTag,
+  IconToggleRight,
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
@@ -23,6 +26,8 @@ import { MembersInline, SelectTags } from 'ui-modules';
 import { useMutation } from '@apollo/client';
 import { FormInstallScript } from './FormInstallScript';
 import { FORM_REMOVE } from '../graphql/formMutations';
+import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
+import { Link } from 'react-router-dom';
 
 export const FormsList = () => {
   const { channelId } = useParams();
@@ -66,38 +71,19 @@ export const FormsList = () => {
   );
 };
 
-// {
-//   "_id": "6fB2WR_dyRQZGowsAYgYp",
-//   "createdDate": "2026-01-12T03:16:20.823Z",
-//   "createdUserId": "FNeodJ2Dq71WrAQdlGi_c",
-//   "name": "Merch Order",
-//   "status": "active",
-//   "tagIds": [],
-//   "visibility": null,
-//   "title": "Merch Order",
-//   "__typename": "Form"
-// },
-
 const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
+    header: () => <RecordTable.InlineHead label="Name" icon={IconLabel} />,
     cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { channelId } = useParams();
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const navigate = useNavigate();
       return (
         <RecordTableInlineCell>
-          <RecordTableInlineCell.Anchor
-            onClick={() => {
-              navigate(
-                `/settings/frontline/forms/${channelId}/${cell.row.original._id}`,
-              );
-            }}
-          >
-            {cell.getValue() as string}
-          </RecordTableInlineCell.Anchor>
+          <Link to={`/frontline/forms/${cell.row.original._id}`}>
+            <RecordTableInlineCell.Anchor>
+              {cell.getValue() as string}
+            </RecordTableInlineCell.Anchor>
+          </Link>
         </RecordTableInlineCell>
       );
     },
@@ -106,6 +92,9 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
+    header: () => (
+      <RecordTable.InlineHead label="Status" icon={IconToggleRight} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -114,6 +103,21 @@ const formsColumns: ColumnDef<IForm>[] = [
           >
             {cell.getValue() as string}
           </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    accessorKey: 'channelId',
+    id: 'channelId',
+    header: () => <RecordTable.InlineHead label="Channel" icon={IconCircles} />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <ChannelsInline
+            channelIds={[cell.getValue() as string]}
+            placeholder="No channel"
+          />
         </RecordTableInlineCell>
       );
     },
@@ -165,23 +169,16 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'action',
     header: () => <RecordTable.InlineHead label="Action" icon={IconDots} />,
     cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { channelId } = useParams();
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const navigate = useNavigate();
       return (
         <RecordTableInlineCell>
-          <FormInstallScript formId={cell.row.original._id} />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              navigate(
-                `/settings/frontline/forms/${channelId}/${cell.row.original._id}`,
-              );
-            }}
-          >
-            <IconEdit />
+          <FormInstallScript
+            formId={cell.row.original._id}
+            channelId={cell.row.original.channelId}
+          />
+          <Button variant="outline" size="icon" asChild>
+            <Link to={`/frontline/forms/${cell.row.original._id}`}>
+              <IconEdit />
+            </Link>
           </Button>
           <RemoveForm
             formId={cell.row.original._id}

@@ -29,12 +29,12 @@ startPlugin({
 
   expressRouter: router,
   onServerInit: async (app) => {
-    await initCallApp(app);
+    // await initCallApp(app);
     await onServerInitImap(app);
-    const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
-    if (CALL_WS_SERVER) {
-      await initWebsocketService();
-    }
+    // const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
+    // if (CALL_WS_SERVER) {
+    //   await initWebsocketService();
+    // }
   },
 
   apolloServerContext: async (subdomain, context) => {

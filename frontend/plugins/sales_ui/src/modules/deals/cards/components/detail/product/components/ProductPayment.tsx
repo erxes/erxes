@@ -1,12 +1,9 @@
 import { Button, CurrencyCode, CurrencyField, Input } from 'erxes-ui';
+import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
-import { Label, Switch } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
-import { IDeal } from '@/deals/types/deals';
 
-interface IPaymentsData {
-  [key: string]: { amount: number; currency: string };
-}
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
 const ProductsPayment = ({
   deal,
@@ -20,9 +17,9 @@ const ProductsPayment = ({
   refetch: () => void;
 }) => {
   const [paymentsData, setPaymentsData] = useState<IPaymentsData>(
-    initialPaymentsData || {},
+    initialPaymentsData || deal.paymentsData || {},
   );
-  const [showAdvancedView, setShowAdvancedView] = useState(false);
+  const { editDeals } = useDealsEdit();
 
   const total = useMemo(() => {
     const amounts: { [currency: string]: number } = {};
@@ -94,6 +91,7 @@ const ProductsPayment = ({
     },
     [paymentsData, defaultCurrency, total, paidAmounts, updatePayment],
   );
+
   const formatNumber = (value: number | string) => {
     if (value === '' || value === null || value === undefined) return '';
     const num =
@@ -130,6 +128,18 @@ const ProductsPayment = ({
     ));
   };
 
+  const handleSave = () => {
+    const processId = localStorage.getItem('processId') || '';
+
+    editDeals({
+      variables: {
+        paymentsData,
+        proccessId: processId,
+        _id: deal._id,
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4 px-8">
       <div className="flex bg-muted/50 rounded-lg p-3 gap-12 justify-center">
@@ -148,8 +158,8 @@ const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-green-500'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                  ? 'text-red-500'
-                  : ''
+                ? 'text-red-500'
+                : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
@@ -250,18 +260,8 @@ const ProductsPayment = ({
         ))}
       </div>
 
-      <div className="flex items-center justify-between pt-2">
-        <div className="flex items-center gap-2">
-          <Switch
-            id="advanced-view"
-            checked={showAdvancedView}
-            onCheckedChange={setShowAdvancedView}
-          />
-          <Label htmlFor="advanced-view" className="text-sm cursor-pointer">
-            Advanced view
-          </Label>
-        </div>
-        <Button size="sm">
+      <div className="flex items-center justify-end pt-2">
+        <Button size="sm" onClick={handleSave}>
           <IconDeviceFloppy className="w-4 h-4 mr-1" />
           Save
         </Button>

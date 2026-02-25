@@ -6,10 +6,7 @@ export interface AddCategoryResult {
 }
 
 export interface CategoryData {
-  productCategories: {
-    list: AddCategoryResult['productCategoriesAdd'][];
-    totalCount: number;
-  };
+  productCategories: AddCategoryResult['productCategoriesAdd'][];
 }
 
 export interface AddCategoryVariables {

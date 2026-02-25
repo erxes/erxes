@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { CMS_TAGS } from '../tags/graphql/queries';
+import { CMS_TAGS } from '../graphql/queries';
 
 export interface CmsTag {
   _id: string;

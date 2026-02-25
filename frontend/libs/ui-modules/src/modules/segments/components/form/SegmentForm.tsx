@@ -74,7 +74,7 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <FormProvider {...form}>
-      <form id="segment-form" className="h-full min-h-0 flex flex-col">
+      <form id="segment-form" className="h-full min-h-0 flex flex-col p-2">
         {children}
       </form>
     </FormProvider>
@@ -83,7 +83,7 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
 
 const SegmentFormHeader = () => {
   return (
-    <div className="w-full p-2 pb-4">
+    <div className="w-full p-2 pb-0">
       <SegmentMetadataForm />
     </div>
   );
@@ -107,7 +107,7 @@ const SegmentFormContent = ({
   const { onAddSegmentGroup } = useSegmentActions({ callback });
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2">
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
       <SegmentConfigWidget contentType={contentType} />
       <div className="pb-4">
         <SegmentGroups />

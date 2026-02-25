@@ -22,7 +22,7 @@ export const SegmentGroups = () => {
           ? `${segment.contentType}-${index}`
           : `segment-${index}`;
         return (
-          <div key={segmentKey} className="relative">
+          <div key={segmentKey} className="relative min-w-2xl">
             <SegmentGroupsRails total={total} index={index} />
             <div className={cn('relative pt-4', { 'pl-12': total > 1 })}>
               <SegmentGroup

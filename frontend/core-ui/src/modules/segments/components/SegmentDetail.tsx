@@ -11,13 +11,13 @@ type Props = {
 export function SegmentDetail({ onRefresh }: Props) {
   const [selectedContentType] = useQueryState<string>('contentType');
 
-  if (!selectedContentType) {
-    return null;
-  }
-
+  
   const [segmentId, setOpen] = useQueryState<string>('segmentId');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const { t } = useTranslation('segment');
+  if (!selectedContentType) {
+    return null;
+  }
 
   return (
     <Sheet

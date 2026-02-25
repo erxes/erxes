@@ -7,7 +7,11 @@ import {
   Label,
   useQueryState,
 } from 'erxes-ui';
-import { SelectCategory, SelectProductType, SelectUOM } from 'ui-modules';
+import {
+  SelectCategory,
+  SelectProductType,
+  SelectUOMWithName,
+} from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
@@ -101,14 +105,17 @@ export const ProductDetailGeneral = () => {
               const uomValue =
                 typeof field.value === 'string'
                   ? field.value
-                  : ((field.value as unknown as { _id?: string })?._id ?? '');
+                  : (field.value as unknown as { _id?: string })?._id ?? '';
+
               return (
                 <div className="col-span-2 space-y-2">
                   <Label>{t('unit-of-measurements')}</Label>
-                  <SelectUOM
+                  <SelectUOMWithName
                     key={uomValue || 'empty'}
                     value={uomValue}
-                    onValueChange={field.onChange}
+                    onValueChange={(uomId: string) => {
+                      field.onChange(uomId);
+                    }}
                     inForm
                   />
                 </div>
