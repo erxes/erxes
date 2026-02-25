@@ -15,7 +15,7 @@ import {
   PmsCreateSheetFooter,
   PmsCreateSheetHeader,
 } from '@/pms/components/CreatePmsSheet';
-import { CreatePmsFormContent } from '@/pms/components//CreatePmsFormContent';
+import { CreatePmsFormContent } from '@/pms/components/CreatePmsFormContent';
 import { nanoid } from 'nanoid';
 import {
   IPmsPaymentType,
