@@ -14,7 +14,11 @@ import {
   Button,
 } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router-dom';
-import { IconChevronRight, IconUsers, IconClipboard } from '@tabler/icons-react';
+import {
+  IconChevronRight,
+  IconUsers,
+  IconClipboard,
+} from '@tabler/icons-react';
 import {
   useUsers,
   SelectMember,
@@ -148,7 +152,11 @@ const AssigneeHoverCard = forwardRef(
 
     if (!assigneeId || userLoading || !assigneeDetails) {
       return (
-        <div ref={ref as React.Ref<HTMLDivElement>} {...props} style={{ display: 'inline-block' }}>
+        <div
+          ref={ref as React.Ref<HTMLDivElement>}
+          {...props}
+          style={{ display: 'inline-block' }}
+        >
           {children}
         </div>
       );
@@ -159,7 +167,11 @@ const AssigneeHoverCard = forwardRef(
     return (
       <HoverCard openDelay={300}>
         <HoverCard.Trigger asChild>
-          <div ref={ref as React.Ref<HTMLDivElement>} {...props} style={{ display: 'inline-block' }}>
+          <div
+            ref={ref as React.Ref<HTMLDivElement>}
+            {...props}
+            style={{ display: 'inline-block' }}
+          >
             {children}
           </div>
         </HoverCard.Trigger>
@@ -252,9 +264,7 @@ const SelectTeamMemberContent = ({
   teamIds?: string[] | string;
   exclude: boolean;
 }) => {
-  const hasTeamIds = Array.isArray(teamIds)
-    ? teamIds.length > 0
-    : !!teamIds;
+  const hasTeamIds = Array.isArray(teamIds) ? teamIds.length > 0 : !!teamIds;
   const { members: teamMembers } = useGetTeamMembers({ teamIds });
   const excludeIds = teamMembers?.map((member) => member.memberId);
   const [search, setSearch] = useState('');
@@ -265,21 +275,20 @@ const SelectTeamMemberContent = ({
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
-      ...(hasTeamIds
-        ? { excludeIds: exclude, ids: filteredIds }
-        : {}),
+      ...(hasTeamIds ? { excludeIds: exclude, ids: filteredIds } : {}),
     },
-    skip: hasTeamIds ? (!excludeIds || !filteredIds?.length) : false,
+    skip: hasTeamIds ? !excludeIds || !filteredIds?.length : false,
   });
-  const membersList = exclude && hasTeamIds
-    ? [currentUser, ...users].filter(
-        (user) =>
-          !memberIds?.find((memberId) => memberId === user._id) &&
-          !excludeIds?.find((excludeId) => excludeId === user._id),
-      )
-    : [currentUser, ...users].filter(
-        (user) => !members.find((member) => member._id === user._id),
-      );
+  const membersList =
+    exclude && hasTeamIds
+      ? [currentUser, ...users].filter(
+          (user) =>
+            !memberIds?.find((memberId) => memberId === user._id) &&
+            !excludeIds?.find((excludeId) => excludeId === user._id),
+        )
+      : [currentUser, ...users].filter(
+          (user) => !members.find((member) => member._id === user._id),
+        );
 
   return (
     <Command shouldFilter={false}>
@@ -330,7 +339,7 @@ const SelectAssigneeFilterView = ({
       <SelectAssigneeProvider
         mode="single"
         value={
-          assignee === 'no-assignee' ? 'no-assignee' : assignee ?? undefined
+          assignee === 'no-assignee' ? 'no-assignee' : (assignee ?? undefined)
         }
         onValueChange={(value) => {
           setAssignee(value === null ? 'no-assignee' : (value as string));

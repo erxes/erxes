@@ -82,9 +82,7 @@ const TemplateRowActions = ({
           </AlertDialog.Header>
           <AlertDialog.Footer>
             <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-            <AlertDialog.Action
-              onClick={() => onRemove(template._id)}
-            >
+            <AlertDialog.Action onClick={() => onRemove(template._id)}>
               Delete
             </AlertDialog.Action>
           </AlertDialog.Footer>
@@ -173,10 +171,10 @@ export const TemplateList = () => {
           const userId = getValue() as string;
           if (!userId) return '-';
           return (
-             <RecordTableInlineCell>
-                <MembersInline memberIds={[userId]} />
-             </RecordTableInlineCell>
-          )
+            <RecordTableInlineCell>
+              <MembersInline memberIds={[userId]} />
+            </RecordTableInlineCell>
+          );
         },
       },
       {
