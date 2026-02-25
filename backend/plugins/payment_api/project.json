@@ -10,6 +10,7 @@
       "cache": true,
       "options": {
         "cwd": "backend/plugins/payment_api",
+        "assets": ["backend/plugins/payment_api/src/public/**/*"],
         "commands": ["pnpm build"]
       },
       "dependsOn": ["^build", "build:packageJson"]
@@ -22,6 +23,7 @@
         "tsConfig": "backend/plugins/payment_api/tsconfig.build.json",
         "outputPath": "backend/plugins/payment_api/dist",
         "updateBuildableProjectDepsInPackageJson": true,
+        "assets": ["backend/plugins/payment_api/src/public/**/*"],
 
         "buildableProjectDepsInPackageJsonType": "dependencies"
       }

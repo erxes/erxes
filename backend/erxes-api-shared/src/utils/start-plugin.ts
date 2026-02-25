@@ -41,7 +41,7 @@ type IMeta = {
   segments?: SegmentConfigs;
   afterProcess?: AfterProcessConfigs;
   payments?: any;
-  notificationModules?: any[];
+  notifications?: any;
   tags?: any;
   properties?: IPropertyMeta;
   permissions?: IPermissionConfig;
@@ -275,13 +275,8 @@ export async function startPlugin(
   );
 
   if (configs.meta) {
-    const {
-      automations,
-      segments,
-      afterProcess,
-      notificationModules,
-      payments,
-    } = configs.meta || {};
+    const { automations, segments, afterProcess, notifications, payments } =
+      configs.meta || {};
 
     if (automations) {
       await startAutomations(app, configs.name, automations);
@@ -295,11 +290,11 @@ export async function startPlugin(
       await startAfterProcess(app, configs.name, afterProcess);
     }
 
-    if (notificationModules) {
+    if (notifications) {
       await initializePluginConfig(
         configs.name,
-        'notificationModules',
-        notificationModules,
+        'notifications',
+        notifications,
       );
     }
 

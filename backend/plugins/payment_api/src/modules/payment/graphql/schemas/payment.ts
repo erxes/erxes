@@ -33,7 +33,7 @@ export const inputs = `
     status: PaymentMethodStatus
     config: JSON
   }
-`
+`;
 
 export const queries = `
   payments(status: String, kind: String): [Payment]
@@ -51,5 +51,5 @@ export const queries = `
 export const mutations = `
   paymentAdd(input: PaymentInput!): Payment
   paymentEdit(_id: String!, input: PaymentInput!): Payment
-  paymentRemove(_id: String!): String
+  paymentRemove(_ids: [String!]!): String
 `;
