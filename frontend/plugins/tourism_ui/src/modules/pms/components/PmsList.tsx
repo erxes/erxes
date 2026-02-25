@@ -195,7 +195,7 @@ export function PmsList() {
         }}
       >
         <Sheet.View
-          className="p-0 sm:max-w-8xl"
+          className="p-0 sm:max-w-5xl"
           onEscapeKeyDown={(e) => {
             e.preventDefault();
           }}
