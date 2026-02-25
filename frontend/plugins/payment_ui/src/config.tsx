@@ -12,6 +12,11 @@ const PaymentSettingsNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'payment',
   path: 'payment',
+  navigationGroup: {
+    name: 'Payment',
+    icon: IconCurrencyDollar,
+    content: () => null,
+  },
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <PaymentSettingsNavigation />
