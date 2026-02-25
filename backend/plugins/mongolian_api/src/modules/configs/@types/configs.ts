@@ -12,7 +12,8 @@ export const MnConfigCodes = [
   'dealsProductsDataPlaces',
   'stageInIncomeConfig',
   'dealsProductsDefaultFilter',
-]
+  'DYNAMIC',
+];
 
 export interface IConfig {
   code: string;
