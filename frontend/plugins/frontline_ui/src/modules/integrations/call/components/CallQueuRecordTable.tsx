@@ -66,7 +66,6 @@ const columns: ColumnDef<any>[] = [
         avgTalk,
         answeredRate,
       } = row.original;
-      console.log(row.original);
       return (
         <HoverCard openDelay={100}>
           <HoverCard.Trigger asChild>

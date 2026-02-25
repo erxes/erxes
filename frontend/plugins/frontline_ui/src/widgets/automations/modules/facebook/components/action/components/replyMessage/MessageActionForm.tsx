@@ -32,11 +32,7 @@ export const MessageActionForm = ({
 
   useAutomationRemoteFormSubmit({
     formRef,
-    callback: () =>
-      handleSubmit(onSaveActionConfig, (errors) => {
-        console.log(errors);
-        handleValidationErrors(errors);
-      })(),
+    callback: () => handleSubmit(onSaveActionConfig, handleValidationErrors)(),
   });
 
   useEffect(() => {

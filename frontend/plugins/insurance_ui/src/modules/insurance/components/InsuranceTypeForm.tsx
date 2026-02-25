@@ -136,7 +136,7 @@ export const InsuranceTypeForm = ({
           </div>
 
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <Label>Attributes</Label>
               <Button
                 type="button"
@@ -152,10 +152,10 @@ export const InsuranceTypeForm = ({
             {formData.attributes.map((attr, index) => (
               <div
                 key={index}
-                className="p-4 space-y-3 rounded-lg border bg-muted/30"
+                className="p-4 border rounded-lg space-y-3 bg-muted/30"
               >
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-medium">Attribute {index + 1}</h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-sm">Attribute {index + 1}</h4>
                   <Button
                     type="button"
                     variant="ghost"
@@ -182,7 +182,7 @@ export const InsuranceTypeForm = ({
                   <div className="space-y-1">
                     <Label className="text-xs">Data Type *</Label>
                     <select
-                      className="px-3 w-full h-9 text-sm rounded-md border"
+                      className="w-full h-9 px-3 border rounded-md text-sm"
                       value={attr.dataType}
                       onChange={(e) =>
                         handleAttributeChange(index, 'dataType', e.target.value)
@@ -196,7 +196,7 @@ export const InsuranceTypeForm = ({
                     </select>
                   </div>
 
-                  <div className="col-span-2 space-y-1">
+                  <div className="space-y-1 col-span-2">
                     <Label className="text-xs">Description</Label>
                     <Input
                       value={attr.description || ''}
@@ -211,7 +211,7 @@ export const InsuranceTypeForm = ({
                     />
                   </div>
 
-                  <div className="flex gap-2 items-center">
+                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       id={`required-${index}`}
@@ -270,7 +270,7 @@ export const InsuranceTypeForm = ({
                   )}
 
                   {attr.dataType === 'string' && (
-                    <div className="col-span-2 space-y-1">
+                    <div className="space-y-1 col-span-2">
                       <Label className="text-xs">
                         Options (comma-separated)
                       </Label>
@@ -295,7 +295,7 @@ export const InsuranceTypeForm = ({
             ))}
 
             {formData.attributes.length === 0 && (
-              <p className="py-4 text-sm text-center text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-center py-4">
                 No attributes defined. Click "Add Attribute" to create one.
               </p>
             )}

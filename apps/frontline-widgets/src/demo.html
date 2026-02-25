@@ -14,7 +14,7 @@
       }
       .container {
         background: white;
-        padding: 30px;
+        padding: 3rem;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
@@ -44,48 +44,34 @@
   </head>
   <body>
     <div class="container">
-      <h1>🚀 Erxes Messenger Widget - Test Page</h1>
-      <p class="description">
-        This is a demo page to test the Erxes messenger widget. The widget
-        script is loaded below and should appear as a launcher button in the
-        bottom-right corner.
-      </p>
-
-      <div class="info">
-        <strong>📍 Development Mode:</strong> The widget automatically reloads
-        when you make changes to <code>index.ts</code> or
-        <code>index.css</code>
-      </div>
-
-      <h2>Widget Configuration</h2>
-      <div class="code">
-        window.erxesSettings = { messenger: { /* your settings here */ } };
-      </div>
-
-      <h2>Content Area</h2>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat.
-      </p>
-      <p>
-        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-        dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-      </p>
+      <div data-erxes-embed="GGQY5i"></div>
     </div>
 
     <!-- Widget Configuration -->
+
+    <!-- Load the compiled widget script -->
+    <script src="./messengerBundle.js"></script>
     <script>
       window.erxesSettings = {
         messenger: {
-          integrationId: '9S6seo9wawN6cou8v',
+          integrationId: '4nOWyqg7SZgmdLHs0rLQN',
         },
+        forms: [
+          {
+            form_id: 'GGQY5i',
+            channel_id: '0CdBWjlmo0p7acYcFKnZc',
+          },
+        ],
       };
-    </script>
 
-    <!-- Load the compiled widget script -->
-    <script src="/messengerBundle.js"></script>
+      (function () {
+        var script = document.createElement('script');
+        script.src = 'http://localhost:4200/formBundle.js';
+        script.async = true;
+
+        var entry = document.getElementsByTagName('script')[0];
+        entry.parentNode.insertBefore(script, entry);
+      })();
+    </script>
   </body>
 </html>

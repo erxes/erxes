@@ -14,11 +14,11 @@ import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 
 export const useFormMutate = () => {
-  const { formId, channelId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
-  const { formDetail } = useFormDetail({ formId: formId as string });
+  const { formDetail } = useFormDetail({ formId: id as string });
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [fieldsBulkAction, { loading: isFieldsBulkActionLoading }] =
@@ -36,18 +36,17 @@ export const useFormMutate = () => {
     confirmation: z.infer<typeof FORM_CONFIRMATION_SCHEMA>,
   ) => {
     const { formValues, formFields } = formSetupValues(confirmation);
-    if (formId) {
+    if (id) {
       await editForm({
         variables: {
           ...formValues,
-          id: formId,
-          channelId,
+          id,
         },
         onCompleted: () => {
           fieldsBulkAction({
             variables: {
               contentType: 'form',
-              contentTypeId: formId,
+              contentTypeId: id,
               updatedFields: formFields
                 .filter((field) =>
                   formDetail?.fields.some((f) => f._id === field.tempFieldId),
@@ -73,7 +72,7 @@ export const useFormMutate = () => {
       });
     } else {
       await addForm({
-        variables: { ...formValues, channelId },
+        variables: { ...formValues },
         onCompleted: ({ formsAdd }) => {
           fieldsBulkAction({
             variables: {
@@ -94,7 +93,7 @@ export const useFormMutate = () => {
       });
     }
     resetFormSetup();
-    navigate(`/settings/frontline/forms/${channelId}`);
+    navigate(`/frontline/forms`);
   };
 
   return {

@@ -1,11 +1,5 @@
 import { useState } from 'react';
-import {
-  IconCar,
-  IconPlus,
-  IconFileText,
-  IconCalendar,
-  IconCurrencyTugrik,
-} from '@tabler/icons-react';
+import { IconCar, IconCalendar, IconCurrencyTugrik } from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
@@ -16,7 +10,7 @@ import {
   DatePicker,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   useVendors,
   useCustomers,
@@ -24,8 +18,12 @@ import {
   useInsuranceTypes,
   useCreateInsuranceContract,
 } from '~/modules/insurance/hooks';
-import { useNavigate } from 'react-router-dom';
-import { Alert } from 'erxes-ui';
+import {
+  InsuranceFormAlerts,
+  VendorCustomerSelect,
+  PaymentSection,
+  FormSubmitButtons,
+} from '~/modules/insurance/components';
 
 export const CarInsurancePage = () => {
   const navigate = useNavigate();
@@ -189,7 +187,7 @@ export const CarInsurancePage = () => {
         navigate('/insurance/contracts');
       }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Гэрээ үүсгэхэд алдаа гарлаа');
+      setError(err.message || 'Failed to create contract');
     }
   };
 
@@ -201,7 +199,7 @@ export const CarInsurancePage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance">
+                  <Link to="/insurance/products">
                     <IconCar />
                     Insurance
                   </Link>
@@ -230,78 +228,32 @@ export const CarInsurancePage = () => {
                   <IconCar className="text-blue-600" size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Автомашины даатгал</h2>
+                  <h2 className="text-2xl font-bold">Vehicle Insurance</h2>
                   <p className="text-muted-foreground">
-                    Автомашины даатгалын гэрээ үүсгэх
+                    Create a vehicle insurance contract
                   </p>
                 </div>
               </div>
 
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-                  {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
-                  Гэрээ амжилттай үүсгэгдлээ! Гэрээний жагсаалт руу шилжиж
-                  байна...
-                </div>
-              )}
+              <InsuranceFormAlerts error={error} success={success} />
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Vendor & Customer Selection */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Даатгалын компани *
-                    </label>
-                    <Select
-                      value={formData.vendorId}
-                      onValueChange={handleVendorChange}
-                    >
-                      <Select.Trigger>
-                        <Select.Value placeholder="Сонгох" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {vendors.map((vendor) => (
-                          <Select.Item key={vendor.id} value={vendor.id}>
-                            {vendor.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Даатгуулагч *
-                    </label>
-                    <Select
-                      value={formData.customerId}
-                      onValueChange={(value: string) =>
-                        setFormData({ ...formData, customerId: value })
-                      }
-                    >
-                      <Select.Trigger>
-                        <Select.Value placeholder="Сонгох" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {customers.map((customer) => (
-                          <Select.Item key={customer.id} value={customer.id}>
-                            {customer.firstName} {customer.lastName}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </div>
-                </div>
+                <VendorCustomerSelect
+                  vendors={vendors}
+                  customers={customers}
+                  vendorId={formData.vendorId}
+                  customerId={formData.customerId}
+                  onVendorChange={handleVendorChange}
+                  onCustomerChange={(value) =>
+                    setFormData({ ...formData, customerId: value })
+                  }
+                />
 
                 {/* Product Selection */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Даатгалын бүтээгдэхүүн *
+                    Insurance Product *
                   </label>
                   <Select
                     value={formData.productId}
@@ -314,8 +266,8 @@ export const CarInsurancePage = () => {
                       <Select.Value
                         placeholder={
                           formData.vendorId
-                            ? 'Сонгох'
-                            : 'Эхлээд компани сонгоно уу'
+                            ? 'Select'
+                            : 'Please select a company first'
                         }
                       />
                     </Select.Trigger>
@@ -328,14 +280,14 @@ export const CarInsurancePage = () => {
                         ))
                       ) : (
                         <div className="p-2 text-sm text-muted-foreground">
-                          Бүтээгдэхүүн олдсонгүй
+                          No products found
                         </div>
                       )}
                     </Select.Content>
                   </Select>
                   {!formData.vendorId && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Даатгалын компани сонгосны дараа бүтээгдэхүүн харагдана
+                      Products will appear after selecting an insurance company
                     </p>
                   )}
                 </div>
@@ -349,14 +301,14 @@ export const CarInsurancePage = () => {
                     <div>
                       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <IconCar size={20} />
-                        Автомашины мэдээлэл
+                        Vehicle Information
                       </h3>
 
                       <div className="grid grid-cols-2 gap-4">
                         {/* Assessed Value Field - Always show first */}
                         <div>
                           <label className="block text-sm font-medium mb-2">
-                            Машины үнэ (₮) *
+                            Vehicle Value ($) *
                           </label>
                           <Input
                             type="number"
@@ -368,7 +320,7 @@ export const CarInsurancePage = () => {
                               })
                             }
                             min={0}
-                            placeholder="Машины үнэ оруулах"
+                            placeholder="Enter vehicle value"
                             required
                           />
                         </div>
@@ -391,7 +343,7 @@ export const CarInsurancePage = () => {
                                   }
                                 >
                                   <Select.Trigger>
-                                    <Select.Value placeholder="Сонгох" />
+                                    <Select.Value placeholder="Select" />
                                   </Select.Trigger>
                                   <Select.Content>
                                     {attr.options.map((option: any) => (
@@ -450,32 +402,32 @@ export const CarInsurancePage = () => {
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
                       <IconCurrencyTugrik size={18} />
-                      Хураамжийн тооцоолол
+                      Premium Calculation
                     </h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-blue-700">Үнэлгээний үнэ:</span>
+                        <span className="text-blue-700">Assessed Value:</span>
                         <span className="font-medium">
                           {insuredObject.assessedValue?.toLocaleString()} ₮
                         </span>
                       </div>
                       {durationInMonths > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-blue-700">Хугацаа:</span>
+                          <span className="text-blue-700">Duration:</span>
                           <span className="font-medium">
-                            {durationInMonths} сар
+                            {durationInMonths} months
                           </span>
                         </div>
                       )}
                       <div className="flex justify-between">
                         <span className="text-blue-700">
-                          Хувь ({selectedProduct?.name}):
+                          Rate ({selectedProduct?.name}):
                         </span>
                         <span className="font-medium">
                           {productPercentage}%
                           {durationInMonths > 0 && (
                             <span className="text-xs text-blue-600 ml-1">
-                              ({durationInMonths} сарын)
+                              ({durationInMonths} mo)
                             </span>
                           )}
                         </span>
@@ -483,7 +435,7 @@ export const CarInsurancePage = () => {
                       <Separator className="my-2" />
                       <div className="flex justify-between text-base">
                         <span className="text-blue-800 font-semibold">
-                          Нийт хураамж:
+                          Total Premium:
                         </span>
                         <span className="font-bold text-blue-900">
                           {calculatedPremium.toLocaleString()} ₮
@@ -499,13 +451,13 @@ export const CarInsurancePage = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <IconCalendar size={20} />
-                    Даатгалын хугацаа
+                    Insurance Period
                   </h3>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Эхлэх огноо *
+                        Start Date *
                       </label>
                       <DatePicker
                         value={formData.startDate}
@@ -522,7 +474,7 @@ export const CarInsurancePage = () => {
 
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Хугацаа *
+                        Duration *
                       </label>
                       {selectedProduct &&
                       (selectedProduct.pricingConfig as any)
@@ -545,7 +497,7 @@ export const CarInsurancePage = () => {
                           }}
                         >
                           <Select.Trigger>
-                            <Select.Value placeholder="Хугацаа сонгох" />
+                            <Select.Value placeholder="Select duration" />
                           </Select.Trigger>
                           <Select.Content>
                             {Object.keys(
@@ -560,7 +512,7 @@ export const CarInsurancePage = () => {
                               ).percentageByDuration[duration];
                               return (
                                 <Select.Item key={duration} value={duration}>
-                                  {months} сар ({percentage}%)
+                                  {months} months ({percentage}%)
                                 </Select.Item>
                               );
                             })}
@@ -579,7 +531,7 @@ export const CarInsurancePage = () => {
                         !(selectedProduct.pricingConfig as any)
                           ?.percentageByDuration && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            Дуусах огноо
+                            End Date
                           </p>
                         )}
                     </div>
@@ -589,67 +541,17 @@ export const CarInsurancePage = () => {
                 <Separator />
 
                 {/* Payment */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <IconCurrencyTugrik size={20} />
-                    Төлбөрийн мэдээлэл
-                  </h3>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Төлбөрийн хэлбэр *
-                      </label>
-                      <Select
-                        value={formData.paymentKind}
-                        onValueChange={(value: string) =>
-                          setFormData({ ...formData, paymentKind: value })
-                        }
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder="Сонгох" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="cash">Бэлэн мөнгө</Select.Item>
-                          <Select.Item value="qpay">QPay</Select.Item>
-                        </Select.Content>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Төлбөрийн дүн (₮)
-                      </label>
-                      <div className="p-3 bg-gray-50 border rounded-md">
-                        <p className="text-lg font-semibold">
-                          {calculatedPremium > 0
-                            ? calculatedPremium.toLocaleString()
-                            : '0'}{' '}
-                          ₮
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Автоматаар тооцоологдсон
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <PaymentSection
+                  paymentKind={formData.paymentKind}
+                  onPaymentKindChange={(value) =>
+                    setFormData({ ...formData, paymentKind: value })
+                  }
+                  calculatedPremium={calculatedPremium}
+                  showPremiumDisplay={true}
+                />
 
                 {/* Submit Button */}
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    asChild
-                    disabled={creating}
-                  >
-                    <Link to="/insurance">Болих</Link>
-                  </Button>
-                  <Button type="submit" disabled={creating || success}>
-                    <IconPlus size={16} />
-                    {creating ? 'Үүсгэж байна...' : 'Гэрээ үүсгэх'}
-                  </Button>
-                </div>
+                <FormSubmitButtons creating={creating} success={success} />
               </form>
             </Card>
           </div>
