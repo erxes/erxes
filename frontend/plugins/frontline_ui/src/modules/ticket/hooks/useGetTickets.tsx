@@ -114,8 +114,8 @@ export const useTickets = (
               type === 'create'
                 ? prev.getTickets.totalCount + 1
                 : type === 'remove'
-                ? prev.getTickets.totalCount - 1
-                : prev.getTickets.totalCount,
+                  ? prev.getTickets.totalCount - 1
+                  : prev.getTickets.totalCount,
           },
         };
       },

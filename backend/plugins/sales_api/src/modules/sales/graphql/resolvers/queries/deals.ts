@@ -160,9 +160,9 @@ export const generateFilter = async (
       input: {
         contentType: 'core:customer',
         contentIds: customerIds,
-        relatedContentType: 'sales:deal'
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = relIds;
@@ -177,9 +177,9 @@ export const generateFilter = async (
       input: {
         contentType: 'core:company',
         contentIds: companyIds,
-        relatedContentType: 'sales:deal'
+        relatedContentType: 'sales:deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = filterIds.length
@@ -204,8 +204,8 @@ export const generateFilter = async (
       input: {
         contentType: relationType,
         contentId: relationId,
-        relatedContentType: 'sales:deal'
-      }
+        relatedContentType: 'sales:deal',
+      },
     });
     filter._id = contains(relIds || []);
   }

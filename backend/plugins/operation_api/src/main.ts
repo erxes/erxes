@@ -80,7 +80,7 @@ startPlugin({
         {
           description: 'Project',
           type: 'project',
-        }
+        },
       ],
     },
   },

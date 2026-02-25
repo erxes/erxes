@@ -41,10 +41,13 @@ export class BaseQueryResolver {
    * Build translation map for efficient lookup
    */
   protected buildTranslationMap(translations: any[]): Record<string, any> {
-    return translations.reduce((acc, translation) => {
-      acc[translation.postId.toString()] = translation;
-      return acc;
-    }, {} as Record<string, any>);
+    return translations.reduce(
+      (acc, translation) => {
+        acc[translation.postId.toString()] = translation;
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
   }
 
   /**

@@ -219,8 +219,8 @@ export function PageDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                  ? 'Save Changes'
-                  : 'Create Page'}
+                    ? 'Save Changes'
+                    : 'Create Page'}
               </Button>
             </div>
           </form>

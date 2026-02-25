@@ -101,7 +101,7 @@ export const ProductDetailGeneral = () => {
               const uomValue =
                 typeof field.value === 'string'
                   ? field.value
-                  : (field.value as unknown as { _id?: string })?._id ?? '';
+                  : ((field.value as unknown as { _id?: string })?._id ?? '');
               return (
                 <div className="col-span-2 space-y-2">
                   <Label>{t('unit-of-measurements')}</Label>

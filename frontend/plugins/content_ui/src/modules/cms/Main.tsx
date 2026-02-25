@@ -80,10 +80,7 @@ const CmsMain = () => {
         <Route path="cms/:websiteId">
           <Route path="posts" element={<PostsWrapper />} />
           <Route path="posts/add" element={<PostsAddWrapper />} />
-          <Route
-            path="posts/detail/:postId"
-            element={<PostsDetailWrapper />}
-          />
+          <Route path="posts/detail/:postId" element={<PostsDetailWrapper />} />
           <Route path="categories" element={<Categories />} />
           <Route path="tags" element={<Tags />} />
           <Route path="pages" element={<Pages />} />

@@ -300,8 +300,8 @@ function generateContractHTML(contract: Contract): string {
       <div class="info-item">
         <div class="info-label">Овог нэр</div>
         <div class="info-value">${contract.customer?.firstName || ''} ${
-    contract.customer?.lastName || ''
-  }</div>
+          contract.customer?.lastName || ''
+        }</div>
       </div>
       <div class="info-item">
         <div class="info-label">Регистрийн дугаар</div>

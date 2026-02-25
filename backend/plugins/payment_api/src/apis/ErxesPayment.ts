@@ -1,4 +1,3 @@
-
 import { getEnv } from 'erxes-api-shared/utils';
 
 import { GolomtAPI } from '~/apis/golomt/api';
@@ -52,7 +51,7 @@ class ErxesPayment {
       case 'qpay':
         this.qpay = new QpayAPI(
           { ...payment.config, branchCode: payment.name },
-          this.domain
+          this.domain,
         );
         break;
       case 'monpay':

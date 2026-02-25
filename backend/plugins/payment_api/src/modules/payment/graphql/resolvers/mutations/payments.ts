@@ -19,7 +19,7 @@ const mutations = {
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
-    
+
     const acceptedCurrencies = PAYMENTS[input.kind].acceptedCurrencies;
     input.acceptedCurrencies = acceptedCurrencies;
 
@@ -87,11 +87,7 @@ const mutations = {
     return 'success';
   },
 
-  async paymentEdit(
-    _root,
-    args: any,
-    { models }: IContext,
-  ) {
+  async paymentEdit(_root, args: any, { models }: IContext) {
     const { _id, input } = args;
     const { name, status, kind, config, currency } = input;
     const { acceptedCurrencies } = PAYMENTS[kind];

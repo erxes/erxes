@@ -533,8 +533,8 @@ export const ProductForm = ({
               {creating || updating
                 ? 'Saving...'
                 : product
-                ? 'Update'
-                : 'Create'}
+                  ? 'Update'
+                  : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>

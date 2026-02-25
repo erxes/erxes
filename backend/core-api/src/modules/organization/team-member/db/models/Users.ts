@@ -301,7 +301,9 @@ export const loadUserClass = (
       }
 
       if (doc.propertiesData) {
-        const propertiesData = await models.Fields.validateFieldValues(doc.propertiesData);
+        const propertiesData = await models.Fields.validateFieldValues(
+          doc.propertiesData,
+        );
 
         doc.propertiesData = propertiesData;
       }

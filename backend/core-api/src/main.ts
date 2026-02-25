@@ -4,8 +4,10 @@ import cors from 'cors';
 import * as dotenv from 'dotenv';
 import {
   closeMongooose,
-  createTRPCContext, isDev, joinErxesGateway,
-  leaveErxesGateway
+  createTRPCContext,
+  isDev,
+  joinErxesGateway,
+  leaveErxesGateway,
 } from 'erxes-api-shared/utils';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
@@ -110,7 +112,7 @@ httpServer.listen(port, async () => {
   await initAutomation(app);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
-  await initBroadcast(app)
+  await initBroadcast(app);
 });
 
 // GRACEFULL SHUTDOWN

@@ -1,10 +1,19 @@
-import { Combobox, Command, Filter, isUndefinedOrNull, PageSubHeader, Skeleton, useMultiQueryState, useQueryState } from "erxes-ui";
-import { FormsPageHotKeyScope } from "@/forms/types/formTypes";
-import { IconTag } from "@tabler/icons-react";
-import { useTranslation } from "react-i18next";
-import { FormStatus } from "./filters/FormStatus";
-import { SelectTags } from "ui-modules";
-import { useFormsList } from "@/forms/hooks/useFormsList";
+import {
+  Combobox,
+  Command,
+  Filter,
+  isUndefinedOrNull,
+  PageSubHeader,
+  Skeleton,
+  useMultiQueryState,
+  useQueryState,
+} from 'erxes-ui';
+import { FormsPageHotKeyScope } from '@/forms/types/formTypes';
+import { IconTag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { FormStatus } from './filters/FormStatus';
+import { SelectTags } from 'ui-modules';
+import { useFormsList } from '@/forms/hooks/useFormsList';
 
 export const FormSubHeader = () => {
   const { t } = useTranslation('common');
@@ -62,7 +71,7 @@ export const FormSubHeader = () => {
         <FormStatus.BarItem />
 
         <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
-          {(isUndefinedOrNull(totalCount) || loading) ? (
+          {isUndefinedOrNull(totalCount) || loading ? (
             <Skeleton className="w-20 h-4 inline-block mt-1.5" />
           ) : (
             `${totalCount} ${t('records-found')}`
@@ -90,4 +99,4 @@ export const FormTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
       />
     </Filter.BarItem>
   );
-}
+};

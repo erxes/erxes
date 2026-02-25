@@ -1,19 +1,47 @@
-import { ColumnDef, Cell } from "@tanstack/react-table";
-import { IForm } from "@/forms/types/formTypes";
-import { Badge, Button, Dialog, DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
-import { useNavigate } from "react-router";
-import { IconCalendarEvent, IconCheck, IconCode, IconCopy, IconEdit, IconSquareToggle, IconTag, IconTrash, IconUser } from "@tabler/icons-react";
-import { MembersInline, SelectTags } from "ui-modules";
-import { useState } from "react";
-import { REACT_APP_WIDGETS_URL } from "@/utils";
-import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
-import { useFormEdit } from "@/forms/hooks/useFormEdit";
-import { GET_FORMS_LIST } from "@/forms/graphql/formQueries";
-import { useFormToggleStatus } from "@/forms/hooks/useFormToggleStatus";
-import { FormStatus } from "./filters/FormStatus";
+import { ColumnDef, Cell } from '@tanstack/react-table';
+import { IForm } from '@/forms/types/formTypes';
+import {
+  Badge,
+  Button,
+  Dialog,
+  DropdownMenu,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+  Spinner,
+  toast,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
+import { useNavigate } from 'react-router';
+import {
+  IconCalendarEvent,
+  IconCheck,
+  IconCode,
+  IconCopy,
+  IconEdit,
+  IconSquareToggle,
+  IconTag,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { MembersInline, SelectTags } from 'ui-modules';
+import { useState } from 'react';
+import { REACT_APP_WIDGETS_URL } from '@/utils';
+import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { useFormEdit } from '@/forms/hooks/useFormEdit';
+import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
+import { FormStatus } from './filters/FormStatus';
 
-export function FormInstallScript({ formId, setOpen }: { formId: string, setOpen: (open: boolean) => void }) {
+export function FormInstallScript({
+  formId,
+  setOpen,
+}: {
+  formId: string;
+  setOpen: (open: boolean) => void;
+}) {
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
@@ -120,7 +148,15 @@ export function FormInstallScript({ formId, setOpen }: { formId: string, setOpen
   );
 }
 
-export function FormToggleStatus({ formId, status, setOpen }: { formId: string, status: string, setOpen: (open: boolean) => void }) {
+export function FormToggleStatus({
+  formId,
+  status,
+  setOpen,
+}: {
+  formId: string;
+  status: string;
+  setOpen: (open: boolean) => void;
+}) {
   const { toggleStatus, loading } = useFormToggleStatus();
 
   const onSelect = () => {
@@ -133,14 +169,14 @@ export function FormToggleStatus({ formId, status, setOpen }: { formId: string, 
         setOpen(false);
       },
     });
-  }
+  };
 
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === "active" ? "Archive" : "Unarchive"}
+      {status === 'active' ? 'Archive' : 'Unarchive'}
     </DropdownMenu.Item>
-  )
+  );
 }
 
 export const FormsMoreColumnCell = ({
@@ -203,7 +239,11 @@ export const FormsMoreColumnCell = ({
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <DropdownMenu.Item disabled={loading} onSelect={handleDelete} className="text-destructive">
+        <DropdownMenu.Item
+          disabled={loading}
+          onSelect={handleDelete}
+          className="text-destructive"
+        >
           {loading ? <Spinner /> : <IconTrash />} Delete
         </DropdownMenu.Item>
       </DropdownMenu.Content>
@@ -215,7 +255,7 @@ export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
   size: 30,
   cell: FormsMoreColumnCell,
-}
+};
 
 export const formColumns: ColumnDef<IForm>[] = [
   MoreColumn,
@@ -251,32 +291,30 @@ export const formColumns: ColumnDef<IForm>[] = [
       const { editForm } = useFormEdit();
 
       const onValueChange = (value: string | string[]) => {
-        editForm(
-          {
-            variables: {
-              id: _id,
-              name,
-              type,
-              channelId: value,
-            },
-            refetchQueries: [GET_FORMS_LIST],
-            onCompleted: () => {
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Form updated successfully',
-              });
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message,
-              });
-            },
-          }
-        );
-      }
+        editForm({
+          variables: {
+            id: _id,
+            name,
+            type,
+            channelId: value,
+          },
+          refetchQueries: [GET_FORMS_LIST],
+          onCompleted: () => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Form updated successfully',
+            });
+          },
+          onError: (error) => {
+            toast({
+              title: 'Error',
+              variant: 'destructive',
+              description: error.message,
+            });
+          },
+        });
+      };
 
       return (
         <SelectChannel.InlineCell

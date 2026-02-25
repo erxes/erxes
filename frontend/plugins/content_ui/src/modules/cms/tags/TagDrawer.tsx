@@ -261,10 +261,10 @@ export function TagDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                  ? 'Permission Required'
-                  : isEditing
-                  ? 'Save Changes'
-                  : 'Create Tag'}
+                    ? 'Permission Required'
+                    : isEditing
+                      ? 'Save Changes'
+                      : 'Create Tag'}
               </Button>
             </div>
           </form>

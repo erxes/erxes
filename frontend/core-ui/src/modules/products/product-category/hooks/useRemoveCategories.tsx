@@ -4,7 +4,9 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { IProductCategory } from 'ui-modules';
 
 export const useRemoveCategories = () => {
-  const [_removeCategory, { loading }] = useMutation(productsMutations.categoryRemove);
+  const [_removeCategory, { loading }] = useMutation(
+    productsMutations.categoryRemove,
+  );
 
   const removeCategory = async (
     categoryIds: string | string[],
@@ -13,7 +15,8 @@ export const useRemoveCategories = () => {
     await _removeCategory({
       ...options,
       variables: {
-        _id: categoryIds, ...options?.variables
+        _id: categoryIds,
+        ...options?.variables,
       },
       update: (cache) => {
         try {
@@ -39,5 +42,5 @@ export const useRemoveCategories = () => {
     });
   };
 
-  return { removeCategory, loading }
-}
+  return { removeCategory, loading };
+};

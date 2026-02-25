@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 const dealMutationVariables = `
   $productsData: JSON,
@@ -190,7 +190,6 @@ export const commonMutationParams = `
   branchIds: $branchIds
   departmentIds: $departmentIds
 `;
-
 
 export const ADD_DEALS = gql`
   mutation dealsAdd($name: String, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {

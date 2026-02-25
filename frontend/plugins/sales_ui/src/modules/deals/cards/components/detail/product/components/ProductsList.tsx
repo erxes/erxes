@@ -90,8 +90,8 @@ const ProductsList = ({
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : Number.parseFloat(
-            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
-          ),
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
+            ),
       };
 
       calculatePerProductAmount('', pData, false);

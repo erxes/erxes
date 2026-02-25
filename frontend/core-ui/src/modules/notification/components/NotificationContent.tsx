@@ -17,7 +17,10 @@ export const NotificationContent = () => {
   }
 
   return (
-    <ScrollArea className="overflow-hidden h-full" viewportClassName='[&>div]:lg:min-h-dvh'>
+    <ScrollArea
+      className="overflow-hidden h-full"
+      viewportClassName="[&>div]:lg:min-h-dvh"
+    >
       <NotificationContentWrapper
         key={notification._id}
         notification={notification}

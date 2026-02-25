@@ -75,11 +75,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import(
-    '@/automations/components/settings/components/AutomationSettingsRoutes'
-  ).then((module) => ({
-    default: module.AutomationSettingsRoutes,
-  })),
+  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
+    (module) => ({
+      default: module.AutomationSettingsRoutes,
+    }),
+  ),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -151,10 +151,7 @@ export function SettingsRoutes() {
           path={`${SettingsWorkspacePath.ClientPortals}/:clientPortalId`}
           element={<ClientPortalDetailPage />}
         />
-          <Route
-          path={SettingsWorkspacePath.Logs}
-          element={<LogsRoutes />}
-        />
+        <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
         {/* <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}

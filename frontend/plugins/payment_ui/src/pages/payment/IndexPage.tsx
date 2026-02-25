@@ -1,7 +1,7 @@
 import {
   IconCaretDownFilled,
   IconCurrencyDollar,
-  IconSettings
+  IconSettings,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';

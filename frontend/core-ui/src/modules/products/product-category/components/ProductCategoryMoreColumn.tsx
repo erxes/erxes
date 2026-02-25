@@ -6,7 +6,7 @@ import { RecordTable } from 'erxes-ui';
 import { renderingCategoryDetailAtom } from '../states/ProductCategory';
 
 export const CategoryMoreColumnCell = (
-  props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>
+  props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>,
 ) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingCategoryDetail = useSetAtom(renderingCategoryDetailAtom);

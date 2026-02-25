@@ -237,8 +237,8 @@ export const destroyBoardItemRelations = async (
     pluginName: 'core',
     module: 'activityLog',
     action: 'deleteActivityLog',
-    input: { targetIds: dealIds }
-  })
+    input: { targetIds: dealIds },
+  });
 
   await models.Checklists.removeChecklists(dealIds);
 
@@ -250,7 +250,7 @@ export const destroyBoardItemRelations = async (
     action: 'cleanRelation',
     input: {
       contentType: 'sales:deal',
-      contentIds: dealIds
+      contentIds: dealIds,
     },
   });
 
@@ -512,7 +512,7 @@ export const getItemList = async (
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
-    args.orderBy = { order: 1 }
+    args.orderBy = { order: 1 };
   }
 
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
@@ -586,7 +586,7 @@ const compareDepartmentIds = (
 
 export const generateProducts = async (
   subdomain: string,
-  productsData?: any[]
+  productsData?: any[],
 ) => {
   const products: any = [];
 
@@ -595,24 +595,24 @@ export const generateProducts = async (
   }
 
   const productIds = productsData
-    .filter(pd => pd.productId)
-    .map(pd => pd.productId);
+    .filter((pd) => pd.productId)
+    .map((pd) => pd.productId);
 
   const allProducts = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
     module: 'products',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: productIds } }, limit: productsData.length },
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
     }
-    const product = allProducts.find(p => p._id === data.productId);
+    const product = allProducts.find((p) => p._id === data.productId);
 
     if (!product) {
       continue;
@@ -632,22 +632,22 @@ export const generateProducts = async (
       pluginName: 'core',
       method: 'query',
       module: 'fields',
-      action: "find",
+      action: 'find',
       input: {
         query: {
-          _id: { $in: fieldIds }
-        }
+          _id: { $in: fieldIds },
+        },
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const customFieldData of customFieldsData || []) {
-      const field = fields.find(f => f._id === customFieldData.field);
+      const field = fields.find((f) => f._id === customFieldData.field);
 
       if (field) {
         customFields[customFieldData.field] = {
           text: field.text,
-          data: customFieldData.value
+          data: customFieldData.value,
         };
       }
     }
@@ -655,8 +655,8 @@ export const generateProducts = async (
     product.customFieldsData = customFields;
 
     products.push({
-      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
-      product
+      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      product,
     });
   }
 
@@ -927,29 +927,39 @@ export const getCustomerIds = async (
 
 export const createRelations = async (
   subdomain: string,
-  { dealId, companyIds, customerIds }: { dealId: string, companyIds?: string[], customerIds?: string[] },
+  {
+    dealId,
+    companyIds,
+    customerIds,
+  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
 ) => {
-  const companyEntities = companyIds?.map(companyId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:company",
-      "contentId": companyId
-    }]
-  })) ?? [];
+  const companyEntities =
+    companyIds?.map((companyId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:company',
+          contentId: companyId,
+        },
+      ],
+    })) ?? [];
 
-  const customerEntities = customerIds?.map(customerId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:customer",
-      "contentId": customerId
-    }]
-  })) ?? [];
+  const customerEntities =
+    customerIds?.map((customerId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:customer',
+          contentId: customerId,
+        },
+      ],
+    })) ?? [];
 
   if (!(companyEntities.length + customerEntities.length)) {
     return;
@@ -962,10 +972,7 @@ export const createRelations = async (
     module: 'relation',
     action: 'createMultipleRelations',
     input: {
-      relations: [
-        ...companyEntities,
-        ...customerEntities
-      ]
+      relations: [...companyEntities, ...customerEntities],
     },
   });
 };

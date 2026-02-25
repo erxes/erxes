@@ -229,8 +229,8 @@ export function CustomTypeDrawer({
                     ? 'Saving…'
                     : 'Creating…'
                   : isEditing
-                  ? 'Save Changes'
-                  : 'Create'}
+                    ? 'Save Changes'
+                    : 'Create'}
               </Button>
             </div>
           </form>

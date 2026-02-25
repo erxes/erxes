@@ -9,7 +9,9 @@ interface CategoriesUpdateCoreFieldsProps {
   form: UseFormReturn<ProductFormValues>;
 }
 
-export const CategoriesUpdateCoreFields: React.FC<CategoriesUpdateCoreFieldsProps> = ({ form }) => {
+export const CategoriesUpdateCoreFields: React.FC<
+  CategoriesUpdateCoreFieldsProps
+> = ({ form }) => {
   const { categoryDetail, loading, error } = useProductCategoryDetail();
 
   useEffect(() => {
@@ -34,7 +36,10 @@ export const CategoriesUpdateCoreFields: React.FC<CategoriesUpdateCoreFieldsProp
           <Form.Item>
             <Form.Label>Parent Category</Form.Label>
             <Form.Control>
-              <SelectCategory selected={field.value} onSelect={field.onChange} />
+              <SelectCategory
+                selected={field.value}
+                onSelect={field.onChange}
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>

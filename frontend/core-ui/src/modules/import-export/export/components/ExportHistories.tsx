@@ -125,8 +125,8 @@ const exportHistoryColumns: ColumnDef<TExportProgress>[] = [
         status === 'completed'
           ? 'success'
           : status === 'failed'
-          ? 'destructive'
-          : 'secondary';
+            ? 'destructive'
+            : 'secondary';
 
       return (
         <RecordTableInlineCell>

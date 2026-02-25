@@ -129,7 +129,7 @@ const toObject = (contentType, document, fields, groups) => {
 
             if (parsedValue !== null && parsedValue !== undefined) {
               parsedValues[field._id] = parsedValue;
-            } 
+            }
           }
 
           if (Object.keys(parsedValues).length) {
