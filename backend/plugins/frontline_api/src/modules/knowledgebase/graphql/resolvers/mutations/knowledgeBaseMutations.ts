@@ -14,7 +14,7 @@ export const knowledgeBaseMutations = {
   ) {
     const topic = await models.Topic.createDoc(
       doc,
-      user._id
+      user._id    
     );
 
     return topic;
