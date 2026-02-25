@@ -32,6 +32,8 @@ import {
 import { IMilestoneDocument } from '@/milestone/types';
 import { ITriageModel, loadTriageClass } from '@/task/db/models/Triage';
 import { ITriageDocument } from './modules/task/@types/triage';
+import { IOperationTemplateDocument } from '@/template/@types/template';
+import { IOperationTemplateModel, loadTemplateClass } from '@/template/db/models/Template';
 
 export interface IModels {
   Task: ITaskModel;
@@ -44,6 +46,7 @@ export interface IModels {
   Cycle: ICycleModel;
   Milestone: IMilestoneModel;
   Triage: ITriageModel;
+  OperationTemplate: IOperationTemplateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -105,6 +108,11 @@ export const loadClasses = (
   models.Triage = db.model<ITriageDocument, ITriageModel>(
     'operation_triage',
     loadTriageClass(models),
+  );
+
+  models.OperationTemplate = db.model<IOperationTemplateDocument, IOperationTemplateModel>(
+    'operation_templates',
+    loadTemplateClass(models),
   );
 
   return models;

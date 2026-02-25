@@ -9,27 +9,15 @@ export default {
     return models.Deals.findOne({ _id });
   },
 
-  async customers(
-    deal: IDealDocument & { customers: ICustomer[] },
-    _args: undefined,
-    { loaders }: IContext,
-  ) {
+  async customers(deal: IDealDocument & { customers: ICustomer[] }, _args: undefined, { loaders }: IContext) {
     return await loaders.deal.customersByDealId.load(deal._id);
   },
 
-  async companies(
-    deal: IDealDocument & { companies: ICompany[] },
-    _args: undefined,
-    { loaders }: IContext,
-  ) {
+  async companies(deal: IDealDocument & { companies: ICompany[] }, _args: undefined, { loaders }: IContext) {
     return await loaders.deal.companiesByDealId.load(deal._id);
   },
 
-  async branches(
-    deal: IDealDocument,
-    _args: undefined,
-    { subdomain }: IContext,
-  ) {
+  async branches(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
     if (!deal.branchIds?.length) {
       return [];
     }
@@ -60,43 +48,6 @@ export default {
       __typename: 'User',
       _id: assignedUserId,
     }));
-  },
-
-  async customPropertiesData(
-    deal: IDealDocument,
-    _args: undefined,
-    { subdomain }: IContext,
-  ) {
-    const customFieldsData = (deal?.customFieldsData as any[]) || [];
-
-    const fieldIds = customFieldsData.map((customField) => customField.field);
-
-    if (!fieldIds?.length) {
-      return customFieldsData;
-    }
-
-    const fields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'find',
-      input: {
-        query: {
-          _id: { $in: fieldIds },
-        },
-      },
-      defaultValue: [],
-    });
-
-    for (const customFieldData of customFieldsData) {
-      const field = fields.find((field) => field._id === customFieldData.field);
-      if (field) {
-        customFieldData.type = field.type;
-      }
-    }
-
-    return customFieldsData;
   },
   createdUserId(deal: IDealDocument) {
     return deal?.userId ? deal.userId : null;
@@ -166,11 +117,7 @@ export default {
     return { __typename: 'User', _id: deal.userId };
   },
 
-  async vendorCustomers(
-    deal: IDealDocument,
-    _args: undefined,
-    { subdomain }: IContext,
-  ) {
+  async vendorCustomers(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
     return await sendTRPCMessage({
       subdomain,
 

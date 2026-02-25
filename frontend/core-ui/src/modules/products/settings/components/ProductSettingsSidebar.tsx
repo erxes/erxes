@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 export function ProductSettingsSidebar() {
   const { pathname } = useLocation();
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>

@@ -4,4 +4,5 @@ export enum OperationPaths {
   TeamDetail = 'details/:id',
   TeamMembers = 'members/:id',
   TeamStatus = 'status/:id',
+  TeamTemplates = 'templates/:id',
 }

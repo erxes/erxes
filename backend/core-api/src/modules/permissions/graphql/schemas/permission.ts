@@ -1,66 +1,106 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
-
 export const types = `
-  type Permission {
-    _id: String!
-    module: String
-    action: String
-    userId: String
-    groupId: String
-    requiredActions: [String]
-    allowed: Boolean
-    user: User
-    group: UsersGroup
-
-    cursor: String
+  input PermissionInput {
+    plugin: String!
+    module: String!
+    actions: [String]!
+    scope: String!
   }
 
+
   type PermissionAction {
-    name: String
-    description: String
-    module: String
+    title: String
+    name: String!
+    description: String!
+    always: Boolean
+    disabled: Boolean
+  }
+
+  type PermissionScopeDescription {
+    name: String!
+    description: String!
   }
 
   type PermissionModule {
-    name: String
+    name: String!
     description: String
-    actions: [PermissionAction]
+    scopes: [PermissionScopeDescription]
+    plugin: String! 
+    scopeField: String
+    ownerFields: [String]
+    actions: [PermissionAction]!
+    always: Boolean
   }
 
-  type PermissionListResponse {
-    list: [Permission]
-    pageInfo: PageInfo
-    totalCount: Int
+  type PermissionModulesByPlugin {
+    plugin: String!
+    modules: [PermissionModule]!
   }
-`;
 
-const queryParams = `
-  module: String,
-  action: String,
-  userId: String,
-  groupId: String,
-  allowed: Boolean,
+  type PermissionGroupPermission {
+    plugin: String!
+    module: String!
+    actions: [String]!
+    scope: String!
+  }
 
-  ${GQL_CURSOR_PARAM_DEFS}
+  type DefaultPermissionGroup {
+    id: String!
+    name: String!
+    description: String
+    plugin: String!
+    permissions: [PermissionGroupPermission]!
+  }
+
+  type PermissionGroup {
+    _id: String!
+    name: String!
+    description: String
+    permissions: [PermissionGroupPermission]!
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  type UserPermission {
+    module: String!
+    actions: [String]!
+    scope: String!
+  }
+
+  type CustomPermission {
+    plugin: String!
+    module: String!
+    actions: [String]!
+    scope: String!
+  }
+
 `;
 
 export const queries = `
-  permissions(${queryParams}): PermissionListResponse
-  permissionModules: [PermissionModule]
-  permissionActions: [PermissionAction]
-  permissionsTotalCount(${queryParams}): Int
-`;
-
-const mutationParams = `
-  module: String!,
-  actions: [String!]!,
-  userIds: [String!],
-  groupIds: [String!],
-  allowed: Boolean
+  permissionModules: [PermissionModulesByPlugin]
+  permissionDefaultGroups: [DefaultPermissionGroup]
+  permissionGroups: [PermissionGroup]
+  permissionGroupDetail(id: String!): PermissionGroup
+  currentUserPermissions: [UserPermission]
 `;
 
 export const mutations = `
-  permissionsAdd(${mutationParams}): [Permission]
-  permissionsRemove(ids: [String]!): JSON
-  permissionsFix: [String]
+  permissionGroupAdd(
+    name: String!
+    description: String
+    permissions: [PermissionInput]!
+  ): PermissionGroup
+
+  permissionGroupEdit(
+    _id: String!
+    name: String
+    description: String
+    permissions: [PermissionInput]
+  ): PermissionGroup
+
+  permissionGroupRemove(_id: String!): JSON
+
+  userUpdatePermissionGroups(userId: String!, groupIds: [String]!): User
+  userAddCustomPermission(userId: String!, permission: PermissionInput!): User
+  userRemoveCustomPermission(userId: String!, module: String!): User
+
 `;

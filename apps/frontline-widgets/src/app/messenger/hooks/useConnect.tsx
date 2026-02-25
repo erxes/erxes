@@ -1,6 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
-import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
+import {
+  getLocalStorageItem,
+  getVisitorId,
+  setLocalStorageItem,
+} from '@libs/utils';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { connect } from '../graphql';
@@ -108,10 +112,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
       const customData = messengerData?.data;
       const companyData = messengerData?.companyData;
 
-      let visitorId;
-
-      const { getVisitorId } = await import('@libs/utils');
-      visitorId = await getVisitorId();
+      const visitorId = await getVisitorId();
 
       const variables = email
         ? {

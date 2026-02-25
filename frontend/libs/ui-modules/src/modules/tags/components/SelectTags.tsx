@@ -127,7 +127,7 @@ export const SelectTagGroupsCommand = ({
         focusOnMount
       />
       {selectedTags?.length > 0 && (
-        <div className="flex flex-wrap p-2 gap-2">
+        <div className="flex flex-wrap gap-2 p-2">
           <TagList />
         </div>
       )}
@@ -185,7 +185,7 @@ export const SelectTagsCommand = ({
       />
       {selectedTags?.length > 0 && (
         <>
-          <div className="flex flex-wrap p-2 gap-2">
+          <div className="flex flex-wrap gap-2 p-2">
             <TagList />
           </div>
           <Command.Separator />
@@ -397,7 +397,7 @@ export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
 
   if ((selectedTags || []).length !== 0) {
     return (
-      <span className="text-muted-foreground flex items-center gap-1 -ml-1">
+      <span className="flex gap-1 items-center -ml-1 text-muted-foreground">
         <IconTag className="w-4 h-4 text-gray-400" /> Tag +
         {(selectedTags || []).length}
       </span>
@@ -458,12 +458,12 @@ export const SelectTagsInlineCell = ({
 export const SelectTagsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(
   (
     {
@@ -490,7 +490,7 @@ export const SelectTagsDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
             <Popover.Trigger asChild>
               <Button
@@ -516,6 +516,7 @@ export const SelectTagsDetail = React.forwardRef<
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
 
+
 export const ConversationTagList = ({
   placeholder,
   renderAsPlainText,
@@ -539,7 +540,7 @@ export const ConversationTagList = ({
   }
 
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className='flex-1'>
       <div className="flex flex-nowrap gap-2">
         {selectedTagIds.map((tagId) => (
           <TagBadge
@@ -572,12 +573,12 @@ export const ConversationTagList = ({
 export const SelectTagsConversationDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(
   (
     {
@@ -699,12 +700,12 @@ export const SelectTagsCommandbarItem = ({
 export const SelectTagsRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-    Omit<
-      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-      'children'
-    > & {
-      scope?: string;
-    }
+  Omit<
+    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+    'children'
+  > & {
+    scope?: string;
+  }
 >(
   (
     {

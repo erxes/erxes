@@ -40,7 +40,6 @@ export const buildCustomFieldsMap = async (
         module: 'core',
         action: 'fields.find',
         input: { query: { groupId: fieldGroup._id } },
-        defaultValue: [],
       });
 
       jsonMap[fieldGroup.code] = fields.reduce((acc, field: any) => {

@@ -30,7 +30,7 @@ const USER_ACTIVITY_FIELDS = [
 ];
 
 const getFieldLabel = (field: string) => {
-  let match = USER_ACTIVITY_FIELDS.find((f) => f.field === field);
+  const match = USER_ACTIVITY_FIELDS.find((f) => f.field === field);
 
   const { label = 'unknown' } = match || {};
   return label;
@@ -80,13 +80,6 @@ export async function generateUserActivityLogs(
         { title: 1 },
       ).lean();
       return positions.map((position) => position.title);
-    }),
-    assignmentRule('roleIds', async (ids: string[]) => {
-      const roles = await models.Roles.find(
-        { _id: { $in: ids } },
-        { role: 1 },
-      ).lean();
-      return roles.map((role) => role.role);
     }),
   ];
 

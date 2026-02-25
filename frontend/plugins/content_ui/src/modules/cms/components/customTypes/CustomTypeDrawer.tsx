@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import {
   CMS_CUSTOM_POST_TYPE_ADD,
   CMS_CUSTOM_POST_TYPE_EDIT,
-} from '../../custom-types/graphql/mutations';
+} from '../../graphql/queries';
 
 interface CustomTypeDrawerProps {
   isOpen: boolean;
@@ -229,8 +229,8 @@ export function CustomTypeDrawer({
                     ? 'Saving…'
                     : 'Creating…'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create'}
+                  ? 'Save Changes'
+                  : 'Create'}
               </Button>
             </div>
           </form>

@@ -12,7 +12,7 @@ export const AutomationBuilderHeaderActions = () => {
   const { control } = useFormContext<TAutomationBuilderForm>();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
   const { setQueryParams, activeNodeTab } = useAutomationNodeLibrarySidebar();
-  const { setIsOpenSideBar } = useAutomationBuilderSidebarHooks();
+  const { setIsOpenSideBar, handleClose } = useAutomationBuilderSidebarHooks();
   if (activeTab !== 'builder') {
     return null;
   }
@@ -49,10 +49,9 @@ export const AutomationBuilderHeaderActions = () => {
             className="data-[state=on]:shadow-focus data-[state=on]:bg-background bg-background text-foreground"
             pressed={value === activeNodeTab}
             asChild
-            onClick={() => {
+            onPressedChange={() => {
               if (value === activeNodeTab) {
-                setIsOpenSideBar(false);
-                setQueryParams({ activeNodeTab: null });
+                handleClose();
               } else {
                 setQueryParams({ activeNodeTab: value });
                 setIsOpenSideBar(true);

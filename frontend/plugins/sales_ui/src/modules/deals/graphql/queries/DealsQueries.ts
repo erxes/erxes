@@ -119,6 +119,7 @@ export const commonListFields = `
   number
   tagIds
   customProperties
+  propertiesData
   status
   tags {
     _id
@@ -232,6 +233,7 @@ export const GET_DEAL_DETAIL = gql`
         categoryId
       }
       productsData
+      paymentsData
       relations
       pipeline {
         _id

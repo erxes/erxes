@@ -128,8 +128,8 @@ export const buildCursorQuery = (
           ? '$gt'
           : '$lt'
         : isAscending
-          ? '$lt'
-          : '$gt';
+        ? '$lt'
+        : '$gt';
 
     if (cursorData[field] !== undefined) {
       condition[field] = { [operator]: cursorData[field] };

@@ -21,7 +21,7 @@ import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
-import { IMainContext } from '../core-types';
+import { IMainContext, IPermissionConfig } from '../core-types';
 import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
@@ -44,6 +44,7 @@ type IMeta = {
   notificationModules?: any[];
   tags?: any;
   properties?: IPropertyMeta;
+  permissions?: IPermissionConfig;
 };
 
 type ApiHandler = {

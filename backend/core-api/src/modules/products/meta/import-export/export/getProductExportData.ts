@@ -1,7 +1,4 @@
-import {
-  GetExportData,
-  IImportExportContext,
-} from 'erxes-api-shared/core-modules';
+import { GetExportData, IImportExportContext } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
 import { buildProductExportRow } from './buildProductExportRow';
@@ -18,11 +15,7 @@ export async function getProductExportData(
 
   let query: any = {};
 
-  if (
-    (!ids || ids.length === 0) &&
-    filters &&
-    Object.keys(filters).length > 0
-  ) {
+  if ((!ids || ids.length === 0) && filters && Object.keys(filters).length > 0) {
     query = await generateFilter(subdomain, filters, models);
   }
 
@@ -30,9 +23,9 @@ export async function getProductExportData(
     const processedCount = cursor ? Number.parseInt(cursor, 10) || 0 : 0;
     const remainingIds = ids.slice(processedCount);
 
-    if (remainingIds.length === 0) {
-      return [];
-    }
+    // if (remainingIds.length === 0) {
+    //   return [];
+    // }
 
     query._id = { $in: remainingIds.slice(0, limit) };
   } else {

@@ -1,8 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
-  IconCurrencyDollar,
   IconPlus,
-  IconSettings,
+  IconSettings
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Sheet, useConfirm, useToast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -146,14 +145,6 @@ const PaymentModule = () => {
         <PageHeader.Start>
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/payment">
-                    <IconCurrencyDollar />
-                    Invoices
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
