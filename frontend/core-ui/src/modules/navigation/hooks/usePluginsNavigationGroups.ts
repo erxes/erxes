@@ -51,6 +51,8 @@ export const usePluginsNavigationGroups = () => {
 
     return Object.values(pluginsMetaData).reduce<NavigationGroups>(
       (acc, plugin) => {
+        if (!plugin?.modules?.length) return acc;
+
         const groupName = plugin.navigationGroup?.name || plugin.name;
 
         const existingGroup = acc[groupName] || {
