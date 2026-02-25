@@ -126,10 +126,11 @@ const mutations = {
 
   async paymentRemove(
     _root: any,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    await models.PaymentMethods.removePayment(_id);
+    await models.PaymentMethods.deleteMany({ _id: { $in: _ids } });
+
     return 'success';
   },
 
