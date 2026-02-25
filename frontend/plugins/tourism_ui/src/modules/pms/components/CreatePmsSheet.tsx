@@ -45,7 +45,7 @@ export const PmsCreateSheet = () => {
         </Button>
       </Sheet.Trigger>
       <Sheet.View
-        className="p-0 sm:max-w-8xl"
+        className="p-0 sm:max-w-5xl"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
@@ -129,8 +129,8 @@ export const PmsCreateSheetFooter = ({
               ? 'Saving...'
               : 'Creating...'
             : mode === 'edit'
-              ? 'Save'
-              : 'Create'
+            ? 'Save'
+            : 'Create'
           : 'Next'}
       </Button>
     </Sheet.Footer>
