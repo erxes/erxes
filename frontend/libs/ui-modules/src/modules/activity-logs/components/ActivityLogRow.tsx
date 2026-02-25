@@ -100,11 +100,13 @@ export function ActivityLogRow({
       <div className="flex-1 min-w-0 pt-0.5 items-center flex">
         {customRenderer ? customRenderer.render(activity) : defaultBody}
       </div>
-      <RelativeDateDisplay value={activity.createdAt as string} asChild>
-        <p className="text-xs text-muted-foreground leading-6">
-          <RelativeDateDisplay.Value value={activity.createdAt as string} />
-        </p>
-      </RelativeDateDisplay>
+      <div className="absolute right-0 top-0.5">
+        <RelativeDateDisplay value={activity.createdAt as string} asChild>
+          <p className="text-xs text-muted-foreground leading-6">
+            <RelativeDateDisplay.Value value={activity.createdAt as string} />
+          </p>
+        </RelativeDateDisplay>
+      </div>
     </div>
   );
 }
