@@ -56,7 +56,7 @@ export const groupQueries: Record<string, Resolver> = {
 
     const filter = await generateFilter(params);
 
-    return defaultPaginate(
+    return await defaultPaginate(
       models.FieldsGroups.find(filter).sort({ [sortField]: sortDirection }),
       params,
     );
