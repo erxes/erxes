@@ -1,20 +1,16 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { SAFE_REMAINDER_ITEM_REMOVE } from '../graphql/safeRemainderChange';
+import { SAFE_REMAINDER_ITEMS_REMOVE } from '../graphql/safeRemainderChange';
 
-export const useSafeRemainderItemRemove = () => {
-  const [_removeRemItem, { loading }] = useMutation(SAFE_REMAINDER_ITEM_REMOVE);
+export const useSafeRemainderItemsRemove = () => {
+  const [_removeRemItems, { loading }] = useMutation(SAFE_REMAINDER_ITEMS_REMOVE);
 
-  const removeRemItem = (
+  const removeRemItems = (
     options: OperationVariables,
-    fields: string[],
   ) => {
     const variables = options?.variables || {};
-    const fieldsToUpdate: Record<string, () => any> = {};
-    fields.forEach((field) => {
-      fieldsToUpdate[field] = () => variables[field];
-    });
-    return _removeRemItem({
+
+    return _removeRemItems({
       ...options,
       variables,
       onError: (error) => {
@@ -38,7 +34,7 @@ export const useSafeRemainderItemRemove = () => {
   };
 
   return {
-    removeRemItem,
+    removeRemItems,
     loading,
   };
 };

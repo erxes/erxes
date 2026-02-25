@@ -11,6 +11,8 @@ import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
 import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
 import { ISafeRemainder } from '../types/SafeRemainder';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
+import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
+import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
 
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -50,10 +52,10 @@ export const SafeRemainderDetail = () => {
         <h3 className="text-lg font-bold">
           Inventory Census Detail
         </h3>
-        <div>
-          {safeRemainder && <StatusBar safeRemainder={safeRemainder} />}
-        </div>
-        <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
+        <div className="flex items-center col-span-2 xl:col-span-3 gap-6">
+          <div>
+            {safeRemainder && <StatusBar safeRemainder={safeRemainder} />}
+          </div>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">Status:</span>
             <span className="text-primary font-bold">
@@ -63,6 +65,9 @@ export const SafeRemainderDetail = () => {
           {/* {renderEvents()} */}
         </div>
       </div>
+
+      <SafeRemainderDetailFilter />
+
       <RecordTable.Provider
         columns={safeRemDetailTableColumns}
         data={safeRemainderItems || []}
@@ -79,6 +84,7 @@ export const SafeRemainderDetail = () => {
               )}
             </RecordTable.Body>
           </RecordTable>
+          <SafeRemDetailCommandbar />
         </RecordTable.Scroll>
       </RecordTable.Provider>
     </>

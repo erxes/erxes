@@ -16,7 +16,7 @@ export interface ISafeRemainderItemModel
     doc: Partial<ISafeRemainderItem>,
     userId: string
   ): Promise<ISafeRemainderItemDocument>;
-  removeItem(_id: string): void;
+  removeItems(ids: string[]): void;
 }
 
 export const loadSafeRemainderItemClass = (models: IModels, _subdomain: string) => {
@@ -113,11 +113,16 @@ export const loadSafeRemainderItemClass = (models: IModels, _subdomain: string) 
 
     /**
      * Delete safe remainder item
-     * @param _id Safe remainder item ID
+     * @param _ids Safe remainder item IDs
      * @returns Deleted response
      */
-    public static async removeItem(_id: string) {
-      const item = await models.SafeRemainderItems.getItem(_id);
+    public static async removeItems(ids: string[]) {
+      const firstId = ids[0];
+      if (!firstId) {
+        return;
+      }
+      const item = await models.SafeRemainderItems.getItem(firstId);
+
       const safeRemainder = await models.SafeRemainders.getRemainder(
         item.remainderId
       );
@@ -125,7 +130,7 @@ export const loadSafeRemainderItemClass = (models: IModels, _subdomain: string) 
         throw new Error('Cant remove cause remainder has submited');
       }
 
-      await models.SafeRemainderItems.deleteOne({ _id });
+      await models.SafeRemainderItems.deleteMany({ _id: { $in: ids } });
     }
   }
 

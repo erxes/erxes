@@ -25,12 +25,12 @@ export const SAFE_REMAINDER_ITEM_EDIT = gql`
   }
 `;
 
-export const SAFE_REMAINDER_ITEM_REMOVE = gql`
-  mutation SafeRemainderItemRemove(
-    $_id: String
+export const SAFE_REMAINDER_ITEMS_REMOVE = gql`
+  mutation SafeRemainderItemsRemove(
+    $ids: [String]
   ) {
-    safeRemainderItemRemove(
-      _id: $_id
+    safeRemainderItemsRemove(
+      ids: $ids
     )
   }
 `;

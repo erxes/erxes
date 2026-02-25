@@ -72,8 +72,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       const attachDatas: any = {};
       let attachFieldId = "";
 
-      if (attachment && attachment.url) {
-      } else if (items?.length) {
+      if (items?.length) {
         const codes: string[] = items.map(i => i.code)
         productFilter = { query: { code: { $in: codes } } }
       } else {
@@ -85,7 +84,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
           productFilter.categoryId = productCategoryId
         }
       }
-      console.log(productFilter, 'rrrrrrrrrrrrrrrrrr')
+
       // Get products related to product category
       const products = await sendTRPCMessage({
         subdomain,
@@ -99,7 +98,6 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         defaultValue: []
       });
 
-      console.log(products)
       // Create remainder items for every product
       const productIds = products.map((item: any) => item._id);
 

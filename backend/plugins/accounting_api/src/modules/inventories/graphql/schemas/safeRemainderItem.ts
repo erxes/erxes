@@ -37,5 +37,5 @@ export const mutations = `
     status: String,
     remainder: Float
   ): SafeRemainderItem
-  safeRemainderItemRemove(_id: String): JSON
+  safeRemainderItemsRemove(ids: [String]): JSON
 `;

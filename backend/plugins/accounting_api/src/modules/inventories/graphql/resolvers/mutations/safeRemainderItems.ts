@@ -22,12 +22,12 @@ const safeRemainderItemMutations = {
     return await models.SafeRemainderItems.updateItem(_id, doc, user._id);
   },
 
-  async safeRemainderItemRemove(
+  async safeRemainderItemsRemove(
     _root: any,
-    { _id }: { _id: string },
+    { ids }: { ids: string[] },
     { models }: IContext
   ) {
-    return models.SafeRemainderItems.removeItem(_id);
+    return models.SafeRemainderItems.removeItems(ids);
   }
 };
 
