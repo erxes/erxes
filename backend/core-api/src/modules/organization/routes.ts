@@ -94,10 +94,10 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       }
     });
 
-    if (remotes.find((remote) => remote.name != 'agents_ui')) {
+    if (remotes.find((remote) => remote.name != 'agent_ui')) {
       remotes.push({
-        name: 'agents_ui',
-        entry: `https://plugins.erxes.io/latest/agents_ui/remoteEntry.js`,
+        name: 'agent_ui',
+        entry: `https://plugins.erxes.io/latest/agent_ui/remoteEntry.js`,
       });
     }
 
