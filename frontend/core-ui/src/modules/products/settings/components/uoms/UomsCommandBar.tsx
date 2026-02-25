@@ -12,6 +12,7 @@ export const UomsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeUoms } = useUomsRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleDelete = () => {
     const selectedIds = table
@@ -22,6 +23,7 @@ export const UomsCommandBar = () => {
       message: `Are you sure you want to delete the ${
         selectedIds.length
       } selected UOM${selectedIds.length === 1 ? '' : 's'}?`,
+      options: confirmOptions,
     }).then(() => {
       removeUoms({
         variables: { uomIds: selectedIds },

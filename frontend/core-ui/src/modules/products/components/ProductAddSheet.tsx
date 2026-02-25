@@ -56,7 +56,11 @@ export const ProductAddSheet = () => {
         </Button>
       </Sheet.Trigger>
       <FocusSheet.View
-        className={showMoreInfo ? 'w-[70%] md:w-[70%]' : 'w-[30%] md:w-[30%]'}
+        className={
+          showMoreInfo
+            ? 'w-[70%] md:w-[70%] lg:w-[70%]'
+            : 'w-[30%] md:w-[30%] lg:w-[30%]'
+        }
       >
         <FocusSheet.Header title={t('create-product')} />
         <FocusSheet.Content className="flex-1 min-h-0">

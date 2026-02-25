@@ -8,6 +8,9 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { productTotalCountAtom } from '@/products/states/productCounts';
 import { productsQueries } from '@/products/graphql';
 import { IProduct } from 'ui-modules';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '@/products/constants/productsCursorSessionKey';
@@ -73,7 +76,9 @@ export const useProductsVariables = (
   ]);
 
   const parsedSortDirection =
-    sortDirection !== undefined && sortDirection !== null && sortDirection !== ''
+    sortDirection !== undefined &&
+    sortDirection !== null &&
+    sortDirection !== ''
       ? Number(sortDirection)
       : undefined;
 
@@ -103,6 +108,7 @@ export const useProductsVariables = (
 };
 
 export const useProducts = (options?: QueryHookOptions) => {
+  const setProductTotalCount = useSetAtom(productTotalCountAtom);
   const { cursor } = useRecordTableCursor({
     sessionKey: PRODUCTS_CURSOR_SESSION_KEY,
   });
@@ -126,6 +132,10 @@ export const useProducts = (options?: QueryHookOptions) => {
   });
 
   const { list: productsMain, totalCount, pageInfo } = data?.productsMain || {};
+
+  useEffect(() => {
+    setProductTotalCount(totalCount ?? null);
+  }, [totalCount, setProductTotalCount]);
 
   const handleFetchMore = ({
     direction,

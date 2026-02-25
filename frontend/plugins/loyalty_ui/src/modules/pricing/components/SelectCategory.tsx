@@ -48,7 +48,7 @@ const SelectCategoryProvider = ({
   mode = 'single',
 }: SelectCategoryProviderProps) => {
   const [categories, setCategories] = useState<IProductCategory[]>([]);
-  const categoryIds = Array.isArray(value) ? value : value && [value] || [];
+  const categoryIds = Array.isArray(value) ? value : (value && [value]) || [];
 
   const onSelect = (category: IProductCategory) => {
     if (!category) return;
@@ -115,7 +115,7 @@ const SelectCategoryContent = () => {
             <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
               No categories found
               <Button variant="secondary" size="sm" asChild>
-                <Link to="/products/categories">Add Category</Link>
+                <Link to="/settings/products/categories">Add Category</Link>
               </Button>
             </div>
           </Command.Empty>
@@ -158,9 +158,9 @@ const SelectCategoryCommandItem = ({
 const SelectCategoryRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectCategoryProvider>, 'children'> &
-  React.ComponentProps<typeof Combobox.Trigger> & {
-    placeholder?: string;
-  }
+    React.ComponentProps<typeof Combobox.Trigger> & {
+      placeholder?: string;
+    }
 >(({ onValueChange, className, mode, value, placeholder, ...props }, ref) => {
   const [open, setOpen] = useState(false);
 

@@ -66,10 +66,10 @@ export const SelectCategory = React.forwardRef<
               <Combobox.Empty error={error} loading={loading} />
             ) : (
               <Command.Empty>
-                <div className="text-center text-sm text-muted-foreground flex justify-center flex-col items-center gap-2">
+                <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
                   No categories found
                   <Button variant="secondary" size="sm" asChild>
-                    <Link to="/products/categories">Add Category</Link>
+                    <Link to="/settings/products/categories">Add Category</Link>
                   </Button>
                 </div>
               </Command.Empty>
@@ -132,7 +132,7 @@ export const SelectCategoryBadge = ({
   const { code, name } = category;
   return (
     <>
-      <div className="flex items-center gap-2 flex-auto overflow-hidden justify-start">
+      <div className="flex overflow-hidden flex-auto gap-2 justify-start items-center">
         <div className="text-muted-foreground">{code}</div>
         <TextOverflowTooltip value={name} className="flex-auto" />
       </div>
@@ -153,7 +153,7 @@ export const SelectCategoryTrigger = React.forwardRef<
       <SelectCategoryBadge category={selectedCategory} />
       {!selectedCategory && <Combobox.Value placeholder="Select category" />}
       {loading && (
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <Skeleton className="w-8 h-4" />
           <Skeleton className="w-16 h-4" />
         </div>
