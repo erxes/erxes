@@ -10,9 +10,13 @@ export const cpTicketQueries = {
     { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
     { models }: IContext,
   ) => {
-    const { page, perPage, ...params } = filter || {};
+    const { page, perPage, createdBy } = filter || {};
 
-    const query = generateFilter(params);
+    const query = generateFilter(filter);
+
+    if (createdBy) {
+      query.userId = `cp:${createdBy}`;
+    }
 
     return defaultPaginate(models.Ticket.find(query), { page, perPage });
   },
