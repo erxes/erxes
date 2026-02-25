@@ -11,7 +11,7 @@ import {
   Filter,
   useMultiQueryState,
 } from 'erxes-ui';
-import { SelectBranches, SelectCategory, SelectDepartments, SelectMember } from 'ui-modules';
+import { SelectCategory } from 'ui-modules';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
 
 const SafeRemainderDetailFilterPopover = () => {
@@ -37,7 +37,7 @@ const SafeRemainderDetailFilterPopover = () => {
                   <IconSearch />
                   Search
                 </Filter.Item>
-                <Filter.Item value="date" inDialog>
+                <Filter.Item value="diffType" inDialog>
                   <IconTypeface />
                   DiffType
                 </Filter.Item>
@@ -45,19 +45,13 @@ const SafeRemainderDetailFilterPopover = () => {
                   <IconLayoutGridAdd />
                   Category
                 </Filter.Item>
-                <Filter.Item value="statuses" disabled={true}>
+                <Filter.Item value="status">
                   <IconToggleRightFilled />
                   Status
                 </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
-
-          <SelectCategory
-            selected=''
-            onSelect={() => { }}
-            id=''
-          />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -73,12 +67,13 @@ export const SafeRemainderDetailFilter = (
   { afterBar }: { afterBar?: React.ReactNode }
 ) => {
   const [queries] = useMultiQueryState<{
-    number: string;
+    status: string;
     searchValue: string;
-    accountSearchValue: string;
-  }>(['number', 'searchValue', 'accountSearchValue']);
+    productCategoryIds: string;
+    diffType: string;
+  }>(['status', 'searchValue', 'productCategoryIds', 'diffType']);
 
-  const { number, searchValue, accountSearchValue } = queries;
+  const { status, searchValue, diffType, productCategoryIds } = queries;
 
   return (
     <Filter id="accounts-filter" >
@@ -92,33 +87,15 @@ export const SafeRemainderDetailFilter = (
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
-        <Filter.BarItem queryKey="date">
+        <Filter.BarItem queryKey="status">
           <Filter.BarName>
-            <IconCalendar />
-            Date
+            <IconToggleRightFilled />
+            Status
           </Filter.BarName>
-          <Filter.Date filterKey="date" />
+          <Filter.BarButton filterKey="status" inDialog>
+            {status}
+          </Filter.BarButton>
         </Filter.BarItem>
-        <SelectBranches.FilterBar label='Branch' filterKey='branchId' mode='single' />
-        <SelectDepartments.FilterBar label='Department' filterKey='departmentId' mode='single' />
-
-        <SelectMember.FilterBar queryKey='createdUserId' label='Created By' mode='single' />
-        <SelectMember.FilterBar queryKey='modifiedUserId' label='Modified By' mode='single' />
-        <Filter.BarItem queryKey="createdDate">
-          <Filter.BarName>
-            <IconCalendar />
-            Created date
-          </Filter.BarName>
-          <Filter.Date filterKey="createdDate" />
-        </Filter.BarItem>
-        <Filter.BarItem queryKey="updatedDate">
-          <Filter.BarName>
-            <IconCalendar />
-            Updated date
-          </Filter.BarName>
-          <Filter.Date filterKey="updatedDate" />
-        </Filter.BarItem>
-
         <SafeRemainderDetailFilterPopover />
         {afterBar && <>{afterBar}</>}
       </Filter.Bar>
