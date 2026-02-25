@@ -1,14 +1,52 @@
 import React from 'react';
-import { RouteObject } from 'react-router-dom';
-import { Sidebar } from 'erxes-ui/components/sidebar';
+import { NavigationMenuLinkItem } from 'erxes-ui';
+import {
+  IconUsers,
+  IconPackage,
+  IconCategory,
+  IconCurrencyDollar,
+  IconHistory,
+  IconChecklist,
+} from '@tabler/icons-react';
 
-import CustomersPage from '../../pages/msdynamic/CustomersPage';
+export const MainNavigation = () => {
+  return (
+    <>
+      <NavigationMenuLinkItem
+        name="Customers"
+        path="mongolian/msdynamic/customers"
+        icon={IconUsers}
+      />
 
-export const routes: RouteObject[] = [
-  {
-    path: '/msdynamic/customers',
-    element: <CustomersPage />,
-  },
-];
+      <NavigationMenuLinkItem
+        name="Products"
+        path="mongolian/msdynamic/products"
+        icon={IconPackage}
+      />
 
-export const navigation = <Sidebar>MS</Sidebar>;
+      <NavigationMenuLinkItem
+        name="Categories"
+        path="mongolian/msdynamic/category"
+        icon={IconCategory}
+      />
+
+      <NavigationMenuLinkItem
+        name="Prices"
+        path="mongolian/msdynamic/price"
+        icon={IconCurrencyDollar}
+      />
+
+      <NavigationMenuLinkItem
+        name="Synced Orders"
+        path="mongolian/msdynamic/synced-orders"
+        icon={IconChecklist}
+      />
+
+      <NavigationMenuLinkItem
+        name="Sync History"
+        path="mongolian/msdynamic/sync-history"
+        icon={IconHistory}
+      />
+    </>
+  );
+};
