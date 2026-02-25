@@ -43,11 +43,22 @@ export const types = `
 
         ${GQL_CURSOR_PARAM_DEFS}
     }
+
+    input CpFieldsParams {
+        contentType: String
+        contentTypeId: String
+        groupId: String
+
+        ${GQL_CURSOR_PARAM_DEFS}
+    }
 `;
 
 export const queries = `
     fields(params: FieldsParams): FieldListResponse
     fieldDetail(_id: String!): Field
+
+    cpFields(params: CpFieldsParams): [Field]
+    cpFieldDetail(_id: String!): Field
 `;
 
 const mutationParams = `
