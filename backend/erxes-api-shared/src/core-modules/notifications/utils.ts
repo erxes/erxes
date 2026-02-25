@@ -85,9 +85,7 @@ export const sendNotificationChannels = async (
 
   if (!contentType) return;
 
-  const [pluginName, moduleName] = contentType.split(':');
-
-  if (!pluginName) return;
+  const [pluginName = '', moduleName = ''] = contentType.split(':');
 
   const userNotificationSettings = await sendTRPCMessage({
     subdomain,
@@ -105,7 +103,7 @@ export const sendNotificationChannels = async (
   for (const userNotificationSetting of userNotificationSettings) {
     const { userId, events } = userNotificationSetting || {};
 
-    if (fromUserId && (userIds.includes(fromUserId) || userId === fromUserId)) {
+    if (fromUserId && userId === fromUserId) {
       continue;
     }
 

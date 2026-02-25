@@ -1,5 +1,6 @@
 import { IUserDocument } from '../../core-types';
 import { sendTRPCMessage } from '../../utils';
+import { INotificationData } from './utils';
 
 export const getUserDetail = async (subdomain: string, userId?: string) => {
   if (!userId) {
