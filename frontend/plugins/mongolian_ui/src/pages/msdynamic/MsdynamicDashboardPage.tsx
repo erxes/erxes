@@ -1,14 +1,14 @@
-import { Card } from "erxes-ui/components/card";
-import { Link } from "react-router-dom";
+import { Card } from 'erxes-ui/components/card';
+import { Link } from 'react-router-dom';
 
 export const MsdynamicDashboardPage = () => {
   const links = [
-    { name: "Customers", path: "customers" },
-    { name: "Products", path: "products" },
-    { name: "Categories", path: "categories" },
-    { name: "Prices", path: "prices" },
-    { name: "Synced Orders", path: "synced-orders" },
-    { name: "Sync History", path: "sync-history" },
+    { name: 'Customers', path: 'customers' },
+    { name: 'Products', path: 'products' },
+    { name: 'Categories', path: 'categories' },
+    { name: 'Prices', path: 'prices' },
+    { name: 'Synced Orders', path: 'synced-orders' },
+    { name: 'Sync History', path: 'sync-history' },
   ];
 
   return (
