@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { IContext } from '~/connectionResolvers';
 
 // Helper function to generate code from name
@@ -8,7 +9,7 @@ const generateCode = (name: string): string => {
     .replace(/^_+|_+$/g, '');
 
   if (!cleaned || cleaned.length === 0) {
-    return `type_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `type_${Date.now()}_${randomBytes(6).toString('hex')}`;
   }
 
   return cleaned;
