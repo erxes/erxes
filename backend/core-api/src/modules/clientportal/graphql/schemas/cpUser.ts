@@ -30,6 +30,8 @@ export const types = `
     primaryAuthMethod: AuthMethod
     otpResendAttempts: Int
     otpResendLastAttempt: Date
+    customer: Customer
+    company: Company
     createdAt: Date
     updatedAt: Date
   }
