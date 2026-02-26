@@ -97,6 +97,8 @@ import {
   IEmailDeliveryDocument,
   INotificationDocument,
   notificationSchema,
+  NotificationSettings,
+  notificationSettingsSchema,
 } from 'erxes-api-shared/core-modules';
 import {
   IAppDocument,
@@ -106,6 +108,7 @@ import {
   ICustomerDocument,
   ILogDocument,
   IMainContext,
+  IPermissionGroupDocument,
   IProductCategoryDocument,
   IProductDocument,
   IProductsConfigDocument,
@@ -114,7 +117,6 @@ import {
   IUomDocument,
   IUserDocument,
   IUserMovementDocument,
-  IPermissionGroupDocument,
 } from 'erxes-api-shared/core-types';
 
 import { createGenerateModels } from 'erxes-api-shared/utils';
@@ -232,8 +234,8 @@ import {
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 
 import {
-  loadPermissionGroupClass,
   IPermissionGroupModel,
+  loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
 export interface IModels {
   Brands: IBrandModel;
@@ -290,6 +292,8 @@ export interface IModels {
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
   PermissionGroups: IPermissionGroupModel;
+
+  NotificationSettings: Model<NotificationSettings>;
 }
 
 export interface IContext extends IMainContext {
@@ -514,6 +518,11 @@ export const loadClasses = (
     INotificationDocument,
     Model<INotificationDocument>
   >('notifications', notificationSchema);
+
+  models.NotificationSettings = db.model<
+    NotificationSettings,
+    Model<NotificationSettings>
+  >('notification_settings', notificationSettingsSchema);
 
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,

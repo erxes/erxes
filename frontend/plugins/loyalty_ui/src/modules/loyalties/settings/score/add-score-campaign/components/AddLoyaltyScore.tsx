@@ -21,6 +21,7 @@ export function AddLoyaltyScoreForm({
       title: '',
       description: '',
       conditions: {
+        serviceName: '',
         productCategoryIds: [],
         productIds: [],
         tagIds: [],
@@ -34,6 +35,7 @@ export function AddLoyaltyScoreForm({
   async function onSubmit(data: LoyaltyScoreFormValues) {
     const variables: AddScoreVariables = {
       name: data.title,
+      serviceName: data.conditions.serviceName,
       restrictions: {
         productCategoryIds: data.conditions.productCategoryIds?.join(','),
         productIds: data.conditions.productIds?.join(','),

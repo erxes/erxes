@@ -10,6 +10,7 @@ import {
   IconFile,
   IconHierarchy2,
   IconMail,
+  IconNotification,
   IconPassword,
   IconShoppingCart,
   IconTag,
@@ -106,13 +107,18 @@ export const KEY_LABELS = {
 };
 
 export const SETTINGS_PATH_DATA = (
-  t: TFunction = ((key: string) => key) as TFunction
+  t: TFunction = ((key: string) => key) as TFunction,
 ): { [key: string]: TSettingPath[] } => ({
   account: [
     {
       name: t('profile'),
       icon: IconUserCircle,
       path: SettingsPath.Profile,
+    },
+    {
+      name: t('notification'),
+      icon: IconNotification,
+      path: SettingsPath.Notification,
     },
     {
       name: t('change-password'),
