@@ -193,6 +193,63 @@ import {
 } from '@/knowledgebase/db/models/Category';
 import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
 
+// Instagram imports
+import {
+  IInstagramIntegrationModel,
+  loadInstagramIntegrationClass,
+} from '@/integrations/instagram/db/models/Integrations';
+import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
+import {
+  IInstagramAccountModel,
+  loadInstagramAccountClass,
+} from '@/integrations/instagram/db/models/Accounts';
+import { IInstagramAccountDocument } from '@/integrations/instagram/@types/accounts';
+import {
+  IInstagramCustomerModel,
+  loadInstagramCustomerClass,
+} from '@/integrations/instagram/db/models/Customers';
+import { IInstagramCustomerDocument } from '@/integrations/instagram/@types/customers';
+import {
+  IInstagramConversationModel,
+  loadInstagramConversationClass,
+} from '@/integrations/instagram/db/models/Conversations';
+import { IInstagramConversationDocument } from '@/integrations/instagram/@types/conversations';
+import {
+  IInstagramConversationMessageModel,
+  loadInstagramConversationMessageClass,
+} from '@/integrations/instagram/db/models/ConversationMessages';
+import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import {
+  IInstagramCommentConversationModel,
+  loadInstagramCommentConversationClass,
+} from '@/integrations/instagram/db/models/Comment_conversations';
+import { IInstagramCommentConversationDocument } from '@/integrations/instagram/@types/comment_conversations';
+import {
+  IInstagramCommentConversationReplyModel,
+  loadInstagramCommentConversationReplyClass,
+} from '@/integrations/instagram/db/models/Comment_conversations_reply';
+import { IInstagramCommentConversationReplyDocument } from '@/integrations/instagram/@types/comment_conversations_reply';
+import {
+  IInstagramPostConversationModel,
+  loadInstagramPostConversationClass,
+} from '@/integrations/instagram/db/models/PostConversations';
+import { IInstagramPostConversationDocument } from '@/integrations/instagram/@types/postConversations';
+import {
+  IInstagramLogModel,
+  loadInstagramLogClass,
+} from '@/integrations/instagram/db/models/Logs';
+import { IInstagramLogDocument } from '@/integrations/instagram/@types/logs';
+import {
+  IInstagramBotModel,
+  loadInstagramBotClass,
+} from '@/integrations/instagram/db/models/Bots';
+import { IInstagramBotDocument } from '@/integrations/instagram/@types/bots';
+
+import {
+  IInstagramConfigModel,
+  loadInstagramConfigClass,
+} from '@/integrations/instagram/db/models/Config';
+import { IInstagramConfigDocument } from './modules/integrations/instagram/@types/config';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -213,6 +270,19 @@ export interface IModels {
   FacebookLogs: IFacebookLogModel;
   FacebookPostConversations: IFacebookPostConversationModel;
   FacebookConfigs: IFacebookConfigModel;
+  //instagram
+  InstagramIntegrations: IInstagramIntegrationModel;
+  InstagramAccounts: IInstagramAccountModel;
+  InstagramCustomers: IInstagramCustomerModel;
+  InstagramConversations: IInstagramConversationModel;
+  InstagramConversationMessages: IInstagramConversationMessageModel;
+  InstagramCommentConversation: IInstagramCommentConversationModel;
+  InstagramCommentConversationReply: IInstagramCommentConversationReplyModel;
+  InstagramLogs: IInstagramLogModel;
+  InstagramPostConversations: IInstagramPostConversationModel;
+  InstagramBots: IInstagramBotModel;
+  InstagramConfigs: IInstagramConfigModel;
+
   //call
   CallIntegrations: ICallIntegrationModel;
   CallCustomers: ICallCustomerModel;
@@ -368,6 +438,63 @@ export const loadClasses = (
     IFacebookConfigDocument,
     IFacebookConfigModel
   >('facebook_configs', loadFacebookConfigClass(models));
+
+  // Instagram models
+  models.InstagramIntegrations = db.model<
+    IInstagramIntegrationDocument,
+    IInstagramIntegrationModel
+  >('instagram_integrations', loadInstagramIntegrationClass(models));
+  models.InstagramAccounts = db.model<
+    IInstagramAccountDocument,
+    IInstagramAccountModel
+  >('instagram_accounts', loadInstagramAccountClass(models));
+  models.InstagramCustomers = db.model<
+    IInstagramCustomerDocument,
+    IInstagramCustomerModel
+  >('instagram_customers', loadInstagramCustomerClass(models));
+  models.InstagramConversations = db.model<
+    IInstagramConversationDocument,
+    IInstagramConversationModel
+  >('instagram_conversations', loadInstagramConversationClass(models));
+  models.InstagramConversationMessages = db.model<
+    IInstagramConversationMessageDocument,
+    IInstagramConversationMessageModel
+  >(
+    'instagram_conversation_messages',
+    loadInstagramConversationMessageClass(models),
+  );
+  models.InstagramCommentConversation = db.model<
+    IInstagramCommentConversationDocument,
+    IInstagramCommentConversationModel
+  >(
+    'instagram_comment_conversations',
+    loadInstagramCommentConversationClass(models),
+  );
+  models.InstagramCommentConversationReply = db.model<
+    IInstagramCommentConversationReplyDocument,
+    IInstagramCommentConversationReplyModel
+  >(
+    'instagram_comment_conversations_reply',
+    loadInstagramCommentConversationReplyClass(models),
+  );
+  models.InstagramPostConversations = db.model<
+    IInstagramPostConversationDocument,
+    IInstagramPostConversationModel
+  >('instagram_post_conversations', loadInstagramPostConversationClass(models));
+  models.InstagramLogs = db.model<IInstagramLogDocument, IInstagramLogModel>(
+    'instagram_logs',
+    loadInstagramLogClass(models),
+  );
+  models.InstagramBots = db.model<IInstagramBotDocument, IInstagramBotModel>(
+    'instagram_bots',
+    loadInstagramBotClass(models),
+  );
+
+  models.InstagramConfigs = db.model<
+    IInstagramConfigDocument,
+    IInstagramConfigModel
+  >('instagram_configs', loadInstagramConfigClass(models));
+
   //call models
   models.CallIntegrations = db.model<
     ICallIntegrationDocument,
