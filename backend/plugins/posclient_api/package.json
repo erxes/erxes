@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
+    "aws-sdk": "^2.1693.0",
     "debug": "^4.4.0",
     "erxes-api-shared": "workspace:^",
     "fbgraph": "^1.4.4",
