@@ -1,6 +1,6 @@
-import { getPureDate } from "erxes-api-shared/utils";
-import { IModels } from "~/connectionResolvers";
-import { SAFE_REMAINDER_STATUSES } from "~/modules/inventories/@types/constants";
+import { getPureDate } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 
 export const getSafeRemainders = async (
   models: IModels,
@@ -9,7 +9,7 @@ export const getSafeRemainders = async (
   branch,
   department,
   productById,
-  beProductIds
+  beProductIds,
 ) => {
   const { endDate, beginDate, branchId, departmentId, isDetailed } = params;
   const bDate = getPureDate(beginDate);
@@ -21,8 +21,8 @@ export const getSafeRemainders = async (
         modifiedAt: { $lt: bDate },
         branchId,
         departmentId,
-        productId: { $in: beProductIds }
-      }
+        productId: { $in: beProductIds },
+      },
     },
     {
       $lookup: {
@@ -32,18 +32,18 @@ export const getSafeRemainders = async (
           {
             $match: {
               $expr: {
-                $eq: ['$_id', '$$letRemainderId']
-              }
-            }
+                $eq: ['$_id', '$$letRemainderId'],
+              },
+            },
           },
           {
             $project: {
-              mainStatus: '$status'
-            }
-          }
+              mainStatus: '$status',
+            },
+          },
         ],
-        as: 'mainStatus'
-      }
+        as: 'mainStatus',
+      },
     },
     { $unwind: '$mainStatus' },
     { $match: { 'mainStatus.mainStatus': SAFE_REMAINDER_STATUSES.PUBLISHED } },
@@ -52,11 +52,11 @@ export const getSafeRemainders = async (
         _id: {
           branchId: '$branchId',
           departmentId: '$departmentId',
-          productId: '$productId'
+          productId: '$productId',
         },
-        count: { $sum: { $subtract: ['$count', '$preCount'] } }
-      }
-    }
+        count: { $sum: { $subtract: ['$count', '$preCount'] } },
+      },
+    },
   ]);
 
   const safeRemBet = await models.SafeRemainderItems.aggregate([
@@ -65,8 +65,8 @@ export const getSafeRemainders = async (
         modifiedAt: { $gte: bDate, $lte: eDate },
         branchId,
         departmentId,
-        productId: { $in: beProductIds }
-      }
+        productId: { $in: beProductIds },
+      },
     },
     {
       $lookup: {
@@ -76,18 +76,18 @@ export const getSafeRemainders = async (
           {
             $match: {
               $expr: {
-                $eq: ['$_id', '$$letRemainderId']
-              }
-            }
+                $eq: ['$_id', '$$letRemainderId'],
+              },
+            },
           },
           {
             $project: {
-              mainStatus: '$status'
-            }
-          }
+              mainStatus: '$status',
+            },
+          },
         ],
-        as: 'mainStatus'
-      }
+        as: 'mainStatus',
+      },
     },
     { $unwind: '$mainStatus' },
     { $match: { 'mainStatus.mainStatus': SAFE_REMAINDER_STATUSES.PUBLISHED } },
@@ -96,12 +96,12 @@ export const getSafeRemainders = async (
         _id: {
           branchId: '$branchId',
           departmentId: '$departmentId',
-          productId: '$productId'
+          productId: '$productId',
         },
         count: { $sum: { $subtract: ['$count', '$preCount'] } },
-        performs: { $push: '$$ROOT' }
-      }
-    }
+        performs: { $push: '$$ROOT' },
+      },
+    },
   ]);
 
   const defaultVal = {
@@ -109,7 +109,7 @@ export const getSafeRemainders = async (
     receipt: 0,
     spend: 0,
     end: 0,
-    performs: []
+    performs: [],
   };
 
   for (const row of safeRemC1) {
@@ -117,14 +117,14 @@ export const getSafeRemainders = async (
     if (!result[branchId]) {
       result[branchId] = {
         branch: `${branch.code} - ${branch.title}`,
-        values: {}
+        values: {},
       };
     }
 
     if (!result[branchId].values[departmentId]) {
       result[branchId].values[departmentId] = {
         department: `${department.code}- ${department.title}`,
-        values: {}
+        values: {},
       };
     }
 
@@ -148,14 +148,14 @@ export const getSafeRemainders = async (
     if (!result[branchId]) {
       result[branchId] = {
         branch: `${branch.code} - ${branch.title}`,
-        values: {}
+        values: {},
       };
     }
 
     if (!result[branchId].values[departmentId]) {
       result[branchId].values[departmentId] = {
         department: `${department.code}- ${department.title}`,
-        values: {}
+        values: {},
       };
     }
 
@@ -182,24 +182,23 @@ export const getSafeRemainders = async (
     }
 
     if (isDetailed) {
-      result[branchId].values[departmentId].values[
-        productId
-      ].values.performs = result[branchId].values[departmentId].values[
-        productId
-      ].values.performs.concat(
-        (row.performs || []).map(p => {
-          const item =
-            p.count > p.preCount
-              ? { receipt: p.count - p.preCount, spend: 0 }
-              : { receipt: 0, spend: p.preCount - p.count };
-          return {
-            ...p,
-            date: p.modifiedAt,
-            spec: 'census',
-            item
-          };
-        })
-      );
+      result[branchId].values[departmentId].values[productId].values.performs =
+        result[branchId].values[departmentId].values[
+          productId
+        ].values.performs.concat(
+          (row.performs || []).map((p) => {
+            const item =
+              p.count > p.preCount
+                ? { receipt: p.count - p.preCount, spend: 0 }
+                : { receipt: 0, spend: p.preCount - p.count };
+            return {
+              ...p,
+              date: p.modifiedAt,
+              spec: 'census',
+              item,
+            };
+          }),
+        );
     }
   }
 

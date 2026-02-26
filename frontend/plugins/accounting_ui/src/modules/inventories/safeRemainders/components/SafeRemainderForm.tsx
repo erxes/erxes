@@ -34,7 +34,11 @@ export const AddSafeRemainder = () => {
   );
 };
 
-const AddSafeRemainderForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+const AddSafeRemainderForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TSafeRemainderForm>({
     resolver: zodResolver(safeRemainderSchema),
     defaultValues: {
@@ -50,7 +54,7 @@ const AddSafeRemainderForm = ({ setOpen }: { setOpen: (open: boolean) => void })
         setOpen(false);
         form.reset();
       },
-    })
+    });
   };
 
   const onError = (error: any) => {

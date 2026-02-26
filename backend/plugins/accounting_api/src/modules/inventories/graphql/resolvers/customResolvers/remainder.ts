@@ -7,5 +7,5 @@ export default {
       __typename: 'ProductCategory',
       _id: remainder.categoryId,
     };
-  }
+  },
 };

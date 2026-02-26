@@ -1,34 +1,41 @@
-import { Model } from "mongoose";
-import { IRemainder, IRemainderCount, IRemainderDocument, IRemainderParams, IRemainderProductsParams, IRemaindersParams } from "../../@types/remainders";
-import { IModels } from "~/connectionResolvers";
-import { getRatio } from "../../utils/utils";
-import { remainderSchema } from "../definitions/remainders";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { Model } from 'mongoose';
+import {
+  IRemainder,
+  IRemainderCount,
+  IRemainderDocument,
+  IRemainderParams,
+  IRemainderProductsParams,
+  IRemaindersParams,
+} from '../../@types/remainders';
+import { IModels } from '~/connectionResolvers';
+import { getRatio } from '../../utils/utils';
+import { remainderSchema } from '../definitions/remainders';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface IRemainderModel extends Model<IRemainderDocument> {
   getRemainder(_id: string): Promise<IRemainderDocument>;
   getRemainderCount(
     subdomain: string,
-    params: IRemainderParams
+    params: IRemainderParams,
   ): Promise<IRemainderCount>;
   getRemainderProducts(
     subdomain: string,
-    params: IRemainderProductsParams
+    params: IRemainderProductsParams,
   ): Promise<JSON>;
   getRemainders(
     subdomain: string,
-    params: IRemaindersParams
+    params: IRemaindersParams,
   ): Promise<IRemainderDocument[]>;
   createRemainder(doc: IRemainder): Promise<IRemainderDocument>;
   updateRemainder(
     _id: string,
-    doc: Partial<IRemainder>
+    doc: Partial<IRemainder>,
   ): Promise<IRemainderDocument>;
   updateRemainders(
     subdomain: string,
     branchId: string,
     departmentId: string,
-    data: { productId: string; uom: string; diffCount: number }[]
+    data: { productId: string; uom: string; diffCount: number }[],
   );
   removeRemainder(_id: string): void;
 }
@@ -43,7 +50,7 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
     public static async getRemainder(_id: string) {
       const result: any = await models.Remainders.findById(_id);
 
-      if (!result) throw new Error("Remainder not found!");
+      if (!result) throw new Error('Remainder not found!');
 
       return result;
     }
@@ -56,7 +63,7 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
      */
     public static async getRemainderCount(
       subdomain: string,
-      params: IRemainderParams
+      params: IRemainderParams,
     ) {
       const { productId, departmentId, branchId, uom } = params;
       const filter: any = { productId };
@@ -75,9 +82,9 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
         module: 'products',
         action: 'findOne',
         input: {
-          query: { _id: productId }
+          query: { _id: productId },
         },
-        defaultValue: {}
+        defaultValue: {},
       });
 
       const subUom: any =
@@ -92,24 +99,24 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
 
     public static async getRemainderProducts(
       subdomain: string,
-      params: IRemainderProductsParams
+      params: IRemainderProductsParams,
     ) {
-      const query: any = { status: { $ne: "deleted" } };
+      const query: any = { status: { $ne: 'deleted' } };
 
       if (params.categoryId) {
         const productCategories = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           module: 'productCategories',
-          action: "withChilds",
+          action: 'withChilds',
           input: {
-            _ids: [params.categoryId]
+            _ids: [params.categoryId],
           },
-          defaultValue: []
+          defaultValue: [],
         });
 
         const productCategoryIds = productCategories.map(
-          (item: any) => item._id
+          (item: any) => item._id,
         );
 
         query.categoryId = { $in: productCategoryIds };
@@ -118,16 +125,16 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
       if (params.searchValue) {
         const regexOption = {
           $regex: `.*${params.searchValue}.*`,
-          $options: "i"
+          $options: 'i',
         };
 
         query.$or = [
           {
-            name: regexOption
+            name: regexOption,
           },
           {
-            code: regexOption
-          }
+            code: regexOption,
+          },
         ];
       }
 
@@ -138,31 +145,31 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
         subdomain,
         pluginName: 'core',
         module: 'products',
-        action: "find",
+        action: 'find',
         input: {
           query,
           sort: { code: 1 },
           skip,
-          limit
+          limit,
         },
-        defaultValue: []
+        defaultValue: [],
       });
 
       const totalCount = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         module: 'products',
-        action: "count",
+        action: 'count',
         input: {
-          query
+          query,
         },
-        defaultValue: 0
+        defaultValue: 0,
       });
 
       const productIds = products.map((product: any) => product._id);
 
       const remainderQuery: any = {
-        productId: { $in: productIds }
+        productId: { $in: productIds },
       };
 
       if (params.departmentId) {
@@ -186,15 +193,15 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
       for (const product of products) {
         product.remainder = (remaindersByProductId[product._id] || []).reduce(
           (sum, cur) => sum + (Number(cur.count) || 0),
-          0
+          0,
         );
         product.soonIn = (remaindersByProductId[product._id] || []).reduce(
           (sum, cur) => sum + (Number(cur.soonIn) || 0),
-          0
+          0,
         );
         product.soonOut = (remaindersByProductId[product._id] || []).reduce(
           (sum, cur) => sum + (Number(cur.soonOut) || 0),
-          0
+          0,
         );
       }
 
@@ -209,7 +216,7 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
      */
     public static async getRemainders(
       subdomain: string,
-      params: IRemaindersParams
+      params: IRemaindersParams,
     ) {
       const { departmentIds, branchIds, productCategoryId, productIds } =
         params;
@@ -228,12 +235,12 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
           subdomain,
           pluginName: 'core',
           module: 'products',
-          action: "find",
+          action: 'find',
           input: {
             query: {},
             categoryId: productCategoryId,
           },
-          defaultValue: []
+          defaultValue: [],
         });
 
         filter.productId = { $in: products.map((item: any) => item._id) };
@@ -252,7 +259,7 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
     public static async createRemainder(doc: IRemainder) {
       return await models.Remainders.create({
         ...doc,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
     }
 
@@ -278,7 +285,7 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
         diffSoonIn?: number;
         diffSoonOut?: number;
       }[],
-      isCensus: false
+      isCensus: false,
     ) {
       let bulkOps: {
         updateOne: {
@@ -288,14 +295,17 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
         };
       }[] = [];
 
-      const productIds = productsData.map(pd => pd.productId);
+      const productIds = productsData.map((pd) => pd.productId);
       const products = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         module: 'products',
-        action: "find",
-        input: { query: { _id: { $in: productIds } }, limit: productIds.length },
-        defaultValue: []
+        action: 'find',
+        input: {
+          query: { _id: { $in: productIds } },
+          limit: productIds.length,
+        },
+        defaultValue: [],
       });
 
       const productById = {};
@@ -316,7 +326,7 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
 
         const update: any = {
           $inc: { count: diffCount, soonIn: diffSoonIn, soonOut: diffSoonOut },
-          $set: { productId: data.productId, branchId, departmentId }
+          $set: { productId: data.productId, branchId, departmentId },
         };
 
         if (diffCount) {
@@ -327,8 +337,8 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
           updateOne: {
             filter: { productId: data.productId, branchId, departmentId },
             update,
-            upsert: true
-          }
+            upsert: true,
+          },
         });
 
         if (bulkOps.length > 100) {
@@ -344,7 +354,7 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
       return await models.Remainders.find({
         branchId,
         departmentId,
-        productId: { $in: productIds }
+        productId: { $in: productIds },
       }).lean();
     }
 

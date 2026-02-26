@@ -1,14 +1,18 @@
-import { requireLogin, checkPermission } from "erxes-api-shared/core-modules";
-import { IContext } from "~/connectionResolvers";
-import { IRemaindersParams, IRemainderParams, IRemainderProductsParams } from "~/modules/inventories/@types/remainders";
-import { getSafeRemainders } from "../utils/safeRemainders";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { requireLogin, checkPermission } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
+import {
+  IRemaindersParams,
+  IRemainderParams,
+  IRemainderProductsParams,
+} from '~/modules/inventories/@types/remainders';
+import { getSafeRemainders } from '../utils/safeRemainders';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const remainderQueries = {
   remainders: async (
     _root: any,
     params: IRemaindersParams,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     return await models.Remainders.getRemainders(subdomain, params);
   },
@@ -16,7 +20,7 @@ const remainderQueries = {
   remainderDetail: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return await models.Remainders.getRemainder(_id);
   },
@@ -24,7 +28,7 @@ const remainderQueries = {
   remainderCount: async (
     _root: any,
     params: IRemainderParams,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     return await models.Remainders.getRemainderCount(subdomain, params);
   },
@@ -32,7 +36,7 @@ const remainderQueries = {
   remainderProducts: async (
     _root: any,
     params: IRemainderProductsParams,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     return await models.Remainders.getRemainderProducts(subdomain, params);
   },
@@ -48,7 +52,7 @@ const remainderQueries = {
       endDate: Date;
       isDetailed: boolean;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const { categoryId, productIds, branchId, departmentId } = params;
 
@@ -58,11 +62,11 @@ const remainderQueries = {
         subdomain,
         pluginName: 'core',
         module: 'productCategories',
-        action: "withChilds",
+        action: 'withChilds',
         input: {
-          _ids: [categoryId]
+          _ids: [categoryId],
         },
-        defaultValue: []
+        defaultValue: [],
       });
       const categoryIds = productCategories.map((item: any) => item._id);
       productFilter.categoryId = { $in: categoryIds };
@@ -75,11 +79,11 @@ const remainderQueries = {
       subdomain,
       pluginName: 'core',
       module: 'products',
-      action: "find",
+      action: 'find',
       input: { query: productFilter },
     });
 
-    const beProductIds = products.map(p => p._id);
+    const beProductIds = products.map((p) => p._id);
     const productById = {};
 
     for (const product of products) {
@@ -90,7 +94,7 @@ const remainderQueries = {
       subdomain,
       pluginName: 'core',
       module: 'branches',
-      action: "findOne",
+      action: 'findOne',
       input: { query: { _id: branchId } },
     });
 
@@ -98,7 +102,7 @@ const remainderQueries = {
       subdomain,
       pluginName: 'core',
       module: 'departments',
-      action: "findOne",
+      action: 'findOne',
       input: { query: { _id: departmentId } },
     });
 
@@ -111,16 +115,16 @@ const remainderQueries = {
       branch,
       department,
       productById,
-      beProductIds
+      beProductIds,
     );
     return result;
-  }
+  },
 };
 
-requireLogin(remainderQueries, "remainders");
-requireLogin(remainderQueries, "remainderCount");
-requireLogin(remainderQueries, "remainderProducts");
-checkPermission(remainderQueries, "remainderDetail", "manageRemainders", []);
-checkPermission(remainderQueries, "remaindersLog", "manageRemainders", []);
+requireLogin(remainderQueries, 'remainders');
+requireLogin(remainderQueries, 'remainderCount');
+requireLogin(remainderQueries, 'remainderProducts');
+checkPermission(remainderQueries, 'remainderDetail', 'manageRemainders', []);
+checkPermission(remainderQueries, 'remaindersLog', 'manageRemainders', []);
 
 export default remainderQueries;

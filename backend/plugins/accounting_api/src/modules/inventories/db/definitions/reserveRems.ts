@@ -14,8 +14,8 @@ export const reserveRemSchema = schemaWrapper(
     modifiedAt: {
       type: Date,
       default: new Date(),
-      label: 'Modified at'
+      label: 'Modified at',
     },
     modifiedBy: { type: String, label: 'Modified by' },
-  })
+  }),
 );

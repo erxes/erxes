@@ -7,22 +7,19 @@ export const useSafeRemainderQueryParams = () => {
     queryParams: {
       page: 1,
       perPage: ACC_TRS__PER_PAGE,
-    }
-  }
-}
+    },
+  };
+};
 
 export const useSafeRemainders = (options?: OperationVariables) => {
   const queryParams = useSafeRemainderQueryParams();
-  const { data, loading, error, fetchMore } = useQuery(
-    SAFE_REMAINDERS_QUERY,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        ...queryParams,
-      },
-    }
-  );
+  const { data, loading, error, fetchMore } = useQuery(SAFE_REMAINDERS_QUERY, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      ...queryParams,
+    },
+  });
   const { remainders, totalCount } = data?.safeRemainders || {};
 
   const handleFetchMore = () => {

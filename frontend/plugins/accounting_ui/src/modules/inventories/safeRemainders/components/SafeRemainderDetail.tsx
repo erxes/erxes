@@ -1,10 +1,5 @@
 import dayjs from 'dayjs';
-import {
-  Label,
-  RecordTable,
-  Spinner,
-  useQueryState
-} from 'erxes-ui';
+import { Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -22,7 +17,12 @@ export const SafeRemainderDetail = () => {
     skip: !id,
   });
 
-  const { safeRemainderItems, safeRemainderItemsCount, loading: detailsLoading, handleFetchMore } = useSafeRemainderDetails({
+  const {
+    safeRemainderItems,
+    safeRemainderItemsCount,
+    loading: detailsLoading,
+    handleFetchMore,
+  } = useSafeRemainderDetails({
     variables: { remainderId: id },
     skip: !id,
   });
@@ -40,11 +40,11 @@ export const SafeRemainderDetail = () => {
 
   const handleSubmit = () => {
     submitSafeRemainder();
-  }
+  };
 
   const handleDelete = () => {
-    removeSafeRemainder()
-  }
+    removeSafeRemainder();
+  };
 
   return (
     <>
@@ -72,16 +72,20 @@ export const SafeRemainderDetail = () => {
         columns={safeRemDetailTableColumns}
         data={safeRemainderItems || []}
         stickyColumns={[]}
-        className='m-3'
+        className="m-3"
       >
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
               <RecordTable.RowList />
-              {!detailsLoading && safeRemainderItemsCount > safeRemainderItems?.length && (
-                <RecordTable.RowSkeleton rows={4} handleInView={handleFetchMore} />
-              )}
+              {!detailsLoading &&
+                safeRemainderItemsCount > safeRemainderItems?.length && (
+                  <RecordTable.RowSkeleton
+                    rows={4}
+                    handleInView={handleFetchMore}
+                  />
+                )}
             </RecordTable.Body>
           </RecordTable>
           <SafeRemDetailCommandbar />
@@ -122,4 +126,4 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
       </div>
     </div>
   );
-}
+};

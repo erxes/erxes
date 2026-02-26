@@ -13,8 +13,7 @@ export interface ISafeRemainderItem {
 }
 
 export interface ISafeRemainderItemDocument
-  extends ISafeRemainderItem,
-  Document {
+  extends ISafeRemainderItem, Document {
   _id: string;
   modifiedAt: Date;
   modifiedBy: string;

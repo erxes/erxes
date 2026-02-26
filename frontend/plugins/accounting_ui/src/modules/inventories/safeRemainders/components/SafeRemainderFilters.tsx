@@ -3,12 +3,7 @@ import {
   IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
 
@@ -40,15 +35,24 @@ const SafeRemainderFilterPopover = () => {
                   Date
                 </Filter.Item>
                 <SelectBranches.FilterItem value="branchId" label="Branch" />
-                <SelectDepartments.FilterItem value="departmentId" label="Department" />
+                <SelectDepartments.FilterItem
+                  value="departmentId"
+                  label="Department"
+                />
                 <Filter.Item value="statuses" disabled={true}>
                   <IconToggleRightFilled />
                   Statuses
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
-                <SelectMember.FilterItem value='createdUserId' label='Created by' />
-                <SelectMember.FilterItem value='modifiedUserId' label='Modified by' />
+                <SelectMember.FilterItem
+                  value="createdUserId"
+                  label="Created by"
+                />
+                <SelectMember.FilterItem
+                  value="modifiedUserId"
+                  label="Modified by"
+                />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
                   Updated
@@ -63,11 +67,14 @@ const SafeRemainderFilterPopover = () => {
           <Filter.View filterKey="date">
             <Filter.DateView filterKey="date" />
           </Filter.View>
-          <SelectBranches.FilterView mode='single' filterKey='branchId' />
-          <SelectDepartments.FilterView mode='single' filterKey='departmentId' />
+          <SelectBranches.FilterView mode="single" filterKey="branchId" />
+          <SelectDepartments.FilterView
+            mode="single"
+            filterKey="departmentId"
+          />
 
-          <SelectMember.FilterView mode='single' queryKey='createdUserId' />
-          <SelectMember.FilterView mode='single' queryKey='modifiedUserId' />
+          <SelectMember.FilterView mode="single" queryKey="createdUserId" />
+          <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
           <Filter.View filterKey="updatedDate">
             <Filter.DateView filterKey="updatedDate" />
           </Filter.View>
@@ -94,9 +101,11 @@ const SafeRemainderFilterPopover = () => {
   );
 };
 
-export const SafeRemainderFilter = (
-  { afterBar }: { afterBar?: React.ReactNode }
-) => {
+export const SafeRemainderFilter = ({
+  afterBar,
+}: {
+  afterBar?: React.ReactNode;
+}) => {
   const [queries] = useMultiQueryState<{
     number: string;
     searchValue: string;
@@ -106,7 +115,7 @@ export const SafeRemainderFilter = (
   const { number, searchValue, accountSearchValue } = queries;
 
   return (
-    <Filter id="accounts-filter" >
+    <Filter id="accounts-filter">
       <Filter.Bar>
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
@@ -124,11 +133,27 @@ export const SafeRemainderFilter = (
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
-        <SelectBranches.FilterBar label='Branch' filterKey='branchId' mode='single' />
-        <SelectDepartments.FilterBar label='Department' filterKey='departmentId' mode='single' />
+        <SelectBranches.FilterBar
+          label="Branch"
+          filterKey="branchId"
+          mode="single"
+        />
+        <SelectDepartments.FilterBar
+          label="Department"
+          filterKey="departmentId"
+          mode="single"
+        />
 
-        <SelectMember.FilterBar queryKey='createdUserId' label='Created By' mode='single' />
-        <SelectMember.FilterBar queryKey='modifiedUserId' label='Modified By' mode='single' />
+        <SelectMember.FilterBar
+          queryKey="createdUserId"
+          label="Created By"
+          mode="single"
+        />
+        <SelectMember.FilterBar
+          queryKey="modifiedUserId"
+          label="Modified By"
+          mode="single"
+        />
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />

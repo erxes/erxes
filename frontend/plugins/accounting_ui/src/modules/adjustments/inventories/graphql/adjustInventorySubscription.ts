@@ -11,4 +11,4 @@ export const ACCOUNTING_ADJUST_INVENTORY_CHANGED = gql`
 
 export default {
   ACCOUNTING_ADJUST_INVENTORY_CHANGED,
-}
+};

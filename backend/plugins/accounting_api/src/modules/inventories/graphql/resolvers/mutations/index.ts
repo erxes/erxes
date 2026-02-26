@@ -3,9 +3,4 @@ import SafeRemainders from './safeRemainders';
 import ReserveRems from './reserveRems';
 import SafeRemainderItems from './safeRemainderItems';
 
-export {
-  Remainders,
-  SafeRemainders,
-  SafeRemainderItems,
-  ReserveRems
-};
+export { Remainders, SafeRemainders, SafeRemainderItems, ReserveRems };

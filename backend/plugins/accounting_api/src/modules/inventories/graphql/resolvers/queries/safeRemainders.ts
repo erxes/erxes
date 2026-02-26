@@ -1,6 +1,6 @@
-import { checkPermission } from "erxes-api-shared/core-modules";
-import { paginate } from "erxes-api-shared/utils";
-import { IContext } from "~/connectionResolvers";
+import { checkPermission } from 'erxes-api-shared/core-modules';
+import { paginate } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 const safeRemainderQueries = {
   safeRemainders: async (_root: any, params: any, { models }: IContext) => {
@@ -17,16 +17,16 @@ const safeRemainderQueries = {
     if (params.searchValue) {
       const regexOption = {
         $regex: `.*${params.searchValue}.*`,
-        $options: 'i'
+        $options: 'i',
       };
 
       query.$or = [
         {
-          name: regexOption
+          name: regexOption,
         },
         {
-          code: regexOption
-        }
+          code: regexOption,
+        },
       ];
     }
 
@@ -44,43 +44,45 @@ const safeRemainderQueries = {
 
     if (params.productId) {
       let allRemainders = await models.SafeRemainders.find(query).lean();
-      const remIds = allRemainders.map(r => r._id);
+      const remIds = allRemainders.map((r) => r._id);
 
       const items = await models.SafeRemainderItems.find({
         remainderId: { $in: remIds },
-        productId: params.productId
+        productId: params.productId,
       }).lean();
 
-      const lastRemIds = new Set(items.map(i => i.remainderId) || []);
+      const lastRemIds = new Set(items.map((i) => i.remainderId) || []);
       query._id = { $in: lastRemIds };
     }
 
-    let sort: any = { 'date': -1 };
+    let sort: any = { date: -1 };
     if (params.sortField) {
-      sort = { [params.sortField]: params.sortDirection ?? '1' }
+      sort = { [params.sortField]: params.sortDirection ?? '1' };
     }
 
     return {
       totalCount: await models.SafeRemainders.find(query).countDocuments(),
-      remainders: await paginate(
-        models.SafeRemainders.find(query).sort(sort),
-        {
-          ...params
-        }
-      )
+      remainders: await paginate(models.SafeRemainders.find(query).sort(sort), {
+        ...params,
+      }),
     };
   },
 
   safeRemainderDetail: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return await models.SafeRemainders.getRemainder(_id);
-  }
+  },
 };
 
-checkPermission(safeRemainderQueries, "safeRemainders", "manageRemainders", []);
-checkPermission(safeRemainderQueries, "safeRemainderDetail", "manageRemainders", []);
+checkPermission(safeRemainderQueries, 'safeRemainders', 'manageRemainders', []);
+checkPermission(
+  safeRemainderQueries,
+  'safeRemainderDetail',
+  'manageRemainders',
+  [],
+);
 
 export default safeRemainderQueries;

@@ -1,6 +1,6 @@
-import { moduleCheckPermission } from "erxes-api-shared/core-modules";
-import { IContext } from "~/connectionResolvers";
-import { SAFE_REMAINDER_ITEM_STATUSES } from "~/modules/inventories/@types/constants";
+import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
+import { SAFE_REMAINDER_ITEM_STATUSES } from '~/modules/inventories/@types/constants';
 
 const safeRemainderItemMutations = {
   async safeRemainderItemEdit(
@@ -10,13 +10,13 @@ const safeRemainderItemMutations = {
       status?: string;
       remainder: number;
     },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const { _id, status, remainder } = params;
 
     const doc = {
       count: remainder,
-      status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED
+      status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
     };
 
     return await models.SafeRemainderItems.updateItem(_id, doc, user._id);

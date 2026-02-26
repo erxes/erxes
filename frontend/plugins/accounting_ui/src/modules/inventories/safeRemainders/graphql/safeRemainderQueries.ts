@@ -103,7 +103,7 @@ export const SAFE_REMAINDERS_QUERY = gql`
       
     }
   }
-`
+`;
 export const SAFE_REMAINDER_DETAIL_QUERY = gql`
   query SafeRemainderDetail($_id: String!) {
     safeRemainderDetail(_id: $_id) {

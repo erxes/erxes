@@ -11,7 +11,7 @@ export const SafeRemainderTable = () => {
       columns={safeRemainderColumns}
       data={safeRemainders || []}
       stickyColumns={[]}
-      className='m-3'
+      className="m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -19,7 +19,10 @@ export const SafeRemainderTable = () => {
           <RecordTable.Body>
             <RecordTable.RowList />
             {!loading && totalCount > safeRemainders?.length && (
-              <RecordTable.RowSkeleton rows={4} handleInView={handleFetchMore} />
+              <RecordTable.RowSkeleton
+                rows={4}
+                handleInView={handleFetchMore}
+              />
             )}
           </RecordTable.Body>
         </RecordTable>

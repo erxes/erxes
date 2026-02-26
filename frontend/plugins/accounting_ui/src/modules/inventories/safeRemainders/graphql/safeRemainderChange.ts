@@ -1,5 +1,8 @@
 import { gql } from '@apollo/client';
-import { safeRemainderFields, safeRemainderItemFields } from './safeRemainderQueries';
+import {
+  safeRemainderFields,
+  safeRemainderItemFields,
+} from './safeRemainderQueries';
 
 export const SAFE_REMAINDER_SUBMIT = gql`
   mutation SafeRemainderSubmit($_id: String!) {
@@ -34,4 +37,3 @@ export const SAFE_REMAINDER_ITEMS_REMOVE = gql`
     )
   }
 `;
-

@@ -1,9 +1,6 @@
 import { initTRPC } from '@trpc/server';
 
-import {
-  ITRPCContext,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 import { IModels } from './connectionResolvers';
 import { accountTrpcRouter } from './modules/accounting/trpc/account';

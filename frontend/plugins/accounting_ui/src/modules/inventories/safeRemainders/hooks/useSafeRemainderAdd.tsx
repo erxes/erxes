@@ -26,7 +26,7 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
           title: 'Success',
           description: 'Adjust Inventory created successfully',
         });
-        options?.onCompleted()
+        options?.onCompleted();
       },
       refetchQueries: ['SafeRemainders'],
       update: (_cache, { data }) => {
@@ -34,7 +34,7 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
 
         const pathname = newId
           ? `/accounting/inventories/safe-remainders/detail?id=${newId}`
-          : "/accounting/inventories/safe-remainders";
+          : '/accounting/inventories/safe-remainders';
 
         navigate(pathname);
       },

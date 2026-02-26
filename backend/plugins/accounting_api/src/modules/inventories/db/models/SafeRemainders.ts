@@ -1,16 +1,22 @@
-import { Model } from "mongoose";
-import { IModels } from "~/connectionResolvers";
-import { SAFE_REMAINDER_STATUSES, SAFE_REMAINDER_ITEM_STATUSES } from "../../@types/constants";
-import { ISafeRemainderDocument, ISafeRemainder } from "../../@types/safeRemainders";
-import { safeRemainderSchema } from "../definitions/safeRemainders";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
+import {
+  SAFE_REMAINDER_STATUSES,
+  SAFE_REMAINDER_ITEM_STATUSES,
+} from '../../@types/constants';
+import {
+  ISafeRemainderDocument,
+  ISafeRemainder,
+} from '../../@types/safeRemainders';
+import { safeRemainderSchema } from '../definitions/safeRemainders';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   getRemainder(_id: string): Promise<ISafeRemainderDocument>;
   createRemainder(
     subdomain: string,
     params: ISafeRemainder,
-    userId: string
+    userId: string,
   ): Promise<ISafeRemainderDocument>;
   removeRemainder(_id: string): void;
 }
@@ -25,7 +31,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
     public static async getRemainder(_id: string) {
       const result: any = await models.SafeRemainders.findById(_id);
 
-      if (!result) throw new Error("Safe remainder not found!");
+      if (!result) throw new Error('Safe remainder not found!');
 
       return result;
     }
@@ -40,7 +46,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
     public static async createRemainder(
       subdomain: string,
       params: any,
-      userId: string
+      userId: string,
     ) {
       const {
         branchId,
@@ -50,7 +56,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         productCategoryId,
         attachment,
         filterField,
-        items
+        items,
       } = params;
 
       // Create new safe remainder
@@ -65,26 +71,25 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         createdAt: new Date(),
         createdBy: userId,
         modifiedAt: new Date(),
-        modifiedBy: userId
+        modifiedBy: userId,
       });
 
       let productFilter: any = {};
       const attachDatas: any = {};
-      let attachFieldId = "";
+      let attachFieldId = '';
 
       if (items?.length) {
         const codes: string[] = items.map(i => i.code)
         productFilter = { query: { code: { $in: codes } } }
       } else {
         productFilter = {
-          query: { status: { $ne: "deleted" } }
+          query: { status: { $ne: 'deleted' } },
         };
 
         if (productCategoryId) {
-          productFilter.categoryId = productCategoryId
+          productFilter.categoryId = productCategoryId;
         }
       }
-
       // Get products related to product category
       const products = await sendTRPCMessage({
         subdomain,
@@ -93,9 +98,9 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         action: 'find',
         input: {
           ...productFilter,
-          sort: { code: 1 }
+          sort: { code: 1 },
         },
-        defaultValue: []
+        defaultValue: [],
       });
 
       // Create remainder items for every product
@@ -104,7 +109,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       const liveRemainders = await models.Remainders.find({
         departmentId,
         branchId,
-        productId: { $in: productIds }
+        productId: { $in: productIds },
       }).lean();
 
       const liveRemByProductId = {};
@@ -123,9 +128,9 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
           const datasKey = String(
             attachFieldId
               ? product.customFieldsData.find(
-                cfd => cfd.field === attachFieldId
-              )?.value
-              : product[filterField]
+                  (cfd) => cfd.field === attachFieldId,
+                )?.value
+              : product[filterField],
           );
           const { lastCount, changeCount } = attachDatas[datasKey];
 
@@ -137,7 +142,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         }
 
         if (items?.length) {
-          count = (items.find(i => i.code === product.code))?.remainder || 0
+          count = items.find((i) => i.code === product.code)?.remainder || 0;
         }
 
         bulkOps.push({
@@ -151,7 +156,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
           uom: product.uom,
           modifiedAt: new Date(),
           modifiedBy: userId,
-          order
+          order,
         });
       }
 
@@ -169,7 +174,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
       if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
-        throw new Error("cant remove: cause submited");
+        throw new Error('cant remove: cause submited');
       }
 
       // Delete safe remainder items by safe remainder id

@@ -17,11 +17,11 @@ export const safeRemainderItemSchema = schemaWrapper(
     modifiedAt: {
       type: Date,
       default: new Date(),
-      label: 'Modified date'
+      label: 'Modified date',
     },
     modifiedBy: { type: String, label: 'Modified User' },
     order: { type: Number, index: true },
-  })
+  }),
 );
 
 // for safeRemainderItemSchema query. increases search speed, avoids in-memory sorting
@@ -29,5 +29,5 @@ safeRemainderItemSchema.index({
   remainderId: 1,
   productId: 1,
   branchId: 1,
-  departmentId: 1
+  departmentId: 1,
 });

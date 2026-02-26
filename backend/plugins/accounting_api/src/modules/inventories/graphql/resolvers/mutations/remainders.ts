@@ -14,10 +14,10 @@ const remainderMutations = {
   remaindersUpdate: async (
     _root: any,
     params: IUpdateRemaindersParams,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) => {
     return updateLiveRemainders({ subdomain, ...params });
-  }
+  },
 };
 
 checkPermission(remainderMutations, 'remaindersUpdate', 'manageRemainders');

@@ -1,4 +1,4 @@
-import { ISafeRemainderDocument } from "~/modules/inventories/@types/safeRemainders";
+import { ISafeRemainderDocument } from '~/modules/inventories/@types/safeRemainders';
 
 export default {
   async modifiedUser(safeRemainder: ISafeRemainderDocument) {
@@ -38,6 +38,5 @@ export default {
       __typename: 'ProductCategory',
       _id: reserveRem.categoryId,
     };
-  }
-
+  },
 };

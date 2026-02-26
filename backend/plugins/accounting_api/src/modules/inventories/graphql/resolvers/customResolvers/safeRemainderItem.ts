@@ -1,4 +1,4 @@
-import { ISafeRemainderItemDocument } from "~/modules/inventories/@types/safeRemainderItems";
+import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
 
 export default {
   async product(safeRemainderItem: ISafeRemainderItemDocument) {
@@ -10,5 +10,5 @@ export default {
       __typename: 'Product',
       _id: safeRemainderItem.productId,
     };
-  }
+  },
 };

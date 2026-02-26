@@ -58,24 +58,24 @@ export const checkRemainders = async (
         }
 
         if (account && location) {
-          let jsonRes = {}
+          let jsonRes = {};
           try {
             const response = await fetch(
               configs.getRemainderApiUrl +
-              '?' +
-              new URLSearchParams({
-                kind: 'remainder',
-                api_key: configs.apiKey,
-                api_secret: configs.apiSecret,
-                check_relate: products.length < 4 ? '1' : '',
-                accounts: account,
-                locations: location,
-                inventories: products.map((p) => p.code).join(','),
-              }),
+                '?' +
+                new URLSearchParams({
+                  kind: 'remainder',
+                  api_key: configs.apiKey,
+                  api_secret: configs.apiSecret,
+                  check_relate: products.length < 4 ? '1' : '',
+                  accounts: account,
+                  locations: location,
+                  inventories: products.map((p) => p.code).join(','),
+                }),
             );
             jsonRes = await response.json();
           } catch (e) {
-            console.log(e.message)
+            console.log(e.message);
           }
           let responseByCode = {};
 
