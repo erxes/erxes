@@ -5,11 +5,10 @@ const CustomFieldGroup = {
   async fields(group: any, _params, { subdomain }: IContext) {
     const fields = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       method: 'query',
-      module: 'core',
-      action: 'fields.find',
+      module: 'fields',
+      action: 'find',
       input: { query: { groupId: group._id } },
     });
 

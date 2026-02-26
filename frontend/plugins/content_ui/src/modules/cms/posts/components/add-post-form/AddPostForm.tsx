@@ -14,7 +14,7 @@ import {
 import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { CustomFieldInput } from '../../CustomFieldInput';
 import { GalleryUploader } from '../../GalleryUploader';
 import { VideoUploader } from '../../VideoUploader';
@@ -70,6 +70,9 @@ export const AddPostForm = ({
   } = usePostForm(currentEditingPost);
 
   const selectedType = form.watch('type');
+
+  const postData = usePostData(websiteId, selectedType);
+
   const {
     categories,
     tags,
@@ -77,7 +80,16 @@ export const AddPostForm = ({
     availableLanguages,
     defaultLanguage,
     fieldGroups,
-  } = usePostData(websiteId, selectedType);
+  } = postData;
+
+  const languageOptions = useMemo(() => {
+    return availableLanguages.map((lang: string) => ({
+      value: lang,
+      label: lang.toUpperCase(),
+      isDefault: lang === defaultLanguage,
+      hasTranslation: translations[lang] && lang !== defaultLanguage,
+    }));
+  }, [availableLanguages, defaultLanguage, translations]);
 
   const { onSubmit, creating, saving } = usePostSubmission({
     websiteId,
@@ -212,20 +224,22 @@ export const AddPostForm = ({
                                     <Select.Value />
                                   </Select.Trigger>
                                   <Select.Content>
-                                    {availableLanguages.map((lang: string) => (
-                                      <Select.Item key={lang} value={lang}>
-                                        {lang.toUpperCase()}
-                                        {lang === defaultLanguage && (
+                                    {languageOptions.map((option: any) => (
+                                      <Select.Item
+                                        key={option.value}
+                                        value={option.value}
+                                      >
+                                        {option.label}
+                                        {option.isDefault && (
                                           <span className="ml-2 text-xs text-gray-500">
                                             (Default)
                                           </span>
                                         )}
-                                        {translations[lang] &&
-                                          lang !== defaultLanguage && (
-                                            <span className="ml-2 text-green-600">
-                                              ✓
-                                            </span>
-                                          )}
+                                        {option.hasTranslation && (
+                                          <span className="ml-2 text-green-600">
+                                            ✓
+                                          </span>
+                                        )}
                                       </Select.Item>
                                     ))}
                                   </Select.Content>

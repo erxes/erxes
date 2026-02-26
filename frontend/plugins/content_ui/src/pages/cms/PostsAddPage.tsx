@@ -14,7 +14,7 @@ export const PostsAddPage = ({
   postId?: string;
 }) => {
   const [formState, setFormState] = useState<any>(null);
-  const { post, loading } = usePostDetail(postId);
+  const { post, loading } = usePostDetail(postId || '');
   const navigate = useNavigate();
   const { websiteId } = useParams();
 

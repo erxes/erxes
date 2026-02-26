@@ -14,7 +14,7 @@ export const PostsDelete = ({
   onRefetch?: () => void;
 }) => {
   const { confirm } = useConfirm();
-  const { removePosts } = useRemovePosts();
+  const { removeManyPosts } = useRemovePosts();
   const { toast } = useToast();
   return (
     <Button
@@ -26,7 +26,7 @@ export const PostsDelete = ({
             postsIds.length
           } selected post${postsIds.length === 1 ? '' : 's'}?`,
         }).then(() => {
-          Promise.all(postsIds.map((postsId) => removePosts(postsId)))
+          removeManyPosts(postsIds)
             .then(() => {
               rows.forEach((row) => {
                 row.toggleSelected(false);

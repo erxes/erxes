@@ -131,6 +131,7 @@ export const usePostForm = (editingPost?: any) => {
     variables: { id: editingPost?._id },
     skip: !editingPost?._id,
     fetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: false,
   });
 
   const fullPost = (fullPostData?.cmsPost as any) || editingPost;
@@ -138,7 +139,8 @@ export const usePostForm = (editingPost?: any) => {
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { postId: editingPost?._id },
     skip: !editingPost?._id,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: false,
   });
 
   const [saveTranslation] = useMutation(CMS_EDIT_TRANSLATION);

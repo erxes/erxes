@@ -1,10 +1,13 @@
 export interface Posts {
   _id: string;
   title: string;
+  slug?: string;
+  content?: string;
   status: string;
   type: string;
   featured: boolean;
   tagIds: string[];
+  categoryIds?: string[];
   authorId: string;
   createdAt: string;
   updatedAt: string;
@@ -35,5 +38,6 @@ export interface Posts {
       middleName?: string;
     };
   };
+  customFieldsData?: any;
   __typename: string;
 }

@@ -1,46 +1,65 @@
 import { useQuery } from '@apollo/client';
-import { useTags } from '../../../../hooks/useTags';
-import { CMS_CATEGORIES, CONTENT_CMS_LIST } from '../../../../graphql/queries';
+import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
-import { CMS_CUSTOM_POST_TYPES } from '../../../../custom-types/graphql/queries';
+import { gql } from '@apollo/client';
+
+const COMBINED_CMS_DATA = gql`
+  query CombinedCmsData($clientPortalId: String!, $limit: Int) {
+    cmsCategories(clientPortalId: $clientPortalId, limit: $limit) {
+      list {
+        _id
+        name
+      }
+    }
+    cmsTags(clientPortalId: $clientPortalId, limit: $limit) {
+      tags {
+        _id
+        name
+        colorCode
+      }
+    }
+    cmsCustomPostTypes(clientPortalId: $clientPortalId) {
+      _id
+      label
+      description
+    }
+  }
+`;
 
 export const usePostData = (websiteId: string, selectedType?: string) => {
-  const { data: catData } = useQuery(CMS_CATEGORIES, {
-    variables: { clientPortalId: websiteId || '', limit: 100 },
-    skip: !websiteId,
-    fetchPolicy: 'cache-first',
-  });
-
-  const { tags: tagsData } = useTags({
-    clientPortalId: websiteId || '',
-    limit: 100,
-  });
-
-  const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
-    variables: { clientPortalId: websiteId },
-    skip: !websiteId,
-  });
+  const { data: combinedData, loading: combinedLoading } = useQuery(
+    COMBINED_CMS_DATA,
+    {
+      variables: { clientPortalId: websiteId || '', limit: 100 },
+      skip: !websiteId,
+      fetchPolicy: 'cache-first',
+    },
+  );
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
+    skip: !websiteId,
   });
 
   const { data: fieldGroupsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
     variables: { clientPortalId: websiteId },
     skip: !websiteId || !selectedType,
+    fetchPolicy: 'cache-first',
   });
 
-  const categories = (catData?.cmsCategories?.list || []).map((c: any) => ({
-    label: c.name,
-    value: c._id,
-  }));
+  const categories = (combinedData?.cmsCategories?.list || []).map(
+    (c: any) => ({
+      label: c.name,
+      value: c._id,
+    }),
+  );
 
-  const tags = (tagsData || []).map((t: any) => ({
+  const tags = (combinedData?.cmsTags?.tags || []).map((t: any) => ({
     label: t.name,
     value: t._id,
   }));
 
-  const customTypes = customTypesData?.cmsCustomPostTypes || [];
+  const customTypes = combinedData?.cmsCustomPostTypes || [];
 
   const cmsConfig = cmsData?.contentCMSList?.find(
     (cms: any) => cms.clientPortalId === websiteId,
@@ -65,5 +84,6 @@ export const usePostData = (websiteId: string, selectedType?: string) => {
     availableLanguages,
     defaultLanguage,
     fieldGroups,
+    loading: combinedLoading,
   };
 };

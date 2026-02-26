@@ -2,9 +2,6 @@ import { gql } from '@apollo/client';
 
 export const POSTS_LIST = gql`
   query CmsPostList(
-    $dateField: PostDateField
-    $dateFrom: Date
-    $dateTo: Date
     $clientPortalId: String
     $limit: Int
     $cursor: String
@@ -22,11 +19,11 @@ export const POSTS_LIST = gql`
     $sortField: String
     $sortDirection: String
     $language: String
+    $dateField: PostDateField
+    $dateFrom: Date
+    $dateTo: Date
   ) {
     cmsPostList(
-      dateField: $dateField
-      dateFrom: $dateFrom
-      dateTo: $dateTo
       clientPortalId: $clientPortalId
       limit: $limit
       cursor: $cursor
@@ -44,12 +41,22 @@ export const POSTS_LIST = gql`
       sortField: $sortField
       sortDirection: $sortDirection
       language: $language
+      dateField: $dateField
+      dateFrom: $dateFrom
+      dateTo: $dateTo
     ) {
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
       posts {
         _id
         type
         customPostType {
           _id
+          clientPortalId
           code
           label
           pluralLabel
@@ -58,12 +65,25 @@ export const POSTS_LIST = gql`
         }
         authorKind
         authorId
+
         clientPortalId
         title
         slug
         content
         excerpt
         categoryIds
+        status
+        tagIds
+        featured
+        featuredDate
+        scheduledDate
+        publishedDate
+        autoArchiveDate
+        reactions
+        reactionCounts
+        videoUrl
+        createdAt
+        updatedAt
         categories {
           _id
           clientPortalId
@@ -90,69 +110,16 @@ export const POSTS_LIST = gql`
           customFieldsData
           customFieldsMap
         }
-        status
-        tagIds
-        tags {
-          _id
-          name
-        }
-        featured
-        featuredDate
-        scheduledDate
-        publishedDate
-        autoArchiveDate
-        reactions
-        reactionCounts
-        images {
-          url
-          name
-          type
-          size
-          duration
-        }
-        video {
-          url
-          name
-          type
-          size
-          duration
-        }
-        videoUrl
-        createdAt
-        updatedAt
         customFieldsData
         customFieldsMap
-        author {
-          ... on User {
-            _id
-            createdAt
-            username
-            email
-            isActive
-
-            links
-            status
-            chatStatus
-            emailSignatures
-            getNotificationByEmail
-            onboardedPlugins
-            groupIds
-            isSubscribed
-            isShowNotification
-            propertiesData
-            isOwner
-            configs
-            configsConstants
-            departmentIds
-            brandIds
-            branchIds
-            positionIds
-            score
-            leaderBoardPosition
-            employeeId
-            isOnboarded
-            cursor
-          }
+        tags {
+          _id
+          clientPortalId
+          name
+          slug
+          colorCode
+          createdAt
+          updatedAt
         }
       }
       totalCount

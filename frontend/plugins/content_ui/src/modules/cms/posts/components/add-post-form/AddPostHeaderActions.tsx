@@ -1,5 +1,5 @@
 import { Button, Form, Spinner, Switch } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, useWatch } from 'react-hook-form';
 import { DateTimeInput } from './DateTimeInput';
 
 interface PostFormData {
@@ -40,11 +40,21 @@ export const AddPostHeaderActions = ({
   creating,
   saving,
 }: AddPostHeaderActionsProps) => {
+  const status = useWatch({
+    control: form.control,
+    name: 'status',
+  });
+
+  const enableAutoArchive = useWatch({
+    control: form.control,
+    name: 'enableAutoArchive',
+  });
+
   return (
     <div className="flex items-center gap-2">
       <Form {...form}>
         <div className="flex items-center gap-2">
-          {form.watch('status') === 'published' && (
+          {status === 'published' && (
             <Form.Field
               control={form.control}
               name="scheduledDate"
@@ -62,7 +72,7 @@ export const AddPostHeaderActions = ({
             />
           )}
 
-          {form.watch('status') === 'scheduled' && (
+          {status === 'scheduled' && (
             <Form.Field
               control={form.control}
               name="scheduledDate"
@@ -80,8 +90,7 @@ export const AddPostHeaderActions = ({
             />
           )}
 
-          {(form.watch('status') === 'published' ||
-            form.watch('status') === 'scheduled') && (
+          {(status === 'published' || status === 'scheduled') && (
             <Form.Field
               control={form.control}
               name="enableAutoArchive"
@@ -103,9 +112,8 @@ export const AddPostHeaderActions = ({
             />
           )}
 
-          {form.watch('enableAutoArchive') &&
-            (form.watch('status') === 'published' ||
-              form.watch('status') === 'scheduled') && (
+          {enableAutoArchive &&
+            (status === 'published' || status === 'scheduled') && (
               <Form.Field
                 control={form.control}
                 name="autoArchiveDate"
@@ -175,21 +183,21 @@ export const AddPostHeaderActions = ({
         {creating || saving ? (
           <>
             <Spinner size="sm" className="mr-2" />
-            {form.watch('status') === 'published'
+            {status === 'published'
               ? 'Publishing...'
-              : form.watch('status') === 'draft'
+              : status === 'draft'
               ? 'Saving...'
-              : form.watch('status') === 'scheduled'
+              : status === 'scheduled'
               ? 'Scheduling...'
               : 'Saving...'}
           </>
         ) : (
           <div>
-            {form.watch('status') === 'published'
+            {status === 'published'
               ? 'Publish'
-              : form.watch('status') === 'draft'
+              : status === 'draft'
               ? 'Save Draft'
-              : form.watch('status') === 'scheduled'
+              : status === 'scheduled'
               ? 'Schedule'
               : 'Save'}
           </div>

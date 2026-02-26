@@ -1,9 +1,11 @@
 import { PageContainer } from 'erxes-ui';
+import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
-import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
+import { useState, useCallback } from 'react';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
-import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Spinner } from 'erxes-ui';
 
 export const PostsDetailPage = ({
   clientPortalId,
@@ -12,43 +14,46 @@ export const PostsDetailPage = ({
   clientPortalId: string;
   postId?: string;
 }) => {
-  const { post } = usePostDetail(postId);
-  const [formState, setFormState] = useState<{
-    form: any;
-    onSubmit: (data?: any) => Promise<void>;
-    creating: boolean;
-    saving: boolean;
-  } | null>(null);
+  const [formState, setFormState] = useState<any>(null);
+  const { post, loading } = usePostDetail(postId ?? '');
+  const navigate = useNavigate();
+  const { websiteId } = useParams();
 
-  const handleFormReady = useCallback((formState: any) => {
-    setFormState(formState);
+  const handleFormReady = useCallback((state: any) => {
+    setFormState(state);
   }, []);
 
-  useEffect(() => {
-    if (!postId) {
-      setFormState(null);
-    }
-  }, [postId]);
+  const handleClose = useCallback(() => {
+    navigate(`/content/cms/${websiteId}/posts`);
+  }, [navigate, websiteId]);
 
   return (
     <PageContainer key={postId}>
-      <div>
-        <PostsHeader>
-          {formState && (
-            <AddPostHeaderActions
-              form={formState.form}
-              onSubmit={formState.onSubmit}
-              creating={formState.creating}
-              saving={formState.saving}
+      <PostsHeader>
+        {formState && (
+          <AddPostHeaderActions
+            form={formState.form}
+            onSubmit={formState.onSubmit}
+            creating={formState.creating}
+            saving={formState.saving}
+          />
+        )}
+      </PostsHeader>
+      <div className="w-full h-full">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <Spinner />
+          </div>
+        ) : (
+          clientPortalId && (
+            <AddPostForm
+              websiteId={clientPortalId}
+              editingPost={post}
+              onFormReady={handleFormReady}
+              onClose={handleClose}
             />
-          )}
-        </PostsHeader>
-        <AddPostForm
-          websiteId={clientPortalId}
-          editingPost={post}
-          onFormReady={handleFormReady}
-          key={postId}
-        />
+          )
+        )}
       </div>
     </PageContainer>
   );
