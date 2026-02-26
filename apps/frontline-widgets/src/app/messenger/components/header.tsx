@@ -34,7 +34,8 @@ export const Header = () => {
 export const HeaderIntro = () => {
   const [connection] = useAtom(connectionAtom);
   const { messengerData } = connection.widgetsMessengerConnect || {};
-  const { messages, onlineHours, showTimezone, timezone, links } = messengerData || {};
+  const { messages, onlineHours, showTimezone, timezone, links } =
+    messengerData || {};
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,35 +44,40 @@ export const HeaderIntro = () => {
           {messages?.greetings?.title || WelcomeMessage.TITLE}
         </div>
         <div className="text-muted-foreground font-medium text-sm">
-          {messages?.greetings?.message || WelcomeMessage.MESSAGE}{'. '}
+          {messages?.greetings?.message || WelcomeMessage.MESSAGE}
+          {'. '}
           {onlineHours
             ? formatOnlineHours({ onlineHours, showTimezone, timezone })
             : WelcomeMessage.AVAILABILITY_MESSAGE}{' '}
         </div>
-        <div className='flex flex-col gap-1'>
-          {links && <span className="text-muted-foreground font-medium text-xs">Contact us for any questions or concerns.</span>}
-          <div className='flex gap-1'>
-            {
-              Object.entries(links || {})?.map(([key, value]) => (
-                <Tooltip.Provider>
-                  <Tooltip key={key}>
-                    <Tooltip.Trigger>
-                      <a href={value as string} target="_blank" rel="noopener noreferrer">
-                        <LinkFavicon url={value as string} />
-                      </a>
-                    </Tooltip.Trigger>
-                    <Tooltip.Content>
-                      {key}
-                    </Tooltip.Content>
-                  </Tooltip>
-                </Tooltip.Provider>
-              ))
-            }
+        <div className="flex flex-col gap-1">
+          {links && (
+            <span className="text-muted-foreground font-medium text-xs">
+              Contact us for any questions or concerns.
+            </span>
+          )}
+          <div className="flex gap-1">
+            {Object.entries(links || {})?.map(([key, value]) => (
+              <Tooltip.Provider key={key}>
+                <Tooltip>
+                  <Tooltip.Trigger>
+                    <a
+                      href={value as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <LinkFavicon url={value as string} />
+                    </a>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>{key}</Tooltip.Content>
+                </Tooltip>
+              </Tooltip.Provider>
+            ))}
           </div>
         </div>
       </div>
       <HeaderItemsList />
-    </div >
+    </div>
   );
 };
 

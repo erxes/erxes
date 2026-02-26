@@ -1,4 +1,8 @@
-import { getEnv, getSaasOrganizationDetail, getSubdomain } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  getSaasOrganizationDetail,
+  getSubdomain,
+} from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { generateModels } from '~/connectionResolvers';
@@ -89,6 +93,15 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
         }
       }
     });
+
+    const hasAgentUi = remotes.some((remote) => remote.name === 'agent_ui');
+
+    if (!hasAgentUi) {
+      remotes.push({
+        name: 'agent_ui',
+        entry: `https://plugins.erxes.io/latest/agent_ui/remoteEntry.js`,
+      });
+    }
 
     return res.json(remotes);
   } else {

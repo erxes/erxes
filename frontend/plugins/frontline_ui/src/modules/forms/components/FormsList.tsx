@@ -31,9 +31,10 @@ import { Link } from 'react-router-dom';
 
 export const FormsList = () => {
   const { channelId } = useParams();
+
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
     variables: {
-      channelId: channelId || '',
+      channelId: channelId || undefined,
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
