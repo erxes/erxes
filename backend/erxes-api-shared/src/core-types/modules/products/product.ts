@@ -6,6 +6,26 @@ interface ISubUom {
   ratio: number;
 }
 
+interface IRemainder {
+  [branchId: string]: {
+    [departmentId: string]: {
+      remainder: number;
+      soonIn: number;
+      soonOut: number;
+    }
+  }
+}
+
+interface IDiscount {
+  [branchId: string]: {
+    [departmentId: string]: {
+      pricingId: { type: String },
+      value: { type: Number },
+      percent: { type: Number },
+    }
+  }
+}
+
 export interface IProduct {
   name: string;
   shortName?: string;
@@ -37,6 +57,9 @@ export interface IProduct {
   currency?: string;
 
   pdfAttachment?: IPdfAttachment;
+
+  remainders?: IRemainder;
+  discounts?: IDiscount;
 }
 
 export interface IProductDocument extends IProduct, Document {

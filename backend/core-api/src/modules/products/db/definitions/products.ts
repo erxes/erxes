@@ -42,7 +42,7 @@ export const productSchema = schemaWrapper(
       description: { type: String, optional: true, label: 'Description' },
       unitPrice: { type: Number, optional: true, label: 'Unit price' },
       customFieldsData: {
-        type:[customFieldSchema],
+        type: [customFieldSchema],
         optional: true,
         label: 'Custom fields data',
       },
@@ -88,6 +88,9 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'PDF attachment',
       },
+
+      remainders: { type: Object, optional: true, },
+      discounts: { type: Object, optional: true },
     },
     {
       timestamps: true,

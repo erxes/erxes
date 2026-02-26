@@ -28,7 +28,17 @@ const generateFilter = async (
     ids,
     excludeIds,
     image,
-    pipelineId
+    pipelineId,
+    branchId,
+    departmentId,
+    minRemainder,
+    maxRemainder,
+    minPrice,
+    maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
   } = params;
 
   const filter: FilterQuery<IProductParams> = { ...commonQuerySelector };
@@ -150,6 +160,41 @@ const generateFilter = async (
     }
   }
 
+  if (branchId && departmentId) {
+    if (minRemainder || minRemainder === 0) {
+      andFilters.push({
+        [`remainders.${branchId}.${departmentId}.remainder`]: { $exists: true, $gte: minRemainder }
+      });
+    }
+    if (maxRemainder || maxRemainder === 0) {
+      andFilters.push({
+        [`remainders.${branchId}.${departmentId}.remainder`]: { $exists: true, $lte: maxRemainder }
+      });
+    }
+
+    if (minDiscountValue || minDiscountValue === 0) {
+      andFilters.push({
+        [`discounts.${branchId}.${departmentId}.value`]: { $exists: true, $gte: minDiscountValue }
+      });
+    }
+    if (maxDiscountValue || maxDiscountValue === 0) {
+      andFilters.push({
+        [`discounts.${branchId}.${departmentId}.value`]: { $exists: true, $lte: maxDiscountValue }
+      });
+    }
+
+    if (minDiscountPercent || minDiscountPercent === 0) {
+      andFilters.push({
+        [`discounts.${branchId}.${departmentId}.percent`]: { $exists: true, $gte: minDiscountPercent }
+      });
+    }
+    if (maxDiscountPercent || maxDiscountPercent === 0) {
+      andFilters.push({
+        [`discounts.${branchId}.${departmentId}.percent`]: { $exists: true, $lte: maxDiscountPercent }
+      });
+    }
+  }
+
   if (vendorId) {
     filter.vendorId = vendorId;
   }
@@ -161,6 +206,13 @@ const generateFilter = async (
   if (image) {
     filter['attachment.url'] =
       image === 'hasImage' ? { $exists: true } : { $exists: false };
+  }
+
+  if (minPrice || minPrice === 0) {
+    andFilters.push({ unitPrice: { $exists: true, $gte: minPrice } })
+  }
+  if (maxPrice || maxPrice === 0) {
+    andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } })
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };

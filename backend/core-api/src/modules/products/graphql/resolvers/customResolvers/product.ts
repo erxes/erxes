@@ -1,5 +1,6 @@
 import { IProductDocument } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { IProductParams } from '~/modules/products/@types';
 
 export default {
   __resolveReference: async (
@@ -30,4 +31,18 @@ export default {
 
     return models.Companies.findOne({ _id: product.vendorId });
   },
+
+  remainder: async (product: IProductDocument, args: IProductParams) => {
+    if (args.branchId && args.departmentId) {
+      return product.remainders?.[args.branchId]?.[args.departmentId]
+    }
+    return;
+  },
+
+  discount: async (product: IProductDocument, args: IProductParams) => {
+    if (args.branchId && args.departmentId) {
+      return product.discounts?.[args.branchId]?.[args.departmentId]
+    }
+    return;
+  }
 };
