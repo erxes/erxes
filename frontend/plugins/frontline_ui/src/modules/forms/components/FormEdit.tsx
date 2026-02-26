@@ -6,16 +6,16 @@ import { formSetSetupAtom } from '../states/formSetupStates';
 import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 
-export const FormEdit = ({ setName }: { setName: (name: string) => void }) => {
-  const { id } = useParams<{ id: string }>();
+export const FormEdit = ({ setName }: { setName?: (name: string) => void }) => {
+  const { formId } = useParams<{ formId: string }>();
   const [loadingSetup, setLoadingSetup] = useState(true);
-  const { formDetail, loading } = useFormDetail({ formId: id || '' });
+  const { formDetail, loading } = useFormDetail({ formId: formId || '' });
   const formSetSetup = useSetAtom(formSetSetupAtom);
 
   useEffect(() => {
     if (formDetail) {
       formSetSetup(formDetail);
-      setName(formDetail.name);
+      setName?.(formDetail.name);
       setTimeout(() => {
         setLoadingSetup(false);
       }, 1000);

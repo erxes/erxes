@@ -10,6 +10,9 @@ export const EMFormValueEffectComponent = ({
   atom: WritableAtom<any, [value: any], void>;
   form: UseFormReturn<z.infer<any>>;
 }) => {
+  // `persistValueTaken` becomes true once we have done the first reset, at
+  // which point it is safe for the setter effect to start writing form values
+  // back into the atom.
   const [persistValueTaken, setPersistValueTaken] = useState(false);
 
   return (
@@ -43,22 +46,33 @@ export const EMFormResetEffectComponent = ({
   const { reset } = form;
   const atomValue = useAtomValue(atom);
 
-  const resetForm = useCallback(async () => {
-    setTimeout(() => {
-      reset(atomValue);
-    });
-  }, [reset, atomValue]);
+  const resetForm = useCallback(
+    (value: any) => {
+      setTimeout(() => {
+        reset(value);
+      });
+    },
+    [reset],
+  );
 
+  // Watch atomValue until it's non-null, then reset the form once and lock
+  // the gate. This handles two cases correctly:
+  //
+  //  • Sync  — atom already has data in localStorage on mount → fires
+  //             immediately on the first render.
+  //  • Async — atom starts null (cleared by EditErxesMessengerSheet reset
+  //             while the API query is in-flight). The effect keeps watching
+  //             until setEMSetupValues() populates the atom, then fires once.
+  //
+  // After locking (persistValueTaken = true) the setter effect takes over and
+  // writes form changes back into the atom. This effect is now fully blocked,
+  // so user keystrokes never trigger a re-reset.
   useEffect(() => {
-    if (persistValueTaken) {
-      return;
-    }
+    if (persistValueTaken) return; // already initialised — do nothing
+    if (!atomValue) return;        // still waiting for data
     setPersistValueTaken(true);
-    if (!atomValue) {
-      return;
-    }
-    resetForm();
-  }, [resetForm, persistValueTaken, atomValue, setPersistValueTaken]);
+    resetForm(atomValue);
+  }, [atomValue, persistValueTaken, resetForm, setPersistValueTaken]);
 
   return null;
 };

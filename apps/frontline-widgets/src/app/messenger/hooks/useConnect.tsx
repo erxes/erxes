@@ -53,7 +53,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
         const uiOptions = connectionData.uiOptions || {
           primary: {
             DEFAULT: '#5629B6',
-            foreground: '#FFF',
+            foreground: '#ffffff',
           },
         };
 
@@ -116,22 +116,22 @@ export const useConnect = ({ integrationId }: connectionProps) => {
 
       const variables = email
         ? {
-            integrationId,
-            visitorId: visitorId || null,
-            cachedCustomerId: currentCachedCustomerId || undefined,
-            isUser: true,
-            email,
-            phone,
-            code,
-            data: customData,
-            companyData,
-          }
+          integrationId,
+          visitorId: visitorId || null,
+          cachedCustomerId: currentCachedCustomerId || undefined,
+          isUser: true,
+          email,
+          phone,
+          code,
+          data: customData,
+          companyData,
+        }
         : {
-            integrationId,
-            visitorId,
-            cachedCustomerId: currentCachedCustomerId || undefined,
-            isUser: false,
-          };
+          integrationId,
+          visitorId,
+          cachedCustomerId: currentCachedCustomerId || undefined,
+          isUser: false,
+        };
 
       await connectMutation({ variables });
     };
