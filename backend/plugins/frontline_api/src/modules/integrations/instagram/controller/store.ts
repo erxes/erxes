@@ -305,9 +305,8 @@ export const getOrCreatePostConversation = async (
       params,
     );
     if (!postConversation) {
-      postConversation = await models.InstagramPostConversations.create(
-        facebookPost,
-      );
+      postConversation =
+        await models.InstagramPostConversations.create(facebookPost);
       return postConversation;
     } else {
       const hasPostContentChanged =

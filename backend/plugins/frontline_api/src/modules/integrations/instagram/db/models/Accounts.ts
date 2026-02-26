@@ -3,8 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { IInstagramAccountDocument } from '@/integrations/instagram/@types/accounts';
 import { accountSchema } from '../definitions/accounts';
 
-export interface IInstagramAccountModel
-  extends Model<IInstagramAccountDocument> {
+export interface IInstagramAccountModel extends Model<IInstagramAccountDocument> {
   getAccount(selector): Promise<IInstagramAccountDocument>;
 }
 

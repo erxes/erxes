@@ -11,7 +11,6 @@ export interface IInstagramCustomer {
 }
 
 export interface IInstagramCustomerDocument
-  extends IInstagramCustomer,
-    Document {
+  extends IInstagramCustomer, Document {
   _id: string;
 }

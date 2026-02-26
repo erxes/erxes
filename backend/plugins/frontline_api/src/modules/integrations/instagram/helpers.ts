@@ -71,9 +71,8 @@ export const removeIntegration = async (
 
     integrationRemoveBy = { igPageId: integration.instagramPageIds?.[0] };
 
-    const conversationIds = await models.InstagramConversations.find(
-      selector,
-    ).distinct('_id');
+    const conversationIds =
+      await models.InstagramConversations.find(selector).distinct('_id');
 
     await models.InstagramCustomers.deleteMany({
       integrationId: integrationErxesApiId,

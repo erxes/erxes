@@ -18,5 +18,4 @@ export interface IInstagramCommentConversationReply {
 }
 
 export interface IInstagramCommentConversationReplyDocument
-  extends IInstagramCommentConversationReply,
-    Document {}
+  extends IInstagramCommentConversationReply, Document {}
