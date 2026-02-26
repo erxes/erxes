@@ -1,6 +1,10 @@
-import { moduleCheckPermission } from "erxes-api-shared/core-modules";
-import { escapeRegExp, paginate, sendTRPCMessage } from "erxes-api-shared/utils";
-import { IContext } from "~/connectionResolvers";
+import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
+import {
+  escapeRegExp,
+  paginate,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 interface IListArgs {
   page: number;
@@ -25,7 +29,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     branchId,
     departmentId,
     productId,
-    productCategoryId
+    productCategoryId,
   } = params;
 
   const filter: any = {};
@@ -47,15 +51,15 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
       productFilter.query = {
         $or: [
           {
-            name: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+            name: { $regex: `.*${escapeRegExp(searchValue)}.*` },
           },
           {
-            code: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+            code: { $regex: `.*${escapeRegExp(searchValue)}.*` },
           },
           {
-            barcodes: { $regex: `.*${escapeRegExp(searchValue)}.*` }
-          }
-        ]
+            barcodes: { $regex: `.*${escapeRegExp(searchValue)}.*` },
+          },
+        ],
       };
     }
 
@@ -68,11 +72,11 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
         subdomain,
         pluginName: 'core',
         module: 'products',
-        action: "find",
+        action: 'find',
         input: { ...productFilter, fields: { _id: 1 } },
       });
 
-      filter.productId = { $in: products.map(p => p._id) };
+      filter.productId = { $in: products.map((p) => p._id) };
     }
   }
 
@@ -83,7 +87,7 @@ const reserveRemsQueries = {
   reserveRems: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
     return paginate(models.ReserveRems.find(filter).sort({}).lean(), params);
@@ -92,13 +96,13 @@ const reserveRemsQueries = {
   reserveRemsCount: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
     return await models.ReserveRems.find(filter).countDocuments();
-  }
+  },
 };
 
-moduleCheckPermission(reserveRemsQueries, "manageRemainders");
+moduleCheckPermission(reserveRemsQueries, 'manageRemainders');
 
 export default reserveRemsQueries;

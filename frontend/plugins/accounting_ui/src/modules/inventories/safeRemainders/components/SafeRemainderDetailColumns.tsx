@@ -52,7 +52,7 @@ const RemainderField = ({
           {
             variables: { ...remItem, remainder: value, status: 'checked' },
           },
-          ['count']
+          ['count'],
         );
       }}
       className={'shadow-none rounded-none px-2'}
@@ -74,9 +74,13 @@ const DiffField = ({
       onSave={(value) => {
         editRemItem(
           {
-            variables: { ...remItem, remainder: remItem.preCount - value, status: 'checked' },
+            variables: {
+              ...remItem,
+              remainder: remItem.preCount - value,
+              status: 'checked',
+            },
           },
-          ['count']
+          ['count'],
         );
       }}
       className={'shadow-none rounded-none px-2'}
@@ -94,15 +98,17 @@ const StatusField = ({
     <div className="flex items-center justify-center">
       <Checkbox
         checked={value === 'checked'}
-        onCheckedChange={(value) => editRemItem(
-          {
-            variables: { ...remItem, status: value ? 'checked' : 'new' },
-          },
-          ['status']
-        )}
+        onCheckedChange={(value) =>
+          editRemItem(
+            {
+              variables: { ...remItem, status: value ? 'checked' : 'new' },
+            },
+            ['status'],
+          )
+        }
       />
     </div>
-  )
+  );
 };
 
 export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
@@ -126,45 +132,54 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'uom',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="UOM" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="UOM" />,
     accessorKey: 'uom',
-    cell: ({ row }) => <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>
+    ),
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Checked" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Checked" />
+    ),
     size: 33,
-    cell: ({ row }) => <StatusField
-      value={row.original.status}
-      field="status"
-      _id={row.original._id}
-      remItem={row.original}
-    />,
+    cell: ({ row }) => (
+      <StatusField
+        value={row.original.status}
+        field="status"
+        _id={row.original._id}
+        remItem={row.original}
+      />
+    ),
   },
   {
     id: 'remainder',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />
+    ),
     accessorKey: 'remainder',
-    cell: ({ row }) => <RemainderField
-      value={row.original.count}
-      field="count"
-      _id={row.original._id}
-      remItem={row.original}
-    />,
+    cell: ({ row }) => (
+      <RemainderField
+        value={row.original.count}
+        field="count"
+        _id={row.original._id}
+        remItem={row.original}
+      />
+    ),
   },
   {
     id: 'diff',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Diff" />,
     accessorKey: 'diff',
-    cell: ({ row }) => <DiffField
-      value={row.original.preCount - row.original.count}
-      field="diff"
-      _id={row.original._id}
-      remItem={row.original}
-    />,
+    cell: ({ row }) => (
+      <DiffField
+        value={row.original.preCount - row.original.count}
+        field="diff"
+        _id={row.original._id}
+        remItem={row.original}
+      />
+    ),
   },
-
 ];

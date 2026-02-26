@@ -23,7 +23,7 @@ const InventoriesNavigation = lazy(() =>
 const SettingsNavigation = lazy(() =>
   import('./modules/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
-  }))
+  })),
 );
 
 export const CONFIG: IUIConfig = {

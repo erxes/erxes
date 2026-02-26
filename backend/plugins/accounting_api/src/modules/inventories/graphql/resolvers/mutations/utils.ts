@@ -1,16 +1,16 @@
-import * as lodash from "lodash";
-import { generateModels } from "~/connectionResolvers";
-import { IRemainderDocument } from "~/modules/inventories/@types/remainders";
-import { ISafeRemainderItemDocument } from "~/modules/inventories/@types/safeRemainderItems";
-import { IUpdateRemaindersParams } from "./remainders";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import * as lodash from 'lodash';
+import { generateModels } from '~/connectionResolvers';
+import { IRemainderDocument } from '~/modules/inventories/@types/remainders';
+import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
+import { IUpdateRemaindersParams } from './remainders';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const updateLiveRemainders = async ({
   subdomain,
   departmentId,
   branchId,
   productCategoryId,
-  productIds
+  productIds,
 }: IUpdateRemaindersParams & { subdomain: string }) => {
   const models = await generateModels(subdomain);
 
@@ -26,10 +26,10 @@ export const updateLiveRemainders = async ({
       subdomain,
       pluginName: 'core',
       module: 'products',
-      action: "find",
+      action: 'find',
       input: {
         query: {},
-        categoryId: productCategoryId
+        categoryId: productCategoryId,
       },
     });
 
@@ -88,11 +88,11 @@ export const updateLiveRemainders = async ({
         resultRemainder.push(realRemainder);
       } else {
         await models.Remainders.updateRemainder(realRemainder._id, {
-          count: remainderCount
+          count: remainderCount,
         });
 
         resultRemainder.push(
-          await models.Remainders.getRemainder(realRemainder._id)
+          await models.Remainders.getRemainder(realRemainder._id),
         );
       }
     } else {
@@ -100,7 +100,7 @@ export const updateLiveRemainders = async ({
         productId,
         departmentId,
         branchId,
-        count: remainderCount
+        count: remainderCount,
       });
     }
   }
@@ -115,7 +115,7 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
       subdomain,
       pluginName: 'core',
       module: 'products',
-      action: "find",
+      action: 'find',
       input: { _id: productId },
     });
     products = [product];
@@ -126,17 +126,17 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
       subdomain,
       pluginName: 'core',
       module: 'products',
-      action: "products.find",
+      action: 'products.find',
       input: {
-        query: { status: { $nin: ["archived", "deleted"] } },
+        query: { status: { $nin: ['archived', 'deleted'] } },
         categoryId: productCategoryId,
-        sort: { code: 1 }
+        sort: { code: 1 },
       },
-      defaultValue: []
+      defaultValue: [],
     });
   }
 
-  const productIds = products.map(p => p._id);
+  const productIds = products.map((p) => p._id);
 
   return { products, productIds };
 };

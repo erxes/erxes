@@ -1,25 +1,41 @@
-import { IUserDocument } from "erxes-api-shared/core-types";
-import { IModels } from "~/connectionResolvers";
-import { generateFilter, IGroupCommon } from ".";
-import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
-import { JOURNALS } from "../../@types/constants";
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IModels } from '~/connectionResolvers';
+import { generateFilter, IGroupCommon } from '.';
+import { IReportFilterParams } from '../../graphql/resolvers/queries/journalReport';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { JOURNALS } from '../../@types/constants';
 
-export const handleInvCost = async (subdomain: string, models: IModels, groupRules: IGroupCommon[], filterParams: IReportFilterParams, user: IUserDocument) => {
-  const groups = new Set(groupRules.map(gr => gr.group));
-  const { fromDate, toDate, ...filters } = filterParams
+export const handleInvCost = async (
+  subdomain: string,
+  models: IModels,
+  groupRules: IGroupCommon[],
+  filterParams: IReportFilterParams,
+  user: IUserDocument,
+) => {
+  const groups = new Set(groupRules.map((gr) => gr.group));
+  const { fromDate, toDate, ...filters } = filterParams;
   const match = await generateFilter(subdomain, models, filters, user);
 
   const aggPipe = [
-    { $match: { journal: { $in: JOURNALS.ALL_REAL_INV }, 'details.productId': { $exists: true, $ne: '' }, ...match } },
+    {
+      $match: {
+        journal: { $in: JOURNALS.ALL_REAL_INV },
+        'details.productId': { $exists: true, $ne: '' },
+        ...match,
+      },
+    },
     { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
   ];
 
   const $group = {
-    _id: { accountId: '$details.accountId', side: '$details.side', productId: '$details.productId' },
+    _id: {
+      accountId: '$details.accountId',
+      side: '$details.side',
+      productId: '$details.productId',
+    },
     sumAmount: { $sum: '$details.amount' },
     sumCount: { $sum: '$details.count' },
-    sumCurrencyAmount: { $sum: '$details.currencyAmount' }
+    sumCurrencyAmount: { $sum: '$details.currencyAmount' },
   };
 
   const $project = {
@@ -30,7 +46,7 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
     sumAmount: 1,
     sumCount: 1,
     sumCurrencyAmount: 1,
-    isBetween: 1
+    isBetween: 1,
   };
 
   if (groups.has('branchId')) {
@@ -39,7 +55,7 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
   }
 
   if (groups.has('departmentId')) {
-    $group._id['departmentId'] = '$departmentId'
+    $group._id['departmentId'] = '$departmentId';
     $project['departmentId'] = '$_id.departmentId';
   }
 
@@ -47,26 +63,26 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
     { $match: { date: { $lte: fromDate } } },
     ...aggPipe,
     { $group },
-    { $project }
+    { $project },
   ]);
 
   const betRecs = await models.Transactions.aggregate([
     { $match: { date: { $gt: fromDate, $lte: toDate } } },
     ...aggPipe,
     { $group: { ...$group, isBetween: { $sum: 1 } } },
-    { $project }
+    { $project },
   ]);
 
   const records = [...fbRecs, ...betRecs];
 
-  const accountIds = records.map(r => r.accountId);
+  const accountIds = records.map((r) => r.accountId);
   const accounts = await models.Accounts.find(
     { _id: { $in: accountIds } },
-    { _id: 1, code: 1, name: 1, kind: 1, categoryId: 1 }
+    { _id: 1, code: 1, name: 1, kind: 1, categoryId: 1 },
   ).populate({
     path: 'categoryId',
     model: 'account_categories',
-    select: 'code name'
+    select: 'code name',
   });
 
   const accountById = {};
@@ -74,7 +90,7 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
     accountById[account._id] = account;
   }
 
-  const productIds = records.filter(r => r.productId).map(r => r.productId);
+  const productIds = records.filter((r) => r.productId).map((r) => r.productId);
   const products = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -85,16 +101,16 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
       fields: { _id: 1, code: 1, name: 1, categoryId: 1 },
       limit: productIds.length,
     },
-    defaultValue: []
+    defaultValue: [],
   });
   const productById = {};
   for (const product of products) {
     productById[product._id] = product;
-  };
+  }
 
   const branchById = {};
   if (groups.has('branchId')) {
-    const branchIds = records.map(r => r.branchId);
+    const branchIds = records.map((r) => r.branchId);
     const branches = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -117,7 +133,7 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
 
   const departmentById = {};
   if (groups.has('departmentId')) {
-    const departmentIds = records.map(r => r.departmentId);
+    const departmentIds = records.map((r) => r.departmentId);
     const departments = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -140,7 +156,7 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
   }
 
   return {
-    records: records.map(r => ({
+    records: records.map((r) => ({
       ...r,
       accountCode: accountById[r.accountId]?.code,
       accountName: accountById[r.accountId]?.name,
@@ -154,6 +170,6 @@ export const handleInvCost = async (subdomain: string, models: IModels, groupRul
       branchName: branchById[r.branchId]?.title,
       departmentCode: departmentById[r.departmentId]?.code,
       departmentName: departmentById[r.departmentId]?.title,
-    }))
-  }
-}
+    })),
+  };
+};

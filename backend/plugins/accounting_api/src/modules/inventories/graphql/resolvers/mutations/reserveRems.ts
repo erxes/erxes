@@ -1,21 +1,23 @@
-
 import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
-import { IReserveRemsAddParams, IReserveRem } from '~/modules/inventories/@types/reserveRems';
+import {
+  IReserveRemsAddParams,
+  IReserveRem,
+} from '~/modules/inventories/@types/reserveRems';
 import { getProducts } from './utils';
 
 const reserveRemsMutations = {
   reserveRemsAdd: async (
     _root: any,
     doc: IReserveRemsAddParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) => {
     const {
       departmentIds,
       branchIds,
       remainder,
       productCategoryId,
-      productId
+      productId,
     } = doc;
     if (!departmentIds || !branchIds) {
       throw new Error('Must fill departmend and branch');
@@ -28,13 +30,13 @@ const reserveRemsMutations = {
     const { products, productIds } = await getProducts(
       subdomain,
       productId,
-      productCategoryId
+      productCategoryId,
     );
 
     const oldReserveRems = await models.ReserveRems.find({
       departmentId: { $in: departmentIds },
       branchId: { $in: branchIds },
-      productId: { $in: productIds }
+      productId: { $in: productIds },
     });
 
     const oldReserveRemsByKey = {};
@@ -64,16 +66,16 @@ const reserveRemsMutations = {
             bulkUpdateOps.push({
               updateOne: {
                 filter: {
-                  _id: oldReserveRem._id
+                  _id: oldReserveRem._id,
                 },
                 update: {
                   $set: {
                     remainder,
                     modifiedAt: now,
-                    modifiedBy: user._id
-                  }
-                }
-              }
+                    modifiedBy: user._id,
+                  },
+                },
+              },
             });
 
             updatedIds.push(oldReserveRem._id);
@@ -91,15 +93,14 @@ const reserveRemsMutations = {
               uom: product.uom,
               remainder,
               createdAt: now,
-              createBy: user._id
+              createBy: user._id,
             });
 
             insertCounter += 1;
 
             if (insertCounter > 100) {
-              const inserted = await models.ReserveRems.insertMany(
-                bulkCreateOps
-              );
+              const inserted =
+                await models.ReserveRems.insertMany(bulkCreateOps);
               inserteds.push(inserted);
               bulkCreateOps = [];
             }
@@ -118,14 +119,14 @@ const reserveRemsMutations = {
     }
 
     return inserteds.concat(
-      await models.ReserveRems.find({ _id: { $in: updatedIds } }).lean()
+      await models.ReserveRems.find({ _id: { $in: updatedIds } }).lean(),
     );
   },
 
   reserveRemEdit: async (
     _root,
     doc: IReserveRem & { _id: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) => {
     const { _id, ...params } = doc;
     const reserveRem = await models.ReserveRems.getReserveRem({ _id });
@@ -133,19 +134,19 @@ const reserveRemsMutations = {
       _id,
       {
         ...reserveRem,
-        ...params
+        ...params,
       },
-      user
+      user,
     );
   },
 
   reserveRemsRemove: async (
     _root: any,
     { _ids }: { _ids: string[] },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return await models.ReserveRems.reserveRemsRemove(_ids);
-  }
+  },
 };
 
 moduleCheckPermission(reserveRemsMutations, 'manageRemainders');

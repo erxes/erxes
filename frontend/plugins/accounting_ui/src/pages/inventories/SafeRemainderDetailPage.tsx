@@ -6,12 +6,11 @@ export const SafeRemainderDetailPage = () => {
   return (
     <AccountingLayout>
       <AccountingHeader
-        returnLink='/accounting/inventories/safe-remainders'
-        returnText='Safe Remainders'
+        returnLink="/accounting/inventories/safe-remainders"
+        returnText="Safe Remainders"
         skipSettings={true}
-      >
-      </AccountingHeader>
+      ></AccountingHeader>
       <SafeRemainderDetail />
-    </AccountingLayout >
+    </AccountingLayout>
   );
 };

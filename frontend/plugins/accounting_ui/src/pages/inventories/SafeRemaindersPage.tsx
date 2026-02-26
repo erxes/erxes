@@ -9,8 +9,8 @@ export const SafeRemaindersPage = () => {
   return (
     <AccountingLayout>
       <AccountingHeader
-        returnLink='/accounting/inventories/safe-remainders'
-        returnText='Safe Remainders'
+        returnLink="/accounting/inventories/safe-remainders"
+        returnText="Safe Remainders"
         skipSettings={true}
       >
         <AddSafeRemainder />
@@ -19,6 +19,6 @@ export const SafeRemaindersPage = () => {
         <SafeRemainderFilter />
       </PageSubHeader>
       <SafeRemainderTable />;
-    </AccountingLayout >
+    </AccountingLayout>
   );
 };

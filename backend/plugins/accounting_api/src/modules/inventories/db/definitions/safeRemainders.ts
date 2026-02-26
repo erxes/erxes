@@ -10,7 +10,7 @@ export const safeRemainderSchema = schemaWrapper(
     productCategoryId: {
       type: String,
       optional: true,
-      label: 'Product Category'
+      label: 'Product Category',
     },
     attachment: { type: attachmentSchema, optional: true },
     filterField: { type: String, optional: true },
@@ -21,6 +21,6 @@ export const safeRemainderSchema = schemaWrapper(
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String, label: 'Created User' },
     modifiedAt: { type: Date, default: new Date(), label: 'Modified date' },
-    modifiedBy: { type: String, label: 'Modified User' }
-  })
+    modifiedBy: { type: String, label: 'Modified User' },
+  }),
 );

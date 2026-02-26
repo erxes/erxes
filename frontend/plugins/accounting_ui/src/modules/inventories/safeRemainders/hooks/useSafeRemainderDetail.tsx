@@ -25,7 +25,8 @@ export const useSafeRemainderDetail = (options: OperationVariables) => {
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
 
-        const newSafeRemainderDetail = subscriptionData.data.accountingSafeRemainderChanged;
+        const newSafeRemainderDetail =
+          subscriptionData.data.accountingSafeRemainderChanged;
 
         try {
           // Get the cache ID for the conversation
@@ -48,7 +49,7 @@ export const useSafeRemainderDetail = (options: OperationVariables) => {
         }
 
         return {
-          safeRemainderDetail: newSafeRemainderDetail
+          safeRemainderDetail: newSafeRemainderDetail,
         };
       },
     });

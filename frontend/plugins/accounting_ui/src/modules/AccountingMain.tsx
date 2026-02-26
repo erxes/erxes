@@ -72,7 +72,6 @@ const InventoryReserveRemainders = lazy(() =>
   })),
 );
 
-
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -95,12 +94,27 @@ const PluginAccounting = () => {
           element={<AdjustInventoryDetail />}
         />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
-        <Route path="/gen-journal-report" element={<AccountingGenJournalReport />} />
+        <Route
+          path="/gen-journal-report"
+          element={<AccountingGenJournalReport />}
+        />
 
-        <Route path="/inventories/remainders" element={<InventoryRemainders />} />
-        <Route path="/inventories/safe-remainders" element={<InventorySafeRemainders />} />
-        <Route path="/inventories/safe-remainder/detail" element={<InventorySafeRemainderDetail />} />
-        <Route path="/inventories/reserve-remainders" element={<InventoryReserveRemainders />} />
+        <Route
+          path="/inventories/remainders"
+          element={<InventoryRemainders />}
+        />
+        <Route
+          path="/inventories/safe-remainders"
+          element={<InventorySafeRemainders />}
+        />
+        <Route
+          path="/inventories/safe-remainder/detail"
+          element={<InventorySafeRemainderDetail />}
+        />
+        <Route
+          path="/inventories/reserve-remainders"
+          element={<InventoryReserveRemainders />}
+        />
       </Routes>
       <PageChangeEffect />
     </Suspense>

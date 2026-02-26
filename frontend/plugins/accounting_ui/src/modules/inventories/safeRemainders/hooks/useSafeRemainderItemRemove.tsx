@@ -5,10 +5,7 @@ import { SAFE_REMAINDER_ITEM_REMOVE } from '../graphql/safeRemainderChange';
 export const useSafeRemainderItemRemove = () => {
   const [_removeRemItem, { loading }] = useMutation(SAFE_REMAINDER_ITEM_REMOVE);
 
-  const removeRemItem = (
-    options: OperationVariables,
-    fields: string[],
-  ) => {
+  const removeRemItem = (options: OperationVariables, fields: string[]) => {
     const variables = options?.variables || {};
     const fieldsToUpdate: Record<string, () => any> = {};
     fields.forEach((field) => {

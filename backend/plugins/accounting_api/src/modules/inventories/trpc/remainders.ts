@@ -19,20 +19,15 @@ export const remainderTrpcRouter = t.router({
 
     updateMany: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
-      const {
-        branchId,
-        departmentId,
-        productsData
-      } = input;
+      const { branchId, departmentId, productsData } = input;
 
       return await models.Remainders.updateRemainders(
         subdomain,
         branchId,
         departmentId,
-        productsData
-      )
-    })
-
+        productsData,
+      );
+    }),
   }),
   reserveRemainders: t.router({
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -42,8 +37,8 @@ export const remainderTrpcRouter = t.router({
       return await models.ReserveRems.find({
         branchId,
         departmentId,
-        productId: { $in: productIds }
-      }).lean()
+        productId: { $in: productIds },
+      }).lean();
     }),
-  })
+  }),
 });

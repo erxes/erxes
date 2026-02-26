@@ -16,10 +16,10 @@ export const remainderSchema = schemaWrapper(
     modifiedAt: {
       type: Date,
       default: new Date(),
-      label: 'Modified date'
+      label: 'Modified date',
     },
     shortLogs: { type: [Object] },
-  })
+  }),
 );
 
 // for remainderSchema query. increases search speed, avoids in-memory sorting
@@ -27,5 +27,5 @@ remainderSchema.index({
   isDebit: 1,
   productId: 1,
   branchId: 1,
-  departmentId: 1
+  departmentId: 1,
 });

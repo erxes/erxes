@@ -1,25 +1,25 @@
-import { moduleCheckPermission } from "erxes-api-shared/core-modules";
-import { IContext } from "~/connectionResolvers";
-import { SAFE_REMAINDER_STATUSES } from "~/modules/inventories/@types/constants";
-import { ISafeRemainder } from "~/modules/inventories/@types/safeRemainders";
+import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
+import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
+import { ISafeRemainder } from '~/modules/inventories/@types/safeRemainders';
 
 const safeRemainderMutations = {
   safeRemainderAdd: async (
     _root: any,
     params: ISafeRemainder,
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) => {
     return await models.SafeRemainders.createRemainder(
       subdomain,
       params,
-      user._id
+      user._id,
     );
   },
 
   safeRemainderRemove: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     // Delete safe remainder
     return models.SafeRemainders.removeRemainder(_id);
@@ -28,7 +28,7 @@ const safeRemainderMutations = {
   safeRemainderSubmit: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
@@ -43,12 +43,12 @@ const safeRemainderMutations = {
       branchId,
       departmentId,
       productCategoryId,
-      date: { $gt: date }
+      date: { $gt: date },
     }).lean();
 
     if (afterSafeRems.length) {
       throw new Error(
-        'Cant publish cause has a after submited safe remainders'
+        'Cant publish cause has a after submited safe remainders',
       );
     }
 
@@ -74,10 +74,10 @@ const safeRemainderMutations = {
           update: {
             $inc: { count: count - preCount },
             $set: { productId, branchId, departmentId },
-            $pull: { shortLogs: { date: { $lt: item.modifiedAt } } }
+            $pull: { shortLogs: { date: { $lt: item.modifiedAt } } },
           },
-          upsert: true
-        }
+          upsert: true,
+        },
       });
 
       if (bulkOps.length > 100) {
@@ -92,9 +92,9 @@ const safeRemainderMutations = {
 
     return await models.SafeRemainders.updateOne(
       { _id },
-      { $set: { status: SAFE_REMAINDER_STATUSES.PUBLISHED } }
+      { $set: { status: SAFE_REMAINDER_STATUSES.PUBLISHED } },
     );
-  }
+  },
 };
 
 moduleCheckPermission(safeRemainderMutations, 'manageRemainders');

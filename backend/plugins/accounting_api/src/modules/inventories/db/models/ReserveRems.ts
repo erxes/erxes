@@ -10,7 +10,7 @@ export interface IReserveRemModel extends Model<IReserveRemDocument> {
   reserveRemEdit(
     _id: string,
     doc: IReserveRem,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<IReserveRemDocument>;
   reserveRemsRemove(_ids: string[]): Promise<JSON>;
   reserveRemsPublish(_ids: string[]): Promise<IReserveRemDocument[]>;
@@ -32,11 +32,11 @@ export const loadReserveRemClass = (models: IModels, _subdomain: string) => {
     public static async reserveRemEdit(
       _id: string,
       doc: IReserveRem,
-      user: IUserDocument
+      user: IUserDocument,
     ) {
       return await models.ReserveRems.updateOne(
         { _id },
-        { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } }
+        { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
       );
     }
 
@@ -52,10 +52,10 @@ export const loadReserveRemClass = (models: IModels, _subdomain: string) => {
             status: 'publish',
             confirmedData: {
               date: new Date(),
-              values: '$values'
-            }
-          }
-        }
+              values: '$values',
+            },
+          },
+        },
       );
     }
   }

@@ -11,4 +11,4 @@ export const ACCOUNTING_SAFE_REMAINDER_CHANGED = gql`
 
 export default {
   ACCOUNTING_SAFE_REMAINDER_CHANGED,
-}
+};

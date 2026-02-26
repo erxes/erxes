@@ -12,7 +12,7 @@ import {
   VatRows as MutationsVatRow,
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
-  AdjustInventories as MutationsAdjustInventories
+  AdjustInventories as MutationsAdjustInventories,
 } from '@/accounting/graphql/resolvers/mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,
@@ -33,15 +33,14 @@ import {
   Remainders as QueriesRemainder,
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
-  SafeRemainders as QueriesSafeRemainder
-} from '@/inventories/graphql/resolvers/queries'
+  SafeRemainders as QueriesSafeRemainder,
+} from '@/inventories/graphql/resolvers/queries';
 import {
   Remainders as MutationsRemainder,
   ReserveRems as MutationsReserveRem,
   SafeRemainderItems as MutationsSafeRemainderItem,
-  SafeRemainders as MutationsSafeRemainder
-
-} from '@/inventories/graphql/resolvers/mutations'
+  SafeRemainders as MutationsSafeRemainder,
+} from '@/inventories/graphql/resolvers/mutations';
 
 const resolvers: any = {
   ...apolloCustomScalars,

@@ -3,7 +3,10 @@ import { toast } from 'erxes-ui';
 import { SAFE_REMAINDER_REMOVE } from '../graphql/safeRemainderRemove';
 import { useNavigate } from 'react-router-dom';
 
-export const useSafeRemainderRemove = (_id: string, options?: OperationVariables) => {
+export const useSafeRemainderRemove = (
+  _id: string,
+  options?: OperationVariables,
+) => {
   const navigate = useNavigate();
   const [_removeMutation, { loading }] = useMutation(
     SAFE_REMAINDER_REMOVE,
@@ -11,12 +14,11 @@ export const useSafeRemainderRemove = (_id: string, options?: OperationVariables
   );
 
   const removeSafeRemainder = (options?: OperationVariables) => {
-
     return _removeMutation({
       ...options,
       variables: {
         _id,
-        ...options?.variables
+        ...options?.variables,
       },
       onError: (error: Error) => {
         toast({
@@ -31,12 +33,11 @@ export const useSafeRemainderRemove = (_id: string, options?: OperationVariables
           title: 'Success',
           description: 'Inventory safe remainder deleted successfully',
         });
-        options?.onCompleted?.(data)
-
+        options?.onCompleted?.(data);
       },
       refetchQueries: ['SafeRemainders'],
       update: (cache) => {
-        const pathname = "/accounting/inventories/safe-remainder";
+        const pathname = '/accounting/inventories/safe-remainder';
         navigate(pathname);
       },
     });

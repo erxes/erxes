@@ -5,7 +5,10 @@ import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
 export const useSafeRemainderDetails = (options?: OperationVariables) => {
   const { data, loading, error, fetchMore } = useQuery<
-    { safeRemainderItems: ISafeRemainderItem[], safeRemainderItemsCount: number },
+    {
+      safeRemainderItems: ISafeRemainderItem[];
+      safeRemainderItemsCount: number;
+    },
     OperationVariables
   >(SAFE_REMAINDER_DETAILS_QUERY, {
     ...options,
@@ -29,7 +32,10 @@ export const useSafeRemainderDetails = (options?: OperationVariables) => {
           return {
             ...prev,
             ...fetchMoreResult,
-            safeRemainderItems: [...prev.safeRemainderItems, ...fetchMoreResult.safeRemainderItems]
+            safeRemainderItems: [
+              ...prev.safeRemainderItems,
+              ...fetchMoreResult.safeRemainderItems,
+            ],
           };
         },
       });

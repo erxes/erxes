@@ -1,5 +1,5 @@
-import { IContext } from "~/connectionResolvers";
-import { IReserveRemDocument } from "~/modules/inventories/@types/reserveRems";
+import { IContext } from '~/connectionResolvers';
+import { IReserveRemDocument } from '~/modules/inventories/@types/reserveRems';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -37,5 +37,5 @@ export default {
       __typename: 'Product',
       _id: reserveRem.productId,
     };
-  }
+  },
 };
