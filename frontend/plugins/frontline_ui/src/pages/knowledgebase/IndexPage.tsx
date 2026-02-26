@@ -35,8 +35,8 @@ const IndexPage = () => {
   const lastLabel = categoryId
     ? 'Articles'
     : topicId
-    ? 'Categories'
-    : 'Knowledge Base';
+      ? 'Categories'
+      : 'Knowledge Base';
 
   const handleEditTopic = (topic: any) => {
     setEditingTopic(topic);
