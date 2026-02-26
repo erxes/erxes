@@ -2,7 +2,6 @@ import { CommandBar, Separator } from 'erxes-ui';
 import { RecordTable } from 'erxes-ui';
 import { CategoriesDelete } from './delete/CategoriesDelete';
 
-
 interface CategoriesCommandBarProps {
   onBulkDelete: (ids: string[]) => Promise<void> | void;
 }

@@ -1,4 +1,3 @@
-
 import { PageHeader as UIHeader } from 'ui-modules';
 import { CategoriesNavigation } from './CategoriesNavigation';
 

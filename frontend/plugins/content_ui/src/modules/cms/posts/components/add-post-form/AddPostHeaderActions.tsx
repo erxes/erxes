@@ -186,20 +186,20 @@ export const AddPostHeaderActions = ({
             {status === 'published'
               ? 'Publishing...'
               : status === 'draft'
-              ? 'Saving...'
-              : status === 'scheduled'
-              ? 'Scheduling...'
-              : 'Saving...'}
+                ? 'Saving...'
+                : status === 'scheduled'
+                  ? 'Scheduling...'
+                  : 'Saving...'}
           </>
         ) : (
           <div>
             {status === 'published'
               ? 'Publish'
               : status === 'draft'
-              ? 'Save Draft'
-              : status === 'scheduled'
-              ? 'Schedule'
-              : 'Save'}
+                ? 'Save Draft'
+                : status === 'scheduled'
+                  ? 'Schedule'
+                  : 'Save'}
           </div>
         )}
       </Button>
