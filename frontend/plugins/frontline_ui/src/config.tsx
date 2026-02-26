@@ -1,4 +1,11 @@
-import { IconMail, IconStackFront, IconTicket, IconBook } from '@tabler/icons-react';
+import {
+  IconMail,
+  IconStackFront,
+  IconTicket,
+  IconBook,
+  IconChartHistogram,
+  IconForms,
+} from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
@@ -71,11 +78,26 @@ export const CONFIG: IUIConfig = {
       hasAutomation: true,
     },
     {
-      name: 'ticket',
-      path: 'frontline/ticket',
+      name: 'tickets',
+      path: 'frontline/tickets?channelId&pipelineId',
     },
     {
-      name: 'knowledgeBase',
+      name: 'inbox',
+      path: 'frontline/inbox',
+      icon: IconMail,
+    },
+    {
+      name: 'reports',
+      path: 'frontline/reports',
+      icon: IconChartHistogram,
+    },
+    {
+      name: 'Forms',
+      path: 'frontline/forms',
+      icon: IconForms,
+    },
+    {
+      name: 'knowledge base',
       icon: IconBook,
       path: 'frontline/knowledgebase',
     },

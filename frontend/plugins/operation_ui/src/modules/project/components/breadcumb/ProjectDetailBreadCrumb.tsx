@@ -8,6 +8,7 @@ import {
 } from 'erxes-ui';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetProject } from '@/project/hooks/useGetProject';
+import { FavoriteToggleIconButton } from 'ui-modules';
 
 export const ProjectDetailBreadCrumb = () => {
   const { teamId, projectId } = useParams<{
@@ -49,6 +50,7 @@ export const ProjectDetailBreadCrumb = () => {
           <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
             <Link to={`${basePath}/tasks`}>Tasks</Link>
           </ToggleGroup.Item>
+          <FavoriteToggleIconButton />
         </ToggleGroup>
       </Breadcrumb.List>
     </Breadcrumb>

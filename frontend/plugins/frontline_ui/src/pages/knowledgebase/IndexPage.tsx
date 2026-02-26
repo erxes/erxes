@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, PageContainer, Kbd, Separator } from 'erxes-ui';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { IconLibraryPhoto, IconPlus, IconStar } from '@tabler/icons-react';
 import { KnowledgeBase } from '../../modules/knowledgebase/components/KnowledgeBase';
 import { useMemo, useState } from 'react';
@@ -32,7 +32,11 @@ const IndexPage = () => {
     return (cats || []).find((c: any) => c._id === categoryId);
   }, [currentTopic, categoryId]);
 
-  const lastLabel = categoryId ? 'Articles' : topicId ? 'Categories' : 'Knowledge Base';
+  const lastLabel = categoryId
+    ? 'Articles'
+    : topicId
+    ? 'Categories'
+    : 'Knowledge Base';
 
   const handleEditTopic = (topic: any) => {
     setEditingTopic(topic);
@@ -86,7 +90,9 @@ const IndexPage = () => {
                   <Breadcrumb.Separator />
                   <Breadcrumb.Item>
                     <Button variant="ghost" asChild>
-                      <Link to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}>
+                      <Link
+                        to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}
+                      >
                         {currentCategory?.title || 'Unnamed category'}
                       </Link>
                     </Button>
@@ -103,13 +109,17 @@ const IndexPage = () => {
 
           <Separator.Inline />
           <Button variant="ghost" size="icon" type="button">
-            <IconStar className="h-4 w-4" />
+            <FavoriteToggleIconButton />
           </Button>
         </PageHeader.Start>
 
         <PageHeader.End>
-          <Button 
-            onClick={() => categoryId ? setIsArticleDrawerOpen(true) : setIsTopicDrawerOpen(true)} 
+          <Button
+            onClick={() =>
+              categoryId
+                ? setIsArticleDrawerOpen(true)
+                : setIsTopicDrawerOpen(true)
+            }
             className="h-7 py-1"
           >
             <IconPlus className="w-4 h-4" />
