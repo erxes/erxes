@@ -1,11 +1,10 @@
 import { ColumnDef, Cell } from "@tanstack/react-table";
 import { IForm } from "@/forms/types/formTypes";
-import { Badge, Button, Dialog, DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
+import { DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
 import { useNavigate } from "react-router";
-import { IconArrowBarToRight, IconCalendarEvent, IconCheck, IconCircles, IconCode, IconCopy, IconEdit, IconLabel, IconSquareToggle, IconTag, IconToggleRight, IconTrash, IconUser } from "@tabler/icons-react";
+import { IconArrowBarToRight, IconCalendarEvent, IconCircles, IconEdit, IconLabel, IconSquareToggle, IconTag, IconToggleRight, IconTrash, IconUser } from "@tabler/icons-react";
 import { MembersInline, SelectTags } from "ui-modules";
 import { useState } from "react";
-import { REACT_APP_WIDGETS_URL } from "@/utils";
 import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
 import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
 import { useFormEdit } from "@/forms/hooks/useFormEdit";

@@ -1,5 +1,5 @@
 import { useFormsList } from "@/forms/hooks/useFormsList";
-import { Empty, RecordTable, useMultiQueryState, useQueryState } from "erxes-ui";
+import { Empty, RecordTable, useMultiQueryState } from "erxes-ui";
 import { formColumns } from "./form-columns";
 import { ColumnDef } from "@tanstack/table-core";
 import { IForm } from "@/forms/types/formTypes";
@@ -9,14 +9,14 @@ import { FormsCreateButton } from "./forms-create";
 
 export const FormPageList = () => {
   const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
-    channelId: string;
-    tagId: string;
-    status: string;
-    searchValue: string;
+    channelId?: string;
+    tagId?: string;
+    status?: string;
+    searchValue?: string;
   }>(['tagId', 'status', 'searchValue', 'channelId']);
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
     variables: {
-      channelId: channelId || '',
+      channelId: channelId || undefined,
       tagId: tagId || '',
       status: status || '',
       searchValue: searchValue || '',

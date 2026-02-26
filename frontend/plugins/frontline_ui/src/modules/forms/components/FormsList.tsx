@@ -34,7 +34,7 @@ export const FormsList = () => {
 
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
     variables: {
-      channelId: channelId || '',
+      channelId: channelId || undefined,
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
