@@ -1,8 +1,8 @@
-import { IconForms, IconPlus } from "@tabler/icons-react"
-import { Breadcrumb, Button } from "erxes-ui"
-import { Link } from "react-router"
-import { PageHeader } from "ui-modules"
-import { FormsCreateButton } from "./forms-create"
+import { IconForms, IconPlus } from '@tabler/icons-react';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { Link } from 'react-router';
+import { PageHeader } from 'ui-modules';
+import { FormsCreateButton } from './forms-create';
 
 export const FormPageHeader = () => {
   return (
@@ -26,5 +26,5 @@ export const FormPageHeader = () => {
         <FormsCreateButton />
       </PageHeader.End>
     </PageHeader>
-  )
-}
+  );
+};

@@ -1,7 +1,7 @@
-import { Button } from "erxes-ui";
-import { IconPlus } from "@tabler/icons-react";
-import { FC } from "react";
-import { Link } from "react-router-dom";
+import { Button } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { FC } from 'react';
+import { Link } from 'react-router-dom';
 
 const FormsCreateButton: FC<React.ComponentProps<typeof Button>> = (props) => {
   return (
@@ -11,6 +11,6 @@ const FormsCreateButton: FC<React.ComponentProps<typeof Button>> = (props) => {
         Create form
       </Link>
     </Button>
-  )
-}
-export { FormsCreateButton }
+  );
+};
+export { FormsCreateButton };

@@ -29,9 +29,7 @@ export const FormPageList = () => {
       <Empty>
         <Empty.Header>
           <Empty.Title>No forms found</Empty.Title>
-          <Empty.Description>
-            Create a form to get started
-          </Empty.Description>
+          <Empty.Description>Create a form to get started</Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Empty.Media>
@@ -40,7 +38,7 @@ export const FormPageList = () => {
           <FormsCreateButton variant={'outline'} />
         </Empty.Content>
       </Empty>
-    )
+    );
   }
 
   return (
