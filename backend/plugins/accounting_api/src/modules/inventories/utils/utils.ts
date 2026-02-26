@@ -3,7 +3,7 @@ export const getRatio = (product: any, uom: string) => {
     return 1;
   }
 
-  const subUom = ((product || {}).subUoms || []).find(su => su.uom === uom);
+  const subUom = (product?.subUoms || []).find(su => su.uom === uom);
   if (!subUom) {
     return 0;
   }

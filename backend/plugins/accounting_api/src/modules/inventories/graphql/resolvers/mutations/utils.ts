@@ -60,19 +60,7 @@ export const updateLiveRemainders = async ({
         return item;
     });
 
-    // const transactionSelector: any = {
-    //   departmentId,
-    //   branchId,
-    //   productId
-    // };
-
-    // const transactionItems =
-    //   await models.TransactionItems.find(transactionSelector).lean();
     let remainderCount = safe ? safe.count : 0;
-
-    // for (const item of transactionItems) {
-    //   remainderCount += item.isDebit ? item.count : -1 * item.count;
-    // }
 
     const realRemainder = remainders.find((item: any) => {
       if (
@@ -83,7 +71,7 @@ export const updateLiveRemainders = async ({
         return item;
     });
 
-    if (realRemainder && realRemainder._id) {
+    if (realRemainder?._id) {
       if (realRemainder.count === remainderCount) {
         resultRemainder.push(realRemainder);
       } else {

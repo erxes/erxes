@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form';
 import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
 import { TSafeRemainderForm } from '../types/safeRemainderForm';
 import { safeRemainderSchema } from '../types/safeRemainderSchema';
-import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 
 export const AddSafeRemainder = () => {
   const [open, setOpen] = useState(false);

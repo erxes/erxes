@@ -37,7 +37,10 @@ export const useSafeRemainders = (options?: OperationVariables) => {
             ...fetchMoreResult,
             safeRemainders: {
               ...fetchMoreResult.safeRemainders,
-              remainders: [...prev.safeRemainders?.remainders, ...fetchMoreResult.safeRemainders?.remainders]
+              remainders: [
+                ...prev.safeRemainders?.remainders ?? [],
+                ...fetchMoreResult.safeRemainders?.remainders ?? []
+              ]
             },
           };
         },

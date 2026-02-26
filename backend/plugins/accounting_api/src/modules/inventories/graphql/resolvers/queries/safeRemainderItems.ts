@@ -6,7 +6,7 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryIds, status, diffType } = params;
   const query: any = { remainderId };
 
-  if (productCategoryIds && productCategoryIds.length) {
+  if (productCategoryIds?.length) {
     const categories = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',

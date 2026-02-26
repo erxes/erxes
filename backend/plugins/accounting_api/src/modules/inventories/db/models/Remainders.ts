@@ -80,13 +80,11 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
         defaultValue: {}
       });
 
-      let pUom: any = product.uom;
       const subUom: any =
         product.subUom.filter((item: any) => item.uom === uom) || [];
 
       if (subUom.length) {
         count = count / subUom.ratio || 1;
-        pUom = subUom.uom;
       }
 
       return { count, uom };
@@ -217,11 +215,11 @@ export const loadRemainderClass = (models: IModels, _subdomain: string) => {
         params;
       const filter: any = {};
 
-      if (departmentIds && departmentIds.length) {
+      if (departmentIds?.length) {
         filter.departmentId = { $in: departmentIds };
       }
 
-      if (branchIds && branchIds.length) {
+      if (branchIds?.length) {
         filter.branchId = { $in: branchIds };
       }
 

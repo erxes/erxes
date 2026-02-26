@@ -67,7 +67,7 @@ const remainderQueries = {
       const categoryIds = productCategories.map((item: any) => item._id);
       productFilter.categoryId = { $in: categoryIds };
     }
-    if (productIds && productIds.length) {
+    if (productIds?.length) {
       productFilter._id = { $in: productIds };
     }
 
@@ -113,27 +113,6 @@ const remainderQueries = {
       productById,
       beProductIds
     );
-
-    // result = await getProcesses(
-    //   subdomain,
-    //   params,
-    //   result,
-    //   branch,
-    //   department,
-    //   productById,
-    //   beProductIds
-    // );
-
-    // result = await getPosOrders(
-    //   subdomain,
-    //   params,
-    //   result,
-    //   branch,
-    //   department,
-    //   productById,
-    //   beProductIds
-    // );
-
     return result;
   }
 };

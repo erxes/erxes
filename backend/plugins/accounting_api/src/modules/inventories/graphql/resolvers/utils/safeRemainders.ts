@@ -130,7 +130,7 @@ export const getSafeRemainders = async (
 
     if (!result[branchId].values[departmentId].values[productId]) {
       result[branchId].values[departmentId].values[productId] = {
-        product: `${(productById[productId] || {}).code} - ${(productById[productId] || {}).name
+        product: `${productById[productId]?.code} - ${productById[productId]?.name
           }`,
         values: { ...defaultVal }
       };
@@ -161,7 +161,7 @@ export const getSafeRemainders = async (
 
     if (!result[branchId].values[departmentId].values[productId]) {
       result[branchId].values[departmentId].values[productId] = {
-        product: `${(productById[productId] || {}).code} - ${(productById[productId] || {}).name
+        product: `${productById[productId]?.code} - ${productById[productId]?.name
           }`,
         values: { ...defaultVal }
       };

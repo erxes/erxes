@@ -1,4 +1,3 @@
-import { IAccount } from '@/settings/account/types/Account';
 import { IBranch, IDepartment, IProduct, IProductCategory, IUser } from 'ui-modules';
 
 export type ISafeRemainder = {
