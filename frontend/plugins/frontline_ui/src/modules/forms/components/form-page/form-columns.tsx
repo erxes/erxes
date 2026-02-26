@@ -1,19 +1,37 @@
-import { ColumnDef, Cell } from "@tanstack/react-table";
-import { IForm } from "@/forms/types/formTypes";
-import { DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
-import { useNavigate } from "react-router";
-import { IconCalendarEvent, IconCircles, IconEdit, IconLabel, IconTag, IconToggleRight, IconTrash, IconUser } from "@tabler/icons-react";
-import { MembersInline, SelectTags } from "ui-modules";
-import { useState } from "react";
-import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
-import { FormStatus } from "./filters/FormStatus";
-import { FormInstallScript } from "../actions/install-form";
-import { FormToggleStatus } from "../actions/toggle-form";
-import { MoveFormToChannel } from "../actions/move-form";
-import { useFormEdit } from "@/forms/hooks/useFormEdit";
-import { GET_FORMS_LIST } from "@/forms/graphql/formQueries";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
-import { RemoveForm } from "../actions/remove-form";
+import { ColumnDef, Cell } from '@tanstack/react-table';
+import { IForm } from '@/forms/types/formTypes';
+import {
+  DropdownMenu,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+  Spinner,
+  toast,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
+import { useNavigate } from 'react-router';
+import {
+  IconCalendarEvent,
+  IconCircles,
+  IconEdit,
+  IconLabel,
+  IconTag,
+  IconToggleRight,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { MembersInline, SelectTags } from 'ui-modules';
+import { useState } from 'react';
+import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
+import { FormStatus } from './filters/FormStatus';
+import { FormInstallScript } from '../actions/install-form';
+import { FormToggleStatus } from '../actions/toggle-form';
+import { MoveFormToChannel } from '../actions/move-form';
+import { useFormEdit } from '@/forms/hooks/useFormEdit';
+import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { RemoveForm } from '../actions/remove-form';
 
 export const FormsMoreColumnCell = ({
   cell,
@@ -84,10 +102,7 @@ export const FormsMoreColumnCell = ({
           name={cell.row.original.name}
           type={cell.row.original.type}
         />
-        <RemoveForm
-          formId={_id}
-          title={cell.row.original.name}
-        />
+        <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>
     </DropdownMenu>
   );

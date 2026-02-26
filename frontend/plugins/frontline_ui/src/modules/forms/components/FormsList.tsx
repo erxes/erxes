@@ -42,7 +42,7 @@ export const FormsList = () => {
 
   if (forms?.length === 0) {
     return (
-      <Empty className='bg-sidebar rounded-lg m-3'>
+      <Empty className="bg-sidebar rounded-lg m-3">
         <Empty.Header>
           <Empty.Media>
             <IconForms />
@@ -113,16 +113,15 @@ export const FormsMoreColumnCell = ({
         />
         <DropdownMenu.Item
           onSelect={() => {
-            navigate(`/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`);
+            navigate(
+              `/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
+            );
           }}
         >
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <RemoveForm
-          formId={_id}
-          title={cell.row.original.name}
-        />
+        <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>
     </DropdownMenu>
   );
@@ -144,7 +143,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <Link to={`/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`}>
+          <Link
+            to={`/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`}
+          >
             <RecordTableInlineCell.Anchor>
               {cell.getValue() as string}
             </RecordTableInlineCell.Anchor>

@@ -1,8 +1,8 @@
-import { GET_FORMS_LIST } from "@/forms/graphql/formQueries";
-import { useFormEdit } from "@/forms/hooks/useFormEdit";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
-import { IconArrowBarToRight } from "@tabler/icons-react";
-import { DropdownMenu, toast } from "erxes-ui";
+import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import { useFormEdit } from '@/forms/hooks/useFormEdit';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { IconArrowBarToRight } from '@tabler/icons-react';
+import { DropdownMenu, toast } from 'erxes-ui';
 
 type Props = {
   formId: string;
@@ -10,7 +10,7 @@ type Props = {
   setOpen: (open: boolean) => void;
   name: string;
   type: string;
-}
+};
 
 export const MoveFormToChannel = ({
   formId,

@@ -1,7 +1,14 @@
 import { IconFile } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import DOMPurify from 'dompurify';
-import { Avatar, Button, cn, formatDateISOStringToRelativeDate, readImage, Tooltip } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  cn,
+  formatDateISOStringToRelativeDate,
+  readImage,
+  Tooltip,
+} from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
@@ -14,14 +21,11 @@ import {
   conversationIdAtom,
   setActiveTabAtom,
 } from '../states';
-import {
-  IAttachment,
-  IConversationMessage,
-  ISupporter,
-} from '../types';
+import { IAttachment, IConversationMessage, ISupporter } from '../types';
 import { AvatarGroup } from './avatar-group';
 
-const defaultLogo = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAB0CAMAAAAl8kW/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACglBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAABxMqsfAAAA1HRSTlMAKRBgAZQKd1JAthrjKAXDiY7kDFT+WifxwNT7LKORaOg0+V8T4McCt/wzf5ZH7B7rBsjLkzgEWZ9PKvTvFSN2DddujVuq0hHnQnA9cSQ7pdzb8xtTBwO7c8SkhIdLRqhiIe74CM31jPAtm3zfYdpvL7EPtK73aXWCNko+4acZUCAcwrmK0PpRbSXZTqC+wTdmNR/2iOoxbNg6P4ESulcOj/0wxURjeM6cFLVdkC7yHZ5FfpcXyuZWaukJmpimr+0iGHmsQdUmekyzsoa/uFzdleIWoh4NTwYAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAAEk0lEQVRo3s3Z+UMUVRwA8Oc6bh60JjYVoSkbpaOI7KprHpikEhSiKGxFmG3YiomGW9BlmgWImrdU3hmVZ3afdtl92P39g3oX2wzL7rw38/2h9wsz7/jsLPN9875vh5D/eRmC7AWG4nrGsCAueNVwXG/ESFxvVN7VqF5o9DW4Fzgmfyyqd615Hap3/Q0FBqYXvLFwHOoFjoebUL0JMDGA6RWF4WZMr/gWuBXzjkyaDNYUzAucClCC6U2zoLQY0ZteBjAB0YtEAWZMQgRnApizcnWIhbS82QBwW+4uc3Qiau48gPnlufssuF3dW1hBL/AOt16LFiuDS6hXGXPrdWdVtaJ3F/XMu9371ZQtVfJqwxRcptAxsryuXKFbeT71VqxU+eh6iDa4dorfQz24V+m7GPdBo2vw3M+8CsWonWVCk0uXVSYDH1DzCFkN8GDODomHmLdE1SOJZgjnCp41DzMvOV0ZJGsBWtZlb36EebBe3SOBUoDWrMGzgXsb3UPBVh6lI6JZ0se2JAdX6XgkVEeHbIoP1pTayL3HtDxChrNBgwWP8Tj32hOaIBnNhnVk1j/BPXhS1yNPsdC1nh5Y/YzFvc0e0vNn2cCBwbOlSlzgVn2PPNfORuZts9fFnhfeCx48Qjr52C77l1srvG5v6XmgjI+2Bc92U4Buj45spUcMT2cuO1pEhef0PLRTAD3iNNglTsF7er5dANYufvai9Hb7SAb3CCK5lx7vk56v9Hy/vAs0eKY0S9Bfer5MKpWJVnlUlfIFHmiXzkH513d6fgicxXd6nup1eNZLPj1CXnaACOl57BWbh5Kez7GB+xA8QgrSHlJ6fjgNHkHxyNE0qJEu5yg7mtPg/GMY4HHbTVmE4J2wh2HzAd/eyXxHYI/3Db7qnMqnXvPptRUOeDh4W0DTxeiTjjnzlDx63Rf4Rv+FdZI35dFpP7OluFQqx+naXCKP1bdumeWMNFrP0pP4OXmilbk6ymG5RCXFUzVVKU5rvHqx/oX9vKzYliceil6XqRrpXUjXvCWy60PevJUXhVdg23/t4unmwbc9gavlGu/YXXTwune8eO/Kx8F+ZzWfipaHbKRBbB4y9nzxTaxWd09By3vCez+jIRhl9SN0vQUiBemLZDZ9wILnQ90EYiT3Pho1WNs6lsh+rOfVcy9cO3hrdRhgudZPUGPFlPgkWzvLPXt0wE63aGsC+PSkujuum6cJa7L3MBp1dnsG3y715pxfn0Vh3hZVcCifDC6RVl4HlxS9Y71KD72lpYWKr7Q+Z94X7v2qw18qeXvZ8talsh1ebNYq9Iqfpt5XXyt99vo+hU5sw2hNU/vnGI3ur8kus3n6jZpHSKTE9fdNtnP6Vv1JkvrOpUM19b5fqOzRWZ+7uaECoOUHDc+t/Eizop8QvQRddqcieuRngF8wX93QLdNOf5thZwluhotzMb9wE5j1mN6QbvgV0zOuwG9x/8x/5Xf4A2Xf1V8CE5NtmB75E2ajekXWGFQvPuMK6g0hHX+pvEFRL39XFaF65J8NuN6RYbhe6FLEP2Iv55WTHrVyuQ3XI7jX9y/JAcmAtCI0lQAAAABJRU5ErkJggg==)'
+const defaultLogo =
+  'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAB0CAMAAAAl8kW/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACglBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAABxMqsfAAAA1HRSTlMAKRBgAZQKd1JAthrjKAXDiY7kDFT+WifxwNT7LKORaOg0+V8T4McCt/wzf5ZH7B7rBsjLkzgEWZ9PKvTvFSN2DddujVuq0hHnQnA9cSQ7pdzb8xtTBwO7c8SkhIdLRqhiIe74CM31jPAtm3zfYdpvL7EPtK73aXWCNko+4acZUCAcwrmK0PpRbSXZTqC+wTdmNR/2iOoxbNg6P4ESulcOj/0wxURjeM6cFLVdkC7yHZ5FfpcXyuZWaukJmpimr+0iGHmsQdUmekyzsoa/uFzdleIWoh4NTwYAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAAEk0lEQVRo3s3Z+UMUVRwA8Oc6bh60JjYVoSkbpaOI7KprHpikEhSiKGxFmG3YiomGW9BlmgWImrdU3hmVZ3afdtl92P39g3oX2wzL7rw38/2h9wsz7/jsLPN9875vh5D/eRmC7AWG4nrGsCAueNVwXG/ESFxvVN7VqF5o9DW4Fzgmfyyqd615Hap3/Q0FBqYXvLFwHOoFjoebUL0JMDGA6RWF4WZMr/gWuBXzjkyaDNYUzAucClCC6U2zoLQY0ZteBjAB0YtEAWZMQgRnApizcnWIhbS82QBwW+4uc3Qiau48gPnlufssuF3dW1hBL/AOt16LFiuDS6hXGXPrdWdVtaJ3F/XMu9371ZQtVfJqwxRcptAxsryuXKFbeT71VqxU+eh6iDa4dorfQz24V+m7GPdBo2vw3M+8CsWonWVCk0uXVSYDH1DzCFkN8GDODomHmLdE1SOJZgjnCp41DzMvOV0ZJGsBWtZlb36EebBe3SOBUoDWrMGzgXsb3UPBVh6lI6JZ0se2JAdX6XgkVEeHbIoP1pTayL3HtDxChrNBgwWP8Tj32hOaIBnNhnVk1j/BPXhS1yNPsdC1nh5Y/YzFvc0e0vNn2cCBwbOlSlzgVn2PPNfORuZts9fFnhfeCx48Qjr52C77l1srvG5v6XmgjI+2Bc92U4Buj45spUcMT2cuO1pEhef0PLRTAD3iNNglTsF7er5dANYufvai9Hb7SAb3CCK5lx7vk56v9Hy/vAs0eKY0S9Bfer5MKpWJVnlUlfIFHmiXzkH513d6fgicxXd6nup1eNZLPj1CXnaACOl57BWbh5Kez7GB+xA8QgrSHlJ6fjgNHkHxyNE0qJEu5yg7mtPg/GMY4HHbTVmE4J2wh2HzAd/eyXxHYI/3Db7qnMqnXvPptRUOeDh4W0DTxeiTjjnzlDx63Rf4Rv+FdZI35dFpP7OluFQqx+naXCKP1bdumeWMNFrP0pP4OXmilbk6ymG5RCXFUzVVKU5rvHqx/oX9vKzYliceil6XqRrpXUjXvCWy60PevJUXhVdg23/t4unmwbc9gavlGu/YXXTwune8eO/Kx8F+ZzWfipaHbKRBbB4y9nzxTaxWd09By3vCez+jIRhl9SN0vQUiBemLZDZ9wILnQ90EYiT3Pho1WNs6lsh+rOfVcy9cO3hrdRhgudZPUGPFlPgkWzvLPXt0wE63aGsC+PSkujuum6cJa7L3MBp1dnsG3y715pxfn0Vh3hZVcCifDC6RVl4HlxS9Y71KD72lpYWKr7Q+Z94X7v2qw18qeXvZ8talsh1ebNYq9Iqfpt5XXyt99vo+hU5sw2hNU/vnGI3ur8kus3n6jZpHSKTE9fdNtnP6Vv1JkvrOpUM19b5fqOzRWZ+7uaECoOUHDc+t/Eizop8QvQRddqcieuRngF8wX93QLdNOf5thZwluhotzMb9wE5j1mN6QbvgV0zOuwG9x/8x/5Xf4A2Xf1V8CE5NtmB75E2ajekXWGFQvPuMK6g0hHX+pvEFRL39XFaF65J8NuN6RYbhe6FLEP2Iv55WTHrVyuQ3XI7jX9y/JAcmAtCI0lQAAAABJRU5ErkJggg==)';
 
 export function EmptyChat() {
   const connection = useAtomValue(connectionAtom);
@@ -163,16 +167,16 @@ export function ConversationMessage({
               )}
             </span>
           )) || (
-              <span
-                className={cn(
-                  'truncate line-clamp-1 w-auto',
-                  !isCustomerRead && 'text-accent-foreground font-bold',
-                )}
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(content || ''),
-                }}
-              />
-            )}
+            <span
+              className={cn(
+                'truncate line-clamp-1 w-auto',
+                !isCustomerRead && 'text-accent-foreground font-bold',
+              )}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(content || ''),
+              }}
+            />
+          )}
           <span
             className={cn(
               { 'font-bold': !isCustomerRead },
@@ -244,12 +248,12 @@ export function OperatorMessage({
                     'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all',
                     isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
                     isLastMessage &&
-                    !attachments?.length &&
-                    'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
+                      !attachments?.length &&
+                      'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
                     isMiddleMessage && 'rounded-r-md rounded-l-sm',
                     isSingleMessage &&
-                    !attachments?.length &&
-                    'rounded-md shadow-2xs',
+                      !attachments?.length &&
+                      'rounded-md shadow-2xs',
                     attachments?.length && 'rounded-t-md rounded-bl-sm',
                   )}
                   dangerouslySetInnerHTML={{
@@ -266,20 +270,20 @@ export function OperatorMessage({
                         'overflow-hidden bg-background',
                         content && index === 0 && 'rounded-b-md rounded-tl-sm',
                         !content &&
-                        isFirstMessage &&
-                        index === 0 &&
-                        'rounded-t-md rounded-bl-sm',
+                          isFirstMessage &&
+                          index === 0 &&
+                          'rounded-t-md rounded-bl-sm',
                         !content &&
-                        isLastMessage &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md rounded-tl-sm',
+                          isLastMessage &&
+                          index === attachments.length - 1 &&
+                          'rounded-b-md rounded-tl-sm',
                         !content &&
-                        isSingleMessage &&
-                        attachments.length === 1 &&
-                        'rounded-md',
+                          isSingleMessage &&
+                          attachments.length === 1 &&
+                          'rounded-md',
                         content &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md rounded-tl-sm',
+                          index === attachments.length - 1 &&
+                          'rounded-b-md rounded-tl-sm',
                       )}
                     >
                       {isImageAttachment(attachment.url) ? (
@@ -366,12 +370,12 @@ export const CustomerMessage = ({
                         content && index === 0 && 'rounded-b-md',
                         !content && index === 0 && 'rounded-t-md',
                         !content &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md',
+                          index === attachments.length - 1 &&
+                          'rounded-b-md',
                         !content && attachments.length === 1 && 'rounded-md',
                         content &&
-                        index === attachments.length - 1 &&
-                        'rounded-b-md',
+                          index === attachments.length - 1 &&
+                          'rounded-b-md',
                       )}
                     >
                       {isImageAttachment(attachment.url) ? (
@@ -417,9 +421,12 @@ export const CustomerMessage = ({
 
 export const BotMessage = ({ content }: { content?: string }) => {
   return (
-    <div className='flex justify-start gap-2'>
-      <div className='w-8 h-8 rounded-full bg-contain bg-center bg-primary' style={{ backgroundImage: defaultLogo }} />
-      <span className='h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-lg shadow-2xs'>
+    <div className="flex justify-start gap-2">
+      <div
+        className="w-8 h-8 rounded-full bg-contain bg-center bg-primary"
+        style={{ backgroundImage: defaultLogo }}
+      />
+      <span className="h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-lg shadow-2xs">
         {content}
       </span>
     </div>

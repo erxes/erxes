@@ -35,11 +35,11 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
         isMatchingLocation(FrontlinePaths.ResponseDetail) ||
         isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`)) && (
-          <>
-            <Separator.Inline />
-            <ChannelDetailBreadcrumb />
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <ChannelDetailBreadcrumb />
+        </>
+      )}
       {isMatchingLocation(FrontlinePaths.ChannelMembers) && (
         <>
           <Separator.Inline />
@@ -50,23 +50,23 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
-          <>
-            <Separator.Inline />
-            <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
-              <Button variant="ghost" className="font-semibold">
-                Pipelines
-              </Button>
-            </Link>
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
+            <Button variant="ghost" className="font-semibold">
+              Pipelines
+            </Button>
+          </Link>
+        </>
+      )}
       {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
-          <>
-            <Separator.Inline />
-            <PipelineDetailBreadcrumb />
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <PipelineDetailBreadcrumb />
+        </>
+      )}
       {isMatchingLocation(FrontlinePaths.TicketsConfigs) && (
         <>
           <Separator.Inline />
@@ -91,26 +91,26 @@ export const ChannelSettingsBreadcrumb = () => {
       {(isMatchingLocation(FrontlinePaths.ChannelForms) ||
         isMatchingLocation(FrontlinePaths.FormsCreate) ||
         isMatchingLocation(FrontlinePaths.FormDetail)) && (
-          <>
-            <Separator.Inline />
-            <ChannelDetailBreadcrumb channelId={channelId} />
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <ChannelDetailBreadcrumb channelId={channelId} />
+        </>
+      )}
       {(isMatchingLocation(FrontlinePaths.ChannelForms) ||
         isMatchingLocation(FrontlinePaths.FormsCreate) ||
         isMatchingLocation(FrontlinePaths.FormDetail)) && (
-          <>
-            <Separator.Inline />
-            <Link to={`/settings/frontline/channels/${channelId}/forms`}>
-              <Button variant="ghost" className="font-semibold">
-                Forms
-              </Button>
-            </Link>
-            <span className='ml-auto'>
-              <FormsCreateButton />
-            </span>
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <Link to={`/settings/frontline/channels/${channelId}/forms`}>
+            <Button variant="ghost" className="font-semibold">
+              Forms
+            </Button>
+          </Link>
+          <span className="ml-auto">
+            <FormsCreateButton />
+          </span>
+        </>
+      )}
       {isMatchingLocation(FrontlinePaths.FormDetail) &&
         !isMatchingLocation(FrontlinePaths.FormsCreate) && (
           <>

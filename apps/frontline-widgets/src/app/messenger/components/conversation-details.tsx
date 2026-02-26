@@ -1,6 +1,11 @@
 import { useMemo, useRef } from 'react';
 import { useAtomValue } from 'jotai';
-import { BotMessage, OperatorMessage, CustomerMessage, WelcomeMessage } from './conversation';
+import {
+  BotMessage,
+  OperatorMessage,
+  CustomerMessage,
+  WelcomeMessage,
+} from './conversation';
 import { ChatInput } from './chat-input';
 import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
@@ -64,7 +69,11 @@ export const ConversationDetails = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { widgetsMessengerConnect } = connection || {};
   const { messengerData } = widgetsMessengerConnect || {};
-  const { botGreetMessage, botShowInitialMessage, messages: messagesConfig } = messengerData || {};
+  const {
+    botGreetMessage,
+    botShowInitialMessage,
+    messages: messagesConfig,
+  } = messengerData || {};
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
@@ -236,7 +245,9 @@ export const ConversationDetails = () => {
         })}
         <BotMessage content={botGreetMessage} />
         {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
-        <WelcomeMessage content={messagesConfig?.welcome || InitialMessage.WELCOME} />
+        <WelcomeMessage
+          content={messagesConfig?.welcome || InitialMessage.WELCOME}
+        />
       </div>
       <div className="shrink-0">
         <ChatInput />

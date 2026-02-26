@@ -8,7 +8,7 @@ import { useCustomerData } from '../hooks/useCustomerData';
 import { useChatInput } from '../hooks/useChatInput';
 import { PersistentMenu } from './persistent-menu';
 
-interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
+interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const [connection] = useAtom(connectionAtom);
