@@ -1,17 +1,37 @@
-import { ColumnDef, Cell } from "@tanstack/react-table";
-import { IForm } from "@/forms/types/formTypes";
-import { DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
-import { useNavigate } from "react-router";
-import { IconArrowBarToRight, IconCalendarEvent, IconCircles, IconEdit, IconLabel, IconSquareToggle, IconTag, IconToggleRight, IconTrash, IconUser } from "@tabler/icons-react";
-import { MembersInline, SelectTags } from "ui-modules";
-import { useState } from "react";
-import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
-import { useFormEdit } from "@/forms/hooks/useFormEdit";
-import { GET_FORMS_LIST } from "@/forms/graphql/formQueries";
-import { useFormToggleStatus } from "@/forms/hooks/useFormToggleStatus";
-import { FormStatus } from "./filters/FormStatus";
-import { FormInstallScript } from "../FormInstallScript";
+import { ColumnDef, Cell } from '@tanstack/react-table';
+import { IForm } from '@/forms/types/formTypes';
+import {
+  DropdownMenu,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+  Spinner,
+  toast,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
+import { useNavigate } from 'react-router';
+import {
+  IconArrowBarToRight,
+  IconCalendarEvent,
+  IconCircles,
+  IconEdit,
+  IconLabel,
+  IconSquareToggle,
+  IconTag,
+  IconToggleRight,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { MembersInline, SelectTags } from 'ui-modules';
+import { useState } from 'react';
+import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { useFormEdit } from '@/forms/hooks/useFormEdit';
+import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
+import { FormStatus } from './filters/FormStatus';
+import { FormInstallScript } from '../FormInstallScript';
 
 export function FormToggleStatus({
   formId,
