@@ -42,7 +42,7 @@ export const facebookBotSchema = schemaWrapper(
     persistentMenus: { type: [persistentMenuSchema] },
     greetText: { type: String, optional: true },
     tag: { type: String, optional: true },
-    createdAt: { type: Date, default: Date.now() },
+    createdAt: { type: Date, default: Date.now },
     isEnabledBackBtn: { type: Boolean, optional: true },
     backButtonText: { type: String, optional: true },
   }),
