@@ -297,10 +297,10 @@ const PersistentMenu = ({
           <div className="flex gap-2 items-end" key={field.id}>
             <Form.Field
               key={field.id}
-              name={`botSetup.persistentMenu.${index}.title`}
+              name={`botSetup.persistentMenu.${index}.text`}
               render={({ field }) => (
                 <Form.Item className="flex-auto">
-                  <Form.Label>Title</Form.Label>
+                  <Form.Label>Text</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -341,7 +341,7 @@ const PersistentMenu = ({
         ))}
       </div>
       <Button
-        onClick={() => append({ title: '', type: 'button' })}
+        onClick={() => append({ text: '', type: 'button' })}
         className="flex w-full mt-5!"
         variant="secondary"
       >

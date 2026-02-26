@@ -83,3 +83,30 @@ export const GET_FORM_DETAIL = gql`
     }
   }
 `;
+
+export const GET_FORMS_TOTAL_COUNT = gql`
+  query FormsTotalCount(
+    $type: String
+    $channelId: String
+    $tagId: String
+    $status: String
+    $searchValue: String
+    $orderBy: JSON
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    formsTotalCount(
+      type: $type
+      channelId: $channelId
+      tagId: $tagId
+      status: $status
+      searchValue: $searchValue
+      orderBy: $orderBy
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      total
+      byTag
+      byChannel
+      byStatus
+    }
+  }
+`;
