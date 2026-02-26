@@ -124,7 +124,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         order++;
         const live = liveRemByProductId[product._id] || {};
         let count = live.count || 0;
-        if (attachment && attachment.url) {
+        if (attachment?.url) {
           const datasKey = String(
             attachFieldId
               ? product.customFieldsData.find(

@@ -36,13 +36,11 @@ export default {
     if (args.branchId && args.departmentId) {
       return product.remainders?.[args.branchId]?.[args.departmentId]
     }
-    return;
   },
 
   discount: async (product: IProductDocument, args: IProductParams) => {
     if (args.branchId && args.departmentId) {
       return product.discounts?.[args.branchId]?.[args.departmentId]
     }
-    return;
   }
 };

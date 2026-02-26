@@ -19,9 +19,9 @@ interface IRemainder {
 interface IDiscount {
   [branchId: string]: {
     [departmentId: string]: {
-      pricingId: { type: String },
-      value: { type: Number },
-      percent: { type: Number },
+      pricingId: { type: string },
+      value: { type: number },
+      percent: { type: number },
     }
   }
 }

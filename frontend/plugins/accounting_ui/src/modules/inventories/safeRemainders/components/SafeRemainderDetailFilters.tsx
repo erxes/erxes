@@ -1,5 +1,4 @@
 import {
-  IconCalendar,
   IconLayoutGridAdd,
   IconSearch,
   IconToggleRightFilled,
@@ -11,7 +10,6 @@ import {
   Filter,
   useMultiQueryState,
 } from 'erxes-ui';
-import { SelectCategory } from 'ui-modules';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
 
 const SafeRemainderDetailFilterPopover = () => {
@@ -73,7 +71,7 @@ export const SafeRemainderDetailFilter = (
     diffType: string;
   }>(['status', 'searchValue', 'productCategoryIds', 'diffType']);
 
-  const { status, searchValue, diffType, productCategoryIds } = queries;
+  const { status, searchValue, diffType } = queries;
 
   return (
     <Filter id="accounts-filter" >
@@ -94,6 +92,15 @@ export const SafeRemainderDetailFilter = (
           </Filter.BarName>
           <Filter.BarButton filterKey="status" inDialog>
             {status}
+          </Filter.BarButton>
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="status">
+          <Filter.BarName>
+            <IconToggleRightFilled />
+            Diff Type
+          </Filter.BarName>
+          <Filter.BarButton filterKey="diffType" inDialog>
+            {diffType}
           </Filter.BarButton>
         </Filter.BarItem>
         <SafeRemainderDetailFilterPopover />

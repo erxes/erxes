@@ -11,7 +11,7 @@ import { safeRemainderItemSchema } from '../definitions/safeRemainderItems';
 
 export interface ISafeRemainderItemModel extends Model<ISafeRemainderItemDocument> {
   getItem(_id: string): Promise<ISafeRemainderItemDocument>;
-  getItemCount(params: IRemainderParams): Promise<Number>;
+  getItemCount(params: IRemainderParams): Promise<number>;
   createItem(_id: string, userId: string): Promise<ISafeRemainderItemDocument>;
   updateItem(
     _id: string,

@@ -112,7 +112,7 @@ export const SafeRemainderFilter = ({
     accountSearchValue: string;
   }>(['number', 'searchValue', 'accountSearchValue']);
 
-  const { number, searchValue, accountSearchValue } = queries;
+  const {  searchValue } = queries;
 
   return (
     <Filter id="accounts-filter">
