@@ -71,7 +71,7 @@ export const NotificationCount = () => {
       status: 'new',
     },
   });
-  console.log(totalCount, 'totalCount');
+
   if (loading) {
     return <Skeleton className="size-4 rounded-sm" />;
   }

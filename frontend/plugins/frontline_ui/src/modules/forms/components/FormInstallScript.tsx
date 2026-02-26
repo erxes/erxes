@@ -1,14 +1,16 @@
 import { IconCopy, IconCheck, IconCode } from '@tabler/icons-react';
 import { useState } from 'react';
-import { Badge, Button, Dialog, toast } from 'erxes-ui';
+import { Badge, Button, Dialog, DropdownMenu, toast } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 
 export function FormInstallScript({
   formId,
   channelId,
+  inActionBar = false,
 }: {
   formId: string;
   channelId: string;
+  inActionBar?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -53,14 +55,25 @@ export function FormInstallScript({
 
   return (
     <>
-      <Button
-        variant="outline"
-        size={'icon'}
-        onClick={() => setDialogOpen(true)}
-        title="View installation script"
-      >
-        <IconCode />
-      </Button>
+      {inActionBar ? (
+        <DropdownMenu.Item
+          onSelect={(e) => {
+            e.preventDefault();
+            setDialogOpen(true);
+          }}
+        >
+          <IconCode /> Install Script
+        </DropdownMenu.Item>
+      ) : (
+        <Button
+          variant="outline"
+          size={'icon'}
+          onClick={() => setDialogOpen(true)}
+          title="View installation script"
+        >
+          <IconCode />
+        </Button>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <Dialog.Content className="max-w-2xl">
