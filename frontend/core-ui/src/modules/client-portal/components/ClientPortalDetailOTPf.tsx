@@ -212,7 +212,7 @@ export const ClientPortalDetailOTP = ({
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          Email message body with {'{code}'} placeholder
+                          Email message body with {'{{code}}'} placeholder
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -342,7 +342,7 @@ export const ClientPortalDetailOTP = ({
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          SMS message body with {'{code}'} placeholder
+                          SMS message body with {'{{code}}'} placeholder
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>

@@ -30,8 +30,8 @@ const Report = lazy(() =>
 );
 
 const Forms = lazy(() =>
-  import('~/pages/FormsPage').then((module) => ({
-    default: module.FormsPage,
+  import('~/pages/FormsIndexPage').then((module) => ({
+    default: module.default,
   })),
 );
 

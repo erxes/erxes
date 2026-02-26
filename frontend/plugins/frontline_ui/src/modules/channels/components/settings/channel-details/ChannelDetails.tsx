@@ -28,6 +28,7 @@ export const ChannelDetails = () => {
 
       <MemberSection channel={channel} />
       <PipelinesSection channel={channel} />
+
       <ResponseSection channel={channel} />
 
       <IntegrationList />

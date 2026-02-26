@@ -44,6 +44,7 @@ export const TicketForm = ({
     const formData = data as Record<string, unknown>;
 
     createTicket({
+      refetchQueries: ['WidgetTicketsByCustomer'],
       variables: {
         name: (formData?.name as string) ?? '',
         description: (formData?.description as string) ?? '',

@@ -1,18 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Select } from 'erxes-ui';
+import { Button, Input, ScrollArea, Select, Sheet, toast } from 'erxes-ui';
 import { Form } from 'erxes-ui/components/form';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
-import { IPayment } from '~/modules/payment/types/Payment';
+import { usePaymentAdd } from '~/modules/payment/hooks/usePaymentAdd';
+import { usePaymentEdit } from '~/modules/payment/hooks/usePaymentEdit';
+import { IPayment, IPaymentDocument } from '~/modules/payment/types/Payment';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { paymentKind } from '~/modules/payment/utils';
+import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 
 type Props = {
   payment: any;
-  onSave: (payment: any) => void;
   onCancel: () => void;
 };
 
@@ -124,8 +125,14 @@ const createPaymentSchema = (selectedKind: string) => {
   return baseSchema.extend(dynamicFields);
 };
 
-const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
+const PaymentForm = ({ payment, onCancel }: Props) => {
   const [selectedKind, setSelectedKind] = useState(payment?.kind || '');
+  const [paymentState, setPayment] = useState<
+    IPayment | IPaymentDocument | null
+  >(payment);
+
+  const { addPayment } = usePaymentAdd();
+  const { editPayment } = usePaymentEdit();
 
   // Create dynamic schema based on selected payment kind
   const validationSchema = useMemo(
@@ -217,7 +224,47 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
     input.config = config;
 
     try {
-      onSave(input);
+      if (paymentState) {
+        // Update existing payment
+        editPayment({
+          variables: {
+            _id: payment._id,
+            input,
+          },
+        })
+          .then(() => {
+            toast({
+              title: 'Success',
+              description: 'Payment method updated successfully',
+            });
+          })
+          .catch((e) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+            });
+          });
+      } else {
+        addPayment({
+          variables: {
+            input,
+          },
+        })
+          .then(() => {
+            toast({
+              title: 'Success',
+              description: 'Payment method added successfully',
+            });
+          })
+          .catch((e) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+            });
+          });
+      }
+
+      onCancel();
     } catch (error) {
       console.error('Form submission error:', error);
     }
@@ -234,178 +281,194 @@ const PaymentForm = ({ payment, onSave, onCancel }: Props) => {
   };
 
   return (
-    <div className="max-h-[80vh] overflow-y-auto">
-      <Form {...form}>
-        {/* Payment Kind Selection */}
-        <form className="space-y-4 p-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <Form.Field
-            name="kind"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Payment Method *</Form.Label>
-                <Form.Control>
-                  <Select
-                    disabled={payment}
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                  >
+    <Form {...form}>
+      {/* Payment Kind Selection */}
+      <form
+        className="flex flex-col h-full overflow-hidden"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <Sheet.Header className="gap-3 border-b">
+          <Sheet.Title>{payment ? 'Edit Payment' : 'Add Payment'}</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+
+        <Sheet.Content className="flex-auto overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="space-y-3 p-5">
+              <Form.Field
+                name="kind"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Payment Method *</Form.Label>
                     <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value
-                          placeholder={
-                            <span className="text-sm font-medium text-center truncate text-muted-foreground">
-                              {'Select payment method'}
-                            </span>
-                          }
+                      <Select
+                        disabled={payment}
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                      >
+                        <Form.Control>
+                          <Select.Trigger>
+                            <Select.Value
+                              placeholder={
+                                <span className="font-medium text-muted-foreground text-sm text-center truncate">
+                                  {'Select payment method'}
+                                </span>
+                              }
+                            >
+                              <span className="font-medium text-foreground text-sm">
+                                {
+                                  Object.entries(PAYMENT_KINDS).find(
+                                    ([key, method]) => key === field.value,
+                                  )?.[1].name
+                                }
+                              </span>
+                            </Select.Value>
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content
+                          className="[&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 p-0 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 border [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto"
+                          align="start"
                         >
-                          <span className="text-sm font-medium text-foreground">
-                            {
-                              Object.entries(PAYMENT_KINDS).find(
-                                ([key, method]) => key === field.value,
-                              )?.[1].name
-                            }
-                          </span>
-                        </Select.Value>
-                      </Select.Trigger>
+                          <Select.Group>
+                            {Object.entries(PAYMENT_KINDS).map(
+                              ([key, method]) => (
+                                <Select.Item
+                                  key={key}
+                                  className="h-7 text-xs"
+                                  value={key}
+                                >
+                                  {method.name}
+                                </Select.Item>
+                              ),
+                            )}
+                          </Select.Group>
+                        </Select.Content>
+                      </Select>
                     </Form.Control>
-                    <Select.Content
-                      className="border p-0 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2"
-                      align="start"
-                    >
-                      <Select.Group>
-                        {Object.entries(PAYMENT_KINDS).map(([key, method]) => (
-                          <Select.Item
-                            key={key}
-                            className="text-xs h-7"
-                            value={key}
-                          >
-                            {method.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Group>
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
+                  </Form.Item>
+                )}
+              />
 
-          {/* Display Name */}
-          <Form.Field
-            name="name"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Display Name *</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder="Enter a name for this payment method"
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-
-          {/* Status */}
-          <Form.Field
-            name="status"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Status *</Form.Label>
-                <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                  >
+              {/* Display Name */}
+              <Form.Field
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Display Name *</Form.Label>
                     <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value
-                          placeholder={
-                            <span className="text-sm font-medium text-center truncate text-muted-foreground">
-                              {'Select status'}
-                            </span>
-                          }
-                        >
-                          <span className="text-sm font-medium text-foreground capitalize">
-                            {field.value}
-                          </span>
-                        </Select.Value>
-                      </Select.Trigger>
+                      <Input
+                        {...field}
+                        placeholder="Enter a name for this payment method"
+                      />
                     </Form.Control>
-                    <Select.Content className="border p-0" align="start">
-                      <Select.Group>
-                        <Select.Item
-                          className="text-xs h-7 capitalize"
-                          value="active"
-                        >
-                          Active
-                        </Select.Item>
-                        <Select.Item
-                          className="text-xs h-7 capitalize"
-                          value="inactive"
-                        >
-                          Inactive
-                        </Select.Item>
-                      </Select.Group>
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
+                  </Form.Item>
+                )}
+              />
 
-          {/* Dynamic Payment-Specific Fields */}
-          {currentPaymentKind?.fields.map((fieldConfig) => (
-            <Form.Field
-              key={fieldConfig.key}
-              name={fieldConfig.key as any}
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{fieldConfig.label} *</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      type={fieldConfig.type || 'text'}
-                      placeholder={`Enter ${fieldConfig.label.toLowerCase()}`}
-                      autoComplete={
-                        fieldConfig.type === 'password' ? '' : 'off'
-                      }
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          ))}
-          {renderQuickQr()}
+              {/* Status */}
+              <Form.Field
+                name="status"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Status *</Form.Label>
+                    <Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                      >
+                        <Form.Control>
+                          <Select.Trigger>
+                            <Select.Value
+                              placeholder={
+                                <span className="font-medium text-muted-foreground text-sm text-center truncate">
+                                  {'Select status'}
+                                </span>
+                              }
+                            >
+                              <span className="font-medium text-foreground text-sm capitalize">
+                                {field.value}
+                              </span>
+                            </Select.Value>
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content className="p-0 border" align="start">
+                          <Select.Group>
+                            <Select.Item
+                              className="h-7 text-xs capitalize"
+                              value="active"
+                            >
+                              Active
+                            </Select.Item>
+                            <Select.Item
+                              className="h-7 text-xs capitalize"
+                              value="inactive"
+                            >
+                              Inactive
+                            </Select.Item>
+                          </Select.Group>
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
 
-          {/* Action Buttons */}
-          <div className="sticky bottom-0 left-0 w-full bg-white p-4 z-10">
-            <div className="flex gap-3 pt-6 ">
-              <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : payment ? 'Update' : 'Save'}{' '}
-                Payment Method
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
+              {/* Dynamic Payment-Specific Fields */}
+              {currentPaymentKind?.fields.map((fieldConfig) => (
+                <Form.Field
+                  key={fieldConfig.key}
+                  name={fieldConfig.key as any}
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{fieldConfig.label} *</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          type={fieldConfig.type || 'text'}
+                          placeholder={`Enter ${fieldConfig.label.toLowerCase()}`}
+                          autoComplete={
+                            fieldConfig.type === 'password' ? '' : 'off'
+                          }
+                        />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              ))}
+
+              {renderQuickQr()}
             </div>
-          </div>
-        </form>
-      </Form>
-    </div>
+          </ScrollArea>
+        </Sheet.Content>
+
+        <Sheet.Footer className="flex justify-end gap-1 bg-muted p-2.5 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            {isSubmitting ? 'Saving...' : payment ? 'Update' : 'Save'} Payment
+            Method
+          </Button>
+        </Sheet.Footer>
+      </form>
+    </Form>
   );
 };
 

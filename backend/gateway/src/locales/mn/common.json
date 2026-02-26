@@ -37,6 +37,7 @@
   },
   "sidebar": {
     "profile": "Профайл",
+    "notification" : "Мэдэгдэл",
     "change-password": "Нууц үг солих",
     "general": "Ерөнхий",
     "team-member": "Багийн гишүүн",

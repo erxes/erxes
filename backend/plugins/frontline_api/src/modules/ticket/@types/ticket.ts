@@ -21,6 +21,7 @@ export interface ITicket {
   statusType?: number;
   number?: string;
   subscribedUserIds?: string[];
+  state?: string;
   isSubscribed?: boolean;
 }
 

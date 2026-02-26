@@ -1,126 +1,47 @@
-import { ColumnDef, Cell } from "@tanstack/react-table";
-import { IForm } from "@/forms/types/formTypes";
-import { Badge, Button, Dialog, DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
-import { useNavigate } from "react-router";
-import { IconArrowBarToRight, IconCalendarEvent, IconCheck, IconCode, IconCopy, IconEdit, IconSquareToggle, IconTag, IconTrash, IconUser } from "@tabler/icons-react";
-import { MembersInline, SelectTags } from "ui-modules";
-import { useState } from "react";
-import { REACT_APP_WIDGETS_URL } from "@/utils";
-import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
-import { useFormEdit } from "@/forms/hooks/useFormEdit";
-import { GET_FORMS_LIST } from "@/forms/graphql/formQueries";
-import { useFormToggleStatus } from "@/forms/hooks/useFormToggleStatus";
-import { FormStatus } from "./filters/FormStatus";
+import { ColumnDef, Cell } from '@tanstack/react-table';
+import { IForm } from '@/forms/types/formTypes';
+import {
+  DropdownMenu,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+  Spinner,
+  toast,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
+import { useNavigate } from 'react-router';
+import {
+  IconArrowBarToRight,
+  IconCalendarEvent,
+  IconCircles,
+  IconEdit,
+  IconLabel,
+  IconSquareToggle,
+  IconTag,
+  IconToggleRight,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { MembersInline, SelectTags } from 'ui-modules';
+import { useState } from 'react';
+import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { useFormEdit } from '@/forms/hooks/useFormEdit';
+import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
+import { FormStatus } from './filters/FormStatus';
+import { FormInstallScript } from '../FormInstallScript';
 
-export function FormInstallScript({ formId, setOpen }: { formId: string, setOpen: (open: boolean) => void }) {
-  const [copied, setCopied] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const API = REACT_APP_WIDGETS_URL;
-  const script = `<script>
-  window.erxesSettings = {
-    form: {
-      formId: ${JSON.stringify(formId)},
-    },
-  };
-
-  (function () {
-    var script = document.createElement("script");
-    script.src = "${API}/formBundle.js";
-    script.async = true;
-    var entry = document.getElementsByTagName("script")[0];
-    entry.parentNode.insertBefore(script, entry);
-  })();
-</script>`;
-
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(script)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => {
-          setCopied(false);
-          setOpen(false);
-        }, 3000);
-      })
-      .catch(() => {
-        toast({
-          title: 'Failed to copy script',
-          description: 'Please try again',
-          variant: 'destructive',
-        });
-      });
-  };
-
-  return (
-    <>
-      <DropdownMenu.Item
-        onSelect={(e) => {
-          e.preventDefault();
-          setDialogOpen(true);
-        }}
-      >
-        <IconCode /> Install Script
-      </DropdownMenu.Item>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <Dialog.Content className="max-w-2xl">
-          <Dialog.Header>
-            <Dialog.Title>Installation Script</Dialog.Title>
-            <Dialog.Description>
-              Copy and paste this script into your website's HTML, just before
-              the closing {'</body>'} tag.
-            </Dialog.Description>
-          </Dialog.Header>
-
-          <div className="space-y-4">
-            <div className="relative">
-              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
-                <code>{script}</code>
-              </pre>
-              <Button
-                size="sm"
-                variant="secondary"
-                className="absolute top-2 right-2"
-                onClick={handleCopy}
-              >
-                {copied ? (
-                  <>
-                    <IconCheck className="w-4 h-4 mr-2" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <IconCopy className="w-4 h-4 mr-2" />
-                    Copy
-                  </>
-                )}
-              </Button>
-            </div>
-
-            <Badge variant="info" className="block w-full h-auto p-3">
-              <h4 className="font-medium text-sm mb-2">Installation Steps:</h4>
-              <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
-                <li>Copy the script above</li>
-                <li>Paste it into your website's HTML</li>
-                <li>Place it just before the closing {'</body>'} tag</li>
-                <li>The form widget will appear on your site</li>
-              </ol>
-            </Badge>
-          </div>
-
-          <Dialog.Footer>
-            <Button variant="secondary" onClick={() => setDialogOpen(false)}>
-              Close
-            </Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    </>
-  );
-}
-
-export function FormToggleStatus({ formId, status, setOpen }: { formId: string, status: string, setOpen: (open: boolean) => void }) {
+export function FormToggleStatus({
+  formId,
+  status,
+  setOpen,
+}: {
+  formId: string;
+  status: string;
+  setOpen: (open: boolean) => void;
+}) {
   const { toggleStatus, loading } = useFormToggleStatus();
 
   const onSelect = () => {
@@ -140,17 +61,29 @@ export function FormToggleStatus({ formId, status, setOpen }: { formId: string, 
         });
       },
     });
-  }
+  };
 
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === "active" ? "Archive" : "Unarchive"}
+      {status === 'active' ? 'Archive' : 'Unarchive'}
     </DropdownMenu.Item>
-  )
+  );
 }
 
-export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { formId: string, channelId: string, setOpen: (open: boolean) => void, name: string, type: string }) => {
+export const MoveFormToChannel = ({
+  formId,
+  channelId,
+  setOpen,
+  name,
+  type,
+}: {
+  formId: string;
+  channelId: string;
+  setOpen: (open: boolean) => void;
+  name: string;
+  type: string;
+}) => {
   const { editForm, loading } = useFormEdit();
 
   const onSelect = (id: string) => {
@@ -178,10 +111,9 @@ export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { 
         });
       },
     });
-  }
+  };
 
   return (
-
     <DropdownMenu.Sub>
       <DropdownMenu.SubTrigger>
         <IconArrowBarToRight />
@@ -189,21 +121,24 @@ export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { 
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
-          <SelectChannel.DropDownContent channelId={channelId} onValueChange={(value) => {
-            onSelect(value)
-          }} />
+          <SelectChannel.DropDownContent
+            channelId={channelId}
+            onValueChange={(value) => {
+              onSelect(value);
+            }}
+          />
         </DropdownMenu.SubContent>
       </DropdownMenu.Portal>
     </DropdownMenu.Sub>
-  )
-}
+  );
+};
 
 export const FormsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { _id, status } = cell.row.original;
+  const { _id, status, channelId } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -247,19 +182,31 @@ export const FormsMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content side="bottom" align="start">
-        <FormInstallScript formId={_id} setOpen={setOpen} />
+        <FormInstallScript
+          formId={_id}
+          channelId={channelId}
+          inActionBar={true}
+        />
         <DropdownMenu.Item
           onSelect={() => {
-            navigate(
-              `/settings/frontline/forms/${cell.row.original.channelId}/${cell.row.original._id}`,
-            );
+            navigate(`/frontline/forms/${cell.row.original._id}`);
           }}
         >
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <MoveFormToChannel formId={_id} channelId={cell.row.original.channelId || ''} setOpen={setOpen} name={cell.row.original.name} type={cell.row.original.type} />
-        <DropdownMenu.Item disabled={loading} onSelect={handleDelete} className="text-destructive">
+        <MoveFormToChannel
+          formId={_id}
+          channelId={cell.row.original.channelId || ''}
+          setOpen={setOpen}
+          name={cell.row.original.name}
+          type={cell.row.original.type}
+        />
+        <DropdownMenu.Item
+          disabled={loading}
+          onSelect={handleDelete}
+          className="text-destructive"
+        >
           {loading ? <Spinner /> : <IconTrash />} Delete
         </DropdownMenu.Item>
       </DropdownMenu.Content>
@@ -271,7 +218,7 @@ export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
   size: 30,
   cell: FormsMoreColumnCell,
-}
+};
 
 export const formColumns: ColumnDef<IForm>[] = [
   MoreColumn,
@@ -279,6 +226,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
+    header: () => <RecordTable.InlineHead label="Name" icon={IconLabel} />,
     cell: ({ cell }) => {
       const navigate = useNavigate();
 
@@ -286,9 +234,7 @@ export const formColumns: ColumnDef<IForm>[] = [
         <RecordTableInlineCell>
           <RecordTableInlineCell.Anchor
             onClick={() => {
-              navigate(
-                `/settings/frontline/forms/${cell.row.original.channelId}/${cell.row.original._id}`,
-              );
+              navigate(`/frontline/forms/${cell.row.original._id}`);
             }}
           >
             {cell.getValue() as string}
@@ -299,57 +245,58 @@ export const formColumns: ColumnDef<IForm>[] = [
     size: 250,
   },
   {
+    accessorKey: 'status',
+    id: 'status',
+    header: () => (
+      <RecordTable.InlineHead label="Status" icon={IconToggleRight} />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <FormStatus.Badge status={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
     accessorKey: 'channelId',
-    header: () => <RecordTable.InlineHead label="Channel" />,
+    header: () => <RecordTable.InlineHead label="Channel" icon={IconCircles} />,
     id: 'channelId',
     cell: ({ cell }) => {
       const { channel, _id, name, type } = cell.row.original;
       const { editForm } = useFormEdit();
 
       const onValueChange = (value: string | string[]) => {
-        editForm(
-          {
-            variables: {
-              id: _id,
-              name,
-              type,
-              channelId: value,
-            },
-            refetchQueries: [GET_FORMS_LIST],
-            onCompleted: () => {
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Form updated successfully',
-              });
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message,
-              });
-            },
-          }
-        );
-      }
+        editForm({
+          variables: {
+            id: _id,
+            name,
+            type,
+            channelId: value,
+          },
+          refetchQueries: [GET_FORMS_LIST],
+          onCompleted: () => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Form updated successfully',
+            });
+          },
+          onError: (error) => {
+            toast({
+              title: 'Error',
+              variant: 'destructive',
+              description: error.message,
+            });
+          },
+        });
+      };
 
       return (
         <SelectChannel.InlineCell
           value={channel?._id}
           onValueChange={onValueChange}
         />
-      );
-    },
-  },
-  {
-    accessorKey: 'status',
-    id: 'status',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <FormStatus.Badge status={cell.getValue() as string} />
-        </RecordTableInlineCell>
       );
     },
   },
