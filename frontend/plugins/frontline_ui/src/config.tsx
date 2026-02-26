@@ -79,7 +79,8 @@ export const CONFIG: IUIConfig = {
     },
     {
       name: 'tickets',
-      path: 'frontline/tickets?channelId&pipelineId',
+      path: 'frontline/tickets',
+      icon: IconTicket,
     },
     {
       name: 'inbox',

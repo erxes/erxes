@@ -108,9 +108,7 @@ const IndexPage = () => {
           </Breadcrumb>
 
           <Separator.Inline />
-          <Button variant="ghost" size="icon" type="button">
-            <FavoriteToggleIconButton />
-          </Button>
+          <FavoriteToggleIconButton />
         </PageHeader.Start>
 
         <PageHeader.End>

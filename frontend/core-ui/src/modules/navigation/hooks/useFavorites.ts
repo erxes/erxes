@@ -48,13 +48,22 @@ export function useFavorites(): FavoriteModule[] {
   });
 
   const favorites = data?.getFavoritesByCurrentUser ?? [];
+  function getDynamicParamCount(path: string): number {
+    return path.split('/').filter((p) => p.startsWith(':')).length;
+  }
 
   const sortedModules = useMemo(() => {
     if (!modules) return [];
 
-    return [...modules].sort((a, b) => b.path.length - a.path.length);
-  }, [modules]);
+    return [...modules].sort((a, b) => {
+      const aPartsCount = a.path.split('/').length;
+      const bPartsCount = b.path.split('/').length;
 
+      if (bPartsCount !== aPartsCount) return bPartsCount - aPartsCount;
+
+      return getDynamicParamCount(a.path) - getDynamicParamCount(b.path);
+    });
+  }, [modules]);
   return useMemo(() => {
     if (pluginsLoading || !sortedModules.length) return [];
 
