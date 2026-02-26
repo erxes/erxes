@@ -25,10 +25,10 @@ const safeRemainderItemMutations = {
   async safeRemainderItemsRemove(
     _root: any,
     { ids }: { ids: string[] },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.SafeRemainderItems.removeItems(ids);
-  }
+  },
 };
 
 moduleCheckPermission(safeRemainderItemMutations, 'manageRemainders');

@@ -4,12 +4,7 @@ import {
   IconToggleRightFilled,
   IconTypeface,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
 
 const SafeRemainderDetailFilterPopover = () => {
@@ -61,9 +56,11 @@ const SafeRemainderDetailFilterPopover = () => {
   );
 };
 
-export const SafeRemainderDetailFilter = (
-  { afterBar }: { afterBar?: React.ReactNode }
-) => {
+export const SafeRemainderDetailFilter = ({
+  afterBar,
+}: {
+  afterBar?: React.ReactNode;
+}) => {
   const [queries] = useMultiQueryState<{
     status: string;
     searchValue: string;
@@ -74,7 +71,7 @@ export const SafeRemainderDetailFilter = (
   const { status, searchValue, diffType } = queries;
 
   return (
-    <Filter id="accounts-filter" >
+    <Filter id="accounts-filter">
       <Filter.Bar>
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>

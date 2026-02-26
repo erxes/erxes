@@ -79,8 +79,8 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       let attachFieldId = '';
 
       if (items?.length) {
-        const codes: string[] = items.map(i => i.code)
-        productFilter = { query: { code: { $in: codes } } }
+        const codes: string[] = items.map((i) => i.code);
+        productFilter = { query: { code: { $in: codes } } };
       } else {
         productFilter = {
           query: { status: { $ne: 'deleted' } },

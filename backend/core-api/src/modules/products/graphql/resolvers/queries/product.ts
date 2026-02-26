@@ -1,5 +1,10 @@
 import { IProductDocument } from 'erxes-api-shared/core-types';
-import { cursorPaginate, defaultPaginate, escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  defaultPaginate,
+  escapeRegExp,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { FilterQuery, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -56,9 +61,8 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories = await models.ProductCategories.getChildCategories(
-      categoryIds,
-    );
+    const categories =
+      await models.ProductCategories.getChildCategories(categoryIds);
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -94,7 +98,9 @@ const generateFilter = async (
     const baseTagIds: Set<string> = new Set(excludeTagIds);
 
     if (tagWithRelated) {
-      const tagObjs = await models.Tags.find({ _id: { $in: excludeTagIds } }).lean();
+      const tagObjs = await models.Tags.find({
+        _id: { $in: excludeTagIds },
+      }).lean();
 
       for (const tag of tagObjs) {
         (tag.relatedIds || []).forEach((id) => baseTagIds.add(id));
@@ -141,18 +147,18 @@ const generateFilter = async (
 
     if (pipeline.initialCategoryIds?.length) {
       let incCategories = await models.ProductCategories.getChildCategories(
-        pipeline.initialCategoryIds
+        pipeline.initialCategoryIds,
       );
 
       if (pipeline.excludeCategoryIds?.length) {
         const excCategories = await models.ProductCategories.getChildCategories(
-          pipeline.excludeCategoryIds
+          pipeline.excludeCategoryIds,
         );
-        const excCatIds = excCategories.map(c => c._id);
-        incCategories = incCategories.filter(c => !excCatIds.includes(c._id));
+        const excCatIds = excCategories.map((c) => c._id);
+        incCategories = incCategories.filter((c) => !excCatIds.includes(c._id));
       }
 
-      andFilters.push({ categoryId: { $in: incCategories.map(c => c._id) } });
+      andFilters.push({ categoryId: { $in: incCategories.map((c) => c._id) } });
 
       if (pipeline.excludeProductIds?.length) {
         andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
@@ -163,34 +169,52 @@ const generateFilter = async (
   if (branchId && departmentId) {
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: { $exists: true, $gte: minRemainder }
+        [`remainders.${branchId}.${departmentId}.remainder`]: {
+          $exists: true,
+          $gte: minRemainder,
+        },
       });
     }
     if (maxRemainder || maxRemainder === 0) {
       andFilters.push({
-        [`remainders.${branchId}.${departmentId}.remainder`]: { $exists: true, $lte: maxRemainder }
+        [`remainders.${branchId}.${departmentId}.remainder`]: {
+          $exists: true,
+          $lte: maxRemainder,
+        },
       });
     }
 
     if (minDiscountValue || minDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: { $exists: true, $gte: minDiscountValue }
+        [`discounts.${branchId}.${departmentId}.value`]: {
+          $exists: true,
+          $gte: minDiscountValue,
+        },
       });
     }
     if (maxDiscountValue || maxDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: { $exists: true, $lte: maxDiscountValue }
+        [`discounts.${branchId}.${departmentId}.value`]: {
+          $exists: true,
+          $lte: maxDiscountValue,
+        },
       });
     }
 
     if (minDiscountPercent || minDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: { $exists: true, $gte: minDiscountPercent }
+        [`discounts.${branchId}.${departmentId}.percent`]: {
+          $exists: true,
+          $gte: minDiscountPercent,
+        },
       });
     }
     if (maxDiscountPercent || maxDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: { $exists: true, $lte: maxDiscountPercent }
+        [`discounts.${branchId}.${departmentId}.percent`]: {
+          $exists: true,
+          $lte: maxDiscountPercent,
+        },
       });
     }
   }
@@ -209,10 +233,10 @@ const generateFilter = async (
   }
 
   if (minPrice || minPrice === 0) {
-    andFilters.push({ unitPrice: { $exists: true, $gte: minPrice } })
+    andFilters.push({ unitPrice: { $exists: true, $gte: minPrice } });
   }
   if (maxPrice || maxPrice === 0) {
-    andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } })
+    andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
@@ -227,10 +251,15 @@ export const productQueries = {
     params: IProductParams,
     { commonQuerySelector, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
+    const filter = await generateFilter(
+      models,
+      subdomain,
+      commonQuerySelector,
+      params,
+    );
 
     if (!params.orderBy) {
-      params.orderBy = { code: 1 }
+      params.orderBy = { code: 1 };
     }
 
     return await cursorPaginate({
@@ -245,7 +274,12 @@ export const productQueries = {
     params: IProductParams,
     { commonQuerySelector, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
+    const filter = await generateFilter(
+      models,
+      subdomain,
+      commonQuerySelector,
+      params,
+    );
 
     const { sortField, sortDirection } = params;
 
@@ -261,11 +295,9 @@ export const productQueries = {
       });
     }
 
-    return await defaultPaginate(
-      models.Products.find(filter).sort(sort),
-      {
-        ...params,
-      });
+    return await defaultPaginate(models.Products.find(filter).sort(sort), {
+      ...params,
+    });
   },
 
   async productDetail(
@@ -281,7 +313,12 @@ export const productQueries = {
     params: IProductParams,
     { commonQuerySelector, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
+    const filter = await generateFilter(
+      models,
+      subdomain,
+      commonQuerySelector,
+      params,
+    );
 
     if (params.groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {
@@ -303,18 +340,17 @@ export const productQueries = {
       const getRegex = (str) => {
         return ['*', '.', '_'].includes(str)
           ? new RegExp(
-            `^${str
-              .replace(/\./g, '\\.')
-              .replace(/\*/g, '.')
-              .replace(/_/g, '.')}.*`,
-            'igu',
-          )
+              `^${str
+                .replace(/\./g, '\\.')
+                .replace(/\*/g, '.')
+                .replace(/_/g, '.')}.*`,
+              'igu',
+            )
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

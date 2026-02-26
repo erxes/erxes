@@ -3,11 +3,11 @@ import { toast } from 'erxes-ui';
 import { SAFE_REMAINDER_ITEMS_REMOVE } from '../graphql/safeRemainderChange';
 
 export const useSafeRemainderItemsRemove = () => {
-  const [_removeRemItems, { loading }] = useMutation(SAFE_REMAINDER_ITEMS_REMOVE);
+  const [_removeRemItems, { loading }] = useMutation(
+    SAFE_REMAINDER_ITEMS_REMOVE,
+  );
 
-  const removeRemItems = (
-    options: OperationVariables,
-  ) => {
+  const removeRemItems = (options: OperationVariables) => {
     const variables = options?.variables || {};
 
     return _removeRemItems({

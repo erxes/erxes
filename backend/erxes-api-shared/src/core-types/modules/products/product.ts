@@ -1,4 +1,9 @@
-import { IAttachment, ICustomField, IPdfAttachment, IPropertyField } from '../../common';
+import {
+  IAttachment,
+  ICustomField,
+  IPdfAttachment,
+  IPropertyField,
+} from '../../common';
 import { Document } from 'mongoose';
 
 interface ISubUom {
@@ -12,18 +17,18 @@ interface IRemainder {
       remainder: number;
       soonIn: number;
       soonOut: number;
-    }
-  }
+    };
+  };
 }
 
 interface IDiscount {
   [branchId: string]: {
     [departmentId: string]: {
-      pricingId: { type: string },
-      value: { type: number },
-      percent: { type: number },
-    }
-  }
+      pricingId: { type: string };
+      value: { type: number };
+      percent: { type: number };
+    };
+  };
 }
 
 export interface IProduct {

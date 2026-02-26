@@ -1,4 +1,10 @@
-import { IBranch, IDepartment, IProduct, IProductCategory, IUser } from 'ui-modules';
+import {
+  IBranch,
+  IDepartment,
+  IProduct,
+  IProductCategory,
+  IUser,
+} from 'ui-modules';
 
 export type ISafeRemainder = {
   _id: string;
