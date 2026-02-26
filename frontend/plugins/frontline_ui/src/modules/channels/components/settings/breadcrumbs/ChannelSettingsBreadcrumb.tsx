@@ -1,8 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
-import { Button } from 'erxes-ui';
-import { IconMail } from '@tabler/icons-react';
-import { Separator } from 'erxes-ui';
-import { useIsMatchingLocation } from 'erxes-ui';
+import { Button, Separator, Tooltip, useIsMatchingLocation } from 'erxes-ui';
+import { IconInfoCircle, IconMail } from '@tabler/icons-react';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
@@ -15,6 +13,8 @@ export const ChannelSettingsBreadcrumb = () => {
     '/settings/frontline/channels',
   );
   const { id: channelId } = useParams<{ id: string }>();
+  const guideUrl =
+    'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b27d5cac46b2ff76b210';
 
   return (
     <>
@@ -24,7 +24,17 @@ export const ChannelSettingsBreadcrumb = () => {
           Channels
         </Button>
       </Link>
-      {(isMatchingLocation(FrontlinePaths.ChannelDetails) ||
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <Link to={guideUrl} target="_blank">
+            <IconInfoCircle className="size-4 text-accent-foreground" />
+          </Link>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          <p>Configure communication channels and integrations</p>
+        </Tooltip.Content>
+      </Tooltip>
+      {((isMatchingLocation(FrontlinePaths.ChannelDetails) ||
         isMatchingLocation(FrontlinePaths.ChannelMembers) ||
         isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
@@ -32,14 +42,13 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) &&
         (isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
           isMatchingLocation(FrontlinePaths.ResponseDetail) ||
-          isMatchingLocation(FrontlinePaths.TicketsConfigs)) ||
-        isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`) &&
-        (
+          isMatchingLocation(FrontlinePaths.TicketsConfigs))) ||
+        (isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`) && (
           <>
             <Separator.Inline />
             <ChannelDetailBreadcrumb />
           </>
-        )}
+        ))}
       {isMatchingLocation(FrontlinePaths.ChannelMembers) && (
         <>
           <Separator.Inline />
@@ -50,23 +59,23 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
-          <>
-            <Separator.Inline />
-            <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
-              <Button variant="ghost" className="font-semibold">
-                Pipelines
-              </Button>
-            </Link>
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
+            <Button variant="ghost" className="font-semibold">
+              Pipelines
+            </Button>
+          </Link>
+        </>
+      )}
       {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
-          <>
-            <Separator.Inline />
-            <PipelineDetailBreadcrumb />
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <PipelineDetailBreadcrumb />
+        </>
+      )}
       {isMatchingLocation(FrontlinePaths.TicketsConfigs) && (
         <>
           <Separator.Inline />

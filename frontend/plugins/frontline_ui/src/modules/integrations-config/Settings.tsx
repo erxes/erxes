@@ -1,9 +1,9 @@
 import { lazy, Suspense } from 'react';
-import { Button, PageContainer } from 'erxes-ui';
+import { Button, PageContainer, Tooltip } from 'erxes-ui';
 
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { Link, Outlet, Route, Routes } from 'react-router-dom';
 import { PageHeader, PageHeaderStart } from 'ui-modules';
-import { IconMailCog } from '@tabler/icons-react';
+import { IconInfoCircle, IconMailCog } from '@tabler/icons-react';
 import { InboxPageChangeEffect } from '@/inbox/components/InboxPageChangeEffect';
 
 export const IntegrationConfigPage = lazy(() =>
@@ -13,6 +13,8 @@ export const IntegrationConfigPage = lazy(() =>
 );
 
 const IntegrationsConfigSettings = () => {
+  const helpUrl =
+    'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b2975cac46b2ff76b25b';
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -26,6 +28,16 @@ const IntegrationsConfigSettings = () => {
                       <IconMailCog className="w-4 h-4 text-accent-foreground" />
                       Integrations config
                     </Button>
+                    <Tooltip>
+                      <Tooltip.Trigger>
+                        <Link to={helpUrl} target="_blank">
+                          <IconInfoCircle className="size-4 text-accent-foreground" />
+                        </Link>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>
+                        <p>Learn more about integrations config</p>
+                      </Tooltip.Content>
+                    </Tooltip>
                   </PageHeaderStart>
                 </PageHeader>
                 <Outlet />

@@ -114,6 +114,10 @@ export const SETTINGS_PATH_DATA = (
       name: t('profile'),
       icon: IconUserCircle,
       path: SettingsPath.Profile,
+      helpUrl:
+        'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b18a5cac46b2ff76ae95',
+      shortDescription:
+        'Manage your personal account information and preferences',
     },
     {
       name: t('notification'),
@@ -131,6 +135,9 @@ export const SETTINGS_PATH_DATA = (
       name: t('general'),
       icon: IconAdjustmentsAlt,
       path: SettingsWorkspacePath.General,
+      helpUrl:
+        'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b1b55cac46b2ff76af27',
+      shortDescription: 'Configure system-wide settings and basic preferences',
     },
     {
       name: t('team-member'),
@@ -189,11 +196,17 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
         name: 'File upload',
         icon: IconFile,
         path: SettingsWorkspacePath.FileUpload,
+        helpUrl:
+          'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b22b5cac46b2ff76b0e6',
+        shortDescription: 'Configure file storage settings and restrictions',
       },
       {
         name: 'Mail config',
         icon: IconMail,
         path: SettingsWorkspacePath.MailConfig,
+        helpUrl:
+          'https://erxes.io/guides/68ef769c1a9ddbd30aec6c35/6992b2405cac46b2ff76b130',
+        shortDescription: 'Configure email integration and delivery settings',
       },
     );
   }
