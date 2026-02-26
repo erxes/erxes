@@ -6,7 +6,5 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 
 export const FormsPage = () => {
-  return (
-    <FormsList />
-  );
+  return <FormsList />;
 };

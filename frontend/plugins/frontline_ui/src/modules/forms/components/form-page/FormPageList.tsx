@@ -1,11 +1,16 @@
-import { useFormsList } from "@/forms/hooks/useFormsList";
-import { Empty, RecordTable, useMultiQueryState, useQueryState } from "erxes-ui";
-import { formColumns } from "./form-columns";
-import { ColumnDef } from "@tanstack/table-core";
-import { IForm } from "@/forms/types/formTypes";
-import { FormCommandBar } from "./command-bar/form-command-bar";
-import { IconForms } from "@tabler/icons-react";
-import { FormsCreateButton } from "./forms-create";
+import { useFormsList } from '@/forms/hooks/useFormsList';
+import {
+  Empty,
+  RecordTable,
+  useMultiQueryState,
+  useQueryState,
+} from 'erxes-ui';
+import { formColumns } from './form-columns';
+import { ColumnDef } from '@tanstack/table-core';
+import { IForm } from '@/forms/types/formTypes';
+import { FormCommandBar } from './command-bar/form-command-bar';
+import { IconForms } from '@tabler/icons-react';
+import { FormsCreateButton } from './forms-create';
 
 export const FormPageList = () => {
   const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
@@ -29,9 +34,7 @@ export const FormPageList = () => {
       <Empty>
         <Empty.Header>
           <Empty.Title>No forms found</Empty.Title>
-          <Empty.Description>
-            Create a form to get started
-          </Empty.Description>
+          <Empty.Description>Create a form to get started</Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Empty.Media>
@@ -40,7 +43,7 @@ export const FormPageList = () => {
           <FormsCreateButton variant={'outline'} />
         </Empty.Content>
       </Empty>
-    )
+    );
   }
 
   return (

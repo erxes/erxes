@@ -14,7 +14,10 @@ import { useConversationContext } from '@/inbox/conversations/conversation-detai
 import { formatDate } from 'date-fns';
 import { IconArrowBackUp, IconMailForward } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
-import { isInternalState, onlyInternalState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
+import {
+  isInternalState,
+  onlyInternalState,
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
 /* =====================
    Types
@@ -201,7 +204,6 @@ export const ImapConversationDetail: React.FC = () => {
     return <div className="p-10 text-center">No email found</div>;
 
   const { mailData, createdAt } = conversation;
-
 
   return (
     <ScrollArea className="h-full max-h-[70vh]">
