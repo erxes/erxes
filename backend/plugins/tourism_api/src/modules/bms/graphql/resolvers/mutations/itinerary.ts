@@ -19,8 +19,8 @@ const normalizePersonCost = (
   const pairs: Array<[unknown, unknown]> = Array.isArray(personCost)
     ? personCost.map((row) => [(row as any)?.persons, (row as any)?.price])
     : typeof personCost === 'object'
-    ? Object.entries(personCost as Record<string, unknown>)
-    : [];
+      ? Object.entries(personCost as Record<string, unknown>)
+      : [];
 
   return pairs
     .map(([persons, price]) => ({
