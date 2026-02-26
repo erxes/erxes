@@ -19,6 +19,7 @@ export const pmsBranchAdd = gql`
     $pipelineConfig: JSON
     $extraProductCategories: JSON
     $roomCategories: JSON
+    $websiteReservationLock: Boolean
     $time: String
     $discount: JSON
     $checkintime: String
@@ -44,6 +45,7 @@ export const pmsBranchAdd = gql`
       pipelineConfig: $pipelineConfig
       extraProductCategories: $extraProductCategories
       roomCategories: $roomCategories
+      websiteReservationLock: $websiteReservationLock
       time: $time
       discount: $discount
       checkintime: $checkintime
@@ -71,6 +73,7 @@ export const pmsBranchAdd = gql`
       pipelineConfig
       extraProductCategories
       roomCategories
+      websiteReservationLock
       time
       discount
       checkintime
@@ -100,6 +103,7 @@ export const PmsBranchEdit = gql`
     $extraProductCategories: JSON
     $roomCategories: JSON
     $discount: JSON
+    $websiteReservationLock: Boolean
     $time: String
     $checkintime: String
     $checkouttime: String
@@ -124,6 +128,7 @@ export const PmsBranchEdit = gql`
       extraProductCategories: $extraProductCategories
       roomCategories: $roomCategories
       discount: $discount
+      websiteReservationLock: $websiteReservationLock
       time: $time
       checkintime: $checkintime
       checkouttime: $checkouttime
@@ -157,6 +162,7 @@ export const PmsBranchEdit = gql`
       extraProductCategories
       roomCategories
       discount
+      websiteReservationLock
       time
       checkintime
       checkouttime

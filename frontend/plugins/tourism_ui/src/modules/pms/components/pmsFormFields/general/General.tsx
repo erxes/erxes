@@ -3,7 +3,7 @@ import { Form, Input, Textarea, InfoCard } from 'erxes-ui';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
 import CheckInCheckOutTime from './CheckInCheckOutTime';
 import Discount from './Discount';
-// import Lock from './Lock';
+import Lock from './Lock';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
 const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
@@ -56,11 +56,11 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
           </InfoCard.Content>
         </InfoCard>
 
-        {/* <InfoCard title="Lock">
+        <InfoCard title="Lock">
           <InfoCard.Content>
             <Lock control={control} />
           </InfoCard.Content>
-        </InfoCard> */}
+        </InfoCard>
       </div>
     </PmsFormFieldsLayout>
   );

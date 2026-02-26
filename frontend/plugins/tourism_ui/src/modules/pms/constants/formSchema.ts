@@ -16,7 +16,7 @@ export const PmsBranchFormSchema = z.object({
       config: z.string().optional(),
     }),
   ),
-  // websiteReservationLock: z.boolean(),
+  websiteReservationLock: z.boolean().optional(),
   time: z.string().optional(),
   paymentIds: z.array(z.string()).optional(),
   paymentTypes: z.array(z.any()).optional(),

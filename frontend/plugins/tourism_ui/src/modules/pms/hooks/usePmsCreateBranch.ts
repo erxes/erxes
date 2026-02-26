@@ -31,6 +31,7 @@ export interface PmsCreateBranchVariables {
   extraProductCategories?: string[];
   roomCategories?: string[];
   discount?: IPmsPaymentType[];
+  websiteReservationLock?: boolean;
   time?: string;
   checkintime: string;
   checkouttime: string;

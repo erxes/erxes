@@ -17,6 +17,7 @@ export interface IPmsBranch {
   pipelineConfig: any;
   extraProductCategories?: string[];
   roomCategories?: string[];
+  websiteReservationLock?: boolean;
   time?: string;
   discount?: any;
 

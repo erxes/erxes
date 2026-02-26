@@ -46,6 +46,7 @@ const PmsBranchDetail = gql`
       pipelineConfig
       extraProductCategories
       roomCategories
+      websiteReservationLock
       time
       discount
       checkintime

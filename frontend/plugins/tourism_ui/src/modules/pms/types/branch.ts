@@ -42,6 +42,7 @@ export interface IPmsBranch {
   pipelineConfig?: IPmsPipelineConfig;
   extraProductCategories?: string[];
   roomCategories?: string[];
+  websiteReservationLock?: boolean;
   discount?: IPmsPaymentType[];
   time?: string;
   checkintime: string;

@@ -64,6 +64,7 @@ export const usePmsEditBranch = ({
         pipelineConfig: data.pipelineConfig,
         extraProductCategories: data.extraProductCategories,
         roomCategories: data.roomCategories,
+        websiteReservationLock: data.websiteReservationLock,
         time: data.time,
         discount,
         checkintime: data.checkintime ?? data.checkInTime,
