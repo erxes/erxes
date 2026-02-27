@@ -47,9 +47,8 @@ const buildQuery = (args: any) => {
   return qry;
 };
 
-
 export const knowledgeBaseCpQueries: Record<string, Resolver> = {
-async cpKnowlegdeBaseTopics(
+  async cpKnowlegdeBaseTopics(
     _root,
     args: {
       page: number;
@@ -58,9 +57,9 @@ async cpKnowlegdeBaseTopics(
       brandId?: string;
       codes?: string[];
     },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ): Promise<any> {
-    console.log(clientPortal)
+    console.log(clientPortal);
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
     }
@@ -77,7 +76,7 @@ async cpKnowlegdeBaseTopics(
   async cpKnowledgeBaseTopicDetail(
     _root,
     { _id }: { _id: string },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -96,7 +95,7 @@ async cpKnowlegdeBaseTopics(
       brandId?: string;
       codes?: string[];
     },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -119,7 +118,7 @@ async cpKnowlegdeBaseTopics(
       codes?: string[];
       icon?: string;
     },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -128,22 +127,22 @@ async cpKnowlegdeBaseTopics(
     const qry: any = buildQuery(args);
 
     const categories = models.Category.find(qry).sort({
-        title: 1,
-      });
-  
-      const { page, perPage } = args;
-  
-      if (!page && !perPage) {
-        return categories;
-      }
-  
-      return defaultPaginate(categories, { page, perPage });
+      title: 1,
+    });
+
+    const { page, perPage } = args;
+
+    if (!page && !perPage) {
+      return categories;
+    }
+
+    return defaultPaginate(categories, { page, perPage });
   },
 
   async cpKnowledgeBaseCategoryDetail(
     _root,
     { _id }: { _id: string },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -172,7 +171,7 @@ async cpKnowlegdeBaseTopics(
   async cpKnowledgeBaseCategoriesTotalCount(
     _root,
     args: { topicIds?: string[]; codes?: string[] },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -194,7 +193,7 @@ async cpKnowlegdeBaseTopics(
   async cpKnowledgeBaseCategoriesGetLast(
     _root,
     _args,
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -208,9 +207,9 @@ async cpKnowlegdeBaseTopics(
       return null;
     }
 
-    return models.Category
-      .findOne({ topicId: { $in: topicIds } })
-      .sort({ createdDate: -1 });
+    return models.Category.findOne({ topicId: { $in: topicIds } }).sort({
+      createdDate: -1,
+    });
   },
 
   async cpKnowledgeBaseArticles(
@@ -227,7 +226,7 @@ async cpKnowlegdeBaseTopics(
       sortDirection?: number;
       status?: string;
     },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -268,7 +267,7 @@ async cpKnowlegdeBaseTopics(
   async cpKnowledgeBaseArticleDetail(
     _root,
     { _id }: { _id: string },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -297,7 +296,7 @@ async cpKnowlegdeBaseTopics(
   async cpKnowledgeBaseArticleDetailAndIncViewCount(
     _root,
     { _id }: { _id: string },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -321,14 +320,14 @@ async cpKnowlegdeBaseTopics(
     return models.Article.findOneAndUpdate(
       { _id },
       { $inc: { viewCount: 1 } },
-      { new: true }
+      { new: true },
     );
   },
 
   async cpKnowledgeBaseArticlesTotalCount(
     _root,
     args: any,
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
@@ -345,12 +344,11 @@ async cpKnowlegdeBaseTopics(
     }
 
     return models.Article.find(qry).countDocuments();
-  }
+  },
 };
 
-
 markResolvers(knowledgeBaseCpQueries, {
-    wrapperConfig: {
-      forClientPortal: true,
-    },
-  });
+  wrapperConfig: {
+    forClientPortal: true,
+  },
+});
