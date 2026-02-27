@@ -80,22 +80,20 @@ export class ArticleQueryBuilder extends BaseQueryBuilder {
       }).distinct('_id');
 
       if (categoryIdsFromTopics.length > 0) {
-
         if (query.categoryId?.$in) {
-              const existingCategoryIds = query.categoryId.$in as string[];
-              const narrowedCategoryIds = existingCategoryIds.filter((id) =>
-                categoryIdsFromTopics.includes(id),
-              );
-              query.categoryId = { $in: narrowedCategoryIds };
-            } else {
-              query.categoryId = { $in: categoryIdsFromTopics };
-            }
-    
-            if (!query.categoryId.$in.length) {
-              query._id = { $in: [] };
-                    }
-      } else {
+          const existingCategoryIds = query.categoryId.$in as string[];
+          const narrowedCategoryIds = existingCategoryIds.filter((id) =>
+            categoryIdsFromTopics.includes(id),
+          );
+          query.categoryId = { $in: narrowedCategoryIds };
+        } else {
+          query.categoryId = { $in: categoryIdsFromTopics };
+        }
 
+        if (!query.categoryId.$in.length) {
+          query._id = { $in: [] };
+        }
+      } else {
         if (!query.categoryId) {
           query._id = { $in: [] };
         }

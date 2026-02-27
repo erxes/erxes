@@ -1,7 +1,10 @@
-import { defaultPaginate, escapeRegExp ,markResolvers } from 'erxes-api-shared/utils';
+import {
+  defaultPaginate,
+  escapeRegExp,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-
 
 const buildQuery = (args: any) => {
   const qry: any = {};
@@ -56,7 +59,6 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
     },
     { models, clientPortal }: IContext,
   ): Promise<any> {
-
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
     }
@@ -115,45 +117,44 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
       codes?: string[];
       icon?: string;
     },
-    { models, clientPortal }: IContext
+    { models, clientPortal }: IContext,
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
     }
-  
+
     const qry: any = buildQuery(args);
- 
+
     const portalTopicIds: string[] = await models.Topic.find({
       clientPortalId: clientPortal._id,
     }).distinct('_id');
-  
+
     if (!portalTopicIds.length) {
       return args.page && args.perPage ? [] : [];
     }
 
     if (args.topicIds?.length) {
-      const scopedTopicIds = args.topicIds.filter(id =>
-        portalTopicIds.some(pid => pid.toString() === id.toString())
+      const scopedTopicIds = args.topicIds.filter((id) =>
+        portalTopicIds.some((pid) => pid.toString() === id.toString()),
       );
-  
+
       if (!scopedTopicIds.length) {
         return args.page && args.perPage ? [] : [];
       }
-  
+
       qry.topicId = { $in: scopedTopicIds };
     } else {
-
       qry.topicId = { $in: portalTopicIds };
     }
-  
+
     const categoriesQuery = models.Category.find(qry).sort({ title: 1 });
-  
+
     const { page, perPage } = args;
-  
+
     if (!page && !perPage) {
       return categoriesQuery;
     }
-  
+
     return defaultPaginate(categoriesQuery, { page, perPage });
   },
 
@@ -274,9 +275,12 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
     }).distinct('_id');
 
     if (!topicIds.length) {
-          return defaultPaginate(models.Article.find({ _id: { $in: [] } }), pageArgs);
-        }
-        selector.topicId = { $in: topicIds };
+      return defaultPaginate(
+        models.Article.find({ _id: { $in: [] } }),
+        pageArgs,
+      );
+    }
+    selector.topicId = { $in: topicIds };
 
     const articles = models.Article.find(selector).sort(sort);
 
@@ -359,9 +363,9 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
     }).distinct('_id');
 
     if (!topicIds.length) {
-          return 0;
-        }
-        qry.topicId = { $in: topicIds };
+      return 0;
+    }
+    qry.topicId = { $in: topicIds };
     return models.Article.find(qry).countDocuments();
   },
 };
