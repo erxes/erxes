@@ -1,7 +1,7 @@
 import React from 'react';
 import { IconKey } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { PageHeader, PageHeaderStart } from 'ui-modules';
 import { SettingsPath } from '@/types/paths/SettingsPath';
 import { useTranslation } from 'react-i18next';

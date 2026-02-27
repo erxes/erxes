@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { TeamMembersPath } from '../constants/teamMemberRoutes';
 
 const TeamMemberPage = lazy(() =>

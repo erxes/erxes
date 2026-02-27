@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { TeamMembersPath } from '../../constants/teamMemberRoutes';
 import { InviteTeamMember } from '@/settings/team-member/components/invite/InviteTeamMember';
 

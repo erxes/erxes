@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { SETTINGS_ROUTES } from '../constants/structure-routes';
 import { BranchesTopbar } from './branches/BranchesTopbar';
 import { DepartmentsTopbar } from './departments/DepartmentsTopbar';

@@ -3,7 +3,7 @@ import { Breadcrumb, Button, Tabs, Toggle, ToggleGroup } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { TeamMembersPath } from '../constants/teamMemberRoutes';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 export function TeamMemberSettingsBreadcrumb() {
   const { pathname } = useLocation();

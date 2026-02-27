@@ -1,6 +1,6 @@
 import { ProductsPageEffect } from '@/products/ProductsPageEffect';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Route, Routes } from 'react-router-dom';
 
 const ProductsIndexPage = lazy(() =>
   import('~/pages/products/ProductsIndexPage').then((module) => ({
