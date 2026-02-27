@@ -21,7 +21,12 @@ interface GetFavoritesResponse {
   getFavoritesByCurrentUser: Favorite[];
 }
 
-function matchesModulePath(urlPath: string, modulePath: string): boolean {
+function matchesModulePath(
+  urlPathWithQuery: string,
+  modulePath: string,
+): boolean {
+  const urlPath = urlPathWithQuery.split('?')[0];
+
   if (urlPath === modulePath) return true;
 
   if (!modulePath.includes(':')) {
@@ -55,20 +60,22 @@ export function useFavorites(): FavoriteModule[] {
   const sortedModules = useMemo(() => {
     if (!modules) return [];
 
-    return [...modules].sort((a, b) => {
-      const aPartsCount = a.path.split('/').length;
-      const bPartsCount = b.path.split('/').length;
+    return [...modules].sort((moduleA, moduleB) => {
+      const aPartsCount = (moduleA.path || '').split('/').length;
+      const bPartsCount = (moduleB.path || '').split('/').length;
 
       if (bPartsCount !== aPartsCount) return bPartsCount - aPartsCount;
 
-      return getDynamicParamCount(a.path) - getDynamicParamCount(b.path);
+      return (
+        getDynamicParamCount(moduleA.path) - getDynamicParamCount(moduleB.path)
+      );
     });
   }, [modules]);
   return useMemo(() => {
     if (pluginsLoading || !sortedModules.length) return [];
 
     return favorites.flatMap((favorite) => {
-      if (favorite.type !== 'module') return [];
+      if (favorite.type !== 'module' && favorite.type !== 'submenu') return [];
 
       const normalizedPath = favorite.path.replace(/^\//, '');
 
