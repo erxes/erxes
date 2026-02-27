@@ -115,25 +115,46 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
       codes?: string[];
       icon?: string;
     },
-    { models, clientPortal }: IContext,
+    { models, clientPortal }: IContext
   ) {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
     }
   
     const qry: any = buildQuery(args);
+ 
+    const portalTopicIds: string[] = await models.Topic.find({
+      clientPortalId: clientPortal._id,
+    }).distinct('_id');
+  
+    if (!portalTopicIds.length) {
+      return args.page && args.perPage ? [] : [];
+    }
 
-    const categories = models.Category.find(qry).sort({
-        title: 1,
-      });
+    if (args.topicIds?.length) {
+      const scopedTopicIds = args.topicIds.filter(id =>
+        portalTopicIds.some(pid => pid.toString() === id.toString())
+      );
   
-      const { page, perPage } = args;
-  
-      if (!page && !perPage) {
-        return categories;
+      if (!scopedTopicIds.length) {
+        return args.page && args.perPage ? [] : [];
       }
   
-      return defaultPaginate(categories, { page, perPage });
+      qry.topicId = { $in: scopedTopicIds };
+    } else {
+
+      qry.topicId = { $in: portalTopicIds };
+    }
+  
+    const categoriesQuery = models.Category.find(qry).sort({ title: 1 });
+  
+    const { page, perPage } = args;
+  
+    if (!page && !perPage) {
+      return categoriesQuery;
+    }
+  
+    return defaultPaginate(categoriesQuery, { page, perPage });
   },
 
   async cpKnowledgeBaseCategoryDetail(
@@ -252,9 +273,10 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
       clientPortalId: clientPortal._id,
     }).distinct('_id');
 
-    if (topicIds.length > 0) {
-      selector.topicId = { $in: topicIds };
-    }
+    if (!topicIds.length) {
+          return defaultPaginate(models.Article.find({ _id: { $in: [] } }), pageArgs);
+        }
+        selector.topicId = { $in: topicIds };
 
     const articles = models.Article.find(selector).sort(sort);
 
@@ -336,10 +358,10 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
       clientPortalId: clientPortal._id,
     }).distinct('_id');
 
-    if (topicIds.length > 0) {
-      qry.topicId = { $in: topicIds };
-    }
-
+    if (!topicIds.length) {
+          return 0;
+        }
+        qry.topicId = { $in: topicIds };
     return models.Article.find(qry).countDocuments();
   },
 };
