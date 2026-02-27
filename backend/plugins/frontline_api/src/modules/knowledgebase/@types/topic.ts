@@ -2,6 +2,7 @@ import { Document } from 'mongoose';
 import { ICommonFields } from '@/knowledgebase/@types/common'
 
 export interface ITopic {
+    clientPortalId?: string;
     title?: string;
     code?: string;
     description?: string;

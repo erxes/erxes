@@ -4,6 +4,7 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 export const topicSchema = new Schema(
   {
     _id: mongooseStringRandomId,
+    clientPortalId: {type: String },
     description: { type: String }, 
     brandId: { type: String }, 
     categoryIds: { type: [String] }, 
@@ -24,4 +25,4 @@ export const topicSchema = new Schema(
   },
 );
 
-topicSchema.index({ code: 1 }, { unique: true, sparse: true });
+topicSchema.index({ code: 1, clientPortalId: 1 }, { unique: true, sparse: true });
