@@ -17,6 +17,7 @@ import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
 import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
 import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
+import { knowledgeBaseCpQueries } from '~/modules/knowledgebase/graphql/resolvers/queries/knowledgeBaseCpQueries';
 
 export const queries = {
   ...channelQueries,
@@ -38,4 +39,5 @@ export const queries = {
   ...reportInboxQueries,
   ...reportTicketQueries,
   ...knowledgeBaseQueries,
+  ...knowledgeBaseCpQueries,
 };
