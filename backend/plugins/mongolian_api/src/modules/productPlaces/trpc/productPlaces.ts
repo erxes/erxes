@@ -23,4 +23,28 @@ export const productPlacesTrpcRouter = t.router({
       const { models, subdomain } = ctx;
       return await beforeResolverHandlers(models, subdomain, input);
     }),
+
+  afterDealStageChanged: t.procedure
+    .input(
+      z.object({
+        deal: z.any(),
+        sourceStageId: z.string().nullable(),
+        userId: z.string(), // Pass userId explicitly
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+       console.log('🔥 afterDealStageChanged procedure called', input);
+      const { deal, sourceStageId, userId } = input;
+      const { subdomain } = ctx;
+
+      await afterMutationHandlers(subdomain, {
+        type: 'sales:deal',
+        action: 'update',
+        updatedDocument: deal,
+        object: { stageId: sourceStageId },
+        user: userId,
+      });
+
+      return { success: true };
+    }),
 });

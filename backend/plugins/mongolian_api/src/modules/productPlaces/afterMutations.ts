@@ -11,24 +11,29 @@ export default {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
+  console.log('🔥 afterMutationHandlers RUNNING', JSON.stringify(params, null, 2));
   const { type, action, user } = params;
 
   if (type !== 'sales:deal' || action !== 'update') {
+    console.log('🔥 afterMutationHandlers: type/action mismatch, returning');
     return;
   }
 
   const deal = params.updatedDocument;
   const oldDeal = params.object;
 
-  if (!deal.stageId || deal.stageId === oldDeal.stageId) {
-    return;
-  }
+  if (!deal.stageId) {
+    console.log('🔥 afterMutationHandlers: deal has no stageId, returning');
+  return;
+}
 
   if (!deal.productsData?.length) {
+    console.log('🔥 afterMutationHandlers: no productsData, returning');
     return;
   }
 
   const destinationStageId = deal.stageId;
+    console.log('🔥 afterMutationHandlers destinationStageId', destinationStageId);
 
   const [splitConfig, placeConfig, printConfig] = await getMnConfigs(
     subdomain,
@@ -39,6 +44,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
     ],
     destinationStageId,
   );
+  console.log('🔥 afterMutationHandlers configs', {
+    splitConfig: splitConfig ? 'found' : 'not found',
+    placeConfig: placeConfig ? 'found' : 'not found',
+    printConfig: printConfig ? 'found' : 'not found',
+  });
 
   if (!splitConfig && !placeConfig && !printConfig) {
     return;

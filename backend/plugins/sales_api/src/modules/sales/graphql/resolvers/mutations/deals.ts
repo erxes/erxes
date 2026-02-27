@@ -17,6 +17,7 @@ import {
 } from '../utils';
 import { addDeal, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const dealMutations = {
   /**
@@ -53,7 +54,7 @@ export const dealMutations = {
       destinationStageId: string;
       sourceStageId: string;
     },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const { itemId, aboveItemId, sourceStageId, destinationStageId } = doc;
 
@@ -91,6 +92,18 @@ export const dealMutations = {
     }
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
+     await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'productPlaces',
+    action: 'afterDealStageChanged',
+    method: 'mutation',
+    input: {
+      deal: updatedItem,
+      sourceStageId,
+      userId: user._id,
+    },
+  });
 
     await itemMover(models, user._id, item, destinationStageId);
     await subscriptionWrapper(models, {

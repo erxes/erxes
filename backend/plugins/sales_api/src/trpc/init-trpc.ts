@@ -12,6 +12,24 @@ export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
+const dealsNamedRouter = t.router({
+  deals: t.router({
+    updateOne: t.procedure
+      .input(
+        z.object({
+          selector: z.any(),
+          modifier: z.any(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { selector, modifier } = input;
+        const deal = await models.Deals.findOne(selector);
+        if (!deal) throw new Error('Deal not found');
+        return await models.Deals.updateDeal(deal._id, modifier.$set);
+      }),
+  }),
+});
 export const appRouter = t.mergeRouters(
   dealTrpcRouter,
   posTrpcRouter,
@@ -38,6 +56,7 @@ export const appRouter = t.mergeRouters(
         }),
     }),
   }),
+  dealsNamedRouter,
 );
 
 export type AppRouter = typeof appRouter;
