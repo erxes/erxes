@@ -193,7 +193,7 @@ export const ProductForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-2xl">
+      <Dialog.Content className="max-h-[90vh] overflow-y-auto">
         <Dialog.Header>
           <Dialog.Title>
             {product ? 'Edit Product' : 'Create New Product'}
@@ -978,8 +978,8 @@ export const ProductForm = ({
               {creating || updating
                 ? 'Saving...'
                 : product
-                ? 'Update'
-                : 'Create'}
+                  ? 'Update'
+                  : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>
