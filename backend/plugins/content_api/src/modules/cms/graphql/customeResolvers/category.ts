@@ -5,7 +5,6 @@ import { IPostCategoryDocument } from '@/cms/@types/posts';
 
 const PostCategory = {
   async parent(category: IPostCategoryDocument, _params, { models }: IContext) {
-
     if (!category.parentId || !category.parentId.length) {
       return null;
     }
@@ -15,7 +14,7 @@ const PostCategory = {
   async customFieldsMap(
     category: IPostCategoryDocument,
     _params,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const fieldGroups = await models.CustomFieldGroups.find({
       enabledCategoryIds: category._id,
@@ -24,7 +23,7 @@ const PostCategory = {
     return await buildCustomFieldsMap(
       subdomain,
       fieldGroups,
-      category.customFieldsData
+      category.customFieldsData,
     );
   },
 };

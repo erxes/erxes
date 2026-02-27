@@ -7,11 +7,10 @@ export const getConfig = async (
 ) => {
   const configs = await sendTRPCMessage({
     subdomain,
-
     pluginName: 'core',
     method: 'query',
-    module: 'core',
-    action: 'getConfigs',
+    module: 'fields',
+    action: 'findOne',
     input: {},
     defaultValue: [],
   });
@@ -34,11 +33,10 @@ export const buildCustomFieldsMap = async (
     for (const fieldGroup of fieldGroups) {
       const fields = await sendTRPCMessage({
         subdomain,
-
         pluginName: 'core',
         method: 'query',
-        module: 'core',
-        action: 'fields.find',
+        module: 'fields',
+        action: 'find',
         input: { query: { groupId: fieldGroup._id } },
       });
 
@@ -69,8 +67,8 @@ export const customFieldsDataByFieldCode = async (
 
     pluginName: 'core',
     method: 'query',
-    module: 'core',
-    action: 'fields.find',
+    module: 'fields',
+    action: 'find',
     input: { query: { _id: { $in: fieldIds } } },
   });
 
