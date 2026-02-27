@@ -6,7 +6,7 @@ import { PmsBranchFormType } from '@/pms/constants/formSchema';
 const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'discounts',
+    name: 'discount',
   });
 
   return (
@@ -17,11 +17,11 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
       </Button>
 
       {fields.map((field, index) => (
-        <div className="flex gap-6 items-end">
-          <div className="w-full grid grid-cols-3 gap-6">
+        <div key={field.id} className="flex gap-4 items-end">
+          <div className="grid grid-cols-3 gap-4 w-full">
             <Form.Field
               control={control}
-              name={`discounts.${index}.type`}
+              name={`discount.${index}.type`}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Type</Form.Label>
@@ -34,7 +34,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
 
             <Form.Field
               control={control}
-              name={`discounts.${index}.title`}
+              name={`discount.${index}.title`}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Title</Form.Label>
@@ -47,7 +47,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
 
             <Form.Field
               control={control}
-              name={`discounts.${index}.config`}
+              name={`discount.${index}.config`}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Config</Form.Label>
@@ -60,9 +60,9 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
           </div>
 
           <Button
-            variant={'destructive'}
-            size={'icon'}
-            className="h-8 w-8"
+            variant="destructive"
+            size="icon"
+            className="w-8 h-8"
             onClick={() => remove(index)}
           >
             <IconTrash />

@@ -35,6 +35,14 @@ const groupDay = new Schema(
   { _id: false },
 );
 
+const personCostSchema = new Schema(
+  {
+    persons: { type: String, label: 'persons' },
+    price: { type: Number, label: 'price' },
+  },
+  { _id: false },
+);
+
 export const itinerarySchema = new Schema({
   _id: mongooseStringRandomId,
   createdAt: { type: Date, label: 'Created at' },
@@ -72,6 +80,6 @@ export const itinerarySchema = new Schema({
   guideCostExtra: { type: Number, label: 'cost', optional: true },
   foodCost: { type: Number, label: 'cost', optional: true },
   gasCost: { type: Number, label: 'cost', optional: true },
-  personCost: { type: Object, label: 'cost', optional: true },
+  personCost: { type: [personCostSchema], label: 'cost', optional: true },
   extra: { type: Object, label: 'extra', optional: true },
 });

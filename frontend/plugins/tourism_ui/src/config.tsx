@@ -10,6 +10,7 @@ const TourismNavigation = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'tourism',
+  path: 'tourism',
   navigationGroup: {
     name: 'tourism',
     icon: IconDirections,
@@ -24,7 +25,6 @@ export const CONFIG: IUIConfig = {
       name: 'tourism',
       icon: IconBox,
       path: 'tourism',
-      hasSettings: true,
       hasRelationWidget: true,
     },
   ],

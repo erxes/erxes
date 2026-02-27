@@ -16,6 +16,12 @@ export interface ElementItem {
   elementId: string;
   orderOfDay: number;
 }
+
+export interface PersonCostItem {
+  persons: string;
+  price: number;
+}
+
 export interface IItinerary {
   name: string;
   content: string;
@@ -27,6 +33,7 @@ export interface IItinerary {
   status: string;
   color?: string;
   branchId?: string;
+  personCost?: PersonCostItem[];
 }
 
 export interface IItineraryDocument extends IItinerary, Document {

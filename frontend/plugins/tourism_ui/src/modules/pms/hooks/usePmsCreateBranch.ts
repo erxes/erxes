@@ -1,12 +1,12 @@
 import { useMutation } from '@apollo/client';
-import { pmsMutations } from '../graphql/mutation';
+import { pmsMutations } from '@/pms/graphql/mutation';
+import { pmsQueries } from '@/pms/graphql/queries';
 import {
   IPmsBranch,
-  IPmsDiscount,
   IPmsPaymentType,
   IPmsPipelineConfig,
   IPmsUiOptions,
-} from '../types/branch';
+} from '@/pms/types/branch';
 
 interface PmsCreateBranchResponse {
   pmsBranchAdd: IPmsBranch;
@@ -15,6 +15,8 @@ interface PmsCreateBranchResponse {
 export interface PmsCreateBranchVariables {
   name: string;
   description?: string;
+  departmentId?: string;
+  token?: string;
   erxesAppToken?: string;
   user1Ids?: string[];
   user2Ids?: string[];
@@ -28,7 +30,8 @@ export interface PmsCreateBranchVariables {
   pipelineConfig?: IPmsPipelineConfig;
   extraProductCategories?: string[];
   roomCategories?: string[];
-  discount?: IPmsDiscount[];
+  discount?: IPmsPaymentType[];
+  websiteReservationLock?: boolean;
   time?: string;
   checkintime: string;
   checkouttime: string;
@@ -36,11 +39,30 @@ export interface PmsCreateBranchVariables {
   checkoutamount?: number;
 }
 
-export const usePmsCreateBranch = () => {
+interface UsePmsCreateBranchParams {
+  page?: number;
+  perPage?: number;
+}
+
+export const usePmsCreateBranch = ({
+  page = 1,
+  perPage = 50,
+}: UsePmsCreateBranchParams = {}) => {
   const [createPmsBranchMutation, { loading, error }] = useMutation<
     PmsCreateBranchResponse,
     PmsCreateBranchVariables
-  >(pmsMutations.PmsBranchAdd);
+  >(pmsMutations.pmsBranchAdd, {
+    refetchQueries: [
+      {
+        query: pmsQueries.PmsBranchList,
+        variables: {
+          page,
+          perPage,
+        },
+      },
+    ],
+    awaitRefetchQueries: true,
+  });
 
   const createPmsBranch = (options: {
     variables: PmsCreateBranchVariables;

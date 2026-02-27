@@ -17,6 +17,7 @@ const commonFields = `
   pipelineConfig: JSON
   extraProductCategories: JSON
   roomCategories: JSON
+  websiteReservationLock: Boolean
   time: String
   discount: JSON
   checkintime: String

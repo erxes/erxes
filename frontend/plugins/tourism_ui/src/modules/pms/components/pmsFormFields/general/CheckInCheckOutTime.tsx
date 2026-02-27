@@ -9,7 +9,7 @@ const CheckInCheckOutTime = ({
   control: Control<PmsBranchFormType>;
 }) => {
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-2">
       <Form.Field
         control={control}
         name="checkInTime"
@@ -42,13 +42,20 @@ const CheckInCheckOutTime = ({
         name="checkInAmount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Check in amount</Form.Label>
+            <Form.Label>
+              Check in amount <span className="text-destructive">*</span>
+            </Form.Label>
             <Form.Control>
               <Input
                 {...field}
                 placeholder="Check in amount"
                 type="number"
                 min={0}
+                value={field.value ?? ''}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  field.onChange(next === '' ? undefined : Number(next));
+                }}
               />
             </Form.Control>
             <Form.Message className="text-destructive" />
@@ -88,13 +95,20 @@ const CheckInCheckOutTime = ({
         name="checkOutAmount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Check out amount</Form.Label>
+            <Form.Label>
+              Check out amount <span className="text-destructive">*</span>
+            </Form.Label>
             <Form.Control>
               <Input
                 {...field}
                 placeholder="Check out amount"
                 type="number"
                 min={0}
+                value={field.value ?? ''}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  field.onChange(next === '' ? undefined : Number(next));
+                }}
               />
             </Form.Control>
             <Form.Message className="text-destructive" />
