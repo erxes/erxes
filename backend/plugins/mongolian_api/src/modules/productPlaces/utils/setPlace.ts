@@ -6,7 +6,7 @@ export const setPlace = async (
   dealId,
   productsData,
   config,
-  productById
+  productById,
 ) => {
   console.log('🔥 setPlace RUNNING', {
     dealId,
@@ -21,31 +21,34 @@ export const setPlace = async (
   const pdatas = productsData;
 
   const conditions = config.conditions.filter(
-    c => c.branchId || c.departmentId
+    (c) => c.branchId || c.departmentId,
   );
-  console.log('🔥 setPlace: filtered conditions with branch/department', conditions.map(c => ({
-    branchId: c.branchId,
-    departmentId: c.departmentId,
-    productCategoryIds: c.productCategoryIds,
-    productTagIds: c.productTagIds,
-    excludeCategoryIds: c.excludeCategoryIds,
-    excludeTagIds: c.excludeTagIds,
-  })));
+  console.log(
+    '🔥 setPlace: filtered conditions with branch/department',
+    conditions.map((c) => ({
+      branchId: c.branchId,
+      departmentId: c.departmentId,
+      productCategoryIds: c.productCategoryIds,
+      productTagIds: c.productTagIds,
+      excludeCategoryIds: c.excludeCategoryIds,
+      excludeTagIds: c.excludeTagIds,
+    })),
+  );
   for (const condition of conditions) {
     if (condition.productCategoryIds?.length) {
       const includeCatIds = await getChildCategories(
         subdomain,
-        condition.productCategoryIds
+        condition.productCategoryIds,
       );
 
       const excludeCatIds = await getChildCategories(
         subdomain,
-        condition.excludeCategoryIds ?? []
+        condition.excludeCategoryIds ?? [],
       );
 
       condition.calcedCatIds = includeCatIds.filter(
-        c => !excludeCatIds.includes(c)
-      ); 
+        (c) => !excludeCatIds.includes(c),
+      );
       console.log('🔥 setPlace condition category calc', {
         conditionId: condition.id,
         includeCatIds,
@@ -59,16 +62,16 @@ export const setPlace = async (
     if (condition.productTagIds?.length) {
       const includeTagIds = await getChildTags(
         subdomain,
-        condition.productTagIds
+        condition.productTagIds,
       );
 
       const excludeTagIds = await getChildTags(
         subdomain,
-        condition.excludeTagIds ?? []
+        condition.excludeTagIds ?? [],
       );
 
       condition.calcedTagIds = includeTagIds.filter(
-        c => !excludeTagIds.includes(c)
+        (c) => !excludeTagIds.includes(c),
       );
       console.log('🔥 setPlace condition tag calc', {
         conditionId: condition.id,
@@ -81,63 +84,69 @@ export const setPlace = async (
     }
   }
 
-  console.log('🔥 setPlace conditions:', conditions.map(c => ({
-  branchId: c.branchId,
-  departmentId: c.departmentId,
-  catIds: c.calcedCatIds,
-  tagIds: c.calcedTagIds
-})));
+  console.log(
+    '🔥 setPlace conditions:',
+    conditions.map((c) => ({
+      branchId: c.branchId,
+      departmentId: c.departmentId,
+      catIds: c.calcedCatIds,
+      tagIds: c.calcedTagIds,
+    })),
+  );
 
-for (const pdata of pdatas) {
-  console.log(`🔥 setPlace checking pdata ${pdata._id}`, {
+  for (const pdata of pdatas) {
+    console.log(`🔥 setPlace checking pdata ${pdata._id}`, {
       productId: pdata.productId,
       currentBranchId: pdata.branchId,
       currentDepartmentId: pdata.departmentId,
     });
-  for (const condition of conditions) {
-    const matches = await checkCondition(subdomain, pdata, condition, productById);
-     console.log(`🔥 setPlace condition match? ${matches}`, {
+    for (const condition of conditions) {
+      const matches = await checkCondition(
+        subdomain,
+        pdata,
+        condition,
+        productById,
+      );
+      console.log(`🔥 setPlace condition match? ${matches}`, {
         conditionId: condition.id,
         branchId: condition.branchId,
         departmentId: condition.departmentId,
         productId: pdata.productId,
       });
-    if (matches) {
-      pdata.branchId = condition.branchId;
-      pdata.departmentId = condition.departmentId;
-      break;
+      if (matches) {
+        pdata.branchId = condition.branchId;
+        pdata.departmentId = condition.departmentId;
+        break;
+      }
     }
   }
-}
 
-  const branchIds = [
-  ...new Set(pdatas.map(p => p.branchId).filter(Boolean)),
-];
+  const branchIds = [...new Set(pdatas.map((p) => p.branchId).filter(Boolean))];
 
-const departmentIds = [
-  ...new Set(pdatas.map(p => p.departmentId).filter(Boolean)),
-];
+  const departmentIds = [
+    ...new Set(pdatas.map((p) => p.departmentId).filter(Boolean)),
+  ];
   console.log('🔥 setPlace aggregated branchIds', branchIds);
   console.log('🔥 setPlace aggregated departmentIds', departmentIds);
 
-await sendTRPCMessage({
-  subdomain,
-  pluginName: 'sales',
-  module: 'deals',
-  action: 'updateOne',
-  method: 'mutation',
-  input: {
-    selector: { _id: dealId },
-    modifier: {
-      $set: {
-        productsData: pdatas,
-        branchIds,
-        departmentIds,
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'sales',
+    module: 'deals',
+    action: 'updateOne',
+    method: 'mutation',
+    input: {
+      selector: { _id: dealId },
+      modifier: {
+        $set: {
+          productsData: pdatas,
+          branchIds,
+          departmentIds,
+        },
       },
     },
-  },
-}); 
-   console.log('🔥 setPlace updateOne sent for deal', dealId);
+  });
+  console.log('🔥 setPlace updateOne sent for deal', dealId);
 
   return pdatas;
 };

@@ -92,18 +92,18 @@ export const dealMutations = {
     }
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
-     await sendTRPCMessage({
-    subdomain,
-    pluginName: 'mongolian',
-    module: 'productPlaces',
-    action: 'afterDealStageChanged',
-    method: 'mutation',
-    input: {
-      deal: updatedItem,
-      sourceStageId,
-      userId: user._id,
-    },
-  });
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'mongolian',
+      module: 'productPlaces',
+      action: 'afterDealStageChanged',
+      method: 'mutation',
+      input: {
+        deal: updatedItem,
+        sourceStageId,
+        userId: user._id,
+      },
+    });
 
     await itemMover(models, user._id, item, destinationStageId);
     await subscriptionWrapper(models, {
@@ -119,11 +119,7 @@ export const dealMutations = {
   /**
    * Remove deal
    */
-  async dealsRemove(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  async dealsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
     const item = await models.Deals.findOne({ _id });
 
     if (!item) {
@@ -202,7 +198,9 @@ export const dealMutations = {
     const customerIds = await getCustomerIds(subdomain, _id);
 
     await createRelations(subdomain, {
-      dealId: clone._id, companyIds, customerIds
+      dealId: clone._id,
+      companyIds,
+      customerIds,
     });
 
     await copyChecklists(models, {
@@ -249,7 +247,7 @@ export const dealMutations = {
           oldDeal: { ...item, status: SALES_STATUSES.ARCHIVED },
         },
       });
-    })
+    });
 
     return 'ok';
   },
@@ -300,7 +298,7 @@ export const dealMutations = {
     // undefenid or null then true
     const tickUsed = !(stage.defaultTick === false);
     const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed } as IProductData),
+      (doc) => ({ ...doc, tickUsed }) as IProductData,
     );
     const productsData: IProductData[] = (deal.productsData || []).concat(
       addDocs,
@@ -373,8 +371,8 @@ export const dealMutations = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])

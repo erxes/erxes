@@ -51,8 +51,8 @@ export const afterProcess: AfterProcessConfigs = {
     }
 
     // PRODUCT PLACES
-if (productPlacesMutationNames.includes(mutationName)) {
-   console.log('🔥 afterProcess: productPlaces condition met', {
+    if (productPlacesMutationNames.includes(mutationName)) {
+      console.log('🔥 afterProcess: productPlaces condition met', {
         mutationName,
         sourceStageId,
         destinationStageId,
@@ -60,17 +60,16 @@ if (productPlacesMutationNames.includes(mutationName)) {
         itemId,
       });
 
+      await productPlacesAfterMutation(ctx.subdomain, {
+        type: 'sales:deal',
+        action: 'update',
+        updatedDocument: result,
 
-  await productPlacesAfterMutation(ctx.subdomain, {
-    type: 'sales:deal',
-    action: 'update',
-    updatedDocument: result,
-
-    object: {
-      stageId: sourceStageId,
-    },
-    user: userId,
-  });
-}
+        object: {
+          stageId: sourceStageId,
+        },
+        user: userId,
+      });
+    }
   },
 };

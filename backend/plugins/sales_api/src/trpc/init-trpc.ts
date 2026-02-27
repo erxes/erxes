@@ -19,7 +19,7 @@ const dealsNamedRouter = t.router({
         z.object({
           selector: z.any(),
           modifier: z.any(),
-        })
+        }),
       )
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;

@@ -3,7 +3,7 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { ebarimtTrpcRouter } from '../modules/ebarimt/trpc';
 import { productPlacesTrpcRouter } from '~/modules/productPlaces/trpc/productPlaces';
-import { configsTrpcRouter } from '~/modules/configs/trpc/configs'; 
+import { configsTrpcRouter } from '~/modules/configs/trpc/configs';
 
 const t = initTRPC.context<ITRPCContext>().create();
 

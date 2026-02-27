@@ -11,7 +11,10 @@ export default {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  console.log('🔥 afterMutationHandlers RUNNING', JSON.stringify(params, null, 2));
+  console.log(
+    '🔥 afterMutationHandlers RUNNING',
+    JSON.stringify(params, null, 2),
+  );
   const { type, action, user } = params;
 
   if (type !== 'sales:deal' || action !== 'update') {
@@ -24,8 +27,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   if (!deal.stageId) {
     console.log('🔥 afterMutationHandlers: deal has no stageId, returning');
-  return;
-}
+    return;
+  }
 
   if (!deal.productsData?.length) {
     console.log('🔥 afterMutationHandlers: no productsData, returning');
@@ -33,7 +36,10 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 
   const destinationStageId = deal.stageId;
-    console.log('🔥 afterMutationHandlers destinationStageId', destinationStageId);
+  console.log(
+    '🔥 afterMutationHandlers destinationStageId',
+    destinationStageId,
+  );
 
   const [splitConfig, placeConfig, printConfig] = await getMnConfigs(
     subdomain,

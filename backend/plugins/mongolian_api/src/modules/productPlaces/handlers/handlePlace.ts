@@ -1,7 +1,6 @@
 import { setPlace } from '../utils/setPlace';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-
 export const handlePlace = async (
   subdomain,
   deal,
@@ -32,17 +31,25 @@ export const handlePlace = async (
   for (const product of products) {
     productById[product._id] = product;
   }
-   console.log('🔥 handlePlace products fetched', {
+  console.log('🔥 handlePlace products fetched', {
     productIds: Object.keys(productById),
   });
 
-
-  const result = await setPlace(subdomain, deal._id, productsData, placeConfig, productById);
-  console.log('🔥 handlePlace result productsData', result.map(p => ({
-    _id: p._id,
-    branchId: p.branchId,
-    departmentId: p.departmentId,
-  })));
+  const result = await setPlace(
+    subdomain,
+    deal._id,
+    productsData,
+    placeConfig,
+    productById,
+  );
+  console.log(
+    '🔥 handlePlace result productsData',
+    result.map((p) => ({
+      _id: p._id,
+      branchId: p.branchId,
+      departmentId: p.departmentId,
+    })),
+  );
 
   return { productsData: result, productById };
 };
