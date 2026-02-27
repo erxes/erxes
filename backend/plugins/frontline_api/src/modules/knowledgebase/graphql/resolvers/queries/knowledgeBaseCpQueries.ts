@@ -1,10 +1,7 @@
-import { defaultPaginate, markResolvers } from 'erxes-api-shared/utils';
+import { defaultPaginate, escapeRegExp ,markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 const buildQuery = (args: any) => {
   const qry: any = {};
@@ -59,7 +56,7 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
     },
     { models, clientPortal }: IContext,
   ): Promise<any> {
-    console.log(clientPortal);
+
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
     }
@@ -123,20 +120,20 @@ export const knowledgeBaseCpQueries: Record<string, Resolver> = {
     if (!clientPortal?._id) {
       throw new Error('Client portal is required');
     }
-
+  
     const qry: any = buildQuery(args);
 
     const categories = models.Category.find(qry).sort({
-      title: 1,
-    });
-
-    const { page, perPage } = args;
-
-    if (!page && !perPage) {
-      return categories;
-    }
-
-    return defaultPaginate(categories, { page, perPage });
+        title: 1,
+      });
+  
+      const { page, perPage } = args;
+  
+      if (!page && !perPage) {
+        return categories;
+      }
+  
+      return defaultPaginate(categories, { page, perPage });
   },
 
   async cpKnowledgeBaseCategoryDetail(

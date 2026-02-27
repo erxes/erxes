@@ -22,9 +22,6 @@ export class BaseQueryBuilder {
     this.models = models;
   }
 
-  /**
-   * Add search functionality to query
-   */
   protected addSearchQuery(
     query: any,
     searchValue: string,
@@ -37,18 +34,12 @@ export class BaseQueryBuilder {
     query.$or = searchFields.map((field) => ({ [field]: regex }));
   }
 
-  /**
-   * Add array field filter to query
-   */
   protected addArrayFilter(query: any, field: string, values: string[]): void {
     if (values && values.length > 0) {
       query[field] = { $in: values };
     }
   }
 
-  /**
-   * Add simple field filter to query
-   */
   protected addFieldFilter(query: any, field: string, value: any): void {
     if (value !== undefined && value !== null) {
       query[field] = value;
@@ -60,8 +51,6 @@ export class ArticleQueryBuilder extends BaseQueryBuilder {
   async buildQuery(args: QueryBuilderArgs): Promise<any> {
     const query: any = {};
 
-    // Handle array filters - convert plural keys to singular query fields
-    // Note: topicIds is handled separately below
     const arrayFields = ['codes', 'categoryIds', 'articleIds'];
     arrayFields.forEach((field) => {
       if (args[field] && args[field].length > 0) {
@@ -70,7 +59,6 @@ export class ArticleQueryBuilder extends BaseQueryBuilder {
       }
     });
 
-    // Add search functionality
     if (args.searchValue) {
       this.addSearchQuery(query, args.searchValue, [
         'title',
@@ -79,7 +67,6 @@ export class ArticleQueryBuilder extends BaseQueryBuilder {
       ]);
     }
 
-    // Add simple filters
     this.addFieldFilter(query, 'brandId', args.brandId);
     this.addFieldFilter(query, 'status', args.status);
 
@@ -87,25 +74,28 @@ export class ArticleQueryBuilder extends BaseQueryBuilder {
       query._id = { $in: args.ids };
     }
 
-    // Handle topicIds - convert to categoryIds
     if (args.topicIds && args.topicIds.length > 0) {
       const categoryIdsFromTopics = await this.models.Category.find({
         topicId: { $in: args.topicIds },
       }).distinct('_id');
 
       if (categoryIdsFromTopics.length > 0) {
-        // Merge with existing categoryIds if any
-        if (query.categoryId && query.categoryId.$in) {
-          const existingCategoryIds = query.categoryId.$in;
-          const mergedCategoryIds = [
-            ...new Set([...existingCategoryIds, ...categoryIdsFromTopics]),
-          ];
-          query.categoryId = { $in: mergedCategoryIds };
-        } else {
-          query.categoryId = { $in: categoryIdsFromTopics };
-        }
+
+        if (query.categoryId?.$in) {
+              const existingCategoryIds = query.categoryId.$in as string[];
+              const narrowedCategoryIds = existingCategoryIds.filter((id) =>
+                categoryIdsFromTopics.includes(id),
+              );
+              query.categoryId = { $in: narrowedCategoryIds };
+            } else {
+              query.categoryId = { $in: categoryIdsFromTopics };
+            }
+    
+            if (!query.categoryId.$in.length) {
+              query._id = { $in: [] };
+                    }
       } else {
-        // If no categories found and no existing categoryIds, return empty result
+
         if (!query.categoryId) {
           query._id = { $in: [] };
         }
@@ -120,7 +110,6 @@ export class CategoryQueryBuilder extends BaseQueryBuilder {
   buildQuery(args: QueryBuilderArgs): any {
     const query: any = {};
 
-    // Handle array filters
     const arrayFields = ['codes', 'topicIds'];
     arrayFields.forEach((field) => {
       if (args[field] && args[field].length > 0) {
@@ -129,12 +118,10 @@ export class CategoryQueryBuilder extends BaseQueryBuilder {
       }
     });
 
-    // Add search functionality
     if (args.searchValue) {
       this.addSearchQuery(query, args.searchValue, ['title']);
     }
 
-    // Add simple filters
     this.addFieldFilter(query, 'icon', args.icon);
 
     if (args.ids && args.ids.length > 0) {
@@ -149,7 +136,6 @@ export class TopicQueryBuilder extends BaseQueryBuilder {
   buildQuery(args: QueryBuilderArgs): any {
     const query: any = {};
 
-    // Handle array filters
     const arrayFields = ['codes'];
     arrayFields.forEach((field) => {
       if (args[field] && args[field].length > 0) {
@@ -158,7 +144,6 @@ export class TopicQueryBuilder extends BaseQueryBuilder {
       }
     });
 
-    // Add simple filters
     this.addFieldFilter(query, 'brandId', args.brandId);
     this.addFieldFilter(query, 'clientPortalId', args.clientPortalId);
 
@@ -170,9 +155,6 @@ export class TopicQueryBuilder extends BaseQueryBuilder {
   }
 }
 
-/**
- * Factory function to get appropriate query builder
- */
 export function getQueryBuilder(
   type: 'article' | 'category' | 'topic' | 'knowledgebase',
   models: IModels,

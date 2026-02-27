@@ -151,7 +151,7 @@ export const queries = `
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  cpKnowlegdeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String], searchValue: String): [KnowledgeBaseTopic]
+  cpKnowledgeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String], searchValue: String): [KnowledgeBaseTopic]
   cpKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   cpKnowledgeBaseTopicsTotalCount(brandId: String, codes: [String], searchValue: String): Int
   
