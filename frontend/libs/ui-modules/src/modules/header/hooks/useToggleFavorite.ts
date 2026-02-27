@@ -11,8 +11,9 @@ export const useToggleFavorite = () => {
   const [toggleFavoriteMutation] = useMutation(TOGGLE_FAVORITE);
 
   const toggleFavorite = () => {
+    const type = pathname.includes('contacts') ? 'submenu' : 'module';
     toggleFavoriteMutation({
-      variables: { type: 'module', path: pathname },
+      variables: { type, path: pathname },
       refetchQueries: ['isFavorite', 'getFavoritesByCurrentUser'],
     });
   };
