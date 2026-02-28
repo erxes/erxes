@@ -15,8 +15,8 @@ export const useUpdateTicketStatus = () => {
 
   const handleUpdateStatus = (
     options: MutationFunctionOptions<UpdateStatusMutationResponse, any>,
-  ) => {
-    updateStatus({
+  ): Promise<any> => {
+    return updateStatus({
       ...options,
       onCompleted: (data) => {
         options?.onCompleted?.(data);
@@ -24,7 +24,7 @@ export const useUpdateTicketStatus = () => {
       onError: (error) => {
         toast({
           title: 'Error',
-          description: error.message,
+          description: 'Update failed',
           variant: 'destructive',
         });
       },

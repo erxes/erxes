@@ -23,12 +23,31 @@ export const statusQueries = {
       ),
     );
 
-    return statuses.flat().map(({ name, _id, color, type }) => ({
-      label: name,
-      value: _id,
-      color,
-      type,
-    }));
+    return statuses
+      .flat()
+      .map(
+        ({
+          name,
+          _id,
+          color,
+          type,
+          memberIds,
+          canMoveMemberIds,
+          canEditMemberIds,
+          departmentIds,
+          visibilityType,
+        }) => ({
+          label: name,
+          value: _id,
+          color,
+          type,
+          memberIds,
+          canMoveMemberIds,
+          canEditMemberIds,
+          departmentIds,
+          visibilityType,
+        }),
+      );
   },
 
   getTicketStatusesByType: async (

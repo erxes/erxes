@@ -8,6 +8,13 @@ export const UPDATE_TICKET_STATUS = gql`
     $color: String
     $order: Int
     $type: Int
+    $visibilityType: String
+    $memberIds: [String]
+    $canMoveMemberIds: [String]
+    $canEditMemberIds: [String]
+    $departmentIds: [String]
+    $state: String
+    $probability: Float
   ) {
     updateTicketStatus(
       _id: $id
@@ -16,6 +23,13 @@ export const UPDATE_TICKET_STATUS = gql`
       color: $color
       order: $order
       type: $type
+      visibilityType: $visibilityType
+      memberIds: $memberIds
+      canMoveMemberIds: $canMoveMemberIds
+      canEditMemberIds: $canEditMemberIds
+      departmentIds: $departmentIds
+      state: $state
+      probability: $probability
     ) {
       _id
       color
@@ -26,6 +40,13 @@ export const UPDATE_TICKET_STATUS = gql`
       pipelineId
       type
       updatedAt
+      visibilityType
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+      departmentIds
+      state
+      probability
     }
   }
 `;

@@ -85,6 +85,12 @@ export const PipielineConfigListPage = lazy(() =>
   })),
 );
 
+export const PipelinePermissionsPage = lazy(() =>
+  import('~/pages/PipelinePermissionsPage').then((module) => ({
+    default: module.PipelinePermissionsPage,
+  })),
+);
+
 export const TicketStatusesPage = lazy(() =>
   import('~/pages/TicketStatusesPage').then((module) => ({
     default: module.TicketStatusesPage,
@@ -139,6 +145,10 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.TicketsConfigs}
             element={<PipielineConfigListPage />}
+          />
+          <Route
+            path={FrontlinePaths.PipelinePermissions}
+            element={<PipelinePermissionsPage />}
           />
           <Route
             path={FrontlinePaths.TicketsStatuses}
