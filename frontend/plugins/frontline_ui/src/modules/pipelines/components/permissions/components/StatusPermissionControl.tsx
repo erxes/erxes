@@ -195,8 +195,8 @@ export const StatusPermissionControl = ({
             config.type === 'memberIds'
               ? `member${count !== 1 ? 's' : ''}`
               : config.type === 'canMoveMemberIds'
-              ? 'can move'
-              : 'can edit';
+                ? 'can move'
+                : 'can edit';
 
           return (
             <span
