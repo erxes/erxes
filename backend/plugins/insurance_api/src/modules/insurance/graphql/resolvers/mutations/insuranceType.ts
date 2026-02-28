@@ -1,11 +1,18 @@
+import { randomBytes } from 'crypto';
 import { IContext } from '~/connectionResolvers';
 
 // Helper function to generate code from name
 const generateCode = (name: string): string => {
-  return name
+  const cleaned = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
+
+  if (!cleaned || cleaned.length === 0) {
+    return `type_${Date.now()}_${randomBytes(6).toString('hex')}`;
+  }
+
+  return cleaned;
 };
 
 // Helper function to add key to attributes

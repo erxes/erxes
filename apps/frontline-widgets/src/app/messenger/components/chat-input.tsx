@@ -6,13 +6,14 @@ import { InitialMessage } from '../constants';
 import { connectionAtom } from '../states';
 import { useCustomerData } from '../hooks/useCustomerData';
 import { useChatInput } from '../hooks/useChatInput';
+import { PersistentMenu } from './persistent-menu';
 
-interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
+interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const [connection] = useAtom(connectionAtom);
   const { messengerData } = connection.widgetsMessengerConnect || {};
-  const { messages, isOnline, requireAuth } = messengerData || {};
+  const { messages, isOnline, requireAuth, showChat } = messengerData || {};
   const placeholder = isOnline
     ? InitialMessage.WELCOME
     : messages?.away || InitialMessage.AWAY;
@@ -50,6 +51,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
         >
           <IconArrowUp />
         </Button>
+        <PersistentMenu />
       </div>
     </form>
   );

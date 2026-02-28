@@ -27,3 +27,7 @@ export const FormDetailPage = () => {
     </PageContainer>
   );
 };
+
+export const ChannelFormDetailPage = () => {
+  return <FormEdit />;
+};
