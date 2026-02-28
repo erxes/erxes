@@ -10,6 +10,8 @@ import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/compone
 import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
 import { TicketStatusesBreadcrumb } from '@/status/components/TicketStatusesBreadcrumb';
 import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
+import { PipelinePermissionsBreadcrumb } from '@/pipelines/components/permissions/components/PipelinePermissionsBreadcrumb';
+
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
@@ -24,22 +26,22 @@ export const ChannelSettingsBreadcrumb = () => {
           Channels
         </Button>
       </Link>
-      {(isMatchingLocation(FrontlinePaths.ChannelDetails) ||
+      {((isMatchingLocation(FrontlinePaths.ChannelDetails) ||
         isMatchingLocation(FrontlinePaths.ChannelMembers) ||
         isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+        isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) &&
         (isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
           isMatchingLocation(FrontlinePaths.ResponseDetail) ||
-          isMatchingLocation(FrontlinePaths.TicketsConfigs)) ||
-        isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`) &&
-        (
+          isMatchingLocation(FrontlinePaths.TicketsConfigs))) ||
+        (isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`) && (
           <>
             <Separator.Inline />
             <ChannelDetailBreadcrumb />
           </>
-        )}
+        ))}
       {isMatchingLocation(FrontlinePaths.ChannelMembers) && (
         <>
           <Separator.Inline />
@@ -49,24 +51,32 @@ export const ChannelSettingsBreadcrumb = () => {
       {(isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+        isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
-          <>
-            <Separator.Inline />
-            <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
-              <Button variant="ghost" className="font-semibold">
-                Pipelines
-              </Button>
-            </Link>
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
+            <Button variant="ghost" className="font-semibold">
+              Pipelines
+            </Button>
+          </Link>
+        </>
+      )}
       {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+        isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
-          <>
-            <Separator.Inline />
-            <PipelineDetailBreadcrumb />
-          </>
-        )}
+        <>
+          <Separator.Inline />
+          <PipelineDetailBreadcrumb />
+        </>
+      )}
+      {isMatchingLocation(FrontlinePaths.PipelinePermissions) && (
+        <>
+          <Separator.Inline />
+          <PipelinePermissionsBreadcrumb />
+        </>
+      )}
       {isMatchingLocation(FrontlinePaths.TicketsConfigs) && (
         <>
           <Separator.Inline />
