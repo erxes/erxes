@@ -169,7 +169,7 @@ class LoyaltySection extends React.Component<IProps, State> {
         status.redeemed += Math.abs(changeScore);
       } else if (finalAction === "refund") {
         status.refunded += Math.abs(changeScore);
-        status.redeemed += Math.abs(changeScore);
+        status.earned += Math.abs(changeScore);
       }
     });
 
