@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { toast, PopoverScoped, Combobox, Select } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { StatusItem, PermissionState } from '@/pipelines/types';
@@ -66,21 +66,29 @@ export const StatusPermissionControl = ({
   const [visibility, setVisibility] = useState<'public' | 'private'>(
     status.visibilityType || 'public',
   );
+  const isInitialized = useRef(false);
 
   useEffect(() => {
-    const initialVisibility =
-      status.visibilityType || values?.visibility || 'public';
-    setVisibility(initialVisibility as 'public' | 'private');
-  }, [status.visibilityType, values?.visibility]);
+    if (!isInitialized.current) {
+      const initialVisibility =
+        status.visibilityType || values?.visibility || 'public';
+      const initialMemberStates = {
+        memberIds: status.memberIds || [],
+        canMoveMemberIds: status.canMoveMemberIds || [],
+        canEditMemberIds: status.canEditMemberIds || [],
+      };
 
-  // Initialize member states from status data
-  useEffect(() => {
-    setMemberStates({
-      memberIds: status.memberIds || [],
-      canMoveMemberIds: status.canMoveMemberIds || [],
-      canEditMemberIds: status.canEditMemberIds || [],
-    });
-  }, [status.memberIds, status.canMoveMemberIds, status.canEditMemberIds]);
+      setVisibility(initialVisibility as 'public' | 'private');
+      setMemberStates(initialMemberStates);
+      isInitialized.current = true;
+    }
+  }, [
+    status.visibilityType,
+    values?.visibility,
+    status.memberIds,
+    status.canMoveMemberIds,
+    status.canEditMemberIds,
+  ]);
 
   const handleVisibilityChange = useCallback(
     async (newVisibility: 'public' | 'private') => {
@@ -92,13 +100,7 @@ export const StatusPermissionControl = ({
             visibilityType: newVisibility,
           },
         });
-
         setVisibility(newVisibility);
-
-        toast({
-          title: 'Saved',
-          description: 'Status visibility updated successfully',
-        });
       } catch (error) {
         toast({
           title: 'Error',
@@ -129,11 +131,6 @@ export const StatusPermissionControl = ({
           ...prev,
           [memberType]: selectedUsers,
         }));
-
-        toast({
-          title: 'Saved',
-          description: 'Pipeline status updated successfully',
-        });
       } catch (error) {
         toast({
           title: 'Error',

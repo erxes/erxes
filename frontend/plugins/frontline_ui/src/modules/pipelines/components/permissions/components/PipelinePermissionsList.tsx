@@ -3,7 +3,6 @@ import {
   Button,
   Form,
   Spinner,
-  toast,
   PopoverScoped,
   Combobox,
 } from 'erxes-ui';
@@ -119,17 +118,9 @@ export const PipelinePermissionsList = memo(() => {
       })
         .then(() => {
           initialValuesRef.current = { ...formValues };
-          toast({
-            title: 'Success',
-            description: 'Pipeline permissions updated automatically',
-          });
         })
         .catch((error) => {
-          toast({
-            title: 'Error',
-            description: error.message || 'Failed to update pipeline',
-            variant: 'destructive',
-          });
+          console.error('Failed to update pipeline:', error);
         })
         .finally(() => {
           isUpdatingRef.current = false;
@@ -155,19 +146,9 @@ export const PipelinePermissionsList = memo(() => {
             memberIds: values.memberIds,
           },
         });
-
-        toast({
-          title: 'Success',
-          description: 'Pipeline permissions updated',
-        });
       } catch (err: any) {
         const errorMessage = err.message || 'Failed to update pipeline';
         setSubmitError(errorMessage);
-        toast({
-          title: 'Error',
-          description: errorMessage,
-          variant: 'destructive',
-        });
       }
     },
     [pipelineId, updatePipeline],
