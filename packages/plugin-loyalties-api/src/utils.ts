@@ -2,6 +2,7 @@ import { getEnv } from "@erxes/api-utils/src";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { ICustomField } from "@erxes/api-utils/src/types";
 import { IModels } from "./connectionResolver";
 import { collections } from "./constants";
 import {
@@ -10,6 +11,7 @@ import {
   sendCoreMessage,
 } from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
+import { SCORE_CAMPAIGN_STATUSES } from "./models/definitions/scoreCampaigns";
 
 interface IProductD {
   productId: string;
@@ -713,4 +715,83 @@ export const refundLoyaltyScore = async (
       }
     }
   }
+};
+
+export const handleLoyaltyOwnerChange = async (
+  subdomain: string,
+  models: IModels,
+  ownerId: string,
+  ownerIds: string[],
+) => {
+  await models.Vouchers.updateMany(
+    { ownerId: { $in: ownerIds } },
+    { $set: { ownerId } },
+  );
+
+  await models.Coupons.updateMany(
+    { "usageLogs.ownerId": { $in: ownerIds } },
+    { $set: { "usageLogs.$[elem].ownerId": ownerId } },
+    { arrayFilters: [{ "elem.ownerId": { $in: ownerIds } }] },
+  );
+
+  await models.ScoreLogs.updateMany(
+    { ownerId: { $in: ownerIds } },
+    { $set: { ownerId } },
+  );
+
+  const customer = await sendCoreMessage({
+    subdomain,
+    action: "customers.findOne",
+    data: {
+      _id: ownerId,
+    },
+    isRPC: true,
+    defaultValue: {},
+  });
+
+  const scoreCampaigns = await models.ScoreCampaigns.find({ status: SCORE_CAMPAIGN_STATUSES.PUBLISHED }).distinct("fieldId");
+
+  const fieldIds = new Set(scoreCampaigns);
+
+  const customFieldsData: ICustomField[] = [];
+  const scoreFieldsData: Record<string, ICustomField> = {};
+
+  for (const customFieldData of (customer?.customFieldsData || [])) {
+    const { field, value, numberValue } = customFieldData || {};
+
+    if (!fieldIds.has(field)) {
+      customFieldsData.push(customFieldData);
+
+      continue;
+    }
+
+    const numericValue = numberValue ?? Number(value) ?? 0;
+
+    if (!scoreFieldsData[field]) {
+      scoreFieldsData[field] = {
+        field,
+        value: 0,
+        numberValue: 0,
+        stringValue: "0",
+      };
+    }
+
+    scoreFieldsData[field].value += numericValue;
+    scoreFieldsData[field].numberValue += numericValue;
+    scoreFieldsData[field].stringValue = String(scoreFieldsData[field].numberValue);
+  }
+
+  const preparedCustomFieldsData = await sendCoreMessage({
+    subdomain,
+    action: "fields.prepareCustomFieldsData",
+    data: [...customFieldsData, ...(Object.values(scoreFieldsData) || [])],
+    defaultValue: [],
+    isRPC: true,
+  });
+
+  await models.ScoreCampaigns.updateOwnerScore({
+    ownerId,
+    ownerType: "customer",
+    updatedCustomFieldsData: preparedCustomFieldsData,
+  });
 };

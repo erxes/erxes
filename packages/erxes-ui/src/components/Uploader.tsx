@@ -107,6 +107,7 @@ type Props = {
   showOnlyIcon?: boolean;
   noPreview?: boolean;
   hideUploadButtonOnLoad?: boolean;
+  url?: string;
 };
 
 type AttachmentWithProgress = IAttachment & {
@@ -129,7 +130,7 @@ class Uploader extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      attachments: props.defaultFileList || [],
+      attachments: (props.defaultFileList || []).filter(Boolean),
       loading: false,
     };
   }
@@ -139,7 +140,7 @@ class Uploader extends React.Component<Props, State> {
       JSON.stringify(nextProps.defaultFileList) !==
       JSON.stringify(this.props.defaultFileList)
     ) {
-      this.setState({ attachments: nextProps.defaultFileList });
+      this.setState({ attachments: (nextProps.defaultFileList || []).filter(Boolean) });
     }
   }
 
@@ -148,6 +149,7 @@ class Uploader extends React.Component<Props, State> {
 
     uploadHandler({
       files,
+      url: this.props.url,
 
       beforeUpload: () => {
         this.setState({ loading: true });
@@ -174,14 +176,16 @@ class Uploader extends React.Component<Props, State> {
 
         Alert.info('Success');
 
-        const attachment: AttachmentWithProgress = {
-          url: response,
-          ...fileInfo,
-          progress: 100,
-          uploading: false,
-        };
-
-        const attachments = [attachment, ...this.state.attachments];
+        const attachments = this.state.attachments.map((a) =>
+          a.name === fileInfo.name && a.size === fileInfo.size
+            ? {
+                ...a,
+                url: response,
+                progress: 100,
+                uploading: false,
+              }
+            : a
+        );
 
         this.props.onChange(
           attachments.map(({ progress, uploading, ...a }) => a)

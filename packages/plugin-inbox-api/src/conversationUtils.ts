@@ -431,24 +431,22 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public async dateFilter(startDate: string, endDate: string) {
-    this.positiveList.push(
-      {
-        range: {
+    return {
+      $or: [
+        {
           createdAt: {
-            gte: fixDate(startDate),
-            lte: fixDate(endDate),
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate),
           },
         },
-      },
-      {
-        range: {
+        {
           updatedAt: {
-            gte: fixDate(startDate),
-            lte: fixDate(endDate),
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate),
           },
         },
-      },
-    );
+      ],
+    };
   }
 
   // filter by integration type

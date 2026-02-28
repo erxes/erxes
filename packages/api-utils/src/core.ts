@@ -123,15 +123,16 @@ export const fixNum = (value: any, p = 4) => {
  * Converts given value to date or if value in valid date
  * then returns default value
  */
-export const fixDate = (value, defaultValue = new Date()): Date => {
+
+export const fixDate = (value: string | Date, defaultValue = new Date()): Date => {
+  if (!value) return defaultValue;
+
   const date = new Date(value);
+  if (isNaN(date.getTime())) return defaultValue;
 
-  if (!isNaN(date.getTime())) {
-    return date;
-  }
-
-  return defaultValue;
+  return new Date(date.getTime() - 8 * 60 * 60 * 1000);
 };
+
 
 export const getDate = (date: Date, day: number): Date => {
   const currentDate = new Date();

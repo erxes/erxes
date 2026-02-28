@@ -24,15 +24,15 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
             FileHeaderInfo: "NONE",
             RecordDelimiter: "\n",
             FieldDelimiter: ",",
-            AllowQuotedRecordDelimiter: true
-          }
+            AllowQuotedRecordDelimiter: true,
+          },
         },
         OutputSerialization: {
           CSV: {
             RecordDelimiter: "\n",
-            FieldDelimiter: ","
-          }
-        }
+            FieldDelimiter: ",",
+          },
+        },
       },
       (error, data) => {
         if (error) {
@@ -68,7 +68,7 @@ export const createAWS = async subdomain => {
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID
+    AWS_ACCESS_KEY_ID,
   } = await getFileUploadConfigs(subdomain);
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
@@ -82,7 +82,7 @@ export const createAWS = async subdomain => {
     s3ForcePathStyle?: boolean;
   } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   };
 
   if (AWS_FORCE_PATH_STYLE === "true") {
@@ -101,7 +101,7 @@ export const createCFR2 = async subdomain => {
   const {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDFLARE_ACCESS_KEY_ID,
-    CLOUDFLARE_SECRET_ACCESS_KEY
+    CLOUDFLARE_SECRET_ACCESS_KEY,
   } = await getFileUploadConfigs(subdomain);
 
   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
@@ -121,7 +121,7 @@ export const createCFR2 = async subdomain => {
     accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
     secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
     signatureVersion: "v4",
-    region: "auto"
+    region: "auto",
   };
 
   return new AWS.S3(options);
@@ -131,25 +131,28 @@ export const getImportCsvInfo = async (subdomain, fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
   const sanitizedFilename = sanitizeFilename(fileName);
 
-  const service: any = await getService("core");
+  const destinationPath = path.join(uploadsFolderPath, sanitizedFilename);
 
-  const url = `${service.address}/get-import-file/${sanitizedFilename}`;
+  if (UPLOAD_SERVICE_TYPE !== "local") {
+    const service: any = await getService("core");
 
-  try {
-    const response = await fetch(url);
+    const url = `${service.address}/get-import-file/${sanitizedFilename}`;
 
-    if (!response.ok) {
-      throw new Error(response.statusText);
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+
+      await fs.promises.mkdir(uploadsFolderPath, { recursive: true });
+      await pipeline(response.body, fs.createWriteStream(destinationPath));
+    } catch (e) {
+      console.error(
+        `${service.name} csv download from ${url} to ${uploadsFolderPath}/${sanitizedFilename} failed.`,
+        e.message
+      );
     }
-    await pipeline(
-      response.body,
-      fs.createWriteStream(`${uploadsFolderPath}/${sanitizedFilename}`)
-    );
-  } catch (e) {
-    console.error(
-      `${service.name} csv download from ${url} to ${uploadsFolderPath}/${sanitizedFilename} failed.`,
-      e.message
-    );
   }
 
   return new Promise(async (resolve, reject) => {
@@ -235,7 +238,7 @@ export const getCsvHeadersInfo = async (subdomain, fileName: string) => {
 
       const rl = readline.createInterface({
         input: readSteam,
-        terminal: false
+        terminal: false,
       });
 
       rl.on("line", input => {
@@ -271,7 +274,7 @@ export const getCsvHeadersInfo = async (subdomain, fileName: string) => {
       const columns = await getS3FileInfo({
         s3,
         params,
-        query: "SELECT * FROM S3Object LIMIT 1"
+        query: "SELECT * FROM S3Object LIMIT 1",
       });
 
       return resolve(columns);

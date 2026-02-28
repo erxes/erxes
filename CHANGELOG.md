@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.17.34](https://github.com/erxes/erxes/compare/2.17.33...2.17.34) (2026-02-11)
+
+### Bug Fixes
+
+* improve import file upload handling and remove debug logs ([2d1962d](https://github.com/erxes/erxes/commit/2d1962d0bcf48b5d5f9e1bfcf1b7e2d38479f9de))
+
+## [2.17.33](https://github.com/erxes/erxes/compare/2.17.32...2.17.33) (2026-02-11)
+
+### Bug Fixes
+
+* handle loyalty owner when customers merge ([#6957](https://github.com/erxes/erxes/issues/6957)) ([3884345](https://github.com/erxes/erxes/commit/3884345ed779485bce23ea5ffa7be126f32a5526))
+* update existing attachment instead of creating duplicate in uploader ([07fe50e](https://github.com/erxes/erxes/commit/07fe50e986e28dc6351126d28e6eb3e1c64d9a71))
+
+## [2.17.32](https://github.com/erxes/erxes/compare/2.17.31...2.17.32) (2026-02-06)
+
+### Features
+
+* add erxes 2.0 inbox features  ([36b16b4](https://github.com/erxes/erxes/commit/36b16b48def95be9a706e5f641e0370084cbfcae))
+* **engages:** add response field to email logs and improve error handling ([c1ca4e1](https://github.com/erxes/erxes/commit/c1ca4e1433c57a3cc8c08d2b6bad59feecbd27a5))
+* inbox date filter and conversation call pro  refactor  ([e73cd94](https://github.com/erxes/erxes/commit/e73cd94ddcf2e22c86284841e0ceaa990ecc24a7))
+* **inbox:** add call audio and conversation history UI  ([04a8ef9](https://github.com/erxes/erxes/commit/04a8ef9c7f0fcfa075ae685f3441c871e770cff5))
+* **inbox:** date filter calendar  ([2493496](https://github.com/erxes/erxes/commit/249349666d0b18a02bf17e764da50dd73d24a320))
+
+### Bug Fixes
+
+* can't count segment count on customersCount. query and set import error on  history ([04264fd](https://github.com/erxes/erxes/commit/04264fdccfe513feb17f7e64997c65a1d8514475))
+* **date-filter:** handle UTC to local timezone correctly ([3eb79b3](https://github.com/erxes/erxes/commit/3eb79b392db0b93272a19bec2233371c7ded26fe))
+* **inbox:** resolve filter update issue  ([bedc731](https://github.com/erxes/erxes/commit/bedc731522876a8392115ae59125bd07217cdc46))
+* loyalty discount calculation in checkLoyalties for sales ([b5bc9b7](https://github.com/erxes/erxes/commit/b5bc9b7167b4fd6b7eb51777802ba925f8e68e60))
+* score log with custom description ([b5e284f](https://github.com/erxes/erxes/commit/b5e284f6f2d7f5bd675a23a53fb3b77eaeeda43a))
+* totalAmount is 0 then close this order on pos ([02398eb](https://github.com/erxes/erxes/commit/02398eb5e089a47cc28f61d51de3a9dda938428e))
+* **utils:** update API URL retrieval to use environment variables ([95b7cb2](https://github.com/erxes/erxes/commit/95b7cb24971e6bc8023d83e34b0375f8793e445c))
+
 ## [2.17.31](https://github.com/erxes/erxes/compare/2.17.30...2.17.31) (2026-01-06)
 
 ### Features

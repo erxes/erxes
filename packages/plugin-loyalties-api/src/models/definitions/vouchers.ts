@@ -33,3 +33,5 @@ export const voucherSchema = schemaHooksWrapper(
   }),
   'erxes_loyalty_vouchers'
 );
+
+voucherSchema.index({ ownerId: 1 });

@@ -168,6 +168,7 @@ const FilterCampaign = (props: Props) => {
     return (
       <FilterContainer>
         <BoardSelectContainer
+          key={`${boardId}-${pipelineId}-${stageId}`}
           type="deal"
           autoSelectStage={false}
           boardId={boardId || ""}

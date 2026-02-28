@@ -35,7 +35,7 @@ export const types = `
 export const queries = `
   scoreLogs(${commonFilters},campaignId:String): [ScoreLog]
   scoreLogList(${commonFilters},campaignId:String,orderType:String,order:String,fromDate:String,toDate:String,stageId:String,number:String,action:String,description:String):List
-  scoreLogStatistics(${commonFilters},campaignId:String,orderType:String,order:String,fromDate:String,toDate:String,stageId:String,number:String,action:String): JSON
+  scoreLogStatistics(${commonFilters},campaignId:String,orderType:String,order:String,fromDate:String,toDate:String,stageId:String,number:String,action:String,description:String): JSON
 `;
 export const mutation = `
   changeScore( ownerType: String, ownerId: String, changeScore: Int, description: String, createdBy: String,campaignId:String, targetId: String, serviceName: String ):JSON

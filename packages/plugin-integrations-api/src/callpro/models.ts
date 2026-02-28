@@ -1,5 +1,5 @@
-import { Document, Model, Schema } from 'mongoose';
-import { field } from '../models/utils';
+import { Document, Model, Schema } from "mongoose";
+import { field } from "../models/utils";
 
 // customer ======================
 export interface ICustomer {
@@ -15,10 +15,29 @@ export const customerSchema = new Schema({
   _id: field({ pkey: true }),
   phoneNumber: { type: String, unique: true },
   integrationId: String,
-  erxesApiId: String
+  erxesApiId: String,
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
+
+export interface ICallProLog {
+  type: string;
+  value: any;
+  specialValue: any;
+  createdAt: Date;
+}
+
+export interface ICallProLogDocument extends ICallProLog, Document {}
+
+export const callProLogSchema = new Schema({
+  _id: field({ pkey: true }),
+  type: field({ type: String }),
+  value: field({ type: Object }),
+  specialValue: field({ type: String }),
+  createdAt: field({ type: Date }),
+});
+
+export interface ICallProLogModel extends Model<ICallProLogDocument> {}
 
 // conversation ===========================
 export interface IConversation {
@@ -40,7 +59,7 @@ export const conversationSchema = new Schema({
   integrationId: String,
   senderPhoneNumber: { type: String, index: true },
   recipientPhoneNumber: { type: String, index: true },
-  callId: { type: String, unique: true }
+  callId: { type: String, unique: true },
 });
 
 export interface IConversationModel extends Model<IConversationDocument> {}

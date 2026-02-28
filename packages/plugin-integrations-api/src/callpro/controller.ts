@@ -84,10 +84,11 @@ const init = async (app) => {
 
       const { numberTo, numberFrom, disp, callID, owner } = req.body;
       try {
-        await models.Logs.createLog({
+        await models.CallProLogs.create({
           type: "call-pro",
           value: req.body,
           specialValue: numberFrom || "",
+          createdAt: new Date(),
         });
       } catch (e) {
         const message = `Failed creating call pro log. Error: ${e.message}`;
