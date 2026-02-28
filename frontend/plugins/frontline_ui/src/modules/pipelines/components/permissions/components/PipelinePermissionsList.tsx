@@ -154,7 +154,7 @@ export const PipelinePermissionsList = memo(() => {
     [pipelineId, updatePipeline],
   );
 
-  if (pipelineLoading || statusesLoading) {
+  if (pipelineLoading || statusesLoading || updating) {
     return (
       <div className="flex items-center justify-center p-10">
         <Spinner />
@@ -166,6 +166,7 @@ export const PipelinePermissionsList = memo(() => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <InfoCard
+          className="p-0 max-h-[550px] overflow-y-auto"
           title="Pipeline Permissions"
           description="Configure who can view and manage tickets"
         >
@@ -176,7 +177,7 @@ export const PipelinePermissionsList = memo(() => {
               </div>
             )}
 
-            <div className="divide-y max-h-[550px] overflow-y-auto">
+            <div className="divide-y">
               <section className="p-6 space-y-6">
                 <div>
                   <h3 className="text-base font-semibold">Visibility Rules</h3>
@@ -283,20 +284,6 @@ export const PipelinePermissionsList = memo(() => {
                   )}
                 </section>
               )}
-            </div>
-
-            <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t px-6 py-4 flex justify-between">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => form.reset()}
-              >
-                Reset
-              </Button>
-
-              <Button type="submit" disabled={updating}>
-                {updating ? 'Saving...' : 'Save Changes'}
-              </Button>
             </div>
           </InfoCard.Content>
         </InfoCard>
