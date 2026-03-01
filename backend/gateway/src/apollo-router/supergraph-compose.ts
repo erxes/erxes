@@ -64,13 +64,13 @@ const writeSupergraphConfig = async (proxyTargets: ErxesProxyTarget[]) => {
 const supergraphComposeOnce = async () => {
   if (NODE_ENV === 'production') {
     execSync(
-      `rover supergraph compose --config "${supergraphConfigPath}" --output "${supergraphPath}" --elv2-license=accept --log=error`,
+      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`,
     );
   } else {
     const superGraphqlNext = supergraphPath + '.next';
 
     execSync(
-      `pnpm rover supergraph compose --config "${supergraphConfigPath}" --output "${superGraphqlNext}" --elv2-license=accept --client-timeout=80000`,
+      `pnpm rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept --client-timeout=80000`,
       // { stdio: ['ignore', 'ignore', 'ignore'] },
     );
 
@@ -90,20 +90,17 @@ export default async function supergraphCompose(
   await writeSupergraphConfig(proxyTargets);
   await supergraphComposeOnce();
   if (NODE_ENV === 'development') {
-    setInterval(
-      async () => {
-        try {
-          await supergraphComposeOnce();
-        } catch (e: unknown) {
-          if (e instanceof Error) {
-            // Now you can safely access e.message or other Error properties
-            console.log(e.message);
-          } else {
-            console.log('Unknown error:', e);
-          }
+    setInterval(async () => {
+      try {
+        await supergraphComposeOnce();
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          // Now you can safely access e.message or other Error properties
+          console.log(e.message);
+        } else {
+          console.log('Unknown error:', e);
         }
-      },
-      Number(SUPERGRAPH_POLL_INTERVAL_MS) || 10_000,
-    );
+      }
+    }, Number(SUPERGRAPH_POLL_INTERVAL_MS) || 10_000);
   }
 }
