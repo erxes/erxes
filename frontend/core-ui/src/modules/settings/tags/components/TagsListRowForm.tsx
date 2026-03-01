@@ -7,12 +7,13 @@ import { TagsListDescriptionField } from '@/settings/tags/components/fields/Tags
 import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { useAtom } from 'jotai';
 import { TAG_DEFAULT_COLORS } from '@/settings/tags/constants/Colors';
-import { useQueryState, cn, usePreviousHotkeyScope } from 'erxes-ui';
+import { useQueryState, cn, usePreviousHotkeyScope, useToast } from 'erxes-ui';
 import { useMemo } from 'react';
 
 export const TagsListRowForm = () => {
   const { goBackToPreviousHotkeyScope } = usePreviousHotkeyScope();
   const [addingTag, setAddingTag] = useAtom(addingTagAtom);
+  const { toast } = useToast();
   const DEFAULT_COLOR = useMemo(() => {
     return Object.values(TAG_DEFAULT_COLORS)[
       Math.floor(Math.random() * Object.values(TAG_DEFAULT_COLORS).length)
@@ -22,10 +23,19 @@ export const TagsListRowForm = () => {
   const [type] = useQueryState<string>('tagType');
 
   const handleSave = (value: string) => {
+    // Validate that name is not empty before saving
+    if (!value || value.trim().length === 0) {
+      toast({
+        title: 'Error',
+        description: 'Tag name cannot be empty',
+        variant: 'destructive',
+      });
+      return; // Don't save empty tags
+    }
     setAddingTag(null);
     addTag({
       variables: {
-        name: value,
+        name: value.trim(),
         colorCode: DEFAULT_COLOR,
         ...addingTag,
         type: type,
