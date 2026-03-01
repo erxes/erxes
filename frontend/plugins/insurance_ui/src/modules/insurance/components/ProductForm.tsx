@@ -313,7 +313,9 @@ export const ProductForm = ({
                 </div>
                 {showPdfEditor && (
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">HTML Template Editor</Label>
+                    <Label className="text-sm font-medium">
+                      HTML Template Editor
+                    </Label>
                     <textarea
                       value={formData.pdfContent}
                       onChange={(e) =>
@@ -323,7 +325,8 @@ export const ProductForm = ({
                       placeholder="Enter HTML template..."
                     />
                     <p className="text-xs text-gray-500">
-                      Use variables like {`{{contractNumber}}`}, {`{{customerName}}`}, etc.
+                      Use variables like {`{{contractNumber}}`},{' '}
+                      {`{{customerName}}`}, etc.
                     </p>
                   </div>
                 )}
