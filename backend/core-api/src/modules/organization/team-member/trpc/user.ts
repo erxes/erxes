@@ -19,11 +19,11 @@ export const userTrpcRouter = t.router({
 
         return models.Users.find(query, fields);
       }),
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+    validateFieldValues: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { data } = input;
       const { models } = ctx;
 
-      return models.Users.findOne(query);
+      return models.Fields.validateFieldValues(data);
     }),
 
     updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {

@@ -27,6 +27,7 @@ export const types = `
     status: TicketStatus
     assignee: User
     isSubscribed: Boolean
+    propertiesData: JSON
   }
 
   type TicketListResponse {
@@ -107,6 +108,7 @@ const updateTicketParams = `
   startDate: Date
   targetDate: Date
   isSubscribed: Boolean
+  propertiesData: JSON
 `;
 
 export const queries = `

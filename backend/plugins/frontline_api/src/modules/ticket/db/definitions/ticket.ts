@@ -37,6 +37,11 @@ export const ticketSchema = new Schema(
     number: { type: String, label: 'Number' },
     statusType: { type: Number, label: 'Status Type', default: 0 },
     subscribedUserIds: { type: [String], label: 'subscribed user IDs' },
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
   },
   {
     timestamps: true,
