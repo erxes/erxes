@@ -144,10 +144,13 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
         ];
       });
       setAllticketsMap((prev) => {
-        const newtickets = tickets.reduce((acc, ticket) => {
-          acc[ticket._id] = ticket;
-          return acc;
-        }, {} as Record<string, ITicket>);
+        const newtickets = tickets.reduce(
+          (acc, ticket) => {
+            acc[ticket._id] = ticket;
+            return acc;
+          },
+          {} as Record<string, ITicket>,
+        );
         return { ...prev, ...newtickets };
       });
     }

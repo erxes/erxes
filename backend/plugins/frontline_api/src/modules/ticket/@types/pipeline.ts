@@ -40,9 +40,7 @@ export interface ITicketPipelineDocument extends ITicketPipeline, Document {
 }
 
 export interface TicketsPipelineFilter
-  extends ICursorPaginateParams,
-    IListParams,
-    ITicketPipeline {
+  extends ICursorPaginateParams, IListParams, ITicketPipeline {
   userId?: string;
   createdAt?: Date;
 }
