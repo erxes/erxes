@@ -137,7 +137,6 @@ export const loadTicketClass = (models: IModels) => {
         doc.propertiesData = propertiesData;
       }
 
-
       if (doc.statusId && doc.statusId !== ticket.statusId) {
         rest.statusChangedDate = new Date();
         const status = await models.Status.getStatus(doc.statusId || '');
@@ -168,7 +167,7 @@ export const loadTicketClass = (models: IModels) => {
         rest.number = new Date().getTime().toString();
         rest.statusId = newStatus?._id;
       }
-      
+
       await createActivity({
         contentType: 'ticket',
         oldDoc: ticket,

@@ -359,7 +359,7 @@ export class EditorAttributeUtil {
         module: 'fields',
         action: 'validateFieldValues',
         input: {
-          data: item.customFieldsData
+          data: item.customFieldsData,
         },
       });
 

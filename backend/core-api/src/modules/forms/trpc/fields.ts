@@ -80,11 +80,13 @@ export const fieldsTrpcRouter = t.router({
         return await fieldsCombinedByContentType(models, subdomain, input);
       }),
 
-    validateFieldValues: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { data } = input;
-      const { models } = ctx;
-    
-      return models.Fields.validateFieldValues(data);
-    }),
+    validateFieldValues: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { data } = input;
+        const { models } = ctx;
+
+        return models.Fields.validateFieldValues(data);
+      }),
   }),
 });
