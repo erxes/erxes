@@ -9,6 +9,7 @@ import { Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
@@ -127,12 +128,19 @@ export const loadTicketClass = (models: IModels) => {
       subdomain: string;
     }) {
       const { _id, ...rest } = doc;
+      const permissionValidator = createPermissionValidator(models);
 
       const ticket = await models.Ticket.findOne({ _id });
 
       if (!ticket) {
         throw new Error('Ticket not found');
       }
+
+      await permissionValidator.validateEditPermission(
+        ticket.statusId || '',
+        doc.statusId || '',
+        userId,
+      );
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {
         rest.statusChangedDate = new Date();

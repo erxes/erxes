@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { toast, PopoverScoped, Combobox, Select } from 'erxes-ui';
+import { toast, PopoverScoped, Combobox, Select, cn } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { StatusItem, PermissionState } from '@/pipelines/types';
-import { cn } from 'erxes-ui';
 
 type MemberType = 'memberIds' | 'canMoveMemberIds' | 'canEditMemberIds';
 
@@ -195,8 +194,8 @@ export const StatusPermissionControl = ({
             config.type === 'memberIds'
               ? `member${count !== 1 ? 's' : ''}`
               : config.type === 'canMoveMemberIds'
-                ? 'can move'
-                : 'can edit';
+              ? 'can move'
+              : 'can edit';
 
           return (
             <span

@@ -29,6 +29,7 @@ export const types = `
 
 export const queries = `
   getTicketStatus(_id: String!): TicketStatus
+  getAccessibleTicketStatuses(pipelineId: String!): JSON
   getTicketStatusesChoicesPipeline(pipelineId: String!): JSON
   getTicketStatusesByType(pipelineId: String! , type: Int!): [TicketStatus]
 `;

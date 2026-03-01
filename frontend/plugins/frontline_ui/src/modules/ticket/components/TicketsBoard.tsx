@@ -1,4 +1,4 @@
-import { useGetTicketStatusesByPipeline } from '@/status/hooks/useGetTicketStatus';
+import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { useTickets } from '@/ticket/hooks/useGetTickets';
 import { ITicket } from '@/ticket/types';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -35,7 +35,7 @@ export const TicketsBoard = () => {
   const allTicketsMap = useAtomValue(allTicketsMapState);
   const { updateTicket } = useUpdateTicket();
 
-  const { statuses, loading } = useGetTicketStatusesByPipeline({
+  const { statuses, loading } = useGetAccessibleTicketStatuses({
     variables: {
       pipelineId: pipelineId || '',
       channelId: channelId || '',

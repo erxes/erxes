@@ -25,14 +25,22 @@ interface ITicketChanged {
 export const useTicketsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
 ) => {
-  const { searchValue, assignee, priority, statusId, state } =
+  const { searchValue, assignee, priority, statusId, state, pipelineId } =
     useNonNullMultiQueryState<{
       searchValue: string;
       assignee: string;
       priority: string;
       statusId: string;
       state: string;
-    }>(['searchValue', 'assignee', 'priority', 'statusId', 'state']);
+      pipelineId: string;
+    }>([
+      'searchValue',
+      'assignee',
+      'priority',
+      'statusId',
+      'state',
+      'pipelineId',
+    ]);
 
   return {
     cursor: '',
@@ -41,10 +49,12 @@ export const useTicketsVariables = (
       updatedAt: -1,
     },
     direction: 'forward',
+
     name: searchValue,
     assigneeId: assignee,
     priority: priority,
     statusId: statusId,
+    pipelineId: pipelineId,
     state: state,
     ...variables,
   };

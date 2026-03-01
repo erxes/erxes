@@ -27,6 +27,7 @@ export interface ITicketPipeline {
   tagId?: string;
   visibility?: string;
   memberIds?: string[];
+  statusId?: string;
 }
 
 export interface ITicketPipelineUpdate extends ITicketPipeline {
@@ -39,7 +40,9 @@ export interface ITicketPipelineDocument extends ITicketPipeline, Document {
 }
 
 export interface TicketsPipelineFilter
-  extends ICursorPaginateParams, IListParams, ITicketPipeline {
+  extends ICursorPaginateParams,
+    IListParams,
+    ITicketPipeline {
   userId?: string;
   createdAt?: Date;
 }
