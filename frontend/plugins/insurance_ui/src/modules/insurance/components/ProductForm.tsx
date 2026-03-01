@@ -97,6 +97,9 @@ export const ProductForm = ({
     }
   }, [product, open]);
 
+  /**
+   * Adds a new risk to the covered risks list
+   */
   const handleAddRisk = () => {
     setFormData({
       ...formData,
@@ -107,6 +110,10 @@ export const ProductForm = ({
     });
   };
 
+  /**
+   * Removes a risk from the covered risks list
+   * @param index - The index of the risk to remove
+   */
   const handleRemoveRisk = (index: number) => {
     setFormData({
       ...formData,
@@ -114,6 +121,12 @@ export const ProductForm = ({
     });
   };
 
+  /**
+   * Updates a specific field of a risk in the covered risks list
+   * @param index - The index of the risk to update
+   * @param field - The field to update (riskId or coveragePercentage)
+   * @param value - The new value for the field
+   */
   const handleRiskChange = (
     index: number,
     field: 'riskId' | 'coveragePercentage',
@@ -124,6 +137,10 @@ export const ProductForm = ({
     setFormData({ ...formData, coveredRisks: newRisks });
   };
 
+  /**
+   * Handles form submission for creating or updating a product
+   * @param e - The form event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -325,8 +342,8 @@ export const ProductForm = ({
                       placeholder="Enter HTML template..."
                     />
                     <p className="text-xs text-gray-500">
-                      Use variables like {`{{contractNumber}}`},{' '}
-                      {`{{customerName}}`}, etc.
+                      Use variables like {'{{contractNumber}}'},{' '}
+                      {'{{customerName}}'}, etc.
                     </p>
                   </div>
                 )}

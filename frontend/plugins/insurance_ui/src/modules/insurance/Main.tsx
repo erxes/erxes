@@ -91,6 +91,10 @@ const ContractTemplatesPage = lazy(() =>
   })),
 );
 
+/**
+ * Main insurance module component with routing
+ * @returns The insurance module routes
+ */
 const insuranceMain = () => {
   return (
     <Suspense

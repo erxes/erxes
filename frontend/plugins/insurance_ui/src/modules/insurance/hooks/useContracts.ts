@@ -24,7 +24,12 @@ export function useContracts(vendorId?: string, customerId?: string) {
     'endDate',
   ]);
 
-  const clean = (v: any) =>
+  /**
+   * Cleans and trims string values, returns undefined for empty strings
+   * @param v - The value to clean
+   * @returns Trimmed string or undefined
+   */
+  const clean = (v: string | null | undefined) =>
     typeof v === 'string' && v.trim() ? v.trim() : undefined;
 
   const { data, loading, error, refetch } = useQuery(queries.CONTRACTS, {
