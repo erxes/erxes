@@ -1,9 +1,33 @@
 import { ITicketDocument } from '@/ticket/@types/ticket';
 import { FilterQuery } from 'mongoose';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IModels } from '~/connectionResolvers';
 
-export const generateFilter = (filter: any) => {
+export const generateFilter = async (
+  filter: any,
+  user: IUserDocument,
+  models: IModels,
+) => {
   const filterQuery: FilterQuery<ITicketDocument> = {};
 
+  if (filter.pipelineId) {
+    const pipeline = await models.Pipeline.findOne({
+      _id: filter.pipelineId,
+    });
+
+    if (!pipeline) {
+      throw new Error('Pipeline not found');
+    }
+
+    if (pipeline.visibility === 'private') {
+      const hasAccess = (pipeline.memberIds || []).includes(user._id);
+      if (!hasAccess) {
+        throw new Error(
+          'Access denied: You do not have permission to view this pipeline',
+        );
+      }
+    }
+  }
   if (filter.name) {
     filterQuery.name = { $regex: filter.name, $options: 'i' };
   }
@@ -23,15 +47,15 @@ export const generateFilter = (filter: any) => {
     filterQuery.priority = filter.priority;
   }
 
-  if (filterQuery.startDate) {
+  if (filter.startDate) {
     filterQuery.startDate = { $gte: filter.startDate };
   }
 
-  if (filterQuery.targetDate) {
+  if (filter.targetDate) {
     filterQuery.targetDate = { $gte: filter.targetDate };
   }
 
-  if (filterQuery.createdAt) {
+  if (filter.createdAt) {
     filterQuery.createdAt = { $gte: filter.createdAt };
   }
 
