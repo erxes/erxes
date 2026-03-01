@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "yarn build",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
