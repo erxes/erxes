@@ -357,9 +357,12 @@ export class EditorAttributeUtil {
         pluginName: 'core',
         method: 'query',
         module: 'fields',
-        action: 'validateFieldValues',
+        action: 'find',
         input: {
-          data: item.customFieldsData,
+          query: {
+            contentType: item.contentType,
+            isDefinedByErxes: false,
+          },
         },
       });
 
