@@ -166,11 +166,11 @@ export const PipelinePermissionsList = memo(() => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <InfoCard
-          className="p-0 max-h-[550px] overflow-y-auto"
+          className="p-0 h-[550px] flex flex-col"
           title="Pipeline Permissions"
           description="Configure who can view and manage tickets"
         >
-          <InfoCard.Content className="p-0">
+          <InfoCard.Content className="p-0 overflow-y-auto flex-1 min-h-0">
             {submitError && (
               <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
                 <p className="text-sm text-destructive">{submitError}</p>
