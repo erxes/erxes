@@ -164,9 +164,12 @@ export const PipelinePermissionsList = memo(() => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col h-screen"
+      >
         <InfoCard
-          className="p-0 h-[550px] flex flex-col"
+          className="p-0 flex flex-col flex-1 min-h-0"
           title="Pipeline Permissions"
           description="Configure who can view and manage tickets"
         >
