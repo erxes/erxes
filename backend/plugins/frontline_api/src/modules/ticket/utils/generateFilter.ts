@@ -19,7 +19,6 @@ export const generateFilter = async (
       throw new Error('Pipeline not found');
     }
 
-    // Check pipeline visibility
     if (pipeline.visibility === 'private') {
       const hasAccess = (pipeline.memberIds || []).includes(user._id);
       if (!hasAccess) {
