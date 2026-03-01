@@ -77,9 +77,9 @@ export const customerQueries = {
       { registrationNumber }: { registrationNumber: string },
       { models }: IContext,
     ) => {
-      return models.Customer.findOne({ 
+      return models.Customer.findOne({
         registrationNumber,
-        type: 'company'
+        type: 'company',
       });
     },
     { wrapperConfig: { skipPermission: true } },
