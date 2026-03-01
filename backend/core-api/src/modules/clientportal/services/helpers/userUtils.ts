@@ -66,3 +66,40 @@ export async function assertCPUserEmailPhoneUnique(
     }
   }
 }
+
+/**
+ * Asserts that no other user in the portal has the given email or phone
+ * in either their main contact fields or pending contact fields.
+ * Use when validating a requested contact change (e.g. new email/phone for OTP flow).
+ */
+export async function assertContactChangeUnique(
+  clientPortalId: string,
+  excludeUserId: string,
+  fields: { email?: string; phone?: string },
+  models: IModels,
+): Promise<void> {
+  const baseQuery = {
+    clientPortalId,
+    _id: { $ne: excludeUserId },
+  };
+
+  if (fields.email) {
+    const existing = await models.CPUser.findOne({
+      ...baseQuery,
+      email: fields.email,
+    });
+    if (existing) {
+      throw new ValidationError('Email already exists in this client portal');
+    }
+  }
+
+  if (fields.phone) {
+    const existing = await models.CPUser.findOne({
+      ...baseQuery,
+      phone: fields.phone,
+    });
+    if (existing) {
+      throw new ValidationError('Phone already exists in this client portal');
+    }
+  }
+}

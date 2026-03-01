@@ -157,7 +157,7 @@ export const loadTaskClass = (models: IModels) => {
         number: nextNumber,
       });
 
-      if (doc.assigneeId && doc.assigneeId !== userId) {
+      if (doc.assigneeId) {
         await createNotifications({
           contentType: 'task',
           contentTypeId: task._id,
@@ -166,6 +166,7 @@ export const loadTaskClass = (models: IModels) => {
           notificationType: 'taskAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
+          models,
         });
       }
 
@@ -259,6 +260,7 @@ export const loadTaskClass = (models: IModels) => {
           notificationType: 'note',
           userIds: [doc.assigneeId],
           action: 'assignee',
+          models,
         });
       }
 

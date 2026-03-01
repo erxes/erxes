@@ -22,6 +22,7 @@ export const GET_TICKET = gql`
       number
       pipelineId
       isSubscribed
+      state
     }
   }
 `;

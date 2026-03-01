@@ -1,6 +1,6 @@
 import { IProjectUpdate } from '@/project/@types/project';
-import { TeamMemberRoles } from '@/team/@types/team';
-import { checkUserRole } from '@/utils';
+// import { TeamMemberRoles } from '@/team/@types/team';
+// import { checkUserRole } from '@/utils';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
