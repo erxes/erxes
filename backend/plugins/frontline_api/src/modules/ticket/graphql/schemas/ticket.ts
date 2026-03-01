@@ -125,4 +125,5 @@ export const mutations = `
   removeTicket(_id: String!): Ticket
 
   cpCreateTicket(${createTicketParams}): Ticket
+  cpUpdateTicket(${updateTicketParams}): Ticket
 `;

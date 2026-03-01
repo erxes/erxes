@@ -53,6 +53,27 @@ export const cpTicketMutations: Record<string, Resolver> = {
 
     return ticket;
   },
+
+  cpUpdateTicket: async (
+    _parent: undefined,
+    params: ITicketUpdate,
+    { models, cpUser, subdomain }: IContext,
+  ) => {
+    const updatedTicket = await models.Ticket.updateTicket({
+      doc: params,
+      userId: cpUser?.erxesCustomerId,
+      subdomain,
+    });
+
+    graphqlPubsub.publish(`ticketChanged:${updatedTicket._id}`, {
+      ticketChanged: { type: 'update', ticket: updatedTicket },
+    });
+    graphqlPubsub.publish('ticketListChanged', {
+      ticketListChanged: { type: 'update', ticket: updatedTicket },
+    });
+
+    return updatedTicket;
+  },
 };
 
 markResolvers(cpTicketMutations, {
