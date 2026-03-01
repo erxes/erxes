@@ -17,7 +17,9 @@ const PAYMENT_STATUS_OPTIONS = [
 ];
 
 const PaymentStatusFilterView = () => {
-  const [queries, setQueries] = useMultiQueryState<{ paymentStatus: string }>(['paymentStatus']);
+  const [queries, setQueries] = useMultiQueryState<{ paymentStatus: string }>([
+    'paymentStatus',
+  ]);
   const value = queries?.paymentStatus;
   const setValue = (newValue: string | null) => {
     setQueries({ paymentStatus: newValue });
@@ -41,7 +43,9 @@ const PaymentStatusFilterView = () => {
 
 const InsuranceTypeFilterView = () => {
   const { insuranceTypes } = useInsuranceTypes();
-  const [queries, setQueries] = useMultiQueryState<{ insuranceTypeId: string }>(['insuranceTypeId']);
+  const [queries, setQueries] = useMultiQueryState<{ insuranceTypeId: string }>(
+    ['insuranceTypeId'],
+  );
   const value = queries?.insuranceTypeId;
   const setValue = (newValue: string | null) => {
     setQueries({ insuranceTypeId: newValue });
