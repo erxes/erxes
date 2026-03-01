@@ -82,9 +82,10 @@ export const fieldsTrpcRouter = t.router({
     validateFieldValues: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
+        const { data } = input;
         const { models } = ctx;
 
-        return models.Fields.validateFieldValues(input);
+        return await models.Fields.validateFieldValues(data);
       }),
   }),
 });

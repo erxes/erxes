@@ -18,6 +18,7 @@ export const types = `
     erxesCustomerId: String
     erxesCompanyId: String
     customFieldsData: JSON
+    propertiesData: JSON
     verificationRequest: VerificationRequest
     isVerified: Boolean!
     isPhoneVerified: Boolean!
