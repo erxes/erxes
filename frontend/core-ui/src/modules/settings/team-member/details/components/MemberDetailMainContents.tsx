@@ -4,6 +4,7 @@ import { MemberLinks } from './MemberLinks';
 import { ActivityLogs, FieldsInDetail } from 'ui-modules';
 import { useUserDetail } from '../../hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '../../hooks/useUserEdit';
+import { MembersPermissions } from './MembersPermissions';
 
 export const MemberDetailMainContents = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -18,6 +19,9 @@ export const MemberDetailMainContents = () => {
       <ScrollArea className="h-full">
         <Tabs.Content value="overview">
           <MemberGeneral />
+        </Tabs.Content>
+        <Tabs.Content value="permissions">
+          <MembersPermissions />
         </Tabs.Content>
         <Tabs.Content value="links">
           <MemberLinks />

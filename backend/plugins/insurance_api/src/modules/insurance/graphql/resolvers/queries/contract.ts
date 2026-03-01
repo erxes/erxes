@@ -1,96 +1,118 @@
 import { IContext } from '~/connectionResolvers';
 
 export const contractQueries = {
-  contracts: async (
-    _parent: undefined,
-    { vendorId, customerId }: { vendorId?: string; customerId?: string },
-    { models }: IContext,
-  ) => {
-    const query: any = {};
-    if (vendorId) query.vendor = vendorId;
-    if (customerId) query.customer = customerId;
+  contracts: Object.assign(
+    async (
+      _parent: undefined,
+      { vendorId, customerId }: { vendorId?: string; customerId?: string },
+      { models }: IContext,
+    ) => {
+      const query: any = {};
+      if (vendorId) query.vendor = vendorId;
+      if (customerId) query.customer = customerId;
 
-    const contracts = await models.Contract.find(query).populate(
-      'vendor customer insuranceType insuranceProduct coveredRisks.risk',
-    );
+      const contracts = await models.Contract.find(query).populate(
+        'vendor customer insuranceType insuranceProduct coveredRisks.risk',
+      );
 
-    return contracts
-      .filter((c: any) => c.insuranceProduct != null)
-      .map((c: any) => ({
-        ...c.toObject(),
-        coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
-      }));
-  },
+      return contracts
+        .filter(
+          (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        )
+        .map((c: any) => ({
+          ...c.toObject(),
+          coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
+        }));
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
-  contract: async (
-    _parent: undefined,
-    { id }: { id: string },
-    { models }: IContext,
-  ) => {
-    const contract = await models.Contract.findById(id).populate(
-      'vendor customer insuranceType insuranceProduct coveredRisks.risk',
-    );
+  contract: Object.assign(
+    async (
+      _parent: undefined,
+      { id }: { id: string },
+      { models }: IContext,
+    ) => {
+      const contract = await models.Contract.findById(id).populate(
+        'vendor customer insuranceType insuranceProduct coveredRisks.risk',
+      );
 
-    if (!contract || !contract.insuranceProduct) return null;
+      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
+        return null;
 
-    return {
-      ...contract.toObject(),
-      coveredRisks: contract.coveredRisks.filter((cr: any) => cr.risk != null),
-    };
-  },
+      return {
+        ...contract.toObject(),
+        coveredRisks: contract.coveredRisks.filter(
+          (cr: any) => cr.risk != null,
+        ),
+      };
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
-  vendorContracts: async (
-    _parent: undefined,
-    _args: any,
-    { models, insuranceVendorUser }: IContext,
-  ) => {
-    if (!insuranceVendorUser) throw new Error('Must be logged in');
+  vendorContracts: Object.assign(
+    async (
+      _parent: undefined,
+      _args: any,
+      { models, insuranceVendorUser }: IContext,
+    ) => {
+      if (!insuranceVendorUser) throw new Error('Must be logged in');
 
-    const vendorUser = await models.VendorUser.findById(
-      insuranceVendorUser._id,
-    );
-    if (!vendorUser) throw new Error('Vendor user not found');
+      const vendorUser = await models.VendorUser.findById(
+        insuranceVendorUser._id,
+      );
+      if (!vendorUser) throw new Error('Vendor user not found');
 
-    const contracts = await models.Contract.find({
-      vendor: vendorUser.vendor,
-    }).populate(
-      'vendor customer insuranceType insuranceProduct coveredRisks.risk',
-    );
+      const contracts = await models.Contract.find({
+        vendor: vendorUser.vendor,
+      }).populate(
+        'vendor customer insuranceType insuranceProduct coveredRisks.risk',
+      );
 
-    return contracts
-      .filter((c: any) => c.insuranceProduct != null)
-      .map((c: any) => ({
-        ...c.toObject(),
-        coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
-      }));
-  },
+      return contracts
+        .filter(
+          (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        )
+        .map((c: any) => ({
+          ...c.toObject(),
+          coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
+        }));
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
-  vendorContract: async (
-    _parent: undefined,
-    { id }: { id: string },
-    { models, insuranceVendorUser }: IContext,
-  ) => {
-    if (!insuranceVendorUser) throw new Error('Must be logged in');
+  vendorContract: Object.assign(
+    async (
+      _parent: undefined,
+      { id }: { id: string },
+      { models, insuranceVendorUser }: IContext,
+    ) => {
+      if (!insuranceVendorUser) throw new Error('Must be logged in');
 
-    const vendorUser = await models.VendorUser.findById(
-      insuranceVendorUser._id,
-    );
-    if (!vendorUser) throw new Error('Vendor user not found');
+      const vendorUser = await models.VendorUser.findById(
+        insuranceVendorUser._id,
+      );
+      if (!vendorUser) throw new Error('Vendor user not found');
 
-    const contract = await models.Contract.findOne({
-      _id: id,
-      vendor: vendorUser.vendor,
-    }).populate(
-      'vendor customer insuranceType insuranceProduct coveredRisks.risk',
-    );
+      const contract = await models.Contract.findOne({
+        _id: id,
+        vendor: vendorUser.vendor,
+      }).populate(
+        'vendor customer insuranceType insuranceProduct coveredRisks.risk',
+      );
 
-    if (!contract || !contract.insuranceProduct) return null;
+      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
+        return null;
 
-    return {
-      ...contract.toObject(),
-      coveredRisks: contract.coveredRisks.filter((cr: any) => cr.risk != null),
-    };
-  },
+      return {
+        ...contract.toObject(),
+        coveredRisks: contract.coveredRisks.filter(
+          (cr: any) => cr.risk != null,
+        ),
+      };
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 
   vendorInsuranceItems: Object.assign(
     async (
@@ -241,7 +263,9 @@ export const contractQueries = {
       ]);
 
       return {
-        list: list.filter((c: any) => c.insuranceProduct != null),
+        list: list.filter(
+          (c: any) => c.insuranceProduct != null && c.insuranceType != null,
+        ),
         totalCount,
       };
     },
@@ -265,6 +289,8 @@ export const contractQueries = {
         _id,
         vendor: vendorUser.vendor,
       }).populate('vendor customer insuranceType insuranceProduct');
+
+      if (!contract || !contract.insuranceType) return null;
 
       return contract;
     },

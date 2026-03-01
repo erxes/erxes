@@ -45,7 +45,6 @@ export const loadTicketClass = (models: IModels) => {
       params: ITicketFilter,
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
-
       if (params.name) query.name = { $regex: params.name, $options: 'i' };
       if (params.assigneeId) query.assigneeId = params.assigneeId;
       if (params.channelId) query.channelId = params.channelId;
@@ -59,6 +58,21 @@ export const loadTicketClass = (models: IModels) => {
       if (params.startDate) query.startDate = { $gte: params.startDate };
       if (params.targetDate) query.targetDate = { $lte: params.targetDate };
       if (params.createdAt) query.createdAt = { $gte: params.createdAt };
+      switch (params.state) {
+        case 'active':
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+        case 'archived':
+          query.state = 'archived';
+          break;
+        case 'deleted':
+          query.state = 'deleted';
+          break;
+        default:
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+      }
+
       return models.Ticket.find(query)
         .populate('pipelineId')
         .populate('statusId')
@@ -125,7 +139,7 @@ export const loadTicketClass = (models: IModels) => {
         const propertiesData = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
-          method: 'query',
+          method: 'mutation',
           module: 'fields',
           action: 'validateFieldValues',
           input: {

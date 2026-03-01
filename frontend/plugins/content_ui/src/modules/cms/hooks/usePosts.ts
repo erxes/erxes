@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { POSTS_LIST } from '../posts/graphql/queries/postsListQueries';
+import { POST_LIST } from '../graphql/posts';
 
 export interface PostAuthor {
   _id: string;
@@ -121,7 +121,7 @@ export function usePosts({
   cursor,
   direction,
 }: UsePostsProps): UsePostsResult {
-  const { data, loading, error, refetch } = useQuery(POSTS_LIST, {
+  const { data, loading, error, refetch } = useQuery(POST_LIST, {
     variables: {
       clientPortalId,
       type,

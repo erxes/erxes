@@ -39,14 +39,14 @@ const SelectUsersGroupProvider = ({
     const newSelectedGroupIds = isSingleMode
       ? [group._id]
       : isSelected
-        ? multipleValue.filter((id) => id !== group._id)
-        : [...multipleValue, group._id];
+      ? multipleValue.filter((id) => id !== group._id)
+      : [...multipleValue, group._id];
 
     const newSelectedGroups = isSingleMode
       ? [group]
       : isSelected
-        ? usersGroups.filter((g) => g._id !== group._id)
-        : [...usersGroups, group];
+      ? usersGroups.filter((g) => g._id !== group._id)
+      : [...usersGroups, group];
 
     setUsersGroups(newSelectedGroups);
     onValueChange?.(isSingleMode ? group._id : newSelectedGroupIds);
@@ -164,7 +164,7 @@ const SelectUsersGroupFilterView = () => {
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey="channelId">
+    <Filter.View filterKey="groupId">
       <SelectUsersGroupProvider
         value={groupId || []}
         onValueChange={(value) => {

@@ -184,16 +184,16 @@
   s.allow = 'camera *; microphone *; clipboard-read; clipboard-write';
   var i;
   function P() {
-    (A && document.getElementsByTagName('head')[0].removeChild(A),
+    A && document.getElementsByTagName('head')[0].removeChild(A),
       (l = document.createElement('meta')),
       (l.name = 'viewport'),
       (l.content =
         'initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width'),
-      document.getElementsByTagName('head')[0].appendChild(l));
+      document.getElementsByTagName('head')[0].appendChild(l);
   }
   function T() {
-    (l && document.getElementsByTagName('head')[0].removeChild(l),
-      A && document.getElementsByTagName('head')[0].appendChild(A));
+    l && document.getElementsByTagName('head')[0].removeChild(l),
+      A && document.getElementsByTagName('head')[0].appendChild(A);
   }
   var C = (t) => {
       ((t.type === 'keyup' && t.key === 'Enter') || t.type === 'click') && R();
@@ -210,12 +210,12 @@
           i)
         ) {
           let e = i.createElement('div');
-          (e.setAttribute('role', 'button'),
+          e.setAttribute('role', 'button'),
             e.setAttribute('class', 'erxes-launcher'),
             e.setAttribute('tabindex', '0'),
             i.body.appendChild(e),
             e.addEventListener('click', C),
-            e.addEventListener('keyup', C));
+            e.addEventListener('keyup', C);
         }
       }),
     b = document.createElement('div');
@@ -236,12 +236,12 @@
           return;
         }
         let t = s.contentWindow;
-        ((s.style.display = 'block'), V(t), F(t), (a.style.opacity = '1'));
+        (s.style.display = 'block'), V(t), F(t), (a.style.opacity = '1');
       }),
     S = () => localStorage.getItem('erxes') || '{}',
     I = (t, e) => {
       let n = window.Erxes || {};
-      ((n[t] = e), (window.Erxes = n));
+      (n[t] = e), (window.Erxes = n);
     },
     V = (t) => {
       I('showMessenger', () => {
@@ -280,7 +280,7 @@
             return console.error('Messenger: launcher element is not defined');
           let { color: p, logo: g } = d,
             r = g;
-          ((x = !!r),
+          (x = !!r),
             (u = x ? `url(${v}/read-file?key=${encodeURIComponent(r)})` : u),
             (o.style.cssText = `
       width: 48px;
@@ -308,7 +308,7 @@
       background-image: ${u};
       background-size: ${x ? 'cover' : '18px'};
       background-position: center;
-    `));
+    `);
         }
       });
   window.addEventListener('message', O);
@@ -320,7 +320,7 @@
         let o = i == null ? void 0 : i.querySelector('.erxes-launcher');
         if (!o)
           return console.error('Messenger: launcher element is not defined');
-        (y && document.body.classList.toggle('widget-mobile', n),
+        y && document.body.classList.toggle('widget-mobile', n),
           m === 'messenger' &&
             (y && n ? P() : T(),
             n
@@ -333,7 +333,7 @@
                 (o.style.backgroundImage = u),
                 (o.style.backgroundSize = x ? 'cover' : '18px'),
                 (o.innerHTML = ''))),
-          w.classList.toggle('small', d));
+          w.classList.toggle('small', d);
       }
     }),
   );

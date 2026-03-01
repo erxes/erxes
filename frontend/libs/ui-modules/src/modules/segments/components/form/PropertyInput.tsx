@@ -13,6 +13,7 @@ export const PropertyInput = ({
   operators,
   selectedField,
   loading,
+  onBeforeFieldChange,
 }: IPropertyInput) => {
   const { form } = useSegment();
   const { control } = form;
@@ -43,7 +44,7 @@ export const PropertyInput = ({
   }
 
   let Component = (field: ControllerRenderProps<any, any>) => (
-    <Input {...field} disabled={!value || loading} />
+    <Input {...field} className="w-full min-w-0" disabled={!value || loading} />
   );
 
   if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
@@ -65,7 +66,7 @@ export const PropertyInput = ({
         onValueChange={(selectedValue) => field.onChange(selectedValue)}
         disabled={loading}
       >
-        <Select.Trigger>
+        <Select.Trigger className="w-full min-w-0">
           <Select.Value className="w-full" />
         </Select.Trigger>
         <Select.Content>
@@ -125,7 +126,7 @@ export const PropertyInput = ({
         onValueChange={(selectedValue) => field.onChange(selectedValue)}
         disabled={loading}
       >
-        <Select.Trigger>
+        <Select.Trigger className="w-full min-w-0">
           <Select.Value className="w-full" />
         </Select.Trigger>
         <Select.Content>
@@ -139,13 +140,23 @@ export const PropertyInput = ({
     );
   }
 
+  const wrapFieldOnChange = (field: ControllerRenderProps<any, any>) => ({
+    ...field,
+    onChange: (value: any) => {
+      onBeforeFieldChange?.('propertyValue');
+      field.onChange(value);
+    },
+  });
+
   return (
     <Form.Field
       control={control}
       name={`${parentFieldName}.propertyValue`}
       render={({ field, fieldState }) => (
         <FieldWithError error={fieldState.error}>
-          {Component(field)}
+          <div className="w-full min-w-0">
+            {Component(wrapFieldOnChange(field))}
+          </div>
         </FieldWithError>
       )}
     />

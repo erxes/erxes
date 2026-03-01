@@ -237,8 +237,8 @@ export const destroyBoardItemRelations = async (
     pluginName: 'core',
     module: 'activityLog',
     action: 'deleteActivityLog',
-    input: { targetIds: dealIds },
-  });
+    input: { targetIds: dealIds }
+  })
 
   await models.Checklists.removeChecklists(dealIds);
 
@@ -250,7 +250,7 @@ export const destroyBoardItemRelations = async (
     action: 'cleanRelation',
     input: {
       contentType: 'sales:deal',
-      contentIds: dealIds,
+      contentIds: dealIds
     },
   });
 
@@ -512,7 +512,7 @@ export const getItemList = async (
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
-    args.orderBy = { order: 1 };
+    args.orderBy = { order: 1 }
   }
 
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
@@ -531,28 +531,26 @@ export const getItemList = async (
     action: 'find',
     input: {
       query: {
-        showInCard: true,
-        contentType: `sales:sales.deal`,
+        "configs.showInCard": true,
+        contentType: `sales:deal`,
       },
     },
     defaultValue: [],
   });
 
   for (const item of list) {
-    if (item.customFieldsData?.length && fields?.length) {
+    if (Object.keys(item.propertiesData || {}).length && fields?.length) {
       item.customProperties = [];
 
-      fields.forEach((field) => {
-        const fieldData = (item.customFieldsData || []).find(
-          (f) => f.field === field._id,
-        );
+      for (const field of fields) {
+        const fieldData = item.propertiesData?.[field._id];
 
         if (item.customProperties && fieldData) {
           item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
+            name: `${field.name} - ${fieldData}`,
           });
         }
-      });
+      };
     }
 
     updatedList.push({
@@ -586,7 +584,7 @@ const compareDepartmentIds = (
 
 export const generateProducts = async (
   subdomain: string,
-  productsData?: any[],
+  productsData?: any[]
 ) => {
   const products: any = [];
 
@@ -595,68 +593,65 @@ export const generateProducts = async (
   }
 
   const productIds = productsData
-    .filter((pd) => pd.productId)
-    .map((pd) => pd.productId);
+    .filter(pd => pd.productId)
+    .map(pd => pd.productId);
 
   const allProducts = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
     module: 'products',
-    action: 'find',
+    action: "find",
     input: { query: { _id: { $in: productIds } }, limit: productsData.length },
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
     }
-    const product = allProducts.find((p) => p._id === data.productId);
+    const product = allProducts.find(p => p._id === data.productId);
 
     if (!product) {
       continue;
     }
 
-    const { customFieldsData } = product;
+    const { propertiesData } = product;
 
-    const customFields: any[] = [];
+    const properties: any = {};
 
-    const fieldIds: string[] = [];
-    for (const customFieldData of customFieldsData || []) {
-      fieldIds.push(customFieldData.field);
-    }
+    const fieldIds: string[] = Object.keys(propertiesData || {});
 
     const fields = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'query',
       module: 'fields',
-      action: 'find',
+      action: "find",
       input: {
         query: {
-          _id: { $in: fieldIds },
-        },
+          _id: { $in: fieldIds }
+        }
       },
-      defaultValue: [],
+      defaultValue: []
     });
 
-    for (const customFieldData of customFieldsData || []) {
-      const field = fields.find((f) => f._id === customFieldData.field);
+    for (const fieldId of fieldIds || []) {
+      const field = fields.find(f => f._id === fieldId);
 
       if (field) {
-        customFields[customFieldData.field] = {
+        properties[fieldId] = {
           text: field.text,
-          data: customFieldData.value,
+          data: propertiesData[fieldId]
         };
       }
     }
 
-    product.customFieldsData = customFields;
+    product.propertiesData = properties;
 
     products.push({
-      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
-      product,
+      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
+      product
     });
   }
 
@@ -927,39 +922,29 @@ export const getCustomerIds = async (
 
 export const createRelations = async (
   subdomain: string,
-  {
-    dealId,
-    companyIds,
-    customerIds,
-  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
+  { dealId, companyIds, customerIds }: { dealId: string, companyIds?: string[], customerIds?: string[] },
 ) => {
-  const companyEntities =
-    companyIds?.map((companyId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:company',
-          contentId: companyId,
-        },
-      ],
-    })) ?? [];
+  const companyEntities = companyIds?.map(companyId => ({
+    entities: [{
+      "contentType": "sales:deal",
+      "contentId": dealId
+    },
+    {
+      "contentType": "core:company",
+      "contentId": companyId
+    }]
+  })) ?? [];
 
-  const customerEntities =
-    customerIds?.map((customerId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:customer',
-          contentId: customerId,
-        },
-      ],
-    })) ?? [];
+  const customerEntities = customerIds?.map(customerId => ({
+    entities: [{
+      "contentType": "sales:deal",
+      "contentId": dealId
+    },
+    {
+      "contentType": "core:customer",
+      "contentId": customerId
+    }]
+  })) ?? [];
 
   if (!(companyEntities.length + customerEntities.length)) {
     return;
@@ -972,7 +957,10 @@ export const createRelations = async (
     module: 'relation',
     action: 'createMultipleRelations',
     input: {
-      relations: [...companyEntities, ...customerEntities],
+      relations: [
+        ...companyEntities,
+        ...customerEntities
+      ]
     },
   });
 };
@@ -1190,15 +1178,15 @@ export const itemsAdd = async (
     }),
   };
 
-  if (extendedDoc.customFieldsData) {
+  if (extendedDoc.propertiesData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendTRPCMessage({
+    extendedDoc.propertiesData = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'fields',
-      action: 'prepareCustomFieldsData',
-      input: extendedDoc.customFieldsData,
-      defaultValue: [],
+      action: 'validateFieldValues',
+      input: extendedDoc.propertiesData,
+      defaultValue: {},
     });
   }
 

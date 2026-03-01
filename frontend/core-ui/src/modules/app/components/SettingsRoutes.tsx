@@ -10,6 +10,7 @@ import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
+import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -36,16 +37,6 @@ const SettingsMailConfig = lazy(() =>
 const GeneralSettings = lazy(() =>
   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
     default: module.GeneralSettingsPage,
-  })),
-);
-const TeamMemberSettings = lazy(() =>
-  import('~/pages/settings/workspace/TeamMemberPage').then((module) => ({
-    default: module.TeamMemberPage,
-  })),
-);
-const PermissionsSettings = lazy(() =>
-  import('~/pages/settings/workspace/PermissionPage').then((module) => ({
-    default: module.PermissionPage,
   })),
 );
 
@@ -100,6 +91,14 @@ const BroadcastSettings = lazy(() =>
   })),
 );
 
+const SettingsNotificationRoutes = lazy(() =>
+  import('@/notification/settings/components/NotificationSettingsRoutes').then(
+    (module) => ({
+      default: module.NotificationSettingsRoutes,
+    }),
+  ),
+);
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -111,6 +110,10 @@ export function SettingsRoutes() {
           element={<Navigate to={`${SettingsPath.Profile}`} replace />}
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
+        <Route
+          path={SettingsPath.NotificationCatchAll}
+          element={<SettingsNotificationRoutes />}
+        />
         <Route
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}
@@ -136,13 +139,10 @@ export function SettingsRoutes() {
           element={<GeneralSettings />}
         />
         <Route
-          path={SettingsWorkspacePath.TeamMember}
-          element={<TeamMemberSettings />}
+          path={SettingsWorkspacePath.TeamMemberCatchAll}
+          element={<TeamMemberSettingsRoutes />}
         />
-        <Route
-          path={SettingsWorkspacePath.Permissions}
-          element={<PermissionsSettings />}
-        />
+
         <Route
           path={SettingsWorkspacePath.ClientPortals}
           element={<ClientPortalPage />}

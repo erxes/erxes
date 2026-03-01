@@ -95,7 +95,6 @@ const insuranceMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<IndexPage />} />
         <Route path="/vendors" element={<VendorsPage />} />
         <Route path="/vendors/:id" element={<VendorDetailPage />} />
         <Route path="/vendor-users" element={<VendorUsersPage />} />

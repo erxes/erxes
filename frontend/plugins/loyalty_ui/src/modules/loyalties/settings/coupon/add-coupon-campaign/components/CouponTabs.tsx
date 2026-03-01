@@ -58,6 +58,10 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
 
+      kind: data.kind,
+      value: data.count,
+      buyScore: data.buyScore,
+
       restrictions: {
         minimumSpend: data.minimumSpend,
         maximumSpend: data.maximumSpend,
@@ -68,8 +72,7 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
         tag: data.tag,
         orExcludeTag: data.orExcludeTag,
       },
-      buyScore: data.buyScore,
-      count: data.count,
+
       codeRule: {
         codeLength: data.codeLength,
         prefixUppercase: data.prefixUppercase,

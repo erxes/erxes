@@ -104,13 +104,13 @@ export const CustomerForm = ({
       <Dialog.Content className="max-w-lg">
         <Dialog.Header>
           <Dialog.Title>
-            {customer ? 'Харилцагч засах' : 'Шинэ харилцагч'}
+            {customer ? 'Edit Customer' : 'New Customer'}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="type">Төрөл *</Label>
+            <Label htmlFor="type">Type *</Label>
             <Select
               value={formData.type}
               onValueChange={(value) =>
@@ -118,73 +118,73 @@ export const CustomerForm = ({
               }
             >
               <Select.Trigger>
-                <Select.Value placeholder="Төрөл сонгох" />
+                <Select.Value placeholder="Select type" />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="individual">Хувь хүн</Select.Item>
-                <Select.Item value="company">Байгууллага</Select.Item>
+                <Select.Item value="individual">Individual</Select.Item>
+                <Select.Item value="company">Company</Select.Item>
               </Select.Content>
             </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">Овог *</Label>
+              <Label htmlFor="firstName">Last Name *</Label>
               <Input
                 id="firstName"
                 value={formData.firstName}
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
-                placeholder="Овог"
+                placeholder="Last name"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName">Нэр *</Label>
+              <Label htmlFor="lastName">First Name *</Label>
               <Input
                 id="lastName"
                 value={formData.lastName}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
-                placeholder="Нэр"
+                placeholder="First name"
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="registrationNumber">Регистрийн дугаар *</Label>
+            <Label htmlFor="registrationNumber">Registration Number *</Label>
             <Input
               id="registrationNumber"
               value={formData.registrationNumber}
               onChange={(e) =>
                 setFormData({ ...formData, registrationNumber: e.target.value })
               }
-              placeholder="АА00000000"
+              placeholder="AA00000000"
               required
             />
           </div>
 
           {formData.type === 'company' && (
             <div className="space-y-2">
-              <Label htmlFor="companyName">Байгууллагын нэр</Label>
+              <Label htmlFor="companyName">Company Name</Label>
               <Input
                 id="companyName"
                 value={formData.companyName}
                 onChange={(e) =>
                   setFormData({ ...formData, companyName: e.target.value })
                 }
-                placeholder="Байгууллагын нэр"
+                placeholder="Company name"
               />
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Имэйл</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -197,7 +197,7 @@ export const CustomerForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Утас</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 value={formData.phone}
@@ -216,14 +216,14 @@ export const CustomerForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              Цуцлах
+              Cancel
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? 'Хадгалж байна...'
+                ? 'Saving...'
                 : customer
-                  ? 'Шинэчлэх'
-                  : 'Үүсгэх'}
+                ? 'Update'
+                : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>

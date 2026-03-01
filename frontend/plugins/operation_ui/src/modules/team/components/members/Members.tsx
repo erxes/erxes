@@ -1,29 +1,30 @@
 import { AddMembers } from '@/team/components/members/AddMembers';
 import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
 import { useTeamMemberRemove } from '@/team/hooks/useTeamMemberRemove';
-import { useTeamMemberUpdate } from '@/team/hooks/useTeamMemberUpdate';
+// import { useTeamMemberUpdate } from '@/team/hooks/useTeamMemberUpdate';
 import { ITeamMember } from '@/team/types';
 import { IconX } from '@tabler/icons-react';
-import { Button, Select, Skeleton, Table } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { Button, Skeleton, Table } from 'erxes-ui';
 import { useParams } from 'react-router';
-import { currentUserState, MembersInline } from 'ui-modules';
+import { MembersInline } from 'ui-modules';
 
 export function Members() {
-  const currentUser = useAtomValue(currentUserState);
+  // const currentUser = useAtomValue(currentUserState);
   const { id: teamId } = useParams();
   const { members, loading } = useGetTeamMembers({ teamIds: teamId });
-  const { updateTeamMember } = useTeamMemberUpdate();
+  // const { updateTeamMember } = useTeamMemberUpdate();
   const { removeTeamMember } = useTeamMemberRemove();
 
-  const roleHandler = (value: string, _id: string) => {
-    updateTeamMember({
-      variables: {
-        _id,
-        role: value,
-      },
-    });
-  };
+  //Deprecated
+
+  // const roleHandler = (value: string, _id: string) => {
+  //   updateTeamMember({
+  //     variables: {
+  //       _id,
+  //       role: value,
+  //     },
+  //   });
+  // };
 
   const removeHandler = (teamId: string, memberId: string) => {
     removeTeamMember({
@@ -35,9 +36,10 @@ export function Members() {
   };
 
   const renderMemberRemove = (member: ITeamMember) => {
-    if (member.role === 'admin' || member.memberId === currentUser?._id) {
-      return null;
-    }
+    //Deprecated
+    // if (member.role === 'admin' || member.memberId === currentUser?._id) {
+    //   return null;
+    // }
 
     return (
       <Button
@@ -62,7 +64,7 @@ export function Members() {
           <Table.Header>
             <Table.Row>
               <Table.Head className="pl-2 w-auto">Member</Table.Head>
-              <Table.Head className="w-52">Role</Table.Head>
+              {/* <Table.Head className="w-52">Role</Table.Head>   */}
               <Table.Head className="w-8" />
             </Table.Row>
           </Table.Header>
@@ -83,11 +85,11 @@ export function Members() {
                         </span>
                       </MembersInline.Provider>
                     </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-52 ">
+                    {/* <Table.Cell className="border-none px-2 w-52 ">
                       <Select
                         value={member.role}
                         onValueChange={(value) =>
-                          roleHandler(value, member._id)
+                          // roleHandler(value, member._id)
                         }
                       >
                         <Select.Trigger className="w-full h-7 hover:bg-accent-foreground/10 shadow-none">
@@ -105,7 +107,7 @@ export function Members() {
                           </Select.Item>
                         </Select.Content>
                       </Select>
-                    </Table.Cell>
+                    </Table.Cell> */}
                     <Table.Cell className="border-none w-8 ">
                       {renderMemberRemove(member)}
                     </Table.Cell>

@@ -75,6 +75,12 @@ export type IProperty = {
   parentFieldName?: `conditionSegments.${number}`;
 };
 
+export type ConditionFieldKey =
+  | 'propertyType'
+  | 'propertyName'
+  | 'propertyOperator'
+  | 'propertyValue';
+
 export type IPropertyField = {
   index: number;
   fields: IField[];
@@ -83,6 +89,7 @@ export type IPropertyField = {
   defaultValue?: any;
   propertyTypes: any[];
   loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export type IPropertyCondtion = {
@@ -92,6 +99,7 @@ export type IPropertyCondtion = {
   parentFieldName: IFormFieldName;
   defaultValue?: any;
   loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export type IPropertyInput = {
@@ -101,6 +109,7 @@ export type IPropertyInput = {
   operators: IOperator[];
   selectedField?: IField;
   loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export interface ISegmentMap {

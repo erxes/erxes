@@ -1,10 +1,30 @@
 import { Schema } from 'mongoose';
-import {
-  mongooseField,
-  PERMISSION_ROLES,
-  schemaWrapper,
-} from '../../../../utils';
+import { mongooseField, schemaWrapper } from '../../../../utils';
 
+export const permissionGroupSchema = schemaWrapper(
+  new Schema(
+    {
+      _id: mongooseField({ pkey: true }),
+      name: mongooseField({ type: String, label: 'Name' }),
+      description: mongooseField({ type: String, label: 'Description' }),
+      permissions: mongooseField({
+        type: [
+          {
+            plugin: { type: String },
+            module: { type: String },
+            actions: { type: [String] },
+            scope: { type: String, enum: ['own', 'group', 'all'] },
+          },
+        ],
+        default: [],
+        label: 'Permissions',
+      }),
+    },
+    { timestamps: true },
+  ),
+);
+
+// DEPRECATED - Keep for migration, remove later
 export const userGroupSchema = schemaWrapper(
   new Schema({
     _id: mongooseField({ pkey: true }),
@@ -23,9 +43,11 @@ export const userGroupSchema = schemaWrapper(
   }),
 );
 
+// DEPRECATED - Keep for migration, remove later
 export const permissionSchema = schemaWrapper(
   new Schema({
     _id: mongooseField({ pkey: true }),
+    plugin: mongooseField({ type: String, label: 'Plugin' }),
     module: mongooseField({ type: String, label: 'Module' }),
     action: mongooseField({ type: String, label: 'Action' }),
     userId: mongooseField({ type: String, label: 'User' }),
@@ -39,6 +61,7 @@ export const permissionSchema = schemaWrapper(
   }),
 );
 
+// DEPRECATED - Remove
 export const roleSchema = new Schema(
   {
     userId: {
@@ -50,13 +73,10 @@ export const roleSchema = new Schema(
     },
     role: {
       type: String,
-      enum: PERMISSION_ROLES.ALL,
       label: 'Role',
       index: true,
       required: true,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );

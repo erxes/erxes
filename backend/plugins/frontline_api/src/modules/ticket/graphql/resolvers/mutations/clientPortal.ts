@@ -13,9 +13,11 @@ export const cpTicketMutations: Record<string, Resolver> = {
     params: ITicketUpdate,
     { models, subdomain, cpUser, clientPortal }: IContext,
   ) => {
+    const userId = cpUser.erxesCustomerId || cpUser._id || clientPortal._id;
+
     const ticket = await models.Ticket.addTicket(
       params,
-      `cp:${clientPortal._id}`,
+      `cp:${userId}`,
       subdomain,
     );
 
@@ -57,22 +59,15 @@ export const cpTicketMutations: Record<string, Resolver> = {
   cpUpdateTicket: async (
     _parent: undefined,
     params: ITicketUpdate,
-    { models, cpUser, subdomain }: IContext,
+    { models, cpUser, clientPortal, subdomain }: IContext,
   ) => {
-    const updatedTicket = await models.Ticket.updateTicket({
+    const userId = cpUser.erxesCustomerId || cpUser._id || clientPortal._id;
+
+    return await models.Ticket.updateTicket({
       doc: params,
-      userId: cpUser?.erxesCustomerId,
+      userId: `cp:${userId}`,
       subdomain,
     });
-
-    graphqlPubsub.publish(`ticketChanged:${updatedTicket._id}`, {
-      ticketChanged: { type: 'update', ticket: updatedTicket },
-    });
-    graphqlPubsub.publish('ticketListChanged', {
-      ticketListChanged: { type: 'update', ticket: updatedTicket },
-    });
-
-    return updatedTicket;
   },
 };
 

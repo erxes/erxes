@@ -1,5 +1,4 @@
 import { getEnv } from 'erxes-api-shared/utils';
-
 import { GolomtAPI } from '~/apis/golomt/api';
 import { KhanbankAPI } from '~/apis/khanbank/api';
 import { MinuPayAPI } from '~/apis/minupay/api';
@@ -12,148 +11,147 @@ import { SocialPayAPI } from '~/apis/socialpay/api';
 import { StorePayAPI } from '~/apis/storepay/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import { WechatPayAPI } from '~/apis/wechatpay/api';
-
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 class ErxesPayment {
-  public socialpay!: SocialPayAPI;
-  public storepay!: StorePayAPI;
-  public qpay!: QpayAPI;
-  public monpay!: MonpayAPI;
-  public paypal!: PaypalAPI;
-  public wechatpay!: WechatPayAPI;
-  public qpayQuickqr!: QPayQuickQrAPI;
-  public pocket!: PocketAPI;
-  public minupay!: MinuPayAPI;
-  public golomt!: GolomtAPI;
-  public stripe!: StripeAPI;
-  public khanbank!: KhanbankAPI;
-  public domain: string;
-
-  private payment: any;
+  public readonly domain: string;
+  private readonly payment: IPaymentDocument;
+  private readonly api: any;
 
   constructor(payment: IPaymentDocument, subdomain?: string) {
     this.payment = payment;
+
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
-    const apiDomain = DOMAIN.replace('<subdomain>', subdomain || '');
-    this.domain = apiDomain;
+
+    this.domain = DOMAIN.replace('<subdomain>', subdomain || '');
 
     switch (payment.kind) {
       case 'socialpay':
-        this.socialpay = new SocialPayAPI(payment.config);
+        this.api = new SocialPayAPI(payment.config);
         break;
       case 'storepay':
-        this.storepay = new StorePayAPI(payment.config, this.domain);
+        this.api = new StorePayAPI(payment.config, this.domain);
         break;
       case 'qpay':
-        this.qpay = new QpayAPI(
+        this.api = new QpayAPI(
           { ...payment.config, branchCode: payment.name },
           this.domain,
         );
         break;
       case 'monpay':
-        this.monpay = new MonpayAPI(payment.config, this.domain);
+        this.api = new MonpayAPI(payment.config, this.domain);
         break;
       case 'paypal':
-        this.paypal = new PaypalAPI(payment.config);
+        this.api = new PaypalAPI(payment.config);
         break;
       case 'wechatpay':
-        this.wechatpay = new WechatPayAPI(payment.config, this.domain);
+        this.api = new WechatPayAPI(payment.config, this.domain);
         break;
       case 'qpayQuickqr':
-        this.qpayQuickqr = new QPayQuickQrAPI(payment.config, this.domain);
+        this.api = new QPayQuickQrAPI(payment.config, this.domain);
         break;
       case 'pocket':
-        this.pocket = new PocketAPI(payment.config, this.domain);
+        this.api = new PocketAPI(payment.config, this.domain);
         break;
       case 'minupay':
-        this.minupay = new MinuPayAPI(payment.config, this.domain);
+        this.api = new MinuPayAPI(payment.config, this.domain);
         break;
       case 'golomt':
-        this.golomt = new GolomtAPI(payment.config, this.domain);
+        this.api = new GolomtAPI(payment.config, this.domain);
         break;
       case 'stripe':
-        this.stripe = new StripeAPI(payment.config, this.domain);
+        this.api = new StripeAPI(payment.config, this.domain);
         break;
       case 'khanbank':
-        this.khanbank = new KhanbankAPI(payment.config, subdomain || '');
+        this.api = new KhanbankAPI(payment.config, subdomain || '');
         break;
       default:
+        this.api = null;
         break;
     }
   }
 
   async authorize(payment: IPaymentDocument) {
-    const api = this[payment.kind];
-
-    if (api.authorize) {
-      try {
-        return await api.authorize(payment);
-      } catch (e) {
-        throw new Error(e.message);
-      }
-    }
-
-    return { success: true, message: 'Authorized' };
-  }
-
-  async createInvoice(transaction: ITransactionDocument) {
-    const { payment } = this;
-    const details = transaction.details || {};
-
-    // return { qrData: await QRCode.toDataURL('test') };
-
-    const api = this[payment.kind];
-
-    if (details.monpayCoupon) {
-      const amount = transaction.amount - details.monpayCoupon;
-
-      transaction.amount = amount > 0 ? amount : 0;
+    if (!this.api?.authorize) {
+      return { success: true, message: 'Authorized' };
     }
 
     try {
-      return await api.createInvoice(transaction, payment);
-    } catch (e) {
-      return { error: e.message };
+      return await this.api.authorize(payment);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
+    }
+  }
+
+  async createInvoice(transaction: ITransactionDocument) {
+    if (!this.api?.createInvoice) {
+      return {
+        error: `Payment kind "${this.payment.kind}" does not support createInvoice`,
+      };
+    }
+
+    const details = transaction.details || {};
+
+    const invoiceAmount = details.monpayCoupon
+      ? Math.max(transaction.amount - details.monpayCoupon, 0)
+      : transaction.amount;
+
+    // clone transaction safely instead of mutating
+    const invoicePayload = {
+      ...transaction,
+      amount: invoiceAmount,
+    };
+
+    try {
+      return await this.api.createInvoice(invoicePayload, this.payment);
+    } catch (e: any) {
+      return { error: extractErrorMessage(e) };
     }
   }
 
   async checkInvoice(invoice: ITransactionDocument) {
-    const { payment } = this;
-
-    const api = this[payment.kind];
+    if (!this.api?.checkInvoice) {
+      throw new Error(
+        `Payment kind "${this.payment.kind}" does not support checkInvoice`,
+      );
+    }
 
     try {
-      return await api.checkInvoice(invoice);
-    } catch (e) {
-      throw new Error(e.message);
+      return await this.api.checkInvoice(invoice);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async manualCheck(invoice: ITransactionDocument) {
-    const { payment } = this;
-
-    const api = this[payment.kind];
+    if (!this.api?.manualCheck) {
+      throw new Error(
+        `Payment kind "${this.payment.kind}" does not support manualCheck`,
+      );
+    }
 
     try {
-      return await api.manualCheck(invoice);
-    } catch (e) {
-      throw new Error(e.message);
+      return await this.api.manualCheck(invoice);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
-    const { payment } = this;
-
-    const api = this[payment.kind];
+    if (!this.api?.cancelInvoice) {
+      throw new Error(
+        `Payment kind "${this.payment.kind}" does not support cancelInvoice`,
+      );
+    }
 
     try {
-      return api.cancelInvoice && (await api.cancelInvoice(invoice));
-    } catch (e) {
-      throw new Error(e.message);
+      return await this.api.cancelInvoice(invoice);
+    } catch (e: any) {
+      throw new Error(extractErrorMessage(e));
     }
   }
 }

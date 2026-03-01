@@ -1,10 +1,6 @@
 import { initTRPC } from '@trpc/server';
 
-import {
-  ITRPCContext,
-  MessageProps,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 import { IModels } from './connectionResolvers';
 import { accountTrpcRouter } from './modules/accounting/trpc/account';
@@ -21,14 +17,7 @@ export const appRouter = t.mergeRouters(
 
 export type AppRouter = typeof appRouter;
 
-export const sendCoreMessage = async (args: MessageProps): Promise<any> => {
-  return await sendTRPCMessage({
-    ...args,
-    pluginName: 'core',
-  });
-};
-
-export const getConfig = async (
+export const getCoreConfig = async (
   subdomain: string,
   code: string,
   defaultValue?: any,
