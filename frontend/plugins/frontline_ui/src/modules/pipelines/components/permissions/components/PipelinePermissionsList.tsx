@@ -31,8 +31,8 @@ export const PipelinePermissionsList = memo(() => {
   const { updatePipeline, loading: updating } = useUpdatePipeline();
   const { updateStatus } = useUpdateTicketStatus();
 
-  const [visibleStatusCount, setVisibleStatusCount] = useState(5);
-  const INITIAL_STATUS_COUNT = 5;
+  const [visibleStatusCount, setVisibleStatusCount] = useState(3);
+  const INITIAL_STATUS_COUNT = 3;
 
   const form = useForm<PermissionState>({
     resolver: zodResolver(UPDATE_PIPELINE_PERMISSIONS_FORM_SCHEMA),
@@ -268,7 +268,7 @@ export const PipelinePermissionsList = memo(() => {
                             setVisibleStatusCount(INITIAL_STATUS_COUNT);
                           } else {
                             setVisibleStatusCount((prev) =>
-                              Math.min(prev + 5, statuses.length),
+                              Math.min(prev + 3, statuses.length),
                             );
                           }
                         }}
@@ -276,7 +276,7 @@ export const PipelinePermissionsList = memo(() => {
                         {visibleStatusCount >= statuses.length
                           ? 'Show Less'
                           : `Show ${Math.min(
-                              5,
+                              3,
                               statuses.length - visibleStatusCount,
                             )} More`}
                       </Button>
