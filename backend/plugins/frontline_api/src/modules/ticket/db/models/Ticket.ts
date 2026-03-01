@@ -9,6 +9,7 @@ import { Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
@@ -132,6 +133,22 @@ export const loadTicketClass = (models: IModels) => {
 
       if (!ticket) {
         throw new Error('Ticket not found');
+      }
+
+      if (doc.propertiesData) {
+        const propertiesData = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'fields',
+          action: 'validateFieldValues',
+          input: {
+            data: doc.propertiesData,
+          },
+          defaultValue: doc.propertiesData,
+        });
+
+        doc.propertiesData = propertiesData;
       }
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {

@@ -27,6 +27,7 @@ export const types = `
     status: TicketStatus
     assignee: User
     isSubscribed: Boolean
+    propertiesData: JSON
     state: String
   }
 
@@ -109,6 +110,7 @@ const updateTicketParams = `
   startDate: Date
   targetDate: Date
   isSubscribed: Boolean
+  propertiesData: JSON
   state: String
 `;
 
@@ -126,4 +128,5 @@ export const mutations = `
   removeTicket(_id: String!): Ticket
 
   cpCreateTicket(${createTicketParams}): Ticket
+  cpUpdateTicket(${updateTicketParams}): Ticket
 `;

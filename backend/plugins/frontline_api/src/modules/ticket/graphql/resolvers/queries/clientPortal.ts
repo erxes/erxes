@@ -15,7 +15,7 @@ export const cpTicketQueries = {
     const query = generateFilter(filter);
 
     if (createdBy) {
-      query.userId = `cp:${createdBy}`;
+      query.createdBy = `cp:${createdBy}`;
     }
 
     return defaultPaginate(models.Ticket.find(query), { page, perPage });
