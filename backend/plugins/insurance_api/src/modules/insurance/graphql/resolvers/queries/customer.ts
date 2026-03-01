@@ -70,4 +70,18 @@ export const customerQueries = {
     },
     { wrapperConfig: { skipPermission: true } },
   ),
+
+  companyByRegistration: Object.assign(
+    async (
+      _parent: undefined,
+      { registrationNumber }: { registrationNumber: string },
+      { models }: IContext,
+    ) => {
+      return models.Customer.findOne({ 
+        registrationNumber,
+        type: 'company'
+      });
+    },
+    { wrapperConfig: { skipPermission: true } },
+  ),
 };
