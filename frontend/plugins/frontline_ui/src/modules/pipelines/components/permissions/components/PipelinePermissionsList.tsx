@@ -128,9 +128,9 @@ export const PipelinePermissionsList = memo(() => {
     }
   }, [formValues, pipeline, pipelineId, updatePipeline]);
 
-  if (pipelineLoading || statusesLoading || updating) {
+  if (pipelineLoading || statusesLoading) {
     return (
-      <div className="flex items-center justify-center p-10">
+      <div className="flex items-center justify-center p-10 shrink-0">
         <Spinner />
       </div>
     );
@@ -140,11 +140,14 @@ export const PipelinePermissionsList = memo(() => {
     <Form {...form}>
       <div className="flex flex-col h-full min-h-0">
         <InfoCard
-          className="p-0 flex flex-col flex-1 min-h-0"
+          className="flex flex-col flex-1 min-h-0"
           title="Pipeline Permissions"
           description="Configure who can view and manage tickets"
         >
-          <InfoCard.Content className="p-0 overflow-y-auto flex-1 min-h-0 pb-24">
+          <InfoCard.Content
+            className="flex-1 overflow-y-auto p-0 pb-24"
+            style={{ minHeight: 0 }}
+          >
             <div className="divide-y">
               <section className="p-6 space-y-6">
                 <div>

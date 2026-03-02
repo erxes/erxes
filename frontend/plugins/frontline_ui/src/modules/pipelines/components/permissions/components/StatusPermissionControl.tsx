@@ -194,8 +194,8 @@ export const StatusPermissionControl = ({
             config.type === 'memberIds'
               ? `member${count !== 1 ? 's' : ''}`
               : config.type === 'canMoveMemberIds'
-                ? 'can move'
-                : 'can edit';
+              ? 'can move'
+              : 'can edit';
 
           return (
             <span
@@ -247,11 +247,13 @@ export const StatusPermissionControl = ({
           )}
         </div>
 
-        <div className="space-y-4">
-          {MEMBER_PERMISSIONS.map((config) => (
-            <MemberPermissionSelector key={config.type} config={config} />
-          ))}
-        </div>
+        {visibility === 'private' && (
+          <div className="space-y-4">
+            {MEMBER_PERMISSIONS.map((config) => (
+              <MemberPermissionSelector key={config.type} config={config} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
