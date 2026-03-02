@@ -23,12 +23,18 @@ import {
   ICustomPostTypeModel,
   loadCustomPostTypeClass,
 } from '@/cms/db/models/CustomPostType';
-import { ICustomFieldGroupDocument, ICustomPostTypeDocument } from '@/cms/@types/customPostType';
+import {
+  ICustomFieldGroupDocument,
+  ICustomPostTypeDocument,
+} from '@/cms/@types/customPostType';
 import { ICategoryModel, loadCategoryClass } from '@/cms/db/models/Categories';
 import { IPostTagModel, loadPostTagClass } from '@/cms/db/models/Tag';
 import { ICMSMenuItemModel, loadMenuItemClass } from '@/cms/db/models/Menu';
 import { ICMSPageModel, loadPageClass } from '@/cms/db/models/Page';
-import { ICustomFieldGroupModel, loadCustomFieldGroupClass } from '@/cms/db/models/FieldGroups';
+import {
+  ICustomFieldGroupModel,
+  loadCustomFieldGroupClass,
+} from '@/cms/db/models/FieldGroups';
 import { IWebModel, loadWebClass } from '@/webbuilder/db/models/Web';
 import { IWebDocument } from '@/webbuilder/@types/web';
 
@@ -38,7 +44,7 @@ export interface IModels {
 
   Posts: IPostModel;
   Translations: ITranslationModel;
-  
+
   CustomPostTypes: ICustomPostTypeModel;
   CustomFieldGroups: ICustomFieldGroupModel;
   PostTags: IPostTagModel;

@@ -54,7 +54,6 @@ import {
   types as webTypes,
 } from '@/webbuilder/graphql/schemas/web';
 
-
 export const types = `
 
   enum CacheControlScope {

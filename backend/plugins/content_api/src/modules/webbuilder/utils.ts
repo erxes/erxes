@@ -13,7 +13,7 @@ const buildConfigs = (
   subdomain: string,
   web: IWebDocument,
   mainMenus: ICMSMenuDocument[],
-  footerMenus: ICMSMenuDocument[]
+  footerMenus: ICMSMenuDocument[],
 ) => {
   const links: { name: string; url: string }[] = [];
   const externalLinks = web.externalLinks || {};
@@ -123,11 +123,20 @@ const allFilePaths = (dirPath: string, arrayOfFiles: string[] = []) => {
 export const deploy = async (
   subdomain: string,
   web: IWebDocument,
-  models: IModels
+  models: IModels,
 ) => {
-  console.log('GITHUB_TOKEN:', getEnv({ name: 'GITHUB_TOKEN' }) ? 'set' : 'missing');
-  console.log('VERCEL_TOKEN:', getEnv({ name: 'VERCEL_TOKEN' }) ? 'set' : 'missing');
-  console.log('VERCEL_TEAM_ID:', getEnv({ name: 'VERCEL_TEAM_ID' }) ? 'set' : 'missing');
+  console.log(
+    'GITHUB_TOKEN:',
+    getEnv({ name: 'GITHUB_TOKEN' }) ? 'set' : 'missing',
+  );
+  console.log(
+    'VERCEL_TOKEN:',
+    getEnv({ name: 'VERCEL_TOKEN' }) ? 'set' : 'missing',
+  );
+  console.log(
+    'VERCEL_TEAM_ID:',
+    getEnv({ name: 'VERCEL_TEAM_ID' }) ? 'set' : 'missing',
+  );
   console.log('DOMAIN:', getEnv({ name: 'DOMAIN' }));
   console.log('web.templateId:', web.templateId);
   console.log('web.erxesAppToken:', web.erxesAppToken ? 'set' : 'missing');
@@ -176,18 +185,18 @@ export const deploy = async (
     // changing next.js version to 15.3.6 bcs of vercel auto detection issue with affected versions
     const packageJsonPath = path.join(tmpDir, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
+
     const nextVersion = packageJson.dependencies?.['next'];
     if (nextVersion) {
       packageJson.dependencies['next'] = '15.3.8';
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
       console.log(`patched next.js from ${nextVersion} to 15.3.8`);
     }
-    
+
     // Delete lockfiles so yarn regenerates with patched versions
     const yarnLockPath = path.join(tmpDir, 'yarn.lock');
     const packageLockPath = path.join(tmpDir, 'package-lock.json');
-    
+
     if (fs.existsSync(yarnLockPath)) {
       fs.unlinkSync(yarnLockPath);
       console.log('deleted yarn.lock');
@@ -236,7 +245,9 @@ export const deploy = async (
     const dataPath = path.join(tmpDir, 'data', 'configs.json');
     fs.writeFileSync(
       dataPath,
-      JSON.stringify(buildConfigs(subdomain, web, mainMenus as any, footerMenus as any))
+      JSON.stringify(
+        buildConfigs(subdomain, web, mainMenus as any, footerMenus as any),
+      ),
     );
     console.log('wrote configs.json');
 
@@ -255,7 +266,7 @@ export const deploy = async (
       const iconPath = path.join(tmpDir, 'app', 'favicon.ico');
       await downloadImage(
         `${domain}/read-file?key=${(web.favicon as any).url}`,
-        iconPath
+        iconPath,
       );
     }
     console.log('favicon url:', (web.favicon as any)?.url);
@@ -267,7 +278,11 @@ export const deploy = async (
       const isBinary = binaryExts.test(path.extname(filePath));
       const fileData = fs.readFileSync(filePath);
       return isBinary
-        ? { file: relPath, data: fileData.toString('base64'), encoding: 'base64' }
+        ? {
+            file: relPath,
+            data: fileData.toString('base64'),
+            encoding: 'base64',
+          }
         : { file: relPath, data: fileData.toString('utf8') };
     });
     console.log('total files to upload:', files.length);
@@ -295,7 +310,7 @@ export const deploy = async (
             framework: 'nextjs',
           },
         }),
-      }
+      },
     );
 
     console.log('vercel response status:', response.status);
@@ -304,7 +319,7 @@ export const deploy = async (
 
     if (!response.ok) {
       throw new Error(
-        `Deployment failed: ${result.error?.message || 'Unknown error'}`
+        `Deployment failed: ${result.error?.message || 'Unknown error'}`,
       );
     }
 
@@ -322,7 +337,7 @@ export const getDomains = async (projectId: string) => {
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
   const response = await fetch(
     `https://api.vercel.com/v9/projects/${projectId}/domains`,
-    { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } }
+    { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } },
   );
   return response.json();
 };
@@ -332,7 +347,7 @@ export const getDomainConfig = async (domain: string) => {
   const VERCEL_TEAM_ID = getEnv({ name: 'VERCEL_TEAM_ID' });
   const response = await fetch(
     `https://api.vercel.com/v6/domains/${domain}/config?teamId=${VERCEL_TEAM_ID}`,
-    { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } }
+    { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } },
   );
   return response.json();
 };
@@ -344,7 +359,7 @@ export const removeProject = async (projectId: string) => {
     {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${VERCEL_TOKEN}` },
-    }
+    },
   );
   return response.json();
 };
@@ -360,7 +375,7 @@ export const addDomain = async (projectId: string, domain: string) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name: domain }),
-    }
+    },
   );
   return response.json();
 };
@@ -369,7 +384,7 @@ export const getDeploymentEvents = async (id: string) => {
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
   const response = await fetch(
     `https://api.vercel.com/v3/deployments/${id}/events`,
-    { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } }
+    { headers: { Authorization: `Bearer ${VERCEL_TOKEN}` } },
   );
   return response.json();
 };

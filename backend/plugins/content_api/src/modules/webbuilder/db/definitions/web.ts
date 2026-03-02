@@ -42,5 +42,5 @@ export const webSchema = new mongoose.Schema<IWebDocument>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
