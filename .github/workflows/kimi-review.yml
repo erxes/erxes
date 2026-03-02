@@ -54,9 +54,8 @@ jobs:
       - uses: xiaoju111a/kimi-actions@main
         with:
           kimi_api_key: ${{ secrets.KIMI_API_KEY }}
-          kimi_base_url: ${{ secrets.KIMI_BASE_URL }}  # Optional - remove if not using
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          auto_review: 'false'  # Set to 'true' for automatic reviews on PR open
+          auto_review: 'true'  # Set to 'true' for automatic reviews on PR open
           # Optional configurations (uncomment to use):
           # language: 'en-US'              # Options: 'en-US', 'zh-CN'
           # model: 'kimi-k2.5'             # Default model
