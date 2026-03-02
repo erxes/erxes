@@ -28,6 +28,7 @@ import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUs
 import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/comment';
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
 import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
+import { templateMutations } from '@/template/graphql/mutations';
 
 export const mutations = {
   ...contactMutations,
@@ -57,5 +58,6 @@ export const mutations = {
   ...cpUserMutations,
   ...commentMutations,
   ...cpNotificationMutations,
-  ...bundleMutations
+  ...bundleMutations,
+  ...templateMutations
 };

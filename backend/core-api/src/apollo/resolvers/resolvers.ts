@@ -13,6 +13,7 @@ import productResolvers from '@/products/graphql/resolvers/customResolvers';
 import propertiesResolvers from '@/properties/graphql/resolvers/customResolvers';
 import segmentResolvers from '@/segments/graphql/resolvers/customResolvers';
 import tagResolvers from '@/tags/graphql/customResolvers';
+import templateResolvers from '@/template/graphql/customResolvers';
 
 export const customResolvers = {
   ...clientPortalResolvers,
@@ -30,4 +31,5 @@ export const customResolvers = {
   ...internalNoteResolvers,
   ...propertiesResolvers,
   ...broadcastResolvers,
+  ...templateResolvers
 };

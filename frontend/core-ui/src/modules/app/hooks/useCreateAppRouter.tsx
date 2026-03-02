@@ -28,6 +28,7 @@ import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
 import { ImportExportRoutes } from '../components/ImportExportRoutes';
+import { TemplateRoutes } from '../components/TemplateRoutes';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
@@ -114,6 +115,13 @@ export const useCreateAppRouter = () => {
                 <Route
                   path={AppPath.BroadcastsCatchAll}
                   element={<BroadcastRoutes />}
+                />
+              )}
+
+              {isOS && (
+                <Route
+                  path={AppPath.Templates}
+                  element={<TemplateRoutes />}
                 />
               )}
 
