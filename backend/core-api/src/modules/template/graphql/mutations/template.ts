@@ -55,8 +55,6 @@ const templateMutations = {
       defaultValue: {},
     });
   },
-
-  
 };
 
 export default templateMutations;

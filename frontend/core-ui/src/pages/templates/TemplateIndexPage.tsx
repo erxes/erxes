@@ -12,7 +12,7 @@ export const TemplateIndexPage = () => {
             DocumentsTypes={DocumentsTypes}
             Editor={DocumentEditor}
         /> */}
-      
+
       <TemplatesRecordTable />
     </PageContainer>
   );

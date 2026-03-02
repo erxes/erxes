@@ -59,5 +59,5 @@ export const mutations = {
   ...commentMutations,
   ...cpNotificationMutations,
   ...bundleMutations,
-  ...templateMutations
+  ...templateMutations,
 };

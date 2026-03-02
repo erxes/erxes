@@ -27,4 +27,4 @@ const categoryMutations = {
   },
 };
 
-export default categoryMutations
+export default categoryMutations;

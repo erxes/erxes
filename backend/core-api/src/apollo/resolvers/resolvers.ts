@@ -31,5 +31,5 @@ export const customResolvers = {
   ...internalNoteResolvers,
   ...propertiesResolvers,
   ...broadcastResolvers,
-  ...templateResolvers
+  ...templateResolvers,
 };

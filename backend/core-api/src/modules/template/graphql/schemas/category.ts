@@ -1,4 +1,4 @@
-import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type TemplateCategory {
@@ -30,7 +30,7 @@ const queryParams = `
   type: String
 
   ${GQL_CURSOR_PARAM_DEFS}
-`
+`;
 
 export const queries = `
   templatesGetTypes: JSON
