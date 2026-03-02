@@ -151,6 +151,7 @@ export const CategoryUpdateMoreFields = ({
           </Form.Item>
         )}
       />
+
       <Form.Field
         control={form.control}
         name="description"
@@ -159,6 +160,7 @@ export const CategoryUpdateMoreFields = ({
             <Form.Label>DESCRIPTION</Form.Label>
             <Form.Control>
               <Editor
+                key={categoryDetail?._id || 'category-description'}
                 initialContent={field.value}
                 onChange={field.onChange}
                 scope={CategoryHotKeyScope.CategoryAddSheetDescriptionField}
