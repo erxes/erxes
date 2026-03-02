@@ -64,7 +64,11 @@ export const ConversationDetails = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { widgetsMessengerConnect } = connection || {};
   const { messengerData } = widgetsMessengerConnect || {};
-  const { botGreetMessage, botShowInitialMessage, messages: messagesConfig } = messengerData || {};
+  const {
+    botGreetMessage,
+    botShowInitialMessage,
+    messages: messagesConfig,
+  } = messengerData || {};
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,

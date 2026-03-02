@@ -99,7 +99,9 @@ export const useEditMessenger = () => {
         // Single refetch after everything is done.
         // integrationDetail is still active here because onComplete (which
         // closes the sheet) hasn't been called yet.
-        await client.refetchQueries({ include: ['Integrations', 'integrationDetail'] });
+        await client.refetchQueries({
+          include: ['Integrations', 'integrationDetail'],
+        });
 
         // Now close the sheet / reset state.
         onComplete?.();

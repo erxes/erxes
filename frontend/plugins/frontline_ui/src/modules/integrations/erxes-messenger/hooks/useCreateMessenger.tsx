@@ -84,7 +84,9 @@ export const useCreateMessenger = () => {
         ]);
 
         // Single refetch after everything is done
-        await client.refetchQueries({ include: ['Integrations', 'integrationDetail'] });
+        await client.refetchQueries({
+          include: ['Integrations', 'integrationDetail'],
+        });
 
         // Now close the sheet / reset state.
         onComplete?.();

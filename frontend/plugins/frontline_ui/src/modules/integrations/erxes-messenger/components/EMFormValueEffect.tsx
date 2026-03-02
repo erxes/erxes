@@ -69,7 +69,7 @@ export const EMFormResetEffectComponent = ({
   // so user keystrokes never trigger a re-reset.
   useEffect(() => {
     if (persistValueTaken) return; // already initialised — do nothing
-    if (!atomValue) return;        // still waiting for data
+    if (!atomValue) return; // still waiting for data
     setPersistValueTaken(true);
     resetForm(atomValue);
   }, [atomValue, persistValueTaken, resetForm, setPersistValueTaken]);

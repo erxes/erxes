@@ -1,17 +1,7 @@
 import { IconSend } from "@tabler/icons-react"
 import { Button, Input } from "erxes-ui"
-import { useAtomValue } from "jotai"
-import { erxesMessengerSetupAppearanceAtom } from "../states/erxesMessengerSetupStates"
-import { useMemo } from "react"
 
 export const EMPreviewChatInput = () => {
-  const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom)
-
-  const backgroundStyles = useMemo(() => {
-    return {
-      backgroundColor: appearance?.primary?.DEFAULT || '#000'
-    }
-  }, [appearance])
 
   return (
     <div className="flex items-center gap-2 p-4">

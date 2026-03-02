@@ -1,11 +1,11 @@
-import { useFormsList } from "@/forms/hooks/useFormsList";
-import { Button, Empty, RecordTable, useMultiQueryState } from "erxes-ui";
-import { formColumns } from "./form-columns";
-import { ColumnDef } from "@tanstack/table-core";
-import { IForm } from "@/forms/types/formTypes";
-import { FormCommandBar } from "./command-bar/form-command-bar";
-import { IconForms, IconSettings } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { useFormsList } from '@/forms/hooks/useFormsList';
+import { Button, Empty, RecordTable, useMultiQueryState } from 'erxes-ui';
+import { formColumns } from './form-columns';
+import { ColumnDef } from '@tanstack/table-core';
+import { IForm } from '@/forms/types/formTypes';
+import { FormCommandBar } from './command-bar/form-command-bar';
+import { IconForms, IconSettings } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 export const FormPageList = () => {
   const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
@@ -26,7 +26,7 @@ export const FormPageList = () => {
 
   if (forms?.length === 0) {
     return (
-      <Empty className='bg-sidebar rounded-lg m-3'>
+      <Empty className="bg-sidebar rounded-lg m-3">
         <Empty.Header>
           <Empty.Media>
             <IconForms />
@@ -36,7 +36,7 @@ export const FormPageList = () => {
         </Empty.Header>
         <Empty.Content>
           <Button variant={'outline'} asChild>
-            <Link to='/settings/frontline/channels'>
+            <Link to="/settings/frontline/channels">
               <IconSettings />
               Go to channels
             </Link>
