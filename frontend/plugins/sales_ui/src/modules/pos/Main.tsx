@@ -3,11 +3,20 @@ import { Suspense, lazy } from 'react';
 
 import { Spinner } from 'erxes-ui/components';
 
-const OrdersMain = lazy(() =>
-  import('~/pages/OrdersPage').then((module) => ({
-    default: module.OrdersPage,
-  })),
-);
+const OrdersMain = lazy(() => {
+  console.log('Attempting to load OrdersPage...');
+  return import('../../pages/OrdersPage')
+    .then((module) => {
+      console.log('OrdersPage loaded successfully:', module);
+      return {
+        default: module.OrdersPage,
+      };
+    })
+    .catch((error) => {
+      console.error('Failed to load OrdersPage:', error);
+      throw error;
+    });
+});
 
 const CoversMain = lazy(() =>
   import('~/pages/CoversPage').then((module) => ({
@@ -52,6 +61,8 @@ const PosByItemsMain = lazy(() =>
 );
 
 const App = () => {
+  console.log('POS Main App component rendered');
+
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
