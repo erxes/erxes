@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.17.35](https://github.com/erxes/erxes/compare/2.17.34...2.17.35) (2026-03-02)
+
+### Bug Fixes
+
+* cars cpCarsAdd find wrong car ([888fa0e](https://github.com/erxes/erxes/commit/888fa0e691a3edb2302263f450ff14a6e2e4e122))
+* correct import path for CustomersMerge component in ActionSection ([deac8e6](https://github.com/erxes/erxes/commit/deac8e6f6a8df4a4d58f7825c15669a7c2d3b60b))
+* filter falsy values from defaultFileList in Uploader component ([e2af595](https://github.com/erxes/erxes/commit/e2af59508355e17608385cb920f375d6ccc55548))
+* loyalty section on customer, refunded to earned ([d16abc5](https://github.com/erxes/erxes/commit/d16abc54d338af5e2dcfe8517ecf14a582347a51))
+
 ## [2.17.34](https://github.com/erxes/erxes/compare/2.17.33...2.17.34) (2026-02-11)
 
 ### Bug Fixes
