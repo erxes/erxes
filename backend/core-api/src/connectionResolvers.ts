@@ -237,9 +237,18 @@ import {
   IPermissionGroupModel,
   loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
-import { ITemplateCategoryModal, loadTemplateCategoryClass } from '@/template/db/models/Category';
-import { ITemplateModal, loadTemplateClass } from '@/template/db/models/Template';
-import { ITemplateCategoryDocument, ITemplateDocument } from '@/template/@types';
+import {
+  ITemplateCategoryModal,
+  loadTemplateCategoryClass,
+} from '@/template/db/models/Category';
+import {
+  ITemplateModal,
+  loadTemplateClass,
+} from '@/template/db/models/Template';
+import {
+  ITemplateCategoryDocument,
+  ITemplateDocument,
+} from '@/template/@types';
 
 export interface IModels {
   Brands: IBrandModel;

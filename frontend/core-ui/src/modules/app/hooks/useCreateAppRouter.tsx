@@ -119,10 +119,7 @@ export const useCreateAppRouter = () => {
               )}
 
               {isOS && (
-                <Route
-                  path={AppPath.Templates}
-                  element={<TemplateRoutes />}
-                />
+                <Route path={AppPath.Templates} element={<TemplateRoutes />} />
               )}
 
               <Route

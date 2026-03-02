@@ -28,7 +28,7 @@ const categoryQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return await models.TemplateCategory.getTemplateCategory(_id)
+    return await models.TemplateCategory.getTemplateCategory(_id);
   },
 
   templatesGetTypes: async () => {

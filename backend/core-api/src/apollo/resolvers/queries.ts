@@ -63,5 +63,5 @@ export const queries = {
   ...cpNotificationQueries,
   ...activityLogQueries,
   ...bundleQueries,
-  ...templateQueries
+  ...templateQueries,
 };
