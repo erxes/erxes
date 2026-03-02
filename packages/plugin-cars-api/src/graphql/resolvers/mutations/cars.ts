@@ -148,12 +148,22 @@ const carMutations = {
   },
 
   cpCarsAdd: async (_root, { customerId, companyId, ...doc }: ICar & { customerId: string, companyId: string }, { docModifier, models, subdomain, user }: IContext) => {
+    const { plateNumber, vinNumber } = doc;
+    const carFilter: any = {};
+    if (plateNumber) {
+      carFilter.push({ plateNumber })
+    }
+    if (vinNumber) {
+      carFilter.push({ vinNumber })
+    }
+
+    if (!carFilter.length) {
+      throw new Error('Cant create, must fill plateNumber or vinNumber')
+    }
+
     let car: ICarDocument | null = await models.Cars.findOne({
       status: { $ne: 'Deleted' },
-      $or: [
-        { plateNumber: doc.plateNumber },
-        { vinNumber: doc.vinNumber }
-      ]
+      $or: carFilter
     }).lean();
 
     if (car) {
