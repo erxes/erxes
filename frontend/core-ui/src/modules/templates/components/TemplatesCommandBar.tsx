@@ -1,6 +1,6 @@
+import { BroadcastDelete } from '@/templates/components/commands/TemplateDelete';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { BroadcastDelete } from './commands/TemplateDelete';
 
 export const TemplatesCommandBar = () => {
   const { table } = RecordTable.useRecordTable();

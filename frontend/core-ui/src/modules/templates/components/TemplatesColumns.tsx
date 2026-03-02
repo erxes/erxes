@@ -1,3 +1,5 @@
+import { TemplateCategoriesInline } from '@/templates/components/category/TemplateCategoryInline';
+import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { IconLabelFilled } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -45,19 +47,20 @@ export const templateColumns: ColumnDef<any>[] = [
     },
   },
   {
-    id: 'categoryIds',
-    accessorKey: 'categoryIds',
+    id: 'categories',
+    accessorKey: 'categories',
     header: () => (
       <RecordTable.InlineHead label="Category" icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
+      const categories = (cell.getValue() || []) as TemplateCategory[];
+
       return (
         <RecordTableInlineCell>
-          {/* <MembersInline
-            members={[cell.getValue() as IUser]}
-            placeholder="No Member"
-          /> */}
-          {cell.getValue() as string}
+          <TemplateCategoriesInline
+            categories={categories}
+            placeholder="No Category"
+          />
         </RecordTableInlineCell>
       );
     },

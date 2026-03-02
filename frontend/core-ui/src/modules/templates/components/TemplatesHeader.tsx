@@ -1,7 +1,7 @@
+import { TemplateImportSheet } from '@/templates/components/TemplateImportSheet';
+import { TemplatesBreadcrumb } from '@/templates/components/TemplatesBreadcrumb';
 import { Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { TemplateImportSheet } from './TemplateImportSheet';
-import { TemplatesBreadcrumb } from './TemplatesBreadcrumb';
 
 export const TemplatesHeader = () => {
   return (

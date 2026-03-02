@@ -1,9 +1,9 @@
-import { TemplateCategory } from '@/templates/@types/TemplateCategory';
 import {
   TemplateCategoryInlineContext,
   useTemplateCategoryInlineContext,
 } from '@/templates/context/TemplateCategoryInlineContext';
 import { useTemplateCategory } from '@/templates/hooks/useTemplateCategory';
+import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { Combobox, isUndefinedOrNull, Tooltip } from 'erxes-ui';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 

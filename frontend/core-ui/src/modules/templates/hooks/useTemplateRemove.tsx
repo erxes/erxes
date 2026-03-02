@@ -1,6 +1,6 @@
+import { REMOVE_TICKETS } from '@/templates/graphql/mutations';
+import { QUERY_TEMPLATES } from '@/templates/graphql/queries';
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import { REMOVE_TICKETS } from '../graphql/mutations';
-import { QUERY_TEMPLATES } from '../graphql/queries';
 
 export const useRemoveTemplate = () => {
   const [_removeTemplate, { loading }] = useMutation(REMOVE_TICKETS, {
@@ -13,7 +13,7 @@ export const useRemoveTemplate = () => {
   ) => {
     await _removeTemplate({
       ...options,
-      variables: { _ids: templateIds, ...options?.variables },
+      variables: { ...options?.variables, _ids: templateIds },
     });
   };
 

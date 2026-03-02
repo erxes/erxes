@@ -1,20 +1,84 @@
+import { QUERY_TEMPLATES } from '@/templates/graphql/queries';
 import { useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   mergeCursorData,
+  parseDateRangeFromString,
   useMultiQueryState,
   validateFetchMore,
 } from 'erxes-ui';
-import { QUERY_TEMPLATES } from '../graphql/queries';
 
 export const useTemplatesVariables = () => {
-  const [{ contentType }] = useMultiQueryState<{
+  const [
+    {
+      searchValue,
+      contentType,
+      categoryIds,
+      createdAt,
+      createdBy,
+      updatedAt,
+      updatedBy,
+    },
+  ] = useMultiQueryState<{
     contentType: string;
-  }>(['contentType']);
+    searchValue: string;
+    createdAt: string;
+    createdBy: string;
+    categoryIds: string[];
+    updatedAt: string;
+    updatedBy: string;
+  }>([
+    'contentType',
+    'searchValue',
+    'createdAt',
+    'createdBy',
+    'categoryIds',
+    'updatedAt',
+    'updatedBy',
+  ]);
 
-  return {
-    type: contentType || undefined,
-  };
+  const variables: Record<string, any> = {};
+  const dateFilters: Record<string, any> = {};
+
+  if (contentType) {
+    variables['contentType'] = contentType;
+  }
+
+  if (searchValue) {
+    variables['searchValue'] = searchValue;
+  }
+
+  if (categoryIds?.length) {
+    variables['categoryIds'] = categoryIds;
+  }
+
+  if (createdBy) {
+    variables['createdBy'] = createdBy;
+  }
+
+  if (updatedBy) {
+    variables['updatedBy'] = updatedBy;
+  }
+
+  if (createdAt) {
+    dateFilters.createdAt = {
+      gte: parseDateRangeFromString(createdAt)?.from,
+      lte: parseDateRangeFromString(createdAt)?.to,
+    };
+  }
+
+  if (updatedAt) {
+    dateFilters.updatedAt = {
+      gte: parseDateRangeFromString(updatedAt)?.from,
+      lte: parseDateRangeFromString(updatedAt)?.to,
+    };
+  }
+
+  if (dateFilters.createdAt || dateFilters.updatedAt) {
+    variables['dateFilters'] = JSON.stringify(dateFilters);
+  }
+
+  return variables;
 };
 
 export const useTemplates = () => {

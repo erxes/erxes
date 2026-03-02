@@ -1,3 +1,4 @@
+import { QUERY_TEMPLATE_CATEGORIES } from '@/templates/graphql/queries';
 import { useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
@@ -5,7 +6,6 @@ import {
   useMultiQueryState,
   validateFetchMore,
 } from 'erxes-ui';
-import { QUERY_TEMPLATE_CATEGORIES } from '../graphql/queries';
 
 export const useTemplateCategoryVariables = () => {
   const [{ contentType }] = useMultiQueryState<{

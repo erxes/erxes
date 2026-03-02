@@ -1,7 +1,7 @@
+import { templateColumns } from '@/templates/components/TemplatesColumns';
+import { TemplatesCommandBar } from '@/templates/components/TemplatesCommandBar';
+import { useTemplates } from '@/templates/hooks/useTemplates';
 import { RecordTable } from 'erxes-ui';
-import { useTemplates } from '../hooks/useTemplates';
-import { templateColumns } from './TemplatesColumns';
-import { TemplatesCommandBar } from './TemplatesCommandBar';
 
 export const TemplatesRecordTable = () => {
   const { templates, pageInfo, loading, handleFetchMore } = useTemplates();

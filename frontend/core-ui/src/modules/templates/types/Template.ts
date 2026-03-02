@@ -1,5 +1,5 @@
+import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { IUser } from 'ui-modules';
-import { TemplateCategory } from './TemplateCategory';
 
 export interface IRelatedContent {
   contentType: string;
@@ -25,3 +25,15 @@ export type Template = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type TemplateFilterState = {
+  searchValue: string | null;
+  contentType: string | null;
+  categoryIds: string[] | null;
+
+  createdAt: string | null;
+  createdBy: string | string[] | null;
+
+  updatedAt: string | null;
+  updatedBy: string | string[] | null;
+}
