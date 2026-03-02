@@ -36,4 +36,4 @@ export type TemplateFilterState = {
 
   updatedAt: string | null;
   updatedBy: string | string[] | null;
-}
+};

@@ -99,7 +99,11 @@ const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
 };
 
 const SelectProjectTypesCommandItem = ({ types }: { types: string[] }) => {
-  const { onValueChange, values = [], templateTypes } = useSelectProjectTypesContext();
+  const {
+    onValueChange,
+    values = [],
+    templateTypes,
+  } = useSelectProjectTypesContext();
 
   return (
     <>
@@ -236,7 +240,10 @@ const SelectProjectTypesRoot = ({
   );
 };
 
-export const SelectTemplateContentTypes = Object.assign(SelectProjectTypesRoot, {
-  FilterView: SelectProjectTypesFilterView,
-  FilterBar: SelectProjectTypesFilterBar,
-});
+export const SelectTemplateContentTypes = Object.assign(
+  SelectProjectTypesRoot,
+  {
+    FilterView: SelectProjectTypesFilterView,
+    FilterBar: SelectProjectTypesFilterBar,
+  },
+);
