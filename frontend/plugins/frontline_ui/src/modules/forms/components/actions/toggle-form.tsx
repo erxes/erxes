@@ -1,19 +1,15 @@
-import { GET_FORMS_LIST } from "@/forms/graphql/formQueries";
-import { useFormToggleStatus } from "@/forms/hooks/useFormToggleStatus";
-import { IconSquareToggle } from "@tabler/icons-react";
-import { DropdownMenu, toast } from "erxes-ui";
+import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
+import { IconSquareToggle } from '@tabler/icons-react';
+import { DropdownMenu, toast } from 'erxes-ui';
 
 type Props = {
   formId: string;
   status: string;
   setOpen: (open: boolean) => void;
-}
+};
 
-export function FormToggleStatus({
-  formId,
-  status,
-  setOpen,
-}: Props) {
+export function FormToggleStatus({ formId, status, setOpen }: Props) {
   const { toggleStatus, loading } = useFormToggleStatus();
 
   const onSelect = () => {

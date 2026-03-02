@@ -24,8 +24,7 @@ export const FormsSection = ({ channel }: { channel: IChannel }) => {
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {total}{' '}
-              {total === 1 ? 'form' : 'forms'}
+              {total} {total === 1 ? 'form' : 'forms'}
             </p>
             <IconChevronRight className="w-4 h-4" />
           </div>

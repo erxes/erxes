@@ -82,7 +82,6 @@ export const ChannelSettingsBreadcrumb = () => {
             </Link>
           </>
         )}
-
       {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
         isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
@@ -143,7 +142,7 @@ export const ChannelSettingsBreadcrumb = () => {
                 Forms
               </Button>
             </Link>
-            <span className='ml-auto'>
+            <span className="ml-auto">
               <FormsCreateButton />
             </span>
           </>

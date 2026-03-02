@@ -1,6 +1,6 @@
-import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
-import { IconTrash } from "@tabler/icons-react";
-import { DropdownMenu, Spinner, useConfirm, useToast } from "erxes-ui";
+import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
+import { IconTrash } from '@tabler/icons-react';
+import { DropdownMenu, Spinner, useConfirm, useToast } from 'erxes-ui';
 
 export const RemoveForm = ({
   formId,
@@ -24,7 +24,9 @@ export const RemoveForm = ({
     }
 
     confirm({
-      message: title ? `Are you sure you want to delete "${title}"?` : 'Are you sure you want to delete this form?',
+      message: title
+        ? `Are you sure you want to delete "${title}"?`
+        : 'Are you sure you want to delete this form?',
     }).then(async () => {
       try {
         await removeForm([formId]);

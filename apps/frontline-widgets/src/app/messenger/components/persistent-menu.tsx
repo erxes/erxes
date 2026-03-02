@@ -25,15 +25,13 @@ export const PersistentMenu = () => {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" sideOffset={12}>
-        {
-          persistentMenus?.map((menu, index) => (
-            <Item key={index} type={menu.type} text={menu.text} />
-          ))
-        }
+        {persistentMenus?.map((menu, index) => (
+          <Item key={index} type={menu.type} text={menu.text} />
+        ))}
       </DropdownMenu.Content>
     </DropdownMenu>
-  )
-}
+  );
+};
 
 
 export const Item = ({ type, text }: IPersistentMenu) => {
