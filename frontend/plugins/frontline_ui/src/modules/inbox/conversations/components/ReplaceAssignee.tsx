@@ -6,9 +6,7 @@ import { selectConversationsState } from '../states/selectConversationsState';
 import { useAssignConversations } from '../hooks/useAssignConversations';
 
 export const ReplaceAssignee = () => {
-  const [selectedConversations] = useAtom(
-    selectConversationsState,
-  );
+  const [selectedConversations] = useAtom(selectConversationsState);
   const { assignConversations } = useAssignConversations();
 
   return (

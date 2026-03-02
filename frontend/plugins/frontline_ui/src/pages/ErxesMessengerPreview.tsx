@@ -11,7 +11,9 @@ import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/state
 
 export const ErxesMessengerPreview = () => {
   const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom);
-  const [erxesMessengerSetupStep, setErxesMessengerSetupStep] = useAtom(erxesMessengerSetupStepAtom);
+  const [erxesMessengerSetupStep, setErxesMessengerSetupStep] = useAtom(
+    erxesMessengerSetupStepAtom,
+  );
   const setSetup = useSetAtom(erxesMessengerSetSetupAtom);
 
   const [integrationId] = useQueryState<string>('integrationId');

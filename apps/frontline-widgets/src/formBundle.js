@@ -288,7 +288,7 @@
     },
     p = (e, t) => {
       let n = window.Erxes || {};
-      (n[e] = t), (window.Erxes = n);
+      ((n[e] = t), (window.Erxes = n));
     },
     M = () =>
       l(void 0, null, function* () {
@@ -344,7 +344,7 @@
           n === 'setLocalStorageItem')
         ) {
           let s = JSON.parse(localStorage.getItem('erxes') || '{}');
-          (s[o] = i), localStorage.setItem('erxes', JSON.stringify(s));
+          ((s[o] = i), localStorage.setItem('erxes', JSON.stringify(s)));
         }
       }),
     u = document.createElement('meta');
@@ -358,7 +358,7 @@
         r = document.getElementById(n);
       r || ((r = document.createElement('div')), (r.id = n));
       let o = document.getElementById(d);
-      o ||
+      (o ||
         ((o = document.createElement('iframe')),
         (o.id = d),
         (o.style.display = 'none'),
@@ -367,7 +367,7 @@
         (o.style.height = 'auto'),
         (o.allowFullscreen = !0)),
         (o.src = B()),
-        r.appendChild(o);
+        r.appendChild(o));
       let i = document.querySelector(`[data-erxes-embed="${t}"]`);
       return (
         i ? i.appendChild(r) : document.body.appendChild(r),
@@ -377,7 +377,7 @@
             a = o.contentWindow;
           if (!a) return;
           let m = c({}, e);
-          m.onAction && delete m.onAction,
+          (m.onAction && delete m.onAction,
             a.postMessage(
               {
                 fromPublisher: !0,
@@ -386,7 +386,7 @@
                 storage: I('erxes'),
               },
               '*',
-            );
+            ));
         }),
         { container: r, iframe: o }
       );

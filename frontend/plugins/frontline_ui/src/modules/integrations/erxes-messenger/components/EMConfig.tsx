@@ -316,7 +316,7 @@ const PersistentMenu = ({
                   <Form.Label>Type</Form.Label>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Form.Control>
-                      <Select.Trigger className='mb-0'>
+                      <Select.Trigger className="mb-0">
                         <Select.Value placeholder="Select a type" />
                       </Select.Trigger>
                     </Form.Control>

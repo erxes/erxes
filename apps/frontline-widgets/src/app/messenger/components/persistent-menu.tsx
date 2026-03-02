@@ -1,22 +1,23 @@
-import { IconMenu } from "@tabler/icons-react"
-import { Button, DropdownMenu } from "erxes-ui"
-import { useMessenger } from "../hooks/useMessenger"
-import { useAtomValue } from "jotai";
-import { connectionAtom } from "../states";
-import { Link } from "react-router-dom";
-import { IPersistentMenu } from "../types";
-import { useInsertMessage } from "../hooks/useInsertMessage";
-import { getLocalStorageItem } from "@libs/utils";
+import { IconMenu } from '@tabler/icons-react';
+import { Button, DropdownMenu } from 'erxes-ui';
+import { useMessenger } from '../hooks/useMessenger';
+import { useAtomValue } from 'jotai';
+import { connectionAtom } from '../states';
+import { Link } from 'react-router-dom';
+import { IPersistentMenu } from '../types';
+import { useInsertMessage } from '../hooks/useInsertMessage';
+import { getLocalStorageItem } from '@libs/utils';
 
 export const PersistentMenu = () => {
   const { activeTab } = useMessenger();
   const connection = useAtomValue(connectionAtom);
   const { widgetsMessengerConnect } = connection || {};
   const { persistentMenus } = widgetsMessengerConnect?.messengerData || {};
-  const hasPersistentMenus = persistentMenus && persistentMenus?.length > 0 || false;
+  const hasPersistentMenus =
+    (persistentMenus && persistentMenus?.length > 0) || false;
 
   if (activeTab !== 'chat' || !hasPersistentMenus) return null;
-  console.log(persistentMenus, 'lala')
+  console.log(persistentMenus, 'lala');
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger disabled={!hasPersistentMenus}>
@@ -33,17 +34,16 @@ export const PersistentMenu = () => {
   );
 };
 
-
 export const Item = ({ type, text }: IPersistentMenu) => {
   switch (type) {
     case 'button':
-      return <ButtonItem text={text} />
+      return <ButtonItem text={text} />;
     case 'link':
-      return <LinkItem text={text} />
+      return <LinkItem text={text} />;
     default:
-      return <ButtonItem text={text} />
+      return <ButtonItem text={text} />;
   }
-}
+};
 
 export const ButtonItem = ({ text }: { text: string }) => {
   const { insertMessage } = useInsertMessage();
@@ -58,17 +58,18 @@ export const ButtonItem = ({ text }: { text: string }) => {
         message: text,
         customerId: customerId || __customerId || undefined,
       },
-
     });
   };
   return (
-    <DropdownMenu.Item key={text} className="hover:bg-primary/30!" onSelect={handleClick}>
-      <span className="text-sm">
-        {text}
-      </span>
+    <DropdownMenu.Item
+      key={text}
+      className="hover:bg-primary/30!"
+      onSelect={handleClick}
+    >
+      <span className="text-sm">{text}</span>
     </DropdownMenu.Item>
-  )
-}
+  );
+};
 
 export const LinkItem = ({ text }: { text: string }) => {
   return (
@@ -76,5 +77,6 @@ export const LinkItem = ({ text }: { text: string }) => {
       <Link to={'#'} className="text-sm">
         {text}
       </Link>
-    </DropdownMenu.Item>)
-}
+    </DropdownMenu.Item>
+  );
+};
