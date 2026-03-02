@@ -12,7 +12,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
-import { CustomFieldsSidebar } from './components/CustomFieldsSidebar';
+import { CmsSidebar } from '../shared/CmsSidebar';
 
 import { ICustomFieldGroup, ICustomField } from './types/customFieldTypes';
 import { useCustomFieldGroups } from './hooks/useCustomFieldGroups';
@@ -182,7 +182,7 @@ export function CustomFields() {
         </Button>
       </CustomFieldsHeader>
       <div className="flex overflow-hidden flex-auto">
-        <CustomFieldsSidebar />
+        <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="p-6">

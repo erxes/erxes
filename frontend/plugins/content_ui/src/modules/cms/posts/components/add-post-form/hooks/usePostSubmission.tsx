@@ -67,6 +67,44 @@ export const usePostSubmission = ({
       return;
     }
 
+    // Content is stored as BlockNote JSON when the user has typed in the editor.
+    // Convert to HTML for API storage.
+    const blocksToHtml = (raw: string): string => {
+      try {
+        const blocks = JSON.parse(raw);
+        if (!Array.isArray(blocks)) return raw;
+        return blocks
+          .map((block: any) => {
+            const inlines = (block.content || []) as any[];
+            const html = inlines
+              .map((i: any) => {
+                let text = i.text || '';
+                if (i.styles?.bold) text = `<strong>${text}</strong>`;
+                if (i.styles?.italic) text = `<em>${text}</em>`;
+                if (i.styles?.underline) text = `<u>${text}</u>`;
+                if (i.styles?.strike) text = `<s>${text}</s>`;
+                if (i.styles?.code) text = `<code>${text}</code>`;
+                return text;
+              })
+              .join('');
+            if (block.type === 'heading') {
+              const level = block.props?.level || 1;
+              return `<h${level}>${html}</h${level}>`;
+            }
+            if (block.type === 'codeBlock') return `<pre><code>${html}</code></pre>`;
+            return `<p>${html}</p>`;
+          })
+          .join('');
+      } catch {
+        return raw;
+      }
+    };
+
+    const rawContent = data.content || '';
+    const contentHtml = rawContent.trimStart().startsWith('[')
+      ? blocksToHtml(rawContent)
+      : rawContent;
+
     const extractText = (html: string) => {
       const tmp = document.createElement('div');
       tmp.innerHTML = html || '';
@@ -76,7 +114,7 @@ export const usePostSubmission = ({
     const computedTitle =
       (data.title && data.title.trim()) ||
       (data.seoTitle && data.seoTitle.trim()) ||
-      extractText(data.content || '')
+      extractText(contentHtml)
         .split('\n')[0]
         .slice(0, 80) ||
       'Untitled';
@@ -106,7 +144,7 @@ export const usePostSubmission = ({
       clientPortalId: websiteId,
       title: computedTitle,
       slug: editingPost?._id ? data.slug : generateSlug(computedTitle),
-      content: data.content,
+      content: contentHtml,
       type: data.type,
       status: data.status || 'draft',
       categoryIds: data.categoryIds,
@@ -118,7 +156,7 @@ export const usePostSubmission = ({
         : undefined,
       excerpt:
         (data.description && data.description.trim()) ||
-        extractText(data.content || '').slice(0, 200),
+        extractText(contentHtml).slice(0, 200),
       thumbnail: normalizeAttachment(data.thumbnail || undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,

@@ -58,7 +58,7 @@ export function MenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }:
   const { data: menusData } = useQuery(CMS_MENU_LIST, {
     variables: { clientPortalId, limit: 100 },
     skip: !isOpen || !clientPortalId,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
   });
 
   const rawMenus: { _id: string; label: string; parentId?: string }[] =

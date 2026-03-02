@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Button,
@@ -15,30 +15,26 @@ import {
 } from 'erxes-ui';
 import {
   IconPlus,
-  IconSettings,
   IconArticle,
   IconLink,
   IconList,
-  IconSortAscending,
-  IconExternalLink,
   IconEdit,
   IconTrash,
-  IconCheck,
-  IconLayoutGrid,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { CmsLayout } from '../shared/CmsLayout';
-import { EmptyState } from '../shared/EmptyState';
+import { EmptyState } from '../../shared/EmptyState';
+import { CmsSidebar } from '../../shared/CmsSidebar';
 import {
   CMS_MENU_LIST,
   CMS_MENU_REMOVE,
   CMS_MENU_EDIT,
 } from '../../graphql/queries';
 import { MenuDrawer } from './MenuDrawer';
+import { MenusHeader } from './MenusHeader';
 import { buildFlatTree, getDepthPrefix } from './menuUtils';
-import { useMutation } from '@apollo/client';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+import { PageContainer } from 'erxes-ui';
 
 export function Menus() {
   const { websiteId } = useParams();
@@ -186,110 +182,69 @@ export function Menus() {
     </>
   );
 
-  if (loading) {
-    return (
-      <CmsLayout headerActions={headerActions}>
-        <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500 text-center items-center flex gap-2">
-            <Spinner size="md" className="ml-2" />
-            Loading menus...
-          </div>
-        </div>
-      </CmsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <CmsLayout headerActions={headerActions}>
-        <div className="flex justify-center items-center h-64">
-          <div className="text-red-500">
-            Error loading menus: {error.message}
-          </div>
-        </div>
-      </CmsLayout>
-    );
-  }
-
   return (
-    <CmsLayout headerActions={headerActions}>
-      <div className="border rounded-lg mb-4">
-        <div className="p-2 flex items-center gap-3 flex-wrap">
-          <Popover>
-            <Popover.Trigger asChild>
-              <Button variant="outline" size="sm">
-                <IconLayoutGrid className="mr-2 h-4 w-4" />
-                Kind: {kindFilter.charAt(0).toUpperCase() + kindFilter.slice(1)}
-              </Button>
-            </Popover.Trigger>
-            <Popover.Content className="w-44 p-2">
-              <Command shouldFilter={false}>
-                <Command.List>
-                  <Command.Item
-                    value="header"
-                    onSelect={() => setKindFilter('header')}
-                  >
-                    Header
-                    {kindFilter === 'header' && (
-                      <IconCheck className="ml-auto h-4 w-4" />
-                    )}
-                  </Command.Item>
-                  <Command.Item
-                    value="footer"
-                    onSelect={() => setKindFilter('footer')}
-                  >
-                    Footer
-                    {kindFilter === 'footer' && (
-                      <IconCheck className="ml-auto h-4 w-4" />
-                    )}
-                  </Command.Item>
-                </Command.List>
-              </Command>
-            </Popover.Content>
-          </Popover>
+    <PageContainer>
+      <MenusHeader>{headerActions}</MenusHeader>
+      <div className="flex overflow-hidden flex-auto">
+        <CmsSidebar />
+        <div className="flex overflow-hidden flex-col flex-auto w-full">
+          <div className="flex-auto">
+            <div className="flex flex-col">
+              <div className="flex pt-2 pl-4 justify-between items-center mb-2">
+                <div className="text-sm text-gray-600">Found {totalCount} menus</div>
+              </div>
 
-          <div className="text-sm text-gray-600 ml-auto">
-            Found {totalCount} menus
+              {loading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="text-gray-500 flex gap-2 items-center">
+                    <Spinner size="md" />
+                    Loading menus...
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="text-red-500">Error loading menus: {error.message}</div>
+                </div>
+              ) : !menus || menus.length === 0 ? (
+                <div className="rounded-lg overflow-hidden">
+                  <EmptyState
+                    icon={IconArticle}
+                    title="No menus yet"
+                    description="Get started by creating your first menu."
+                    actionLabel="Add menu"
+                    onAction={() => setIsDrawerOpen(true)}
+                  />
+                </div>
+              ) : (
+                <div className="h-full rounded-lg shadow-sm border overflow-hidden">
+                  <RecordTable.Provider
+                    columns={columns}
+                    data={menus}
+                    className="h-full m-0"
+                    stickyColumns={['more', 'checkbox', 'label']}
+                  >
+                    <RecordTable>
+                      <RecordTable.Header />
+                      <RecordTable.Body>
+                        <RecordTable.RowList />
+                      </RecordTable.Body>
+                    </RecordTable>
+
+                    <MenusCommandBar
+                      onBulkDelete={async (ids: string[]) => {
+                        for (const id of ids) {
+                          await removeMenu({ variables: { _id: id } });
+                        }
+                        refetch();
+                      }}
+                    />
+                  </RecordTable.Provider>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-
-      {!menus || menus.length === 0 ? (
-        <div className="bg-white rounded-lg overflow-hidden">
-          <EmptyState
-            icon={IconArticle}
-            title="No menus yet"
-            description="Get started by creating your first menu."
-            actionLabel="Add menu"
-            onAction={() => setIsDrawerOpen(true)}
-          />
-        </div>
-      ) : (
-        <div className="h-full rounded-lg shadow-sm border overflow-hidden">
-          <RecordTable.Provider
-            columns={columns}
-            data={menus || []}
-            className="h-full m-0"
-            stickyColumns={['more', 'checkbox', 'label']}
-          >
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList />
-              </RecordTable.Body>
-            </RecordTable>
-
-            <MenusCommandBar
-              onBulkDelete={async (ids: string[]) => {
-                for (const id of ids) {
-                  await removeMenu({ variables: { _id: id } });
-                }
-                refetch();
-              }}
-            />
-          </RecordTable.Provider>
-        </div>
-      )}
 
       <MenuDrawer
         isOpen={isDrawerOpen}
@@ -301,7 +256,7 @@ export function Menus() {
         clientPortalId={websiteId || ''}
         menu={editingMenu}
       />
-    </CmsLayout>
+    </PageContainer>
   );
 }
 

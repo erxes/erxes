@@ -38,7 +38,7 @@ export const PostsAddPage = ({
           />
         )}
       </PostsHeader>
-      <div className="w-full h-full">
+      <div className="flex flex-col overflow-hidden w-full h-full">
         {clientPortalId && !loading && (
           <AddPostForm
             websiteId={clientPortalId}

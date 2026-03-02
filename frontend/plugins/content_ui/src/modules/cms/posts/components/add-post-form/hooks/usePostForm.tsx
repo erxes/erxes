@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { Block } from '@blocknote/core';
 
 import {
   CMS_POST,
@@ -72,53 +71,8 @@ export const usePostForm = (editingPost?: any) => {
     },
   });
 
-  const handleEditorChange = async (value: string, editorInstance?: any) => {
-    try {
-      if (typeof value === 'string' && value.trim().startsWith('[')) {
-        const blocks: Block[] = JSON.parse(value);
-        if (editorInstance?.blocksToHTMLLossy) {
-          const htmlContent = await editorInstance.blocksToHTMLLossy(
-            blocks as any,
-          );
-          form.setValue('content', htmlContent, {
-            shouldDirty: true,
-            shouldTouch: true,
-          });
-        } else {
-          const htmlContent = (blocks as any)
-            .map((block: any) => {
-              if (block.type === 'paragraph' && block.content) {
-                const text = block.content
-                  .map((i: any) => i.text || '')
-                  .join('');
-                return text ? `<p>${text}</p>` : '';
-              }
-              if (block.type === 'heading' && block.content) {
-                const text = block.content
-                  .map((i: any) => i.text || '')
-                  .join('');
-                const level = (block.props as any)?.level || 1;
-                return text ? `<h${level}>${text}</h${level}>` : '';
-              }
-              return '';
-            })
-            .filter(Boolean)
-            .join('');
-          form.setValue('content', htmlContent, {
-            shouldDirty: true,
-            shouldTouch: true,
-          });
-        }
-      } else {
-        const htmlContent = value || '';
-        form.setValue('content', htmlContent, {
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-      }
-    } catch {
-      form.setValue('content', '', { shouldDirty: true, shouldTouch: true });
-    }
+  const handleEditorChange = (value: string) => {
+    form.setValue('content', value, { shouldDirty: true, shouldTouch: true });
   };
 
   const generateSlug = (text: string) =>

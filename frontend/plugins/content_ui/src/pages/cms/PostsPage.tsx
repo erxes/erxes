@@ -2,7 +2,7 @@ import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { PostsRecordTable } from '~/modules/cms/posts/components/PostsRecordTable';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
-import { PostsSidebar } from '~/modules/cms/posts/components/PostsSidebar';
+import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
 import { useNavigate, useParams } from 'react-router';
 
@@ -24,7 +24,7 @@ export const PostsIndexPage = ({
         <PostsAdd clientPortalId={clientPortalId} />
       </PostsHeader>
       <div className="flex h-full">
-        <PostsSidebar />
+        <CmsSidebar />
         <div className="flex flex-col w-full">
           <PageSubHeader>
             <PostsFilter clientPortalId={clientPortalId} />

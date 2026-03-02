@@ -9,8 +9,8 @@ import {
   IconWorldPlus,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import { CmsLayout } from '../cms/components/shared/CmsLayout';
-import { EmptyState } from '../cms/components/shared/EmptyState';
+import { CmsLayout } from '../cms/shared/CmsLayout';
+import { EmptyState } from '../cms/shared/EmptyState';
 import { CLIENT_PORTAL_GET_CONFIGS } from '../cms/graphql/queries';
 
 const getThumbnailGradient = (index: number) => {
@@ -53,11 +53,7 @@ export function WebBuilderPage() {
   const headerActions = (
     <Button
       onClick={() =>
-        window.open(
-          projects[0]?.url || '#',
-          '_blank',
-          'noopener,noreferrer',
-        )
+        window.open(projects[0]?.url || '#', '_blank', 'noopener,noreferrer')
       }
       variant="outline"
     >
@@ -114,7 +110,9 @@ export function WebBuilderPage() {
                   className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <div
-                    className={`aspect-video ${getThumbnailGradient(index)} relative overflow-hidden`}
+                    className={`aspect-video ${getThumbnailGradient(
+                      index,
+                    )} relative overflow-hidden`}
                   >
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
@@ -185,7 +183,9 @@ export function WebBuilderPage() {
                 >
                   <div className="flex items-center gap-4">
                     <div
-                      className={`w-16 h-16 ${getThumbnailGradient(index)} rounded-lg flex items-center justify-center flex-shrink-0`}
+                      className={`w-16 h-16 ${getThumbnailGradient(
+                        index,
+                      )} rounded-lg flex items-center justify-center flex-shrink-0`}
                     >
                       <IconWorldPlus className="w-6 h-6 text-white" />
                     </div>
