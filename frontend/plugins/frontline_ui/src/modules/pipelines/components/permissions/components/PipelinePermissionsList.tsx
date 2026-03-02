@@ -138,13 +138,16 @@ export const PipelinePermissionsList = memo(() => {
 
   return (
     <Form {...form}>
-      <div className="flex flex-col h-full min-h-0">
+      <div className="flex flex-col flex-1 min-h-0">
         <InfoCard
-          className="p-0 flex flex-col flex-1 min-h-0"
+          className="flex flex-col flex-1 min-h-0"
           title="Pipeline Permissions"
           description="Configure who can view and manage tickets"
         >
-          <InfoCard.Content className="p-0 overflow-y-auto flex-1 min-h-0 pb-24">
+          <InfoCard.Content
+            className="flex-1 overflow-auto p-0 pb-24"
+            style={{ minHeight: 0 }}
+          >
             <div className="divide-y">
               <section className="p-6 space-y-6">
                 <div>
