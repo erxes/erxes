@@ -48,7 +48,9 @@ export const start = async (
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
-      await transporter.sendMail(prepareEmailParams(subdomain, customer, data, configSet));
+      await transporter.sendMail(
+        prepareEmailParams(subdomain, customer, data, configSet),
+      );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
@@ -272,7 +274,7 @@ export const sendBulkSms = async (
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'regular',
-    //   `Error occurred while creating activity log "${customer.primaryPhone}"`
+      //   `Error occurred while creating activity log "${customer.primaryPhone}"`
       //   );
     }
   } // end customers loop
@@ -294,7 +296,9 @@ export const sendEngageEmail = async (
   );
 
   try {
-    await transporter.sendMail(prepareEmailParams(subdomain, customer, data, configSet));
+    await transporter.sendMail(
+      prepareEmailParams(subdomain, customer, data, configSet),
+    );
 
     console.log(`Sent email to: ${customer?.primaryEmail}`);
   } catch (e) {
