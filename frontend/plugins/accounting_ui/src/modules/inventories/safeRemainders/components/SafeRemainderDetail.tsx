@@ -1,13 +1,14 @@
+import { IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
+import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
 import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
-import { ISafeRemainder } from '../types/SafeRemainder';
+import { ISafeRemainder, SAFE_REMAINDER_STATUSES } from '../types/SafeRemainder';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
-import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
+import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -28,7 +29,7 @@ export const SafeRemainderDetail = () => {
   });
 
   const { submitSafeRemainder } = useSafeRemainderSubmit(id ?? '');
-  const { removeSafeRemainder } = useSafeRemainderRemove(id ?? '');
+  const { removeSafeRemainder } = useSafeRemainderRemove();
 
   if (loading || detailsLoading) {
     return <Spinner />;
@@ -38,13 +39,48 @@ export const SafeRemainderDetail = () => {
     return;
   }
 
+  const handleCancel = () => { }
   const handleSubmit = () => {
     submitSafeRemainder();
   };
 
-  const handleDelete = () => {
-    removeSafeRemainder();
-  };
+  const renderEvents = () => {
+    const status = safeRemainder?.status || SAFE_REMAINDER_STATUSES.DRAFT;
+    switch (status) {
+      case SAFE_REMAINDER_STATUSES.DRAFT:
+        return (
+          <>
+            <Button
+              onClick={handleSubmit}
+            >
+              <IconCrane />
+              RUN
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => removeSafeRemainder({ variables: { _id: id } })}
+            >
+              <IconTrashX />
+              Delete
+            </Button>
+          </>
+        )
+      case SAFE_REMAINDER_STATUSES.PUBLISHED:
+        return (
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={handleCancel}
+          >
+            <IconTrashX />
+            Draft
+          </Button>
+        )
+      default:
+        return null;
+    }
+  }
 
   return (
     <>
@@ -60,7 +96,7 @@ export const SafeRemainderDetail = () => {
               {safeRemainder?.status}
             </span>
           </div>
-          {/* {renderEvents()} */}
+          {renderEvents()}
         </div>
       </div>
 
