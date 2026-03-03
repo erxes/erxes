@@ -1519,16 +1519,16 @@ orderMutations.cpOrdersAdd.wrapperConfig = {
   forClientPortal: true,
 };
 
-orderMutations.cpOrdersEdit.wrapperConfig={
+orderMutations.cpOrdersEdit.wrapperConfig = {
   forClientPortal: true,
 };
 
-orderMutations.cpOrderChangeSaleStatus.wrapperConfig={
+orderMutations.cpOrderChangeSaleStatus.wrapperConfig = {
   forClientPortal: true,
-}
+};
 
-orderMutations.cpOrdersCancel.wrapperConfig={
+orderMutations.cpOrdersCancel.wrapperConfig = {
   forClientPortal: true,
-}
+};
 
 export default orderMutations;

@@ -148,12 +148,16 @@ const filterOrders = (params: ISearchParams, models, config) => {
   );
 };
 
-const orderQueries : Record<string, Resolver> = {
+const orderQueries: Record<string, Resolver> = {
   async orders(_root, params: ISearchParams, { models, config }: IContext) {
     return filterOrders(params, models, config);
   },
 
-  async cpCurrentOrder(_root, params: ISearchParams, { models, config }: IContext) {
+  async cpCurrentOrder(
+    _root,
+    params: ISearchParams,
+    { models, config }: IContext,
+  ) {
     return filterOrders(params, models, config);
   },
 
@@ -161,7 +165,11 @@ const orderQueries : Record<string, Resolver> = {
     return filterOrders(params, models, config);
   },
 
-  async cpFullOrders(_root, params: ISearchParams, { models, config }: IContext) {
+  async cpFullOrders(
+    _root,
+    params: ISearchParams,
+    { models, config }: IContext,
+  ) {
     return filterOrders(params, models, config);
   },
 
@@ -311,7 +319,6 @@ const orderQueries : Record<string, Resolver> = {
     return resp.result?.data;
   },
 
-
   async cpOrdersCheckCompany(_root, { registerNumber }, { config }: IContext) {
     const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
@@ -437,28 +444,28 @@ markResolvers(orderQueries, {
   },
 });
 
-orderQueries.cpAddresses.wrapperConfig={
+orderQueries.cpAddresses.wrapperConfig = {
   forClientPortal: true,
-}
-orderQueries.cpCurrentOrder.wrapperConfig={
+};
+orderQueries.cpCurrentOrder.wrapperConfig = {
   forClientPortal: true,
-}
-orderQueries.cpFullOrders.wrapperConfig={
+};
+orderQueries.cpFullOrders.wrapperConfig = {
   forClientPortal: true,
-}
-orderQueries.cpGetLastProductView.wrapperConfig={
+};
+orderQueries.cpGetLastProductView.wrapperConfig = {
   forClientPortal: true,
-}
+};
 
 // not done yet
-orderQueries.cpInvoices.wrapperConfig={
-  forClientPortal: true, 
-}
-orderQueries.cpOrderDetail.wrapperConfig={
+orderQueries.cpInvoices.wrapperConfig = {
   forClientPortal: true,
-}
-orderQueries.cpOrdersCheckCompany.wrapperConfig={
+};
+orderQueries.cpOrderDetail.wrapperConfig = {
   forClientPortal: true,
-}
+};
+orderQueries.cpOrdersCheckCompany.wrapperConfig = {
+  forClientPortal: true,
+};
 
 export default orderQueries;
