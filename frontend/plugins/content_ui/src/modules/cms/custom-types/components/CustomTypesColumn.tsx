@@ -2,6 +2,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   Input,
+  RelativeDateDisplay,
   Popover,
   useToast,
 } from 'erxes-ui';
@@ -110,7 +111,6 @@ export const createCustomTypesColumns = (
           </Popover>
         );
       },
-      size: 280,
     },
     {
       id: 'description',
@@ -119,9 +119,10 @@ export const createCustomTypesColumns = (
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
-        <BadgeCell>{(cell.getValue() as string) || '—'}</BadgeCell>
+        <div className="w-full flex px-2 items-center">
+          {cell.getValue() as string}
+        </div>
       ),
-      size: 360,
     },
     {
       id: 'createdAt',
@@ -131,7 +132,11 @@ export const createCustomTypesColumns = (
       accessorKey: 'createdAt',
       size: 120,
       cell: ({ cell }) => (
-        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       ),
     },
     {

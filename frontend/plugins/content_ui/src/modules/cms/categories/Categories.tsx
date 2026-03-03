@@ -38,11 +38,6 @@ export function Categories() {
     refetch,
   );
 
-  const handleAddCategory = () => {
-    setSelectedCategory(undefined);
-    setDrawerOpen(true);
-  };
-
   const handleEditCategory = (category: ICategory) => {
     setSelectedCategory(category);
     setDrawerOpen(true);
@@ -70,9 +65,9 @@ export function Categories() {
   return (
     <PageContainer>
       <CategoriesHeader>{headerActions}</CategoriesHeader>
-      <div className="flex overflow-hidden flex-auto">
+      <div className="flex overflow-x-auto flex-auto">
         <CategoriesSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
+        <div className="flex overflow-y-auto flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">
@@ -105,7 +100,7 @@ export function Categories() {
       </div>
 
       <CmsCategoryDrawer
-        category={selectedCategory}
+        // category={selectedCategory}
         isOpen={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
@@ -115,25 +110,5 @@ export function Categories() {
         onRefetch={refetch}
       />
     </PageContainer>
-    // <div>
-    //   <CategoriesSidebar />
-    //   <CategoriesRecordTable
-    //     key={refetchTrigger}
-    //     clientPortalId={websiteId || ''}
-    //     onEdit={handleEditCategory}
-    //     onRemove={handleRemoveCategory}
-    //     onBulkDelete={handleBulkDelete}
-    //   />
-    //   <CmsCategoryDrawer
-    //     category={selectedCategory}
-    //     isOpen={drawerOpen}
-    //     onClose={() => {
-    //       setDrawerOpen(false);
-    //       setSelectedCategory(undefined);
-    //     }}
-    //     clientPortalId={websiteId || ''}
-    //     onRefetch={refetch}
-    //   />
-    // </div>
   );
 }

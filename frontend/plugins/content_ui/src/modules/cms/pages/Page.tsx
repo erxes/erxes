@@ -36,9 +36,9 @@ export function Page() {
   return (
     <PageContainer>
       <PagesHeader>{headerActions}</PagesHeader>
-      <div className="flex overflow-hidden flex-auto">
+      <div className="flex overflow-x-auto flex-auto">
         <PagesSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
+        <div className="flex overflow-y-auto flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">

@@ -4,6 +4,7 @@ import {
   Input,
   Popover,
   useToast,
+  RelativeDateDisplay,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { tagMoreColumn } from './TagsMoreColumn';
@@ -17,19 +18,6 @@ const BadgeCell = ({ children }: { children: React.ReactNode }) => (
     <span className="text-sm text-gray-500">{children}</span>
   </div>
 );
-
-const ColorCell = ({ colorCode }: { colorCode: string }) => {
-  if (!colorCode) return <BadgeCell>—</BadgeCell>;
-  return (
-    <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs gap-2">
-      <div
-        className="size-3 rounded-full"
-        style={{ backgroundColor: colorCode }}
-      />
-      <span className="text-sm text-gray-500">{colorCode}</span>
-    </div>
-  );
-};
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '';
@@ -122,7 +110,9 @@ export const createTagsColumns = (
       header: () => <RecordTable.InlineHead icon={IconTag} label="Slug" />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
-        <BadgeCell>{(cell.getValue() as string) || '—'}</BadgeCell>
+        <div className="w-full flex px-2 items-center text-gray-500">
+          {(cell.getValue() as string) || '—'}
+        </div>
       ),
     },
     {
@@ -133,7 +123,11 @@ export const createTagsColumns = (
       accessorKey: 'createdAt',
       size: 120,
       cell: ({ cell }) => (
-        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       ),
     },
     {

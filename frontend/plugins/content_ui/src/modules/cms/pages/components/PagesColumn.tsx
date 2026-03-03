@@ -1,4 +1,10 @@
-import { RecordTable, RecordTableInlineCell, Input, Popover } from 'erxes-ui';
+import {
+  RecordTable,
+  RecordTableInlineCell,
+  Input,
+  Popover,
+  RelativeDateDisplay,
+} from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { pageMoreColumn } from './PagesMoreColumn';
 import { useState } from 'react';
@@ -7,19 +13,10 @@ import { IPage } from '../types/pageTypes';
 import { useEditPage } from '../hooks/useEditPage';
 
 const BadgeCell = ({ children }: { children: React.ReactNode }) => (
-  <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-    <span className="text-sm text-gray-500">{children}</span>
+  <div className="mx-2 my-1 p-1 inline-flex items-center px-2 whitespace-nowrap w-fit h-6 gap-1">
+    <span className="text-sm">{children}</span>
   </div>
 );
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 export const pagesColumns = (
   onEditPage?: (page: any) => void,
@@ -92,7 +89,11 @@ export const pagesColumns = (
       header: () => <RecordTable.InlineHead icon={IconArticle} label="Slug" />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
-        <BadgeCell>{(cell.getValue() as string) || ''}</BadgeCell>
+        <BadgeCell>
+          <div className="text-gray-500">
+            {(cell.getValue() as string) || ''}
+          </div>
+        </BadgeCell>
       ),
     },
 
@@ -103,7 +104,11 @@ export const pagesColumns = (
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
-        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       ),
     },
     {
@@ -113,7 +118,11 @@ export const pagesColumns = (
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (
-        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       ),
     },
   ];

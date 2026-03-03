@@ -100,9 +100,9 @@ export const createCategoriesColumns = (
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
-        <RecordTableInlineCell>
+        <div className="w-full flex px-2 items-center">
           {cell.getValue() as string}
-        </RecordTableInlineCell>
+        </div>
       ),
     },
     {
@@ -111,17 +111,21 @@ export const createCategoriesColumns = (
       accessorKey: 'parentId',
       cell: ({ row }) => {
         const getParentName = (parent: any): string => {
-          if (!parent) return '—';
+          if (!parent) return '';
           // If there's a parent with a name, return it
           if (parent.name) return parent.name;
           // If there's a nested parent, recursively get its name
           if (parent.parent) return getParentName(parent.parent);
-          return '—';
+          return '';
         };
 
         const parentName = getParentName(row.original.parent);
 
-        return <BadgeCell>{parentName}</BadgeCell>;
+        return (
+          <div className="text-gray-500 w-full flex px-2 items-center">
+            {parentName}
+          </div>
+        );
       },
     },
     {

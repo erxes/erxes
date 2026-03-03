@@ -60,9 +60,9 @@ export function CustomTypes() {
   return (
     <PageContainer>
       <CustomTypesHeader>{headerActions}</CustomTypesHeader>
-      <div className="flex overflow-hidden flex-auto">
+      <div className="flex overflow-x-auto flex-auto">
         <CustomTypesSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
+        <div className="flex overflow-y-auto flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">

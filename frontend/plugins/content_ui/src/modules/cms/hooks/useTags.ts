@@ -32,7 +32,7 @@ export function useTags({
   clientPortalId,
   type,
   searchValue,
-  limit = 20,
+  limit = 100,
   cursor,
   cursorMode,
   direction,
