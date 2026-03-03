@@ -28,48 +28,48 @@ export const PostMoreColumnCell = ({
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removePosts, loading } = useRemovePosts();
-  const [editPost, { loading: editLoading }] = useMutation(POSTS_EDIT);
-  const [isStatusPopoverOpen, setIsStatusPopoverOpen] = useState(false);
+  // const [editPost, { loading: editLoading }] = useMutation(POSTS_EDIT);
+  // const [isStatusPopoverOpen, setIsStatusPopoverOpen] = useState(false);
 
-  const availableStatuses = useMemo(() => {
-    if (status === 'draft') {
-      return ['published', 'scheduled'];
-    } else if (status === 'published') {
-      return ['draft', 'scheduled'];
-    } else if (status === 'scheduled') {
-      return ['draft', 'published'];
-    } else {
-      return ['draft', 'published', 'scheduled'];
-    }
-  }, [status]);
+  // const availableStatuses = useMemo(() => {
+  //   if (status === 'draft') {
+  //     return ['published', 'scheduled'];
+  //   } else if (status === 'published') {
+  //     return ['draft', 'scheduled'];
+  //   } else if (status === 'scheduled') {
+  //     return ['draft', 'published'];
+  //   } else {
+  //     return ['draft', 'published', 'scheduled'];
+  //   }
+  // }, [status]);
 
-  const handleStatusChange = (newStatus: string) => {
-    editPost({
-      variables: {
-        id: _id,
-        input: {
-          status: newStatus,
-        },
-      },
-      onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Post status updated successfully',
-          variant: 'success',
-        });
-        onUpdateStatus?.(_id, newStatus);
-        onRefetch?.();
-        setIsStatusPopoverOpen(false);
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
-  };
+  // const handleStatusChange = (newStatus: string) => {
+  //   editPost({
+  //     variables: {
+  //       id: _id,
+  //       input: {
+  //         status: newStatus,
+  //       },
+  //     },
+  //     onCompleted: () => {
+  //       toast({
+  //         title: 'Success',
+  //         description: 'Post status updated successfully',
+  //         variant: 'success',
+  //       });
+  //       onUpdateStatus?.(_id, newStatus);
+  //       onRefetch?.();
+  //       setIsStatusPopoverOpen(false);
+  //     },
+  //     onError: (error) => {
+  //       toast({
+  //         title: 'Error',
+  //         description: error.message,
+  //         variant: 'destructive',
+  //       });
+  //     },
+  //   });
+  // };
 
   const handleEdit = () => {
     const post = cell.row.original;
@@ -130,7 +130,7 @@ export const PostMoreColumnCell = ({
                 Edit
               </Button>
             </Command.Item>
-            <Command.Item asChild>
+            {/* <Command.Item asChild>
               <Popover
                 open={isStatusPopoverOpen}
                 onOpenChange={setIsStatusPopoverOpen}
@@ -166,7 +166,7 @@ export const PostMoreColumnCell = ({
                   </Command>
                 </Combobox.Content>
               </Popover>
-            </Command.Item>
+            </Command.Item> */}
             <Command.Item asChild>
               <Button
                 variant="ghost"

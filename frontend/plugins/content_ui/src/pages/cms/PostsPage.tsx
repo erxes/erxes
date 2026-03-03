@@ -23,18 +23,39 @@ export const PostsIndexPage = ({
       <PostsHeader>
         <PostsAdd clientPortalId={clientPortalId} />
       </PostsHeader>
-      <div className="flex h-full">
+      <div className="flex overflow-hidden flex-auto">
         <PostsSidebar />
-        <div className="flex flex-col w-full">
-          <PageSubHeader>
-            <PostsFilter clientPortalId={clientPortalId} />
-          </PageSubHeader>
+        <div className="flex flex-col w-full overflow-hidden flex-auto">
+          <PostsIndexPageContent
+            clientPortalId={clientPortalId}
+            handleEditPost={handleEditPost}
+          />
+        </div>
+      </div>
+    </PageContainer>
+  );
+};
+
+const PostsIndexPageContent = ({
+  clientPortalId,
+  handleEditPost,
+}: {
+  clientPortalId: string;
+  handleEditPost: (post: any) => void;
+}) => {
+  return (
+    <>
+      <PageSubHeader>
+        <PostsFilter clientPortalId={clientPortalId} />
+      </PageSubHeader>
+      <div className="overflow-hidden flex-auto p-3">
+        <div className="h-full">
           <PostsRecordTable
             clientPortalId={clientPortalId}
             onEditPost={handleEditPost}
           />
         </div>
       </div>
-    </PageContainer>
+    </>
   );
 };

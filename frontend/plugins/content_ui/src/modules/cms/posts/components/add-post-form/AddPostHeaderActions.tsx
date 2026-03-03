@@ -21,6 +21,7 @@ interface PostFormData {
   documents?: string[];
   attachments?: string[];
   pdf?: string | null;
+  publishDate?: Date | null;
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
@@ -57,7 +58,7 @@ export const AddPostHeaderActions = ({
           {status === 'published' && (
             <Form.Field
               control={form.control}
-              name="scheduledDate"
+              name="publishDate"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Control>
@@ -186,20 +187,20 @@ export const AddPostHeaderActions = ({
             {status === 'published'
               ? 'Publishing...'
               : status === 'draft'
-                ? 'Saving...'
-                : status === 'scheduled'
-                  ? 'Scheduling...'
-                  : 'Saving...'}
+              ? 'Saving...'
+              : status === 'scheduled'
+              ? 'Scheduling...'
+              : 'Saving...'}
           </>
         ) : (
           <div>
             {status === 'published'
               ? 'Publish'
               : status === 'draft'
-                ? 'Save Draft'
-                : status === 'scheduled'
-                  ? 'Schedule'
-                  : 'Save'}
+              ? 'Save Draft'
+              : status === 'scheduled'
+              ? 'Schedule'
+              : 'Save'}
           </div>
         )}
       </Button>
