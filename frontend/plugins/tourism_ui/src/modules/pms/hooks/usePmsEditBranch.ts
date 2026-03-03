@@ -3,6 +3,7 @@ import { pmsMutations } from '@/pms/graphql/mutation';
 import { pmsQueries } from '@/pms/graphql/queries';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 import { IPmsPaymentType } from '@/pms/types/branch';
+import { nanoid } from 'nanoid';
 
 interface UsePmsEditBranchParams {
   page?: number;
@@ -39,7 +40,7 @@ export const usePmsEditBranch = ({
   ) => {
     const discount = (data.discount || []).map(
       (item: Partial<IPmsPaymentType> | undefined) => ({
-        _id: item?._id,
+        _id: item?._id || nanoid(),
         type: item?.type || '',
         title: item?.title || '',
         config: item?.config || '',

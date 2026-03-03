@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { pmsMutations } from '@/pms/graphql/mutation';
 import { pmsQueries } from '@/pms/graphql/queries';
-import { toast } from 'erxes-ui';
+import { useToast } from 'erxes-ui';
 
 interface PmsBranchRemoveResponse {
   pmsBranchRemove: unknown;
@@ -16,6 +16,7 @@ interface PmsBranchRemoveVariables {
 }
 
 export const usePmsRemoveBranch = () => {
+  const { toast } = useToast();
   const [removeBranchMutation, { loading, error }] = useMutation<
     PmsBranchRemoveResponse,
     PmsBranchRemoveVariables

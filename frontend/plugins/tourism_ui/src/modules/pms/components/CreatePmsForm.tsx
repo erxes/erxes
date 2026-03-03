@@ -37,9 +37,11 @@ const CreatePmsForm = ({
 }) => {
   const { createPmsBranch, loading: createLoading } = usePmsCreateBranch();
   const { editBranch, loading: editLoading } = usePmsEditBranch();
-  const { branch, loading: detailLoading } = usePmsBranchDetail(
-    mode === 'edit' ? branchId || '' : '',
-  );
+  const {
+    branch,
+    loading: detailLoading,
+    error: detailError,
+  } = usePmsBranchDetail(mode === 'edit' ? branchId || '' : '');
 
   const form = useForm<PmsBranchFormType>({
     resolver: zodResolver(PmsBranchFormSchema),
@@ -210,6 +212,10 @@ const CreatePmsForm = ({
       return;
     }
 
+    if (branch._id !== branchId) {
+      return;
+    }
+
     form.reset({
       name: branch.name || '',
       description: branch.description || '',
@@ -310,6 +316,11 @@ const CreatePmsForm = ({
           {mode === 'edit' && detailLoading ? (
             <div className="flex justify-center items-center w-full h-full">
               <Spinner />
+            </div>
+          ) : mode === 'edit' && detailError ? (
+            <div className="flex flex-col justify-center items-center w-full h-full text-destructive">
+              <p>Failed to load branch details</p>
+              <p className="text-sm">{detailError.message}</p>
             </div>
           ) : (
             <CreatePmsFormContent form={form} />
