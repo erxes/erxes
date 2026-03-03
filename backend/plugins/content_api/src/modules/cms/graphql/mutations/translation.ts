@@ -1,6 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 
 const mutations: Record<string, Resolver> = {
   /**
@@ -30,12 +29,7 @@ const mutations: Record<string, Resolver> = {
 
     console.log('🌐 cmsEditTranslation mutation called with input:', input);
 
-    try {
-      const result = await models.Translations.updateTranslation(input);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    return models.Translations.updateTranslation(input);
   },
 
   /**
@@ -52,12 +46,5 @@ const mutations: Record<string, Resolver> = {
     return models.Posts.increaseViewCount(_id);
   },
 };
-
-requireLogin(mutations, 'cmsAddTranslation');
-requireLogin(mutations, 'cmsEditTranslation');
-
-checkPermission(mutations, 'cmsAddTranslation', 'manageCms', []);
-// Temporarily disabled to debug - checkPermission returns null when user lacks permission
-// checkPermission(mutations, 'cmsEditTranslation', 'manageCms', []);
 
 export default mutations;

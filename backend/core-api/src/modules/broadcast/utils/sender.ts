@@ -164,7 +164,7 @@ export const start = async (
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'regular',
-      //     `Error occured while creating activity log "${customer.primaryEmail}"`,
+      //     `Error occurred while creating activity log "${customer.primaryEmail}"`,
       //   );
     }
   } // end for loop
@@ -271,7 +271,7 @@ export const sendBulkSms = async (
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'regular',
-      //     `Error occured while creating activity log "${customer.primaryPhone}"`
+      //     `Error occurred while creating activity log "${customer.primaryPhone}"`
       //   );
     }
   } // end customers loop
