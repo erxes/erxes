@@ -3,7 +3,10 @@ import { useMutation } from '@apollo/client';
 import { CMS_CATEGORIES_ADD } from '../../../../categories/graphql/mutations/categoriesAddMutation';
 
 const toSlug = (name: string) =>
-  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 export const useInlineCategory = (websiteId: string) => {
   const [addCategoryMutation] = useMutation(CMS_CATEGORIES_ADD);

@@ -31,12 +31,10 @@ export const MenusNavigation = () => {
   }, [pathname]);
 
   const websiteName =
-    cmsData?.contentCMSList?.find(
-      (w: any) => w.clientPortalId === websiteId,
-    )?.name ||
-    websitesData?.getClientPortals?.list?.find(
-      (w: any) => w._id === websiteId,
-    )?.name ||
+    cmsData?.contentCMSList?.find((w: any) => w.clientPortalId === websiteId)
+      ?.name ||
+    websitesData?.getClientPortals?.list?.find((w: any) => w._id === websiteId)
+      ?.name ||
     '';
 
   return (

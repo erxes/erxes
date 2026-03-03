@@ -23,7 +23,15 @@ export function usePostsFieldTypes(): IPostsFieldType[] {
     { value: PostsPath.Categories, label: 'Categories', icon: IconFolder },
     { value: PostsPath.Tags, label: 'Tags', icon: IconTag },
     { value: PostsPath.Menus, label: 'Menus', icon: IconMenu },
-    { value: PostsPath.CustomFields, label: 'Custom Fields', icon: IconAlignJustified },
-    { value: PostsPath.CustomPostTypes, label: 'Custom Post Types', icon: IconLayout },
+    {
+      value: PostsPath.CustomFields,
+      label: 'Custom Fields',
+      icon: IconAlignJustified,
+    },
+    {
+      value: PostsPath.CustomPostTypes,
+      label: 'Custom Post Types',
+      icon: IconLayout,
+    },
   ];
 }

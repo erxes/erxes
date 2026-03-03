@@ -159,13 +159,18 @@ export function MenuDrawer({
         </Sheet.Header>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-4 space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="p-4 space-y-4"
+          >
             {hasPermissionError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
                 <div className="flex items-start gap-2">
                   <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium text-red-800">Permission Required</p>
+                    <p className="font-medium text-red-800">
+                      Permission Required
+                    </p>
                     <p className="text-red-700 mt-1">
                       You need permission to manage menus. Please contact your
                       administrator.
@@ -196,7 +201,11 @@ export function MenuDrawer({
                 <Form.Item>
                   <Form.Label>URL</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="/path-or-https://..." required />
+                    <Input
+                      {...field}
+                      placeholder="/path-or-https://..."
+                      required
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -259,7 +268,11 @@ export function MenuDrawer({
                 Cancel
               </Button>
               <Button type="submit" disabled={saving || hasPermissionError}>
-                {saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Menu'}
+                {saving
+                  ? 'Saving...'
+                  : isEditing
+                    ? 'Save Changes'
+                    : 'Create Menu'}
               </Button>
             </div>
           </form>

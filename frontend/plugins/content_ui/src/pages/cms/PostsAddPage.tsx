@@ -24,7 +24,8 @@ export const PostsAddPage = ({
 
   const handleClose = useCallback(() => {
     const typeCode = new URLSearchParams(window.location.search).get('type');
-    const typeParam = typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+    const typeParam =
+      typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
     navigate(`/content/cms/${websiteId}/posts${typeParam}`);
   }, [navigate, websiteId]);
 
