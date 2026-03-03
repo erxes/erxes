@@ -283,8 +283,9 @@ export const queries = `
   insuranceCustomer(id: ID!): InsuranceCustomer
   customerByRegistration(registrationNumber: String!): InsuranceCustomer
   customerByEmail(email: String!): InsuranceCustomer
+  companyByRegistration(registrationNumber: String!): InsuranceCustomer
 
-  contracts(vendorId: ID, customerId: ID): [InsuranceContract!]!
+  contracts(vendorId: ID, customerId: ID, searchValue: String, contractNumber: String, customerRegistration: String, plateNumber: String, paymentStatus: String, insuranceTypeId: ID, startDate: Date, endDate: Date): [InsuranceContract!]!
   contract(id: ID!): InsuranceContract
 
   vendorContracts: [InsuranceContract!]!
