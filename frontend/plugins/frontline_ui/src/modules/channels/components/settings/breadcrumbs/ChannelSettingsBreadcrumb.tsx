@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
-import { Button, Separator, useIsMatchingLocation } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 import { IconCircles } from '@tabler/icons-react';
+import { Separator } from 'erxes-ui';
+import { useIsMatchingLocation } from 'erxes-ui';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
@@ -8,10 +10,9 @@ import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/compone
 import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
 import { TicketStatusesBreadcrumb } from '@/status/components/TicketStatusesBreadcrumb';
 import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
-import { PipelinePermissionsBreadcrumb } from '@/pipelines/components/permissions/components/PipelinePermissionsBreadcrumb';
 import { FormDetailsBreadcrumb } from '@/forms/components/FormDetailsBreadcrumb';
 import { FormsCreateButton } from '@/forms/components/form-page/forms-create';
-
+import { PipelinePermissionsBreadcrumb } from '@/pipelines/components/permissions/components/PipelinePermissionsBreadcrumb';
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
@@ -43,14 +44,20 @@ export const ChannelSettingsBreadcrumb = () => {
           Channels
         </Button>
       </Link>
-
-      {(isChannelRoute || isFormsRoute) && (
+      {(isMatchingLocation(FrontlinePaths.ChannelDetails) ||
+        isMatchingLocation(FrontlinePaths.ChannelMembers) ||
+        isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
+        isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+        isMatchingLocation(FrontlinePaths.TicketsStatuses) ||
+        isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
+        isMatchingLocation(FrontlinePaths.ResponseDetail) ||
+        isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`)) && (
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb />
         </>
       )}
-
       {isMatchingLocation(FrontlinePaths.ChannelMembers) && (
         <>
           <Separator.Inline />
@@ -75,7 +82,6 @@ export const ChannelSettingsBreadcrumb = () => {
           </Link>
         </>
       )}
-
       {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
         isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
@@ -117,7 +123,18 @@ export const ChannelSettingsBreadcrumb = () => {
         </>
       )}
 
-      {isFormsRoute && (
+      {/* Forms: /:id/forms, /:id/forms/create, /:id/forms/:formId */}
+      {(isMatchingLocation(FrontlinePaths.ChannelForms) ||
+        isMatchingLocation(FrontlinePaths.FormsCreate) ||
+        isMatchingLocation(FrontlinePaths.FormDetail)) && (
+        <>
+          <Separator.Inline />
+          <ChannelDetailBreadcrumb channelId={channelId} />
+        </>
+      )}
+      {(isMatchingLocation(FrontlinePaths.ChannelForms) ||
+        isMatchingLocation(FrontlinePaths.FormsCreate) ||
+        isMatchingLocation(FrontlinePaths.FormDetail)) && (
         <>
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/forms`}>
@@ -130,7 +147,6 @@ export const ChannelSettingsBreadcrumb = () => {
           </span>
         </>
       )}
-
       {isMatchingLocation(FrontlinePaths.FormDetail) &&
         !isMatchingLocation(FrontlinePaths.FormsCreate) && (
           <>
@@ -138,7 +154,6 @@ export const ChannelSettingsBreadcrumb = () => {
             <FormDetailsBreadcrumb />
           </>
         )}
-
       {isMatchingLocation(FrontlinePaths.FormsCreate) && (
         <>
           <Separator.Inline />

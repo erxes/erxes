@@ -22,6 +22,7 @@ export const BundleConditionMoreColumn = (
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeBundleConditions, loading } = useBundleConditionRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleEdit = () => {
     setIsEditOpen(true);
@@ -30,6 +31,7 @@ export const BundleConditionMoreColumn = (
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${bundleCondition.name}"?`,
+      options: confirmOptions,
     }).then(() => {
       removeBundleConditions({
         variables: { _ids: [bundleCondition._id] },
