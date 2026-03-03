@@ -1,4 +1,5 @@
 import { TemplateCategoriesInline } from '@/templates/components/category/TemplateCategoryInline';
+import { templateMoreColumn } from '@/templates/components/TemplateMoreCell';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { IconLabelFilled } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
@@ -11,6 +12,7 @@ import {
 import { IUser, MembersInline } from 'ui-modules';
 
 export const templateColumns: ColumnDef<any>[] = [
+  templateMoreColumn,
   RecordTable.checkboxColumn,
   {
     id: 'name',
@@ -40,7 +42,9 @@ export const templateColumns: ColumnDef<any>[] = [
       return (
         <RecordTableInlineCell>
           {types.map((type) => (
-            <Badge variant="secondary">{type}</Badge>
+            <Badge variant="secondary" key={type}>
+              {type}
+            </Badge>
           ))}
         </RecordTableInlineCell>
       );

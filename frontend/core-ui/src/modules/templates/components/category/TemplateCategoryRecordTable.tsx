@@ -1,25 +1,26 @@
-import { templateColumns } from '@/templates/components/TemplatesColumns';
 import { TemplatesCommandBar } from '@/templates/components/TemplatesCommandBar';
-import { useTemplates } from '@/templates/hooks/useTemplates';
+import { useTemplateCategories } from '@/templates/hooks/useTemplateCategories';
 import { RecordTable } from 'erxes-ui';
+import { templateCategoryColumns } from './TemplateCategoryColumns';
 
-export const TemplatesRecordTable = () => {
-  const { templates, pageInfo, loading, handleFetchMore } = useTemplates();
+export const TemplateCategoryRecordTable = () => {
+  const { categories, pageInfo, loading, handleFetchMore } =
+    useTemplateCategories({});
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
-      columns={templateColumns}
-      data={templates || []}
+      columns={templateCategoryColumns}
+      data={categories || []}
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
-        dataLength={templates?.length}
-        sessionKey={'template-cursor'}
+        dataLength={categories?.length}
+        sessionKey={'template-category-cursor'}
       >
         <RecordTable>
           <RecordTable.Header />

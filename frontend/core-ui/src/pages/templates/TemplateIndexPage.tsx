@@ -8,12 +8,6 @@ export const TemplateIndexPage = () => {
     <PageContainer>
       <TemplatesHeader />
       <TemplatesFilter />
-      {/* 
-        <DocumentsLayout
-            Documents={Documents}
-            DocumentsTypes={DocumentsTypes}
-            Editor={DocumentEditor}
-        /> */}
 
       <TemplatesRecordTable />
     </PageContainer>

@@ -7,11 +7,18 @@ const TemplateIndexPage = lazy(() =>
   })),
 );
 
+const TemplateCategoryIndexPage = lazy(() =>
+  import('~/pages/templates/TemplateCategoryIndexPage').then((module) => ({
+    default: module.TemplateCategoryIndexPage,
+  })),
+);
+
 export const TemplateRoutes = () => {
   return (
     <Suspense fallback={<></>}>
       <Routes>
-        <Route path="/" element={<TemplateIndexPage />} />
+        <Route index element={<TemplateIndexPage />} />
+        <Route path="categories" element={<TemplateCategoryIndexPage />} />
       </Routes>
     </Suspense>
   );

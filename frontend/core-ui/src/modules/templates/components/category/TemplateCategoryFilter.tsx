@@ -1,5 +1,6 @@
-import { TemplateFilterState } from '@/templates/types/Template';
-import { IconBox, IconCalendarPlus, IconSearch } from '@tabler/icons-react';
+import { SelectTemplateCategory } from '@/templates/components/category/TemplateCategorySelect';
+import { TemplateCategoryFilterState } from '@/templates/types/TemplateCategory';
+import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
@@ -9,14 +10,11 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
-import { SelectTemplateCategory } from './category/TemplateCategorySelect';
-import { SelectTemplateContentTypes } from './select/TemplateContentTypeSelect';
 
-export const TemplatesFilter = () => {
-  const [queries] = useMultiQueryState<TemplateFilterState>([
+export const TemplateCategoryFilter = () => {
+  const [queries] = useMultiQueryState<TemplateCategoryFilterState>([
     'searchValue',
-    'contentType',
-    'categoryIds',
+    'parentIds',
 
     'createdAt',
     'createdBy',
@@ -33,12 +31,12 @@ export const TemplatesFilter = () => {
     <PageSubHeader>
       <Filter id="templates-filter">
         <Filter.Bar className="overflow-auto styled-scroll">
-          <TemplateFilterBar queries={queries} />
+          <TemplateCategoryFilterBar queries={queries} />
           <div className="flex flex-wrap flex-1 items-center gap-2">
             <Filter.Popover scope={'templates-page'}>
               <Filter.Trigger isFiltered={hasFilters} />
               <Combobox.Content>
-                <TemplateFilterView />
+                <TemplateCategoryFilterView />
               </Combobox.Content>
             </Filter.Popover>
             <Filter.Dialog>
@@ -59,8 +57,12 @@ export const TemplatesFilter = () => {
   );
 };
 
-const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
-  const { searchValue, createdBy, updatedBy, categoryIds } = queries || {};
+const TemplateCategoryFilterBar = ({
+  queries,
+}: {
+  queries: TemplateCategoryFilterState;
+}) => {
+  const { searchValue, createdBy, updatedBy, parentIds } = queries || {};
 
   const { t } = useTranslation('templates', {
     keyPrefix: 'filter',
@@ -76,14 +78,6 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
         <Filter.BarButton filterKey="searchValue" inDialog>
           {searchValue}
         </Filter.BarButton>
-      </Filter.BarItem>
-
-      <Filter.BarItem queryKey="contentType">
-        <Filter.BarName>
-          <IconBox />
-          Types
-        </Filter.BarName>
-        <SelectTemplateContentTypes.FilterBar queryKey="contentType" />
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="createdAt">
@@ -110,17 +104,14 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
         <SelectMember.FilterBar queryKey="updatedBy" label="Updated By" />
       )}
 
-      {categoryIds && (
-        <SelectTemplateCategory.FilterBar
-          queryKey="categoryIds"
-          label="Category"
-        />
+      {parentIds && (
+        <SelectTemplateCategory.FilterBar queryKey="parentIds" label="Parent" />
       )}
     </>
   );
 };
 
-const TemplateFilterView = () => {
+const TemplateCategoryFilterView = () => {
   const { t } = useTranslation('templates', {
     keyPrefix: 'filter',
   });
@@ -140,14 +131,9 @@ const TemplateFilterView = () => {
               {t('search')}
             </Filter.Item>
 
-            <Filter.Item value="contentType">
-              <IconBox />
-              Types
-            </Filter.Item>
-
             <SelectTemplateCategory.FilterItem
-              value="categoryIds"
-              label="Category"
+              value="parentIds"
+              label="Parent"
             />
 
             <SelectMember.FilterItem value="createdBy" label="Created By" />
@@ -171,8 +157,7 @@ const TemplateFilterView = () => {
       <SelectMember.FilterView queryKey="createdBy" />
       <SelectMember.FilterView queryKey="updatedBy" />
 
-      <SelectTemplateCategory.FilterView queryKey="categoryIds" />
-      <SelectTemplateContentTypes.FilterView queryKey="contentType" />
+      <SelectTemplateCategory.FilterView queryKey="parentIds" />
 
       <Filter.View filterKey="createdAt">
         <Filter.DateView filterKey="createdAt" />

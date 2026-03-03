@@ -1,4 +1,4 @@
-import { IconBrandDatabricks } from '@tabler/icons-react';
+import { IconBrandDatabricks, IconCategory } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router';
 
@@ -11,6 +11,15 @@ export const TemplatesBreadcrumb = () => {
             <Link to="/templates">
               <IconBrandDatabricks />
               Templates
+            </Link>
+          </Button>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>
+          <Button variant="ghost" asChild>
+            <Link to="/templates/categories">
+              <IconCategory />
+              Categories
             </Link>
           </Button>
         </Breadcrumb.Item>

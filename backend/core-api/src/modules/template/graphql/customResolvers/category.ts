@@ -14,6 +14,23 @@ export default {
   isRoot: async ({ parentId }: ITemplateCategoryDocument) => {
     return !parentId;
   },
+  parent: async (
+    { parentId }: ITemplateCategoryDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!parentId) {
+      return null;
+    }
+
+    const category = await models.TemplateCategory.findOne({ _id: parentId });
+
+    if (!category) {
+      return null;
+    }
+
+    return category;
+  },
   createdBy: async (
     { createdBy }: ITemplateCategoryDocument,
     _args: undefined,

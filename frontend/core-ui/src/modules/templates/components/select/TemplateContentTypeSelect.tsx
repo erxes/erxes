@@ -14,7 +14,7 @@ import {
 import React, { useState } from 'react';
 
 interface SelectProjectTypesContextType {
-  templateTypes?: string[];
+  templateTypes?: any;
   values?: string[];
   onValueChange: (value: string[]) => void;
   variant?: `${SelectTriggerVariant}`;
@@ -44,6 +44,8 @@ export const SelectProjectTypesProvider = ({
   onValueChange: (value: string[]) => void;
   variant?: `${SelectTriggerVariant}`;
 }) => {
+  const { templateTypes } = useTemplateTypes();
+
   const handleValueChange = (value: string[]) => {
     if (!value) return;
     onValueChange(value);
@@ -98,54 +100,48 @@ const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-const SelectProjectTypesCommandItem = ({ types }: { types: string[] }) => {
-  const { onValueChange, values = [], templateTypes } = useSelectProjectTypesContext();
+const SelectProjectTypesCommandItem = ({ type }: { type: any }) => {
+  const {
+    onValueChange,
+    values = [],
+    templateTypes,
+  } = useSelectProjectTypesContext();
 
   return (
     <>
-      {templateTypes.map((type) => (
-        <Command.Item
-          value={type.value}
-          key={type.value}
-          onSelect={() => {
-            const newTypes = (values || []).includes(type.value)
-              ? values.filter((t) => t !== type.value)
-              : [...(values || []), type.value];
+      <Command.Item
+        value={type.value}
+        key={type.value}
+        onSelect={() => {
+          const newTypes = (values || []).includes(type.value)
+            ? values.filter((t) => t !== type.value)
+            : [...(values || []), type.value];
 
-            onValueChange(newTypes);
-          }}
-        >
-          {type.label}
-          <Combobox.Check checked={(values || [])?.includes(type.value)} />
-        </Command.Item>
-      ))}
+          onValueChange(newTypes);
+        }}
+      >
+        {type.label}
+        <Combobox.Check checked={(values || [])?.includes(type.value)} />
+      </Command.Item>
     </>
   );
 };
 
 const SelectProjectTypesContent = () => {
-  const { onValueChange, values = [] } = useSelectProjectTypesContext();
+  const {
+    onValueChange,
+    values = [],
+    templateTypes,
+  } = useSelectProjectTypesContext();
 
   return (
     <Command id="status-command-menu">
       <Command.Input placeholder="Төрөл сонгоно уу" />
       <Command.List>
         <Command.Empty>No status found</Command.Empty>
-        {PROJECT_TYPES.map((type) => (
-          <Command.Item
-            value={type.value}
-            key={type.value}
-            onSelect={() => {
-              const newTypes = (values || []).includes(type.value)
-                ? (values || []).filter((t) => t !== type.value)
-                : [...(values || []), type.value];
 
-              onValueChange(newTypes);
-            }}
-          >
-            {type.label}
-            <Combobox.Check checked={(values || [])?.includes(type.value)} />
-          </Command.Item>
+        {templateTypes.map((type) => (
+          <SelectProjectTypesCommandItem type={type} />
         ))}
       </Command.List>
     </Command>
@@ -215,11 +211,8 @@ const SelectProjectTypesRoot = ({
     setOpen(false);
   };
 
-  const { templateTypes } = useTemplateTypes();
-
   return (
     <SelectProjectTypesProvider
-      templateTypes={templateTypes}
       values={value}
       onValueChange={handleValueChange}
       variant={variant}
@@ -236,7 +229,10 @@ const SelectProjectTypesRoot = ({
   );
 };
 
-export const SelectTemplateContentTypes = Object.assign(SelectProjectTypesRoot, {
-  FilterView: SelectProjectTypesFilterView,
-  FilterBar: SelectProjectTypesFilterBar,
-});
+export const SelectTemplateContentTypes = Object.assign(
+  SelectProjectTypesRoot,
+  {
+    FilterView: SelectProjectTypesFilterView,
+    FilterBar: SelectProjectTypesFilterBar,
+  },
+);
