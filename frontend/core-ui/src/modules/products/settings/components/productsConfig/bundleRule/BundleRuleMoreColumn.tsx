@@ -22,6 +22,7 @@ export const BundleRuleMoreColumn = (
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeBundleRules, loading } = useBundleRulesRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleEdit = () => {
     setIsEditOpen(true);
@@ -30,6 +31,7 @@ export const BundleRuleMoreColumn = (
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${bundleRule.name}"?`,
+      options: confirmOptions,
     }).then(() => {
       removeBundleRules({
         variables: { _ids: [bundleRule._id] },

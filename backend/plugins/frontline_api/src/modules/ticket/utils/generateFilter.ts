@@ -27,6 +27,13 @@ export const generateFilter = async (
         );
       }
     }
+
+    if (
+      pipeline.isCheckUser &&
+      (pipeline.excludeCheckUserIds || []).includes(user._id)
+    ) {
+      filterQuery.$or = [{ assigneeId: user._id }, { createdBy: user._id }];
+    }
   }
   if (filter.name) {
     filterQuery.name = { $regex: filter.name, $options: 'i' };
