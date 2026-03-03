@@ -30,8 +30,6 @@ export const EBarimtMainSettingsForm = () => {
     return 'Select bill type';
   })();
 
-
-
   return (
     <Form {...form}>
       <form
