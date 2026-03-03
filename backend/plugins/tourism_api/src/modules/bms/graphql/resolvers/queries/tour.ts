@@ -330,7 +330,11 @@ const tourQueries: Record<string, Resolver> = {
     return { _id: groupCode, items: list };
   },
 
-  async cpBmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
+  async cpBmToursGroupDetail(
+    _root,
+    { groupCode, status },
+    { models }: IContext,
+  ) {
     const selector: any = {};
 
     const list = await models.Tours.find({
@@ -344,15 +348,15 @@ const tourQueries: Record<string, Resolver> = {
 
 export default tourQueries;
 
-tourQueries.cpBmsTours.wrapperConfig={
-  forClientPortal:true,
-}
-tourQueries.cpBmsTourDetail.wrapperConfig={
-  forClientPortal:true,
-}
-tourQueries.cpBmToursGroup.wrapperConfig={
-  forClientPortal:true,
-}
-tourQueries.cpBmToursGroupDetail.wrapperConfig={
-  forClientPortal:true,
-}
+tourQueries.cpBmsTours.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmsTourDetail.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmToursGroup.wrapperConfig = {
+  forClientPortal: true,
+};
+tourQueries.cpBmToursGroupDetail.wrapperConfig = {
+  forClientPortal: true,
+};
