@@ -3,6 +3,5 @@ export const BroadcastTabPreviewMessengerContent = ({
 }: {
   message: any;
 }) => {
-  console.log('message', message);
   return <div>Messenger Preview</div>;
 };
