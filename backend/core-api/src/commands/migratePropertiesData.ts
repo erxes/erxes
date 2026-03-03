@@ -108,7 +108,7 @@ const toObject = (contentType, document, fields, groups) => {
 
           if (!fieldIds.length) {
             console.log(
-              `${contentType} Group is multiple and Document (${document._id}) object dont have any field ${customField.field}.`,
+              `${contentType} Group is multiple and Document (${document._id}) object don't have any field ${customField.field}.`,
             );
             continue;
           }

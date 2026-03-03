@@ -60,7 +60,7 @@ export const eventLogHandler = async (
           processId,
         });
         console.error(
-          `Error occured during afterProcess job ${jobId}: ${err.message}`,
+          `Error occurred during afterProcess job ${jobId}: ${err.message}`,
         );
       });
     }

@@ -14,6 +14,7 @@ export const ProductRuleCommandBar = () => {
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeProductRules } = useProductRulesRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleDelete = () => {
     const selectedIds = table
@@ -24,6 +25,7 @@ export const ProductRuleCommandBar = () => {
       message: `Are you sure you want to delete the ${
         selectedIds.length
       } selected product rule${selectedIds.length === 1 ? '' : 's'}?`,
+      options: confirmOptions,
     }).then(() => {
       removeProductRules({
         variables: { _ids: selectedIds },

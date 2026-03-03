@@ -22,6 +22,7 @@ export const ProductRuleMoreColumn = (
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeProductRules, loading } = useProductRulesRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleEdit = () => {
     setIsEditOpen(true);
@@ -30,6 +31,7 @@ export const ProductRuleMoreColumn = (
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${productRule.name}"?`,
+      options: confirmOptions,
     }).then(() => {
       removeProductRules({
         variables: { _ids: [productRule._id] },

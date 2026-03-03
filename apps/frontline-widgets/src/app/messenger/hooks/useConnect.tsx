@@ -53,7 +53,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
         const uiOptions = connectionData.uiOptions || {
           primary: {
             DEFAULT: '#5629B6',
-            foreground: '#FFF',
+            foreground: '#ffffff',
           },
         };
 
