@@ -9,7 +9,9 @@ export const MenusCommandBar = ({ onBulkDelete }: MenusCommandBarProps) => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((row: any) => row.original._id as string);
+  const selectedIds = selectedRows.map(
+    (row: any) => row.original._id as string,
+  );
 
   return (
     <CommandBar open={selectedRows.length > 0}>

@@ -174,7 +174,8 @@ export const usePostSubmission = ({
     };
 
     const typeCode = searchParams.get('type');
-    const typeParam = typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+    const typeParam =
+      typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
 
     try {
       if (editingPost?._id) {
