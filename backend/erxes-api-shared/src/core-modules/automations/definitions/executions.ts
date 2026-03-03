@@ -29,8 +29,7 @@ export interface IAutomationExecution {
 }
 
 export interface IAutomationExecutionDocument
-  extends IAutomationExecution,
-    Document {
+  extends IAutomationExecution, Document {
   _id: string;
 }
 
