@@ -3,9 +3,8 @@ import { Button, Dialog, Form, Input, Checkbox, Select } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { IBundleRuleItem } from './types';
-import { IconPlus } from '@tabler/icons-react';
 import { SelectProductsBulk } from 'ui-modules';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useBundleConditions } from '@/products/settings/hooks/useBundleConditions';
 
 const bundleRuleItemSchema = z.object({
@@ -34,6 +33,10 @@ export const BundleRuleItemForm = ({
   editingItem,
   editingIndex,
 }: IBundleRuleItemFormProps) => {
+  const [selectedProducts, setSelectedProducts] = useState<
+    { _id: string; name: string }[]
+  >([]);
+
   const itemForm = useForm<z.infer<typeof bundleRuleItemSchema>>({
     defaultValues: {
       code: '',
@@ -61,6 +64,7 @@ export const BundleRuleItemForm = ({
   useEffect(() => {
     if (editingItem) {
       itemForm.reset(editingItem);
+      setSelectedProducts(editingItem.products || []);
     } else {
       itemForm.reset({
         code: '',
@@ -72,6 +76,7 @@ export const BundleRuleItemForm = ({
         percent: 0,
         allowSkip: false,
       });
+      setSelectedProducts([]);
     }
   }, [editingItem, itemForm]);
 
@@ -88,7 +93,27 @@ export const BundleRuleItemForm = ({
   const onAddProducts = (selectedProducts: any[]) => {
     const productIds = selectedProducts.map((p) => p._id);
     itemForm.setValue('productIds', productIds);
+    setSelectedProducts(selectedProducts);
   };
+
+  const selectedProductsLabel = (() => {
+    if (!selectedProducts.length) {
+      return 'Choose Product & service';
+    }
+
+    const names = selectedProducts.map((p) => p.name).filter(Boolean);
+    const visibleNames = names.slice(0, 3);
+    const remaining = names.length - visibleNames.length;
+
+    if (visibleNames.length === 0) {
+      const count = selectedProducts.length;
+      return count === 1 ? '1 product' : `${count} products`;
+    }
+
+    return remaining > 0
+      ? `${visibleNames.join(', ')} +${remaining}`
+      : visibleNames.join(', ');
+  })();
 
   const priceTypeOptions = [
     { value: 'thisProductPricePercent', label: 'thisProductPricePercent' },
@@ -167,9 +192,8 @@ export const BundleRuleItemForm = ({
                           onAddProducts(selectedProducts || [])
                         }
                       >
-                        <Button variant="secondary">
-                          <IconPlus />
-                          Choose Product & service
+                        <Button variant="secondary" className="overflow-hidden">
+                          {selectedProductsLabel}
                         </Button>
                       </SelectProductsBulk>
                     </Form.Control>

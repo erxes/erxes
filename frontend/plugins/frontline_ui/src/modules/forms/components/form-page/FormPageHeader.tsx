@@ -1,7 +1,7 @@
-import { IconForms } from "@tabler/icons-react"
-import { Breadcrumb, Button } from "erxes-ui"
-import { Link } from "react-router"
-import { PageHeader } from "ui-modules"
+import { IconForms } from '@tabler/icons-react';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { Link } from 'react-router';
+import { PageHeader } from 'ui-modules';
 
 export const FormPageHeader = () => {
   return (
@@ -22,5 +22,5 @@ export const FormPageHeader = () => {
         <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
-  )
-}
+  );
+};

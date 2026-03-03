@@ -9,6 +9,7 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
+import { notifications } from './meta/notifications';
 
 startPlugin({
   name: 'frontline',
@@ -58,32 +59,7 @@ startPlugin({
   meta: {
     automations,
     afterProcess,
-    notificationModules: [
-      {
-        name: 'conversations',
-        description: 'Conversations',
-        icon: 'IconComment',
-        types: [
-          { name: 'conversationAddMessage', text: 'Message added' },
-          { name: 'conversationAssigneeChange', text: 'Assignee changed' },
-          { name: 'conversationCreated', text: 'Conversation created' },
-          { name: 'conversationParticipantAdded', text: 'Participant added' },
-          { name: 'conversationStateChange', text: 'State changed' },
-          { name: 'conversationTagged', text: 'Conversation tagged' },
-        ],
-      },
-      {
-        name: 'channels',
-        description: 'Channels',
-        icon: 'IconDeviceLaptop',
-        types: [
-          {
-            name: 'channelMembersChange',
-            text: 'Assignee change',
-          },
-        ],
-      },
-    ],
+    notifications,
     tags: {
       types: [
         {

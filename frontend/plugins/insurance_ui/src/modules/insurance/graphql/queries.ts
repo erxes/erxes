@@ -237,8 +237,30 @@ export const INSURANCE_CUSTOMER = gql`
 `;
 
 export const CONTRACTS = gql`
-  query Contracts($vendorId: ID, $customerId: ID) {
-    contracts(vendorId: $vendorId, customerId: $customerId) {
+  query Contracts(
+    $vendorId: ID
+    $customerId: ID
+    $searchValue: String
+    $contractNumber: String
+    $customerRegistration: String
+    $plateNumber: String
+    $paymentStatus: String
+    $insuranceTypeId: ID
+    $startDate: Date
+    $endDate: Date
+  ) {
+    contracts(
+      vendorId: $vendorId
+      customerId: $customerId
+      searchValue: $searchValue
+      contractNumber: $contractNumber
+      customerRegistration: $customerRegistration
+      plateNumber: $plateNumber
+      paymentStatus: $paymentStatus
+      insuranceTypeId: $insuranceTypeId
+      startDate: $startDate
+      endDate: $endDate
+    ) {
       ${insuranceContractFields}
     }
   }

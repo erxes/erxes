@@ -1,16 +1,17 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  type NotificationModuleType {
+  type NotificationModuleEvent {
     name:String,
-    text:String
+    title:String,
+    description:String
   }
 
   type NotificationModule {
     name:String,
     description:String,
     icon:String,
-    types:[NotificationModuleType]
+    events:[NotificationModuleEvent]
   }
 
   type NotificationPluginType {
@@ -80,6 +81,15 @@ export const types = `
     pageInfo: PageInfo
   }
 
+  type NotificationSettings {
+    userId: String
+    channels: JSON
+    events: JSON
+
+    createdAt: String
+    updatedAt: String
+  }
+
   enum NotificationPriority {
     LOW
     MEDIUM
@@ -108,6 +118,18 @@ export const types = `
     endDate:String,
     fromUserId:String
   }
+
+  input NotificationSettingsEventInput {
+    event: String,
+    enabled: Boolean,
+    channels: [String]
+  }
+
+  input NotificationSettingsChannelInput {
+    channel: String,
+    enabled: Boolean,
+    metadata: JSON
+  }
 `;
 
 const NOTIFICATIONS_QUERIES_PARAMS = `
@@ -121,9 +143,11 @@ const NOTIFICATIONS_QUERIES_PARAMS = `
 `;
 
 export const queries = `
+  pluginsNotifications: [NotificationPluginType]
   notifications(${GQL_CURSOR_PARAM_DEFS},${NOTIFICATIONS_QUERIES_PARAMS}):NotificationsList
   notificationDetail(_id:String!):Notification
   unreadNotificationsCount:Int
+  notificationSettings: NotificationSettings
 `;
 
 export const mutations = `
@@ -131,6 +155,9 @@ export const mutations = `
   archiveNotifications(ids:[String], archiveAll:Boolean, filters:NotificationFilters):String
   markNotificationAsRead(_id:String!):JSON
   markAsReadNotifications(${NOTIFICATIONS_QUERIES_PARAMS}):JSON
+
+  updateNotificationSettingsEvent(input: NotificationSettingsEventInput):JSON
+  updateNotificationSettingsChannel(input: NotificationSettingsChannelInput):JSON
 `;
 
 export default { queries, mutations, types };

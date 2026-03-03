@@ -14,7 +14,10 @@ name = "javascript"
   module_system = "es-modules"
   skip_doc_coverage = [
     "class-expression",
-    "method-definition"
+    "method-definition",
+    "arrow-function-expression",
+    "function-declaration",
+    "function-expression"
   ]
   cyclomatic_complexity_threshold = "high"
 

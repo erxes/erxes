@@ -8,48 +8,28 @@ import {
   IconBook,
   IconPlus,
 } from '@tabler/icons-react';
-import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
+import {
+  NavigationMenuLinkItem,
+  DropdownMenu,
+  Button,
+  Spinner,
+  Skeleton,
+  Badge,
+} from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
+import { useConversations } from './inbox/conversations/hooks/useConversations';
 export const FrontlineNavigation = () => {
   const navigate = useNavigate();
 
   return (
     <>
-      <div className="relative group/inbox">
-        <NavigationMenuLinkItem
-          name="Inbox"
-          icon={IconMail}
-          path="frontline/inbox"
-        />
-
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <IconDotsVertical className="size-4" />
-            </Button>
-          </DropdownMenu.Trigger>
-
-          <DropdownMenu.Content
-            side="right"
-            align="start"
-            className="w-60 min-w-0"
-          >
-            <DropdownMenu.Item
-              className="cursor-pointer"
-              onSelect={() => navigate('/settings/frontline/channels')}
-            >
-              <IconSettings className="size-4" />
-              Go to inbox settings
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      </div>
+      <NavigationMenuLinkItem
+        name="Inbox"
+        icon={IconMail}
+        path="frontline/inbox"
+        children={<NotificationCount />}
+      />
       <NavigationMenuLinkItem
         name="Tickets"
         icon={IconTicket}
@@ -88,5 +68,27 @@ export const FrontlineNavigation = () => {
         </Button>
       </div>
     </>
+  );
+};
+
+export const NotificationCount = () => {
+  const { totalCount, loading } = useConversations({
+    variables: {
+      status: 'new',
+    },
+  });
+
+  if (loading) {
+    return <Skeleton className="size-4 rounded-sm" />;
+  }
+
+  if (totalCount === 0) {
+    return null;
+  }
+
+  return (
+    <Badge className="ml-auto text-xs min-w-6 px-1 justify-center">
+      {totalCount}
+    </Badge>
   );
 };
