@@ -24,12 +24,19 @@ export const MenusNavigation = () => {
       cmsIndex > 0 && cmsIndex < pathSegments.length - 1
         ? pathSegments[cmsIndex + 1]
         : '';
-    return { basePath: id ? `/content/cms/${id}` : '/content/cms', websiteId: id };
+    return {
+      basePath: id ? `/content/cms/${id}` : '/content/cms',
+      websiteId: id,
+    };
   }, [pathname]);
 
   const websiteName =
-    cmsData?.contentCMSList?.find((w: any) => w.clientPortalId === websiteId)?.name ||
-    websitesData?.getClientPortals?.list?.find((w: any) => w._id === websiteId)?.name ||
+    cmsData?.contentCMSList?.find(
+      (w: any) => w.clientPortalId === websiteId,
+    )?.name ||
+    websitesData?.getClientPortals?.list?.find(
+      (w: any) => w._id === websiteId,
+    )?.name ||
     '';
 
   return (

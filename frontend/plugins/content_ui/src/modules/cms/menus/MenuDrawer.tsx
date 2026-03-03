@@ -3,7 +3,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CMS_MENU_ADD, CMS_MENU_EDIT, CMS_MENU_LIST } from '../../graphql/queries';
+import { CMS_MENU_ADD, CMS_MENU_EDIT, CMS_MENU_LIST } from '../graphql/queries';
 import { buildFlatTree, getDepthPrefix } from './menuUtils';
 
 interface MenuDrawerProps {
@@ -28,7 +28,13 @@ interface MenuFormData {
   parentId: string;
 }
 
-export function MenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }: MenuDrawerProps) {
+export function MenuDrawer({
+  isOpen,
+  onClose,
+  onSuccess,
+  clientPortalId,
+  menu,
+}: MenuDrawerProps) {
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const isEditing = !!menu?._id;
 
@@ -61,8 +67,9 @@ export function MenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }:
     fetchPolicy: 'cache-and-network',
   });
 
-  const rawMenus: { _id: string; label: string; parentId?: string }[] =
-    (menusData?.cmsMenuList || []).filter((m: any) => m._id !== menu?._id);
+  const rawMenus: { _id: string; label: string; parentId?: string }[] = (
+    menusData?.cmsMenuList || []
+  ).filter((m: any) => m._id !== menu?._id);
 
   const parentOptions = buildFlatTree(rawMenus).map((item) => ({
     _id: item._id,
@@ -74,7 +81,11 @@ export function MenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }:
       onClose();
       form.reset();
       onSuccess?.();
-      toast({ title: 'Success', description: 'Menu created successfully', variant: 'default' });
+      toast({
+        title: 'Success',
+        description: 'Menu created successfully',
+        variant: 'default',
+      });
     },
     onError: handleError,
   });
@@ -83,14 +94,20 @@ export function MenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }:
     onCompleted: () => {
       onClose();
       onSuccess?.();
-      toast({ title: 'Success', description: 'Menu updated successfully', variant: 'default' });
+      toast({
+        title: 'Success',
+        description: 'Menu updated successfully',
+        variant: 'default',
+      });
     },
     onError: handleError,
   });
 
   function handleError(error: any) {
     const permissionError = error.graphQLErrors?.some(
-      (e: any) => e.message === 'Permission required' || e.extensions?.code === 'INTERNAL_SERVER_ERROR',
+      (e: any) =>
+        e.message === 'Permission required' ||
+        e.extensions?.code === 'INTERNAL_SERVER_ERROR',
     );
 
     if (permissionError) {
@@ -150,7 +167,8 @@ export function MenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }:
                   <div className="text-sm">
                     <p className="font-medium text-red-800">Permission Required</p>
                     <p className="text-red-700 mt-1">
-                      You need permission to manage menus. Please contact your administrator.
+                      You need permission to manage menus. Please contact your
+                      administrator.
                     </p>
                   </div>
                 </div>
@@ -214,7 +232,10 @@ export function MenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }:
                 <Form.Item>
                   <Form.Label>Parent Menu</Form.Label>
                   <Form.Control>
-                    <Select value={field.value || 'none'} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value || 'none'}
+                      onValueChange={field.onChange}
+                    >
                       <Select.Trigger>
                         <Select.Value placeholder="None (top-level)" />
                       </Select.Trigger>

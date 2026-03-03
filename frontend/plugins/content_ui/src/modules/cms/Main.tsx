@@ -63,7 +63,7 @@ const WebBuilderPage = lazy(() =>
 );
 
 const Menus = lazy(() =>
-  import('~/modules/cms/components/menus/Menus').then((module) => ({
+  import('~/modules/cms/menus/Menus').then((module) => ({
     default: module.Menus,
   })),
 );
