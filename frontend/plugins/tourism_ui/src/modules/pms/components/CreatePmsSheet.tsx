@@ -105,9 +105,12 @@ export const PmsCreateSheetFooter = ({
     setCurrentStep(currentStep + 1);
   };
 
-  const handleSaveOrNext = () => {
+  const handleSaveOrNext = async () => {
     if (currentStep === steps.length) {
-      onSave?.();
+      const isValid = await validateStep(currentStep, form);
+      if (isValid) {
+        onSave?.();
+      }
     } else {
       handleNextButton();
     }
@@ -129,8 +132,8 @@ export const PmsCreateSheetFooter = ({
               ? 'Saving...'
               : 'Creating...'
             : mode === 'edit'
-              ? 'Save'
-              : 'Create'
+            ? 'Save'
+            : 'Create'
           : 'Next'}
       </Button>
     </Sheet.Footer>

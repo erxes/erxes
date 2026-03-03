@@ -43,14 +43,16 @@ export const usePmsRemoveBranch = () => {
         variables: options.variables,
       });
 
+      if (!result.data?.pmsBranchRemove) {
+        throw new Error('Mutation returned no data');
+      }
+
       toast({
         title: 'Success',
         description: 'Branch removed successfully',
       });
 
-      if (result.data) {
-        options.onCompleted?.(result.data);
-      }
+      options.onCompleted?.(result.data);
 
       return result;
     } catch (e: unknown) {
