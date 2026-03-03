@@ -29,6 +29,34 @@ export const CategoryField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Category</Form.Label>
+
+          <Form.Control>
+            <div className="flex gap-2">
+              <MultipleSelector
+                value={categories.filter((o) =>
+                  (field.value || []).includes(o.value),
+                )}
+                options={categories}
+                placeholder="Select"
+                hidePlaceholderWhenSelected={true}
+                emptyIndicator="Empty"
+                onChange={(opts) => field.onChange(opts.map((o) => o.value))}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={toggleInput}
+              >
+                <IconPlus
+                  size={14}
+                  className={`transition-transform duration-200 ${
+                    showCategoryInput ? 'rotate-45' : ''
+                  }`}
+                />
+              </Button>
+            </div>
+          </Form.Control>
           {showCategoryInput && (
             <div className="flex gap-2 mb-1">
               <Input
@@ -60,31 +88,6 @@ export const CategoryField = ({
               </Button>
             </div>
           )}
-          <Form.Control>
-            <div className="flex gap-2">
-              <MultipleSelector
-                value={categories.filter((o) =>
-                  (field.value || []).includes(o.value),
-                )}
-                options={categories}
-                placeholder="Select"
-                hidePlaceholderWhenSelected={true}
-                emptyIndicator="Empty"
-                onChange={(opts) => field.onChange(opts.map((o) => o.value))}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={toggleInput}
-              >
-                <IconPlus
-                  size={14}
-                  className={`transition-transform duration-200 ${showCategoryInput ? 'rotate-45' : ''}`}
-                />
-              </Button>
-            </div>
-          </Form.Control>
           <Form.Message />
         </Form.Item>
       )}

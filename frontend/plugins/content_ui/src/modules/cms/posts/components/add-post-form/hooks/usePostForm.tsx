@@ -50,7 +50,7 @@ export const usePostForm = (editingPost?: any) => {
       slug: '',
       description: '',
       content: '',
-      type: 'Post',
+      type: 'post',
       status: 'draft',
       categoryIds: [],
       tagIds: [],

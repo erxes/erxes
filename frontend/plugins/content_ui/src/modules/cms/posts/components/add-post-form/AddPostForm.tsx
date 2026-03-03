@@ -1,5 +1,5 @@
 import { Form, ScrollArea } from 'erxes-ui';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useEffect, useRef, useMemo } from 'react';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
@@ -26,6 +26,7 @@ export const AddPostForm = ({
   onFormReady,
 }: AddPostFormProps) => {
   const location = useLocation() as any;
+  const [searchParams] = useSearchParams();
   const currentEditingPost = editingPost || (location?.state?.post as any);
 
   const {
@@ -83,6 +84,14 @@ export const AddPostForm = ({
   useEffect(() => {
     if (!selectedLanguage && defaultLanguage) setSelectedLanguage(defaultLanguage);
   }, [defaultLanguage, selectedLanguage, setSelectedLanguage]);
+
+  useEffect(() => {
+    if (currentEditingPost || !customTypes.length) return;
+    const typeCode = searchParams.get('type');
+    if (!typeCode || typeCode === 'post') return;
+    const matched = customTypes.find((t: any) => t.code === typeCode);
+    if (matched) form.setValue('type', matched._id);
+  }, [customTypes]);
 
   useEffect(() => {
     if (

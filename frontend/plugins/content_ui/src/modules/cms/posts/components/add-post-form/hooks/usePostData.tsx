@@ -20,6 +20,7 @@ const COMBINED_CMS_DATA = gql`
     }
     cmsCustomPostTypes(clientPortalId: $clientPortalId) {
       _id
+      code
       label
       description
     }

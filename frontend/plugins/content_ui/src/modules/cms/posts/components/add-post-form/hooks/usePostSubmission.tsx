@@ -4,7 +4,7 @@ import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface PostFormData {
   title: string;
@@ -53,6 +53,7 @@ export const usePostSubmission = ({
   onClose,
 }: UsePostSubmissionProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
   });
@@ -91,7 +92,8 @@ export const usePostSubmission = ({
               const level = block.props?.level || 1;
               return `<h${level}>${html}</h${level}>`;
             }
-            if (block.type === 'codeBlock') return `<pre><code>${html}</code></pre>`;
+            if (block.type === 'codeBlock')
+              return `<pre><code>${html}</code></pre>`;
             return `<p>${html}</p>`;
           })
           .join('');
@@ -114,9 +116,7 @@ export const usePostSubmission = ({
     const computedTitle =
       (data.title && data.title.trim()) ||
       (data.seoTitle && data.seoTitle.trim()) ||
-      extractText(contentHtml)
-        .split('\n')[0]
-        .slice(0, 80) ||
+      extractText(contentHtml).split('\n')[0].slice(0, 80) ||
       'Untitled';
 
     const generateSlug = (title: string) => {
@@ -185,7 +185,10 @@ export const usePostSubmission = ({
         if (onClose) {
           onClose();
         } else {
-          navigate(`/content/cms/${websiteId}/posts`);
+          const typeCode = searchParams.get('type');
+          const typeParam =
+            typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+          navigate(`/content/cms/${websiteId}/posts${typeParam}`);
         }
       } else {
         await createPost(input);
@@ -193,7 +196,10 @@ export const usePostSubmission = ({
         if (onClose) {
           onClose();
         } else {
-          navigate(`/content/cms/${websiteId}/posts`);
+          const typeCode = searchParams.get('type');
+          const typeParam =
+            typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+          navigate(`/content/cms/${websiteId}/posts${typeParam}`);
         }
       }
     } catch (error: any) {
