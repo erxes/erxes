@@ -155,11 +155,8 @@ export const usePostSubmission = ({
         ? data.autoArchiveDate
         : undefined,
       excerpt:
-        data.description !== undefined && data.description !== null
-          ? data.description.trim() === ''
-            ? null
-            : data.description.trim()
-          : undefined,
+        (data.description && data.description.trim()) ||
+        extractText(contentHtml).slice(0, 200),
       thumbnail: normalizeAttachment(data.thumbnail || undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
