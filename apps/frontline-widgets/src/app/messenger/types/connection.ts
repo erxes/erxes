@@ -14,6 +14,11 @@ export interface IWidgetData {
   customer?: ICustomerData;
 }
 
+export interface IPersistentMenu {
+  text: string;
+  type: 'button' | 'link';
+}
+
 export interface IMessengerData {
   supporterIds?: string[];
   links?: any;
@@ -21,6 +26,7 @@ export interface IMessengerData {
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
+  persistentMenus?: IPersistentMenu[];
   notifyCustomer?: boolean;
   availabilityMethod?: string;
   isOnline?: boolean;

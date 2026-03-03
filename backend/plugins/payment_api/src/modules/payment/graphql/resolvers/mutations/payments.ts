@@ -50,11 +50,7 @@ async function handleQPaySetup(input: any) {
   input.config.merchantId = response.id;
 }
 
-async function authorizePayment(
-  payment: any,
-  models: any,
-  subdomain: string,
-) {
+async function authorizePayment(payment: any, models: any, subdomain: string) {
   const api = new ErxesPayment(payment, subdomain);
 
   try {
@@ -88,11 +84,7 @@ async function registerWebhookIfNeeded(
 }
 
 const mutations = {
-  async paymentAdd(
-    _root: any,
-    args: any,
-    { models, subdomain }: IContext,
-  ) {
+  async paymentAdd(_root: any, args: any, { models, subdomain }: IContext) {
     const { input } = args;
 
     if (!input?.kind) {
@@ -126,18 +118,15 @@ const mutations = {
 
   async paymentRemove(
     _root: any,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    await models.PaymentMethods.removePayment(_id);
+    await models.PaymentMethods.deleteMany({ _id: { $in: _ids } });
+
     return 'success';
   },
 
-  async paymentEdit(
-    _root: any,
-    args: any,
-    { models }: IContext,
-  ) {
+  async paymentEdit(_root: any, args: any, { models }: IContext) {
     const { _id, input } = args;
     const { name, status, kind, config, currency } = input;
 
@@ -180,7 +169,6 @@ const mutations = {
     return await models.PaymentMethods.updatePayment(_id, doc);
   },
 };
-
 
 requireLogin(mutations, 'paymentAdd');
 requireLogin(mutations, 'paymentEdit');

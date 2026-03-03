@@ -4,6 +4,8 @@ export enum SettingsPath {
   Index = 'settings/',
   Profile = 'profile',
   ChangePassword = 'change-password',
+  Notification = 'notification',
+  NotificationCatchAll = 'notification/*',
   // Experience = 'experience',
 }
 

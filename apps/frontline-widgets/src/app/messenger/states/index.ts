@@ -30,8 +30,8 @@ export const connectionAtom = atom<IConnectionInfo>({
 
 export const uiOptionsAtom = atom<IWidgetUiOptions>({
   primary: {
-    DEFAULT: '#000',
-    foreground: '#fff',
+    DEFAULT: '#000000',
+    foreground: '#ffffff',
   },
   logo: '',
 });

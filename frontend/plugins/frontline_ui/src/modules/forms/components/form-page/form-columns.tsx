@@ -203,7 +203,7 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { _id, status } = cell.row.original;
+  const { _id, status, channelId } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -247,21 +247,27 @@ export const FormsMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content side="bottom" align="start">
-        <FormInstallScript formId={_id} setOpen={setOpen} />
+        <FormInstallScript
+          formId={_id}
+          channelId={channelId}
+          inActionBar={true}
+        />
         <DropdownMenu.Item
           onSelect={() => {
-            navigate(
-              `/settings/frontline/forms/${cell.row.original.channelId}/${cell.row.original._id}`,
-            );
+            navigate(`/frontline/forms/${cell.row.original._id}`);
           }}
         >
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <MoveFormToChannel formId={_id} channelId={cell.row.original.channelId || ''} setOpen={setOpen} name={cell.row.original.name} type={cell.row.original.type} />
-        <DropdownMenu.Item disabled={loading} onSelect={handleDelete} className="text-destructive">
-          {loading ? <Spinner /> : <IconTrash />} Delete
-        </DropdownMenu.Item>
+        <MoveFormToChannel
+          formId={_id}
+          channelId={cell.row.original.channelId || ''}
+          setOpen={setOpen}
+          name={cell.row.original.name}
+          type={cell.row.original.type}
+        />
+        <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>
     </DropdownMenu>
   );
@@ -271,7 +277,7 @@ export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
   size: 30,
   cell: FormsMoreColumnCell,
-}
+};
 
 export const formColumns: ColumnDef<IForm>[] = [
   MoreColumn,
@@ -279,6 +285,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
+    header: () => <RecordTable.InlineHead label="Name" icon={IconLabel} />,
     cell: ({ cell }) => {
       const navigate = useNavigate();
 
@@ -286,9 +293,7 @@ export const formColumns: ColumnDef<IForm>[] = [
         <RecordTableInlineCell>
           <RecordTableInlineCell.Anchor
             onClick={() => {
-              navigate(
-                `/settings/frontline/forms/${cell.row.original.channelId}/${cell.row.original._id}`,
-              );
+              navigate(`/frontline/forms/${cell.row.original._id}`);
             }}
           >
             {cell.getValue() as string}
@@ -299,57 +304,58 @@ export const formColumns: ColumnDef<IForm>[] = [
     size: 250,
   },
   {
+    accessorKey: 'status',
+    id: 'status',
+    header: () => (
+      <RecordTable.InlineHead label="Status" icon={IconToggleRight} />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <FormStatus.Badge status={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
     accessorKey: 'channelId',
-    header: () => <RecordTable.InlineHead label="Channel" />,
+    header: () => <RecordTable.InlineHead label="Channel" icon={IconCircles} />,
     id: 'channelId',
     cell: ({ cell }) => {
       const { channel, _id, name, type } = cell.row.original;
       const { editForm } = useFormEdit();
 
       const onValueChange = (value: string | string[]) => {
-        editForm(
-          {
-            variables: {
-              id: _id,
-              name,
-              type,
-              channelId: value,
-            },
-            refetchQueries: [GET_FORMS_LIST],
-            onCompleted: () => {
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Form updated successfully',
-              });
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message,
-              });
-            },
-          }
-        );
-      }
+        editForm({
+          variables: {
+            id: _id,
+            name,
+            type,
+            channelId: value,
+          },
+          refetchQueries: [GET_FORMS_LIST],
+          onCompleted: () => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: 'Form updated successfully',
+            });
+          },
+          onError: (error) => {
+            toast({
+              title: 'Error',
+              variant: 'destructive',
+              description: error.message,
+            });
+          },
+        });
+      };
 
       return (
         <SelectChannel.InlineCell
           value={channel?._id}
           onValueChange={onValueChange}
         />
-      );
-    },
-  },
-  {
-    accessorKey: 'status',
-    id: 'status',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <FormStatus.Badge status={cell.getValue() as string} />
-        </RecordTableInlineCell>
       );
     },
   },
