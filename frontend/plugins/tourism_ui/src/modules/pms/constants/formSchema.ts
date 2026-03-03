@@ -4,9 +4,15 @@ export const PmsBranchFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().max(500).optional(),
   checkInTime: z.string().min(1, 'Check in time is required'),
-  checkInAmount: z.coerce.number().min(0, 'Amount must be non-negative'),
+  checkInAmount: z.coerce
+    .number()
+    .min(0, 'Amount must be non-negative')
+    .optional(),
   checkOutTime: z.string().min(1, 'Check out time is required'),
-  checkOutAmount: z.coerce.number().min(0, 'Amount must be non-negative'),
+  checkOutAmount: z.coerce
+    .number()
+    .min(0, 'Amount must be non-negative')
+    .optional(),
   discount: z.array(
     z.object({
       _id: z.string().optional(),

@@ -17,6 +17,10 @@ export const usePmsRemoveBranch = () => {
     PmsBranchRemoveVariables
   >(pmsMutations.PmsBranchRemove, {
     update(cache, result, options) {
+      if (!result.data?.pmsBranchRemove) {
+        return;
+      }
+
       const deletedId = options?.variables?._id;
 
       if (!deletedId) {
