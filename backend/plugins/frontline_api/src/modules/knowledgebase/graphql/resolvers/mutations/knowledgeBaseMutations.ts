@@ -1,4 +1,3 @@
-
 import { ITopic } from '@/knowledgebase/@types/topic';
 import { IArticleCreate } from '@/knowledgebase/db/models/Article';
 import { ICategoryCreate } from '@/knowledgebase/db/models/Category';
@@ -6,16 +5,12 @@ import { IContext } from '~/connectionResolvers';
 import { markResolvers } from 'erxes-api-shared/utils';
 
 export const knowledgeBaseMutations = {
-
   async knowledgeBaseTopicsAdd(
     _root,
     { doc }: { doc: ITopic },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
-    const topic = await models.Topic.createDoc(
-      doc,
-      user._id
-    );
+    const topic = await models.Topic.createDoc(doc, user._id);
 
     return topic;
   },
@@ -23,25 +18,20 @@ export const knowledgeBaseMutations = {
   async knowledgeBaseTopicsEdit(
     _root,
     { _id, doc }: { _id: string; doc: ITopic },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const topic = await models.Topic.getTopic(_id);
-    const updated = await models.Topic.updateDoc(
-      _id,
-      doc,
-      user._id
-    );
+    const updated = await models.Topic.updateDoc(_id, doc, user._id);
     return updated;
   },
 
   async knowledgeBaseTopicsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const topic = await models.Topic.getTopic(_id);
     const removed = await models.Topic.removeDoc(_id);
-
 
     return removed;
   },
@@ -49,13 +39,9 @@ export const knowledgeBaseMutations = {
   async knowledgeBaseCategoriesAdd(
     _root,
     { doc }: { doc: ICategoryCreate },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
-    const kbCategory = await models.Category.createDoc(
-      doc,
-      user._id
-    );
-
+    const kbCategory = await models.Category.createDoc(doc, user._id);
 
     return kbCategory;
   },
@@ -63,14 +49,10 @@ export const knowledgeBaseMutations = {
   async knowledgeBaseCategoriesEdit(
     _root,
     { _id, doc }: { _id: string; doc: ICategoryCreate },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const kbCategory = await models.Category.getCategory(_id);
-    const updated = await models.Category.updateDoc(
-      _id,
-      doc,
-      user._id
-    );
+    const updated = await models.Category.updateDoc(_id, doc, user._id);
 
     return updated;
   },
@@ -78,13 +60,13 @@ export const knowledgeBaseMutations = {
   async knowledgeBaseCategoriesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const kbCategory = await models.Category.getCategory(_id);
 
     await models.Category.updateMany(
       { parentCategoryId: { $in: [kbCategory._id] } },
-      { $unset: { parentCategoryId: 1 } }
+      { $unset: { parentCategoryId: 1 } },
     );
 
     const removed = await models.Category.removeDoc(_id);
@@ -95,20 +77,21 @@ export const knowledgeBaseMutations = {
   async knowledgeBaseArticlesAdd(
     _root,
     { doc }: { doc: IArticleCreate },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     if (doc.status === 'scheduled' && !doc.scheduledDate) {
       throw new Error('Scheduled Date must be supplied');
     }
-  
-    if(doc.status === 'scheduled' && doc.scheduledDate && doc.scheduledDate < new Date()){
+
+    if (
+      doc.status === 'scheduled' &&
+      doc.scheduledDate &&
+      doc.scheduledDate < new Date()
+    ) {
       throw new Error('Scheduled Date can not be in the past !');
     }
-  
-    const kbArticle = await models.Article.createDoc(
-      doc,
-      user._id
-    );
+
+    const kbArticle = await models.Article.createDoc(doc, user._id);
 
     return kbArticle;
   },
@@ -116,7 +99,7 @@ export const knowledgeBaseMutations = {
   async knowledgeBaseArticlesEdit(
     _root,
     { _id, doc }: { _id: string; doc: IArticleCreate },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const kbArticle = await models.Article.getArticle(_id);
 
@@ -124,24 +107,23 @@ export const knowledgeBaseMutations = {
       throw new Error('Scheduled Date must be supplied');
     }
 
-    if(doc.status === 'scheduled' && doc.scheduledDate && doc.scheduledDate < new Date()){
+    if (
+      doc.status === 'scheduled' &&
+      doc.scheduledDate &&
+      doc.scheduledDate < new Date()
+    ) {
       throw new Error('Scheduled Date can not be in the past !');
     }
 
-    const updated = await models.Article.updateDoc(
-      _id,
-      doc,
-      user._id
-    );
+    const updated = await models.Article.updateDoc(_id, doc, user._id);
 
     return updated;
   },
 
-
   async knowledgeBaseArticlesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const removed = await models.Article.removeDoc(_id);
 
@@ -151,10 +133,10 @@ export const knowledgeBaseMutations = {
   async knowledgeBaseArticlesIncrementViewCount(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return await models.Article.incrementViewCount(_id);
-  }
+  },
 };
 
 markResolvers(knowledgeBaseMutations, {
