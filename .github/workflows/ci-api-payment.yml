@@ -43,8 +43,8 @@ jobs:
         run: pnpm nx build payment_api
 
       - name: Build React widget
+        working-directory: backend/plugins/payment_api/src/widget
         run: |
-          cd backend/plugins/payment_api/src/widget
           pnpm install --frozen-lockfile
           pnpm build
 
