@@ -22,7 +22,7 @@ export interface IFacebookConversationMessageModel
 export const loadFacebookConversationMessageClass = (models: IModels) => {
   class Message {
     /**
-     * Retreives message
+     * Retrieves message
      */
     public static async getMessage(_id: string) {
       const message = await models.FacebookConversationMessages.findOne({

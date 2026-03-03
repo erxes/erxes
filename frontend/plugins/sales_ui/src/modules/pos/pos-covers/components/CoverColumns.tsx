@@ -29,7 +29,7 @@ const ActionsCell = ({ cell }: { cell: Cell<ICovers, unknown> }) => {
       message: 'Are you sure you want to delete this cover?',
       options: { confirmationValue: 'delete' },
     }).then(async () => {
-      console.log('Deleting cover:', _id);
+      // Delete cover logic here
     });
   };
 
