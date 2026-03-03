@@ -20,7 +20,7 @@ import {
 // ---------- Types ----------
 export interface PlaceConfigData {
   _id?: string;
-  subId?: string;          // add subId to interface
+  subId?: string; // add subId to interface
   title: string;
   boardId: string;
   pipelineId: string;
@@ -79,7 +79,7 @@ const PlaceConfig: React.FC = () => {
         : Object.values(data.mnConfigs);
       const transformed = rawConfigs.map((cfg: any) => ({
         _id: cfg._id,
-        subId: cfg.subId,  // include subId from the document
+        subId: cfg.subId, // include subId from the document
         ...keyValueArrayToObject(cfg.value),
       }));
       setSavedConfigs(transformed);
@@ -142,7 +142,7 @@ const PlaceConfig: React.FC = () => {
         await createConfig({
           variables: {
             code: 'dealsProductsDataPlaces',
-            subId: rest.stageId,  // use the stage ID from the form
+            subId: rest.stageId, // use the stage ID from the form
             value: valueArray,
           },
         });

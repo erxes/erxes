@@ -54,15 +54,15 @@ export const tagTrpcRouter = t.router({
       return await models.Tags.createTag(data);
     }),
     tagWithChilds: t.procedure
-  .input(z.object({ query: z.any(), fields: z.any().optional() }))
-  .query(async ({ ctx, input }) => {
-    const { models } = ctx;
-    const { query } = input;
-    const tagIds = query?._id?.$in;
-    if (!tagIds || !Array.isArray(tagIds) || tagIds.length === 0) {
-      return [];
-    }
-    return await models.Tags.getChildTags(tagIds);
-  }),
+      .input(z.object({ query: z.any(), fields: z.any().optional() }))
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { query } = input;
+        const tagIds = query?._id?.$in;
+        if (!tagIds || !Array.isArray(tagIds) || tagIds.length === 0) {
+          return [];
+        }
+        return await models.Tags.getChildTags(tagIds);
+      }),
   }),
 });

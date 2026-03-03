@@ -75,7 +75,7 @@ const SettingsContainer = ({
         }
         return {
           _id: raw._id,
-          subId: raw.subId,          // include subId for stage selection
+          subId: raw.subId, // include subId for stage selection
           ...normalized,
         };
       });
@@ -95,7 +95,7 @@ const SettingsContainer = ({
       return [
         {
           _id: raw._id,
-          subId: raw.subId,          // include subId for stage selection
+          subId: raw.subId, // include subId for stage selection
           ...normalized,
         },
       ];
@@ -163,13 +163,7 @@ const SettingsContainer = ({
     await refetch();
   };
 
-  return (
-    <Component
-      configs={normalizedConfigs}
-      save={save}
-      delete={remove}
-    />
-  );
+  return <Component configs={normalizedConfigs} save={save} delete={remove} />;
 };
 
 export default SettingsContainer;

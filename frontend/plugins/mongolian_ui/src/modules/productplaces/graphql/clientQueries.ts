@@ -32,4 +32,3 @@ export const STAGES_QUERY = gql`
     }
   }
 `;
-
