@@ -1,4 +1,4 @@
-import { Cms } from '~/modules/cms/components/shared/Cms';
+import { Cms } from '~/modules/cms/shared/Cms';
 
 export const IndexPage = () => {
   return <Cms />;

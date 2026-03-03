@@ -1,8 +1,9 @@
 
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver, } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export interface IParam {
   searchValue?: string;
@@ -44,7 +45,7 @@ const generateFilterQuery = (params: IParam) => {
   return query;
 };
 
-const queries = {
+const queries: Record<string, Resolver> = {
   async invoices(
     _root,
     params: any,
@@ -115,5 +116,8 @@ const queries = {
 
 requireLogin(queries, 'invoices');
 checkPermission(queries, 'invoices', 'showInvoices', []);
+queries.invoiceDetail.wrapperConfig = {
+  skipPermission: true
+}
 
 export default queries;

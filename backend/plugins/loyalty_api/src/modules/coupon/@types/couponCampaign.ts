@@ -20,14 +20,11 @@ export interface ICouponCampaign extends ICommonCampaignFields {
   codeRule: ICouponCodeRule;
   restrictions: any;
   redemptionLimitPerUser: number;
-
   buyScore: number;
 }
 
 export interface ICouponCampaignDocument
-  extends ICouponCampaign,
-    ICommonCampaignDocument,
-    Document {
+  extends ICouponCampaign, ICommonCampaignDocument, Document {
   _id: string;
 }
 
