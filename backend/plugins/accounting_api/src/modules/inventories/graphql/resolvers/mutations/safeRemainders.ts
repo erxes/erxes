@@ -1,12 +1,12 @@
 import { moduleCheckPermission } from 'erxes-api-shared/core-modules';
-import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { models } from 'mongoose';
-import { IContext, IModels } from '~/connectionResolvers';
+import { fixNum } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
-import { ITransaction, ITransactionDocument, ITrDetail } from '~/modules/accounting/@types/transaction';
+import { ITrDetail } from '~/modules/accounting/@types/transaction';
 import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainder } from '~/modules/inventories/@types/safeRemainders';
+import { safeRemainderDoTrs } from './utils';
 
 const safeRemainderMutations = {
   safeRemainderAdd: async (
@@ -33,7 +33,7 @@ const safeRemainderMutations = {
   safeRemainderSubmit: async (
     _root: any,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) => {
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
@@ -66,30 +66,17 @@ const safeRemainderMutations = {
   safeRemainderDoTr: async (
     _root: any,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, user }: IContext,
   ) => {
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
     const items: ISafeRemainderItemDocument[] = await models.SafeRemainderItems.find({ remainderId: _id }).lean();
     const {
-      branchId, departmentId, date, productCategoryId,
       incomeRule, incomeTrId, outRule, outTrId, saleRule, saleTrId
     } = safeRemainder;
 
-    const { mainTr: oldIncomeTr, otherTrs: incomeOtherTrs } = incomeTrId ? await models.Transactions.getTrInputDoc(incomeTrId) : {};
-    const { mainTr: oldOutTr, otherTrs: outOtherTrs } = outTrId ? await models.Transactions.getTrInputDoc(outTrId) : {};
-    const { mainTr: oldSaleTr, otherTrs: saleOtherTrs } = saleTrId ? await models.Transactions.getTrInputDoc(saleTrId) : {};
-
-
-    const transactionDoc = {
-      date: safeRemainder.date,
-      branchId,
-      departmentId,
-      description: 'Census',
-      contentType: 'safeRem',
-      contentId: safeRemainder._id,
-
-      details: []
-    }
+    const { mainTr: oldIncomeTr, otherTrs: incomeOtherTrs } = incomeTrId ? await models.Transactions.getOriginTransactions(incomeTrId) : {};
+    const { mainTr: oldOutTr, otherTrs: outOtherTrs } = outTrId ? await models.Transactions.getOriginTransactions(outTrId) : {};
+    const { mainTr: oldSaleTr, otherTrs: saleOtherTrs } = saleTrId ? await models.Transactions.getOriginTransactions(saleTrId) : {};
 
     const incomeDetails: ITrDetail[] = [];
     const outDetails: ITrDetail[] = [];
@@ -126,7 +113,7 @@ const safeRemainderMutations = {
       }
 
       outDetails.push({
-        accountId: saleRule?.accountId ?? '',
+        accountId: outRule?.accountId ?? '',
         side: TR_SIDES.CREDIT,
         amount: fixNum(outCount * (item.trInfo.unitCost ?? 0), 6),
         productId,
@@ -134,40 +121,14 @@ const safeRemainderMutations = {
       });
     }
 
-
-
-    // if (oldIncomeTr)
-    //   models.Transactions.updatePTransaction()
+    const newIncomeTrId = await safeRemainderDoTrs(models, safeRemainder, incomeDetails, JOURNALS.INV_INCOME, oldIncomeTr, incomeOtherTrs, user);
+    const newOutTrId = await safeRemainderDoTrs(models, safeRemainder, outDetails, JOURNALS.INV_OUT, oldOutTr, outOtherTrs, user);
+    const newSaleTrId = await safeRemainderDoTrs(models, safeRemainder, saleDetails, JOURNALS.INV_SALE, oldSaleTr, saleOtherTrs, user);
+    await models.SafeRemainders.updateOne({ _id: safeRemainder._id }, { $set: { incomeTrId: newIncomeTrId, outTrId: newOutTrId, saleTrId: newSaleTrId } });
+    return await models.SafeRemainders.getRemainder(_id);
   }
 };
 
-const saveTr = (models: IModels,safeRemainder, details, oldMainTr, otherTrs) => {
-  if (!oldMainTr && !details.length) {
-    return;
-  }
-
-  if (!oldMainTr && details.length) {
-    // create
-    const transactionDoc = {
-      date: safeRemainder.date,
-      branchId: safeRemainder.branchId,
-      departmentId: safeRemainder.departmentId,
-      description: 'Census',
-      contentType: 'safeRem',
-      contentId: safeRemainder._id,
-
-      details: []
-    }
-    // models.Transactions.createPTransaction()
-  }
-
-  if (oldMainTr && !details.length) {
-    // remove
-  }
-
-  // update
-
-}
 moduleCheckPermission(safeRemainderMutations, 'manageRemainders');
 
 export default safeRemainderMutations;

@@ -13,7 +13,7 @@ import { commonRemove } from '../../utils/commonRemove';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
   getPTransactions(selector: any): Promise<ITransactionDocument[]>;
-  getTrInputDoc(trId: string): Promise<{ mainTr: ITransactionDocument, otherTrs: ITransactionDocument[] }>;
+  getOriginTransactions(trId: string): Promise<{ mainTr: ITransactionDocument, otherTrs: ITransactionDocument[] }>;
   linkTransaction(_ids: string[], ptrId?: string): Promise<ITransactionDocument[]>;
   createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
   createPTransaction(docs: ITransaction[], user: IUserDocument): Promise<ITransactionDocument[]>;
@@ -58,7 +58,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       return await models.Transactions.find({ ptrId: transaction.ptrId, parentId: transaction.parentId }).lean();
     }
 
-    public static async getTrInputDoc(trId: string) {
+    public static async getOriginTransactions(trId: string) {
       const transaction = await models.Transactions.findOne({ _id: trId }).lean();
       if (!transaction) {
         return;
@@ -80,7 +80,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         throw new Error('Transactions not created, cause: has not details');
       }
 
-      const _id = nanoid();
+      const _id = doc._id || nanoid();
       doc.fullDate = getFullDate(doc.date);
       const lastDoc = {
         ...doc,

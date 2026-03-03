@@ -1,9 +1,45 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as lodash from 'lodash';
-import { generateModels } from '~/connectionResolvers';
+import { nanoid } from 'nanoid';
+import { generateModels, IModels } from '~/connectionResolvers';
+import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { IRemainderDocument } from '~/modules/inventories/@types/remainders';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
 import { IUpdateRemaindersParams } from './remainders';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+
+export const safeRemainderDoTrs = async (models: IModels, safeRemainder, details, journal, oldMainTr, otherTrs, user) => {
+  if (!oldMainTr && !details.length) {
+    return;
+  }
+
+  if (oldMainTr && !details.length) {
+    // remove
+    await models.Transactions.removePTransaction(oldMainTr.parentId)
+    return;
+  }
+
+  const transactionDoc: ITransaction = {
+    date: safeRemainder.date,
+    journal,
+    branchId: safeRemainder.branchId,
+    departmentId: safeRemainder.departmentId,
+    description: 'Census',
+    contentType: 'safeRem',
+    contentId: safeRemainder._id,
+    details,
+  }
+
+  if (!oldMainTr && details.length) {
+    // create
+    const mainTrId = nanoid();
+    await models.Transactions.createPTransaction([{ ...transactionDoc, _id: mainTrId }], user);
+    return mainTrId;
+  }
+
+  // update
+  await models.Transactions.createPTransaction([{ ...oldMainTr, ...transactionDoc }, ...otherTrs], user);
+  return oldMainTr._id
+}
 
 export const updateLiveRemainders = async ({
   subdomain,
