@@ -107,6 +107,11 @@ export const queries = `
   bmsOrders( tourId:String, customerId:String ,branchId: String, ${GQL_CURSOR_PARAM_DEFS}):BmsOrderListResponse
   bmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
   bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
+
+  cpBmsTours(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
+  cpBmsTourDetail(_id:String!,branchId: String): Tour
+  cpBmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
+  cpBmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 `;
 
 const params = `
