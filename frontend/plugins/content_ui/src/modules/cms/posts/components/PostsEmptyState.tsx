@@ -1,10 +1,17 @@
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { PostsAdd } from './PostsAdd';
 
+/**
+ * Props for the PostsEmptyState component
+ */
 interface PostsEmptyStateProps {
   clientPortalId: string;
 }
 
+/**
+ * Empty state component displayed when no posts exist
+ * Shows a message and button to create the first post
+ */
 export const PostsEmptyState = ({ clientPortalId }: PostsEmptyStateProps) => {
   return (
     <div className="flex justify-center px-8 w-full h-full">
