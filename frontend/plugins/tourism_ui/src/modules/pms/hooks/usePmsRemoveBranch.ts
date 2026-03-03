@@ -1,14 +1,9 @@
 import { useMutation } from '@apollo/client';
 import { pmsMutations } from '@/pms/graphql/mutation';
-import { pmsQueries } from '@/pms/graphql/queries';
 import { useToast } from 'erxes-ui';
 
 interface PmsBranchRemoveResponse {
   pmsBranchRemove: unknown;
-}
-
-interface PmsBranchListQueryData {
-  pmsBranchList: Array<{ _id: string }>;
 }
 
 interface PmsBranchRemoveVariables {
@@ -28,23 +23,8 @@ export const usePmsRemoveBranch = () => {
         return;
       }
 
-      cache.updateQuery(
-        {
-          query: pmsQueries.PmsBranchList,
-          variables: {
-            page: 1,
-            perPage: 50,
-          },
-        },
-        (data: PmsBranchListQueryData | null) => {
-          const prev = data?.pmsBranchList ?? [];
-
-          return {
-            ...(data ?? { pmsBranchList: [] }),
-            pmsBranchList: prev.filter((b) => b._id !== deletedId),
-          };
-        },
-      );
+      cache.evict({ fieldName: 'pmsBranchList' });
+      cache.gc();
     },
   });
 

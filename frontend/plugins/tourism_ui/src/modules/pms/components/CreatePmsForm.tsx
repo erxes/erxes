@@ -1,5 +1,5 @@
 import { Form, Spinner, useToast } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ApolloError } from '@apollo/client';
@@ -203,72 +203,72 @@ const CreatePmsForm = ({
     });
   };
 
+  const populateFormWithBranchData = useCallback(
+    (branchData: typeof branch): void => {
+      if (!branchData) return;
+
+      form.reset({
+        name: branchData.name || '',
+        description: branchData.description || '',
+        checkInTime: branchData.checkintime || '',
+        checkOutTime: branchData.checkouttime || '',
+        checkInAmount: branchData.checkinamount || 0,
+        checkOutAmount: branchData.checkoutamount || 0,
+        discount: Array.isArray(branchData.discount)
+          ? branchData.discount.map((item: IPmsPaymentType) => ({
+              _id: item._id,
+              type: item.type,
+              title: item.title,
+              icon: item.icon,
+              config: item.config,
+            }))
+          : [],
+        websiteReservationLock: branchData.websiteReservationLock ?? false,
+        time: branchData.time || '',
+        paymentIds: branchData.paymentIds || [],
+        paymentTypes: branchData.paymentTypes || [],
+        otherPayments: Array.isArray(branchData.paymentTypes)
+          ? branchData.paymentTypes.map((item: IPmsPaymentType) => ({
+              _id: item._id,
+              type: item.type,
+              title: item.title,
+              icon: item.icon,
+              config: item.config,
+            }))
+          : [],
+        erxesAppToken: branchData.erxesAppToken || '',
+        user1Ids: branchData.user1Ids || [],
+        user2Ids: branchData.user2Ids || [],
+        user3Ids: branchData.user3Ids || [],
+        user4Ids: branchData.user4Ids || [],
+        user5Ids: branchData.user5Ids || [],
+        permissionConfig: branchData.permissionConfig || {},
+        uiOptions: branchData.uiOptions || {},
+        pipelineConfig: branchData.pipelineConfig || {},
+        extraProductCategories: branchData.extraProductCategories || [],
+        roomCategories: branchData.roomCategories || [],
+        logo: branchData.uiOptions?.logo || '',
+        primaryColor: branchData.uiOptions?.colors?.primary || '#FFFFFF',
+        secondaryColor: branchData.uiOptions?.colors?.secondary || '#6569DF',
+        thirdColor: branchData.uiOptions?.colors?.third || '#3CCC38',
+        website: branchData.uiOptions?.website || '',
+        boardId: branchData.pipelineConfig?.boardId || '',
+        pipelineId: branchData.pipelineConfig?.pipelineId || '',
+        stageId: branchData.pipelineConfig?.stageId || '',
+        roomsCategoryIds: branchData.roomCategories || [],
+        extrasCategoryIds: branchData.extraProductCategories || [],
+      });
+    },
+    [form],
+  );
+
   useEffect(() => {
-    if (mode !== 'edit') {
+    if (mode !== 'edit' || !branch || !branchId || branch._id !== branchId) {
       return;
     }
 
-    if (!branch || !branchId) {
-      return;
-    }
-
-    if (branch._id !== branchId) {
-      return;
-    }
-
-    form.reset({
-      name: branch.name || '',
-      description: branch.description || '',
-      checkInTime: branch.checkintime || '',
-      checkOutTime: branch.checkouttime || '',
-      checkInAmount: branch.checkinamount || 0,
-      checkOutAmount: branch.checkoutamount || 0,
-      discount: Array.isArray(branch.discount)
-        ? branch.discount.map((item: IPmsPaymentType) => ({
-            _id: item._id,
-            type: item.type,
-            title: item.title,
-            icon: item.icon,
-            config: item.config,
-          }))
-        : [],
-      websiteReservationLock: branch.websiteReservationLock ?? false,
-      time: branch.time || '',
-      paymentIds: branch.paymentIds || [],
-      paymentTypes: branch.paymentTypes || [],
-      otherPayments: Array.isArray(branch.paymentTypes)
-        ? branch.paymentTypes.map((item: IPmsPaymentType) => ({
-            _id: item._id,
-            type: item.type,
-            title: item.title,
-            icon: item.icon,
-            config: item.config,
-          }))
-        : [],
-      erxesAppToken: branch.erxesAppToken || '',
-      user1Ids: branch.user1Ids || [],
-      user2Ids: branch.user2Ids || [],
-      user3Ids: branch.user3Ids || [],
-      user4Ids: branch.user4Ids || [],
-      user5Ids: branch.user5Ids || [],
-      // departmentId: branch.departmentId || '',
-      permissionConfig: branch.permissionConfig || {},
-      uiOptions: branch.uiOptions || {},
-      pipelineConfig: branch.pipelineConfig || {},
-      extraProductCategories: branch.extraProductCategories || [],
-      roomCategories: branch.roomCategories || [],
-      logo: branch.uiOptions?.logo || '',
-      primaryColor: branch.uiOptions?.colors?.primary || '#FFFFFF',
-      secondaryColor: branch.uiOptions?.colors?.secondary || '#6569DF',
-      thirdColor: branch.uiOptions?.colors?.third || '#3CCC38',
-      website: branch.uiOptions?.website || '',
-      boardId: branch.pipelineConfig?.boardId || '',
-      pipelineId: branch.pipelineConfig?.pipelineId || '',
-      stageId: branch.pipelineConfig?.stageId || '',
-      roomsCategoryIds: branch.roomCategories || [],
-      extrasCategoryIds: branch.extraProductCategories || [],
-    });
-  }, [branch, branchId, form, mode]);
+    populateFormWithBranchData(branch);
+  }, [branch, branchId, mode, populateFormWithBranchData]);
 
   const onSubmit = (data: PmsBranchFormType): void => {
     const paymentTypes = buildPaymentTypes(data.otherPayments);

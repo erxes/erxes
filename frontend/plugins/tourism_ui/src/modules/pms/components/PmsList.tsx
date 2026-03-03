@@ -188,7 +188,7 @@ export function PmsList() {
     return <div className="p-4 text-sm text-destructive">{error.message}</div>;
   }
 
-  if (list.length === 0) {
+  if (!list?.length) {
     return <PmsListEmpty />;
   }
 
