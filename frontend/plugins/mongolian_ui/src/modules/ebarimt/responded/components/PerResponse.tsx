@@ -2,8 +2,8 @@ const getNum = (n?: number) => {
   return (n || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })
-}
+  });
+};
 
 let totalDiscount = 0;
 
@@ -43,18 +43,12 @@ const customerInfo = (response: any) => {
     <div>
       <br />
       <p><strong>Худалдан авагч:</strong></p>
-      ${response.customerTin
-      ? `<p>ТТД: ${response.customerTin}</p>`
-      : ''}
-      ${response.consumerNo
-      ? `<p>РД: ${response.consumerNo}</p>`
-      : ''}
-      ${response.customerName
-      ? `<p>Нэр: ${response.customerName} </p>`
-      : ''}
+      ${response.customerTin ? `<p>ТТД: ${response.customerTin}</p>` : ''}
+      ${response.consumerNo ? `<p>РД: ${response.consumerNo}</p>` : ''}
+      ${response.customerName ? `<p>Нэр: ${response.customerName} </p>` : ''}
     </div>
   `;
-}
+};
 
 const customize = (response: any, field: string, defaultVal: any) => {
   if (response[field]) {
@@ -66,12 +60,12 @@ const customize = (response: any, field: string, defaultVal: any) => {
   }
 
   return defaultVal;
-}
+};
 
 export const PerResponse = (response: any, counter: number) => {
   totalDiscount = 0;
   return `
-    <div class="receipt" id="${(response._id || '')}">
+    <div class="receipt" id="${response._id || ''}">
       ${(counter > 0 && '<div class="splitter"></div>') || ''}
       <div class="center">
         <img src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png">
@@ -84,8 +78,9 @@ export const PerResponse = (response: any, counter: number) => {
         ${response.status !== 'SUCCESS' ? response.message : ''}
       </p>
 
-      ${response.id
-      ? `
+      ${
+        response.id
+          ? `
         <div>
           <p>ТТД: ${response.merchantTin}</p>
           ${(response.id && `<p>ДДТД: ${response.id}</p>`) || ''}
@@ -94,7 +89,7 @@ export const PerResponse = (response: any, counter: number) => {
         </div>
 
         ${customerInfo(response)}
-        ${customize(response, "headerText", "<br />")}
+        ${customize(response, 'headerText', '<br />')}
 
         <table class="tb" cellpadding="0" cellspacing="0">
           <thead>
@@ -112,38 +107,43 @@ export const PerResponse = (response: any, counter: number) => {
 
         <div class="total">
           
-          ${response.totalVAT > 0 && `<p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>` || ''}
-          ${response.totalCityTax > 0 && `<p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>` || ''}
+          ${(response.totalVAT > 0 && `<p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>`) || ''}
+          ${(response.totalCityTax > 0 && `<p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>`) || ''}
           <p><label>Бүгд үнэ:</label> ${getNum(response.totalAmount)}</p>
-          ${totalDiscount > 0 && `<p><label>ХӨН:</label> ${getNum(totalDiscount)}</p>` || ''}
+          ${(totalDiscount > 0 && `<p><label>ХӨН:</label> ${getNum(totalDiscount)}</p>`) || ''}
         </div>
 
         <div class="center barcode">
           <div class="lottery">
-            ${response.lottery && `Сугалаа: ${response.lottery}` || ''}
+            ${(response.lottery && `Сугалаа: ${response.lottery}`) || ''}
           </div>
           <div>
-            ${response.qrData && `<canvas id="qrcode${response._id}"></canvas>` || ''}
+            ${(response.qrData && `<canvas id="qrcode${response._id}"></canvas>`) || ''}
           </div>
 
-          ${customize(response, "footerText", "<p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>")}
+          ${customize(response, 'footerText', '<p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>')}
 
-          ${response.description && (`<div>
+          ${
+            response.description &&
+            `<div>
             ${response.description}
-          </div>`)}
+          </div>`
+          }
         </div>
-      ` : `
+      `
+          : `
         Буцаалт амжилттай.
       `
-    }
+      }
     </div>
     <script>
       window.onbeforeunload = function () {
         return 'Уг цонхыг хаавал энэ баримтыг ахиж хэвлэх боломжгүй болохыг анхаарна уу';
       }
 
-      ${response.qrData
-      ? `
+      ${
+        response.qrData
+          ? `
         // QRCODE
         const canvas = document.getElementById("qrcode${response._id || ''}");
         const ecl = qrcodegen.QrCode.Ecc.LOW;
@@ -156,8 +156,8 @@ export const PerResponse = (response: any, counter: number) => {
 
         $("#qrcode${response._id || ''}").after('<img src="' + canvas.toDataURL() + '" />')
       `
-      : ''
-    }
+          : ''
+      }
     </script>
   `;
 };

@@ -1,19 +1,48 @@
-import { ColumnDef, Cell } from "@tanstack/react-table";
-import { IForm } from "@/forms/types/formTypes";
-import { Badge, Button, Dialog, DropdownMenu, RecordTable, RecordTableInlineCell, RelativeDateDisplay, Spinner, toast, useConfirm, useToast } from "erxes-ui";
-import { useNavigate } from "react-router";
-import { IconArrowBarToRight, IconCalendarEvent, IconCheck, IconCode, IconCopy, IconEdit, IconSquareToggle, IconTag, IconTrash, IconUser } from "@tabler/icons-react";
-import { MembersInline, SelectTags } from "ui-modules";
-import { useState } from "react";
-import { REACT_APP_WIDGETS_URL } from "@/utils";
-import { useRemoveForm } from "@/forms/hooks/useRemoveForm";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
-import { useFormEdit } from "@/forms/hooks/useFormEdit";
-import { GET_FORMS_LIST } from "@/forms/graphql/formQueries";
-import { useFormToggleStatus } from "@/forms/hooks/useFormToggleStatus";
-import { FormStatus } from "./filters/FormStatus";
+import { ColumnDef, Cell } from '@tanstack/react-table';
+import { IForm } from '@/forms/types/formTypes';
+import {
+  Badge,
+  Button,
+  Dialog,
+  DropdownMenu,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+  Spinner,
+  toast,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
+import { useNavigate } from 'react-router';
+import {
+  IconArrowBarToRight,
+  IconCalendarEvent,
+  IconCheck,
+  IconCode,
+  IconCopy,
+  IconEdit,
+  IconSquareToggle,
+  IconTag,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { MembersInline, SelectTags } from 'ui-modules';
+import { useState } from 'react';
+import { REACT_APP_WIDGETS_URL } from '@/utils';
+import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { useFormEdit } from '@/forms/hooks/useFormEdit';
+import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
+import { FormStatus } from './filters/FormStatus';
 
-export function FormInstallScript({ formId, setOpen }: { formId: string, setOpen: (open: boolean) => void }) {
+export function FormInstallScript({
+  formId,
+  setOpen,
+}: {
+  formId: string;
+  setOpen: (open: boolean) => void;
+}) {
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
@@ -120,7 +149,15 @@ export function FormInstallScript({ formId, setOpen }: { formId: string, setOpen
   );
 }
 
-export function FormToggleStatus({ formId, status, setOpen }: { formId: string, status: string, setOpen: (open: boolean) => void }) {
+export function FormToggleStatus({
+  formId,
+  status,
+  setOpen,
+}: {
+  formId: string;
+  status: string;
+  setOpen: (open: boolean) => void;
+}) {
   const { toggleStatus, loading } = useFormToggleStatus();
 
   const onSelect = () => {
@@ -140,17 +177,29 @@ export function FormToggleStatus({ formId, status, setOpen }: { formId: string, 
         });
       },
     });
-  }
+  };
 
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === "active" ? "Archive" : "Unarchive"}
+      {status === 'active' ? 'Archive' : 'Unarchive'}
     </DropdownMenu.Item>
-  )
+  );
 }
 
-export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { formId: string, channelId: string, setOpen: (open: boolean) => void, name: string, type: string }) => {
+export const MoveFormToChannel = ({
+  formId,
+  channelId,
+  setOpen,
+  name,
+  type,
+}: {
+  formId: string;
+  channelId: string;
+  setOpen: (open: boolean) => void;
+  name: string;
+  type: string;
+}) => {
   const { editForm, loading } = useFormEdit();
 
   const onSelect = (id: string) => {
@@ -178,10 +227,9 @@ export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { 
         });
       },
     });
-  }
+  };
 
   return (
-
     <DropdownMenu.Sub>
       <DropdownMenu.SubTrigger>
         <IconArrowBarToRight />
@@ -189,14 +237,17 @@ export const MoveFormToChannel = ({ formId, channelId, setOpen, name, type }: { 
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
-          <SelectChannel.DropDownContent channelId={channelId} onValueChange={(value) => {
-            onSelect(value)
-          }} />
+          <SelectChannel.DropDownContent
+            channelId={channelId}
+            onValueChange={(value) => {
+              onSelect(value);
+            }}
+          />
         </DropdownMenu.SubContent>
       </DropdownMenu.Portal>
     </DropdownMenu.Sub>
-  )
-}
+  );
+};
 
 export const FormsMoreColumnCell = ({
   cell,
