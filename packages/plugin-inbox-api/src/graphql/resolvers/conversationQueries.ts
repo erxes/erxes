@@ -33,7 +33,7 @@ const conversationQueries: any = {
   async conversations(
     _root,
     params: IListArgs,
-    { user, models, subdomain, serverTiming }: IContext,
+    { user, models, subdomain, serverTiming }: IContext
   ) {
     serverTiming.startTime("conversations");
 
@@ -91,7 +91,7 @@ const conversationQueries: any = {
       limit: number;
       getFirst: boolean;
     },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const query = { conversationId };
 
@@ -121,7 +121,7 @@ const conversationQueries: any = {
   async conversationMessagesTotalCount(
     _root,
     { conversationId }: { conversationId: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.ConversationMessages.countDocuments({ conversationId });
   },
@@ -132,11 +132,12 @@ const conversationQueries: any = {
   async conversationCounts(
     _root,
     params: IListArgs,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const { only } = params;
 
     const response: IConversationRes = {};
+
     const _user = {
       _id: user._id,
       code: user.code,
@@ -149,7 +150,8 @@ const conversationQueries: any = {
     await qb.buildAllQueries();
 
     const queries = qb.queries;
-    const integrationIds = queries.integrations.integrationId.$in;
+
+    const integrationIds = queries.integrations?.integrationId?.$in || [];
 
     if (only) {
       response[only] = await countByConversations(
@@ -158,54 +160,44 @@ const conversationQueries: any = {
         params,
         integrationIds,
         _user,
-        only,
+        only
       );
+
+      return response;
     }
 
-    const baseQuery = {
-      ...this.queries.default,
-      ...this.queries.integrations,
-      ...this.queries.extended,
-      ...this.queries.segments,
-    };
+    const baseQuery = qb.mainQuery();
 
-    // unassigned count
     response.unassigned = await count(models, {
       ...baseQuery,
       ...qb.unassignedFilter(),
     });
 
-    // participating count
     response.participating = await count(models, {
       ...baseQuery,
       ...qb.participatingFilter(),
     });
 
-    // starred count
     response.starred = await count(models, {
       ...baseQuery,
       ...qb.starredFilter(),
     });
 
-    // resolved count
     response.resolved = await count(models, {
       ...baseQuery,
       ...qb.statusFilter(["closed"]),
     });
 
-    // awaiting response count
     response.awaitingResponse = await count(models, {
       ...baseQuery,
       ...qb.awaitingResponse(),
     });
 
-    // answer response count
     response.callAnswered = await count(models, {
       ...baseQuery,
       ...qb.answeredFilter(true),
     });
 
-    // not answer response count
     response.callNotAnswered = await count(models, {
       ...baseQuery,
       ...qb.notAnsweredFilter(true),
@@ -213,14 +205,13 @@ const conversationQueries: any = {
 
     return response;
   },
-
   /**
    * Get one conversation
    */
   async conversationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Conversations.findOne({ _id });
   },
@@ -231,7 +222,7 @@ const conversationQueries: any = {
   async conversationsTotalCount(
     _root,
     params: IListArgs,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, {
@@ -251,7 +242,7 @@ const conversationQueries: any = {
   async conversationsGetLast(
     _root,
     params: IListArgs,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, {
@@ -273,7 +264,7 @@ const conversationQueries: any = {
   async conversationsTotalUnreadCount(
     _root,
     _args,
-    { user, models, subdomain, serverTiming }: IContext,
+    { user, models, subdomain, serverTiming }: IContext
   ) {
     serverTiming.startTime("buildQuery");
 
@@ -282,7 +273,7 @@ const conversationQueries: any = {
       models,
       subdomain,
       {},
-      { _id: user._id, code: user.code },
+      { _id: user._id, code: user.code }
     );
 
     await qb.buildAllQueries();
@@ -411,7 +402,7 @@ const conversationQueries: any = {
   async userConversations(
     _root,
     { _id, perPage }: { _id: string; perPage: number },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const selector = { participatedUserIds: { $in: [_id] } };
 
@@ -423,7 +414,7 @@ const conversationQueries: any = {
   async userConversationsByCustomerId(
     _root,
     { customerId }: { customerId: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return await models.Conversations.find({
       customerId,
@@ -442,7 +433,7 @@ checkPermission(conversationQueries, "conversations", "showConversations", []);
 conversationQueries.conversationMessage = async (
   _,
   { _id },
-  { models }: IContext,
+  { models }: IContext
 ) => {
   return await models.ConversationMessages.findOne({ _id });
 };
