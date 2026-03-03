@@ -6,7 +6,7 @@ const toSlug = (name: string) =>
   name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-|-$/g, '');
 
 export const useInlineCategory = (websiteId: string) => {
   const [addCategoryMutation] = useMutation(CMS_CATEGORIES_ADD);

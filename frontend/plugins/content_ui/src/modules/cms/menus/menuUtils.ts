@@ -2,7 +2,7 @@ export type RawMenuItem = {
   _id: string;
   label: string;
   parentId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export function buildFlatTree<T extends RawMenuItem>(

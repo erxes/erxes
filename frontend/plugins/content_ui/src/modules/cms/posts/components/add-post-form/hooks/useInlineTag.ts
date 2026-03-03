@@ -5,7 +5,7 @@ const toSlug = (name: string) =>
   name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-|-$/g, '');
 
 export const useInlineTag = (websiteId: string) => {
   const [addTagMutation] = useMutation(CMS_TAGS_ADD);

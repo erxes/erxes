@@ -4,7 +4,7 @@ import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CMS_MENU_ADD, CMS_MENU_EDIT, CMS_MENU_LIST } from '../graphql/queries';
-import { buildFlatTree, getDepthPrefix } from './menuUtils';
+import { buildFlatTree, getDepthPrefix, RawMenuItem } from './menuUtils';
 
 interface MenuDrawerProps {
   isOpen: boolean;
@@ -67,14 +67,40 @@ export function MenuDrawer({
     fetchPolicy: 'cache-and-network',
   });
 
-  const rawMenus: { _id: string; label: string; parentId?: string }[] = (
-    menusData?.cmsMenuList || []
-  ).filter((m: any) => m._id !== menu?._id);
+  const rawMenus: RawMenuItem[] = (menusData?.cmsMenuList || []).filter(
+    (m: RawMenuItem) => m._id !== menu?._id,
+  );
 
   const parentOptions = buildFlatTree(rawMenus).map((item) => ({
     _id: item._id,
     label: getDepthPrefix(item.depth) + item.label,
   }));
+
+  function handleError(error: any) {
+    const permissionError = error.graphQLErrors?.some(
+      (e: any) =>
+        e.message === 'Permission required' ||
+        e.extensions?.code === 'INTERNAL_SERVER_ERROR',
+    );
+
+    if (permissionError) {
+      setHasPermissionError(true);
+      toast({
+        title: 'Permission Required',
+        description:
+          'You do not have permission to manage menus. Please contact your administrator.',
+        variant: 'destructive',
+        duration: 8000,
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save menu. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
+      });
+    }
+  }
 
   const [addMenu, { loading: adding }] = useMutation(CMS_MENU_ADD, {
     onCompleted: () => {
@@ -102,32 +128,6 @@ export function MenuDrawer({
     },
     onError: handleError,
   });
-
-  function handleError(error: any) {
-    const permissionError = error.graphQLErrors?.some(
-      (e: any) =>
-        e.message === 'Permission required' ||
-        e.extensions?.code === 'INTERNAL_SERVER_ERROR',
-    );
-
-    if (permissionError) {
-      setHasPermissionError(true);
-      toast({
-        title: 'Permission Required',
-        description:
-          'You do not have permission to manage menus. Please contact your administrator.',
-        variant: 'destructive',
-        duration: 8000,
-      });
-    } else {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to save menu. Please try again.',
-        variant: 'destructive',
-        duration: 5000,
-      });
-    }
-  }
 
   const saving = adding || editing;
 
