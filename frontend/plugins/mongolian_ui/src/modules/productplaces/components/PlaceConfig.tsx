@@ -20,6 +20,7 @@ import {
 // ---------- Types ----------
 export interface PlaceConfigData {
   _id?: string;
+  subId?: string;          // add subId to interface
   title: string;
   boardId: string;
   pipelineId: string;
@@ -63,7 +64,7 @@ const PlaceConfig: React.FC = () => {
   // GraphQL hooks
   const { data, loading, refetch } = useQuery(MN_CONFIGS, {
     variables: { code: 'dealsProductsDataPlaces' },
-    fetchPolicy: 'network-only', // always get fresh data
+    fetchPolicy: 'network-only',
   });
 
   const [createConfig] = useMutation(MN_CONFIGS_CREATE);
@@ -78,6 +79,7 @@ const PlaceConfig: React.FC = () => {
         : Object.values(data.mnConfigs);
       const transformed = rawConfigs.map((cfg: any) => ({
         _id: cfg._id,
+        subId: cfg.subId,  // include subId from the document
         ...keyValueArrayToObject(cfg.value),
       }));
       setSavedConfigs(transformed);
@@ -129,23 +131,24 @@ const PlaceConfig: React.FC = () => {
   // Save (create or update)
   const handleSave = async () => {
     try {
-      const { _id, ...rest } = formData;
+      const { _id, subId, ...rest } = formData;
       const valueArray = objectToKeyValueArray(rest);
 
       if (_id) {
+        // Update existing config – keep same subId
         await updateConfig({ variables: { _id, value: valueArray } });
       } else {
-        const subId = crypto.randomUUID();
+        // Create new config – use the selected stageId as subId
         await createConfig({
           variables: {
             code: 'dealsProductsDataPlaces',
-            subId,
+            subId: rest.stageId,  // use the stage ID from the form
             value: valueArray,
           },
         });
       }
 
-      await refetch(); // refresh list
+      await refetch();
       setActiveIndex(null);
       setFormData(emptyForm);
     } catch (error) {

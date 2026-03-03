@@ -9,7 +9,7 @@ import type {
   MNConfigsRemoveMutationResponse,
 } from '../types';
 
-import { MN_CONFIG, MN_CONFIGS } from '../graphql/clientQueries'; // add MN_CONFIGS
+import { MN_CONFIG, MN_CONFIGS, STAGES_QUERY } from '../graphql/clientQueries';
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_UPDATE,
@@ -28,16 +28,15 @@ type Props = {
   component: React.ComponentType<any>;
   configCode: string;
   subId?: string;
-  multiple?: boolean; // new prop: if true, fetch list
+  multiple?: boolean;
 };
 
 const SettingsContainer = ({
   component: Component,
   configCode,
   subId,
-  multiple = false, // default to false for backward compatibility
+  multiple = false,
 }: Props) => {
-  // Determine which query to use
   const { data, loading, error, refetch } = useQuery(
     multiple ? MN_CONFIGS : MN_CONFIG,
     {
@@ -58,10 +57,10 @@ const SettingsContainer = ({
 
   /**
    * Normalize config(s) into the format expected by the component
+   * and include the raw subId for stage selection in the form.
    */
   const normalizedConfigs = useMemo(() => {
     if (multiple) {
-      // We expect an array: data?.mnConfigs
       const rawList = data?.mnConfigs || [];
       return rawList.map((raw: any) => {
         let normalized;
@@ -76,11 +75,11 @@ const SettingsContainer = ({
         }
         return {
           _id: raw._id,
+          subId: raw.subId,          // include subId for stage selection
           ...normalized,
         };
       });
     } else {
-      // Single config: data?.mnConfig
       const raw = data?.mnConfig;
       if (!raw?.value) return [];
       let normalized;
@@ -96,6 +95,7 @@ const SettingsContainer = ({
       return [
         {
           _id: raw._id,
+          subId: raw.subId,          // include subId for stage selection
           ...normalized,
         },
       ];
@@ -120,13 +120,15 @@ const SettingsContainer = ({
 
   /**
    * SAVE (create or update)
+   * Accepts an optional formSubId that overrides any stageId inside config.
    */
-  const save = async (config: Record<string, any>) => {
+
+  const save = async (config: Record<string, any>, formSubId?: string) => {
     const { _id, ...rest } = config;
     const value = denormalizeConfig(rest);
 
-    // Use the stageId from the form as the subId (if present)
-    const finalSubId = rest.stageId || subId || '';
+    // Priority: formSubId > rest.stageId > prop subId
+    const finalSubId = formSubId ?? rest.stageId ?? subId ?? '';
 
     if (_id) {
       await updateConfig({
@@ -161,12 +163,11 @@ const SettingsContainer = ({
     await refetch();
   };
 
-  // Pass configs as an array, and also the remove function
   return (
     <Component
       configs={normalizedConfigs}
       save={save}
-      delete={remove} // add this prop
+      delete={remove}
     />
   );
 };

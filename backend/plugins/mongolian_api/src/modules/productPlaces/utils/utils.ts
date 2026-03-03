@@ -111,7 +111,15 @@ export const getChildTags = async (
       defaultValue: [],
     })) || [];
 
-  const foundTagIds = childs.map((ch: any) => ch._id);
+  if (!Array.isArray(childs)) return [];
+
+  // If the array contains strings, treat them as IDs
+  if (childs.length > 0 && typeof childs[0] === 'string') {
+    return childs;
+  }
+
+  // Otherwise assume they are objects with _id
+  const foundTagIds = childs.map((ch: any) => ch?._id).filter(Boolean);
   return Array.from(new Set(foundTagIds));
 };
 

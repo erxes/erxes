@@ -23,3 +23,13 @@ export const MN_CONFIGS = gql`
     }
   }
 `;
+
+export const STAGES_QUERY = gql`
+  query stages($pipelineId: String!) {
+    stages(pipelineId: $pipelineId) {
+      _id
+      name
+    }
+  }
+`;
+

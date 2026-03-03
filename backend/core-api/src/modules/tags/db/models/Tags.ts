@@ -17,6 +17,7 @@ export interface ITagModel extends Model<ITagDocument> {
     targetIds: string[],
     tagIds: string[],
   ): Promise<ITagDocument>;
+  getChildTags(tagIds: string[]): Promise<string[]>; 
 }
 
 export const loadTagClass = (
@@ -308,6 +309,15 @@ export const loadTagClass = (
       return order;
     }
 
+    public static async getChildTags(tagIds: string[]): Promise<ITagDocument[]> {
+  // Cast this to any to avoid TypeScript error
+  const tags = await (this as any).find({ _id: { $in: tagIds } }).lean();
+  const orders = tags.map((t: any) => t.order).filter(Boolean);
+  const children = await (this as any).find({
+    order: { $in: orders.map((o: string) => new RegExp(`^${o}`)) }
+  }).lean();
+  return [...tags, ...children];
+}
     static async setRelatedTagIds(tag: ITagDocument) {
       if (!tag.parentId) {
         return;
