@@ -58,7 +58,9 @@ const LogoField = ({
                     size="sm"
                     variant="secondary"
                     type="button"
-                    className="flex overflow-hidden relative flex-col justify-center items-center w-full h-28 rounded-md border border-dashed border-border text-muted-foreground group"
+                    className={`flex overflow-hidden relative flex-col justify-center items-center w-full h-28 rounded-md border border-border text-muted-foreground group bg-background ${
+                      field.value ? '' : 'border-dashed'
+                    }`}
                     style={
                       typeof field.value === 'string' && field.value
                         ? {
@@ -66,7 +68,6 @@ const LogoField = ({
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
-                            border: 'none',
                           }
                         : {}
                     }

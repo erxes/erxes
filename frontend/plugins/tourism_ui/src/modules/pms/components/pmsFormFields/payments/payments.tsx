@@ -116,8 +116,8 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                 </div>
 
                 <Button
-                  variant={'destructive'}
-                  size={'icon'}
+                  variant="destructive"
+                  size="icon"
                   type="button"
                   className="w-8 h-8"
                   onClick={() => remove(index)}

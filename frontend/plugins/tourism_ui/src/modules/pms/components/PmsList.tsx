@@ -49,6 +49,8 @@ function PmsListEmpty() {
 }
 
 const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+
   if (!logo) {
     return (
       <div className="flex justify-center items-center w-full h-full text-muted-foreground">
@@ -58,14 +60,23 @@ const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
   }
 
   return (
-    <img
-      src={readImage(logo)}
-      alt={name || 'Branch logo'}
-      className="object-contain w-full h-full"
-      loading="lazy"
-      width={290}
-      height={150}
-    />
+    <div className="relative w-full h-full">
+      {imageLoading && (
+        <div className="flex absolute inset-0 justify-center items-center">
+          <Spinner size="md" />
+        </div>
+      )}
+      <img
+        src={readImage(logo)}
+        alt={name || 'Branch logo'}
+        className="object-cover w-full h-full"
+        loading="lazy"
+        width={290}
+        height={150}
+        onLoad={() => setImageLoading(false)}
+        onError={() => setImageLoading(false)}
+      />
+    </div>
   );
 };
 
@@ -93,7 +104,7 @@ function PmsBranchCard({
         />
       </div>
 
-      <div className="w-full h-[140px] rounded-sm bg-accent/30 overflow-hidden flex items-center justify-center">
+      <div className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center">
         <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
       </div>
 
@@ -125,6 +136,8 @@ export function PmsList() {
   const { toast } = useToast();
   const { confirm } = useConfirm();
 
+  const confirmOptions = { confirmationValue: 'delete' };
+
   const [editOpen, setEditOpen] = useState(false);
   const [editingBranchId, setEditingBranchId] = useState<string>('');
   const setCurrentStep = useSetAtom(stepState);
@@ -146,12 +159,8 @@ export function PmsList() {
     const branchName = list?.find((b) => b._id === branchId)?.name || '';
 
     confirm({
-      message: 'Delete Branch',
-      options: {
-        description: `Are you sure you want to permanently delete "${branchName}"?`,
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
-      },
+      message: `Are you sure you want to permanently delete "${branchName}"?`,
+      options: confirmOptions,
     }).then(() => {
       removeBranch({
         variables: { _id: branchId },
