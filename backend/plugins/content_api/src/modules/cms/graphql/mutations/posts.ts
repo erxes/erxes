@@ -47,6 +47,21 @@ export const postMutations: Record<string, Resolver> = {
   },
 
   /**
+   * Cms posts remove many
+   */
+  cmsPostsRemoveMany: async (
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> => {
+    const { models } = context;
+    const { _ids } = args;
+
+    const result = await models.Posts.deleteMany({ _id: { $in: _ids } });
+    return { deletedCount: result.deletedCount };
+  },
+
+  /**
    * Cms post change status
    */
   cmsPostsChangeStatus: async (

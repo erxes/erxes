@@ -165,6 +165,7 @@ export const start = async (
       //     engageMessageId,
       //     'regular',
       //     `Error occurred while creating activity log "${customer.primaryEmail}"`,
+      //     `Error occurred while creating activity log "${customer.primaryEmail}"`,
       //   );
     }
   } // end for loop

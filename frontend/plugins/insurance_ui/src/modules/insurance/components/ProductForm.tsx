@@ -97,6 +97,9 @@ export const ProductForm = ({
     }
   }, [product, open]);
 
+  /**
+   * Adds a new risk to the covered risks list
+   */
   const handleAddRisk = () => {
     setFormData({
       ...formData,
@@ -107,6 +110,10 @@ export const ProductForm = ({
     });
   };
 
+  /**
+   * Removes a risk from the covered risks list
+   * @param index - The index of the risk to remove
+   */
   const handleRemoveRisk = (index: number) => {
     setFormData({
       ...formData,
@@ -114,6 +121,12 @@ export const ProductForm = ({
     });
   };
 
+  /**
+   * Updates a specific field of a risk in the covered risks list
+   * @param index - The index of the risk to update
+   * @param field - The field to update (riskId or coveragePercentage)
+   * @param value - The new value for the field
+   */
   const handleRiskChange = (
     index: number,
     field: 'riskId' | 'coveragePercentage',
@@ -124,6 +137,10 @@ export const ProductForm = ({
     setFormData({ ...formData, coveredRisks: newRisks });
   };
 
+  /**
+   * Handles form submission for creating or updating a product
+   * @param e - The form event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -193,7 +210,7 @@ export const ProductForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-2xl">
+      <Dialog.Content className="max-h-[90vh] overflow-y-auto">
         <Dialog.Header>
           <Dialog.Title>
             {product ? 'Edit Product' : 'Create New Product'}
@@ -284,8 +301,8 @@ export const ProductForm = ({
             </div>
             {formData.pdfContent ? (
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-green-600">
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-md border border-green-200">
+                  <span className="text-sm font-medium text-green-700">
                     ✓ PDF template configured
                   </span>
                   <div className="flex gap-2">
@@ -294,8 +311,9 @@ export const ProductForm = ({
                       variant="outline"
                       size="sm"
                       onClick={() => setShowPdfEditor(!showPdfEditor)}
+                      className="bg-white"
                     >
-                      {showPdfEditor ? 'Collapse' : 'Edit'}
+                      {showPdfEditor ? 'Hide Editor' : 'Edit Template'}
                     </Button>
                     <Button
                       type="button"
@@ -304,20 +322,30 @@ export const ProductForm = ({
                       onClick={() =>
                         setFormData({ ...formData, pdfContent: '' })
                       }
+                      className="bg-white text-red-600 hover:bg-red-50"
                     >
                       Remove
                     </Button>
                   </div>
                 </div>
                 {showPdfEditor && (
-                  <textarea
-                    value={formData.pdfContent}
-                    onChange={(e) =>
-                      setFormData({ ...formData, pdfContent: e.target.value })
-                    }
-                    className="w-full h-[300px] p-2 font-mono text-xs border rounded-md"
-                    placeholder="Enter HTML template..."
-                  />
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">
+                      HTML Template Editor
+                    </Label>
+                    <textarea
+                      value={formData.pdfContent}
+                      onChange={(e) =>
+                        setFormData({ ...formData, pdfContent: e.target.value })
+                      }
+                      className="w-full h-[400px] p-3 font-mono text-sm border rounded-md focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter HTML template..."
+                    />
+                    <p className="text-xs text-gray-500">
+                      Use variables like {'{{contractNumber}}'},{' '}
+                      {'{{customerName}}'}, etc.
+                    </p>
+                  </div>
                 )}
               </div>
             ) : (
@@ -978,8 +1006,8 @@ export const ProductForm = ({
               {creating || updating
                 ? 'Saving...'
                 : product
-                ? 'Update'
-                : 'Create'}
+                  ? 'Update'
+                  : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>

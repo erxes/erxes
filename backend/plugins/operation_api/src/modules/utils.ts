@@ -1,55 +1,57 @@
-import { IModels } from '~/connectionResolvers';
+// ** Deprecated
 
-export const checkUserRole = async ({
-  models,
-  teamId,
-  userId,
-  allowedRoles,
-  teamIds,
-}: {
-  models: IModels;
-  teamId?: string;
-  userId: string;
-  allowedRoles: string[];
-  teamIds?: string[];
-}) => {
-  if (teamIds && teamIds.length > 0) {
-    const userRoles = await models.TeamMember.find({
-      teamId: { $in: teamIds },
-      memberId: userId,
-    });
+// import { IModels } from '~/connectionResolvers';
 
-    if (!userRoles || userRoles.length === 0) {
-      throw new Error('User not in team');
-    }
+// export const checkUserRole = async ({
+//   models,
+//   teamId,
+//   userId,
+//   allowedRoles,
+//   teamIds,
+// }: {
+//   models: IModels;
+//   teamId?: string;
+//   userId: string;
+//   allowedRoles: string[];
+//   teamIds?: string[];
+// }) => {
+//   if (teamIds && teamIds.length > 0) {
+//     const userRoles = await models.TeamMember.find({
+//       teamId: { $in: teamIds },
+//       memberId: userId,
+//     });
 
-    let isAllowed = false;
+//     if (!userRoles || userRoles.length === 0) {
+//       throw new Error('User not in team');
+//     }
 
-    userRoles.forEach((userRole) => {
-      if (allowedRoles.includes(userRole.role)) {
-        isAllowed = true;
-      }
-    });
+//     let isAllowed = false;
 
-    if (!isAllowed) {
-      throw new Error('User is not allowed to perform this action');
-    }
+//     userRoles.forEach((userRole) => {
+//       if (allowedRoles.includes(userRole.role)) {
+//         isAllowed = true;
+//       }
+//     });
 
-    return;
-  }
+//     if (!isAllowed) {
+//       throw new Error('User is not allowed to perform this action');
+//     }
 
-  const userRole = await models.TeamMember.findOne({
-    teamId,
-    memberId: userId,
-  });
+//     return;
+//   }
 
-  if (!userRole) {
-    throw new Error('User not in team');
-  }
+//   const userRole = await models.TeamMember.findOne({
+//     teamId,
+//     memberId: userId,
+//   });
 
-  if (!allowedRoles.includes(userRole.role)) {
-    throw new Error('User is not allowed to perform this action');
-  }
+//   if (!userRole) {
+//     throw new Error('User not in team');
+//   }
 
-  return;
-};
+//   if (!allowedRoles.includes(userRole.role)) {
+//     throw new Error('User is not allowed to perform this action');
+//   }
+
+//   return;
+// };

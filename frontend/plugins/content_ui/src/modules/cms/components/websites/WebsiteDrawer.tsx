@@ -21,7 +21,7 @@ import {
   CONTENT_DELETE_CMS,
 } from '../../graphql/mutations';
 import { useClientPortals } from '../../hooks/useClientPortals';
-import { LANGUAGES } from '../../../shared/constants';
+import { LANGUAGES } from '../../../../constants';
 
 interface Website {
   _id: string;
@@ -445,10 +445,10 @@ export function WebsiteDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                  ? 'Permission Required'
-                  : isEditing
-                  ? 'Save Changes'
-                  : 'Create CMS'}
+                    ? 'Permission Required'
+                    : isEditing
+                      ? 'Save Changes'
+                      : 'Create CMS'}
               </Button>
 
               {isEditing && (
@@ -459,7 +459,9 @@ export function WebsiteDrawer({
                     if (website?._id) {
                       try {
                         await deleteCMS({ variables: { id: website._id } });
-                      } catch (error) {}
+                      } catch (error) {
+                        console.error('Error deleting CMS:', error);
+                      }
                     }
                   }}
                   disabled={removing}

@@ -109,6 +109,7 @@ export const teamMutations = {
       notificationType: 'team',
       userIds: memberIds,
       action: 'teamAddMembers',
+      models,
     });
 
     return models.TeamMember.createTeamMembers(
