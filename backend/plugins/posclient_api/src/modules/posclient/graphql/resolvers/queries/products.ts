@@ -37,8 +37,6 @@ export interface IProductParams extends ICommonParams {
   tags?: string[];
   excludeTags?: string[];
   tagWithRelated?: boolean;
-  pipelineId?: string;
-  boardId?: string;
   segment?: string;
   segmentData?: string;
   isKiosk?: boolean;
@@ -120,17 +118,8 @@ const generateFilter = async (
     let tagIds: string[] = tags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -147,17 +136,8 @@ const generateFilter = async (
     let tagIds: string[] = excludeTags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -453,9 +433,8 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

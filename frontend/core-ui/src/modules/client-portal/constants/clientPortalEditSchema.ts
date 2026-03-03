@@ -8,11 +8,12 @@ export const CLIENTPORTAL_EDIT_SCHEMA = z.object({
 
 export const CLIENTPORTAL_AUTH_SCHEMA = z.object({
   tokenPassMethod: z.enum(['cookie', 'header']),
-  tokenExpiration: z.number().min(1).max(7),
-  refreshTokenExpiration: z.number().min(1).max(7),
+  tokenExpiration: z.number().min(1).max(365),
+  refreshTokenExpiration: z.number().min(1).max(365),
 });
 
 export const CLIENTPORTAL_TEST_SCHEMA = z.object({
+  testUserEnabled: z.boolean().optional(),
   testUserEmail: z.string().email(),
   testUserPhone: z.string().optional(),
   testUserPassword: z.string().optional(),

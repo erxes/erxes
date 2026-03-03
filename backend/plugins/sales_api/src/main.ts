@@ -8,6 +8,7 @@ import { startPlugin } from 'erxes-api-shared/utils';
 import { afterProcess } from '~/meta/afterProcess';
 import { typeDefs } from './apollo/typeDefs';
 import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
+import { notifications } from './meta/notifications';
 
 startPlugin({
   name: 'sales',
@@ -58,23 +59,7 @@ startPlugin({
         },
       ],
     },
-    notificationModules: [
-      {
-        name: 'deals',
-        description: 'Deals',
-        icon: 'IconChecklist',
-        types: [
-          { name: 'dealAssignee', text: 'Deal assignee' },
-          { name: 'dealStatus', text: 'Deal status changed' },
-        ],
-      },
-      {
-        name: 'note',
-        description: 'Note',
-        icon: 'IconNote',
-        types: [{ name: 'note', text: 'Mentioned in note' }],
-      },
-    ],
+    notifications,
     afterProcess,
   },
 });

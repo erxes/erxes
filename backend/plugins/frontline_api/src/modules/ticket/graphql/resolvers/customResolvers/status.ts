@@ -24,7 +24,7 @@ export const Ticket = {
   },
 
   async isSubscribed({ subscribedUserIds }, _params, { user }: IContext) {
-    if (!subscribedUserIds && subscribedUserIds.lenght === 0) {
+    if (!subscribedUserIds && subscribedUserIds.length === 0) {
       return false;
     }
 

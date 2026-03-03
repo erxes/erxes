@@ -39,6 +39,13 @@ export const ProductForm = ({
       string,
       number | Record<string, number>
     >,
+    additionalCoverages: [] as {
+      name: string;
+      limits: number[];
+      appliesTo: string[];
+    }[],
+    compensationCalculations: [] as { name: string; methodologies: string[] }[],
+    deductibleConfig: { levels: [] as string[] },
   });
   const [showPdfEditor, setShowPdfEditor] = useState(false);
 
@@ -57,6 +64,9 @@ export const ProductForm = ({
           coveragePercentage: cr.coveragePercentage,
         })),
         pricingConfig: product.pricingConfig || { percentage: 3 },
+        additionalCoverages: product.additionalCoverages || [],
+        compensationCalculations: product.compensationCalculations || [],
+        deductibleConfig: product.deductibleConfig || { levels: [] },
       });
 
       const percentageByDuration = (product.pricingConfig as any)
@@ -79,11 +89,17 @@ export const ProductForm = ({
         pdfContent: '',
         coveredRisks: [],
         pricingConfig: { percentage: 3 },
+        additionalCoverages: [],
+        compensationCalculations: [],
+        deductibleConfig: { levels: [] },
       });
       setDurationFields([]);
     }
   }, [product, open]);
 
+  /**
+   * Adds a new risk to the covered risks list
+   */
   const handleAddRisk = () => {
     setFormData({
       ...formData,
@@ -94,6 +110,10 @@ export const ProductForm = ({
     });
   };
 
+  /**
+   * Removes a risk from the covered risks list
+   * @param index - The index of the risk to remove
+   */
   const handleRemoveRisk = (index: number) => {
     setFormData({
       ...formData,
@@ -101,6 +121,12 @@ export const ProductForm = ({
     });
   };
 
+  /**
+   * Updates a specific field of a risk in the covered risks list
+   * @param index - The index of the risk to update
+   * @param field - The field to update (riskId or coveragePercentage)
+   * @param value - The new value for the field
+   */
   const handleRiskChange = (
     index: number,
     field: 'riskId' | 'coveragePercentage',
@@ -111,6 +137,10 @@ export const ProductForm = ({
     setFormData({ ...formData, coveredRisks: newRisks });
   };
 
+  /**
+   * Handles form submission for creating or updating a product
+   * @param e - The form event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -123,6 +153,18 @@ export const ProductForm = ({
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
             pdfContent: formData.pdfContent || null,
+            additionalCoverages:
+              formData.additionalCoverages.length > 0
+                ? formData.additionalCoverages
+                : null,
+            compensationCalculations:
+              formData.compensationCalculations.length > 0
+                ? formData.compensationCalculations
+                : null,
+            deductibleConfig:
+              formData.deductibleConfig.levels.length > 0
+                ? formData.deductibleConfig
+                : null,
           },
         });
       } else {
@@ -133,6 +175,18 @@ export const ProductForm = ({
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
             pdfContent: formData.pdfContent || null,
+            additionalCoverages:
+              formData.additionalCoverages.length > 0
+                ? formData.additionalCoverages
+                : null,
+            compensationCalculations:
+              formData.compensationCalculations.length > 0
+                ? formData.compensationCalculations
+                : null,
+            deductibleConfig:
+              formData.deductibleConfig.levels.length > 0
+                ? formData.deductibleConfig
+                : null,
           },
         });
       }
@@ -143,6 +197,9 @@ export const ProductForm = ({
         pdfContent: '',
         coveredRisks: [],
         pricingConfig: { percentage: 3 },
+        additionalCoverages: [],
+        compensationCalculations: [],
+        deductibleConfig: { levels: [] },
       });
       onOpenChange(false);
       onSuccess?.();
@@ -153,7 +210,7 @@ export const ProductForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-2xl">
+      <Dialog.Content className="max-h-[90vh] overflow-y-auto">
         <Dialog.Header>
           <Dialog.Title>
             {product ? 'Edit Product' : 'Create New Product'}
@@ -204,8 +261,8 @@ export const ProductForm = ({
           )}
 
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label>PDF Гэрээний загвар</Label>
+            <div className="flex items-center justify-between">
+              <Label>PDF Contract Template</Label>
               <div className="flex gap-2">
                 {!formData.pdfContent && (
                   <Button
@@ -220,7 +277,7 @@ export const ProductForm = ({
                       setShowPdfEditor(true);
                     }}
                   >
-                    Үндсэн загвар ашиглах
+                    Use Default Template
                   </Button>
                 )}
                 {formData.pdfContent && (
@@ -237,16 +294,16 @@ export const ProductForm = ({
                     }}
                   >
                     <IconEye size={16} />
-                    Урьдчилан харах
+                    Preview
                   </Button>
                 )}
               </div>
             </div>
             {formData.pdfContent ? (
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-green-600">
-                    ✓ PDF загвар тохируулсан
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-md border border-green-200">
+                  <span className="text-sm font-medium text-green-700">
+                    ✓ PDF template configured
                   </span>
                   <div className="flex gap-2">
                     <Button
@@ -254,8 +311,9 @@ export const ProductForm = ({
                       variant="outline"
                       size="sm"
                       onClick={() => setShowPdfEditor(!showPdfEditor)}
+                      className="bg-white"
                     >
-                      {showPdfEditor ? 'Хураах' : 'Засах'}
+                      {showPdfEditor ? 'Hide Editor' : 'Edit Template'}
                     </Button>
                     <Button
                       type="button"
@@ -264,32 +322,42 @@ export const ProductForm = ({
                       onClick={() =>
                         setFormData({ ...formData, pdfContent: '' })
                       }
+                      className="bg-white text-red-600 hover:bg-red-50"
                     >
-                      Устгах
+                      Remove
                     </Button>
                   </div>
                 </div>
                 {showPdfEditor && (
-                  <textarea
-                    value={formData.pdfContent}
-                    onChange={(e) =>
-                      setFormData({ ...formData, pdfContent: e.target.value })
-                    }
-                    className="w-full h-[300px] p-2 font-mono text-xs border rounded-md"
-                    placeholder="HTML загвар оруулна уу..."
-                  />
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">
+                      HTML Template Editor
+                    </Label>
+                    <textarea
+                      value={formData.pdfContent}
+                      onChange={(e) =>
+                        setFormData({ ...formData, pdfContent: e.target.value })
+                      }
+                      className="w-full h-[400px] p-3 font-mono text-sm border rounded-md focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter HTML template..."
+                    />
+                    <p className="text-xs text-gray-500">
+                      Use variables like {'{{contractNumber}}'},{' '}
+                      {'{{customerName}}'}, etc.
+                    </p>
+                  </div>
                 )}
               </div>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Гэрээ хийх үед харагдах PDF загвар. "Үндсэн загвар ашиглах" дарж
-                эхлүүлнэ үү.
+                PDF template displayed when creating a contract. Click "Use
+                Default Template" to start.
               </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <Label>Covered Risks *</Label>
               <Button
                 type="button"
@@ -369,7 +437,7 @@ export const ProductForm = ({
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="percentage">Үндсэн хувь (%) *</Label>
+              <Label htmlFor="percentage">Base Rate (%) *</Label>
               <Input
                 id="percentage"
                 type="number"
@@ -381,7 +449,7 @@ export const ProductForm = ({
                     ...formData,
                     pricingConfig: {
                       ...formData.pricingConfig,
-                      percentage: Number.parseFloat(e.target.value) || 3,
+                      percentage: parseFloat(e.target.value) || 3,
                     },
                   })
                 }
@@ -389,13 +457,13 @@ export const ProductForm = ({
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Үндсэн хураамж = Үнэлгээний үнэ × Хувь
+                Base Premium = Assessed Value × Rate
               </p>
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label className="text-sm">Хугацаагаар хувь (сонголттой)</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">Rate by Duration (optional)</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -407,20 +475,20 @@ export const ProductForm = ({
                     ]);
                   }}
                 >
-                  Хугацаа нэмэх
+                  Add Duration
                 </Button>
               </div>
 
               {durationFields.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Хугацаагаар өөр хувь тохируулах бол "Хугацаа нэмэх" дарна уу
+                  Click "Add Duration" to set different rates by duration
                 </p>
               ) : (
                 <div className="space-y-2">
                   {durationFields.map((field, index) => (
                     <div key={index} className="flex gap-2 items-end">
                       <div className="flex-1">
-                        <Label className="text-xs">Хугацаа (сар)</Label>
+                        <Label className="text-xs">Duration (months)</Label>
                         <Input
                           value={field.duration}
                           onChange={(e) => {
@@ -450,7 +518,7 @@ export const ProductForm = ({
                         />
                       </div>
                       <div className="w-32">
-                        <Label className="text-xs">Хувь (%)</Label>
+                        <Label className="text-xs">Rate (%)</Label>
                         <Input
                           type="number"
                           min="0"
@@ -460,8 +528,7 @@ export const ProductForm = ({
                             const newFields = [...durationFields];
                             newFields[index] = {
                               ...newFields[index],
-                              percentage:
-                                Number.parseFloat(e.target.value) || 0,
+                              percentage: parseFloat(e.target.value) || 0,
                             };
                             setDurationFields(newFields);
 
@@ -509,15 +576,420 @@ export const ProductForm = ({
                           });
                         }}
                       >
-                        Устгах
+                        Remove
                       </Button>
                     </div>
                   ))}
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
-                Жишээ: "12months", "24months", "36months" гэх мэт
+                Example: "12months", "24months", "36months", etc.
               </p>
+            </div>
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <h3 className="font-semibold">Additional Coverage</h3>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Additional Coverage</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      additionalCoverages: [
+                        ...formData.additionalCoverages,
+                        { name: '', limits: [], appliesTo: [] },
+                      ],
+                    });
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+
+              {formData.additionalCoverages.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No additional coverage added yet
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {formData.additionalCoverages.map((coverage, index) => (
+                    <div
+                      key={index}
+                      className="border p-3 rounded-md space-y-2"
+                    >
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Label className="text-xs">Name</Label>
+                          <Input
+                            value={coverage.name}
+                            onChange={(e) => {
+                              const newCoverages = [
+                                ...formData.additionalCoverages,
+                              ];
+                              newCoverages[index] = {
+                                ...newCoverages[index],
+                                name: e.target.value,
+                              };
+                              setFormData({
+                                ...formData,
+                                additionalCoverages: newCoverages,
+                              });
+                            }}
+                            placeholder="Insurance damage assessment cost"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              additionalCoverages:
+                                formData.additionalCoverages.filter(
+                                  (_, i) => i !== index,
+                                ),
+                            });
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Limits</Label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newCoverages = [
+                                ...formData.additionalCoverages,
+                              ];
+                              newCoverages[index] = {
+                                ...newCoverages[index],
+                                limits: [...newCoverages[index].limits, 0],
+                                appliesTo: [
+                                  ...newCoverages[index].appliesTo,
+                                  '',
+                                ],
+                              };
+                              setFormData({
+                                ...formData,
+                                additionalCoverages: newCoverages,
+                              });
+                            }}
+                          >
+                            + Add Level
+                          </Button>
+                        </div>
+                        {coverage.limits.map((limit, limitIndex) => (
+                          <div key={limitIndex} className="flex gap-2">
+                            <div className="flex-1">
+                              <Input
+                                placeholder="Level (PLATINUM, GOLD...)"
+                                value={coverage.appliesTo[limitIndex] || ''}
+                                onChange={(e) => {
+                                  const newCoverages = [
+                                    ...formData.additionalCoverages,
+                                  ];
+                                  const newAppliesTo = [
+                                    ...newCoverages[index].appliesTo,
+                                  ];
+                                  newAppliesTo[limitIndex] = e.target.value;
+                                  newCoverages[index] = {
+                                    ...newCoverages[index],
+                                    appliesTo: newAppliesTo,
+                                  };
+                                  setFormData({
+                                    ...formData,
+                                    additionalCoverages: newCoverages,
+                                  });
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <Input
+                                type="number"
+                                placeholder="Limit (200000)"
+                                value={limit || ''}
+                                onChange={(e) => {
+                                  const newCoverages = [
+                                    ...formData.additionalCoverages,
+                                  ];
+                                  const newLimits = [
+                                    ...newCoverages[index].limits,
+                                  ];
+                                  newLimits[limitIndex] =
+                                    parseFloat(e.target.value) || 0;
+                                  newCoverages[index] = {
+                                    ...newCoverages[index],
+                                    limits: newLimits,
+                                  };
+                                  setFormData({
+                                    ...formData,
+                                    additionalCoverages: newCoverages,
+                                  });
+                                }}
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newCoverages = [
+                                  ...formData.additionalCoverages,
+                                ];
+                                newCoverages[index] = {
+                                  ...newCoverages[index],
+                                  limits: newCoverages[index].limits.filter(
+                                    (_, i) => i !== limitIndex,
+                                  ),
+                                  appliesTo: newCoverages[
+                                    index
+                                  ].appliesTo.filter(
+                                    (_, i) => i !== limitIndex,
+                                  ),
+                                };
+                                setFormData({
+                                  ...formData,
+                                  additionalCoverages: newCoverages,
+                                });
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Compensation Calculation Methods</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      compensationCalculations: [
+                        ...formData.compensationCalculations,
+                        { name: '', methodologies: [] },
+                      ],
+                    });
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+
+              {formData.compensationCalculations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No calculation methods added yet
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {formData.compensationCalculations.map((calc, index) => (
+                    <div
+                      key={index}
+                      className="border p-3 rounded-md space-y-2"
+                    >
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Label className="text-xs">Name</Label>
+                          <Input
+                            value={calc.name}
+                            onChange={(e) => {
+                              const newCalcs = [
+                                ...formData.compensationCalculations,
+                              ];
+                              newCalcs[index] = {
+                                ...newCalcs[index],
+                                name: e.target.value,
+                              };
+                              setFormData({
+                                ...formData,
+                                compensationCalculations: newCalcs,
+                              });
+                            }}
+                            placeholder="Replacement part valuation method"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              compensationCalculations:
+                                formData.compensationCalculations.filter(
+                                  (_, i) => i !== index,
+                                ),
+                            });
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Methods</Label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newCalcs = [
+                                ...formData.compensationCalculations,
+                              ];
+                              newCalcs[index] = {
+                                ...newCalcs[index],
+                                methodologies: [
+                                  ...newCalcs[index].methodologies,
+                                  '',
+                                ],
+                              };
+                              setFormData({
+                                ...formData,
+                                compensationCalculations: newCalcs,
+                              });
+                            }}
+                          >
+                            + Add Method
+                          </Button>
+                        </div>
+                        {calc.methodologies.map((methodology, methodIndex) => (
+                          <div key={methodIndex} className="flex gap-2">
+                            <Input
+                              placeholder="Method (No depreciation)"
+                              value={methodology}
+                              onChange={(e) => {
+                                const newCalcs = [
+                                  ...formData.compensationCalculations,
+                                ];
+                                const newMethodologies = [
+                                  ...newCalcs[index].methodologies,
+                                ];
+                                newMethodologies[methodIndex] = e.target.value;
+                                newCalcs[index] = {
+                                  ...newCalcs[index],
+                                  methodologies: newMethodologies,
+                                };
+                                setFormData({
+                                  ...formData,
+                                  compensationCalculations: newCalcs,
+                                });
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newCalcs = [
+                                  ...formData.compensationCalculations,
+                                ];
+                                newCalcs[index] = {
+                                  ...newCalcs[index],
+                                  methodologies: newCalcs[
+                                    index
+                                  ].methodologies.filter(
+                                    (_, i) => i !== methodIndex,
+                                  ),
+                                };
+                                setFormData({
+                                  ...formData,
+                                  compensationCalculations: newCalcs,
+                                });
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Deductible Levels</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      deductibleConfig: {
+                        levels: [...formData.deductibleConfig.levels, ''],
+                      },
+                    });
+                  }}
+                >
+                  + Add Level
+                </Button>
+              </div>
+              {formData.deductibleConfig.levels.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No deductible levels added yet
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {formData.deductibleConfig.levels.map((level, levelIndex) => (
+                    <div key={levelIndex} className="flex gap-2">
+                      <Input
+                        placeholder="Deductible (None, 20% of damage)"
+                        value={level}
+                        onChange={(e) => {
+                          const newLevels = [
+                            ...formData.deductibleConfig.levels,
+                          ];
+                          newLevels[levelIndex] = e.target.value;
+                          setFormData({
+                            ...formData,
+                            deductibleConfig: { levels: newLevels },
+                          });
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            deductibleConfig: {
+                              levels: formData.deductibleConfig.levels.filter(
+                                (_, i) => i !== levelIndex,
+                              ),
+                            },
+                          });
+                        }}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -534,8 +1006,8 @@ export const ProductForm = ({
               {creating || updating
                 ? 'Saving...'
                 : product
-                ? 'Update'
-                : 'Create'}
+                  ? 'Update'
+                  : 'Create'}
             </Button>
           </Dialog.Footer>
         </form>
