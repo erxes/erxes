@@ -25,7 +25,7 @@ const generateFilterQuery = async (
     return query;
   }
 
-  if (!channelId && user?.role !== PERMISSION_ROLES.OWNER) {
+  if (!channelId && !user?.isOwner) {
     const channelMemberships = await models.ChannelMembers.find({
       memberId: user._id,
     }).lean();
@@ -84,7 +84,6 @@ const formQueries = {
       ...(await generateFilterQuery(args, models, user)),
     };
     if (args.type === 'lead') {
-      console.log(qry, 'qry');
       return models.Forms.findLeadForms(qry, args);
     }
 

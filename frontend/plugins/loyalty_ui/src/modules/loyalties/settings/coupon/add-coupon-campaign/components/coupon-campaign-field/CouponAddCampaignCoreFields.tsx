@@ -35,10 +35,12 @@ export const CouponAddCampaignCoreFields: React.FC<
               <Form.Label>Count</Form.Label>
               <Form.Control>
                 <Input
-                  type="text"
-                  placeholder="Enter count"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value)}
+                  type="number"
+                  value={field.value ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    field.onChange(val === '' ? undefined : Number(val));
+                  }}
                 />
               </Form.Control>
               <Form.Message />
@@ -55,15 +57,23 @@ export const CouponAddCampaignCoreFields: React.FC<
               <Form.Label>Buy Score</Form.Label>
               <Form.Control>
                 <Input
-                  type="text"
+                  type="number"
                   placeholder="Enter coupon buy score"
-                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />
             </Form.Item>
           )}
         />
+
         <Form.Field
           control={form.control}
           name="kind"

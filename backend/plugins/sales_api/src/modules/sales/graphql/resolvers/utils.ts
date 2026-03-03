@@ -1,17 +1,34 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { checkUserIds, graphqlPubsub } from 'erxes-api-shared/utils';
 import { DeleteResult } from 'mongoose';
-import * as _ from "underscore";
-import { IModels } from "~/connectionResolvers";
-import { IDealDocument, IProductData, IStage, IStageDocument } from "~/modules/sales/@types";
+import * as _ from 'underscore';
+import { IModels } from '~/connectionResolvers';
+import {
+  IDealDocument,
+  IProductData,
+  IStage,
+  IStageDocument,
+} from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
 import { getNewOrder } from '~/modules/sales/utils';
 
 export const subscriptionWrapper = async (
   models: IModels,
-  { action, deal, oldDeal, dealId, pipelineId, oldPipelineId }: {
-    action: string, deal?: IDealDocument, oldDeal?: IDealDocument, dealId?: string, pipelineId?: string, oldPipelineId?: string
-  }
+  {
+    action,
+    deal,
+    oldDeal,
+    dealId,
+    pipelineId,
+    oldPipelineId,
+  }: {
+    action: string;
+    deal?: IDealDocument;
+    oldDeal?: IDealDocument;
+    dealId?: string;
+    pipelineId?: string;
+    oldPipelineId?: string;
+  },
 ) => {
   const id = deal?._id || dealId;
   await graphqlPubsub.publish(`salesDealChanged:${id}`, {
@@ -26,18 +43,18 @@ export const subscriptionWrapper = async (
 
   if (!pipelineId && deal?.stageId) {
     const stage = await models.Stages.findOne({ _id: deal.stageId }).lean();
-    pipelineId = stage?.pipelineId
+    pipelineId = stage?.pipelineId;
   }
   if (pipelineId) {
-    pipelineIds.push(pipelineId)
+    pipelineIds.push(pipelineId);
   }
 
   if (!oldPipelineId && oldDeal?.stageId) {
     const stage = await models.Stages.findOne({ _id: oldDeal.stageId }).lean();
-    oldPipelineId = stage?.pipelineId
+    oldPipelineId = stage?.pipelineId;
   }
   if (oldPipelineId) {
-    pipelineIds.push(oldPipelineId)
+    pipelineIds.push(oldPipelineId);
   }
 
   await graphqlPubsub.publish('salesDealListChanged', {
@@ -47,7 +64,7 @@ export const subscriptionWrapper = async (
       oldDeal,
     },
   });
-}
+};
 
 /**
  * Copies pipeline labels alongside deal when they are moved between different pipelines.
@@ -97,7 +114,7 @@ export const copyPipelineLabels = async (
   for (const label of oldLabels) {
     const exists =
       existingLabelsByUnique[
-      JSON.stringify({ name: label.name, colorCode: label.colorCode })
+        JSON.stringify({ name: label.name, colorCode: label.colorCode })
       ];
     if (!exists) {
       notExistingLabels.push({
@@ -121,7 +138,10 @@ export const copyPipelineLabels = async (
     updatedLabelIds.push(newLabel._id);
   }
 
-  await models.PipelineLabels.labelObject({ dealId: item._id, labelIds: updatedLabelIds });
+  await models.PipelineLabels.labelObject({
+    dealId: item._id,
+    labelIds: updatedLabelIds,
+  });
 };
 
 export const itemMover = async (
@@ -287,7 +307,10 @@ export const removeStageWithItems = async (
 };
 
 export const removeItems = async (models: IModels, stageIds: string[]) => {
-  await models.Deals.updateMany({ stageId: { $in: stageIds, status: { $ne: SALES_STATUSES.ARCHIVED } } }, { $set: { status: SALES_STATUSES.ARCHIVED } })
+  await models.Deals.updateMany(
+    { stageId: { $in: stageIds }, status: { $ne: SALES_STATUSES.ARCHIVED } },
+    { $set: { status: SALES_STATUSES.ARCHIVED } },
+  );
 };
 
 export const removePipelineStagesWithItems = async (
@@ -378,23 +401,23 @@ export const changeItemStatus = async (
 export const checkAssignedUserFromPData = (
   oldAllUserIds?: string[],
   assignedUsersPdata?: string[],
-  oldPData?: IProductData[]
+  oldPData?: IProductData[],
 ) => {
   let assignedUserIds = oldAllUserIds || [];
 
   const oldAssignedUserPdata = (oldPData || [])
     .filter((pdata) => pdata.assignUserId)
-    .map((pdata) => pdata.assignUserId || "");
+    .map((pdata) => pdata.assignUserId || '');
 
   const { addedUserIds, removedUserIds } = checkUserIds(
     oldAssignedUserPdata,
-    assignedUsersPdata
+    assignedUsersPdata,
   );
 
   if (addedUserIds.length > 0 || removedUserIds.length > 0) {
     assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
     assignedUserIds = assignedUserIds.filter(
-      (userId) => !removedUserIds.includes(userId)
+      (userId) => !removedUserIds.includes(userId),
     );
   }
 

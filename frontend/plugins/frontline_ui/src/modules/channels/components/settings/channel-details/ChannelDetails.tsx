@@ -6,7 +6,7 @@ import { IntegrationList } from '@/integrations/components/IntegrationList';
 import { useParams } from 'react-router-dom';
 import { PipelinesSection } from '@/channels/components/settings/channel-details/PipelinesSection';
 import { ResponseSection } from '@/channels/components/settings/channel-details/ResponseSection';
-import { FormSection } from './FormSection';
+import { FormsSection } from './FormsSection';
 
 export const ChannelDetails = () => {
   const { id } = useParams();
@@ -29,8 +29,9 @@ export const ChannelDetails = () => {
 
       <MemberSection channel={channel} />
       <PipelinesSection channel={channel} />
+      <FormsSection channel={channel} />
       <ResponseSection channel={channel} />
-      <FormSection channel={channel} />
+
       <IntegrationList />
     </div>
   );

@@ -9,7 +9,9 @@ import {
 export type ActionCodeType =
   | 'EMAIL_VERIFICATION'
   | 'PHONE_VERIFICATION'
-  | 'PASSWORD_RESET';
+  | 'PASSWORD_RESET'
+  | 'EMAIL_CHANGE'
+  | 'PHONE_CHANGE';
 
 export interface ActionCodeData {
   code: string;

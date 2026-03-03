@@ -186,6 +186,7 @@ export const permissions: IPermissionConfig = {
       description: 'Full access to Operation plugin',
       permissions: [
         {
+          plugin: 'operation',
           module: 'task',
           actions: [
             'taskRead',
@@ -197,6 +198,7 @@ export const permissions: IPermissionConfig = {
           scope: 'all',
         },
         {
+          plugin: 'operation',
           module: 'project',
           actions: [
             'projectRead',
@@ -207,11 +209,13 @@ export const permissions: IPermissionConfig = {
           scope: 'all',
         },
         {
+          plugin: 'operation',
           module: 'cycle',
           actions: ['cycleRead', 'cycleCreate', 'cycleUpdate', 'cycleRemove'],
           scope: 'all',
         },
         {
+          plugin: 'operation',
           module: 'team',
           actions: ['teamRead', 'teamCreate', 'teamUpdate', 'teamRemove'],
           scope: 'all',
@@ -224,13 +228,29 @@ export const permissions: IPermissionConfig = {
       description: 'Standard team member',
       permissions: [
         {
+          plugin: 'operation',
           module: 'task',
           actions: ['taskRead', 'taskCreate', 'taskUpdate'],
           scope: 'group',
         },
-        { module: 'project', actions: ['projectRead'], scope: 'group' },
-        { module: 'cycle', actions: ['cycleRead'], scope: 'group' },
-        { module: 'team', actions: ['teamRead'], scope: 'group' },
+        {
+          plugin: 'operation',
+          module: 'project',
+          actions: ['projectRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'cycle',
+          actions: ['cycleRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'team',
+          actions: ['teamRead'],
+          scope: 'group',
+        },
       ],
     },
     {
@@ -238,8 +258,18 @@ export const permissions: IPermissionConfig = {
       name: 'Operation Viewer',
       description: 'Read-only access',
       permissions: [
-        { module: 'task', actions: ['taskRead'], scope: 'group' },
-        { module: 'project', actions: ['projectRead'], scope: 'group' },
+        {
+          plugin: 'operation',
+          module: 'task',
+          actions: ['taskRead'],
+          scope: 'group',
+        },
+        {
+          plugin: 'operation',
+          module: 'project',
+          actions: ['projectRead'],
+          scope: 'group',
+        },
       ],
     },
   ],
