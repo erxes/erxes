@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { Button, Label, Form } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { nanoid } from 'nanoid';
@@ -10,11 +11,24 @@ import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
 
+// Import GraphQL from client files
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import { MN_CONFIGS_CREATE, MN_CONFIGS_UPDATE, MN_CONFIGS_REMOVE } from '../graphql/clientMutations';
+
+// ---------- Transformers ----------
+const objectToKeyValueArray = (obj: Record<string, any>) =>
+  Object.entries(obj).map(([key, value]) => ({ key, value }));
+
+const keyValueArrayToObject = (arr: Array<{ key: string; value: any }>): Record<string, any> => {
+  const obj: any = {};
+  arr.forEach(({ key, value }) => { obj[key] = value; });
+  return obj;
+};
+
+// ---------- Types ----------
 type Props = {
-  config: PerPrintConfig | null;
   currentStageId: string;
-  save: (config: PerPrintConfig) => void;
-  delete: () => void;
+  configCode?: string; // optional, defaults to 'dealsPrintConfig'
 };
 
 const emptyForm: PerPrintConfig = {
@@ -26,72 +40,62 @@ const emptyForm: PerPrintConfig = {
 };
 
 const PrintConfig: React.FC<Props> = ({
-  config,
   currentStageId,
-  save,
-  delete: deleteConfig,
+  configCode = 'dealsPrintConfig',
 }) => {
-  console.log('config prop:', config);
   const form = useForm();
 
-  /** UI-only saved list */
+  // UI-only saved list
   const [savedConfigs, setSavedConfigs] = useState<PerPrintConfig[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  /** active form */
+  // Active form data
   const [formData, setFormData] = useState<PerPrintConfig>({
     ...emptyForm,
     stageId: currentStageId,
   });
 
-  /** sync form */
-  // useEffect(() => {
-  //   if (activeIndex !== null) {
-  //     const selected = savedConfigs[activeIndex];
-  //     if (selected) setFormData(selected);
-  //     return;
-  //   }
+  // GraphQL hooks
+  const { data, loading, refetch } = useQuery(MN_CONFIGS, {
+    variables: { code: configCode },
+    fetchPolicy: 'network-only',
+  });
 
-  //   if (!config) {
-  //     setFormData({ ...emptyForm, stageId: currentStageId });
-  //     return;
-  //   }
+  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
+  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
+  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
 
-  //   setFormData({
-  //     title: config.title ?? '',
-  //     boardId: config.boardId ?? '',
-  //     pipelineId: config.pipelineId ?? '',
-  //     stageId: config.stageId ?? currentStageId,
-  //     conditions: config.conditions ?? [],
-  //   });
-  // }, [config, activeIndex, savedConfigs, currentStageId]);
+  // Load configs from backend into local state
   useEffect(() => {
-    if (!config) {
-      setSavedConfigs([]);
-      setFormData({ ...emptyForm });
-      setActiveIndex(null);
-      return;
+    if (data?.mnConfigs) {
+      const rawConfigs = Array.isArray(data.mnConfigs) ? data.mnConfigs : Object.values(data.mnConfigs);
+      const transformed = rawConfigs.map((cfg: any) => {
+        const obj = keyValueArrayToObject(cfg.value);
+        return {
+          _id: cfg._id,
+          ...obj,
+        } as PerPrintConfig & { _id?: string };
+      });
+      setSavedConfigs(transformed);
     }
+  }, [data]);
 
-    // Backend only returns one config
-    setSavedConfigs([config]);
-    setActiveIndex(0);
+  // Sync form with active config
+  useEffect(() => {
+    if (activeIndex !== null) {
+      const selected = savedConfigs[activeIndex];
+      if (selected) setFormData(selected);
+    } else {
+      setFormData({ ...emptyForm, stageId: currentStageId });
+    }
+  }, [activeIndex, savedConfigs, currentStageId]);
 
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? '',
-      conditions: config.conditions ?? [],
-    });
-  }, [config]);
-
-  /* ---------- helpers ---------- */
+  // Field update helper
   const updateField = useCallback(
     <K extends keyof PerPrintConfig>(key: K, value: PerPrintConfig[K]) => {
       setFormData((prev) => ({ ...prev, [key]: value }));
     },
-    [],
+    []
   );
 
   const addCondition = () => {
@@ -121,30 +125,48 @@ const PrintConfig: React.FC<Props> = ({
     }));
   };
 
-  /* ---------- actions ---------- */
-  const handleSave = () => {
-    save(formData);
+  // ---------- Actions ----------
+  const handleSave = async () => {
+    try {
+      const { _id, ...rest } = formData as any; // _id may exist for editing
+      const valueArray = objectToKeyValueArray(rest);
 
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) {
-        return [...prev, formData];
+      if (_id) {
+        await updateConfig({ variables: { _id, value: valueArray } });
+      } else {
+        const subId = crypto.randomUUID();
+        await createConfig({
+          variables: {
+            code: configCode,
+            subId,
+            value: valueArray,
+          },
+        });
       }
 
-      const next = [...prev];
-      next[activeIndex] = formData;
-      return next;
-    });
-
-    setActiveIndex(null);
+      await refetch(); // refresh list
+      setActiveIndex(null);
+      setFormData({ ...emptyForm, stageId: currentStageId });
+    } catch (error) {
+      console.error('Save failed', error);
+    }
   };
 
   const handleDelete = async () => {
+    if (activeIndex === null) return;
     if (!window.confirm('Delete this print config?')) return;
 
-    await deleteConfig();
-    setSavedConfigs([]);
-    setActiveIndex(null);
-    setFormData({ ...emptyForm, stageId: currentStageId });
+    const config = savedConfigs[activeIndex];
+    if (!config._id) return;
+
+    try {
+      await deleteConfig({ variables: { _id: config._id } });
+      await refetch();
+      setActiveIndex(null);
+      setFormData({ ...emptyForm, stageId: currentStageId });
+    } catch (error) {
+      console.error('Delete failed', error);
+    }
   };
 
   const handleNewConfig = () => {
@@ -152,7 +174,7 @@ const PrintConfig: React.FC<Props> = ({
     setFormData({ ...emptyForm, stageId: currentStageId });
   };
 
-  /* ================= RENDER ================= */
+  if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
     <Form {...form}>
@@ -173,7 +195,7 @@ const PrintConfig: React.FC<Props> = ({
 
             {savedConfigs.map((cfg, index) => (
               <div
-                key={`${cfg.stageId}-${index}`}
+                key={cfg._id || index}
                 className={`cursor-pointer rounded px-3 py-2 border
                   ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
                 onClick={() => setActiveIndex(index)}
@@ -242,9 +264,7 @@ const PrintConfig: React.FC<Props> = ({
                 pipelineId={formData.pipelineId || ''}
                 value={formData.stageId || ''}
                 disabled={!formData.pipelineId}
-                onValueChange={(stageId: string) =>
-                  updateField('stageId', stageId)
-                }
+                onValueChange={(stageId: string) => updateField('stageId', stageId)}
               />
             </div>
           </div>
@@ -283,9 +303,11 @@ const PrintConfig: React.FC<Props> = ({
 
         {/* ACTIONS */}
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="destructive" onClick={handleDelete}>
-            Delete
-          </Button>
+          {activeIndex !== null && (
+            <Button type="button" variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          )}
 
           <Button type="button" onClick={handleSave}>
             Save

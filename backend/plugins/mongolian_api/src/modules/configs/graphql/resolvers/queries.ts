@@ -10,7 +10,10 @@ export const mnConfigQueries = {
   },
 
   mnConfigs: async (_root, { code }: { code: string }, { models }: IContext) => {
-    return await models.Configs.getConfigs(code);
+    console.log('mnConfigs called with code:', code);
+    const configs = await models.Configs.getConfigs(code);
+    console.log('mnConfigs found:', configs.length, 'configs');
+    return configs;
   },
 
   mnConfigsCount: async (_root, code: string, { models }: IContext) => {

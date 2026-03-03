@@ -12,6 +12,8 @@ export const MnConfigCodes = [
   'dealsProductsDataPlaces',
   'stageInIncomeConfig',
   'dealsProductsDefaultFilter',
+  'dealsSplitConfig',
+  'dealsPrintConfig',
 ]
 
 export interface IConfig {

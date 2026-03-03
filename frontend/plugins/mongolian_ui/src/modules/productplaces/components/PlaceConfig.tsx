@@ -1,15 +1,20 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { Button, Label, Form } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 
 import PerConditions from './PerConditions';
 import { PlaceConditionUI } from '../types';
-
 import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
 
-interface PlaceConfigData {
+// Import GraphQL from client files
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import { MN_CONFIGS_CREATE, MN_CONFIGS_UPDATE, MN_CONFIGS_REMOVE } from '../graphql/clientMutations';
+
+// ---------- Types ----------
+export interface PlaceConfigData {
   _id?: string;
   title: string;
   boardId: string;
@@ -19,12 +24,17 @@ interface PlaceConfigData {
   conditions: PlaceConditionUI[];
 }
 
-interface PlaceConfigProps {
-  config: PlaceConfigData | null;
-  save: (data: PlaceConfigData) => Promise<boolean>;
-  loading?: boolean;
-}
+// ---------- Transformers ----------
+const objectToKeyValueArray = (obj: Record<string, any>) =>
+  Object.entries(obj).map(([key, value]) => ({ key, value }));
 
+const keyValueArrayToObject = (arr: Array<{ key: string; value: any }>): PlaceConfigData => {
+  const obj: any = {};
+  arr.forEach(({ key, value }) => { obj[key] = value; });
+  return obj as PlaceConfigData;
+};
+
+// ---------- Component ----------
 const emptyForm: PlaceConfigData = {
   title: '',
   boardId: '',
@@ -34,59 +44,60 @@ const emptyForm: PlaceConfigData = {
   conditions: [],
 };
 
-const PlaceConfig: React.FC<PlaceConfigProps> = ({
-  config,
-  save,
-  loading = false,
-}) => {
+const PlaceConfig: React.FC = () => {
   const form = useForm();
 
-  /** UI-only saved configs */
+  // Local UI state
   const [savedConfigs, setSavedConfigs] = useState<PlaceConfigData[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
   const [formData, setFormData] = useState<PlaceConfigData>(emptyForm);
 
-  /* sync form */
+  // GraphQL hooks
+  const { data, loading, refetch } = useQuery(MN_CONFIGS, {
+    variables: { code: 'dealsProductsDataPlaces' },
+    fetchPolicy: 'network-only', // always get fresh data
+  });
+
+  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
+  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
+  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
+
+  // Load configs from backend into local state
+  useEffect(() => {
+    if (data?.mnConfigs) {
+      const rawConfigs = Array.isArray(data.mnConfigs) ? data.mnConfigs : Object.values(data.mnConfigs);
+      const transformed = rawConfigs.map((cfg: any) => ({
+        _id: cfg._id,
+        ...keyValueArrayToObject(cfg.value),
+      }));
+      setSavedConfigs(transformed);
+    }
+  }, [data]);
+
+  // Sync form with active config
   useEffect(() => {
     if (activeIndex !== null) {
       setFormData(savedConfigs[activeIndex] ?? emptyForm);
-      return;
-    }
-
-    if (!config) {
+    } else {
       setFormData(emptyForm);
-      return;
     }
+  }, [activeIndex, savedConfigs]);
 
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? '',
-      checkPricing: Boolean(config.checkPricing),
-      conditions: config.conditions ?? [],
-    });
-  }, [config, activeIndex, savedConfigs]);
-
-  /* helpers */
+  // Field update helper
   const updateField = useCallback(
     <K extends keyof PlaceConfigData>(key: K, value: PlaceConfigData[K]) => {
       setFormData((prev) => ({ ...prev, [key]: value }));
     },
-    [],
+    []
   );
 
+  // Condition handlers
   const addCondition = () => {
     setFormData((prev) => ({
       ...prev,
       conditions: [
         ...prev.conditions,
-        {
-          id: crypto.randomUUID(),
-          branchId: '',
-          departmentId: '',
-        },
+        { id: crypto.randomUUID(), branchId: '', departmentId: '' },
       ],
     }));
   };
@@ -105,28 +116,49 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
     }));
   };
 
-  /* actions */
+  // Save (create or update)
   const handleSave = async () => {
-    const ok = await save(formData);
-    if (!ok) return;
+    try {
+      const { _id, ...rest } = formData;
+      const valueArray = objectToKeyValueArray(rest);
 
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) return [...prev, formData];
-      const next = [...prev];
-      next[activeIndex] = formData;
-      return next;
-    });
+      if (_id) {
+        await updateConfig({ variables: { _id, value: valueArray } });
+      } else {
+        const subId = crypto.randomUUID();
+        await createConfig({
+          variables: {
+            code: 'dealsProductsDataPlaces',
+            subId,
+            value: valueArray,
+          },
+        });
+      }
 
-    setActiveIndex(null);
+      await refetch(); // refresh list
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error) {
+      console.error('Save failed', error);
+    }
   };
 
-  const handleDeleteUI = () => {
+  // Delete
+  const handleDelete = async () => {
     if (activeIndex === null) return;
-    if (!window.confirm('Remove this config from list?')) return;
+    if (!window.confirm('Delete this config?')) return;
 
-    setSavedConfigs((prev) => prev.filter((_, i) => i !== activeIndex));
-    setActiveIndex(null);
-    setFormData(emptyForm);
+    const config = savedConfigs[activeIndex];
+    if (!config._id) return;
+
+    try {
+      await deleteConfig({ variables: { _id: config._id } });
+      await refetch();
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error) {
+      console.error('Delete failed', error);
+    }
   };
 
   const handleNewConfig = () => {
@@ -134,12 +166,12 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
     setFormData(emptyForm);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
     <Form {...form}>
       <div className="space-y-6">
-        {/* HEADER */}
+        {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-semibold">Product Places Config</h1>
           <Button variant="outline" onClick={handleNewConfig}>
@@ -147,28 +179,26 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
           </Button>
         </div>
 
-        {/* SAVED LIST */}
+        {/* Saved list */}
         {savedConfigs.length > 0 && (
           <div className="border rounded p-3 space-y-2">
             <h3 className="font-medium">Saved configs</h3>
-
             {savedConfigs.map((cfg, i) => (
               <div
-                key={i}
-                className={`cursor-pointer p-2 rounded border
-                  ${i === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
+                key={cfg._id || i}
+                className={`cursor-pointer p-2 rounded border ${
+                  i === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'
+                }`}
                 onClick={() => setActiveIndex(i)}
               >
                 <div className="font-medium">{cfg.title || '(Untitled)'}</div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
+                <div className="text-xs text-gray-500">Stage: {cfg.stageId || '—'}</div>
               </div>
             ))}
           </div>
         )}
 
-        {/* FORM */}
+        {/* Form fields */}
         <div className="border rounded p-6 space-y-6">
           <div>
             <Label>Title</Label>
@@ -184,29 +214,18 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
               variant="form"
               value={formData.boardId}
               onValueChange={(boardId) =>
-                setFormData((p) => ({
-                  ...p,
-                  boardId,
-                  pipelineId: '',
-                  stageId: '',
-                }))
+                setFormData((p) => ({ ...p, boardId, pipelineId: '', stageId: '' }))
               }
             />
-
             <SelectPipeline
               variant="form"
               boardId={formData.boardId}
               value={formData.pipelineId}
               disabled={!formData.boardId}
               onValueChange={(pipelineId) =>
-                setFormData((p) => ({
-                  ...p,
-                  pipelineId,
-                  stageId: '',
-                }))
+                setFormData((p) => ({ ...p, pipelineId, stageId: '' }))
               }
             />
-
             <SelectStage
               id="place-stage"
               variant="form"
@@ -218,7 +237,7 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
           </div>
         </div>
 
-        {/* CONDITIONS */}
+        {/* Conditions */}
         <div className="space-y-4">
           {formData.conditions.map((c) => (
             <PerConditions
@@ -228,20 +247,18 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
               onRemove={deleteCondition}
             />
           ))}
-
           <Button variant="outline" onClick={addCondition}>
             + Add condition
           </Button>
         </div>
 
-        {/* ACTIONS */}
+        {/* Actions */}
         <div className="flex justify-end gap-2">
           {activeIndex !== null && (
-            <Button variant="destructive" onClick={handleDeleteUI}>
+            <Button variant="destructive" onClick={handleDelete}>
               Delete Config
             </Button>
           )}
-
           <Button onClick={handleSave}>Save Config</Button>
         </div>
       </div>
