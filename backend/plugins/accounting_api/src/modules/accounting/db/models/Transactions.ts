@@ -273,11 +273,11 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       });
 
       if (transaction.originId) {
-        throw new Error('cant remove this transaction. Remove the source transaction first')
+        throw new Error("can't remove this transaction. Remove the source transaction first")
       }
 
       if ((await models.Transactions.find({ preTrId: _id }).lean()).length) {
-        throw new Error('cant remove this transaction. Remove the dependent transaction first')
+        throw new Error("can't remove this transaction. Remove the dependent transaction first")
       }
 
       await commonRemove(subdomain, models, transaction);
@@ -316,7 +316,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       const deleteTrIds = summaryTrs.map(tr => tr._id);
 
       if ((await models.Transactions.find({ preTrId: { $in: deleteTrIds }, _id: { $nin: deleteTrIds } }).lean()).length) {
-        throw new Error('cant remove this transaction. Remove the dependent transaction first')
+        throw new Error("can't remove this transaction. Remove the dependent transaction first")
       }
       if (!(await models.Transactions.find({
         _id: { $in: deleteTrIds }

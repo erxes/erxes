@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { Resolver } from 'erxes-api-shared/core-types';
+import { ICompany, ICustomer, Resolver } from 'erxes-api-shared/core-types';
 import {
   cpUserService,
   socialAuthService,
@@ -33,6 +33,81 @@ export const userMutations: Record<string, Resolver> = {
     }
 
     return cpUserService.updateUser(cpUser._id, params, models);
+  },
+
+  async clientPortalCustomerEdit(
+    _root: unknown,
+    params: Pick<
+      ICustomer,
+      | 'firstName'
+      | 'lastName'
+      | 'primaryEmail'
+      | 'emails'
+      | 'primaryPhone'
+      | 'phones'
+      | 'primaryAddress'
+      | 'addresses'
+      | 'propertiesData'
+    >,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    if (!cpUser.erxesCustomerId) {
+      throw new ValidationError('No linked customer found');
+    }
+
+    const updatedCustomer = await models.Customers.updateCustomer(
+      cpUser.erxesCustomerId,
+      params,
+    );
+
+    return updatedCustomer;
+  },
+
+  async clientPortalCompanyEdit(
+    _root: unknown,
+    params: Pick<
+      ICompany,
+      | 'primaryName'
+      | 'names'
+      | 'primaryEmail'
+      | 'emails'
+      | 'primaryPhone'
+      | 'phones'
+      | 'primaryAddress'
+      | 'addresses'
+      | 'size'
+      | 'website'
+      | 'industry'
+      | 'ownerId'
+      | 'businessType'
+      | 'description'
+      | 'isSubscribed'
+      | 'links'
+      | 'tagIds'
+      | 'propertiesData'
+      | 'code'
+      | 'location'
+    >,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    if (!cpUser.erxesCompanyId) {
+      throw new ValidationError('No linked company found');
+    }
+
+    const updatedCompany = await models.Companies.updateCompany(
+      cpUser.erxesCompanyId,
+      params,
+    );
+
+    return updatedCompany;
   },
 
   async clientPortalUserLinkSocialAccount(

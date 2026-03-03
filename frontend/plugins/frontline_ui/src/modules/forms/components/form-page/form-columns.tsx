@@ -12,12 +12,10 @@ import {
 } from 'erxes-ui';
 import { useNavigate } from 'react-router';
 import {
-  IconArrowBarToRight,
   IconCalendarEvent,
   IconCircles,
   IconEdit,
   IconLabel,
-  IconSquareToggle,
   IconTag,
   IconToggleRight,
   IconTrash,
@@ -26,112 +24,14 @@ import {
 import { MembersInline, SelectTags } from 'ui-modules';
 import { useState } from 'react';
 import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { FormStatus } from './filters/FormStatus';
+import { FormInstallScript } from '../actions/install-form';
+import { FormToggleStatus } from '../actions/toggle-form';
+import { MoveFormToChannel } from '../actions/move-form';
 import { useFormEdit } from '@/forms/hooks/useFormEdit';
 import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
-import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
-import { FormStatus } from './filters/FormStatus';
-import { FormInstallScript } from '../FormInstallScript';
-
-export function FormToggleStatus({
-  formId,
-  status,
-  setOpen,
-}: {
-  formId: string;
-  status: string;
-  setOpen: (open: boolean) => void;
-}) {
-  const { toggleStatus, loading } = useFormToggleStatus();
-
-  const onSelect = () => {
-    toggleStatus({
-      variables: {
-        ids: [formId],
-      },
-      refetchQueries: [GET_FORMS_LIST],
-      onCompleted: () => {
-        setOpen(false);
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          variant: 'destructive',
-          description: error.message,
-        });
-      },
-    });
-  };
-
-  return (
-    <DropdownMenu.Item onSelect={onSelect}>
-      <IconSquareToggle />
-      {status === 'active' ? 'Archive' : 'Unarchive'}
-    </DropdownMenu.Item>
-  );
-}
-
-export const MoveFormToChannel = ({
-  formId,
-  channelId,
-  setOpen,
-  name,
-  type,
-}: {
-  formId: string;
-  channelId: string;
-  setOpen: (open: boolean) => void;
-  name: string;
-  type: string;
-}) => {
-  const { editForm, loading } = useFormEdit();
-
-  const onSelect = (id: string) => {
-    editForm({
-      variables: {
-        id: formId,
-        name,
-        type,
-        channelId: id,
-      },
-      refetchQueries: [GET_FORMS_LIST],
-      onCompleted: () => {
-        setOpen(false);
-        toast({
-          title: 'Success',
-          variant: 'success',
-          description: 'Form moved successfully',
-        });
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          variant: 'destructive',
-          description: error.message,
-        });
-      },
-    });
-  };
-
-  return (
-    <DropdownMenu.Sub>
-      <DropdownMenu.SubTrigger>
-        <IconArrowBarToRight />
-        Move to Channel
-      </DropdownMenu.SubTrigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
-          <SelectChannel.DropDownContent
-            channelId={channelId}
-            onValueChange={(value) => {
-              onSelect(value);
-            }}
-          />
-        </DropdownMenu.SubContent>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Sub>
-  );
-};
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { RemoveForm } from '../actions/remove-form';
 
 export const FormsMoreColumnCell = ({
   cell,
@@ -202,13 +102,7 @@ export const FormsMoreColumnCell = ({
           name={cell.row.original.name}
           type={cell.row.original.type}
         />
-        <DropdownMenu.Item
-          disabled={loading}
-          onSelect={handleDelete}
-          className="text-destructive"
-        >
-          {loading ? <Spinner /> : <IconTrash />} Delete
-        </DropdownMenu.Item>
+        <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>
     </DropdownMenu>
   );

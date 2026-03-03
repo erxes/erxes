@@ -8,14 +8,14 @@ export const cpTicketQueries = {
   cpGetTickets: async (
     _root: undefined,
     { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const { page, perPage, createdBy } = filter || {};
 
-    const query = generateFilter(filter);
+    const query = await generateFilter(filter, user, models);
 
     if (createdBy) {
-      query.userId = `cp:${createdBy}`;
+      query.createdBy = `cp:${createdBy}`;
     }
 
     return defaultPaginate(models.Ticket.find(query), { page, perPage });

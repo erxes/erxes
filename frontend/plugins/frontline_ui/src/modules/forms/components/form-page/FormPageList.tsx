@@ -1,11 +1,11 @@
 import { useFormsList } from '@/forms/hooks/useFormsList';
-import { Empty, RecordTable, useMultiQueryState } from 'erxes-ui';
+import { Button, Empty, RecordTable, useMultiQueryState } from 'erxes-ui';
 import { formColumns } from './form-columns';
 import { ColumnDef } from '@tanstack/table-core';
 import { IForm } from '@/forms/types/formTypes';
 import { FormCommandBar } from './command-bar/form-command-bar';
-import { IconForms } from '@tabler/icons-react';
-import { FormsCreateButton } from './forms-create';
+import { IconForms, IconSettings } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 export const FormPageList = () => {
   const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
@@ -26,16 +26,21 @@ export const FormPageList = () => {
 
   if (forms?.length === 0) {
     return (
-      <Empty>
+      <Empty className="bg-sidebar rounded-lg m-3">
         <Empty.Header>
+          <Empty.Media>
+            <IconForms />
+          </Empty.Media>
           <Empty.Title>No forms found</Empty.Title>
           <Empty.Description>Create a form to get started</Empty.Description>
         </Empty.Header>
         <Empty.Content>
-          <Empty.Media>
-            <IconForms />
-          </Empty.Media>
-          <FormsCreateButton variant={'outline'} />
+          <Button variant={'outline'} asChild>
+            <Link to="/settings/frontline/channels">
+              <IconSettings />
+              Go to channels
+            </Link>
+          </Button>
         </Empty.Content>
       </Empty>
     );

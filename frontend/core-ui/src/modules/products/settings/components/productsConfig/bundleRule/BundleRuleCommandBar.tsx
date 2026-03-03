@@ -12,6 +12,7 @@ export const BundleRuleCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeBundleRules } = useBundleRulesRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleDelete = () => {
     const selectedIds = table
@@ -22,6 +23,7 @@ export const BundleRuleCommandBar = () => {
       message: `Are you sure you want to delete the ${
         selectedIds.length
       } selected bundle rule${selectedIds.length === 1 ? '' : 's'}?`,
+      options: confirmOptions,
     }).then(() => {
       removeBundleRules({
         variables: { _ids: selectedIds },

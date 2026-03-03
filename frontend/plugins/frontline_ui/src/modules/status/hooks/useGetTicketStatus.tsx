@@ -2,7 +2,10 @@ import { useQuery, QueryHookOptions } from '@apollo/client';
 import { GET_TICKET_STATUS_BY_TYPE } from '@/status/graphql/query/getTicketStatusByType';
 import { ITicketStatus, ITicketStatusChoice } from '@/status/types';
 import { useParams } from 'react-router';
-import { GET_TICKET_STATUS_BY_PIPELINE } from '@/status/graphql/query/getTicketStatusesByPipelines';
+import {
+  GET_TICKET_STATUS_BY_PIPELINE,
+  GET_ACCESSIBLE_TICKET_STATUSES,
+} from '@/status/graphql/query/getTicketStatusesByPipelines';
 
 interface IUseGetTicketStatusByTypeResponse {
   getTicketStatusesByType: ITicketStatus[];
@@ -31,6 +34,10 @@ interface IUseGetTicketStatusByPipelineResponse {
   getTicketStatusesChoicesPipeline: ITicketStatusChoice[];
 }
 
+interface IUseGetAccessibleTicketStatusesResponse {
+  getAccessibleTicketStatuses: ITicketStatusChoice[];
+}
+
 export const useGetTicketStatusesByPipeline = (options?: QueryHookOptions) => {
   const { pipelineId } = useParams();
   const { data, loading, error } =
@@ -46,6 +53,25 @@ export const useGetTicketStatusesByPipeline = (options?: QueryHookOptions) => {
     );
 
   const statuses = data?.getTicketStatusesChoicesPipeline;
+
+  return { statuses: statuses || [], loading, error };
+};
+
+export const useGetAccessibleTicketStatuses = (options?: QueryHookOptions) => {
+  const { pipelineId } = useParams();
+  const { data, loading, error } =
+    useQuery<IUseGetAccessibleTicketStatusesResponse>(
+      GET_ACCESSIBLE_TICKET_STATUSES,
+      {
+        ...options,
+        variables: {
+          pipelineId,
+          ...options?.variables,
+        },
+      },
+    );
+
+  const statuses = data?.getAccessibleTicketStatuses;
 
   return { statuses: statuses || [], loading, error };
 };
