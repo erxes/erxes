@@ -42,6 +42,12 @@ jobs:
       - name: Build payment_api
         run: pnpm nx build payment_api
 
+      - name: Build React widget
+        run: |
+          cd backend/plugins/payment_api/src/widget
+          pnpm install --frozen-lockfile
+          pnpm build
+
       # Buildx setup
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
