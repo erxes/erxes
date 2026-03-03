@@ -5,7 +5,7 @@ import { CustomTypesHeader } from './components/CustomTypesHeader';
 import { CustomTypeDrawer } from '../components/customTypes/CustomTypeDrawer';
 import { useRemoveCustomType } from './hooks/useRemoveCustomType';
 import { ICustomPostType } from './types/customTypeTypes';
-import { CustomTypesSidebar } from './components/CustomTypesSidebar';
+import { CmsSidebar } from '../shared/CmsSidebar';
 import { PageContainer } from 'erxes-ui';
 import { EmptyState } from '../shared/EmptyState';
 import { IconLayout } from '@tabler/icons-react';
@@ -61,7 +61,7 @@ export function CustomTypes() {
     <PageContainer>
       <CustomTypesHeader>{headerActions}</CustomTypesHeader>
       <div className="flex overflow-hidden flex-auto">
-        <CustomTypesSidebar />
+        <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">
