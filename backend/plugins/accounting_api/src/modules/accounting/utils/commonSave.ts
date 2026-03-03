@@ -6,6 +6,7 @@ import { InvIncomeExpenseTrs } from "./invIncome";
 import InvSaleOutCostTrs from "./invSale";
 import { createOrUpdateTr } from "./utils";
 import InvMoveInTrs from "./invMove";
+import { sendTRPCMessage } from "erxes-api-shared/utils";
 
 export const commonSave = async (
   subdomain: string,
@@ -81,11 +82,66 @@ async function handleSingleTr(models: IModels, subdomain: string, doc: ITransact
   return { mainTr: transaction, otherTrs };
 }
 
-async function handleInvIncome(models: IModels, _subdomain: string, doc: ITransaction, oldTr?: ITransactionDocument) {
+async function handleInvIncome(models: IModels, subdomain: string, doc: ITransaction, oldTr?: ITransactionDocument) {
   const taxTrsClass = new TaxTrs(models, doc, "dt", false);
   await taxTrsClass.checkTaxValidation();
 
   const transaction = await createOrUpdateTr(models, doc, oldTr);
+
+  const countByProductId: { [productId: string]: number } = {}
+  transaction?.details.forEach((det) => {
+    countByProductId[det.productId ?? ''] = (det.count ?? 0);
+  });
+
+  if (!oldTr?._id || (transaction.branchId === oldTr?.branchId && transaction.departmentId === oldTr?.departmentId)) {
+    oldTr?.details.forEach((det) => {
+      countByProductId[det.productId ?? ''] = (countByProductId[det.productId ?? ''] ?? 0) - 1 * (det.count ?? 0);
+    });
+
+    sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'products',
+      action: 'increaseRemainders',
+      input: {
+        branchId: transaction.branchId,
+        departmentId: transaction.departmentId,
+        productsInfo: Object.keys(countByProductId).map(productId => ({
+          productId, diffCount: countByProductId[productId]
+        }))
+      }
+    });
+  } else {
+    sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'products',
+      action: 'increaseRemainders',
+      input: {
+        branchId: oldTr?.branchId,
+        departmentId: oldTr?.departmentId,
+        productsInfo: oldTr?.details?.map(det => ({ productId: det.productId, diffCount: -1 * (det.count ?? 0) }))
+      }
+    });
+
+    sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'products',
+      action: 'increaseRemainders',
+      input: {
+        branchId: transaction.branchId,
+        departmentId: transaction.departmentId,
+        productsInfo: Object.keys(countByProductId).map(productId => ({
+          productId, diffCount: countByProductId[productId]
+        }))
+      }
+    });
+  }
+
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await InvIncomeExpenseTrs(models, transaction))),

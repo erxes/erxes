@@ -8,10 +8,12 @@ import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonSave } from '../../utils/commonSave';
 import { transactionSchema } from '../definitions/transaction';
 import { setPtrStatus } from './utils';
+import { commonRemove } from '../../utils/commonRemove';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
   getPTransactions(selector: any): Promise<ITransactionDocument[]>;
+  getTrInputDoc(trId: string): Promise<{ mainTr: ITransactionDocument, otherTrs: ITransactionDocument[] }>;
   linkTransaction(_ids: string[], ptrId?: string): Promise<ITransactionDocument[]>;
   createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
   createPTransaction(docs: ITransaction[], user: IUserDocument): Promise<ITransactionDocument[]>;
@@ -54,6 +56,20 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       }
 
       return await models.Transactions.find({ ptrId: transaction.ptrId, parentId: transaction.parentId }).lean();
+    }
+
+    public static async getTrInputDoc(trId: string) {
+      const transaction = await models.Transactions.findOne({ _id: trId }).lean();
+      if (!transaction) {
+        return;
+      }
+
+      const otherTrs = await models.Transactions.find({
+        parentId: transaction.parentId,
+        $or: [{ originId: { $exists: false } }, { originId: '' }]
+      });
+
+      return { mainTr: transaction, otherTrs }
     }
 
     /**
@@ -264,6 +280,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         throw new Error('cant remove this transaction. Remove the dependent transaction first')
       }
 
+      await commonRemove(subdomain, models, transaction);
       await models.Transactions.deleteMany({
         $or: [
           { _id },
@@ -306,6 +323,11 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       }).lean()).length) {
         throw new Error('not found trs')
       }
+
+      for (const tr of summaryTrs) {
+        await commonRemove(subdomain, models, tr);
+      }
+
       return await models.Transactions.deleteMany({ _id: { $in: deleteTrIds } });
     }
   }

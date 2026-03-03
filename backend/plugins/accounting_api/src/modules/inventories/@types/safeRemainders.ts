@@ -1,6 +1,12 @@
 import { IAttachment } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+interface ITrRule {
+  accountId: string;
+  customerType: string;
+  customerId: string;
+}
+
 export interface ISafeRemainder {
   branchId: string;
   departmentId: string;
@@ -10,7 +16,13 @@ export interface ISafeRemainder {
   date: Date;
   description?: string;
   status: string;
-  items?: { code: string; remainder: number }[];
+
+  incomeRule?: ITrRule;
+  incomeTrId?: string;
+  outRule?: ITrRule;
+  outTrId?: string;
+  saleRule?: ITrRule;
+  saleTrId?: string;
 }
 
 export interface ISafeRemainderDocument extends ISafeRemainder, Document {
