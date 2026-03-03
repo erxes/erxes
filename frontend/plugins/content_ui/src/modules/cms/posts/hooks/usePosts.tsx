@@ -35,6 +35,8 @@ export const usePostsVariables = (
       created,
       updated,
       publishedDate,
+      sortField,
+      sortDirection,
     },
   ] = useMultiQueryState<{
     tags: string[];
@@ -45,6 +47,8 @@ export const usePostsVariables = (
     created: string;
     updated: string;
     publishedDate: string;
+    sortField: string;
+    sortDirection: string;
   }>([
     'tags',
     'searchValue',
@@ -54,6 +58,8 @@ export const usePostsVariables = (
     'created',
     'updated',
     'publishedDate',
+    'sortField',
+    'sortDirection',
   ]);
 
   const { cursor } = useRecordTableCursor({
@@ -63,6 +69,12 @@ export const usePostsVariables = (
   let dateField: string | undefined;
   let dateFrom: Date | undefined;
   let dateTo: Date | undefined;
+  const parsedSortDirection =
+    sortDirection !== undefined &&
+    sortDirection !== null &&
+    sortDirection !== ''
+      ? sortDirection.toString()
+      : undefined;
 
   if (created) {
     dateField = 'createdAt';
@@ -81,7 +93,8 @@ export const usePostsVariables = (
   return {
     limit: POSTS_PER_PAGE,
     cursor,
-
+    sortField: sortField || 'createdAt',
+    sortDirection: parsedSortDirection ?? '-1',
     searchValue: searchValue || undefined,
     status: status && status !== 'all' ? status : undefined,
     type: type || 'post',
@@ -105,13 +118,12 @@ export const usePosts = (options?: QueryHookOptions) => {
     };
   }>(POSTS_LIST, {
     ...options,
-    variables: {
-      ...options?.variables,
-      ...variables,
-    },
+    skip: options?.skip,
+    variables,
   });
 
-  const { posts = [], totalCount = 0, pageInfo } = data?.cmsPostList || {};
+  const { posts, totalCount, pageInfo } = data?.cmsPostList || {};
+
   useEffect(() => {
     if (!totalCount) return;
     setPostsTotalCount(totalCount);
@@ -133,7 +145,6 @@ export const usePosts = (options?: QueryHookOptions) => {
 
     fetchMore({
       variables: {
-        ...variables,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
@@ -144,17 +155,32 @@ export const usePosts = (options?: QueryHookOptions) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
 
-        const prevPosts = prev.cmsPostList.posts;
-        const newPosts = fetchMoreResult.cmsPostList.posts;
+        const isForward = direction === EnumCursorDirection.FORWARD;
+        const fetchPageInfo = fetchMoreResult.cmsPostList?.pageInfo || {};
+        const prevPageInfo = prev.cmsPostList?.pageInfo || {};
+        const fetchPosts = fetchMoreResult.cmsPostList?.posts || [];
+        const prevPosts = prev.cmsPostList?.posts || [];
 
         return Object.assign({}, prev, {
           cmsPostList: {
-            posts:
-              direction === EnumCursorDirection.FORWARD
-                ? [...prevPosts, ...newPosts]
-                : [...newPosts, ...prevPosts],
-            totalCount: fetchMoreResult.cmsPostList.totalCount,
-            pageInfo: fetchMoreResult.cmsPostList.pageInfo,
+            ...fetchMoreResult.cmsPostList,
+            posts: isForward
+              ? [...prevPosts, ...fetchPosts]
+              : [...fetchPosts, ...prevPosts],
+            pageInfo: {
+              endCursor: isForward
+                ? fetchPageInfo.endCursor
+                : prevPageInfo.endCursor,
+              hasNextPage: isForward
+                ? fetchPageInfo.hasNextPage
+                : prevPageInfo.hasNextPage,
+              hasPreviousPage: isForward
+                ? prevPageInfo.hasPreviousPage
+                : fetchPageInfo.hasPreviousPage,
+              startCursor: isForward
+                ? prevPageInfo.startCursor
+                : fetchPageInfo.startCursor,
+            },
           },
         });
       },

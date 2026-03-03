@@ -2,9 +2,43 @@ import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { PostsRecordTable } from '~/modules/cms/posts/components/PostsRecordTable';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
-import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
 import { useNavigate, useParams } from 'react-router';
+import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
+import { Posts } from '~/modules/cms/posts/types/postsType';
+
+/**
+ * Props for the PostsIndexPageContent component
+ */
+interface PostsIndexPageContentProps {
+  clientPortalId: string;
+  handleEditPost: (post: Posts) => void;
+}
+
+/**
+ * Content component for the posts index page
+ * Contains the filter and posts table
+ */
+const PostsIndexPageContent = ({
+  clientPortalId,
+  handleEditPost,
+}: PostsIndexPageContentProps) => {
+  return (
+    <>
+      <PageSubHeader>
+        <PostsFilter clientPortalId={clientPortalId} />
+      </PageSubHeader>
+      <div className="overflow-hidden flex-auto p-3">
+        <div className="h-full">
+          <PostsRecordTable
+            clientPortalId={clientPortalId}
+            onEditPost={handleEditPost}
+          />
+        </div>
+      </div>
+    </>
+  );
+};
 
 export const PostsIndexPage = ({
   clientPortalId,
@@ -14,7 +48,7 @@ export const PostsIndexPage = ({
   const navigate = useNavigate();
   const { websiteId } = useParams();
 
-  const handleEditPost = (post: any) => {
+  const handleEditPost = (post: Posts) => {
     navigate(`/content/cms/${websiteId}/posts/detail/${post._id}`);
   };
 
@@ -23,15 +57,12 @@ export const PostsIndexPage = ({
       <PostsHeader>
         <PostsAdd clientPortalId={clientPortalId} />
       </PostsHeader>
-      <div className="flex h-full">
+      <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex flex-col w-full">
-          <PageSubHeader>
-            <PostsFilter clientPortalId={clientPortalId} />
-          </PageSubHeader>
-          <PostsRecordTable
+        <div className="flex flex-col w-full overflow-hidden flex-auto">
+          <PostsIndexPageContent
             clientPortalId={clientPortalId}
-            onEditPost={handleEditPost}
+            handleEditPost={handleEditPost}
           />
         </div>
       </div>
