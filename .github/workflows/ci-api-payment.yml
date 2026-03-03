@@ -45,7 +45,7 @@ jobs:
       - name: Build React widget
         working-directory: backend/plugins/payment_api/src/widget
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install
           pnpm build
 
       # Buildx setup
