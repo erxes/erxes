@@ -129,5 +129,70 @@ export const productsTrpcRouter = t.router({
 
       return models.Products.find(query).countDocuments();
     }),
+
+    setRemainders: t.procedure.input(z.object({
+      branchId: z.string(),
+      departmentId: z.string(),
+      productsInfo: z.array(z.object({
+        productId: z.string(),
+        uom: z.string().optional(),
+        remainder: z.number().optional(),
+        soonIn: z.number().optional(),
+        soonOut: z.number().optional(),
+      }))
+    })).mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { branchId, departmentId, productsInfo } = input;
+
+      await models.Products.bulkWrite(productsInfo.map(info => {
+        const updateSet = {
+          [`remainders.${branchId}.${departmentId}.remainder`]: info.remainder ?? 0,
+        }
+
+        if (info.soonIn !== undefined) {
+          updateSet[`remainders.${branchId}.${departmentId}.soonIn`] = info.soonIn
+        }
+
+        if (info.soonOut !== undefined) {
+          updateSet[`remainders.${branchId}.${departmentId}.soonOut`] = info.soonOut
+        }
+
+        return {
+          updateOne: {
+            filter: { _id: info.productId },
+            update: { $set: { updateSet }, },
+            upsert: true
+          }
+        }
+      }))
+    }),
+
+    increaseRemainders: t.procedure.input(z.object({
+      branchId: z.string(),
+      departmentId: z.string(),
+      productsInfo: z.array(z.object({
+        productId: z.string(),
+        uom: z.string().optional(),
+        diffCount: z.number().optional(),
+        diffSoonIn: z.number().optional(),
+        diffSoonOut: z.number().optional(),
+      }))
+    })).mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { branchId, departmentId, productsInfo } = input;
+
+      await models.Products.bulkWrite(productsInfo.map(info => ({
+        updateOne: {
+          filter: { _id: info.productId },
+          update: {
+            $inc: {
+              [`remainders.${branchId}.${departmentId}.remainder`]: info.diffCount ?? 0,
+              [`remainders.${branchId}.${departmentId}.soonIn`]: info.diffSoonIn ?? 0,
+              [`remainders.${branchId}.${departmentId}.soonOut`]: info.diffSoonOut ?? 0
+            },
+          }, upsert: true
+        }
+      })));
+    }),
   }),
 });
