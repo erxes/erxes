@@ -4,7 +4,7 @@ import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
-import { useSafeRemainderSubmit } from '../hooks/useSafeRemainderSubmit';
+import { useSafeRemainderCancel, useSafeRemainderDoTr, useSafeRemainderSubmit, useSafeRemainderUndoTr } from '../hooks/useSafeRemainderChange';
 import { ISafeRemainder, SAFE_REMAINDER_STATUSES } from '../types/SafeRemainder';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
@@ -28,7 +28,10 @@ export const SafeRemainderDetail = () => {
     skip: !id,
   });
 
-  const { submitSafeRemainder } = useSafeRemainderSubmit(id ?? '');
+  const { submitSafeRemainder } = useSafeRemainderSubmit();
+  const { cancelSafeRemainder } = useSafeRemainderCancel();
+  const { doTrSafeRemainder } = useSafeRemainderDoTr();
+  const { undoTrSafeRemainder } = useSafeRemainderUndoTr();
   const { removeSafeRemainder } = useSafeRemainderRemove();
 
   if (loading || detailsLoading) {
@@ -39,11 +42,6 @@ export const SafeRemainderDetail = () => {
     return;
   }
 
-  const handleCancel = () => { }
-  const handleSubmit = () => {
-    submitSafeRemainder();
-  };
-
   const renderEvents = () => {
     const status = safeRemainder?.status || SAFE_REMAINDER_STATUSES.DRAFT;
     switch (status) {
@@ -51,10 +49,10 @@ export const SafeRemainderDetail = () => {
         return (
           <>
             <Button
-              onClick={handleSubmit}
+              onClick={() => submitSafeRemainder(id)}
             >
               <IconCrane />
-              RUN
+              Submit
             </Button>
             <Button
               variant="secondary"
@@ -66,15 +64,35 @@ export const SafeRemainderDetail = () => {
             </Button>
           </>
         )
+      case SAFE_REMAINDER_STATUSES.DONE:
+        return (
+          <>
+            <Button
+              onClick={() => doTrSafeRemainder(id)}
+            >
+              <IconCrane />
+              Do Transaction
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => cancelSafeRemainder(id)}
+            >
+              <IconTrashX />
+              Cancel Submition
+            </Button>
+          </>
+        )
+
       case SAFE_REMAINDER_STATUSES.PUBLISHED:
         return (
           <Button
             variant="secondary"
             className="text-destructive"
-            onClick={handleCancel}
+            onClick={() => undoTrSafeRemainder(id)}
           >
             <IconTrashX />
-            Draft
+            Undo transaction
           </Button>
         )
       default:

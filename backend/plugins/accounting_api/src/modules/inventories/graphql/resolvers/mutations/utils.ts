@@ -6,6 +6,7 @@ import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { IRemainderDocument } from '~/modules/inventories/@types/remainders';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
 import { IUpdateRemaindersParams } from './remainders';
+import { models } from 'mongoose';
 
 export const safeRemainderDoTrs = async (models: IModels, safeRemainder, details, journal, oldMainTr, otherTrs, user) => {
   if (!oldMainTr && !details.length) {
@@ -39,6 +40,18 @@ export const safeRemainderDoTrs = async (models: IModels, safeRemainder, details
   // update
   await models.Transactions.createPTransaction([{ ...oldMainTr, ...transactionDoc }, ...otherTrs], user);
   return oldMainTr._id
+}
+
+export const safeRemainderUndoTrs = async (models: IModels, trId?: string) => {
+  if (!trId) {
+    return;
+  }
+  const tr = await models.Transactions.findOne({ _id: trId }).lean();
+  if (!tr) {
+    return;
+  }
+
+  await models.Transactions.removePTransaction(tr.parentId);
 }
 
 export const updateLiveRemainders = async ({

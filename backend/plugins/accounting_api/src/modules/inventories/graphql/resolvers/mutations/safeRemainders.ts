@@ -5,8 +5,8 @@ import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
 import { ITrDetail } from '~/modules/accounting/@types/transaction';
 import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
-import { ISafeRemainder } from '~/modules/inventories/@types/safeRemainders';
-import { safeRemainderDoTrs } from './utils';
+import { ISafeRemainder, ISafeRemainderTrRule } from '~/modules/inventories/@types/safeRemainders';
+import { safeRemainderDoTrs, safeRemainderUndoTrs } from './utils';
 
 const safeRemainderMutations = {
   safeRemainderAdd: async (
@@ -19,6 +19,20 @@ const safeRemainderMutations = {
       params,
       user._id,
     );
+  },
+
+  safeRemainderEdit: async (
+    _root: any,
+    params: {
+      _id: string,
+      description?: string;
+      incomeRule?: ISafeRemainderTrRule;
+      outRule?: ISafeRemainderTrRule;
+      saleRule?: ISafeRemainderTrRule;
+    },
+    { models, subdomain, user }: IContext,
+  ) => {
+    return await models.SafeRemainders.updateRemainder(subdomain, params, user._id);
   },
 
   safeRemainderRemove: async (
@@ -37,14 +51,14 @@ const safeRemainderMutations = {
   ) => {
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
-    if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+    if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED || safeRemainder.status === SAFE_REMAINDER_STATUSES.DONE) {
       throw new Error('Already submited');
     }
 
     const { branchId, departmentId, date, productCategoryId } = safeRemainder;
 
     const afterSafeRems = await models.SafeRemainders.find({
-      status: SAFE_REMAINDER_STATUSES.PUBLISHED,
+      status: { $in: [SAFE_REMAINDER_STATUSES.PUBLISHED, SAFE_REMAINDER_STATUSES.DONE] },
       branchId,
       departmentId,
       productCategoryId,
@@ -57,10 +71,45 @@ const safeRemainderMutations = {
       );
     }
 
-    return await models.SafeRemainders.updateOne(
+    await models.SafeRemainders.updateOne(
       { _id },
-      { $set: { status: SAFE_REMAINDER_STATUSES.PUBLISHED } },
+      { $set: { status: SAFE_REMAINDER_STATUSES.DONE } },
     );
+    return await models.SafeRemainders.getRemainder(_id);
+  },
+
+  safeRemainderCancel: async (
+    _root: any,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    const safeRemainder = await models.SafeRemainders.getRemainder(_id);
+
+    if (safeRemainder.status !== SAFE_REMAINDER_STATUSES.DONE) {
+      throw new Error('status is not submitted');
+    }
+
+    const { branchId, departmentId, date, productCategoryId } = safeRemainder;
+
+    const afterSafeRems = await models.SafeRemainders.find({
+      status: { $in: [SAFE_REMAINDER_STATUSES.PUBLISHED, SAFE_REMAINDER_STATUSES.DONE] },
+      branchId,
+      departmentId,
+      productCategoryId,
+      date: { $gt: date },
+    }).lean();
+
+    if (afterSafeRems.length) {
+      throw new Error(
+        'Cant publish cause has a after submited safe remainders',
+      );
+    }
+
+    await models.SafeRemainders.updateOne(
+      { _id },
+      { $set: { status: SAFE_REMAINDER_STATUSES.DRAFT } },
+    );
+    return await models.SafeRemainders.getRemainder(_id);
   },
 
   safeRemainderDoTr: async (
@@ -124,7 +173,21 @@ const safeRemainderMutations = {
     const newIncomeTrId = await safeRemainderDoTrs(models, safeRemainder, incomeDetails, JOURNALS.INV_INCOME, oldIncomeTr, incomeOtherTrs, user);
     const newOutTrId = await safeRemainderDoTrs(models, safeRemainder, outDetails, JOURNALS.INV_OUT, oldOutTr, outOtherTrs, user);
     const newSaleTrId = await safeRemainderDoTrs(models, safeRemainder, saleDetails, JOURNALS.INV_SALE, oldSaleTr, saleOtherTrs, user);
-    await models.SafeRemainders.updateOne({ _id: safeRemainder._id }, { $set: { incomeTrId: newIncomeTrId, outTrId: newOutTrId, saleTrId: newSaleTrId } });
+    await models.SafeRemainders.updateOne({ _id: safeRemainder._id }, { $set: { incomeTrId: newIncomeTrId, outTrId: newOutTrId, saleTrId: newSaleTrId, status: SAFE_REMAINDER_STATUSES.PUBLISHED } });
+    return await models.SafeRemainders.getRemainder(_id);
+  },
+
+  safeRemainderUndoTr: async (
+    _root: any,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) => {
+    const safeRemainder = await models.SafeRemainders.getRemainder(_id);
+    const { incomeTrId, outTrId, saleTrId } = safeRemainder;
+    await safeRemainderUndoTrs(models, incomeTrId)
+    await safeRemainderUndoTrs(models, outTrId)
+    await safeRemainderUndoTrs(models, saleTrId)
+    await models.SafeRemainders.updateOne({ _id: safeRemainder._id }, { $unset: { incomeTrId: '', outTrId: '', saleTrId: '' }, $set: { status: SAFE_REMAINDER_STATUSES.DONE } });
     return await models.SafeRemainders.getRemainder(_id);
   }
 };

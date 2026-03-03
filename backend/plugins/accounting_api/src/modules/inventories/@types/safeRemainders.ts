@@ -1,10 +1,17 @@
 import { IAttachment } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
-interface ITrRule {
+export interface ISafeRemainderTrRule {
   accountId: string;
   customerType: string;
   customerId: string;
+}
+
+export interface ISafeRemEditFields {
+  description?: string;
+  incomeRule?: ISafeRemainderTrRule;
+  outRule?: ISafeRemainderTrRule;
+  saleRule?: ISafeRemainderTrRule;
 }
 
 export interface ISafeRemainder {
@@ -17,11 +24,11 @@ export interface ISafeRemainder {
   description?: string;
   status: string;
 
-  incomeRule?: ITrRule;
+  incomeRule?: ISafeRemainderTrRule;
   incomeTrId?: string;
-  outRule?: ITrRule;
+  outRule?: ISafeRemainderTrRule;
   outTrId?: string;
-  saleRule?: ITrRule;
+  saleRule?: ISafeRemainderTrRule;
   saleTrId?: string;
 }
 
