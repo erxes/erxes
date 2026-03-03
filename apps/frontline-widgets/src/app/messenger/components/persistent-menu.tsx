@@ -5,6 +5,8 @@ import { useAtomValue } from 'jotai';
 import { connectionAtom } from '../states';
 import { Link } from 'react-router-dom';
 import { IPersistentMenu } from '../types';
+import { useInsertMessage } from '../hooks/useInsertMessage';
+import { getLocalStorageItem } from '@libs/utils';
 
 export const PersistentMenu = () => {
   const { activeTab } = useMessenger();
@@ -13,7 +15,9 @@ export const PersistentMenu = () => {
   const { persistentMenus } = widgetsMessengerConnect?.messengerData || {};
   const hasPersistentMenus =
     (persistentMenus && persistentMenus?.length > 0) || false;
+
   if (activeTab !== 'chat' || !hasPersistentMenus) return null;
+  console.log(persistentMenus, 'lala');
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger disabled={!hasPersistentMenus}>
@@ -33,24 +37,46 @@ export const PersistentMenu = () => {
 export const Item = ({ type, text }: IPersistentMenu) => {
   switch (type) {
     case 'button':
-      return (
-        <DropdownMenu.Item key={text} className="hover:bg-primary/30!">
-          <span className="text-sm">{text}</span>
-        </DropdownMenu.Item>
-      );
+      return <ButtonItem text={text} />;
     case 'link':
-      return (
-        <DropdownMenu.Item key={text} className="hover:bg-primary/30!">
-          <Link to={'#'} className="text-sm">
-            {text}
-          </Link>
-        </DropdownMenu.Item>
-      );
+      return <LinkItem text={text} />;
     default:
-      return (
-        <DropdownMenu.Item key={text} className="hover:bg-primary/30!">
-          <span>{text}</span>
-        </DropdownMenu.Item>
-      );
+      return <ButtonItem text={text} />;
   }
+};
+
+export const ButtonItem = ({ text }: { text: string }) => {
+  const { insertMessage } = useInsertMessage();
+  const connection = useAtomValue(connectionAtom);
+  const { customerId } = connection.widgetsMessengerConnect;
+  const __customerId = getLocalStorageItem('customerId');
+
+  const handleClick = () => {
+    insertMessage({
+      variables: {
+        contentType: 'text',
+        message: text,
+        customerId: customerId || __customerId || undefined,
+      },
+    });
+  };
+  return (
+    <DropdownMenu.Item
+      key={text}
+      className="hover:bg-primary/30!"
+      onSelect={handleClick}
+    >
+      <span className="text-sm">{text}</span>
+    </DropdownMenu.Item>
+  );
+};
+
+export const LinkItem = ({ text }: { text: string }) => {
+  return (
+    <DropdownMenu.Item key={text} className="hover:bg-primary/30!">
+      <Link to={'#'} className="text-sm">
+        {text}
+      </Link>
+    </DropdownMenu.Item>
+  );
 };
