@@ -56,6 +56,18 @@ const CustomFields = lazy(() =>
   })),
 );
 
+const WebBuilderPage = lazy(() =>
+  import('~/modules/web-builder/WebBuilderPage').then((module) => ({
+    default: module.WebBuilderPage,
+  })),
+);
+
+const Menus = lazy(() =>
+  import('~/modules/cms/components/menus/Menus').then((module) => ({
+    default: module.Menus,
+  })),
+);
+
 const PostsWrapper = () => {
   const { websiteId } = useParams();
   return <Posts clientPortalId={websiteId || ''} />;
@@ -84,9 +96,11 @@ const CmsMain = () => {
           <Route path="categories" element={<Categories />} />
           <Route path="tags" element={<Tags />} />
           <Route path="pages" element={<Pages />} />
+          <Route path="menus" element={<Menus />} />
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />
         </Route>
+        <Route path="web-builder/*" element={<WebBuilderPage />} />
       </Routes>
     </Suspense>
   );

@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
-import { useEffect, useState, useRef, useCallback, memo } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { UPDATE_PIPELINE_PERMISSIONS_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { PermissionState, StatusItem } from '@/pipelines/types';
 import { SelectMember } from 'ui-modules';
@@ -31,8 +31,8 @@ export const PipelinePermissionsList = memo(() => {
   const { updatePipeline, loading: updating } = useUpdatePipeline();
   const { updateStatus } = useUpdateTicketStatus();
 
-  const [visibleStatusCount, setVisibleStatusCount] = useState(3);
-  const INITIAL_STATUS_COUNT = 3;
+  const [visibleStatusCount, setVisibleStatusCount] = useState(5);
+  const INITIAL_STATUS_COUNT = 5;
 
   const form = useForm<PermissionState>({
     resolver: zodResolver(UPDATE_PIPELINE_PERMISSIONS_FORM_SCHEMA),
@@ -128,32 +128,6 @@ export const PipelinePermissionsList = memo(() => {
     }
   }, [formValues, pipeline, pipelineId, updatePipeline]);
 
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const onSubmit = useCallback(
-    async (values: PermissionState) => {
-      setSubmitError(null);
-      try {
-        await updatePipeline({
-          variables: {
-            _id: pipelineId,
-            excludeCheckUserIds: values.selectedUsers,
-            isCheckDate: values.dayAfterCreated,
-            isCheckBranch: values.branchOnly,
-            isCheckUser: values.myTicketsOnly,
-            isCheckDepartment: values.departmentOnly,
-            visibility: values.visibility,
-            memberIds: values.memberIds,
-          },
-        });
-      } catch (err: any) {
-        const errorMessage = err.message || 'Failed to update pipeline';
-        setSubmitError(errorMessage);
-      }
-    },
-    [pipelineId, updatePipeline],
-  );
-
   if (pipelineLoading || statusesLoading || updating) {
     return (
       <div className="flex items-center justify-center p-10">
@@ -164,22 +138,16 @@ export const PipelinePermissionsList = memo(() => {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-screen"
-      >
+      <div className="flex flex-col h-full min-h-0">
         <InfoCard
-          className="p-0 flex flex-col flex-1 min-h-0"
+          className="flex flex-col flex-1 min-h-0"
           title="Pipeline Permissions"
           description="Configure who can view and manage tickets"
         >
-          <InfoCard.Content className="p-0 overflow-y-auto flex-1 min-h-0">
-            {submitError && (
-              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
-                <p className="text-sm text-destructive">{submitError}</p>
-              </div>
-            )}
-
+          <InfoCard.Content
+            className="flex-1 overflow-y-auto p-0 pb-24"
+            style={{ minHeight: 0 }}
+          >
             <div className="divide-y">
               <section className="p-6 space-y-6">
                 <div>
@@ -271,7 +239,7 @@ export const PipelinePermissionsList = memo(() => {
                             setVisibleStatusCount(INITIAL_STATUS_COUNT);
                           } else {
                             setVisibleStatusCount((prev) =>
-                              Math.min(prev + 3, statuses.length),
+                              Math.min(prev + 5, statuses.length),
                             );
                           }
                         }}
@@ -279,7 +247,7 @@ export const PipelinePermissionsList = memo(() => {
                         {visibleStatusCount >= statuses.length
                           ? 'Show Less'
                           : `Show ${Math.min(
-                              3,
+                              5,
                               statuses.length - visibleStatusCount,
                             )} More`}
                       </Button>
@@ -290,7 +258,7 @@ export const PipelinePermissionsList = memo(() => {
             </div>
           </InfoCard.Content>
         </InfoCard>
-      </form>
+      </div>
     </Form>
   );
 });

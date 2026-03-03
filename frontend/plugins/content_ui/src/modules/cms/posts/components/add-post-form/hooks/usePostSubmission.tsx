@@ -4,7 +4,7 @@ import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface PostFormData {
   title: string;
@@ -53,6 +53,7 @@ export const usePostSubmission = ({
   onClose,
 }: UsePostSubmissionProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
   });
@@ -67,6 +68,45 @@ export const usePostSubmission = ({
       return;
     }
 
+    // Content is stored as BlockNote JSON when the user has typed in the editor.
+    // Convert to HTML for API storage.
+    const blocksToHtml = (raw: string): string => {
+      try {
+        const blocks = JSON.parse(raw);
+        if (!Array.isArray(blocks)) return raw;
+        return blocks
+          .map((block: any) => {
+            const inlines = (block.content || []) as any[];
+            const html = inlines
+              .map((i: any) => {
+                let text = i.text || '';
+                if (i.styles?.bold) text = `<strong>${text}</strong>`;
+                if (i.styles?.italic) text = `<em>${text}</em>`;
+                if (i.styles?.underline) text = `<u>${text}</u>`;
+                if (i.styles?.strike) text = `<s>${text}</s>`;
+                if (i.styles?.code) text = `<code>${text}</code>`;
+                return text;
+              })
+              .join('');
+            if (block.type === 'heading') {
+              const level = block.props?.level || 1;
+              return `<h${level}>${html}</h${level}>`;
+            }
+            if (block.type === 'codeBlock')
+              return `<pre><code>${html}</code></pre>`;
+            return `<p>${html}</p>`;
+          })
+          .join('');
+      } catch {
+        return raw;
+      }
+    };
+
+    const rawContent = data.content || '';
+    const contentHtml = rawContent.trimStart().startsWith('[')
+      ? blocksToHtml(rawContent)
+      : rawContent;
+
     const extractText = (html: string) => {
       const tmp = document.createElement('div');
       tmp.innerHTML = html || '';
@@ -76,9 +116,7 @@ export const usePostSubmission = ({
     const computedTitle =
       (data.title && data.title.trim()) ||
       (data.seoTitle && data.seoTitle.trim()) ||
-      extractText(data.content || '')
-        .split('\n')[0]
-        .slice(0, 80) ||
+      extractText(contentHtml).split('\n')[0].slice(0, 80) ||
       'Untitled';
 
     const generateSlug = (title: string) => {
@@ -106,7 +144,7 @@ export const usePostSubmission = ({
       clientPortalId: websiteId,
       title: computedTitle,
       slug: editingPost?._id ? data.slug : generateSlug(computedTitle),
-      content: data.content,
+      content: contentHtml,
       type: data.type,
       status: data.status || 'draft',
       categoryIds: data.categoryIds,
@@ -150,7 +188,10 @@ export const usePostSubmission = ({
         if (onClose) {
           onClose();
         } else {
-          navigate(`/content/cms/${websiteId}/posts`);
+          const typeCode = searchParams.get('type');
+          const typeParam =
+            typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+          navigate(`/content/cms/${websiteId}/posts${typeParam}`);
         }
       } else {
         await createPost(input);
@@ -158,7 +199,10 @@ export const usePostSubmission = ({
         if (onClose) {
           onClose();
         } else {
-          navigate(`/content/cms/${websiteId}/posts`);
+          const typeCode = searchParams.get('type');
+          const typeParam =
+            typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+          navigate(`/content/cms/${websiteId}/posts${typeParam}`);
         }
       }
     } catch (error: any) {

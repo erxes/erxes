@@ -23,7 +23,9 @@ export const PostsAddPage = ({
   }, []);
 
   const handleClose = useCallback(() => {
-    navigate(`/content/cms/${websiteId}/posts`);
+    const typeCode = new URLSearchParams(window.location.search).get('type');
+    const typeParam = typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+    navigate(`/content/cms/${websiteId}/posts${typeParam}`);
   }, [navigate, websiteId]);
 
   return (
@@ -38,7 +40,7 @@ export const PostsAddPage = ({
           />
         )}
       </PostsHeader>
-      <div className="w-full h-full">
+      <div className="flex flex-col overflow-hidden w-full h-full">
         {clientPortalId && !loading && (
           <AddPostForm
             websiteId={clientPortalId}

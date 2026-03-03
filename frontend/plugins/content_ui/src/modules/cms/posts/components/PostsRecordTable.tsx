@@ -3,12 +3,12 @@ import { usePostsColumns } from './PostsColumn';
 import { PostsCommandbar } from './posts-command-bar/PostsCommandbar';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 import { usePosts } from '../hooks/usePosts';
-import { PostsAdd } from './PostsAdd';
-import { IconShoppingCartX } from '@tabler/icons-react';
+import { PostsEmptyState } from './PostsEmptyState';
+import { Posts } from '../types/postsType';
 
 interface PostsRecordTableProps {
   clientPortalId: string;
-  onEditPost?: (post: any) => void;
+  onEditPost?: (post: Posts) => void;
 }
 
 export const PostsRecordTable = ({
@@ -50,23 +50,7 @@ export const PostsRecordTable = ({
           </RecordTable.Body>
         </RecordTable>
         {!loading && posts?.length === 0 && (
-          <div>
-            <div className="flex justify-center px-8 w-full h-full">
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="mb-6">
-                  <IconShoppingCartX
-                    size={64}
-                    className="mx-auto mb-4 text-muted-foreground"
-                  />
-                  <h3 className="mb-2 text-xl font-semibold">No post yet</h3>
-                  <p className="max-w-md text-muted-foreground">
-                    Get started by creating your first post.
-                  </p>
-                </div>
-                <PostsAdd clientPortalId={clientPortalId} />
-              </div>
-            </div>
-          </div>
+          <PostsEmptyState clientPortalId={clientPortalId} />
         )}
       </RecordTable.CursorProvider>
       <PostsCommandbar refetch={refetch} />
