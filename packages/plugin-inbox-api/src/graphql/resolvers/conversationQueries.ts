@@ -162,51 +162,52 @@ const conversationQueries: any = {
       );
     }
 
-    const mainQuery = {
-      ...qb.mainQuery(),
-      ...queries.integrations,
-      ...queries.extended,
+    const baseQuery = {
+      ...this.queries.default,
+      ...this.queries.integrations,
+      ...this.queries.extended,
+      ...this.queries.segments,
     };
 
     // unassigned count
     response.unassigned = await count(models, {
-      ...mainQuery,
+      ...baseQuery,
       ...qb.unassignedFilter(),
     });
 
     // participating count
     response.participating = await count(models, {
-      ...mainQuery,
+      ...baseQuery,
       ...qb.participatingFilter(),
     });
 
     // starred count
     response.starred = await count(models, {
-      ...mainQuery,
+      ...baseQuery,
       ...qb.starredFilter(),
     });
 
     // resolved count
     response.resolved = await count(models, {
-      ...mainQuery,
+      ...baseQuery,
       ...qb.statusFilter(["closed"]),
     });
 
     // awaiting response count
     response.awaitingResponse = await count(models, {
-      ...mainQuery,
+      ...baseQuery,
       ...qb.awaitingResponse(),
     });
 
     // answer response count
     response.callAnswered = await count(models, {
-      ...mainQuery,
+      ...baseQuery,
       ...qb.answeredFilter(true),
     });
 
     // not answer response count
     response.callNotAnswered = await count(models, {
-      ...mainQuery,
+      ...baseQuery,
       ...qb.notAnsweredFilter(true),
     });
 

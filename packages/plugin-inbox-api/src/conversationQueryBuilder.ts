@@ -89,26 +89,53 @@ export default class Builder {
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const selector = await sendCoreMessage({
-      subdomain: this.subdomain,
-      action: "fetchSegment",
-      data: {
-        segmentId,
-        options: {
-          returnFields: ["_id"],
-          page: 1,
-          perPage: this.params.limit ? this.params.limit + 1 : 11,
-          sortField: "updatedAt",
-          sortDirection: -1,
-        },
-      },
-      isRPC: true,
-    });
+    let allValidIds: string[] = [];
+    let page = 1;
+    const perPage = 1000;
+    const maxPages = 10;
+    let hasMore = true;
 
-    const Ids = _.pluck(selector, "_id");
+    while (hasMore && page <= maxPages) {
+      const selector = await sendCoreMessage({
+        subdomain: this.subdomain,
+        action: "fetchSegment",
+        data: {
+          segmentId,
+          options: {
+            returnFields: ["_id"],
+            page,
+            perPage,
+            sortField: "updatedAt",
+            sortDirection: -1,
+          },
+        },
+        isRPC: true,
+      });
+
+      const Ids = _.pluck(selector, "_id");
+
+      if (Ids.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      const existingConversations = await this.models.Conversations.find(
+        { _id: { $in: Ids } },
+        { _id: 1 },
+      ).lean();
+
+      const validIds = existingConversations.map((conv) => conv._id);
+      allValidIds.push(...validIds);
+
+      if (Ids.length < perPage) {
+        hasMore = false;
+      }
+
+      page++;
+    }
 
     return {
-      _id: { $in: Ids },
+      _id: { $in: allValidIds },
     };
   }
 
