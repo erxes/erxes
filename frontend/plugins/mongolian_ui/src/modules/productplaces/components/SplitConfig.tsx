@@ -14,7 +14,11 @@ import SelectSegments from '../selects/SelectSegments';
 
 // Import GraphQL from client files
 import { MN_CONFIGS } from '../graphql/clientQueries';
-import { MN_CONFIGS_CREATE, MN_CONFIGS_UPDATE, MN_CONFIGS_REMOVE } from '../graphql/clientMutations';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_UPDATE,
+  MN_CONFIGS_REMOVE,
+} from '../graphql/clientMutations';
 
 // ---------- Types ----------
 // PerSplitConfig should be defined in ../types – we import it.
@@ -23,9 +27,13 @@ import { MN_CONFIGS_CREATE, MN_CONFIGS_UPDATE, MN_CONFIGS_REMOVE } from '../grap
 const objectToKeyValueArray = (obj: Record<string, any>) =>
   Object.entries(obj).map(([key, value]) => ({ key, value }));
 
-const keyValueArrayToObject = (arr: Array<{ key: string; value: any }>): Record<string, any> => {
+const keyValueArrayToObject = (
+  arr: Array<{ key: string; value: any }>,
+): Record<string, any> => {
   const obj: any = {};
-  arr.forEach(({ key, value }) => { obj[key] = value; });
+  arr.forEach(({ key, value }) => {
+    obj[key] = value;
+  });
   return obj;
 };
 
@@ -72,7 +80,7 @@ const SplitConfig: React.FC<Props> = ({
   const [savedConfigs, setSavedConfigs] = useState<PerSplitConfig[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [localConfig, setLocalConfig] = useState<PerSplitConfig>(
-    normalize({}, currentStageId)
+    normalize({}, currentStageId),
   );
 
   // GraphQL hooks
@@ -88,7 +96,9 @@ const SplitConfig: React.FC<Props> = ({
   // Load configs from backend into local state
   useEffect(() => {
     if (data?.mnConfigs) {
-      const rawConfigs = Array.isArray(data.mnConfigs) ? data.mnConfigs : Object.values(data.mnConfigs);
+      const rawConfigs = Array.isArray(data.mnConfigs)
+        ? data.mnConfigs
+        : Object.values(data.mnConfigs);
       const transformed = rawConfigs.map((cfg: any) => {
         const obj = keyValueArrayToObject(cfg.value);
         // The backend value should contain all PerSplitConfig fields

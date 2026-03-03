@@ -1,5 +1,3 @@
-
-
 export const queries = `
   mnConfigDetail(_id: String!): MNConfig
   mnConfig(code: String!, subId: String): MNConfig

@@ -13,8 +13,6 @@ import { MN_CONFIG, MN_CONFIGS } from '../graphql/clientQueries'; // add MN_CONF
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_UPDATE,
-
-
   MN_CONFIGS_REMOVE,
 } from '../graphql/clientMutations';
 
@@ -48,7 +46,7 @@ const SettingsContainer = ({
         : { code: configCode, subId: subId ?? '' },
       fetchPolicy: 'network-only',
       errorPolicy: 'all',
-    }
+    },
   );
 
   const [createConfig] =
@@ -124,33 +122,33 @@ const SettingsContainer = ({
    * SAVE (create or update)
    */
   const save = async (config: Record<string, any>) => {
-  const { _id, ...rest } = config;
-  const value = denormalizeConfig(rest);
+    const { _id, ...rest } = config;
+    const value = denormalizeConfig(rest);
 
-  // Use the stageId from the form as the subId (if present)
-  const finalSubId = rest.stageId || subId || '';
+    // Use the stageId from the form as the subId (if present)
+    const finalSubId = rest.stageId || subId || '';
 
-  if (_id) {
-    await updateConfig({
-      variables: {
-        _id,
-        subId: finalSubId,
-        value,
-      },
-    });
-  } else {
-    await createConfig({
-      variables: {
-        code: configCode,
-        subId: finalSubId,
-        value,
-      },
-    });
-  }
+    if (_id) {
+      await updateConfig({
+        variables: {
+          _id,
+          subId: finalSubId,
+          value,
+        },
+      });
+    } else {
+      await createConfig({
+        variables: {
+          code: configCode,
+          subId: finalSubId,
+          value,
+        },
+      });
+    }
 
-  await refetch();
-  return true;
-};
+    await refetch();
+    return true;
+  };
 
   /**
    * DELETE by id

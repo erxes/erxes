@@ -13,15 +13,23 @@ import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/
 
 // Import GraphQL from client files
 import { MN_CONFIGS } from '../graphql/clientQueries';
-import { MN_CONFIGS_CREATE, MN_CONFIGS_UPDATE, MN_CONFIGS_REMOVE } from '../graphql/clientMutations';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_UPDATE,
+  MN_CONFIGS_REMOVE,
+} from '../graphql/clientMutations';
 
 // ---------- Transformers ----------
 const objectToKeyValueArray = (obj: Record<string, any>) =>
   Object.entries(obj).map(([key, value]) => ({ key, value }));
 
-const keyValueArrayToObject = (arr: Array<{ key: string; value: any }>): Record<string, any> => {
+const keyValueArrayToObject = (
+  arr: Array<{ key: string; value: any }>,
+): Record<string, any> => {
   const obj: any = {};
-  arr.forEach(({ key, value }) => { obj[key] = value; });
+  arr.forEach(({ key, value }) => {
+    obj[key] = value;
+  });
   return obj;
 };
 
@@ -68,7 +76,9 @@ const PrintConfig: React.FC<Props> = ({
   // Load configs from backend into local state
   useEffect(() => {
     if (data?.mnConfigs) {
-      const rawConfigs = Array.isArray(data.mnConfigs) ? data.mnConfigs : Object.values(data.mnConfigs);
+      const rawConfigs = Array.isArray(data.mnConfigs)
+        ? data.mnConfigs
+        : Object.values(data.mnConfigs);
       const transformed = rawConfigs.map((cfg: any) => {
         const obj = keyValueArrayToObject(cfg.value);
         return {
@@ -95,7 +105,7 @@ const PrintConfig: React.FC<Props> = ({
     <K extends keyof PerPrintConfig>(key: K, value: PerPrintConfig[K]) => {
       setFormData((prev) => ({ ...prev, [key]: value }));
     },
-    []
+    [],
   );
 
   const addCondition = () => {
@@ -264,7 +274,9 @@ const PrintConfig: React.FC<Props> = ({
                 pipelineId={formData.pipelineId || ''}
                 value={formData.stageId || ''}
                 disabled={!formData.pipelineId}
-                onValueChange={(stageId: string) => updateField('stageId', stageId)}
+                onValueChange={(stageId: string) =>
+                  updateField('stageId', stageId)
+                }
               />
             </div>
           </div>

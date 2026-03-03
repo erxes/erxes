@@ -11,7 +11,11 @@ import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/
 
 // Import GraphQL from client files
 import { MN_CONFIGS } from '../graphql/clientQueries';
-import { MN_CONFIGS_CREATE, MN_CONFIGS_UPDATE, MN_CONFIGS_REMOVE } from '../graphql/clientMutations';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_UPDATE,
+  MN_CONFIGS_REMOVE,
+} from '../graphql/clientMutations';
 
 // ---------- Types ----------
 export interface PlaceConfigData {
@@ -28,9 +32,13 @@ export interface PlaceConfigData {
 const objectToKeyValueArray = (obj: Record<string, any>) =>
   Object.entries(obj).map(([key, value]) => ({ key, value }));
 
-const keyValueArrayToObject = (arr: Array<{ key: string; value: any }>): PlaceConfigData => {
+const keyValueArrayToObject = (
+  arr: Array<{ key: string; value: any }>,
+): PlaceConfigData => {
   const obj: any = {};
-  arr.forEach(({ key, value }) => { obj[key] = value; });
+  arr.forEach(({ key, value }) => {
+    obj[key] = value;
+  });
   return obj as PlaceConfigData;
 };
 
@@ -65,7 +73,9 @@ const PlaceConfig: React.FC = () => {
   // Load configs from backend into local state
   useEffect(() => {
     if (data?.mnConfigs) {
-      const rawConfigs = Array.isArray(data.mnConfigs) ? data.mnConfigs : Object.values(data.mnConfigs);
+      const rawConfigs = Array.isArray(data.mnConfigs)
+        ? data.mnConfigs
+        : Object.values(data.mnConfigs);
       const transformed = rawConfigs.map((cfg: any) => ({
         _id: cfg._id,
         ...keyValueArrayToObject(cfg.value),
@@ -88,7 +98,7 @@ const PlaceConfig: React.FC = () => {
     <K extends keyof PlaceConfigData>(key: K, value: PlaceConfigData[K]) => {
       setFormData((prev) => ({ ...prev, [key]: value }));
     },
-    []
+    [],
   );
 
   // Condition handlers
@@ -192,7 +202,9 @@ const PlaceConfig: React.FC = () => {
                 onClick={() => setActiveIndex(i)}
               >
                 <div className="font-medium">{cfg.title || '(Untitled)'}</div>
-                <div className="text-xs text-gray-500">Stage: {cfg.stageId || '—'}</div>
+                <div className="text-xs text-gray-500">
+                  Stage: {cfg.stageId || '—'}
+                </div>
               </div>
             ))}
           </div>
@@ -214,7 +226,12 @@ const PlaceConfig: React.FC = () => {
               variant="form"
               value={formData.boardId}
               onValueChange={(boardId) =>
-                setFormData((p) => ({ ...p, boardId, pipelineId: '', stageId: '' }))
+                setFormData((p) => ({
+                  ...p,
+                  boardId,
+                  pipelineId: '',
+                  stageId: '',
+                }))
               }
             />
             <SelectPipeline

@@ -14,7 +14,7 @@ export const MnConfigCodes = [
   'dealsProductsDefaultFilter',
   'dealsSplitConfig',
   'dealsPrintConfig',
-]
+];
 
 export interface IConfig {
   code: string;
