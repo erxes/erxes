@@ -38,15 +38,17 @@ jobs:
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
-
-      - name: Build payment_api
-        run: pnpm nx build payment_api
-
+      
       - name: Build React widget
         working-directory: backend/plugins/payment_api/src/widget
         run: |
           pnpm install --no-frozen-lockfile
           pnpm build
+
+      - name: Build payment_api
+        run: pnpm nx build payment_api
+
+
 
       # Buildx setup
       - name: Set up QEMU
