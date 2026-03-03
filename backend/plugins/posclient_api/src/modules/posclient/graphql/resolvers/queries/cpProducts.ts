@@ -1,4 +1,7 @@
-import { IProductCategoryDocument, Resolver } from 'erxes-api-shared/core-types';
+import {
+  IProductCategoryDocument,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import {
   escapeRegExp,
   markResolvers,
@@ -359,7 +362,6 @@ const generateFilterCat = async ({
 };
 
 const cpProductQueries: Record<string, Resolver> = {
-
   async cpPoscProducts(
     _root,
     params: IProductParams,
@@ -451,9 +453,8 @@ const cpProductQueries: Record<string, Resolver> = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

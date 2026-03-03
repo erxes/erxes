@@ -37,7 +37,6 @@ import {
   // mutations as cpProductMutations
 } from '@/posclient/graphql/schemas/cpProducts';
 
-
 export const types = `
     extend type User @key(fields: "_id") {
       _id: String @external
