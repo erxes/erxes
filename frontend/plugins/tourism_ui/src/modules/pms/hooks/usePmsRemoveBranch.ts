@@ -16,13 +16,14 @@ export const usePmsRemoveBranch = () => {
     PmsBranchRemoveResponse,
     PmsBranchRemoveVariables
   >(pmsMutations.PmsBranchRemove, {
-    update(cache, _result, { variables }) {
-      const deletedId = variables?._id;
+    update(cache, result, options) {
+      const deletedId = options?.variables?._id;
 
       if (!deletedId) {
         return;
       }
 
+      cache.evict({ id: `PmsBranch:${deletedId}` });
       cache.evict({ fieldName: 'pmsBranchList' });
       cache.gc();
     },

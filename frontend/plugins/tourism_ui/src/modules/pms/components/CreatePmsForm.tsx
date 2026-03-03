@@ -203,6 +203,18 @@ const CreatePmsForm = ({
     });
   };
 
+  const mapPaymentTypeItems = (items: IPmsPaymentType[] | undefined) => {
+    return Array.isArray(items)
+      ? items.map((item: IPmsPaymentType) => ({
+          _id: item._id,
+          type: item.type,
+          title: item.title,
+          icon: item.icon,
+          config: item.config,
+        }))
+      : [];
+  };
+
   const populateFormWithBranchData = useCallback(
     (branchData: typeof branch): void => {
       if (!branchData) return;
@@ -214,28 +226,12 @@ const CreatePmsForm = ({
         checkOutTime: branchData.checkouttime || '',
         checkInAmount: branchData.checkinamount || 0,
         checkOutAmount: branchData.checkoutamount || 0,
-        discount: Array.isArray(branchData.discount)
-          ? branchData.discount.map((item: IPmsPaymentType) => ({
-              _id: item._id,
-              type: item.type,
-              title: item.title,
-              icon: item.icon,
-              config: item.config,
-            }))
-          : [],
+        discount: mapPaymentTypeItems(branchData.discount),
         websiteReservationLock: branchData.websiteReservationLock ?? false,
         time: branchData.time || '',
         paymentIds: branchData.paymentIds || [],
         paymentTypes: branchData.paymentTypes || [],
-        otherPayments: Array.isArray(branchData.paymentTypes)
-          ? branchData.paymentTypes.map((item: IPmsPaymentType) => ({
-              _id: item._id,
-              type: item.type,
-              title: item.title,
-              icon: item.icon,
-              config: item.config,
-            }))
-          : [],
+        otherPayments: mapPaymentTypeItems(branchData.paymentTypes),
         erxesAppToken: branchData.erxesAppToken || '',
         user1Ids: branchData.user1Ids || [],
         user2Ids: branchData.user2Ids || [],
@@ -330,7 +326,7 @@ const CreatePmsForm = ({
           loading={loading}
           form={form}
           mode={mode}
-          onSave={() => form.handleSubmit(onSubmit)()}
+          onSave={form.handleSubmit(onSubmit)}
         />
       </form>
     </Form>
