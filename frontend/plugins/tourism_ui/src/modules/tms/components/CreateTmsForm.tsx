@@ -15,7 +15,6 @@ import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
 interface PermissionConfig {
   type: string;
   title: string;
-  icon: string;
   config?: string;
 }
 
@@ -62,7 +61,7 @@ const CreateTmsForm = ({
       favIcon: favIcon || '',
       generalManager: Array.isArray(generalManager) ? generalManager : [],
       managers: Array.isArray(managers) ? managers : [],
-      payment: payment || '',
+      payment: Array.isArray(payment) ? payment : [],
       token: token || '',
       otherPayments: Array.isArray(otherPayments) ? otherPayments : [],
     },
@@ -100,13 +99,14 @@ const CreateTmsForm = ({
         favIcon: uiOptions?.favIcon || '',
         generalManager: generalManagerIds || [],
         managers: managerIds || [],
-        payment: Array.isArray(paymentIds) ? paymentIds[0] || '' : '',
+        payment: Array.isArray(paymentIds)
+          ? paymentIds.filter((id): id is string => typeof id === 'string')
+          : [],
         token: erxesAppToken || '',
         otherPayments: Array.isArray(permissionConfig)
           ? permissionConfig.map((config: PermissionConfig) => ({
               type: config.type || '',
               title: config.title || '',
-              icon: config.icon || '',
               config: config.config || '',
             }))
           : [],
