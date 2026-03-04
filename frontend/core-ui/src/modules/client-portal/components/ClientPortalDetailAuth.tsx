@@ -225,7 +225,7 @@ export const ClientPortalDetailAuth = ({
                         <Input
                           type="number"
                           min={1}
-                          max={7}
+                          max={365}
                           {...field}
                           value={field.value ?? ''}
                           onChange={(e) =>
@@ -247,7 +247,7 @@ export const ClientPortalDetailAuth = ({
                         <Input
                           type="number"
                           min={1}
-                          max={7}
+                          max={365}
                           {...field}
                           value={field.value ?? ''}
                           onChange={(e) =>

@@ -30,7 +30,7 @@ export interface ITicketModel extends Model<ITicketDocument> {
     userId: string;
     subdomain: string;
   }): Promise<ITicketDocument>;
-  removeTicket(_id: string): Promise<{ ok: number }>;
+  removeTicket(_id: string[]): Promise<{ ok: number }>;
 }
 
 export const loadTicketClass = (models: IModels) => {
@@ -249,8 +249,10 @@ export const loadTicketClass = (models: IModels) => {
       return detail;
     }
 
-    public static async removeTicket(_id: string): Promise<{ ok: number }> {
-      const result = await models.Ticket.deleteOne({ _id });
+    public static async removeTicket(_ids: string[]): Promise<{ ok: number }> {
+      const result = await models.Ticket.deleteMany({
+        _id: { $in: _ids },
+      });
 
       return { ok: result.deletedCount || 0 };
     }

@@ -459,7 +459,9 @@ export function WebsiteDrawer({
                     if (website?._id) {
                       try {
                         await deleteCMS({ variables: { id: website._id } });
-                      } catch (error) {}
+                      } catch (error) {
+                        console.error('Error deleting CMS:', error);
+                      }
                     }
                   }}
                   disabled={removing}
