@@ -117,7 +117,9 @@ export const queries = `
   customersCount(types: [CUSTOMER_RELATION_TYPE]): JSON
   customerDetail(_id: String!): Customer
   contactsLogs(action: String, content:JSON, contentType: String): JSON
-`;
+  
+  cpCustomers(${queryParams}): CustomersListResponse
+  `;
 
 const fields = `
   avatar: String
@@ -157,4 +159,6 @@ export const mutations = `
   customersChangeState(_id: String!, value: String!): Customer
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
   customersChangeStateBulk(_ids: [String]!, value: String!): JSON
+
+  cpCustomersAdd(state: String, ${fields}): Customer
 `;

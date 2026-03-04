@@ -10,21 +10,29 @@ import {
 } from './configs';
 
 import {
+  queries as cpBranchQueries,
+  types as cpBranchTypes
+} from './cpPmsbranch'
+
+import {
   mutations as branchMutations,
   queries as branchQueries,
   types as branchTypes,
 } from './pmsbranch';
 
+
 export const types = `
     ${cleaningTypes}
     ${configTypes}
     ${branchTypes}
+    ${cpBranchTypes}
 `;
 
 export const queries = `
     ${cleaningQueries}
     ${configQueries}
     ${branchQueries}
+    ${cpBranchQueries}
 `;
 
 export const mutations = `
