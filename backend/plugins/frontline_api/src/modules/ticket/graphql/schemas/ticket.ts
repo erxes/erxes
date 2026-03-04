@@ -30,6 +30,10 @@ export const types = `
     propertiesData: JSON
     state: String
   }
+  type RemoveResponse {
+    ok: Int!
+    removedIds: [String!]!
+  }
 
   type TicketListResponse {
     list: [Ticket]
@@ -126,8 +130,7 @@ export const queries = `
 export const mutations = `
   createTicket(${createTicketParams}): Ticket
   updateTicket(${updateTicketParams}): Ticket
-  removeTicket(_id: String!): Ticket
-
+  removeTicket(_id: [String!]!): RemoveResponse!
   cpCreateTicket(${createTicketParams}): Ticket
   cpUpdateTicket(${updateTicketParams}): Ticket
 `;
