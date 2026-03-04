@@ -6,7 +6,7 @@ import { CmsCategoryDrawer } from './CmsCategoryDrawer';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useRemoveCategories } from './hooks/useRemoveCategories';
 import { ICategory } from './types';
-import { CategoriesSidebar } from './components/CategoriesSidebar';
+import { CmsSidebar } from '../shared/CmsSidebar';
 import { PageContainer } from 'erxes-ui';
 import { EmptyState } from '../shared/EmptyState';
 import { IconArticle } from '@tabler/icons-react';
@@ -71,7 +71,7 @@ export function Categories() {
     <PageContainer>
       <CategoriesHeader>{headerActions}</CategoriesHeader>
       <div className="flex overflow-hidden flex-auto">
-        <CategoriesSidebar />
+        <CmsSidebar />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">
