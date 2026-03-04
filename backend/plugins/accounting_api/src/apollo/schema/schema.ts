@@ -39,32 +39,10 @@ import {
   types as adjustInventoryTypes,
 } from '~/modules/accounting/graphql/schemas/adjustInvDetail';
 import {
-<<<<<<< HEAD
   mutations as adjustClosingEntryMutations,
   queries as adjustClosingEntryQueries,
   types as adjustClosingEntryTypes,
 } from '~/modules/accounting/graphql/schemas/adjustClosingEntry';
-=======
-  mutations as remainderMutations,
-  queries as remainderQueries,
-  types as remainderTypes,
-} from '~/modules/inventories/graphql/schemas/remainder';
-import {
-  mutations as reserveRemsMutations,
-  queries as reserveRemsQueries,
-  types as reserveRemsTypes,
-} from '~/modules/inventories/graphql/schemas/reserveRems';
-import {
-  mutations as safeRemainderMutations,
-  queries as safeRemainderQueries,
-  types as safeRemainderTypes,
-} from '~/modules/inventories/graphql/schemas/safeRemainder';
-import {
-  mutations as safeRemainderItemMutations,
-  queries as safeRemainderItemQueries,
-  types as safeRemainderItemTypes,
-} from '~/modules/inventories/graphql/schemas/safeRemainderItem';
->>>>>>> 469d50b68935f87b7540f5531eaa38fa23ee569b
 
 export const types = `
   enum CacheControlScope {
@@ -90,14 +68,7 @@ export const types = `
   ${accInventoryTypes}
   ${adjustInventoryTypes}
   ${journalReportTypes}
-<<<<<<< HEAD
   ${adjustClosingEntryTypes}
-=======
-  ${remainderTypes}
-  ${reserveRemsTypes}
-  ${safeRemainderTypes}
-  ${safeRemainderItemTypes}
->>>>>>> 469d50b68935f87b7540f5531eaa38fa23ee569b
 `;
 
 export const queries = `
@@ -109,14 +80,7 @@ export const queries = `
   ${accInventoryQueries}
   ${adjustInventoryQueries}
   ${journalReportQueries}
-<<<<<<< HEAD
   ${adjustClosingEntryQueries}
-=======
-  ${remainderQueries}
-  ${reserveRemsQueries}
-  ${safeRemainderQueries}
-  ${safeRemainderItemQueries}
->>>>>>> 469d50b68935f87b7540f5531eaa38fa23ee569b
 `;
 
 export const mutations = `
@@ -127,14 +91,7 @@ export const mutations = `
   ${transactionMutations}
   ${accInventoryMutations}
   ${adjustInventoryMutations}
-<<<<<<< HEAD
   ${adjustClosingEntryMutations}
-=======
-  ${remainderMutations}
-  ${reserveRemsMutations}
-  ${safeRemainderMutations}
-  ${safeRemainderItemMutations}
->>>>>>> 469d50b68935f87b7540f5531eaa38fa23ee569b
 `;
 
 export default { types, queries, mutations };

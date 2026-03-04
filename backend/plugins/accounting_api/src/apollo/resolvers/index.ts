@@ -13,10 +13,6 @@ import {
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
   AdjustInventories as MutationsAdjustInventories,
-<<<<<<< HEAD
-  AdjustClosingEntries as MutationsAdjustClosingEntry,
-=======
->>>>>>> 469d50b68935f87b7540f5531eaa38fa23ee569b
 } from '@/accounting/graphql/resolvers/mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,
@@ -69,15 +65,11 @@ const resolvers: any = {
     ...MutationsCtaxRow,
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
-<<<<<<< HEAD
-    ...MutationsAdjustClosingEntry,
-=======
 
     ...MutationsRemainder,
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
->>>>>>> 469d50b68935f87b7540f5531eaa38fa23ee569b
   },
   Query: {
     ...QueriesAccount,
@@ -89,15 +81,11 @@ const resolvers: any = {
     ...QueriesInventories,
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
-<<<<<<< HEAD
-    ...QueriesAdjustClosingEntry,
-=======
 
     ...QueriesRemainder,
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,
->>>>>>> 469d50b68935f87b7540f5531eaa38fa23ee569b
   },
 };
 

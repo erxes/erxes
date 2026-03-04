@@ -45,7 +45,7 @@ const StatusCell = ({ row }: { row: any }) => {
         </RecordTableInlineCell.Anchor>
       </Popover.Trigger>
       <Popover.Content>
-        <AdjustClosingDetail />
+        <AdjustClosingDetail id={_id} />
       </Popover.Content>
     </Popover>
   );

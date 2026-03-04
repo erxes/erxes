@@ -54,39 +54,22 @@ const adjustClosingEntryQueries = {
     return models.AdjustClosingEntries.find(filter).countDocuments();
   },
 
-  async adjustClosingEntryDetail(
-    _root: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
-    return await models.AdjustClosingEntries.findOne({ _id }).lean();
-  },
+async adjustClosingDetail(
+  _root: undefined,
+  { _id }: { _id: string },
+  { models }: IContext,
+) {
+  const closing = await models.AdjustClosings.findOne({ _id }).lean();
 
-  async previewAdjustClosingEntries(
-    _root: undefined,
-    {
-      beginDate,
-      date,
-      accountIds,
-    }: {
-      beginDate: Date;
-      date: Date;
-      accountIds: string[];
-    },
-    { models }: IContext,
-  ) {
-    if (!models.AdjustClosingEntries?.getAdjustClosingEntries) {
-      throw new Error(
-        'previewAdjustClosing method not found on AdjustClosingEntries model',
-      );
-    }
+  if (!closing) return null;
 
-    return models.AdjustClosingEntries.getAdjustClosingEntries({
-      beginDate,
-      date,
-      accountIds,
-    });
-  },
+  closing.entries = await models.AdjustClosingEntries
+    .find({ adjustClosingId: _id })
+    .lean();
+
+  return closing;
+}
+
 };
 
 export default adjustClosingEntryQueries;

@@ -1,26 +1,40 @@
 export const types = `
     type AdjustClosingEntry @key(fields: "_id") @cacheControl(maxAge: 3) {
-      _id: String!
-      code: String
-      name: String
-      description: String
-      status: String
-      date: Date
-      beginDate: Date
-      integrateAccountId: String
-      periodGLAccountId: String
-      earningAccountId: String
-      taxPayableAccountId: String
-      createdAt: Date
-      updatedAt: Date
-      createdBy: String
-      modifiedBy: String
+        _id: String!
+        code: String
+        name: String
+        description: String
+        status: String
+        date: Date
+        beginDate: Date
+        integrateAccountId: String
+        periodGLAccountId: String
+        earningAccountId: String
+        taxPayableAccountId: String
+        balance: Float
+        percent: Float
+        mainAccTrId: String
+        integrateTrId: String
+        createdAt: Date
+        updatedAt: Date
+        createdBy: String
+        modifiedBy: String
     }
 
-    type AdjustClosingPreviewItem {
-        accountId: String!
-        side: String!  
-        amount: Float!
+    type AdjustClosing @key(fields: "_id") @cacheControl(maxAge: 3) {
+        _id: String!
+        branchId: String
+        departmentId: String
+        beginDate: Date
+        date: Date
+        status: String
+
+        entries: [AdjustClosingEntry]  
+        closeIntegrateTrId: String
+        periodGLTrId: String
+
+        createdAt: Date
+        updatedAt: Date
     }
     `;
 
@@ -40,19 +54,13 @@ export const queries = `
         ${adjustClosingEntryQueryParams}
     ): Int
 
-    adjustClosingEntryDetail(
-        _id: String!
-    ): AdjustClosingEntry
+    adjustClosingDetail(
+      _id: String!
+    ): AdjustClosing
 
     adjustClosingEntries(
         ${adjustClosingEntryQueryParams}
     ): [AdjustClosingEntry]
-    
-      previewAdjustClosingEntries(
-        beginDate: Date!
-        date: Date!
-        accountIds: [String!]!
-    ): [AdjustClosingPreviewItem!]!
 
     `;
 

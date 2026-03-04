@@ -9,13 +9,7 @@ import {
   IconStopwatch,
   IconTrashX,
 } from '@tabler/icons-react';
-import {
-  eachDayOfInterval,
-  isAfter,
-  isBefore,
-  isSameDay,
-  isToday,
-} from 'date-fns';
+import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
 import {
   Button,
@@ -37,9 +31,11 @@ import { useAdjustClosingEntryRemove } from '../hooks/useAdjustClosingRemove';
 import { useAdjustClosingCancel } from '../hooks/useAdjustClosingCancel';
 import { adjustClosingDetailTableColumns } from './AdjustClosingDetailColumns';
 
-export const AdjustClosingDetail = () => {
-  const [id] = useQueryState<string>('id');
+interface AdjustClosingDetailProps {
+  id?: string;
+}
 
+export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const { adjustClosingDetail, loading } = useAdjustClosingDetail({
     variables: { _id: id },
     skip: !id,
