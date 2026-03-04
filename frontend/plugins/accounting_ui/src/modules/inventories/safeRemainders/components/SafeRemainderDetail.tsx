@@ -157,18 +157,18 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Branch:</Label>
-        <span>{`${safeRemainder.branch?.code} - ${safeRemainder.branch?.title}`}</span>
+        <span>{`${safeRemainder.branch?.code ?? ''} - ${safeRemainder.branch?.title ?? ''}`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Department:</Label>
-        <span>{`${safeRemainder.department?.code} - ${safeRemainder.department?.title}`}</span>
+        <span>{`${safeRemainder.department?.code ?? ''} - ${safeRemainder.department?.title ?? ''}`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       {safeRemainder.productCategoryId && (
         <div className="flex items-center gap-2 text-sm">
           <Label>Product Category:</Label>
-          <span>{`${safeRemainder.productCategory?.code} - ${safeRemainder.productCategory?.name}`}</span>
+          <span>{`${safeRemainder.productCategory?.code ?? ''} - ${safeRemainder.productCategory?.name ?? ''}`}</span>
           <span className="text-accent-foreground">{'|'}</span>
         </div>
       )}

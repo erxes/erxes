@@ -142,7 +142,7 @@ const safeRemainderMutations = {
         incomeDetails.push({
           accountId: incomeRule?.accountId ?? '',
           side: TR_SIDES.DEBIT,
-          amount: fixNum(incomeCount * (item.trInfo.unitCost ?? 0), 6),
+          amount: fixNum(incomeCount * (item.trInfo?.unitCost ?? 0), 6),
           productId,
           count: incomeCount
         });
@@ -150,11 +150,11 @@ const safeRemainderMutations = {
       }
 
       const outCount = preCount - count;
-      if (item.trInfo.isSale) {
+      if (item.trInfo?.isSale) {
         saleDetails.push({
           accountId: saleRule?.accountId ?? '',
           side: TR_SIDES.CREDIT,
-          amount: fixNum(outCount * (item.trInfo.salePrice ?? 0), 6),
+          amount: fixNum(outCount * (item.trInfo?.salePrice ?? 0), 6),
           productId,
           count: outCount
         });
@@ -164,7 +164,7 @@ const safeRemainderMutations = {
       outDetails.push({
         accountId: outRule?.accountId ?? '',
         side: TR_SIDES.CREDIT,
-        amount: fixNum(outCount * (item.trInfo.unitCost ?? 0), 6),
+        amount: fixNum(outCount * (item.trInfo?.unitCost ?? 0), 6),
         productId,
         count: outCount
       });
