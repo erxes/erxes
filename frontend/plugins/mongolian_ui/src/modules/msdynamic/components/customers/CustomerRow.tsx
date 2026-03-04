@@ -7,9 +7,7 @@ const CustomersRow = ({ customers, action }: Props) => {
   const { Name, No, primaryName, firstName, code, syncStatus } = customers;
 
   const displayCode = action === 'DELETE' ? code : No;
-  const displayName = action === 'DELETE'
-    ? primaryName || firstName
-    : Name;
+  const displayName = action === 'DELETE' ? primaryName || firstName : Name;
 
   return (
     <tr className="border-b">

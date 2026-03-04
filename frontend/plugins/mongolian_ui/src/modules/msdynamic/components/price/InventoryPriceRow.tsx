@@ -13,13 +13,9 @@ const Row = ({ price, action }: Props) => {
     <tr className="border-b">
       <td className="p-2">{displayCode}</td>
 
-      <td className="p-2">
-        {parseFloat(displayPrice || 0).toLocaleString()}
-      </td>
+      <td className="p-2">{parseFloat(displayPrice || 0).toLocaleString()}</td>
 
-      <td className="p-2">
-        {action === 'DELETE' ? '' : Ending_Date || ''}
-      </td>
+      <td className="p-2">{action === 'DELETE' ? '' : Ending_Date || ''}</td>
 
       <td className="p-2">
         {(action === 'UPDATE' || action === 'MATCH') && (
