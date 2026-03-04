@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.17.36](https://github.com/erxes/erxes/compare/2.17.35...2.17.36) (2026-03-04)
+
+### Features
+
+* **inbox:** add conversation count by segment ([1275ba5](https://github.com/erxes/erxes/commit/1275ba5be18bdc5dd05cb13b2ef50005cdc2e01a))
+
+### Bug Fixes
+
+* customer merge with disabled customFields ([8a3e47a](https://github.com/erxes/erxes/commit/8a3e47abe32df7ec8f4e3d8171df87326853af74))
+
 ## [2.17.35](https://github.com/erxes/erxes/compare/2.17.34...2.17.35) (2026-03-02)
 
 ### Bug Fixes
