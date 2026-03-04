@@ -4,6 +4,8 @@ import {
   Input,
   Popover,
   useToast,
+  RelativeDateDisplay,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { customTypeMoreColumn } from './CustomTypesMoreColumn';
@@ -110,7 +112,6 @@ export const createCustomTypesColumns = (
           </Popover>
         );
       },
-      size: 280,
     },
     {
       id: 'description',
@@ -119,9 +120,10 @@ export const createCustomTypesColumns = (
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
-        <BadgeCell>{(cell.getValue() as string) || '—'}</BadgeCell>
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
       ),
-      size: 360,
     },
     {
       id: 'createdAt',
@@ -131,7 +133,11 @@ export const createCustomTypesColumns = (
       accessorKey: 'createdAt',
       size: 120,
       cell: ({ cell }) => (
-        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       ),
     },
     {

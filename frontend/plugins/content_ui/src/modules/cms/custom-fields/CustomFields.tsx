@@ -183,7 +183,7 @@ export function CustomFields() {
       </CustomFieldsHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
+        <div className="flex overflow-auto flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="p-6">
               <div className="max-w-4xl mx-auto">

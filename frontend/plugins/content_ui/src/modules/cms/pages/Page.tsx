@@ -38,7 +38,7 @@ export function Page() {
       <PagesHeader>{headerActions}</PagesHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
+        <div className="flex overflow-auto flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">

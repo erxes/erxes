@@ -111,17 +111,17 @@ export const createCategoriesColumns = (
       accessorKey: 'parentId',
       cell: ({ row }) => {
         const getParentName = (parent: any): string => {
-          if (!parent) return '—';
+          if (!parent) return '';
           // If there's a parent with a name, return it
           if (parent.name) return parent.name;
           // If there's a nested parent, recursively get its name
           if (parent.parent) return getParentName(parent.parent);
-          return '—';
+          return '';
         };
 
         const parentName = getParentName(row.original.parent);
 
-        return <BadgeCell>{parentName}</BadgeCell>;
+        return <RecordTableInlineCell>{parentName}</RecordTableInlineCell>;
       },
     },
     {

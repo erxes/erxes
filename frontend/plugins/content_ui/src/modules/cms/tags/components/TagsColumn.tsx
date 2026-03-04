@@ -4,6 +4,8 @@ import {
   Input,
   Popover,
   useToast,
+  RelativeDateDisplay,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { tagMoreColumn } from './TagsMoreColumn';
@@ -17,28 +19,6 @@ const BadgeCell = ({ children }: { children: React.ReactNode }) => (
     <span className="text-sm text-gray-500">{children}</span>
   </div>
 );
-
-const ColorCell = ({ colorCode }: { colorCode: string }) => {
-  if (!colorCode) return <BadgeCell>—</BadgeCell>;
-  return (
-    <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs gap-2">
-      <div
-        className="size-3 rounded-full"
-        style={{ backgroundColor: colorCode }}
-      />
-      <span className="text-sm text-gray-500">{colorCode}</span>
-    </div>
-  );
-};
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 export const createTagsColumns = (
   clientPortalId: string,
@@ -95,10 +75,10 @@ export const createTagsColumns = (
           >
             <RecordTableInlineCell.Trigger>
               <div className="flex items-center gap-2">
-                <div
+                {/* <div
                   className="size-2 rounded-full"
                   style={{ backgroundColor: original.colorCode || '#ddd' }}
-                />
+                /> */}
                 <span>{cell.getValue() as string}</span>
               </div>
             </RecordTableInlineCell.Trigger>
@@ -122,7 +102,9 @@ export const createTagsColumns = (
       header: () => <RecordTable.InlineHead icon={IconTag} label="Slug" />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
-        <BadgeCell>{(cell.getValue() as string) || '—'}</BadgeCell>
+        <RecordTableInlineCell className="text-gray-500">
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
       ),
     },
     {
@@ -133,7 +115,11 @@ export const createTagsColumns = (
       accessorKey: 'createdAt',
       size: 120,
       cell: ({ cell }) => (
-        <BadgeCell>{formatDate(cell.getValue() as string)}</BadgeCell>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       ),
     },
     {
