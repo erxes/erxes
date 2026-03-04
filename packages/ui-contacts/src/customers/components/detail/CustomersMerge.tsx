@@ -166,7 +166,7 @@ class CustomersMerge extends React.Component<Props, State> {
     return (
       <>
         {(fieldsGroups || []).filter(group => group.isVisible && !group.parentId).map(group => {
-          const fields = group.fields?.filter(field => field.isVisible && !field.isDisabled) || [];
+          const fields = group.fields?.filter(field => field.isVisible) || [];
           
           return fields.map(field => {
             const value = (customFieldsData || []).find((customField: { field: string, value: any })  => customField.field === field._id)?.value;

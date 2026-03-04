@@ -149,7 +149,7 @@ const carMutations = {
 
   cpCarsAdd: async (_root, { customerId, companyId, ...doc }: ICar & { customerId: string, companyId: string }, { docModifier, models, subdomain, user }: IContext) => {
     const { plateNumber, vinNumber } = doc;
-    const carFilter: any = {};
+    const carFilter: any = [];
     if (plateNumber) {
       carFilter.push({ plateNumber })
     }
