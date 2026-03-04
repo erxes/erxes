@@ -181,55 +181,67 @@ const SplitConfig: React.FC<Props> = ({
   if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
-    <Form {...form}>
-      <div className="space-y-6">
+  <Form {...form}>
+    {/* SCROLL WRAPPER */}
+    <div className="w-full h-full overflow-y-auto">
+      {/* CENTERED CONTAINER */}
+      <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+
         {/* HEADER */}
-        <div className="flex items-center justify-between border-b pb-4">
-          <div>
-            <h2 className="text-lg font-semibold">Split Configuration</h2>
-          </div>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">
+            Split Configuration
+          </h2>
 
           <Button type="button" variant="outline" onClick={handleNewConfig}>
             + New Config
           </Button>
         </div>
 
-        {/* SAVED CONFIG LIST */}
+        {/* SAVED CONFIGS */}
         {savedConfigs.length > 0 && (
-          <div className="rounded border bg-background p-4 space-y-2">
-            <h3 className="font-medium">Saved configs</h3>
+          <div className="bg-white rounded-xl border p-5 shadow-sm space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground">
+              Saved Configs
+            </h3>
 
-            {savedConfigs.map((cfg, index) => (
-              <div
-                key={cfg._id || index}
-                className={`cursor-pointer rounded px-3 py-2 border
-                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
-                onClick={() => setActiveIndex(index)}
-              >
-                <div className="font-medium">
-                  {cfg.title || '(Untitled config)'}
+            <div className="space-y-3">
+              {savedConfigs.map((cfg, index) => (
+                <div
+                  key={cfg._id || index}
+                  onClick={() => setActiveIndex(index)}
+                  className={`cursor-pointer rounded-lg border p-4 transition
+                    ${
+                      index === activeIndex
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:bg-muted/40'
+                    }`}
+                >
+                  <div className="font-medium">
+                    {cfg.title || '(Untitled config)'}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Stage: {cfg.stageId || '—'}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
         {/* BASIC INFO */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <div>
+        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
+          <div className="space-y-2">
             <Label>Title</Label>
             <input
-              className="w-full p-2 border rounded"
+              className="w-full rounded-md border px-3 py-2"
               value={localConfig.title}
               onChange={(e) => update('title', e.target.value)}
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
               <Label>Board</Label>
               <SelectSalesBoard
                 variant="form"
@@ -245,7 +257,7 @@ const SplitConfig: React.FC<Props> = ({
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label>Pipeline</Label>
               <SelectPipeline
                 variant="form"
@@ -262,7 +274,7 @@ const SplitConfig: React.FC<Props> = ({
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label>Stage</Label>
               <SelectStage
                 id="split-stage"
@@ -270,14 +282,16 @@ const SplitConfig: React.FC<Props> = ({
                 pipelineId={localConfig.pipelineId || ''}
                 value={localConfig.stageId || ''}
                 disabled={!localConfig.pipelineId}
-                onValueChange={(stageId: string) => update('stageId', stageId)}
+                onValueChange={(stageId: string) =>
+                  update('stageId', stageId)
+                }
               />
             </div>
           </div>
         </div>
 
         {/* CATEGORIES */}
-        <div className="bg-white p-4 rounded border space-y-3">
+        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
           <Label>Include Categories</Label>
           <SelectProductCategories
             value={localConfig.productCategoryIds}
@@ -292,7 +306,7 @@ const SplitConfig: React.FC<Props> = ({
         </div>
 
         {/* TAGS */}
-        <div className="bg-white p-4 rounded border space-y-3">
+        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
           <Label>Include Tags</Label>
           <SelectProductTags
             value={localConfig.productTagIds}
@@ -307,7 +321,7 @@ const SplitConfig: React.FC<Props> = ({
         </div>
 
         {/* PRODUCTS */}
-        <div className="bg-white p-4 rounded border space-y-3">
+        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
           <Label>Exclude Products</Label>
           <SelectProducts
             value={localConfig.excludeProductIds}
@@ -316,19 +330,25 @@ const SplitConfig: React.FC<Props> = ({
         </div>
 
         {/* SEGMENTS */}
-        <div className="bg-white p-4 rounded border space-y-3">
+        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
           <Label>Segment</Label>
           <SelectSegments
             contentTypes={['core:product']}
             value={getSingle(localConfig.segmentIds)}
-            onChange={(id) => update('segmentIds', toSingleArray(id))}
+            onChange={(id) =>
+              update('segmentIds', toSingleArray(id))
+            }
           />
         </div>
 
         {/* ACTIONS */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 pt-2">
           {activeIndex !== null && (
-            <Button type="button" variant="destructive" onClick={handleDelete}>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+            >
               Delete Config
             </Button>
           )}
@@ -337,9 +357,11 @@ const SplitConfig: React.FC<Props> = ({
             Save Config
           </Button>
         </div>
+
       </div>
-    </Form>
-  );
+    </div>
+  </Form>
+);
 };
 
 export default SplitConfig;

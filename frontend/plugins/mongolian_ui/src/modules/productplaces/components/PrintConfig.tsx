@@ -187,52 +187,70 @@ const PrintConfig: React.FC<Props> = ({
   if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
-    <Form {...form}>
-      <div className="space-y-6">
+  <Form {...form}>
+    {/* SCROLL WRAPPER */}
+    <div className="w-full h-full overflow-y-auto">
+      {/* CENTERED CONTAINER */}
+      <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+
         {/* HEADER */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Print Configuration</h2>
+          <h2 className="text-xl font-semibold">
+            Print Configuration
+          </h2>
 
-          <Button type="button" variant="outline" onClick={handleNewConfig}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleNewConfig}
+          >
             + New Config
           </Button>
         </div>
 
-        {/* SAVED LIST */}
+        {/* SAVED CONFIGS */}
         {savedConfigs.length > 0 && (
-          <div className="rounded border bg-background p-4 space-y-2">
-            <h3 className="font-medium">Saved configs</h3>
+          <div className="bg-white rounded-xl border p-5 shadow-sm space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground">
+              Saved Configs
+            </h3>
 
-            {savedConfigs.map((cfg, index) => (
-              <div
-                key={cfg._id || index}
-                className={`cursor-pointer rounded px-3 py-2 border
-                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
-                onClick={() => setActiveIndex(index)}
-              >
-                <div className="font-medium">
-                  {cfg.title || '(Untitled config)'}
+            <div className="space-y-3">
+              {savedConfigs.map((cfg, index) => (
+                <div
+                  key={cfg._id || index}
+                  onClick={() => setActiveIndex(index)}
+                  className={`cursor-pointer rounded-lg border p-4 transition
+                    ${
+                      index === activeIndex
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:bg-muted/40'
+                    }`}
+                >
+                  <div className="font-medium">
+                    {cfg.title || '(Untitled config)'}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Stage: {cfg.stageId || '—'}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* FORM */}
-        <div className="bg-white p-4 rounded border space-y-4">
+        {/* BASIC INFO */}
+        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
           <div className="space-y-2">
             <Label>Title</Label>
             <input
-              className="w-full p-2 border rounded"
+              className="w-full rounded-md border px-3 py-2"
               value={formData.title}
               onChange={(e) => updateField('title', e.target.value)}
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Board</Label>
               <SelectSalesBoard
@@ -283,9 +301,11 @@ const PrintConfig: React.FC<Props> = ({
         </div>
 
         {/* CONDITIONS */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="font-medium">Print Conditions</h3>
+        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-muted-foreground">
+              Print Conditions
+            </h3>
 
             <Button
               type="button"
@@ -298,25 +318,31 @@ const PrintConfig: React.FC<Props> = ({
           </div>
 
           {formData.conditions.length === 0 ? (
-            <div className="text-center py-4 text-gray-400">
+            <div className="text-center py-6 text-muted-foreground">
               No conditions added
             </div>
           ) : (
-            formData.conditions.map((condition) => (
-              <PerPrintConditions
-                key={condition.id}
-                condition={condition}
-                onChange={updateCondition}
-                onRemove={removeCondition}
-              />
-            ))
+            <div className="space-y-6">
+              {formData.conditions.map((condition) => (
+                <PerPrintConditions
+                  key={condition.id}
+                  condition={condition}
+                  onChange={updateCondition}
+                  onRemove={removeCondition}
+                />
+              ))}
+            </div>
           )}
         </div>
 
         {/* ACTIONS */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 pt-2">
           {activeIndex !== null && (
-            <Button type="button" variant="destructive" onClick={handleDelete}>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+            >
               Delete
             </Button>
           )}
@@ -325,9 +351,11 @@ const PrintConfig: React.FC<Props> = ({
             Save
           </Button>
         </div>
+
       </div>
-    </Form>
-  );
+    </div>
+  </Form>
+);
 };
 
 export default PrintConfig;
