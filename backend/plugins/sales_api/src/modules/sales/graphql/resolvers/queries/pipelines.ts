@@ -176,9 +176,8 @@ export const pipelineQueries: Record<string, Resolver> = {
       startDate: { $gt: now },
     };
 
-    const notStartedCount = await models.Pipelines.find(
-      notStartedQuery,
-    ).countDocuments();
+    const notStartedCount =
+      await models.Pipelines.find(notStartedQuery).countDocuments();
 
     counts['Not started'] = notStartedCount;
 
@@ -188,9 +187,8 @@ export const pipelineQueries: Record<string, Resolver> = {
       endDate: { $gt: now },
     };
 
-    const inProgressCount = await models.Pipelines.find(
-      inProgressQuery,
-    ).countDocuments();
+    const inProgressCount =
+      await models.Pipelines.find(inProgressQuery).countDocuments();
 
     counts['In progress'] = inProgressCount;
 
@@ -199,9 +197,8 @@ export const pipelineQueries: Record<string, Resolver> = {
       endDate: { $lt: now },
     };
 
-    const completedCounted = await models.Pipelines.find(
-      completedQuery,
-    ).countDocuments();
+    const completedCounted =
+      await models.Pipelines.find(completedQuery).countDocuments();
 
     counts.Completed = completedCounted;
 
@@ -247,6 +244,6 @@ export const pipelineQueries: Record<string, Resolver> = {
 
 // moduleRequireLogin(pipelineQueries);
 
-pipelineQueries.cpSalesPipelineDetail.wrapperConfig={
-  forClientPortal:true,
-}
+pipelineQueries.cpSalesPipelineDetail.wrapperConfig = {
+  forClientPortal: true,
+};

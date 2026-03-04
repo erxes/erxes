@@ -16,17 +16,13 @@ export const webQueries: Record<string, Resolver> = {
     const { _id } = args;
     return models.Web.getWebDetail(_id);
   },
-  async cpGetDomains(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  async cpGetDomains(_root, { _id }: { _id: string }, { models }: IContext) {
     const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
     if (!web.projectId) throw new Error('No project found for this web');
     return getDomains(web.projectId);
   },
-  
+
   async cpGetDeploymentEvents(
     _root,
     { _id }: { _id: string },
@@ -34,7 +30,8 @@ export const webQueries: Record<string, Resolver> = {
   ) {
     const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
-    if (!web.lastDeploymentId) throw new Error('No deployment found for this web');
+    if (!web.lastDeploymentId)
+      throw new Error('No deployment found for this web');
     return getDeploymentEvents(web.lastDeploymentId);
   },
 };

@@ -357,10 +357,10 @@ const configQueries: Record<string, Resolver> = {
 
 export default configQueries;
 
-configQueries.cpPmsCheckRooms.wrapperConfig={
-  forClientPortal:true,
-}
+configQueries.cpPmsCheckRooms.wrapperConfig = {
+  forClientPortal: true,
+};
 
-configQueries.cpPmsRooms.wrapperConfig={
-  forClientPortal:true,
-}
+configQueries.cpPmsRooms.wrapperConfig = {
+  forClientPortal: true,
+};

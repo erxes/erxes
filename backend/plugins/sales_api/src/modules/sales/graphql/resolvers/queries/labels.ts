@@ -52,6 +52,6 @@ export const pipelineLabelQueries: Record<string, Resolver> = {
 
 // moduleRequireLogin(pipelineLabelQueries);
 
-pipelineLabelQueries.cpSalesPipelineLabels.wrapperConfig={
-  forClientPortal:true,
-}
+pipelineLabelQueries.cpSalesPipelineLabels.wrapperConfig = {
+  forClientPortal: true,
+};

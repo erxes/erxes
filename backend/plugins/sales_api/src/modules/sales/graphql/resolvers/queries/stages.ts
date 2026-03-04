@@ -185,6 +185,6 @@ export const stageQueries: Record<string, Resolver> = {
 
 // moduleRequireLogin(stageQueries);
 
-stageQueries.cpSalesStages.wrapperConfig={
-  forClientPortal:true,
-}
+stageQueries.cpSalesStages.wrapperConfig = {
+  forClientPortal: true,
+};
