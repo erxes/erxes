@@ -1,12 +1,12 @@
 import { UseFormReturn } from 'react-hook-form';
-import { PmsBranchFormType } from '../constants/formSchema';
+import { PmsBranchFormType } from '@/pms/constants/formSchema';
 import { useAtomValue } from 'jotai';
-import { stepState } from '../states/stepStates';
-import General from './pmsFormFields/general/General';
-import Payments from './pmsFormFields/payments/payments';
-import Admins from './pmsFormFields/admins/admins';
-import Appearance from './pmsFormFields/appearance/appearance';
-import PipelineConfig from './pmsFormFields/pipelineConfig/pipelineConfig';
+import { stepState } from '@/pms/states/stepStates';
+import General from '@/pms/components/pmsFormFields/general/General';
+import Payments from '@/pms/components/pmsFormFields/payments/payments';
+import Admins from '@/pms/components/pmsFormFields/admins/admins';
+import Appearance from '@/pms/components/pmsFormFields/appearance/appearance';
+import PipelineConfig from '@/pms/components/pmsFormFields/pipelineConfig/pipelineConfig';
 
 export const CreatePmsFormContent = ({
   form,
