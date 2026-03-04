@@ -24,6 +24,8 @@ import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectStatus } from '@/operation/components/SelectStatus';
 import { toast } from 'erxes-ui';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
+import { SelectTemplate } from '@/template/components/SelectTemplate';
+import { IOperationTemplate } from '@/template/types';
 
 export const AddTriageForm = ({
   onComplete,
@@ -95,6 +97,28 @@ export const AddTriageForm = ({
     });
   };
 
+  const onTemplateSelect = async (template: IOperationTemplate) => {
+    if (template.defaults) {
+      if (template.defaults.description) {
+        try {
+          const content = JSON.parse(template.defaults.description);
+          editor.replaceBlocks(editor.document, content);
+          setDescriptionContent(content);
+        } catch (e) {
+          console.error('Failed to parse description', e);
+        }
+      }
+
+      const ALLOWED_FIELDS = ['name'];
+
+      Object.keys(template.defaults).forEach((key) => {
+        if (ALLOWED_FIELDS.includes(key)) {
+          form.setValue(key as any, template.defaults[key]);
+        }
+      });
+    }
+  };
+
   return (
     <Form {...form}>
       <form
@@ -119,8 +143,12 @@ export const AddTriageForm = ({
               </Form.Item>
             )}
           />
+
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">New triage</Sheet.Title>
+          <div className="ml-auto">
+            <SelectTemplate teamId={_teamId} onSelect={onTemplateSelect} />
+          </div>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field

@@ -192,6 +192,12 @@ import {
   types as BroadcastTypes,
 } from '@/broadcast/graphql/schemas';
 
+import {
+  types as bundleTypes,
+  queries as bundleQueries,
+  mutations as bundleMutations,
+} from '@/bundle/graphql/schemas';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -239,6 +245,7 @@ export const types = `
     ${CommentTypes}
     ${CPNotificationTypes}
     ${BroadcastTypes}
+    ${bundleTypes}
   `;
 
 export const queries = `
@@ -275,6 +282,7 @@ export const queries = `
     ${CommentQueries}
     ${CPNotificationQueries}
     ${BroadcastQueries}
+    ${bundleQueries}
   `;
 
 export const mutations = `
@@ -310,6 +318,7 @@ export const mutations = `
     ${CommentMutations}
     ${CPNotificationMutations}
     ${BroadcastMutations}
+    ${bundleMutations}
   `;
 
 export default { types, queries, mutations };

@@ -8,7 +8,11 @@ import {
 } from '@/clientportal/services/helpers/validators';
 import { validateActionCode } from '@/clientportal/services/helpers/actionCodeHelper';
 import { isPasswordlessLoginEnabled } from '@/clientportal/services/helpers/otpConfigHelper';
-import { AuthenticationError, ValidationError } from '@/clientportal/services/errorHandler';
+import { isTestAccountMatch } from '@/clientportal/services/helpers/testUserHelper';
+import {
+  AuthenticationError,
+  ValidationError,
+} from '@/clientportal/services/errorHandler';
 
 const DEFAULT_OTP_RESEND_CONFIG = {
   cooldownPeriodInSeconds: 60,
@@ -63,7 +67,7 @@ function isExceedingHourlyLimit(
 
 export async function loginWithOTP(
   identifier: string,
-  otp: number,
+  otp: string,
   clientPortal: IClientPortalDocument,
   models: IModels,
 ): Promise<ICPUserDocument> {
@@ -84,9 +88,21 @@ export async function loginWithOTP(
   if (!user) {
     throw new AuthenticationError('Invalid login');
   }
+  if (!user.isVerified) {
+    throw new AuthenticationError('Verify your account first');
+  }
 
   const expectedType = identifierTypeToActionCodeType(identifierType);
-  validateActionCode(user, otp, expectedType);
+  const hasTestOtp = clientPortal.testUser?.otp !== undefined;
+  const isTestAccount = isTestAccountMatch(clientPortal, user);
+  const isMatchingTestOtp =
+    hasTestOtp &&
+    String(otp).trim() === String(clientPortal.testUser?.otp ?? '');
+
+  if (!(hasTestOtp && isTestAccount && isMatchingTestOtp)) {
+    validateActionCode(user, otp, expectedType);
+  }
+
   await updateLastLogin(user._id, models);
 
   return user;
@@ -106,11 +122,7 @@ export function checkOTPResendLimit(
   }
 
   if (
-    isExceedingHourlyLimit(
-      lastAttempt,
-      attempts,
-      config.maxAttemptsPerHour,
-    )
+    isExceedingHourlyLimit(lastAttempt, attempts, config.maxAttemptsPerHour)
   ) {
     return false;
   }

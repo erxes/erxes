@@ -13,7 +13,7 @@ export const ChannelsInline = ({
   placeholder,
   updateChannels,
 }: {
-  channels: IChannel[];
+  channels?: IChannel[];
   channelIds?: string[];
   placeholder?: string;
   updateChannels?: (channels: IChannel[]) => void;

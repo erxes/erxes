@@ -1,4 +1,13 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
+import { IBundleConditionDocument, IBundleRuleDocument } from '@/bundle/@types';
+import {
+  IBundleConditionModel,
+  loadBundleConditionClass,
+} from '@/bundle/db/models/BundleConditions';
+import {
+  IBundleRuleModel,
+  loadBundleRuleClass,
+} from '@/bundle/db/models/BundleRules';
 import {
   IConformityModel,
   loadConformityClass,
@@ -56,6 +65,7 @@ import {
   loadUserClass,
   loadUserMovemmentClass,
 } from '@/organization/team-member/db/models/Users';
+import { IProductRuleDocument } from '@/products/@types/rule';
 import {
   IProductCategoryModel,
   loadProductCategoryClass,
@@ -65,6 +75,10 @@ import {
   loadProductsConfigClass,
 } from '@/products/db/models/Configs';
 import { IProductModel, loadProductClass } from '@/products/db/models/Products';
+import {
+  IProductRuleModel,
+  loadProductRuleClass,
+} from '@/products/db/models/Rules';
 import { IUomModel, loadUomClass } from '@/products/db/models/Uoms';
 import {
   IRelationModel,
@@ -83,6 +97,8 @@ import {
   IEmailDeliveryDocument,
   INotificationDocument,
   notificationSchema,
+  NotificationSettings,
+  notificationSettingsSchema,
 } from 'erxes-api-shared/core-modules';
 import {
   IAppDocument,
@@ -92,6 +108,7 @@ import {
   ICustomerDocument,
   ILogDocument,
   IMainContext,
+  IPermissionGroupDocument,
   IProductCategoryDocument,
   IProductDocument,
   IProductsConfigDocument,
@@ -100,7 +117,6 @@ import {
   IUomDocument,
   IUserDocument,
   IUserMovementDocument,
-  IPermissionGroupDocument,
 } from 'erxes-api-shared/core-types';
 
 import { createGenerateModels } from 'erxes-api-shared/utils';
@@ -159,6 +175,10 @@ import {
   loadSmsRequestClass,
 } from './modules/broadcast/db/models/SmsRequests';
 import {
+  ICPNotificationModel,
+  loadCPNotificationClass,
+} from './modules/clientportal/db/models/CPNotification';
+import {
   ICPUserModel,
   loadCPUserClass,
 } from './modules/clientportal/db/models/CPUser';
@@ -210,15 +230,12 @@ import {
   ISegmentModel,
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
-import {
-  ICPNotificationModel,
-  loadCPNotificationClass,
-} from './modules/clientportal/db/models/CPNotification';
+
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 
 import {
-  loadPermissionGroupClass,
   IPermissionGroupModel,
+  loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
 export interface IModels {
   Brands: IBrandModel;
@@ -270,7 +287,13 @@ export interface IModels {
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
   OrgWhiteLabel: IOrgWhiteLabelModel;
+
+  BundleCondition: IBundleConditionModel;
+  BundleRule: IBundleRuleModel;
+  ProductRules: IProductRuleModel;
   PermissionGroups: IPermissionGroupModel;
+
+  NotificationSettings: Model<NotificationSettings>;
 }
 
 export interface IContext extends IMainContext {
@@ -496,6 +519,11 @@ export const loadClasses = (
     Model<INotificationDocument>
   >('notifications', notificationSchema);
 
+  models.NotificationSettings = db.model<
+    NotificationSettings,
+    Model<NotificationSettings>
+  >('notification_settings', notificationSettingsSchema);
+
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
     IEmailDeliveryModel
@@ -580,6 +608,21 @@ export const loadClasses = (
     ICPNotificationDocument,
     ICPNotificationModel
   >('client_portal_notifications', loadCPNotificationClass(models));
+
+  models.BundleCondition = db.model<
+    IBundleConditionDocument,
+    IBundleConditionModel
+  >('bundle_conditions', loadBundleConditionClass(models, subdomain));
+
+  models.BundleRule = db.model<IBundleRuleDocument, IBundleRuleModel>(
+    'bundle_rules',
+    loadBundleRuleClass(models, subdomain),
+  );
+
+  models.ProductRules = db.model<IProductRuleDocument, IProductRuleModel>(
+    'product_rules',
+    loadProductRuleClass(models, subdomain),
+  );
 
   const db_name = db.name;
 

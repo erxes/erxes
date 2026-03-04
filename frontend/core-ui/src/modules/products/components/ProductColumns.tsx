@@ -15,10 +15,12 @@ import {
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
 import { ProductNameCell } from './ProductNameCell';
+import { productMoreColumn } from './ProductMoreCell';
 
 export const productColumns: (
   t: (key: string) => string,
 ) => ColumnDef<IProduct>[] = (t) => [
+  productMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProduct>,
   {
     id: 'code',

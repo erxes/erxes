@@ -86,16 +86,15 @@ export const ClientPortalDetailAuth = ({
     },
   });
 
-  const otpResendForm = useForm<
-    z.infer<typeof CLIENTPORTAL_OTP_RESEND_SCHEMA>
-  >({
-    resolver: zodResolver(CLIENTPORTAL_OTP_RESEND_SCHEMA),
-    defaultValues: {
-      cooldownPeriodInSeconds:
-        otpResendConfig?.cooldownPeriodInSeconds ?? 60,
-      maxAttemptsPerHour: otpResendConfig?.maxAttemptsPerHour ?? 5,
+  const otpResendForm = useForm<z.infer<typeof CLIENTPORTAL_OTP_RESEND_SCHEMA>>(
+    {
+      resolver: zodResolver(CLIENTPORTAL_OTP_RESEND_SCHEMA),
+      defaultValues: {
+        cooldownPeriodInSeconds: otpResendConfig?.cooldownPeriodInSeconds ?? 60,
+        maxAttemptsPerHour: otpResendConfig?.maxAttemptsPerHour ?? 5,
+      },
     },
-  });
+  );
 
   const { updateClientPortal, loading } = useUpdateClientPortal();
 
@@ -367,7 +366,7 @@ export const ClientPortalDetailAuth = ({
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          Email message body with {'{code}'} placeholder
+                          Email message body with {'{{code}}'} placeholder
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -515,7 +514,7 @@ export const ClientPortalDetailAuth = ({
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          SMS message body with {'{code}'} placeholder
+                          SMS message body with {'{{code}}'} placeholder
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>

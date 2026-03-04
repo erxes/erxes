@@ -63,9 +63,12 @@ export const deleteHandler = (params: {
 
         return afterUpload({ status: "ok" })
       })
-      .catch((error) => {
-        console.log(error.message)
-      })
+        .catch((error) => {
+          toast({
+            description: error.message,
+            variant: "destructive",
+          })
+        })
   })
 }
 

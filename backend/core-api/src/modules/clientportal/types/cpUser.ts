@@ -86,8 +86,14 @@ export interface ICPUser {
       | 'EMAIL_VERIFICATION'
       | 'PHONE_VERIFICATION'
       | 'PASSWORD_RESET'
-      | 'TWO_FACTOR_VERIFICATION';
+      | 'TWO_FACTOR_VERIFICATION'
+      | 'EMAIL_CHANGE'
+      | 'PHONE_CHANGE';
   };
+
+  // Pending contact change (set while waiting for OTP confirmation)
+  pendingEmail?: string;
+  pendingPhone?: string;
 
   // Refresh tokens for token management
   refreshTokens?: IRefreshToken[];

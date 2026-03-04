@@ -9,7 +9,8 @@ import { Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
-
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
   getTickets(
@@ -44,7 +45,6 @@ export const loadTicketClass = (models: IModels) => {
       params: ITicketFilter,
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
-
       if (params.name) query.name = { $regex: params.name, $options: 'i' };
       if (params.assigneeId) query.assigneeId = params.assigneeId;
       if (params.channelId) query.channelId = params.channelId;
@@ -58,6 +58,21 @@ export const loadTicketClass = (models: IModels) => {
       if (params.startDate) query.startDate = { $gte: params.startDate };
       if (params.targetDate) query.targetDate = { $lte: params.targetDate };
       if (params.createdAt) query.createdAt = { $gte: params.createdAt };
+      switch (params.state) {
+        case 'active':
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+        case 'archived':
+          query.state = 'archived';
+          break;
+        case 'deleted':
+          query.state = 'deleted';
+          break;
+        default:
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
+      }
+
       return models.Ticket.find(query)
         .populate('pipelineId')
         .populate('statusId')
@@ -113,11 +128,33 @@ export const loadTicketClass = (models: IModels) => {
       subdomain: string;
     }) {
       const { _id, ...rest } = doc;
+      const permissionValidator = createPermissionValidator(models);
 
       const ticket = await models.Ticket.findOne({ _id });
 
       if (!ticket) {
         throw new Error('Ticket not found');
+      }
+
+      await permissionValidator.validateEditPermission(
+        ticket.statusId || '',
+        doc.statusId || '',
+        userId,
+      );
+      if (doc.propertiesData) {
+        const propertiesData = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'fields',
+          action: 'validateFieldValues',
+          input: {
+            data: doc.propertiesData,
+          },
+          defaultValue: doc.propertiesData,
+        });
+
+        doc.propertiesData = propertiesData;
       }
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {

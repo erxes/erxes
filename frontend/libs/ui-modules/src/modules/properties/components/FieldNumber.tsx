@@ -43,13 +43,16 @@ export const FieldNumberInCell = (props: SpecificFieldProps) => {
 };
 
 export const FieldNumberDetail = (props: SpecificFieldProps) => {
-  const { value, handleChange, id } = props;
+  const { value, handleChange, onInputChange, id } = props;
   const [currentValue, setCurrentValue] = useState<number>(value);
   return (
     <NumberInput
       id={id}
       value={currentValue}
-      onChange={(value) => setCurrentValue(value)}
+      onChange={(v) => {
+        setCurrentValue(v);
+        onInputChange?.(v);
+      }}
       onBlur={() => currentValue !== value && handleChange(currentValue)}
     />
   );

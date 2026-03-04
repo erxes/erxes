@@ -54,10 +54,12 @@ const AssignConversation = () => {
   const { assignConversations } = useAssignConversations();
 
   const handleAssignConversations = (value: null | string | string[]) => {
+    const result = Array.isArray(value) ? value[value.length - 1] : value;
+
     assignConversations({
       variables: {
         conversationIds: [_id],
-        assignedUserId: value,
+        assignedUserId: result,
       },
       onError: (error: Error) => {
         toast({
@@ -66,12 +68,14 @@ const AssignConversation = () => {
           variant: 'destructive',
         });
       },
+      refetchQueries: ['ConversationDetail', 'Conversations']
     });
   };
 
   return (
     <div className="flex">
       <SelectMember
+        mode="single"
         value={assignedUserId}
         onValueChange={handleAssignConversations}
         className="text-foreground shadow-none px-2"
@@ -89,31 +93,33 @@ export const ConversationTags = () => {
   const handleTagChange = (newTagIds: string[] | string) => {
     const ids = Array.isArray(newTagIds) ? newTagIds : [newTagIds];
 
-    setTagIds(ids);
+    setTagIds?.(ids);
   };
 
   return (
-    <SelectTags.Detail
-      tagType="frontline:conversation"
-      mode="multiple"
-      value={tagIds}
-      targetIds={[_id]}
-      onValueChange={handleTagChange}
-      options={(newTagIds: string[]) => ({
-        onCompleted: () => {
-          toast({
-            title: 'Tag updated',
-            variant: 'default',
-          });
-        },
-        onError: (error: Error) => {
-          toast({
-            title: 'Failed to update tags',
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
-      })}
-    />
+    <div className='flex-none max-w-lg overflow-x-hidden'>
+      <SelectTags.ConversationDetail
+        tagType="frontline:conversation"
+        mode="multiple"
+        value={tagIds}
+        targetIds={[_id]}
+        onValueChange={handleTagChange}
+        options={(newTagIds: string[]) => ({
+          onCompleted: () => {
+            toast({
+              title: 'Tag updated',
+              variant: 'default',
+            });
+          },
+          onError: (error: Error) => {
+            toast({
+              title: 'Failed to update tags',
+              description: error.message,
+              variant: 'destructive',
+            });
+          },
+        })}
+      />
+    </div>
   );
 };

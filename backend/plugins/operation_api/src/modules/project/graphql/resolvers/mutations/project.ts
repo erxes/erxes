@@ -1,6 +1,6 @@
 import { IProjectUpdate } from '@/project/@types/project';
-import { TeamMemberRoles } from '@/team/@types/team';
-import { checkUserRole } from '@/utils';
+// import { TeamMemberRoles } from '@/team/@types/team';
+// import { checkUserRole } from '@/utils';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -23,20 +23,21 @@ export const projectMutations = {
     },
     { models, user }: IContext,
   ) => {
-    const createdProject = await models.Project.createProject({
-      name,
-      teamIds,
-      startDate,
-      targetDate,
-      priority,
-      status,
-      description,
-      leadId,
-      memberIds,
-      tagIds,
-      createdBy: user._id,
-      convertedFromId,
-    },
+    const createdProject = await models.Project.createProject(
+      {
+        name,
+        teamIds,
+        startDate,
+        targetDate,
+        priority,
+        status,
+        description,
+        leadId,
+        memberIds,
+        tagIds,
+        createdBy: user._id,
+        convertedFromId,
+      },
       user,
     );
     graphqlPubsub.publish(`operationProjectChanged:${createdProject._id}`, {
@@ -60,13 +61,13 @@ export const projectMutations = {
     params: IProjectUpdate,
     { models, user }: IContext,
   ) => {
-    const project = await models.Project.getProject(params._id);
-    await checkUserRole({
-      models,
-      teamIds: project.teamIds,
-      userId: user._id,
-      allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    });
+    // const project = await models.Project.getProject(params._id);
+    // await checkUserRole({
+    //   models,
+    //   teamIds: project.teamIds,
+    //   userId: user._id,
+    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
+    // });
 
     const updatedProject = await models.Project.updateProject({
       doc: params,

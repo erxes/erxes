@@ -27,6 +27,7 @@ interface SelectProductProviderProps {
   value?: string[] | string;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  defaultSearchValue?: string;
 }
 
 const SelectProductProvider = ({
@@ -34,6 +35,7 @@ const SelectProductProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  defaultSearchValue,
 }: SelectProductProviderProps) => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const productIds = !value ? [] : Array.isArray(value) ? value : [value];
@@ -68,6 +70,7 @@ const SelectProductProvider = ({
         setProducts,
         loading: false,
         error: null,
+        defaultSearchValue,
       }}
     >
       {children}
@@ -76,9 +79,9 @@ const SelectProductProvider = ({
 };
 
 const SelectProductContent = () => {
-  const [search, setSearch] = useState('');
+  const { productIds, products, defaultSearchValue } = useSelectProductContext();
+  const [search, setSearch] = useState(defaultSearchValue ?? '');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { productIds, products } = useSelectProductContext();
   const {
     products: productsData,
     loading,
@@ -180,7 +183,7 @@ const SelectProductRoot = React.forwardRef<
     }
 >(
   (
-    { onValueChange, className, mode, value, placeholder, scope, ...props },
+    { onValueChange, className, mode, value, placeholder, scope, defaultSearchValue, ...props },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -189,6 +192,7 @@ const SelectProductRoot = React.forwardRef<
       <SelectProductProvider
         mode={mode}
         value={value}
+        defaultSearchValue={defaultSearchValue}
         onValueChange={(value) => {
           if (mode === 'single') {
             setOpen(false);
