@@ -1,7 +1,7 @@
 import { Control } from 'react-hook-form';
 import { Form, InfoCard } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
-import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
+import PmsFormFieldsLayout from '@/pms/components/pmsFormFields/PmsFormFieldsLayout';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
 interface Props {

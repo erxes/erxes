@@ -44,6 +44,8 @@ export const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => {
         className="p-1 w-48 rounded-lg border shadow-lg bg-background"
         side="bottom"
         align="end"
+        role="menu"
+        aria-label="Action menu"
       >
         {dropdownItems.map((item) => (
           <button

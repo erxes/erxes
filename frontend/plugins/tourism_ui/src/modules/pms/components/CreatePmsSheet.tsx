@@ -13,10 +13,13 @@ type CreatePmsSheetContentLayoutProps = PropsWithChildren & {
   form: UseFormReturn<PmsBranchFormType>;
 };
 
-const STEP_VALIDATION_FIELDS: Record<number, (keyof PmsBranchFormType)[]> = {
+const STEP_VALIDATION_FIELDS: Record<number, Array<keyof PmsBranchFormType>> = {
   1: ['name', 'checkInTime', 'checkOutTime', 'checkInAmount', 'checkOutAmount'],
+  2: ['user1Ids'],
+  3: [],
+  4: [],
+  5: ['boardId', 'pipelineId'],
 };
-
 const validateStep = async (
   step: number,
   form: UseFormReturn<PmsBranchFormType>,

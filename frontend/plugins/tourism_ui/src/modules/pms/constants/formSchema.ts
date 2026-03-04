@@ -40,7 +40,9 @@ export const PmsBranchFormSchema = z.object({
         .passthrough(),
     )
     .optional(),
-  user1Ids: z.array(z.string()).optional(),
+  user1Ids: z
+    .array(z.string())
+    .min(1, 'At least one general manager is required'),
   user2Ids: z.array(z.string()).optional(),
   user3Ids: z.array(z.string()).optional(),
   user4Ids: z.array(z.string()).optional(),
@@ -56,8 +58,8 @@ export const PmsBranchFormSchema = z.object({
   secondaryColor: z.string().optional(),
   thirdColor: z.string().optional(),
   website: z.string().optional(),
-  boardId: z.string().optional(),
-  pipelineId: z.string().optional(),
+  boardId: z.string().min(1, 'Board is required'),
+  pipelineId: z.string().min(1, 'Pipeline is required'),
   stageId: z.string().optional(),
   roomsCategoryIds: z.array(z.string()).optional(),
   extrasCategoryIds: z.array(z.string()).optional(),
