@@ -37,10 +37,13 @@ import {
 } from '@/cms/db/models/FieldGroups';
 import { IWebModel, loadWebClass } from '@/webbuilder/db/models/Web';
 import { IWebDocument } from '@/webbuilder/@types/web';
+import { IWebPageModel, loadWebPageClass } from '@/webbuilder/db/models/Page';
+import { IWebPageDocument } from '@/webbuilder/@types/page';
 
 export interface IModels {
   CMS: ICMSModel;
   Web: IWebModel;
+  WebPages: IWebPageModel;
 
   Posts: IPostModel;
   Translations: ITranslationModel;
@@ -109,6 +112,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Web = db.model<IWebDocument, IWebModel>(
     'web_builder',
     loadWebClass(models),
+  );
+
+  models.WebPages = db.model<IWebPageDocument, IWebPageModel>(
+    'web_pages',
+    loadWebPageClass(models),
   );
 
   return models;
