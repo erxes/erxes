@@ -145,8 +145,8 @@ const PipelineStageItem = (props: Props) => {
                       </Select.Trigger>
                       <Select.Content>
                         {PROBABILITY_DEAL.map((option) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
+                          <Select.Item key={option} value={option}>
+                            {option}
                           </Select.Item>
                         ))}
                       </Select.Content>
