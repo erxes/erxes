@@ -17,7 +17,6 @@ export const PersistentMenu = () => {
     (persistentMenus && persistentMenus?.length > 0) || false;
 
   if (activeTab !== 'chat' || !hasPersistentMenus) return null;
-  console.log(persistentMenus, 'lala');
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger disabled={!hasPersistentMenus}>
@@ -27,19 +26,24 @@ export const PersistentMenu = () => {
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" sideOffset={12}>
         {persistentMenus?.map((menu, index) => (
-          <Item key={index} type={menu.type} text={menu.text} />
+          <Item
+            key={index}
+            type={menu.type}
+            text={menu.text}
+            link={menu.link}
+          />
         ))}
       </DropdownMenu.Content>
     </DropdownMenu>
   );
 };
 
-export const Item = ({ type, text }: IPersistentMenu) => {
+export const Item = ({ type, text, link }: IPersistentMenu) => {
   switch (type) {
     case 'button':
       return <ButtonItem text={text} />;
     case 'link':
-      return <LinkItem text={text} />;
+      return <LinkItem text={text} link={link} />;
     default:
       return <ButtonItem text={text} />;
   }
@@ -71,10 +75,15 @@ export const ButtonItem = ({ text }: { text: string }) => {
   );
 };
 
-export const LinkItem = ({ text }: { text: string }) => {
+export const LinkItem = ({ text, link }: { text: string; link?: string }) => {
   return (
     <DropdownMenu.Item key={text} className="hover:bg-primary/30!">
-      <Link to={'#'} className="text-sm">
+      <Link
+        to={link || '#'}
+        target={link ? '_blank' : undefined}
+        rel={link ? 'noopener noreferrer' : undefined}
+        className="text-sm"
+      >
         {text}
       </Link>
     </DropdownMenu.Item>

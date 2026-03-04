@@ -8,6 +8,12 @@ const ChannelsSettings = lazy(
   () => import('@/channels/components/settings/Settings'),
 );
 
+const FormPreviewPage = lazy(() =>
+  import('~/pages/FormPreviewPage').then((module) => ({
+    default: module.FormPreviewPage,
+  })),
+);
+
 const FrontlineSettings = () => {
   return (
     <Suspense fallback={<div />}>
@@ -19,6 +25,10 @@ const FrontlineSettings = () => {
         <Route
           path={FrontlinePaths.ChannelsCatchAll}
           element={<ChannelsSettings />}
+        />
+        <Route
+          path={`/forms${FrontlinePaths.FormPreview}`}
+          element={<FormPreviewPage />}
         />
       </Routes>
     </Suspense>

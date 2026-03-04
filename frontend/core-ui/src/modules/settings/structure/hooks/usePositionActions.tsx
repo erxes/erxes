@@ -49,7 +49,7 @@ export function usePositionAdd(
           },
         });
       } catch (e) {
-        // Error handled silently
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Positions'],
@@ -91,7 +91,7 @@ export function usePositionEdit(
           },
         });
       } catch (e) {
-        // Error handled silently
+        // Silently handle cache update errors
       }
     },
   });
