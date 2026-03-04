@@ -66,7 +66,8 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
 
       const otherTrs = await models.Transactions.find({
         parentId: transaction.parentId,
-        $or: [{ originId: { $exists: false } }, { originId: '' }]
+        $or: [{ originId: { $exists: false } }, { originId: '' }],
+        _id: { $ne: trId }
       });
 
       return { mainTr: transaction, otherTrs }

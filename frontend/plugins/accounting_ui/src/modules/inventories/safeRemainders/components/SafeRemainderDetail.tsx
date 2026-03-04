@@ -86,14 +86,23 @@ export const SafeRemainderDetail = () => {
 
       case SAFE_REMAINDER_STATUSES.PUBLISHED:
         return (
-          <Button
-            variant="secondary"
-            className="text-destructive"
-            onClick={() => undoTrSafeRemainder(id)}
-          >
-            <IconTrashX />
-            Undo transaction
-          </Button>
+          <>
+            <Button
+              onClick={() => doTrSafeRemainder(id)}
+            >
+              <IconCrane />
+              ReDo Transaction
+            </Button>
+            <Button
+              variant="secondary"
+              className="text-destructive"
+              onClick={() => undoTrSafeRemainder(id)}
+            >
+              <IconTrashX />
+              Undo transaction
+            </Button>
+          </>
+
         )
       default:
         return null;

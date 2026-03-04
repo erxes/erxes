@@ -38,7 +38,7 @@ export const safeRemainderDoTrs = async (models: IModels, safeRemainder, details
   }
 
   // update
-  await models.Transactions.createPTransaction([{ ...oldMainTr, ...transactionDoc }, ...otherTrs], user);
+  await models.Transactions.updatePTransaction(oldMainTr.parentId, [{ ...oldMainTr, ...transactionDoc }, ...otherTrs], user);
   return oldMainTr._id
 }
 
