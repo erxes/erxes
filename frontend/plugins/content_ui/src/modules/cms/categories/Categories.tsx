@@ -72,7 +72,11 @@ export function Categories() {
       <CategoriesHeader>{headerActions}</CategoriesHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
+<<<<<<< HEAD
         <div className="flex overflow-hidden flex-col flex-auto w-full">
+=======
+        <div className="flex overflow-auto flex-col flex-auto w-full">
+>>>>>>> d3d1cdf0e24e5799b0bd7345a73caa38b662a68f
           <div className="flex-auto">
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">

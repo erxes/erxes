@@ -7,6 +7,7 @@ import {
   CMS_CATEGORIES_ADD,
   CMS_CATEGORIES_EDIT,
 } from './graphql';
+import { ICategory } from './types';
 
 interface Category {
   _id: string;
@@ -20,7 +21,7 @@ interface Category {
 }
 
 interface CmsCategoryDrawerProps {
-  category?: Partial<Category>;
+  category?: ICategory;
   isOpen: boolean;
   onClose: () => void;
   clientPortalId: string;
@@ -339,8 +340,8 @@ export function CmsCategoryDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create Category'}
+                  ? 'Save Changes'
+                  : 'Create Category'}
               </Button>
             </div>
           </form>
