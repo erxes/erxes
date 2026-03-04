@@ -33,7 +33,7 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
-      if (!doc.amount && doc.amount === 0) {
+      if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
 
