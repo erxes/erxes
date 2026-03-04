@@ -6,43 +6,21 @@ type Props = {
 const CustomersRow = ({ customers, action }: Props) => {
   const { Name, No, primaryName, firstName, code, syncStatus } = customers;
 
+  const displayCode = action === 'DELETE' ? code : No;
+  const displayName = action === 'DELETE'
+    ? primaryName || firstName
+    : Name;
+
   return (
-    <tr>
-      <td>{action === 'DELETE' ? code : No}</td>
-      <td>{action === 'DELETE' ? primaryName || firstName : Name}</td>
-      {action === 'CREATE' ? (
-        <td>
-          {syncStatus === false ? (
-            <></>
-          ) : (
-            <span style={{ color: '#27ae60' }}> Synced </span>
-          )}
-        </td>
-      ) : (
-        <></>
-      )}
-      {action === 'UPDATE' ? (
-        <td>
-          {syncStatus === false ? (
-            <></>
-          ) : (
-            <span style={{ color: '#27ae60' }}> Synced </span>
-          )}
-        </td>
-      ) : (
-        <></>
-      )}
-      {action === 'DELETE' ? (
-        <td>
-          {syncStatus === false ? (
-            <></>
-          ) : (
-            <span style={{ color: '#27ae60' }}> Synced </span>
-          )}
-        </td>
-      ) : (
-        <></>
-      )}
+    <tr className="border-b">
+      <td className="p-2">{displayCode}</td>
+      <td className="p-2">{displayName}</td>
+
+      <td className="p-2">
+        {syncStatus !== false && (
+          <span className="text-green-600 font-medium">Synced</span>
+        )}
+      </td>
     </tr>
   );
 };

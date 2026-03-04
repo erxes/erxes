@@ -1,25 +1,31 @@
 type Props = {
   price: any;
-  action: any;
+  action: string;
 };
 
 const Row = ({ price, action }: Props) => {
-  const { Item_No, Unit_Price, Ending_Date, code, unitPrice, syncStatus } =
-    price;
+  const { Item_No, Unit_Price, Ending_Date, code, unitPrice } = price;
+
+  const displayCode = action === 'DELETE' ? code : Item_No;
+  const displayPrice = action === 'DELETE' ? unitPrice : Unit_Price;
 
   return (
-    <tr>
-      <td>{action === 'DELETE' ? code : Item_No}</td>
-      <td>{parseFloat(action === 'DELETE' ? unitPrice : Unit_Price)}</td>
-      <td>{action === 'DELETE' ? '' : Ending_Date}</td>
+    <tr className="border-b">
+      <td className="p-2">{displayCode}</td>
 
-      {action === 'UPDATE' || action === 'MATCH' ? (
-        <td>
-          <span style={{ color: '#27ae60' }}> Synced </span>
-        </td>
-      ) : (
-        <></>
-      )}
+      <td className="p-2">
+        {parseFloat(displayPrice || 0).toLocaleString()}
+      </td>
+
+      <td className="p-2">
+        {action === 'DELETE' ? '' : Ending_Date || ''}
+      </td>
+
+      <td className="p-2">
+        {(action === 'UPDATE' || action === 'MATCH') && (
+          <span className="text-green-600 font-medium">Synced</span>
+        )}
+      </td>
     </tr>
   );
 };

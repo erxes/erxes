@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Select } from 'erxes-ui/components/select';
@@ -45,7 +46,7 @@ const InventoryCategory = ({
         <div className="border rounded-md overflow-hidden">
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/40">
-              <tr className="text-left">
+              <tr>
                 <th className="p-2">Code</th>
                 <th className="p-2">Name</th>
                 <th className="p-2">Description</th>
@@ -54,7 +55,7 @@ const InventoryCategory = ({
             </thead>
             <tbody>
               {data.slice(0, 100).map((p) => (
-                <Row key={p.code} category={p} action={action} />
+                <Row key={p.code || p.Code} category={p} action={action} />
               ))}
             </tbody>
           </table>
@@ -71,15 +72,26 @@ const InventoryCategory = ({
     title: string;
     data: any[];
     action: string;
-  }) => (
-    <Card className="p-4 space-y-4">
-      <div className="font-semibold">
-        {title} {data?.length ? `: ${data.length}` : ''}
-      </div>
+  }) => {
+    const [open, setOpen] = useState(false);
 
-      {renderTable(data, action)}
-    </Card>
-  );
+    return (
+      <div className="border rounded-md overflow-hidden">
+        <div
+          className="flex items-center justify-between px-4 py-3 bg-muted/30 cursor-pointer hover:bg-muted/50"
+          onClick={() => setOpen(!open)}
+        >
+          <div className="font-medium">
+            {title} {data?.length ? `(${data.length})` : ''}
+          </div>
+
+          <span className="text-sm">{open ? '▾' : '▸'}</span>
+        </div>
+
+        {open && <div className="p-4">{renderTable(data, action)}</div>}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -89,49 +101,35 @@ const InventoryCategory = ({
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <Card className="p-4 flex flex-wrap gap-4 items-end">
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Product Category</label>
+      {/* Top Filters */}
+      <Card className="p-4 flex justify-end gap-4 items-center">
+        <Select
+          value={queryParams.categoryId || ''}
+          onValueChange={(val) => setCategory(val)}
+        >
+          <Select.Trigger className="w-56">
+            <Select.Value placeholder="Choose product category" />
+          </Select.Trigger>
 
-          <Select
-            value={queryParams.categoryId || ''}
-            onValueChange={(val) => setCategory(val)}
-          >
-            <Select.Trigger className="w-52">
-              <Select.Value placeholder="Select category" />
-            </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="">All categories</Select.Item>
+          </Select.Content>
+        </Select>
 
-            <Select.Content>
-              <Select.Item value="">Clear category filter</Select.Item>
-            </Select.Content>
-          </Select>
-        </div>
+        <Select
+          value={queryParams.brandId || ''}
+          onValueChange={(val) => setBrand(val)}
+        >
+          <Select.Trigger className="w-56">
+            <Select.Value placeholder="Choose brands" />
+          </Select.Trigger>
 
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Brand</label>
-
-          <Select
-            value={queryParams.brandId || ''}
-            onValueChange={(val) => setBrand(val)}
-          >
-            <Select.Trigger className="w-52">
-              <Select.Value placeholder="Select brand" />
-            </Select.Trigger>
-
-            <Select.Content>
-              <Select.Item value="">No brand</Select.Item>
-            </Select.Content>
-          </Select>
-        </div>
+          <Select.Content>
+            <Select.Item value="">No brand</Select.Item>
+          </Select.Content>
+        </Select>
 
         <Button onClick={toCheckCategory}>Check</Button>
-
-        {items?.matched && (
-          <span className="ml-auto text-sm text-muted-foreground">
-            Matched: {items.matched.count}
-          </span>
-        )}
       </Card>
 
       {/* Sections */}

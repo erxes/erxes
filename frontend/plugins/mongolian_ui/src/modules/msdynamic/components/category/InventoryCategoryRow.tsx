@@ -1,49 +1,26 @@
 type Props = {
   category: any;
-  action: any;
+  action: string;
 };
 
 const Row = ({ category, action }: Props) => {
-  const { Description, Code, name, code, description, syncStatus } = category;
+  const { Code, Description, name, code, description, syncStatus } = category;
+
+  const displayCode = action === 'DELETE' ? code : Code;
+  const displayName = action === 'DELETE' ? name : Code;
+  const displayDescription = action === 'DELETE' ? description : Description;
 
   return (
-    <tr>
-      <td>{action === 'DELETE' ? code : Code}</td>
-      <td>{action === 'DELETE' ? name : Code}</td>
-      <td>{action === 'DELETE' ? description : Description}</td>
-      {action === 'CREATE' ? (
-        <td>
-          {syncStatus === false ? (
-            <></>
-          ) : (
-            <span style={{ color: '#27ae60' }}> Synced </span>
-          )}
-        </td>
-      ) : (
-        <></>
-      )}
-      {action === 'UPDATE' ? (
-        <td>
-          {syncStatus === false ? (
-            <></>
-          ) : (
-            <span style={{ color: '#27ae60' }}> Synced </span>
-          )}
-        </td>
-      ) : (
-        <></>
-      )}
-      {action === 'DELETE' ? (
-        <td>
-          {syncStatus === false ? (
-            <></>
-          ) : (
-            <span style={{ color: '#27ae60' }}> Synced </span>
-          )}
-        </td>
-      ) : (
-        <></>
-      )}
+    <tr className="border-b">
+      <td className="p-2">{displayCode}</td>
+      <td className="p-2">{displayName}</td>
+      <td className="p-2">{displayDescription}</td>
+
+      <td className="p-2">
+        {syncStatus !== false && (
+          <span className="text-green-600 font-medium">Synced</span>
+        )}
+      </td>
     </tr>
   );
 };

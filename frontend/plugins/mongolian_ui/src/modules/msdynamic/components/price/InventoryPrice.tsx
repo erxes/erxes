@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 
@@ -31,16 +32,17 @@ const InventoryPrice = ({
       <div className="border rounded-md overflow-hidden">
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/40">
-            <tr className="text-left">
+            <tr>
               <th className="p-2">Code</th>
               <th className="p-2">Unit price</th>
               <th className="p-2">Ending Date</th>
               <th className="p-2">Status</th>
             </tr>
           </thead>
+
           <tbody>
             {data.slice(0, 100).map((p) => (
-              <Row key={p.code} price={p} action={action} />
+              <Row key={p.code || p.Item_No} price={p} action={action} />
             ))}
           </tbody>
         </table>
@@ -56,33 +58,40 @@ const InventoryPrice = ({
     title: string;
     data: any[];
     action: string;
-  }) => (
-    <Card className="p-4 space-y-4">
-      <div className="font-semibold">
-        {title} {data?.length ? `: ${data.length}` : ''}
-      </div>
+  }) => {
+    const [open, setOpen] = useState(false);
 
-      {renderTable(data, action)}
-    </Card>
-  );
+    return (
+      <div className="border rounded-md overflow-hidden">
+        <div
+          className="flex items-center justify-between px-4 py-3 bg-muted/30 cursor-pointer hover:bg-muted/50"
+          onClick={() => setOpen(!open)}
+        >
+          <div className="font-medium">
+            {title} {data?.length ? `(${data.length})` : ''}
+          </div>
+
+          <span>{open ? '▾' : '▸'}</span>
+        </div>
+
+        {open && <div className="p-4">{renderTable(data, action)}</div>}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">
+        Loading...
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header / Action Bar */}
-      <Card className="p-4 flex items-center gap-4">
+      {/* Top Bar */}
+      <Card className="p-4 flex justify-end items-center gap-4">
         <Button onClick={toSyncPrices}>Sync</Button>
-
-        {items?.matched && (
-          <span className="ml-auto text-sm text-muted-foreground">
-            Matched: {items.matched.count}
-          </span>
-        )}
       </Card>
 
       <Section

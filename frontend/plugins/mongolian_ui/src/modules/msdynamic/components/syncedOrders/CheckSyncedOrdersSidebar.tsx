@@ -50,7 +50,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
   };
 
   return (
-    <Card className="p-4 space-y-6">
+    <div className="p-4 space-y-6">
       <div className="text-lg font-semibold">Filters</div>
 
       {/* Brand */}
@@ -144,7 +144,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
       <Button onClick={applyFilter} className="w-full">
         Apply Filter
       </Button>
-    </Card>
+    </div>
   );
 };
 

@@ -1,4 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
+import { useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Combobox } from 'erxes-ui/components/combobox';
@@ -36,9 +37,13 @@ const InventoryProducts = ({
   const { data: brandsData } = useQuery(BRANDS_QUERY);
   const brands = brandsData?.brands || [];
 
+  const selectedBrand = brands.find((b: any) => b._id === queryParams.brandId);
+
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">
+        Loading...
+      </div>
     );
   }
 
@@ -64,16 +69,17 @@ const InventoryProducts = ({
         <div className="border rounded-md overflow-hidden">
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/40">
-              <tr className="text-left">
+              <tr>
                 <th className="p-2">Code</th>
                 <th className="p-2">Name</th>
                 <th className="p-2">Unit price</th>
                 <th className="p-2">Status</th>
               </tr>
             </thead>
+
             <tbody>
               {data.slice(0, 100).map((p) => (
-                <Row key={p.code} product={p} action={action} />
+                <Row key={p.code || p.No} product={p} action={action} />
               ))}
             </tbody>
           </table>
@@ -90,30 +96,36 @@ const InventoryProducts = ({
     title: string;
     data: any[];
     action: string;
-  }) => (
-    <Card className="p-4 space-y-4">
-      <div className="font-semibold">
-        {title} {data?.length ? `: ${data.length}` : ''}
-      </div>
-      {renderTable(data, action)}
-    </Card>
-  );
+  }) => {
+    const [open, setOpen] = useState(false);
 
-  const selectedBrand = brands.find((b: any) => b._id === queryParams.brandId);
+    return (
+      <div className="border rounded-md overflow-hidden">
+        <div
+          className="flex items-center justify-between px-4 py-3 bg-muted/30 cursor-pointer hover:bg-muted/50"
+          onClick={() => setOpen(!open)}
+        >
+          <div className="font-medium">
+            {title} {data?.length ? `(${data.length})` : ''}
+          </div>
+
+          <span>{open ? '▾' : '▸'}</span>
+        </div>
+
+        {open && <div className="p-4">{renderTable(data, action)}</div>}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
       {/* Top Bar */}
-      <Card className="p-4 flex items-center gap-4">
-        <span className="text-sm text-muted-foreground">
-          {items?.matched && `Matched: ${items.matched.count}`}
-        </span>
-
+      <Card className="p-4 flex justify-end gap-4 items-center">
         <Popover>
           <Combobox.Trigger>
             <Combobox.Value
               value={selectedBrand?.name}
-              placeholder="Select brand"
+              placeholder="Choose brands"
             />
           </Combobox.Trigger>
 
@@ -140,6 +152,7 @@ const InventoryProducts = ({
         <Button onClick={toCheckProducts}>Check</Button>
       </Card>
 
+      {/* Sections */}
       <Section
         title="Create products"
         data={items?.create?.items || []}
