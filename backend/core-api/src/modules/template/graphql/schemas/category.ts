@@ -5,10 +5,9 @@ export const types = `
     _id: String
     name: String
     parentId: String
+    parent: TemplateCategory
     order: String
     code: String
-    contentType: String
-
     templateCount: Int
     isRoot: Boolean
 
@@ -50,11 +49,10 @@ const mutationParams = `
   name: String,
   parentId: String,
   code: String,
-  contentType: String
 `;
 
 export const mutations = `
   templateCategoryAdd(${mutationParams}): TemplateCategory
   templateCategoryEdit(_id: String!, ${mutationParams}): TemplateCategory
-  templateCategoryRemove(_id: String!): JSON
+  templateCategoryRemove(_ids: [String!]): JSON
 `;

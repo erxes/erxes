@@ -1,5 +1,5 @@
-import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { createContext, Dispatch, SetStateAction, useContext } from 'react';
+import { TemplateCategory } from '../types';
 
 export interface ITemplateCategoryInlineContext {
   categories: TemplateCategory[];

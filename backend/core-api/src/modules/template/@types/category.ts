@@ -5,7 +5,6 @@ export interface ITemplateCategory {
   name: string;
   parentId: string;
   code: string;
-  contentType: string;
 
   createdBy: string;
 

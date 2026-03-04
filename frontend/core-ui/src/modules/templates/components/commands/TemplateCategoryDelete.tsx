@@ -2,17 +2,18 @@ import { ApolloError } from '@apollo/client';
 import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
-import { useRemoveTemplate } from '../../hooks/useTemplateRemove';
+import { useTemplateCategoryRemove } from '../../hooks/useTemplateCategoryRemove';
+import { TemplateCategory } from '@/templates/types/TemplateCategory';
 
-export const TemplateDelete = ({
-  templateIds,
+export const TemplateCategoryDelete = ({
+  templateCategoryIds,
   rows,
 }: {
-  templateIds: string[];
-  rows: Row<any>[];
+  templateCategoryIds: string[];
+  rows: Row<TemplateCategory>[];
 }) => {
   const { confirm } = useConfirm();
-  const { removeTemplate } = useRemoveTemplate();
+  const { templateCategoryRemove } = useTemplateCategoryRemove();
 
   const { toast } = useToast();
 
@@ -22,9 +23,10 @@ export const TemplateDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${templateIds.length} selected broadcast?`,
+          message: `Are you sure you want to delete the ${templateCategoryIds.length} selected template categor${templateCategoryIds.length === 1 ? 'y' : 'ies'}?`,
         }).then(() => {
-          removeTemplate(templateIds, {
+          templateCategoryRemove({
+            variables: { _ids: templateCategoryIds },
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',
@@ -39,7 +41,7 @@ export const TemplateDelete = ({
               toast({
                 title: 'Success',
                 variant: 'success',
-                description: 'Broadcast deleted successfully',
+                description: `Template categor${templateCategoryIds.length === 1 ? 'y' : 'ies'} deleted successfully`,
               });
             },
           });

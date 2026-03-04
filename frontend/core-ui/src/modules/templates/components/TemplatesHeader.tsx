@@ -1,4 +1,3 @@
-import { TemplateImport } from '@/templates/components/TemplateImport';
 import { TemplatesBreadcrumb } from '@/templates/components/TemplatesBreadcrumb';
 import { Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';

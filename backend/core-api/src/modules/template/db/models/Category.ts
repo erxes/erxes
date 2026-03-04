@@ -1,10 +1,11 @@
-import { model, Model } from 'mongoose';
-import { ITemplateCategory, ITemplateCategoryDocument } from '../../@types';
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { ITemplateCategory, ITemplateCategoryDocument } from '../../@types';
 import { templateCategorySchema } from '../definitions/category';
 
-export interface ITemplateCategoryModal extends Model<ITemplateCategoryDocument> {
+export interface ITemplateCategoryModal
+  extends Model<ITemplateCategoryDocument> {
   getTemplateCategory(_id: string): Promise<ITemplateCategoryDocument>;
   createTemplateCategory(
     category: ITemplateCategory,
@@ -15,7 +16,7 @@ export interface ITemplateCategoryModal extends Model<ITemplateCategoryDocument>
     category: ITemplateCategory,
     user: IUserDocument,
   ): Promise<ITemplateCategoryDocument>;
-  removeTemplateCategory(_id: string): Promise<void>;
+  removeTemplateCategory(_ids: string[]): Promise<void>;
 }
 
 export const loadTemplateCategoryClass = (models: IModels) => {
@@ -23,7 +24,7 @@ export const loadTemplateCategoryClass = (models: IModels) => {
     public static async getTemplateCategory(_id: string) {
       const category = await models.TemplateCategory.findOne({ _id }).lean();
 
-      if (category) {
+      if (!category) {
         throw new Error('Template Category not found');
       }
 
@@ -61,11 +62,9 @@ export const loadTemplateCategoryClass = (models: IModels) => {
       );
     }
 
-    public static async removeTemplateCategory(_id: string) {
-      const category = await models.TemplateCategory.getTemplateCategory(_id);
-
-      return await models.TemplateCategory.findOneAndDelete({
-        _id: category._id,
+    public static async removeTemplateCategory(_ids: string[]) {
+      return models.TemplateCategory.deleteMany({
+        _id: { $in: _ids },
       });
     }
 

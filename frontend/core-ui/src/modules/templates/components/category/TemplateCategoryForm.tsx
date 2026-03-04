@@ -2,62 +2,84 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Button, Form, Input, Sheet, Textarea } from 'erxes-ui';
-import { useTemplateAdd } from '../hooks/useTemplateAdd';
-import { SelectTemplateCategory } from './TemplateCategorySelect';
+import { useTemplateCategoryAdd } from '@/templates/hooks/useTemplateCategoryAdd';
+import { useTemplateCategoryEdit } from '@/templates/hooks/useTemplateCategoryEdit';
+import { TemplateCategory } from '@/templates/types/TemplateCategory';
+import { Button, Form, Input, Sheet } from 'erxes-ui';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  categoryIds: z.array(z.string()),
+  code: z.string().min(1, 'Code is required'),
+  parentId: z.string().optional(),
 });
 
-interface TemplateFormProps {
-  contentType: string;
-  contentId: string;
+interface TemplateCategoryFormProps {
+  category?: TemplateCategory;
+  parentId?: string;
   onCompleted?: (data: any) => void;
   onClose?: () => void;
 }
 
-export const TemplateForm = ({
-  contentType,
-  contentId,
+export const TemplateCategoryForm = ({
+  category,
+  parentId,
   onCompleted,
   onClose,
-}: TemplateFormProps) => {
+}: TemplateCategoryFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      categoryIds: [],
+      name: category?.name || '',
+      code: category?.code || '',
+      parentId: category?.parentId || parentId || '',
     },
   });
 
-  const { templateAdd, loading } = useTemplateAdd();
+  const { templateCategoryAdd, loading: addLoading } = useTemplateCategoryAdd();
+  const { templateCategoryEdit, loading: editLoading } =
+    useTemplateCategoryEdit();
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    templateAdd({
-      variables: {
-        ...values,
-        contentType,
-        contentId,
-      },
-      onCompleted: (data) => {
-        form.reset();
-        if (onClose) {
-          onClose();
-        }
-        if (onCompleted) {
-          onCompleted(data);
-        }
-      },
-      onError: (error) => {
-        form.setError('root', {
-          message: error.message || 'Failed to create template',
-        });
-      },
-    });
+    if (category) {
+      templateCategoryEdit({
+        variables: {
+          _id: category._id,
+          ...values,
+        },
+        onCompleted: (data) => {
+          form.reset();
+          if (onClose) {
+            onClose();
+          }
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        },
+        onError: (error) => {
+          form.setError('root', {
+            message: error.message || 'Failed to update category',
+          });
+        },
+      });
+    } else {
+      templateCategoryAdd({
+        variables: values,
+        onCompleted: (data) => {
+          form.reset();
+          if (onClose) {
+            onClose();
+          }
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        },
+        onError: (error) => {
+          form.setError('root', {
+            message: error.message || 'Failed to create category',
+          });
+        },
+      });
+    }
   };
 
   return (
@@ -82,32 +104,31 @@ export const TemplateForm = ({
 
             <Form.Field
               control={form.control}
-              name="description"
+              name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Description</Form.Label>
-                  <Textarea {...field} rows={5} />
+                  <Form.Label>Code</Form.Label>
+                  <Input {...field} />
                   <Form.Message />
                 </Form.Item>
               )}
             />
 
-            <Form.Field
+            {/* <Form.Field
               control={form.control}
-              name="categoryIds"
+              name="parentId"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Parent Category</Form.Label>
 
                   <SelectTemplateCategory
-                    mode="multiple"
                     value={field.value}
                     onValueChange={field.onChange}
                   />
                   <Form.Message />
                 </Form.Item>
               )}
-            />
+            /> */}
           </div>
         </Sheet.Content>
 
@@ -124,9 +145,13 @@ export const TemplateForm = ({
           <Button
             type="submit"
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            disabled={loading}
+            disabled={addLoading || editLoading}
           >
-            Create Template
+            {addLoading || editLoading
+              ? 'Saving...'
+              : category
+              ? 'Update Category'
+              : 'Create Category'}
           </Button>
         </Sheet.Footer>
       </form>

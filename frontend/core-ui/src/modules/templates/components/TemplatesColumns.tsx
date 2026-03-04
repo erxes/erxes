@@ -1,4 +1,3 @@
-import { TemplateCategoriesInline } from '@/templates/components/category/TemplateCategoryInline';
 import { templateMoreColumn } from '@/templates/components/TemplateMoreCell';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { IconLabelFilled } from '@tabler/icons-react';
@@ -10,6 +9,7 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { IUser, MembersInline } from 'ui-modules';
+import { TemplateCategoriesInline } from 'ui-modules/modules/templates/components/TemplateCategoryInline';
 import { useTemplateTypes } from '../hooks/useTemplateTypes';
 
 export const templateColumns: ColumnDef<any>[] = [

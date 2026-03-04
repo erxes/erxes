@@ -1,7 +1,8 @@
-import { TemplatesCommandBar } from '@/templates/components/TemplatesCommandBar';
-import { useTemplateCategories } from '@/templates/hooks/useTemplateCategories';
+import { TemplateCategoryCommandBar } from '@/templates/components/category/TemplateCategoryCommandBar';
 import { RecordTable } from 'erxes-ui';
+import { useTemplateCategories } from 'ui-modules/modules/templates';
 import { templateCategoryColumns } from './TemplateCategoryColumns';
+import { TemplateCategoryDetailSheet } from './TemplateCategoryDetailSheet';
 
 export const TemplateCategoryRecordTable = () => {
   const { categories, pageInfo, loading, handleFetchMore } =
@@ -13,7 +14,7 @@ export const TemplateCategoryRecordTable = () => {
     <RecordTable.Provider
       columns={templateCategoryColumns}
       data={categories || []}
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'attachment', 'name']}
       className="m-3"
     >
       <RecordTable.CursorProvider
@@ -40,7 +41,8 @@ export const TemplateCategoryRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <TemplatesCommandBar />
+      <TemplateCategoryCommandBar />
+      <TemplateCategoryDetailSheet />
     </RecordTable.Provider>
   );
 };

@@ -1,10 +1,4 @@
-import {
-  SelectCategoryContext,
-  useSelectCategoryContext,
-} from '@/templates/context/TemplateCategorySelectContext';
-import { useTemplateCategories } from '@/templates/hooks/useTemplateCategories';
-import { TemplateCategory } from '@/templates/types/TemplateCategory';
-import { IconPlus, IconCategory } from '@tabler/icons-react';
+import { IconCategory, IconPlus } from '@tabler/icons-react';
 import {
   AvatarProps,
   Button,
@@ -20,7 +14,13 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import {
+  SelectCategoryContext,
+  useSelectCategoryContext,
+} from 'ui-modules/modules/templates/context/TemplateCategorySelectContext';
 import { useDebounce } from 'use-debounce';
+import { useTemplateCategories } from '../hooks/useTemplateCategories';
+import { TemplateCategory } from '../types';
 import { TemplateCategoriesInline } from './TemplateCategoryInline';
 
 const SelectCategoryProvider = ({
@@ -445,13 +445,11 @@ export const SelectCategoryDetail = ({
 export const SelectCategoryRoot = ({
   onValueChange,
   className,
-  size,
   placeholder,
   scope,
   ...props
 }: Omit<React.ComponentProps<typeof SelectCategoryProvider>, 'children'> & {
   className?: string;
-  size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
   placeholder?: string;
   scope?: string;
 }) => {
@@ -482,12 +480,10 @@ export const SelectCategoryRoot = ({
 export const SelectCategoryCustomDetail = ({
   onValueChange,
   className,
-  size = 'lg',
   value,
   ...props
 }: Omit<React.ComponentProps<typeof SelectCategoryProvider>, 'children'> & {
   className?: string;
-  size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
 }) => {
   const [open, setOpen] = useState(false);
   return (

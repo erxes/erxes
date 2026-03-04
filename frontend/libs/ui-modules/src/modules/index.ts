@@ -20,3 +20,4 @@ export * from './import-export';
 export * from './activity-logs';
 export * from './payments';
 export * from './sales';
+export * from './templates';

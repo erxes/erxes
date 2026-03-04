@@ -8,7 +8,6 @@ export const templateCategorySchema = schemaWrapper(
       name: { type: String, required: true },
       parentId: { type: String },
       code: { type: String, required: true },
-      contentType: { type: String, required: true },
 
       createdBy: { type: String },
       updatedBy: { type: String },

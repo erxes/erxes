@@ -12,10 +12,12 @@ const categoryQueries = {
     params: ITemplateCategoryParams,
     { models }: IContext,
   ) => {
-    const { searchValue, types, createdBy, updatedBy, dateFilters } =
+    const { searchValue, types, parentIds, createdBy, updatedBy, dateFilters } =
       params || {};
 
-    const filter: FilterQuery<ITemplateCategoryDocument> = {};
+    const filter: FilterQuery<ITemplateCategoryDocument> = {
+      parentId: { $in: [null, ''] },
+    };
 
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
@@ -23,6 +25,10 @@ const categoryQueries = {
 
     if (types?.length) {
       filter.contentType = { $in: types };
+    }
+
+    if (parentIds?.length) {
+      filter.parentId = { $in: parentIds };
     }
 
     if (createdBy) {
@@ -59,7 +65,13 @@ const categoryQueries = {
 
     return await cursorPaginate({
       model: models.TemplateCategory,
-      params: { ...params, orderBy: { createdBy: -1 } },
+      params: {
+        ...params,
+        orderBy: {
+          createdAt: -1,
+          _id: -1,
+        },
+      },
       query: filter,
     });
   },
@@ -69,7 +81,7 @@ const categoryQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return await models.TemplateCategory.getTemplateCategory(_id);
+    return models.TemplateCategory.getTemplateCategory(_id);
   },
 
   templatesGetTypes: async () => {

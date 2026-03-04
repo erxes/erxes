@@ -1,4 +1,3 @@
-import { SelectTemplateCategory } from '@/templates/components/category/TemplateCategorySelect';
 import { TemplateCategoryFilterState } from '@/templates/types/TemplateCategory';
 import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
 import {
@@ -10,6 +9,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
+import { SelectTemplateCategory } from 'ui-modules/modules/templates';
 
 export const TemplateCategoryFilter = () => {
   const [queries] = useMultiQueryState<TemplateCategoryFilterState>([

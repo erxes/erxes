@@ -7,6 +7,7 @@ export interface ITemplateAdd {
   description?: string;
   contentType?: string;
   contentId?: string;
+  categoryIds?: string[];
 }
 
 export interface ITemplateAddResponse {
