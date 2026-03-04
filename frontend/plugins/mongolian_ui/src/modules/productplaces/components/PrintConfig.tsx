@@ -187,175 +187,167 @@ const PrintConfig: React.FC<Props> = ({
   if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
-  <Form {...form}>
-    {/* SCROLL WRAPPER */}
-    <div className="w-full h-full overflow-y-auto">
-      {/* CENTERED CONTAINER */}
-      <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+    <Form {...form}>
+      {/* SCROLL WRAPPER */}
+      <div className="w-full h-full overflow-y-auto">
+        {/* CENTERED CONTAINER */}
+        <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+          {/* HEADER */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Print Configuration</h2>
 
-        {/* HEADER */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            Print Configuration
-          </h2>
+            <Button type="button" variant="outline" onClick={handleNewConfig}>
+              + New Config
+            </Button>
+          </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleNewConfig}
-          >
-            + New Config
-          </Button>
-        </div>
+          {/* SAVED CONFIGS */}
+          {savedConfigs.length > 0 && (
+            <div className="bg-white rounded-xl border p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Saved Configs
+              </h3>
 
-        {/* SAVED CONFIGS */}
-        {savedConfigs.length > 0 && (
-          <div className="bg-white rounded-xl border p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              Saved Configs
-            </h3>
-
-            <div className="space-y-3">
-              {savedConfigs.map((cfg, index) => (
-                <div
-                  key={cfg._id || index}
-                  onClick={() => setActiveIndex(index)}
-                  className={`cursor-pointer rounded-lg border p-4 transition
+              <div className="space-y-3">
+                {savedConfigs.map((cfg, index) => (
+                  <div
+                    key={cfg._id || index}
+                    onClick={() => setActiveIndex(index)}
+                    className={`cursor-pointer rounded-lg border p-4 transition
                     ${
                       index === activeIndex
                         ? 'border-primary bg-primary/5'
                         : 'hover:bg-muted/40'
                     }`}
-                >
-                  <div className="font-medium">
-                    {cfg.title || '(Untitled config)'}
+                  >
+                    <div className="font-medium">
+                      {cfg.title || '(Untitled config)'}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Stage: {cfg.stageId || '—'}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Stage: {cfg.stageId || '—'}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* BASIC INFO */}
-        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
-          <div className="space-y-2">
-            <Label>Title</Label>
-            <input
-              className="w-full rounded-md border px-3 py-2"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* BASIC INFO */}
+          <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
             <div className="space-y-2">
-              <Label>Board</Label>
-              <SelectSalesBoard
-                variant="form"
-                value={formData.boardId || ''}
-                onValueChange={(boardId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    boardId,
-                    pipelineId: '',
-                    stageId: '',
-                  }));
-                }}
+              <Label>Title</Label>
+              <input
+                className="w-full rounded-md border px-3 py-2"
+                value={formData.title}
+                onChange={(e) => updateField('title', e.target.value)}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Pipeline</Label>
-              <SelectPipeline
-                variant="form"
-                boardId={formData.boardId || ''}
-                value={formData.pipelineId || ''}
-                disabled={!formData.boardId}
-                onValueChange={(pipelineId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    pipelineId,
-                    stageId: '',
-                  }));
-                }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Stage</Label>
-              <SelectStage
-                id="print-stage"
-                variant="form"
-                pipelineId={formData.pipelineId || ''}
-                value={formData.stageId || ''}
-                disabled={!formData.pipelineId}
-                onValueChange={(stageId: string) =>
-                  updateField('stageId', stageId)
-                }
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* CONDITIONS */}
-        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              Print Conditions
-            </h3>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addCondition}
-            >
-              + Add condition
-            </Button>
-          </div>
-
-          {formData.conditions.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              No conditions added
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {formData.conditions.map((condition) => (
-                <PerPrintConditions
-                  key={condition.id}
-                  condition={condition}
-                  onChange={updateCondition}
-                  onRemove={removeCondition}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Board</Label>
+                <SelectSalesBoard
+                  variant="form"
+                  value={formData.boardId || ''}
+                  onValueChange={(boardId: string) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      boardId,
+                      pipelineId: '',
+                      stageId: '',
+                    }));
+                  }}
                 />
-              ))}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Pipeline</Label>
+                <SelectPipeline
+                  variant="form"
+                  boardId={formData.boardId || ''}
+                  value={formData.pipelineId || ''}
+                  disabled={!formData.boardId}
+                  onValueChange={(pipelineId: string) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      pipelineId,
+                      stageId: '',
+                    }));
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Stage</Label>
+                <SelectStage
+                  id="print-stage"
+                  variant="form"
+                  pipelineId={formData.pipelineId || ''}
+                  value={formData.stageId || ''}
+                  disabled={!formData.pipelineId}
+                  onValueChange={(stageId: string) =>
+                    updateField('stageId', stageId)
+                  }
+                />
+              </div>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3 pt-2">
-          {activeIndex !== null && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-            >
-              Delete
+          {/* CONDITIONS */}
+          <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Print Conditions
+              </h3>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addCondition}
+              >
+                + Add condition
+              </Button>
+            </div>
+
+            {formData.conditions.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                No conditions added
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {formData.conditions.map((condition) => (
+                  <PerPrintConditions
+                    key={condition.id}
+                    condition={condition}
+                    onChange={updateCondition}
+                    onRemove={removeCondition}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex justify-end gap-3 pt-2">
+            {activeIndex !== null && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            )}
+
+            <Button type="button" onClick={handleSave}>
+              Save
             </Button>
-          )}
-
-          <Button type="button" onClick={handleSave}>
-            Save
-          </Button>
+          </div>
         </div>
-
       </div>
-    </div>
-  </Form>
-);
+    </Form>
+  );
 };
 
 export default PrintConfig;

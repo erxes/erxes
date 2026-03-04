@@ -181,187 +181,181 @@ const SplitConfig: React.FC<Props> = ({
   if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
-  <Form {...form}>
-    {/* SCROLL WRAPPER */}
-    <div className="w-full h-full overflow-y-auto">
-      {/* CENTERED CONTAINER */}
-      <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+    <Form {...form}>
+      {/* SCROLL WRAPPER */}
+      <div className="w-full h-full overflow-y-auto">
+        {/* CENTERED CONTAINER */}
+        <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+          {/* HEADER */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Split Configuration</h2>
 
-        {/* HEADER */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            Split Configuration
-          </h2>
+            <Button type="button" variant="outline" onClick={handleNewConfig}>
+              + New Config
+            </Button>
+          </div>
 
-          <Button type="button" variant="outline" onClick={handleNewConfig}>
-            + New Config
-          </Button>
-        </div>
+          {/* SAVED CONFIGS */}
+          {savedConfigs.length > 0 && (
+            <div className="bg-white rounded-xl border p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Saved Configs
+              </h3>
 
-        {/* SAVED CONFIGS */}
-        {savedConfigs.length > 0 && (
-          <div className="bg-white rounded-xl border p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              Saved Configs
-            </h3>
-
-            <div className="space-y-3">
-              {savedConfigs.map((cfg, index) => (
-                <div
-                  key={cfg._id || index}
-                  onClick={() => setActiveIndex(index)}
-                  className={`cursor-pointer rounded-lg border p-4 transition
+              <div className="space-y-3">
+                {savedConfigs.map((cfg, index) => (
+                  <div
+                    key={cfg._id || index}
+                    onClick={() => setActiveIndex(index)}
+                    className={`cursor-pointer rounded-lg border p-4 transition
                     ${
                       index === activeIndex
                         ? 'border-primary bg-primary/5'
                         : 'hover:bg-muted/40'
                     }`}
-                >
-                  <div className="font-medium">
-                    {cfg.title || '(Untitled config)'}
+                  >
+                    <div className="font-medium">
+                      {cfg.title || '(Untitled config)'}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Stage: {cfg.stageId || '—'}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Stage: {cfg.stageId || '—'}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* BASIC INFO */}
+          <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
+            <div className="space-y-2">
+              <Label>Title</Label>
+              <input
+                className="w-full rounded-md border px-3 py-2"
+                value={localConfig.title}
+                onChange={(e) => update('title', e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Board</Label>
+                <SelectSalesBoard
+                  variant="form"
+                  value={localConfig.boardId || ''}
+                  onValueChange={(boardId: string) =>
+                    setLocalConfig((p) => ({
+                      ...p,
+                      boardId,
+                      pipelineId: '',
+                      stageId: '',
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Pipeline</Label>
+                <SelectPipeline
+                  variant="form"
+                  boardId={localConfig.boardId || ''}
+                  value={localConfig.pipelineId || ''}
+                  disabled={!localConfig.boardId}
+                  onValueChange={(pipelineId: string) =>
+                    setLocalConfig((p) => ({
+                      ...p,
+                      pipelineId,
+                      stageId: '',
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Stage</Label>
+                <SelectStage
+                  id="split-stage"
+                  variant="form"
+                  pipelineId={localConfig.pipelineId || ''}
+                  value={localConfig.stageId || ''}
+                  disabled={!localConfig.pipelineId}
+                  onValueChange={(stageId: string) =>
+                    update('stageId', stageId)
+                  }
+                />
+              </div>
             </div>
           </div>
-        )}
 
-        {/* BASIC INFO */}
-        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-6">
-          <div className="space-y-2">
-            <Label>Title</Label>
-            <input
-              className="w-full rounded-md border px-3 py-2"
-              value={localConfig.title}
-              onChange={(e) => update('title', e.target.value)}
+          {/* CATEGORIES */}
+          <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
+            <Label>Include Categories</Label>
+            <SelectProductCategories
+              value={localConfig.productCategoryIds}
+              onChange={(v) => update('productCategoryIds', v)}
+            />
+
+            <Label>Exclude Categories</Label>
+            <SelectProductCategories
+              value={localConfig.excludeCategoryIds}
+              onChange={(v) => update('excludeCategoryIds', v)}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Board</Label>
-              <SelectSalesBoard
-                variant="form"
-                value={localConfig.boardId || ''}
-                onValueChange={(boardId: string) =>
-                  setLocalConfig((p) => ({
-                    ...p,
-                    boardId,
-                    pipelineId: '',
-                    stageId: '',
-                  }))
-                }
-              />
-            </div>
+          {/* TAGS */}
+          <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
+            <Label>Include Tags</Label>
+            <SelectProductTags
+              value={localConfig.productTagIds}
+              onChange={(v) => update('productTagIds', v)}
+            />
 
-            <div className="space-y-2">
-              <Label>Pipeline</Label>
-              <SelectPipeline
-                variant="form"
-                boardId={localConfig.boardId || ''}
-                value={localConfig.pipelineId || ''}
-                disabled={!localConfig.boardId}
-                onValueChange={(pipelineId: string) =>
-                  setLocalConfig((p) => ({
-                    ...p,
-                    pipelineId,
-                    stageId: '',
-                  }))
-                }
-              />
-            </div>
+            <Label>Exclude Tags</Label>
+            <SelectProductTags
+              value={localConfig.excludeTagIds}
+              onChange={(v) => update('excludeTagIds', v)}
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Stage</Label>
-              <SelectStage
-                id="split-stage"
-                variant="form"
-                pipelineId={localConfig.pipelineId || ''}
-                value={localConfig.stageId || ''}
-                disabled={!localConfig.pipelineId}
-                onValueChange={(stageId: string) =>
-                  update('stageId', stageId)
-                }
-              />
-            </div>
+          {/* PRODUCTS */}
+          <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
+            <Label>Exclude Products</Label>
+            <SelectProducts
+              value={localConfig.excludeProductIds}
+              onChange={(v) => update('excludeProductIds', v)}
+            />
+          </div>
+
+          {/* SEGMENTS */}
+          <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
+            <Label>Segment</Label>
+            <SelectSegments
+              contentTypes={['core:product']}
+              value={getSingle(localConfig.segmentIds)}
+              onChange={(id) => update('segmentIds', toSingleArray(id))}
+            />
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex justify-end gap-3 pt-2">
+            {activeIndex !== null && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+              >
+                Delete Config
+              </Button>
+            )}
+
+            <Button type="button" onClick={handleSave}>
+              Save Config
+            </Button>
           </div>
         </div>
-
-        {/* CATEGORIES */}
-        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
-          <Label>Include Categories</Label>
-          <SelectProductCategories
-            value={localConfig.productCategoryIds}
-            onChange={(v) => update('productCategoryIds', v)}
-          />
-
-          <Label>Exclude Categories</Label>
-          <SelectProductCategories
-            value={localConfig.excludeCategoryIds}
-            onChange={(v) => update('excludeCategoryIds', v)}
-          />
-        </div>
-
-        {/* TAGS */}
-        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
-          <Label>Include Tags</Label>
-          <SelectProductTags
-            value={localConfig.productTagIds}
-            onChange={(v) => update('productTagIds', v)}
-          />
-
-          <Label>Exclude Tags</Label>
-          <SelectProductTags
-            value={localConfig.excludeTagIds}
-            onChange={(v) => update('excludeTagIds', v)}
-          />
-        </div>
-
-        {/* PRODUCTS */}
-        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
-          <Label>Exclude Products</Label>
-          <SelectProducts
-            value={localConfig.excludeProductIds}
-            onChange={(v) => update('excludeProductIds', v)}
-          />
-        </div>
-
-        {/* SEGMENTS */}
-        <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
-          <Label>Segment</Label>
-          <SelectSegments
-            contentTypes={['core:product']}
-            value={getSingle(localConfig.segmentIds)}
-            onChange={(id) =>
-              update('segmentIds', toSingleArray(id))
-            }
-          />
-        </div>
-
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3 pt-2">
-          {activeIndex !== null && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-            >
-              Delete Config
-            </Button>
-          )}
-
-          <Button type="button" onClick={handleSave}>
-            Save Config
-          </Button>
-        </div>
-
       </div>
-    </div>
-  </Form>
-);
+    </Form>
+  );
 };
 
 export default SplitConfig;

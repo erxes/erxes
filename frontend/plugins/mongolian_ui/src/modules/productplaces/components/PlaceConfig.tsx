@@ -182,148 +182,137 @@ const PlaceConfig: React.FC = () => {
   if (loading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
-  <Form {...form}>
-    <div className="w-full flex justify-center overflow-y-auto">
-      <div className="w-full max-w-5xl px-6 py-6 space-y-8">
+    <Form {...form}>
+      <div className="w-full flex justify-center overflow-y-auto">
+        <div className="w-full max-w-5xl px-6 py-6 space-y-8">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold">Product Places Config</h1>
+            <Button variant="outline" onClick={handleNewConfig}>
+              + New Config
+            </Button>
+          </div>
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">
-            Product Places Config
-          </h1>
-          <Button variant="outline" onClick={handleNewConfig}>
-            + New Config
-          </Button>
-        </div>
+          {/* Saved Configs */}
+          {savedConfigs.length > 0 && (
+            <div className="border rounded-xl p-5 space-y-4 bg-white shadow-sm">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Saved Configs
+              </h3>
 
-        {/* Saved Configs */}
-        {savedConfigs.length > 0 && (
-          <div className="border rounded-xl p-5 space-y-4 bg-white shadow-sm">
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              Saved Configs
-            </h3>
-
-            <div className="space-y-3">
-              {savedConfigs.map((cfg, i) => (
-                <div
-                  key={cfg._id || i}
-                  onClick={() => setActiveIndex(i)}
-                  className={`cursor-pointer p-4 rounded-lg border transition-all
+              <div className="space-y-3">
+                {savedConfigs.map((cfg, i) => (
+                  <div
+                    key={cfg._id || i}
+                    onClick={() => setActiveIndex(i)}
+                    className={`cursor-pointer p-4 rounded-lg border transition-all
                     ${
                       i === activeIndex
                         ? 'border-primary bg-primary/5'
                         : 'hover:bg-muted/40'
                     }
                   `}
-                >
-                  <div className="font-medium">
-                    {cfg.title || '(Untitled)'}
+                  >
+                    <div className="font-medium">
+                      {cfg.title || '(Untitled)'}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Stage: {cfg.stageId || '—'}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Stage: {cfg.stageId || '—'}
-                  </div>
-                </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Main Form Card */}
+          <div className="border rounded-xl p-6 bg-white shadow-sm space-y-6">
+            {/* Title */}
+            <div className="space-y-2">
+              <Label>Title</Label>
+              <input
+                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                value={formData.title}
+                onChange={(e) => updateField('title', e.target.value)}
+              />
+            </div>
+
+            {/* Selects */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <SelectSalesBoard
+                variant="form"
+                value={formData.boardId}
+                onValueChange={(boardId) =>
+                  setFormData((p) => ({
+                    ...p,
+                    boardId,
+                    pipelineId: '',
+                    stageId: '',
+                  }))
+                }
+              />
+
+              <SelectPipeline
+                variant="form"
+                boardId={formData.boardId}
+                value={formData.pipelineId}
+                disabled={!formData.boardId}
+                onValueChange={(pipelineId) =>
+                  setFormData((p) => ({
+                    ...p,
+                    pipelineId,
+                    stageId: '',
+                  }))
+                }
+              />
+
+              <SelectStage
+                id="place-stage"
+                variant="form"
+                pipelineId={formData.pipelineId}
+                value={formData.stageId}
+                disabled={!formData.pipelineId}
+                onValueChange={(stageId) => updateField('stageId', stageId)}
+              />
+            </div>
+          </div>
+
+          {/* Conditions Section */}
+          <div className="border rounded-xl p-6 bg-white shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Conditions
+              </h3>
+              <Button variant="outline" onClick={addCondition}>
+                + Add condition
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {formData.conditions.map((c) => (
+                <PerConditions
+                  key={c.id}
+                  condition={c}
+                  onChange={updateCondition}
+                  onRemove={deleteCondition}
+                />
               ))}
             </div>
           </div>
-        )}
 
-        {/* Main Form Card */}
-        <div className="border rounded-xl p-6 bg-white shadow-sm space-y-6">
-
-          {/* Title */}
-          <div className="space-y-2">
-            <Label>Title</Label>
-            <input
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-            />
-          </div>
-
-          {/* Selects */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            <SelectSalesBoard
-              variant="form"
-              value={formData.boardId}
-              onValueChange={(boardId) =>
-                setFormData((p) => ({
-                  ...p,
-                  boardId,
-                  pipelineId: '',
-                  stageId: '',
-                }))
-              }
-            />
-
-            <SelectPipeline
-              variant="form"
-              boardId={formData.boardId}
-              value={formData.pipelineId}
-              disabled={!formData.boardId}
-              onValueChange={(pipelineId) =>
-                setFormData((p) => ({
-                  ...p,
-                  pipelineId,
-                  stageId: '',
-                }))
-              }
-            />
-
-            <SelectStage
-              id="place-stage"
-              variant="form"
-              pipelineId={formData.pipelineId}
-              value={formData.stageId}
-              disabled={!formData.pipelineId}
-              onValueChange={(stageId) =>
-                updateField('stageId', stageId)
-              }
-            />
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            {activeIndex !== null && (
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete Config
+              </Button>
+            )}
+            <Button onClick={handleSave}>Save Config</Button>
           </div>
         </div>
-
-        {/* Conditions Section */}
-        <div className="border rounded-xl p-6 bg-white shadow-sm space-y-4">
-
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              Conditions
-            </h3>
-            <Button variant="outline" onClick={addCondition}>
-              + Add condition
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {formData.conditions.map((c) => (
-              <PerConditions
-                key={c.id}
-                condition={c}
-                onChange={updateCondition}
-                onRemove={deleteCondition}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2">
-          {activeIndex !== null && (
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete Config
-            </Button>
-          )}
-          <Button onClick={handleSave}>
-            Save Config
-          </Button>
-        </div>
-
       </div>
-    </div>
-  </Form>
-);
+    </Form>
+  );
 };
 
 export default PlaceConfig;
