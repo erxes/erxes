@@ -111,7 +111,6 @@ export const categoryQueries: Record<string, Resolver> = {
   },
 };
 
-
-categoryQueries.cpProductCategories.wrapperConfig={
+categoryQueries.cpProductCategories.wrapperConfig = {
   forClientPortal: true,
-}
+};

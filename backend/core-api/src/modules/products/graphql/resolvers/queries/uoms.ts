@@ -1,7 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
-export const uomQueries : Record<string, Resolver> = {
+export const uomQueries: Record<string, Resolver> = {
   /**
    * Uoms list
    */
@@ -25,6 +25,6 @@ export const uomQueries : Record<string, Resolver> = {
   },
 };
 
-uomQueries.cpUoms.wrapperConfig={
-  forClientPortal:true,
-}
+uomQueries.cpUoms.wrapperConfig = {
+  forClientPortal: true,
+};

@@ -2,7 +2,7 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-const configQueries : Record<string, Resolver> = {
+const configQueries: Record<string, Resolver> = {
   /**
    * Config object
    */
@@ -292,6 +292,6 @@ const configQueries : Record<string, Resolver> = {
 
 export default configQueries;
 
-configQueries.cpPmsCheckRooms.wrapperConfig={
-  forClientPortal:true,
-}
+configQueries.cpPmsCheckRooms.wrapperConfig = {
+  forClientPortal: true,
+};
