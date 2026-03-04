@@ -26,7 +26,12 @@ export const PersistentMenu = () => {
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" sideOffset={12}>
         {persistentMenus?.map((menu, index) => (
-          <Item key={index} type={menu.type} text={menu.text} link={menu.link} />
+          <Item
+            key={index}
+            type={menu.type}
+            text={menu.text}
+            link={menu.link}
+          />
         ))}
       </DropdownMenu.Content>
     </DropdownMenu>
