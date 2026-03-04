@@ -1,4 +1,4 @@
-import { IProductDocument } from 'erxes-api-shared/core-types';
+import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, defaultPaginate, escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
@@ -166,7 +166,7 @@ const generateFilter = async (
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
 };
 
-export const productQueries = {
+export const productQueries : Record<string, Resolver> = {
   /**
    * Products list
    */
@@ -189,6 +189,34 @@ export const productQueries = {
   },
 
   async products(
+    _parent: undefined,
+    params: IProductParams,
+    { commonQuerySelector, models, subdomain }: IContext,
+  ) {
+    const filter = await generateFilter(models, subdomain, commonQuerySelector, params);
+
+    const { sortField, sortDirection } = params;
+
+    let sort: { [key: string]: SortOrder } = { code: 1 };
+
+    if (sortField) {
+      sort = { [sortField]: (sortDirection || 1) as SortOrder };
+    }
+
+    if (params.groupedSimilarity) {
+      return await getSimilaritiesProducts(models, filter, sort, {
+        groupedSimilarity: params.groupedSimilarity,
+      });
+    }
+
+    return await defaultPaginate(
+      models.Products.find(filter).sort(sort),
+      {
+        ...params,
+      });
+  },
+
+  async cpProducts(
     _parent: undefined,
     params: IProductParams,
     { commonQuerySelector, models, subdomain }: IContext,
@@ -415,3 +443,8 @@ export const productQueries = {
     return counts;
   },
 };
+
+
+productQueries.cpProducts.wrapperConfig={
+  forClientPortal:true,
+}
