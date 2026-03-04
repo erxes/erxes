@@ -8,6 +8,7 @@ export interface ILocation {
 }
 export interface GroupDay {
   day: number;
+  title: string;
   images: string[];
   content: string;
   elements: ElementItem[];
