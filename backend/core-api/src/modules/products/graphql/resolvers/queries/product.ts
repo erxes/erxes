@@ -1,4 +1,4 @@
-import { IProductDocument } from 'erxes-api-shared/core-types';
+import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   defaultPaginate,
@@ -61,8 +61,9 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories =
-      await models.ProductCategories.getChildCategories(categoryIds);
+    const categories = await models.ProductCategories.getChildCategories(
+      categoryIds,
+    );
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -242,7 +243,7 @@ const generateFilter = async (
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
 };
 
-export const productQueries = {
+export const productQueries: Record<string, Resolver> = {
   /**
    * Products list
    */
@@ -270,6 +271,37 @@ export const productQueries = {
   },
 
   async products(
+    _parent: undefined,
+    params: IProductParams,
+    { commonQuerySelector, models, subdomain }: IContext,
+  ) {
+    const filter = await generateFilter(
+      models,
+      subdomain,
+      commonQuerySelector,
+      params,
+    );
+
+    const { sortField, sortDirection } = params;
+
+    let sort: { [key: string]: SortOrder } = { code: 1 };
+
+    if (sortField) {
+      sort = { [sortField]: (sortDirection || 1) as SortOrder };
+    }
+
+    if (params.groupedSimilarity) {
+      return await getSimilaritiesProducts(models, filter, sort, {
+        groupedSimilarity: params.groupedSimilarity,
+      });
+    }
+
+    return await defaultPaginate(models.Products.find(filter).sort(sort), {
+      ...params,
+    });
+  },
+
+  async cpProducts(
     _parent: undefined,
     params: IProductParams,
     { commonQuerySelector, models, subdomain }: IContext,
@@ -349,8 +381,9 @@ export const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(
@@ -502,4 +535,8 @@ export const productQueries = {
 
     return counts;
   },
+};
+
+productQueries.cpProducts.wrapperConfig = {
+  forClientPortal: true,
 };
