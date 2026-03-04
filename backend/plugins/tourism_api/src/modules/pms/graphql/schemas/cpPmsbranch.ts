@@ -38,4 +38,3 @@ export const queries = `
   cpPmsBranchList(page: Int, perPage: Int, sortField: String, sortDirection: Int): [cpPmsBranch]
   cpPmsBranchDetail(_id: String!): cpPmsBranch
 `;
-

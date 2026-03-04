@@ -11,15 +11,14 @@ import {
 
 import {
   queries as cpBranchQueries,
-  types as cpBranchTypes
-} from './cpPmsbranch'
+  types as cpBranchTypes,
+} from './cpPmsbranch';
 
 import {
   mutations as branchMutations,
   queries as branchQueries,
   types as branchTypes,
 } from './pmsbranch';
-
 
 export const types = `
     ${cleaningTypes}

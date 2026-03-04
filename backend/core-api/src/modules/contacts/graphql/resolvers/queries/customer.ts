@@ -112,7 +112,11 @@ export const customerQueries: Record<string, Resolver> = {
     for (const type of types) {
       const contentType = type.toLowerCase();
 
-      counts[contentType] = await customersCount({ models, subdomain, type: contentType });
+      counts[contentType] = await customersCount({
+        models,
+        subdomain,
+        type: contentType,
+      });
     }
 
     return counts;
@@ -122,6 +126,6 @@ export const customerQueries: Record<string, Resolver> = {
 moduleRequireLogin(customerQueries);
 checkPermission(customerQueries, 'customers', 'showCustomers');
 
-customerQueries.cpCustomers.wrapperConfig={
-  forClientPortal:true,
-}
+customerQueries.cpCustomers.wrapperConfig = {
+  forClientPortal: true,
+};
