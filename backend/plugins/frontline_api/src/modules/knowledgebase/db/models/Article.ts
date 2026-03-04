@@ -10,6 +10,7 @@ export interface IArticleCreate extends IArticle {
     userId?: string;
     icon?: string;
     modifiedBy?: string;
+    code?: string;  // Add code field
   }
 
   export interface IArticleModel extends Model<IArticleDocument> {
@@ -47,6 +48,16 @@ export interface IArticleCreate extends IArticle {
         if (!userId) {
           throw new Error('userId must be supplied');
         }
+
+        // Auto-generate code if not provided
+        if (!docFields.code) {
+          docFields.code = `ART-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        // Ensure content is not empty (only if content is being updated)
+        if ('content' in docFields && (!docFields.content || docFields.content.trim() === '')) {
+          docFields.content = '<p></p>';
+        }
   
         const doc = {
           ...docFields,
@@ -58,6 +69,12 @@ export interface IArticleCreate extends IArticle {
         if (docFields.status === PUBLISH_STATUSES.PUBLISH) {
           doc.publishedUserId = userId;
           doc.publishedAt = new Date();
+        }
+        
+        if (docFields.status === PUBLISH_STATUSES.SCHEDULED) {
+          doc.publishedUserId = userId;
+          // Keep publishedAt as null until scheduled time
+          doc.scheduledDate = docFields.scheduledDate || new Date();
         }
   
         return  await models.Article.create(doc);
@@ -76,6 +93,11 @@ export interface IArticleCreate extends IArticle {
         if(!article){
           throw new Error('Article not found')
         }
+
+        // Ensure content is not empty (only if content is being updated)
+        if ('content' in docFields && (!docFields.content || docFields.content.trim() === '')) {
+          docFields.content = '<p></p>';
+        }
   
         const doc = {
           ...docFields,
@@ -87,6 +109,13 @@ export interface IArticleCreate extends IArticle {
   
           doc.publishedUserId = userId;
           doc.publishedAt = new Date();
+        }
+        
+        if (doc.status === PUBLISH_STATUSES.SCHEDULED) {
+          doc.publishedUserId = userId;
+          doc.scheduledDate = docFields.scheduledDate || new Date();
+          // Clear publishedAt when moving to SCHEDULED
+          doc.publishedAt = undefined;
         }
   
         return await models.Article.findOneAndUpdate(

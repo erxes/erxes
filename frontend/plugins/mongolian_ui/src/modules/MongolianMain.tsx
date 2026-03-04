@@ -4,11 +4,6 @@ import { CheckCategoryPage } from '~/pages/CheckCategoryPage';
 import { CheckPosOrdersPage } from '~/pages/CheckPosOrdersPage';
 import { CheckProductsPage } from '~/pages/CheckProductsPage';
 import { CheckSyncedDealsPage } from '~/pages/CheckSyncedDealsPage';
-import PrintPage from '~/pages/productplaces/PrintPage';
-import ProductFilterPage from '~/pages/productplaces/ProductFilterPage';
-import ProductPlacesSettings from '~/pages/productplaces/ProductPlacesSettings';
-import SplitPage from '~/pages/productplaces/SplitPage';
-import StagePage from '~/pages/productplaces/StagePage';
 import { ByDatePage } from '~/pages/PutResponseByDatePage';
 import { DuplicatedPage } from '~/pages/PutResponseDuplicatedPage';
 import { PutResponseIndexPage } from '~/pages/PutResponsePage';
@@ -17,13 +12,6 @@ const MongolianMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="product-places" element={<ProductPlacesSettings />}>
-          <Route index element={<Navigate to="stage" replace />} />
-          <Route path="stage" element={<StagePage />} />
-          <Route path="split" element={<SplitPage />} />
-          <Route path="print" element={<PrintPage />} />
-          <Route path="product-filter" element={<ProductFilterPage />} />
-        </Route>
         <Route path="put-response">
           <Route index element={<Navigate to="put-response" replace />} />
           <Route path="put-response" element={<PutResponseIndexPage />} />

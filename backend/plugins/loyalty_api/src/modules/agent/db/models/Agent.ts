@@ -1,14 +1,14 @@
 import { IAgent, IAgentDocument } from '@/agent/@types';
+import { AGENT_STATUSES } from '@/agent/constants';
+import { agentSchema } from '@/agent/db/definitions/agent';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { AGENT_STATUSES } from '../../constants';
-import { agentSchema } from '../definitions/agent';
 
 export interface IAgentModel extends Model<IAgentDocument> {
   getAgent(_id: string): Promise<IAgentDocument>;
   createAgent(doc: IAgent): Promise<IAgentDocument>;
   updateAgent(_id: string, doc: IAgent): Promise<IAgentDocument>;
-  removeAgent(AgentId: string): Promise<{ ok: number }>;
+  removeAgent(_id: string): Promise<IAgentDocument>;
 }
 
 const validateDoc = (doc: IAgent) => {
@@ -32,23 +32,11 @@ const validateDoc = (doc: IAgent) => {
     throw new Error('Invalid status value');
   }
 
-  if (
-    hasReturn &&
-    !(
-      (typeof returnAmount === 'number' && returnAmount > 0) ||
-      (typeof returnPercent === 'number' && returnPercent > 0)
-    )
-  ) {
+  if (hasReturn && !(returnAmount || returnPercent)) {
     throw new Error('Either return amount or percent must be > 0');
   }
 
-  if (
-    !hasReturn &&
-    !(
-      (typeof prepaidPercent === 'number' && prepaidPercent > 0) ||
-      (typeof discountPercent === 'number' && discountPercent > 0)
-    )
-  ) {
+  if (!hasReturn && !(prepaidPercent || discountPercent)) {
     throw new Error('Either prepaid or discount percent must be > 0');
   }
 
@@ -62,7 +50,7 @@ const validateDoc = (doc: IAgent) => {
 export const loadAgentClass = (models: IModels) => {
   class Agent {
     public static async getAgent(_id: string) {
-      const agent = await models.Agent.findOne({ _id });
+      const agent = await models.Agents.findOne({ _id });
 
       if (!agent) {
         throw new Error('Agent not found');
@@ -74,28 +62,27 @@ export const loadAgentClass = (models: IModels) => {
     public static async createAgent(doc: IAgent) {
       validateDoc(doc);
 
-      return models.Agent.create(doc);
+      return models.Agents.create(doc);
     }
 
     public static async updateAgent(_id: string, doc: IAgent) {
-      const agent = await models.Agent.getAgent(_id);
+      const agent = await models.Agents.getAgent(_id);
 
       validateDoc(doc);
 
-      await models.Agent.updateOne(
+      await models.Agents.updateOne(
         { _id: agent._id },
         { $set: doc },
         { runValidators: true },
       );
 
-      return models.Agent.findOne({ _id });
+      return models.Agents.findOne({ _id });
     }
 
-    // TODO: put relevant checks to remove it or not
     public static async removeAgent(_id: string) {
-      const agent = await models.Agent.getAgent(_id);
+      const agent = await models.Agents.getAgent(_id);
 
-      return models.Agent.deleteOne({ _id: agent._id });
+      return models.Agents.findOneAndDelete({ _id: agent._id });
     }
   }
 

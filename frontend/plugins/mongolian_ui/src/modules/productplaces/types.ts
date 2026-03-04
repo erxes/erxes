@@ -163,3 +163,9 @@ export type PlaceConditionUI = {
   branchId?: string;
   departmentId?: string;
 };
+export type ConfigValueItem = {
+  key: string;
+  value: any;
+};
+
+export type NormalizedConfig = Record<string, any>;

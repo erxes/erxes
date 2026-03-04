@@ -413,7 +413,6 @@ export const conversationMutations = {
       type: 'unassign',
     });
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, _ids, 'assigneeChanged');
 
     return updatedConversations;
@@ -427,13 +426,8 @@ export const conversationMutations = {
     { _ids, status }: { _ids: string[]; status: string },
     { user, models, subdomain }: IContext,
   ) {
-    await models.Conversations.changeStatusConversation(
-      _ids,
-      status,
-      'OQgac3z4G3I2LW9QPpAtL',
-    );
+    await models.Conversations.changeStatusConversation(_ids, status, user._id);
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, _ids, status);
 
     const updatedConversations = await models.Conversations.find({
@@ -448,7 +442,6 @@ export const conversationMutations = {
 
     return updatedConversations;
   },
-
   /**
    * Resolve all conversations
    */

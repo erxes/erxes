@@ -1,3 +1,6 @@
+import initCallApp from '@/integrations/call/initApp';
+import { initWebsocketService } from '@/integrations/call/webSocket';
+import onServerInitImap from '@/integrations/imap/initApp';
 import { getEnv, startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/init-trpc';
@@ -6,8 +9,7 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
-import initCallApp from '@/integrations/call/initApp';
-import { initWebsocketService } from '@/integrations/call/webSocket';
+import { notifications } from './meta/notifications';
 
 startPlugin({
   name: 'frontline',
@@ -28,11 +30,12 @@ startPlugin({
 
   expressRouter: router,
   onServerInit: async (app) => {
-    await initCallApp(app);
-    const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
-    if (CALL_WS_SERVER) {
-      await initWebsocketService();
-    }
+    // await initCallApp(app);
+    await onServerInitImap(app);
+    // const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
+    // if (CALL_WS_SERVER) {
+    //   await initWebsocketService();
+    // }
   },
 
   apolloServerContext: async (subdomain, context) => {
@@ -56,37 +59,32 @@ startPlugin({
   meta: {
     automations,
     afterProcess,
-    notificationModules: [
-      {
-        name: 'conversations',
-        description: 'Conversations',
-        icon: 'IconComment',
-        types: [
-          { name: 'conversationAddMessage', text: 'Message added' },
-          { name: 'conversationAssigneeChange', text: 'Assignee changed' },
-          { name: 'conversationCreated', text: 'Conversation created' },
-          { name: 'conversationParticipantAdded', text: 'Participant added' },
-          { name: 'conversationStateChange', text: 'State changed' },
-          { name: 'conversationTagged', text: 'Conversation tagged' },
-        ],
-      },
-      {
-        name: 'channels',
-        description: 'Channels',
-        icon: 'IconDeviceLaptop',
-        types: [
-          {
-            name: 'channelMembersChange',
-            text: 'Assignee change',
-          },
-        ],
-      },
-    ],
+    notifications,
     tags: {
       types: [
         {
           description: 'Inbox',
           type: 'conversation',
+        },
+        {
+          description: 'Ticket',
+          type: 'ticket',
+        },
+        {
+          description: 'Form',
+          type: 'form',
+        },
+      ],
+    },
+    properties: {
+      types: [
+        {
+          description: 'Inbox',
+          type: 'conversation',
+        },
+        {
+          description: 'Tickets',
+          type: 'ticket',
         },
       ],
     },

@@ -47,17 +47,15 @@ export const CompanyDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CompanyDetailFields />
+                  {!!companyDetail?._id && <ActivityLogs targetId={companyDetail._id } />}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
                     fieldContentType="core:company"
-                    customFieldsData={companyDetail?.customFieldsData || {}}
+                    propertiesData={companyDetail?.propertiesData || {}}
                     mutateHook={useCompanyCustomFieldEdit}
                     id={companyDetail?._id || ''}
                   />
-                </Tabs.Content>
-                <Tabs.Content value="activity">
-                  <ActivityLogs targetId={companyDetail?._id || ''} />
                 </Tabs.Content>
               </Tabs>
             </ScrollArea>

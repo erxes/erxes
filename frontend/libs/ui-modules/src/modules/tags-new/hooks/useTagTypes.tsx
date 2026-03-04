@@ -1,18 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { TAGS_TYPES } from 'ui-modules/modules/tags-new/graphql/tagTypeQuery';
-
-interface IUseTagTypes {
-  tagsGetTypes: Record<
-    string,
-    {
-      description: string;
-      contentType: string;
-    }[]
-  >;
-}
+import { ITagTypes } from 'ui-modules/modules/tags-new/types';
 
 export const useTagTypes = () => {
-  const { data, error, loading } = useQuery<IUseTagTypes>(TAGS_TYPES);
+  const { data, error, loading } = useQuery<ITagTypes>(TAGS_TYPES);
   return {
     types: data?.tagsGetTypes || {},
     loading,

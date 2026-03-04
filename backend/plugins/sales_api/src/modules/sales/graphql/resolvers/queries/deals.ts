@@ -77,7 +77,6 @@ export const generateFilter = async (
     branchIds,
     departmentIds,
     dateRangeFilters,
-    customFieldsDataFilters,
     resolvedDayBetween,
     productIds,
     date,
@@ -286,16 +285,6 @@ export const generateFilter = async (
 
       if (to) {
         filter[name] = { ...filter[name], $lte: new Date(to) };
-      }
-    }
-  }
-
-  if (customFieldsDataFilters) {
-    for (const { value, name } of customFieldsDataFilters) {
-      if (Array.isArray(value) && value?.length) {
-        filter[`customFieldsData.${name}`] = { $in: value };
-      } else {
-        filter[`customFieldsData.${name}`] = value;
       }
     }
   }

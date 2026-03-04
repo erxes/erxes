@@ -12,8 +12,11 @@ import {
 import { useState } from 'react';
 import { AddCustomerForm } from './AddCustomerForm';
 import { useTranslation } from 'react-i18next';
+import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
+
 export const CustomerAddSheet = () => {
   const { t } = useTranslation('contact');
+  const { isLead } = useIsCustomerLeadSessionKey();
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -42,7 +45,7 @@ export const CustomerAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('customer.add._')}
+          {isLead ? t('lead.add._') : t('customer.add._')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -59,10 +62,14 @@ export const CustomerAddSheet = () => {
 };
 
 export const CustomerAddSheetHeader = () => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  const { t } = useTranslation('contact');
+  const { isLead } = useIsCustomerLeadSessionKey();
+
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>{t('_')}</Sheet.Title>
+      <Sheet.Title>
+        {isLead ? t('lead.add._') : t('customer.add._')}
+      </Sheet.Title>
       <Sheet.Description className="sr-only">
         "Manage the uoms for your product & service"
       </Sheet.Description>

@@ -10,6 +10,7 @@
     "broadcasts": "Броадкастууд",
     "success": "Амжилттай",
     "cancel": "Цуцлах",
+    "delete": "Устгах",
     "save": "Хадгалах",
     "settings": "Тохиргоо"
   },
@@ -36,6 +37,7 @@
   },
   "sidebar": {
     "profile": "Профайл",
+    "notification" : "Мэдэгдэл",
     "change-password": "Нууц үг солих",
     "general": "Ерөнхий",
     "team-member": "Багийн гишүүн",

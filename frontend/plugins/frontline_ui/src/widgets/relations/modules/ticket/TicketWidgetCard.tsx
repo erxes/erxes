@@ -81,7 +81,9 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
           <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
         </div>
       </Card>
-      <Suspense>{activeTicket && <TicketDetailSheet />}</Suspense>
+      <Suspense>
+        {activeTicket && <TicketDetailSheet hideRelationWidgetSideTabs />}
+      </Suspense>
     </>
   );
 };

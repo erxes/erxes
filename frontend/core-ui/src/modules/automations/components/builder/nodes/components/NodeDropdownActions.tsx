@@ -1,4 +1,4 @@
-import { IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
 import { Dispatch, SetStateAction } from 'react';
 import { AutomationNodesType, NodeData } from '@/automations/types';
@@ -37,12 +37,15 @@ export const NodeDropdownActions = ({
           variant="ghost"
           onClick={(e) => e.stopPropagation()}
           onDoubleClick={(e) => e.stopPropagation()}
+          size={'icon'}
+          className="data-[state=open]:bg-accent-foreground/10"
         >
-          <IconDotsVertical className="size-4" />
+          <IconDots className="size-4" />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
-        className="w-42"
+        align="start"
+        className="w-[100px] min-w-0 [&>button]:cursor-pointer"
         onClick={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
@@ -79,11 +82,11 @@ export const NodeRemoveActionDialog = ({
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start"
+            className="w-full justify-start text-destructive"
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={(e) => e.stopPropagation()}
           >
-            <IconTrash className="size-4 text-destructive" />
+            <IconTrash className="size-4" />
             Delete
           </Button>
         </DropdownMenu.Item>

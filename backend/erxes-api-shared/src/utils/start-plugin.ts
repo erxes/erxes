@@ -16,12 +16,12 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 import { startPayments } from '../common-modules/payment/worker';
-import type { SegmentConfigs } from '../core-modules';
+import type { IPropertyMeta, SegmentConfigs } from '../core-modules';
 import { initSegmentProducers, startAutomations } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
-import { IMainContext } from '../core-types';
+import { IMainContext, IPermissionConfig } from '../core-types';
 import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
@@ -41,8 +41,10 @@ type IMeta = {
   segments?: SegmentConfigs;
   afterProcess?: AfterProcessConfigs;
   payments?: any;
-  notificationModules?: any[];
+  notifications?: any;
   tags?: any;
+  properties?: IPropertyMeta;
+  permissions?: IPermissionConfig;
 };
 
 type ApiHandler = {
@@ -273,13 +275,8 @@ export async function startPlugin(
   );
 
   if (configs.meta) {
-    const {
-      automations,
-      segments,
-      afterProcess,
-      notificationModules,
-      payments,
-    } = configs.meta || {};
+    const { automations, segments, afterProcess, notifications, payments } =
+      configs.meta || {};
 
     if (automations) {
       await startAutomations(app, configs.name, automations);
@@ -293,11 +290,11 @@ export async function startPlugin(
       await startAfterProcess(app, configs.name, afterProcess);
     }
 
-    if (notificationModules) {
+    if (notifications) {
       await initializePluginConfig(
         configs.name,
-        'notificationModules',
-        notificationModules,
+        'notifications',
+        notifications,
       );
     }
 

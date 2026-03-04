@@ -1,43 +1,45 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Sidebar } from 'erxes-ui';
 
-import { Sidebar } from 'erxes-ui/components/sidebar';
+const BASE = '/settings/mongolian/product-places';
 
 const ProductPlacesSidebar = () => {
   const location = useLocation();
 
-  const isActive = (url: string) => location.pathname.includes(url);
+  const isActive = (path: string) =>
+    location.pathname === path;
 
-  const renderItem = (url: string, label: string) => (
-    <Sidebar.MenuItem key={url}>
-      <Sidebar.MenuButton
-        asChild
-        isActive={isActive(url)}
-        tooltip={label}
-      >
-        <Link to={url}>
-          <span>{label}</span>
-        </Link>
-      </Sidebar.MenuButton>
-    </Sidebar.MenuItem>
-  );
+  const Item = ({ to, label }: { to: string; label: string }) => {
+    const path = `${BASE}/${to}`;
+
+    return (
+      <Sidebar.MenuItem>
+        <Sidebar.MenuButton asChild isActive={isActive(path)}>
+          <Link to={path}>{label}</Link>
+        </Sidebar.MenuButton>
+      </Sidebar.MenuItem>
+    );
+  };
 
   return (
-    <Sidebar collapsible="icon">
-      <Sidebar.Header>
-        <div className="px-2 py-1 text-xs font-semibold uppercase text-muted-foreground">
+    <Sidebar collapsible="none" className="border-r flex-none">
+      <Sidebar.Group>
+        <Sidebar.GroupLabel className="h-4">
           Product Places
-        </div>
-      </Sidebar.Header>
+        </Sidebar.GroupLabel>
 
-      <Sidebar.Content>
-        <Sidebar.Menu>
-{renderItem('/mongolian/product-places/stage', 'Stage in product places config')}
-{renderItem('/mongolian/product-places/split', 'Stage in product splits config')}
-{renderItem('/mongolian/product-places/print', 'Stage in product prints config')}
-{renderItem('/mongolian/product-places/productFilter', 'Products default filter by segment')}
-        </Sidebar.Menu>
-      </Sidebar.Content>
+        <Sidebar.GroupContent className="pt-1">
+          <Sidebar.Menu>
+            <Item to="stage" label="Stage in product places config" />
+            <Item to="split" label="Stage in product splits config" />
+            <Item to="print" label="Stage in product prints config" />
+            <Item
+              to="product-filter"
+              label="Products default filter by segment"
+            />
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
     </Sidebar>
   );
 };

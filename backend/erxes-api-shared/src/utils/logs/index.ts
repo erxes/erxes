@@ -125,20 +125,33 @@ export interface AfterProcessConfigs {
   afterDocumentUpdated?: <TDocument = any>(
     context: IContext,
     args: {
-      contentType: string;
-      fullDocument: TDocument;
-      prevDocument: TDocument;
-      updateDescription: {
-        updatedFields: { [key: string]: any };
-        removedFields: string[];
-      };
+      data: {
+        collectionName: string,
+        docId: string,
+        prevDocument?: any,
+        currentDocument?: any,
+        updateDescription: {
+          added: { [key: string]: any };
+          updated: { [key: string]: any };
+          removed: string[];
+        };
+        userId: string;
+        processId: string;
+        contentType: string;
+      }
     },
   ) => void;
   afterDocumentCreated?: <TDocument = any>(
     context: IContext,
     args: {
-      contentType: string;
-      fullDocument: TDocument;
+      data: {
+        collectionName: string,
+        docId: string,
+        currentDocument?: any,
+        userId: string;
+        processId: string;
+        contentType: string;
+      }
     },
   ) => void;
 }

@@ -24,7 +24,7 @@ export const loadCommentClass = (
 ) => {
   class Comment {
     /**
-     * Retreives comment
+     * Retrieves comment
      */
     public static async getComment(_id: string) {
       const comment = await models.CPComments.findOne({ _id });

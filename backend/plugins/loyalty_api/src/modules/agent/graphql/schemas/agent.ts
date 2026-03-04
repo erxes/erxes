@@ -47,8 +47,8 @@ const queryParams = `
 `;
 
 export const queries = `
-  getAgent(_id: String!): Agent
-  getAgents(${queryParams}): AgentListResponse
+  agents(${queryParams}): AgentListResponse
+  agentDetail(_id: String!): Agent
 `;
 
 const mutationParams = `

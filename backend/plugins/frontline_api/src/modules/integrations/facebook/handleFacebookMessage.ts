@@ -124,7 +124,7 @@ export const handleFacebookMessage = async (
         input: { _id: userId },
       });
 
-      if (!user) {
+      if (!user || !user._id) {
         throw new Error('User not found');
       }
 

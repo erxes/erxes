@@ -10,8 +10,9 @@ export const EM_CONFIG_SCHEMA = z.object({
       persistentMenu: z
         .array(
           z.object({
-            title: z.string().optional(),
+            text: z.string().optional(),
             type: z.enum(['button', 'link']).optional(),
+            link: z.string().optional(),
           }),
         )
         .optional(),

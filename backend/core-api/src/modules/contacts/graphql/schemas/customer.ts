@@ -34,9 +34,8 @@ export const types = `
     remoteAddress: String
     location: JSON
     visitorContactInfo: JSON
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
     trackedData: JSON
+    propertiesData: JSON
     ownerId: String
     position: String
     department: String
@@ -139,7 +138,7 @@ const fields = `
   description: String
   isSubscribed: String
   links: JSON
-  customFieldsData: JSON
+  propertiesData: JSON
   code: String
   sex: Int
   birthDate: Date

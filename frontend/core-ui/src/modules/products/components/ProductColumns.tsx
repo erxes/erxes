@@ -14,19 +14,13 @@ import {
   CurrencyCode,
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
-import { ProductMoreColumnCell } from './ProductMoreColumn';
-import { useTranslation } from 'react-i18next';
+import { ProductNameCell } from './ProductNameCell';
+import { productMoreColumn } from './ProductMoreCell';
 
 export const productColumns: (
   t: (key: string) => string,
 ) => ColumnDef<IProduct>[] = (t) => [
-  {
-    id: 'more',
-    accessorKey: 'more',
-    header: '',
-    cell: ({ cell }: { cell: any }) => ProductMoreColumnCell({ cell }),
-    size: 33,
-  },
+  productMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProduct>,
   {
     id: 'code',
@@ -39,23 +33,21 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 120,
   },
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }: { cell: any }) => <ProductNameCell cell={cell} />,
+    size: 250,
   },
   {
     id: 'shortName',
     accessorKey: 'shortName',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('shortName')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('shortName')} />
+    ),
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
@@ -63,6 +55,7 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 180,
   },
   {
     id: 'category',
@@ -71,15 +64,16 @@ export const productColumns: (
       <RecordTable.InlineHead icon={IconCategory} label={t('category')} />
     ),
     cell: ({ cell }: { cell: any }) => {
+      const code = cell.row.original?.category?.code;
+      const name = cell.row.original?.category?.name;
+      const value = [code, name].filter(Boolean).join(' - ') || '';
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={`${cell.row.original?.category?.code || ''} - ${cell.row.original?.category?.name || ''
-              }`}
-          />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
+    size: 300,
   },
   {
     id: 'unitPrice',
@@ -102,6 +96,7 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 150,
   },
   {
     id: 'oum',
@@ -114,6 +109,7 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 150,
   },
   {
     id: 'hasAttach',
@@ -122,12 +118,15 @@ export const productColumns: (
       <RecordTable.InlineHead icon={IconUser} label={t('hasAttach')} />
     ),
     cell: ({ cell }: { cell: any }) => {
+      const hasAttachment = Boolean(cell.row.original?.attachment?.url);
+      const value = hasAttachment ? 'Attached' : 'None';
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={Boolean(cell.row.original?.attachment?.url).toString()} />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
+    size: 100,
   },
   {
     id: 'vendor',
@@ -142,13 +141,12 @@ export const productColumns: (
         </RecordTableInlineCell>
       );
     },
+    size: 200,
   },
   {
     id: 'tags',
     accessorKey: 'tags',
-    header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('Tags')} />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('tags')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <TagsSelect.InlineCell
@@ -173,7 +171,6 @@ export const productColumns: (
         />
       );
     },
-    size: 360,
+    size: 200,
   },
-
 ];

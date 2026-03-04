@@ -22,11 +22,7 @@ interface PlaceConfigData {
 interface PlaceConfigProps {
   config: PlaceConfigData | null;
   save: (data: PlaceConfigData) => Promise<boolean>;
-  delete: () => Promise<void>;
   loading?: boolean;
-
-  // ✅ add this if you have "new config" action in parent
-  onNewConfig?: () => void;
 }
 
 const emptyForm: PlaceConfigData = {
@@ -41,22 +37,29 @@ const emptyForm: PlaceConfigData = {
 const PlaceConfig: React.FC<PlaceConfigProps> = ({
   config,
   save,
-  delete: deleteConfig,
   loading = false,
-  onNewConfig,
 }) => {
   const form = useForm();
 
+  /** UI-only saved configs */
+  const [savedConfigs, setSavedConfigs] = useState<PlaceConfigData[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
   const [formData, setFormData] = useState<PlaceConfigData>(emptyForm);
 
+  /* sync form */
   useEffect(() => {
+    if (activeIndex !== null) {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
+      return;
+    }
+
     if (!config) {
       setFormData(emptyForm);
       return;
     }
 
     setFormData({
-      _id: config._id,
       title: config.title ?? '',
       boardId: config.boardId ?? '',
       pipelineId: config.pipelineId ?? '',
@@ -64,8 +67,9 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
       checkPricing: Boolean(config.checkPricing),
       conditions: config.conditions ?? [],
     });
-  }, [config]);
+  }, [config, activeIndex, savedConfigs]);
 
+  /* helpers */
   const updateField = useCallback(
     <K extends keyof PlaceConfigData>(key: K, value: PlaceConfigData[K]) => {
       setFormData((prev) => ({ ...prev, [key]: value }));
@@ -74,32 +78,25 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
   );
 
   const addCondition = () => {
-    const condition: PlaceConditionUI = {
-      id: crypto.randomUUID(),
-      productCategoryIds: [],
-      excludeCategoryIds: [],
-      productTagIds: [],
-      excludeTagIds: [],
-      excludeProductIds: [],
-      ltCount: undefined,
-      gtCount: undefined,
-      ltUnitPrice: undefined,
-      gtUnitPrice: undefined,
-      subUomType: undefined,
-      branchId: '',
-      departmentId: '',
-    };
-
     setFormData((prev) => ({
       ...prev,
-      conditions: [...prev.conditions, condition],
+      conditions: [
+        ...prev.conditions,
+        {
+          id: crypto.randomUUID(),
+          branchId: '',
+          departmentId: '',
+        },
+      ],
     }));
   };
 
   const updateCondition = (id: string, updated: PlaceConditionUI) => {
     setFormData((prev) => ({
       ...prev,
-      conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),
+      conditions: prev.conditions.map((c) =>
+        c.id === id ? updated : c,
+      ),
     }));
   };
 
@@ -110,21 +107,32 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
     }));
   };
 
+  /* actions */
   const handleSave = async () => {
-    await save(formData);
+    const ok = await save(formData);
+    if (!ok) return;
+
+    setSavedConfigs((prev) => {
+      if (activeIndex === null) return [...prev, formData];
+      const next = [...prev];
+      next[activeIndex] = formData;
+      return next;
+    });
+
+    setActiveIndex(null);
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Delete this config?')) return;
-    await deleteConfig();
+  const handleDeleteUI = () => {
+    if (activeIndex === null) return;
+    if (!window.confirm('Remove this config from list?')) return;
+
+    setSavedConfigs((prev) => prev.filter((_, i) => i !== activeIndex));
+    setActiveIndex(null);
     setFormData(emptyForm);
   };
 
   const handleNewConfig = () => {
-    // if parent provides action
-    if (onNewConfig) return onNewConfig();
-
-    // fallback: reset locally
+    setActiveIndex(null);
     setFormData(emptyForm);
   };
 
@@ -134,110 +142,109 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
     <Form {...form}>
       <div className="space-y-6">
         {/* HEADER */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Product Places Config</h1>
-
-          <Button type="button" variant="outline" onClick={handleNewConfig}>
+        <div className="flex justify-between items-center">
+          <h1 className="text-lg font-semibold">Product Places Config</h1>
+          <Button variant="outline" onClick={handleNewConfig}>
             + New Config
           </Button>
         </div>
 
+        {/* SAVED LIST */}
+        {savedConfigs.length > 0 && (
+          <div className="border rounded p-3 space-y-2">
+            <h3 className="font-medium">Saved configs</h3>
+
+            {savedConfigs.map((cfg, i) => (
+              <div
+                key={i}
+                className={`cursor-pointer p-2 rounded border
+                  ${i === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
+                onClick={() => setActiveIndex(i)}
+              >
+                <div className="font-medium">{cfg.title || '(Untitled)'}</div>
+                <div className="text-xs text-gray-500">
+                  Stage: {cfg.stageId || '—'}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* FORM */}
-        <div className="rounded border bg-background p-6 space-y-6">
-          <div className="space-y-1.5">
-            <Label>Config title</Label>
+        <div className="border rounded p-6 space-y-6">
+          <div>
+            <Label>Title</Label>
             <input
-              className="h-9 w-full rounded border px-3 text-sm"
+              className="w-full border rounded p-2"
               value={formData.title}
               onChange={(e) => updateField('title', e.target.value)}
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-6">
-            <div className="space-y-1.5">
-              <Label>Board</Label>
-              <SelectSalesBoard
-                variant="form"
-                value={formData.boardId || ''}
-                onValueChange={(boardId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    boardId,
-                    pipelineId: '',
-                    stageId: '',
-                  }));
-                }}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Pipeline</Label>
-              <SelectPipeline
-                variant="form"
-                boardId={formData.boardId || ''}
-                value={formData.pipelineId || ''}
-                disabled={!formData.boardId}
-                onValueChange={(pipelineId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    pipelineId,
-                    stageId: '',
-                  }));
-                }}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Stage</Label>
-              <SelectStage
-                id="place-stage"
-                variant="form"
-                pipelineId={formData.pipelineId || ''}
-                value={formData.stageId || ''}
-                disabled={!formData.pipelineId}
-                onValueChange={(stageId: string) =>
-                  updateField('stageId', stageId)
-                }
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={formData.checkPricing}
-              onChange={(e) => updateField('checkPricing', e.target.checked)}
+          <div className="grid grid-cols-3 gap-4">
+            <SelectSalesBoard
+              variant="form"
+              value={formData.boardId}
+              onValueChange={(boardId) =>
+                setFormData((p) => ({
+                  ...p,
+                  boardId,
+                  pipelineId: '',
+                  stageId: '',
+                }))
+              }
             />
-            <Label>Check pricing</Label>
+
+            <SelectPipeline
+              variant="form"
+              boardId={formData.boardId}
+              value={formData.pipelineId}
+              disabled={!formData.boardId}
+              onValueChange={(pipelineId) =>
+                setFormData((p) => ({
+                  ...p,
+                  pipelineId,
+                  stageId: '',
+                }))
+              }
+            />
+
+            <SelectStage
+              id="place-stage"
+              variant="form"
+              pipelineId={formData.pipelineId}
+              value={formData.stageId}
+              disabled={!formData.pipelineId}
+              onValueChange={(stageId) => updateField('stageId', stageId)}
+            />
           </div>
         </div>
 
         {/* CONDITIONS */}
-        <div className="space-y-6">
-          {formData.conditions.map((condition) => (
+        <div className="space-y-4">
+          {formData.conditions.map((c) => (
             <PerConditions
-              key={condition.id}
-              condition={condition}
+              key={c.id}
+              condition={c}
               onChange={updateCondition}
               onRemove={deleteCondition}
             />
           ))}
 
-          <Button type="button" variant="outline" onClick={addCondition}>
+          <Button variant="outline" onClick={addCondition}>
             + Add condition
           </Button>
         </div>
 
+        {/* ACTIONS */}
         <div className="flex justify-end gap-2">
-          {config?._id && (
-            <Button type="button" variant="destructive" onClick={handleDelete}>
+          {activeIndex !== null && (
+            <Button variant="destructive" onClick={handleDeleteUI}>
               Delete Config
             </Button>
           )}
 
-          <Button type="button" onClick={handleSave}>
-            Save Config
-          </Button>
+          <Button onClick={handleSave}>Save Config</Button>
         </div>
       </div>
     </Form>

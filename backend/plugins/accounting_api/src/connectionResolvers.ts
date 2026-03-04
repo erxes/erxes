@@ -1,36 +1,18 @@
-import mongoose from 'mongoose';
-import { createGenerateModels } from 'erxes-api-shared/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { IAccountCategoryDocument } from './modules/accounting/@types/accountCategory';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
+import mongoose from 'mongoose';
 import { IAccountDocument } from './modules/accounting/@types/account';
+import { IAccountCategoryDocument } from './modules/accounting/@types/accountCategory';
 import {
   IAdjustInvDetailDocument,
   IAdjustInventoryDocument,
 } from './modules/accounting/@types/adjustInventory';
-import {
-  IAdjustInvDetailsModel,
-  IAdjustInventoriesModel,
-  loadAdjustInvDetailsClass,
-  loadAdjustInventoriesClass,
-} from './modules/accounting/db/models/AdjustInventories';
 import { IConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
-import {
-  ICtaxRowModel,
-  loadCtaxRowClass,
-} from './modules/accounting/db/models/CtaxRows';
-import { IMainContext } from 'erxes-api-shared/core-types';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
-import {
-  IPermissionModel,
-  loadPermissionClass,
-} from './modules/accounting/db/models/Permissions';
 import { ITransactionDocument } from './modules/accounting/@types/transaction';
 import { IVatRowDocument } from './modules/accounting/@types/vatRow';
-import {
-  IVatRowModel,
-  loadVatRowClass,
-} from './modules/accounting/db/models/VatRows';
 import {
   IAccountCategoryModel,
   loadAccountCategoryClass,
@@ -40,18 +22,51 @@ import {
   loadAccountClass,
 } from './modules/accounting/db/models/Accounts';
 import {
+  IAdjustInvDetailsModel,
+  IAdjustInventoriesModel,
+  loadAdjustInvDetailsClass,
+  loadAdjustInventoriesClass,
+} from './modules/accounting/db/models/AdjustInventories';
+import {
   IConfigModel,
   loadConfigClass,
 } from './modules/accounting/db/models/Configs';
+import {
+  ICtaxRowModel,
+  loadCtaxRowClass,
+} from './modules/accounting/db/models/CtaxRows';
+import {
+  IPermissionModel,
+  loadPermissionClass,
+} from './modules/accounting/db/models/Permissions';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
 import {
-  IAdjustClosingEntryModel,
-  loadAdjustClosingEntryClass,
-} from './modules/accounting/db/models/AdjustClosingEntry';
-import { IAdjustClosingDocument } from './modules/accounting/@types/adjustClosingEntry';
+  IVatRowModel,
+  loadVatRowClass,
+} from './modules/accounting/db/models/VatRows';
+import {
+  IRemainderModel,
+  loadRemainderClass,
+} from './modules/inventories/db/models/Remainders';
+import {
+  IReserveRemModel,
+  loadReserveRemClass,
+} from './modules/inventories/db/models/ReserveRems';
+import {
+  ISafeRemainderItemModel,
+  loadSafeRemainderItemClass,
+} from './modules/inventories/db/models/SafeRemainderItems';
+import {
+  ISafeRemainderModel,
+  loadSafeRemainderClass,
+} from './modules/inventories/db/models/SafeRemainders';
+import { IRemainderDocument } from './modules/inventories/@types/remainders';
+import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
+import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
+import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
 
 export interface IModels {
   Accounts: IAccountModel;
@@ -63,8 +78,13 @@ export interface IModels {
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
-  AdjustClosingEntries: IAdjustClosingEntryModel;
+
+  Remainders: IRemainderModel;
+  ReserveRems: IReserveRemModel;
+  SafeRemainderItems: ISafeRemainderItemModel;
+  SafeRemainders: ISafeRemainderModel;
 }
+
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
@@ -93,7 +113,7 @@ export const loadClasses = (
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'accounts',
-    loadConfigClass(
+    loadAccountClass(
       models,
       subdomain,
       eventDispatcher('accounting', 'accounting', 'accounts'),
@@ -105,7 +125,7 @@ export const loadClasses = (
     IAccountCategoryModel
   >(
     'account_categories',
-    loadConfigClass(
+    loadAccountCategoryClass(
       models,
       subdomain,
       eventDispatcher('accounting', 'accounting', 'account_categories'),
@@ -141,10 +161,22 @@ export const loadClasses = (
     loadCtaxRowClass(models, subdomain),
   );
 
-  models.AdjustClosingEntries = db.model<
-    IAdjustClosingDocument,
-    IAdjustClosingEntryModel
-  >('adjust_closing_entries', loadAdjustClosingEntryClass(models, subdomain));
+  models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
+    'remainders',
+    loadRemainderClass(models, subdomain),
+  );
+  models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
+    'inventories_reserverems',
+    loadReserveRemClass(models, subdomain),
+  );
+  models.SafeRemainderItems = db.model<
+    ISafeRemainderItemDocument,
+    ISafeRemainderItemModel
+  >('safe_remainder_items', loadSafeRemainderItemClass(models, subdomain));
+  models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
+    'safe_remainders',
+    loadSafeRemainderClass(models, subdomain),
+  );
 
   return models;
 };

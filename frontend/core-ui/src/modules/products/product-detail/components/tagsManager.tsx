@@ -45,7 +45,7 @@ export function TagsManager({
         onTagsUpdated();
       }
     } catch (error) {
-      console.log('Error refreshing data', error);
+      // Error handled silently
     }
   };
   const handleRemoveTag = async () => {

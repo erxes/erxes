@@ -1,21 +1,25 @@
-import { MongolianPaths } from '~/types/path';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 
 export const SettingsNavigation = () => {
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">Ebarimt</Sidebar.GroupLabel>
+      <Sidebar.GroupLabel className="h-4">Mongolian</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
-            pathPrefix={MongolianPaths.Mongolian}
-            path={MongolianPaths.MongolianSettings}
+            pathPrefix='mongolian'
+            path='/ebarimt'
             name="Ebarimt"
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix='mongolian'
             path='/sync-erkhet'
             name="Erkhet"
+          />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix='mongolian'
+            path='/product-places'
+            name="ProductPlace"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

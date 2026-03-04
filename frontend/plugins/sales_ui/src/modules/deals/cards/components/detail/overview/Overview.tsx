@@ -29,7 +29,7 @@ const Overview = ({ deal }: { deal: IDeal }) => {
       <Attachments />
       <div className="overview mb-4">
         <MainOverview deal={deal} />
-        <Checklists />
+        <Checklists stageId={deal.stageId} dealId={deal._id} />
       </div>
       <SalesNoteAndComment />
     </AttachmentProvider>

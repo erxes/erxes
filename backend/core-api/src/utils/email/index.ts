@@ -154,7 +154,7 @@ export const sendEmail = async (
 
   for (const toEmail of toEmails) {
     if (modifier) {
-      modifier(data, toEmail);
+      await modifier(data, toEmail);
     }
 
     // generate email content by given template

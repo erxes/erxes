@@ -4,6 +4,8 @@ export enum SettingsPath {
   Index = 'settings/',
   Profile = 'profile',
   ChangePassword = 'change-password',
+  Notification = 'notification',
+  NotificationCatchAll = 'notification/*',
   // Experience = 'experience',
 }
 
@@ -13,7 +15,8 @@ export enum SettingsWorkspacePath {
   MailConfig = 'mail-config',
   Apps = 'apps',
   Permissions = 'permissions',
-  TeamMember = 'team-member',
+  TeamMember = 'team',
+  TeamMemberCatchAll = `${TeamMember}/*`,
   Properties = 'properties',
   // Structure = 'structures',
   // StructureCatchAll = 'structures/*',

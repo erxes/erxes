@@ -1,4 +1,4 @@
-import { Button, Spinner, toast, useConfirm } from 'erxes-ui';
+import { toast, useConfirm } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
 import { useMutation } from '@apollo/client';
@@ -29,21 +29,25 @@ export const RemoveIntegration = ({
 
   const { confirm } = useConfirm();
 
+  const handleRemove = () => {
+    confirm({
+      message: `Are you sure you want to remove "${name}" integration?`,
+    }).then(() => {
+      removeIntegration({ variables: { id: _id } });
+    });
+  };
+
   return (
-    <Button
-      variant={'outline'}
-      className="text-destructive bg-destructive/10 hover:bg-destructive/20"
-      onClick={() =>
-        confirm({
-          message: `Are you sure you want to remove "${name}" integration?`,
-        }).then(() => {
-          removeIntegration({ variables: { id: _id } });
-        })
-      }
-      size="icon"
-      disabled={loading}
+    <div
+      onClick={handleRemove}
+      className="flex items-center gap-2 w-full text-destructive"
     >
-      {loading ? <Spinner size="small" /> : <IconTrash />}
-    </Button>
+      {loading ? (
+        <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
+      ) : (
+        <IconTrash size={16} />
+      )}
+      Remove
+    </div>
   );
 };

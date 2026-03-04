@@ -8,8 +8,13 @@ export const PaymentSettingsNavigation = () => {
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
-            path="/"
-            name="Payment Settings"
+            path="/methods"
+            name="Payment"
+          />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix="payment"
+            path="invoices"
+            name="Invoices"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

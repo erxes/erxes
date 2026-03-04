@@ -34,7 +34,7 @@ export const Import = ({
 
   return (
     <Popover>
-      <Popover.Trigger>
+      <Popover.Trigger asChild>
         <Button variant="outline">
           <IconDownload className="size-4" />
           Import

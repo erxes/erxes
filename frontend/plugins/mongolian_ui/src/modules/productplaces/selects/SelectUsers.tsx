@@ -4,49 +4,31 @@ import { Select } from 'erxes-ui';
 
 const CLEAR_VALUE = '__clear__';
 
+/* ✅ CORRECT SCHEMA-ALIGNED QUERY */
 const USERS_QUERY = gql`
   query users(
-    $page: Int
-    $perPage: Int
     $status: String
     $excludeIds: Boolean
-    $searchValue: String
-    $isActive: Boolean
     $ids: [String]
-    $brandIds: [String]
-    $departmentId: String
-    $unitId: String
     $isAssignee: Boolean
-    $branchId: String
     $departmentIds: [String]
     $branchIds: [String]
-    $segment: String
-    $segmentData: String
   ) {
     users(
-      page: $page
-      perPage: $perPage
       status: $status
       excludeIds: $excludeIds
-      searchValue: $searchValue
-      isActive: $isActive
       ids: $ids
-      brandIds: $brandIds
-      departmentId: $departmentId
-      unitId: $unitId
-      branchId: $branchId
       isAssignee: $isAssignee
       departmentIds: $departmentIds
       branchIds: $branchIds
-      segment: $segment
-      segmentData: $segmentData
     ) {
-      _id
-      username
-      email
-      details {
-        fullName
-        __typename
+      list {
+        _id
+        username
+        email
+        details {
+          fullName
+        }
       }
     }
   }
@@ -56,7 +38,9 @@ type User = {
   _id: string;
   username?: string;
   email?: string;
-  details?: { fullName?: string };
+  details?: {
+    fullName?: string;
+  };
 };
 
 type Props = {
@@ -67,21 +51,9 @@ type Props = {
   excludeIds?: boolean;
   isAssignee?: boolean;
   branchIds?: string[];
-
-  page?: number;
-  perPage?: number;
-  status?: string;
-  searchValue?: string;
-  isActive?: boolean;
-
-  departmentId?: string;
-  unitId?: string;
-  branchId?: string;
   departmentIds?: string[];
-  brandIds?: string[];
-  segment?: string;
-  segmentData?: string;
 
+  status?: string;
   disabled?: boolean;
 };
 
@@ -93,53 +65,34 @@ export default function SelectUsers({
   excludeIds = true,
   isAssignee = true,
   branchIds = [],
-
-  page = 1,
-  perPage = 50,
+  departmentIds = [],
 
   status,
-  searchValue,
-  isActive,
-
-  departmentId,
-  unitId,
-  branchId,
-  departmentIds,
-  brandIds,
-  segment,
-  segmentData,
-
   disabled,
 }: Props) {
   const { data, loading } = useQuery(USERS_QUERY, {
     variables: {
-      page,
-      perPage,
       status,
       excludeIds,
-      searchValue,
-      isActive,
       ids,
-      brandIds,
-      departmentId,
-      unitId,
-      branchId,
       isAssignee,
       departmentIds,
       branchIds,
-      segment,
-      segmentData,
     },
   });
 
-  const users: User[] = useMemo(() => data?.users || [], [data]);
+  /* ✅ USERS COME FROM users.list */
+  const users: User[] = useMemo(
+    () => data?.users?.list || [],
+    [data],
+  );
 
-  const selectedUser = useMemo(() => {
-    if (!value) return null;
-    return users.find((u) => u._id === value) || null;
-  }, [users, value]);
+  const selectedUser = useMemo(
+    () => users.find((u) => u._id === value),
+    [users, value],
+  );
 
-  const selectedLabel =
+  const label =
     selectedUser?.details?.fullName ||
     selectedUser?.username ||
     selectedUser?.email ||
@@ -148,26 +101,30 @@ export default function SelectUsers({
   return (
     <Select
       value={value || ''}
-      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
+      onValueChange={(v) =>
+        onChange(v === CLEAR_VALUE ? '' : v)
+      }
       disabled={disabled || loading}
     >
       <Select.Trigger className="w-full">
-        <Select.Value
-          placeholder={loading ? 'Loading...' : 'Choose user'}
-        >
-          {value ? selectedLabel : null}
+        <Select.Value placeholder={loading ? 'Loading...' : 'Choose user'}>
+          {value ? label : null}
         </Select.Value>
       </Select.Trigger>
 
       <Select.Content>
-        <Select.Item value={CLEAR_VALUE}>Clear user</Select.Item>
+        <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
 
         {users.map((u) => {
-          const label = u.details?.fullName || u.username || u.email || u._id;
+          const name =
+            u.details?.fullName ||
+            u.username ||
+            u.email ||
+            u._id;
 
           return (
             <Select.Item key={u._id} value={u._id}>
-              {label}
+              {name}
             </Select.Item>
           );
         })}

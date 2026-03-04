@@ -1,4 +1,4 @@
-import { Cell } from '@tanstack/table-core';
+import { CellContext } from '@tanstack/react-table';
 import { FacebookIntegrationFormSheet } from './FacebookIntegrationForm';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import {
@@ -70,7 +70,7 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
 export const FacebookIntegrationActions = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
   return <FacebookIntegrationEditSheet id={cell.row.original._id} />;
 };
@@ -80,9 +80,10 @@ export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline" size="icon">
-          <IconEdit />
-        </Button>
+        <div className="flex items-center gap-2 w-full">
+          <IconEdit size={16} />
+          Edit
+        </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
         <FacebookIntegrationEditForm id={id} setOpen={setOpen} />
@@ -143,11 +144,7 @@ export const FacebookIntegrationEditForm = ({
       <Separator />
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (error) => {
-            console.log(error);
-          })}
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="p-6 pb-8 space-y-6">
             <div>
               <Label htmlFor="pageName">Page Name</Label>

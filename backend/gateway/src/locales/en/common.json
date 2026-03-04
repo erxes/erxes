@@ -9,6 +9,7 @@
     "broadcasts": "Broadcasts",
     "success": "Success",
     "cancel": "Cancel",
+    "delete": "Delete",
     "save": "Save",
     "settings": "Settings"
   },
@@ -35,6 +36,7 @@
 },
   "sidebar" : {
     "profile" : "Profile",
+    "notification" : "Notification",
     "change-password" : "Change Password",
     "general" : "General",
     "team-member" : "Team member",

@@ -24,6 +24,10 @@ export type IUIConfig = {
     name: string;
     icon?: React.ElementType;
     path: string;
+    hasAutomation?: boolean;
+    hasRelationWidget?: boolean;
+    hasFloatingWidget?: boolean;
+    hasSegmentConfigWidget?: boolean;
   }[];
 };
 

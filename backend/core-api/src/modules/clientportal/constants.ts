@@ -127,3 +127,39 @@ export const PASSWORD_CONFIG = {
 } as const;
 
 export const SALT_WORK_FACTOR = 10;
+
+export const CP_NOTIFICATION_EVENT_TYPES = {
+  COMMENT_CREATED: 'comment.created',
+  COMMENT_REPLIED: 'comment.replied',
+  USER_REGISTERED: 'user.registered',
+  VERIFICATION_STATUS_CHANGED: 'verification.status_changed',
+} as const;
+
+export const CP_NOTIFICATION_PRIORITY = {
+  LOW: 'low',
+  MEDIUM: 'medium',
+  HIGH: 'high',
+  URGENT: 'urgent',
+  ALL: ['low', 'medium', 'high', 'urgent'],
+} as const;
+
+export const CP_NOTIFICATION_PRIORITY_ORDER = {
+  low: 1,
+  medium: 2,
+  high: 3,
+  urgent: 4,
+} as const;
+
+export const CP_NOTIFICATION_TYPES = {
+  INFO: 'info',
+  SUCCESS: 'success',
+  WARNING: 'warning',
+  ERROR: 'error',
+  ALL: ['info', 'success', 'warning', 'error'],
+} as const;
+
+export const CP_NOTIFICATION_KIND = {
+  SYSTEM: 'system',
+  USER: 'user',
+  ALL: ['system', 'user'],
+} as const;

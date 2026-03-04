@@ -21,6 +21,7 @@ export const types = `
         type: String
         slug: String
         content: String
+        status: String
         createdUserId: String
         createdUser: User
         createdAt: Date

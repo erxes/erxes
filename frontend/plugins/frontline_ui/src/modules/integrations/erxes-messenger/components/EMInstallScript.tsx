@@ -2,12 +2,14 @@ import { IconCopy, IconCheck, IconCode } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Badge, Button, Dialog, toast } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
+import { Link, useNavigate } from 'react-router';
 
 type Props = {
   integrationId: string;
 };
 
 export function EMInstallScript({ integrationId }: Props) {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
@@ -19,10 +21,10 @@ export function EMInstallScript({ integrationId }: Props) {
   };
 
   (function () {
-    var script = document.createElement("script");
+    const script = document.createElement("script");
     script.src = "${API}/messengerBundle.js";
     script.async = true;
-    var entry = document.getElementsByTagName("script")[0];
+    const entry = document.getElementsByTagName("script")[0];
     entry.parentNode.insertBefore(script, entry);
   })();
 </script>`;
@@ -47,14 +49,14 @@ export function EMInstallScript({ integrationId }: Props) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size={'icon'}
+      <div
+        className="flex items-center gap-2 w-full cursor-pointer"
         onClick={() => setDialogOpen(true)}
         title="View installation script"
       >
-        <IconCode />
-      </Button>
+        <IconCode size={16} />
+        Install Script
+      </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <Dialog.Content className="max-w-2xl">
@@ -106,6 +108,12 @@ export function EMInstallScript({ integrationId }: Props) {
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>
               Close
             </Button>
+            <Link
+              target="_blank"
+              to={`/settings/frontline/channels/erxes-messenger-preview?inPreview=true&integrationId=${integrationId}`}
+            >
+              <Button>Preview</Button>
+            </Link>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
