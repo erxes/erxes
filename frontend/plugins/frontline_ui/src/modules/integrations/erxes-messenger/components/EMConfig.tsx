@@ -317,7 +317,10 @@ const PersistentMenu = ({
                   render={({ field }) => (
                     <Form.Item className="flex-auto">
                       <Form.Label>Type</Form.Label>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <Form.Control>
                           <Select.Trigger className="mb-0">
                             <Select.Value placeholder="Select a type" />
