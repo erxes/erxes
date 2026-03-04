@@ -1,11 +1,28 @@
 import { IContext } from '~/connectionResolvers';
 import { moduleRequireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const pipelineLabelQueries = {
+export const pipelineLabelQueries: Record<string, Resolver> = {
   /**
    *  Pipeline label list
    */
   async salesPipelineLabels(
+    _root: undefined,
+    { pipelineId, pipelineIds }: { pipelineId: string; pipelineIds: string[] },
+    { models }: IContext,
+  ) {
+    const filter: any = {};
+
+    filter.pipelineId = pipelineId;
+
+    if (pipelineIds) {
+      filter.pipelineId = { $in: pipelineIds };
+    }
+
+    return models.PipelineLabels.find(filter);
+  },
+
+  async cpSalesPipelineLabels(
     _root: undefined,
     { pipelineId, pipelineIds }: { pipelineId: string; pipelineIds: string[] },
     { models }: IContext,
@@ -34,3 +51,7 @@ export const pipelineLabelQueries = {
 };
 
 // moduleRequireLogin(pipelineLabelQueries);
+
+pipelineLabelQueries.cpSalesPipelineLabels.wrapperConfig={
+  forClientPortal:true,
+}

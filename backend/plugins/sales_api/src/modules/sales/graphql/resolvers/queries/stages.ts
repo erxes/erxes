@@ -1,3 +1,4 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import {
   defaultPaginate,
   regexSearchText,
@@ -7,11 +8,71 @@ import {
 import { IContext } from '~/connectionResolvers';
 import { SALES_STATUSES } from '~/modules/sales/constants';
 
-export const stageQueries = {
+export const stageQueries: Record<string, Resolver> = {
   /**
    *  Stages list
    */
   async salesStages(
+    _root,
+    {
+      pipelineId,
+      pipelineIds,
+      isNotLost,
+      isAll,
+    }: {
+      pipelineId: string;
+      pipelineIds: string[];
+      isNotLost: boolean;
+      isAll: boolean;
+    },
+    { subdomain, user, models }: IContext,
+  ) {
+    const filter: any = {};
+
+    filter.pipelineId = pipelineId;
+
+    if (pipelineIds) {
+      filter.pipelineId = { $in: pipelineIds };
+    }
+
+    if (isNotLost) {
+      filter.probability = { $ne: 'Lost' };
+    }
+
+    if (!isAll) {
+      filter.status = { $ne: SALES_STATUSES.ARCHIVED };
+
+      filter.$or = [
+        { visibility: { $in: ['public', null] } },
+        {
+          $and: [{ visibility: 'private' }, { memberIds: { $in: [user._id] } }],
+        },
+      ];
+
+      const userDetail = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'findOne',
+        input: {},
+      });
+
+      const departmentIds = userDetail?.departmentIds || [];
+      if (departmentIds.length > 0) {
+        filter.$or.push({
+          $and: [
+            { visibility: 'private' },
+            { departmentIds: { $in: departmentIds } },
+          ],
+        });
+      }
+    }
+
+    return models.Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
+  },
+
+  async cpSalesStages(
     _root,
     {
       pipelineId,
@@ -123,3 +184,7 @@ export const stageQueries = {
 };
 
 // moduleRequireLogin(stageQueries);
+
+stageQueries.cpSalesStages.wrapperConfig={
+  forClientPortal:true,
+}

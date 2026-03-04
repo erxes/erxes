@@ -39,6 +39,9 @@ export const types = `
     externalLinks: JSON
     integrations: Integrations
     environmentVariables: [EnvironmentVariable]
+    projectId: String
+    lastDeploymentId: String
+    lastDeploymentUrl: String
     createdAt: Date
     updatedAt: Date
   }
@@ -91,8 +94,8 @@ export const queries = `
   getWebList: [Web]
   getWebDetail(_id: String!): Web
   cpGetWebDetail(_id: String!): Web
-  cpGetDomains(projectId: String!): JSON
-  cpGetDeploymentEvents(id: String!): JSON
+  cpGetDomains(_id: String!): JSON
+  cpGetDeploymentEvents(_id: String!): JSON
 `;
 
 export const mutations = `
@@ -100,6 +103,6 @@ export const mutations = `
   editWeb(_id: String!, doc: WebInput!): Web
   removeWeb(_id: String!): Web
   cpDeployWeb(_id: String!): JSON
-  cpAddDomain(projectId: String!, domain: String!): JSON
-  cpRemoveProject(projectId: String!): JSON
+  cpAddDomain(_id: String!, domain: String!): JSON
+  cpRemoveProject(_id: String!): JSON
 `;

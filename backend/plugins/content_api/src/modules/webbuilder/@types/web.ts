@@ -34,13 +34,16 @@ export interface IWeb {
   logo?: IAttachment;
   favicon?: IAttachment;
   appearances?: IAppearances;
-  // deploy fields
   templateId?: string;
   templateType?: string;
   erxesAppToken?: string;
   externalLinks?: Record<string, string>;
   integrations?: IIntegrations;
   environmentVariables?: EnvironmentVariable[];
+  // deployment fields
+  projectId?: string;
+  lastDeploymentId?: string;
+  lastDeploymentUrl?: string;
 }
 
 export interface IWebDocument extends IWeb, Document {

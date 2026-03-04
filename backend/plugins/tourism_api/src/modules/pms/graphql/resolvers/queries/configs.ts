@@ -81,6 +81,71 @@ const configQueries: Record<string, Resolver> = {
     });
     return deals?.data || [];
   },
+
+  async cpPmsRooms(
+    _root,
+    {
+      endDate1,
+      endDate2,
+      startDate1,
+      startDate2,
+      pipelineId,
+      perPage = 50,
+      page = 1,
+      skipStageIds = [],
+    }: {
+      startDate1: Date;
+      startDate2: Date;
+      endDate1: Date;
+      endDate2: Date;
+      pipelineId: string;
+      perPage: number;
+      page: number;
+      skipStageIds: string[];
+    },
+    { models, subdomain }: IContext,
+  ) {
+    const stages = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'sales',
+      module: 'stage',
+      action: 'find',
+      input: { pipelineId: pipelineId },
+    });
+
+    const stageIds = stages.data?.map((x) => x._id) || [];
+    const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
+
+    const deals = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'sales',
+      module: 'deal',
+      action: 'find',
+      input: {
+        query: {
+          stageId: { $in: newArray },
+          productsData: {
+            $elemMatch: {
+              startDate: {
+                $gte: new Date(startDate1),
+                $lte: new Date(startDate2),
+              },
+              endDate: {
+                $gte: new Date(endDate1),
+                $lte: new Date(endDate2),
+              },
+            },
+          },
+        },
+        skip: (page - 1) * perPage,
+        limit: perPage,
+      },
+    });
+    return deals?.data || [];
+  },
+
   async pmsCheckRooms(
     _root,
     {
@@ -292,6 +357,10 @@ const configQueries: Record<string, Resolver> = {
 
 export default configQueries;
 
-configQueries.cpPmsCheckRooms.wrapperConfig = {
-  forClientPortal: true,
-};
+configQueries.cpPmsCheckRooms.wrapperConfig={
+  forClientPortal:true,
+}
+
+configQueries.cpPmsRooms.wrapperConfig={
+  forClientPortal:true,
+}

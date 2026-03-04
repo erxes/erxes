@@ -34,7 +34,17 @@ export const webBuilderMutations: Record<string, Resolver> = {
       const web = await models.Web.findOne({ _id });
       if (!web) throw new Error('Web not found');
       const result = await deploy(subdomain, web, models);
-      console.log('Deploy result:', JSON.stringify(result));
+  
+      // save deployment state back to web document
+      await models.Web.findOneAndUpdate(
+        { _id },
+        { $set: {
+          projectId: result.project?.id,
+          lastDeploymentId: result.id,
+          lastDeploymentUrl: result.url,
+        }},
+      );
+  
       return result;
     } catch (error) {
       console.error('cpDeployWeb error:', error.message);
@@ -44,18 +54,24 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
   async cpAddDomain(
     _root,
-    { projectId, domain }: { projectId: string; domain: string },
-    _context: IContext,
+    { _id, domain }: { _id: string; domain: string },
+    { models }: IContext,
   ) {
-    return addDomain(projectId, domain);
+    const web = await models.Web.findOne({ _id });
+    if (!web) throw new Error('Web not found');
+    if (!web.projectId) throw new Error('No project found for this web');
+    return addDomain(web.projectId, domain);
   },
 
   async cpRemoveProject(
     _root,
-    { projectId }: { projectId: string },
-    _context: IContext,
+    { _id }: { _id: string },
+    { models }: IContext,
   ) {
-    return removeProject(projectId);
+    const web = await models.Web.findOne({ _id });
+    if (!web) throw new Error('Web not found');
+    if (!web.projectId) throw new Error('No project found for this web');
+    return removeProject(web.projectId);
   },
 };
 

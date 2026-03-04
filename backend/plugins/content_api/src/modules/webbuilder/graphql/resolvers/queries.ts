@@ -18,18 +18,24 @@ export const webQueries: Record<string, Resolver> = {
   },
   async cpGetDomains(
     _root,
-    { projectId }: { projectId: string },
-    _context: IContext,
+    { _id }: { _id: string },
+    { models }: IContext,
   ) {
-    return getDomains(projectId);
+    const web = await models.Web.findOne({ _id });
+    if (!web) throw new Error('Web not found');
+    if (!web.projectId) throw new Error('No project found for this web');
+    return getDomains(web.projectId);
   },
-
+  
   async cpGetDeploymentEvents(
     _root,
-    { id }: { id: string },
-    _context: IContext,
+    { _id }: { _id: string },
+    { models }: IContext,
   ) {
-    return getDeploymentEvents(id);
+    const web = await models.Web.findOne({ _id });
+    if (!web) throw new Error('Web not found');
+    if (!web.lastDeploymentId) throw new Error('No deployment found for this web');
+    return getDeploymentEvents(web.lastDeploymentId);
   },
 };
 

@@ -288,7 +288,7 @@ export const deploy = async (
     console.log('total files to upload:', files.length);
 
     // Deploy to Vercel
-    const name = web.name.toLowerCase().replace(/\s+/g, '_');
+    const projectName = `web-${web._id}`.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
     console.log('calling vercel api...');
 
     const response = await fetch(
@@ -300,10 +300,10 @@ export const deploy = async (
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name,
+          name: projectName,
           files,
           target: 'production',
-          project: `${name}_${subdomain}`,
+          project: projectName,
           projectSettings: {
             installCommand: 'yarn install',
             buildCommand: 'next build',
