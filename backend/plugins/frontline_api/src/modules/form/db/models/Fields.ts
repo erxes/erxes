@@ -97,7 +97,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && fieldObj.isDefinedByErxes) {
-        throw new Error('Cant update this field');
+        throw new Error("Can't update this field");
       }
     }
 
@@ -106,7 +106,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && !fieldObj.canHide) {
-        throw new Error('You cant update this field');
+        throw new Error("You can't update this field");
       }
     }
 
@@ -354,7 +354,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           fixedValues[_id] = await this.clean(_id, data[_id]);
         } catch (e) {
           console.log(
-            `An error occured in CLEAN while cleanMulti: ${
+            `An error occurred in CLEAN while cleanMulti: ${
               e.message
             } ::: customFieldData ::: ${JSON.stringify(data)}`,
           );

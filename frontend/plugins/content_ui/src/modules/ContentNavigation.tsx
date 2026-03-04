@@ -14,21 +14,11 @@ export const ContentNavigation = () => {
         path="/content/cms"
         icon={IconFileText}
       />
-      <div
-        onClick={() =>
-          window.open(
-            'https://example.webbuilder.app.erxes.io',
-            '_blank',
-            'noopener,noreferrer',
-          )
-        }
-      >
-        <NavigationMenuLinkItem
-          name="Web Builder"
-          path="#"
-          icon={IconWorldPlus}
-        />
-      </div>
+      <NavigationMenuLinkItem
+        name="Web Builder"
+        path="/content/web-builder"
+        icon={IconWorldPlus}
+      />
     </div>
   );
 };

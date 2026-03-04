@@ -160,7 +160,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 export const loadClass = (models: IModels, subdomain: string) => {
   class Integration {
     /**
-     * Retreives integration
+     * Retrieves integration
      */
     public static async getIntegration(doc: any) {
       const integration = await models.Integrations.findOne(doc);

@@ -18,6 +18,7 @@ import { useIsPostsLeadSessionKey } from '../hooks/usePostsLeadSessionKey';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectTags } from './selects/SelectTags';
 import { SelectCategories } from './selects/SelectCategories';
+import { useCustomTypes } from '../../custom-types/hooks/useCustomTypes';
 
 interface PostsFilterPopoverProps {
   clientPortalId?: string;
@@ -136,6 +137,13 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
   const [type] = useFilterQueryState<string>('type');
   const { sessionKey } = useIsPostsLeadSessionKey();
+  const { customTypes } = useCustomTypes({ clientPortalId });
+  const typeLabel =
+    type === 'post'
+      ? 'Post'
+      : customTypes.find((t) => t.code === type)?.pluralLabel ||
+        customTypes.find((t) => t.code === type)?.label ||
+        type;
 
   return (
     <Filter id="posts-filter" sessionKey={sessionKey}>
@@ -156,7 +164,7 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
             Type
           </Filter.BarName>
           <Filter.BarButton filterKey="type" inDialog>
-            {type}
+            {typeLabel}
           </Filter.BarButton>
         </Filter.BarItem>
         <SelectTags.FilterBar clientPortalId={clientPortalId} />
