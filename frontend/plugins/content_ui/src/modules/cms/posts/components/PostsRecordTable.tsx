@@ -3,10 +3,12 @@ import { usePostsColumns } from './PostsColumn';
 import { PostsCommandbar } from './posts-command-bar/PostsCommandbar';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 import { usePosts } from '../hooks/usePosts';
+import { PostsEmptyState } from './PostsEmptyState';
+import { Posts } from '../types/postsType';
 
 interface PostsRecordTableProps {
   clientPortalId: string;
-  onEditPost?: (post: any) => void;
+  onEditPost?: (post: Posts) => void;
 }
 
 export const PostsRecordTable = ({
@@ -25,7 +27,7 @@ export const PostsRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={posts || []}
-      className="m-3"
+      className="h-full"
       stickyColumns={['more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
@@ -40,16 +42,16 @@ export const PostsRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading ? (
-              <RecordTable.RowSkeleton rows={32} />
-            ) : (
-              <RecordTable.RowList />
-            )}
+            {loading && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />
           </RecordTable.Body>
         </RecordTable>
+        {!loading && posts?.length === 0 && (
+          <PostsEmptyState clientPortalId={clientPortalId} />
+        )}
       </RecordTable.CursorProvider>
       <PostsCommandbar refetch={refetch} />
     </RecordTable.Provider>

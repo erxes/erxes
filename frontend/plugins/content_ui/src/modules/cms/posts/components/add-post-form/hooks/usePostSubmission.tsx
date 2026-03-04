@@ -4,7 +4,7 @@ import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface PostFormData {
   title: string;
@@ -47,12 +47,70 @@ interface UsePostSubmissionProps {
   currentPath?: string;
 }
 
+const applyInlineStyles = (i: any): string => {
+  let text = i.text || '';
+  if (i.styles?.bold) text = `<strong>${text}</strong>`;
+  if (i.styles?.italic) text = `<em>${text}</em>`;
+  if (i.styles?.underline) text = `<u>${text}</u>`;
+  if (i.styles?.strike) text = `<s>${text}</s>`;
+  if (i.styles?.code) text = `<code>${text}</code>`;
+  return text;
+};
+
+const blockToHtml = (block: any): string => {
+  const html = (block.content || []).map(applyInlineStyles).join('');
+  if (block.type === 'heading') {
+    const level = block.props?.level || 1;
+    return `<h${level}>${html}</h${level}>`;
+  }
+  if (block.type === 'codeBlock') return `<pre><code>${html}</code></pre>`;
+  return `<p>${html}</p>`;
+};
+
+// Content is stored as BlockNote JSON when the user has typed in the editor.
+// Convert to HTML for API storage.
+const blocksToHtml = (raw: string): string => {
+  try {
+    const blocks = JSON.parse(raw);
+    if (!Array.isArray(blocks)) return raw;
+    return blocks.map(blockToHtml).join('');
+  } catch {
+    return raw;
+  }
+};
+
+const extractText = (html: string): string => {
+  const doc = new DOMParser().parseFromString(html || '', 'text/html');
+  return (doc.body.textContent || '').trim();
+};
+
+const generateSlug = (title: string): string => {
+  const baseSlug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const timestamp = Date.now().toString(36).slice(-6);
+  return `${baseSlug || 'post'}-${timestamp}`;
+};
+
+const getCustomFieldsData = (data: PostFormData) => {
+  if (!data.customFieldsData || data.customFieldsData.length === 0) {
+    return undefined;
+  }
+  const filtered = data.customFieldsData.filter(
+    (item) =>
+      item.value !== '' && item.value !== null && item.value !== undefined,
+  );
+  return filtered.length > 0 ? filtered : undefined;
+};
+
 export const usePostSubmission = ({
   websiteId,
   editingPost,
   onClose,
 }: UsePostSubmissionProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
   });
@@ -67,30 +125,16 @@ export const usePostSubmission = ({
       return;
     }
 
-    const extractText = (html: string) => {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = html || '';
-      return (tmp.textContent || tmp.innerText || '').trim();
-    };
+    const rawContent = data.content || '';
+    const contentHtml = rawContent.trimStart().startsWith('[')
+      ? blocksToHtml(rawContent)
+      : rawContent;
 
     const computedTitle =
       (data.title && data.title.trim()) ||
       (data.seoTitle && data.seoTitle.trim()) ||
-      extractText(data.content || '')
-        .split('\n')[0]
-        .slice(0, 80) ||
+      extractText(contentHtml).split('\n')[0].slice(0, 80) ||
       'Untitled';
-
-    const generateSlug = (title: string) => {
-      const baseSlug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-      const timestamp = Date.now().toString(36).slice(-6);
-      const finalSlug = baseSlug || 'post';
-      return `${finalSlug}-${timestamp}`;
-    };
 
     const combinedImages = [...(data.gallery || [])];
     const imagesPayload = makeAttachmentArrayFromUrls(combinedImages);
@@ -106,7 +150,7 @@ export const usePostSubmission = ({
       clientPortalId: websiteId,
       title: computedTitle,
       slug: editingPost?._id ? data.slug : generateSlug(computedTitle),
-      content: data.content,
+      content: contentHtml,
       type: data.type,
       status: data.status || 'draft',
       categoryIds: data.categoryIds,
@@ -118,7 +162,7 @@ export const usePostSubmission = ({
         : undefined,
       excerpt:
         (data.description && data.description.trim()) ||
-        extractText(data.content || '').slice(0, 200),
+        extractText(contentHtml).slice(0, 200),
       thumbnail: normalizeAttachment(data.thumbnail || undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
@@ -126,37 +170,25 @@ export const usePostSubmission = ({
       documents: documentsPayload.length ? documentsPayload : undefined,
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
       pdfAttachment: pdfPayload ? { pdf: pdfPayload } : undefined,
-      customFieldsData: (() => {
-        if (!data.customFieldsData || data.customFieldsData.length === 0) {
-          return undefined;
-        }
-        const filtered = data.customFieldsData.filter(
-          (item) =>
-            item.value !== '' &&
-            item.value !== null &&
-            item.value !== undefined,
-        );
-        return filtered.length > 0 ? filtered : undefined;
-      })(),
+      customFieldsData: getCustomFieldsData(data),
     };
+
+    const typeCode = searchParams.get('type');
+    const typeParam =
+      typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
 
     try {
       if (editingPost?._id) {
         await editPost(editingPost._id, input);
         toast({ title: 'Saved', description: 'Post saved successfully' });
-        if (onClose) {
-          onClose();
-        } else {
-          navigate(`/content/cms/${websiteId}/posts`);
-        }
       } else {
         await createPost(input);
         toast({ title: 'Saved', description: 'Post created successfully' });
-        if (onClose) {
-          onClose();
-        } else {
-          navigate(`/content/cms/${websiteId}/posts`);
-        }
+      }
+      if (onClose) {
+        onClose();
+      } else {
+        navigate(`/content/cms/${websiteId}/posts${typeParam}`);
       }
     } catch (error: any) {
       toast({
