@@ -412,6 +412,7 @@ export const OtherPayments = ({
               variant="destructive"
               size="icon"
               type="button"
+              aria-label="Remove payment method"
               className="w-8 h-8"
               onClick={() => remove(index)}
             >

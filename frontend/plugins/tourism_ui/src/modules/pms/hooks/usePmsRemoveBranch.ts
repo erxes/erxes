@@ -1,17 +1,15 @@
 import { useMutation } from '@apollo/client';
 import { pmsMutations } from '@/pms/graphql/mutation';
-import { useToast } from 'erxes-ui';
 
 interface PmsBranchRemoveResponse {
   pmsBranchRemove: unknown;
 }
 
 interface PmsBranchRemoveVariables {
-  _id: string;
+  id: string;
 }
 
 export const usePmsRemoveBranch = () => {
-  const { toast } = useToast();
   const [removeBranchMutation, { loading, error }] = useMutation<
     PmsBranchRemoveResponse,
     PmsBranchRemoveVariables
@@ -21,7 +19,7 @@ export const usePmsRemoveBranch = () => {
         return;
       }
 
-      const deletedId = options?.variables?._id;
+      const deletedId = options?.variables?.id;
 
       if (!deletedId) {
         return;
@@ -47,21 +45,10 @@ export const usePmsRemoveBranch = () => {
         throw new Error('Mutation returned no data');
       }
 
-      toast({
-        title: 'Success',
-        description: 'Branch removed successfully',
-      });
-
       options.onCompleted?.(result.data);
 
       return result;
     } catch (e: unknown) {
-      toast({
-        title: 'Error',
-        description: e instanceof Error ? e.message : 'Failed to remove branch',
-        variant: 'destructive',
-      });
-
       options.onError?.(e);
       throw e;
     }

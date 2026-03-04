@@ -112,15 +112,15 @@ const PaymentInline = ({
       const matchedPayments = fetchedPayments.filter((p) =>
         paymentIds.includes(p._id),
       );
-      if (matchedPayments.length > 0) {
-        const matchedIds = matchedPayments.map((p) => p._id);
-        const currentIds = payments?.map((p) => p._id) || [];
-        const idsAreDifferent =
-          matchedIds.length !== currentIds.length ||
-          !matchedIds.every((id) => currentIds.includes(id));
-        if (idsAreDifferent) {
-          updatePayments?.(matchedPayments);
-        }
+
+      const matchedIds = matchedPayments.map((p) => p._id);
+      const currentIds = payments?.map((p) => p._id) || [];
+      const idsAreDifferent =
+        matchedIds.length !== currentIds.length ||
+        !matchedIds.every((id) => currentIds.includes(id));
+
+      if (idsAreDifferent) {
+        updatePayments?.(matchedPayments);
       }
     }
   }, [paymentIds, fetchedPayments, payments, updatePayments]);

@@ -163,7 +163,13 @@ export function PmsList() {
       options: confirmOptions,
     }).then(() => {
       removeBranch({
-        variables: { _id: branchId },
+        variables: { id: branchId },
+        onCompleted: () => {
+          toast({
+            title: 'Success',
+            description: 'Branch removed successfully',
+          });
+        },
         onError: (e) => {
           toast({
             title: 'Error',

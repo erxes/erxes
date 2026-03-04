@@ -15,8 +15,8 @@ type CreatePmsSheetContentLayoutProps = PropsWithChildren & {
 
 const STEP_VALIDATION_FIELDS: Record<number, Array<keyof PmsBranchFormType>> = {
   1: ['name', 'checkInTime', 'checkOutTime', 'checkInAmount', 'checkOutAmount'],
-  2: ['user1Ids'],
-  3: [],
+  2: [],
+  3: ['user1Ids'],
   4: [],
   5: ['boardId', 'pipelineId'],
 };
@@ -152,15 +152,16 @@ export const CreatePmsSheetContentLayout: FC<
 
   const handleStepChange = async (nextStep: number) => {
     if (nextStep > currentStep) {
-      const isValid = await validateStep(currentStep, form);
-      if (!isValid) {
-        return;
+      for (let i = currentStep; i < nextStep; i++) {
+        const isValid = await validateStep(i, form);
+        if (!isValid) {
+          return;
+        }
       }
     }
 
     setCurrentStep(nextStep);
   };
-
   return (
     <Sheet.Content className="flex overflow-hidden p-0">
       <Sidebar collapsible="none" className="flex-none border-r">
