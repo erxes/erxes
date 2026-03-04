@@ -108,12 +108,14 @@ export function EMInstallScript({ integrationId }: Props) {
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>
               Close
             </Button>
-            <Link
-              target="_blank"
-              to={`/settings/frontline/channels/erxes-messenger-preview?inPreview=true&integrationId=${integrationId}`}
-            >
-              <Button>Preview</Button>
-            </Link>
+            <Button>
+              <Link
+                target="_blank"
+                to={`/settings/frontline/channels/erxes-messenger-preview?inPreview=true&integrationId=${integrationId}`}
+              >
+                Preview
+              </Link>
+            </Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
