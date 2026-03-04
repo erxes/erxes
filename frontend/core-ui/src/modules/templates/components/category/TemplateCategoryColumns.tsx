@@ -49,7 +49,9 @@ export const templateCategoryColumns: ColumnDef<any>[] = [
 
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary" onClick={handleClick}>{cell.getValue() as string}</Badge>
+          <Badge variant="secondary" onClick={handleClick}>
+            {cell.getValue() as string}
+          </Badge>
         </RecordTableInlineCell>
       );
     },

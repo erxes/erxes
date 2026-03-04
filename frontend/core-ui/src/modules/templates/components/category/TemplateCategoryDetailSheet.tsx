@@ -1,10 +1,6 @@
 import { useTemplateCategoryDetail } from '@/templates/hooks/useTemplateCategoryDetail';
 import { IconLoader2 } from '@tabler/icons-react';
-import {
-  Sheet,
-  useQueryState,
-  useToast
-} from 'erxes-ui';
+import { Sheet, useQueryState, useToast } from 'erxes-ui';
 import { TemplateCategoryForm } from './TemplateCategoryForm';
 
 export const TemplateCategoryDetailSheet = () => {
@@ -12,7 +8,9 @@ export const TemplateCategoryDetailSheet = () => {
 
   const { toast } = useToast();
 
-  const { categoryDetail, loading } = useTemplateCategoryDetail(categoryId || undefined);
+  const { categoryDetail, loading } = useTemplateCategoryDetail(
+    categoryId || undefined,
+  );
 
   const setOpen = (newCategoryId: string | null) => {
     setCategoryId(newCategoryId);

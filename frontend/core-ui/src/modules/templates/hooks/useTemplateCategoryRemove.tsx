@@ -12,19 +12,22 @@ export interface ITemplateCategoryRemoveResponse {
 }
 
 export const useTemplateCategoryRemove = () => {
-  const [mutate, { loading }] = useMutation<ITemplateCategoryRemoveResponse, ITemplateCategoryRemove>(
-    TEMPLATE_CATEGORY_REMOVE,
-    {
-      refetchQueries: [QUERY_TEMPLATE_CATEGORIES],
-    }
-  );
+  const [mutate, { loading }] = useMutation<
+    ITemplateCategoryRemoveResponse,
+    ITemplateCategoryRemove
+  >(TEMPLATE_CATEGORY_REMOVE, {
+    refetchQueries: [QUERY_TEMPLATE_CATEGORIES],
+  });
 
   const templateCategoryRemove = ({
     variables,
     onError,
     onCompleted,
     ...options
-  }: MutationHookOptions<ITemplateCategoryRemoveResponse, ITemplateCategoryRemove>) => {
+  }: MutationHookOptions<
+    ITemplateCategoryRemoveResponse,
+    ITemplateCategoryRemove
+  >) => {
     return mutate({
       ...options,
       variables,

@@ -4,8 +4,7 @@ import { IModels } from '~/connectionResolvers';
 import { ITemplateCategory, ITemplateCategoryDocument } from '../../@types';
 import { templateCategorySchema } from '../definitions/category';
 
-export interface ITemplateCategoryModal
-  extends Model<ITemplateCategoryDocument> {
+export interface ITemplateCategoryModal extends Model<ITemplateCategoryDocument> {
   getTemplateCategory(_id: string): Promise<ITemplateCategoryDocument>;
   createTemplateCategory(
     category: ITemplateCategory,
