@@ -12,6 +12,7 @@ export const EM_CONFIG_SCHEMA = z.object({
           z.object({
             text: z.string().optional(),
             type: z.enum(['button', 'link']).optional(),
+            link: z.string().optional(),
           }),
         )
         .optional(),
