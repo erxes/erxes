@@ -1,18 +1,19 @@
 import { z } from 'zod';
 
+const optionalNonNegativeNumber = z.preprocess((value) => {
+  if (value === '' || value === null || value === undefined) {
+    return undefined;
+  }
+  return Number(value);
+}, z.number().min(0, 'Amount must be non-negative').optional());
+
 export const PmsBranchFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().max(500).optional(),
   checkInTime: z.string().min(1, 'Check in time is required'),
-  checkInAmount: z.coerce
-    .number()
-    .min(0, 'Amount must be non-negative')
-    .optional(),
+  checkInAmount: optionalNonNegativeNumber,
   checkOutTime: z.string().min(1, 'Check out time is required'),
-  checkOutAmount: z.coerce
-    .number()
-    .min(0, 'Amount must be non-negative')
-    .optional(),
+  checkOutAmount: optionalNonNegativeNumber,
   discount: z.array(
     z.object({
       _id: z.string().optional(),

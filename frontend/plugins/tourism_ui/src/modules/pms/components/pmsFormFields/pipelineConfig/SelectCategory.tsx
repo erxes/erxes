@@ -197,7 +197,12 @@ const SelectCategoryValue = ({ placeholder }: { placeholder?: string }) => {
   const { productCategories } = useProductCategories();
 
   React.useEffect(() => {
-    if (!categoryIds.length || !productCategories) return;
+    if (!categoryIds.length) {
+      setCategories([]);
+      return;
+    }
+
+    if (!productCategories) return;
 
     const currentCategoryIds = new Set(categories.map((c) => c._id));
     const requestedIds = new Set(categoryIds);

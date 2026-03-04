@@ -89,24 +89,34 @@ const CreatePmsForm = ({
     otherPayments: (Partial<IPmsPaymentType> | undefined)[] | undefined,
   ): IPmsPaymentType[] => {
     return (
-      otherPayments?.map((payment) => ({
-        _id: payment?._id || nanoid(),
-        type: payment?.type || '',
-        title: payment?.title || '',
-        config: payment?.config || '',
-      })) || []
+      otherPayments
+        ?.filter(
+          (payment) =>
+            payment && (payment.type?.trim() || payment.title?.trim()),
+        )
+        .map((payment) => ({
+          _id: payment?._id || nanoid(),
+          type: payment?.type || '',
+          title: payment?.title || '',
+          config: payment?.config || '',
+        })) || []
     );
   };
 
   const buildDiscounts = (
     discounts: (Partial<IPmsPaymentType> | undefined)[] | undefined,
   ): IPmsPaymentType[] => {
-    return (discounts || []).map((discount) => ({
-      _id: discount?._id || nanoid(),
-      type: discount?.type || '',
-      title: discount?.title || '',
-      config: discount?.config || '',
-    }));
+    return (discounts || [])
+      .filter(
+        (discount) =>
+          discount && (discount.type?.trim() || discount.title?.trim()),
+      )
+      .map((discount) => ({
+        _id: discount?._id || nanoid(),
+        type: discount?.type || '',
+        title: discount?.title || '',
+        config: discount?.config || '',
+      }));
   };
 
   const buildUiOptions = (data: PmsBranchFormType): IPmsUiOptions => ({
@@ -278,7 +288,7 @@ const CreatePmsForm = ({
       discounts,
       uiOptions,
       pipelineConfig,
-    ) as PmsCreateBranchVariables;
+    );
 
     if (mode === 'edit') {
       if (!branchId) {
@@ -299,7 +309,12 @@ const CreatePmsForm = ({
       return;
     }
 
-    handleCreateSubmit(baseVariables);
+    const createVariables: PmsCreateBranchVariables = {
+      ...baseVariables,
+      permissionConfig: data.permissionConfig || {},
+    };
+
+    handleCreateSubmit(createVariables);
   };
 
   const loading = mode === 'edit' ? editLoading : createLoading;

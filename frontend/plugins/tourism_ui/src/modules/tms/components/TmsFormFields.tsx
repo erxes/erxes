@@ -99,8 +99,14 @@ const ImageUploadField = ({
               {...field}
               value={field.value || ''}
               onChange={(fileInfo) => {
-                if ('url' in fileInfo) {
+                if (
+                  typeof fileInfo === 'object' &&
+                  fileInfo !== null &&
+                  'url' in fileInfo
+                ) {
                   field.onChange(fileInfo.url);
+                } else {
+                  field.onChange('');
                 }
               }}
               className="relative group"

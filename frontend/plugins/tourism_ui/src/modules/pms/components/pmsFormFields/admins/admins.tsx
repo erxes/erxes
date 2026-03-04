@@ -29,7 +29,10 @@ const Admins = ({ control }: Props) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {label} <span className="text-destructive">*</span>
+                    {label}{' '}
+                    {name === 'user1Ids' && (
+                      <span className="text-destructive">*</span>
+                    )}
                   </Form.Label>
                   <Form.Control>
                     <SelectMember

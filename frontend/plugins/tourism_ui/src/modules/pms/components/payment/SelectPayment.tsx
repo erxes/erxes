@@ -51,7 +51,9 @@ const SelectPaymentProvider = ({
       setOpen?.(false);
       return onValueChange?.(payment._id);
     }
-    const arrayValue = Array.isArray(value) ? value : [];
+    const arrayValue = Array.isArray(value)
+      ? value
+      : currentPayments.map((p) => p._id);
 
     const isPaymentSelected = arrayValue.includes(payment._id);
     const newSelectedPaymentIds = isPaymentSelected
@@ -64,7 +66,9 @@ const SelectPaymentProvider = ({
     onValueChange?.(newSelectedPaymentIds);
   };
 
-  const selectedIds = Array.isArray(value) ? value : (value && [value]) || [];
+  const selectedIds = Array.isArray(value)
+    ? value
+    : currentPayments.map((p) => p._id);
 
   return (
     <SelectPaymentContext.Provider
@@ -109,7 +113,14 @@ const PaymentInline = ({
         paymentIds.includes(p._id),
       );
       if (matchedPayments.length > 0) {
-        updatePayments?.(matchedPayments);
+        const matchedIds = matchedPayments.map((p) => p._id);
+        const currentIds = payments?.map((p) => p._id) || [];
+        const idsAreDifferent =
+          matchedIds.length !== currentIds.length ||
+          !matchedIds.every((id) => currentIds.includes(id));
+        if (idsAreDifferent) {
+          updatePayments?.(matchedPayments);
+        }
       }
     }
   }, [paymentIds, fetchedPayments, payments, updatePayments]);

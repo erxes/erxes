@@ -120,6 +120,8 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                   size="icon"
                   type="button"
                   className="w-8 h-8"
+                  aria-label={`Remove payment method ${index + 1}`}
+                  title="Remove payment method"
                   onClick={() => remove(index)}
                 >
                   <IconTrash />

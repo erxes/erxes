@@ -38,14 +38,15 @@ export const usePmsEditBranch = ({
       }
     >,
   ) => {
-    const discount = (data.discount || []).map(
-      (item: Partial<IPmsPaymentType> | undefined) => ({
-        _id: item?._id || nanoid(),
-        type: item?.type || '',
-        title: item?.title || '',
-        config: item?.config || '',
-      }),
-    );
+    const discountPayload =
+      data.discount !== undefined
+        ? data.discount
+            .filter((item): item is Partial<IPmsPaymentType> => item != null)
+            .map((item) => ({
+              ...item,
+              _id: item._id || nanoid(),
+            }))
+        : undefined;
 
     const result = await editBranch({
       variables: {
@@ -67,7 +68,7 @@ export const usePmsEditBranch = ({
         roomCategories: data.roomCategories,
         websiteReservationLock: data.websiteReservationLock,
         time: data.time,
-        discount,
+        ...(discountPayload?.length ? { discount: discountPayload } : {}),
         checkintime: data.checkintime ?? data.checkInTime,
         checkouttime: data.checkouttime ?? data.checkOutTime,
         checkinamount: data.checkinamount ?? data.checkInAmount,

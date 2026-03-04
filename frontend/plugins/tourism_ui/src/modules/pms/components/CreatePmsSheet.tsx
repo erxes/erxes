@@ -36,7 +36,9 @@ export const PmsCreateSheet = () => {
   const setCurrentStep = useSetAtom(stepState);
 
   useEffect(() => {
-    setCurrentStep(1);
+    if (open) {
+      setCurrentStep(1);
+    }
   }, [open, setCurrentStep]);
 
   return (
@@ -112,10 +114,10 @@ export const PmsCreateSheetFooter = ({
     if (currentStep === steps.length) {
       const isValid = await validateStep(currentStep, form);
       if (isValid) {
-        onSave?.();
+        await Promise.resolve(onSave?.());
       }
     } else {
-      handleNextButton();
+      await handleNextButton();
     }
   };
 
@@ -135,8 +137,8 @@ export const PmsCreateSheetFooter = ({
               ? 'Saving...'
               : 'Creating...'
             : mode === 'edit'
-              ? 'Save'
-              : 'Create'
+            ? 'Save'
+            : 'Create'
           : 'Next'}
       </Button>
     </Sheet.Footer>

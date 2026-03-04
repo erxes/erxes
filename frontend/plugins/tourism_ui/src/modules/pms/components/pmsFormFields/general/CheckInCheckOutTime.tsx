@@ -107,7 +107,7 @@ const CheckInCheckOutTime = ({
                 value={field.value ?? ''}
                 onChange={(e) => {
                   const next = e.target.value;
-                  field.onChange(next === '' ? undefined : Number(next));
+                  field.onChange(next === '' ? 0 : Number(next));
                 }}
               />
             </Form.Control>

@@ -173,8 +173,8 @@ export const PmsBranchEdit = gql`
 `;
 
 export const PmsBranchRemove = gql`
-  mutation PmsBranchRemove($_id: String!) {
-    PmsBranchRemove(_id: $_id)
+  mutation PmsBranchRemove($id: String!) {
+    pmsBranchRemove(_id: $id)
   }
 `;
 
