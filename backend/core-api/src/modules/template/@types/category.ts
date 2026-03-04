@@ -1,3 +1,4 @@
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
 export interface ITemplateCategory {
@@ -16,4 +17,15 @@ export interface ITemplateCategoryDocument extends ITemplateCategory, Document {
 
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ITemplateCategoryParams extends ICursorPaginateParams {
+  searchValue?: string;
+  types?: string[];
+  parentIds?: string[];
+
+  createdBy?: string;
+  updatedBy?: string;
+
+  dateFilters?: string;
 }

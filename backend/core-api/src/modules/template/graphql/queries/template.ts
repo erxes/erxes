@@ -1,10 +1,17 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { ITemplateDocument, ITemplateParams } from '../../@types';
-import { FilterQuery } from 'mongoose';
 
 const generateFilter = async (params: ITemplateParams) => {
-  const { searchValue, categoryIds, contentType } = params;
+  const {
+    searchValue,
+    categoryIds,
+    contentType,
+    createdBy,
+    updatedBy,
+    dateFilters,
+  } = params;
 
   const filter: FilterQuery<ITemplateDocument> = {};
 
@@ -16,8 +23,44 @@ const generateFilter = async (params: ITemplateParams) => {
     filter.categoryIds = { $in: categoryIds };
   }
 
-  if (contentType) {
-    filter.contentType = contentType;
+  if (contentType?.length) {
+    filter.contentType = { $in: contentType };
+  }
+
+  if (contentType?.length) {
+    filter.contentType = { $in: contentType };
+  }
+
+  if (createdBy) {
+    filter.createdBy = createdBy;
+  }
+
+  if (updatedBy) {
+    filter.updatedBy = updatedBy;
+  }
+
+  if (dateFilters) {
+    try {
+      const dateFilter = JSON.parse(dateFilters || '{}');
+
+      for (const [key, value] of Object.entries(dateFilter)) {
+        const { gte, lte } = (value || {}) as { gte?: string; lte?: string };
+
+        if (gte || lte) {
+          filter[key] = {};
+
+          if (gte) {
+            filter[key]['$gte'] = gte;
+          }
+
+          if (lte) {
+            filter[key]['$lte'] = lte;
+          }
+        }
+      }
+    } catch (error) {
+      throw new Error(`Invalid dateFilters: ${error.message}`);
+    }
   }
 
   return filter;

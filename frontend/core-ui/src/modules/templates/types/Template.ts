@@ -37,3 +37,8 @@ export type TemplateFilterState = {
   updatedAt: string | null;
   updatedBy: string | string[] | null;
 };
+
+export type TemplateType = {
+  type: string;
+  description: string;
+};

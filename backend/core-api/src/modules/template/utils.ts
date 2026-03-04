@@ -16,7 +16,7 @@ export const getRelatedContents = async (input: any, subdomain: any) => {
       pluginName,
       method: 'query',
       module: moduleName,
-      action: 'getRelatedContent',
+      action: 'template.getRelatedContent',
       input,
       defaultValue: [],
     });

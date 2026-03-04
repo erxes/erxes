@@ -17,7 +17,7 @@ export interface ITemplate {
   createdBy: string;
   updatedBy: string;
 
-  categoryIds: string[];
+  categoryIds?: string[];
 }
 
 export interface ITemplateDocument extends ITemplate, Document {
@@ -29,6 +29,11 @@ export interface ITemplateDocument extends ITemplate, Document {
 
 export interface ITemplateParams extends ICursorPaginateParams {
   searchValue?: string;
-  contentType?: string;
+  contentType?: string[];
   categoryIds?: string[];
+
+  createdBy?: string;
+  updatedBy?: string;
+
+  dateFilters?: string;
 }

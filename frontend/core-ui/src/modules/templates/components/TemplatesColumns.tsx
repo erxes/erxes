@@ -10,6 +10,7 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { IUser, MembersInline } from 'ui-modules';
+import { useTemplateTypes } from '../hooks/useTemplateTypes';
 
 export const templateColumns: ColumnDef<any>[] = [
   templateMoreColumn,
@@ -35,17 +36,17 @@ export const templateColumns: ColumnDef<any>[] = [
       <RecordTable.InlineHead label="Type" icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
+      const { templateTypes } = useTemplateTypes();
+
       const contentType = (cell.getValue() || '') as string;
 
-      const types = Array.from(new Set(contentType.split(':').filter(Boolean)));
+      const label =
+        templateTypes.find((type) => type.type === contentType)?.description ||
+        contentType;
 
       return (
         <RecordTableInlineCell>
-          {types.map((type) => (
-            <Badge variant="secondary" key={type}>
-              {type}
-            </Badge>
-          ))}
+          <Badge variant="secondary">{label}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -76,7 +77,11 @@ export const templateColumns: ColumnDef<any>[] = [
       <RecordTable.InlineHead label="Created By" icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
-      const member = (cell.getValue() || {}) as IUser;
+      const member = cell.getValue() as IUser;
+
+      if (!member) {
+        return <RecordTableInlineCell>Import</RecordTableInlineCell>;
+      }
 
       return (
         <RecordTableInlineCell>

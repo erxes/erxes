@@ -3,6 +3,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { Export, PrintDocument } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
+import { TemplateSheet } from 'ui-modules/modules/templates/components/TemplateSheet';
 
 export const ProductCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -39,6 +40,12 @@ export const ProductCommandBar = () => {
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original)}
           contentType="core:product"
+        />
+        <TemplateSheet
+          contentType="core:products"
+          contentId={table
+            .getFilteredSelectedRowModel()
+            .rows.map((row) => row.original._id)[0]}
         />
       </CommandBar.Bar>
     </CommandBar>

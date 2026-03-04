@@ -7,6 +7,7 @@
     "automations": "Automations",
     "documents": "Documents",
     "broadcasts": "Broadcasts",
+    "templates": "Templates",
     "success": "Success",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -51,6 +52,7 @@
     "developer" : "Developer",
     "workspace" : "Workspace",
     "core-modules" : "Core modules",
+    "templates": "Templates",
     "exit-settings": "Exit Settings",
     "favorites": "Favorites",
     "my-inbox": "My inbox"

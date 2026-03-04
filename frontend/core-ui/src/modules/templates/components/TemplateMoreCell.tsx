@@ -1,3 +1,6 @@
+import { TemplateExport } from '@/templates/components/TemplateExport';
+import { TemplateUse } from '@/templates/components/TemplateUse';
+import { useRemoveTemplate } from '@/templates/hooks/useTemplateRemove';
 import { Template } from '@/templates/types/Template';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
@@ -8,21 +11,20 @@ import {
   RecordTable,
   useQueryState,
 } from 'erxes-ui';
-import { useRemoveTemplate } from '../hooks/useTemplateRemove';
 
 export const TemplateMoreColumn = (props: CellContext<Template, unknown>) => {
-  const product = props.row.original;
+  const template = props.row.original;
 
   const [, setTemplateId] = useQueryState<string>('templateId');
 
   const { removeTemplate } = useRemoveTemplate();
 
   const handleEdit = () => {
-    setTemplateId(product._id);
+    setTemplateId(template._id);
   };
 
   const handleDelete = () => {
-    removeTemplate([product._id]);
+    removeTemplate([template._id]);
   };
 
   return (
@@ -33,6 +35,8 @@ export const TemplateMoreColumn = (props: CellContext<Template, unknown>) => {
       <Combobox.Content className="w-30 min-w-30">
         <Command shouldFilter={false}>
           <Command.List>
+            <TemplateUse template={template} />
+            <TemplateExport template={template} />
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit className="w-4 h-4" />
               Edit

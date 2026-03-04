@@ -8,8 +8,12 @@ import {
 export const QUERY_TEMPLATES = gql`
   query TemplateList(
     $searchValue: String
-    $contentType: String
+    $contentType: [String]
     $categoryIds: [String]
+
+    $createdBy: String
+    $updatedBy: String
+    $dateFilters: String
 
     ${GQL_CURSOR_PARAM_DEFS}
     ) {
@@ -17,6 +21,10 @@ export const QUERY_TEMPLATES = gql`
       searchValue: $searchValue
       contentType: $contentType
       categoryIds: $categoryIds
+      
+      createdBy: $createdBy
+      updatedBy: $updatedBy
+      dateFilters: $dateFilters
 
       ${GQL_CURSOR_PARAMS}
     ) {
@@ -66,8 +74,26 @@ export const QUERY_TEMPLATE_TYPES = gql`
 `;
 
 export const QUERY_TEMPLATE_CATEGORIES = gql`
-  query TemplateCategories($type: String, ${GQL_CURSOR_PARAM_DEFS}) {
-    templateCategories(type: $type, ${GQL_CURSOR_PARAMS}) {
+  query TemplateCategories(
+    $searchValue: String
+    $types: [String]
+    $parentIds: [String]
+    $createdBy: String
+    $updatedBy: String
+    $dateFilters: String
+
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    templateCategories(
+      searchValue: $searchValue
+      types: $types
+      parentIds: $parentIds
+      createdBy: $createdBy
+      updatedBy: $updatedBy
+      dateFilters: $dateFilters
+
+      ${GQL_CURSOR_PARAMS}
+    ) {
       list {
         _id
         name

@@ -38,22 +38,26 @@ const templateMutations = {
 
     const [pluginName, moduleName] = contentType?.split(':');
 
-    if (!pluginName || moduleName) {
+    if (!pluginName || !moduleName) {
       throw new Error('Invalid template document');
     }
 
-    return await sendTRPCMessage({
-      subdomain,
-      pluginName,
-      method: 'mutation',
-      module: moduleName,
-      action: 'useTemplate',
-      input: {
-        template,
-        currentUser: user,
-      },
-      defaultValue: {},
-    });
+    try {
+      return await sendTRPCMessage({
+        subdomain,
+        pluginName,
+        method: 'mutation',
+        module: moduleName,
+        action: 'template.useTemplate',
+        input: {
+          template,
+          user,
+        },
+        defaultValue: '',
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
   },
 };
 

@@ -27,8 +27,13 @@ export const types = `
 
 const queryParams = `
   searchValue: String
-  contentType: String
+  contentType: [String]
   categoryIds: [String]
+
+  createdBy: String
+  updatedBy: String
+
+  dateFilters: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -41,7 +46,7 @@ export const queries = `
 const mutationParams = `
   name: String,
   description: String,
-  content: String,
+  contentId: String,
   contentType: String,
   categoryIds: [String]
 `;

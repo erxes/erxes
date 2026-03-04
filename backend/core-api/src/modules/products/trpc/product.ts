@@ -129,5 +129,39 @@ export const productsTrpcRouter = t.router({
 
       return models.Products.find(query).countDocuments();
     }),
+
+    template: t.router({
+      getContent: t.procedure
+        .input(z.object({ contentId: z.string() }))
+        .query(async ({ ctx, input }) => {
+          const { contentId } = input;
+          const { models } = ctx;
+
+          const product = await models.Products.findOne({ _id: contentId }).lean();
+
+          const { _id, ...content } = product || {};
+
+          return JSON.stringify(content);
+        }),
+      useTemplate: t.procedure
+        .input(z.any())
+        .mutation(async ({ ctx, input }) => {
+          const { template, user } = input;
+          const { models } = ctx;
+
+          const { contentType, content, relatedContents } = template;
+
+          if (contentType === 'core:products') {
+            const product = await models.Products.createProduct({
+              ...JSON.parse(content),
+              code: '234fsscds',
+            });
+
+            return `/settings/products/?product_id=${product._id}`;
+          }
+
+          return '';
+        }),
+    }),
   }),
 });

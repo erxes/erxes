@@ -1,4 +1,4 @@
-import { TemplateImportSheet } from '@/templates/components/TemplateImportSheet';
+import { TemplateImport } from '@/templates/components/TemplateImport';
 import { TemplatesBreadcrumb } from '@/templates/components/TemplatesBreadcrumb';
 import { Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
@@ -11,10 +11,6 @@ export const TemplatesHeader = () => {
         <Separator.Inline />
         <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
-
-      <PageHeader.End>
-        <TemplateImportSheet />
-      </PageHeader.End>
     </PageHeader>
   );
 };

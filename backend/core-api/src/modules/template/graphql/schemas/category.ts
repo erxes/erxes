@@ -27,7 +27,15 @@ export const types = `
 `;
 
 const queryParams = `
-  type: String
+  searchValue: String
+
+  types: [String]
+  parentIds: [String]
+
+  createdBy: String
+  updatedBy: String
+
+  dateFilters: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;

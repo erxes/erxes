@@ -5,3 +5,10 @@ export const REMOVE_TICKETS = gql`
     templateRemove(_ids: $_ids)
   }
 `;
+
+export const USE_TEMPLATE = gql`
+  mutation TemplateUse($id: String!) {
+    templateUse(_id: $id)
+  }
+`;
+

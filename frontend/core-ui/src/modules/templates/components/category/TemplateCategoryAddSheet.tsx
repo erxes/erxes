@@ -1,4 +1,4 @@
-import { TemplateCategoryForm } from '@/templates/components/category/TemplateCategoryForm';
+// import { TemplateCategoryForm } from '@/templates/components/category/TemplateCategoryForm';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
@@ -19,7 +19,7 @@ export const TemplateCategoryAddSheet = () => {
           e.preventDefault();
         }}
       >
-        <TemplateCategoryForm onOpenChange={setOpen}/>
+        {/* <TemplateCategoryForm onOpenChange={setOpen}/> */}
       </Sheet.View>
     </Sheet>
   );

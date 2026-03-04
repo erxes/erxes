@@ -1,9 +1,10 @@
-import { Model } from 'mongoose';
-import { ITemplate, ITemplateDocument } from '../../@types';
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { templateSchema } from '../definitions/template';
+import { ITemplate, ITemplateDocument } from '../../@types';
 import { getRelatedContents } from '../../utils';
+import { templateSchema } from '../definitions/template';
 
 export interface ITemplateModal extends Model<ITemplateDocument> {
   getTemplate(_id: string): Promise<ITemplateDocument>;
@@ -35,19 +36,42 @@ export const loadTemplateClass = (models: IModels, subdomain: string) => {
       template: ITemplate,
       user: IUserDocument,
     ) {
-      const document = {
-        ...template,
-        createdBy: user._id,
-      };
-
-      const relatedContents =
-        (await getRelatedContents(document, subdomain)) || [];
-
-      if (relatedContents.length) {
-        Object.assign(document, { relatedContents: relatedContents });
+      if (!template.contentId || !template.contentType) {
+        throw new Error('Content ID and Content Type are required');
       }
 
-      return models.Template.create(document);
+      template.createdBy = user._id;
+
+      const [pluginName, moduleName] = template.contentType.split(':');
+
+      if (!pluginName || !moduleName) {
+        throw new Error('Invalid content type format');
+      }
+
+      const content = await sendTRPCMessage({
+        subdomain,
+        pluginName,
+        method: 'query',
+        module: moduleName,
+        action: 'template.getContent',
+        input: { contentId: template.contentId },
+        defaultValue: null,
+      });
+
+      if (!content) {
+        throw new Error(`This ${moduleName} doesn't have content`);
+      }
+
+      template.content = content.content || content || '';
+
+      const relatedContents =
+        (await getRelatedContents(template, subdomain)) || [];
+
+      if (relatedContents.length) {
+        Object.assign(template, { relatedContents: relatedContents });
+      }
+
+      return models.Template.create(template);
     }
 
     public static async updateTemplate(

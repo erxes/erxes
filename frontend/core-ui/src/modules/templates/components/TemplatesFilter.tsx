@@ -9,8 +9,9 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
-import { SelectTemplateCategory } from './category/TemplateCategorySelect';
-import { SelectTemplateContentTypes } from './select/TemplateContentTypeSelect';
+import { SelectTemplateCategory } from '@/templates/components/category/TemplateCategorySelect';
+import { SelectTemplateContentTypes } from '@/templates/components/select/TemplateContentTypeSelect';
+import { TemplateImport } from '@/templates/components/TemplateImport';
 
 export const TemplatesFilter = () => {
   const [queries] = useMultiQueryState<TemplateFilterState>([
@@ -55,6 +56,8 @@ export const TemplatesFilter = () => {
           </div>
         </Filter.Bar>
       </Filter>
+
+      <TemplateImport />
     </PageSubHeader>
   );
 };

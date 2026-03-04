@@ -8,6 +8,7 @@
     "automations": "Автоматжуулалтууд",
     "documents": "Баримтууд",
     "broadcasts": "Броадкастууд",
+    "templates": "Загварууд",
     "success": "Амжилттай",
     "cancel": "Цуцлах",
     "delete": "Устгах",
@@ -53,6 +54,7 @@
     "developer": "Хөгжүүлэгч",
     "workspace": "Ажлын орчин",
     "core-modules": "Үндсэн модулиуд",
+    "templates": "Загварууд",
     "exit-settings": "Тохиргооноос гарах",
     "favorites": "Дуртай",
     "my-inbox": "Миний инбокс"

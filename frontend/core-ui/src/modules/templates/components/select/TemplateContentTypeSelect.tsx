@@ -1,4 +1,5 @@
 import { useTemplateTypes } from '@/templates/hooks/useTemplateTypes';
+import { TemplateType } from '@/templates/types/Template';
 import {
   Combobox,
   Command,
@@ -12,9 +13,8 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
-
 interface SelectProjectTypesContextType {
-  templateTypes?: any;
+  templateTypes?: Array<TemplateType>;
   values?: string[];
   onValueChange: (value: string[]) => void;
   variant?: `${SelectTriggerVariant}`;
@@ -44,7 +44,7 @@ export const SelectProjectTypesProvider = ({
   onValueChange: (value: string[]) => void;
   variant?: `${SelectTriggerVariant}`;
 }) => {
-  const { templateTypes } = useTemplateTypes();
+  const { templateTypes = [] } = useTemplateTypes();
 
   const handleValueChange = (value: string[]) => {
     if (!value) return;
@@ -66,7 +66,7 @@ export const SelectProjectTypesProvider = ({
 };
 
 const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
-  const { values, templateTypes } = useSelectProjectTypesContext();
+  const { values, templateTypes = [] } = useSelectProjectTypesContext();
 
   if (!values) {
     return (
@@ -77,7 +77,7 @@ const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
   }
 
   const selectedTypes = values.map(
-    (value) => templateTypes.find((type) => type.value === value)?.label,
+    (value) => templateTypes.find((type) => type.type === value)?.description,
   );
 
   if (selectedTypes?.length > 2) {
@@ -100,28 +100,28 @@ const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-const SelectProjectTypesCommandItem = ({ type }: { type: any }) => {
+const SelectProjectTypesCommandItem = ({ type }: { type: TemplateType }) => {
   const {
     onValueChange,
     values = [],
-    templateTypes,
+    templateTypes = [],
   } = useSelectProjectTypesContext();
 
   return (
     <>
       <Command.Item
-        value={type.value}
-        key={type.value}
+        value={type.type}
+        key={type.type}
         onSelect={() => {
-          const newTypes = (values || []).includes(type.value)
-            ? values.filter((t) => t !== type.value)
-            : [...(values || []), type.value];
+          const newTypes = (values || []).includes(type.type)
+            ? values.filter((t) => t !== type.type)
+            : [...(values || []), type.type];
 
           onValueChange(newTypes);
         }}
       >
-        {type.label}
-        <Combobox.Check checked={(values || [])?.includes(type.value)} />
+        {type.description}
+        <Combobox.Check checked={(values || [])?.includes(type.type)} />
       </Command.Item>
     </>
   );
@@ -131,7 +131,7 @@ const SelectProjectTypesContent = () => {
   const {
     onValueChange,
     values = [],
-    templateTypes,
+    templateTypes = [],
   } = useSelectProjectTypesContext();
 
   return (
