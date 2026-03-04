@@ -12,7 +12,8 @@ const categoryQueries = {
     params: ITemplateCategoryParams,
     { models }: IContext,
   ) => {
-    const { searchValue, types, createdBy, updatedBy, dateFilters } = params || {};
+    const { searchValue, types, createdBy, updatedBy, dateFilters } =
+      params || {};
 
     const filter: FilterQuery<ITemplateCategoryDocument> = {};
 

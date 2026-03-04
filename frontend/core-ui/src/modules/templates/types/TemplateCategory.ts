@@ -25,4 +25,4 @@ export type TemplateCategoryFilterState = {
 
   updatedAt: string | null;
   updatedBy: string | string[] | null;
-}
+};

@@ -9,5 +9,5 @@ export default {
   tags,
   documents,
   properties,
-  templates
+  templates,
 };

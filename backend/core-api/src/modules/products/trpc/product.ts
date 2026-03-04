@@ -137,7 +137,9 @@ export const productsTrpcRouter = t.router({
           const { contentId } = input;
           const { models } = ctx;
 
-          const product = await models.Products.findOne({ _id: contentId }).lean();
+          const product = await models.Products.findOne({
+            _id: contentId,
+          }).lean();
 
           const { _id, ...content } = product || {};
 

@@ -21,8 +21,8 @@ export const ProductCommandBar = () => {
           collectionName="product"
           buttonVariant="secondary"
           ids={table
-          .getFilteredSelectedRowModel()
-          .rows.map((row) => row.original._id)}
+            .getFilteredSelectedRowModel()
+            .rows.map((row) => row.original._id)}
         />
         <Separator.Inline />
         <ProductsDelete
@@ -43,9 +43,11 @@ export const ProductCommandBar = () => {
         />
         <TemplateSheet
           contentType="core:products"
-          contentId={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)[0]}
+          contentId={
+            table
+              .getFilteredSelectedRowModel()
+              .rows.map((row) => row.original._id)[0]
+          }
         />
       </CommandBar.Bar>
     </CommandBar>

@@ -11,4 +11,3 @@ export const USE_TEMPLATE = gql`
     templateUse(_id: $id)
   }
 `;
-

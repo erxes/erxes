@@ -19,16 +19,17 @@ export const useTemplateCategoryVariables = () => {
   };
 };
 
-export const useTemplateCategories = (options: QueryHookOptions<ICursorListResponse<TemplateCategory>>) => {
+export const useTemplateCategories = (
+  options: QueryHookOptions<ICursorListResponse<TemplateCategory>>,
+) => {
   const variables = useTemplateCategoryVariables();
 
-  const { data, loading, error, fetchMore } = useQuery<ICursorListResponse<TemplateCategory>>(
-    QUERY_TEMPLATE_CATEGORIES,
-    {
-      ...options,
-      variables: { ...variables, ...options.variables },
-    },
-  );
+  const { data, loading, error, fetchMore } = useQuery<
+    ICursorListResponse<TemplateCategory>
+  >(QUERY_TEMPLATE_CATEGORIES, {
+    ...options,
+    variables: { ...variables, ...options.variables },
+  });
 
   const {
     list: categories,
@@ -37,7 +38,9 @@ export const useTemplateCategories = (options: QueryHookOptions<ICursorListRespo
   } = data?.templateCategories || {};
 
   const handleFetchMore = () => {
-    if (!validateFetchMore({ direction: EnumCursorDirection.FORWARD, pageInfo })) {
+    if (
+      !validateFetchMore({ direction: EnumCursorDirection.FORWARD, pageInfo })
+    ) {
       return;
     }
 
