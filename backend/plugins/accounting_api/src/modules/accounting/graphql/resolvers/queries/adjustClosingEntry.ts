@@ -19,9 +19,6 @@ export const generateFilter = async (models: IModels, params: IQueryParams) => {
 };
 
 const adjustClosingEntryQueries = {
-  /**
-   * Adjust closing list
-   */
   async adjustClosingEntries(
     _root: undefined,
     params: IQueryParams,
@@ -30,17 +27,16 @@ const adjustClosingEntryQueries = {
     const filter = await generateFilter(models, params);
 
     const { sortField, sortDirection, page, perPage } = params;
-
-    const pagintationArgs = { page, perPage };
+    const paginationArgs = { page, perPage };
 
     let sort: any = { code: 1 };
     if (sortField) {
       sort = { [sortField]: sortDirection ?? 1 };
     }
 
-    return await defaultPaginate(
+    return defaultPaginate(
       models.AdjustClosingEntries.find(filter).sort(sort).lean(),
-      pagintationArgs,
+      paginationArgs,
     );
   },
 
@@ -50,26 +46,16 @@ const adjustClosingEntryQueries = {
     { models }: IContext,
   ) {
     const filter = await generateFilter(models, params);
-
-    return models.AdjustClosingEntries.find(filter).countDocuments();
+    return models.AdjustClosingEntries.countDocuments(filter);
   },
 
-async adjustClosingDetail(
-  _root: undefined,
-  { _id }: { _id: string },
-  { models }: IContext,
-) {
-  const closing = await models.AdjustClosings.findOne({ _id }).lean();
-
-  if (!closing) return null;
-
-  closing.entries = await models.AdjustClosingEntries
-    .find({ adjustClosingId: _id })
-    .lean();
-
-  return closing;
-}
-
+  async adjustClosingDetail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.AdjustClosingEntries.findById(_id).lean();
+  },
 };
 
 export default adjustClosingEntryQueries;

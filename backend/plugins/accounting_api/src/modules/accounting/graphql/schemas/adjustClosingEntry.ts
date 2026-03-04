@@ -1,6 +1,7 @@
 export const types = `
     type AdjustClosingEntry @key(fields: "_id") @cacheControl(maxAge: 3) {
         _id: String!
+        accountId: String
         code: String
         name: String
         description: String
@@ -58,6 +59,8 @@ export const queries = `
       _id: String!
     ): AdjustClosing
 
+    adjustClosingDetails(_id: String!): [AdjustClosing]
+
     adjustClosingEntries(
         ${adjustClosingEntryQueryParams}
     ): [AdjustClosingEntry]
@@ -88,4 +91,6 @@ export const mutations = `
     adjustClosingEntriesRemove(
         _id: String!
     ): String
+
+    adjustClosingRun(_id: String!): AdjustClosing
     `;

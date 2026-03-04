@@ -9,12 +9,12 @@ export const useAdjustClosingRun = (
 ) => {
   const [_runMutation, { loading }] = useMutation(ADJUST_CLOSING_RUN, options);
 
-  const runAdjust = (options?: OperationVariables) => {
+  const runAdjust = (callOptions?: OperationVariables) => {
     return _runMutation({
-      ...options,
+      ...callOptions,
       variables: {
-        adjustId,
-        ...options?.variables,
+        _id: adjustId,
+        ...callOptions?.variables,
       },
 
       onError: (error: Error) => {
@@ -23,7 +23,7 @@ export const useAdjustClosingRun = (
           description: error.message,
           variant: 'destructive',
         });
-        options?.onError?.(error);
+        callOptions?.onError?.(error);
       },
 
       onCompleted: (data) => {
@@ -31,24 +31,18 @@ export const useAdjustClosingRun = (
           title: 'Success',
           description: 'Closing adjust running successfully',
         });
-        options?.onCompleted?.(data);
+        callOptions?.onCompleted?.(data);
       },
 
       refetchQueries: [
         {
           query: ADJUST_CLOSING_DETAIL_QUERY,
-          variables: {
-            _id: adjustId,
-          },
+          variables: { _id: adjustId },
         },
       ],
-
       awaitRefetchQueries: true,
     });
   };
 
-  return {
-    runAdjust,
-    loading,
-  };
+  return { runAdjust, loading };
 };

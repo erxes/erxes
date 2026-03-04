@@ -91,11 +91,11 @@ const PluginAccounting = () => {
           element={<AccountingGenJournalReport />}
         />
         <Route path={'adjustment/closing'} element={<AdjustClosingList />} />
+        <Route path="adjustment/closing" element={<AdjustClosingList />} />
         <Route
-          path={'adjustment/closing/detail'}
+          path="adjustment/closing/:id"
           element={<AdjustClosingDetail />}
         />
-        <Route path="/adjustment/closing/*" element={<AdjustClosingRoutes />} />
       </Routes>
       <PageChangeEffect />
     </Suspense>

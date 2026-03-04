@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Spinner } from 'erxes-ui';
-import { PageChangeEffect } from '../effect-components/AccountingPageChangeEffect';
+import { PageChangeEffect } from '../AccountingPageChangeEffect';
 
 const TransactionList = lazy(() =>
   import('~/pages/TransactionListPage').then((module) => ({
@@ -89,9 +89,9 @@ const PluginAccounting = () => {
           path="/gen-journal-report"
           element={<AccountingGenJournalReport />}
         />
-        <Route path="/adjustment/closing" element={<AdjustClosingList />} />
+        <Route path="adjustment/closing" element={<AdjustClosingList />} />
         <Route
-          path="/adjustment/closing/detail"
+          path="adjustment/closing/:id"
           element={<AdjustClosingDetail />}
         />
       </Routes>

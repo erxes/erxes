@@ -37,9 +37,3 @@ export interface AdjustClosingDetailQueryData {
 export interface AdjustClosingDetailQueryVariables {
   _id: string;
 }
-
-export type TAdjustClosingPreviewItem = {
-  accountId: string;
-  side: 'debit' | 'credit';
-  amount: number;
-};

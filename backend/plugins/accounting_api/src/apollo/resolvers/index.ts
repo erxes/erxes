@@ -81,6 +81,7 @@ const resolvers: any = {
     ...QueriesInventories,
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
+    ...QueriesAdjustClosingEntry,
 
     ...QueriesRemainder,
     ...QueriesReserveRem,

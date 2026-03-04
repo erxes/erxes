@@ -21,33 +21,22 @@ import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { AdjustClosingDetail } from './AdjustClosingDetail';
 import { TFunction } from 'i18next';
+import { useNavigate } from 'react-router';
 
 const StatusCell = ({ row }: { row: any }) => {
-  const [, setDetailOpen] = useQueryState('_id');
+  const navigate = useNavigate();
   const setRenderingDetail = useSetAtom(renderingAdjustClosingDetailAtom);
-
-  const { t } = useTranslation('adjust', {
-    keyPrefix: 'Adjust Closing',
-  });
-
   const { _id, status } = row.original;
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTableInlineCell.Anchor
-          onClick={() => {
-            setDetailOpen(_id);
-            setRenderingDetail(false);
-          }}
-        >
-          {status}
-        </RecordTableInlineCell.Anchor>
-      </Popover.Trigger>
-      <Popover.Content>
-        <AdjustClosingDetail id={_id} />
-      </Popover.Content>
-    </Popover>
+    <RecordTableInlineCell.Anchor
+      onClick={() => {
+        setRenderingDetail(false);
+        navigate(`/accounting/adjustment/closing/${_id}`);
+      }}
+    >
+      {status}
+    </RecordTableInlineCell.Anchor>
   );
 };
 

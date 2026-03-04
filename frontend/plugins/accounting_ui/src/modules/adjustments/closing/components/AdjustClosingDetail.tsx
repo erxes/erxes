@@ -11,14 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
-import {
-  Button,
-  DatePicker,
-  RecordTable,
-  Spinner,
-  Tooltip,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, DatePicker, RecordTable, Spinner, Tooltip } from 'erxes-ui';
 import { IAdjustClosing } from '~/modules/adjustments/closing/types/AdjustClosing';
 import { ADJ_INV_STATUSES } from '~/modules/adjustments/inventories/types/AdjustInventory';
 import { useAdjustClosingRun } from '../hooks/useAdjustClosingRun';
@@ -162,8 +155,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
 
       <RecordTable.Provider
         columns={adjustClosingDetailTableColumns}
-        data={adjustClosingDetails || []}
-        stickyColumns={[]}
+        data={adjustClosingDetail?.entries ?? []}
         className="m-3"
       >
         <RecordTable.Scroll>

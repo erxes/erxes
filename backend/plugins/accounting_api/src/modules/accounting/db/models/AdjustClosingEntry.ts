@@ -12,7 +12,6 @@ export interface IAdjustClosingEntryModel
   getAdjustClosingEntries(params: {
     beginDate: Date;
     date: Date;
-    accountIds: string[];
   }): Promise<IAdjustClosingDocument[]>;
   createAdjustClosingEntry(
     doc: IAdjustClosing,
@@ -181,26 +180,20 @@ export const loadAdjustClosingEntryClass = (
           },
         },
         { $unwind: '$details' },
-        {
-          $match: {
-            'details.accountId': { $in: accountIds },
-          },
-        },
+        { $match: { 'details.accountId': { $in: accountIds } } },
         {
           $project: {
-            date: 1,
             accountId: '$details.accountId',
-            debit: '$details.debit',
-            credit: '$details.credit',
+            balance: { $subtract: ['$details.debit', '$details.credit'] },
           },
         },
       ]);
 
-      if (!detailResult || !detailResult.length) return [];
+      if (!detailResult?.length) return [];
 
       return detailResult.map((r) => ({
         accountId: r.accountId,
-        side: r.balance > 0 ? 'credit' : 'debit',
+        side: r.balance > 0 ? 'debit' : 'credit',
         amount: Math.abs(r.balance),
       }));
     }

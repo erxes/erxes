@@ -6,10 +6,18 @@ export const ADJUST_CLOSING_DETAIL_QUERY = gql`
       _id
       branchId
       departmentId
+      beginDate
+      date
+      status
 
       entries {
         _id
-        accountId
+        code
+        name
+        description
+        status
+        integrateAccountId
+        periodGLAccountId
         balance
         percent
         mainAccTrId
@@ -26,16 +34,19 @@ export const ADJUST_CLOSING_DETAIL_QUERY = gql`
 
 export const ADJUST_CLOSING_DETAILS = gql`
   query AdjustClosingDetails($_id: String!) {
-    adjustClosingDetails(_id: $_id) {
+    adjustClosingDetail(_id: $_id) {
       _id
       branchId
       departmentId
-      entries
-      closeIntegrateId
+      entries {
+        _id
+        code
+      }
+      closeIntegrateTrId
       periodGLTrId
       createdAt
       updatedAt
     }
-    adjustClosingDetailsCount(_id: $_id)
+    adjustClosingEntriesCount
   }
 `;

@@ -39,6 +39,38 @@ const adjustClosingEntryMutations = {
     const response = await models.AdjustClosingEntries.removeAdjustClosing(ids);
     return response;
   },
+
+  async adjustClosingRun(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    const closing = await models.AdjustClosingEntries.findById(_id).lean();
+    if (!closing) throw new Error('Adjust Closing not found');
+
+    if (closing.status !== 'draft') {
+      throw new Error('Only draft Adjust Closing can be run');
+    }
+
+    const details = await models.AdjustClosingEntries.getAdjustClosingEntries({
+      beginDate: closing.beginDate,
+      date: closing.date,
+    });
+
+    const updated = await models.AdjustClosingEntries.findByIdAndUpdate(
+      _id,
+      {
+        $set: {
+          status: 'complete',
+          entries: details,
+          updatedAt: new Date(),
+        },
+      },
+      { new: true },
+    ).lean();
+
+    return updated;
+  },
 };
 
 // checkPermission(adjustClosingEntryMutationsMutations, 'adjustClosingEntriesAdd', 'createAdjustClosingEntry');
