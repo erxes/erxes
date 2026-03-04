@@ -136,7 +136,7 @@ export const loadCompanyClass = (
         const propertiesData = await models.Fields.validateFieldValues(
           doc.propertiesData,
         );
-        
+
         doc.propertiesData = propertiesData;
       }
 

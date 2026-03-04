@@ -35,7 +35,9 @@ const parseValue = (field, value) => {
         }
 
       case 'select':
-        return Array.isArray(value) ? value.join(',').toLowerCase() : String(value).toLowerCase();
+        return Array.isArray(value)
+          ? value.join(',').toLowerCase()
+          : String(value).toLowerCase();
 
       case 'date':
         return typeof value === 'string' ? new Date(value) : value;
@@ -129,7 +131,7 @@ const toObject = (contentType, document, fields, groups) => {
 
             if (parsedValue !== null && parsedValue !== undefined) {
               parsedValues[field._id] = parsedValue;
-            } 
+            }
           }
 
           if (Object.keys(parsedValues).length) {
@@ -177,7 +179,7 @@ const command = async () => {
     // 'frontline:ticket': db.collection('frontline_tickets'),
     // 'frontline:conversation': db.collection('conversations'),
 
-    "sales:deal": db.collection('deals')
+    'sales:deal': db.collection('deals'),
   };
 
   try {

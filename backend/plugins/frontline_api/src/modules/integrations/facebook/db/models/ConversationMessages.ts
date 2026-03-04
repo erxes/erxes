@@ -7,8 +7,7 @@ import {
   IFacebookConversationMessageDocument,
 } from '@/integrations/facebook/@types/conversationMessages';
 
-export interface IFacebookConversationMessageModel
-  extends Model<IFacebookConversationMessageDocument> {
+export interface IFacebookConversationMessageModel extends Model<IFacebookConversationMessageDocument> {
   getMessage(_id: string): Promise<IFacebookConversationMessageDocument>;
   createMessage(
     doc: IFacebookConversationMessage,

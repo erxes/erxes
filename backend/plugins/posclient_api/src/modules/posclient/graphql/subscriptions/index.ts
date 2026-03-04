@@ -10,7 +10,7 @@ import {
   GraphQLError,
   parse,
   subscribe,
-  validate
+  validate,
 } from 'graphql';
 
 let disposable: Disposable;
@@ -40,13 +40,13 @@ export async function loadSubscriptions(wsServer: ws.Server) {
       subscribe,
       onSubscribe: async (
         _ctx,
-        msg: SubscribeMessage
+        msg: SubscribeMessage,
       ): Promise<ExecutionArgs | readonly GraphQLError[] | void> => {
         const args = {
           schema,
           operationName: msg.payload.operationName,
           document: parse(msg.payload.query),
-          variableValues: msg.payload.variables
+          variableValues: msg.payload.variables,
         };
 
         const operationAST = getOperationAST(args.document, args.operationName);
@@ -59,7 +59,7 @@ export async function loadSubscriptions(wsServer: ws.Server) {
         // Handle mutation and query requests
         if (operationAST.operation !== 'subscription') {
           return [
-            new GraphQLError('Only subscription operations are supported')
+            new GraphQLError('Only subscription operations are supported'),
           ];
         }
 
@@ -71,8 +71,8 @@ export async function loadSubscriptions(wsServer: ws.Server) {
         }
         // Ready execution arguments
         return args;
-      }
+      },
     },
-    wsServer
+    wsServer,
   );
 }

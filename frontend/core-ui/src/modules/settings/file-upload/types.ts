@@ -1,19 +1,22 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-import { FILES_VALIDATION_SCHEMA } from "@/settings/file-upload/schema";
+import { FILES_VALIDATION_SCHEMA } from '@/settings/file-upload/schema';
 
 type UploadConfigFormT = z.infer<typeof FILES_VALIDATION_SCHEMA>;
-type DynamicFieldsT = Omit<UploadConfigFormT, 'UPLOAD_FILE_TYPES' | 'WIDGETS_UPLOAD_FILE_TYPES' | 'FILE_SYSTEM_PUBLIC'>
+type DynamicFieldsT = Omit<
+  UploadConfigFormT,
+  'UPLOAD_FILE_TYPES' | 'WIDGETS_UPLOAD_FILE_TYPES' | 'FILE_SYSTEM_PUBLIC'
+>;
 
 type serviceTypeT = {
-  name: string,
+  name: string;
   fields?: {
     label: string;
     name: string;
     type: string;
-  },
+  };
   form?: any;
-}
+};
 
 interface fileMimeTypes {
   value: string;
@@ -22,7 +25,7 @@ interface fileMimeTypes {
 }
 
 interface TConfig {
-  _id: string,
+  _id: string;
   code: keyof UploadConfigFormT;
   value: any;
 }
@@ -32,5 +35,5 @@ export {
   fileMimeTypes,
   serviceTypeT,
   UploadConfigFormT,
-  TConfig
-}
+  TConfig,
+};

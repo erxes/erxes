@@ -23,13 +23,13 @@ export const actionCreate = async ({
 
   let newData = action.config.assignedTo
     ? await replacePlaceHolders({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, isRelated: false },
+        models,
+        subdomain,
+        customResolver: { resolver: getRelatedValue, isRelated: false },
 
-      actionData: { assignedTo: action.config.assignedTo },
-      target: { ...target, type: (triggerType || '').replace('sales:', '') },
-    })
+        actionData: { assignedTo: action.config.assignedTo },
+        target: { ...target, type: (triggerType || '').replace('sales:', '') },
+      })
     : {};
 
   delete action.config.assignedTo;
@@ -137,13 +137,16 @@ export const actionCreate = async ({
         module: 'relation',
         action: 'createRelation',
         input: {
-          entities: [{
-            contentType: 'core:customer',
-            contentId: execution.target.customerId,
-          }, {
-            contentType: 'sales:deal',
-            contentId: item._id,
-          }]
+          entities: [
+            {
+              contentType: 'core:customer',
+              contentId: execution.target.customerId,
+            },
+            {
+              contentType: 'sales:deal',
+              contentId: item._id,
+            },
+          ],
         },
       });
     } else if (serviceName !== 'sales') {
@@ -154,13 +157,16 @@ export const actionCreate = async ({
         module: 'relation',
         action: 'createRelation',
         input: {
-          entities: [{
-            contentType: `core:${mainType.replace('lead', 'customer')}`,
-            contentId: execution.targetId,
-          }, {
-            contentType: 'sales:deal',
-            contentId: item._id,
-          }]
+          entities: [
+            {
+              contentType: `core:${mainType.replace('lead', 'customer')}`,
+              contentId: execution.targetId,
+            },
+            {
+              contentType: 'sales:deal',
+              contentId: item._id,
+            },
+          ],
         },
       });
     }

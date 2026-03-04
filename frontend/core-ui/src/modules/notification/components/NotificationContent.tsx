@@ -17,7 +17,10 @@ export const NotificationContent = () => {
   }
 
   return (
-    <ScrollArea className="overflow-hidden h-full" viewportClassName='[&>div]:lg:min-h-dvh'>
+    <ScrollArea
+      className="overflow-hidden h-full"
+      viewportClassName="[&>div]:lg:min-h-dvh"
+    >
       <NotificationContentWrapper
         key={notification._id}
         notification={notification}
@@ -26,7 +29,11 @@ export const NotificationContent = () => {
   );
 };
 
-const NotificationContentWrapper = ({ notification }: { notification: INotification }) => {
+const NotificationContentWrapper = ({
+  notification,
+}: {
+  notification: INotification;
+}) => {
   const contentType = notification?.contentType ?? '';
 
   const normalized = contentType.replace(':', '.');
@@ -50,4 +57,3 @@ const NotificationContentWrapper = ({ notification }: { notification: INotificat
     />
   );
 };
-
