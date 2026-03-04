@@ -41,6 +41,10 @@ export const webSchema = new mongoose.Schema<IWebDocument>(
         value: { type: String },
       },
     ],
+    // deployment state
+    projectId: { type: String },
+    lastDeploymentId: { type: String },
+    lastDeploymentUrl: { type: String },
   },
   { timestamps: true },
 );

@@ -1,13 +1,88 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IPipelineDocument } from '~/modules/sales/@types';
 
-export const pipelineQueries = {
+export const pipelineQueries: Record<string, Resolver> = {
   /**
    *  Pipelines list
    */
   async salesPipelines(
+    _root,
+    params: {
+      boardId: string;
+      isAll: boolean;
+    } & ICursorPaginateParams,
+    { user, models, subdomain }: IContext,
+  ) {
+    const { boardId, isAll } = params;
+
+    const query: any =
+      user.isOwner || isAll
+        ? {}
+        : {
+            status: { $ne: 'archived' },
+            $or: [
+              { visibility: 'public' },
+              {
+                $and: [
+                  { visibility: 'private' },
+                  {
+                    $or: [
+                      { memberIds: { $in: [user._id] } },
+                      { userId: user._id },
+                    ],
+                  },
+                ],
+              },
+            ],
+          };
+
+    if (!user.isOwner && !isAll) {
+      const userDetail = await sendTRPCMessage({
+        subdomain,
+
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'findOne',
+        input: {
+          _id: user._id,
+        },
+        defaultValue: {},
+      });
+
+      const departmentIds = userDetail?.departmentIds || [];
+
+      if (Object.keys(query) && departmentIds.length > 0) {
+        query.$or.push({
+          $and: [
+            { visibility: 'private' },
+            { departmentIds: { $in: departmentIds } },
+          ],
+        });
+      }
+    }
+
+    if (boardId) {
+      query.boardId = boardId;
+    }
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<IPipelineDocument>({
+        model: models.Pipelines,
+        params: {
+          ...params,
+          orderBy: { createdAt: -1 },
+          limit: params.limit || 20,
+        },
+        query: query,
+      });
+
+    return { list, totalCount, pageInfo };
+  },
+
+  async cpSalesPipelines(
     _root,
     params: {
       boardId: string;
@@ -101,9 +176,8 @@ export const pipelineQueries = {
       startDate: { $gt: now },
     };
 
-    const notStartedCount = await models.Pipelines.find(
-      notStartedQuery,
-    ).countDocuments();
+    const notStartedCount =
+      await models.Pipelines.find(notStartedQuery).countDocuments();
 
     counts['Not started'] = notStartedCount;
 
@@ -113,9 +187,8 @@ export const pipelineQueries = {
       endDate: { $gt: now },
     };
 
-    const inProgressCount = await models.Pipelines.find(
-      inProgressQuery,
-    ).countDocuments();
+    const inProgressCount =
+      await models.Pipelines.find(inProgressQuery).countDocuments();
 
     counts['In progress'] = inProgressCount;
 
@@ -124,9 +197,8 @@ export const pipelineQueries = {
       endDate: { $lt: now },
     };
 
-    const completedCounted = await models.Pipelines.find(
-      completedQuery,
-    ).countDocuments();
+    const completedCounted =
+      await models.Pipelines.find(completedQuery).countDocuments();
 
     counts.Completed = completedCounted;
 
@@ -171,3 +243,7 @@ export const pipelineQueries = {
 };
 
 // moduleRequireLogin(pipelineQueries);
+
+pipelineQueries.cpSalesPipelineDetail.wrapperConfig = {
+  forClientPortal: true,
+};
