@@ -84,12 +84,12 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         },
         content: line
           ? [
-              {
-                type: 'text',
-                text: line,
-                styles: {},
-              },
-            ]
+            {
+              type: 'text',
+              text: line,
+              styles: {},
+            },
+          ]
           : [],
         children: [],
       })) as Block[];
@@ -160,9 +160,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       onCompleted: () => {
         toast({
           title: 'Success',
-          description: `Ticket ${
-            newState === 'archived' ? 'archived' : 'restored'
-          } successfully`,
+          description: `Ticket ${newState === 'archived' ? 'archived' : 'restored'
+            } successfully`,
         });
       },
       onError: (error) => {
@@ -181,7 +180,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       message: 'Are you sure you want to delete this ticket?',
     }).then(async () => {
       try {
-        await removeTicket(ticketId);
+        await removeTicket([ticketId]);
         toast({
           title: 'Success',
           variant: 'success',
