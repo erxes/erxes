@@ -40,16 +40,6 @@ export const loadWebClass = (models: IModels) => {
     }
 
     public static async updateWeb(_id: string, docFields: IWeb) {
-      const existing = await models.Web.findOne({
-        clientPortalId: docFields.clientPortalId,
-      });
-
-      if (existing) {
-        throw new Error(
-          `A web already exists for clientPortal: ${docFields.clientPortalId}`,
-        );
-      }
-
       const update = await models.Web.findOneAndUpdate(
         { _id },
         { $set: { ...docFields } },

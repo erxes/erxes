@@ -9,11 +9,11 @@ import {
 } from '@/webbuilder/utils';
 
 export const webBuilderMutations: Record<string, Resolver> = {
-  async CreateWeb(_root, { doc }: { doc: IWeb }, { models }: IContext) {
+  async createWeb(_root, { doc }: { doc: IWeb }, { models }: IContext) {
     return models.Web.createWeb(doc);
   },
 
-  async EditWeb(
+  async editWeb(
     _root,
     { _id, doc }: { _id: string; doc: IWeb },
     { models }: IContext,
@@ -21,7 +21,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
     return models.Web.updateWeb(_id, doc);
   },
 
-  async RemoveWeb(_root, { _id }: { _id: string }, { models }: IContext) {
+  async removeWeb(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Web.removeWeb(_id);
   },
 

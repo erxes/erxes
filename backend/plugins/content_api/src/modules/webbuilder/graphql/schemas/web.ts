@@ -88,17 +88,17 @@ export const inputs = `
 `;
 
 export const queries = `
-  GetWebList: [Web]
-  GetWebDetail(_id: String!): Web
+  getWebList: [Web]
+  getWebDetail(_id: String!): Web
   cpGetWebDetail(_id: String!): Web
   cpGetDomains(projectId: String!): JSON
   cpGetDeploymentEvents(id: String!): JSON
 `;
 
 export const mutations = `
-  CreateWeb(doc: WebInput!): Web
-  EditWeb(_id: String!, doc: WebInput!): Web
-  RemoveWeb(_id: String!): Web
+  createWeb(doc: WebInput!): Web
+  editWeb(_id: String!, doc: WebInput!): Web
+  removeWeb(_id: String!): Web
   cpDeployWeb(_id: String!): JSON
   cpAddDomain(projectId: String!, domain: String!): JSON
   cpRemoveProject(projectId: String!): JSON

@@ -3,11 +3,11 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { getDomains, getDeploymentEvents } from '../../utils';
 
 export const webQueries: Record<string, Resolver> = {
-  async GetWebList(_root, _args, { models }: IContext) {
+  async getWebList(_root, _args, { models }: IContext) {
     return models.Web.getWebList();
   },
 
-  async GetWebDetail(_root, args: { _id: string }, { models }: IContext) {
+  async getWebDetail(_root, args: { _id: string }, { models }: IContext) {
     const { _id } = args;
     return models.Web.getWebDetail(_id);
   },
