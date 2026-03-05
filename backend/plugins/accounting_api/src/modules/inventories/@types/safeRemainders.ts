@@ -1,6 +1,13 @@
 import { IAttachment } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+export interface IUpdateRemaindersParams {
+  departmentId: string;
+  branchId: string;
+  productCategoryId?: string;
+  productIds?: string[];
+}
+
 export interface ISafeRemainderTrRule {
   accountId: string;
   customerType: string;

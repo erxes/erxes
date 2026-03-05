@@ -104,32 +104,21 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
         action: 'find',
         input: {
           ...productFilter,
+          fields: { _id: 1, [`remainders.${branchId}.${departmentId}`]: 1 },
           sort: { code: 1 },
         },
         defaultValue: [],
       });
-
-      // Create remainder items for every product
-      const productIds = products.map((item: any) => item._id);
-
-      const liveRemainders = await models.Remainders.find({
-        departmentId,
-        branchId,
-        productId: { $in: productIds },
-      }).lean();
-
-      const liveRemByProductId = {};
-      for (const rem of liveRemainders) {
-        liveRemByProductId[rem.productId] = rem;
-      }
 
       const bulkOps: any[] = [];
       let order = 0;
 
       for (const product of products) {
         order++;
-        const live = liveRemByProductId[product._id] || {};
-        let count = live.count || 0;
+        console.log(product)
+        const preCount = product.remainders?.[branchId]?.[departmentId]?.remainder ?? 0;
+        let count = preCount;
+
         if (attachment?.url) {
           const datasKey = String(
             attachFieldId
@@ -156,7 +145,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
           branchId: safeRemainder.branchId,
           departmentId: safeRemainder.departmentId,
           productId: product._id,
-          preCount: live.count || 0,
+          preCount: preCount ?? 0,
           count,
           status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
           uom: product.uom,

@@ -1,6 +1,6 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { SAFE_REMAINDER_CANCEL, SAFE_REMAINDER_DO_TR, SAFE_REMAINDER_SUBMIT, SAFE_REMAINDER_UNDO_TR } from '../graphql/safeRemainderChange';
+import { SAFE_REMAINDER_CANCEL, SAFE_REMAINDER_DO_TR, SAFE_REMAINDER_RECALC, SAFE_REMAINDER_SUBMIT, SAFE_REMAINDER_UNDO_TR } from '../graphql/safeRemainderChange';
 import {
   SAFE_REMAINDER_DETAIL_QUERY,
 } from '../graphql/safeRemainderQueries';
@@ -32,6 +32,28 @@ const commonOptions = (id: string, options?: any, _queryParams?: any) => {
     ],
   }
 }
+
+export const useSafeRemainderReCalc = () => {
+  const [reCaclMutation, { loading }] = useMutation(
+    SAFE_REMAINDER_RECALC,
+  );
+
+  const reCalcSafeRemainder = (id: string, options?: OperationVariables) => {
+    return reCaclMutation({
+      ...options,
+      variables: {
+        ...options?.variables,
+        _id: id
+      },
+      ...commonOptions(id, options)
+    });
+  };
+
+  return {
+    reCalcSafeRemainder,
+    loading,
+  };
+};
 
 export const useSafeRemainderSubmit = () => {
   const [submitMutation, { loading }] = useMutation(

@@ -35,6 +35,9 @@ export const adjustInvDetailsSchema = schemaWrapper(
 
 adjustInvDetailsSchema.index({
   accountId: 1, branchId: 1, departmentId: 1, productId: 1
+});
+adjustInvDetailsSchema.index({
+  adjustId: 1, branchId: 1, departmentId: 1, productId: 1
 })
 
 export const adjustInventoriesSchema = schemaWrapper(

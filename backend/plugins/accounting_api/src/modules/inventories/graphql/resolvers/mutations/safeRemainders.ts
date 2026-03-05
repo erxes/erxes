@@ -6,7 +6,7 @@ import { ITrDetail } from '~/modules/accounting/@types/transaction';
 import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainder, ISafeRemainderTrRule } from '~/modules/inventories/@types/safeRemainders';
-import { safeRemainderDoTrs, safeRemainderUndoTrs } from './utils';
+import { safeRemainderDoTrs, safeRemainderUndoTrs, updateLiveRemainders } from './utils';
 
 const safeRemainderMutations = {
   safeRemainderAdd: async (
@@ -42,6 +42,34 @@ const safeRemainderMutations = {
   ) => {
     // Delete safe remainder
     return models.SafeRemainders.removeRemainder(_id);
+  },
+
+  safeRemainderReCalc: async (
+    _root: any,
+    { _id }: { _id: string },
+    { subdomain, models }: IContext
+  ) => {
+    const safeRemainder = await models.SafeRemainders.getRemainder(_id);
+    if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+      throw new Error('can`t update, cause: status is published');
+    }
+
+    const items: ISafeRemainderItemDocument[] = await models.SafeRemainderItems.find({ remainderId: _id }).lean();
+
+    const result = await updateLiveRemainders({
+      subdomain, models,
+      branchId: safeRemainder.branchId, departmentId: safeRemainder.departmentId,
+      productIds: items.map(item => item.productId)
+    });
+
+    await models.SafeRemainderItems.bulkWrite(result.map(rem => ({
+      updateOne: {
+        filter: { remainderId: _id, productId: rem.productId },
+        update: { preCount: rem.count },
+      },
+    })));
+
+    return 'success';
   },
 
   safeRemainderSubmit: async (

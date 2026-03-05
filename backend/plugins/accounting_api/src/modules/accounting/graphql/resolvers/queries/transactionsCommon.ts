@@ -166,7 +166,7 @@ const generateFilter = async (
     filter.updatedAt = updatedDateQry;
   }
 
-  filter['details.accountId'] = { $in: await getAccountIds(models, params, user) }
+  // filter['details.accountId'] = { $in: await getAccountIds(models, params, user) }
 
   if (journals?.length) {
     filter.journal = { $in: journals }

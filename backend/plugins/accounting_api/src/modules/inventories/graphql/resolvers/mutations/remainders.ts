@@ -13,9 +13,9 @@ const remainderMutations = {
   remaindersUpdate: async (
     _root: any,
     params: IUpdateRemaindersParams,
-    { subdomain }: IContext,
+    { subdomain, models }: IContext,
   ) => {
-    return updateLiveRemainders({ subdomain, ...params });
+    return await updateLiveRemainders({ subdomain, models, ...params });
   },
 };
 

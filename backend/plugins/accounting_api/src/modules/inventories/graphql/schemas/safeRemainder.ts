@@ -65,8 +65,9 @@ export const mutations = `
   ): SafeRemainder
   safeRemainderEdit(_id: String!, description: String, incomeRule: JSON, outRule: JSON, saleRule: JSON): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
-  safeRemainderSubmit( _id: String! ): SafeRemainder
-  safeRemainderCancel( _id: String! ): SafeRemainder
-  safeRemainderDoTr( _id: String! ): SafeRemainder
-  safeRemainderUndoTr( _id: String! ): SafeRemainder
+  safeRemainderReCalc(_id: String!): String
+  safeRemainderSubmit(_id: String!): SafeRemainder
+  safeRemainderCancel(_id: String!): SafeRemainder
+  safeRemainderDoTr(_id: String!): SafeRemainder
+  safeRemainderUndoTr(_id: String!): SafeRemainder
 `;

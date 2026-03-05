@@ -4,6 +4,11 @@ import {
   safeRemainderItemFields,
 } from './safeRemainderQueries';
 
+export const SAFE_REMAINDER_RECALC = gql`
+  mutation SafeRemainderReCalc($_id: String!) {
+    safeRemainderReCalc(_id: $_id)
+  }
+`;
 export const SAFE_REMAINDER_SUBMIT = gql`
   mutation SafeRemainderSubmit($_id: String!) {
     safeRemainderSubmit(_id: $_id) {
