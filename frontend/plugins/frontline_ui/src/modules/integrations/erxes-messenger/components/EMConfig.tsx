@@ -149,7 +149,7 @@ export const EMConfig = () => {
                 />
               </Collapsible.Content>
             </Collapsible>
-            <Collapsible>
+            {/* <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
                 Cloudflare calls setup
@@ -228,7 +228,7 @@ export const EMConfig = () => {
                   )}
                 />
               </Collapsible.Content>
-            </Collapsible>
+            </Collapsible> */}
             <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
@@ -344,24 +344,24 @@ const PersistentMenu = ({
                   <IconTrash />
                 </Button>
               </div>
-              {currentType === 'link' && (
-                <Form.Field
-                  name={`botSetup.persistentMenu.${index}.link`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>URL</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          type="url"
-                          placeholder="https://example.com"
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
+              {/* Always register `link` so reset() retains its value;
+                  only show the UI when type === 'link' */}
+              <Form.Field
+                name={`botSetup.persistentMenu.${index}.link`}
+                render={({ field }) => (
+                  <Form.Item className={currentType === 'link' ? '' : 'hidden'}>
+                    <Form.Label>URL</Form.Label>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        type="url"
+                        placeholder="https://example.com"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </div>
           );
         })}

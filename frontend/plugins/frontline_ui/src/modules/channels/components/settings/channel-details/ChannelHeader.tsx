@@ -5,6 +5,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 export const ChannelHeader = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  if (!id) {
+    return null;
+  }
+
   return (
     <div className="px-4 h-16 flex items-center">
       <Breadcrumb>
