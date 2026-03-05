@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import {
   Combobox,
   Command,
@@ -14,7 +14,11 @@ import {
   Button,
 } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router-dom';
-import { IconChevronRight, IconUsers, IconClipboard } from '@tabler/icons-react';
+import {
+  IconChevronRight,
+  IconUsers,
+  IconClipboard,
+} from '@tabler/icons-react';
 import {
   useUsers,
   SelectMember,
@@ -148,7 +152,11 @@ const AssigneeHoverCard = forwardRef(
 
     if (!assigneeId || userLoading || !assigneeDetails) {
       return (
-        <div ref={ref as React.Ref<HTMLDivElement>} {...props} style={{ display: 'inline-block' }}>
+        <div
+          ref={ref as React.Ref<HTMLDivElement>}
+          {...props}
+          style={{ display: 'inline-block' }}
+        >
           {children}
         </div>
       );
@@ -159,7 +167,11 @@ const AssigneeHoverCard = forwardRef(
     return (
       <HoverCard openDelay={300}>
         <HoverCard.Trigger asChild>
-          <div ref={ref as React.Ref<HTMLDivElement>} {...props} style={{ display: 'inline-block' }}>
+          <div
+            ref={ref as React.Ref<HTMLDivElement>}
+            {...props}
+            style={{ display: 'inline-block' }}
+          >
             {children}
           </div>
         </HoverCard.Trigger>
@@ -252,6 +264,7 @@ const SelectTeamMemberContent = ({
   teamIds?: string[] | string;
   exclude: boolean;
 }) => {
+  const hasTeamIds = Array.isArray(teamIds) ? teamIds.length > 0 : !!teamIds;
   const { members: teamMembers } = useGetTeamMembers({ teamIds });
   const excludeIds = teamMembers?.map((member) => member.memberId);
   const [search, setSearch] = useState('');
@@ -262,20 +275,20 @@ const SelectTeamMemberContent = ({
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
-      excludeIds: exclude,
-      ids: filteredIds,
+      ...(hasTeamIds ? { excludeIds: exclude, ids: filteredIds } : {}),
     },
-    skip: !excludeIds || !filteredIds?.length,
+    skip: hasTeamIds ? !excludeIds || !filteredIds?.length : false,
   });
-  const membersList = exclude
-    ? [currentUser, ...users].filter(
-        (user) =>
-          !memberIds?.find((memberId) => memberId === user._id) &&
-          !excludeIds?.find((excludeId) => excludeId === user._id),
-      )
-    : [currentUser, ...users].filter(
-        (user) => !members.find((member) => member._id === user._id),
-      );
+  const membersList =
+    exclude && hasTeamIds
+      ? [currentUser, ...users].filter(
+          (user) =>
+            !memberIds?.find((memberId) => memberId === user._id) &&
+            !excludeIds?.find((excludeId) => excludeId === user._id),
+        )
+      : [currentUser, ...users].filter(
+          (user) => !members.find((member) => member._id === user._id),
+        );
 
   return (
     <Command shouldFilter={false}>
@@ -326,7 +339,7 @@ const SelectAssigneeFilterView = ({
       <SelectAssigneeProvider
         mode="single"
         value={
-          assignee === 'no-assignee' ? 'no-assignee' : assignee ?? undefined
+          assignee === 'no-assignee' ? 'no-assignee' : (assignee ?? undefined)
         }
         onValueChange={(value) => {
           setAssignee(value === null ? 'no-assignee' : (value as string));
@@ -391,13 +404,19 @@ const SelectAssigneeTaskRoot = ({
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { teamId } = useParams();
+  const [internalValue, setInternalValue] = useState(value);
 
-  const handleValueChange = (value: string | string[] | null) => {
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
+  const handleValueChange = (newValue: string | string[] | null) => {
+    setInternalValue((newValue as string) ?? undefined);
     if (id) {
       updateTask({
         variables: {
           _id: id,
-          assigneeId: value,
+          assigneeId: newValue,
         },
       });
     }
@@ -409,12 +428,12 @@ const SelectAssigneeTaskRoot = ({
     const basePath = teamId
       ? `/operation/team/${teamId}/tasks`
       : '/operation/tasks';
-    navigate(`${basePath}?assignee=${value}`);
+    navigate(`${basePath}?assignee=${internalValue}`);
   };
 
   const trigger =
-    variant === 'detail' && value ? (
-      <AssigneeHoverCard assigneeId={value}>
+    variant === 'detail' && internalValue ? (
+      <AssigneeHoverCard assigneeId={internalValue}>
         <SelectTriggerOperation variant={variant}>
           <SelectAssigneeValue variant={variant} />
           <Button
@@ -436,7 +455,7 @@ const SelectAssigneeTaskRoot = ({
 
   return (
     <SelectAssigneeProvider
-      value={value}
+      value={internalValue}
       onValueChange={handleValueChange}
       mode="single"
       allowUnassigned

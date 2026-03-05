@@ -82,10 +82,7 @@ const TemplateRowActions = ({
           </AlertDialog.Header>
           <AlertDialog.Footer>
             <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-            <AlertDialog.Action
-              onClick={() => onRemove(template._id)}
-              className="bg-destructive text-destructive hover:bg-destructive/90"
-            >
+            <AlertDialog.Action onClick={() => onRemove(template._id)}>
               Delete
             </AlertDialog.Action>
           </AlertDialog.Footer>
@@ -174,10 +171,10 @@ export const TemplateList = () => {
           const userId = getValue() as string;
           if (!userId) return '-';
           return (
-             <RecordTableInlineCell>
-                <MembersInline memberIds={[userId]} />
-             </RecordTableInlineCell>
-          )
+            <RecordTableInlineCell>
+              <MembersInline memberIds={[userId]} />
+            </RecordTableInlineCell>
+          );
         },
       },
       {
