@@ -1,5 +1,5 @@
 import { OperationVariables, useMutation } from '@apollo/client';
-import { SAFE_REMAINDER_SUBMIT } from '../graphql/safeRemainderChange';
+import { SAFE_REMAINDER_EDIT } from '../graphql/safeRemainderChange';
 import { toast } from 'erxes-ui';
 import {
   SAFE_REMAINDER_DETAIL_QUERY,
@@ -7,12 +7,12 @@ import {
 } from '../graphql/safeRemainderQueries';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
-export const useSafeRemainderSubmit = (
+export const useSafeRemainderEdit = (
   _id: string,
   options?: OperationVariables,
 ) => {
   const [submitMutation, { loading }] = useMutation(
-    SAFE_REMAINDER_SUBMIT,
+    SAFE_REMAINDER_EDIT,
     options,
   );
 
@@ -34,7 +34,7 @@ export const useSafeRemainderSubmit = (
       onCompleted: (data) => {
         toast({
           title: 'Success',
-          description: 'Inventory safe remainder submited successfully',
+          description: 'Inventory safe remainder updated successfully',
         });
         options?.onCompleted?.(data);
       },

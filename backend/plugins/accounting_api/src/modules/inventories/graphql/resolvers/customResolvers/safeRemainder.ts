@@ -31,12 +31,12 @@ export default {
   },
 
   async productCategory(reserveRem: any) {
-    if (!reserveRem.categoryId) {
+    if (!reserveRem.productCategoryId) {
       return;
     }
     return {
       __typename: 'ProductCategory',
-      _id: reserveRem.categoryId,
+      _id: reserveRem.productCategoryId,
     };
   },
 };

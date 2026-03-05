@@ -30,10 +30,10 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
       },
       refetchQueries: ['SafeRemainders'],
       update: (_cache, { data }) => {
-        const newId = data?.safeRemainderAdd[0]?.id;
+        const newId = data?.safeRemainderAdd?._id;
 
         const pathname = newId
-          ? `/accounting/inventories/safe-remainders/detail?id=${newId}`
+          ? `/accounting/inventories/safe-remainder/detail?id=${newId}`
           : '/accounting/inventories/safe-remainders';
 
         navigate(pathname);
