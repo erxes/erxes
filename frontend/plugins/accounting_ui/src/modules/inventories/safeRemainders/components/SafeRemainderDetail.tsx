@@ -4,8 +4,17 @@ import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
-import { useSafeRemainderCancel, useSafeRemainderDoTr, useSafeRemainderReCalc, useSafeRemainderSubmit, useSafeRemainderUndoTr } from '../hooks/useSafeRemainderChange';
-import { ISafeRemainder, SAFE_REMAINDER_STATUSES } from '../types/SafeRemainder';
+import {
+  useSafeRemainderCancel,
+  useSafeRemainderDoTr,
+  useSafeRemainderReCalc,
+  useSafeRemainderSubmit,
+  useSafeRemainderUndoTr,
+} from '../hooks/useSafeRemainderChange';
+import {
+  ISafeRemainder,
+  SAFE_REMAINDER_STATUSES,
+} from '../types/SafeRemainder';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
 import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
@@ -49,15 +58,11 @@ export const SafeRemainderDetail = () => {
       case SAFE_REMAINDER_STATUSES.DRAFT:
         return (
           <>
-            <Button
-              onClick={() => reCalcSafeRemainder(id)}
-            >
+            <Button onClick={() => reCalcSafeRemainder(id)}>
               <IconCrane />
               ReCalc
             </Button>
-            <Button
-              onClick={() => submitSafeRemainder(id)}
-            >
+            <Button onClick={() => submitSafeRemainder(id)}>
               <IconAccessPoint />
               Submit
             </Button>
@@ -70,13 +75,11 @@ export const SafeRemainderDetail = () => {
               Delete
             </Button>
           </>
-        )
+        );
       case SAFE_REMAINDER_STATUSES.DONE:
         return (
           <>
-            <Button
-              onClick={() => doTrSafeRemainder(id)}
-            >
+            <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
               Do Transaction
             </Button>
@@ -89,14 +92,12 @@ export const SafeRemainderDetail = () => {
               Cancel Submition
             </Button>
           </>
-        )
+        );
 
       case SAFE_REMAINDER_STATUSES.PUBLISHED:
         return (
           <>
-            <Button
-              onClick={() => doTrSafeRemainder(id)}
-            >
+            <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
               ReDo Transaction
             </Button>
@@ -109,12 +110,11 @@ export const SafeRemainderDetail = () => {
               Undo transaction
             </Button>
           </>
-
-        )
+        );
       default:
         return null;
     }
-  }
+  };
 
   return (
     <>

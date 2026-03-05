@@ -4,8 +4,16 @@ import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
-import { useSafeRemainderCancel, useSafeRemainderDoTr, useSafeRemainderSubmit, useSafeRemainderUndoTr } from '../hooks/useSafeRemainderChange';
-import { ISafeRemainder, SAFE_REMAINDER_STATUSES } from '../types/SafeRemainder';
+import {
+  useSafeRemainderCancel,
+  useSafeRemainderDoTr,
+  useSafeRemainderSubmit,
+  useSafeRemainderUndoTr,
+} from '../hooks/useSafeRemainderChange';
+import {
+  ISafeRemainder,
+  SAFE_REMAINDER_STATUSES,
+} from '../types/SafeRemainder';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
 import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
@@ -48,9 +56,7 @@ export const SafeRemainderDetailTr = () => {
       case SAFE_REMAINDER_STATUSES.DRAFT:
         return (
           <>
-            <Button
-              onClick={() => submitSafeRemainder(id)}
-            >
+            <Button onClick={() => submitSafeRemainder(id)}>
               <IconCrane />
               Submit
             </Button>
@@ -63,13 +69,11 @@ export const SafeRemainderDetailTr = () => {
               Delete
             </Button>
           </>
-        )
+        );
       case SAFE_REMAINDER_STATUSES.DONE:
         return (
           <>
-            <Button
-              onClick={() => doTrSafeRemainder(id)}
-            >
+            <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
               Do Transaction
             </Button>
@@ -82,14 +86,12 @@ export const SafeRemainderDetailTr = () => {
               Cancel Submition
             </Button>
           </>
-        )
+        );
 
       case SAFE_REMAINDER_STATUSES.PUBLISHED:
         return (
           <>
-            <Button
-              onClick={() => doTrSafeRemainder(id)}
-            >
+            <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
               ReDo Transaction
             </Button>
@@ -102,12 +104,11 @@ export const SafeRemainderDetailTr = () => {
               Undo transaction
             </Button>
           </>
-
-        )
+        );
       default:
         return null;
     }
-  }
+  };
 
   return (
     <>

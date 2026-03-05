@@ -1,12 +1,11 @@
-import { IModels } from "~/connectionResolvers";
-import { ITransaction } from "../@types/transaction";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { IModels } from '~/connectionResolvers';
+import { ITransaction } from '../@types/transaction';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const commonRemove = async (
   subdomain: string,
   models: IModels,
   tr: ITransaction,
-
 ) => {
   const handler = getJournalHandler(tr.journal);
   if (!handler) throw new Error(`Unsupported journal: ${tr.journal}`);
@@ -17,11 +16,7 @@ export const commonRemove = async (
 function getJournalHandler(journal: string) {
   const handlers: Record<
     string,
-    (
-      models: IModels,
-      subdomain: string,
-      doc: ITransaction,
-    ) => Promise<void>
+    (models: IModels, subdomain: string, doc: ITransaction) => Promise<void>
   > = {
     main: handleNone,
     cash: handleNone,
@@ -37,11 +32,19 @@ function getJournalHandler(journal: string) {
   return handlers[journal];
 }
 
-async function handleNone(models: IModels, _subdomain: string, doc: ITransaction) {
+async function handleNone(
+  models: IModels,
+  _subdomain: string,
+  doc: ITransaction,
+) {
   return;
 }
 
-async function handleInvIncome(_models: IModels, subdomain: string, tr: ITransaction) {
+async function handleInvIncome(
+  _models: IModels,
+  subdomain: string,
+  tr: ITransaction,
+) {
   sendTRPCMessage({
     subdomain,
     method: 'mutation',
@@ -51,19 +54,34 @@ async function handleInvIncome(_models: IModels, subdomain: string, tr: ITransac
     input: {
       branchId: tr?.branchId,
       departmentId: tr?.departmentId,
-      productsInfo: tr?.details?.map(det => ({ productId: det.productId, diffCount: -1 * (det.count ?? 0) }))
-    }
+      productsInfo: tr?.details?.map((det) => ({
+        productId: det.productId,
+        diffCount: -1 * (det.count ?? 0),
+      })),
+    },
   });
 }
 
-async function handleInvOut(models: IModels, _subdomain: string, doc: ITransaction) {
+async function handleInvOut(
+  models: IModels,
+  _subdomain: string,
+  doc: ITransaction,
+) {
   return;
 }
 
-async function handleInvMove(models: IModels, _subdomain: string, doc: ITransaction) {
+async function handleInvMove(
+  models: IModels,
+  _subdomain: string,
+  doc: ITransaction,
+) {
   return;
 }
 
-async function handleInvSale(models: IModels, _subdomain: string, doc: ITransaction) {
+async function handleInvSale(
+  models: IModels,
+  _subdomain: string,
+  doc: ITransaction,
+) {
   return;
 }

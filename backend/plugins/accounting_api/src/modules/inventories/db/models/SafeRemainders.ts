@@ -115,16 +115,17 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
 
       for (const product of products) {
         order++;
-        console.log(product)
-        const preCount = product.remainders?.[branchId]?.[departmentId]?.remainder ?? 0;
+        console.log(product);
+        const preCount =
+          product.remainders?.[branchId]?.[departmentId]?.remainder ?? 0;
         let count = preCount;
 
         if (attachment?.url) {
           const datasKey = String(
             attachFieldId
               ? product.customFieldsData.find(
-                (cfd) => cfd.field === attachFieldId,
-              )?.value
+                  (cfd) => cfd.field === attachFieldId,
+                )?.value
               : product[filterField],
           );
           const { lastCount, changeCount } = attachDatas[datasKey];
@@ -165,21 +166,30 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
      * @param _id Safe remainder ID
      * @returns updated response
      */
-    public static async updateRemainder({ _id, description, incomeRule, outRule, saleRule }: ISafeRemEditFields & { _id: string }) {
+    public static async updateRemainder({
+      _id,
+      description,
+      incomeRule,
+      outRule,
+      saleRule,
+    }: ISafeRemEditFields & { _id: string }) {
       const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
       if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
         throw new Error('Can`t edit: cause published');
       }
 
-      await models.SafeRemainders.updateOne({ _id }, {
-        $set: {
-          description,
-          incomeRule: { ...safeRemainder.incomeRule, ...incomeRule },
-          outRule: { ...safeRemainder.outRule, ...outRule },
-          saleRule: { ...safeRemainder.saleRule, ...saleRule }
-        }
-      });
+      await models.SafeRemainders.updateOne(
+        { _id },
+        {
+          $set: {
+            description,
+            incomeRule: { ...safeRemainder.incomeRule, ...incomeRule },
+            outRule: { ...safeRemainder.outRule, ...outRule },
+            saleRule: { ...safeRemainder.saleRule, ...saleRule },
+          },
+        },
+      );
       return await models.SafeRemainders.getRemainder(_id);
     }
 

@@ -22,7 +22,7 @@ export const safeRemainderItemSchema = schemaWrapper(
     order: { type: Number, index: true },
 
     description: { type: String, label: 'Description', optional: true },
-    trInfo: { type: Object, optional: true }
+    trInfo: { type: Object, optional: true },
   }),
 );
 

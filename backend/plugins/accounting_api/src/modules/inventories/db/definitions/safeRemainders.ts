@@ -6,7 +6,7 @@ const ITrRuleSchema = {
   accountId: { type: String },
   customerType: { type: String },
   customerId: { type: String },
-}
+};
 
 export const safeRemainderSchema = schemaWrapper(
   new Schema({
