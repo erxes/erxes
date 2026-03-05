@@ -3,8 +3,8 @@ import { updateLiveRemainders } from './utils';
 import { checkPermission } from 'erxes-api-shared/core-modules';
 
 export interface IUpdateRemaindersParams {
-  departmentId?: string;
-  branchId?: string;
+  departmentId: string;
+  branchId: string;
   productCategoryId?: string;
   productIds?: string[];
 }
