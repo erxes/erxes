@@ -9,7 +9,9 @@ export const webPageMutations: Record<string, Resolver> = {
   ): Promise<any> {
     const { models, clientPortal } = context;
     const { input } = args;
-
+  
+    if (!input.webId) throw new Error('webId is required');
+  
     return models.WebPages.createPage({
       ...input,
       clientPortalId: input.clientPortalId || clientPortal?._id,

@@ -14,6 +14,7 @@ export const types = `
 
   type WebPage {
     _id: String!
+    webId: String!
     clientPortalId: String!
     name: String
     description: String
@@ -44,12 +45,13 @@ export const inputs = `
     type: String
     content: String
     order: Int
-    objectType: String
-    objectId: String
+    contentType: String
+    contentId: String
     config: JSON
   }
 
   input WebPageInput {
+    webId: String
     clientPortalId: String
     name: String
     description: String
@@ -64,9 +66,9 @@ export const inputs = `
 `;
 
 export const queries = `
-  cpWebPage(_id: String, slug: String, language: String, clientPortalId: String): WebPage
-  cpWebPages(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [WebPage]
-  cpWebPageList(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): WebPageList
+  cpWebPage(_id: String, slug: String, language: String, webId: String): WebPage
+  cpWebPages(webId: String!, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [WebPage]
+  cpWebPageList(webId: String!, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): WebPageList
 `;
 
 export const mutations = `

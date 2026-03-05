@@ -9,10 +9,10 @@ export const webQueries: Record<string, Resolver> = {
 
   async getWebDetail(
     _root,
-    { clientPortalId }: { clientPortalId: string },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
+    const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
     return web;
   },
@@ -20,34 +20,33 @@ export const webQueries: Record<string, Resolver> = {
 
   async cpGetWebDetail(
     _root,
-    { clientPortalId }: { clientPortalId: string },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
+    const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
     return web;
   },
   
   async cpGetDomains(
     _root,
-    { clientPortalId }: { clientPortalId: string },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
+    const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
     if (!web.projectId) throw new Error('No project found for this web');
     return getDomains(web.projectId);
   },
-
+  
   async cpGetDeploymentEvents(
     _root,
-    { clientPortalId }: { clientPortalId: string },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
+    const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
-    if (!web.lastDeploymentId)
-      throw new Error('No deployment found for this web');
+    if (!web.lastDeploymentId) throw new Error('No deployment found for this web');
     return getDeploymentEvents(web.lastDeploymentId);
   },
 };

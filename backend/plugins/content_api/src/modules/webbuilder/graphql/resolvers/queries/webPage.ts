@@ -5,21 +5,22 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
 class WebPageQueryResolver extends BaseQueryResolver {
+
   async cpWebPages(_parent: unknown, args: any, context: IContext) {
-    const { language, clientPortalId } = args;
+    const { language, webId } = args;
     const { models } = context;
 
-    if (!clientPortalId) {
-      throw new Error('clientPortalId is required');
+    if (!webId) {
+      throw new Error('webId is required');
     }
 
     const queryBuilder = getQueryBuilder('page', models);
-    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
+    const query = queryBuilder.buildQuery({ ...args, webId });
 
     const { list } = await this.getListWithTranslations(
       models.WebPages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, webId, language },
       FIELD_MAPPINGS.PAGE,
     );
 
@@ -27,41 +28,41 @@ class WebPageQueryResolver extends BaseQueryResolver {
   }
 
   async cpWebPageList(_parent: unknown, args: any, context: IContext) {
-    const { language, clientPortalId } = args;
+    const { language, webId } = args;
     const { models } = context;
-
-    if (!clientPortalId) {
-      throw new Error('clientPortalId is required');
+  
+    if (!webId) {
+      throw new Error('webId is required');
     }
-
+  
     const queryBuilder = getQueryBuilder('page', models);
-    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
-
+    const query = queryBuilder.buildQuery({ ...args, webId });
+  
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.WebPages,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, webId, language },
       FIELD_MAPPINGS.PAGE,
     );
-
+  
     return { pages: list, totalCount, pageInfo };
   }
 
   async cpWebPage(_parent: unknown, args: any, context: IContext) {
     const { models } = context;
-    const { _id, slug, language, clientPortalId } = args;
-
+    const { _id, slug, language, webId } = args;
+  
     if (!_id && !slug) {
       return null;
     }
-
+  
     let query: any = {};
     if (slug) {
-      query = { slug, clientPortalId };
+      query = { slug, webId };
     } else {
       query = { _id };
     }
-
+  
     return this.getItemWithTranslation(
       models.WebPages,
       query,
