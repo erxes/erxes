@@ -5,6 +5,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   PopoverScoped,
+  Empty,
 } from 'erxes-ui';
 import { IIntegrationDetail } from '../types/Integration';
 import { useIntegrations } from '../hooks/useIntegrations';
@@ -15,6 +16,8 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
+import { IconMessagesOff } from '@tabler/icons-react';
+import { INTEGRATIONS } from '../constants/integrations';
 
 export const IntegrationsRecordTable = () => {
   const params = useParams();
@@ -27,6 +30,28 @@ export const IntegrationsRecordTable = () => {
     skip: !params?.integrationType,
     errorPolicy: 'all',
   });
+
+  if (integrations?.length === 0 && !loading) {
+    return (
+      <Empty className="w-full h-full rounded-lg bg-accent">
+        <Empty.Header>
+          <Empty.Media>
+            <div className="rounded-sm border-dashed border-2 bg-muted flex items-center justify-center aspect-square w-20 text-muted-foreground">
+              <IconMessagesOff />
+            </div>
+          </Empty.Media>
+          <Empty.Title>
+            No {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}{' '}
+            found
+          </Empty.Title>
+          <Empty.Description>
+            Get started by adding your first{' '}
+            {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}.
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
+  }
 
   return (
     <RecordTable.Provider

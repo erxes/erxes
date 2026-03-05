@@ -1,38 +1,26 @@
 import { ColumnDef, Cell } from '@tanstack/react-table';
 import { IForm } from '@/forms/types/formTypes';
 import {
-  Badge,
-  Button,
-  Dialog,
   DropdownMenu,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Spinner,
   toast,
-  useConfirm,
-  useToast,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router';
 import {
   IconArrowBarToRight,
   IconCalendarEvent,
-  IconCheck,
   IconCircles,
-  IconCode,
-  IconCopy,
   IconEdit,
   IconLabel,
   IconSquareToggle,
   IconTag,
   IconToggleRight,
-  IconTrash,
   IconUser,
 } from '@tabler/icons-react';
 import { MembersInline, SelectTags } from 'ui-modules';
 import { useState } from 'react';
-import { REACT_APP_WIDGETS_URL } from '@/utils';
-import { useRemoveForm } from '@/forms/hooks/useRemoveForm';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useFormEdit } from '@/forms/hooks/useFormEdit';
 import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
@@ -146,44 +134,11 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { _id, status, channelId } = cell.row.original;
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
+  const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
 
-  const { removeForm, loading } = useRemoveForm();
-
-  const handleDelete = () => {
-    if (!_id) {
-      toast({
-        title: 'Error',
-        description: 'Form ID is missing',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    confirm({
-      message: 'Are you sure you want to delete this form?',
-    }).then(async () => {
-      try {
-        await removeForm([_id]);
-        toast({
-          title: 'Success',
-          variant: 'success',
-          description: 'Form deleted successfully',
-        });
-      } catch (e: any) {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
-      }
-    });
-  };
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -191,7 +146,7 @@ export const FormsMoreColumnCell = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content side="bottom" align="start">
         <FormInstallScript
-          formId={_id}
+          formId={code}
           channelId={channelId}
           inActionBar={true}
         />

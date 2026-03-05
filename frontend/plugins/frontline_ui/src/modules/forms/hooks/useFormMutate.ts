@@ -14,7 +14,7 @@ import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 
 export const useFormMutate = () => {
-  const { id } = useParams();
+  const { formId: id } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);

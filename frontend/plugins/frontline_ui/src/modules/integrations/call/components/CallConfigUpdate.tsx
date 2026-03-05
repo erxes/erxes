@@ -6,6 +6,7 @@ import {
   Input,
   Skeleton,
   Spinner,
+  toast,
 } from 'erxes-ui';
 import { Button } from 'erxes-ui';
 import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
@@ -71,6 +72,12 @@ export const CallConfigUpdate = () => {
     updateConfigs({
       variables: {
         configsMap: data,
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Call configs updated successfully',
+          variant: 'success',
+        });
       },
     });
   };
