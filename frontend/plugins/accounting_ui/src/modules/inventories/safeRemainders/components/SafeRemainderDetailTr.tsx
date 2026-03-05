@@ -1,4 +1,4 @@
-import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
+import { IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
@@ -7,7 +7,6 @@ import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
 import {
   useSafeRemainderCancel,
   useSafeRemainderDoTr,
-  useSafeRemainderReCalc,
   useSafeRemainderSubmit,
   useSafeRemainderUndoTr,
 } from '../hooks/useSafeRemainderChange';
@@ -19,7 +18,7 @@ import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
 import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
 import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 
-export const SafeRemainderDetail = () => {
+export const SafeRemainderDetailTr = () => {
   const [id] = useQueryState<string>('id');
 
   const { safeRemainder, loading } = useSafeRemainderDetail({
@@ -37,7 +36,6 @@ export const SafeRemainderDetail = () => {
     skip: !id,
   });
 
-  const { reCalcSafeRemainder } = useSafeRemainderReCalc();
   const { submitSafeRemainder } = useSafeRemainderSubmit();
   const { cancelSafeRemainder } = useSafeRemainderCancel();
   const { doTrSafeRemainder } = useSafeRemainderDoTr();
@@ -58,12 +56,8 @@ export const SafeRemainderDetail = () => {
       case SAFE_REMAINDER_STATUSES.DRAFT:
         return (
           <>
-            <Button onClick={() => reCalcSafeRemainder(id)}>
-              <IconCrane />
-              ReCalc
-            </Button>
             <Button onClick={() => submitSafeRemainder(id)}>
-              <IconAccessPoint />
+              <IconCrane />
               Submit
             </Button>
             <Button

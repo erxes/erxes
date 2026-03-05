@@ -13,7 +13,9 @@ import { CompanyDetailGeneral } from './CompanyDetailGeneral';
 import { ContactSidebar } from '@/contacts/components/ContactSidebar';
 import {
   ActivityLogs,
+  AddInternalNote,
   FieldsInDetail,
+  internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
@@ -47,7 +49,18 @@ export const CompanyDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CompanyDetailFields />
-                  {!!companyDetail?._id && <ActivityLogs targetId={companyDetail._id } />}
+                  {!!companyDetail?._id && (
+                    <div className="flex flex-col mb-12">
+                      <ActivityLogs
+                        targetId={companyDetail._id}
+                        customActivities={[internalNoteCustomActivity]}
+                      />
+                      <AddInternalNote
+                        contentTypeId={companyDetail._id}
+                        contentType="core:company"
+                      />
+                    </div>
+                  )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail
