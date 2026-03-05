@@ -25,7 +25,7 @@ export const EMPreviewChatInput = () => {
 
 export const EMPersistentMenu = () => {
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
-  if (!config?.botSetup?.persistentMenu) return null;
+  if (!config?.botSetup?.persistentMenu?.length) return null;
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>

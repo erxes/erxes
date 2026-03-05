@@ -1,13 +1,20 @@
 import {
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupHoursAtom,
+  erxesMessengerSetupSettingsAtom,
+  erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import {
   Avatar,
   Button,
   formatTimeZoneLabel,
+  InfoCard,
+  Input,
+  Label,
+  PhoneInput,
   Popover,
   readImage,
+  Tabs,
 } from 'erxes-ui';
 import { MembersInline, useMembersInlineContext } from 'ui-modules';
 import { useAtomValue } from 'jotai';
@@ -16,6 +23,8 @@ import { EMPreviewChatInput } from './EMPreviewChatInput';
 import { Weekday } from '../types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
 import { format, parse } from 'date-fns';
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 
 const MAX_COUNT = 2;
 
@@ -46,8 +55,10 @@ export const ActiveUsers = () => {
 };
 
 export const EMPreviewIntro = () => {
+  const step = useAtomValue(erxesMessengerSetupStepAtom);
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
+  const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
 
   const formatScheduleDays = (
     obj: Partial<
@@ -159,20 +170,79 @@ export const EMPreviewIntro = () => {
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2 flex-1 justify-start px-4">
-        <MembersInline.Provider memberIds={greeting?.supporterIds || []}>
-          <ActiveUsers />
-        </MembersInline.Provider>
-        <span className="text-xs text-accent-foreground">
-          Our usual reply time{' '}
-          <span className="font-medium text-primary">
-            (A few {hours?.responseRate || 'minutes'})
-          </span>
-        </span>
-      </div>
+      {
+        (settings?.requireAuth && step === 5) ? (
+          <div className="flex items-center gap-2 flex-1 justify-start px-4 pt-2">
+            <EMPreviewAuthForm />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 flex-1 justify-start px-4">
+            <MembersInline.Provider memberIds={greeting?.supporterIds || []}>
+              <ActiveUsers />
+            </MembersInline.Provider >
+            <span className="text-xs text-accent-foreground">
+              Our usual reply time{' '}
+              <span className="font-medium text-primary">
+                (A few {hours?.responseRate || 'minutes'})
+              </span>
+            </span>
+          </div >
+        )
+      }
       <div className="mt-auto">
         <EMPreviewChatInput />
       </div>
     </>
   );
 };
+
+export const EMPreviewAuthForm = () => {
+  const [value, setValue] = useState<string>('email');
+  return (
+    <InfoCard
+      title='Enter your email or phone number'
+      className='w-full'
+    >
+      <InfoCard.Content>
+        <Tabs value={value} onValueChange={setValue} className='w-full space-y-3'>
+          <Tabs.List className="w-full">
+            <Tabs.Trigger value='email' className='flex-1'>Email</Tabs.Trigger>
+            <Tabs.Trigger value='phone' className='flex-1'>Phone</Tabs.Trigger>
+          </Tabs.List>
+          <Input placeholder='First name' />
+          <Input placeholder='Last name' />
+          <AnimatePresence mode="popLayout">
+            {
+              value === "email" && (
+                <>
+
+                  <Label htmlFor='email'>Email</Label>
+                  <Input id='email' type="email" placeholder='Email' />
+                </>
+              )
+            }
+          </AnimatePresence>
+          <AnimatePresence mode="popLayout">
+            {
+              value === "phone" && (
+                <>
+                  <Label htmlFor='phone'>Phone</Label>
+                  <PhoneInput
+                    defaultCountry="MN"
+                    className="bg-background"
+                  />
+                </>
+              )
+            }
+          </AnimatePresence>
+        </Tabs>
+        <Button
+          type="submit"
+          className="w-full self-end mt-auto"
+        >
+          Save
+        </Button>
+      </InfoCard.Content>
+    </InfoCard>
+  )
+}
