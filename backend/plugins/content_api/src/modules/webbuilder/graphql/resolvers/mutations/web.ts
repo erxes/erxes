@@ -3,14 +3,43 @@ import { IWeb } from '@/webbuilder/@types/web';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
   deploy,
-  getDomains,
   addDomain,
   removeProject,
 } from '@/webbuilder/utils';
 
 export const webBuilderMutations: Record<string, Resolver> = {
-  async createWeb(_root, { doc }: { doc: IWeb }, { models }: IContext) {
-    return models.Web.createWeb(doc);
+  async createWeb(
+    _root,
+    { doc }: { doc: IWeb },
+    { models }: IContext,
+  ) {
+    const web = await models.Web.createWeb(doc);
+  
+    const defaultPages = ['home', 'about', 'contact', 'privacy', 'terms'];
+    const tourPages = ['tours', 'tour', 'checkout', 'confirmation', 'profile', 'login', 'register'];
+    const ecommercePages = ['products', 'product', 'checkout', 'profile', 'confirmation', 'login', 'register'];
+    const commerceKinds = ['ecommerce', 'restaurant', 'hotel'];
+  
+    const templateType = web.templateType || '';
+    const extraPages = templateType === 'tour'
+      ? tourPages
+      : commerceKinds.includes(templateType)
+        ? ecommercePages
+        : [];
+  
+    const uniqueSlugs = [...new Set([...defaultPages, ...extraPages])];
+  
+    const bulk = uniqueSlugs.map((slug) => ({
+      webId: web._id,
+      clientPortalId: web.clientPortalId,
+      name: slug.charAt(0).toUpperCase() + slug.slice(1),
+      slug,
+      pageItems: [],
+    }));
+  
+    await models.WebPages.insertMany(bulk);
+  
+    return web;
   },
 
   async editWeb(
