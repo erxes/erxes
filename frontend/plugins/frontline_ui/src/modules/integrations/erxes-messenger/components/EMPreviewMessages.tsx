@@ -3,14 +3,12 @@ import {
   IconPhone,
   IconSend,
   IconVideo,
-  IconX,
 } from '@tabler/icons-react';
 import { Avatar, Button, Tooltip } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupGreetingAtom,
-  erxesMessengerSetupHoursAtom,
   erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
@@ -106,6 +104,46 @@ export const EMPreviewMessages = () => {
           >
             <p>We need your help!</p>
             <div className="text-accent-foreground">just now</div>
+          </Button>
+        </div>
+        {/* Away message */}
+        <div className="flex items-end gap-2 max-w-2/3">
+          <MembersInline.Provider
+            memberIds={
+              greeting?.supporterIds?.length ? [greeting?.supporterIds[0]] : []
+            }
+          >
+            <MembersInline.Avatar size="xl" />
+          </MembersInline.Provider>
+          <Button
+            variant="secondary"
+            className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
+          >
+            <p className="wrap-break-word text-wrap">
+              {intro?.away ||
+                "We've received your message and will contact you shortly."}
+            </p>
+            <div className="text-accent-foreground">few minutes ago</div>
+          </Button>
+        </div>
+        {/* Thank you message */}
+        <div className="flex items-end gap-2 max-w-2/3">
+          <MembersInline.Provider
+            memberIds={
+              greeting?.supporterIds?.length ? [greeting?.supporterIds[0]] : []
+            }
+          >
+            <MembersInline.Avatar size="xl" />
+          </MembersInline.Provider>
+          <Button
+            variant="secondary"
+            className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
+          >
+            <p className="wrap-break-word text-wrap ">
+              {intro?.thank ||
+                'Thank you for contacting us. We will get back to you as soon as possible.'}
+            </p>
+            <div className="text-accent-foreground">few minutes ago</div>
           </Button>
         </div>
       </div>
