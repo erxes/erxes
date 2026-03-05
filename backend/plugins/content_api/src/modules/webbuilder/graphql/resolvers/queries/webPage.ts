@@ -1,95 +1,46 @@
-import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
-import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { Resolver } from 'erxes-api-shared/core-types';
-
 import { IContext } from '~/connectionResolvers';
 
-class WebPageQueryResolver extends BaseQueryResolver {
-
-  async cpWebPages(_parent: unknown, args: any, context: IContext) {
-    const { language, webId } = args;
-    const { models } = context;
-
-    if (!webId) {
-      throw new Error('webId is required');
-    }
-
-    const queryBuilder = getQueryBuilder('page', models);
-    const query = queryBuilder.buildQuery({ ...args, webId });
-
-    const { list } = await this.getListWithTranslations(
-      models.WebPages,
-      query,
-      { ...args, webId, language },
-      FIELD_MAPPINGS.PAGE,
-    );
-
-    return list;
-  }
-
-  async cpWebPageList(_parent: unknown, args: any, context: IContext) {
-    const { language, webId } = args;
-    const { models } = context;
-  
-    if (!webId) {
-      throw new Error('webId is required');
-    }
-  
-    const queryBuilder = getQueryBuilder('page', models);
-    const query = queryBuilder.buildQuery({ ...args, webId });
-  
-    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
-      models.WebPages,
-      query,
-      { ...args, webId, language },
-      FIELD_MAPPINGS.PAGE,
-    );
-  
-    return { pages: list, totalCount, pageInfo };
-  }
-
-  async cpWebPage(_parent: unknown, args: any, context: IContext) {
-    const { models } = context;
-    const { _id, slug, language, webId } = args;
-  
-    if (!_id && !slug) {
-      return null;
-    }
-  
-    let query: any = {};
-    if (slug) {
-      query = { slug, webId };
-    } else {
-      query = { _id };
-    }
-  
-    return this.getItemWithTranslation(
-      models.WebPages,
-      query,
-      language,
-      FIELD_MAPPINGS.PAGE,
-    );
-  }
-}
-
 export const webPageQueries: Record<string, Resolver> = {
-  cpWebPages: (_parent: unknown, args: any, context: IContext) =>
-    new WebPageQueryResolver(context).cpWebPages(_parent, args, context),
-  cpWebPageList: (_parent: unknown, args: any, context: IContext) =>
-    new WebPageQueryResolver(context).cpWebPageList(_parent, args, context),
-  cpWebPage: (_parent: unknown, args: any, context: IContext) =>
-    new WebPageQueryResolver(context).cpWebPage(_parent, args, context),
+  async cpWebPages(_parent: unknown, args: any, { models }: IContext) {
+    const { webId, searchValue } = args;
+
+    if (!webId) throw new Error('webId is required');
+
+    const query: any = { webId };
+    if (searchValue) {
+      query.name = { $regex: searchValue, $options: 'i' };
+    }
+
+    return models.WebPages.find(query).sort({ name: 1 }).lean();
+  },
+
+  async cpWebPageList(_parent: unknown, args: any, { models }: IContext) {
+    const { webId, searchValue } = args;
+
+    if (!webId) throw new Error('webId is required');
+
+    const query: any = { webId };
+    if (searchValue) {
+      query.name = { $regex: searchValue, $options: 'i' };
+    }
+
+    const pages = await models.WebPages.find(query).sort({ name: 1 }).lean();
+    const totalCount = await models.WebPages.countDocuments(query);
+
+    return { pages, totalCount, pageInfo: null };
+  },
+
+  async cpWebPage(_parent: unknown, args: any, { models }: IContext) {
+    const { _id, slug, webId } = args;
+
+    if (!_id && !slug) return null;
+
+    if (slug) return models.WebPages.findOne({ slug, webId }).lean();
+    return models.WebPages.findOne({ _id }).lean();
+  },
 };
 
-webPageQueries.cpWebPages.wrapperConfig = {
-  forClientPortal: true,
-};
-
-webPageQueries.cpWebPageList.wrapperConfig = {
-  forClientPortal: true,
-};
-
-webPageQueries.cpWebPage.wrapperConfig = {
-  forClientPortal: true,
-};
-
+webPageQueries.cpWebPages.wrapperConfig = { forClientPortal: true };
+webPageQueries.cpWebPageList.wrapperConfig = { forClientPortal: true };
+webPageQueries.cpWebPage.wrapperConfig = { forClientPortal: true };
