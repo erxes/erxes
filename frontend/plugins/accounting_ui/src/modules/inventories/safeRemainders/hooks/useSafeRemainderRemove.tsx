@@ -7,9 +7,7 @@ import { useSafeRemainderQueryParams } from './useSafeRemainders';
 
 export const useSafeRemainderRemove = () => {
   const navigate = useNavigate();
-  const [_removeMutation, { loading }] = useMutation(
-    SAFE_REMAINDER_REMOVE,
-  );
+  const [_removeMutation, { loading }] = useMutation(SAFE_REMAINDER_REMOVE);
 
   const removeSafeRemainder = (options?: OperationVariables) => {
     const queryParams = useSafeRemainderQueryParams();

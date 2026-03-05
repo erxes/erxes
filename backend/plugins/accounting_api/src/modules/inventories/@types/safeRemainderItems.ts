@@ -15,7 +15,7 @@ export interface ISafeRemainderItem {
     unitCost?: number;
     isSale?: boolean;
     salePrice?: number;
-  }
+  };
 }
 
 export interface ISafeRemainderItemDocument

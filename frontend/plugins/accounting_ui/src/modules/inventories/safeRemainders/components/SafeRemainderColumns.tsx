@@ -2,10 +2,7 @@ import dayjs from 'dayjs';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { ISafeRemainder } from '../types/SafeRemainder';
 import { Link } from 'react-router-dom';
-import {
-  RecordTable,
-  RecordTableInlineCell,
-} from 'erxes-ui';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { IconFile, IconCalendar } from '@tabler/icons-react';
 
 const DateCell = ({ getValue }: any) => {
@@ -46,9 +43,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
   },
   {
     id: 'branch',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Branch" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
     accessorKey: 'branch',
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -58,9 +53,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
   },
   {
     id: 'department',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Department" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
     accessorKey: 'department',
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -75,9 +68,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
     ),
     accessorKey: 'description',
     cell: ({ getValue }) => (
-      <RecordTableInlineCell>
-        {getValue() as string}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{getValue() as string}</RecordTableInlineCell>
     ),
   },
 ];
