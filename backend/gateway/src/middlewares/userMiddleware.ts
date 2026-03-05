@@ -207,7 +207,7 @@ export default async function userMiddleware(
         }
       }
 
-      return next();
+      // return next();
     } catch (e) {
       console.error(e);
 

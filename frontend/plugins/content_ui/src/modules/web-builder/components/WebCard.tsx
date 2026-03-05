@@ -25,7 +25,7 @@ export const WebCard = ({ web, index }: WebCardProps) => {
 
   const sessionCode = sessionStorage.getItem('sessioncode') || '';
   const buildUrl = `http://localhost:3400/dashboard/projects/${
-    web.clientPortalId
+    web._id
   }?template=${web.templateId || ''}&pageName=home&sessioncode=${sessionCode}`;
 
   const handleEdit = () => setDrawer({ open: true, editingWeb: web });
