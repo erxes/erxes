@@ -15,43 +15,38 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
   async editWeb(
     _root,
-    { clientPortalId, doc }: { clientPortalId: string; doc: IWeb },
+    { _id, doc }: { _id: string; doc: IWeb },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
-    if (!web) throw new Error('Web not found');
-    return models.Web.updateWeb(web._id, doc);
+    return models.Web.updateWeb(_id, doc);
   },
 
   async removeWeb(
     _root,
-    { clientPortalId }: { clientPortalId: string },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
-    if (!web) throw new Error('Web not found');
-    return models.Web.removeWeb(web._id);
+    return models.Web.removeWeb(_id);
   },
+  
 
   async cpDeployWeb(
     _root,
-    { clientPortalId }: { clientPortalId: string },
+    { _id }: { _id: string },
     { models, subdomain }: IContext,
   ) {
     try {
-      const web = await models.Web.findOne({ clientPortalId });
+      const web = await models.Web.findOne({ _id });
       if (!web) throw new Error('Web not found');
       const result = await deploy(subdomain, web, models);
-  
       await models.Web.findOneAndUpdate(
-        { clientPortalId },
+        { _id },
         { $set: {
           projectId: result.project?.id,
           lastDeploymentId: result.id,
           lastDeploymentUrl: result.url,
         }},
       );
-
       return result;
     } catch (error) {
       console.error('cpDeployWeb error:', error.message);
@@ -61,10 +56,10 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
   async cpAddDomain(
     _root,
-    { clientPortalId, domain }: { clientPortalId: string; domain: string },
+    { _id, domain }: { _id: string; domain: string },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
+    const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
     if (!web.projectId) throw new Error('No project found for this web');
     return addDomain(web.projectId, domain);
@@ -72,10 +67,10 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
   async cpRemoveProject(
     _root,
-    { clientPortalId }: { clientPortalId: string },
+    { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const web = await models.Web.findOne({ clientPortalId });
+    const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
     if (!web.projectId) throw new Error('No project found for this web');
     return removeProject(web.projectId);

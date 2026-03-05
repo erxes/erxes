@@ -7,6 +7,7 @@ import { IWebPageDocument } from '@/webbuilder/@types/page';
 export const webPageSchema = new mongoose.Schema<IWebPageDocument>(
   {
     _id: mongooseStringRandomId,
+    webId: { type: String, required: true },
     clientPortalId: { type: String, required: true },
     name: { type: String, required: true },
     description: { type: String },
@@ -23,8 +24,8 @@ export const webPageSchema = new mongoose.Schema<IWebPageDocument>(
         type: { type: String, required: true },
         content: { type: Schema.Types.Mixed },
         order: { type: Number, required: true },
-        objectType: { type: String },
-        objectId: { type: String },
+        contentType: { type: String },
+        contentId: { type: String },
         config: { type: Schema.Types.Mixed },
       },
     ],

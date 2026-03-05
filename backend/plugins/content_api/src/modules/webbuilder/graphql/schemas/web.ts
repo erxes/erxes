@@ -92,19 +92,19 @@ export const inputs = `
 
 export const queries = `
   getWebList: [Web]
-  getWebDetail(clientPortalId: String!): Web
-  cpGetWebDetail(clientPortalId: String!): Web
+  getWebDetail(_id: String!): Web
 
-  cpGetDomains(clientPortalId: String!): JSON
-  cpGetDeploymentEvents(clientPortalId: String!): JSON
+  cpGetWebDetail(_id: String!): Web
+  cpGetDomains(_id: String!): JSON
+  cpGetDeploymentEvents(_id: String!): JSON
 `;
 
 export const mutations = `
   createWeb(doc: WebInput!): Web
-  editWeb(clientPortalId: String!, doc: WebInput!): Web
-  removeWeb(clientPortalId: String!): Web
-
-  cpDeployWeb(clientPortalId: String!): JSON
-  cpAddDomain(clientPortalId: String!, domain: String!): JSON
-  cpRemoveProject(clientPortalId: String!): JSON
+  editWeb(_id: String!, doc: WebInput!): Web
+  removeWeb(_id: String!): Web
+  
+  cpDeployWeb(_id: String!): JSON
+  cpAddDomain(_id: String!, domain: String!): JSON
+  cpRemoveProject(_id: String!): JSON
 `;

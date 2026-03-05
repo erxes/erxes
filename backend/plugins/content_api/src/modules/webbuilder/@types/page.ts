@@ -5,12 +5,13 @@ export interface IWebPageItem {
   type: string;
   content: any;
   order: number;
-  objectType: string;
-  objectId: string;
+  contentType: string;
+  contentId: string;
   config?: any;
 }
 
 export interface IWebPage {
+  webId: string; 
   clientPortalId: string;
   name: string;
   description?: string;
