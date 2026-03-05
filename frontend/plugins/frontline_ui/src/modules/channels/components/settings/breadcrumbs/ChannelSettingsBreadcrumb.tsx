@@ -13,13 +13,14 @@ import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/Response
 import { FormDetailsBreadcrumb } from '@/forms/components/FormDetailsBreadcrumb';
 import { FormsCreateButton } from '@/forms/components/form-page/forms-create';
 import { PipelinePermissionsBreadcrumb } from '@/pipelines/components/permissions/components/PipelinePermissionsBreadcrumb';
+
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
   );
   const { id: channelId } = useParams<{ id: string }>();
 
-  const isChannelRoute =
+  const isChannelDetailOrSubRoute =
     isMatchingLocation(FrontlinePaths.ChannelDetails) ||
     isMatchingLocation(FrontlinePaths.ChannelMembers) ||
     isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
@@ -30,6 +31,21 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.ResponseDetail) ||
     isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
     isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`);
+
+  const isAnyPipelineRoute =
+    isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
+    isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+    isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+    isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
+    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
+    isMatchingLocation(FrontlinePaths.TicketsStatuses);
+
+  const isSpecificPipelineDetailRoute =
+    isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+    isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+    isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
+    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
+    isMatchingLocation(FrontlinePaths.TicketsStatuses);
 
   const isFormsRoute =
     isMatchingLocation(FrontlinePaths.ChannelForms) ||
@@ -44,20 +60,14 @@ export const ChannelSettingsBreadcrumb = () => {
           Channels
         </Button>
       </Link>
-      {(isMatchingLocation(FrontlinePaths.ChannelDetails) ||
-        isMatchingLocation(FrontlinePaths.ChannelMembers) ||
-        isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
-        isMatchingLocation(FrontlinePaths.PipelineDetail) ||
-        isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
-        isMatchingLocation(FrontlinePaths.TicketsStatuses) ||
-        isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
-        isMatchingLocation(FrontlinePaths.ResponseDetail) ||
-        isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`)) && (
+
+      {isChannelDetailOrSubRoute && (
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb />
         </>
       )}
+
       {isMatchingLocation(FrontlinePaths.ChannelMembers) && (
         <>
           <Separator.Inline />
@@ -65,14 +75,7 @@ export const ChannelSettingsBreadcrumb = () => {
         </>
       )}
 
-      {(isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
-        isMatchingLocation(FrontlinePaths.PipelineDetail) ||
-        isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
-        isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
-        isMatchingLocation(FrontlinePaths.ResponseDetail) ||
-        isMatchingLocation(FrontlinePaths.FormDetail) ||
-        isMatchingLocation(FrontlinePaths.FormsCreate) ||
-        isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
+      {isAnyPipelineRoute && (
         <>
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
@@ -82,13 +85,8 @@ export const ChannelSettingsBreadcrumb = () => {
           </Link>
         </>
       )}
-      {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
-        isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
-        isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
-        isMatchingLocation(FrontlinePaths.ResponseDetail) ||
-        isMatchingLocation(FrontlinePaths.FormDetail) ||
-        isMatchingLocation(FrontlinePaths.FormsCreate) ||
-        isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
+
+      {isSpecificPipelineDetailRoute && (
         <>
           <Separator.Inline />
           <PipelineDetailBreadcrumb />
@@ -124,18 +122,10 @@ export const ChannelSettingsBreadcrumb = () => {
       )}
 
       {/* Forms: /:id/forms, /:id/forms/create, /:id/forms/:formId */}
-      {(isMatchingLocation(FrontlinePaths.ChannelForms) ||
-        isMatchingLocation(FrontlinePaths.FormsCreate) ||
-        isMatchingLocation(FrontlinePaths.FormDetail)) && (
+      {isFormsRoute && (
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
-        </>
-      )}
-      {(isMatchingLocation(FrontlinePaths.ChannelForms) ||
-        isMatchingLocation(FrontlinePaths.FormsCreate) ||
-        isMatchingLocation(FrontlinePaths.FormDetail)) && (
-        <>
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/forms`}>
             <Button variant="ghost" className="font-semibold">
@@ -149,6 +139,7 @@ export const ChannelSettingsBreadcrumb = () => {
           )}
         </>
       )}
+
       {isMatchingLocation(FrontlinePaths.FormDetail) &&
         !isMatchingLocation(FrontlinePaths.FormsCreate) && (
           <>
@@ -156,6 +147,7 @@ export const ChannelSettingsBreadcrumb = () => {
             <FormDetailsBreadcrumb />
           </>
         )}
+
       {isMatchingLocation(FrontlinePaths.FormsCreate) && (
         <>
           <Separator.Inline />
