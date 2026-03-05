@@ -104,6 +104,8 @@ export const mutations = `
   editWeb(_id: String!, doc: WebInput!): Web
   removeWeb(_id: String!): Web
   
+  cpEditWeb(_id: String!, doc: WebInput!): Web
+  cpRemoveWeb(_id: String!): Web
   cpDeployWeb(_id: String!): JSON
   cpAddDomain(_id: String!, domain: String!): JSON
   cpRemoveProject(_id: String!): JSON

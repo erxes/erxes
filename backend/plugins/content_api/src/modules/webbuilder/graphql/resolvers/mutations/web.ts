@@ -58,6 +58,21 @@ export const webBuilderMutations: Record<string, Resolver> = {
     return models.Web.removeWeb(_id);
   },
   
+  async cpEditWeb(
+    _root,
+    { _id, doc }: { _id: string; doc: IWeb },
+    { models }: IContext,
+  ) {
+    return models.Web.updateWeb(_id, doc);
+  },
+
+  async cpRemoveWeb(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Web.removeWeb(_id);
+  },
 
   async cpDeployWeb(
     _root,
@@ -109,3 +124,5 @@ export const webBuilderMutations: Record<string, Resolver> = {
 webBuilderMutations.cpDeployWeb.wrapperConfig = { forClientPortal: true };
 webBuilderMutations.cpAddDomain.wrapperConfig = { forClientPortal: true };
 webBuilderMutations.cpRemoveProject.wrapperConfig = { forClientPortal: true };
+webBuilderMutations.cpEditWeb.wrapperConfig = { forClientPortal: true };
+webBuilderMutations.cpRemoveWeb.wrapperConfig = { forClientPortal: true };
