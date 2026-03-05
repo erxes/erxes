@@ -31,7 +31,7 @@ export const IntegrationsRecordTable = () => {
     errorPolicy: 'all',
   });
 
-  if (integrations?.length === 0 && !loading) {
+  if (!integrations?.length && !loading) {
     return (
       <Empty className="w-full h-full rounded-lg bg-accent">
         <Empty.Header>

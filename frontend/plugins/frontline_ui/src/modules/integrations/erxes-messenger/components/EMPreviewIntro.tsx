@@ -2,15 +2,14 @@ import {
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupHoursAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { IconX } from '@tabler/icons-react';
-import { Avatar, Button, Popover, readImage } from 'erxes-ui';
+import { Avatar, Button, formatTimeZoneLabel, Popover, readImage } from 'erxes-ui';
 import { MembersInline, useMembersInlineContext } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { EMGreetingAvatar } from '@/integrations/erxes-messenger/components/EMGreeting';
 import { EMPreviewChatInput } from './EMPreviewChatInput';
 import { Weekday } from '../types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
-import { formatDate } from 'date-fns';
+import { format, parse } from 'date-fns';
 
 const MAX_COUNT = 2;
 
@@ -42,14 +41,55 @@ export const EMPreviewIntro = () => {
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
 
-  const getSchedule = (obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean | undefined; from?: string | undefined; to?: string | undefined; }>>) => {
-    const days = Object.entries(obj).filter(([_, value]) => value.work).map(([key, _]) => key);
-    const times = Object.entries(obj).filter(([_, value]) => value.work).map(([_, value]) => `${value.from} - ${value.to}`);
-    return {
-      days,
-      times
-    }
-  }
+  const formatScheduleDays = (
+    obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean; from?: string; to?: string }>>,
+  ): string => {
+    // Only look at individual weekday keys, not the group synthetic keys
+    const WEEKDAY_VALUES = new Set<string>(Object.values(Weekday));
+
+    const activeDays = (Object.keys(obj) as (Weekday | ScheduleDay)[]).filter(
+      (key) => WEEKDAY_VALUES.has(key) && obj[key]?.work,
+    ) as Weekday[];
+
+    if (activeDays.length === 0) return '';
+
+    const allWeekdays = [
+      Weekday.MONDAY,
+      Weekday.TUESDAY,
+      Weekday.WEDNESDAY,
+      Weekday.THURSDAY,
+      Weekday.FRIDAY,
+    ];
+    const weekend = [Weekday.SATURDAY, Weekday.SUNDAY];
+    const allDays = [...allWeekdays, ...weekend];
+
+    const hasAll = (set: Weekday[]) =>
+      set.every((d) => activeDays.includes(d)) && activeDays.length === set.length;
+
+    if (hasAll(allDays)) return 'Everyday';
+    if (hasAll(allWeekdays)) return 'Monday – Friday';
+    if (hasAll(weekend)) return 'Weekends';
+
+    // Fallback: capitalise and join the individual day names
+    return activeDays
+      .map((d) => d.charAt(0).toUpperCase() + d.slice(1))
+      .join(', ');
+  };
+
+  /** Converts "HH:mm:ss" → "9:00 am" using date-fns */
+  const formatTime = (raw: string): string =>
+    format(parse(raw, 'HH:mm:ss', new Date()), 'h:mm aa').toLowerCase();
+
+  const getFirstActiveTime = (
+    obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean; from?: string; to?: string }>>,
+  ): string => {
+    const WEEKDAY_VALUES = new Set<string>(Object.values(Weekday));
+    const entry = Object.entries(obj).find(
+      ([key, value]) => WEEKDAY_VALUES.has(key) && value?.work && value.from && value.to,
+    );
+    if (!entry) return '9:00 am – 5:00 pm';
+    return `${formatTime(entry[1].from!)} – ${formatTime(entry[1].to!)}`;
+  };
 
   return (
     <>
@@ -64,7 +104,15 @@ export const EMPreviewIntro = () => {
           hours?.availabilityMethod === 'manual' ? (
             <p className='text-sm text-medium text-accent-foreground'>We're available between 9.00 pm and 5.00 am</p>
           ) : (
-            <p className='text-sm text-medium text-accent-foreground'>We're available between {getSchedule(hours?.onlineHours || {}).times[0] || '9.00 am - 5.00 pm'}, {getSchedule(hours?.onlineHours || {}).days.join(', ') || ''}</p>
+            <p className='text-sm text-medium text-accent-foreground'>
+              We're available between {getFirstActiveTime(hours?.onlineHours || {})}
+              {formatScheduleDays(hours?.onlineHours || {}) && `, ${formatScheduleDays(hours?.onlineHours || {})}`}
+            </p>
+          )
+        }
+        {
+          hours?.displayOperatorTimezone && (
+            <p className='text-sm text-medium text-accent-foreground'>{formatTimeZoneLabel(hours?.timezone as string) || 'UTC'}</p>
           )
         }
         <p className="text-xs text-accent-foreground">

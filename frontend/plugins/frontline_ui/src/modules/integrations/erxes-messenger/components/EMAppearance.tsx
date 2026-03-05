@@ -20,7 +20,7 @@ export const EMAppearance = () => {
     resolver: zodResolver(EMAPPEARANCE_SCHEMA),
     defaultValues: {
       primary: {
-        DEFAULT: '#000',
+        DEFAULT: '#5048e5',
         foreground: '#fff',
       },
     },
@@ -102,6 +102,10 @@ export const EMAppearance = () => {
                       }}
                     >
                       <Upload.Preview />
+                      <Upload.RemoveButton
+                        size="sm"
+                        variant="outline"
+                        type="button" />
                     </Upload.Root>
                   </Form.Control>
                   <Form.Message />

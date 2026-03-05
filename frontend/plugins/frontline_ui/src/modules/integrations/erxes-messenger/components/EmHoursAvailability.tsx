@@ -207,6 +207,33 @@ const safeParseTime = (value: string) => {
   }
 };
 
+const WEEKDAYS = [
+  Weekday.MONDAY,
+  Weekday.TUESDAY,
+  Weekday.WEDNESDAY,
+  Weekday.THURSDAY,
+  Weekday.FRIDAY,
+] as const;
+
+const WEEKEND_DAYS = [Weekday.SATURDAY, Weekday.SUNDAY] as const;
+const ALL_DAYS = [...WEEKDAYS, ...WEEKEND_DAYS] as const;
+
+const DEFAULT_FROM = '09:00:00';
+const DEFAULT_TO = '18:00:00';
+
+/** Set a day's work flag + default times if turning on */
+const setDayWork = (
+  form: UseFormReturn<z.infer<typeof EMHOURS_SCHEMA>>,
+  day: Weekday | ScheduleDay,
+  checked: boolean,
+) => {
+  form.setValue(`onlineHours.${day}.work` as never, checked as never);
+  if (checked) {
+    form.setValue(`onlineHours.${day}.from` as never, DEFAULT_FROM as never);
+    form.setValue(`onlineHours.${day}.to` as never, DEFAULT_TO as never);
+  }
+};
+
 export const EMHoursTimeTable = ({
   form,
 }: {
@@ -216,6 +243,38 @@ export const EMHoursTimeTable = ({
     control: form.control,
     name: 'availabilityMethod',
   });
+
+  // Watch all individual days to derive group states
+  const onlineHours = useWatch({ control: form.control, name: 'onlineHours' });
+
+  const isDayOn = (day: Weekday | ScheduleDay) => !!onlineHours?.[day]?.work;
+
+  const allOn = ALL_DAYS.every(isDayOn);
+  const weekdaysOn = WEEKDAYS.every(isDayOn);
+  const weekendOn = WEEKEND_DAYS.every(isDayOn);
+
+  /** Recomputes and syncs the three group keys based on current day states */
+  const syncGroupKeys = (updatedDay?: Weekday | ScheduleDay, updatedValue?: boolean) => {
+    const isOn = (day: Weekday | ScheduleDay) =>
+      day === updatedDay ? (updatedValue ?? isDayOn(day)) : isDayOn(day);
+
+    const nextAllOn = ALL_DAYS.every(isOn);
+    const nextWeekdaysOn = WEEKDAYS.every(isOn);
+    const nextWeekendOn = WEEKEND_DAYS.every(isOn);
+
+    form.setValue(
+      `onlineHours.${ScheduleDay.DAILY}.work` as never,
+      nextAllOn as never,
+    );
+    form.setValue(
+      `onlineHours.${ScheduleDay.WEEKDAY}.work` as never,
+      nextWeekdaysOn as never,
+    );
+    form.setValue(
+      `onlineHours.${ScheduleDay.WEEKEND}.work` as never,
+      nextWeekendOn as never,
+    );
+  };
 
   if (availabilityMethod === 'manual') {
     return (
@@ -244,7 +303,67 @@ export const EMHoursTimeTable = ({
 
   return (
     <ScrollArea className="w-full ">
-      {Object.values({ ...Weekday, ...ScheduleDay }).map((day, index) => (
+      {/* ── Group quick-selectors ─────────────────────────────── */}
+      {(
+        [
+          {
+            key: ScheduleDay.DAILY,
+            label: 'Everyday',
+            days: ALL_DAYS,
+            checked: allOn,
+          },
+          {
+            key: ScheduleDay.WEEKDAY,
+            label: 'Weekdays',
+            days: WEEKDAYS,
+            checked: weekdaysOn,
+          },
+          {
+            key: ScheduleDay.WEEKEND,
+            label: 'Weekend',
+            days: WEEKEND_DAYS,
+            checked: weekendOn,
+          },
+        ] as const
+      ).map(({ key, label, days, checked }) => (
+        <div
+          key={key}
+          className="flex items-center border-b gap-3 py-3 px-1"
+        >
+          <Switch
+            checked={checked}
+            onCheckedChange={(value) => {
+              // Fan-out to individual days
+              (days as readonly (Weekday | ScheduleDay)[]).forEach((day) =>
+                setDayWork(form, day, value),
+              );
+              // Re-sync the other group keys
+              syncGroupKeys();
+              // Set this group key itself
+              form.setValue(
+                `onlineHours.${key}.work` as never,
+                value as never,
+              );
+            }}
+          />
+          <span
+            className={cn(
+              'font-semibold capitalize leading-7 min-w-20',
+              checked && 'mr-auto',
+            )}
+          >
+            {label}
+          </span>
+          {!checked && (
+            <span className="text-sm text-accent-foreground">
+              Not working on {label.toLowerCase()}
+            </span>
+          )}
+        </div>
+      ))}
+
+      {/* ── Individual day rows ───────────────────────────────── */}
+      {ALL_DAYS.map((day, index) => (
         <Form.Field
           name={`onlineHours.${day}.work`}
           key={index}
@@ -258,13 +377,15 @@ export const EMHoursTimeTable = ({
                     if (checked) {
                       form.setValue(
                         `onlineHours.${day}.from`,
-                        '09:00:00' as never,
+                        DEFAULT_FROM as never,
                       );
                       form.setValue(
                         `onlineHours.${day}.to`,
-                        '18:00:00' as never,
+                        DEFAULT_TO as never,
                       );
                     }
+                    // Sync group keys after updating this day
+                    syncGroupKeys(day, checked);
                   }}
                 />
               </Form.Control>

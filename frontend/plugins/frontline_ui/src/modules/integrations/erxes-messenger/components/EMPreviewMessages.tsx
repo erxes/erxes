@@ -10,6 +10,7 @@ import { useAtomValue } from 'jotai';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupGreetingAtom,
+  erxesMessengerSetupHoursAtom,
   erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
