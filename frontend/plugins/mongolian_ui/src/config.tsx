@@ -92,7 +92,7 @@ export const CONFIG: IUIConfig = {
     {
       name: 'msdynamic',
       icon: IconSandbox,
-      path: 'mongolian/msdynamic',
+      path: 'mongolian/msdynamic/',
     },
   ],
 };

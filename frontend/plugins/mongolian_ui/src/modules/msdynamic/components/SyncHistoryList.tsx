@@ -1,6 +1,4 @@
-import React from 'react';
 import dayjs from 'dayjs';
-
 import { Sidebar } from 'erxes-ui/components/sidebar';
 import { Table } from 'erxes-ui/components/table';
 
@@ -22,64 +20,68 @@ const SyncHistoryList = ({
   const hasData = syncHistories.length > 0;
 
   return (
-    <div className="flex h-full w-full bg-white">
-      {/* Sidebar */}
-      <Sidebar className="w-72 border-r bg-gray-50">
-        <SideBar queryParams={queryParams} />
-      </Sidebar>
+    <Sidebar.Inset>
+      <div className="flex h-full">
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col p-6">
-        {/* Header */}
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">
-            Sync Histories ({totalCount})
-          </h2>
+        {/* Filter sidebar */}
+        <div className="w-72 border-r bg-muted/20">
+          <SideBar queryParams={queryParams} />
         </div>
 
-        {/* Table OR Empty */}
-        <div className="flex-1 border rounded-lg overflow-hidden bg-white">
-          {hasData ? (
-            <Table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>User</th>
-                  <th>Content Type</th>
-                  <th>Content</th>
-                  <th>Error</th>
-                </tr>
-              </thead>
+        {/* Main */}
+        <div className="flex-1 p-6 flex flex-col">
 
-              <tbody>
-                {syncHistories.map((item) => (
-                  <tr key={item._id} className="hover:bg-muted cursor-pointer">
-                    <td>{dayjs(item.createdAt).format('lll')}</td>
-                    <td>{item.createdUser?.email}</td>
-                    <td>{item.contentType}</td>
-                    <td>{item.content}</td>
-                    <td className="text-red-500">{item.error || ''}</td>
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold">
+              Sync Histories ({totalCount})
+            </h2>
+          </div>
+
+          <div className="flex-1 border rounded-lg overflow-hidden">
+            {hasData ? (
+              <Table>
+                <thead className="border-b bg-muted/40">
+                  <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Content Type</th>
+                    <th>Content</th>
+                    <th>Error</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full py-24 text-gray-400">
-              <img
-                src="/images/empty-state.svg"
-                alt="empty"
-                className="w-64 mb-4 opacity-80"
-              />
-              <p>There is no data</p>
+                </thead>
+
+                <tbody>
+                  {syncHistories.map((item) => (
+                    <tr key={item._id} className="hover:bg-muted cursor-pointer">
+                      <td>{dayjs(item.createdAt).format('lll')}</td>
+                      <td>{item.createdUser?.email}</td>
+                      <td>{item.contentType}</td>
+                      <td>{item.content}</td>
+                      <td className="text-red-500">{item.error || ''}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
+                <img
+                  src="/images/actions/8.svg"
+                  className="w-56 opacity-70 mb-4"
+                />
+                <p>There is no data</p>
+              </div>
+            )}
+          </div>
+
+          {loading && (
+            <div className="text-sm text-muted-foreground mt-4">
+              Loading...
             </div>
           )}
-        </div>
 
-        {loading && (
-          <div className="text-sm text-gray-400 mt-4">Loading...</div>
-        )}
+        </div>
       </div>
-    </div>
+    </Sidebar.Inset>
   );
 };
 

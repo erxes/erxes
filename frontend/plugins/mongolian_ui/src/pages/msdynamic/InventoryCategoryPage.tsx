@@ -1,11 +1,17 @@
 import { useLocation } from 'react-router-dom';
 import InventoryCategoryContainer from '@/msdynamic/containers/InventoryCategory';
+import MsdynamicTopNav from '@/msdynamic/components/MsdynamicTopNav';
 
 export const InventoryCategoryPage = () => {
   const location = useLocation();
   const queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
-  return <InventoryCategoryContainer queryParams={queryParams} />;
+  return (
+    <>
+      <MsdynamicTopNav />
+      <InventoryCategoryContainer queryParams={queryParams} />
+    </>
+  );
 };
 
 export default InventoryCategoryPage;

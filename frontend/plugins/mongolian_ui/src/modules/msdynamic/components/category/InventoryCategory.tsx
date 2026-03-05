@@ -104,28 +104,28 @@ const InventoryCategory = ({
       {/* Top Filters */}
       <Card className="p-4 flex justify-end gap-4 items-center">
         <Select
-          value={queryParams.categoryId || ''}
-          onValueChange={(val) => setCategory(val)}
+          value={queryParams.categoryId || 'all'}
+          onValueChange={(val) => setCategory(val === 'all' ? '' : val)}
         >
           <Select.Trigger className="w-56">
             <Select.Value placeholder="Choose product category" />
           </Select.Trigger>
 
           <Select.Content>
-            <Select.Item value="">All categories</Select.Item>
+            <Select.Item value="all">All categories</Select.Item>
           </Select.Content>
         </Select>
 
         <Select
-          value={queryParams.brandId || ''}
-          onValueChange={(val) => setBrand(val)}
+          value={queryParams.brandId || 'none'}
+          onValueChange={(val) => setBrand(val === 'none' ? '' : val)}
         >
           <Select.Trigger className="w-56">
             <Select.Value placeholder="Choose brands" />
           </Select.Trigger>
 
           <Select.Content>
-            <Select.Item value="">No brand</Select.Item>
+            <Select.Item value="none">No brand</Select.Item>
           </Select.Content>
         </Select>
 
