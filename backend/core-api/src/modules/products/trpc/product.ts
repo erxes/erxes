@@ -35,7 +35,9 @@ const applyPipelineFilter = async ({
   }
 
   const allowedCategoryIds = (
-    await models.ProductCategories.getChildCategories(pipeline.initialCategoryIds)
+    await models.ProductCategories.getChildCategories(
+      pipeline.initialCategoryIds,
+    )
   ).map((category) => category._id);
 
   if (!allowedCategoryIds.length) {
