@@ -71,6 +71,25 @@ export const inputs = `
   }
 
   input WebInput {
+    clientPortalId: String
+    name: String!
+    description: String
+    keywords: [String]
+    domain: String
+    copyright: String
+    logo: AttachmentInput
+    favicon: AttachmentInput
+    thumbnail: AttachmentInput
+    appearances: AppearancesInput
+    templateId: String
+    templateType: String
+    erxesAppToken: String
+    externalLinks: JSON
+    integrations: IntegrationsInput
+    environmentVariables: [EnvironmentVariableInput]
+  }
+
+    input WebCreateInput {
     clientPortalId: String!
     name: String!
     description: String
@@ -100,7 +119,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  createWeb(doc: WebInput!): Web
+  createWeb(doc: WebCreateInput!): Web
   editWeb(_id: String!, doc: WebInput!): Web
   removeWeb(_id: String!): Web
   

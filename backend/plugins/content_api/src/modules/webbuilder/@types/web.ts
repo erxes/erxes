@@ -24,7 +24,7 @@ export type EnvironmentVariable = {
 };
 
 export interface IWeb {
-  clientPortalId: string;
+  clientPortalId?: string;
   name: string;
   description?: string;
   keywords?: string[];
