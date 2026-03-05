@@ -41,8 +41,7 @@ export const IntegrationsRecordTable = () => {
             </div>
           </Empty.Media>
           <Empty.Title>
-            No{' '}
-            {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}{' '}
+            No {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}{' '}
             found
           </Empty.Title>
           <Empty.Description>
