@@ -68,6 +68,8 @@ export const mutations = `
   invoiceUpdate(_id: String!, input: InvoiceInput!): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
+
+  cpInvoiceCreate(input: InvoiceInput!): Invoice
 `;
 
 const cursorParams = `
