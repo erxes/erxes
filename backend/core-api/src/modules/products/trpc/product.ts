@@ -1,9 +1,64 @@
 import { initTRPC } from '@trpc/server';
-import { escapeRegExp } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
+
+const applyPipelineFilter = async ({
+  models,
+  subdomain,
+  query,
+  pipelineId,
+}: {
+  models: any;
+  subdomain: string;
+  query: any;
+  pipelineId?: string;
+}) => {
+  if (!pipelineId) {
+    return true;
+  }
+
+  const pipeline = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'sales',
+    method: 'query',
+    module: 'pipeline',
+    action: 'findOne',
+    input: { _id: pipelineId },
+    defaultValue: {},
+  });
+
+  if (!pipeline?.initialCategoryIds?.length) {
+    return true;
+  }
+
+  const allowedCategoryIds = (
+    await models.ProductCategories.getChildCategories(
+      pipeline.initialCategoryIds,
+    )
+  ).map((category) => category._id);
+
+  if (!allowedCategoryIds.length) {
+    return false;
+  }
+
+  if (Array.isArray(query?.categoryId?.$in)) {
+    const allowedSet = new Set(allowedCategoryIds);
+    query.categoryId = {
+      $in: query.categoryId.$in.filter((id) => allowedSet.has(id)),
+    };
+
+    if (!query.categoryId.$in.length) {
+      return false;
+    }
+  } else {
+    query.categoryId = { $in: allowedCategoryIds };
+  }
+
+  return true;
+};
 
 export const productsTrpcRouter = t.router({
   products: t.router({
@@ -14,32 +69,12 @@ export const productsTrpcRouter = t.router({
         skip,
         limit,
         categoryId,
-        categoryIds,
+        pipelineId,
         fields,
       } = input;
 
-      const { models } = ctx;
-
+      const { models, subdomain } = ctx;
       const query = rawQuery || {};
-
-      if (categoryIds?.length) {
-        const categories = await models.ProductCategories.find({
-          _id: { $in: categoryIds },
-        }).lean();
-
-        const orderQry: any[] = categories.map((category: any) => ({
-          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
-        }));
-
-        const categoriesWithChildren = await models.ProductCategories.find({
-          status: { $nin: ['disabled', 'archived'] },
-          $or: orderQry,
-        }).lean();
-
-        query.categoryId = {
-          $in: categoriesWithChildren.map((category: any) => category._id),
-        };
-      }
 
       if (categoryId) {
         const category = await models.ProductCategories.findOne({
@@ -55,6 +90,17 @@ export const productsTrpcRouter = t.router({
         }).lean();
 
         query.categoryId = { $in: categories.map((c) => c._id) };
+      }
+
+      const isPipelineValid = await applyPipelineFilter({
+        models,
+        subdomain,
+        query,
+        pipelineId,
+      });
+
+      if (!isPipelineValid) {
+        return [];
       }
 
       return models.Products.find(query, fields || {})
@@ -108,23 +154,35 @@ export const productsTrpcRouter = t.router({
       }),
 
     count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query: rawQuery, categoryId } = input;
-      const { models } = ctx;
-
+      const { query: rawQuery, categoryId, pipelineId } = input;
+      const { models, subdomain } = ctx;
       const query = rawQuery || {};
 
       if (categoryId) {
         const category = await models.ProductCategories.findOne({
           _id: categoryId,
         }).lean();
+
         if (!category) {
           throw new Error(`ProductCategory ${categoryId} not found`);
         }
+
         const categories = await models.ProductCategories.find({
           order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
         }).lean();
 
         query.categoryId = { $in: categories.map((c) => c._id) };
+      }
+
+      const isPipelineValid = await applyPipelineFilter({
+        models,
+        subdomain,
+        query,
+        pipelineId,
+      });
+
+      if (!isPipelineValid) {
+        return 0;
       }
 
       return models.Products.find(query).countDocuments();
