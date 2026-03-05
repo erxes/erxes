@@ -12,14 +12,7 @@ export const start = async (
   subdomain: string,
   data: IEmailParams,
 ) => {
-  const {
-    engageMessageId,
-    customers = [],
-    createdBy,
-    title,
-    fromEmail,
-    email,
-  } = data;
+  const { engageMessageId, customers = [], createdBy, fromEmail, email } = data;
 
   const configs = await getConfigs(models);
 

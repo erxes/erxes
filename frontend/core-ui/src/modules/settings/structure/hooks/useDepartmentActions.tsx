@@ -53,7 +53,7 @@ export function useDepartmentAdd(
           },
         });
       } catch (e) {
-        // Error handled silently
+        // Silently handle cache update errors
       }
     },
     refetchQueries: ['Departments'],
@@ -98,11 +98,8 @@ export function useDepartmentEdit(
           },
         });
       } catch (e) {
-        // Error handled silently
+        // Silently handle cache update errors
       }
-    },
-  });
-}
     },
   });
 
