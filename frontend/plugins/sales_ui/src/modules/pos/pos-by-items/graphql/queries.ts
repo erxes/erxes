@@ -4,6 +4,7 @@ export const POS_BY_ITEMS_QUERY = gql`
   query PosProducts(
     $page: Int
     $perPage: Int
+    $limit: Int
     $sortField: String
     $sortDirection: Int
     $search: String
@@ -28,6 +29,7 @@ export const POS_BY_ITEMS_QUERY = gql`
     posProducts(
       page: $page
       perPage: $perPage
+      limit: $limit
       sortField: $sortField
       sortDirection: $sortDirection
       search: $search

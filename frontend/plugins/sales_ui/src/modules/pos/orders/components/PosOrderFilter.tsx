@@ -25,14 +25,12 @@ import { usePosOrderLeadSessionKey } from '../hooks/usePosOrderLeadSessionKey';
 import { PosOrderTotalCount } from './PosOrderTotalCount';
 import { PosOrderHotKeyScope } from '../types/path/PosOrderHotKeyScope';
 import { useState } from 'react';
-import { SelectPos } from './selects/SelectPos';
 import { SelectTypes } from './selects/SelectTypes';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectExcludeStatus } from './selects/SelectExcludeStatus';
 export const PosOrderFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     number: string;
-    pos: string;
     types: string;
     user: string;
     status: string;
@@ -42,7 +40,6 @@ export const PosOrderFilterPopover = () => {
     createdDateRange: string;
   }>([
     'number',
-    'pos',
     'types',
     'status',
     'user',
@@ -86,10 +83,6 @@ export const PosOrderFilterPopover = () => {
                 <Filter.Item value="user">
                   <IconUser />
                   Assign to
-                </Filter.Item>
-                <Filter.Item value="pos">
-                  <IconCashRegister />
-                  POS
                 </Filter.Item>
                 <Filter.Item value="types">
                   <IconTag />
@@ -153,9 +146,6 @@ export const PosOrderFilterPopover = () => {
             </SelectMember.Provider>
           </Filter.View>
 
-          <Filter.View filterKey="pos">
-            <SelectPos.FilterView />
-          </Filter.View>
           <Filter.View filterKey="types">
             <SelectTypes.FilterView />
           </Filter.View>
@@ -298,7 +288,6 @@ export const PosOrderFilter = () => {
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
 
-        <SelectPos.FilterBar />
         <SelectTypes.FilterBar />
         <SelectStatus.FilterBar />
         <SelectExcludeStatus.FilterBar />

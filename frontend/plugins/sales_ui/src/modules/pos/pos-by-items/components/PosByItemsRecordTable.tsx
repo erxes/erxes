@@ -18,7 +18,7 @@ export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
         hasPreviousPage={pageInfo?.hasPreviousPage}
         hasNextPage={pageInfo?.hasNextPage}
         dataLength={posByItemsList?.length}
-        sessionKey="posByItems_cursor"
+        sessionKey="pos_by_items_cursor"
       >
         <RecordTable>
           <RecordTable.Header />

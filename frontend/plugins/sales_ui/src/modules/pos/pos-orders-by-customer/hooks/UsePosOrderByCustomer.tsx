@@ -9,12 +9,7 @@ export const usePosOrderByCustomerList = (options: { posId?: string } = {}) => {
   const variables: any = {
     perPage: POS_PER_PAGE,
     ...otherOptions,
-    posId,
   };
-
-  if (posId) {
-    variables.posId = posId;
-  }
 
   const { data, loading, fetchMore } = useQuery(
     queries.POS_ORDERS_BY_CUSTOMER,

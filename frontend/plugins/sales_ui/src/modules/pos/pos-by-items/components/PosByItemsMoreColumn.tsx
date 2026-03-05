@@ -36,5 +36,5 @@ export const PosByItemsMoreColumnCell = ({
 export const PosByItemsMoreColumn = {
   id: 'more',
   cell: PosByItemsMoreColumnCell,
-  size: 33,
+  size: 25,
 };

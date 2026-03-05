@@ -24,7 +24,6 @@ import { usePosByItemsLeadSessionKey } from '../hooks/usePosByItemsLeadSessionKe
 import { PosByItemsTotalCount } from './PosByItemsTotalCount';
 import { PosByItemsHotKeyScope } from '../types/path/PosByItemsHotKeyScope';
 import { useState } from 'react';
-import { SelectPos } from './selects/SelectPos';
 import { SelectTypes } from './selects/SelectTypes';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectExcludeStatus } from './selects/SelectExcludeStatus';
@@ -87,10 +86,6 @@ export const PosByItemsFilterPopover = () => {
                   <IconUser />
                   Assign to
                 </Filter.Item>
-                <Filter.Item value="pos">
-                  <IconCashRegister />
-                  POS
-                </Filter.Item>
                 <Filter.Item value="types">
                   <IconTag />
                   Types
@@ -150,9 +145,6 @@ export const PosByItemsFilterPopover = () => {
             >
               <SelectMember.Content />
             </SelectMember.Provider>
-          </Filter.View>
-          <Filter.View filterKey="pos">
-            <SelectPos.FilterView />
           </Filter.View>
           <Filter.View filterKey="types">
             <SelectTypes.FilterView />
@@ -295,8 +287,6 @@ export const PosByItemsFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
-
-        <SelectPos.FilterBar />
         <SelectTypes.FilterBar />
         <SelectStatus.FilterBar />
         <SelectExcludeStatus.FilterBar />

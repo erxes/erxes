@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Collapsible,
@@ -124,20 +124,21 @@ function PosItem({ pos }: posItemProps) {
 }
 
 export function PosOrderNavigation() {
-  const location = useLocation();
   const currentUser = useAtomValue(currentUserState);
   const { pos, loading } = useGetPos({
     variables: { userId: currentUser?._id },
   });
-  const isPos = location.pathname.startsWith('/sales/pos');
 
-  if (!isPos) return null;
   return (
     <NavigationMenuGroup name="POS order">
       {loading ? (
         <LoadingSkeleton />
       ) : (
-        pos?.map((pos) => <PosItem key={pos._id} pos={pos} />)
+        <div>
+          {pos?.map((pos) => (
+            <PosItem key={pos._id} pos={pos} />
+          ))}
+        </div>
       )}
     </NavigationMenuGroup>
   );

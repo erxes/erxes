@@ -3,6 +3,7 @@ import { useCoversList } from '@/pos/pos-covers/hooks/UseCoversList';
 import { coverColumns } from '@/pos/pos-covers/components/CoverColumns';
 import { useIsPosCoverLeadSessionKey } from '@/pos/pos-covers/hooks/UsePosCoverLeadSessionKey';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { PosCoverCommandBar } from './pos-cover-command-bar/PosCoverCommandbar';
 
 export const CoversRecordTable = () => {
   const { coversList, handleFetchMore, loading, pageInfo } = useCoversList();
@@ -50,6 +51,7 @@ export const CoversRecordTable = () => {
           </div>
         )}
       </RecordTable.CursorProvider>
+      <PosCoverCommandBar />
     </RecordTable.Provider>
   );
 };

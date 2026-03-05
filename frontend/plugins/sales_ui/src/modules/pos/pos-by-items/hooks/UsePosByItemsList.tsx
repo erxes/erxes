@@ -77,7 +77,7 @@ export const usePosByItemsVariables = (
 
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
+    posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
       if (searchValue) searchParts.push(searchValue);
@@ -86,7 +86,6 @@ export const usePosByItemsVariables = (
     })(),
     customerId: customerIdValue,
     userId: user || undefined,
-    posId: pos || undefined,
     types: types && types !== 'all' ? [types] : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
@@ -103,20 +102,24 @@ export const usePosByItemsList = (
   options: UsePosByItemsListOptions = {},
 ): UsePosByItemsListReturn => {
   const variables = usePosByItemsVariables(options);
+  console.log('UsePosByItemsList - variables:', variables);
   const setPosByItemsTotalCount = useSetAtom(posByItemsTotalCountAtom);
   const { data, loading, fetchMore } = useQuery(POS_BY_ITEMS_QUERY, {
-    variables,
+    variables: {
+      ...variables,
+      page: 1,
+      limit: 30,
+    },
   });
 
-  const posByItemsList = useMemo<IProduct[]>(
-    () => data?.posProducts?.products || [],
-    [data?.posProducts?.products],
-  );
+  const posByItemsList = useMemo<IProduct[]>(() => {
+    const products = data?.posProducts?.products || [];
+    console.log('UsePosByItemsList - data:', data);
+    console.log('UsePosByItemsList - products length:', products.length);
+    return products;
+  }, [data]);
 
-  const totalCount = useMemo(
-    () => data?.posProducts?.totalCount || 0,
-    [data?.posProducts?.totalCount],
-  );
+  const totalCount = useMemo(() => data?.posProducts?.totalCount || 0, [data]);
 
   const handleFetchMore = useCallback(() => {
     if (!data?.posProducts) return;
@@ -126,6 +129,7 @@ export const usePosByItemsList = (
         ...variables,
         page: Math.ceil(posByItemsList.length / POS_PER_PAGE) + 1,
         perPage: POS_PER_PAGE,
+        limit: 30,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult?.posProducts) {

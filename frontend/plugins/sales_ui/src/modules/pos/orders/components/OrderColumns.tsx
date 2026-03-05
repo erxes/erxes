@@ -19,21 +19,19 @@ import {
 
 import { IOrder } from '@/pos/types/order';
 import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
+import { ClickableBillNumber } from './ClickableBillNumber';
 
 export const orderColumns: ColumnDef<IOrder>[] = [
   ordersMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IOrder>,
   {
     id: 'number',
     accessorKey: 'number',
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label="Bill Number" />
     ),
-    cell: ({ cell }) => {
+    cell: ({ cell, row }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <ClickableBillNumber value={cell.getValue() as string} row={row} />
       );
     },
   },
@@ -65,6 +63,7 @@ export const orderColumns: ColumnDef<IOrder>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 120,
   },
   {
     id: 'mobileAmount',
@@ -82,9 +81,9 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
   },
   {
-    id: 'undefined',
-    accessorKey: 'undefined',
-    header: () => <RecordTable.InlineHead icon={IconClock} label="Undefined" />,
+    id: 'loyalty',
+    accessorKey: 'loyalty',
+    header: () => <RecordTable.InlineHead icon={IconClock} label="Loyalty" />,
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -95,13 +94,16 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
   },
   {
-    id: 'paidAmounts.amount',
-    accessorKey: 'paidAmounts.amount',
-    header: () => <RecordTable.InlineHead icon={IconClock} label="Loyalty" />,
+    id: 'paidAmounts',
+    accessorKey: 'paidAmounts',
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label="Paid Amounts" />
+    ),
     cell: ({ cell }) => {
+      const value = cell.getValue() as any;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={JSON.stringify(value)} />
         </RecordTableInlineCell>
       );
     },
@@ -127,10 +129,11 @@ export const orderColumns: ColumnDef<IOrder>[] = [
       const value = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value || 'N/A'} />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
+    size: 120,
   },
   {
     id: 'posName',
@@ -143,6 +146,7 @@ export const orderColumns: ColumnDef<IOrder>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 80,
   },
   {
     id: 'type',
@@ -155,29 +159,20 @@ export const orderColumns: ColumnDef<IOrder>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 80,
   },
   {
-    id: 'user.username',
-    accessorKey: 'user.username',
+    id: 'user',
+    accessorKey: 'user',
     header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
     cell: ({ cell }) => {
+      const user = cell.getValue() as any;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={user?.username || ''} />
         </RecordTableInlineCell>
       );
     },
-  },
-  {
-    id: 'actions',
-    accessorKey: 'actions',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Actions" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    size: 120,
   },
 ];
