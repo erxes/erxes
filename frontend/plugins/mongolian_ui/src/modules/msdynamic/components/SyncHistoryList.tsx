@@ -22,7 +22,6 @@ const SyncHistoryList = ({
   return (
     <Sidebar.Inset>
       <div className="flex h-full">
-
         {/* Filter sidebar */}
         <div className="w-72 border-r bg-muted/20">
           <SideBar queryParams={queryParams} />
@@ -30,7 +29,6 @@ const SyncHistoryList = ({
 
         {/* Main */}
         <div className="flex-1 p-6 flex flex-col">
-
           <div className="mb-4">
             <h2 className="text-xl font-semibold">
               Sync Histories ({totalCount})
@@ -52,7 +50,10 @@ const SyncHistoryList = ({
 
                 <tbody>
                   {syncHistories.map((item) => (
-                    <tr key={item._id} className="hover:bg-muted cursor-pointer">
+                    <tr
+                      key={item._id}
+                      className="hover:bg-muted cursor-pointer"
+                    >
                       <td>{dayjs(item.createdAt).format('lll')}</td>
                       <td>{item.createdUser?.email}</td>
                       <td>{item.contentType}</td>
@@ -74,11 +75,8 @@ const SyncHistoryList = ({
           </div>
 
           {loading && (
-            <div className="text-sm text-muted-foreground mt-4">
-              Loading...
-            </div>
+            <div className="text-sm text-muted-foreground mt-4">Loading...</div>
           )}
-
         </div>
       </div>
     </Sidebar.Inset>

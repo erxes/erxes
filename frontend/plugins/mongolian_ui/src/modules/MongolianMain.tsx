@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { CheckCategoryPage } from '~/pages/CheckCategoryPage';
 import { CheckPosOrdersPage } from '~/pages/CheckPosOrdersPage';
 import { CheckProductsPage } from '~/pages/CheckProductsPage';
@@ -15,7 +15,6 @@ import { InventoryPricePage } from '~/pages/msdynamic/InventoryPricePage';
 import { CheckSyncedOrdersPage } from '~/pages/msdynamic/CheckSyncedOrdersPage';
 import { SyncHistoryListPage } from '~/pages/msdynamic/SyncHistoryPage';
 import { PosOrderDetailsPage } from '~/pages/msdynamic/PosOrderDetailsPage';
-
 
 const MongolianMain = () => {
   return (
