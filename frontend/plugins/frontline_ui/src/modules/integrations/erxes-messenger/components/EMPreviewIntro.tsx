@@ -2,7 +2,13 @@ import {
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupHoursAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { Avatar, Button, formatTimeZoneLabel, Popover, readImage } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  formatTimeZoneLabel,
+  Popover,
+  readImage,
+} from 'erxes-ui';
 import { MembersInline, useMembersInlineContext } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { EMGreetingAvatar } from '@/integrations/erxes-messenger/components/EMGreeting';
@@ -19,7 +25,11 @@ export const ActiveUsers = () => {
   return (
     <div className="flex items-center -space-x-2">
       {members.slice(0, MAX_COUNT).map((member) => (
-        <Avatar key={member._id} size="xl" className='border-2 border-transparent'>
+        <Avatar
+          key={member._id}
+          size="xl"
+          className="border-2 border-transparent"
+        >
           <Avatar.Image src={readImage(member.details?.avatar || '', 200)} />
           <Avatar.Fallback>
             {member.details?.fullName?.charAt(0) || ''}
@@ -27,10 +37,8 @@ export const ActiveUsers = () => {
         </Avatar>
       ))}
       {extraCount > 0 && (
-        <Avatar size="xl" className='border-2 border-transparent'>
-          <Avatar.Fallback>
-            {'+' + extraCount}
-          </Avatar.Fallback>
+        <Avatar size="xl" className="border-2 border-transparent">
+          <Avatar.Fallback>{'+' + extraCount}</Avatar.Fallback>
         </Avatar>
       )}
     </div>
@@ -42,7 +50,12 @@ export const EMPreviewIntro = () => {
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
 
   const formatScheduleDays = (
-    obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean; from?: string; to?: string }>>,
+    obj: Partial<
+      Record<
+        Weekday | ScheduleDay,
+        { work?: boolean; from?: string; to?: string }
+      >
+    >,
   ): string => {
     // Only look at individual weekday keys, not the group synthetic keys
     const WEEKDAY_VALUES = new Set<string>(Object.values(Weekday));
@@ -64,7 +77,8 @@ export const EMPreviewIntro = () => {
     const allDays = [...allWeekdays, ...weekend];
 
     const hasAll = (set: Weekday[]) =>
-      set.every((d) => activeDays.includes(d)) && activeDays.length === set.length;
+      set.every((d) => activeDays.includes(d)) &&
+      activeDays.length === set.length;
 
     if (hasAll(allDays)) return 'Everyday';
     if (hasAll(allWeekdays)) return 'Monday – Friday';
@@ -81,11 +95,17 @@ export const EMPreviewIntro = () => {
     format(parse(raw, 'HH:mm:ss', new Date()), 'h:mm aa').toLowerCase();
 
   const getFirstActiveTime = (
-    obj: Partial<Record<Weekday | ScheduleDay, { work?: boolean; from?: string; to?: string }>>,
+    obj: Partial<
+      Record<
+        Weekday | ScheduleDay,
+        { work?: boolean; from?: string; to?: string }
+      >
+    >,
   ): string => {
     const WEEKDAY_VALUES = new Set<string>(Object.values(Weekday));
     const entry = Object.entries(obj).find(
-      ([key, value]) => WEEKDAY_VALUES.has(key) && value?.work && value.from && value.to,
+      ([key, value]) =>
+        WEEKDAY_VALUES.has(key) && value?.work && value.from && value.to,
     );
     if (!entry) return '9:00 am – 5:00 pm';
     return `${formatTime(entry[1].from!)} – ${formatTime(entry[1].to!)}`;
@@ -100,21 +120,23 @@ export const EMPreviewIntro = () => {
         <p className="text-sm text-foreground/80">
           {greeting?.message || 'Welcome to Erxes Messenger'}
         </p>
-        {
-          hours?.availabilityMethod === 'manual' ? (
-            <p className='text-sm text-medium text-accent-foreground'>We're available between 9.00 pm and 5.00 am</p>
-          ) : (
-            <p className='text-sm text-medium text-accent-foreground'>
-              We're available between {getFirstActiveTime(hours?.onlineHours || {})}
-              {formatScheduleDays(hours?.onlineHours || {}) && `, ${formatScheduleDays(hours?.onlineHours || {})}`}
-            </p>
-          )
-        }
-        {
-          hours?.displayOperatorTimezone && (
-            <p className='text-sm text-medium text-accent-foreground'>{formatTimeZoneLabel(hours?.timezone as string) || 'UTC'}</p>
-          )
-        }
+        {hours?.availabilityMethod === 'manual' ? (
+          <p className="text-sm text-medium text-accent-foreground">
+            We're available between 9.00 pm and 5.00 am
+          </p>
+        ) : (
+          <p className="text-sm text-medium text-accent-foreground">
+            We're available between{' '}
+            {getFirstActiveTime(hours?.onlineHours || {})}
+            {formatScheduleDays(hours?.onlineHours || {}) &&
+              `, ${formatScheduleDays(hours?.onlineHours || {})}`}
+          </p>
+        )}
+        {hours?.displayOperatorTimezone && (
+          <p className="text-sm text-medium text-accent-foreground">
+            {formatTimeZoneLabel(hours?.timezone as string) || 'UTC'}
+          </p>
+        )}
         <p className="text-xs text-accent-foreground">
           Contact us for any questions or concerns.
         </p>
@@ -142,7 +164,10 @@ export const EMPreviewIntro = () => {
           <ActiveUsers />
         </MembersInline.Provider>
         <span className="text-xs text-accent-foreground">
-          Our usual reply time <span className="font-medium text-primary">(A few {hours?.responseRate || 'minutes'})</span>
+          Our usual reply time{' '}
+          <span className="font-medium text-primary">
+            (A few {hours?.responseRate || 'minutes'})
+          </span>
         </span>
       </div>
       <div className="mt-auto">

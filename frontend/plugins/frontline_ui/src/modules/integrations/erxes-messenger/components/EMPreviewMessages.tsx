@@ -75,7 +75,6 @@ export const EMPreviewMessages = () => {
         </div>
       </div>
       <div className="p-4 flex-auto gap-2 flex flex-col justify-end">
-
         <div className="flex items-start self-end text-right gap-2 flex-row-reverse max-w-2/3 text-xs text-accent-foreground">
           {intro?.welcome}
         </div>
@@ -91,7 +90,9 @@ export const EMPreviewMessages = () => {
             variant="secondary"
             className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
           >
-            <p className='wrap-break-word'>{config?.botSetup?.greetingMessage || "Hi, any questions?"}</p>
+            <p className="wrap-break-word">
+              {config?.botSetup?.greetingMessage || 'Hi, any questions?'}
+            </p>
             <div className="text-accent-foreground">few minutes ago</div>
           </Button>
         </div>

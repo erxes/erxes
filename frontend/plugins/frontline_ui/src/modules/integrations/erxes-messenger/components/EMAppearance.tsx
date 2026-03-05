@@ -105,7 +105,8 @@ export const EMAppearance = () => {
                       <Upload.RemoveButton
                         size="sm"
                         variant="outline"
-                        type="button" />
+                        type="button"
+                      />
                     </Upload.Root>
                   </Form.Control>
                   <Form.Message />

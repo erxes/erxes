@@ -13,7 +13,10 @@ import {
 import { EMLayout, EMLayoutPreviousStepButton } from './EMLayout';
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { EMHOURS_SCHEMA, ScheduleDay } from '@/integrations/erxes-messenger/constants/emHoursSchema';
+import {
+  EMHOURS_SCHEMA,
+  ScheduleDay,
+} from '@/integrations/erxes-messenger/constants/emHoursSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parseTime } from '@internationalized/date';
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
@@ -254,7 +257,10 @@ export const EMHoursTimeTable = ({
   const weekendOn = WEEKEND_DAYS.every(isDayOn);
 
   /** Recomputes and syncs the three group keys based on current day states */
-  const syncGroupKeys = (updatedDay?: Weekday | ScheduleDay, updatedValue?: boolean) => {
+  const syncGroupKeys = (
+    updatedDay?: Weekday | ScheduleDay,
+    updatedValue?: boolean,
+  ) => {
     const isOn = (day: Weekday | ScheduleDay) =>
       day === updatedDay ? (updatedValue ?? isDayOn(day)) : isDayOn(day);
 
@@ -326,10 +332,7 @@ export const EMHoursTimeTable = ({
           },
         ] as const
       ).map(({ key, label, days, checked }) => (
-        <div
-          key={key}
-          className="flex items-center border-b gap-3 py-3 px-1"
-        >
+        <div key={key} className="flex items-center border-b gap-3 py-3 px-1">
           <Switch
             checked={checked}
             onCheckedChange={(value) => {
@@ -340,10 +343,7 @@ export const EMHoursTimeTable = ({
               // Re-sync the other group keys
               syncGroupKeys();
               // Set this group key itself
-              form.setValue(
-                `onlineHours.${key}.work` as never,
-                value as never,
-              );
+              form.setValue(`onlineHours.${key}.work` as never, value as never);
             }}
           />
           <span
@@ -406,7 +406,9 @@ export const EMHoursTimeTable = ({
                     render={({ field }) => (
                       <Form.Item>
                         <TimeField
-                          value={field.value ? safeParseTime(field.value) : null}
+                          value={
+                            field.value ? safeParseTime(field.value) : null
+                          }
                           onChange={(value) => {
                             field.onChange(value?.toString());
                           }}
@@ -426,7 +428,9 @@ export const EMHoursTimeTable = ({
                     render={({ field }) => (
                       <Form.Item>
                         <TimeField
-                          value={field.value ? safeParseTime(field.value) : null}
+                          value={
+                            field.value ? safeParseTime(field.value) : null
+                          }
                           onChange={(value) => {
                             field.onChange(value?.toString());
                           }}
