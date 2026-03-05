@@ -29,9 +29,6 @@ export const ErxesMessengerPreview = () => {
     }
   }, [integrationDetail, integrationId]);
 
-  console.log(integrationDetail);
-  console.log(appearance);
-
   useLayoutEffect(() => {
     if (
       appearance?.primary?.DEFAULT &&
