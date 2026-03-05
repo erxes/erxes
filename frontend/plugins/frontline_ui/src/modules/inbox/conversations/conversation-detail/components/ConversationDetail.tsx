@@ -36,7 +36,7 @@ export const ConversationDetail = () => {
 
   const currentConversation =
     activeConversationCandidate?._id === conversationId ||
-    activeConversationCandidate?._id === relatedConversationId
+      activeConversationCandidate?._id === relatedConversationId
       ? activeConversationCandidate
       : null;
 
