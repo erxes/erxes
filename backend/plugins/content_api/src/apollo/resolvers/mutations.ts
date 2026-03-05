@@ -8,6 +8,8 @@ import customPostTypeMutations from '@/cms/graphql/mutations/customPostType';
 import translationMutations from '@/cms/graphql/mutations/translation';
 import { webBuilderMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/web';
 import { webPageMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/webPage';
+import { webPostMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/webPosts';
+import { webMenuMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/webMenu';
 
 export const mutations = {
   ...webBuilderMutations,
@@ -19,5 +21,7 @@ export const mutations = {
   ...contentCmsPageMutations,
   ...customPostTypeMutations,
   ...translationMutations,
+  ...webPostMutations,
+  ...webMenuMutations,
   ...webPageMutations,
 };
