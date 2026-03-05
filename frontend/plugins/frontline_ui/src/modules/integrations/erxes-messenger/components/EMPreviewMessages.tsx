@@ -120,7 +120,8 @@ export const EMPreviewMessages = () => {
             className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
           >
             <p className="wrap-break-word text-wrap">
-              {intro?.away || "We've received your message and will contact you shortly."}
+              {intro?.away ||
+                "We've received your message and will contact you shortly."}
             </p>
             <div className="text-accent-foreground">few minutes ago</div>
           </Button>
@@ -139,7 +140,8 @@ export const EMPreviewMessages = () => {
             className="h-auto font-normal flex flex-col justify-start items-start text-left gap-1 p-3"
           >
             <p className="wrap-break-word text-wrap ">
-              {intro?.thank || 'Thank you for contacting us. We will get back to you as soon as possible.'}
+              {intro?.thank ||
+                'Thank you for contacting us. We will get back to you as soon as possible.'}
             </p>
             <div className="text-accent-foreground">few minutes ago</div>
           </Button>
