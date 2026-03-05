@@ -129,9 +129,9 @@ const commonPostQuerySelector = `
 `;
 
 export const queries = `
-    cpWebPost(_id: String, slug: String, language: String): WebPost
-    cpWebPosts(language: String, ${commonPostQuerySelector}): [WebPost]
-    cpWebPostList(language: String, ${commonPostQuerySelector}): WebPostList
+    cpWebPost(_id: String, slug: String, language: String, webId: String): WebPost
+    cpWebPosts(webId: String!, language: String, ${commonPostQuerySelector}): [WebPost]
+    cpWebPostList(webId: String!, language: String, ${commonPostQuerySelector}): WebPostList
     cpWebTranslations(postId: String): [WebTranslation]
 `;
 

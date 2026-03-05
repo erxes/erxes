@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getDomains, getDeploymentEvents } from '@/webbuilder/utils';
+import { getDomains, getDeploymentEvents } from '~/modules/webbuilder/utils/utils';
 
 export const webQueries: Record<string, Resolver> = {
   async getWebList(_root, _args, { models }: IContext) {

@@ -41,9 +41,9 @@ export const inputs = `
 `;
 
 export const queries = `
-    cpWebMenuList(kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [WebMenuItem]
+    cpWebMenuList(webId: String!, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [WebMenuItem]
     cpWebMenu(_id: String!, language: String): WebMenuItem
-    cpWebMenus(language: String, kind: String): [WebMenuItem]
+    cpWebMenus(webId: String!, language: String, kind: String): [WebMenuItem]
 `;
 
 export const mutations = `

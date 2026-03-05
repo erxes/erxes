@@ -38,7 +38,7 @@ import {
 import { IWebModel, loadWebClass } from '@/webbuilder/db/models/Web';
 import { IWebDocument } from '@/webbuilder/@types/web';
 import { IWebPageModel, loadWebPageClass } from '@/webbuilder/db/models/WebPage';
-import { IWebPageDocument } from '@/webbuilder/@types/page';
+import { IWebPageDocument } from '@/webbuilder/@types/webPage';
 import {
   IWebPostModel,
   loadWebPostClass,

@@ -1,6 +1,6 @@
 import { buildCustomFieldsMap } from '@/cms/utils/common';
 import { IContext } from '~/connectionResolvers';
-import { IWebPageDocument } from '@/webbuilder/@types/page';
+import { IWebPageDocument } from '@/webbuilder/@types/webPage';
 
 const WebPage = {
   async createdUser(page: any) {
