@@ -1,6 +1,6 @@
-import { IconArrowLeft } from "@tabler/icons-react";
-import { Breadcrumb, Button } from "erxes-ui";
-import { useNavigate, useParams } from "react-router-dom";
+import { IconArrowLeft } from '@tabler/icons-react';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const ChannelHeader = () => {
   const { id } = useParams<{ id: string }>();
