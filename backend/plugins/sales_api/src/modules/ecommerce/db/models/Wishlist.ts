@@ -19,12 +19,13 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
       return models.Wishlist.findOne({ _id }).lean();
     }
     public static async createWishlist(doc: IWishlist) {
-      const review = await models.Wishlist.create({
+      const wishlist = await models.Wishlist.create({
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
       });
-      return review;
+
+      return wishlist;
     }
     public static async updateWishlist(_id: string, doc: IWishlist) {
       const current = await models.Wishlist.getWishlistById(_id);

@@ -24,8 +24,8 @@ export interface ILastViewedItemModel extends Model<ILastViewedItemDocument> {
 export const loadLastViewedItemClass = (models: IModels, subdomain: string) => {
   class LastViewedItem {
     public static async getLastViewedItem(
-      customerId: string,
       productId: string,
+      customerId: string,
     ) {
       return models.LastViewedItem.findOne({ productId, customerId }).lean();
     }

@@ -37,7 +37,7 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
       });
       return review;
     }
-    public static async updateProductReview(_id: string, doc: ProductReview) {
+    public static async updateProductReview(_id: string, doc: IProductReview) {
       const current = await models.ProductReview.getProductReviewById(_id);
       if (current) {
         await models.ProductReview.updateOne(
