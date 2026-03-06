@@ -39,25 +39,12 @@ import { IWebModel, loadWebClass } from '@/webbuilder/db/models/Web';
 import { IWebDocument } from '@/webbuilder/@types/web';
 import { IWebPageModel, loadWebPageClass } from '@/webbuilder/db/models/WebPage';
 import { IWebPageDocument } from '@/webbuilder/@types/webPage';
-import {
-  IWebPostModel,
-  loadWebPostClass,
-} from '@/webbuilder/db/models/WebPosts';
-import {
-  IWebMenuItemModel,
-  loadWebMenuItemClass,
-} from '@/webbuilder/db/models/WebMenu';
-import { IWebPostDocument } from '@/webbuilder/@types/webPosts';
-import { IWebMenuItemDocument } from '@/webbuilder/@types/webMenu';
-
 export interface IModels {
   CMS: ICMSModel;
   Web: IWebModel;
   WebPages: IWebPageModel;
 
   Posts: IPostModel;
-  WebPosts: IWebPostModel;
-  WebMenuItems: IWebMenuItemModel;
   Translations: ITranslationModel;
 
   CustomPostTypes: ICustomPostTypeModel;
@@ -129,16 +116,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.WebPages = db.model<IWebPageDocument, IWebPageModel>(
     'web_pages',
     loadWebPageClass(models),
-  );
-
-  models.WebPosts = db.model<IWebPostDocument, IWebPostModel>(
-    'web_posts',
-    loadWebPostClass(models),
-  );
-
-  models.WebMenuItems = db.model<IWebMenuItemDocument, IWebMenuItemModel>(
-    'web_menu_items',
-    loadWebMenuItemClass(models),
   );
 
   return models;
