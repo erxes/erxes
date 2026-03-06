@@ -23,7 +23,7 @@ export const goalMutations = {
   async goalsEdit(_root, { _id, ...doc }: IGoalsEdit, { models }: IContext) {
     await models.Goals.updateOne(
       { _id },
-      { $unset: { specificPeriodGoals: [] } }
+      { $unset: { specificPeriodGoals: [] } },
     );
 
     const updated = await models.Goals.updateGoal(_id, doc);
@@ -37,12 +37,12 @@ export const goalMutations = {
   async goalsRemove(
     _root,
     { goalTypeIds }: { goalTypeIds: string[] },
-    { models }: IContext
+    { models }: IContext,
   ) {
     await models.Goals.removeGoal(goalTypeIds);
 
     return goalTypeIds;
-  }
+  },
 };
 
 export default goalMutations;

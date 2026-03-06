@@ -32,5 +32,5 @@ export const queries = {
   ...lastViewedItemQueries,
   ...productReviewQueries,
   ...wishlistQueries,
-  ...goalsQueries
+  ...goalsQueries,
 };

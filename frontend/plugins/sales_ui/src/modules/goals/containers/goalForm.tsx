@@ -12,7 +12,7 @@ import { useDepartmentsMain } from '../../../../../../libs/ui-modules/src/module
 import { Button } from '../../../../../../libs/erxes-ui/src/components/button';
 // import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import mutations  from '../graphql/mutations';
+import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
 import { IGoalType } from '../types';
 import GoalForm from '../components/goalForm';
@@ -21,7 +21,6 @@ import { toast } from 'erxes-ui';
 // import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
 // import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 // import { queries as tagQueries } from '../../../../../../libs/ui-modules/src/modules/tags/graphql/queries/tagsQueries';
-
 
 type Props = {
   goalType?: IGoalType;
@@ -36,11 +35,14 @@ const GoalFormContainer = (props: Props) => {
   const unitListQuery = useUnits();
   const departmentListQuery = useDepartmentsMain();
 
-
   const [addGoal, addStatus] = useMutation(mutations.goalsAdd);
   const [editGoal, editStatus] = useMutation(mutations.goalsEdit);
 
-  if (branchListQuery.loading || unitListQuery.loading || departmentListQuery.loading) {
+  if (
+    branchListQuery.loading ||
+    unitListQuery.loading ||
+    departmentListQuery.loading
+  ) {
     return <Spinner />;
   }
 
@@ -48,42 +50,47 @@ const GoalFormContainer = (props: Props) => {
     const loading = addStatus.loading || editStatus.loading;
 
     const handleSave = async () => {
-  try {
-    const requiredFields = ['name', 'entity', 'contributionType', 'periodGoal'];
-    const missingFields = requiredFields.filter(field => !values[field]);
-    
-    if (missingFields.length > 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Missing required fields',
-        description: `Please fill in: ${missingFields.join(', ')}`,
-      });
-      return;
-    }
+      try {
+        const requiredFields = [
+          'name',
+          'entity',
+          'contributionType',
+          'periodGoal',
+        ];
+        const missingFields = requiredFields.filter((field) => !values[field]);
 
-    const mutation = goalType ? editGoal : addGoal;
-    const { data } = await mutation({
-      variables: {
-        ...values,
-        id: goalType?._id,
-      },
-      refetchQueries: ['goalTypesMain']
-    });
+        if (missingFields.length > 0) {
+          toast({
+            variant: 'destructive',
+            title: 'Missing required fields',
+            description: `Please fill in: ${missingFields.join(', ')}`,
+          });
+          return;
+        }
 
-    if (!data?.goalsAdd && !data?.goalsEdit) {
-      throw new Error('Server returned null response');
-    }
-    
-    closeModal();
-  } catch (e) {
-    console.error('Mutation error:', e);
-    toast({
-      variant: 'destructive',
-      title: 'Error',
-      description: e.message || 'Failed to save goal type',
-    });
-  }
-};
+        const mutation = goalType ? editGoal : addGoal;
+        const { data } = await mutation({
+          variables: {
+            ...values,
+            id: goalType?._id,
+          },
+          refetchQueries: ['goalTypesMain'],
+        });
+
+        if (!data?.goalsAdd && !data?.goalsEdit) {
+          throw new Error('Server returned null response');
+        }
+
+        closeModal();
+      } catch (e) {
+        console.error('Mutation error:', e);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: e.message || 'Failed to save goal type',
+        });
+      }
+    };
 
     return (
       <Button type="button" onClick={handleSave} disabled={loading}>
@@ -92,13 +99,7 @@ const GoalFormContainer = (props: Props) => {
     );
   };
 
-  return (
-    <GoalForm
-      {...props}
-      segmentIds={[]}
-      renderButton={renderButton}
-    />
-  );
+  return <GoalForm {...props} segmentIds={[]} renderButton={renderButton} />;
 };
 
 export default GoalFormContainer;

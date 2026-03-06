@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const pipelineLabelFields = `
   _id
@@ -110,7 +110,7 @@ export const GET_PIPELINES = gql`
     }
   }
 `;
-    
+
 export const queries = {
   pipelineLabels: GET_PIPELINE_LABELS,
   pipelineDetail: GET_PIPELINE_DETAIL,

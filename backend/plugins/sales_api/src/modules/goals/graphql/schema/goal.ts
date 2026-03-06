@@ -1,4 +1,3 @@
-
 export const types = `
   type Goal @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
@@ -65,7 +64,6 @@ export const types = `
   }
 `;
 
-
 const queryParams = `
   page: Int
   perPage: Int
@@ -118,7 +116,6 @@ export const queries = `
   goalTypes(${queryParams}): [GoalType]
 `;
 
-
 const params = `
   name: String
   entity: String
@@ -152,7 +149,6 @@ export const mutations = `
   goalsEdit(_id: String!, ${params}): Goal
   goalsRemove(goalTypeIds: [String]): [String]
 `;
-
 
 export default {
   types,

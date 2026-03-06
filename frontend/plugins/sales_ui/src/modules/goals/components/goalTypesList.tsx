@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Alert, Button, Table, Dialog } from "erxes-ui";
+import React, { useState } from 'react';
+import { Alert, Button, Table, Dialog } from 'erxes-ui';
 import { toast } from 'erxes-ui';
-import GoalTypeForm from "../containers/goalForm";
-import GoalRow from "./goalRow";
-import Sidebar from "./sidebar";
-import { GoalTypesTableWrapper } from "../styles";
-import { IGoalType } from "../types";
+import GoalTypeForm from '../containers/goalForm';
+import GoalRow from './goalRow';
+import Sidebar from './sidebar';
+import { GoalTypesTableWrapper } from '../styles';
+import { IGoalType } from '../types';
 
 type Props = {
   goalType: IGoalType[];
@@ -33,8 +33,8 @@ const GoalTypesList = ({
   };
 
   const handleDeleteOne = (id: string) => {
-  remove({ goalTypeIds: [id] });
-};
+    remove({ goalTypeIds: [id] });
+  };
 
   const renderTable = () => (
     <GoalTypesTableWrapper>

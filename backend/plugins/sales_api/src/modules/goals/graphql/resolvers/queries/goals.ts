@@ -27,13 +27,13 @@ const generateFilter = async (params, commonQuerySelector) => {
 
     if (date) {
       filter.$and.push({
-        endDate: { $gte: new Date(date) }
+        endDate: { $gte: new Date(date) },
       });
     }
 
     if (endDate) {
       filter.$and.push({
-        startDate: { $lte: new Date(endDate) }
+        startDate: { $lte: new Date(endDate) },
       });
     }
   }
@@ -84,10 +84,13 @@ export const goalQueries = {
     await models.Goals.progressIdsGoals(filter, params);
 
     return {
-      list: await paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage,
-      }),
+      list: await paginate(
+        models.Goals.find(filter).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage,
+        },
+      ),
       totalCount: await models.Goals.find(filter).countDocuments(),
     };
   },

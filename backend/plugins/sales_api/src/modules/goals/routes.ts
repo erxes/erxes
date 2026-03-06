@@ -7,7 +7,7 @@ export const getGoalsData = async (
   subdomain: string,
   models: IModels,
   filter: any = {},
-  params: { page?: number; perPage?: number } = {}
+  params: { page?: number; perPage?: number } = {},
 ) => {
   try {
     const page = params.page || 1;
@@ -27,21 +27,21 @@ export const getGoalsData = async (
         try {
           const progressData = await models.Goals.progressIdsGoals(
             { _id: goal._id },
-            { page: 1, perPage: 1 }
+            { page: 1, perPage: 1 },
           );
 
           return {
             ...goal,
-            progress: progressData[0] || null
+            progress: progressData[0] || null,
           };
         } catch (error) {
           console.error('Error calculating progress for goal', {
             goalId: goal._id,
-            error
+            error,
           });
           return { ...goal, progress: null };
         }
-      })
+      }),
     );
 
     const totalCount = await models.Goals.countDocuments(query);
@@ -53,8 +53,8 @@ export const getGoalsData = async (
         totalCount,
         page,
         perPage,
-        totalPages: Math.ceil(totalCount / perPage)
-      }
+        totalPages: Math.ceil(totalCount / perPage),
+      },
     };
   } catch (error) {
     console.error('Error fetching goals data:', error);
@@ -65,12 +65,12 @@ export const getGoalsData = async (
 export const getGoalDetailData = async (
   subdomain: string,
   models: IModels,
-  goalId: string
+  goalId: string,
 ) => {
   try {
     const goal = await models.Goals.findOne({
       _id: goalId,
-      subdomain
+      subdomain,
     }).lean();
 
     if (!goal) {
@@ -79,20 +79,20 @@ export const getGoalDetailData = async (
 
     const progressData = await models.Goals.progressIdsGoals(
       { _id: goalId },
-      { page: 1, perPage: 1 }
+      { page: 1, perPage: 1 },
     );
 
     return {
       status: 'success',
       data: {
         ...goal,
-        progress: progressData[0] || null
-      }
+        progress: progressData[0] || null,
+      },
     };
   } catch (error) {
     console.error('Error fetching goal detail', {
       goalId,
-      error
+      error,
     });
     throw error;
   }
@@ -101,7 +101,7 @@ export const getGoalDetailData = async (
 export const createGoalData = async (
   subdomain: string,
   models: IModels,
-  goalData: any
+  goalData: any,
 ) => {
   try {
     const requiredFields = [
@@ -110,29 +110,25 @@ export const createGoalData = async (
       'contributionType',
       'metric',
       'startDate',
-      'endDate'
+      'endDate',
     ];
-    const missingFields = requiredFields.filter(
-      (field) => !goalData[field]
-    );
+    const missingFields = requiredFields.filter((field) => !goalData[field]);
 
     if (missingFields.length > 0) {
-      throw new Error(
-        `Missing required fields: ${missingFields.join(', ')}`
-      );
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
     }
 
     const goalToCreate = {
       ...goalData,
       subdomain,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     const goal = await models.Goals.create(goalToCreate);
 
     return {
       status: 'success',
-      data: goal
+      data: goal,
     };
   } catch (error) {
     console.error('Error creating goal:', error);
@@ -144,12 +140,12 @@ export const updateGoalData = async (
   subdomain: string,
   models: IModels,
   goalId: string,
-  updateData: any
+  updateData: any,
 ) => {
   try {
     const goal = await models.Goals.findOne({
       _id: goalId,
-      subdomain
+      subdomain,
     });
 
     if (!goal) {
@@ -161,22 +157,22 @@ export const updateGoalData = async (
 
     await models.Goals.progressIdsGoals(
       { _id: goalId },
-      { page: 1, perPage: 1 }
+      { page: 1, perPage: 1 },
     );
 
     const updatedGoal = await models.Goals.findOne({
       _id: goalId,
-      subdomain
+      subdomain,
     }).lean();
 
     return {
       status: 'success',
-      data: updatedGoal
+      data: updatedGoal,
     };
   } catch (error) {
     console.error('Error updating goal', {
       goalId,
-      error
+      error,
     });
     throw error;
   }
@@ -185,20 +181,20 @@ export const updateGoalData = async (
 export const deleteGoalData = async (
   subdomain: string,
   models: IModels,
-  goalIds: string[]
+  goalIds: string[],
 ) => {
   try {
     const result = await models.Goals.deleteMany({
       _id: { $in: goalIds },
-      subdomain
+      subdomain,
     });
 
     return {
       status: 'success',
       data: {
         deletedCount: result.deletedCount,
-        goalIds
-      }
+        goalIds,
+      },
     };
   } catch (error) {
     console.error('Error deleting goals:', error);
@@ -210,7 +206,7 @@ export const getGoalProgressData = async (
   subdomain: string,
   models: IModels,
   filter: any = {},
-  params: { page?: number; perPage?: number } = {}
+  params: { page?: number; perPage?: number } = {},
 ) => {
   try {
     const page = params.page || 1;
@@ -220,7 +216,7 @@ export const getGoalProgressData = async (
 
     const progressData = await models.Goals.progressIdsGoals(queryFilter, {
       page,
-      perPage
+      perPage,
     });
 
     const totalCount = await models.Goals.countDocuments(queryFilter);
@@ -232,8 +228,8 @@ export const getGoalProgressData = async (
         totalCount,
         page,
         perPage,
-        totalPages: Math.ceil(totalCount / perPage)
-      }
+        totalPages: Math.ceil(totalCount / perPage),
+      },
     };
   } catch (error) {
     console.error('Error fetching goal progress data:', error);
@@ -260,7 +256,7 @@ export const goalsInit = async (req, res) => {
       contributionType,
       date,
       endDate,
-      searchValue
+      searchValue,
     } = req.query;
 
     const filter: any = {};
@@ -281,7 +277,7 @@ export const goalsInit = async (req, res) => {
 
     const result = await getGoalsData(subdomain, models, filter, {
       page: Number(page),
-      perPage: Number(perPage)
+      perPage: Number(perPage),
     });
 
     res.send(result);
@@ -289,7 +285,7 @@ export const goalsInit = async (req, res) => {
     console.error('Error in goalsInit:', error);
     res.status(500).send({
       status: 'error',
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -331,7 +327,7 @@ export const goalDetail = async (req, res) => {
     if (!_id) {
       return res.status(400).send({
         status: 'error',
-        message: 'Goal ID is required'
+        message: 'Goal ID is required',
       });
     }
 
@@ -341,7 +337,7 @@ export const goalDetail = async (req, res) => {
     console.error('Error in goalDetail:', error);
     res.status(500).send({
       status: 'error',
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -358,7 +354,7 @@ export const goalsCreate = async (req, res) => {
     console.error('Error in goalsCreate:', error);
     res.status(500).send({
       status: 'error',
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -373,7 +369,7 @@ export const goalsUpdate = async (req, res) => {
     if (!_id) {
       return res.status(400).send({
         status: 'error',
-        message: 'Goal ID is required'
+        message: 'Goal ID is required',
       });
     }
 
@@ -383,7 +379,7 @@ export const goalsUpdate = async (req, res) => {
     console.error('Error in goalsUpdate:', error);
     res.status(500).send({
       status: 'error',
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -397,7 +393,7 @@ export const goalsDelete = async (req, res) => {
     if (!goalIds || !Array.isArray(goalIds) || goalIds.length === 0) {
       return res.status(400).send({
         status: 'error',
-        message: 'Goal IDs array is required'
+        message: 'Goal IDs array is required',
       });
     }
 
@@ -407,7 +403,7 @@ export const goalsDelete = async (req, res) => {
     console.error('Error in goalsDelete:', error);
     res.status(500).send({
       status: 'error',
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -430,7 +426,7 @@ export const goalsProgress = async (req, res) => {
 
     const result = await getGoalProgressData(subdomain, models, filter, {
       page: Number(page),
-      perPage: Number(perPage)
+      perPage: Number(perPage),
     });
 
     res.send(result);
@@ -438,7 +434,7 @@ export const goalsProgress = async (req, res) => {
     console.error('Error in goalsProgress:', error);
     res.status(500).send({
       status: 'error',
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -452,29 +448,29 @@ export const goalsSyncProgress = async (req, res) => {
     if (!goalId) {
       return res.status(400).send({
         status: 'error',
-        message: 'Goal ID is required'
+        message: 'Goal ID is required',
       });
     }
 
     await models.Goals.progressIdsGoals(
       { _id: goalId },
-      { page: 1, perPage: 1 }
+      { page: 1, perPage: 1 },
     );
 
     const updatedGoal = await models.Goals.findOne({
       _id: goalId,
-      subdomain
+      subdomain,
     }).lean();
 
     res.send({
       status: 'success',
-      data: updatedGoal
+      data: updatedGoal,
     });
   } catch (error) {
     console.error('Error in goalsSyncProgress:', error);
     res.status(500).send({
       status: 'error',
-      message: error.message
+      message: error.message,
     });
   }
 };

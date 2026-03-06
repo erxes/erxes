@@ -1,6 +1,6 @@
-import React from "react";
-import dayjs from "dayjs";
-import { IGoalType } from "../types";
+import React from 'react';
+import dayjs from 'dayjs';
+import { IGoalType } from '../types';
 
 type Props = {
   goalType: IGoalType;

@@ -57,25 +57,25 @@ import {
 import {
   types as AddressTypes,
   queries as AddressQueries,
-  mutations as AddressMutations
+  mutations as AddressMutations,
 } from '@/ecommerce/graphql/schema/address';
 
 import {
   types as LastViewedItemTypes,
   queries as LastViewedItemQueries,
-  mutations as LastViewedItemMutations
+  mutations as LastViewedItemMutations,
 } from '@/ecommerce/graphql/schema/lastViewedItem';
 
 import {
   types as ProductReviewTypes,
   queries as ProductReviewQueries,
-  mutations as ProductReviewMutations
+  mutations as ProductReviewMutations,
 } from '@/ecommerce/graphql/schema/productReview';
 
 import {
   types as WishlistTypes,
   queries as WishlistQueries,
-  mutations as WishlistMutations
+  mutations as WishlistMutations,
 } from '@/ecommerce/graphql/schema/wishlist';
 
 import {
@@ -83,7 +83,6 @@ import {
   queries as GoalQueries,
   mutations as GoalMutations,
 } from '@/goals/graphql/schema/goal';
-
 
 import extendTypes from '@/pos/graphql/schemas/extendTypes';
 

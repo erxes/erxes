@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import GoalFormContainer from "./goalForm";
-import type { IGoalType } from "../types";
+import React, { useState } from 'react';
+import GoalFormContainer from './goalForm';
+import type { IGoalType } from '../types';
 
 type Props = {
   data: {
@@ -14,7 +14,6 @@ type Props = {
   onSelect: (items: IGoalType[]) => void;
   closeModal: () => void;
 };
-
 
 const GoalTypeChooser = ({ data, onSelect, closeModal }: Props) => {
   const [selected, setSelected] = useState<IGoalType | null>(null);
@@ -34,10 +33,8 @@ const GoalTypeChooser = ({ data, onSelect, closeModal }: Props) => {
     const updated = [...data.goalTypes];
 
     if (!selected) {
-      
       updated.push(saved);
     } else {
-      
       const idx = updated.findIndex((g) => g._id === selected._id);
       if (idx !== -1) updated[idx] = saved;
     }

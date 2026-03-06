@@ -10,7 +10,7 @@ export const fetchProducts = async (
     limit?: number;
     fields?: string[];
     query?: any;
-  } = {}
+  } = {},
 ): Promise<any[]> => {
   const { limit = productIds.length, fields, query = {} } = options;
 
@@ -46,7 +46,7 @@ export const fetchCustomers = async (
     limit?: number;
     fields?: string[];
     query?: any;
-  } = {}
+  } = {},
 ): Promise<any[]> => {
   const { limit = customerIds.length, fields, query = {} } = options;
 
@@ -81,7 +81,7 @@ export const getProductCategories = async (
     limit?: number;
     fields?: string[];
     query?: any;
-  } = {}
+  } = {},
 ): Promise<any[]> => {
   const { limit = categoryIds.length, fields, query = {} } = options;
 
@@ -111,7 +111,7 @@ export const getProductCategories = async (
  */
 export const getChildCategories = async (
   subdomain: string,
-  categoryIds: string[]
+  categoryIds: string[],
 ): Promise<string[]> => {
   if (!categoryIds.length) {
     return [];
@@ -131,11 +131,11 @@ export const getChildCategories = async (
 
   const getChildren = (parentId: string): string[] => {
     const children = allCategories
-      .filter(cat => cat.parentId === parentId)
-      .map(cat => cat._id);
+      .filter((cat) => cat.parentId === parentId)
+      .map((cat) => cat._id);
 
     let allChildren = [...children];
-    children.forEach(childId => {
+    children.forEach((childId) => {
       allChildren = [...allChildren, ...getChildren(childId)];
     });
 
@@ -143,7 +143,7 @@ export const getChildCategories = async (
   };
 
   let allChildIds: string[] = [...categoryIds];
-  categoryIds.forEach(categoryId => {
+  categoryIds.forEach((categoryId) => {
     allChildIds = [...allChildIds, ...getChildren(categoryId)];
   });
 
@@ -161,7 +161,7 @@ export const fetchProductsByCategory = async (
     skip?: number;
     fields?: string[];
     query?: any;
-  } = {}
+  } = {},
 ): Promise<any[]> => {
   const { limit = 100, skip = 0, fields, query = {} } = options;
 
@@ -201,15 +201,15 @@ export const calculateReviewStats = (reviews: any[]) => {
   }
 
   const totalReviews = reviews.length;
-  const averageRating = 
+  const averageRating =
     reviews.reduce((sum, cur) => sum + (cur.review || 0), 0) / totalReviews;
 
   const ratingDistribution = {
-    1: reviews.filter(r => r.review === 1).length,
-    2: reviews.filter(r => r.review === 2).length,
-    3: reviews.filter(r => r.review === 3).length,
-    4: reviews.filter(r => r.review === 4).length,
-    5: reviews.filter(r => r.review === 5).length,
+    1: reviews.filter((r) => r.review === 1).length,
+    2: reviews.filter((r) => r.review === 2).length,
+    3: reviews.filter((r) => r.review === 3).length,
+    4: reviews.filter((r) => r.review === 4).length,
+    5: reviews.filter((r) => r.review === 5).length,
   };
 
   return { totalReviews, averageRating, ratingDistribution };
@@ -221,14 +221,14 @@ export const calculateReviewStats = (reviews: any[]) => {
 export const enrichWithProductDetails = async (
   subdomain: string,
   items: any[],
-  productIdField: string = 'productId'
+  productIdField: string = 'productId',
 ): Promise<any[]> => {
   if (!items.length) {
     return items;
   }
 
   const productIds = items
-    .map(item => item[productIdField])
+    .map((item) => item[productIdField])
     .filter(Boolean)
     .filter((value, index, self) => self.indexOf(value) === index);
 
@@ -242,7 +242,7 @@ export const enrichWithProductDetails = async (
     return map;
   }, {});
 
-  return items.map(item => ({
+  return items.map((item) => ({
     ...item,
     product: productsMap[item[productIdField]] || null,
   }));
@@ -254,14 +254,14 @@ export const enrichWithProductDetails = async (
 export const enrichWithCustomerDetails = async (
   subdomain: string,
   items: any[],
-  customerIdField: string = 'customerId'
+  customerIdField: string = 'customerId',
 ): Promise<any[]> => {
   if (!items.length) {
     return items;
   }
 
   const customerIds = items
-    .map(item => item[customerIdField])
+    .map((item) => item[customerIdField])
     .filter(Boolean)
     .filter((value, index, self) => self.indexOf(value) === index);
 
@@ -275,7 +275,7 @@ export const enrichWithCustomerDetails = async (
     return map;
   }, {});
 
-  return items.map(item => ({
+  return items.map((item) => ({
     ...item,
     customer: customersMap[item[customerIdField]] || null,
   }));
@@ -287,7 +287,7 @@ export const enrichWithCustomerDetails = async (
 export const getConfig = async (
   subdomain: string,
   code: string,
-  defaultValue: any
+  defaultValue: any,
 ): Promise<any> => {
   return sendTRPCMessage({
     subdomain,
@@ -323,23 +323,23 @@ export const formatAddress = (address: any): string => {
  */
 export const calculateDistance = (
   coord1: { lat: number; lng: number },
-  coord2: { lat: number; lng: number }
+  coord2: { lat: number; lng: number },
 ): number => {
   const toRad = (value: number) => (value * Math.PI) / 180;
 
   const R = 6371; // Earth's radius in km
   const dLat = toRad(coord2.lat - coord1.lat);
   const dLon = toRad(coord2.lng - coord1.lng);
-  
+
   const lat1 = toRad(coord1.lat);
   const lat2 = toRad(coord2.lat);
 
-  const a = 
+  const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-  
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  
+
   return R * c;
 };
 
@@ -353,7 +353,7 @@ export const cursorPaginate = async (
     limit?: number;
     sort?: any;
     fields?: string[];
-  } = {}
+  } = {},
 ): Promise<{
   list: any[];
   totalCount: number;
@@ -409,7 +409,7 @@ export const sanitizeEcommerceData = (data: any, type: string): any => {
     case 'productReview':
       sanitized.review = Math.min(Math.max(sanitized.review || 0, 0), 5);
       break;
-    
+
     case 'address':
       if (sanitized.coordinate) {
         sanitized.coordinate.lat = parseFloat(sanitized.coordinate.lat) || 0;

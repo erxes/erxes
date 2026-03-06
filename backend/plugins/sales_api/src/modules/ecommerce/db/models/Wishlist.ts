@@ -1,9 +1,7 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { wishlistSchema } from '../definitions/wishlist';
 import {
-  wishlistSchema
-} from '../definitions/wishlist';
-import { 
   IWishlist,
   IWishlistDocument,
 } from '~/modules/ecommerce/@types/wishlist';
@@ -24,7 +22,7 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
       const review = await models.Wishlist.create({
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       });
       return review;
     }
@@ -33,7 +31,7 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
       if (current) {
         await models.Wishlist.updateOne(
           { _id },
-          { $set: { ...doc, modifiedAt: new Date() } }
+          { $set: { ...doc, modifiedAt: new Date() } },
         );
       }
       return models.Wishlist.findOne({ _id });

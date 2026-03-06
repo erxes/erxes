@@ -72,7 +72,6 @@ export const addressQueries = {
       query: filter,
     });
 
-
     return list;
   },
 };

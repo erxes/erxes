@@ -6,7 +6,7 @@ import { IGoalDocument } from './@types/goals';
 export const countDocuments = async (
   subdomain: string,
   type: string,
-  _ids: string[]
+  _ids: string[],
 ) => {
   const [pluginName, contentType] = type.split(':');
 
@@ -17,9 +17,9 @@ export const countDocuments = async (
     action: 'count',
     input: {
       type: contentType,
-      _ids
+      _ids,
     },
-    defaultValue: 0
+    defaultValue: 0,
   });
 };
 
@@ -27,7 +27,7 @@ export const goalObject = async (
   subdomain: string,
   type: string,
   goalIds: string[],
-  targetIds: string[]
+  targetIds: string[],
 ) => {
   const [pluginName, contentType] = type.split(':');
 
@@ -39,9 +39,9 @@ export const goalObject = async (
     input: {
       goalIds,
       targetIds,
-      type: contentType
+      type: contentType,
     },
-    defaultValue: {}
+    defaultValue: {},
   });
 };
 
@@ -50,7 +50,7 @@ export const fixRelatedItems = async ({
   type,
   sourceId,
   destId,
-  action
+  action,
 }: {
   subdomain: string;
   type: string;
@@ -69,7 +69,7 @@ export const fixRelatedItems = async ({
       sourceId,
       destId,
       type: contentType,
-      action
-    }
+      action,
+    },
   });
 };

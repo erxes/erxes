@@ -46,8 +46,7 @@ export const productReviewQueries = {
       query: filter,
       params: pagintationArgs,
     });
-  }
-
+  },
 };
 
 export default productReviewQueries;

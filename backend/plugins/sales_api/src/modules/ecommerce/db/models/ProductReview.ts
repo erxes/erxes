@@ -1,10 +1,8 @@
+import { productReviewSchema } from '../definitions/productReview';
 import {
-  productReviewSchema
-} from '../definitions/productReview';
-import {   
   IProductReview,
-  IProductReviewDocument
-} from '~/modules/ecommerce/@types/productReview'
+  IProductReviewDocument,
+} from '~/modules/ecommerce/@types/productReview';
 import { Model } from 'mongoose';
 import { IModels } from '../../../../connectionResolvers';
 
@@ -15,7 +13,7 @@ export interface IProductReviewModel extends Model<IProductReviewDocument> {
   createProductReview(doc: IProductReview): Promise<IProductReviewDocument>;
   updateProductReview(
     _id: string,
-    doc: IProductReview
+    doc: IProductReview,
   ): Promise<IProductReviewDocument>;
   removeProductReview(_id: string): Promise<IProductReviewDocument>;
 }
@@ -35,7 +33,7 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
       const review = await models.ProductReview.create({
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       });
       return review;
     }
@@ -44,7 +42,7 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
       if (current) {
         await models.ProductReview.updateOne(
           { _id },
-          { $set: { ...doc, modifiedAt: new Date() } }
+          { $set: { ...doc, modifiedAt: new Date() } },
         );
       }
       return models.ProductReview.findOne({ _id });

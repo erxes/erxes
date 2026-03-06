@@ -1,64 +1,64 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const goalsAdd = gql`
   mutation GoalsAdd(
-  $name: String
-  $entity: String
-  $stageId: String
-  $pipelineId: String
-  $boardId: String
-  $contributionType: String
-  $metric: String
-  $goalTypeChoose: String
-  $contribution: [String]
-  $department: [String]
-  $unit: [String]
-  $branch: [String]
-  $specificPeriodGoals: JSON
-  $startDate: Date
-  $endDate: Date
-  $segmentCount: Float
-  $pipelineLabels: JSON
-  $productIds: [String]
-  $companyIds: [String]
-  $tagsIds: [String]
-  $segmentIds: [String]
-  $periodGoal: String
-  $segmentRadio: Boolean
-  $stageRadio: Boolean
-  $teamGoalType: String
-) {
-  goalsAdd(
-    name: $name
-    entity: $entity
-    stageId: $stageId
-    pipelineId: $pipelineId
-    boardId: $boardId
-    contributionType: $contributionType
-    metric: $metric
-    goalTypeChoose: $goalTypeChoose
-    contribution: $contribution
-    department: $department
-    unit: $unit
-    branch: $branch
-    specificPeriodGoals: $specificPeriodGoals
-    startDate: $startDate
-    endDate: $endDate
-    segmentCount: $segmentCount
-    pipelineLabels: $pipelineLabels
-    productIds: $productIds
-    companyIds: $companyIds
-    tagsIds: $tagsIds
-    segmentIds: $segmentIds
-    periodGoal: $periodGoal
-    segmentRadio: $segmentRadio
-    stageRadio: $stageRadio
-    teamGoalType: $teamGoalType
+    $name: String
+    $entity: String
+    $stageId: String
+    $pipelineId: String
+    $boardId: String
+    $contributionType: String
+    $metric: String
+    $goalTypeChoose: String
+    $contribution: [String]
+    $department: [String]
+    $unit: [String]
+    $branch: [String]
+    $specificPeriodGoals: JSON
+    $startDate: Date
+    $endDate: Date
+    $segmentCount: Float
+    $pipelineLabels: JSON
+    $productIds: [String]
+    $companyIds: [String]
+    $tagsIds: [String]
+    $segmentIds: [String]
+    $periodGoal: String
+    $segmentRadio: Boolean
+    $stageRadio: Boolean
+    $teamGoalType: String
   ) {
-    _id
-    name
+    goalsAdd(
+      name: $name
+      entity: $entity
+      stageId: $stageId
+      pipelineId: $pipelineId
+      boardId: $boardId
+      contributionType: $contributionType
+      metric: $metric
+      goalTypeChoose: $goalTypeChoose
+      contribution: $contribution
+      department: $department
+      unit: $unit
+      branch: $branch
+      specificPeriodGoals: $specificPeriodGoals
+      startDate: $startDate
+      endDate: $endDate
+      segmentCount: $segmentCount
+      pipelineLabels: $pipelineLabels
+      productIds: $productIds
+      companyIds: $companyIds
+      tagsIds: $tagsIds
+      segmentIds: $segmentIds
+      periodGoal: $periodGoal
+      segmentRadio: $segmentRadio
+      stageRadio: $stageRadio
+      teamGoalType: $teamGoalType
+    ) {
+      _id
+      name
+    }
   }
-}
 `;
 
 export const goalsEdit = gql`
@@ -132,5 +132,5 @@ export const goalsRemove = gql`
 export default {
   goalsAdd,
   goalsEdit,
-  goalsRemove
+  goalsRemove,
 };

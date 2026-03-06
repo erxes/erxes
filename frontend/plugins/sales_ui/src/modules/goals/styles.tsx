@@ -1,6 +1,8 @@
-
-
-export function GoalTypesTableWrapper({ children }: { children: React.ReactNode }) {
+export function GoalTypesTableWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="">
       <table className="w-full">
@@ -15,4 +17,3 @@ export function GoalTypesTableWrapper({ children }: { children: React.ReactNode 
 export function SidebarFilters({ children }: { children: React.ReactNode }) {
   return <div className="overflow-hidden px-4 py-6">{children}</div>;
 }
-

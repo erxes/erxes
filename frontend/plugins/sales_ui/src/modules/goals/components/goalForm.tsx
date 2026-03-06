@@ -3,14 +3,7 @@ import { gql, useQuery, useApolloClient } from '@apollo/client';
 import { useForm, Controller } from 'react-hook-form';
 import { queries as pipelineQuery } from '~/modules/deals/graphql/queries/PipelinesQueries';
 import { IPipelineLabel } from '~/modules/deals/types/pipelines';
-import {
-  Button,
-  Form,
-  Checkbox,
-  Alert,
-  DatePicker,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Checkbox, Alert, DatePicker, useToast } from 'erxes-ui';
 import { IGoalTypeDoc, IGoalType, GoalFormType } from '../types';
 import {
   SelectTags as SelectTagsRaw,
@@ -44,7 +37,6 @@ const SelectProduct: any = SelectProductRaw as any;
 const SelectSegment: any = SelectSegmentRaw as any;
 
 const generateSecureId = (): string => {
-
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
@@ -52,12 +44,12 @@ const generateSecureId = (): string => {
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     const array = new Uint32Array(4);
     crypto.getRandomValues(array);
-    
+
     let hex = '';
     for (let i = 0; i < array.length; i++) {
       hex += array[i].toString(16).padStart(8, '0');
     }
-    
+
     return `temp_${hex}`;
   }
 
@@ -67,7 +59,6 @@ const generateSecureId = (): string => {
 
   return `temp_${Date.now()}`;
 };
-
 
 type Props = {
   renderButton: (props: any) => JSX.Element;
@@ -90,10 +81,9 @@ const GoalForm: React.FC<Props> = ({
   addGoal,
   goalId,
 }) => {
-  
   const client = useApolloClient();
   const { toast } = useToast();
-  
+
   const form = useForm<GoalFormType>({
     resolver: zodResolver(goalFormSchema, undefined, { mode: 'async' }),
     defaultValues: {
@@ -121,8 +111,7 @@ const GoalForm: React.FC<Props> = ({
       ...(goalType as Partial<GoalFormType>),
     },
   });
- 
-  
+
   const {
     control,
     register,
@@ -145,14 +134,15 @@ const GoalForm: React.FC<Props> = ({
   const watchedStartDate = watch('startDate');
   const watchedEndDate = watch('endDate');
 
-  const { data: labelsData, loading: labelsLoading, error: labelsError } = useQuery(
-    pipelineQuery.pipelineLabels,
-    {
-      variables: { pipelineId: watchedPipelineId },
-      skip: !watchedPipelineId,
-      fetchPolicy: 'network-only',
-    },
-  );
+  const {
+    data: labelsData,
+    loading: labelsLoading,
+    error: labelsError,
+  } = useQuery(pipelineQuery.pipelineLabels, {
+    variables: { pipelineId: watchedPipelineId },
+    skip: !watchedPipelineId,
+    fetchPolicy: 'network-only',
+  });
 
   useEffect(() => {
     if (labelsError) {
@@ -169,53 +159,55 @@ const GoalForm: React.FC<Props> = ({
       const fetchedLabels: IPipelineLabel[] = labelsData.pipelineLabels;
       setValue('pipelineLabels', fetchedLabels);
 
-      const initialSelected = (goalType?.pipelineLabels || []).map((l: any) => l._id);
+      const initialSelected = (goalType?.pipelineLabels || []).map(
+        (l: any) => l._id,
+      );
       if (initialSelected.length) setValue('selectedLabelIds', initialSelected);
     }
   }, [labelsLoading, labelsData, setValue, goalType]);
 
   // Helper: produce final payload
   const generateDoc = (values?: Partial<GoalFormType>) => {
-  const v = values || getValues();
-  const finalId = (goalType as any)?._id || v._id;
+    const v = values || getValues();
+    const finalId = (goalType as any)?._id || v._id;
 
-  const doc = {
-    _id: finalId,
-    name: v.name || '',
-    entity: v.entity || '',
-    stageId: v.stageId || null,
-    pipelineId: v.pipelineId || null,
-    boardId: v.boardId || null,
-    contributionType: v.contributionType || '', // Provide default
-    metric: v.metric || '',
-    goalTypeChoose: v.goalTypeChoose || '',
-    contribution: v.contribution || [], // Ensure array
-    department: v.department || [],
-    unit: v.unit || [], // Ensure array
-    branch: v.branch || [],
-    specificPeriodGoals: (v.specificPeriodGoals || []).map((p) => ({
-      _id: p._id,
-      addMonthly: p.addMonthly,
-      addTarget: p.addTarget,
-      progress: (p as any).progress ?? '0',
-      current: (p as any).current ?? '0',
-    })),
-    startDate: v.startDate,
-    endDate: v.endDate,
-    segmentCount: v.segmentCount || 0,
-    pipelineLabels: v.pipelineLabels || [],
-    productIds: v.productIds || [],
-    companyIds: v.companyIds || [],
-    tagsIds: v.tagsIds || [],
-    segmentIds: v.segmentIds || [],
-    periodGoal: v.periodGoal || '',
-    segmentRadio: !!v.segmentRadio, // Ensure boolean
-    stageRadio: !!v.stageRadio, // Ensure boolean
-    teamGoalType: v.teamGoalType || '', // Provide default
+    const doc = {
+      _id: finalId,
+      name: v.name || '',
+      entity: v.entity || '',
+      stageId: v.stageId || null,
+      pipelineId: v.pipelineId || null,
+      boardId: v.boardId || null,
+      contributionType: v.contributionType || '', // Provide default
+      metric: v.metric || '',
+      goalTypeChoose: v.goalTypeChoose || '',
+      contribution: v.contribution || [], // Ensure array
+      department: v.department || [],
+      unit: v.unit || [], // Ensure array
+      branch: v.branch || [],
+      specificPeriodGoals: (v.specificPeriodGoals || []).map((p) => ({
+        _id: p._id,
+        addMonthly: p.addMonthly,
+        addTarget: p.addTarget,
+        progress: (p as any).progress ?? '0',
+        current: (p as any).current ?? '0',
+      })),
+      startDate: v.startDate,
+      endDate: v.endDate,
+      segmentCount: v.segmentCount || 0,
+      pipelineLabels: v.pipelineLabels || [],
+      productIds: v.productIds || [],
+      companyIds: v.companyIds || [],
+      tagsIds: v.tagsIds || [],
+      segmentIds: v.segmentIds || [],
+      periodGoal: v.periodGoal || '',
+      segmentRadio: !!v.segmentRadio, // Ensure boolean
+      stageRadio: !!v.stageRadio, // Ensure boolean
+      teamGoalType: v.teamGoalType || '', // Provide default
+    };
+
+    return doc as IGoalTypeDoc & { _id?: string };
   };
-  
-  return doc as IGoalTypeDoc & { _id?: string };
-};
 
   const onChangeStartDate = (value: Date | null) => {
     setValue('startDate', value);
@@ -282,23 +274,22 @@ const GoalForm: React.FC<Props> = ({
   //   setValue('pipelineId', pipelineId);
   // };
 
-//   const onChangeBoard = (boardId: string) => {
-//     setValue('boardId', boardId);
-//   };
+  //   const onChangeBoard = (boardId: string) => {
+  //     setValue('boardId', boardId);
+  //   };
 
-//   const onChangeField = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, type, checked, value } = e.target;
-//     setValue(name as keyof GoalFormType, type === 'checkbox' ? checked : value);
-//   };
+  //   const onChangeField = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     const { name, type, checked, value } = e.target;
+  //     setValue(name as keyof GoalFormType, type === 'checkbox' ? checked : value);
+  //   };
 
-//   const onUserChange = (userId: string) => {
-//   setValue("contribution", [userId]);
-// };
+  //   const onUserChange = (userId: string) => {
+  //   setValue("contribution", [userId]);
+  // };
 
-
-//   const onChangeSegments = (values: string[] | string) => {
-//     setValue('segmentIds', Array.isArray(values) ? values : [values]);
-//   };
+  //   const onChangeSegments = (values: string[] | string) => {
+  //     setValue('segmentIds', Array.isArray(values) ? values : [values]);
+  //   };
 
   const onChangeTarget = (
     date: string,
@@ -321,11 +312,11 @@ const GoalForm: React.FC<Props> = ({
       const exists = updatedGoals.some((g) => g.addMonthly === period);
       if (!exists) {
         updatedGoals.push({
-            _id: generateSecureId(),
-            addMonthly: period,
-            addTarget: value || 0,
-            progress: "0",     
-            current: "0",      
+          _id: generateSecureId(),
+          addMonthly: period,
+          addTarget: value || 0,
+          progress: '0',
+          current: '0',
         });
       }
     });
@@ -339,13 +330,27 @@ const GoalForm: React.FC<Props> = ({
     setValue('specificPeriodGoals', filteredGoals);
   };
 
-  const mapMonths = (startDate?: Date | null, endDate?: Date | null): string[] => {
+  const mapMonths = (
+    startDate?: Date | null,
+    endDate?: Date | null,
+  ): string[] => {
     if (!startDate || !endDate) return [];
     const start = new Date(startDate);
     const end = new Date(endDate);
     const months: string[] = [];
     const monthNames = [
-      'January','February','March','April','May','June','July','August','September','October','November','December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
 
     for (let y = start.getFullYear(); y <= end.getFullYear(); y++) {
@@ -358,7 +363,10 @@ const GoalForm: React.FC<Props> = ({
     return months;
   };
 
-  const mapWeeks = (startDate?: Date | null, endDate?: Date | null): string[] => {
+  const mapWeeks = (
+    startDate?: Date | null,
+    endDate?: Date | null,
+  ): string[] => {
     if (!startDate || !endDate) return [];
     const weeks: string[] = [];
     const s = new Date(startDate);
@@ -415,7 +423,6 @@ const GoalForm: React.FC<Props> = ({
       });
     }
   };
- 
 
   return (
     <Form {...form}>
@@ -758,7 +765,9 @@ const GoalForm: React.FC<Props> = ({
                     <Form.Item>
                       <Form.Label>{'Period (Monthly)'}</Form.Label>
                       <Form.Control>
-                        <div className="px-3 py-2 border rounded-md">{month}</div>
+                        <div className="px-3 py-2 border rounded-md">
+                          {month}
+                        </div>
                       </Form.Control>
                     </Form.Item>
                   </div>
@@ -800,7 +809,9 @@ const GoalForm: React.FC<Props> = ({
                     <Form.Item>
                       <Form.Label>{'Period (Weekly)'}</Form.Label>
                       <Form.Control>
-                        <div className="px-3 py-2 border rounded-md">{week}</div>
+                        <div className="px-3 py-2 border rounded-md">
+                          {week}
+                        </div>
                       </Form.Control>
                     </Form.Item>
                   </div>

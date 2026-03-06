@@ -1,21 +1,24 @@
-import { Model } from "mongoose";
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { sendTRPCMessage } from "erxes-api-shared/utils";
-import { goalSchema } from '~/modules/goals/db/definitions/goals'
-import { IGoal, IGoalDocument } from "~/modules/goals/@types/goals";
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from "../../constants";
-
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { goalSchema } from '~/modules/goals/db/definitions/goals';
+import { IGoal, IGoalDocument } from '~/modules/goals/@types/goals';
+import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../../constants';
 
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
-  createGoal(doc: IGoal): Promise<IGoalDocument>; 
+  createGoal(doc: IGoal): Promise<IGoalDocument>;
   updateGoal(_id: string, doc: IGoal): Promise<IGoalDocument>;
   removeGoal(_ids: string[]);
   progressGoal(_id: string);
   progressIdsGoals(filter, params): Promise<IGoalDocument>;
 }
 
-export const loadGoalClass = (models: IModels, subdomain: string, userId?: string) => {
+export const loadGoalClass = (
+  models: IModels,
+  subdomain: string,
+  userId?: string,
+) => {
   class Goal {
     public static async createGoal(doc: IGoal, subdomain: string) {
       try {
@@ -90,9 +93,9 @@ export const loadGoalClass = (models: IModels, subdomain: string, userId?: strin
   }
 
   async function fetchGoals(filter: any, params: any) {
-  return models.Goals.find(filter)
-    .skip((params.page - 1) * params.perPage)
-    .limit(params.perPage);
+    return models.Goals.find(filter)
+      .skip((params.page - 1) * params.perPage)
+      .limit(params.perPage);
   }
 
   async function progressFunctionIds(doc, models, subdomain) {
@@ -163,47 +166,45 @@ export const loadGoalClass = (models: IModels, subdomain: string, userId?: strin
       }
     }
 
-function addStage(item, requestData: RequestData) {
-  if (item.stageId) {
-    requestData.stageId = item.stageId;
-  }
-}
+    function addStage(item, requestData: RequestData) {
+      if (item.stageId) {
+        requestData.stageId = item.stageId;
+      }
+    }
 
-function addPersonContribution(item, requestData: RequestData) {
-  if (item.contributionType !== CONTRIBUTIONTYPE.PERSON) return;
+    function addPersonContribution(item, requestData: RequestData) {
+      if (item.contributionType !== CONTRIBUTIONTYPE.PERSON) return;
 
-  const assignedUserIds = item.contribution?.filter(Boolean);
-  if (assignedUserIds?.length) {
-    requestData.assignedUserIds = assignedUserIds;
-  }
-}
+      const assignedUserIds = item.contribution?.filter(Boolean);
+      if (assignedUserIds?.length) {
+        requestData.assignedUserIds = assignedUserIds;
+      }
+    }
 
-function addTeamContribution(item, requestData: RequestData) {
-  if (item.contributionType !== CONTRIBUTIONTYPE.TEAM) return;
+    function addTeamContribution(item, requestData: RequestData) {
+      if (item.contributionType !== CONTRIBUTIONTYPE.TEAM) return;
 
-  const mapping = {
-    [TEAMGOALTYPE.DEPARTMENT]: { departmentIds: item.department },
-    [TEAMGOALTYPE.BRANCH]: { branchIds: item.branch },
-    [TEAMGOALTYPE.UNITS]: { unit: item.unit }
-  };
+      const mapping = {
+        [TEAMGOALTYPE.DEPARTMENT]: { departmentIds: item.department },
+        [TEAMGOALTYPE.BRANCH]: { branchIds: item.branch },
+        [TEAMGOALTYPE.UNITS]: { unit: item.unit },
+      };
 
-  Object.assign(requestData, mapping[item.teamGoalType] || {});
-}
+      Object.assign(requestData, mapping[item.teamGoalType] || {});
+    }
 
-
-    
     doc = Array.isArray(doc) ? doc : [doc];
     for (const item of doc) {
       let amount;
       const type = item.periodGoal;
-      
+
       let requestData = getRequestData(item);
 
       const entityMessageMap = {
         deal: sendTRPCMessage,
         task: sendTRPCMessage,
         purchase: sendTRPCMessage,
-        ticket: sendTRPCMessage
+        ticket: sendTRPCMessage,
       };
 
       let cardType = entityMessageMap[item.entity];
@@ -218,8 +219,6 @@ function addTeamContribution(item, requestData: RequestData) {
       }
       let companies;
       if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
-
-
         if (item.companyIds && Array.isArray(item.companyIds)) {
           const mainTypeIds = Array.isArray(amount)
             ? amount.map((result) => result._id)
@@ -230,24 +229,24 @@ function addTeamContribution(item, requestData: RequestData) {
           } catch (error) {
             console.error(
               `Error fetching companies for ${item.entity}:`,
-              error
+              error,
             );
             continue;
           }
         } else {
           throw new Error(
-            '"No companyIds found or companyIds is not an array"'
+            '"No companyIds found or companyIds is not an array"',
           );
         }
       }
 
       if (companies.length > 0) {
         amount = amount.filter((result) =>
-          companies.some((conformity) => conformity.mainTypeId === result._id)
+          companies.some((conformity) => conformity.mainTypeId === result._id),
         );
       }
       if (!Array.isArray(amount) || amount.length === 0) {
-        console.log("No valid amount found, skipping this item.");
+        console.log('No valid amount found, skipping this item.');
         continue;
       }
 
@@ -265,7 +264,6 @@ function addTeamContribution(item, requestData: RequestData) {
             defaultValue: [],
           });
 
-
           customerIdsBySegments = [...customerIdsBySegments, ...cIds];
         }
 
@@ -275,9 +273,9 @@ function addTeamContribution(item, requestData: RequestData) {
           { _id: item._id },
           {
             $set: {
-              segmentCount: count
-            }
-          }
+              segmentCount: count,
+            },
+          },
         );
       } catch (error) {
         throw new Error(error);
@@ -286,12 +284,12 @@ function addTeamContribution(item, requestData: RequestData) {
       let progress;
       let amountData;
       const filteredGoals: Goal[] = await getFilteredGoals(item, amount, type);
-      if (item.metric === "Value") {
+      if (item.metric === 'Value') {
         let mobileAmountsData: number | undefined;
         let data: number | undefined;
         let totalAmount = 0;
 
-        type GoalWithoutFilteredAmount = Omit<Goal, "filteredAmount">;
+        type GoalWithoutFilteredAmount = Omit<Goal, 'filteredAmount'>;
 
         const updatedGoals: GoalWithoutFilteredAmount[] = [];
         // Process filtered goals
@@ -299,7 +297,7 @@ function addTeamContribution(item, requestData: RequestData) {
           let goalTotalAmount = 0;
 
           for (const items of goal.filteredAmount) {
-            if (items.productsData && items.status === "active") {
+            if (items.productsData && items.status === 'active') {
               items.productsData.forEach((product) => {
                 if (product.amount) {
                   goalTotalAmount += product.amount;
@@ -332,7 +330,7 @@ function addTeamContribution(item, requestData: RequestData) {
           }
 
           const progress = ((goalTotalAmount / goal.addTarget) * 100).toFixed(
-            2
+            2,
           );
 
           updatedGoals.push({
@@ -340,7 +338,7 @@ function addTeamContribution(item, requestData: RequestData) {
             addMonthly: goal.addMonthly,
             addTarget: goal.addTarget || 0,
             current: goalTotalAmount,
-            progress: parseFloat(progress)
+            progress: parseFloat(progress),
           });
 
           totalAmount += goalTotalAmount;
@@ -348,10 +346,10 @@ function addTeamContribution(item, requestData: RequestData) {
 
         function mergeGoalsWithDefaults(
           existingGoals: GoalWithoutFilteredAmount[],
-          allGoals: Goal[]
+          allGoals: Goal[],
         ): Goal[] {
           const updatedGoalsMap = new Map(
-            existingGoals.map((goal) => [goal._id, goal])
+            existingGoals.map((goal) => [goal._id, goal]),
           );
 
           return allGoals.map((goal) => {
@@ -360,27 +358,27 @@ function addTeamContribution(item, requestData: RequestData) {
             return {
               ...goal,
               current: existingGoal ? existingGoal.current : 0,
-              progress: existingGoal ? existingGoal.progress : 0
+              progress: existingGoal ? existingGoal.progress : 0,
             };
           });
         }
 
         const result = mergeGoalsWithDefaults(
           updatedGoals,
-          item.specificPeriodGoals
+          item.specificPeriodGoals,
         );
         const amountData = {
           mobileAmountsData,
-          paymentsData: data
+          paymentsData: data,
         };
         try {
           await models.Goals.updateOne(
             { _id: item._id },
             {
               $set: {
-                specificPeriodGoals: result
-              }
-            }
+                specificPeriodGoals: result,
+              },
+            },
           );
         } catch (error) {
           console.error('Error updating goals:', error);
@@ -393,7 +391,7 @@ function addTeamContribution(item, requestData: RequestData) {
             if (goal.filteredAmount) {
               if (Array.isArray(goal.filteredAmount)) {
                 current = goal.filteredAmount.length;
-              } else if (typeof goal.filteredAmount === "number") {
+              } else if (typeof goal.filteredAmount === 'number') {
                 current = goal.filteredAmount;
               }
             }
@@ -404,7 +402,7 @@ function addTeamContribution(item, requestData: RequestData) {
             return {
               ...goal,
               current,
-              progress: parseFloat(progress.toFixed(2)) // Round to 2 decimal places
+              progress: parseFloat(progress.toFixed(2)), // Round to 2 decimal places
             };
           });
         }
@@ -414,10 +412,10 @@ function addTeamContribution(item, requestData: RequestData) {
 
         function mergeGoals(
           countUpdateGoal: Goal[],
-          specificPeriodGoals: Goal[]
+          specificPeriodGoals: Goal[],
         ): Goal[] {
           const updatedGoalsMap = new Map(
-            countUpdateGoal.map((goal) => [goal._id, goal])
+            countUpdateGoal.map((goal) => [goal._id, goal]),
           );
 
           return specificPeriodGoals.map((goal) => {
@@ -425,7 +423,7 @@ function addTeamContribution(item, requestData: RequestData) {
             return {
               ...goal,
               current: updatedGoal ? updatedGoal.current : 0,
-              progress: updatedGoal ? updatedGoal.progress : 0
+              progress: updatedGoal ? updatedGoal.progress : 0,
             };
           });
         }
@@ -435,7 +433,7 @@ function addTeamContribution(item, requestData: RequestData) {
         try {
           await models.Goals.updateOne(
             { _id: item._id },
-            { $set: { specificPeriodGoals: result } }
+            { $set: { specificPeriodGoals: result } },
           );
         } catch (error) {
           console.error('Error updating goals:', error);
@@ -448,7 +446,7 @@ function addTeamContribution(item, requestData: RequestData) {
         current,
         progress,
         amountData,
-        target: item.target
+        target: item.target,
       });
     }
 
@@ -464,14 +462,13 @@ function addTeamContribution(item, requestData: RequestData) {
                   progress: result.progress,
                   amountData: result.amountData,
                   target: result.target,
-                  _id: result._id
-                }
-              }
+                  _id: result._id,
+                },
+              },
             },
-            { runValidators: true }
+            { runValidators: true },
           );
         } catch (error) {
-        
           throw new Error(error);
         }
       }
@@ -481,7 +478,6 @@ function addTeamContribution(item, requestData: RequestData) {
     }
   }
 
-  
   goalSchema.loadClass(Goal);
 
   return goalSchema;
@@ -503,7 +499,7 @@ function parseMonth(monthStr) {
       September: 8,
       October: 9,
       November: 10,
-      December: 11
+      December: 11,
     };
     const monthIndex = monthMap[month];
     if (monthIndex === undefined) {
@@ -512,7 +508,7 @@ function parseMonth(monthStr) {
     }
     return {
       start: new Date(Date.UTC(year, monthIndex, 1)),
-      end: new Date(Date.UTC(year, monthIndex + 1, 0))
+      end: new Date(Date.UTC(year, monthIndex + 1, 0)),
     };
   } else {
     console.error(`Failed to parse month for goal: ${monthStr}`);
@@ -538,17 +534,17 @@ function parseWeek(weekString: string): { start: Date; end: Date } {
 
   return {
     start: startDate,
-    end: endDate
+    end: endDate,
   };
 }
 
 function filterAmountsForGoal(goal, amounts, type) {
   let goalStartDate, goalEndDate;
-  if (type === "Monthly") {
+  if (type === 'Monthly') {
     const { start, end } = parseMonth(goal.addMonthly);
     goalStartDate = start;
     goalEndDate = end;
-  } else if (type === "Weekly") {
+  } else if (type === 'Weekly') {
     const { start, end } = parseWeek(goal.addMonthly);
     goalStartDate = start;
     goalEndDate = end;
@@ -575,7 +571,7 @@ function getFilteredGoals(item, amounts, type) {
   return item.specificPeriodGoals
     .map((goal) => ({
       ...goal,
-      filteredAmount: filterAmountsForGoal(goal, amounts, type)
+      filteredAmount: filterAmountsForGoal(goal, amounts, type),
     }))
     .filter((goal) => goal.filteredAmount.length > 0);
 }
@@ -583,21 +579,21 @@ function getFilteredGoals(item, amounts, type) {
 async function getAmount(item, subdomain, requestData) {
   const entityMessageMap = {
     deal: {
-    pluginName: 'sales',
-    module: 'deal',
-  },
-  task: {
-    pluginName: 'tasks',
-    module: 'tasks',
-  },
-  purchase: {
-    pluginName: 'purchases',
-    module: 'purchases',
-  },
-  ticket: {
-    pluginName: 'tickets',
-    module: 'tickets',
-  },
+      pluginName: 'sales',
+      module: 'deal',
+    },
+    task: {
+      pluginName: 'tasks',
+      module: 'tasks',
+    },
+    purchase: {
+      pluginName: 'purchases',
+      module: 'purchases',
+    },
+    ticket: {
+      pluginName: 'tickets',
+      module: 'tickets',
+    },
   };
 
   const cardType = entityMessageMap[item.entity];
@@ -610,16 +606,14 @@ async function getAmount(item, subdomain, requestData) {
   }
 
   return await sendTRPCMessage({
-  subdomain,
-  pluginName: cardType.pluginName, 
-  module: cardType.module,         
-  action: 'find',
-  input: requestData,
-  defaultValue: [],
+    subdomain,
+    pluginName: cardType.pluginName,
+    module: cardType.module,
+    action: 'find',
+    input: requestData,
+    defaultValue: [],
   });
-
 }
-
 
 async function getCompanies(item, subdomain, mainTypeIds) {
   const conformities = await sendTRPCMessage({
@@ -637,9 +631,8 @@ async function getCompanies(item, subdomain, mainTypeIds) {
     defaultValue: [],
   });
 
-
   // Filter companies where relTypeId matches any of the provided companyIds
   return conformities.filter((result) =>
-    item.companyIds.includes(result.relTypeId)
+    item.companyIds.includes(result.relTypeId),
   );
 }

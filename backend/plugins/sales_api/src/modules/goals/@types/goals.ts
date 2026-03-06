@@ -14,7 +14,7 @@ export interface IGoal {
   unit: string[];
   branch: string[];
   chooseStage: string;
-  specificPeriodGoals?:  any[];
+  specificPeriodGoals?: any[];
   segmentIds: string[];
   startDate: Date;
   endDate: Date;

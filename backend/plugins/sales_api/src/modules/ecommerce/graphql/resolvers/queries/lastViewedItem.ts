@@ -1,5 +1,5 @@
-import { IContext } from "~/connectionResolvers";
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { IContext } from '~/connectionResolvers';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const lastViewedItemQueries = {
   lastViewedItems: async (_root, params, { subdomain, models }: IContext) => {
@@ -10,7 +10,7 @@ export const lastViewedItemQueries = {
       .limit(params.limit || 10)
       .lean();
 
-    const productIds = items.map(i => i.productId);
+    const productIds = items.map((i) => i.productId);
 
     const products = await sendTRPCMessage({
       subdomain,
@@ -20,7 +20,7 @@ export const lastViewedItemQueries = {
       action: 'find',
       input: {
         query: { _id: { $in: productIds } },
-        limit: productIds.length
+        limit: productIds.length,
       },
     });
 
@@ -31,8 +31,8 @@ export const lastViewedItemQueries = {
     }
 
     return items
-      .filter(i => Object.keys(productsById).includes(i.productId))
-      .map(i => ({ ...i, product: productsById[i.productId] }));
-  }
+      .filter((i) => Object.keys(productsById).includes(i.productId))
+      .map((i) => ({ ...i, product: productsById[i.productId] }));
+  },
 };
 export default lastViewedItemQueries;

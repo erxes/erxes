@@ -55,62 +55,68 @@ export const ecommerceTrpcRouter = t.router({
       };
     }),
 
-    getProductReviews: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { productId, customerId, productIds, ...paginationArgs } = input;
+    getProductReviews: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productId, customerId, productIds, ...paginationArgs } = input;
 
-      const filter: any = {};
+        const filter: any = {};
 
-      if (customerId) {
-        filter.customerId = customerId;
-      }
+        if (customerId) {
+          filter.customerId = customerId;
+        }
 
-      if (productIds) {
-        filter.productId = { $in: productIds };
-      }
+        if (productIds) {
+          filter.productId = { $in: productIds };
+        }
 
-      if (productId) {
-        filter.productId = productId;
-      }
+        if (productId) {
+          filter.productId = productId;
+        }
 
-      return {
-        status: 'success',
-        data: await cursorPaginate({
-          model: models.ProductReview,
-          query: filter,
-          params: paginationArgs,
-        }),
-      };
-    }),
+        return {
+          status: 'success',
+          data: await cursorPaginate({
+            model: models.ProductReview,
+            query: filter,
+            params: paginationArgs,
+          }),
+        };
+      }),
 
-    getProductReviewSummary: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { productId } = input;
-      
-      const reviews = await models.ProductReview.find({ productId }).lean();
-      
-      if (!reviews.length) {
+    getProductReviewSummary: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productId } = input;
+
+        const reviews = await models.ProductReview.find({ productId }).lean();
+
+        if (!reviews.length) {
+          return {
+            status: 'success',
+            data: {
+              productId,
+              average: 0,
+              length: 0,
+              reviews: [],
+            },
+          };
+        }
+
         return {
           status: 'success',
           data: {
             productId,
-            average: 0,
-            length: 0,
-            reviews: [],
+            average:
+              reviews.reduce((sum, cur) => sum + cur.review, 0) /
+              reviews.length,
+            length: reviews.length,
+            reviews,
           },
         };
-      }
-
-      return {
-        status: 'success',
-        data: {
-          productId,
-          average: reviews.reduce((sum, cur) => sum + cur.review, 0) / reviews.length,
-          length: reviews.length,
-          reviews,
-        },
-      };
-    }),
+      }),
 
     create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -222,7 +228,10 @@ export const ecommerceTrpcRouter = t.router({
 
       try {
         // Check if already exists
-        const existing = await models.Wishlist.findOne({ customerId, productId }).lean();
+        const existing = await models.Wishlist.findOne({
+          customerId,
+          productId,
+        }).lean();
         if (existing) {
           return {
             status: 'success',
@@ -322,43 +331,45 @@ export const ecommerceTrpcRouter = t.router({
       };
     }),
 
-    getLastViewedItems: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
-      const { customerId, limit = 10 } = input;
+    getLastViewedItems: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const { customerId, limit = 10 } = input;
 
-      const items = await models.LastViewedItem.find({ customerId })
-        .sort({ modifiedAt: 1 })
-        .limit(limit)
-        .lean();
+        const items = await models.LastViewedItem.find({ customerId })
+          .sort({ modifiedAt: 1 })
+          .limit(limit)
+          .lean();
 
-      const productIds = items.map(i => i.productId);
+        const productIds = items.map((i) => i.productId);
 
-      const products = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'products',
-        action: 'find',
-        input: {
-          query: { _id: { $in: productIds } },
-          limit: productIds.length,
-        },
-      });
+        const products = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'products',
+          action: 'find',
+          input: {
+            query: { _id: { $in: productIds } },
+            limit: productIds.length,
+          },
+        });
 
-      const productsById: Record<string, any> = {};
-      products.forEach(product => {
-        productsById[product._id] = product;
-      });
+        const productsById: Record<string, any> = {};
+        products.forEach((product) => {
+          productsById[product._id] = product;
+        });
 
-      const result = items
-        .filter(i => productsById[i.productId])
-        .map(i => ({ ...i, product: productsById[i.productId] }));
+        const result = items
+          .filter((i) => productsById[i.productId])
+          .map((i) => ({ ...i, product: productsById[i.productId] }));
 
-      return {
-        status: 'success',
-        data: result,
-      };
-    }),
+        return {
+          status: 'success',
+          data: result,
+        };
+      }),
 
     create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models } = ctx;

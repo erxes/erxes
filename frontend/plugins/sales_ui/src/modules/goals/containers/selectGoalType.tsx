@@ -1,23 +1,28 @@
-import React from "react";
-import { MultipleSelector, MultiSelectOption } from "erxes-ui/components/multiselect";
-import { IGoalType } from "../types";
+import React from 'react';
+import {
+  MultipleSelector,
+  MultiSelectOption,
+} from 'erxes-ui/components/multiselect';
+import { IGoalType } from '../types';
 
 export interface Option {
   value: string;
   label: string;
 }
 
-export function generateGoalTypeOptions(array: IGoalType[] = []): MultiSelectOption[] {
+export function generateGoalTypeOptions(
+  array: IGoalType[] = [],
+): MultiSelectOption[] {
   return array.map((item) => ({
     value: item._id,
-    label: item.entity || "",
+    label: item.entity || '',
   }));
 }
 
 type Props = {
   label: string;
   name: string;
-  value?: string[];               // multiple selected values (ids)
+  value?: string[]; // multiple selected values (ids)
   options?: IGoalType[];
   onSelect: (value: string[], name: string) => void;
 };
@@ -35,7 +40,10 @@ export default function SelectGoalType({
   const selected = goalOptions.filter((opt) => value.includes(opt.value));
 
   const handleChange = (items: MultiSelectOption[]) => {
-    onSelect(items.map((i) => i.value), name);
+    onSelect(
+      items.map((i) => i.value),
+      name,
+    );
   };
 
   return (

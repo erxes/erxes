@@ -20,13 +20,11 @@ const PosOrderNavigation = lazy(() =>
   })),
 );
 
-
 const GoalsNavigation = lazy(() =>
   import('./modules/goals/GoalsNavigation').then((module) => ({
     default: module.GoalsNavigation,
   })),
 );
-
 
 export const CONFIG: IUIConfig = {
   name: 'sales',
@@ -56,12 +54,12 @@ export const CONFIG: IUIConfig = {
       hasAutomation: true,
     },
     {
-    name: 'goals',
-    icon: IconSandbox,
-    path: 'goals',
-    hasSettings: false,
-    hasAutomation: false,
-    hasSegmentConfigWidget: true
+      name: 'goals',
+      icon: IconSandbox,
+      path: 'goals',
+      hasSettings: false,
+      hasAutomation: false,
+      hasSegmentConfigWidget: true,
     },
   ],
   widgets: {

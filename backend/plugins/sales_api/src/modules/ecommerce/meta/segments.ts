@@ -15,13 +15,12 @@ export const ecommerceSegments = {
 
     const getEcommerceIndex = (type: string) => {
       const config = ecommerceSegmentConfigs.contentTypes.find(
-        ct => ct.type === type
+        (ct) => ct.type === type,
       );
       return config ? config.esIndex : `ecommerce_${type}`;
     };
 
     if (mainType.includes('core:contact')) {
-
       const ecommerceType = propertyType.split(':')[1] || 'productReview';
       const index = getEcommerceIndex(ecommerceType);
 
@@ -64,10 +63,13 @@ export const ecommerceSegments = {
       });
     }
 
-    if (mainType.includes('ecommerce:') && propertyType.includes('ecommerce:')) {
+    if (
+      mainType.includes('ecommerce:') &&
+      propertyType.includes('ecommerce:')
+    ) {
       const mainEcommerceType = mainType.split(':')[1];
       const propertyEcommerceType = propertyType.split(':')[1];
-      
+
       const mainIndex = getEcommerceIndex(mainEcommerceType);
       const propertyIndex = getEcommerceIndex(propertyEcommerceType);
 
@@ -83,28 +85,40 @@ export const ecommerceSegments = {
       let propertyField = '_id';
 
       const relationships = {
+        'wishlist-address': {
+          mainField: 'customerId',
+          propertyField: 'customerId',
+        },
+        'productReview-address': {
+          mainField: 'customerId',
+          propertyField: 'customerId',
+        },
+        'lastViewedItem-address': {
+          mainField: 'customerId',
+          propertyField: 'customerId',
+        },
 
-        'wishlist-address': { mainField: 'customerId', propertyField: 'customerId' },
-        'productReview-address': { mainField: 'customerId', propertyField: 'customerId' },
-        'lastViewedItem-address': { mainField: 'customerId', propertyField: 'customerId' },
+        'productReview-wishlist': {
+          mainField: 'productId',
+          propertyField: 'productId',
+        },
 
-        'productReview-wishlist': { mainField: 'productId', propertyField: 'productId' },
-
-        'lastViewedItem-productReview': { mainField: 'productId', propertyField: 'productId' },
+        'lastViewedItem-productReview': {
+          mainField: 'productId',
+          propertyField: 'productId',
+        },
       };
 
       const relationshipKey = `${mainEcommerceType}-${propertyEcommerceType}`;
       const reverseKey = `${propertyEcommerceType}-${mainEcommerceType}`;
-      
+
       if (relationships[relationshipKey]) {
         mainField = relationships[relationshipKey].mainField;
         propertyField = relationships[relationshipKey].propertyField;
       } else if (relationships[reverseKey]) {
-
         mainField = relationships[reverseKey].propertyField;
         propertyField = relationships[reverseKey].mainField;
       } else {
-        
         mainField = 'customerId';
         propertyField = 'customerId';
       }
@@ -121,7 +135,9 @@ export const ecommerceSegments = {
         negativeQuery: undefined,
       });
 
-      const fieldValues = _.uniq(propertyItems.map(item => item[propertyField]));
+      const fieldValues = _.uniq(
+        propertyItems.map((item) => item[propertyField]),
+      );
 
       ids = await fetchByQueryWithScroll({
         subdomain,
@@ -142,7 +158,6 @@ export const ecommerceSegments = {
   },
 
   esTypesMap: async (_data, _context) => {
-
     const typesMap = {
       productReview: {
         _id: { type: 'keyword' },

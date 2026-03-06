@@ -15,12 +15,9 @@ import {
 import { addressMutations } from '@/ecommerce/graphql/resolvers/mutations/address';
 import { lastViewedItemMutations } from '@/ecommerce/graphql/resolvers/mutations/lastViewedItem';
 import { productReviewMutations } from '@/ecommerce/graphql/resolvers/mutations/productReview';
-import { wishlistMutations } from '@/ecommerce/graphql/resolvers/mutations/wishlist'
-
-
+import { wishlistMutations } from '@/ecommerce/graphql/resolvers/mutations/wishlist';
 
 import { goalMutations } from '@/goals/graphql/resolvers/mutations/goals';
-
 
 export const mutations = {
   ...boardMutations,

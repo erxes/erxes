@@ -1,6 +1,6 @@
 import { IPipelineLabel } from '~/modules/deals/types/pipelines';
 
-export type GoalEntity = "task" | "ticket" | "purchase" | "deal";
+export type GoalEntity = 'task' | 'ticket' | 'purchase' | 'deal';
 
 export interface ISpecificPeriodGoal {
   progress: string;
@@ -55,10 +55,7 @@ export interface IGoalTypeDoc {
   tagsIds?: string[];
 }
 
-
-
-export interface IGoalType extends IGoalTypeDoc {
-}
+export interface IGoalType extends IGoalTypeDoc {}
 
 // If you need an array type, create a separate one
 export type IGoalTypeArray = IGoalType[];
@@ -128,9 +125,9 @@ export interface GoalFormType {
   stageName?: string;
   pipelineId: string | null;
   boardId: string | null;
-  contributionType: string; 
-  metric: string; 
-  goalTypeChoose: string; 
+  contributionType: string;
+  metric: string;
+  goalTypeChoose: string;
   contribution: string[];
   department: string[];
   unit: string[];
@@ -142,9 +139,9 @@ export interface GoalFormType {
   segmentIds: string[];
   stageRadio: boolean;
   segmentRadio: boolean;
-  periodGoal: string; 
+  periodGoal: string;
   period?: string;
-  teamGoalType: string; 
+  teamGoalType: string;
   segmentCount?: number;
   pipelineLabels?: any[];
   selectedLabelIds?: string[];
@@ -152,4 +149,3 @@ export interface GoalFormType {
   companyIds: string[];
   tagsIds: string[];
 }
-

@@ -1,7 +1,6 @@
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
-
 const CoordinateSchema = new Schema(
   {
     lat: { type: Number, required: true },

@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { mongoStringRequired,schemaWrapper } from 'erxes-api-shared/utils';
-
+import { mongoStringRequired, schemaWrapper } from 'erxes-api-shared/utils';
 
 export const goalSchema = schemaWrapper(
   new Schema({

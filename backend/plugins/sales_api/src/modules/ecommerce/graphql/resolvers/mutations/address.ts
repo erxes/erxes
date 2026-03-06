@@ -14,7 +14,7 @@ export const addressMutations = {
 
       return address;
     } catch (error) {
-    //   debugError(error.message);
+      //   debugError(error.message);
     }
   },
   addressUpdate: async (
@@ -33,7 +33,7 @@ export const addressMutations = {
 
       return address;
     } catch (error) {
-    //   debugError(error.message);
+      //   debugError(error.message);
     }
   },
   addressRemove: async (
@@ -50,7 +50,7 @@ export const addressMutations = {
 
       return address;
     } catch (error) {
-    //   debugError(error.message);
+      //   debugError(error.message);
     }
   },
 };

@@ -16,11 +16,7 @@ export const MainNavigation = () => {
         path="sales/pos"
       />
 
-      <NavigationMenuLinkItem
-        name="Goals"
-        path="goals"
-        icon={IconSandbox}
-      />
+      <NavigationMenuLinkItem name="Goals" path="goals" icon={IconSandbox} />
     </>
   );
 };

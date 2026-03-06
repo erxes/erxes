@@ -7,7 +7,7 @@ import {
   SelectBranches,
   SelectDepartments,
   SelectUnit,
-  SelectMember
+  SelectMember,
 } from 'ui-modules';
 
 type Props = {
@@ -51,10 +51,10 @@ const Sidebar = ({ params }: Props) => {
   };
 
   const setFilter = (key: string, value: any) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [key]: value,
-      page: 1
+      page: 1,
     }));
   };
 
@@ -90,12 +90,12 @@ const Sidebar = ({ params }: Props) => {
           type="date"
           className="w-full border rounded px-2 py-1"
           value={date || ''}
-          onChange={e =>
+          onChange={(e) =>
             setFilter(
               'date',
               e.target.value
                 ? dayjs(e.target.value).format('YYYY-MM-DD')
-                : null
+                : null,
             )
           }
         />
@@ -111,12 +111,12 @@ const Sidebar = ({ params }: Props) => {
           type="date"
           className="w-full border rounded px-2 py-1"
           value={endDate || ''}
-          onChange={e =>
+          onChange={(e) =>
             setFilter(
               'endDate',
               e.target.value
                 ? dayjs(e.target.value).format('YYYY-MM-DD')
-                : null
+                : null,
             )
           }
         />
@@ -172,10 +172,7 @@ const Sidebar = ({ params }: Props) => {
           <SelectMember
             value={contribution || null}
             onValueChange={(value: string | string[] | null) =>
-              setFilter(
-                'contribution',
-                Array.isArray(value) ? value[0] : value
-              )
+              setFilter('contribution', Array.isArray(value) ? value[0] : value)
             }
             placeholder="Choose member"
           />

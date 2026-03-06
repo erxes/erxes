@@ -1,29 +1,29 @@
-import React from "react";
-import { gql, useQuery, DocumentNode } from "@apollo/client";
-import GoalTypeForm from "../containers/goalForm";
-import GoalView from "./goalView";
-import queries from "../graphql/queries"; 
-import { IGoalType, GoalEntity } from "../types";
+import React from 'react';
+import { gql, useQuery, DocumentNode } from '@apollo/client';
+import GoalTypeForm from '../containers/goalForm';
+import GoalView from './goalView';
+import queries from '../graphql/queries';
+import { IGoalType, GoalEntity } from '../types';
 
 const pipelineQueryMap: Record<GoalEntity, DocumentNode> = {
   task: gql(queries.tasksPipelineDetail as string),
   ticket: gql(queries.ticketsPipelineDetail as string),
   purchase: gql(queries.purchasesPipelineDetail as string),
-  deal: gql(queries.salesPipelineDetail as string)
+  deal: gql(queries.salesPipelineDetail as string),
 };
 
 const boardQueryMap: Record<GoalEntity, DocumentNode> = {
   task: gql(queries.tasksBoardDetail as string),
   ticket: gql(queries.ticketsBoardDetail as string),
   purchase: gql(queries.purchasesBoardDetail as string),
-  deal: gql(queries.salesBoardDetail as string)
+  deal: gql(queries.salesBoardDetail as string),
 };
 
 const stageQueryMap: Record<GoalEntity, DocumentNode> = {
   task: gql(queries.tasksStageDetail as string),
   ticket: gql(queries.ticketsStageDetail as string),
   purchase: gql(queries.purchasesStageDetail as string),
-  deal: gql(queries.salesStageDetail as string)
+  deal: gql(queries.salesStageDetail as string),
 };
 
 type Props = {
@@ -35,29 +35,20 @@ type Props = {
 const GoalRow = ({ goalType, onDelete, onEdit }: Props) => {
   const entity = goalType.entity;
 
-  const { data: pipelineData } = useQuery(
-    pipelineQueryMap[entity],
-    {
-      variables: { _id: goalType.pipelineId },
-      skip: !goalType.pipelineId
-    }
-  );
+  const { data: pipelineData } = useQuery(pipelineQueryMap[entity], {
+    variables: { _id: goalType.pipelineId },
+    skip: !goalType.pipelineId,
+  });
 
-  const { data: boardData } = useQuery(
-    boardQueryMap[entity],
-    {
-      variables: { _id: goalType.boardId },
-      skip: !goalType.boardId
-    }
-  );
+  const { data: boardData } = useQuery(boardQueryMap[entity], {
+    variables: { _id: goalType.boardId },
+    skip: !goalType.boardId,
+  });
 
-  const { data: stageData } = useQuery(
-    stageQueryMap[entity],
-    {
-      variables: { _id: goalType.stageId },
-      skip: !goalType.stageId
-    }
-  );
+  const { data: stageData } = useQuery(stageQueryMap[entity], {
+    variables: { _id: goalType.stageId },
+    skip: !goalType.stageId,
+  });
 
   return (
     <GoalView

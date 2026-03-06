@@ -51,10 +51,22 @@ import {
   loadPosSlotClass,
   loadProductGroupClass,
 } from './modules/pos/db/models/Pos';
-import { IAddressModel, loadAddressClass } from '~/modules/ecommerce/db/models/Address';
-import { ILastViewedItemModel, loadLastViewedItemClass } from './modules/ecommerce/db/models/LastViewedItems';
-import { IProductReviewModel, loadProductReviewClass } from './modules/ecommerce/db/models/ProductReview';
-import { IWishlistModel, loadWishlistClass } from './modules/ecommerce/db/models/Wishlist';
+import {
+  IAddressModel,
+  loadAddressClass,
+} from '~/modules/ecommerce/db/models/Address';
+import {
+  ILastViewedItemModel,
+  loadLastViewedItemClass,
+} from './modules/ecommerce/db/models/LastViewedItems';
+import {
+  IProductReviewModel,
+  loadProductReviewClass,
+} from './modules/ecommerce/db/models/ProductReview';
+import {
+  IWishlistModel,
+  loadWishlistClass,
+} from './modules/ecommerce/db/models/Wishlist';
 import { IProductReviewDocument } from '~/modules/ecommerce/@types/productReview';
 import { IWishlistDocument } from '~/modules/ecommerce/@types/wishlist';
 import { ILastViewedItemDocument } from '~/modules/ecommerce/@types/lastViewedItem';
@@ -87,7 +99,6 @@ export interface IModels {
 
   //goals
   Goals: IGoalModel;
-
 }
 
 export interface IContext extends IMainContext {
@@ -162,7 +173,7 @@ export const loadClasses = (
     loadCoverClass(models),
   );
 
-    models.ProductReview = db.model<IProductReviewDocument, IProductReviewModel>(
+  models.ProductReview = db.model<IProductReviewDocument, IProductReviewModel>(
     'ecommerce_productreview',
     loadProductReviewClass(models, subdomain),
   );
@@ -170,12 +181,15 @@ export const loadClasses = (
     'ecommerce_wishlist',
     loadWishlistClass(models, subdomain),
   );
-  models.LastViewedItem = db.model<ILastViewedItemDocument, ILastViewedItemModel>(
-    'ecommerce_lastvieweditem', loadLastViewedItemClass(models, subdomain));
+  models.LastViewedItem = db.model<
+    ILastViewedItemDocument,
+    ILastViewedItemModel
+  >('ecommerce_lastvieweditem', loadLastViewedItemClass(models, subdomain));
 
   models.Address = db.model<IAddressDocument, IAddressModel>(
     'ecommerce_address',
-    loadAddressClass(models, subdomain));
+    loadAddressClass(models, subdomain),
+  );
 
   //goals
   models.Goals = db.model<IGoalDocument, IGoalModel>(

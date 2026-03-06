@@ -8,10 +8,9 @@ import { MainQueryResponse, RemoveMutationResponse } from '../types';
 import * as queries from '../graphql/queries';
 import * as mutations from '../graphql/mutations';
 
-
 const generatePaginationParams = (queryParams: any) => ({
-  page: queryParams.page ?  Number.parseInt(queryParams.page, 10) : 1,
-  perPage: queryParams.perPage ?  Number.parseInt(queryParams.perPage, 10) : 20,
+  page: queryParams.page ? Number.parseInt(queryParams.page, 10) : 1,
+  perPage: queryParams.perPage ? Number.parseInt(queryParams.perPage, 10) : 20,
 });
 
 const normalizeArray = (val?: string | string[] | null) => {
@@ -20,15 +19,11 @@ const normalizeArray = (val?: string | string[] | null) => {
   return String(val).split(',').filter(Boolean);
 };
 
-
 const GoalTypesListContainer = () => {
   const { toast } = useToast();
   const location = useLocation();
 
-  
-  const queryParams = Object.fromEntries(
-    new URLSearchParams(location.search)
-  );
+  const queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
   const goalTypesMainQuery = useQuery<MainQueryResponse>(
     gql(queries.goalTypesMain as string),
@@ -43,12 +38,12 @@ const GoalTypesListContainer = () => {
         contribution: queryParams.contribution || undefined,
       },
       fetchPolicy: 'network-only',
-    }
+    },
   );
 
   const [goalTypesRemove] = useMutation<RemoveMutationResponse>(
     mutations.goalsRemove,
-    { refetchQueries: ['goalTypesMain'] }
+    { refetchQueries: ['goalTypesMain'] },
   );
 
   const remove = ({ goalTypeIds }: { goalTypeIds: string[] }) => {
@@ -56,22 +51,20 @@ const GoalTypesListContainer = () => {
       .then(() => {
         toast({
           title: 'Success',
-          description: 'Goal type deleted successfully'
+          description: 'Goal type deleted successfully',
         });
       })
       .catch((e) => {
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: e.message
+          description: e.message,
         });
       });
   };
 
-  const {
-    list = [],
-    totalCount = 0,
-  } = goalTypesMainQuery.data?.goalTypesMain || {};
+  const { list = [], totalCount = 0 } =
+    goalTypesMainQuery.data?.goalTypesMain || {};
 
   return (
     <GoalTypesList

@@ -10,86 +10,84 @@ export const goalsSegments = {
   contentTypes: goalsSegmentConfigs.contentTypes,
 
   associationFilter: async ({ data }, { subdomain }) => {
-  const { mainType, propertyType, positiveQuery, negativeQuery } = data;
+    const { mainType, propertyType, positiveQuery, negativeQuery } = data;
 
-  let ids: string[] = [];
+    let ids: string[] = [];
 
-  if (mainType.includes('sales:goal')) {
-    ids = await fetchByQueryWithScroll({
-      subdomain,
-      index: 'goals',
-      _source: '_id',
-      positiveQuery,
-      negativeQuery,
-    });
-  }
-
-  if (mainType.includes('sales:goal_progress')) {
-    ids = await fetchByQueryWithScroll({
-      subdomain,
-      index: 'goal_progresses',
-      _source: '_id',
-      positiveQuery,
-      negativeQuery,
-    });
-  }
-
-  if (propertyType.includes('sales:goal')) {
-    const goalIds = await fetchByQueryWithScroll({
-      subdomain,
-      index: await getEsIndexByContentType(propertyType),
-      positiveQuery,
-      negativeQuery,
-    });
-
-    if (mainType.includes('sales:deal')) {
+    if (mainType.includes('sales:goal')) {
       ids = await fetchByQueryWithScroll({
         subdomain,
-        index: 'deals',
+        index: 'goals',
+        _source: '_id',
+        positiveQuery,
+        negativeQuery,
+      });
+    }
+
+    if (mainType.includes('sales:goal_progress')) {
+      ids = await fetchByQueryWithScroll({
+        subdomain,
+        index: 'goal_progresses',
+        _source: '_id',
+        positiveQuery,
+        negativeQuery,
+      });
+    }
+
+    if (propertyType.includes('sales:goal')) {
+      const goalIds = await fetchByQueryWithScroll({
+        subdomain,
+        index: await getEsIndexByContentType(propertyType),
+        positiveQuery,
+        negativeQuery,
+      });
+
+      if (mainType.includes('sales:deal')) {
+        ids = await fetchByQueryWithScroll({
+          subdomain,
+          index: 'deals',
+          _source: '_id',
+          positiveQuery: {
+            terms: {
+              goalIds,
+            },
+          },
+          negativeQuery: undefined,
+        });
+      }
+    }
+
+    if (
+      propertyType.includes('core:contact') ||
+      propertyType.includes('core:company')
+    ) {
+      const entityIds = await fetchByQueryWithScroll({
+        subdomain,
+        index: await getEsIndexByContentType(propertyType),
+        positiveQuery,
+        negativeQuery,
+      });
+
+      ids = await fetchByQueryWithScroll({
+        subdomain,
+        index: 'goals',
         _source: '_id',
         positiveQuery: {
           terms: {
-            goalIds,
+            contribution: entityIds,
           },
         },
         negativeQuery: undefined,
       });
     }
-  }
 
-  if (
-    propertyType.includes('core:contact') ||
-    propertyType.includes('core:company')
-  ) {
-    const entityIds = await fetchByQueryWithScroll({
-      subdomain,
-      index: await getEsIndexByContentType(propertyType),
-      positiveQuery,
-      negativeQuery,
-    });
-
-    ids = await fetchByQueryWithScroll({
-      subdomain,
-      index: 'goals',
-      _source: '_id',
-      positiveQuery: {
-        terms: {
-          contribution: entityIds,
-        },
-      },
-      negativeQuery: undefined,
-    });
-  }
-
-  return {
-    data: _.uniq(ids),
-    status: 'success',
-  };
-},
-
+    return {
+      data: _.uniq(ids),
+      status: 'success',
+    };
+  },
 
   esTypesMap: async (_data, _context) => {
- 
     return {
       data: {
         typesMap: {
@@ -118,10 +116,10 @@ export const goalsSegments = {
             current: { type: 'float' },
             progress: { type: 'float' },
             target: { type: 'float' },
-          }
-        }
+          },
+        },
       },
-      status: 'success'
+      status: 'success',
     };
   },
 
@@ -130,12 +128,11 @@ export const goalsSegments = {
     let filteredIds: string[] = [];
 
     if (contentTypeId === 'sales:goal') {
-
       const mongoQuery: any = {};
-      
-      conditions.forEach(condition => {
+
+      conditions.forEach((condition) => {
         const { field, operator, value } = condition;
-        
+
         switch (operator) {
           case 'equals':
             mongoQuery[field] = value;
@@ -158,7 +155,7 @@ export const goalsSegments = {
       });
 
       const goals = await models.Goals.find(mongoQuery).select('_id').lean();
-      filteredIds = goals.map(goal => goal._id);
+      filteredIds = goals.map((goal) => goal._id);
     }
 
     return { data: filteredIds, status: 'success' };
