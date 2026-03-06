@@ -15,7 +15,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
   ) {
     const web = await models.Web.createWeb(doc);
   
-    const defaultPages = ['home', 'about', 'contact', 'privacy', 'terms'];
+    const defaultPages = ['home', 'about', 'contact', 'privacy', 'terms', 'blogs', 'blog'];
     const tourPages = ['tours', 'tour', 'checkout', 'confirmation', 'profile', 'login', 'register'];
     const ecommercePages = ['products', 'product', 'checkout', 'profile', 'confirmation', 'login', 'register'];
     const commerceKinds = ['ecommerce', 'restaurant', 'hotel'];
