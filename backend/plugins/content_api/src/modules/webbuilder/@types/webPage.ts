@@ -6,7 +6,7 @@ export interface IWebPageItem {
   content: any;
   order: number;
   contentType: string;
-  contentId: string;
+  contentTypeId: string;
   config?: any;
 }
 

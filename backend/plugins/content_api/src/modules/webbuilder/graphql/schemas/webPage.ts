@@ -8,7 +8,7 @@ export const types = `
     content: String
     order: Int
     contentType: String
-    contentId: String
+    contentTypeId: String
     config: JSON
   }
 
@@ -46,7 +46,7 @@ export const inputs = `
     content: String
     order: Int
     contentType: String
-    contentId: String
+    contentTypeId: String
     config: JSON
   }
 

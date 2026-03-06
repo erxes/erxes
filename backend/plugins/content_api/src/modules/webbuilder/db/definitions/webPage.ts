@@ -25,7 +25,7 @@ export const webPageSchema = new mongoose.Schema<IWebPageDocument>(
         content: { type: Schema.Types.Mixed },
         order: { type: Number, required: true },
         contentType: { type: String },
-        contentId: { type: String },
+        contentTypeId: { type: String },
         config: { type: Schema.Types.Mixed },
       },
     ],
