@@ -5,10 +5,12 @@ import {
   useConfirm,
   toast,
   PageContainer,
+  PageSubHeader,
+  Kbd,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
+import { IconAlignJustified, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
@@ -20,6 +22,7 @@ import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDraw
 import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
+import { EmptyState } from '../shared/EmptyState';
 
 export function CustomFields() {
   const { websiteId } = useParams();
@@ -43,6 +46,9 @@ export function CustomFields() {
   });
 
   const customTypes = customTypesData?.cmsCustomPostTypes || [];
+  const totalFields = groups.reduce((count, group) => {
+    return count + (group.fields?.length || 0);
+  }, 0);
 
   const handleGroupSubmit = (data: any) => {
     const input = {
@@ -174,92 +180,75 @@ export function CustomFields() {
   return (
     <PageContainer>
       <CustomFieldsHeader>
-        <Button asChild>
-          <Link to={`/content/cms/${websiteId}/posts/add`}>
-            <IconPlus className="w-4 h-4 mr-2" />
-            Create Post
-          </Link>
+        <Button
+          onClick={() => {
+            setEditingGroup(null);
+            setIsGroupDrawerOpen(true);
+          }}
+        >
+          <IconPlus />
+          Add Group
+          <Kbd>G</Kbd>
         </Button>
       </CustomFieldsHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-auto flex-col flex-auto w-full">
-          <div className="flex-auto">
-            <div className="p-6">
-              <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h1 className="text-xl font-semibold">Custom Fields</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Manage custom field groups and fields
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => {
-                      setEditingGroup(null);
-                      setIsGroupDrawerOpen(true);
-                    }}
-                  >
-                    <IconPlus className="w-4 h-4 mr-2" />
-                    Add Group
-                  </Button>
-                </div>
-
-                {/* Table Header */}
-                <Table>
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.Head>Name</Table.Head>
-                      <Table.Head>Type</Table.Head>
-                      <Table.Head className="w-12"></Table.Head>
-                    </Table.Row>
-                  </Table.Header>
-                </Table>
-
-                {/* Groups List */}
-                {loading ? (
-                  <div className="py-12 text-center">
-                    <Spinner />
-                  </div>
-                ) : groups.length === 0 ? (
-                  <div className="py-12 text-center border rounded-lg mt-2">
-                    <p className="text-muted-foreground mb-4">
-                      No field groups yet
-                    </p>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setEditingGroup(null);
-                        setIsGroupDrawerOpen(true);
-                      }}
-                    >
-                      <IconPlus className="w-4 h-4 mr-2" />
-                      Create First Group
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2 mt-2">
-                    {groups.map((group) => (
-                      <CustomFieldGroupItem
-                        key={group._id}
-                        group={group}
-                        selectedGroupId={selectedGroup?._id || null}
-                        onSelectGroup={setSelectedGroup}
-                        onEditGroup={handleEditGroup}
-                        onDeleteGroup={handleDeleteGroup}
-                        onEditField={handleEditField}
-                        onDeleteField={handleDeleteField}
-                        onAddField={() => {
-                          setSelectedGroup(group);
-                          setEditingField(null);
-                          setIsFieldDrawerOpen(true);
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
+        <div className="flex overflow-hidden flex-col flex-auto w-full">
+          <PageSubHeader>
+            <div className="flex items-center justify-between gap-4 w-full">
+              <div className="text-sm text-muted-foreground">
+                {`Found ${groups.length} groups and ${totalFields} fields`}
               </div>
+            </div>
+          </PageSubHeader>
+          <div className="overflow-hidden flex-auto p-3">
+            <div className="h-full rounded-lg border overflow-auto bg-background">
+              <Table>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head className="w-1/2">Group / Field</Table.Head>
+                    {/* <Table.Head className="w-1/4">Type</Table.Head> */}
+                    <Table.Head className="w-1/4"></Table.Head>
+                  </Table.Row>
+                </Table.Header>
+              </Table>
+
+              {loading ? (
+                <div className="py-20 text-center">
+                  <Spinner />
+                </div>
+              ) : groups.length === 0 ? (
+                <EmptyState
+                  icon={IconAlignJustified}
+                  title="No custom field groups yet"
+                  description="Create your first group to define custom fields for posts and custom post types."
+                  actionLabel="Add Group"
+                  onAction={() => {
+                    setEditingGroup(null);
+                    setIsGroupDrawerOpen(true);
+                  }}
+                />
+              ) : (
+                <div className="flex flex-col">
+                  {groups.map((group) => (
+                    <CustomFieldGroupItem
+                      key={group._id}
+                      group={group}
+                      selectedGroupId={selectedGroup?._id || null}
+                      onSelectGroup={setSelectedGroup}
+                      onEditGroup={handleEditGroup}
+                      onDeleteGroup={handleDeleteGroup}
+                      onEditField={handleEditField}
+                      onDeleteField={handleDeleteField}
+                      onAddField={() => {
+                        setSelectedGroup(group);
+                        setEditingField(null);
+                        setIsFieldDrawerOpen(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
