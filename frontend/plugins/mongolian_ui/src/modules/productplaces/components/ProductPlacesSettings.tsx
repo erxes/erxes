@@ -7,6 +7,7 @@ import SplitPage from '../../../pages/productplaces/SplitPage';
 import PrintPage from '../../../pages/productplaces/PrintPage';
 import ProductFilterPage from '../../../pages/productplaces/ProductFilterPage';
 
+
 const ProductPlacesSettings = () => {
   return (
     <SettingsLayout sidebar={<ProductPlacesSidebar />}>

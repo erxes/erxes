@@ -30,6 +30,8 @@ interface ResponseData {
   customerName?: string;
   pDatas?: Stock[];
   amount: string | number;
+  headerText?: string;   // added for custom header
+  footerText?: string;   // added for custom footer
 }
 
 const getRows = (stocks: Stock[]): string => {
@@ -78,9 +80,18 @@ export const PerResponse = (response: ResponseData, counter?: number): string =>
     `
     : '';
 
+  // Optional header and footer
+  const headerHtml = response.headerText
+    ? `<div class="header">${response.headerText}</div>`
+    : '';
+  const footerHtml = response.footerText
+    ? `<div class="footer">${response.footerText}</div>`
+    : '';
+
   return `
     <div class="receipt">
       ${showSplitter ? '<div class="splitter"></div>' : ''}
+      ${headerHtml}
       <div>
         <p>Огноо: ${response.date}</p>
         ${showNumber ? `<p>№: ${response.number}</p>` : ''}
@@ -90,8 +101,7 @@ export const PerResponse = (response: ResponseData, counter?: number): string =>
         </p>
         <p>
           Department:
-          ${response.department?.code || ''} - ${response.department?.title || ''
-    }
+          ${response.department?.code || ''} - ${response.department?.title || ''}
         </p>
       </div>
       ${customerBlock}
@@ -111,6 +121,7 @@ export const PerResponse = (response: ResponseData, counter?: number): string =>
       <div class="total">
         <p><label>Бүгд үнэ:</label> ${response.amount}</p>
       </div>
+      ${footerHtml}
     </div>
     <script>
       window.onbeforeunload = function () {

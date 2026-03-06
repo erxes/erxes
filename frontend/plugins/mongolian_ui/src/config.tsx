@@ -14,6 +14,7 @@ const SettingsNavigation = lazy(() =>
   })),
 );
 
+
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
   path: 'mongolian',

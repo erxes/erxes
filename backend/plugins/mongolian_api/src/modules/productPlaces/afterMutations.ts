@@ -1,5 +1,5 @@
 import { isEnabled } from 'erxes-api-shared/utils';
-
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { handleSplit } from './handlers/handleSplit';
 import { handlePlace } from './handlers/handlePlace';
 import { handlePricing } from './handlers/handlePricing';
@@ -11,10 +11,7 @@ export default {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  console.log(
-    '🔥 afterMutationHandlers RUNNING',
-    JSON.stringify(params, null, 2),
-  );
+  console.log('🔥 afterMutationHandlers RUNNING', JSON.stringify(params, null, 2));
   const { type, action, user } = params;
 
   if (type !== 'sales:deal' || action !== 'update') {
@@ -36,20 +33,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 
   const destinationStageId = deal.stageId;
-  console.log(
-    '🔥 afterMutationHandlers destinationStageId',
-    destinationStageId,
-  );
+  console.log('🔥 afterMutationHandlers destinationStageId', destinationStageId);
 
   const [splitConfig, placeConfig, printConfig] = await getMnConfigs(
     subdomain,
-    [
-      'dealsProductsDataSplit',
-      'dealsProductsDataPlaces',
-      'dealsProductsDataPrint',
-    ],
+    ['dealsProductsDataSplit', 'dealsProductsDataPlaces', 'dealsProductsDataPrint'],
     destinationStageId,
   );
+
   console.log('🔥 afterMutationHandlers configs', {
     splitConfig: splitConfig ? 'found' : 'not found',
     placeConfig: placeConfig ? 'found' : 'not found',
@@ -63,24 +54,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let productsData = deal.productsData;
 
   if (splitConfig && Object.keys(splitConfig).length > 0) {
-    productsData = await handleSplit(
-      subdomain,
-      deal,
-      productsData,
-      splitConfig,
-    );
+    productsData = await handleSplit(subdomain, deal, productsData, splitConfig);
   }
 
   let productById: Record<string, any> | undefined;
 
   if (placeConfig && Object.keys(placeConfig).length > 0) {
-    const placeResult = await handlePlace(
-      subdomain,
-      deal,
-      productsData,
-      placeConfig,
-    );
-
+    const placeResult = await handlePlace(subdomain, deal, productsData, placeConfig);
     productsData = placeResult.productsData;
     productById = placeResult.productById;
 
@@ -89,14 +69,46 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
   }
 
-  if (printConfig?.conditions?.length && productById) {
-    await handlePrint(
-      subdomain,
-      deal,
-      user,
-      productsData,
-      printConfig,
-      productById,
-    );
+  // Log print config details
+  console.log('🔥 printConfig conditions length:', printConfig?.conditions?.length);
+  console.log('🔥 conditions:', JSON.stringify(printConfig?.conditions));
+
+  // If print config exists and we still don't have productById, fetch products now
+// ... after split/place handling ...
+
+// Log print config details (optional)
+console.log('🔥 printConfig exists:', !!printConfig);
+
+// If print config exists and we still don't have productById, fetch products now
+if (printConfig && !productById) {
+  console.log('🔥 Fetching products for print');
+  const productIds = productsData.map(pd => pd.productId).filter(Boolean);
+  console.log('🔥 productIds:', productIds);
+  if (productIds.length) {
+    try {
+      const products = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        method: 'query',
+        input: { _id: { $in: productIds } },
+      });
+      console.log('🔥 products fetched count:', products.length);
+      productById = Object.fromEntries(products.map(p => [p._id, p]));
+    } catch (error) {
+      console.error('🔥 Error fetching products:', error);
+    }
+  } else {
+    productById = {}; // still truthy, but no product details
   }
+}
+
+// Now handle printing if we have a print config and product data
+if (printConfig && productById) {
+  console.log('🔥 Calling handlePrint');
+  await handlePrint(subdomain, deal, user, productsData, printConfig, productById);
+} else {
+  console.log('🔥 handlePrint skipped: printConfig or productById missing');
+}
 };

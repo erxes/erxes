@@ -49,32 +49,45 @@ export const getMnConfig = async (
 // For multiple configs at once (optimized)
 export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
   try {
-    const promises = codes.map(
-      (code) =>
-        sendTRPCMessage({
+    const promises = codes.map(async (code) => {
+      try {
+        // 1️⃣ try stage-specific config
+        let result = await sendTRPCMessage({
           subdomain,
           pluginName: 'mongolian',
           module: 'configs',
           action: 'mnConfig',
           method: 'query',
           input: { code, subId },
-        }).catch(() => null), // Handle individual failures
-    );
+        });
 
-    const results = await Promise.all(promises);
+        // 2️⃣ fallback to global config
+        if (!result && subId) {
+          result = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'mongolian',
+            module: 'configs',
+            action: 'mnConfig',
+            method: 'query',
+            input: { code, subId: '' },
+          });
+        }
 
-    return results.map((result, index) => {
-      if (!result) return null;
+        if (result?.value && Array.isArray(result.value)) {
+          return result.value.reduce((acc: any, item: any) => {
+            acc[item.key] = item.value;
+            return acc;
+          }, {});
+        }
 
-      if (result?.value && Array.isArray(result.value)) {
-        return result.value.reduce((acc: any, item: any) => {
-          acc[item.key] = item.value;
-          return acc;
-        }, {});
+        return null;
+      } catch {
+        return null;
       }
-      return null;
     });
-  } catch (error) {
+
+    return await Promise.all(promises);
+  } catch {
     return codes.map(() => null);
   }
 };

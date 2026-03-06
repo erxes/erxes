@@ -49,7 +49,7 @@ const emptyForm: PerPrintConfig = {
 
 const PrintConfig: React.FC<Props> = ({
   currentStageId,
-  configCode = 'dealsPrintConfig',
+  configCode = 'dealsProductsDataPrint',
 }) => {
   const form = useForm();
 
@@ -137,30 +137,31 @@ const PrintConfig: React.FC<Props> = ({
 
   // ---------- Actions ----------
   const handleSave = async () => {
-    try {
-      const { _id, ...rest } = formData as any; // _id may exist for editing
-      const valueArray = objectToKeyValueArray(rest);
+  try {
+    const { _id, ...rest } = formData as any;
+    const valueArray = objectToKeyValueArray(rest);
 
-      if (_id) {
-        await updateConfig({ variables: { _id, value: valueArray } });
-      } else {
-        const subId = crypto.randomUUID();
-        await createConfig({
-          variables: {
-            code: configCode,
-            subId,
-            value: valueArray,
-          },
-        });
-      }
-
-      await refetch(); // refresh list
-      setActiveIndex(null);
-      setFormData({ ...emptyForm, stageId: currentStageId });
-    } catch (error) {
-      console.error('Save failed', error);
+    if (_id) {
+      await updateConfig({ variables: { _id, value: valueArray } });
+    } else {
+      // ✅ Use the selected stageId as subId so the backend can find it
+      const subId = formData.stageId;
+      await createConfig({
+        variables: {
+          code: configCode,
+          subId,
+          value: valueArray,
+        },
+      });
     }
-  };
+
+    await refetch();
+    setActiveIndex(null);
+    setFormData({ ...emptyForm, stageId: currentStageId });
+  } catch (error) {
+    console.error('Save failed', error);
+  }
+};
 
   const handleDelete = async () => {
     if (activeIndex === null) return;
