@@ -51,7 +51,7 @@ export const ecommerceTrpcRouter = t.router({
       const { models } = ctx;
       return {
         status: 'success',
-        data: await models.ProductReview.countDocuments(input)
+        data: await models.ProductReview.countDocuments(input),
       };
     }),
 
