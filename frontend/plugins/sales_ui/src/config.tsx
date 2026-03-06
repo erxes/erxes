@@ -25,7 +25,7 @@ const GoalsNavigation = lazy(() =>
   import('./modules/goals/GoalsNavigation').then((module) => ({
     default: module.GoalsNavigation,
   })),
-)
+);
 const SalesSettingsNavigation = lazy(() =>
   import('./modules/SalesSettingsNavigation').then((module) => ({
     default: module.SalesSettingsNavigation,

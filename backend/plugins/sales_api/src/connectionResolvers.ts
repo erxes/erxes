@@ -1,6 +1,9 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-import { createEventDispatcher, EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  createEventDispatcher,
+  EventDispatcherReturn,
+} from 'erxes-api-shared/core-modules';
 import mongoose from 'mongoose';
 
 import {
@@ -107,7 +110,7 @@ export interface IContext extends IMainContext {
   commonQuerySelector: any;
   docModifier: <T>(doc: T) => any;
   serverTiming: any;
-  loaders: ILoaders
+  loaders: ILoaders;
 }
 
 export const loadClasses = (
@@ -120,7 +123,6 @@ export const loadClasses = (
   ) => EventDispatcherReturn,
 ): IModels => {
   const models = {} as IModels;
-
 
   // Board model with event dispatcher
   models.Boards = db.model<IBoardDocument, IBoardModel>(
