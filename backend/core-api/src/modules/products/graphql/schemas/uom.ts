@@ -14,6 +14,7 @@ export const types = `
     isForSubscription:Boolean
     subscriptionConfig:JSON
     timely: TimelyType
+    webId: String
   }
 `;
 

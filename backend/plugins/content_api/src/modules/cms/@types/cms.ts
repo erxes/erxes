@@ -24,6 +24,7 @@ export interface IContentCMSInput {
 
 export interface ICMSMenu {
   clientPortalId: string;
+  webId?: string;
   label: string;
   objectType: string;
   objectId: string;

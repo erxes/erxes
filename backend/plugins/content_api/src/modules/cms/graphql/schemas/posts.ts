@@ -18,6 +18,7 @@ export const types = `
     type Post @key(fields: "_id") @cacheControl(maxAge: 3){
         _id: String!
         type: String
+        webId: String
         customPostType: CustomPostType
         authorKind: PostAuthorKind
         authorId: String
@@ -77,6 +78,7 @@ export const types = `
 export const inputs = `
     input PostInput {
         clientPortalId: String
+        webId: String
         title: String
         slug: String
         content: String
@@ -133,8 +135,8 @@ export const queries = `
     cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
     cmsTranslations(postId: String): [Translation]
 
-    cpPosts(language: String, ${commonPostQuerySelector}): [Post]
-    cpPostList(language: String, ${commonPostQuerySelector}): PostList
+    cpPosts(language: String, webId: String, ${commonPostQuerySelector}): [Post]
+    cpPostList(language: String, webId: String, ${commonPostQuerySelector}): PostList
     cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
 `;
 

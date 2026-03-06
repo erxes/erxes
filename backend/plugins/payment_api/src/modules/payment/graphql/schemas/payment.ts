@@ -32,11 +32,12 @@ export const inputs = `
     kind: String!
     status: PaymentMethodStatus
     config: JSON
+    webId: String
   }
 `
 
 export const queries = `
-  payments(status: String, kind: String): [Payment]
+  payments(status: String, kind: String, webId: String): [Payment]
 
   paymentsPublic(kind: String, _ids:[String], currency: String): [PaymentPublic]
   paymentsCountByType: paymentsTotalCount
@@ -48,7 +49,7 @@ export const queries = `
   paymentsGetStripeKey(_id: String!): String
 
 
-  cpPayments(status: String, kind: String): [Payment]
+  cpPayments(status: String, kind: String, webId: String): [Payment]
 `;
 
 export const mutations = `

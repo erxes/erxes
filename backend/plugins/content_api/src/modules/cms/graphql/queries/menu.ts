@@ -74,11 +74,15 @@ class MenuQueryResolver extends BaseQueryResolver {
 
   async cpMenus(_parent: any, args: any, context: IContext) {
     const { models, clientPortal } = context;
-    const { language, kind } = args;
+    const { language, kind, webId } = args;
 
     const query: any = {
       clientPortalId: clientPortal._id,
     };
+
+    if (webId) {
+      query.webId = webId;
+    }
 
     if (kind) {
       query.kind = kind;

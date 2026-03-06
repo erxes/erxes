@@ -23,6 +23,7 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
   {
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
+    webId: { type: String, optional: true },
     label: { type: String, required: true },
     objectType: { type: String },
     objectId: { type: String },

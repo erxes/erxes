@@ -15,6 +15,7 @@ const generateFilter = async (
     brandIds,
     status,
     ids,
+    webId,
   }: IProductCategoryParams,
 ) => {
   const filter: FilterQuery<IProductCategoryParams> = {};
@@ -62,6 +63,10 @@ const generateFilter = async (
 
   if (ids?.length > 0) {
     filter._id = { $in: ids };
+  }
+
+  if (webId) {
+    (filter as any).webId = webId;
   }
 
   return filter;

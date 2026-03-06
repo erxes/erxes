@@ -34,6 +34,7 @@ const generateFilter = async (
     excludeIds,
     image,
     pipelineId,
+    webId,
   } = params;
 
   const filter: FilterQuery<IProductParams> = { ...commonQuerySelector };
@@ -162,6 +163,10 @@ const generateFilter = async (
 
   if (brandIds) {
     filter.scopeBrandIds = { $in: brandIds };
+  }
+
+  if (webId) {
+    (filter as any).webId = webId;
   }
 
   if (image) {
