@@ -9,7 +9,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
+  AddInternalNote,
   FieldsInDetail,
+  internalNoteCustomActivity,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { CustomerDetailGeneral } from './CustomerDetailGeneral';
@@ -57,9 +59,18 @@ export const CustomerDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CustomerDetailFields />
-                  <ActivityLogs
-                    targetId={customerDetail?._id || ''}
-                  ></ActivityLogs>
+                  {!!customerDetail?._id && (
+                    <div className="flex flex-col mb-12">
+                      <ActivityLogs
+                        targetId={customerDetail?._id || ''}
+                        customActivities={[internalNoteCustomActivity]}
+                      />
+                      <AddInternalNote
+                        contentTypeId={customerDetail._id}
+                        contentType="core:customer"
+                      />
+                    </div>
+                  )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail

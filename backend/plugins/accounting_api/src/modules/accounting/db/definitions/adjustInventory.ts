@@ -10,7 +10,7 @@ const infoPerDateSchema = new Schema({
   unitCost: { type: Number, optional: true, label: 'unitCost' },
   soonInCount: { type: Number, optional: true, label: 'soonInCount' },
   soonOutCount: { type: Number, optional: true, label: 'soonOutCount' },
-})
+});
 
 export const adjustInvDetailsSchema = schemaWrapper(
   new Schema({
@@ -29,20 +29,34 @@ export const adjustInvDetailsSchema = schemaWrapper(
     warning: { type: String, optional: true, label: 'warning' },
     createdAt: { type: Date, default: new Date(), label: 'Created at' },
     updatedAt: { type: Date, optional: true, label: 'Modified at' },
-    infoPerDate: { type: [infoPerDateSchema], defaultValue: [], }
-  })
+    infoPerDate: { type: [infoPerDateSchema], defaultValue: [] },
+  }),
 );
 
 adjustInvDetailsSchema.index({
-  accountId: 1, branchId: 1, departmentId: 1, productId: 1
-})
+  accountId: 1,
+  branchId: 1,
+  departmentId: 1,
+  productId: 1,
+});
+adjustInvDetailsSchema.index({
+  adjustId: 1,
+  branchId: 1,
+  departmentId: 1,
+  productId: 1,
+});
 
 export const adjustInventoriesSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
     date: { type: Date, label: 'date' }, // хэднээр тасалж өртөг зүгшрүүлж байна вэ? буюу хүртэлх огноо
     description: { type: String, label: 'description' },
-    status: { type: String, default: 'draft', enum: ADJ_INV_STATUSES.all, label: 'status' },
+    status: {
+      type: String,
+      default: 'draft',
+      enum: ADJ_INV_STATUSES.all,
+      label: 'status',
+    },
     error: { type: String, optional: true, label: 'error' },
     warning: { type: String, optional: true, label: 'warning' },
     beginDate: { type: Date, label: 'date' }, // өмнөх хаалтын огноо эсвэл анхны гүйлгээний огноо

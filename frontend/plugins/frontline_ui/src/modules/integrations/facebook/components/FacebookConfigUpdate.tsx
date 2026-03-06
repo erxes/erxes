@@ -7,6 +7,7 @@ import {
   Skeleton,
   Spinner,
   Textarea,
+  toast,
   useConfirm,
 } from 'erxes-ui';
 import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
@@ -80,6 +81,12 @@ export const FacebookConfigUpdate = () => {
       updateConfigs({
         variables: {
           configsMap: data,
+        },
+        onCompleted: () => {
+          toast({
+            title: 'Facebook configs updated successfully',
+            variant: 'success',
+          });
         },
       });
     });

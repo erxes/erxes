@@ -3,8 +3,8 @@ import { updateLiveRemainders } from './utils';
 import { checkPermission } from 'erxes-api-shared/core-modules';
 
 export interface IUpdateRemaindersParams {
-  departmentId?: string;
-  branchId?: string;
+  departmentId: string;
+  branchId: string;
   productCategoryId?: string;
   productIds?: string[];
 }
@@ -13,9 +13,9 @@ const remainderMutations = {
   remaindersUpdate: async (
     _root: any,
     params: IUpdateRemaindersParams,
-    { subdomain }: IContext,
+    { subdomain, models }: IContext,
   ) => {
-    return updateLiveRemainders({ subdomain, ...params });
+    return await updateLiveRemainders({ subdomain, models, ...params });
   },
 };
 
