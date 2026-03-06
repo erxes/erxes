@@ -61,9 +61,21 @@ export const webBuilderMutations: Record<string, Resolver> = {
   async cpEditWeb(
     _root,
     { _id, doc }: { _id: string; doc: IWeb },
-    { models }: IContext,
+    { models, clientPortal }: IContext,
   ) {
-    return models.Web.updateWeb(_id, doc);
+    const web = await models.Web.findOne({
+      _id,
+      clientPortalId: clientPortal?._id,
+    });
+
+    if (!web) throw new Error('Web not found');
+
+    const { clientPortalId: _ignoredClientPortalId, ...restDoc } = doc;
+
+    return models.Web.updateWeb(_id, {
+      ...restDoc,
+      clientPortalId: clientPortal?._id,
+    });
   },
 
   async cpRemoveWeb(
@@ -108,9 +120,12 @@ export const webBuilderMutations: Record<string, Resolver> = {
   async cpAddDomain(
     _root,
     { _id, domain }: { _id: string; domain: string },
-    { models }: IContext,
+    { models, clientPortal }: IContext,
   ) {
-    const web = await models.Web.findOne({ _id });
+    const web = await models.Web.findOne({
+      _id,
+      clientPortalId: clientPortal?._id,
+    });
     if (!web) throw new Error('Web not found');
     if (!web.projectId) throw new Error('No project found for this web');
     return addDomain(web.projectId, domain);
@@ -119,9 +134,12 @@ export const webBuilderMutations: Record<string, Resolver> = {
   async cpRemoveProject(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, clientPortal }: IContext,
   ) {
-    const web = await models.Web.findOne({ _id });
+    const web = await models.Web.findOne({
+      _id,
+      clientPortalId: clientPortal?._id,
+    });
     if (!web) throw new Error('Web not found');
     if (!web.projectId) throw new Error('No project found for this web');
     return removeProject(web.projectId);

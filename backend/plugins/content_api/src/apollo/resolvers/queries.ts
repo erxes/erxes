@@ -17,4 +17,5 @@ export const queries = {
   ...contentCmsPageQueries,
   ...customPostTypeQueries,
   ...webPageQueries,
+  ...contentCmsQueries,
 };
