@@ -52,7 +52,6 @@ export const inputs = `
 
   input WebPageInput {
     webId: String
-    clientPortalId: String
     name: String
     description: String
     coverImage: String
