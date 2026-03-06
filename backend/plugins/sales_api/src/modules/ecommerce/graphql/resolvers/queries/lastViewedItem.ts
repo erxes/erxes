@@ -33,8 +33,8 @@ export const lastViewedItemQueries = {
     const productIdsSet = new Set(Object.keys(productsById));
 
     return items
-      .filter(i => productIdsSet.has(i.productId))
-      .map(i => ({ ...i, product: productsById[i.productId] }));
-  }
+      .filter((i) => productIdsSet.has(i.productId))
+      .map((i) => ({ ...i, product: productsById[i.productId] }));
+  },
 };
 export default lastViewedItemQueries;

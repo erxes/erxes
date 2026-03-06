@@ -20,8 +20,7 @@ export const productReviewQueries = {
     }
 
     const average =
-      reviews.reduce((sum, cur) => sum + (cur.review || 0), 0) /
-      reviews.length;
+      reviews.reduce((sum, cur) => sum + (cur.review || 0), 0) / reviews.length;
 
     return {
       productId,
