@@ -7,8 +7,6 @@ import contentCmsPageQueries from '@/cms/graphql/queries/page';
 import customPostTypeQueries from '@/cms/graphql/queries/customPostType';
 import { webQueries } from '~/modules/webbuilder/graphql/resolvers/queries/web';
 import { webPageQueries } from '~/modules/webbuilder/graphql/resolvers/queries/webPage';
-import { webPostQueries } from '~/modules/webbuilder/graphql/resolvers/queries/webPosts';
-import { webMenuQueries } from '~/modules/webbuilder/graphql/resolvers/queries/webMenu';
 
 export const queries = {
   ...webQueries,
@@ -18,7 +16,5 @@ export const queries = {
   ...contentCmsMenuQueries,
   ...contentCmsPageQueries,
   ...customPostTypeQueries,
-  ...webPostQueries,
-  ...webMenuQueries,
   ...webPageQueries,
 };

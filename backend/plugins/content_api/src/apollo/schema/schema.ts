@@ -60,19 +60,6 @@ import {
   types as webPageTypes,
 } from '@/webbuilder/graphql/schemas/webPage';
 
-import {
-  inputs as webPostInputs,
-  mutations as webPostMutations,
-  queries as webPostQueries,
-  types as webPostTypes,
-} from '@/webbuilder/graphql/schemas/webPosts';
-
-import {
-  inputs as webMenuInputs,
-  mutations as webMenuMutations,
-  queries as webMenuQueries,
-  types as webMenuTypes,
-} from '@/webbuilder/graphql/schemas/webMenu';
 
 export const types = `
 
@@ -100,10 +87,6 @@ export const types = `
     ${webInputs}
     ${webPageTypes}
     ${webPageInputs}
-    ${webPostTypes}
-    ${webPostInputs}
-    ${webMenuTypes}
-    ${webMenuInputs}
     ${cmsTypes}
     ${cmsInputs}
     ${postTypes}
@@ -123,8 +106,6 @@ export const types = `
 export const queries = `
     ${webQueries}
     ${webPageQueries}
-    ${webPostQueries}
-    ${webMenuQueries}
     ${cmsQueries}
     ${postQueries}
     ${customPostTypeQueries}
@@ -137,8 +118,6 @@ export const queries = `
 export const mutations = `
     ${webMutations}
     ${webPageMutations}
-    ${webPostMutations}
-    ${webMenuMutations}
     ${cmsMutations}
     ${postMutations}
     ${customPostTypeMutations}
