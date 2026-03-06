@@ -210,7 +210,7 @@ export const deploy = async (
       ERXES_API_URL: `${domain}/graphql`,
       ERXES_URL: domain,
       ERXES_FILE_URL: `${domain}/read-file?key=`,
-      ERXES_CP_ID: web.clientPortalId,
+      ERXES_CP_ID: web.clientPortalId || '',
       ERXES_APP_TOKEN: web.erxesAppToken,
     };
 

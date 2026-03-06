@@ -7,8 +7,8 @@ export const types = `
     type: String
     content: String
     order: Int
-    objectType: String
-    objectId: String
+    contentType: String
+    contentId: String
     config: JSON
   }
 

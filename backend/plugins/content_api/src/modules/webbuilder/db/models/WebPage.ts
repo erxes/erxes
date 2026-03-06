@@ -2,8 +2,8 @@ import { Model } from 'mongoose';
 import slugify from 'slugify';
 
 import { generateUniqueSlug } from '@/cms/utils/common';
-import { IWebPage, IWebPageDocument } from '@/webbuilder/@types/page';
-import { webPageSchema } from '@/webbuilder/db/definitions/page';
+import { IWebPage, IWebPageDocument } from '@/webbuilder/@types/webPage';
+import { webPageSchema } from '@/webbuilder/db/definitions/webPage';
 import { IModels } from '~/connectionResolvers';
 
 export interface IWebPageModel extends Model<IWebPageDocument> {

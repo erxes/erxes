@@ -40,6 +40,20 @@ const mutations: Record<string, Resolver> = {
     return invoice;
   },
 
+  async cpInvoiceCreate(
+    _root,
+    { input }: { input: IInvoice },
+    { models, subdomain }: IContext
+  ) {
+    const invoice = await models.Invoices.createInvoice(
+      {
+        ...input,
+      },
+      subdomain
+    );
+    return invoice;
+  },
+
   async invoicesCheck(
     _root,
     { _id }: { _id: string },
@@ -126,3 +140,8 @@ mutations.invoiceCreate.wrapperConfig = {
 mutations.invoicesCheck.wrapperConfig = {
   skipPermission: true,
 };
+
+mutations.cpInvoiceCreate.wrapperConfig={
+  skipPermission:true,
+  forClientPortal:true,
+}

@@ -5,7 +5,7 @@ import {
   deploy,
   addDomain,
   removeProject,
-} from '@/webbuilder/utils';
+} from '~/modules/webbuilder/utils/utils';
 
 export const webBuilderMutations: Record<string, Resolver> = {
   async createWeb(
