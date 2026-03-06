@@ -13,10 +13,9 @@ import {
   SelectMember as SelectMemberRaw,
   SelectCompany as SelectCompanyRaw,
   SelectProduct as SelectProductRaw,
+  SelectBoard,
 } from 'ui-modules';
-
 import { SelectSegment as SelectSegmentRaw } from 'ui-modules/modules/segments/components/SelectSegment';
-import { SelectBoard } from '~/modules/deals/boards/components/SelectBoards';
 import {
   ENTITY,
   GOAL_TYPE,
