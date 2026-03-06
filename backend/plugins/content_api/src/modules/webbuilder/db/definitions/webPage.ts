@@ -2,7 +2,7 @@ import { customFieldSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import mongoose, { Schema } from 'mongoose';
 
-import { IWebPageDocument } from '@/webbuilder/@types/page';
+import { IWebPageDocument } from '@/webbuilder/@types/webPage';
 
 export const webPageSchema = new mongoose.Schema<IWebPageDocument>(
   {
