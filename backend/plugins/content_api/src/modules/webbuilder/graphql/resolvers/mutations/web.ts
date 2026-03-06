@@ -77,12 +77,19 @@ export const webBuilderMutations: Record<string, Resolver> = {
   async cpDeployWeb(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, clientPortal }: IContext,
   ) {
     try {
       const web = await models.Web.findOne({ _id });
       if (!web) throw new Error('Web not found');
+
+      if(!web.erxesAppToken && clientPortal?.token){
+        web.erxesAppToken = clientPortal.token;
+      }
+
       const result = await deploy(subdomain, web, models);
+
+      
       await models.Web.findOneAndUpdate(
         { _id },
         { $set: {
