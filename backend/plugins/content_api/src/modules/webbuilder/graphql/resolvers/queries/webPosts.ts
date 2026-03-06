@@ -1,5 +1,5 @@
 import { BaseQueryResolver, FIELD_MAPPINGS } from '~/modules/webbuilder/utils/base-resolvers';
-import { getWebQueryBuilder } from '@/webbuilder/query-builders';
+import { getWebQueryBuilder } from '@/webbuilder/utils/query-builders';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 
