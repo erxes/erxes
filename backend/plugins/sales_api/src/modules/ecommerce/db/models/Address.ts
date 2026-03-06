@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { addressSchema } from '../definitions/address';
-import {   IAddress, IAddressDocument } from '~/modules/ecommerce/@types/address'
+import { IAddress, IAddressDocument } from '~/modules/ecommerce/@types/address';
 
 export interface IAddressModel extends Model<IAddressDocument> {
   getAddressById(_id: string): Promise<IAddressDocument>;

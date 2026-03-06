@@ -4,11 +4,7 @@ import { IProductReviewDocument } from '~/modules/ecommerce/@types/productReview
 import { IWishlistDocument } from './@types/wishlist';
 import { ILastViewedItemDocument } from './@types/lastViewedItem';
 import { IAddressDocument } from './@types/address';
-import { 
-  fetchProducts, 
-  fetchCustomers, 
-  getProductCategories 
-} from './utils';
+import { fetchProducts, fetchCustomers, getProductCategories } from './utils';
 
 // Define interfaces inline since there's no separate interfaces.ts file
 interface IProduct {
@@ -42,7 +38,11 @@ interface IProductCategory {
 type OperationResultSuccess = {
   type: string;
   success: true;
-  data: IWishlistDocument | IProductReviewDocument | ILastViewedItemDocument | IAddressDocument;
+  data:
+    | IWishlistDocument
+    | IProductReviewDocument
+    | ILastViewedItemDocument
+    | IAddressDocument;
 };
 
 type OperationResultError = {
@@ -68,7 +68,7 @@ export const getProductDetails = async (
   let categories: IProductCategory[] = [];
   if (includeCategories && products.length) {
     const categoryIds = products
-      .map(p => p.categoryId)
+      .map((p) => p.categoryId)
       .filter((value): value is string => Boolean(value))
       .filter((value, index, self) => self.indexOf(value) === index);
 
@@ -101,51 +101,63 @@ export const getCustomerSummary = async (
   const data: any = {};
 
   // Get product reviews by customer
-  const productReviews = await models.ProductReview.find({ customerId: { $eq: customerId } }).lean();
+  const productReviews = await models.ProductReview.find({
+    customerId: { $eq: customerId },
+  }).lean();
   data.productReviews = productReviews;
 
   // Calculate review statistics
   if (productReviews.length) {
     data.reviewStats = {
       totalReviews: productReviews.length,
-      averageRating: 
-        productReviews.reduce((sum, cur) => sum + (cur.review || 0), 0) / 
+      averageRating:
+        productReviews.reduce((sum, cur) => sum + (cur.review || 0), 0) /
         productReviews.length,
       ratingDistribution: {
-        1: productReviews.filter(r => r.review === 1).length,
-        2: productReviews.filter(r => r.review === 2).length,
-        3: productReviews.filter(r => r.review === 3).length,
-        4: productReviews.filter(r => r.review === 4).length,
-        5: productReviews.filter(r => r.review === 5).length,
+        1: productReviews.filter((r) => r.review === 1).length,
+        2: productReviews.filter((r) => r.review === 2).length,
+        3: productReviews.filter((r) => r.review === 3).length,
+        4: productReviews.filter((r) => r.review === 4).length,
+        5: productReviews.filter((r) => r.review === 5).length,
       },
     };
   }
 
   // Get wishlist items
-  const wishlistItems = await models.Wishlist.find({ customerId: { $eq: customerId } }).lean();
+  const wishlistItems = await models.Wishlist.find({
+    customerId: { $eq: customerId },
+  }).lean();
   data.wishlistItems = wishlistItems;
 
   // Get last viewed items
-  const lastViewedItems = await models.LastViewedItem.find({ customerId: { $eq: customerId } })
+  const lastViewedItems = await models.LastViewedItem.find({
+    customerId: { $eq: customerId },
+  })
     .sort({ modifiedAt: -1 })
     .limit(20)
     .lean();
   data.lastViewedItems = lastViewedItems;
 
   // Get addresses
-  const addresses = await models.Address.find({ customerId: { $eq: customerId } }).lean();
+  const addresses = await models.Address.find({
+    customerId: { $eq: customerId },
+  }).lean();
   data.addresses = addresses;
 
   // Extract product IDs for fetching details
   const allProductIds = [
-    ...productReviews.map(r => r.productId),
-    ...wishlistItems.map(w => w.productId),
-    ...lastViewedItems.map(l => l.productId),
+    ...productReviews.map((r) => r.productId),
+    ...wishlistItems.map((w) => w.productId),
+    ...lastViewedItems.map((l) => l.productId),
   ].filter((value, index, self) => self.indexOf(value) === index);
 
   // Fetch product details
   if (allProductIds.length) {
-    const { products } = await getProductDetails(subdomain, allProductIds, false);
+    const { products } = await getProductDetails(
+      subdomain,
+      allProductIds,
+      false,
+    );
     data.products = products;
   }
 
@@ -161,22 +173,24 @@ export const getProductSummary = async (
   const data: any = { productId };
 
   // Get product reviews
-  const productReviews = await models.ProductReview.find({ productId: { $eq: productId } }).lean();
+  const productReviews = await models.ProductReview.find({
+    productId: { $eq: productId },
+  }).lean();
   data.productReviews = productReviews;
 
   // Calculate review statistics
   if (productReviews.length) {
     data.reviewStats = {
       totalReviews: productReviews.length,
-      averageRating: 
-        productReviews.reduce((sum, cur) => sum + (cur.review || 0), 0) / 
+      averageRating:
+        productReviews.reduce((sum, cur) => sum + (cur.review || 0), 0) /
         productReviews.length,
       ratingDistribution: {
-        1: productReviews.filter(r => r.review === 1).length,
-        2: productReviews.filter(r => r.review === 2).length,
-        3: productReviews.filter(r => r.review === 3).length,
-        4: productReviews.filter(r => r.review === 4).length,
-        5: productReviews.filter(r => r.review === 5).length,
+        1: productReviews.filter((r) => r.review === 1).length,
+        2: productReviews.filter((r) => r.review === 2).length,
+        3: productReviews.filter((r) => r.review === 3).length,
+        4: productReviews.filter((r) => r.review === 4).length,
+        5: productReviews.filter((r) => r.review === 5).length,
       },
     };
   } else {
@@ -188,15 +202,19 @@ export const getProductSummary = async (
   }
 
   // Get wishlist count for this product
-  const wishlistCount = await models.Wishlist.countDocuments({ productId: { $eq: productId } });
+  const wishlistCount = await models.Wishlist.countDocuments({
+    productId: { $eq: productId },
+  });
   data.wishlistCount = wishlistCount;
 
   // Get last viewed count for this product
-  const lastViewedCount = await models.LastViewedItem.countDocuments({ productId: { $eq: productId } });
+  const lastViewedCount = await models.LastViewedItem.countDocuments({
+    productId: { $eq: productId },
+  });
   data.lastViewedCount = lastViewedCount;
 
   // Get customer IDs for reviewers and fetch their details
-  const reviewerIds = productReviews.map(r => r.customerId).filter(Boolean);
+  const reviewerIds = productReviews.map((r) => r.customerId).filter(Boolean);
   if (reviewerIds.length) {
     const reviewers = await getCustomerDetails(subdomain, reviewerIds);
     data.reviewers = reviewers;
@@ -210,23 +228,23 @@ export const ecommerceInit = async (req: any, res: any) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
+
     const { customerId } = req.query;
-    
+
     if (!customerId) {
       return res.status(400).send({ error: 'Customer ID is required' });
     }
 
     const data = await getCustomerSummary(subdomain, models, customerId);
-    
+
     return res.send({
       status: 'success',
       data,
     });
   } catch (error: any) {
-    return res.status(500).send({ 
-      status: 'error', 
-      errorMessage: error.message 
+    return res.status(500).send({
+      status: 'error',
+      errorMessage: error.message,
     });
   }
 };
@@ -236,23 +254,23 @@ export const ecommerceProductSummary = async (req: any, res: any) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
+
     const { productId } = req.query;
-    
+
     if (!productId) {
       return res.status(400).send({ error: 'Product ID is required' });
     }
 
     const data = await getProductSummary(subdomain, models, productId);
-    
+
     return res.send({
       status: 'success',
       data,
     });
   } catch (error: any) {
-    return res.status(500).send({ 
-      status: 'error', 
-      errorMessage: error.message 
+    return res.status(500).send({
+      status: 'error',
+      errorMessage: error.message,
     });
   }
 };
@@ -262,9 +280,9 @@ export const ecommerceLastViewed = async (req: any, res: any) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
+
     const { customerId, limit = 10 } = req.query;
-    
+
     if (!customerId) {
       return res.status(400).send({ error: 'Customer ID is required' });
     }
@@ -274,21 +292,21 @@ export const ecommerceLastViewed = async (req: any, res: any) => {
       .limit(parseInt(limit as string))
       .lean();
 
-    const productIds = lastViewedItems.map(item => item.productId);
-    
+    const productIds = lastViewedItems.map((item) => item.productId);
+
     let products: IProduct[] = [];
     if (productIds.length) {
       const { products: productDetails } = await getProductDetails(
-        subdomain, 
-        productIds, 
-        true
+        subdomain,
+        productIds,
+        true,
       );
       products = productDetails;
     }
 
-    const itemsWithProducts = lastViewedItems.map(item => ({
+    const itemsWithProducts = lastViewedItems.map((item) => ({
       ...item,
-      product: products.find(p => p._id === item.productId) || null,
+      product: products.find((p) => p._id === item.productId) || null,
     }));
 
     return res.send({
@@ -296,9 +314,9 @@ export const ecommerceLastViewed = async (req: any, res: any) => {
       data: itemsWithProducts,
     });
   } catch (error: any) {
-    return res.status(500).send({ 
-      status: 'error', 
-      errorMessage: error.message 
+    return res.status(500).send({
+      status: 'error',
+      errorMessage: error.message,
     });
   }
 };
@@ -308,30 +326,30 @@ export const ecommerceWishlist = async (req: any, res: any) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
+
     const { customerId } = req.query;
-    
+
     if (!customerId) {
       return res.status(400).send({ error: 'Customer ID is required' });
     }
 
     const wishlistItems = await models.Wishlist.find({ customerId }).lean();
-    
-    const productIds = wishlistItems.map(item => item.productId);
-    
+
+    const productIds = wishlistItems.map((item) => item.productId);
+
     let products: IProduct[] = [];
     if (productIds.length) {
       const { products: productDetails } = await getProductDetails(
-        subdomain, 
-        productIds, 
-        true
+        subdomain,
+        productIds,
+        true,
       );
       products = productDetails;
     }
 
-    const itemsWithProducts = wishlistItems.map(item => ({
+    const itemsWithProducts = wishlistItems.map((item) => ({
       ...item,
-      product: products.find(p => p._id === item.productId) || null,
+      product: products.find((p) => p._id === item.productId) || null,
     }));
 
     return res.send({
@@ -339,9 +357,9 @@ export const ecommerceWishlist = async (req: any, res: any) => {
       data: itemsWithProducts,
     });
   } catch (error: any) {
-    return res.status(500).send({ 
-      status: 'error', 
-      errorMessage: error.message 
+    return res.status(500).send({
+      status: 'error',
+      errorMessage: error.message,
     });
   }
 };
@@ -351,9 +369,9 @@ export const ecommerceAddresses = async (req: any, res: any) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
+
     const { customerId } = req.query;
-    
+
     if (!customerId) {
       return res.status(400).send({ error: 'Customer ID is required' });
     }
@@ -365,9 +383,9 @@ export const ecommerceAddresses = async (req: any, res: any) => {
       data: addresses,
     });
   } catch (error: any) {
-    return res.status(500).send({ 
-      status: 'error', 
-      errorMessage: error.message 
+    return res.status(500).send({
+      status: 'error',
+      errorMessage: error.message,
     });
   }
 };
@@ -377,9 +395,9 @@ export const ecommerceProductReviews = async (req: any, res: any) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
+
     const { productId, limit = 20, skip = 0, sort = '-createdAt' } = req.query;
-    
+
     if (!productId) {
       return res.status(400).send({ error: 'Product ID is required' });
     }
@@ -390,22 +408,27 @@ export const ecommerceProductReviews = async (req: any, res: any) => {
       .limit(parseInt(limit as string))
       .lean();
 
-    const customerIds = reviews.map(review => review.customerId).filter(Boolean);
-    
+    const customerIds = reviews
+      .map((review) => review.customerId)
+      .filter(Boolean);
+
     let customers: ICustomer[] = [];
     if (customerIds.length) {
       customers = await getCustomerDetails(subdomain, customerIds);
     }
 
-    const reviewsWithCustomers = reviews.map(review => ({
+    const reviewsWithCustomers = reviews.map((review) => ({
       ...review,
-      customer: customers.find(c => c._id === review.customerId) || null,
+      customer: customers.find((c) => c._id === review.customerId) || null,
     }));
 
     // Calculate summary
-    const totalReviews = await models.ProductReview.countDocuments({ productId });
+    const totalReviews = await models.ProductReview.countDocuments({
+      productId,
+    });
     const averageRating = reviews.length
-      ? reviews.reduce((sum, cur) => sum + (cur.review || 0), 0) / reviews.length
+      ? reviews.reduce((sum, cur) => sum + (cur.review || 0), 0) /
+        reviews.length
       : 0;
 
     return res.send({
@@ -420,9 +443,9 @@ export const ecommerceProductReviews = async (req: any, res: any) => {
       },
     });
   } catch (error: any) {
-    return res.status(500).send({ 
-      status: 'error', 
-      errorMessage: error.message 
+    return res.status(500).send({
+      status: 'error',
+      errorMessage: error.message,
     });
   }
 };
@@ -432,64 +455,65 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-    
+
     const { operations } = req.body;
-    
+
     if (!operations || !Array.isArray(operations)) {
       return res.status(400).send({ error: 'Operations array is required' });
     }
 
     const results: OperationResult[] = [];
-    
+
     for (const operation of operations) {
       const { type, data } = operation;
-      
+
       switch (type) {
         case 'addToWishlist':
           const { productId, customerId } = data;
           const wishlistItem = await models.Wishlist.createWishlist({
             productId,
-            customerId
+            customerId,
           });
-          results.push({ 
-            type, 
-            success: true, 
-            data: wishlistItem as IWishlistDocument 
+          results.push({
+            type,
+            success: true,
+            data: wishlistItem as IWishlistDocument,
           });
           break;
-          
+
         case 'addReview':
           const review = await models.ProductReview.createProductReview(data);
-          results.push({ 
-            type, 
-            success: true, 
-            data: review as IProductReviewDocument 
+          results.push({
+            type,
+            success: true,
+            data: review as IProductReviewDocument,
           });
           break;
-          
+
         case 'addLastViewed':
-          const lastViewed = await models.LastViewedItem.lastViewedItemAdd(data);
-          results.push({ 
-            type, 
-            success: true, 
-            data: lastViewed as ILastViewedItemDocument 
+          const lastViewed =
+            await models.LastViewedItem.lastViewedItemAdd(data);
+          results.push({
+            type,
+            success: true,
+            data: lastViewed as ILastViewedItemDocument,
           });
           break;
-          
+
         case 'addAddress':
           const address = await models.Address.createAddress(data);
-          results.push({ 
-            type, 
-            success: true, 
-            data: address as IAddressDocument 
+          results.push({
+            type,
+            success: true,
+            data: address as IAddressDocument,
           });
           break;
-          
+
         default:
-          results.push({ 
-            type, 
-            success: false, 
-            error: 'Invalid operation type' 
+          results.push({
+            type,
+            success: false,
+            error: 'Invalid operation type',
           });
       }
     }
@@ -499,9 +523,9 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
       data: results,
     });
   } catch (error: any) {
-    return res.status(500).send({ 
-      status: 'error', 
-      errorMessage: error.message 
+    return res.status(500).send({
+      status: 'error',
+      errorMessage: error.message,
     });
   }
 };

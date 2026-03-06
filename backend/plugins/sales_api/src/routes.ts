@@ -11,10 +11,10 @@ import {
 } from './modules/ecommerce/routes';
 
 export const router: Router = Router();
-router.get(`/pos-init`, posInit)
+router.get(`/pos-init`, posInit);
 // router.use(`/file-export`, exportFileRunner)
-router.post(`/api/unfetch-order-info`, unfetchOrderInfo)
-router.post(`/pos-sync-config`, posSyncConfig)
+router.post(`/api/unfetch-order-info`, unfetchOrderInfo);
+router.post(`/pos-sync-config`, posSyncConfig);
 
 //ecommerce routes
 router.get(`/ecommerce-init`, ecommerceInit);

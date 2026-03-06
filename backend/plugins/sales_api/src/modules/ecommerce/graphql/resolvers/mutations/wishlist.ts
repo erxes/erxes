@@ -9,7 +9,7 @@ export const wishlistMutations = {
     }
     const added = await Wishlist.createWishlist({
       productId,
-      customerId
+      customerId,
     });
     return added;
   },
@@ -17,7 +17,7 @@ export const wishlistMutations = {
     const { _id, productId, customerId } = params;
     const updated = await Wishlist.updateWishlist(_id, {
       productId,
-      customerId
+      customerId,
     });
     return updated;
   },
@@ -25,7 +25,7 @@ export const wishlistMutations = {
     const { _id } = params;
     const removed = await Wishlist.removeWishlist(_id);
     return removed;
-  }
+  },
 };
 
 export default wishlistMutations;
