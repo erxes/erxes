@@ -76,10 +76,8 @@ class MenuQueryResolver extends BaseQueryResolver {
     const { models, clientPortal } = context;
     const { language, kind } = args;
 
-    
     const query: any = {
       clientPortalId: clientPortal._id,
-      isActive: true,
     };
 
     if (kind) {
