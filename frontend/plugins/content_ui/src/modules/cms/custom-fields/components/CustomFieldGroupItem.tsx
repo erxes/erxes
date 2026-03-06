@@ -23,31 +23,38 @@ export function CustomFieldGroupItem({
   onDeleteField,
   onAddField,
 }: CustomFieldGroupItemProps) {
+  const fieldCount = group.fields?.length || 0;
+
   return (
     <Collapsible
       key={group._id}
-      className="group"
+      className="group border-b last:border-b-0"
       defaultOpen={selectedGroupId === group._id}
       onOpenChange={(open) => open && onSelectGroup(group)}
     >
-      <div className="relative">
+      <div className="relative px-1 py-1">
         <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start">
+          <Button variant="ghost" className="w-full justify-start h-10 pr-10">
             <Collapsible.TriggerIcon />
-            <span className="flex-1 text-left">{group.label}</span>
-            {group.code && (
-              <span className="text-xs text-muted-foreground mr-2">
-                {group.code}
-              </span>
-            )}
+            <span className="min-w-0 flex-1 flex items-center gap-3 text-left">
+              <span className="font-medium truncate">{group.label}</span>
+              {group.code && (
+                <span className="text-xs text-muted-foreground truncate">
+                  {group.code}
+                </span>
+              )}
+            </span>
+            <span className="w-40 text-center text-xs text-muted-foreground">{`${fieldCount} field${
+              fieldCount === 1 ? '' : 's'
+            }`}</span>
           </Button>
         </Collapsible.Trigger>
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
             <Button
-              variant="secondary"
+              variant="ghost"
               size="icon"
-              className="absolute right-0.5 top-0.5 size-7"
+              className="absolute right-1 top-1 size-8"
             >
               <IconDots className="w-4 h-4" />
             </Button>
@@ -68,14 +75,14 @@ export function CustomFieldGroupItem({
         </DropdownMenu>
       </div>
 
-      <Collapsible.Content className="pt-2">
-        <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
+      <Collapsible.Content className="pb-2">
+        <Table className="border-0 [&_tr_td]:border-r-0 [&_tr_td:first-child]:border-l-0 [&_tr:last-child_td]:border-b-0">
           <Table.Body>
-            {(group.fields || []).length === 0 ? (
+            {fieldCount === 0 ? (
               <Table.Row className="hover:bg-background">
                 <Table.Cell
                   colSpan={3}
-                  className="h-auto py-8 text-center text-muted-foreground"
+                  className="h-auto py-8 text-center text-muted-foreground border-b-0"
                 >
                   No fields in this group
                 </Table.Cell>
@@ -114,8 +121,8 @@ export function CustomFieldGroupItem({
                       </div>
                     </div>
                   </Table.Cell>
-                  <Table.Cell className="py-3">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-md">
+                  <Table.Cell className="py-3 text-center">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-sm">
                       <span className="text-sm font-medium capitalize">
                         {field.type}
                       </span>
@@ -152,9 +159,9 @@ export function CustomFieldGroupItem({
             )}
           </Table.Body>
         </Table>
-        <div className="flex items-center justify-end mt-2">
-          <Button variant="secondary" onClick={onAddField}>
-            <IconPlus className="w-4 h-4" />
+        <div className="flex items-center justify-end pt-2 px-2">
+          <Button variant="secondary" size="sm" onClick={onAddField}>
+            <IconPlus />
             Add field
           </Button>
         </div>

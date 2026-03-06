@@ -16,7 +16,6 @@ export function Page() {
   const [selectedPage, setSelectedPage] = useState<IPage | undefined>(
     undefined,
   );
-
   const { pages, totalCount, loading } = usePages({
     variables: {
       clientPortalId: websiteId || '',
