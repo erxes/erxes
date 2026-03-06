@@ -10,7 +10,9 @@ import {
   useQueryState,
 } from 'erxes-ui';
 
-export const TemplateCategoryMoreColumn = (props: CellContext<TemplateCategory, unknown>) => {
+export const TemplateCategoryMoreColumn = (
+  props: CellContext<TemplateCategory, unknown>,
+) => {
   const category = props.row.original;
 
   const [, setCategoryId] = useQueryState<string>('categoryId');
@@ -23,7 +25,7 @@ export const TemplateCategoryMoreColumn = (props: CellContext<TemplateCategory, 
 
   const handleDelete = () => {
     templateCategoryRemove({
-      variables: { _ids: [category._id] }
+      variables: { _ids: [category._id] },
     });
   };
 

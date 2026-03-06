@@ -150,8 +150,8 @@ export const TemplateCategoryForm = ({
             {addLoading || editLoading
               ? 'Saving...'
               : category
-              ? 'Update Category'
-              : 'Create Category'}
+                ? 'Update Category'
+                : 'Create Category'}
           </Button>
         </Sheet.Footer>
       </form>
