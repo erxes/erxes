@@ -9,12 +9,14 @@ export const webPageMutations: Record<string, Resolver> = {
   ): Promise<any> {
     const { models, clientPortal } = context;
     const { input } = args;
-  
+
     if (!input.webId) throw new Error('webId is required');
-  
+
+    const { clientPortalId: _ignoredClientPortalId, ...restInput } = input;
+
     return models.WebPages.createPage({
-      ...input,
-      clientPortalId: input.clientPortalId || clientPortal?._id,
+      ...restInput,
+      clientPortalId: clientPortal?._id,
     });
   },
 
@@ -25,9 +27,11 @@ export const webPageMutations: Record<string, Resolver> = {
   ): Promise<any> {
     const { _id, input } = args;
 
+    const { clientPortalId: _ignoredClientPortalId, ...restInput } = input;
+
     return models.WebPages.updatePage(_id, {
-      ...input,
-      clientPortalId: input.clientPortalId || clientPortal?._id,
+      ...restInput,
+      clientPortalId: clientPortal?._id,
     });
   },
 

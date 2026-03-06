@@ -146,7 +146,8 @@ export const deploy = async (
   if (!web.erxesAppToken) throw new Error('Erxes app token is required');
   if (!web.templateId) throw new Error('Template id is required');
 
-  const pages = await models.Pages.find({
+  const pages = await (models as any).WebPages.find({
+    webId: web._id,
     clientPortalId: web.clientPortalId,
   }).lean();
   console.log('pages found:', pages.length);
