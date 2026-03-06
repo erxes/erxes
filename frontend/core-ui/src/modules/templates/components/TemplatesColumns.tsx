@@ -41,7 +41,7 @@ export const templateColumns: ColumnDef<any>[] = [
       const contentType = (cell.getValue() || '') as string;
 
       const label =
-        templateTypes.find((type) => type.type === contentType)?.description ||
+        templateTypes.find((type) => type.type === contentType)?.label ||
         contentType;
 
       return (

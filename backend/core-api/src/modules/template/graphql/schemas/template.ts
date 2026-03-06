@@ -6,7 +6,7 @@ export const types = `
     name: String
     description: String
     contentType: String
-    content: String
+    content: JSON
 
     categoryIds: [String]
     categories: [TemplateCategory]
@@ -49,6 +49,8 @@ const mutationParams = `
   contentId: String,
   contentType: String,
   categoryIds: [String]
+
+  configs: JSON
 `;
 
 export const mutations = `

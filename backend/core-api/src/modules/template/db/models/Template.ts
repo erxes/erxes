@@ -2,8 +2,8 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { templates } from '~/meta/templates';
 import { ITemplate, ITemplateDocument } from '../../@types';
-import { getRelatedContents } from '../../utils';
 import { templateSchema } from '../definitions/template';
 
 export interface ITemplateModal extends Model<ITemplateDocument> {
@@ -42,33 +42,44 @@ export const loadTemplateClass = (models: IModels, subdomain: string) => {
 
       template.createdBy = user._id;
 
-      const [pluginName, moduleName] = template.contentType.split(':');
+      const [pluginName, moduleName, collectionName] = template.contentType.split(':');
 
       if (!pluginName || !moduleName) {
         throw new Error('Invalid content type format');
       }
 
-      const content = await sendTRPCMessage({
-        subdomain,
-        pluginName,
-        method: 'query',
-        module: moduleName,
-        action: 'template.getContent',
-        input: { contentId: template.contentId },
-        defaultValue: null,
-      });
+      try {
+        if (pluginName === 'core') {
+          const { modules } = templates || {};
 
-      if (!content) {
-        throw new Error(`This ${moduleName} doesn't have content`);
-      }
+          const content = await modules[moduleName][collectionName].getContent({ template, models }) || null;
 
-      template.content = content.content || content || '';
+          if (!content) {
+            throw new Error(`This ${moduleName} doesn't have content`);
+          }
 
-      const relatedContents =
-        (await getRelatedContents(template, subdomain)) || [];
+          template.content = content.content || content || {};
 
-      if (relatedContents.length) {
-        Object.assign(template, { relatedContents: relatedContents });
+          return models.Template.create(template);
+        }
+
+        const content = await sendTRPCMessage({
+          subdomain,
+          pluginName,
+          method: 'query',
+          module: moduleName,
+          action: 'template.getContent',
+          input: { contentId: template.contentId, collectionName },
+          defaultValue: null,
+        });
+
+        if (!content) {
+          throw new Error(`This ${moduleName} doesn't have content`);
+        }
+
+        template.content = content.content || content || {};
+      } catch (error) {
+        throw new Error(error);
       }
 
       return models.Template.create(template);

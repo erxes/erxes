@@ -1,8 +1,9 @@
+import { templateHandler as productTemplateHandler } from '@/products/meta/template';
+
 export const templates = {
-  types: [
-    {
-      description: 'Products',
-      type: 'products',
-    },
-  ],
+  plugin: 'core',
+  
+  modules: {
+    product: productTemplateHandler,
+  },
 };

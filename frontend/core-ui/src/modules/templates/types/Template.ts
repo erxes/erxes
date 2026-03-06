@@ -40,5 +40,6 @@ export type TemplateFilterState = {
 
 export type TemplateType = {
   type: string;
+  label: string;
   description: string;
 };

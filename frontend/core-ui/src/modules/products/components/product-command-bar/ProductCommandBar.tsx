@@ -41,14 +41,6 @@ export const ProductCommandBar = () => {
             .rows.map((row) => row.original)}
           contentType="core:product"
         />
-        <TemplateSheet
-          contentType="core:products"
-          contentId={
-            table
-              .getFilteredSelectedRowModel()
-              .rows.map((row) => row.original._id)[0]
-          }
-        />
       </CommandBar.Bar>
     </CommandBar>
   );

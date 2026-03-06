@@ -1,5 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { templates } from '~/meta/templates';
 import { ITemplate } from '../../@types';
 
 const templateMutations = {
@@ -36,10 +37,24 @@ const templateMutations = {
 
     const { contentType = '' } = template || {};
 
-    const [pluginName, moduleName] = contentType?.split(':');
+    const [pluginName, moduleName, collectionName] = contentType?.split(':');
 
     if (!pluginName || !moduleName) {
       throw new Error('Invalid template document');
+    }
+
+    if (pluginName === 'core') {
+      const { modules } = templates || {}
+
+      try {
+        return await modules[moduleName][collectionName].setContent({
+          template,
+          models,
+          user
+        }) || null;
+      } catch (error) {
+        throw new Error(error);
+      }
     }
 
     try {
@@ -48,7 +63,7 @@ const templateMutations = {
         pluginName,
         method: 'mutation',
         module: moduleName,
-        action: 'template.useTemplate',
+        action: 'template.setContent',
         input: {
           template,
           user,

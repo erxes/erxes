@@ -77,7 +77,7 @@ const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
   }
 
   const selectedTypes = values.map(
-    (value) => templateTypes.find((type) => type.type === value)?.description,
+    (value) => templateTypes.find((type) => type.type === value)?.label,
   );
 
   if (selectedTypes?.length > 2) {
@@ -120,7 +120,7 @@ const SelectProjectTypesCommandItem = ({ type }: { type: TemplateType }) => {
           onValueChange(newTypes);
         }}
       >
-        {type.description}
+        {type.label}
         <Combobox.Check checked={(values || [])?.includes(type.type)} />
       </Command.Item>
     </>

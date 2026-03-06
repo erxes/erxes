@@ -16,7 +16,7 @@ export const templateSchema = schemaWrapper(
       name: { type: String, required: true },
       description: { type: String },
       contentType: { type: String, required: true },
-      content: { type: String, required: true },
+      content: { type: Schema.Types.Mixed, required: true },
       relatedContents: { type: [relatedContent], default: [], optional: true },
 
       categoryIds: { type: [String], optional: true },

@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CategoriesDelete } from './delete/CategoryDelete';
 import { useState } from 'react';
+import { TemplateSheet } from 'ui-modules';
 
 export const CategoryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -33,6 +34,16 @@ export const CategoryCommandBar = () => {
           <IconPlus />
           Create
         </Button>
+
+        <Separator.Inline />
+        <TemplateSheet
+          contentType="core:product:productCategory"
+          contentId={
+            table
+              .getFilteredSelectedRowModel()
+              .rows.map((row) => row.original._id)[0]
+          }
+        />
       </CommandBar.Bar>
     </CommandBar>
   );

@@ -86,20 +86,24 @@ const categoryQueries = {
 
   templatesGetTypes: async () => {
     const plugins = await getPlugins();
-    const fieldTypes: Array<{ description: string; type: string }> = [];
+    const fieldTypes: Array<{ label: string; description: string; type: string }> = [];
 
     for (const plugin of plugins) {
       const service = await getPlugin(plugin);
-
       const meta = service?.config?.meta || {};
 
-      if (meta?.templates) {
-        const types = meta?.templates?.types || [];
+      const templates = meta?.templates;
 
-        for (const type of types) {
+      if (!templates?.modules) {
+        continue;
+      }
+
+      for (const [moduleName, handler] of Object.entries(templates.modules)) {
+        for (const [typeName, template] of Object.entries(handler as Record<string, any>)) {
           fieldTypes.push({
-            description: type.description,
-            type: `${plugin}:${type.type}`,
+            label: template.label || typeName,
+            description: template.description || typeName,
+            type: `${plugin}:${moduleName}:${typeName}`,
           });
         }
       }
