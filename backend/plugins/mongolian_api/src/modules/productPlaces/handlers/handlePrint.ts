@@ -29,7 +29,9 @@ export const handlePrint = async (
     }
   }
 
-  const departmentIds = productsData.map((pd) => pd.departmentId).filter(Boolean);
+  const departmentIds = productsData
+    .map((pd) => pd.departmentId)
+    .filter(Boolean);
   let departmentById: Record<string, any> = {};
   if (departmentIds.length) {
     const departments = await sendTRPCMessage({
@@ -59,7 +61,7 @@ export const handlePrint = async (
       number: deal.number,
       customerCode,
       customerName,
-      pDatas: productsData.map(fd => ({
+      pDatas: productsData.map((fd) => ({
         ...fd,
         product: productById[fd.productId],
       })),
@@ -70,9 +72,14 @@ export const handlePrint = async (
   } else {
     // Normal filtering by conditions – treat empty string in condition as match when product field is falsy
     for (const condition of printConfig.conditions) {
-      const filteredData = productsData.filter(pd => 
-        (condition.branchId === "" ? !pd.branchId : pd.branchId === condition.branchId) &&
-        (condition.departmentId === "" ? !pd.departmentId : pd.departmentId === condition.departmentId)
+      const filteredData = productsData.filter(
+        (pd) =>
+          (condition.branchId === ''
+            ? !pd.branchId
+            : pd.branchId === condition.branchId) &&
+          (condition.departmentId === ''
+            ? !pd.departmentId
+            : pd.departmentId === condition.departmentId),
       );
 
       if (!filteredData.length) continue;
@@ -81,7 +88,9 @@ export const handlePrint = async (
         branchId: condition.branchId || null,
         branch: condition.branchId ? branchById[condition.branchId] : null,
         departmentId: condition.departmentId || null,
-        department: condition.departmentId ? departmentById[condition.departmentId] : null,
+        department: condition.departmentId
+          ? departmentById[condition.departmentId]
+          : null,
         date: new Date(),
         name: deal.name,
         number: deal.number,
@@ -103,14 +112,17 @@ export const handlePrint = async (
     return;
   }
 
-  console.log('🔥 handlePrint: publishing subscription with content length', content.length);
+  console.log(
+    '🔥 handlePrint: publishing subscription with content length',
+    content.length,
+  );
 
   await graphqlPubsub.publish(`productPlacesResponded:${user._id}`, {
-  productPlacesResponded: {
-    userId: user._id,
-    responseId: deal._id,
-    sessionCode: user.sessionCode || '',
-    content: JSON.stringify(content),
-  },
-});
+    productPlacesResponded: {
+      userId: user._id,
+      responseId: deal._id,
+      sessionCode: user.sessionCode || '',
+      content: JSON.stringify(content),
+    },
+  });
 };

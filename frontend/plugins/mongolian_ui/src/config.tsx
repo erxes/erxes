@@ -14,12 +14,11 @@ const SettingsNavigation = lazy(() =>
   })),
 );
 
-
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
   path: 'mongolian',
   hasFloatingWidget: true,
-   settingsNavigation: () => (
+  settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <SettingsNavigation />
     </Suspense>
@@ -89,7 +88,6 @@ export const CONFIG: IUIConfig = {
       name: 'productplaces',
       icon: IconSandbox,
       path: 'mongolian/product-places',
-
     },
   ],
 };

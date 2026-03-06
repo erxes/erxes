@@ -44,7 +44,8 @@ export const ProductPlacesRespondedPage = () => {
 
       const printMainContent = Response(printContents.join(''));
 
-      const myWindow = window.open('__', '_blank', 'width=800, height=800') || ({} as Window);
+      const myWindow =
+        window.open('__', '_blank', 'width=800, height=800') || ({} as Window);
 
       if ('document' in myWindow && 'write' in myWindow.document) {
         myWindow.document.write(printMainContent);

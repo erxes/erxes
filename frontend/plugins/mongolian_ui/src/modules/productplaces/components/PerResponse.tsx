@@ -30,8 +30,8 @@ interface ResponseData {
   customerName?: string;
   pDatas?: Stock[];
   amount: string | number;
-  headerText?: string;   // added for custom header
-  footerText?: string;   // added for custom footer
+  headerText?: string; // added for custom header
+  footerText?: string; // added for custom footer
 }
 
 const getRows = (stocks: Stock[]): string => {
@@ -55,7 +55,10 @@ const getRows = (stocks: Stock[]): string => {
   return res;
 };
 
-export const PerResponse = (response: ResponseData, counter?: number): string => {
+export const PerResponse = (
+  response: ResponseData,
+  counter?: number,
+): string => {
   const showSplitter = Boolean(counter && counter > 0);
   const showNumber = Boolean(response.number);
   const showCustomer =
